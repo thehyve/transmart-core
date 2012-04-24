@@ -1,0 +1,32 @@
+<plugin name='rdc-rmodules' version='0.1' grailsVersion='1.3.7 &gt; *'>
+  <author>Sai Kumar Munikuntla</author>
+  <authorEmail>smunikuntla@recomdata.com</authorEmail>
+  <title>R Modules Plugin</title>
+  <description>\
+Brief description of the plugin.
+</description>
+  <documentation>http://grails.org/plugin/rmodules</documentation>
+  <resources>
+    <resource>BuildConfig</resource>
+    <resource>Config</resource>
+    <resource>DataSource</resource>
+    <resource>UrlMappings</resource>
+    <resource>com.recomdata.transmart.data.association.BoxPlotController</resource>
+    <resource>com.recomdata.transmart.data.association.DataAssociationController</resource>
+    <resource>com.recomdata.transmart.data.association.MarkerSelectionController</resource>
+    <resource>com.recomdata.transmart.data.association.PCAController</resource>
+    <resource>com.recomdata.transmart.data.association.RHClustController</resource>
+    <resource>com.recomdata.transmart.data.association.RHeatmapController</resource>
+    <resource>com.recomdata.transmart.data.association.RKMeansController</resource>
+    <resource>com.recomdata.transmart.data.association.RModulesController</resource>
+    <resource>com.recomdata.transmart.data.association.ScatterPlotController</resource>
+    <resource>com.recomdata.transmart.data.association.SurvivalAnalysisController</resource>
+    <resource>com.recomdata.transmart.data.association.TableWithFisherController</resource>
+    <resource>com.recomdata.transmart.data.association.pdf.PDFController</resource>
+    <resource>com.recomdata.transmart.data.association.RModulesOutputRenderService</resource>
+    <resource>com.recomdata.transmart.data.association.RModulesService</resource>
+    <resource>com.recomdata.transmart.data.association.asynchronous.RModulesJobService</resource>
+  </resources>
+  <dependencies />
+  <behavior />
+</plugin>

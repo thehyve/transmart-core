@@ -1,0 +1,131 @@
+###########################################################################
+# Copyright 2008-2012 Janssen Research & Development, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###########################################################################
+
+###########################################################################
+#Clustered Heatmap Loader
+###########################################################################
+
+KMeansHeatmap.loader <- function(
+input.filename,
+output.file ="Heatmap",
+clusters.number = 2,
+probes.aggregate = false
+)
+{
+	library(Cairo)
+	library(reshape2)
+	library(gplots)
+	
+	#Validate the number of clusters after converting to a numeric.
+	clusters.number <- as.numeric(clusters.number)	
+	
+	if(is.na(clusters.number)) stop("||FRIENDLY||The number of clusters supplied was invalid.")
+	
+	#Pull the GEX data from the file.
+	mRNAData <- data.frame(read.delim(input.filename))
+
+	#Trim the patient.id field.
+	mRNAData$PATIENT_NUM <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT_NUM)	
+	
+	#Trim the Gene/Probe field.
+	mRNAData$GROUP <- sub("^\\s+|\\s+$", "",mRNAData$GROUP)
+	
+	#Melt the data, leaving 3 columns as the grouping fields.
+	meltedData <- melt(mRNAData, id=c("GROUP","PATIENT_NUM"))
+
+	#Cast the data into a format that puts the ASSAY.ID in a column.
+	castedData <- data.frame(dcast(meltedData, GROUP ~ PATIENT_NUM))
+
+	#Set the name of the rows to be the names of the probes.
+	rownames(castedData) = castedData$GROUP
+	
+	#When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+	colnames(castedData) <- sub("^X","",colnames(castedData))	
+	
+	#Convert data to an integer matrix.
+	matrixData <- data.matrix(subset(castedData, select = -c(GROUP)))
+	
+	#Transpose the matrix to put the sample column into a row.
+	transposedMatrixData <- t(matrixData)
+	
+	#Create the kmeans object. We cluster by columns.
+	kMeansObject <- kmeans(transposedMatrixData,centers=clusters.number)
+	
+	#We want to merge the cluster names back into our data set.
+	dataWithCluster <- data.frame(transposedMatrixData,cluster=kMeansObject$cluster)
+	
+	#Order the data on the cluster column.
+	dataWithCluster <- dataWithCluster[order(dataWithCluster$cluster),]
+	
+	#Create a function that will help us decide which color to draw above the heatmap.
+	color.map <- function(clusterNumber) { if (clusterNumber %% 2 == 0 ) "#8B8989" else "#5C3317" }
+	
+	#Use the function to create a list with a color for each patient.
+	patientcolors <- unlist(lapply(dataWithCluster$cluster, color.map))
+	
+	#Remove the cluster column.
+	dataWithCluster <- subset(dataWithCluster, select = -c(cluster))	
+	
+	#Transpose the data back.
+	dataWithCluster <- t(dataWithCluster)
+	
+	#If we didn't aggregate the probes the rownames are probe IDs, which are usually numeric. Strip the X from them here.
+	rownames(dataWithCluster) <- sub("^X","",rownames(dataWithCluster))	
+	
+	#Push the data back to a matrix so we can plot it.
+	matrixData <- data.matrix(dataWithCluster)
+	
+	#We can't draw a heatmap for a matrix with only 1 row.
+	if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 row. Please check your variable selection and run again.")
+
+	#Prepare the package to capture the image file.
+	CairoPNG(file=paste(output.file,".png",sep=""),width=1200,height=800)	
+	
+	#Store the heatmap in a temp variable.
+	tmp <- heatmap(	matrixData,
+					Rowv=NA,
+					Colv=NA,col=redgreen(100),
+					ColSideColors=patientcolors,
+					margins=c(13,10),			
+					cexRow=1.5,
+					cexCol=1.5)		
+	
+	#Print the heatmap to an image
+	print (tmp)		
+	
+	dev.off()
+}
+
+ClusteredHeatmap.loader.single <- function(heatmapdata)
+{
+	#Convert data to an integer matrix.
+	matrixData <- data.matrix(subset(heatmapdata, select = -c(GROUP,kMeansObject.cluster)))
+
+	#Store the heatmap in a temp variable.
+	tmp <- heatmap(matrixData,Rowv=NA,Colv=NA,col=redgreen(100))		
+	
+	#Print the heatmap to an image
+	print (tmp)	
+	
+	#Set up a matrix of plots, 1 column, as long as the number of clusters.
+	par(mfrow=c(1,clusters.number))
+	
+	#For each of the clusters we draw a heatmap.
+	lapply(split(dataWithCluster, dataWithCluster$kMeansObject.cluster), ClusteredHeatmap.loader.single)
+	
+}
+
+

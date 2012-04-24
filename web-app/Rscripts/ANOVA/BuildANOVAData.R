@@ -1,0 +1,175 @@
+###########################################################################
+# Copyright 2008-2012 Janssen Research & Development, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###########################################################################
+
+###########################################################################
+#BuildANOVADataFile
+#Parse the i2b2 output file and create input files for an ANOVA box plot.
+###########################################################################
+
+ANOVAData.build <- 
+function
+(
+input.dataFile,
+output.dataFile="outputfile",
+concept.dependent,
+concept.independent,
+binning.enabled = FALSE,
+binning.bins = "",
+binning.type = "",
+binning.manual = FALSE,
+binning.binrangestring = "",
+binning.variabletype = "",
+binning.variable = "IND",
+flipimage = FALSE,
+input.gexFile = '',
+input.snpFile = '',
+concept.dependent.type = "CLINICAL",
+concept.independent.type = "CLINICAL",
+genes.dependent = '',
+genes.dependent.aggregate = FALSE,
+genes.independent = '',
+genes.independent.aggregate = FALSE,
+sample.dependent = '',
+sample.independent = '',
+time.dependent = '',
+time.independent = '',
+tissues.dependent = '',
+tissues.independent = '',
+snptype.dependent = '',
+snptype.independent = ''
+)
+{
+	print("-------------------")
+	print("BuildANOVAData.R")
+	print("BUILDING ANOVA DATA")
+	
+	#Read the input file.
+	dataFile <- data.frame(read.delim(input.dataFile));
+	
+	#Set the column names.
+	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")	
+
+	#Split the data by the CONCEPT_CD.
+	splitData <- split(dataFile,dataFile$CONCEPT_PATH);
+	
+	#Create a matrix with unique patient_nums.
+	finalData <- matrix(unique(dataFile$PATIENT_NUM));
+	
+	#Name the column.
+	colnames(finalData) <- c("PATIENT_NUM")
+	
+	##########################################
+	#Get a table of x/y value/Patient
+	fullconcept.indep <- FALSE
+	fullconcept.dep <- FALSE
+
+	if(binning.variable == "IND" && binning.manual == TRUE && binning.variabletype == "Categorical") fullconcept.indep <- TRUE
+	if(binning.variable == "DEP" && binning.manual == TRUE && binning.variabletype == "Categorical") fullconcept.dep <- TRUE	
+	
+	yValueMatrix <- dataBuilder(splitData,concept.dependent,concept.dependent.type,sample.dependent,time.dependent,tissues.dependent,input.gexFile,genes.dependent,genes.dependent.aggregate,input.snpFile,snptype.dependent,fullconcept.dep);
+	xValueMatrix <- dataBuilder(splitData,concept.independent,concept.independent.type,sample.independent,time.independent,tissues.independent,input.gexFile,genes.independent,genes.independent.aggregate,input.snpFile,snptype.independent,fullconcept.indep);
+	##########################################	
+
+	##########################################
+	#These are the columns we pull from the temp matrix.
+	xMatrixColumns <- c('PATIENT_NUM','VALUE')
+	yMatrixColumns <- c('PATIENT_NUM','VALUE')
+
+	#We reset the column names after merging.
+	xFinalColumns <- c('X')
+	yFinalColumns <- c('Y')
+	
+	#If the X matrix has a group column, reset the lists we use to make the columns here.
+	if("GROUP" %in% colnames(xValueMatrix)) 
+	{
+		xMatrixColumns <- c('PATIENT_NUM','VALUE','GROUP')
+		xFinalColumns <- c('X','GROUP')
+	}
+	
+	#If the Y matrix has a group column, reset the lists we use to make the columns here.
+	if("GROUP" %in% colnames(yValueMatrix)) 
+	{
+		yMatrixColumns <- c('PATIENT_NUM','VALUE','GROUP')
+		yFinalColumns <- c('Y','GROUP.1')
+	}
+
+	finalData<-merge(finalData,xValueMatrix[xMatrixColumns],by="PATIENT_NUM")
+	finalData<-merge(finalData,yValueMatrix[yMatrixColumns],by="PATIENT_NUM")
+	
+	#Create column names. 
+	colnames(finalData) <- c('PATIENT_NUM',xFinalColumns,yFinalColumns)	
+
+	#If we are flipping the image (Which means we the independent/depedent variables switch axises) then we just mask the x and y as each other here.
+	if(flipimage)
+	{
+		#Get the index of the X and Y columns.
+		indX <- which(names(finalData)=='X')
+		indY <- which(names(finalData)=='Y')
+		indGROUP <- which(names(finalData)=='GROUP')
+		indGROUP1 <- which(names(finalData)=='GROUP.1')
+		
+		#Switch the column names.
+		colnames(finalData)[indX] <- 'Y'
+		colnames(finalData)[indY] <- 'X'
+		if(length(indGROUP) > 0) colnames(finalData)[indGROUP] <- 'GROUP.1'
+		if(length(indGROUP1) > 0) colnames(finalData)[indGROUP1] <- 'GROUP'
+	}
+	##########################################
+	
+	##########################################
+	#Binning Code.
+	if(binning.enabled == TRUE)
+	{
+		#If we are flipping the axis.
+		if(binning.variable == "DEP")
+		{
+			continuous.concept <- concept.dependent
+		}
+		else
+		{
+			continuous.concept <- concept.independent
+		}
+
+		#If we are binning and we have a group column, we need to bin on a per group basis.
+		if(binning.variable == "DEP" && "GROUP" %in% colnames(xValueMatrix))
+		{
+			library(plyr)
+			finalData <- ddply(finalData, .(GROUP.1), .fun=BinningFunction,'X',binning.bins = binning.bins,binning.type = binning.type,binning.manual = binning.manual,binning.binrangestring = binning.binrangestring,binning.variabletype = binning.variabletype,continuous.concept = continuous.concept)
+		}
+		else if(binning.variable == "IND" && "GROUP" %in% colnames(yValueMatrix))
+		{
+			library(plyr)
+			finalData <- ddply(finalData, .(GROUP.1), .fun=BinningFunction,'X',binning.bins = binning.bins,binning.type = binning.type,binning.manual = binning.manual,binning.binrangestring = binning.binrangestring,binning.variabletype = binning.variabletype,continuous.concept = continuous.concept)
+		}		
+		else
+		{
+			#Call the function to do our binning.
+			finalData <- BinningFunction(finalData,'X',binning.bins = binning.bins,binning.type = binning.type,binning.manual = binning.manual,binning.binrangestring = binning.binrangestring,binning.variabletype = binning.variabletype,continuous.concept = continuous.concept)		
+		}
+	}
+	##########################################
+	
+	##########################################
+	#We need MASS to dump the matrix to a file.
+	require(MASS)
+
+	#Write the final data file.
+	write.matrix(finalData,output.dataFile,sep = "\t")
+	##########################################
+	
+	print("-------------------")
+
+}
