@@ -28,20 +28,29 @@
 
 <body>
 	<form>
-		<span class='AnalysisHeader'>Marker Selection - Heatmap</span><br />
-		<i>Click on the heatmap image to open it in a new window as this may increase readability.</i>
+	
 		<br />
-		<br />
+		<br />		
+		
+		<span class='AnalysisHeader'>All Cell Lines Dosage/Response Curve</span><br /><br />
+		
 		<g:each var="location" in="${imageLocations}">
-	    	<a onclick="window.open('${location}','_blank')"><img src='${location}'  width="600" height="600"/></a> <br />
+	    	<g:if test="${(location ==~ /.*DOSAGE\_ALL\.png.*/)}">
+	    		<img src='${location}'  width="600" height="600"/> <br />
+	    	</g:if>
+		</g:each>		
+		
+		<span class='AnalysisHeader'>Individual Dosage/Response Curves</span><br /><br />
+		
+		<g:each var="location" in="${imageLocations}">
+	    	<g:if test="${!(location ==~ /.*DOSAGE\_ALL\.png.*/)}">
+	    		<img src='${location}'  width="600" height="600"/> <br />
+	    	</g:if>
 		</g:each>
-		
+	
 		<br />
-		<span class='AnalysisHeader'>Table of top Markers</span><br /><br />
+		<br />	
 		
-		${markerSelectionTable}
-		
-		<br />
 		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
 		
 	</form>

@@ -102,7 +102,7 @@ ScatterPlot.loader <- function(
 	}
 	else if(concept.dependent.type == "MRNA")
 	{
-		yAxisDataTypeUnit <- "Gene Expression (zscore)";
+		yAxisDataTypeUnit <- "Gene Expression (normalized intensity)";
 		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")
 	}
 	else if(concept.dependent.type == "SNP")
@@ -125,7 +125,7 @@ ScatterPlot.loader <- function(
 	}
 	else if(concept.independent.type == "MRNA")
 	{
-		xAxisDataTypeUnit <- "Gene Expression (zscore)"
+		xAxisDataTypeUnit <- "Gene Expression (normalized intensity)"
 		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
 	}
 	else if(concept.independent.type == "SNP")
@@ -169,7 +169,7 @@ ScatterPlot.loader <- function(
 			tmp <- tmp + stat_smooth(method="lm", se=FALSE,size=1.25) 
 			tmp <- tmp + aes(colour = GROUP.1) 
 			tmp <- tmp + aes(shape = GROUP.1) 
-			tmp <- tmp + scale_shape_manual(value=1:20)
+			tmp <- tmp + scale_shape_manual(values=1:20)
 			tmp <- tmp + scale_colour_brewer("GROUP.1")
 			tmp <- tmp + scale_x_continuous(modifiedXAxisLabel) 
 			tmp <- tmp + scale_y_continuous(yAxisLabel)
@@ -192,7 +192,7 @@ ScatterPlot.loader <- function(
 		tmp <- tmp + stat_smooth(method="lm", se=FALSE,size=1.25) 
 		tmp <- tmp + aes(colour = GROUP) 
 		tmp <- tmp + aes(shape = GROUP) 
-		tmp <- tmp + scale_shape_manual(value=1:20)
+		tmp <- tmp + scale_shape_manual(values=1:20)
 		tmp <- tmp + scale_x_continuous(xAxisLabel) 
 		tmp <- tmp + scale_y_continuous(yAxisLabel)
 		

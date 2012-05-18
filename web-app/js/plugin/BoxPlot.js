@@ -14,7 +14,7 @@
 * limitations under the License.
 ******************************************************************/
 
-function submitBoxPlotJob(form){
+/*function submitBoxPlotJob(form){
 	var dependentVariableEle = Ext.get("divDependentVariable");
 	var independentVariableEle = Ext.get("divIndependentVariable");
 	
@@ -165,13 +165,14 @@ function updateManualBinning() {
 		}
 	}
 }
-
+*/
 
 
 /**
  * When we change the number of bins in the "Number of Bins" input, we have to
  * change the number of bins on the screen.
  */
+/*
 function manageBins(newNumberOfBins) {
 
 	// This is the row template for a continousBinningRow.
@@ -424,3 +425,4 @@ function loadBinningParametersBoxPlot(formParams)
 }
 
 
+*/

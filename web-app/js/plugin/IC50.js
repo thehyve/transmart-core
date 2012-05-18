@@ -20,19 +20,16 @@ function submitIC50Job(form){
 	var dosageVariableConceptCode 	= "";
 	var responseVariableConceptCode = "";
 	
-	cellLineVariableConceptCode 	= readConceptVariables("divCellLinesVariable");
-	dosageVariableConceptCode 		= readConceptVariables("divDosageVariable");
-	responseVariableConceptCode		= readConceptVariables("divResponseVariable");
+	cellLineVariableConceptCode 		= readConceptVariables("divCellLinesVariable");
+	concentrationVariableConceptCode 	= readConceptVariables("divConcentrationVariable");
 
 	var cellLineVariableEle 		= Ext.get("divCellLinesVariable");
-	var dosageVariableEle 			= Ext.get("divDosageVariable");
-	var responseVariableEle 		= Ext.get("divResponseVariable");
+	var concentrationVariableEle	= Ext.get("divConcentrationVariable");
 	
-	var variablesConceptCode = cellLineVariableConceptCode+"|"+dosageVariableConceptCode+"|"+responseVariableConceptCode;
+	var variablesConceptCode = cellLineVariableConceptCode+"|"+concentrationVariableConceptCode;
 	
-	var cellLineType = "CLINICAL"
-	var dosageType = "CLINICAL"
-	var responseType = "CLINICAL"
+	var cellLineType 		= "CLINICAL"
+	var concentrationType 	= "CLINICAL"
 	
 	//------------------------------------
 	//Validation
@@ -44,21 +41,14 @@ function submitIC50Job(form){
 		return;
 	}
 	
-	if(dosageVariableConceptCode == '')
+	if(concentrationVariableConceptCode == '')
 	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the Dosage variable box.');
+		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the Concentration variable box.');
 		return;
 	}	
-
-	if(responseVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the Response variable box.');
-		return;
-	}
 	
-	var cellNodeList = createNodeTypeArrayFromDiv(cellLineVariableEle,"setnodetype")
-	var dosageNodeList = createNodeTypeArrayFromDiv(dosageVariableEle,"setnodetype")
-	var responseNodeList = createNodeTypeArrayFromDiv(responseVariableEle,"setnodetype")
+	var cellNodeList 			= createNodeTypeArrayFromDiv(cellLineVariableEle,"setnodetype")
+	var concentrationNodeList 	= createNodeTypeArrayFromDiv(concentrationVariableEle,"setnodetype")
 	
 	//If the user dragged in multiple node types, throw an error.
 	if(cellNodeList.length > 1)
@@ -67,15 +57,9 @@ function submitIC50Job(form){
 		return;		
 	}			
 
-	if(dosageNodeList.length > 1)
+	if(concentrationNodeList.length > 1)
 	{
-		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Dosage input box has multiple types.');
-		return;		
-	}	
-
-	if(responseNodeList.length > 1)
-	{
-		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Response input box has multiple types.');
+		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Concentration input box has multiple types.');
 		return;		
 	}	
 	
@@ -115,10 +99,11 @@ function submitIC50Job(form){
 	
 	var formParams = {
 			cellLineVariable:						cellLineVariableConceptCode,
-			dosageVariable:							dosageVariableConceptCode,
-			responseVariable:						responseVariableConceptCode,
+			concentrationVariable:					concentrationVariableConceptCode,
 			variablesConceptPaths:					variablesConceptCode,
-			jobType:								'IC50'
+			jobType:								'IC50',
+			parentNodeList:							'concentrationVariable',
+			includeContexts:						'true'
 	};
 	
 	submitJob(formParams);
@@ -131,8 +116,7 @@ function submitIC50Job(form){
 function loadIc50View(){
 	registerIC50DragAndDrop();
 	clearHighDimDataSelections('divCellLinesVariable');
-	clearHighDimDataSelections('divDosageVariable');
-	clearHighDimDataSelections('divResponseVariable');
+	clearHighDimDataSelections('divConcentrationVariable');
 }
 
 /**
@@ -164,11 +148,7 @@ function registerIC50DragAndDrop()
 	dtgC.notifyDrop =  dropOntoCategorySelection;
 	
 	//Dosage input.
-	dtgD = new Ext.dd.DropTarget(Ext.get("divDosageVariable"),{ddGroup : 'makeQuery'});
+	dtgD = new Ext.dd.DropTarget(Ext.get("divConcentrationVariable"),{ddGroup : 'makeQuery'});
 	dtgD.notifyDrop =  dropOntoCategorySelection;
-	
-	//Response input.
-	dtgR = new Ext.dd.DropTarget(Ext.get("divResponseVariable"),{ddGroup : 'makeQuery'});
-	dtgR.notifyDrop =  dropOntoCategorySelection;	
 	
 }

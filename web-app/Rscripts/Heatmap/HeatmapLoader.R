@@ -21,7 +21,10 @@
 Heatmap.loader <- function(
 input.filename,
 output.file ="Heatmap",
-meltData = TRUE
+meltData = TRUE,
+imageWidth = 1200,
+imageHeight = 800,
+pointsize = 15
 )
 {
 
@@ -68,18 +71,21 @@ meltData = TRUE
 	mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))	
 	
 	#We can't draw a heatmap for a matrix with only 1 row.
-	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 row. Please check your variable selection and run again.")
+	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
+	if(ncol(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 	
 	#Prepare the package to capture the image file.
-	CairoPNG(file=paste(output.file,".png",sep=""),width=1200,height=800)
+	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+	
+	colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
 	
 	#Store the heatmap in a temp variable.
 	tmp <- heatmap(
 			mRNAData,
 			Rowv=NA,
 			Colv=NA,
-			col=redgreen(100),
-			margins=c(13,10),
+			col=colorPanelList,
+			margins=c(25,25),
 			cexRow=1.5,
 			cexCol=1.5
 			)

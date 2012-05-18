@@ -66,7 +66,7 @@ function submitKClustJob(form){
 		
 	var formParams = {
 			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,
+			variablesConceptPaths:					variablesConceptCode,		
 			jobType:								'RKClust',
 			txtClusters:							document.getElementById("txtClusters").value
 	};
@@ -74,6 +74,12 @@ function submitKClustJob(form){
 	
 	//Use a common function to load the High Dimensional Data params.
 	loadCommonHighDimFormObjects(formParams,"divIndependentVariable")	
+	loadCommonHeatmapImageAttributes(formParams);
+	
+	if(!validateCommonHeatmapImageAttributes(formParams))
+	{
+		return false;
+	}
 	
 	//------------------------------------
 	//More Validation

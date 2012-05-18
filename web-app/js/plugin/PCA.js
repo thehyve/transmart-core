@@ -42,12 +42,13 @@ function submitPCAJob(form){
 	{
 		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The PCA variable input box has multiple nodes.');
 		return;		
-	}				
+	}
+
 	//----------------------------------	
 	
 	var formParams = {
 			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,
+			variablesConceptPaths:					variablesConceptCode,			
 			jobType:								'PCA'
 	};
 	
