@@ -61,8 +61,10 @@
 					</select> 
 				</td>	
 			</tr>			
+		</table>
+		<table class="subsettable" style="margin: 10px;width:530px; border: 0px none; border-collapse: collapse;">
 			<tr>
-				<td>
+				<td align="center">
 					<input type="button" value="Run" onClick="submitCorrelationAnalysisJob(this.form);"></input>
 				</td>
 			</tr>
