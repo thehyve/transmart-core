@@ -42,7 +42,7 @@ function submitHeatmapJob(form){
 	{
 		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The heatmap variable input box has multiple nodes.');
 		return;		
-	}				
+	}		
 	//----------------------------------	
 	
 	var formParams = {
@@ -53,7 +53,13 @@ function submitHeatmapJob(form){
 	};
 	
 	//Use a common function to load the High Dimensional Data params.
-	loadCommonHighDimFormObjects(formParams,"divIndependentVariable")
+	loadCommonHighDimFormObjects(formParams,"divIndependentVariable");
+	loadCommonHeatmapImageAttributes(formParams);
+	
+	if(!validateCommonHeatmapImageAttributes(formParams))
+	{
+		return false;
+	}
 	
 	//------------------------------------
 	//More Validation

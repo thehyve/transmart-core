@@ -61,17 +61,24 @@ function submitMarkerSelectionJob(form){
 		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 1 into the "Number of markers" text box.');
 		return;			
 	}	
+		
 	//----------------------------------	
 	
 	var formParams = {
 			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,
+			variablesConceptPaths:					variablesConceptCode,			
 			jobType:								'MarkerSelection',
 			txtNumberOfMarkers:						document.getElementById("txtNumberOfMarkers").value
 	};
 	
 	//Use a common function to load the High Dimensional Data params.
 	loadCommonHighDimFormObjects(formParams,"divIndependentVariable")	
+	loadCommonHeatmapImageAttributes(formParams);
+	
+	if(!validateCommonHeatmapImageAttributes(formParams))
+	{
+		return false;
+	}
 	
 	//------------------------------------
 	//More Validation
@@ -88,6 +95,11 @@ function submitMarkerSelectionJob(form){
 		Ext.Msg.alert("Invalid selection", "The Marker Selection only supports GEX data at this time. Please drag a Gene Expression node into the Marker variable and click the 'High Dimensional Data' button.")
 		return false;
 	}	
+	//Make sure both subsets are selected
+	if((GLOBAL.CurrentSubsetIDs[1] == null) || (GLOBAL.CurrentSubsetIDs[2]== null)){
+		Ext.Msg.alert("Missing Input", "The Marker Selection requires 2 subsets of cohorts to be selected. Please use the Comparison Tab and select the cohorts")
+		return false;
+	}
 	//------------------------------------
 	
 	submitJob(formParams);

@@ -40,12 +40,17 @@ IC50Plot.loader <- function(
 	#Create the dose response curve object using the DRM function. The CELL_LINE parameter will create different curves for each group.
 	drcObject <- try(drm(RESPONSE ~ DOSAGE, CELL_LINE, data = doseResponse.data,  fct = LL.4(names = c("Slope", "Lower Limit", "Upper Limit", "ED50"))), TRUE)
 	
+	#If the creation of the drc object threw an error, throw a friendly error here.
+	if(inherits(drcObject, "try-error"))
+	{
+		stop(paste("||FRIENDLY|| There was an error building the Dose/Response curve (",drcObject[1],")."),sep="")	
+	}
+	
 	#This initializes our image capture object.
 	CairoPNG(file=paste("DOSAGE_ALL.png",sep=""), width=800, height=800,units = "px")	
 	
 	#Plot the Dose/Response curve.
-	plot(drcObject,type="bars")
-	plot(drcObject,type="all",add=TRUE)
+	plot(drcObject,type="all")
 	
 	#Apply a title to the graph.
 	title(paste("Dose/Response curve"))
@@ -67,16 +72,26 @@ dosageData
 	currentGroup <- unique(dosageData[['CELL_LINE']])
 	currentGroup <- gsub("^\\s+|\\s+$", "",currentGroup)
 	
+	#Make sure the data is ordered by the dosage, this means we can pull out the CV data and be sure it's in the correct order.
+	dosageData <- dosageData[order(dosageData$DOSAGE) , ]
+	
 	#Create the dose response curve object using the DRM function.
 	drcObject <- try(drm(RESPONSE ~ DOSAGE, data = dosageData,  fct = LL.4(names = c("Slope", "Lower Limit", "Upper Limit", "ED50"))), TRUE)
+	
+	#Get the values that will be used in the error bars.
+	conc <- dosageData$DOSAGE
+	POC <- dosageData$RESPONSE
+	cv <- dosageData$CV	
 	
 	#This initializes our image capture object.
 	CairoPNG(file=paste(currentGroup,"_DOSAGE.png",sep=""), width=800, height=800,units = "px")	
 
 	#Plot the Dose/Response curve.
-	plot(drcObject,type="bars")	
-	plot(drcObject,type="all",add=TRUE)
-	
+	plot(drcObject,ylim=c(0,120))	
+	segments(conc,POC-cv,conc,POC+cv)
+	segments(conc*0.9,POC+cv,conc*1.1,POC+cv)
+	segments(conc*0.9,POC-cv,conc*1.1,POC-cv)	
+
 	title(paste("Dose/Response curve for Cell Line : ",currentGroup,sep=""))
 	dev.off()
 }

@@ -21,156 +21,122 @@ function submitScatterPlotJob(form){
 	
 	dependentVariableConceptCode = readConceptVariables("divDependentVariable");
 	independentVariableConceptCode = readConceptVariables("divIndependentVariable");
-
-	var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
 	
-	/*
+	//------------------------------------
+	//Validation
+	//------------------------------------
 	//Make sure the user entered some items into the variable selection boxes.
-	if(dependentVariableConceptCode == '' || (dependentVariableEle.dom.childNodes.length != 1))
-		{
-			Ext.Msg.alert('Missing input!', 'Please drag one and only one concept into the dependent variable box.');
-			return;
-		}
+	if(dependentVariableConceptCode == '' && independentVariableConceptCode == '')
+	{
+		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable and dependent variable boxes.');
+		return;
+	}
+	if(dependentVariableConceptCode == '')
+	{
+		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the dependent variable box.');
+		return;
+	}
+	if(independentVariableConceptCode == '')
+	{
+		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable box.');
+		return;
+	}
 	
-	if(independentVariableConceptCode == '' || (independentVariableEle.dom.childNodes.length != 1))
-		{
-			Ext.Msg.alert('Missing input!', 'Please drag one and only one concept into the independent variable box.');
-			return;
-		}	
-	*/
+	//Loop through the dependent variable box and find the the of nodes in the box.
+	var dependentVariableEle = Ext.get("divDependentVariable");
+	var independentVariableEle = Ext.get("divIndependentVariable");
 	
-	var mrnaData = false
-	var snpData = false
+	var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
+	var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
 	
-	var fullGEXGeneList = "";
-	var fullSNPGeneList = "";
-	var fullSNPGPL 		= "";
-	var fullGEXGPL 		= "";
+	//The comment section contains trial:TRIALNAME so that we can validate to make sure all the nodes are from the same study.
+	var dependentNodeCommentList = createNodeTypeArrayFromDiv(dependentVariableEle,"conceptcomment")
+	var independentNodeCommentList = createNodeTypeArrayFromDiv(independentVariableEle,"conceptcomment")
 	
-	var dependentGeneList 	= window['divDependentVariablepathway'];
-	var dependentPlatform 	= window['divDependentVariableplatforms1'];
-	var dependentType 		= window['divDependentVariablemarkerType'];
-	var dependentGPL		= window['divDependentVariablegplValues'];
+	//If the user dragged in multiple node types, throw an error.
+	if(dependentNodeList.length > 1)
+	{
+		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Dependent input box has multiple types.');
+		return;		
+	}		
+
+	if(independentNodeList.length > 1)
+	{
+		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Independent input box has multiple types.');
+		return;		
+	}		
 	
-	var independentGeneList = window['divIndependentVariablepathway'];	
-	var independentType		= window['divIndependentVariablemarkerType'];
-	var independentPlatform = window['divIndependentVariableplatforms1'];
-	var independentGPL		= window['divIndependentVariablegplValues'];
+	//For the valueicon and hleaficon nodes, you can only put one in a given input box.
+	if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') && (dependentVariableConceptCode.indexOf("|") != -1))
+	{
+		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Dependent input box has multiple nodes.');
+		return;		
+	}		
+
+	if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1))
+	{
+		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Independent input box has multiple nodes.');
+		return;		
+	}		
 	
-	//This variable holds all the GPLs for the two subsets for each input box. We only ever have one subset per input box in the scatter plot currently. Take only the 0 indexed GPL ID.
-	if(dependentGPL) dependentGPL = dependentGPL[0];
-	if(independentGPL) independentGPL = independentGPL[0];
+	//Nodes will be either 'hleaficon' or 'valueicon'.
+	//Scatter plot requires 2 continuous variables.
+	var depVariableType = "";
+	var indVariableType = "";	
+	
+	//If there is a categorical variable in either box (This means either of the lists are empty)
+	if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
+	if(!independentNodeList[0] || independentNodeList[0] == "null") indVariableType = "CAT";	
+	
+	//If we have a value icon node, or a high dim that isn't SNP genotype, it is continuous.
+	if((dependentNodeList[0] == 'valueicon' || (dependentNodeList[0] == 'hleaficon' && !(window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')))) depVariableType = "CON";
+	if((independentNodeList[0] == 'valueicon' || (independentNodeList[0] == 'hleaficon' && !(window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')))) indVariableType = "CON";
+	
+	//If we don't have two continuous variables, throw an error.
+	if(!(depVariableType=="CON"))
+	{
+		Ext.Msg.alert('Wrong input', 'Scatter plot requires 2 continuous variables and the dependent variable is not continuous.');
+		return;		
+	}
+	
+	if(!(indVariableType=="CON"))
+	{
+		Ext.Msg.alert('Wrong input', 'Scatter plot requires 2 continuous variables and the independent variable is not continuous.');
+		return;		
+	}
+	
+	//------------------------------------	
 	
 	var logX = form.logX.checked;
-
-	//If we are using High Dimensional data we need to create variables that represent genes from both independent and dependent selections (In the event they are both of a single high dimensional type).
-	//Check to see if the user selected GEX in the independent input.
-	if(independentType == "Gene Expression")
-	{
-		//The genes entered into the search box were GEX genes.
-		fullGEXGeneList = independentGeneList;
-		fullGEXGPL = independentGPL;
-			
-		//This flag will tell us to write the GEX text file.
-		mrnaData = true;
-		
-		//Fix the platform to be something the R script expects.
-		independentType = "MRNA";
-	}
 	
-	if(dependentType == "Gene Expression")
-	{
-		//If the gene list already has items, add a comma.
-		if(fullGEXGeneList != "") 	fullGEXGeneList += ","
-		if(fullGEXGPL != "") 		fullGEXGPL += ","
-				
-		//Add the genes in the list to the full list of GEX genes.
-		fullGEXGeneList += dependentGeneList
-		fullGEXGPL += dependentGPL;
-		
-		//This flag will tell us to write the GEX text file.		
-		mrnaData = true;
-		
-		//Fix the platform to be something the R script expects.
-		dependentType = "MRNA";
-	}
-	
-	//Check to see if the user selected SNP in the independent input.
-	if(independentType == "SNP")
-	{
-		//The genes entered into the search box were SNP genes.
-		fullSNPGeneList = independentGeneList;
-		fullSNPGPL = independentGPL;
-		
-		//This flag will tell us to write the SNP text file.
-		snpData = true;
-	}
-	
-	if(dependentType == "SNP")
-	{
-		//If the gene list already has items, add a comma.
-		if(fullSNPGeneList != "") fullGEXGeneList += ","
-		if(fullSNPGPL != "") fullSNPGPL += ","
-		
-		//Add the genes in the list to the full list of SNP genes.
-		fullSNPGeneList += dependentGeneList
-		fullSNPGPL += dependentGPL;
-		
-		//This flag will tell us to write the SNP text file.		
-		snpData = true;
-	}	
-	
-	if((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA"))
-	{
-		Ext.Msg.alert("No Genes Selected!", "Please specify Genes in the Gene/Pathway Search box.")
-		return false;
-	}
-	
-	if((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP"))
-	{
-		Ext.Msg.alert("No Genes Selected!", "Please specify Genes in the Gene/Pathway Search box.")
-		return false;
-	}	
-		
-	//If we don't have a platform, fill in Clinical.
-	if(dependentPlatform == null || dependentPlatform == "") dependentType = "CLINICAL"
-	if(independentPlatform == null || independentPlatform == "") independentType = "CLINICAL"
+	var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
 	
 	var formParams = {
 			dependentVariable:						dependentVariableConceptCode,
 			independentVariable:					independentVariableConceptCode,
-			divDependentVariabletimepoints:			window['divDependentVariabletimepoints1'],
-			divDependentVariablesamples:			window['divDependentVariablesamples1'],
-			divDependentVariablerbmPanels:			window['divDependentVariablerbmPanels1'],
-			divDependentVariableplatforms:			dependentPlatform,
-			divDependentVariablegpls:				window['divDependentVariablegplsValue1'],
-			divDependentVariabletissues:			window['divDependentVariabletissues1'],
-			divDependentVariableprobesAggregation:	window['divDependentVariableprobesAggregation'],
-			divDependentVariableSNPType:			window['divDependentVariableSNPType'],
-			divDependentVariableType:				dependentType,
-			divDependentVariablePathway:			dependentGeneList,
-			divIndependentVariabletimepoints:		window['divIndependentVariabletimepoints1'],
-			divIndependentVariablesamples:			window['divIndependentVariablesamples1'],
-			divIndependentVariablerbmPanels:		window['divIndependentVariablerbmPanels1'],
-			divIndependentVariableplatforms:		independentPlatform,
-			divIndependentVariablegpls:				window['divIndependentVariablegplsValue1'],
-			divIndependentVariabletissues:			window['divIndependentVariabletissues1'],
-			divIndependentVariableprobesAggregation:window['divIndependentVariableprobesAggregation'],
-			divIndependentVariableSNPType:			window['divIndependentVariableSNPType'],
-			divIndependentVariableType:				independentType,
-			divIndependentVariablePathway:			independentGeneList,
-			gexpathway:								fullGEXGeneList,
-			snppathway:								fullSNPGeneList,
-			divIndependentPathwayName:				window['divIndependentVariablepathwayName'],
-			divDependentPathwayName:				window['divDependentVariablepathwayName'],
-			mrnaData:								mrnaData,
-			snpData:								snpData,
 			variablesConceptPaths:					variablesConceptCode,
 			logX:									logX,
-			gexgpl:									fullGEXGPL,
-			snpgpl:									fullSNPGPL,
 			jobType:								'ScatterPlot'			
-	};
+	}
+	
+	if(!loadHighDimensionalParameters(formParams)) return false;
+	
+	
+	//------------------------------------
+	//More Validation
+	//------------------------------------	
+	//If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
+	if(dependentNodeList[0] == 'hleaficon' && formParams["divDependentVariableType"] == "CLINICAL")
+	{
+		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the dependent variable box but did not select any filters. Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
+		return;			
+	}
+	if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
+	{
+		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable box but did not select any filters. Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
+		return;			
+	}	
+	//------------------------------------
 	
 	submitJob(formParams);
 }
@@ -181,8 +147,9 @@ function submitScatterPlotJob(form){
  */
 function loadScatterPlotView(){
 	registerScatterPlotDragAndDrop();
-	clearHighDimDataSelections('divIndependentVariable');
-	clearHighDimDataSelections('divDependentVariable');
+	clearGroupScatter('divIndependentVariable');
+	clearGroupScatter('divDependentVariable');
+	clearHighDimensionalFields();
 }
 
 /**

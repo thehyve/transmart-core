@@ -24,8 +24,6 @@ function
 (
 	input.dataFile,
 	concept.celllines = '',
-	concept.dosage = '',
-	concept.response = '',
 	output.dataFile = 'outputfile'
 )
 {
@@ -39,7 +37,7 @@ function
 	dataFile <- data.frame(read.delim(input.dataFile));
 	
 	#Set the column names.
-	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
+	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH","PARENT_PATH","PARENT_CODE","CONTEXT_NAME")
 	
 	#Split the data by the CONCEPT_CD.
 	splitData <- split(dataFile,dataFile$CONCEPT_PATH);
@@ -51,22 +49,23 @@ function
 	colnames(finalData) <- c("PATIENT_NUM")	
 
 	celllineValueMatrix <- dataBuilder(splitData = splitData,concept = concept.celllines,concept.type = 'CLINICAL');	
-	dosageValueMatrix <- dataBuilder(splitData = splitData,concept = concept.dosage, concept.type = 'CLINICAL',conceptColumn = TRUE);	
-	responseValueMatrix <- dataBuilder(splitData = splitData,concept = concept.response, concept.type = 'CLINICAL', conceptColumn = TRUE);	
+	
+	#Grab the Dose/Response Data.
+	dosageValueMatrix 		<- dataFile[which(dataFile$CONTEXT_NAME == "DOSE"),]
+	responseValueMatrix 	<- dataFile[which(dataFile$CONTEXT_NAME == "RESPONSE"),]
+	cvValueMatric			<- dataFile[which(dataFile$CONTEXT_NAME == "COEFFICIENT_OF_VARIATION"),]
 	
 	#These are the columns we pull from the temp matrix.
 	celllineMatrixColumns <- c('PATIENT_NUM','VALUE')
-	dosageMatrixColumns <- c('PATIENT_NUM','CONCEPT','VALUE')
-	responseMatrixColumns <- c('PATIENT_NUM','CONCEPT','VALUE')
+	dosageMatrixColumns <- c('PATIENT_NUM','PARENT_CODE','VALUE')
+	responseMatrixColumns <- c('PATIENT_NUM','PARENT_CODE','VALUE')
+	cvMatrixColumns <- c('PATIENT_NUM','PARENT_CODE','VALUE')
 	
 	#We reset the column names after merging.
 	celllineFinalColumns <- c('CELL_LINE')
 	dosageFinalColumns <- c('DOSAGE')
 	responseFinalColumns <- c('RESPONSE')		
-	
-	#We need to merge the dosage and response by patient_num and the last part of their concept code. Alter the concept code column here for those two data frames.
-	dosageValueMatrix$CONCEPT <- str_extract(dosageValueMatrix$CONCEPT,"(\\\\.+\\\\)+?$")
-	responseValueMatrix$CONCEPT <- str_extract(responseValueMatrix$CONCEPT,"(\\\\.+\\\\)+?$")
+	cvFinalColumns <- c('CV')		
 	
 	#Merge in the cell lines.
 	finalData<-merge(finalData,celllineValueMatrix[celllineMatrixColumns],by="PATIENT_NUM")
@@ -74,11 +73,14 @@ function
 	#Merge in all the dosages.
 	finalData<-merge(finalData,dosageValueMatrix[dosageMatrixColumns],by=c("PATIENT_NUM"))
 	
-	#Merge in the responses, but with a concept field as another filter. This is where the concept names must match so we know the correct dosage/response combination.
-	finalData<-merge(finalData,responseValueMatrix[responseMatrixColumns],by=c("PATIENT_NUM","CONCEPT"))
+	#Merge in the responses, but with a concept field as another filter. 
+	finalData<-merge(finalData,responseValueMatrix[responseMatrixColumns],by=c("PATIENT_NUM","PARENT_CODE"))
+	
+	#Merge in the CV values.
+	finalData<-merge(finalData,cvValueMatric[cvMatrixColumns],by=c("PATIENT_NUM","PARENT_CODE"))
 	
 	#Create column names.
-	colnames(finalData) <- c('PATIENT_NUM','CONCEPT',celllineFinalColumns,dosageFinalColumns,responseFinalColumns)	
+	colnames(finalData) <- c('PATIENT_NUM','CONCEPT',celllineFinalColumns,dosageFinalColumns,responseFinalColumns,cvFinalColumns)	
 	
 	#Make sure we actually have data after the merging.
 	#if(length(finalData)==0 || !finalData) stop("||FRIENDLY||R found no data after joining the selected concepts. Please verify that samples exist that meet your input criteria.")

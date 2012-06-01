@@ -72,6 +72,34 @@
 			</tr>
 			<tr><td><br/></td></tr>
 			<tr>
+				<td><i>Images will look best when the height and width in pixels is set so that the image is square.</i></td>
+			</tr>
+			<tr><td><br/></td></tr>
+			<tr>
+				<td align="center">
+					Image Width (pixels) :  <input id="txtImageWidth" value="1200" />					
+					<br />
+					<br />
+				</td>
+			</tr>				
+			<tr><td><br/></td></tr>
+			<tr>
+				<td align="center">
+					Image Height (pixels) :  <input id="txtImageHeight" value="800" />					
+					<br />
+					<br />
+				</td>
+			</tr>				
+			<tr><td><br/></td></tr>
+			<tr>
+				<td align="center">
+					Text size (pointsize) :  <input id="txtImagePointsize" value="12" />					
+					<br />
+					<br />
+				</td>
+			</tr>				
+			<tr><td><br/></td></tr>						
+			<tr>
 				<td colspan="4" align="center">
 					<input type="button" value="Run" onClick="submitHeatmapJob(this.form);"></input>
 				</td>
