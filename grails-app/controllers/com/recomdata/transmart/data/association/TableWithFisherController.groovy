@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils
 
 class TableWithFisherController {
 
-	def pluginOutputRenderService
+	def RModulesOutputRenderService
 	
 	def fisherTableOut = 
 	{
@@ -32,9 +32,9 @@ class TableWithFisherController {
 		String jobName = params.jobName
 		
 		//Gather the image links.
-		pluginOutputRenderService.initializeAttributes(jobName,null,null,false)
+		RModulesOutputRenderService.initializeAttributes(jobName,null,null,false)
 		
-		String tempDirectory = pluginOutputRenderService.tempDirectory
+		String tempDirectory = RModulesOutputRenderService.tempDirectory
 		
 		//Traverse the temporary directory for the LinearRegression files.
 		def tempDirectoryFile = new File(tempDirectory)
@@ -104,7 +104,7 @@ class TableWithFisherController {
 			fisherTableTestData += parseStatisticsString(statsFile.getText())
 		}
 		
-		render(template: "/plugin/tableWithFisher_out", model:[countData:fisherTableCountData,statisticsData:fisherTableTestData,zipLink:pluginOutputRenderService.zipLink], contextPath:pluginContextPath)
+		render(template: "/plugin/tableWithFisher_out", model:[countData:fisherTableCountData,statisticsData:fisherTableTestData,zipLink:RModulesOutputRenderService.zipLink], contextPath:pluginContextPath)
 	}
 	
 	public String parseCountStr(String inStr) {
