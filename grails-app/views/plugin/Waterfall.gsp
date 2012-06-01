@@ -31,79 +31,81 @@
 	
 		<table class="subsettable" style="margin: 10px;width:300px; border: 0px none; border-collapse: collapse;" >
 			<tr>
-				<td colspan="4">
+				<td>
 					<span class='AnalysisHeader'>Variable Selection</span>
-					<a href='JavaScript:D2H_ShowHelp(1508,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-			<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+					<a href='JavaScript:D2H_ShowHelp(1513,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+				<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
 					</a>					
 				</td>			
 			</tr>	
 			<tr>
-				<td colspan="4">
+				<td>
 					<hr />
 				</td>
 			</tr>	
 			<tr>
 				<td align="center">
-					<span class='AnalysisHeader'>Marker Variable</span>
+					<span class='AnalysisHeader'>Data Node</span>
 					<br />
 					<br />
-					Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.
-				</td>
+					Select a continuous variable from the Data Set Explorer Tree and drag it into the box.
+				</td>					
 			</tr>
+	
 			<tr>
 				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupMarkerSelection('divIndependentVariable')" value="X"> 
+					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupWaterfall('divDataNode')" value="X"> 
 					<br />
-					<div id='divIndependentVariable' class="queryGroupIncludeSmall"></div>
+					<div id='divDataNode' class="queryGroupIncludeSmall"></div>
 				</td>
 			</tr>
+			<!-- 
 			<tr>
 				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">
-					<input type="hidden" id="multipleSubsets" name="multipleSubsets" value="true" />
+					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divDataNode')" value="High Dimensional Data">
 				</td>
 			</tr>
+			 
 			<tr><td><br/></td></tr>
 			<tr>
 				<td>
-					Number of Markers : <input id="txtNumberOfMarkers" name="txtNumberOfMarkers" value="50" />
+					<div id="displaydivDataNode"></div>
+				</td>
+			</tr>
+			-->
+			<tr><td><br/></td></tr>
+			<tr>
+				<td>
+					Low Range 
+					<select id="selLowRange">
+						<option value="&lt;" selected="selected">&lt;</option>
+						<option value="&lt;=">&lt;=</option>
+						<option value="=">=</option>
+						<option value="&gt;">&gt;</option>
+						<option value="&gt;=">&gt;=</option>
+					</select>
+					<input id="txtLowRange">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					High Range 
+					<select id="selHighRange">
+						<option value="&gt;" selected="selected">&gt;</option>
+						<option value="&gt;=">&gt;=</option>					
+						<option value="&lt;">&lt;</option>
+						<option value="&lt;=">&lt;=</option>
+						<option value="=">=</option>
+					</select>
+					<input id="txtHighRange">
 				</td>
 			</tr>			
 			<tr><td><br/></td></tr>
 			<tr>
-				<td>
-					<div id = "displaydivIndependentVariable"></div>
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>			
-			<tr>
 				<td align="center">
-					Image Width (pixels) :  <input id="txtImageWidth" value="1200" />					
-					<br />
-					<br />
-				</td>
-			</tr>				
-			<tr><td><br/></td></tr>
-			<tr>
-				<td align="center">
-					Image Height (pixels) :  <input id="txtImageHeight" value="800" />					
-					<br />
-					<br />
-				</td>
-			</tr>				
-			<tr><td><br/></td></tr>
-			<tr>
-				<td align="center">
-					Text size (pointsize) :  <input id="txtImagePointsize" value="12" />					
-					<br />
-					<br />
-				</td>
-			</tr>							
-			<tr><td><br/></td></tr>
-			<tr>
-				<td colspan="4" align="center">
-					<input type="button" value="Run" onClick="submitMarkerSelectionJob(this.form);"></input>
+					<input type="button" value="Run" onClick="submitWaterfallJob(this.form);"></input>
+					
+					<input type="button" value="Select inputs as Cohort" onClick="selectInputsAsCohort(this.form);"></input>
 				</td>
 			</tr>
 		</table>

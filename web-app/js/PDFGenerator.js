@@ -72,7 +72,7 @@ function generatePdfFromHTML(domObjectId, pdfFileName) {
 			htmlString = htmlString.replace(/conceptsetvaluetext/gi," ");
 			htmlString = htmlString.replace(/normalunits\=\".*\"/gi," ");
 			htmlString = htmlString.replace(/normalunits/gi," ");
-			htmlString = htmlString.replace(/src\=\"http:\/\/(.*)\/transmart\/images\/tempImages/gi,"src=\"/transmart/images/tempImages");
+			htmlString = htmlString.replace(/src\=\"http:\/\/([^<]+)\/transmart\/images\/tempImages/gi,"src=\"/transmart/images/tempImages");
 		}
 		
 		var htmlStr = new Ext.form.Field({

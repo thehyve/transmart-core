@@ -59,7 +59,7 @@ continuous.concept = ""
 		lowValue <- min(dataFrame[[binningColumn]])
 
 		#This is the step value for our bins.
-		stepvalue <- ceiling((highValue - lowValue) / numberOfBins)
+		stepvalue <- (highValue - lowValue) / numberOfBins
 
 		#Add all items to the top bin.
 		dataFrame$bins = numberOfBins
@@ -107,7 +107,7 @@ continuous.concept = ""
 
 			#This is the ending row number.
 			binEnd <- binStart + binSize - 1
-			
+
 			#We need to loop and assign binning groups.
 			dataFrame$bins[binStart:binEnd] = i
 
@@ -224,7 +224,7 @@ continuous.concept = ""
 			{
 				#Find the lower value in this bin.
 				lowValue <- min(dataFrame[[binningColumn]][dataFrame$bins==j])
-				
+
 				#Find out which bin we get the max from. Either the next one (Or this one if we are on last bin).
 				if(j==numberOfBins)
 				{

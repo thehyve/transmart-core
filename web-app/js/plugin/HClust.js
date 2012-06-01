@@ -42,17 +42,24 @@ function submitHClustJob(form){
 	{
 		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The heatmap variable input box has multiple nodes.');
 		return;		
-	}			
+	}					
+	
 	//----------------------------------
 		
 	var formParams = {
 			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,
+			variablesConceptPaths:					variablesConceptCode,		
 			jobType:								'RHClust'
 	};
 	
 	//Use a common function to load the High Dimensional Data params.
 	loadCommonHighDimFormObjects(formParams,"divIndependentVariable")	
+	loadCommonHeatmapImageAttributes(formParams);
+	
+	if(!validateCommonHeatmapImageAttributes(formParams))
+	{
+		return false;
+	}
 	
 	//------------------------------------
 	//More Validation

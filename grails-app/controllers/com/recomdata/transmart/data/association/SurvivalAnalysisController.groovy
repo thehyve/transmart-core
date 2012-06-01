@@ -71,6 +71,7 @@ class SurvivalAnalysisController {
 		
 		def resultsItems = [:]
 		
+		buf.append("<table class='AnalysisResults'>")
 		inStr.eachLine {
 			
 			if (it.indexOf("n=") >=0) 
@@ -83,10 +84,8 @@ class SurvivalAnalysisController {
 				if (matcher.matches())
 				{
 					//Add a table with overall number of subjects and events.
-					buf.append("<table class='AnalysisResults'>")
 					buf.append("<tr><th>Number of Subjects</th><td>${matcher[0][1]}</td></tr>")
 					buf.append("<tr><th>Number of Events</th><td>${matcher[0][2]}</td></tr>")
-					buf.append("</table><br /><br />")
 				}
 				
 			}
@@ -131,7 +130,39 @@ class SurvivalAnalysisController {
 				resultsItems[groupName]["DOWN"] = resultArray[4]
 
 			}
+			else if (it.indexOf("Likelihood ratio test") >= 0)
+			{
+				def likTestpValueRegExp = /\s*Likelihood\s*ratio\s*test\s*\=\s*(.*)/
+				
+				def likTestMatcher = (it =~ likTestpValueRegExp)
+				
+				if (likTestMatcher.matches()) {
+					buf.append("<tr><th>Likelihood ratio test </th><td>${likTestMatcher[0][1]}</td></tr>")
+				}
+			}
+			else if (it.indexOf("Wald test") >= 0) 
+			{	
+				def waldTestpValueRegExp = /\s*Wald\s*test\s*\=\s*(.*)/
+				
+				def waldTestMatcher = (it =~ waldTestpValueRegExp)
+				
+				if (waldTestMatcher.matches()) {
+					buf.append("<tr><th>Wald test</th><td>${waldTestMatcher[0][1]}</td></tr>")
+				}
+			}
+			else if (it.indexOf("Score") >= 0)
+			{	
+				def scoreTestpValueRegExp = /\s*Score\s*\(logrank\)\s*test\s*\=(.*)/
+				
+				def scoreTestMatcher = (it =~ scoreTestpValueRegExp)
+				
+				if (scoreTestMatcher.matches()) {
+					buf.append("<tr><th>Score (logrank) test</th><td>${scoreTestMatcher[0][1]}</td></tr>")
+				}
+			}
+				
 		}
+		buf.append("</table><br /><br />")
 		
 		//Loop over the hashmap and create the html table.
 		
