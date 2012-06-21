@@ -69,7 +69,7 @@ conceptColumn = FALSE
 		snpData <- data.frame(read.delim(SNPFile));
 		
 		#PATIENT.ID,GENE,PROBE.ID,GENOTYPE,COPYNUMBER,SAMPLE,TIMEPOINT,TISSUE,SEARCH_ID
-		snpData <- filterData(snpData,gene.list,sampleType,timepointType,tissueType)
+		snpData <- filterData(snpData,gene.list,sampleType,timepointType,tissueType,platform.type)
 		
 		if(SNPType == "CNV")
 		{
@@ -142,7 +142,7 @@ GEXData = ''
 	}
 	
 	#This tells us which column to use for the value when collapsing.
-	columnToCollapse <- "ZSCORE"
+	columnToCollapse <- "VALUE"
 	
 	#Filter the data based on the gene,sample,timepoint and tissue type.
 	mrnaData <- filterData(dataToFilter = mrnaData,
@@ -184,8 +184,12 @@ GEXData = ''
 		}
 		else
 		{
+			#If we are reducing data and not aggregating probes, we need to add the gene name to the probe.id.
+			mrnaData$PROBE_GENE <- paste(mrnaData$PROBE.ID,mrnaData$GENE_SYMBOL,sep="_")
+		
 			#Extract the patient_num and value.
-			mrnaData <- mrnaData[c("PATIENT.ID",columnToCollapse,"PROBE.ID")]		
+			mrnaData <- mrnaData[c("PATIENT.ID",columnToCollapse,"PROBE_GENE")]	
+			
 		}
 
 		colnames(mrnaData) <- c('PATIENT_NUM','VALUE','GROUP')

@@ -47,12 +47,16 @@ SurvivalCurve.loader <- function(
 SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,censor.field,time.conversion,concept.time,binning.type,binning.manual,binning.variabletype)
 {
 
+	currentDataSubset <- data.frame(dataChunk)
+	
+	currentDataSubset$CATEGORY <- factor(currentDataSubset$CATEGORY)
+
 	######################################################
 	#If we did a binning routine, we need to make sure the levels are in order here.
 	if((binning.type == "EDP" && binning.manual == FALSE) || (binning.type == "ESB" && binning.manual == FALSE) || (binning.manual == TRUE && binning.variabletype == "Continuous"))
 	{
 		#We need to re-sort the factors. Grab the current levels.
-		factorDataFrame <- data.frame(levels(dataChunk$CATEGORY))
+		factorDataFrame <- data.frame(levels(currentDataSubset$CATEGORY))
 
 		#Add a column name to our temp data frame.
 		colnames(factorDataFrame) <- c('binname')
@@ -67,7 +71,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 		factorDataFrame <- factorDataFrame[order(factorDataFrame$binstart), ]  
 		
 		#Reapply the factor to get the items in the right order.
-		dataChunk$CATEGORY <- factor(dataChunk$CATEGORY,factorDataFrame$binname,ordered = TRUE)
+		currentDataSubset$CATEGORY <- factor(currentDataSubset$CATEGORY,factorDataFrame$binname,ordered = TRUE)
 
 	}
 	
@@ -75,17 +79,17 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	
 	######################################################
 	#We need to create a label for the legend based on the categories.
-	classList <- as.vector(gsub("\\s","_",gsub("^\\s+|\\s+$", "",(dataChunk$'CATEGORY'))))
-	legendLabels <- as.vector(unique(gsub("\\s","_",gsub("^\\s+|\\s+$", "",dataChunk$'CATEGORY'))))
-	
+	classList <- as.vector(gsub("\\s","_",gsub("^\\s+|\\s+$", "",(currentDataSubset$'CATEGORY'))))
+	legendLabels <- as.vector(unique(gsub("\\s","_",gsub("^\\s+|\\s+$", "",currentDataSubset$'CATEGORY'))))
+
 	#Pull the time and status fields out of the survival data.
-	time <- dataChunk[[time.field]]
-	status <- dataChunk[[censor.field]]
+	time <- currentDataSubset[[time.field]]
+	status <- currentDataSubset[[censor.field]]
 	
 	#This is the current group we are generating the statistics for.
-	if("GROUP" %in% colnames(dataChunk)) 
+	if("GROUP" %in% colnames(currentDataSubset)) 
 	{
-		currentGroup <- unique(dataChunk$GROUP)
+		currentGroup <- unique(currentDataSubset$GROUP)
 		currentGroup <- gsub("^\\s+|\\s+$", "",currentGroup)
 		
 		#Change the output file name to have the group in it.
@@ -108,7 +112,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	{
 		fitted = survfit(
 							Surv(time,status)~1,
-							data=dataChunk,
+							data=currentDataSubset,
 							type="kaplan-meier",
 							error="greenwood",
 							conf.int=.95,
@@ -119,7 +123,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	{
 		fitted = survfit(
 							Surv(time,status)~classList,
-							data=dataChunk,
+							data=currentDataSubset,
 							type="kaplan-meier",
 							error="greenwood",
 							conf.int=.95,
@@ -194,7 +198,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	box(lwd=1)
 	
 	#Add legend if required.
-	legend(x="topright", legend=levels(dataChunk$'CATEGORY'), lty=1, col=c("blue","red","black","green","orange","purple"), lwd=1, inset=0.02)
+	legend(x="topright", legend=levels(currentDataSubset$'CATEGORY'), lty=1, col=c("blue","red","black","green","orange","purple"), lwd=1, inset=0.02)
 
 	#Close any open devices.
 	dev.off()

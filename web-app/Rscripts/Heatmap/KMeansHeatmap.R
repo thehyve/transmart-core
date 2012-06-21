@@ -22,7 +22,10 @@ KMeansHeatmap.loader <- function(
 input.filename,
 output.file ="Heatmap",
 clusters.number = 2,
-probes.aggregate = false
+probes.aggregate = false,
+imageWidth = 1200,
+imageHeight = 800,
+pointsize = 15
 )
 {
 	library(Cairo)
@@ -61,6 +64,9 @@ probes.aggregate = false
 	#Transpose the matrix to put the sample column into a row.
 	transposedMatrixData <- t(matrixData)
 	
+	#Make sure the number of clusters is applicable.
+	if(clusters.number >= nrow(transposedMatrixData)) stop(paste("||FRIENDLY||The number of clusters must fall between 1 and the number of subjects in your data. Your data only has ",as.character(nrow(transposedMatrixData))," subjects"))
+	
 	#Create the kmeans object. We cluster by columns.
 	kMeansObject <- kmeans(transposedMatrixData,centers=clusters.number)
 	
@@ -89,17 +95,20 @@ probes.aggregate = false
 	matrixData <- data.matrix(dataWithCluster)
 	
 	#We can't draw a heatmap for a matrix with only 1 row.
-	if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 row. Please check your variable selection and run again.")
+	if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
+	if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 
 	#Prepare the package to capture the image file.
-	CairoPNG(file=paste(output.file,".png",sep=""),width=1200,height=800)	
+	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))	
+	
+	colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
 	
 	#Store the heatmap in a temp variable.
 	tmp <- heatmap(	matrixData,
 					Rowv=NA,
-					Colv=NA,col=redgreen(100),
+					Colv=NA,col=colorPanelList,
 					ColSideColors=patientcolors,
-					margins=c(13,10),			
+					margins=c(25,25),			
 					cexRow=1.5,
 					cexCol=1.5)		
 	

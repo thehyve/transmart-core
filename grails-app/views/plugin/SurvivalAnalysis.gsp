@@ -100,19 +100,17 @@
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divCategoryVariable')" value="High Dimensional Data">
+					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalDataSingleSubset('divCategoryVariable')" value="High Dimensional Data">
 				</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr><td colspan="5"><br/></td></tr>
 			<tr>
+				<td><div id="displaydivCategoryVariable"></div></td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td>
-					<div id="displaydivCategoryVariable"></div>
-				</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr><td colspan="5"><br/></td></tr>

@@ -49,7 +49,9 @@ time.independent = '',
 tissues.dependent = '',
 tissues.independent = '',
 snptype.dependent = '',
-snptype.independent = ''
+snptype.independent = '', 
+gpl.dependent = '', 
+gpl.independent= ''
 )
 {
 	print("-------------------")
