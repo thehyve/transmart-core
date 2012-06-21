@@ -50,7 +50,7 @@ output.file ="PCA"
 	mRNAData <- subset(mRNAData, select = -c(PATIENT.ID))
 	
 	#Run the PCA Analysis.
-	pca.results <- prcomp(mRNAData)
+	pca.results <- prcomp(mRNAData, scale = TRUE)
 	
 	#Get the number of components.
 	numberOfComponents <- length(pca.results$sdev)
