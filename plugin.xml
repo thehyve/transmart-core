@@ -37,8 +37,8 @@ Brief description of the plugin.
   </dependencies>
   <plugins>
     <compile>
-      <plugin group='org.grails.plugins' name='hibernate' version='2.0.4' />
       <plugin group='org.grails.plugins' name='quartz' version='0.4.2' />
+      <plugin group='org.grails.plugins' name='hibernate' version='2.0.4' />
     </compile>
   </plugins>
   <runtimePluginRequirements />
