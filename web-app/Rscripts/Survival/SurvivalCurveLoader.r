@@ -78,6 +78,11 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	######################################################
 	
 	######################################################
+	#Determine title for outputs.
+	title<-"#  Kaplan-Meier estimator"
+	######################################################	
+	
+	######################################################
 	#We need to create a label for the legend based on the categories.
 	classList <- as.vector(gsub("\\s","_",gsub("^\\s+|\\s+$", "",(currentDataSubset$'CATEGORY'))))
 	legendLabels <- as.vector(unique(gsub("\\s","_",gsub("^\\s+|\\s+$", "",currentDataSubset$'CATEGORY'))))
@@ -94,6 +99,9 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 		
 		#Change the output file name to have the group in it.
 		output.name <- paste(output.name,'_',currentGroup,sep='')
+		
+		#Include the group name in the plot.
+		title <- paste("#  Kaplan-Meier estimator (",currentGroup,")",sep="")
 	}
 	
 	######################################################
@@ -130,11 +138,6 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 							conf.type="log"
 						)
 	}	
-	######################################################
-
-	######################################################
-	#Determine title for outputs.
-	title<-"#  Kaplan-Meier estimator"
 	######################################################
 
 	######################################################
