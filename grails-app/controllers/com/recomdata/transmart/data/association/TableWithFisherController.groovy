@@ -32,7 +32,7 @@ class TableWithFisherController {
 		String jobName = params.jobName
 		
 		//Gather the image links.
-		RModulesOutputRenderService.initializeAttributes(jobName,null,null,false)
+		RModulesOutputRenderService.initializeAttributes(jobName,null,null)
 		
 		String tempDirectory = RModulesOutputRenderService.tempDirectory
 		
