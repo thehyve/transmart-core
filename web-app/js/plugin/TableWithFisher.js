@@ -168,7 +168,7 @@ function submitTableWithFisherJob(form){
 	}	
 	//------------------------------------
 	
-	var formParams = {dependentVariable:dependentVariableConceptCode,independentVariable:independentVariableConceptCode};
+	var formParams = {dependentVariable:dependentVariableConceptCode,independentVariable:independentVariableConceptCode,jobType:'TableWithFisher'};
 	
 	if(!loadHighDimensionalParameters(formParams)) return false;
 	loadBinningParametersFisher(formParams);

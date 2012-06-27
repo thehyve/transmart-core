@@ -73,7 +73,8 @@ function submitBoxPlotJob(form){
 	
 	var formParams = {
 						dependentVariable:dependentVariableConceptCode,
-						independentVariable:independentVariableConceptCode
+						independentVariable:independentVariableConceptCode,
+						jobType:								'BoxPlot'
 					};
 	
 	loadHighDimensionalParameters(formParams);
