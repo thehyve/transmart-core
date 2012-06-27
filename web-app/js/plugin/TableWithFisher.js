@@ -193,7 +193,7 @@ function submitTableWithFisherJob(form){
 }
 
 function loadTableWithFisherView(){
-	registerBoxPlotDragAndDrop();
+	registerFisherDragAndDrop();
 	clearGroupFisher('divIndependentVariable');
 	clearGroupFisher('divDependentVariable');
 	clearHighDimensionalFields();
@@ -346,7 +346,7 @@ function manageBinsFisher(newNumberOfBins,binningSuffix) {
 }
 
 
-function registerBoxPlotDragAndDrop()
+function registerFisherDragAndDrop()
 {
 	//Set up drag and drop for Dependent and Independent variables on the data association tab.
 	//Get the Dependent DIV.
