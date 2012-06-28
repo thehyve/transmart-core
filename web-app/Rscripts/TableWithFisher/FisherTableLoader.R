@@ -29,6 +29,9 @@ FisherTable.loader <- function(
 	line.data<-read.delim(input.filename,header=T)
 	######################################################
 	
+	if(length(unique(line.data$X)) < 2) stop("||FRIENDLY||The Fisher test requires at least two groups for each variable. The intersection of the groups you selected for the independent variable with the data available in the dependent variable yielded only one group with a none zero number of subjects in the independent variable. Please verify your input and try again.")
+	if(length(unique(line.data$Y)) < 2) stop("||FRIENDLY||The Fisher test requires at least two groups for each variable. The intersection of the groups you selected for the dependant variable with the data available in the independent variable yielded only one group with a none zero number of subjects in the dependant variable. Please verify your input and try again.")
+	
 	######################################################
 	if(("GROUP" %in% colnames(line.data)) && ("GROUP.1" %in% colnames(line.data)))
 	{
