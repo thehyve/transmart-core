@@ -142,7 +142,7 @@ GEXData = ''
 	}
 	
 	#This tells us which column to use for the value when collapsing.
-	columnToCollapse <- "VALUE"
+	columnToCollapse <- "ZSCORE"
 	
 	#Filter the data based on the gene,sample,timepoint and tissue type.
 	mrnaData <- filterData(dataToFilter = mrnaData,
@@ -162,7 +162,7 @@ GEXData = ''
 	if(probe.average)
 	{
 		mrnaData <- probeAverage(mrnaData)
-		columnToCollapse <- "VALUE"
+		columnToCollapse <- "ZSCORE"
 	}
 	
 	#If we reduce the number of columns in the data, do it here.
