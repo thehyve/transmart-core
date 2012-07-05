@@ -65,6 +65,8 @@ output.dataFile="outputfile"
 	#Pull the columns we are interested in out of the data.
 	finalFrame <- geneExpressionMatrix[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET')]	
 		
+	colnames(finalFrame) <- c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET')
+
 	#We need MASS to dump the data frame to a file.
 	require(MASS)	
 	
