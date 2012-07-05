@@ -294,7 +294,7 @@ function
 	mrnaData <- data.table(mrnaData)
 	
 	#Aggregate and return the mean expression value and max probe id.
-	mrnaData <- mrnaData[,list(VALUE = median(VALUE),ASSAY.ID = max(ASSAY.ID)), by = "PATIENT.ID,PROBE.ID,GENE_SYMBOL,SUBSET"]
+	mrnaData <- mrnaData[,list(ZSCORE = median(ZSCORE),ASSAY.ID = max(ASSAY.ID)), by = "PATIENT.ID,PROBE.ID,GENE_SYMBOL,SUBSET"]
 	
 	#Convert back to a data.frame.
 	mrnaData <- data.frame(mrnaData)
