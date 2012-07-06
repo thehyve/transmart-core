@@ -171,7 +171,8 @@ function submitSurvivalJob(form) {
 	var formParams = {
 		timeVariable : timeVariableConceptCode,
 		categoryVariable : categoryVariableConceptCode,
-		censoringVariable : censoringVariableConceptCode		
+		censoringVariable : censoringVariableConceptCode,
+		variablesConceptPaths:					variablesConceptCode
 	};
 
 	if(!loadHighDimensionalParametersSurvival(formParams)) return false;
