@@ -49,7 +49,9 @@ time.independent = '',
 tissues.dependent = '',
 tissues.independent = '',
 snptype.dependent = '',
-snptype.independent = ''
+snptype.independent = '', 
+gpl.dependent = '', 
+gpl.independent= ''
 )
 {
 	print("-------------------")
@@ -79,8 +81,33 @@ snptype.independent = ''
 	if(binning.variable == "IND" && binning.manual == TRUE && binning.variabletype == "Categorical") fullconcept.indep <- TRUE
 	if(binning.variable == "DEP" && binning.manual == TRUE && binning.variabletype == "Categorical") fullconcept.dep <- TRUE	
 	
-	yValueMatrix <- dataBuilder(splitData,concept.dependent,concept.dependent.type,sample.dependent,time.dependent,tissues.dependent,input.gexFile,genes.dependent,genes.dependent.aggregate,input.snpFile,snptype.dependent,fullconcept.dep);
-	xValueMatrix <- dataBuilder(splitData,concept.independent,concept.independent.type,sample.independent,time.independent,tissues.independent,input.gexFile,genes.independent,genes.independent.aggregate,input.snpFile,snptype.independent,fullconcept.indep);
+	yValueMatrix <- dataBuilder(splitData = splitData,
+								concept = concept.dependent,
+								concept.type = concept.dependent.type,
+								sampleType = sample.dependent,
+								timepointType = time.dependent,
+								tissueType = tissues.dependent,
+								platform.type = '',
+								GEXFile = input.gexFile,
+								gene.list = genes.dependent,
+								gene.aggregate = genes.dependent.aggregate,
+								SNPFile = input.snpFile,
+								SNPType = snptype.dependent,
+								fullConcept = fullconcept.dep);
+                
+	xValueMatrix <- dataBuilder(splitData = splitData,
+								concept = concept.independent,
+								concept.type = concept.independent.type,
+								sampleType = sample.independent,
+								timepointType = time.independent,
+								tissueType = tissues.independent,
+								platform.type = '',
+								GEXFile = input.gexFile,
+								gene.list = genes.independent,
+								gene.aggregate = genes.independent.aggregate,
+								SNPFile = input.snpFile,
+								SNPType = snptype.independent,
+								fullConcept = fullconcept.indep);
 	##########################################	
 
 	##########################################
