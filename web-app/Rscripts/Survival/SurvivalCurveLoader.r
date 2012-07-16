@@ -89,6 +89,14 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 
 	#Pull the time and status fields out of the survival data.
 	time <- currentDataSubset[[time.field]]
+	
+	#If the time field is not numeric try to strip a comma (Possible cause for it being read as a character) and cast it as numeric.
+	if(!is.numeric(time))
+	{
+		time <- gsub(",","",time)
+		time <- as.numeric(time)
+	}
+	
 	status <- currentDataSubset[[censor.field]]
 	
 	#This is the current group we are generating the statistics for.
