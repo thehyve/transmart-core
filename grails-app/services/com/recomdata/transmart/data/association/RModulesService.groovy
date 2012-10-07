@@ -220,4 +220,10 @@ class RModulesService {
 		def trigger = new SimpleTrigger("triggerNow"+Calendar.instance.time.time, 'RModules')
 		quartzScheduler.scheduleJob(jobDetail, trigger)
 	}
+	
+	// method for non-R jobs
+	def prepareDataForExport(userName, params) {
+		loadJobDataMap(userName, params);
+		return jobDataMap;
+	}
 }
