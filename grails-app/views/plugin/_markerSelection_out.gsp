@@ -39,7 +39,7 @@
 		<br />
 		<span class='AnalysisHeader'>Table of top Markers</span>
 		<g:if test="${grailsApplication.config.com.thomsonreuters.transmart.metacoreAnalyticsEnable}">
-			&nbsp;<input type="button" value="Run MetaCore Enrichment Analysis" onClick="markerSelectionRunMetacoreEnrichment();" />
+			&nbsp;<g:metacoreSettingsButton /><input type="button" value="Run MetaCore Enrichment Analysis" onClick="markerSelectionRunMetacoreEnrichment();" />
 		</g:if>
 		<br />
 		<g:if test="${grailsApplication.config.com.thomsonreuters.transmart.metacoreAnalyticsEnable}">
