@@ -9,23 +9,25 @@ Brief description of the plugin.
   <resources>
     <resource>BuildConfig</resource>
     <resource>Config</resource>
-    <resource>DataAssociationConfig</resource>
     <resource>DataSource</resource>
-    <resource>RModulesConfig</resource>
     <resource>UrlMappings</resource>
-    <resource>spring.resources</resource>
     <resource>com.recomdata.transmart.data.association.BoxPlotController</resource>
+    <resource>com.recomdata.transmart.data.association.CorrelationAnalysisController</resource>
     <resource>com.recomdata.transmart.data.association.DataAssociationController</resource>
-    <resource>com.recomdata.transmart.data.association.RdcRModulesController</resource>
+    <resource>com.recomdata.transmart.data.association.LineGraphController</resource>
+    <resource>com.recomdata.transmart.data.association.MarkerSelectionController</resource>
+    <resource>com.recomdata.transmart.data.association.PCAController</resource>
+    <resource>com.recomdata.transmart.data.association.RHClustController</resource>
+    <resource>com.recomdata.transmart.data.association.RHeatmapController</resource>
+    <resource>com.recomdata.transmart.data.association.RKMeansController</resource>
+    <resource>com.recomdata.transmart.data.association.RModulesController</resource>
     <resource>com.recomdata.transmart.data.association.ScatterPlotController</resource>
     <resource>com.recomdata.transmart.data.association.SurvivalAnalysisController</resource>
     <resource>com.recomdata.transmart.data.association.TableWithFisherController</resource>
     <resource>com.recomdata.transmart.data.association.pdf.PDFController</resource>
-    <resource>com.recomdata.transmart.data.association.DataAssociationService</resource>
     <resource>com.recomdata.transmart.data.association.RModulesOutputRenderService</resource>
-    <resource>com.recomdata.transmart.data.association.RdcRModulesService</resource>
+    <resource>com.recomdata.transmart.data.association.RModulesService</resource>
     <resource>com.recomdata.transmart.data.association.asynchronous.RModulesJobService</resource>
-    <resource>com.recomdata.transmart.data.association.module.RegistrationService</resource>
   </resources>
   <dependencies />
   <behavior />
