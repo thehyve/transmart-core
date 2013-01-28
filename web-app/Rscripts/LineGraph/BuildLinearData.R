@@ -109,7 +109,7 @@ concept.group=""
 	require(MASS)
 
 	#Write the final data file.
-	write.table(finalData,"outputfile",sep = "\t")
+	write.table(finalData,"outputfile.txt",sep = "\t")
 	##########################################
 
 }

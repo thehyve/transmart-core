@@ -40,6 +40,7 @@ class DataAssociationController {
 		def scripts = [servletContext.contextPath+pluginContextPath+'/js/dataAssociation.js', 
 		servletContext.contextPath+pluginContextPath+'/js/PDFGenerator.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysis.js',
+		servletContext.contextPath+pluginContextPath+'/js/plugin/CorrelationAnalysis.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/LineGraph.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/ScatterPlot.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/BoxPlot.js',
