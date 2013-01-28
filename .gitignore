@@ -1,5 +1,5 @@
 target
-grails-rdc-rmodules-0.2.zip
+grails-rdc-rmodules-*.zip
 stacktrace.log
 web-app/plugins
 web-app/WEB-INF/classes
