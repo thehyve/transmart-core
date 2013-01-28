@@ -142,7 +142,7 @@ GEXData = ''
 	}
 	
 	#This tells us which column to use for the value when collapsing.
-	columnToCollapse <- "VALUE"
+	columnToCollapse <- "ZSCORE"
 	
 	#Filter the data based on the gene,sample,timepoint and tissue type.
 	mrnaData <- filterData(dataToFilter = mrnaData,
@@ -162,7 +162,7 @@ GEXData = ''
 	if(probe.average)
 	{
 		mrnaData <- probeAverage(mrnaData)
-		columnToCollapse <- "VALUE"
+		columnToCollapse <- "ZSCORE"
 	}
 	
 	#If we reduce the number of columns in the data, do it here.
@@ -294,7 +294,7 @@ function
 	mrnaData <- data.table(mrnaData)
 	
 	#Aggregate and return the mean expression value and max probe id.
-	mrnaData <- mrnaData[,list(VALUE = median(VALUE),ASSAY.ID = max(ASSAY.ID)), by = "PATIENT.ID,PROBE.ID,GENE_SYMBOL,SUBSET"]
+	mrnaData <- mrnaData[,list(ZSCORE = median(ZSCORE),ASSAY.ID = max(ASSAY.ID)), by = "PATIENT.ID,PROBE.ID,GENE_SYMBOL,SUBSET"]
 	
 	#Convert back to a data.frame.
 	mrnaData <- data.frame(mrnaData)

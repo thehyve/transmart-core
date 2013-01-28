@@ -70,10 +70,13 @@ function submitBoxPlotJob(form){
 			return;
 		}
 		
+	var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
 	
 	var formParams = {
 						dependentVariable:dependentVariableConceptCode,
-						independentVariable:independentVariableConceptCode
+						independentVariable:independentVariableConceptCode,
+						jobType:								'BoxPlot',
+						variablesConceptPaths:					variablesConceptCode
 					};
 	
 	loadHighDimensionalParameters(formParams);

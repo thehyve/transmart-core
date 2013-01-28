@@ -20,60 +20,91 @@ import org.apache.commons.io.FileUtils
 
 class TableWithFisherController {
 
+	def RModulesOutputRenderService
+	
 	def fisherTableOut = 
 	{
+		
+		//This will be the array of text file locations.
+		def ArrayList<String> txtFiles = new ArrayList<String>()
+		
 		//Grab the job ID from the query string.
 		String jobName = params.jobName
 		
-		//This is the directory to the jobs folders.
-		String tempFolderDirectory = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory
+		//Gather the image links.
+		RModulesOutputRenderService.initializeAttributes(jobName,null,null)
 		
-		//Create the string that represents the directory to the temporary files.
-		String tempDirectory = "${tempFolderDirectory}${jobName}" + File.separator + "workingDirectory"
+		String tempDirectory = RModulesOutputRenderService.tempDirectory
 		
-		String countTableLocation = "${tempDirectory}" + File.separator + "FisherTableCount.txt"
-		String statisticsLocation = "${tempDirectory}" + File.separator + "statisticalTests.txt"
+		//Traverse the temporary directory for the LinearRegression files.
+		def tempDirectoryFile = new File(tempDirectory)
 		
-		//Create objects for the count and statistics output files.
-		File countFile = new File(countTableLocation);
-		File statisticsFile = new File(statisticsLocation)
+		//This string will be the HTML that represents our Linear Regression data.
+		String fisherTableCountData = ""
+		String fisherTableTestData = ""
 		
-		//Parse the output files.
-		String countData = parseCountStr(countFile.getText())
-		String statisticsData = parseStatisticsString(statisticsFile.getText())
-		
-		//This is a boolean indicating if we need to move the file before serving it to the user.
-		boolean transferImageFile = grailsApplication.config.com.recomdata.plugins.transferImageFile
-		
-		String zipLocation = ""
-		String zipLink = ""
-		
-		//If we need to use a different location so that the image is under a web path, use the config here.
-		if(transferImageFile)
+		//Loop through the directory create an array of txt files to be parsed.
+		tempDirectoryFile.traverse(nameFilter:~/.*Count.*\.txt/)
 		{
-			//This is the URL we use to serve the user the image.
-			String imageURL = grailsApplication.config.com.recomdata.plugins.analysisImageURL
-			String tempImageFolder = grailsApplication.config.com.recomdata.plugins.temporaryImageFolder
-			String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${jobName}"
+			currentTextFile ->
 			
-			//Determine if the folder for this job exists in the temp image directory.
-			if(!(new File(tempImageJobFolder).exists()))
-			{
-				new File(tempImageJobFolder).mkdir()
-			}
-			
-			zipLocation = "${tempImageJobFolder}" + File.separator + "zippedData.zip"
-			zipLink = "${imageURL}${jobName}/zippedData.zip"
-			
-			//Create the zip utility.
-			ZipUtil newZipFile = new ZipUtil()
-	
-			newZipFile.zipFolder(tempDirectory,zipLocation)
-			
-			zipLink = "${imageURL}${jobName}/zippedData.zip"
+			txtFiles.add(currentTextFile.path)
 		}
 		
-		render(template: "/plugin/tableWithFisher_out", model:[countData:countData,statisticsData:statisticsData,zipLink:zipLink], contextPath:pluginContextPath)
+		//Loop through the file path array and parse each of the files. We do this to make different tables if there are multiple files.
+		txtFiles.each
+		{
+			//Parse out the name of the group from the name of the text file.
+			def myRegExp = /.*Count(.*)\.txt/
+						   
+			def matcher = (it =~ myRegExp)
+			
+			if (matcher.matches() && txtFiles.size > 1)
+			{
+				//Add the HTML that will separate the different files.
+				fisherTableCountData += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
+			}
+			
+			//Create objects for the linear regression output files.
+			File countFile = new File(it);
+			
+			//Parse the output files.
+			fisherTableCountData += parseCountStr(countFile.getText())
+		}
+		
+		//Reinitialize the text files array list.
+		txtFiles = new ArrayList<String>()
+		
+		//Loop through the directory create an array of txt files to be parsed.
+		tempDirectoryFile.traverse(nameFilter:~/.*statisticalTests.*\.txt/)
+		{
+			currentTextFile ->
+			
+			txtFiles.add(currentTextFile.path)
+		}
+		
+		//Loop through the file path array and parse each of the files. We do this to make different tables if there are multiple files.
+		txtFiles.each
+		{
+			//Parse out the name of the group from the name of the text file.
+			def myRegExp = /.*statisticalTests(.*)\.txt/
+						   
+			def matcher = (it =~ myRegExp)
+			
+			if (matcher.matches() && txtFiles.size > 1)
+			{
+				//Add the HTML that will separate the different files.
+				fisherTableTestData += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
+			}
+			
+			//Create objects for the linear regression output files.
+			File statsFile = new File(it);
+			
+			//Parse the output files.
+			fisherTableTestData += parseStatisticsString(statsFile.getText())
+		}
+		
+		render(template: "/plugin/tableWithFisher_out", model:[countData:fisherTableCountData,statisticsData:fisherTableTestData,zipLink:RModulesOutputRenderService.zipLink], contextPath:pluginContextPath)
 	}
 	
 	public String parseCountStr(String inStr) {
@@ -86,45 +117,59 @@ class TableWithFisherController {
 		
 		//The topleft cell needs to be empty, this flag tells us if we filled it our not.
 		boolean fillInBlank = true
+		Boolean firstRecord = true
 		
 		inStr.eachLine 
 		{
 			
-			linesArray = it.split("\t");
-			
-			//Close header row.
-			buf.append("<tr>")
-			
-			//Check to see if we need to fill in the blank cell.
-			if(fillInBlank)
+			if (it.indexOf("name=") >=0)
 			{
-				buf.append("<td class='blankCell'>&nbsp;</td>")
+				String nameValue = it.substring(it.indexOf("name=") + 5).trim();
 				
+				if(!firstRecord) buf.append("</table><br /><br />");
+				
+				buf.append("<table class='AnalysisResults'>")
+				buf.append("<tr><th colspan='100'>${nameValue}</th></tr>")
+				
+				fillInBlank = true
 			}
-			
-			Integer rowCounter = 0;
-			
-			//Write the variable names across the top.
-			linesArray.each
+			else
 			{
-				currentText ->
+				firstRecord = false
 				
-				if(fillInBlank || rowCounter==0)
+				linesArray = it.split("\t");
+				
+				buf.append("<tr>")
+				
+				//Check to see if we need to fill in the blank cell.
+				if(fillInBlank)
 				{
-					buf.append("<th>${currentText}</th>")
-				}
-				else
-				{
-					buf.append("<td>${currentText}</td>")
+					buf.append("<td class='blankCell'>&nbsp;</td>")
 				}
 				
-				rowCounter+=1
+				Integer rowCounter = 0;
+				
+				//Write the variable names across the top.
+				linesArray.each
+				{
+					currentText ->
+					
+					if(fillInBlank || rowCounter==0)
+					{
+						buf.append("<th>${currentText}</th>")
+					}
+					else
+					{
+						buf.append("<td>${currentText}</td>")
+					}
+					
+					rowCounter+=1
+				}
+				
+				if(fillInBlank)fillInBlank = false
+				
+				buf.append("</tr>")
 			}
-			
-			if(fillInBlank)fillInBlank = false
-			
-			//Close header row.
-			buf.append("</tr>")
 				
 		}
 
@@ -141,17 +186,42 @@ class TableWithFisherController {
 		String chiSquare = ""
 		String chiPValue = ""
 
-		inStr.eachLine {
-			if (it.indexOf("fishp=") >=0)		{fisherPValue 	= it.substring(it.indexOf("n=") + 6).trim();}
-			else if (it.indexOf("chis=") >=0)	{chiSquare 		= it.substring(it.indexOf("intercept=") + 5).trim();}
-			else if (it.indexOf("chip=") >=0)	{chiPValue		= it.substring(it.indexOf("slope=") + 5).trim();}
-		}
+		Boolean firstRecord = true
 		
 		buf.append("<table class='AnalysisResults'>")
-		buf.append("<tr><th>Fisher test p-value</td><td>${fisherPValue}</td></tr>");
-		buf.append("<tr><th>&chi;<sup>2</sup></td><td>${chiSquare}</td></tr>");
-		buf.append("<tr><th>&chi;<sup>2</sup> p-value</td><td>${chiPValue}</td></tr>");
+		
+		inStr.eachLine {
+			if (it.indexOf("name=") >=0)
+			{
+				String nameValue = it.substring(it.indexOf("name=") + 5).trim();
+				
+				if(!firstRecord) buf.append("</table><br /><br />");
+				buf.append("<table class='AnalysisResults'>")
+				buf.append("<tr><th colspan='2'>${nameValue}</th></tr>")
+			}
+			else if (it.indexOf("fishp=") >=0)		
+			{
+				fisherPValue 	= it.substring(it.indexOf("fishp=") + 6).trim();
+				buf.append("<tr><th>Fisher test p-value</th><td>${fisherPValue}</td></tr>");
+			}
+			else if (it.indexOf("chis=") >=0)	
+			{
+				chiSquare 		= it.substring(it.indexOf("chis=") + 5).trim();
+				buf.append("<tr><th>&chi;<sup>2</sup></th><td>${chiSquare}</td></tr>");
+			}
+			else if (it.indexOf("chip=") >=0)	
+			{
+				chiPValue		= it.substring(it.indexOf("chip=") + 5).trim();
+				buf.append("<tr><th>&chi;<sup>2</sup> p-value</th><td>${chiPValue}</td></tr>");
+				firstRecord = false
+			}
+		}
+		
 		buf.append("</table>");
+		
+		
+		
+		
 		return buf.toString();
 
 	}
