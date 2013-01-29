@@ -1,3 +1,10 @@
+plugin.xml
 target
-grails-rdc-rmodules-0.1.zip
+grails-rdc-rmodules-*.zip
 stacktrace.log
+web-app/plugins
+web-app/WEB-INF/classes
+.settings
+target-eclipse
+.classpath
+.project
