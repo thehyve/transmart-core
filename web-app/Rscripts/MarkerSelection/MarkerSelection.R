@@ -230,6 +230,7 @@ numberOfMarkers = 100
 	finalHeatmapData <- rbind(negativeHeatmapData,positiveHeatmapData)
 	
 	#Remove the t score and positive columns.
+	finalHeatmapData$GENE_SYMBOL <- paste(finalHeatmapData$GENE_SYMBOL, finalHeatmapData$PROBE.ID, sep='/')
 	finalHeatmapData <- subset(finalHeatmapData, select = -c(PROBE.ID,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
 	
 	#Rename the first column to be "GROUP".
