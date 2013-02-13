@@ -169,10 +169,10 @@ class RModulesService {
 		//We need to get module information.
 		def pluginModuleInstance = pluginService.findPluginModuleByModuleName(params.analysis)
 		
-		def InputStream textStream = pluginModuleInstance?.params?.getAsciiStream()
+		def String textStream = pluginModuleInstance?.params
 		def moduleMap, moduleMapStr = null
 		try {
-			moduleMapStr = pluginService.convertStreamToString(textStream).replace('\n',' ')
+			moduleMapStr = textStream
 			moduleMap = new org.codehaus.groovy.grails.web.json.JSONObject(moduleMapStr) as Map
 		} catch (Exception e) {
 			log.error('Module '+params.analysis+' params could not be loaded', e)
