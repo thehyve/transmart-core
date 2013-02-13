@@ -173,6 +173,7 @@ class RModulesService {
 		def moduleMapStr = pluginModuleInstance?.paramsStr
 		
 		try {
+			moduleMapStr = pluginService.convertStreamToString(textStream).replace('\n',' ')
 			moduleMap = new org.codehaus.groovy.grails.web.json.JSONObject(moduleMapStr) as Map
 		} catch (Exception e) {
 			log.error('Module '+params.analysis+' params could not be loaded', e)
