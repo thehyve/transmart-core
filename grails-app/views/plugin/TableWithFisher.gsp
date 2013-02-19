@@ -33,6 +33,9 @@
 			<tr>
 				<td colspan="4">
 					<span class='AnalysisHeader'>Variable Selection</span>
+					<a href='JavaScript:D2H_ShowHelp(1272,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+						<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+					</a>						
 				</td>			
 			</tr>	
 			<tr>

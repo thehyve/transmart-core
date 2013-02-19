@@ -57,14 +57,16 @@ output.dataFile="outputfile"
 								)
 	
 	#Pull out a subset of columns we are interested in.
-	geneExpressionMatrix <- geneExpressionMatrix[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET','ASSAY.ID')]
+	geneExpressionMatrix <- geneExpressionMatrix[c('PATIENT.ID','ZSCORE','PROBE.ID','GENE_SYMBOL','SUBSET','ASSAY.ID')]
 	
 	#Trim the probe.id field.
 	geneExpressionMatrix$GENE_SYMBOL <- gsub("^\\s+|\\s+$", "",geneExpressionMatrix$GENE_SYMBOL)	
 	
 	#Pull the columns we are interested in out of the data.
-	finalFrame <- geneExpressionMatrix[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET')]	
+	finalFrame <- geneExpressionMatrix[c('PATIENT.ID','ZSCORE','PROBE.ID','GENE_SYMBOL','SUBSET')]	
 		
+	colnames(finalFrame) <- c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET')
+
 	#We need MASS to dump the data frame to a file.
 	require(MASS)	
 	

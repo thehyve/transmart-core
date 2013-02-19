@@ -21,6 +21,14 @@ function submitBoxPlotJob(form){
 	var dependentVariableConceptCode = "";
 	var independentVariableConceptCode = "";	
 	
+	//If we have multiple items in the Dependent variable box, or if we are binning on it, then we have to flip the graph image.
+	var flipImage = false;
+	
+	if((dependentVariableEle.dom.childNodes.length > 1) || (GLOBAL.Binning && document.getElementById("selBinVariableSelection").value == "DEP"))
+	{
+		flipImage = true;
+	}
+	
 	//If the category variable element has children, we need to parse them and concatenate their values.
 	if(independentVariableEle.dom.childNodes[0])
 	{
@@ -49,175 +57,30 @@ function submitBoxPlotJob(form){
 		}
 	}	
 	
-	
-	//------------------------------------
-	//Validation
-	//------------------------------------
 	//Make sure the user entered some items into the variable selection boxes.
-	if(dependentVariableConceptCode == '' && independentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable and dependent variable boxes.');
-		return;
-	}
 	if(dependentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the dependent variable box.');
-		return;
-	}
+		{
+			Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the dependent variable box.');
+			return;
+		}
+	
 	if(independentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable box.');
-		return;
-	}
+		{
+			Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
+			return;
+		}
 		
-	//Loop through the dependent variable box and find the the of nodes in the box.
-	var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
-	var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
-	
-	//If the user dragged in multiple node types, throw an error.
-	if(dependentNodeList.length > 1)
-	{
-		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Dependent input box has multiple types.');
-		return;		
-	}		
-
-	if(independentNodeList.length > 1)
-	{
-		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Independent input box has multiple types.');
-		return;		
-	}		
-	
-	//For the valueicon and hleaficon nodes, you can only put one in a given input box.
-	if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') && (dependentVariableConceptCode.indexOf("|") != -1))
-	{
-		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Dependent input box has multiple nodes.');
-		return;		
-	}		
-
-	if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1))
-	{
-		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Independent input box has multiple nodes.');
-		return;		
-	}			
-	
-	//This is the selection from the binning dropdown that tells us what we are binning.
-	var binningVariable = Ext.get("selBinVariableSelection").getValue()
-	
-	//This is the final boolean that tells us the validation is okay.
-	var finalValidation = false;
-	
-	//If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-	if(GLOBAL.Binning && binningVariable=="DEP" && Ext.get('variableType').getValue() == 'Continuous' && ((dependentVariableConceptCode != "" && (!dependentNodeList[0] || dependentNodeList[0] == "null")) || (dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')) )
-	{
-		Ext.Msg.alert('Wrong input', 'There is a categorical input in the Dependent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Dependent variable box.');
-		return;		
-	}
-	if(GLOBAL.Binning && binningVariable=="IND" && Ext.get('variableType').getValue() == 'Continuous' && ((independentVariableConceptCode != "" && (!independentNodeList[0] || independentNodeList[0] == "null")) || (independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')) )
-	{
-		Ext.Msg.alert('Wrong input', 'There is a categorical input in the Independent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Independent variable box.');
-		return;		
-	}	
-
-	//If binning is enabled, we are doing categorical and the manual binning checkbox is not checked, alert the user.
-	if(GLOBAL.Binning && Ext.get('variableType').getValue() != 'Continuous' && !GLOBAL.ManualBinning)
-	{
-		Ext.Msg.alert('Wrong input', 'You must enable manual binning when binning a categorical variable.');
-		return;			
-	}
-	
-	//If binning is enabled and the user is trying to categorically bin a continuous variable, alert them.
-	if(GLOBAL.Binning && binningVariable=="DEP" && Ext.get('variableType').getValue() != 'Continuous' && (dependentNodeList[0] == 'valueicon' || (dependentNodeList[0] == 'hleaficon' && !(window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP'))))
-	{
-		Ext.Msg.alert('Wrong input', 'You cannot use categorical binning with a continuous variable. Please alter your binning options or the concept in the Dependent box.');
-		return;			
-	}	
-	
-	if(GLOBAL.Binning && binningVariable=="IND" && Ext.get('variableType').getValue() != 'Continuous' && (independentNodeList[0] == 'valueicon' || (independentNodeList[0] == 'hleaficon' && !(window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP'))))
-	{
-		Ext.Msg.alert('Wrong input', 'You cannot use categorical binning with a continuous variable. Please alter your binning options or the concept in the Independent box.');
-		return;			
-	}		
-	
-	//Nodes will be either 'hleaficon' or 'valueicon'.
-	//Box plots require 1 categorical and 1 continuous variable.
-	var depVariableType = "";
-	var indVariableType = "";
-	
-	//If there is a categorical variable in either box (This means either of the lists are empty)
-	if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
-	if(!independentNodeList[0] || independentNodeList[0] == "null") indVariableType = "CAT";
-	
-	//If binning is enabled on the dependent variable, then we have a categorical variable.
-	if (GLOBAL.Binning && (binningVariable=="DEP")) depVariableType = "CAT";
-	if (GLOBAL.Binning && (binningVariable=="IND")) indVariableType = "CAT";
-	
-	//Dependent: If we have a continuous value or a High Dim Data node (That isn't genotype) and we aren't binning the dependent box, we have a continuous variable. 
-	if((dependentNodeList[0] == 'valueicon' || (dependentNodeList[0] == 'hleaficon' && !(window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP'))) && !(GLOBAL.Binning && (binningVariable=="DEP"))) depVariableType = "CON";
-	if((independentNodeList[0] == 'valueicon' || (independentNodeList[0] == 'hleaficon' && !(window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP'))) && !(GLOBAL.Binning && (binningVariable=="IND"))) indVariableType = "CON";
-	
-	//If we are doing genotype, mark it as categorical.
-	if(dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP') depVariableType = "CAT"
-	if(independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP') indVariableType = "CAT"
-	
-	//If we don't have a CON and CAT variable, throw an error.
-	if((depVariableType=="CAT" && indVariableType == "CON") || (depVariableType=="CON" && indVariableType == "CAT"))
-	{
-		finalValidation	= true;
-	}
-	
-	if(!finalValidation)
-	{
-		Ext.Msg.alert('Wrong input', 'Please select one continuous variable and one categorical variable, with at least 2 data values.');
-		return;	
-	}
-
-	//If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user. 
-	if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptCode.indexOf("|") == -1)
-	{
-		Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
-		return;			
-	}
-	
-	if((!independentNodeList[0] || independentNodeList[0] == "null") && independentVariableConceptCode.indexOf("|") == -1)
-	{
-		Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The independent box only has 1 categorical variable in it.');
-		return;			
-	}
-	
-	//------------------------------------
-	
-	//If the categorical item is in the Dependent variable box, we set the flipping flag.
-	var flipImage = false;
-	
-	if(depVariableType=="CAT")
-	{
-		flipImage = true;
-	}
-	
+	var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
 	
 	var formParams = {
 						dependentVariable:dependentVariableConceptCode,
-						independentVariable:independentVariableConceptCode
+						independentVariable:independentVariableConceptCode,
+						jobType:								'BoxPlot',
+						variablesConceptPaths:					variablesConceptCode
 					};
 	
-	if(!loadHighDimensionalParameters(formParams)) return false;
-	loadBinningParameters(formParams);
-	
-	//------------------------------------
-	//More Validation
-	//------------------------------------	
-	//If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-	if(dependentNodeList[0] == 'hleaficon' && formParams["divDependentVariableType"] == "CLINICAL")
-	{
-		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the dependent variable box but did not select any filters! Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
-		return;			
-	}
-	if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
-	{
-		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable box but did not select any filters! Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
-		return;			
-	}	
-	//------------------------------------	
+	loadHighDimensionalParameters(formParams);
+	loadBinningParametersBoxPlot(formParams);
 	
 	//Pass in our flag that tells us whether to flip or not.
 	formParams["flipImage"] = (flipImage) ? 'TRUE' : 'FALSE'
@@ -227,9 +90,8 @@ function submitBoxPlotJob(form){
 
 function loadBoxPlotView(){
 	registerBoxPlotDragAndDrop();
-	clearGroupBox('divIndependentVariable');
-	clearGroupBox('divDependentVariable');
-	clearHighDimensionalFields();
+	clearHighDimDataSelections('divIndependentVariable');
+	clearHighDimDataSelections('divDependentVariable');
 }
 
 function registerBoxPlotDragAndDrop()
@@ -268,20 +130,14 @@ function clearGroupBox(divName)
 function toggleBinning() {
 	// Change the Binning flag.
 	GLOBAL.Binning = !GLOBAL.Binning;
-	
+
+	// Toggle the div with the binning options.
+	Ext.get('divBinning').toggle();
+
 	// Change the toggle button text.
-	if (GLOBAL.Binning) 
-	{
-		//Toggle the div with the binning options.		
-		document.getElementById('divBinning').style.display = '';
-		
+	if (GLOBAL.Binning) {
 		document.getElementById('BinningToggle').value = "Disable"
-		
-	} else 
-	{
-		//Toggle the div with the binning options.		
-		document.getElementById('divBinning').style.display='none';
-		
+	} else {
 		document.getElementById('BinningToggle').value = "Enable"
 	}
 }
@@ -292,7 +148,7 @@ function updateManualBinning() {
 
 	// Get the type of the variable we are dealing with.
 	variableType = Ext.get('variableType').getValue();
-	
+
 	// Hide both DIVs.
 	var divContinuous = Ext.get('divManualBinContinuous');
 	var divCategorical = Ext.get('divManualBinCategorical');
@@ -300,14 +156,12 @@ function updateManualBinning() {
 	divCategorical.setVisibilityMode(Ext.Element.DISPLAY);
 	divContinuous.hide();
 	divCategorical.hide();
-	
 	// Show the div with the binning options relevant to our variable type.
 	if (document.getElementById('chkManualBin').checked) {
 		if (variableType == "Continuous") {
 			divContinuous.show();
 			divCategorical.hide();
 		} else {
-			
 			// Find out which variable we are binning.
 			var binningVariable = Ext.get("selBinVariableSelection").getValue()
 			
@@ -416,7 +270,7 @@ function dropOntoBin(source, e, data) {
 	return true;
 }
 
-function loadBinningParameters(formParams)
+function loadBinningParametersBoxPlot(formParams)
 {
 	
 	//These default to FALSE
@@ -477,4 +331,5 @@ function loadBinningParameters(formParams)
 	}
 
 }
+
 
