@@ -169,10 +169,10 @@ class RModulesService {
 		//We need to get module information.
 		def pluginModuleInstance = pluginService.findPluginModuleByModuleName(params.analysis)
 		
-		def String textStream = pluginModuleInstance?.params
-		def moduleMap, moduleMapStr = null
+		def moduleMap = null
+		def moduleMapStr = pluginModuleInstance?.paramsStr
+		
 		try {
-			moduleMapStr = textStream
 			moduleMap = new org.codehaus.groovy.grails.web.json.JSONObject(moduleMapStr) as Map
 		} catch (Exception e) {
 			log.error('Module '+params.analysis+' params could not be loaded', e)
@@ -219,5 +219,11 @@ class RModulesService {
 		}
 		def trigger = new SimpleTrigger("triggerNow"+Calendar.instance.time.time, 'RModules')
 		quartzScheduler.scheduleJob(jobDetail, trigger)
+	}
+	
+	// method for non-R jobs
+	def prepareDataForExport(userName, params) {
+		loadJobDataMap(userName, params);
+		return jobDataMap;
 	}
 }
