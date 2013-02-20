@@ -37,13 +37,20 @@
 		</g:each>
 		
 		<br />
-		<span class='AnalysisHeader'>Table of top Markers</span><br /><br />
+		<span class='AnalysisHeader'>Table of top Markers</span>
+		<g:if test="${grailsApplication.config.com.thomsonreuters.transmart.metacoreAnalyticsEnable}">
+			&nbsp;<g:metacoreSettingsButton /><input type="button" value="Run MetaCore Enrichment Analysis" onClick="markerSelectionRunMetacoreEnrichment();" />
+		</g:if>
+		<br />
+		<g:if test="${grailsApplication.config.com.thomsonreuters.transmart.metacoreAnalyticsEnable}">
+			<g:render template="/metacoreEnrichment/enrichmentResult" model="[prefix: 'marker_']"/>
+		</g:if>
+		<br />
 		
 		${markerSelectionTable}
 		
 		<br />
 		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
-		
 	</form>
 </body>
 
