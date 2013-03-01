@@ -1,7 +1,7 @@
 package org.transmart.db.clinical.clinical
 
 /**
- * The Sample domain object represents a physical biological sample.
+ * The org.transmart.core.data.clinical.Sample domain object represents a physical biological sample.
  * This class resides in the clinical domain where it links to patient
  * This class is a storage implementation which is exposed by the ClinicalDataService
  */
@@ -9,7 +9,7 @@ class SampleInfo {
 
     String id;
     String sampleName;
-    String platformName;	// The GEO code for the platform
+    String platformName;
     String trialName;
     Long assayId;
     String conceptCode;
