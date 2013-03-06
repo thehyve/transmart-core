@@ -7,43 +7,24 @@ import static org.junit.Assert.fail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@Mixin(ConceptTestData)
 class TableAccessTests {
 
     @Before
     void setUp() {
-        def common = [
-                factTableColumn      :   '',
-                dimensionTableName   :   '',
-                columnName           :   '',
-                columnDataType       :   '',
-                operator             :   '',
-                dimensionCode        :   '',
-        ]
-
-        def objects = [
-                new I2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto'),
-                new I2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
-                        cVisualattributes: 'FH'),
-                new I2b2(level: 1, fullName: '\\foo\\baz\\', name: 'baz',
-                        cSynonymCd: 'Y'),
-                new I2b2(level: 0, fullName: '\\foo\\', name: 'foo'),
-                new TableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
-                        tableCode: 'i2b2 main', tableName: 'i2b2'),
-                new TableAccess(level: 0, fullName: '\\fooh\\', name: 'fooh',
-                        tableCode: 'bogus table', tableName: 'bogus'),
-                new TableAccess(level: 0, fullName: '\\notini2b2\\',
+        addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto')
+        addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
+                        cVisualattributes: 'FH')
+        addI2b2(level: 1, fullName: '\\foo\\baz\\', name: 'baz',
+                cSynonymCd: 'Y')
+        addI2b2(level: 0, fullName: '\\foo\\', name: 'foo')
+        addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
+                        tableCode: 'i2b2 main', tableName: 'i2b2')
+        addTableAccess(level: 0, fullName: '\\fooh\\', name: 'fooh',
+                        tableCode: 'bogus table', tableName: 'bogus')
+        addTableAccess(level: 0, fullName: '\\notini2b2\\',
                         name: 'notini2b2', tableCode: 'i2b2 2nd code',
-                        tableName: 'i2b2'),
-                ]
-        objects.each { obj ->
-            common.each { obj."$it.key" = it.value }
-            if (obj instanceof I2b2) {
-                obj.updateDate = new Date()
-                obj.mAppliedPath = '' /* only for I2b2, not TableAccess */
-            }
-
-            assert obj.save() != null
-        }
+                        tableName: 'i2b2')
     }
 
     @Test

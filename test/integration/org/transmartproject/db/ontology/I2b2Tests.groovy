@@ -6,29 +6,14 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import org.junit.*
 
+@Mixin(ConceptTestData)
 class I2b2Tests {
 
     @Before
     void setUp() {
-        def common = [
-                factTableColumn      :   '',
-                dimensionTableName   :   '',
-                columnName           :   '',
-                columnDataType       :   '',
-                operator             :   '',
-                dimensionCode        :   '',
-                mAppliedPath         :   '',
-                updateDate           :   new Date(),
-        ]
-
-        def objects = [
-                new I2b2(level: 0, fullName: '\\foo\\bar', name: 'var',
-                        cVisualattributes: 'FH'),
-                new I2b2(level: 0, fullName: '\\foo\\xpto', name: 'xpto')]
-        objects.each { obj ->
-            common.each { obj."$it.key" = it.value }
-            assert obj.save() != null
-        }
+        addI2b2(level: 0, fullName: '\\foo\\bar', name: 'var',
+                cVisualattributes: 'FH')
+        addI2b2(level: 0, fullName: '\\foo\\xpto', name: 'xpto')
     }
 
     @Test
