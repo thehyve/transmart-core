@@ -12,7 +12,7 @@ interface ConceptsResource {
      * Categories are concepts that group data for which there is a common
      * rule or rules for queries.
      *
-     * @return The categories in the order returned upstream.
+     * @return the (not hidden, not synonymous) categories
      */
     List<OntologyTerm> getAllCategories()
 
