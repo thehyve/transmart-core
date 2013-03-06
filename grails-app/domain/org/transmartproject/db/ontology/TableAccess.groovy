@@ -88,6 +88,16 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
     }
 
+    Class getOntologyTermDomainClassReferred()
+    {
+        def domainClass = Holders.getGrailsApplication().domainClasses.find
+                {
+                    AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
+                            tableName.equalsIgnoreCase(it.clazz.backingTable)
+                }
+        domainClass?.clazz
+    }
+
     ConceptKey getConceptKey() {
         new ConceptKey(tableCode, fullName)
     }
@@ -98,7 +108,8 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     @Override
-    List<OntologyTerm> getChildren(showHidden = false, showSynonyms = false) {
+    List<OntologyTerm> getChildren(boolean showHidden = false,
+                                   boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
 
         /* extract table code from concept key and resolve it to a table name */
@@ -111,16 +122,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
 
         /* validate this table name */
-        def domainClass = Holders.getGrailsApplication().domainClasses.find
-                {
-                    AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
-                            tableName.equalsIgnoreCase(it.clazz.backingTable)
-                }
+        def domainClass = this.ontologyTermDomainClassReferred
         if (!domainClass) {
             throw new RuntimeException("Metadata table ${tableName} is not " +
                     "mapped")
         }
-        domainClass = domainClass.clazz
 
         /* select level on the original table (is this really necessary?) */
         c = domainClass.createCriteria();

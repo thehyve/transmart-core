@@ -75,7 +75,8 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     @Override
-    List<OntologyTerm> getChildren(showHidden = false, showSynonyms = false) {
+    List<OntologyTerm> getChildren(boolean showHidden = false,
+                                   boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
         def fullNameSearch = this.conceptKey.conceptFullName.toString() + '%'
 
