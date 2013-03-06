@@ -55,6 +55,17 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>repo.hyve.nl-releases</id>
+            <url>http://repo.thehyve.nl/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>repo.hyve.nl-snapshots</id>
+            <url>http://repo.thehyve.nl/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <groovyVersion>2.1.0</groovyVersion>
         <gmavenProviderSelection>2.0</gmavenProviderSelection>
