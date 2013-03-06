@@ -16,7 +16,14 @@ interface ConceptsResource {
      */
     List<OntologyTerm> getAllCategories()
 
-    OntologyTerm getById(String conceptId) throws NoSuchResourceException
+    /**
+     * Returns the first non-synonym concept with the given key.
+     *
+     * @param conceptKey string in the form \\<table code><full name>
+     * @return the requested concept
+     * @throws NoSuchResourceException
+     */
+    OntologyTerm getByKey(String conceptKey) throws NoSuchResourceException
 
     /**
      * Search for a list of concepts.
