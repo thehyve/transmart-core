@@ -42,8 +42,6 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         AbstractQuerySpecifyingType.constraints()
     }
 
-    abstract static String getBackingTable()
-
     static convertVisualAttributesString(attributes) {
         def result = EnumSet.noneOf(VisualAttributes);
 
