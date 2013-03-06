@@ -1,25 +1,10 @@
 package org.transmartproject.db.ontology
 
-import javax.persistence.PrePersist
-import javax.persistence.PreUpdate
+class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
-class I2b2 extends AbstractOntologyTerm implements Serializable {
-
-    //String       cVisualattributes /* defined in parent */
-
-    Integer      level
-    String       fullName
-    String       name
-    Character    cSynonymCd = 'N'
     BigDecimal   cTotalnum
     String       cBasecode
     String       cMetadataxml
-    String       cFacttablecolumn
-    String       cTablename
-    String       cColumnname
-    String       cColumndatatype
-    String       cOperator
-    String       cDimcode
     String       cComment
     String       tooltip
     String       mAppliedPath
@@ -32,8 +17,10 @@ class I2b2 extends AbstractOntologyTerm implements Serializable {
     String       cPath
     String       cSymbol
 
+    static String backingTable = 'I2B2'
+
     static mapping = {
-        table         'i2b2'
+        table         'I2B2'
         version       false
 
         /* hibernate needs an id, see
@@ -41,10 +28,8 @@ class I2b2 extends AbstractOntologyTerm implements Serializable {
          */
         id          composite: ['fullName', 'name']
 
-        fullName    column: 'C_FULLNAME'
-        level       column: 'C_HLEVEL'
-        name        column: 'C_NAME'
-        tooltip     column: 'C_TOOLTIP'
+        AbstractI2b2Metadata.mapping.delegate = delegate
+        AbstractI2b2Metadata.mapping()
 	}
 
 	static constraints = {
@@ -56,12 +41,6 @@ class I2b2 extends AbstractOntologyTerm implements Serializable {
         cTotalnum           nullable:   true
         cBasecode           nullable:   true,    maxSize:   50
         cMetadataxml        nullable:   true
-        cFacttablecolumn    nullable:   false,   maxSize:   50
-        cTablename          nullable:   false,   maxSize:   150
-        cColumnname         nullable:   false,   maxSize:   50
-        cColumndatatype     nullable:   false,   maxSize:   50
-        cOperator           nullable:   false,   maxSize:   10
-        cDimcode            nullable:   false,   maxSize:   700
         cComment            nullable:   true
         tooltip             nullable:   true,    maxSize:   900
         mAppliedPath        nullable:   false,   maxSize:   700
@@ -73,6 +52,15 @@ class I2b2 extends AbstractOntologyTerm implements Serializable {
         mExclusionCd        nullable:   true,    maxSize:   25
         cPath               nullable:   true,    maxSize:   700
         cSymbol             nullable:   true,    maxSize:   50
+
+        AbstractI2b2Metadata.constraints.delegate = delegate
+        AbstractI2b2Metadata.constraints()
 	}
+
+    @Override
+    String toString() {
+        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
+                "] [ fullName=$fullName, level=$level,  ]"
+    }
 
 }
