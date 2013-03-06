@@ -24,7 +24,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
-        build('org.transmartproject:transmart-core-api:1.0-SNAPSHOT')
+        compile('org.transmartproject:transmart-core-api:1.0-SNAPSHOT')
 
         runtime('postgresql:postgresql:9.1-901.jdbc4') {
             transitive: false

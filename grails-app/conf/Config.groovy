@@ -4,7 +4,7 @@ def dataSourceConfig = new File("${userHome}/" +
         ".grails/transmartConfig/DataSource.groovy")
 
 if (!dataSourceConfig.exists())
-    throw "Coult not find ${dataSourceConfig}"
+    throw new RuntimeException("Coult not find ${dataSourceConfig}")
 
 grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
 
