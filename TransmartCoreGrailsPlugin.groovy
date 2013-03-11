@@ -1,6 +1,6 @@
 class TransmartCoreGrailsPlugin {
     // the plugin version
-    def version = "0.1"
+    def version = "1.0-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.2 > *"
     // resources that are excluded from plugin packaging
@@ -8,12 +8,11 @@ class TransmartCoreGrailsPlugin {
         "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
-    def title = "Transmart Core Plugin" // Headline display name of the plugin
+    def title = "Transmart Core DB Plugin"
     def author = "Transmart Foundation"
     def authorEmail = "admin@transmartproject.org"
     def description = '''\
-Brief summary/description of the plugin.
+A runtime dependency for tranSMART that implements the Core API
 '''
 
     // URL to the plugin's documentation
@@ -28,13 +27,16 @@ Brief summary/description of the plugin.
 //    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
 
     // Any additional developers beyond the author specified above.
-//    def developers = [ [ name: "Joe Bloggs", email: "joe@bloggs.net" ]]
+    def developers = [
+            [ name: "Kees van Bochove",  email: "kees@thehyve.nl"],
+            [ name: "Gustavo Lopes"   ,  email: "gustavo@thehyve.nl" ],
+    ]
 
     // Location of the plugin's issue tracker.
 //    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
 
     // Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
+    def scm = [ url: "https://fisheye.ctmmtrait.nl/browse/transmart_core_db" ]
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before
