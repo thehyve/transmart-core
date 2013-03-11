@@ -8,9 +8,7 @@ if (!dataSourceConfig.exists())
 
 grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
 
-grails.plugin.reveng.defaultSchema = 'i2b2metadata'
-grails.plugin.reveng.includeTables = ['table_access']
-grails.plugin.reveng.packageName = 'org.transmartproject.db.ontology'
+grails.spring.bean.packages = ['org.transmartproject.db.support']
 
 log4j = {
     // Example of changing the log pattern for the default console
@@ -38,5 +36,8 @@ log4j = {
         info('stdout')
     }
 }
+
+grails.converters.default.pretty.print=true
+
 grails.views.default.codec="none" // none, html, base64
 grails.views.gsp.encoding="UTF-8"
