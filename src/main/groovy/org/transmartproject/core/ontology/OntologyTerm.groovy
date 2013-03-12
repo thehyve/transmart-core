@@ -14,6 +14,13 @@ public interface OntologyTerm {
     Integer getLevel()
 
     /**
+     * Returns the term key; this is a string starting with \\,
+     * followed by the the table code and the concept full name
+     * @return \\<table code><full name>
+     */
+    String getKey()
+
+    /**
      * The hierarchical path that leads to the term,
      * like <code>\i2b2\Diagnoses\Musculoskeletal and connective tissue (710)
      * \Arthropaties (710-19)\(714) Rheumatoid arthritis and other
