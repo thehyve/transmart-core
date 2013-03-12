@@ -4,7 +4,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 
 class OntologyTermMarshaller {
 
-    final targetType = OntologyTerm
+    static targetType = OntologyTerm
 
     def convert(OntologyTerm term) {
         return [
