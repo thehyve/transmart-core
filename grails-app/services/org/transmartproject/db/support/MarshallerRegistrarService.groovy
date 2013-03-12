@@ -11,8 +11,8 @@ import org.springframework.core.type.filter.TypeFilter
 
 public class MarshallerRegistrarService {
 
-    final static String PACKAGE = "org.transmartproject.db.marshallers"
-    final static String RESOURCE_PATTERN = "**/*Marshaller.class"
+    private final static PACKAGE = "org.transmartproject.db.marshallers"
+    private final static RESOURCE_PATTERN = "**/*Marshaller.class"
 
     void scanForClasses(final ApplicationContext ctx) {
         ClassPathBeanDefinitionScanner scanner = new
