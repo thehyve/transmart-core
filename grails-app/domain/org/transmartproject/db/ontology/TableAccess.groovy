@@ -103,6 +103,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     @Override
+    String getKey() {
+        conceptKey.toString()
+    }
+
+    @Override
     EnumSet<VisualAttributes> getVisualAttributes() {
         AbstractI2b2Metadata.convertVisualAttributesString(cVisualattributes)
     }

@@ -8,6 +8,7 @@ class OntologyTermMarshaller {
 
     def convert(OntologyTerm term) {
         return [
+                key              : term.key,
                 level            : term.level,
                 fullName         : term.fullName,
                 name             : term.name,

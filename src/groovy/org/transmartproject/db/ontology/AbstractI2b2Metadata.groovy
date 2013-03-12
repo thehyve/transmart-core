@@ -73,6 +73,11 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     @Override
+    String getKey() {
+        conceptKey.toString()
+    }
+
+    @Override
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
