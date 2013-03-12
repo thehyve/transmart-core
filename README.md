@@ -22,9 +22,9 @@ database, uncommenting the relevant data source in
 <tt>grails-app/conf/DataSource.groovy</tt> for the test environment should be
 sufficient.  Be warned, however, that this module includes the same out-of-tree
 data source configuration file as transmartApp and that that file (i.e.
-<tt>~/.grails/transmart/DataSource.groovy</tt>) may override your preference in
-the aforementioned DataSource.groovy file in grails-app. If you prefer not to
-pollute the tree and risk committing unintended changes in
+<tt>~/.grails/transmartConfig/DataSource.groovy</tt>) may override your
+preference in the aforementioned DataSource.groovy file in grails-app. If you
+prefer not to pollute the tree and risk committing unintended changes in
 <tt>grails-app/conf/DataSource.groovy</tt>, you can also add your data source
 configuration in the out-of-tree file. It has the advantage that you can just
 define your postgres data source for both transmartApp and core-db in the same
