@@ -1,3 +1,5 @@
+import org.transmartproject.db.support.MarshallerRegistrarService
+
 class TransmartCoreGrailsPlugin {
     // the plugin version
     def version = "1.0-SNAPSHOT"
@@ -51,7 +53,9 @@ A runtime dependency for tranSMART that implements the Core API
     }
 
     def doWithApplicationContext = { applicationContext ->
-        // TODO Implement post initialization spring config (optional)
+        MarshallerRegistrarService bean =
+            applicationContext.getBean(MarshallerRegistrarService)
+        bean.scanForClasses(applicationContext)
     }
 
     def onChange = { event ->

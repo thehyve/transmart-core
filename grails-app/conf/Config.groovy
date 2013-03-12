@@ -8,8 +8,6 @@ if (!dataSourceConfig.exists())
 
 grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
 
-grails.spring.bean.packages = ['org.transmartproject.db.support']
-
 /*
 Example configuration for using the reveng plugin
 grails.plugin.reveng.defaultSchema = 'i2b2demodata'
