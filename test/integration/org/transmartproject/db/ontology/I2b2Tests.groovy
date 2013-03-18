@@ -14,6 +14,7 @@ class I2b2Tests {
         addI2b2(level: 0, fullName: '\\foo\\bar', name: 'var',
                 cVisualattributes: 'FH')
         addI2b2(level: 0, fullName: '\\foo\\xpto', name: 'xpto')
+        addI2b2(level: 1, fullName: '\\foo\\xpto\\bar', name: 'bar')
     }
 
     @Test
@@ -32,5 +33,18 @@ class I2b2Tests {
                         OntologyTerm.VisualAttributes.HIDDEN
                 ))
         ))
+    }
+
+    @Test
+    void testGetChildren() {
+        I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto') }
+
+        assertThat xpto, is(notNullValue())
+
+        def children = xpto.children
+        assertThat(children, allOf(
+                hasSize(1),
+                contains(hasProperty('fullName', equalTo('\\foo\\xpto\\bar')))
+                ))
     }
 }

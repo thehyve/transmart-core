@@ -81,13 +81,14 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = this.conceptKey.conceptFullName.toString() + '%'
+        def fullNameSearch = this.conceptKey.conceptFullName.toString()
+                .asLikeLiteral() + '%'
 
         c = createCriteria()
         c.list {
             and {
                 like 'fullName', fullNameSearch
-                eq 'level', parentLevel + 1
+                eq 'level', level + 1
                 if (!showHidden) {
                     not { like 'cVisualattributes', '_H%' }
                 }
