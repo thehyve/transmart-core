@@ -49,7 +49,7 @@ A runtime dependency for tranSMART that implements the Core API
     }
 
     def doWithDynamicMethods = { ctx ->
-        // TODO Implement registering dynamic methods to classes (optional)
+        String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
     }
 
     def doWithApplicationContext = { applicationContext ->
