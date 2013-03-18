@@ -151,10 +151,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "$fullName)")
 
         /* Finally select the relevant stuff */
-        def fullNameSearch = fullName + '%'
-
-        /* XXX: for some reason this is necessary. Should be investigated */
-        fullNameSearch = fullNameSearch.replaceAll('\\\\', '\\\\\\\\')
+        def fullNameSearch = fullName.asLikeLiteral() + '%'
 
         c = domainClass.createCriteria()
         c.list {
