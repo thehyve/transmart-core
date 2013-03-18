@@ -20,7 +20,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
     static String backingTable = 'I2B2'
 
     static mapping = {
-        table         'I2B2'
+        table         name: 'I2B2', schema: 'I2B2METADATA'
         version       false
 
         /* hibernate needs an id, see

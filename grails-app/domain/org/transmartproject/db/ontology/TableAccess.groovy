@@ -31,7 +31,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     String       valuetypeCd
 
 	static mapping = {
-        table   'table_access'
+        table   name: 'table_access', schema: 'I2B2METADATA'
 		version false
 
         /* hibernate needs an id, see
