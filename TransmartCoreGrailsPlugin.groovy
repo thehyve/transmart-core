@@ -1,3 +1,4 @@
+import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
@@ -45,7 +46,7 @@ A runtime dependency for tranSMART that implements the Core API
     }
 
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+        businessExceptionResolver(BusinessExceptionResolver)
     }
 
     def doWithDynamicMethods = { ctx ->
