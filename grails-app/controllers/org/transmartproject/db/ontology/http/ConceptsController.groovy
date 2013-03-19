@@ -1,0 +1,19 @@
+package org.transmartproject.db.ontology.http
+
+import grails.converters.JSON
+
+class ConceptsController {
+
+    def conceptsResourceService
+
+    def getCategories() {
+        render conceptsResourceService.allCategories as JSON
+    }
+
+    def getChildren() {
+        def parentConceptKey = params.get('concept_key')
+        def parent = conceptsResourceService.getByKey(parentConceptKey)
+        parent.children as JSON
+    }
+
+}
