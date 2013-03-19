@@ -15,6 +15,8 @@ class ConceptKey {
     final ConceptFullName conceptFullName
 
     ConceptKey(String key) {
+        if (key == null)
+            throw new IllegalArgumentException('Concept key is null')
         if (key.size() < 5 /* \\a\b */)
             throw new IllegalArgumentException("Concept key is too short")
         if (key[0..1] != '\\\\')
@@ -31,6 +33,9 @@ class ConceptKey {
     }
 
     ConceptKey(String tableCode, String fullName) {
+        if (tableCode == null || fullName == null)
+            throw new IllegalArgumentException('Table code or full name are ' +
+                    'null')
         if (tableCode.find('\\\\') != null)
             throw new IllegalArgumentException("Table code includes a " +
                     "back slash")

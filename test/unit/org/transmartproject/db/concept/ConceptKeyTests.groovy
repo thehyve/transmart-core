@@ -31,7 +31,8 @@ class ConceptKeyTests {
 
     @Test
     void badInput() {
-        def keys = ['', '\\\\', '\\\\\\', '\\\\a\\', '\\as\\b', '\\\\a\\b\\\\']
+        def keys = ['', '\\\\', '\\\\\\', '\\\\a\\', '\\as\\b',
+                '\\\\a\\b\\\\', null]
 
         keys.each({
             try {
