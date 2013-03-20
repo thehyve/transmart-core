@@ -13,7 +13,7 @@ class ConceptsController {
     def getChildren() {
         def parentConceptKey = params.get('concept_key')
         def parent = conceptsResourceService.getByKey(parentConceptKey)
-        parent.children as JSON
+        render parent.children as JSON
     }
 
 }
