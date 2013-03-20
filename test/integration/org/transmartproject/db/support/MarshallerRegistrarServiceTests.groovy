@@ -5,29 +5,17 @@ import groovy.json.JsonSlurper
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.marshallers.OntologyTermMarshaller
+import org.transmartproject.db.ontology.ConceptTestData
+import org.transmartproject.db.ontology.I2b2
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import org.junit.*
 
+@Mixin(ConceptTestData)
 class MarshallerRegistrarServiceTests {
 
     def grailsApplication
-
-    static class ExtendedOntologyTerm implements OntologyTerm {
-        final Integer level = 1
-        final String key = '\\\\foo_bar\\my full name\\'
-        final String fullName = "\\my full name\\"
-        final String name = "my name"
-        final String tooltip = tooltip
-        final EnumSet<VisualAttributes> visualAttributes = EnumSet.allOf(VisualAttributes)
-        @Override
-        List<OntologyTerm> getChildren(boolean showHidden = false,
-                                       boolean showSynonyms = false) {
-            []
-        }
-        final String extra = 'extra'
-    }
 
     @Test
     void testRegistersOntologyTermMarshaller() {
@@ -39,7 +27,10 @@ class MarshallerRegistrarServiceTests {
         assertThat grailsApplication.mainContext.
                 getBean(OntologyTermMarshaller), is(notNullValue())
 
-        def term = new ExtendedOntologyTerm()
+        addI2b2(level: 1, fullName: "\\my full name\\", name: 'my name')
+        def term = I2b2.find { eq('fullName', "\\my full name\\") }
+        term.setTableCode('foo_bar')
+        term.metaClass.extra = 'extra'
 
         // The marshaller is being used
         def termOut = new JsonSlurper().parseText((term as JSON).toString())
