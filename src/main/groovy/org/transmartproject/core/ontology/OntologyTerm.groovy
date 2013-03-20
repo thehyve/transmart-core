@@ -103,7 +103,7 @@ public interface OntologyTerm {
         /**
          * A terminal term.
          */
-        LEAF                ('F' as Character),
+        LEAF                ('L' as Character),
         MODIFIER_CONTAINER  ('O' as Character),
         MODIFIER_FOLDER     ('D' as Character),
         MODIFIER_LEAF       ('R' as Character),
