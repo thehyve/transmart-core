@@ -4,9 +4,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     BigDecimal   cTotalnum
     String       cBasecode
-    String       cMetadataxml
     String       cComment
-    String       tooltip
     String       mAppliedPath
     Date         updateDate
     Date         downloadDate
@@ -33,16 +31,9 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 	}
 
 	static constraints = {
-        level               nullable:   false,   min:       0
-        fullName            nullable:   false,   size:      2..700
-        name                nullable:   false,   size:      1..2000
-        cVisualattributes   nullable:   false,   size:      1..3
-        cSynonymCd          nullable:   false
         cTotalnum           nullable:   true
         cBasecode           nullable:   true,    maxSize:   50
-        cMetadataxml        nullable:   true
         cComment            nullable:   true
-        tooltip             nullable:   true,    maxSize:   900
         mAppliedPath        nullable:   false,   maxSize:   700
         downloadDate        nullable:   true
         updateDate          nullable:   false
@@ -56,11 +47,5 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
         AbstractI2b2Metadata.constraints.delegate = delegate
         AbstractI2b2Metadata.constraints()
 	}
-
-    @Override
-    String toString() {
-        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
-                "] [ fullName=$fullName, level=$level,  ]"
-    }
 
 }

@@ -11,6 +11,8 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     Integer      level
     String       fullName
     String       name
+    String       tooltip
+    String       metadataxml
 
     /* properties abstracted with other properties */
     String       cVisualattributes = ''
@@ -19,7 +21,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     /* Transient */
     String       tableCode
 
-    static transients = [ 'synonym', 'tableCode' ]
+    static transients = [ 'synonym', 'metadata', 'tableCode' ]
 
     static mapping = {
         fullName             column:   'C_FULLNAME'
@@ -32,14 +34,17 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         columnDataType       column:   'C_COLUMNDATATYPE'
         operator             column:   'C_OPERATOR'
         dimensionCode        column:   'C_DIMCODE'
+        metadataxml          column:   'C_METADATAXML'
     }
 
     static constraints = {
         level               nullable:   false,   min:       0
         fullName            nullable:   false,   size:      2..700
         name                nullable:   false,   size:      1..2000
+        tooltip             nullable:   true,    maxSize:   900
         cVisualattributes   nullable:   false,   size:      1..3
         cSynonymCd          nullable:   false
+        metadataxml         nullable:   true
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()
@@ -104,6 +109,24 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     @Override
+    Object getMetadata() {
+        if (!metadataxml)
+            return null
+
+        def slurper = new XmlSlurper().parseText(metadataxml)
+        def ret = [:]
+
+        /* right now we only care about normalunits and oktousevalues */
+        ret.okToUseValues = slurper.Oktousevalues == 'Y' ? true : false
+        ret.unitValues = [
+                normalUnits: slurper.UnitValues?.NormalUnits?.toString(),
+                equalUnits: slurper.UnitValues?.EqualUnits?.toString(),
+        ]
+
+        ret
+    }
+
+    @Override
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
@@ -128,5 +151,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         ret
     }
 
+    @Override
+    String toString() {
+        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
+                "] [ fullName=$fullName, level=$level,  ]"
     }
 }

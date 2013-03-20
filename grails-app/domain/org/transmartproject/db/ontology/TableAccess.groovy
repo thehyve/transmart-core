@@ -112,6 +112,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         AbstractI2b2Metadata.convertVisualAttributesString(cVisualattributes)
     }
 
+    @Override
+    Object getMetadata() {
+        null /* no metadata on categories supported */
+    }
+
     boolean isSynonym() {
         cSynonymCd != 'Y'
     }
