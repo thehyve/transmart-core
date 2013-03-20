@@ -53,6 +53,15 @@ public interface OntologyTerm {
     EnumSet<VisualAttributes> getVisualAttributes()
 
     /**
+     * The term metadata, or null if none. The format of the metadata is not
+     * specified.
+     *
+     * @return metadata associated with the term
+     */
+    Object getMetadata()
+
+
+    /**
      * Returns the terms one level below that have this term as a parent.
      * Synonyms and hidden terms are not shown.
      *
