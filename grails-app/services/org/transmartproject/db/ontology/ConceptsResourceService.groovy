@@ -29,6 +29,7 @@ class ConceptsResourceService implements ConceptsResource {
                     "fullName '$ck.conceptFullName' found for type " +
                     "$domainClass")
         }
+        result.setTableCode(ck.tableCode)
         result
     }
 
