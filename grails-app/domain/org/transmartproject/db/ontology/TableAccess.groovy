@@ -112,6 +112,10 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         AbstractI2b2Metadata.convertVisualAttributesString(cVisualattributes)
     }
 
+    boolean isSynonym() {
+        cSynonymCd != 'Y'
+    }
+
     @Override
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {

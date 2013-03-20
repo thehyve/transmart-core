@@ -16,7 +16,10 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     String       cVisualattributes = ''
     Character    cSynonymCd = 'N'
 
-    static transients = [ 'synonym' ]
+    /* Transient */
+    String       tableCode
+
+    static transients = [ 'synonym', 'tableCode' ]
 
     static mapping = {
         fullName             column:   'C_FULLNAME'
@@ -68,8 +71,31 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         cSynonymCd = value ? 'Y' : 'N'
     }
 
+    private String getTableCode() {
+        if (tableCode) {
+            return tableCode
+        }
+
+        TableAccess candidate = null
+        TableAccess.list().each {
+            if (fullName.startsWith(it.fullName)) {
+                if (!candidate ||
+                        it.fullName.length() > candidate.fullName.length()) {
+                    candidate = it
+                }
+            }
+        }
+
+        if (!candidate)
+            throw new RuntimeException("Could not determine table code for " +
+                    "$this")
+
+        tableCode = candidate.tableCode
+        tableCode
+    }
+
     ConceptKey getConceptKey() {
-        new ConceptKey(getBackingTable(), fullName)
+        new ConceptKey(getTableCode(), fullName)
     }
 
     @Override
@@ -85,7 +111,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                 .asLikeLiteral() + '%'
 
         c = createCriteria()
-        c.list {
+        def ret = c.list {
             and {
                 like 'fullName', fullNameSearch
                 eq 'level', level + 1
@@ -98,5 +124,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
             }
             order('name')
         }
+        ret.each { it.setTableCode(getTableCode()) }
+        ret
+    }
+
     }
 }
