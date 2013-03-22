@@ -17,7 +17,7 @@ interface QueryResult {
      *
      * @return the size of the set
      */
-    public Integer getSetSize()
+    public Long getSetSize()
 
     /**
      * The status of this query result instance.
