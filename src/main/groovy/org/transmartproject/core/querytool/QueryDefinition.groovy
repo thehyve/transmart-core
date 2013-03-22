@@ -2,7 +2,7 @@ package org.transmartproject.core.querytool
 
 /**
  * A query definition is a set of panels. The data it represents is the
- * intersection of all the panels
+ * intersection of all the panels.
  */
 class QueryDefinition {
 

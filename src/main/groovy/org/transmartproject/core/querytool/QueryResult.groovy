@@ -1,7 +1,10 @@
 package org.transmartproject.core.querytool
 
 /**
- * A query result instance contains information about a specific run of a query
+ * A query result instance contains information about a specific run of a
+ * query.
+ *
+ * At least for now, all query results are assumed to be of PATIENTSET type.
  */
 interface QueryResult {
 
