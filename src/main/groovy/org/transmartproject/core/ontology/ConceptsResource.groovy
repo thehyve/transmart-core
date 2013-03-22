@@ -24,26 +24,4 @@ interface ConceptsResource {
      * @throws NoSuchResourceException
      */
     OntologyTerm getByKey(String conceptKey) throws NoSuchResourceException
-
-    /**
-     * Search for a list of concepts.
-     * @param criteria
-     * @return
-     */
-    List<OntologyTerm> getConceptsByCriteria(ConceptsMatchCriteria criteria)
-
-    class ConceptsMatchCriteria {
-        enum SearchType { NAME, CODE }
-        enum Strategy { EXACT, LEFT, RIGHT, CONTAINS }
-
-        SearchType  type
-        Strategy    strategy
-        String      matchString
-        String      category
-        Integer     max
-
-        void setCategory(OntologyTerm category) {
-            this.category = category.name //??
-        }
-    }
 }
