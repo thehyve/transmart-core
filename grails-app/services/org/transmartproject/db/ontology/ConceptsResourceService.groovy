@@ -32,9 +32,4 @@ class ConceptsResourceService implements ConceptsResource {
         result.setTableCode(ck.tableCode)
         result
     }
-
-    @Override
-    List<OntologyTerm> getConceptsByCriteria(ConceptsMatchCriteria criteria) {
-        return null  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }
