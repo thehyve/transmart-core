@@ -2,7 +2,7 @@ package org.transmartproject.db.ontology
 
 /**
  * Properties that specify queries to be made in other tables. Used by
- * TableAccess and i2b2 metada tables
+ * TableAccess and i2b2 metadata tables
  */
 abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecification {
 
@@ -13,13 +13,18 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       operator
     String       dimensionCode
 
-    /*
-     * SELECT [factTableColumn]
-     *   FROM [dimensionTableName]
-     *   WHERE [columnName] [operator] [dimensionCode]
+    /**
+     * Returns the SQL for the query that this object represents.
+     *
+     * @return raw SQL of the query that this type represents
      */
+    String getQuerySql() {
+        "SELECT $factTableColumn " +
+                "FROM $dimensionTableName " +
+                "WHERE $columnName $operator $processedDimensionCode"
+    }
 
-    /* implements transformations described here:
+    /* implements (hopefully improved) transformations described here:
      * https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology
      */
     String getProcessedDimensionCode() {
@@ -30,17 +35,18 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
 
         if (columnDataType == 'T' && v.length() > 2) {
             if (operator.equalsIgnoreCase('like')) {
-                if (v[0] != "'" && !v.contains('(')) {
+                if (v[0] != "'" && !v[0] != '(') {
                     if (v[-1] != '%') {
                         if (v[-1] != '\\') {
                             v += '\\'
                         }
-                        v += '%'
+                        v = v.asLikeLiteral() + '%'
                     }
                 }
             }
 
             if (v[0] != "'") {
+                v = v.replaceAll(/'/, "''") /* escape single quotes */
                 v = "'$v'"
             }
 
