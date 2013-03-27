@@ -8,6 +8,9 @@ if (!dataSourceConfig.exists())
 
 grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
 
+org.transmartproject.i2b2.user_id = 'i2b2'
+org.transmartproject.i2b2.group_id = 'Demo'
+
 /*
 Example configuration for using the reveng plugin
 grails.plugin.reveng.defaultSchema = 'i2b2demodata'
