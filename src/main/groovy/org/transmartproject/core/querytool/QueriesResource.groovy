@@ -1,5 +1,7 @@
 package org.transmartproject.core.querytool
 
+import org.transmartproject.core.exceptions.InvalidRequestException
+
 /**
  *
  */
@@ -11,6 +13,6 @@ interface QueriesResource {
      * @param definition the definition to use
      * @return the resulting query result
      */
-    QueryResult runQuery(QueryDefinition definition)
+    QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException
 
 }

@@ -27,7 +27,7 @@ interface QueryResult {
      *
      * @return the status or null if unknown
      */
-    public Status getStatus() //FINISHED (3), ERROR (4)
+    public QueryStatus getStatus() //FINISHED (3), ERROR (4)
 
     /**
      * The error message associated with this query result. May be an
@@ -36,21 +36,5 @@ interface QueryResult {
      * @return the error message or null if none
      */
     public String getErrorMessage()
-
-    enum Status {
-
-        FINISHED    (3),
-        ERROR       (4);
-
-        protected int id;
-
-        protected Status(id) {
-            this.id = id
-        }
-
-        static Status forId(int id) {
-            values().find { it.id == id }
-        }
-    }
 
 }
