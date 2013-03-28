@@ -8,6 +8,7 @@ import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
 import javax.servlet.ServletContext
@@ -34,7 +35,8 @@ class BusinessExceptionResolver implements ServletContextAware,
         /* we may want to make this list dynamic in future, for instance by
          * marking the relevant exceptions with an annotation
          */
-        (NoSuchResourceException): HttpServletResponse.SC_NOT_FOUND
+        (NoSuchResourceException): HttpServletResponse.SC_NOT_FOUND,
+        (InvalidRequestException): HttpServletResponse.SC_BAD_REQUEST,
     ]
 
     private Throwable resolveCause(Throwable t) {
@@ -51,20 +53,19 @@ class BusinessExceptionResolver implements ServletContextAware,
                                   Object handler,
                                   Exception ex) {
 
-        def exceptionPlusStatus = statusCodeMappings.findResult {
-            def e = ex
-            while (1) {
+        def exceptionPlusStatus = null
+        def e = ex
+        while (!exceptionPlusStatus && e) {
+            exceptionPlusStatus = statusCodeMappings.findResult {
                 if (it.key.isAssignableFrom(e.getClass())) {
                     return [
                             (REQUEST_ATTRIBUTE_EXCEPTION): e,
                             (REQUEST_ATTRIBUTE_STATUS): it.value
                     ]
                 }
-                e = resolveCause(e)
-
-                if (!e)
-                    break
             }
+
+            e = resolveCause(e)
         }
 
         /* we know this exception */
