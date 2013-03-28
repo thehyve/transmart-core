@@ -65,7 +65,7 @@ class PatientSetQueryBuilderService {
                 "FROM " +
                 "(SELECT DISTINCT patient_num FROM observation_fact WHERE " +
                 panelClauses.join(' AND ') + // panel clauses are ANDed together
-                " ORDER BY patient_num) P(patient_num)"
+                " ORDER BY patient_num) P"
 
         log.debug "SQL statement: $sql"
 
