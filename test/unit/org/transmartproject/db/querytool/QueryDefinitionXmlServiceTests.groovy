@@ -1,5 +1,7 @@
 package org.transmartproject.db.querytool
 
+import org.junit.rules.ExpectedException
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -23,6 +25,9 @@ import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.*
 @TestFor(QueryDefinitionXmlService)
 class QueryDefinitionXmlServiceTests {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     private Document xmlStringToDocument(String xmlString) {
         DocumentBuilder builder =
             DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -30,7 +35,132 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
-    void basicTest() {
+    void basicTestFromXml() {
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/">
+  <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
+  <panel>
+    <item>
+      <item_key>\\\\i2b2_EXPR\\i2b2\\Expression Profiles Data\\Affymetrix HG-U133\\221610_s_at (55620)\\</item_key>
+    </item>
+  </panel>
+</ns3:query_definition>'''
+        /*      */
+
+        def definition = service.fromXml(new StringReader(xml))
+
+        assertThat definition, allOf(
+                hasProperty('name', startsWith("i2b2's Query at Tue")),
+                hasProperty('panels', contains(allOf(
+                        hasProperty('invert', is(false)),
+                        hasProperty('items', contains(allOf(
+                                hasProperty('conceptKey', startsWith(
+                                        '\\\\i2b2_EXPR\\i2b2\\Exp')),
+                                hasProperty('constraint', nullValue())
+                        )))
+                )))
+        )
+    }
+
+    @Test
+    void testConstrainByValueFromXml() {
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
+.org/xsd/cell/crc/psm/querydefinition/1.1/">
+  <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
+  <panel>
+    <invert>1</invert>
+    <item>
+      <item_key>\\\\i2b2_EXPR\\i2b2\\Expression Profiles Data\\Affymetrix HG-U133\\221610_s_at (55620)\\</item_key>
+      <constrain_by_value>
+        <value_operator>LT</value_operator>
+        <value_constraint>10</value_constraint>
+        <value_type>NUMBER</value_type>
+      </constrain_by_value>
+    </item>
+  </panel>
+</ns3:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+        assertThat definition.panels[0].invert, is(true)
+        assertThat definition.panels[0].items, contains(
+                hasProperty('constraint', allOf(
+                        hasProperty('valueType', equalTo(NUMBER)),
+                        hasProperty('operator', equalTo(LOWER_THAN)),
+                        hasProperty('constraint', equalTo('10'))
+                ))
+        )
+    }
+
+    @Test
+    void testMultiplePanelsAndItemsFromXml() {
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
+.org/xsd/cell/crc/psm/querydefinition/1.1/">
+  <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
+  <panel>
+    <invert>1</invert>
+    <item>
+      <item_key>\\\\i2b2_EXPR\\i2b2\\Expression Profiles Data\\Affymetrix HG-U133\\221610_s_at (55620)\\</item_key>
+      <constrain_by_value>
+        <value_operator>LT</value_operator>
+        <value_constraint>10</value_constraint>
+        <value_type>NUMBER</value_type>
+      </constrain_by_value>
+    </item>
+    <item>
+      <item_key>\\\\foo\\bar\\</item_key>
+    </item>
+  </panel>
+  <panel>
+    <item>
+      <item_key>\\\\foo\\bar2\\</item_key>
+    </item>
+  </panel>
+</ns3:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+        assertThat definition.panels, allOf(
+                hasSize(2),
+                contains(
+                        hasProperty('items', hasSize(2)),
+                        hasProperty('items', hasSize(1))
+                )
+        )
+    }
+
+    @Test
+    void testBadXml() {
+        expectedException.expect(InvalidRequestException)
+        expectedException.expectMessage(containsString("Malformed XML " +
+                "document"))
+
+        service.fromXml(new StringReader('<foo></bar>'))
+    }
+
+    @Test
+    void testBadConstraint() {
+        expectedException.expect(InvalidRequestException)
+        expectedException.expectMessage(containsString(
+                "Invalid XML query definition constraint"))
+
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
+.org/xsd/cell/crc/psm/querydefinition/1.1/">
+  <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
+  <panel>
+    <item>
+      <item_key>\\\\i2b2_EXPR\\i2b2\\Expression Profiles Data\\Affymetrix HG-U133\\221610_s_at (55620)\\</item_key>
+      <constrain_by_value>
+        <value_operator>LTFOOBARBOGUS</value_operator>
+        <value_constraint>10</value_constraint>
+        <value_type>NUMBER</value_type>
+      </constrain_by_value>
+    </item>
+  </panel>
+</ns3:query_definition>'''
+
+        service.fromXml(new StringReader(xml))
+    }
+
+    @Test
+    void basicTestToXml() {
         def queryName = 'The name of my query definition'
         def conceptKey = '\\\\foo\\bar\\'
         def definition = new QueryDefinition(
@@ -56,7 +186,7 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
-    void testConstraintByValue() {
+    void testConstraintByValueToXml() {
         def definition = new QueryDefinition([
                 new Panel(
                         items: [
@@ -82,7 +212,7 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
-    void testMultiplePanelsAndItems() {
+    void testMultiplePanelsAndItemsToXml() {
         def definition = new QueryDefinition([
                 new Panel(
                         items: [

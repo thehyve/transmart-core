@@ -1,6 +1,8 @@
 package org.transmartproject.db.querytool
 
 import groovy.xml.MarkupBuilder
+import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
@@ -11,6 +13,49 @@ import org.transmartproject.core.querytool.QueryDefinition
  * qt_query_master.
  */
 class QueryDefinitionXmlService {
+
+    QueryDefinition fromXml(Reader reader) throws InvalidRequestException {
+        def xml
+        try {
+            xml = new XmlSlurper().parse(reader)
+        } catch (exception) {
+            throw new InvalidRequestException('Malformed XML document: ' +
+                    exception.message, exception)
+        }
+
+        def convertItem = { item ->
+            def data = [ conceptKey: item.item_key ]
+            if (item.constrain_by_value.size()) {
+                try {
+                    def constrain = item.constrain_by_value
+                    data.constraint = new ConstraintByValue(
+                            valueType: ConstraintByValue.ValueType.valueOf(
+                                    constrain.value_type?.toString()),
+                            operator: ConstraintByValue.Operator.forValue(
+                                    constrain.value_operator.toString()),
+                            constraint: constrain.value_constraint?.toString()
+                    )
+                } catch (err) {
+                    throw new InvalidRequestException(
+                            'Invalid XML query definition constraint', err)
+                }
+            }
+
+            new Item(data)
+        }
+        def panels = xml.panel.collect { panel ->
+            new Panel(
+                    invert: panel.invert == '1',
+                    items: panel.item.collect(convertItem)
+            )
+        }
+
+        if (xml.query_name.size()) {
+            return new QueryDefinition(xml.query_name.toString(), panels)
+        } else {
+            return new QueryDefinition(panels)
+        }
+    }
 
     String toXml(QueryDefinition definition) {
         def writer = new StringWriter()
