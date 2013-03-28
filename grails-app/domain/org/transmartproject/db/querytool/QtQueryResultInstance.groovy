@@ -20,6 +20,8 @@ class QtQueryResultInstance implements QueryResult {
 	static belongsTo = QtQueryInstance
 
 	static mapping = {
+        table          schema: 'I2B2DEMODATA'
+
         id             column: "result_instance_id", generator: "identity"
         errorMessage   column: 'message'
         queryInstance  column: 'query_instance_id'

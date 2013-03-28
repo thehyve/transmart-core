@@ -34,8 +34,8 @@ class ObservationFact implements Serializable {
     BigDecimal   uploadId
 
 	static mapping = {
-        table name: 'observation_fact', schema: 'i2b2demodata'
-		id composite: ["encounterNum", "conceptCd", "providerId", "startDate", "modifierCd", "instanceNum"]
+        table   name: 'observation_fact', schema: 'I2B2DEMODATA'
+		id      composite: ["encounterNum", "conceptCd", "providerId", "startDate", "modifierCd", "instanceNum"]
 		version false
 	}
 

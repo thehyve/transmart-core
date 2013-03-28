@@ -14,9 +14,10 @@ class QtPatientSetCollection {
     static belongsTo = [resultInstance: QtQueryResultInstance]
 
 	static mapping = {
-		id column: "patient_set_coll_id", generator: "identity"
+        table           schema: 'I2B2DEMODATA'
+		id              column: "patient_set_coll_id", generator: "identity"
 
-        resultInstance column: 'result_instance_id'
+        resultInstance  column: 'result_instance_id'
 
 		version false
 	}

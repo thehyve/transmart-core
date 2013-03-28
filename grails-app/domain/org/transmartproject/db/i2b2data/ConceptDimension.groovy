@@ -18,7 +18,8 @@ class ConceptDimension {
     BigDecimal   uploadId
 
 	static mapping = {
-		id name: "conceptPath", generator: "assigned"
+        table   schema: 'I2B2DEMODATA'
+		id      name: "conceptPath", generator: "assigned"
 		version false
 	}
 

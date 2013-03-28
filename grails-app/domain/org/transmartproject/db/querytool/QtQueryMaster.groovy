@@ -18,7 +18,8 @@ class QtQueryMaster {
 	static hasMany = [queryInstances: QtQueryInstance]
 
 	static mapping = {
-		id              column: "query_master_id", generator: "identity"
+        table           schema: 'I2B2DEMODATA'
+        id              column: "query_master_id",  generator: "identity"
         i2b2RequestXml  column: 'I2B2_REQUEST_XML'
 		version false
 	}
