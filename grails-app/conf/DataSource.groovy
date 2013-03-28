@@ -21,8 +21,8 @@ environments {
         dataSource {
             dbCreate = "update"
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=" +
-                    "CREATE SCHEMA IF NOT EXISTS i2b2metadata\\;"
-                    "CREATE SCHEMA IF NOT EXISTS i2b2demodata\\;"
+                    "RUNSCRIPT FROM './h2_init.sql'"
+
         }
     }*/
 }
