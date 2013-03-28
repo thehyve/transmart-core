@@ -63,8 +63,7 @@ class QueryDefinitionXmlServiceTests {
 
     @Test
     void testConstrainByValueFromXml() {
-        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
-.org/xsd/cell/crc/psm/querydefinition/1.1/">
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/">
   <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
   <panel>
     <invert>1</invert>
@@ -92,8 +91,7 @@ class QueryDefinitionXmlServiceTests {
 
     @Test
     void testMultiplePanelsAndItemsFromXml() {
-        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
-.org/xsd/cell/crc/psm/querydefinition/1.1/">
+        def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/">
   <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
   <panel>
     <invert>1</invert>
