@@ -38,7 +38,8 @@ class ConstraintByValue {
         }
 
         static Operator forValue(String value) {
-            values().find { value == it.value }
+            values().find { value == it.value } ?:
+                { throw new IllegalArgumentException("No operator for value $value") }()
         }
     }
 
