@@ -1,9 +1,12 @@
 package org.transmartproject.core.querytool
 
+import groovy.transform.EqualsAndHashCode
+
 /**
  * A query definition is a set of panels. The data it represents is the
  * intersection of all the panels.
  */
+@EqualsAndHashCode
 final class QueryDefinition {
 
     /**
