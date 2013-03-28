@@ -2,7 +2,6 @@ package org.transmartproject.db.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.ConceptsResource.ConceptsMatchCriteria
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptKey
 
