@@ -1,5 +1,6 @@
 package org.transmartproject.db.querytool
 
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -216,6 +217,21 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
         def result = queriesResourceService.runQuery(definition)
         assertPatientSet(result, [104])
+    }
+
+    @Test(expected=InvalidRequestException)
+    void testUnknownItemKeyResultsInInvalidRequestException() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\bad table code\\a\\',
+                                ),
+                        ]
+                )
+        ])
+
+        queriesResourceService.runQuery(definition)
     }
 
     @Test
