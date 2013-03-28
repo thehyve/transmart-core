@@ -3,6 +3,7 @@ package org.transmartproject.db.querytool
 import groovy.xml.MarkupBuilder
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -30,7 +31,7 @@ class QueriesResourceService implements QueriesResource {
             groupId        : grailsApplication.config.org.transmartproject.i2b2.group_id,
             createDate     : new Date(),
             generatedSql   : null,
-            requestXml     : queryDefinitionToXml(definition),
+            requestXml     : queryDefinitionXmlService.toXml(definition),
             i2b2RequestXml : null,
         )
 
@@ -120,7 +121,23 @@ class QueriesResourceService implements QueriesResource {
         resultInstance
     }
 
-    private String queryDefinitionToXml(QueryDefinition definition) {
-        queryDefinitionXmlService.toXml(definition)
+    @Override
+    QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
+        QtQueryResultInstance.load(id)
+    }
+
+    @Override
+    QueryDefinition getQueryDefinitionForResult(QueryResult result)
+            throws NoSuchResourceException {
+        List answer = QtQueryResultInstance.executeQuery(
+                '''SELECT R.queryInstance.queryMaster.requestXml FROM
+                        QtQueryResultInstance R WHERE R = ?''',
+                [result])
+        if (!answer) {
+            throw new NoSuchResourceException('Could not find definition for ' +
+                    'query result with id=' + result.id)
+        }
+
+        queryDefinitionXmlService.fromXml(new StringReader(answer[0]))
     }
 }

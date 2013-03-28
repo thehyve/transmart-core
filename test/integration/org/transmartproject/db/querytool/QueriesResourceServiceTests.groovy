@@ -218,4 +218,30 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         assertPatientSet(result, [104])
     }
 
+    @Test
+    void runQueryAndFetchDefinitionAfterwards() {
+        def inputDefinition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: NUMBER,
+                                                operator: EQUAL_TO,
+                                                constraint: '30.5'
+                                        )
+                                ),
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(inputDefinition)
+        assertThat result, hasProperty('id', is(notNullValue()))
+
+        def outputDefinition = queriesResourceService
+                .getQueryDefinitionForResult(result)
+
+        assertThat outputDefinition, is(equalTo(inputDefinition))
+    }
+
 }
