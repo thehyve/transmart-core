@@ -1,4 +1,4 @@
-package org.transmartproject.db.querytool
+package org.transmartproject.db.ontology.http
 
 import grails.converters.JSON
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -23,6 +23,10 @@ class QueryToolController {
         render result as JSON
     }
 
+    /**
+     * Fetches the query definition (in XML form) used to obtain the results
+     * with the passed in id.
+     */
     def getQueryDefinitionFromResultId() {
         Long id = params.long('result_id')
         if (!id) {
