@@ -8,3 +8,6 @@ web-app/WEB-INF/classes
 target-eclipse
 .classpath
 .project
+.idea
+*.iml
+
