@@ -49,13 +49,26 @@ function createAdvancedWorkflowMenu(result) {
 			items : advMenuItems
 		});
 		
+		// add components to the advanced workflow toolbar
 		Ext.getCmp('advancedWorkflowToolbar')
-			.add({
-					text : 'Analysis',
-					iconCls : 'comparebutton',
-					disabled : false,
-					menu : advMenu
-				});
+			.add(
+			{
+				text : 'Analysis',
+				iconCls : 'comparebutton',
+				disabled : false,
+				menu : advMenu
+			},
+			' ',
+			{
+				text : 'Save to PDF',
+				iconCls : 'savepdfbutton',
+				hidden : false,
+				id : 'savetopdfbtn',
+				handler: function(){
+					generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');
+				}
+			}
+		);
 	}
 }
 
@@ -82,7 +95,7 @@ function onItemClick(item) {
 			loadPluginView(item.id);
 		},parameters:{analysis:item.id}
 	});
-	Ext.fly('selectedAnalysis').update(item.text, false);
+	Ext.fly('selectedAnalysis').update(item.text, false).removeClass('warning').addClass('selected');
 	Ext.get('analysis').dom.value = item.id;
 	item.parentMenu.hide(true);
 	/*var mgr = Ext.Updater('variableSelection')
@@ -102,6 +115,8 @@ function onItemClick(item) {
 }
 function renderCohortSummary(){
 	var cohortsSummary=""
+
+	// get selected cohort summary
 	for(var i = 1; i<=GLOBAL.NumOfSubsets; i++){
 		var currentQuery = getQuerySummary(i)
 		if(currentQuery!=""){
@@ -111,15 +126,16 @@ function renderCohortSummary(){
 		}
 		
 	}
-	var innerHtml = ""
+
 	if(""==cohortsSummary){
-		innerHtml = "<font style='color:red;font-weight:bold;'>Warning! You have not selected a study and the analyses will not work. Please go back to the 'Comparison' tab and make a cohort selection.</font>";
-	}else{
-		innerHtml = cohortsSummary;
+		Ext.fly('cohortSummary').update("WARNING: You have not selected a study and the analysis will not work. " +
+			"Please go back to the Comparison tab and make a cohort selection.").addClass("warning");
+	} else {
+		console.log(cohortsSummary);
+		Ext.fly('cohortSummary').update(cohortsSummary).removeClass("warning");
 	}
-		
-	
-	document.getElementById("cohortSummary").innerHTML=innerHtml;
+
+
 }
 
 function checkPreviousAnalysis()

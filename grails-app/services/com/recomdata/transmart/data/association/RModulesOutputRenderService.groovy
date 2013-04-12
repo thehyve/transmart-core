@@ -45,21 +45,27 @@ class RModulesOutputRenderService {
 	def zipLink = ""
 	
     def initializeAttributes(jobName,jobTypeName,linksArray) {
-		
+
+        println("jobName: " + jobName + " jobTypeName:" + jobTypeName)
+
 		this.jobName = jobName
 		this.jobTypeName = jobTypeName
-		
+
+
 		//Create the string that represents the directory to the temporary files.
 		this.tempDirectory = "${tempFolderDirectory}${jobName}" + File.separator + "workingDirectory" + File.separator
 	
 		def zipLocation = ""
-	
+
 		//If we need to use a different location so that the image is under a web path, use the config here.
 		if(transferImageFile)
 		{
 			String tempImageFolder = config.RModules.temporaryImageFolder
 			String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${this.jobName}" + File.separator
-			
+
+
+            println("tempImageJobFolder:" + tempImageJobFolder)
+
 			File createDirectory = new File(tempImageJobFolder)
 			
 			//Determine if the folder for this job exists in the temp image directory.
@@ -67,8 +73,9 @@ class RModulesOutputRenderService {
 			{
 				createDirectory.mkdir()
 			}
-			
+
 			def tempDirectoryFile = new File(this.tempDirectory)
+            println("tempDirectoryFile:" + tempDirectoryFile)
 	
 			tempDirectoryFile.traverse(nameFilter:~/.*${jobTypeName}.*\.png/) 
 			{
@@ -84,11 +91,14 @@ class RModulesOutputRenderService {
 				FileUtils.copyFile(oldImage,newImage)
 				
 				String currentLink = "${imageURL}${jobName}/${currentImageFile.name}"
+
+                log.info("currentLink:" + currentLink)
+
 				linksArray.add(currentLink)
 			};
 			
 			zipLocation = "${tempImageJobFolder}" + File.separator + "zippedData.zip"
-			this.zipLink = "${imageURL}${jobName}/zippedData.zip"
+    		this.zipLink = "${imageURL}${jobName}/zippedData.zip"
 			
 			zipService.zipFolder(tempDirectory,zipLocation)
 			
