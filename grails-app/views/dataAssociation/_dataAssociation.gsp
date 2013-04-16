@@ -2,7 +2,7 @@
 <div id="toolbar"></div>
 
 %{-- Data Association Content --}%
-<div id="dataAssociationBody"class="snowpanel">
+<div id="dataAssociationBody" class="snowpanel">
 
 	%{-- Variable Selection --}%
 	<div class="subsettable" >
@@ -24,7 +24,8 @@
 			%{--display selected cohort--}%
 			<label for="cohortSummary">
 				Cohorts:
-				<span id="cohortSummary"></span>
+				<span id="cohortWarningMsg" class="warning"></span>
+				<div id="cohortSummary"></div>
 			</label>
 	</div>
 

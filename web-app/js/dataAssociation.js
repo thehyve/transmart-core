@@ -128,11 +128,16 @@ function renderCohortSummary(){
 	}
 
 	if(""==cohortsSummary){
-		Ext.fly('cohortSummary').update("WARNING: You have not selected a study and the analysis will not work. " +
+		// hide cohort Summary & show warning
+		Ext.get('cohortSummary').hide();
+		Ext.get('cohortWarningMsg').show();
+		Ext.fly('cohortWarningMsg').update("WARNING: You have not selected a study and the analysis will not work. " +
 			"Please go back to the Comparison tab and make a cohort selection.").addClass("warning");
 	} else {
-		console.log(cohortsSummary);
-		Ext.fly('cohortSummary').update(cohortsSummary).removeClass("warning");
+		// hide warning & show cohort Summary
+		Ext.fly('cohortSummary').update(cohortsSummary);
+		Ext.get('cohortWarningMsg').hide();
+		Ext.get('cohortSummary').show();
 	}
 
 

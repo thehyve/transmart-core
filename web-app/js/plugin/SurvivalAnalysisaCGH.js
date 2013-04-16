@@ -47,36 +47,14 @@ Ext.grid.dummyData = [
  *
  */
 function loadSurvivalAnalysisaCGHView() {
-	console.log("about to load input components");
-	loadInputComponents();
+	displayInputPanel();
 }
 
-function loadInputComponents() {
+function displayInputPanel() {
 
-	console.log("about to load input components");
-
-	// -----------------
-	// define text areas
-	// -----------------
-
-	var txtArea1 = new Ext.form.TextArea({
-		hideLabel: true,
-		name: 'msg1',
-		height: 75
-	});
-
-	var txtArea2 = new Ext.form.TextArea({
-		hideLabel: true,
-		name: 'msg2',
-		height: 75
-	});
-
-	var txtArea3 = new Ext.form.TextArea({
-		hideLabel: true,
-		name: 'msg3',
-		height: 75
-	});
-
+	// ----------------
+	// alteration types
+	// ----------------
 	var alterationTypes = new Ext.form.CheckboxGroup({
 		fieldLabel: 'Single Column',
 		// Put all controls in a single column with width 75%
@@ -99,7 +77,11 @@ function loadInputComponents() {
 			scale: 'medium',
 			iconCls: 'runbutton',
 			handler: function () {
-				loadGrid();
+				// at this moment to load grid when it's no existing yet
+				// TBD: should allow user when input is changed?
+				if (typeof Ext.getCmp('intermediateGridPanel') == 'undefined' ) {
+					displayGrid();
+				}
 			}
 		}]
 	})
@@ -114,69 +96,117 @@ function loadInputComponents() {
 		renderTo: 'analysisContainer',
 		bbar: inputToolBar, // bbar
 		items: [{
-			title: 'Step 1 - Regions*',
-			id: 'saRegions',
+			xtype: 'panel',
+			title: 'Step 1 - aCGH*',
+			id: 'saaCGH',
 			tools: [{
 				id: 'refresh',
 				handler: function(e, toolEl, panel, tc){
-					alert('clear me in text box 1...');
+					clearInput(panel.getId());
 				}
 			}],
+			autoScroll: true,
 			columnWidth: .25,
-			overCls: 'testCls',
-			layout: 'fit',
-			items: txtArea1
+			height: 120,
+			layout: 'fit'
 		},{
 			title: 'Step 2 - Survival Time*',
 			id: 'saSurvivalTime',
 			tools: [{
 				id: 'refresh',
 				handler: function(e, toolEl, panel, tc){
-					alert('clear me text box 2...');
+					clearInput(panel.getId());
 				}
 			}],
+			autoScroll: true,
 			columnWidth: .25,
-			layout: 'fit',
-			items: txtArea2
+			height: 120,
+			layout: 'fit'
 		},{
 			title: 'Step 3 - Censoring Variable',
 			id: 'saCensoring',
 			tools: [{
 				id: 'refresh',
 				handler: function(e, toolEl, panel, tc){
-					alert('clear me text box 3...');
+					clearInput(panel.getId());
 				}
 			}],
+			autoScroll: true,
 			columnWidth: .25,
-			layout: 'fit',
-			items: txtArea3
+			height: 120,
+			layout: 'fit'
 		},{
 			title: 'Step 4 - Alteration Type*',
 			id: 'saAlteration',
 			columnWidth: .25,
+			height: 120,
 			layout: 'fit',
 			items: alterationTypes
 		}]
 	});
 
+	// ------------------------------
+	// make panel columns as dropable
+	// ------------------------------
+
+	var dropTarget1 = Ext.get('saaCGH').select('.x-panel-bwrap .x-panel-body'); //return array
+
+	// Add the drop targets and handler function.
+	var ddTarget = new Ext.dd.DropTarget(dropTarget1.elements[0], {
+			ddGroup : 'makeQuery',
+			notifyDrop : dropNumericOntoCategorySelection
+		}
+	);
+
+	var dropTarget2 = Ext.get('saSurvivalTime').select('.x-panel-bwrap .x-panel-body'); //return array
+
+	// Add the drop targets and handler function.
+	var ddTarget = new Ext.dd.DropTarget(dropTarget2.elements[0], {
+			ddGroup : 'makeQuery',
+			notifyDrop : dropNumericOntoCategorySelection
+		}
+	);
+
+	var dropTarget3 = Ext.get('saCensoring').select('.x-panel-bwrap .x-panel-body'); //return array
+
+	// Add the drop targets and handler function.
+	var ddTarget = new Ext.dd.DropTarget(dropTarget3.elements[0], {
+			ddGroup : 'makeQuery',
+			notifyDrop : dropOntoCategorySelection
+		}
+	);
+
+
 	// ------------------
 	// define tooltips
 	// ------------------
 
-	var saRegionsTip = new Ext.ToolTip({
-		target: 'saRegions',
+	var saaCGHTip = new Ext.ToolTip({
+		target: 'saaCGH',
+		html: 'Click and drag aCGH data from your selected study into this field. aCGH data is mandatory to execute ' +
+			'Survival Analysis for aCGH.'
+	});
+
+	var saSurvivalTimeTip = new Ext.ToolTip({
+		target: 'saSurvivalTime',
 		html: 'Select time variable from the Data Set Explorer Tree and drag it into the box. For example, ' +
 			'"Survival Time". This variable is required.'
 	});
 
+	var saCensoringTip = new Ext.ToolTip({
+		target: 'saCensoring',
+		html: 'Select the appropriate censoring variable and drag it into the box. For example, "Survival (Censor) -> ' +
+			'Yes". This variable is optional.'
+	});
+
+	var saAlterationTip = new Ext.ToolTip({
+		target: 'saAlteration',
+		html: 'Select type alteration to perform survival analysis with.'
+	});
 
 }
 
-
-// TBD:  load grid when user run the analysis
-
-
-function loadGrid() {
+function displayGrid() {
 
 	// ------------------
 	// define Grid
@@ -207,6 +237,9 @@ function loadGrid() {
 	// grid panel
 	// ==========
 	var grid = new xg.GridPanel({
+
+		id: 'intermediateGridPanel',
+
 		store: new Ext.data.GroupingStore({
 			reader: reader,
 			data: xg.dummyData,
@@ -236,6 +269,25 @@ function loadGrid() {
 		renderTo: 'analysisOutput'
 	});
 
+}
+
+function clearInput(panelId)
+{
+	// get panel's body div array
+	var divEl = Ext.get(panelId).select('.x-panel-bwrap .x-panel-body'); // returns array
+	// get panel's body div
+	var divName = divEl.elements[0];
+
+	// Clear the drag and drop div.
+	var qc = Ext.get(divName);
+
+	for ( var i = qc.dom.childNodes.length - 1; i >= 0; i--)
+	{
+		var child = qc.dom.childNodes[i];
+		qc.dom.removeChild(child);
+	}
+	clearHighDimDataSelections(divName);
+	clearSummaryDisplay(divName);
 }
 
 
