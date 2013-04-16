@@ -6,7 +6,7 @@ package org.transmartproject.core.ontology
 public interface OntologyTerm {
 
     /**
-     * The hierarchical level of the term. The term at the highest level of a
+     * The hierarchical level of the term. The term at the highest level of a`
      * hierarchy has a value of 0, the next level has a value of 1 and so on.
      *
      * @return non-negative integer representing the depth of the term
@@ -84,12 +84,12 @@ public interface OntologyTerm {
         /**
          * Non-terminal term that can be used as a query item.
          */
-        FOLDER              ('F' as Character),
+        FOLDER              (0, 'F' as Character),
 
         /**
          * Non-terminal term that cannot be used as a query item.
          */
-        CONTAINER           ('C' as Character),
+        CONTAINER           (0, 'C' as Character),
 
         /**
          * The term represents several terms, which are collapsed on it. An
@@ -98,47 +98,62 @@ public interface OntologyTerm {
          * two terms that are considered to be 'Unknown Gender' and both are
          * mapped to that one.
          */
-        MULTIPLE            ('M' as Character),
+        MULTIPLE            (0, 'M' as Character),
 
         /**
          * A terminal term.
          */
-        LEAF                ('L' as Character),
-        MODIFIER_CONTAINER  ('O' as Character),
-        MODIFIER_FOLDER     ('D' as Character),
-        MODIFIER_LEAF       ('R' as Character),
+        LEAF                (0, 'L' as Character),
+        MODIFIER_CONTAINER  (0, 'O' as Character),
+        MODIFIER_FOLDER     (0, 'D' as Character),
+        MODIFIER_LEAF       (0, 'R' as Character),
 
 
         /**
          * A term to be displayed normally.
          */
-        ACTIVE              ('A' as Character),
+        ACTIVE              (1, 'A' as Character),
 
         /**
          * A term that cannot be used.
          */
-        INACTIVE            ('I' as Character),
+        INACTIVE            (1, 'I' as Character),
 
         /**
          * The term is hidden from the user.
          */
-        HIDDEN              ('H' as Character),
+        HIDDEN              (1, 'H' as Character),
 
 
         /**
          * If present, the term can have children added to it and it can also
          * be deleted.
          */
-        EDITABLE            ('E' as Character)
+        EDITABLE            (2, 'E' as Character),
 
+        /**
+         * !! tranSMART extension !!
+         * Indicates high-dimensional data.
+         */
+        HIGH_DIMENSIONAL    (2, 'H' as Character)
+
+        int position;
         char keyChar;
 
-        protected VisualAttributes(char keyChar) {
+        protected VisualAttributes(int position, char keyChar) {
+            this.position = position;
             this.keyChar = keyChar
         }
 
-        static VisualAttributes forKeyChar(char c) {
-            values().find { it.keyChar == c }
+        static EnumSet<VisualAttributes> forSequence(String sequence) {
+            def ret = EnumSet.noneOf(VisualAttributes)
+            def allValues = values()
+            sequence.eachWithIndex{ String c, int i ->
+                def v = allValues.find { it.position == i && it.keyChar == c }
+                if (v != null)
+                    ret.add(v)
+            }
+            ret
         }
     }
 }
