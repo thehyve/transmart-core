@@ -109,7 +109,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
 
     @Override
     EnumSet<VisualAttributes> getVisualAttributes() {
-        AbstractI2b2Metadata.convertVisualAttributesString(cVisualattributes)
+        VisualAttributes.forSequence(cVisualattributes)
     }
 
     @Override

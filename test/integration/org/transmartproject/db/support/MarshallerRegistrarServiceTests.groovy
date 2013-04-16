@@ -2,8 +2,6 @@ package org.transmartproject.db.support
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
-import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.marshallers.OntologyTermMarshaller
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2

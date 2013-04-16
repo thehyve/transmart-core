@@ -50,22 +50,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         AbstractQuerySpecifyingType.constraints()
     }
 
-    static convertVisualAttributesString(attributes) {
-        def result = EnumSet.noneOf(VisualAttributes);
-
-        attributes.each {
-            def attribute = VisualAttributes.forKeyChar(it as Character);
-            if (attribute) {
-                result.add(attribute)
-            }
-        }
-
-        result
-    }
-
     @Override
     EnumSet<VisualAttributes> getVisualAttributes() {
-        convertVisualAttributesString(cVisualattributes)
+        VisualAttributes.forSequence(cVisualattributes)
     }
 
     boolean isSynonym() {
