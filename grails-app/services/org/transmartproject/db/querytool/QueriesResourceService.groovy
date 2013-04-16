@@ -70,9 +70,13 @@ class QueriesResourceService implements QueriesResource {
                     resultInstance, definition)
 
             sessionFactory.currentSession.doWork ({ Connection conn ->
-                def statement = conn.prepareStatement(
-                        'SAVEPOINT doWork; ' + sql)
+                def statement
+                statement = conn.prepareStatement('SAVEPOINT doWork')
+                statement.execute()
+
+                statement = conn.prepareStatement(sql)
                 setSize = statement.executeUpdate()
+
                 log.debug "Inserted $setSize rows into qt_patient_set_collection"
             } as Work)
         } catch (InvalidRequestException e) {
