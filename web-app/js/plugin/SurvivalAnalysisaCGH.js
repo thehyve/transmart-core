@@ -50,6 +50,11 @@ function loadSurvivalAnalysisaCGHView() {
 	displayInputPanel();
 }
 
+/**
+ *
+ * This function displays input panel elements
+ *
+ */
 function displayInputPanel() {
 
 	// ----------------
@@ -110,6 +115,7 @@ function displayInputPanel() {
 			height: 120,
 			layout: 'fit'
 		},{
+			xtype: 'panel',
 			title: 'Step 2 - Survival Time*',
 			id: 'saSurvivalTime',
 			tools: [{
@@ -123,6 +129,7 @@ function displayInputPanel() {
 			height: 120,
 			layout: 'fit'
 		},{
+			xtype: 'panel',
 			title: 'Step 3 - Censoring Variable',
 			id: 'saCensoring',
 			tools: [{
@@ -136,6 +143,7 @@ function displayInputPanel() {
 			height: 120,
 			layout: 'fit'
 		},{
+			xtype: 'panel',
 			title: 'Step 4 - Alteration Type*',
 			id: 'saAlteration',
 			columnWidth: .25,
@@ -206,6 +214,11 @@ function displayInputPanel() {
 
 }
 
+/**
+ *
+ * This function intermediate results in Ext-JS grid.
+ *
+ */
 function displayGrid() {
 
 	// ------------------
@@ -219,7 +232,11 @@ function displayGrid() {
 			xtype: 'button',
 			text: 'Show Survival Plot',
 			scale: 'medium',
-			iconCls: 'chartcurvebutton'
+			iconCls: 'chartcurvebutton',
+			handler: function () {
+				displaySurvivalPlot();
+			}
+
 		}]
 	})
 
@@ -266,11 +283,16 @@ function displayGrid() {
 		animCollapse: false,
 		title: 'Intermediate Result',
 		iconCls: 'gridbutton',
-		renderTo: 'analysisOutput'
+		renderTo: 'intermediateResultWrapper'
 	});
 
 }
 
+/**
+ *
+ * This function clear panel input container
+ *
+ */
 function clearInput(panelId)
 {
 	// get panel's body div array
@@ -288,6 +310,22 @@ function clearInput(panelId)
 	}
 	clearHighDimDataSelections(divName);
 	clearSummaryDisplay(divName);
+}
+
+
+function displaySurvivalPlot() {
+	// basic tabs 1, built from existing content
+	new Ext.TabPanel({
+		renderTo: 'plotResultWrapper',
+		width:'100%',
+		activeTab: 0,
+		frame:true,
+		defaults:{autoHeight: true},
+		items:[
+			{contentEl:'script', title: 'Chr1:1232323-123344552'},  //tbd: how to generate the content for each panel
+			{contentEl:'markup', title: 'Chr1:2323123-232312222'}
+		]
+	});
 }
 
 
