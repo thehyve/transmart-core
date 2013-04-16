@@ -64,12 +64,14 @@ class QueriesResourceService implements QueriesResource {
 
         // 5. Build the patient set
         def setSize
+        def sql
         try {
-             def sql = patientSetQueryBuilderService.buildPatientSetQuery(
+             sql = patientSetQueryBuilderService.buildPatientSetQuery(
                     resultInstance, definition)
 
             sessionFactory.currentSession.doWork ({ Connection conn ->
-                def statement = conn.prepareStatement(sql)
+                def statement = conn.prepareStatement(
+                        'SAVEPOINT doWork; ' + sql)
                 setSize = statement.executeUpdate()
                 log.debug "Inserted $setSize rows into qt_patient_set_collection"
             } as Work)
@@ -78,10 +80,15 @@ class QueriesResourceService implements QueriesResource {
             throw e /* unchecked; rolls back transaction */
         } catch (Exception e) {
             // 6e. Handle error when building/running patient set query
-            log.error 'Error running (or build) querytool SQL query', e
+            log.error 'Error running (or build) querytool SQL query, ' +
+                    "failing query was '$sql'", e
+
+            // Rollback to save point
+            sessionFactory.currentSession.createSQLQuery(
+                    'ROLLBACK TO SAVEPOINT doWork').executeUpdate()
 
             StringWriter sw = new StringWriter()
-            e.print(new PrintWriter(sw, true))
+            e.printStackTrace(new PrintWriter(sw, true))
 
             resultInstance.setSize = resultInstance.realSetSize = -1
             resultInstance.endDate = new Date()
