@@ -1,13 +1,12 @@
 /**
- * Created with IntelliJ IDEA.
  * User: riza
  * Date: 09-04-13
  * Time: 12:38
- * To change this template use File | Settings | File Templates.
  */
 
+// ------------------------
 // Array data for the grids
-
+// ------------------------
 Ext.grid.dummyData = [
 	['Chr1:7282393-152722828',"1p36.33-p36.13",0.02,0.03, 'GAIN vs NO GAIN'],
 	['Chr1:31432123-23232322',"1p36.33-p36.13",0.02,0.03, 'GAIN vs NO GAIN'],
@@ -99,6 +98,9 @@ function displayInputPanel() {
 	var p = new Ext.Panel({
 		layout:'column',
 		renderTo: 'analysisContainer',
+		title: 'Input Parameters',
+		collapsible: true,
+		iconCls: 'newbutton',
 		bbar: inputToolBar, // bbar
 		items: [{
 			xtype: 'panel',
@@ -314,6 +316,16 @@ function clearInput(panelId)
 
 
 function displaySurvivalPlot() {
+
+	var dummyTpl = Ext.XTemplate.from('template-survival-plot');
+
+	var dummyData = {
+		region: 'Region',
+		alteration: 'Alteration',
+		foldername: 'guest-SurvivalAnalysis-102086',
+		filename: 'SurvivalCurve2.png'
+	}
+
 	// basic tabs 1, built from existing content
 	new Ext.TabPanel({
 		renderTo: 'plotResultWrapper',
@@ -322,11 +334,12 @@ function displaySurvivalPlot() {
 		frame:true,
 		defaults:{autoHeight: true},
 		items:[
-			{contentEl:'script', title: 'Chr1:1232323-123344552'},  //tbd: how to generate the content for each panel
-			{contentEl:'markup', title: 'Chr1:2323123-232312222'}
+			{id: 'tb1', title: 'Chr1:1232323-123344552', closable:true},  //tbd: how to generate the content for each panel
+			{id: 'tb2', title: 'Chr1:2323123-232312222', closable:true}
 		]
 	});
-}
 
+	dummyTpl.overwrite('tb1', dummyData);
+}
 
 

@@ -58,7 +58,7 @@ function createAdvancedWorkflowMenu(result) {
 				disabled : false,
 				menu : advMenu
 			},
-			' ',
+			'->',
 			{
 				text : 'Save to PDF',
 				iconCls : 'savepdfbutton',
