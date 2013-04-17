@@ -68,7 +68,7 @@ class PatientSetQueryBuilderServiceTests {
 
         assertThat sql, allOf(
                 startsWith('INSERT INTO qt_patient_set_collection'),
-                containsString('SELECT DISTINCT patient_num FROM ' +
+                containsString('SELECT patient_num FROM ' +
                         'observation_fact'),
                 containsString('concept_cd IN (SELECT concept_cd FROM ' +
                         'concept_dimension WHERE concept_path LIKE ' +
@@ -105,9 +105,10 @@ class PatientSetQueryBuilderServiceTests {
                 containsString('OR (concept_cd IN (SELECT concept_cd FROM ' +
                         'concept_dimension WHERE concept_path LIKE ' +
                         '\'\\\\full\\\\name2\\\\%\')'),
-                containsString('AND (concept_cd IN (SELECT concept_cd FROM ' +
-                        'concept_dimension WHERE concept_path LIKE ' +
-                        '\'\\\\full\\\\name3\\\\%\')'),
+                containsString('INTERSECT (SELECT patient_num FROM ' +
+                        'observation_fact WHERE (concept_cd IN (SELECT ' +
+                        'concept_cd FROM concept_dimension WHERE concept_path ' +
+                        'LIKE \'\\\\full\\\\name3\\\\%\''),
         );
     }
 
@@ -125,9 +126,11 @@ class PatientSetQueryBuilderServiceTests {
         ])
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        assertThat sql, containsString('NOT ((concept_cd IN (SELECT ' +
-                'concept_cd FROM concept_dimension WHERE concept_path LIKE ' +
-                        '\'\\\\full\\\\name\\\\%\')')
+        assertThat sql, containsString('SELECT patient_num FROM ' +
+                'patient_dimension EXCEPT (SELECT patient_num FROM ' +
+                'observation_fact WHERE (concept_cd IN (SELECT concept_cd ' +
+                'FROM concept_dimension WHERE concept_path ' +
+                'LIKE \'\\\\full\\\\name\\\\%\'))) ORDER BY 1')
     }
 
     @Test

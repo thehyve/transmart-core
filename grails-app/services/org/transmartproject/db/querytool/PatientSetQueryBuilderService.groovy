@@ -1,6 +1,5 @@
 package org.transmartproject.db.querytool
 
-import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.ConstraintByValue
@@ -24,6 +23,7 @@ class PatientSetQueryBuilderService {
         }
         generalDefinitionValidation(definition)
 
+        def panelNum = 1
         def panelClauses = definition.panels.collect { Panel panel ->
 
             def itemPredicates = panel.items.collect { Item it ->
@@ -50,22 +50,48 @@ class PatientSetQueryBuilderService {
              * )
              */
             def bigPredicate = itemPredicates.collect { "($it)" }.join(' OR ')
-            if (panel.invert) {
-                bigPredicate = "NOT ($bigPredicate)"
-            } else if (panel.items.size() > 1) {
+
+            if (panel.items.size() > 1) {
                 bigPredicate = "($bigPredicate)"
             }
-            bigPredicate
+
+            [
+                id: panelNum++,
+                select: "SELECT patient_num " +
+                        "FROM observation_fact WHERE $bigPredicate",
+                invert: panel.invert,
+            ]
+        }.sort({ a, b -> (!a.invert && b.invert) ? 1 : (a.id - b.id) })
+
+        def patientSubQuery
+        if (panelClauses.size() == 1) {
+            def panel = panelClauses[0]
+            if (!panel.invert) {
+                /* The intersect/expect is not enough for deleting duplicates
+                 * because there is only one select; we must adda a group by */
+                patientSubQuery =  "$panel.select GROUP BY patient_num"
+            } else {
+                patientSubQuery = "SELECT patient_num FROM patient_dimension " +
+                        "EXCEPT ($panel.select)"
+            }
+        } else {
+            patientSubQuery = panelClauses.inject("") { String acc, panel ->
+                acc +
+                        (acc.empty
+                            ? ""
+                            : panel.invert
+                                    ? ' EXCEPT '
+                                    : ' INTERSECT ') +
+                        "($panel.select)"
+            }
         }
+
 
         def sql = "INSERT INTO qt_patient_set_collection (result_instance_id," +
                 " patient_num, set_index) " +
                 "SELECT ${resultInstance.id}, P.patient_num, " +
                 " row_number() OVER () " +
-                "FROM " +
-                "(SELECT DISTINCT patient_num FROM observation_fact WHERE " +
-                panelClauses.join(' AND ') + // panel clauses are ANDed together
-                " ORDER BY patient_num) P"
+                "FROM ($patientSubQuery ORDER BY 1) P"
 
         log.debug "SQL statement: $sql"
 

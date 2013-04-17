@@ -79,11 +79,14 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
         /* 2. Create facts */
         addObservationFact('A:B', 100, valtypeCd: 'N', nvalNum: 50, tvalChar: 'E')
+        addObservationFact('A:C', 100, valtypeCd: 'T', tvalChar: 'FOO')
         addObservationFact('A:B', 101, valtypeCd: 'N', nvalNum: 75, tvalChar: 'E')
         addObservationFact('A:B', 102, valtypeCd: 'N', nvalNum: 99, tvalChar: 'E')
         addObservationFact('A:B', 103, valtypeCd: 'N', nvalNum: 40, tvalChar: 'GE')
         addObservationFact('A:B', 104, valueflagCd: 'L')
+        addObservationFact('A:B', 105, valtypeCd: 'N', tvalChar: 'BAR')
         addObservationFact('A:C', 105, valtypeCd: 'N', nvalNum: 40, tvalChar: 'L')
+        addObservationFact('A:C', 106, valtypeCd: 'N', tvalChar: 'XPTO')
 
         /* 3. Flush session so these objects are available from SQL */
         sessionFactory.currentSession.flush()
@@ -105,7 +108,7 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         def result = queriesResourceService.runQuery(definition)
         assertThat result, allOf(
                 hasProperty("id", notNullValue()),
-                hasProperty("setSize", equalTo(6L /* 100-105 */)),
+                hasProperty("setSize", equalTo(7L /* 100-106 */)),
                 hasProperty("status", equalTo(QueryStatus.FINISHED)),
                 hasProperty("errorMessage", nullValue()),
         )
@@ -145,7 +148,7 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         ])
 
         def result = queriesResourceService.runQuery(definition)
-        assertPatientSet(result, [105])
+        assertPatientSet(result, [106])
     }
 
     @Test
@@ -175,6 +178,29 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
         def result = queriesResourceService.runQuery(definition)
         assertPatientSet(result, [102, 105])
+    }
+
+    @Test
+    void testMultiplePanelsIntersectAtPatientLevel() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\b\\',
+                                ),
+                        ]
+                ),
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\c\\',
+                                ),
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [100, 105])
     }
 
     @Test
