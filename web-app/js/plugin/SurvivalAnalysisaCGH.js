@@ -39,6 +39,8 @@ Ext.grid.dummyData = [
 	['Chr1:62342342-23423444',"p36.13",0.02,0.03, 'LOSS vs NORMAL vs GAIN']
 ];
 
+var tabIndex = 0;
+
 /**
  *
  * This function is called when user selects Survival Analysis aCGH from the Analysis combo box in the Dataset
@@ -217,6 +219,19 @@ function displayInputPanel() {
 }
 
 /**
+ * Submit analysis input to get intermediate result
+ * @param form
+ */
+function submitSurvivalAnalysisaCGHJob(form) {
+
+	if (validateInput()) {
+		displayGrid();
+	}
+
+}
+
+
+/**
  *
  * This function intermediate results in Ext-JS grid.
  *
@@ -235,10 +250,10 @@ function displayGrid() {
 			text: 'Show Survival Plot',
 			scale: 'medium',
 			iconCls: 'chartcurvebutton',
-			handler: function () {
-				displaySurvivalPlot();
+			handler: function (b, e) {
+				// invoke display survival plot
+				displaySurvivalPlot(grid.getSelectionModel().getSelections());
 			}
-
 		}]
 	})
 
@@ -248,7 +263,7 @@ function displayGrid() {
 	var reader = new Ext.data.ArrayReader({}, [
 		{name: 'region'},
 		{name: 'cytoband'},
-		{name: 'p-value', type: 'float'},
+		{name: 'pvalue', type: 'float'},
 		{name: 'fdr', type: 'float'},
 		{name: 'alteration'}
 	]);
@@ -269,7 +284,7 @@ function displayGrid() {
 		columns: [
 			{id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
 			{header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
-			{header: "p-value", width: 20, sortable: true, dataIndex: 'p-value'},
+			{header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
 			{header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
 			{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
 		],
@@ -314,32 +329,75 @@ function clearInput(panelId)
 	clearSummaryDisplay(divName);
 }
 
+/**
+ * Display the survival curve based on the selected row from intermediate result
+ */
+function displaySurvivalPlot(selectedRegions) {
 
-function displaySurvivalPlot() {
+	// create tab panel as container if it's not existing
+	if (typeof Ext.getCmp('plotResultCurve') == 'undefined' ) {
 
-	var dummyTpl = Ext.XTemplate.from('template-survival-plot');
+		new Ext.TabPanel({
+			id: 'plotResultCurve',
+			renderTo: 'plotResultWrapper',
+			width:'100%',
+			frame:true,
+			height:600,
+			defaults: {autoScroll:true}
+		});
 
-	var dummyData = {
-		region: 'Region',
-		alteration: 'Alteration',
-		foldername: 'guest-SurvivalAnalysis-102086',
-		filename: 'SurvivalCurve2.png'
 	}
 
-	// basic tabs 1, built from existing content
-	new Ext.TabPanel({
-		renderTo: 'plotResultWrapper',
-		width:'100%',
-		activeTab: 0,
-		frame:true,
-		defaults:{autoHeight: true},
-		items:[
-			{id: 'tb1', title: 'Chr1:1232323-123344552', closable:true},  //tbd: how to generate the content for each panel
-			{id: 'tb2', title: 'Chr1:2323123-232312222', closable:true}
-		]
-	});
+	// Getting the template as blue print for survival curve plot.
+	// Template is defined in SurvivalAnalysisaCGH.gsp
+	var survivalPlotTpl = Ext.Template.from('template-survival-plot');
 
-	dummyTpl.overwrite('tb1', dummyData);
+	//get tab panel
+	var resultTabPanel = Ext.getCmp('plotResultCurve');
+
+	// generate plot for every selected regions
+	for (var i = 0; i < selectedRegions.length ; i++) {
+
+		// ****************************************************************** //
+		// TODO: Somewhere here invoke R script to get Survival Analysis Plot //
+		// ****************************************************************** //
+
+		var strToolBarId = 'plotCurveToolBarId_' + tabIndex + "_" + i;
+
+		// create data instance
+		var region = {
+			region:  selectedRegions[i].data.region,
+			cytoband:  selectedRegions[i].data.cytoband,
+			pvalue:  selectedRegions[i].data.pvalue,
+			fdr:  selectedRegions[i].data.fdr,
+			alteration:  selectedRegions[i].data.alteration,
+			plotCurveToolBarId: strToolBarId,
+			foldername: 'guest-SurvivalAnalysis-102086',
+			filename: 'SurvivalCurve2.png'
+		};
+
+		// create tab item
+		var p = resultTabPanel.add({
+			id: 'tabPlotResult_' + ++tabIndex,
+			title: selectedRegions[i].data.region,
+			closable:true
+		});
+
+		//set active tab
+		resultTabPanel.setActiveTab(p);
+
+		//redo layout
+		resultTabPanel.doLayout();
+
+		// generate template with associated region values in selected tab
+		survivalPlotTpl.overwrite(Ext.get('tabPlotResult_' + tabIndex), region);
+
+		// create export button
+		var exportBtn = new Ext.Button ({
+			text : 'Download raw data',
+			iconCls : 'downloadbutton',
+			renderTo: strToolBarId
+		});
+	}
+
 }
-
-
