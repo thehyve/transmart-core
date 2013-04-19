@@ -38,6 +38,12 @@ public interface OntologyTerm {
     String getName()
 
     /**
+     * A short (50 chars max) string identifying this object.
+     * @return a short identifier for this object
+     */
+    String getCode()
+
+    /**
      * A tooltip to appear in the user interface for this term.
      *
      * @return the term's tooltip
