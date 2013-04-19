@@ -4,9 +4,10 @@
  * Time: 12:38
  */
 
-// ------------------------
-// Array data for the grids
-// ------------------------
+// ************************************************* //
+// GLOBAL VARIABLES                                  //
+// ************************************************* //
+
 Ext.grid.dummyData = [
 	['Chr1:7282393-152722828',"1p36.33-p36.13",0.02,0.03, 'GAIN vs NO GAIN'],
 	['Chr1:31432123-23232322',"1p36.33-p36.13",0.02,0.03, 'GAIN vs NO GAIN'],
@@ -39,7 +40,7 @@ Ext.grid.dummyData = [
 	['Chr1:62342342-23423444',"p36.13",0.02,0.03, 'LOSS vs NORMAL vs GAIN']
 ];
 
-var tabIndex = 0;
+var tabIndex = 0;   // tab index;
 
 /**
  *
@@ -48,8 +49,25 @@ var tabIndex = 0;
  *
  */
 function loadSurvivalAnalysisaCGHView() {
+	reset();
 	displayInputPanel();
 }
+
+/**
+ * Destroy components and reset global var back to initial state
+ */
+function reset() {
+
+	// reset tabIndex
+	tabIndex = 0;
+
+	// destroy intermediate grid
+	Ext.destroy(Ext.getCmp('intermediateGridPanel'));
+
+	// destroy curve plot panel
+	Ext.destroy(Ext.getCmp('plotResultCurve'));
+}
+
 
 /**
  *
@@ -58,9 +76,7 @@ function loadSurvivalAnalysisaCGHView() {
  */
 function displayInputPanel() {
 
-	// ----------------
-	// alteration types
-	// ----------------
+	// define alteration types
 	var alterationTypes = new Ext.form.CheckboxGroup({
 		fieldLabel: 'Single Column',
 		// Put all controls in a single column with width 75%
@@ -74,6 +90,9 @@ function displayInputPanel() {
 		]
 	});
 
+
+
+
 	// tool bar for survival analysis acgh input
 	var inputToolBar = new Ext.Toolbar({
 		height: 30,
@@ -85,9 +104,10 @@ function displayInputPanel() {
 			handler: function () {
 				// at this moment to load grid when it's no existing yet
 				// TBD: should allow user when input is changed?
-				if (typeof Ext.getCmp('intermediateGridPanel') == 'undefined' ) {
-					displayGrid();
-				}
+//				if (typeof Ext.getCmp('intermediateGridPanel') == 'undefined' ) {
+//					displayGrid();
+//				}
+				submitSurvivalAnalysisaCGHJob();
 			}
 		}]
 	})
@@ -222,10 +242,19 @@ function displayInputPanel() {
  * Submit analysis input to get intermediate result
  * @param form
  */
-function submitSurvivalAnalysisaCGHJob(form) {
+function submitSurvivalAnalysisaCGHJob() {
 
-	if (validateInput()) {
+	// get values
+
+	var aCGHVal = Ext.get('saaCGH').select('.x-panel-bwrap .x-panel-body').item(0);
+	var survivalTimeVal = Ext.get('saSurvivalTime').select('.x-panel-bwrap .x-panel-body').item(0);
+	var censoringVal = Ext.get('saCensoring').select('.x-panel-bwrap .x-panel-body').item(0);
+
+	if ( aCGHVal.dom.childNodes.length > 0 && survivalTimeVal.dom.childNodes.length > 0) {
 		displayGrid();
+	} else {
+		console.error('[TRANSMART ERROR] Cannot Run Analysis: Missing some mandatory arguments');
+		return false;
 	}
 
 }
@@ -245,17 +274,41 @@ function displayGrid() {
 	// tool bar for survival analysis acgh intermediate result
 	var iRestToolBar = new Ext.Toolbar({
 		height: 30,
-		items: ['->', {
-			xtype: 'button',
-			text: 'Show Survival Plot',
-			scale: 'medium',
-			iconCls: 'chartcurvebutton',
-			handler: function (b, e) {
-				// invoke display survival plot
-				displaySurvivalPlot(grid.getSelectionModel().getSelections());
-			}
-		}]
-	})
+		items: ['->',
+			{
+				xtype: 'button',
+				text: 'Download Result',
+				scale: 'medium',
+				iconCls: 'downloadbutton',
+				handler: function (b, e) {
+					// ****************************************************************** //
+					// TODO: To provide handler for download Intermediate result data     //
+					// ****************************************************************** //
+				}
+			},
+			{
+				xtype: 'button',
+				text: 'Show Survival Plot',
+				scale: 'medium',
+				iconCls: 'chartcurvebutton',
+				handler: function (b, e) {
+					// get selected regions
+					var selectedRows = grid.getSelectionModel().getSelections();
+					if (selectedRows.length > 0) {
+						// invoke display survival plot
+						displaySurvivalPlot(grid.getSelectionModel().getSelections());
+					} else {
+						// warn user if there's no row is selected
+						Ext.MessageBox.show({
+							title: 'No row is selected',
+							msg: 'To display the survival plot, you must select at least one region from the grid.',
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.INFO
+						});
+					}
+				}
+			}]
+	});
 
 	var xg = Ext.grid;
 
@@ -394,7 +447,7 @@ function displaySurvivalPlot(selectedRegions) {
 
 		// create export button
 		var exportBtn = new Ext.Button ({
-			text : 'Download raw data',
+			text : 'Download Survival Plot',
 			iconCls : 'downloadbutton',
 			renderTo: strToolBarId
 		});
