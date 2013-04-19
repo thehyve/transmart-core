@@ -134,6 +134,33 @@ class PatientSetQueryBuilderServiceTests {
     }
 
     @Test
+    void testPanelInversionPlacement() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        invert: true,
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\code\\b\\'
+                                )
+                        ]
+                ),
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\code\\a\\'
+                                )
+                        ]
+                )
+        ])
+
+        def sql = service.buildPatientSetQuery(resultInstance, definition)
+        assertThat sql, containsString('EXCEPT (SELECT patient_num ' +
+                'FROM observation_fact WHERE (concept_cd IN (SELECT ' +
+                'concept_cd FROM concept_dimension WHERE concept_path ' +
+                'LIKE \'\\\\b\\\\%\')))')
+    }
+
+    @Test
     void testNumberSimpleConstraint() {
         def definition = new QueryDefinition([
                 new Panel(

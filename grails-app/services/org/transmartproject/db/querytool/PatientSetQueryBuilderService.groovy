@@ -61,7 +61,11 @@ class PatientSetQueryBuilderService {
                         "FROM observation_fact WHERE $bigPredicate",
                 invert: panel.invert,
             ]
-        }.sort({ a, b -> (!a.invert && b.invert) ? 1 : (a.id - b.id) })
+        }.sort { a, b ->
+            (a.invert && !b.invert) ? 1
+            : (!a.invert && b.invert) ? -1
+            : (a.id - b.id)
+        }
 
         def patientSubQuery
         if (panelClauses.size() == 1) {
