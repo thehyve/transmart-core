@@ -12,6 +12,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     Integer      level
     String       fullName
     String       name
+    String       code
 
     String       tableName
 
@@ -21,7 +22,6 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     String       cVisualattributes = ''
 
     BigDecimal   cTotalnum
-    String       cBasecode
     String       cMetadataxml
     String       cComment
     String       tooltip
@@ -42,6 +42,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         fullName             column:   'C_FULLNAME'
         level                column:   'C_HLEVEL'
         name                 column:   'C_NAME'
+        code                 column:   'C_BASECODE'
         tooltip              column:   'C_TOOLTIP'
         tableName            column:   'C_TABLE_NAME'
         tableCode            column:   'C_TABLE_CD'
@@ -63,7 +64,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         cSynonymCd          nullable:   true
         cVisualattributes   maxSize:    3
         cTotalnum           nullable:   true
-        cBasecode           nullable:   true,   maxSize:   50
+        code                nullable:   true,   maxSize:   50
         cMetadataxml        nullable:   true
         cComment            nullable:   true
         tooltip             nullable:   true,   maxSize:   900

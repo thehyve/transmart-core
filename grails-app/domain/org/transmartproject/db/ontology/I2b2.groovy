@@ -3,7 +3,6 @@ package org.transmartproject.db.ontology
 class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     BigDecimal   cTotalnum
-    String       cBasecode
     String       cComment
     String       mAppliedPath
     Date         updateDate
@@ -32,7 +31,6 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
 	static constraints = {
         cTotalnum           nullable:   true
-        cBasecode           nullable:   true,    maxSize:   50
         cComment            nullable:   true
         mAppliedPath        nullable:   false,   maxSize:   700
         downloadDate        nullable:   true

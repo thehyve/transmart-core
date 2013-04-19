@@ -11,6 +11,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     Integer      level
     String       fullName
     String       name
+    String       code
     String       tooltip
     String       metadataxml
 
@@ -27,6 +28,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         fullName             column:   'C_FULLNAME'
         level                column:   'C_HLEVEL'
         name                 column:   'C_NAME'
+        code                 column:   'C_BASECODE'
         tooltip              column:   'C_TOOLTIP'
         factTableColumn      column:   'C_FACTTABLECOLUMN'
         dimensionTableName   column:   'C_TABLENAME'
@@ -41,6 +43,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         level               nullable:   false,   min:       0
         fullName            nullable:   false,   size:      2..700
         name                nullable:   false,   size:      1..2000
+        code                nullable:   true,    maxSize:   50
         tooltip             nullable:   true,    maxSize:   900
         cVisualattributes   nullable:   false,   size:      1..3
         cSynonymCd          nullable:   false
