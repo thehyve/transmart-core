@@ -2,7 +2,7 @@
 <div id="analysisContainer"></div>
 
 %{--Survival Analysis aCGH toolbar--}%
-<div id="analysisToolBar"></div>
+%{--<div id="analysisToolBar"></div>--}%
 
 %{-- Analysis Output --}%
 <div id="intermediateResultWrapper"></div>

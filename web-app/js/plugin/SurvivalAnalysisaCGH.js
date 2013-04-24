@@ -69,6 +69,32 @@ function reset() {
 }
 
 
+var panelItems = function (noItems) {
+
+	var arr = [];
+	var i = 0;
+
+	while (i < noItems) {
+		var itemPanel = new Ext.Panel({
+			title: 'Regions Data (mandatory)',
+			tools: [{
+				id: 'refresh',
+				handler: function(e, toolEl, panel, tc){
+					clearInput(panel.getId());
+				}
+			}],
+			autoScroll: true,
+			columnWidth: .25,
+			height: 120,
+			layout: 'fit'
+		});
+		arr.push(itemPanel);
+		++i;
+	}
+
+	return arr;
+}
+
 /**
  *
  * This function displays input panel elements
@@ -90,9 +116,6 @@ function displayInputPanel() {
 		]
 	});
 
-
-
-
 	// tool bar for survival analysis acgh input
 	var inputToolBar = new Ext.Toolbar({
 		height: 30,
@@ -113,6 +136,7 @@ function displayInputPanel() {
 	})
 
 
+
 	// ------------------
 	// define input panel
 	// ------------------
@@ -126,7 +150,7 @@ function displayInputPanel() {
 		bbar: inputToolBar, // bbar
 		items: [{
 			xtype: 'panel',
-			title: 'Step 1 - aCGH*',
+			title: 'Regions Data (mandatory)',
 			id: 'saaCGH',
 			tools: [{
 				id: 'refresh',
@@ -140,7 +164,7 @@ function displayInputPanel() {
 			layout: 'fit'
 		},{
 			xtype: 'panel',
-			title: 'Step 2 - Survival Time*',
+			title: 'Survival Time (mandatory)',
 			id: 'saSurvivalTime',
 			tools: [{
 				id: 'refresh',
@@ -244,11 +268,16 @@ function displayInputPanel() {
  */
 function submitSurvivalAnalysisaCGHJob() {
 
-	// get values
 
 	var aCGHVal = Ext.get('saaCGH').select('.x-panel-bwrap .x-panel-body').item(0);
+
 	var survivalTimeVal = Ext.get('saSurvivalTime').select('.x-panel-bwrap .x-panel-body').item(0);
+
 	var censoringVal = Ext.get('saCensoring').select('.x-panel-bwrap .x-panel-body').item(0);
+
+	// TODO get the checked boxes
+
+
 
 	if ( aCGHVal.dom.childNodes.length > 0 && survivalTimeVal.dom.childNodes.length > 0) {
 		displayGrid();
