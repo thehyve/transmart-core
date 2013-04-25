@@ -277,8 +277,6 @@ function submitSurvivalAnalysisaCGHJob() {
 
 	// TODO get the checked boxes
 
-
-
 	if ( aCGHVal.dom.childNodes.length > 0 && survivalTimeVal.dom.childNodes.length > 0) {
 		displayGrid();
 	} else {
