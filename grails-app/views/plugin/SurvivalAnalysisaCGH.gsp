@@ -7,7 +7,7 @@
 %{-- Analysis Output --}%
 <div id="intermediateResultWrapper"></div>
 
-%{--Survival Analysis aCGH toolbar--}%
+%{--Plot wrapper--}%
 <div id="plotResultWrapper"></div>
 
 %{--==========================--}%

@@ -80,12 +80,14 @@ var InputBar = Ext.extend(Ext.Panel, {
 			toolTipTxt: config.toolTipTxt
 		});
 
+		var _this = this;
+
 		//add tool button if it is droppable
 		if (config.isDroppable) {
 			childPanel.tools = [{
 				id: 'refresh',
 				handler: function(e, toolEl, panel, tc){
-					clearInput(panel.getId());
+					_this.clearInput(panel.getId());
 				}
 			}];
 		}
@@ -106,8 +108,81 @@ var InputBar = Ext.extend(Ext.Panel, {
 		});
 
 		return alterationTypes;
+	},
+
+	clearInput: function (panelId) {
+		// get panel's body div array
+		var divEl = Ext.get(panelId).select('.x-panel-bwrap .x-panel-body'); // returns array
+		// get panel's body div
+		var divName = divEl.elements[0];
+
+		// Clear the drag and drop div.
+		var qc = Ext.get(divName);
+
+		for ( var i = qc.dom.childNodes.length - 1; i >= 0; i--)
+		{
+			var child = qc.dom.childNodes[i];
+			qc.dom.removeChild(child);
+		}
+		clearHighDimDataSelections(divName);
+		clearSummaryDisplay(divName);
 	}
 
+});
 
+/**
+ *
+ * @type {*|Object}
+ */
+var GenericToolBar = Ext.extend(Ext.Toolbar, {
+	height: 30,
+	constructor: function(config) {
+		InputBar.superclass.constructor.apply(this, arguments);
+	}
+});
+
+/**
+ *
+ * @type {*|Object}
+ */
+var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
+
+	id: 'intermediateGridPanel',
+
+	columns: [
+		{id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
+		{header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
+		{header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
+		{header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
+		{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
+	],
+
+	view: new Ext.grid.GroupingView({
+		forceFit:true,
+		groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
+	}),
+
+	bbar: null,
+	frame:true,
+	height: 250,
+	collapsible: true,
+	animCollapse: false,
+	title: 'Intermediate Result',
+	iconCls: 'gridbutton',
+	renderTo: 'intermediateResultWrapper',
+
+	constructor: function(config) {
+
+		ResultGridPanel.superclass.constructor.apply(this, arguments);
+
+	}
+
+});
+
+
+var GenericPlotPanel = Ext.extend(Ext.Panel, {
+	constructor: function () {
+		GenericPlotPanel.superclass.constructor.apply(this, arguments);
+	}
 });
 

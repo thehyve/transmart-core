@@ -4,8 +4,9 @@
  * Time: 11:28
  */
 
+var groupTestView;
 
-var GroupTestInputBar = Ext.extend(InputBar, {
+var GroupTestInputWidget = Ext.extend(InputBar, {
 
 	regionPanel: null,
 	groupPanel: null,
@@ -25,7 +26,7 @@ var GroupTestInputBar = Ext.extend(InputBar, {
 	],
 
 	constructor: function(config) {
-		GroupTestInputBar.superclass.constructor.apply(this, arguments);
+		GroupTestInputWidget.superclass.constructor.apply(this, arguments);
 		this.init();
 	},
 
@@ -91,7 +92,7 @@ var GroupTestView = Ext.extend(Object, {
 
 	init: function() {
 		// draw input panel
-		GroupTestView.inputPanel = new GroupTestInputBar({
+		GroupTestView.inputPanel = new GroupTestInputWidget({
 			id: 'gtInputPanel',
 			title: 'Input Parameters',
 			iconCls: 'newbutton',
@@ -101,6 +102,7 @@ var GroupTestView = Ext.extend(Object, {
 	},
 
 	createInputToolBar: function() {
+		var _this = this;
 		return new Ext.Toolbar({
 			height: 30,
 			items: ['->',{  // '->' making it right aligned
@@ -110,9 +112,20 @@ var GroupTestView = Ext.extend(Object, {
 				iconCls: 'runbutton',
 				handler: function () {
 					// TODO: add run analysis handler
-					console.log('LOG: inside run analysis handler()');
+					_this.createResultPlotPanel();
 				}
 			}]
+		});
+	},
+
+	createResultPlotPanel: function () {
+		this.resultPanel = new GenericPlotPanel({
+			id: 'plotResultCurve',
+			renderTo: 'gtPlotWrapper',
+			width:'100%',
+			frame:true,
+			height:600,
+			defaults: {autoScroll:true}
 		});
 	}
 
@@ -122,9 +135,6 @@ var GroupTestView = Ext.extend(Object, {
  * Invoked when user selects Group Test aCGH from Analysis combo box
  */
 function loadGroupTestaCGHView() {
-
-	console.log("LOG: eval loadGroupTestaCGHView ...") ;
-
 	// everything starts here ..
-	var groupTestView = new GroupTestView();
+	groupTestView = new GroupTestView();
 }
