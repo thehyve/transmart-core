@@ -22,5 +22,5 @@ the ones which happen to be used in the legacy tranSMART codebase.
 A [QueriesResource](org/transmartproject/core/querytool/QueriesResource.html)
 is defined which can be exposed by clinical data sources as a means of querying
 clinical data. This resource exposes methods to run queries and retrieve query results. The API is very closely
-modelled to the [i2b2 CRC query message APO](https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology).
+modelled to the [i2b2 CRC query message API](https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology).
 
