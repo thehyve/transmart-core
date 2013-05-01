@@ -1,5 +1,7 @@
 package org.transmartproject.core.ontology
 
+import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
+
 /**
  * An i2b2 ontology metadata entry.
  */
