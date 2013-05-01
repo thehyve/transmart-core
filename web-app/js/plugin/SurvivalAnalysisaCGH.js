@@ -76,6 +76,8 @@ var saIntermediatePanelBtnList = ['->',
 			// ****************************************************************** //
 			// TODO: To provide handler for download Intermediate result data     //
 			// ****************************************************************** //
+
+			console.log("LOG: about to download intermediate result data");
 		}
 	},
 	{
@@ -86,7 +88,7 @@ var saIntermediatePanelBtnList = ['->',
 		handler: function (b, e) {
 
 			// get selected regions
-			var selectedRows = survivalAnalysisACGHView.getSelectionsPanel();
+			var selectedRows = survivalAnalysisACGHView.getSelectedRows();
 			if (selectedRows.length > 0) {
 				// invoke display survival plot
 				survivalAnalysisACGHView.displaySurvivalPlot(selectedRows);
@@ -107,7 +109,7 @@ var saIntermediatePanelBtnList = ['->',
  * This object represents Input Bar in the Survival Analysis page
  * @type {*|Object}
  */
-var SurvivalAnalysisACGHInputWidget = Ext.extend(InputBar, {
+var SurvivalAnalysisInputBar = Ext.extend(InputBar, {
 
 	regionPanel: null,
 	survivalPanel: null,
@@ -115,13 +117,13 @@ var SurvivalAnalysisACGHInputWidget = Ext.extend(InputBar, {
 	alterationPanel: null,
 
 	alterationCheckboxes: [
-		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1'},
-		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2'},
-		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3'}
+		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1', XValue:'gain-no-gain'},
+		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2', XValue:'loss-no-loss'},
+		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3', XValue:'loss-normal-gain'}
 	],
 
 	constructor: function(config) {
-		SurvivalAnalysisACGHInputWidget.superclass.constructor.apply(this, arguments);
+		SurvivalAnalysisInputBar.superclass.constructor.apply(this, arguments);
 		this.init();
 	},
 
@@ -144,13 +146,13 @@ var SurvivalAnalysisACGHInputWidget = Ext.extend(InputBar, {
 
 		},{
 			title: 'Censoring Variable',
-			id: 'gt-input-censoring',
+			id: 'sa-input-censoring',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
 			toolTipTxt: 'Tool-tip for Censoring variable'
 		},{
 			title: 'Alteration Type',
-			id:  'gt-input-alteration',
+			id:  'sa-input-alteration',
 			toolTipTxt: 'Tool-tip for Alteration Type'
 		}];
 
@@ -161,7 +163,7 @@ var SurvivalAnalysisACGHInputWidget = Ext.extend(InputBar, {
 		this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
 
 		// create check boxes
-		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes));
+		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes, 'alteration-types-chk-group'));
 
 		// re-draw
 		this.doLayout();
@@ -176,7 +178,7 @@ var SurvivalAnalysisACGHInputWidget = Ext.extend(InputBar, {
 var SurvivalAnalysisACGHView = Ext.extend(Object, {
 
 	// input panel
-	inputPanel : null,
+	inputBar : null,
 
 	// intermediate result panel
 	intermediateResultPanel : null,
@@ -192,58 +194,109 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	},
 
 	init: function() {
-		// draw input panel
-		SurvivalAnalysisACGHView.inputPanel = new SurvivalAnalysisACGHInputWidget({
+
+		// first of all, let's reset all major components
+		this.resetAll();
+
+		// start drawing  input panel
+		this.inputBar = new SurvivalAnalysisInputBar({
 			title: 'Input Parameters',
 			iconCls: 'newbutton',
 			renderTo: 'analysisContainer',
-			bbar: this.createInputToolBar(saInputPanelBtnList)
+			bbar: this.createToolBar(saInputPanelBtnList)
 		});
 	},
 
-	createInputToolBar: function(btnList) {
+	resetAll: function () {
+		this.tabIndex = 0;
+		Ext.destroy(this.inputBar);
+		Ext.destroy(this.intermediateResultPanel);
+		Ext.destroy(this.plotCurvePanel);
+	},
+
+	resetResult: function () {
+		this.tabIndex = 0;
+		Ext.destroy(this.intermediateResultPanel);
+		Ext.destroy(this.plotCurvePanel);
+
+	},
+
+	createToolBar: function(btnList) {
 		return new GenericToolBar({
 			items: btnList
 		});
 	},
 
-	createIntermediateResultToolBar: function(btnList) {
-		return new GenericToolBar({
-			items:  btnList
-		});
-	},
-
 	submitSurvivalAnalysisaCGHJob: function() {
 
-		/*
-		 TODO: keep this code to do validation later
-		 var aCGHVal = Ext.get('saaCGH').select('.x-panel-bwrap .x-panel-body').item(0);
-		 var survivalTimeVal = Ext.get('saSurvivalTime').select('.x-panel-bwrap .x-panel-body').item(0);
-		 var censoringVal = Ext.get('saCensoring').select('.x-panel-bwrap .x-panel-body').item(0);
-		 */
-
-		/**
-		 * TODO: get check boxes values
-		 */
-
-		//if ( aCGHVal.dom.childNodes.length > 0 && survivalTimeVal.dom.childNodes.length > 0) {
-
-		/**
-		 * TODO: submit job to backend and get the result
-		 */
-
-		this.generateResultGrid(dummyData);
-
-		/*
-		TODO: keep this code to do validation later
-		} else {
-			console.error('[TRANSMART ERROR] Cannot Run Analysis: Missing some mandatory arguments');
-			return false;
-		}
-		*/
+		 if (this.validateInputs()) {
+			this.resetResult();
+			this.generateResultGrid(dummyData);
+		 }
 
 	},
 
+	validateInputs: function () {
+
+		var isValid = true;
+		var invalidInputs = [];
+
+		var regionVal;
+		var survivalAnalysisVal;
+		var censoringVal;
+		var alterationValues;
+
+		// check if region panel is empty
+		if (this.inputBar.regionPanel.isEmpty()) {
+			invalidInputs.push(this.inputBar.regionPanel.title);
+			isValid = false;
+		} else {
+			regionVal =  this.inputBar.regionPanel.getInputValue();
+		}
+
+		// check if survival time  panel is empty
+		if (this.inputBar.survivalPanel.isEmpty()) {
+			invalidInputs.push(this.inputBar.survivalPanel.title);
+			isValid = false;
+		} else {
+			survivalAnalysisVal =  this.inputBar.survivalPanel.getInputValue();
+		}
+
+		// censoring variable is optional
+		censoringVal =  this.inputBar.censoringPanel.getInputValue();
+
+		//check if alteration values has been selected
+		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+		alterationValues =  alterationChkGroup.getXValues();
+		if (alterationValues.length < 1) {
+			isValid = false;
+			invalidInputs.push(this.inputBar.alterationPanel.title);
+		}
+
+		if (!isValid) {
+			var strErrMsg = 'Following needs to be defined: ';
+			invalidInputs.each(function (item) {
+				strErrMsg += '['+item + '] ';
+			})
+
+			// inform user on mandatory inputs need to be defined
+			Ext.MessageBox.show({
+				title: 'Missing mandatory inputs',
+			//	msg: 'Following needs to be defined: ' + invalidInputs,
+				msg: strErrMsg,
+				buttons: Ext.MessageBox.OK,
+				icon: Ext.MessageBox.ERROR
+			});
+
+		}
+
+		return isValid;
+	},
+
+	/**
+	 * generates intermediate result in grid panel
+	 * @param data
+	 */
 	generateResultGrid: function (data) {
 
 		Ext.grid.intermediateResultData = data;
@@ -261,91 +314,40 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 			data: Ext.grid.intermediateResultData,
 			sortInfo:{field: 'region', direction: "ASC"},
 			groupField:'alteration'
-		})
+		});
 
 		SurvivalAnalysisACGHView.intermediateResultPanel = new ResultGridPanel({
 			store: groupStore,
-			bbar: this.createIntermediateResultToolBar(saIntermediatePanelBtnList)
+			bbar: this.createToolBar(saIntermediatePanelBtnList)
 		});
-
-		SurvivalAnalysisACGHView.intermediateResultPanel.doLayout();
 
 	},
 
-	getSelectionsPanel: function () {
+	/**
+	 * Get selected rows from the grid
+	 * @returns {*}
+	 */
+	getSelectedRows: function () {
 		return SurvivalAnalysisACGHView.intermediateResultPanel.getSelectionModel().getSelections();
 	},
 
+	/**
+	 * Display selected rows in tab panel
+	 * @param selectedRegions
+	 */
 	displaySurvivalPlot: function (selectedRegions) {
-		// create tab panel as container if it's not existing
-		if (typeof Ext.getCmp('plotResultCurve') == 'undefined' ) {
 
-			new Ext.TabPanel({
-				id: 'plotResultCurve',
-				renderTo: 'plotResultWrapper',
-				width:'100%',
-				frame:true,
-				height:600,
-				defaults: {autoScroll:true}
-			});
-
+		// creating tab panel
+		if (this.plotCurvePanel == null) {
+			this.plotCurvePanel =  new GenericTabPlotPanel();
 		}
-
-		// Getting the template as blue print for survival curve plot.
-		// Template is defined in SurvivalAnalysisaCGH.gsp
-		var survivalPlotTpl = Ext.Template.from('template-survival-plot');
-
-		//get tab panel
-		var resultTabPanel = Ext.getCmp('plotResultCurve');
-
-		// generate plot for every selected regions
 		for (var i = 0; i < selectedRegions.length ; i++) {
-
-			// ****************************************************************** //
-			// TODO: Somewhere here invoke R script to get Survival Analysis Plot //
-			// ****************************************************************** //
-
-			var strToolBarId = 'plotCurveToolBarId_' + this.tabIndex + "_" + i;
-
-			// create data instance
-			var region = {
-				region:  selectedRegions[i].data.region,
-				cytoband:  selectedRegions[i].data.cytoband,
-				pvalue:  selectedRegions[i].data.pvalue,
-				fdr:  selectedRegions[i].data.fdr,
-				alteration:  selectedRegions[i].data.alteration,
-				plotCurveToolBarId: strToolBarId,
-				foldername: 'guest-SurvivalAnalysis-102086',
-				filename: 'SurvivalCurve2.png'
-			};
-
-			// create tab item
-			var p = resultTabPanel.add({
-				id: 'tabPlotResult_' + ++this.tabIndex,
-				title: selectedRegions[i].data.region,
-				closable:true
-			});
-
-			//set active tab
-			resultTabPanel.setActiveTab(p);
-
-			//redo layout
-			resultTabPanel.doLayout();
-
-			// generate template with associated region values in selected tab
-			survivalPlotTpl.overwrite(Ext.get('tabPlotResult_' + this.tabIndex), region);
-
-			// create export button
-			var exportBtn = new Ext.Button ({
-				text : 'Download Survival Plot',
-				iconCls : 'downloadbutton',
-				renderTo: strToolBarId
-			});
+			this.plotCurvePanel.addTab(selectedRegions[i], this.tabIndex++);
 		}
+
 	}
 
 });
-
 
 /**
  *
@@ -357,5 +359,3 @@ function loadSurvivalAnalysisaCGHView() {
 	// everything starts here ..
 	survivalAnalysisACGHView = new SurvivalAnalysisACGHView();
 }
-
-

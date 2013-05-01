@@ -11,15 +11,16 @@
 <div id="gtPlotWrapper"></div>
 
 %{-- template --}%
-<extjs-tpl id="template-survival-plot" class="x-hidden">
+<extjs-tpl id="template-group-test-plot" class="x-hidden">
 	<div id="plotResultContainer" class="plotResultContainer">
-		<h1>Frequency Plot</h1>
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
-				<g:img dir="images/tempImages/{foldername}" file="{filename}" height='350' width='350'></g:img>
+				<g:img dir="images/tempImages/guest-GroupTest-100000" file="GroupTestPlot.png" height='50%' width='50%'></g:img>
 			</div>
 		</div>
+
+		<div id="gtDownload" class="downloadBtnInnerPage"></div>
 
 	</div>
 </extjs-tpl>

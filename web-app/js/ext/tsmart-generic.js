@@ -4,6 +4,72 @@
  * Time: 15:54
  */
 
+
+/**
+ * Override CheckboxGroup to have getValues
+ */
+Ext.override(Ext.form.CheckboxGroup, {
+	getNames: function() {
+		var n = [];
+
+		this.items.each(function(item) {
+			if (item.getValue()) {
+				n.push(item.getName());
+			}
+		});
+
+		return n;
+	},
+
+	getValues: function() {
+		var v = [];
+
+		this.items.each(function(item) {
+			if (item.getValue()) {
+				v.push(item.getRawValue());
+			}
+		});
+
+		return v;
+	},
+
+	getXValues: function() {
+		var v = [];
+
+		this.items.each(function(item) {
+			if (item.getXValue()) {
+				v.push(item.getXValue());
+			}
+		});
+
+		return v;
+	},
+
+	setValues: function(v) {
+		var r = new RegExp('(' + v.join('|') + ')');
+
+		this.items.each(function(item) {
+			item.setValue(r.test(item.getRawValue()));
+		});
+	}
+});
+
+/**
+ * Override CheckboxGroup to have getValues
+ */
+Ext.override(Ext.form.Checkbox, {
+
+	getXValue: function() {
+		if (this.getValue()) {
+			return this.XValue;
+		}
+	},
+
+	setXValue: function(xvalue) {
+		this.XValue = xvalue;
+	}
+});
+
 /**
  * Individual Panel in Input Bar
  * @type {*|Object}
@@ -50,6 +116,20 @@ var InputPanel = Ext.extend(Ext.Panel, {
 			target: this.getEl(),
 			html: html
 		});
+	},
+
+
+	getInputValue: function() {
+		return this.getEl().select('.x-panel-bwrap .x-panel-body').item(0);
+	},
+
+	isEmpty: function() {
+		var isEmpty = true;
+		if (this.getInputValue().dom.childNodes.length > 0) {
+			isEmpty = false;
+		}
+
+		return isEmpty;
 	}
 });
 
@@ -97,10 +177,11 @@ var InputBar = Ext.extend(Ext.Panel, {
 		return childPanel;
 	},
 
-	createCheckBoxForm: function (checkboxes) {
+	createCheckBoxForm: function (checkboxes, id) {
 		// define alteration types
 		var alterationTypes = new Ext.form.CheckboxGroup({
 			// Put all controls in a single column with width 75%
+			id: id,
 			columns: 1,
 			height: 75,
 			style: 'margin-left: 5px;',
@@ -127,7 +208,6 @@ var InputBar = Ext.extend(Ext.Panel, {
 		clearHighDimDataSelections(divName);
 		clearSummaryDisplay(divName);
 	}
-
 });
 
 /**
@@ -180,9 +260,94 @@ var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
 });
 
 
+/**
+ * Panel to display plot of analysis result
+ * @type {*|Object}
+ */
 var GenericPlotPanel = Ext.extend(Ext.Panel, {
+
 	constructor: function () {
 		GenericPlotPanel.superclass.constructor.apply(this, arguments);
+		this.init();
+	},
+
+	init: function () {
+
 	}
+
 });
 
+/**
+ * Tab panel to display survival analysis plots
+ * @type {*|Object}
+ */
+GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
+
+	id: 'plotResultCurve',
+	renderTo: 'plotResultWrapper',
+	width:'100%',
+	frame:true,
+	height:600,
+	defaults: {autoScroll:true},
+
+	templateId: null,
+
+	constructor: function () {
+		GenericTabPlotPanel.superclass.constructor.apply(this, arguments);
+		this.init();
+	},
+
+	init: function () {
+
+	},
+
+	addTab: function (selectedRegion, tabIndex) {
+
+		var _this = this;
+
+		// Getting the template as blue print for survival curve plot.
+		// Template is defined in SurvivalAnalysisaCGH.gsp
+		var survivalPlotTpl = Ext.Template.from('template-survival-plot');
+
+		// tool
+		var survivalDownloadBtn = 'plotCurveToolBarId_' + tabIndex + "_" + i;
+
+		// create data instance
+		var region = {
+			region:  selectedRegion.data.region,
+			cytoband:  selectedRegion.data.cytoband,
+			pvalue:  selectedRegion.data.pvalue,
+			fdr:  selectedRegion.data.fdr,
+			alteration:  selectedRegion.data.alteration,
+			survivalDownloadBtn: survivalDownloadBtn,
+			foldername: 'guest-SurvivalAnalysis-102086',
+			filename: 'SurvivalCurve2.png'
+		};
+
+		// create tab item
+		var p = _this.add({
+			id: 'tabPlotResult_' + tabIndex,
+			title: selectedRegion.data.region,
+			closable:true
+		});
+
+		//set active tab
+		_this.setActiveTab(p);
+
+		//redo layout
+		_this.doLayout();
+
+		// generate template with associated region values in selected tab
+		survivalPlotTpl.overwrite(Ext.get('tabPlotResult_' + tabIndex), region);
+
+		// create export button
+		var exportBtn = new Ext.Button ({
+			text : 'Download Survival Plot',
+			iconCls : 'downloadbutton',
+			renderTo: survivalDownloadBtn
+		});
+
+	}
+
+
+});

@@ -6,6 +6,21 @@
 
 var groupTestView;
 
+
+/**
+ * Buttons for Input Panel
+ * @type {Array}
+ */
+var gtInputBarBtnList = ['->',{  // '->' making it right aligned
+	xtype: 'button',
+	text: 'Run Analysis',
+	scale: 'medium',
+	iconCls: 'runbutton',
+	handler: function () {
+		groupTestView.submitGroupTestJob();
+	}
+}];
+
 var GroupTestInputWidget = Ext.extend(InputBar, {
 
 	regionPanel: null,
@@ -14,15 +29,15 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
 	alterationPanel: null,
 
 	statCheckBoxes: [
-		{boxLabel: 'Chi-square', name: 'st-col-1'},
-		{boxLabel: 'Wilcoxon', name: 'st-col-2'},
-		{boxLabel: 'Kruskal-Wallis', name: 'st-col-3'}
+		{boxLabel: 'Chi-square', name: 'st-col-1', XValue:'chi-square'},
+		{boxLabel: 'Wilcoxon', name: 'st-col-2', XValue:'wilcoxon'},
+		{boxLabel: 'Kruskal-Wallis', name: 'st-col-3', XValue:'kruskal-wallis'}
 	],
 
 	alterationCheckboxes: [
-		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1'},
-		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2'},
-		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3'}
+		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1', XValue:'gain-no-gain'},
+		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2', XValue:'loss-no-loss'},
+		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3', XValue:'loss-normal-gain'}
 	],
 
 	constructor: function(config) {
@@ -64,8 +79,8 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
 		this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
 
 		// create check boxes
-		this.statTestPanel.add(this.createCheckBoxForm(this.statCheckBoxes));
-		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes));
+		this.statTestPanel.add(this.createCheckBoxForm(this.statCheckBoxes,'stat-test-chk-group'));
+		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes,'alteration-types-chk-group'));
 
 		// re-draw
 		this.doLayout();
@@ -80,7 +95,7 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
 var GroupTestView = Ext.extend(Object, {
 
 	// input panel
-	inputPanel : null,
+	inputBar : null,
 
 	// result panel
 	resultPanel : null,
@@ -91,8 +106,12 @@ var GroupTestView = Ext.extend(Object, {
 	},
 
 	init: function() {
+
+		// first of all, let's reset all major components
+		this.resetAll();
+
 		// draw input panel
-		GroupTestView.inputPanel = new GroupTestInputWidget({
+		this.inputBar = new GroupTestInputWidget({
 			id: 'gtInputPanel',
 			title: 'Input Parameters',
 			iconCls: 'newbutton',
@@ -101,21 +120,88 @@ var GroupTestView = Ext.extend(Object, {
 		});
 	},
 
+	resetAll: function () {
+		this.tabIndex = 0;
+		Ext.destroy(this.inputBar);
+		Ext.destroy(this.resultPanel);
+	},
+
+
 	createInputToolBar: function() {
 		var _this = this;
 		return new Ext.Toolbar({
 			height: 30,
-			items: ['->',{  // '->' making it right aligned
-				xtype: 'button',
-				text: 'Run Analysis',
-				scale: 'medium',
-				iconCls: 'runbutton',
-				handler: function () {
-					// TODO: add run analysis handler
-					_this.createResultPlotPanel();
-				}
-			}]
+			items: gtInputBarBtnList
 		});
+	},
+
+	submitGroupTestJob: function() {
+		if (this.validateInputs()) {
+			this.createResultPlotPanel();
+		}
+	},
+
+	validateInputs: function () {
+
+
+		var isValid = true;
+		var invalidInputs = [];
+
+		var regionVal;
+		var groupVal;
+		var statisticalVal;
+		var alterationVal;
+
+		// check if region panel is empty
+		if (this.inputBar.regionPanel.isEmpty()) {
+			invalidInputs.push(this.inputBar.regionPanel.title);
+			isValid = false;
+		} else {
+			regionVal =  this.inputBar.regionPanel.getInputValue();
+		}
+
+		// check if group panel is empty
+		if (this.inputBar.groupPanel.isEmpty()) {
+			invalidInputs.push(this.inputBar.groupPanel.title);
+			isValid = false;
+		} else {
+			groupVal =  this.inputBar.groupPanel.getInputValue();
+		}
+
+		//check if stat test values has been selected
+		var statChkGroup = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+		statisticalVal =  statChkGroup.getXValues();
+		if (statisticalVal.length < 1) {
+			isValid = false;
+			invalidInputs.push(this.inputBar.statTestPanel.title);
+		}
+
+		//check if alteration values has been selected
+		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+		alterationVal =  alterationChkGroup.getXValues();
+		if (alterationVal.length < 1) {
+			isValid = false;
+			invalidInputs.push(this.inputBar.alterationPanel.title);
+		}
+
+		if (!isValid) {
+			var strErrMsg = 'Following needs to be defined: ';
+			invalidInputs.each(function (item) {
+				strErrMsg += '['+item + '] ';
+			})
+
+			// inform user on mandatory inputs need to be defined
+			Ext.MessageBox.show({
+				title: 'Missing mandatory inputs',
+				msg: strErrMsg,
+				buttons: Ext.MessageBox.OK,
+				icon: Ext.MessageBox.ERROR
+			});
+
+		}
+
+		return isValid;
+
 	},
 
 	createResultPlotPanel: function () {
@@ -127,6 +213,21 @@ var GroupTestView = Ext.extend(Object, {
 			height:600,
 			defaults: {autoScroll:true}
 		});
+
+		// Getting the template as blue print for survival curve plot.
+		// Template is defined in GroupTestaCGH.gsp
+		var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
+
+		// generate template with associated region values in selected tab
+		groupTestPlotTpl.overwrite(Ext.get( 'plotResultCurve'));
+
+		// create export button
+		var exportBtn = new Ext.Button ({
+			text : 'Download Survival Plot',
+			iconCls : 'downloadbutton',
+			renderTo: 'gtDownload'
+		});
+
 	}
 
 });

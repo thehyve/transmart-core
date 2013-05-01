@@ -55,6 +55,6 @@
 			</div>
 		</div>
 
-		<div id="{plotCurveToolBarId}" class="plotCurveToolBar"></div>
+		<div id="{survivalDownloadBtn}" class="downloadBtnInnerPage"></div>
 	</div>
 </extjs-tpl>
