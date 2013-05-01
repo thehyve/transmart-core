@@ -9,7 +9,7 @@ To facilitate communications with i2b2 and i2b2-like clinical data resources,
 two API's are defined which follow the design philosophy behind i2b2 and resemble
 the i2b2 Ontology Management (ONT) and Data Repository (CRC) RESTful API's.
 
-### Clinical Data Ontology 
+### Clinical Data Ontology API 
 
 A [ConceptsResource](org/transmartproject/core/ontology/ConceptsResource.html)
 is defined which can be implemented by clinical data sources to expose ontology
@@ -21,6 +21,6 @@ the ones which happen to be used in the legacy tranSMART codebase.
 
 A [QueriesResource](org/transmartproject/core/querytool/QueriesResource.html)
 is defined which can be exposed by clinical data sources as a means of querying
-clinical data. This resource exposes methods to run queries and retrieve query results. The API is very closely
-modelled to the [i2b2 CRC query message API](https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology).
+clinical data. This resource exposes methods to run queries and retrieve query results.
+The API is modelled after the [i2b2 CRC query message API](https://www.i2b2.org/software/files/PDF/current/CRC_Messaging.pdf).
 
