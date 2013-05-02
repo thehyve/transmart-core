@@ -318,6 +318,11 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 		var _this = this;
 
+		// compose tab_id form region name + cytoband + alteration type
+		var tab_id = selectedRegion.data.region + '_' + selectedRegion.data.cytoband + '_' +
+			selectedRegion.data.alteration;
+		tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
+
 		// Getting the template as blue print for survival curve plot.
 		// Template is defined in SurvivalAnalysisaCGH.gsp
 		var survivalPlotTpl = Ext.Template.from('template-survival-plot');
@@ -337,12 +342,16 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 			filename: 'SurvivalCurve2.png'
 		};
 
-		// create tab item
-		var p = _this.add({
-			id: 'tabPlotResult_' + tabIndex,
-			title: selectedRegion.data.region,
-			closable:true
-		});
+		var p =  _this.findById(tab_id); //find if the plot already displayed
+
+		if (p == null) { // if not yet then create and add a tab
+			// create tab item
+			p = _this.add({
+				id: tab_id,
+				title: selectedRegion.data.region,
+				closable:true
+			});
+		}
 
 		//set active tab
 		_this.setActiveTab(p);
@@ -351,7 +360,7 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 		_this.doLayout();
 
 		// generate template with associated region values in selected tab
-		survivalPlotTpl.overwrite(Ext.get('tabPlotResult_' + tabIndex), region);
+		survivalPlotTpl.overwrite(Ext.get(tab_id), region);
 
 		// create export button
 		var exportBtn = new Ext.Button ({
