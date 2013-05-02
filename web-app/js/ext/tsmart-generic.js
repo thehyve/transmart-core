@@ -224,7 +224,7 @@ var InputBar = Ext.extend(Ext.Panel, {
 });
 
 /**
- *
+ * Generic tool bar
  * @type {*|Object}
  */
 var GenericToolBar = Ext.extend(Ext.Toolbar, {
@@ -235,20 +235,10 @@ var GenericToolBar = Ext.extend(Ext.Toolbar, {
 });
 
 /**
- *
+ * Generic result grid panel with grouping feature
  * @type {*|Object}
  */
 var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
-
-	id: 'intermediateGridPanel',
-
-	columns: [
-		{id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
-		{header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
-		{header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
-		{header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
-		{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
-	],
 
 	view: new Ext.grid.GroupingView({
 		forceFit:true,
@@ -260,9 +250,7 @@ var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
 	height: 250,
 	collapsible: true,
 	animCollapse: false,
-	title: 'Intermediate Result',
 	iconCls: 'gridbutton',
-	renderTo: 'intermediateResultWrapper',
 
 	constructor: function(config) {
 
@@ -296,8 +284,6 @@ var GenericPlotPanel = Ext.extend(Ext.Panel, {
  */
 GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
-	id: 'plotResultCurve',
-	renderTo: 'plotResultWrapper',
 	width:'100%',
 	frame:true,
 	height:600,
@@ -314,60 +300,27 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 	},
 
-	addTab: function (selectedRegion, tabIndex) {
+	addTab: function (region, tab_id, templateFile) {
 
-		var _this = this;
-
-		// compose tab_id form region name + cytoband + alteration type
-		var tab_id = selectedRegion.data.region + '_' + selectedRegion.data.cytoband + '_' +
-			selectedRegion.data.alteration;
-		tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
-
-		// Getting the template as blue print for survival curve plot.
-		// Template is defined in SurvivalAnalysisaCGH.gsp
-		var survivalPlotTpl = Ext.Template.from('template-survival-plot');
-
-		// tool
-		var survivalDownloadBtn = 'plotCurveToolBarId_' + tabIndex + "_" + i;
-
-		// create data instance
-		var region = {
-			region:  selectedRegion.data.region,
-			cytoband:  selectedRegion.data.cytoband,
-			pvalue:  selectedRegion.data.pvalue,
-			fdr:  selectedRegion.data.fdr,
-			alteration:  selectedRegion.data.alteration,
-			survivalDownloadBtn: survivalDownloadBtn,
-			foldername: 'guest-SurvivalAnalysis-102086',
-			filename: 'SurvivalCurve2.png'
-		};
-
-		var p =  _this.findById(tab_id); //find if the plot already displayed
+		var p =  this.findById(tab_id); //find if the plot already displayed
 
 		if (p == null) { // if not yet then create and add a tab
 			// create tab item
-			p = _this.add({
+			p = this.add({
 				id: tab_id,
-				title: selectedRegion.data.region,
+				title: region.region,
 				closable:true
 			});
 		}
 
 		//set active tab
-		_this.setActiveTab(p);
+		this.setActiveTab(p);
 
 		//redo layout
-		_this.doLayout();
+		this.doLayout();
 
 		// generate template with associated region values in selected tab
-		survivalPlotTpl.overwrite(Ext.get(tab_id), region);
-
-		// create export button
-		var exportBtn = new Ext.Button ({
-			text : 'Download Survival Plot',
-			iconCls : 'downloadbutton',
-			renderTo: survivalDownloadBtn
-		});
+		templateFile.overwrite(Ext.get(tab_id), region);
 
 	}
 

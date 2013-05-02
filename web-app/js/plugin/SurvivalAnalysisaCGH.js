@@ -73,6 +73,7 @@ var saIntermediatePanelBtnList = ['->',
 		scale: 'medium',
 		iconCls: 'downloadbutton',
 		handler: function (b, e) {
+
 			// ****************************************************************** //
 			// TODO: To provide handler for download Intermediate result data     //
 			// ****************************************************************** //
@@ -186,9 +187,6 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	// plot curve panel
 	plotCurvePanel : null,
 
-	//tab index
-	tabIndex: 0,
-
 	constructor: function () {
 		this.init();
 	},
@@ -208,14 +206,12 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	},
 
 	resetAll: function () {
-		this.tabIndex = 0;
 		Ext.destroy(this.inputBar);
 		Ext.destroy(this.intermediateResultPanel);
 		Ext.destroy(this.plotCurvePanel);
 	},
 
 	resetResult: function () {
-		this.tabIndex = 0;
 		Ext.destroy(this.intermediateResultPanel);
 		Ext.destroy(this.plotCurvePanel);
 	},
@@ -313,9 +309,21 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 			groupField:'alteration'
 		});
 
+		var columns =  [
+			{id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
+			{header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
+			{header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
+			{header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
+			{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
+		];
+
 		this.intermediateResultPanel = new ResultGridPanel({
+			id: 'intermediateGridPanel',
+			title: 'Intermediate Result',
+			renderTo: 'intermediateResultWrapper',
 			store: groupStore,
-			bbar: this.createToolBar(saIntermediatePanelBtnList)
+			bbar: this.createToolBar(saIntermediatePanelBtnList),
+			columns: columns
 		});
 
 	},
@@ -336,10 +344,48 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 
 		// creating tab panel
 		if (this.plotCurvePanel == null) {
-			this.plotCurvePanel =  new GenericTabPlotPanel();
+			this.plotCurvePanel =  new GenericTabPlotPanel({
+				id: 'plotResultCurve',
+				renderTo: 'plotResultWrapper'
+			});
 		}
+
+		// create tab as many as selected rows
 		for (var i = 0; i < selectedRegions.length ; i++) {
-			this.plotCurvePanel.addTab(selectedRegions[i], this.tabIndex++);
+
+			// compose tab_id form region name + cytoband + alteration type
+			var tab_id = selectedRegions[i].data.region + '_' + selectedRegions[i].data.cytoband + '_' +
+				selectedRegions[i].data.alteration;
+			tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
+
+			// Getting the template as blue print for survival curve plot.
+			// Template is defined in SurvivalAnalysisaCGH.gsp
+			var survivalPlotTpl = Ext.Template.from('template-survival-plot');
+
+			// generate id for download btn
+			var survivalDownloadBtn = 'survivalDownloadBtn_' +  tab_id;
+
+			// create data instance
+			var region = {
+				region:  selectedRegions[i].data.region,
+				cytoband:  selectedRegions[i].data.cytoband,
+				pvalue:  selectedRegions[i].data.pvalue,
+				fdr:  selectedRegions[i].data.fdr,
+				survivalDownloadBtn: survivalDownloadBtn,
+				alteration:  selectedRegions[i].data.alteration,
+				foldername: 'guest-SurvivalAnalysis-102086',  // TODO: get dynamic path to the analysis result
+				filename: 'SurvivalCurve2.png' // TODO: get image from analysis result
+			};
+
+			// add tab to the container
+			this.plotCurvePanel.addTab(region, tab_id, survivalPlotTpl);
+
+			// create export button
+			var exportBtn = new Ext.Button ({
+				text : 'Download Survival Plot',
+				iconCls : 'downloadbutton',
+				renderTo: survivalDownloadBtn
+			});
 		}
 
 	}
