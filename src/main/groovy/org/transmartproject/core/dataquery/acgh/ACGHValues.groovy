@@ -15,7 +15,7 @@ public interface ACGHValues {
      *
      * @return the log2 ratio value
      */
-    double getChipCopyNumberValue()
+    Double getChipCopyNumberValue()
 
     /**
      * The log2 ratio value for the (assay, segment) pair represented in
@@ -29,7 +29,7 @@ public interface ACGHValues {
      *
      * @return the log2 ratio value
      */
-    double getSegmentCopyNumberValue()
+    Double getSegmentCopyNumberValue()
 
     /**
      * A hard call on which type of copy number variation the underlying
@@ -45,7 +45,7 @@ public interface ACGHValues {
      *
      * @return probability of loss event
      */
-    double getProbabilityOfLoss()
+    Double getProbabilityOfLoss()
 
     /**
      * The probability ("soft call") of this region or segment not
@@ -53,7 +53,7 @@ public interface ACGHValues {
      *
      * @return probability of normal event
      */
-    double getProbabilityOfNormal()
+    Double getProbabilityOfNormal()
 
     /**
      * The probability ("soft call") that this region or segment has
@@ -61,7 +61,7 @@ public interface ACGHValues {
      *
      * @return probability of gain event
      */
-    double getProbabilityOfGain()
+    Double getProbabilityOfGain()
 
     /**
      * The probability ("soft call") of that this region or segment having
@@ -69,5 +69,5 @@ public interface ACGHValues {
      *
      * @return probability of amplification event
      */
-    double getProbabilityOfAmplification()
+    Double getProbabilityOfAmplification()
 }
