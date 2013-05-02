@@ -28,10 +28,10 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
 	statTestPanel: null,
 	alterationPanel: null,
 
-	statCheckBoxes: [
-		{boxLabel: 'Chi-square', name: 'st-col-1', XValue:'chi-square'},
-		{boxLabel: 'Wilcoxon', name: 'st-col-2', XValue:'wilcoxon'},
-		{boxLabel: 'Kruskal-Wallis', name: 'st-col-3', XValue:'kruskal-wallis'}
+	statRadios: [
+		{boxLabel: 'Chi-square', name: 'stat-test-opt', XValue:'chi-square'},
+		{boxLabel: 'Wilcoxon', name: 'stat-test-opt', XValue:'wilcoxon'},
+		{boxLabel: 'Kruskal-Wallis', name: 'stat-test-opt', XValue:'kruskal-wallis'}
 	],
 
 	alterationCheckboxes: [
@@ -79,7 +79,7 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
 		this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
 
 		// create check boxes
-		this.statTestPanel.add(this.createCheckBoxForm(this.statCheckBoxes,'stat-test-chk-group'));
+		this.statTestPanel.add(this.createRadioBtnGroup(this.statRadios,'stat-test-chk-group'));
 		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes,'alteration-types-chk-group'));
 
 		// re-draw

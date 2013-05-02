@@ -179,7 +179,7 @@ var InputBar = Ext.extend(Ext.Panel, {
 
 	createCheckBoxForm: function (checkboxes, id) {
 		// define alteration types
-		var alterationTypes = new Ext.form.CheckboxGroup({
+		var chkGroup = new Ext.form.CheckboxGroup({
 			// Put all controls in a single column with width 75%
 			id: id,
 			columns: 1,
@@ -188,7 +188,20 @@ var InputBar = Ext.extend(Ext.Panel, {
 			items: checkboxes
 		});
 
-		return alterationTypes;
+		return chkGroup;
+	},
+
+	createRadioBtnGroup: function (radioBtns, id) {
+		var radGroup = new Ext.form.RadioGroup({
+			id: id,
+			columns: 1,
+			height: 75,
+			vertical: true,
+			style: 'margin-left: 5px;',
+			items: radioBtns
+		});
+
+		return radGroup;
 	},
 
 	clearInput: function (panelId) {
