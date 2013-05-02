@@ -218,7 +218,6 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 		this.tabIndex = 0;
 		Ext.destroy(this.intermediateResultPanel);
 		Ext.destroy(this.plotCurvePanel);
-
 	},
 
 	createToolBar: function(btnList) {
@@ -228,12 +227,10 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	},
 
 	submitSurvivalAnalysisaCGHJob: function() {
-
 		 if (this.validateInputs()) {
-			this.resetResult();
-			this.generateResultGrid(dummyData);
+				this.resetResult();
+				this.generateResultGrid(dummyData);
 		 }
-
 	},
 
 	validateInputs: function () {
@@ -316,7 +313,7 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 			groupField:'alteration'
 		});
 
-		SurvivalAnalysisACGHView.intermediateResultPanel = new ResultGridPanel({
+		this.intermediateResultPanel = new ResultGridPanel({
 			store: groupStore,
 			bbar: this.createToolBar(saIntermediatePanelBtnList)
 		});
@@ -328,7 +325,7 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	 * @returns {*}
 	 */
 	getSelectedRows: function () {
-		return SurvivalAnalysisACGHView.intermediateResultPanel.getSelectionModel().getSelections();
+		return this.intermediateResultPanel.getSelectionModel().getSelections();
 	},
 
 	/**
