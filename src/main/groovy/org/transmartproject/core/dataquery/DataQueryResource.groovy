@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.acgh.RegionResult
 /**
  * A resource for querying about clinical and high-dimensional data.
  */
-public interface DataQueryResourceService {
+public interface DataQueryResource {
 
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec)
 }
