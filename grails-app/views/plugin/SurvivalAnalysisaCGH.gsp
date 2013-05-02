@@ -1,9 +1,6 @@
 %{--Survival Analysis aCGH input Container--}%
 <div id="analysisContainer"></div>
 
-%{--Survival Analysis aCGH toolbar--}%
-%{--<div id="analysisToolBar"></div>--}%
-
 %{-- Analysis Output --}%
 <div id="intermediateResultWrapper"></div>
 
