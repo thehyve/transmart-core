@@ -18,7 +18,7 @@ public interface Region {
     /**
      * The marker type for this platform; see {@link Platform#getMarkerType()}.
      */
-    public final static PlatformMarkerType MARKER_TYPE =
+    public final static PlatformMarkerType MARKER_TYPE = PlatformMarkerType.CHROMOSOMAL_REGION
 
     /**
      * A unique numeric identifier for the region.
