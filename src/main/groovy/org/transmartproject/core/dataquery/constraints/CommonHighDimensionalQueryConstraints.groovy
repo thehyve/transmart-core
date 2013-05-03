@@ -16,7 +16,7 @@ class CommonHighDimensionalQueryConstraints {
 
     /* Limitations on the assays: */
 
-    List<Platform> platform
+    List<Platform> platforms
 
     List<String> sampleCodes
 
