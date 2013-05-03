@@ -19,10 +19,10 @@ public interface DataQueryResult<I, R> {
     List<I> getIndicesList()
 
     /**
-     * The iterable result set, organized as rows, which is a map of values
+     * The iterator result set, organized as rows, which is a map of values
      * indexed by the indices returned by {@link #getIndicesList()}.
      *
      * @return the typed result set rows
      */
-    Iterable<R> getRows()
+    Iterator<R> getRows()
 }
