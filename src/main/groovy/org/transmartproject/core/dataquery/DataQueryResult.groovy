@@ -8,7 +8,7 @@ package org.transmartproject.core.dataquery
  * @param < I > The type for the row indexes
  * @param < R > The type for the rows themselves
  */
-public interface DataQueryResult<I, R> {
+public interface DataQueryResult<I, R> extends Closeable {
 
     /**
      * Used to obtain the "columns" of the result set' the indices used to
