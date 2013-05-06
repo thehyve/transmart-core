@@ -19,7 +19,7 @@ public enum PlatformMarkerType {
         this.id = id
     }
 
-    static PlatformMarkerType forId(int id) {
+    static PlatformMarkerType forId(String id) {
         values().find { it.id == id } ?: UNKNOWN
     }
 
