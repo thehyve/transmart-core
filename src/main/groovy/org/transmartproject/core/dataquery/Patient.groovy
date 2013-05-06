@@ -36,6 +36,6 @@ public interface Patient {
      *
      * @return the assays associated with this patient; an empty list if none
      */
-    List<Assay> getAssays()
+    Set<Assay> getAssays()
 
 }
