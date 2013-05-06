@@ -122,7 +122,8 @@ class QueriesResourceServiceTests extends GroovyTestCase {
             eq('resultInstance.id', result.id)
         }.list()
         def memberMatchers = patientNums.collect {
-            hasProperty('patientNum', equalTo(Long.valueOf(it)))
+            hasProperty('patient',
+                    hasProperty('id', equalTo(Long.valueOf(it))))
         }
         assertThat patientSet, containsInAnyOrder(*memberMatchers)
     }

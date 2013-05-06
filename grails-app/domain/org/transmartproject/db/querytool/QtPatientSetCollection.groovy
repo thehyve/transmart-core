@@ -1,23 +1,22 @@
 package org.transmartproject.db.querytool
 
-/**
- * Currently only used to make grails create the table when running the
- * integration tests on a memory database.
- * All the details of this class are subject to change.
- */
+import org.transmartproject.db.i2b2data.PatientDimension
+
 class QtPatientSetCollection {
 
 	Long            setIndex
-	Long            patientNum
-    QtQueryInstance resultInstance
 
-    static belongsTo = [resultInstance: QtQueryResultInstance]
+    static belongsTo = [
+            resultInstance: QtQueryResultInstance,
+            patient:        PatientDimension,
+    ]
 
 	static mapping = {
         table           schema: 'I2B2DEMODATA'
 		id              column: "patient_set_coll_id", generator: "identity"
 
         resultInstance  column: 'result_instance_id'
+        patient         column: 'patient_num'
 
 		version false
 	}
@@ -25,6 +24,6 @@ class QtPatientSetCollection {
 	static constraints = {
         resultInstance   nullable: true
 		setIndex         nullable: true
-		patientNum       nullable: true
+		patient          nullable: true
 	}
 }
