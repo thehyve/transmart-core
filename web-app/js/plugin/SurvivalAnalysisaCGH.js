@@ -110,7 +110,7 @@ var saIntermediatePanelBtnList = ['->',
  * This object represents Input Bar in the Survival Analysis page
  * @type {*|Object}
  */
-var SurvivalAnalysisInputBar = Ext.extend(InputBar, {
+var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 
 	regionPanel: null,
 	survivalPanel: null,
@@ -176,7 +176,7 @@ var SurvivalAnalysisInputBar = Ext.extend(InputBar, {
  * This object represent the whole Survival Analysis Array CGH View
  * @type {*|Object}
  */
-var SurvivalAnalysisACGHView = Ext.extend(Object, {
+var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 	// input panel
 	inputBar : null,
@@ -217,15 +217,31 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	},
 
 	createToolBar: function(btnList) {
-		return new GenericToolBar({
+		return new GenericAnalysisToolBar({
 			items: btnList
 		});
 	},
 
 	submitSurvivalAnalysisaCGHJob: function() {
 		 if (this.validateInputs()) {
-				this.resetResult();
-				this.generateResultGrid(dummyData);
+			console.log('LOG: submit survival analysis acgh job');
+
+			 var params = {
+				 url:'url',
+				 method:'POST',
+				 timeout:'180000',
+				 analysis:'SurvivalAnalysisArrayCGH',
+				 inputs: [] //TODO
+			 };
+
+			this.resetResult();
+
+			var job = this.createJob(params);
+
+			 if (job) {
+				 this.runJob(params, this.generateResultGrid, this);
+			 }
+
 		 }
 	},
 
@@ -255,8 +271,10 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 			survivalAnalysisVal =  this.inputBar.survivalPanel.getInputValue();
 		}
 
-		// censoring variable is optional
-		censoringVal =  this.inputBar.censoringPanel.getInputValue();
+		// check censoring variable is empty (e.g status is dead or alive)
+		if (this.inputBar.censoringPanel.isEmpty()) {
+			censoringVal =  this.inputBar.censoringPanel.getInputValue();
+		}
 
 		//check if alteration values has been selected
 		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
@@ -290,7 +308,9 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 	 * generates intermediate result in grid panel
 	 * @param data
 	 */
-	generateResultGrid: function (data) {
+	generateResultGrid: function (data, view) {
+
+		data = dummyData; //TODO get JSON data from backend
 
 		Ext.grid.intermediateResultData = data;
 
@@ -317,12 +337,12 @@ var SurvivalAnalysisACGHView = Ext.extend(Object, {
 			{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
 		];
 
-		this.intermediateResultPanel = new ResultGridPanel({
+		view.intermediateResultPanel = new GenericAnalysisResultGrid({
 			id: 'intermediateGridPanel',
 			title: 'Intermediate Result',
 			renderTo: 'intermediateResultWrapper',
 			store: groupStore,
-			bbar: this.createToolBar(saIntermediatePanelBtnList),
+			bbar: view.createToolBar(saIntermediatePanelBtnList),
 			columns: columns
 		});
 

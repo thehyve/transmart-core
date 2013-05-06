@@ -6,7 +6,6 @@
 
 var groupTestView;
 
-
 /**
  * Buttons for Input Panel
  * @type {Array}
@@ -21,7 +20,7 @@ var gtInputBarBtnList = ['->',{  // '->' making it right aligned
 	}
 }];
 
-var GroupTestInputWidget = Ext.extend(InputBar, {
+var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
 	regionPanel: null,
 	groupPanel: null,
@@ -92,7 +91,7 @@ var GroupTestInputWidget = Ext.extend(InputBar, {
  * This class represents the whole Group Test view
  * @type {*|Object}
  */
-var GroupTestView = Ext.extend(Object, {
+var GroupTestView = Ext.extend(GenericAnalysisView, {
 
 	// input panel
 	inputBar : null,
@@ -135,14 +134,7 @@ var GroupTestView = Ext.extend(Object, {
 		});
 	},
 
-	submitGroupTestJob: function() {
-		if (this.validateInputs()) {
-			this.createResultPlotPanel();
-		}
-	},
-
 	validateInputs: function () {
-
 
 		var isValid = true;
 		var invalidInputs = [];
@@ -204,7 +196,8 @@ var GroupTestView = Ext.extend(Object, {
 
 	},
 
-	createResultPlotPanel: function () {
+	createResultPlotPanel: function (result) {
+
 		this.resultPanel = new GenericPlotPanel({
 			id: 'plotResultCurve',
 			renderTo: 'gtPlotWrapper',
@@ -227,6 +220,25 @@ var GroupTestView = Ext.extend(Object, {
 			iconCls : 'downloadbutton',
 			renderTo: 'gtDownload'
 		});
+
+	},
+
+	submitGroupTestJob: function () {
+		if (this.validateInputs()) {
+			 var params = {
+				 url:'url',
+				 method:'POST',
+				 timeout:'180000',
+				 analysis:'GroupTestAnalysis',
+				 inputs: [] //TODO
+			 };
+
+			var job = this.createJob(params);
+
+			if (job) {
+				this.runJob(params, this.createResultPlotPanel);
+			}
+		}
 
 	}
 

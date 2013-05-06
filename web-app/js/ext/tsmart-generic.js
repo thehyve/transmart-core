@@ -74,7 +74,7 @@ Ext.override(Ext.form.Checkbox, {
  * Individual Panel in Input Bar
  * @type {*|Object}
  */
-var InputPanel = Ext.extend(Ext.Panel, {
+GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 
 	columnWidth: .25,
 	height: 120,
@@ -85,7 +85,7 @@ var InputPanel = Ext.extend(Ext.Panel, {
 	isDroppable: false, // by default panel is not droppable
 
 	constructor: function(config) {
-		InputPanel.superclass.constructor.apply(this, arguments);
+		GenericAnalysisInputPanel.superclass.constructor.apply(this, arguments);
 	},
 
 	listeners: {
@@ -137,13 +137,13 @@ var InputPanel = Ext.extend(Ext.Panel, {
  * Input Bar
  * @type {*|Object}
  */
-var InputBar = Ext.extend(Ext.Panel, {
+GenericAnalysisInputBar = Ext.extend(Ext.Panel, {
 
 	layout:'column',
 	collapsible: true,
 
 	constructor: function(config) {
-		InputBar.superclass.constructor.apply(this, arguments);
+		GenericAnalysisInputBar.superclass.constructor.apply(this, arguments);
 	},
 
 	init: function () {
@@ -152,7 +152,7 @@ var InputBar = Ext.extend(Ext.Panel, {
 
 	createChildPanel : function(config) {
 
-		var childPanel =  new InputPanel({
+		var childPanel =  new GenericAnalysisInputPanel({
 			title: config.title,
 			id: config.id,
 			isDroppable: config.isDroppable,
@@ -227,10 +227,10 @@ var InputBar = Ext.extend(Ext.Panel, {
  * Generic tool bar
  * @type {*|Object}
  */
-var GenericToolBar = Ext.extend(Ext.Toolbar, {
+GenericAnalysisToolBar = Ext.extend(Ext.Toolbar, {
 	height: 30,
 	constructor: function(config) {
-		InputBar.superclass.constructor.apply(this, arguments);
+		GenericAnalysisInputBar.superclass.constructor.apply(this, arguments);
 	}
 });
 
@@ -238,7 +238,7 @@ var GenericToolBar = Ext.extend(Ext.Toolbar, {
  * Generic result grid panel with grouping feature
  * @type {*|Object}
  */
-var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
+GenericAnalysisResultGrid = Ext.extend(Ext.grid.GridPanel, {
 
 	view: new Ext.grid.GroupingView({
 		forceFit:true,
@@ -254,7 +254,7 @@ var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
 
 	constructor: function(config) {
 
-		ResultGridPanel.superclass.constructor.apply(this, arguments);
+		GenericAnalysisResultGrid.superclass.constructor.apply(this, arguments);
 
 	}
 
@@ -265,7 +265,7 @@ var ResultGridPanel = Ext.extend(Ext.grid.GridPanel, {
  * Panel to display plot of analysis result
  * @type {*|Object}
  */
-var GenericPlotPanel = Ext.extend(Ext.Panel, {
+GenericPlotPanel = Ext.extend(Ext.Panel, {
 
 	constructor: function () {
 		GenericPlotPanel.superclass.constructor.apply(this, arguments);
@@ -323,6 +323,119 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 		templateFile.overwrite(Ext.get(tab_id), region);
 
 	}
+});
 
+/**
+ * View in most of the analysis
+ * @type {*|Object}
+ */
+GenericAnalysisView = Ext.extend(Object, {
+
+	jobWindow: null,
+
+
+	createJob: function (params) {
+
+		console.log('LOG: createJob');
+		console.log('LOG: URL is ', params.url);
+		console.log('LOG: Analysis Name is ', params.analysis);
+		console.log('LOG: Timeout is ', params.timeout);
+		console.log('LOG: Method is ', params.method);
+		console.log('LOG: Callback is ', params.callback);
+
+		// TODO: invoke ajax call to create job
+		/*
+		 Ext.Ajax.request({
+		 url: pageInfo.basePath+"/groupTest/createnewjob",
+		 method: 'POST',
+		 success: function(result, request){
+		 //Handle data export process
+		 this.runDataExportJob(result);
+		 },
+		 failure: function(result, request){
+		 Ext.Msg.alert('Status', 'Unable to create data export job.');
+		 },
+		 timeout: '1800000',
+		 params: {
+		 analysis:  "Group Test Array CGH"
+		 }
+		 });
+		 */
+
+		return true;
+	},
+
+	runJob: function (params, callback, view) {
+
+		this.showJobStatusWindow();
+
+		// TODO: invoke ajax call to run job
+		// TODO: invoke checkJobStatus(jobname)
+
+		// ***************************
+		// dummy to mock status window
+		// ***************************
+
+		var _this = this;
+		var result; // TODO get job result
+
+		setTimeout(function() {
+			 _this.jobWindow.close();
+			callback(result, view);
+		}, 5000); // dummy .. 5 seconds
+
+	},
+
+	cancelJob: function() {
+		console.log('LOG: cancelJob');
+		// TODO: invoke ajax call to cancel running job
+		this.jobWindow.close();
+	},
+
+	showJobStatusWindow: function() {
+		var _this = this;
+		_this.jobWindow = new Ext.Window({
+			id: 'showJobStatus',
+			title: 'Job Status',
+			layout:'fit',
+			width:350,
+			height:400,
+			closable: false,
+			plain: true,
+			modal: true,
+			border:false,
+			resizable: false,
+			buttons: [
+				{
+					text: 'Cancel Job',
+					handler: function()	{
+
+						// inform user on mandatory inputs need to be defined
+						Ext.MessageBox.show({
+							title: 'Cancel Job',
+							msg: 'Are you sure you want to cancel your job?',
+							buttons: Ext.MessageBox.YESNO,
+							icon: Ext.MessageBox.QUESTION,
+							fn: function (btn) {
+								_this.cancelJobHandler(btn);
+							}
+						});
+
+
+					}
+				}],
+			autoLoad: {
+				//TODO
+			}
+		});
+		_this.jobWindow.show(viewport);
+	},
+
+	cancelJobHandler: function (btn) {
+		if (btn == 'yes') {
+			this.cancelJob();
+		}
+	}
 
 });
+
