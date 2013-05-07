@@ -273,6 +273,9 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		// check censoring variable is empty (e.g status is dead or alive)
 		if (this.inputBar.censoringPanel.isEmpty()) {
+			invalidInputs.push(this.inputBar.censoringPanel.title);
+			isValid = false;
+		} else {
 			censoringVal =  this.inputBar.censoringPanel.getInputValue();
 		}
 
