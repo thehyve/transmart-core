@@ -39,6 +39,7 @@ class DataAssociationController {
 	def loadScripts = {
 		def scripts = [servletContext.contextPath+pluginContextPath+'/js/dataAssociation.js', 
 		servletContext.contextPath+pluginContextPath+'/js/PDFGenerator.js',
+		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-overrides.js',
 		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-generic.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysis.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysisaCGH.js',
