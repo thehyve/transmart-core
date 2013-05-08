@@ -260,7 +260,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			invalidInputs.push(this.inputBar.regionPanel.title);
 			isValid = false;
 		} else {
-			regionVal =  this.inputBar.regionPanel.getInputValue();
+			regionVal =  this.inputBar.regionPanel.getInputEl();
 		}
 
 		// check if survival time  panel is empty
@@ -268,7 +268,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			invalidInputs.push(this.inputBar.survivalPanel.title);
 			isValid = false;
 		} else {
-			survivalAnalysisVal =  this.inputBar.survivalPanel.getInputValue();
+			survivalAnalysisVal =  this.inputBar.survivalPanel.getInputEl();
 		}
 
 		// check censoring variable is empty (e.g status is dead or alive)
@@ -276,7 +276,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			invalidInputs.push(this.inputBar.censoringPanel.title);
 			isValid = false;
 		} else {
-			censoringVal =  this.inputBar.censoringPanel.getInputValue();
+			censoringVal =  this.inputBar.censoringPanel.getInputEl();
 		}
 
 		//check if alteration values has been selected

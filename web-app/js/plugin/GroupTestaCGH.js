@@ -149,7 +149,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 			invalidInputs.push(this.inputBar.regionPanel.title);
 			isValid = false;
 		} else {
-			regionVal =  this.inputBar.regionPanel.getInputValue();
+			regionVal =  this.inputBar.regionPanel.getInputEl();
 		}
 
 		// check if group panel is empty
@@ -157,7 +157,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 			invalidInputs.push(this.inputBar.groupPanel.title);
 			isValid = false;
 		} else {
-			groupVal =  this.inputBar.groupPanel.getInputValue();
+			groupVal =  this.inputBar.groupPanel.getInputEl();
 		}
 
 		//check if stat test values has been selected

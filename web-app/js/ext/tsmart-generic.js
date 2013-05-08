@@ -54,18 +54,27 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	},
 
 
-	getInputValue: function() {
-		return this.getEl().select('.x-panel-bwrap .x-panel-body').item(0);
+	getInputEl: function() {
+		return this.getEl().select('.x-panel-bwrap .x-panel-body', true).item(0);
 	},
 
 	isEmpty: function() {
 		var isEmpty = true;
-		if (this.getInputValue().dom.childNodes.length > 0) {
+		if (this.getInputEl().dom.childNodes.length > 0) {
 			isEmpty = false;
 		}
 
 		return isEmpty;
+	},
+
+	getConceptCode: function() {
+		return getQuerySummaryItem(this.getInputEl().dom.childNodes[0]);
+	},
+
+	getNodeList: function() {
+		return createNodeTypeArrayFromDiv(this.getInputEl(), "setnodetype");
 	}
+
 });
 
 /**
