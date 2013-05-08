@@ -42,7 +42,7 @@ class DataAssociationController {
 		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-overrides.js',
 		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-generic.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysis.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysisaCGH.js',
+		servletContext.contextPath+pluginContextPath+'/js/plugin/aCGHSurvivalAnalysis.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/CorrelationAnalysis.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/LineGraph.js',
 		servletContext.contextPath+pluginContextPath+'/js/plugin/ScatterPlot.js',

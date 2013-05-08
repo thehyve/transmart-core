@@ -230,7 +230,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 				 url:'url',
 				 method:'POST',
 				 timeout:'180000',
-				 analysis:'SurvivalAnalysisArrayCGH',
+				 analysis:'aCGHSurvivalAnalysis',
 				 inputs: [] //TODO
 			 };
 
@@ -421,7 +421,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
  * Explorer toolbar
  *
  */
-function loadSurvivalAnalysisaCGHView() {
+function loadACGHSurvivalAnalysisView() {
 	// everything starts here ..
 	survivalAnalysisACGHView = new SurvivalAnalysisACGHView();
 }
