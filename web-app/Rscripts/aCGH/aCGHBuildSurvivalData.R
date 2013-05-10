@@ -22,9 +22,12 @@
 aCGHSurvivalData.build <- 
 function
 (
-  input.dataFile,
-  input.acghFile,
-  output.dataFile="input",
+  input.dataFile='clinical.txt',
+  input.acghFile='aCGH.txt',
+  output.dataFile="phenodata.tsv",
+  output.acghFile="regions.tsv",
+  output.survival='Overall survival time',
+  output.status='Survival status',
   concept.time,
   concept.category = "",
   concept.eventNo = ""
@@ -34,6 +37,9 @@ function
 	print("aCGHBuildSurvivalData.R")
 	print("BUILDING ACGH SURVIVAL DATA")
 	
+  # Copy the aCGH file
+  file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
+  
 	#Read the input file.
 	dataFile <- data.frame(read.delim(input.dataFile));
 	
@@ -87,12 +93,15 @@ function
 	#Everything that isn't a 0 in the CENSOR column needs to be a 1 (Event happened).
 	finalData$'CENSOR'[!finalData$'CENSOR'=='0'] <- 1		
 	
+	finalColumnNames <- c("PATIENT_NUM",output.survival,output.status)
+	colnames(finalData) <- finalColumnNames
+  
 	###################################	
 	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
 	
 	#Write the final data file.
-	write.matrix(finalData,"outputfile",sep = "\t")
+	write.matrix(finalData,output.dataFile,sep = "\t")
 	print("-------------------")
 }
