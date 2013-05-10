@@ -56,7 +56,7 @@ function
 	colnames(finalData) <- c("PATIENT_NUM")
 	
 	#Add the value for the time to the final data.
-	finalData<-merge(finalData,splitData[[gsub("([\\])","\\\\\\\\",concept.time)]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
+	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
 	
 	#If eventNo was not specified, we consider everyone to have had the event.
 	if(concept.eventNo=="")
@@ -64,7 +64,7 @@ function
 		finalData<-cbind(finalData,0)
 	}	else {
 		#We merge the eventNo in, everything else gets set to NA. We will mark them as censored later.
-		eventNo<-strsplit(gsub("([\\])","\\\\\\\\",concept.eventNo)," [|] ")
+		eventNo<-strsplit(concept.eventNo," [|] ")
     if(length(eventNo[[1]])>1) {
       #Multiple eventNo
 		  boundData<-rbind(splitData[eventNo[[1]][1]][[1]],splitData[eventNo[[1]][2]][[1]])
@@ -91,7 +91,7 @@ function
 	finalData$'CENSOR'[is.na(finalData$'CENSOR')] <- 0
 	
 	#Everything that isn't a 0 in the CENSOR column needs to be a 1 (Event happened).
-	finalData$'CENSOR'[!finalData$'CENSOR'=='0'] <- 1		
+	finalData$'CENSOR'[!finalData$'CENSOR'=='0'] <- 1
 	
 	finalColumnNames <- c("PATIENT_NUM",output.survival,output.status)
 	colnames(finalData) <- finalColumnNames
