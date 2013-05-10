@@ -57,6 +57,7 @@ class DeSubjectAcghData implements ACGHValues, Serializable {
         probabilityOfNormal        nullable: true, scale:   17
         probabilityOfGain          nullable: true, scale:   17
         probabilityOfAmplification nullable: true, scale:   17
+        patient                    nullable: true
 	}
 
     int hashCode() {
