@@ -12,11 +12,13 @@ class QtPatientSetCollection {
     ]
 
 	static mapping = {
-        table           schema: 'I2B2DEMODATA'
-		id              column: "patient_set_coll_id", generator: "identity"
+        table          schema:   'I2B2DEMODATA'
+        id             column:   "patient_set_coll_id", generator: "identity"
 
-        resultInstance  column: 'result_instance_id'
-        patient         column: 'patient_num'
+        resultInstance column:   'result_instance_id'
+        patient        column:   'patient_num'
+
+        sort           setIndex: 'asc'
 
 		version false
 	}

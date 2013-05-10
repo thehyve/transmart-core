@@ -19,6 +19,8 @@ class QtQueryResultInstance implements QueryResult {
 
 	static belongsTo = QtQueryInstance
 
+    static hasMany = [patientSet: QtPatientSetCollection]
+
 	static mapping = {
         table          schema: 'I2B2DEMODATA'
 
