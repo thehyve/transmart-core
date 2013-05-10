@@ -1,12 +1,8 @@
 package org.transmartproject.db.querytool
 
-import groovy.xml.MarkupBuilder
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.querytool.ConstraintByValue
-import org.transmartproject.core.querytool.Item
-import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
@@ -62,7 +58,10 @@ class QueriesResourceService implements QueriesResource {
             throw new RuntimeException('Failure saving QtQueryMaster')
         }
 
-        // 5. Build the patient set
+        // 5. Flush session so objects are inserted & raw SQL can access them
+        sessionFactory.currentSession.flush()
+
+        // 6. Build the patient set
         def setSize
         def sql
         try {
@@ -112,7 +111,7 @@ class QueriesResourceService implements QueriesResource {
             return resultInstance
         }
 
-        // 6. Update result instance and query instance
+        // 7. Update result instance and query instance
         resultInstance.setSize = resultInstance.realSetSize = setSize
         resultInstance.description = "Patient set for \"${definition.name}\""
         resultInstance.endDate = new Date()
@@ -128,7 +127,7 @@ class QueriesResourceService implements QueriesResource {
                     resultInstance.errors)
         }
 
-        // 7. Return result instance
+        // 8. Return result instance
         resultInstance
     }
 

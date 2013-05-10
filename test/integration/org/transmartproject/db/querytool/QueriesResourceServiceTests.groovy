@@ -1,5 +1,6 @@
 package org.transmartproject.db.querytool
 
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
@@ -9,6 +10,7 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.ConceptTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -54,6 +56,12 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         assertThat(ret, is(notNullValue()))
     }
 
+    private void addPatient(Long id) {
+        Patient p = new PatientDimension()
+        p.id = id
+        assertThat p.save(), isA(Patient)
+    }
+
     @Before
     void setUp() {
         /* 1. Define concepts */
@@ -77,7 +85,12 @@ class QueriesResourceServiceTests extends GroovyTestCase {
             addConceptDimension(it[2], it[1])
         }
 
-        /* 2. Create facts */
+        /* 2. Create patients */
+        (100..106).each {
+            addPatient it
+        }
+
+        /* 3. Create facts */
         addObservationFact('A:B', 100, valtypeCd: 'N', nvalNum: 50, tvalChar: 'E')
         addObservationFact('A:C', 100, valtypeCd: 'T', tvalChar: 'FOO')
         addObservationFact('A:B', 101, valtypeCd: 'N', nvalNum: 75, tvalChar: 'E')
@@ -88,7 +101,7 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         addObservationFact('A:C', 105, valtypeCd: 'N', nvalNum: 40, tvalChar: 'L')
         addObservationFact('A:C', 106, valtypeCd: 'N', tvalChar: 'XPTO')
 
-        /* 3. Flush session so these objects are available from SQL */
+        /* 4. Flush session so these objects are available from SQL */
         sessionFactory.currentSession.flush()
     }
 
