@@ -1,6 +1,6 @@
 # TOOL acgh-group-test.R: "Group tests for called copy number data" (Statistical tests between two or more groups for called copy number data. The testing is recommended to be performed after running the Identify common regions from called copy number data tool.)
-# INPUT aCGH.txt: aCGH.txt TYPE GENE_EXPRS 
-# INPUT META clinical.txt: clinical.txt TYPE GENERIC 
+# INPUT regions.tsv: regions.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT groups-test.txt: groups-test.txt 
 # OUTPUT groups-test.png: groups-test.png
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
@@ -20,18 +20,10 @@ acgh.group.test <- function
 )
 {
 
-  dat <- read.table('aCGH.txt', header=TRUE, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('clinical.txt', header=TRUE, sep='\t', check.names=FALSE)
+  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
+  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
-  phenodata_<-reshape(phenodata,v.names=c("CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH"),timevar="CONCEPT_PATH_SHORT",idvar="PATIENT_NUM",direction='wide')
-  colnames(phenodata_)<-c("PATIENT_NUM","SUBSET",column,"CONCEPT_CODE_OST","CONCEPT_PATH_SHORT_OST","Overall survival time","CONCEPT_PATH_OST","CONCEPT_CODE_SS","CONCEPT_PATH_SHORT_SS","Survival status","CONCEPT_PATH_SS")
-  phenodata_[,"Overall survival time"]<-as.numeric(as.character(phenodata_[,"Overall survival time"]))
-  phenodata_[,"Survival status"]<-as.character(phenodata_[,"Survival status"])
-  phenodata_[,"Survival status"][is.na(phenodata_[,"Survival status"])] <- 0 
-  phenodata_[,"Survival status"][phenodata_[,"Survival status"]!=0] <- 1 
-  phenodata_[,"Survival status"]=as.numeric(phenodata_[,"Survival status"])
-  
-  groupnames <- unique(phenodata_[,column])
+  groupnames <- unique(phenodata[,column])
   groupnames <- groupnames[!is.na(groupnames)]
   groupnames <- groupnames[groupnames!='']
 
@@ -43,7 +35,7 @@ acgh.group.test <- function
   datacgh <- data.frame()
   group.sizes <- integer()
   for (group in groupnames) {
-    group.samples <- which(phenodata_[,column] == group & !is.na(phenodata_[,column]))
+    group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
     group.calls <- calls[,group.samples, drop=FALSE]
     if (nrow(datacgh)==0) {
       datacgh <- group.calls
