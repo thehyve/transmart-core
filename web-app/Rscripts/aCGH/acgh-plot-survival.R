@@ -1,6 +1,6 @@
 # TOOL acgh-plot-survival.R: "Plot survival curves for called copy number data" (Plotting of survival curves for called copy number data.)
 # INPUT survival-test.txt: survival-test.txt TYPE GENE_EXPRS
-# INPUT META clinical.txt: clinical.txt TYPE GENERIC 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT survival_*.png: survival_*.png
 # PARAMETER survival: survival TYPE METACOLUMN_SEL DEFAULT survival (Phenodata column with survival data)
 # PARAMETER status: status TYPE METACOLUMN_SEL DEFAULT status (Phenodata column with patient status: alive=0, dead=1)
@@ -22,17 +22,9 @@ acgh.plot.survival <- function
   library(survival)
 
   dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('clinical.txt', header=TRUE, sep='\t', check.names=FALSE)
+  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
-  phenodata_<-reshape(phenodata,v.names=c("CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH"),timevar="CONCEPT_PATH_SHORT",idvar="PATIENT_NUM",direction='wide')
-  colnames(phenodata_)<-c("PATIENT_NUM","SUBSET","CONCEPT_CODE_OST","CONCEPT_PATH_SHORT_OST","Overall survival time","CONCEPT_PATH_OST","CONCEPT_CODE_SS","CONCEPT_PATH_SHORT_SS","Survival status","CONCEPT_PATH_SS")
-  phenodata_[,"Overall survival time"]<-as.numeric(as.character(phenodata_[,"Overall survival time"]))
-  phenodata_[,"Survival status"]<-as.character(phenodata_[,"Survival status"])
-  phenodata_[,"Survival status"][is.na(phenodata_[,"Survival status"])] <- 0
-  phenodata_[,"Survival status"][phenodata_[,"Survival status"]!=0] <- 1
-  phenodata_[,"Survival status"]=as.numeric(phenodata_[,"Survival status"])
-  
-  s <- Surv(phenodata_[,survival], phenodata_[,status])
+  s <- Surv(phenodata[,survival], phenodata[,status])
   reg <- as.matrix(dat[, grep('^flag\\.', colnames(dat))])
   if (aberrations == 'gains') {
     reg[reg > 0] <- 1
