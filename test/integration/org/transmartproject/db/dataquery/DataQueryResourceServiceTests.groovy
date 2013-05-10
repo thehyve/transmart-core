@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.junit.runners.BlockJUnit4ClassRunner
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Platform
 import org.transmartproject.core.dataquery.acgh.ACGHValues
 import org.transmartproject.core.dataquery.acgh.Region
@@ -39,6 +40,7 @@ class DataQueryResourceServiceTests {
 
         assertThat testRegionPlatform.save(), isA(Platform)
         assertThat testRegions*.save(), everyItem(isA(Region))
+        assertThat testRegionPatients*.save(), everyItem(isA(Patient))
         assertThat testRegionAssays*.save(), everyItem(isA(Assay))
         assertThat testACGHData*.save(), everyItem(isA(ACGHValues))
         queryMaster = createQueryResult(testRegionPatients).save()
