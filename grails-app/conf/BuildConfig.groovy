@@ -26,6 +26,7 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         compile('org.transmartproject:transmart-core-api:1.0-SNAPSHOT')
+        compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 
         runtime('postgresql:postgresql:9.1-901.jdbc4') {
             transitive: false
