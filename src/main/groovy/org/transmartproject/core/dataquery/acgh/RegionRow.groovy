@@ -9,8 +9,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 public interface RegionRow {
 
     /**
-     * The region for which this row provides {@link AssayRegionValues}
-     * objects.
+     * The region for which this row provides {@link ACGHValues} objects.
      *
      * @return the region to which this {@link RegionRow} refers
      */
