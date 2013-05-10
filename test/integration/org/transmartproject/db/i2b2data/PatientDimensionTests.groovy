@@ -41,7 +41,7 @@ class PatientDimensionTests {
 
         assertThat patient, allOf(
                 is(notNullValue(Patient)),
-                hasProperty('assays', contains(
+                hasProperty('assays', containsInAnyOrder(
                         allOf(
                                 hasProperty('id', equalTo(-3002L)),
                                 hasProperty('subjectId', equalTo('SUBJ_ID_2')),
