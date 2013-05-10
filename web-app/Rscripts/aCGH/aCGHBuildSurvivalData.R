@@ -29,7 +29,7 @@ function
   output.survival='Overall survival time',
   output.status='Survival status',
   concept.time,
-  concept.category = "",
+  concept.region = "",
   concept.eventNo = ""
 )
 {
