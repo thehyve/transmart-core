@@ -124,7 +124,4 @@ class HighDimTestData {
         ]
     }()
 
-    static QtQueryResultInstance queryResult = {
-        new QtQueryResultInstance()
-    }()
 }
