@@ -24,7 +24,7 @@ function
 (
   input.dataFile='clinical.txt',
   input.acghFile='aCGH.txt',
-  concept.category,
+  concept.region,
   concept.group,
   output.column.group='group',
   output.dataFile='phenodata.tsv',
