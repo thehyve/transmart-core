@@ -117,10 +117,10 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 	censoringPanel: null,
 	alterationPanel: null,
 
-	alterationCheckboxes: [
-		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1', XValue:'gain-no-gain'},
-		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2', XValue:'loss-no-loss'},
-		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3', XValue:'loss-normal-gain'}
+	alterationRadioButtons: [
+		{boxLabel: 'GAIN vs NO GAIN', name: 'rb-alt', XValue:'1'},
+		{boxLabel: 'LOSS vs NO LOSS', name: 'rb-alt', XValue:'-1'},
+		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'rb-alt', XValue:'0'}
 	],
 
 	constructor: function(config) {
@@ -164,7 +164,7 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 		this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
 
 		// create check boxes
-		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes, 'alteration-types-chk-group'));
+		this.alterationPanel.add(this.createRadioBtnGroup(this.alterationRadioButtons, 'alteration-types-chk-group'));
 
 		// re-draw
 		this.doLayout();
@@ -226,20 +226,37 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		 if (this.validateInputs()) {
 			console.log('LOG: submit survival analysis acgh job');
 
-			 var params = {
-				 url:'url',
-				 method:'POST',
-				 timeout:'180000',
-				 analysis:'aCGHSurvivalAnalysis',
-				 inputs: [] //TODO
+			 var variablesConceptCode = '';
+			 var regionVarConceptCode = this.inputBar.regionPanel.getConceptCode();
+			 var survivalVarConceptCode = this.inputBar.survivalPanel.getConceptCode();
+			 var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCode();
+			 var jobType = 'aCGHSurvivalAnalysis';
+
+			 var alterationBtnGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+			 var alterationVal =  alterationBtnGroup.getSelectedValue();
+			 console.log("alterationVal", alterationVal);
+
+			 //Create a string of all the concepts we need for the i2b2 data.
+			 variablesConceptCode = regionVarConceptCode;
+			 variablesConceptCode += survivalVarConceptCode != '' ? "|" + survivalVarConceptCode : "";
+			 variablesConceptCode += censoringVarConceptCode != '' ? "|" + censoringVarConceptCode : "";
+
+			 var formParams = {
+				 timeVariable : survivalVarConceptCode,
+				 censoringVariable : censoringVarConceptCode,
+				 variablesConceptPaths:	variablesConceptCode,
+				 abberation:alterationVal,
+				 jobType: jobType
 			 };
+
+			console.log('formParams', formParams);
 
 			this.resetResult();
 
-			var job = this.createJob(params);
+			var job = this.createJob(formParams);
 
 			 if (job) {
-				 this.runJob(params, this.generateResultGrid, this);
+				 this.runJob(formParams, this.generateResultGrid, this);
 			 }
 
 		 }

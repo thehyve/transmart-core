@@ -56,7 +56,22 @@ Ext.override(Ext.form.CheckboxGroup, {
 });
 
 /**
- * Override CheckboxGroup to have getValues
+ *
+ */
+Ext.override(Ext.form.RadioGroup, {
+	getSelectedValue: function() {
+		var v;
+		this.items.each(function(item) {
+			if (item.getValue()) {
+				v = item.XValue;
+			}
+		});
+		return v;
+	}
+});
+
+/**
+ * Override CheckboxGroup to have XValue getter & setter
  */
 Ext.override(Ext.form.Checkbox, {
 
@@ -70,3 +85,21 @@ Ext.override(Ext.form.Checkbox, {
 		this.XValue = xvalue;
 	}
 });
+
+/**
+ * Override Radio to have XValue getter & setter
+ */
+Ext.override(Ext.form.Radio, {
+
+	getXValue: function() {
+		if (this.getValue()) {
+			return this.XValue;
+		}
+	},
+
+	setXValue: function(xvalue) {
+		this.XValue = xvalue;
+	}
+});
+
+
