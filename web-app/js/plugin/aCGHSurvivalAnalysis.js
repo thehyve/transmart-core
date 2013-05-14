@@ -313,42 +313,54 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	 */
 	generateResultGrid: function (data, view) {
 
-		data = dummyData; //TODO get JSON data from backend
+        Ext.Ajax.request({
+            url : pageInfo.basePath+"/tsvFileReader/index",
+            params: {},
+            method : 'GET',
+            timeout: '1800000',
+            success : function(result, request)
+            {
+                var data = result.responseText.evalJSON();
 
-		Ext.grid.intermediateResultData = data;
+                Ext.grid.intermediateResultData = data;
 
-		var gridReader = new Ext.data.ArrayReader({}, [
-			{name: 'region'},
-			{name: 'cytoband'},
-			{name: 'pvalue', type: 'float'},
-			{name: 'fdr', type: 'float'},
-			{name: 'alteration'}
-		]);
+                var gridReader = new Ext.data.ArrayReader({}, [
+                    {name: 'region'},
+                    {name: 'cytoband'},
+                    {name: 'pvalue', type: 'float'},
+                    {name: 'fdr', type: 'float'},
+                    {name: 'alteration'}
+                ]);
 
-		var groupStore =  new Ext.data.GroupingStore({
-			reader: gridReader,
-			data: Ext.grid.intermediateResultData,
-			sortInfo:{field: 'region', direction: "ASC"},
-			groupField:'alteration'
-		});
+                var groupStore =  new Ext.data.GroupingStore({
+                    reader: gridReader,
+                    data: Ext.grid.intermediateResultData,
+                    sortInfo:{field: 'region', direction: "ASC"},
+                    groupField:'alteration'
+                });
 
-		var columns =  [
-			{id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
-			{header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
-			{header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
-			{header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
-			{header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
-		];
+                var columns =  [
+                    {id:'region',header: "Region", width: 60, sortable: true, dataIndex: 'region'},
+                    {header: "Cytoband", width: 20, sortable: true, dataIndex: 'cytoband'},
+                    {header: "p-value", width: 20, sortable: true, dataIndex: 'pvalue'},
+                    {header: "fdr", width: 20, sortable: true, dataIndex: 'fdr'},
+                    {header: "Alteration", width: 20, sortable: true, dataIndex: 'alteration'}
+                ];
 
-		view.intermediateResultPanel = new GenericAnalysisResultGrid({
-			id: 'intermediateGridPanel',
-			title: 'Intermediate Result',
-			renderTo: 'intermediateResultWrapper',
-			store: groupStore,
-			bbar: view.createToolBar(saIntermediatePanelBtnList),
-			columns: columns
-		});
-
+                view.intermediateResultPanel = new GenericAnalysisResultGrid({
+                    id: 'intermediateGridPanel',
+                    title: 'Intermediate Result',
+                    renderTo: 'intermediateResultWrapper',
+                    store: groupStore,
+                    bbar: view.createToolBar(saIntermediatePanelBtnList),
+                    columns: columns
+                });
+            },
+            failure : function(result, request)
+            {
+                Ext.Msg.alert("Problem loading the table data");
+            }
+        });
 	},
 
 	/**
