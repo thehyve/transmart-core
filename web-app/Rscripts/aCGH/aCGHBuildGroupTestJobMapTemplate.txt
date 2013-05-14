@@ -19,7 +19,7 @@
  "pivotData":false,
  "view":"aCGHGroupTest",
  "processor":{"R":["source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-group-test.R')",
-                   "acgh-group-test(column.group='group',test.statistic='||STATISTICSTYPE||',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')"
+                   "acgh.group.test(column.group='group', test.statistic='||STATISTICSTYPE||',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')"
                   ]
              },
  "renderer":{"GSP":"/aCGHgroupTest/aCGHgroupTestOutput"},

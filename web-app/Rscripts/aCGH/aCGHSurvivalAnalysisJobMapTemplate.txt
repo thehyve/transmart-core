@@ -21,9 +21,9 @@
  "pivotData":false,
  "view":"aCGHSurvivalAnalysis",
  "processor":{"R":["source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-survival-test.r')",
-                   "acgh-survival-test(survival='Overall survival time',status='Survival status',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')",
+                   "acgh.survival.test(survival='Overall survival time',status='Survival status',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')",
                    "source('||PLUGINSCRIPTDIRECTORY||Survival/acgh-plot-survival.r')",
-                   "acgh-plot-survival(survival='Overall survival time',status='Survival status',aberrations='||ABERRATIONTYPE||',confidence.intervals='||CONFIDENCEINTERVALS||')"
+                   "acgh.plot.survival(survival='Overall survival time',status='Survival status',aberrations='||ABERRATIONTYPE||',confidence.intervals='||CONFIDENCEINTERVALS||')"
                   ]
              },
  "renderer":{"GSP":"/aCGHsurvivalAnalysis/aCGHsurvivalAnalysisOutput"},
