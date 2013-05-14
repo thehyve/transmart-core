@@ -22,7 +22,7 @@
  "view":"aCGHSurvivalAnalysis",
  "processor":{"R":["source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-survival-test.r')",
                    "acgh.survival.test(survival='Overall survival time',status='Survival status',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')",
-                   "source('||PLUGINSCRIPTDIRECTORY||Survival/acgh-plot-survival.r')",
+                   "source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-plot-survival.r')",
                    "acgh.plot.survival(survival='Overall survival time',status='Survival status',aberrations='||ABERRATIONTYPE||',confidence.intervals='||CONFIDENCEINTERVALS||')"
                   ]
              },
