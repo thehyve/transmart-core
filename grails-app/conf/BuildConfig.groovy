@@ -45,7 +45,7 @@ grails.project.dependency.resolution = {
         compile(':db-reverse-engineer:0.5') { exported: false }
 
         build(":tomcat:$grailsVersion",
-              ":release:2.2.0",
+              ":release:2.2.1",
               ":rest-client-builder:1.0.3",
               ) {
             exported: false
