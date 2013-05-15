@@ -13,7 +13,7 @@
 
 <extjs-tpl id="template-survival-plot" class="x-hidden">
 	<div id="plotResultContainer" class="plotResultContainer">
-		<h1>Region: {region} ({cytoband})</h1>
+		<h1>Chr: {chromosome} ({start}-{end})</h1>
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
@@ -25,11 +25,11 @@
 					<caption>Table: Selected region details.</caption>
 					<thead>
 						<tr>
-							<th scope="col">Region</th>
-							<th scope="col">Cytoband</th>
+							<th scope="col">Chromosome</th>
+							<th scope="col">start</th>
+							<th scope="col">end</th>
 							<th scope="col">p-value</th>
 							<th scope="col">fdr</th>
-							<th scope="col">Alteration</th>
 						</tr>
 					</thead>
 					<tfoot>
@@ -41,11 +41,11 @@
 					</tfoot>
 					<tbody>
 						<tr>
-							<td>{region}</td>
-							<td>{cytoband}</td>
+							<td>{chromosome}</td>
+							<td>{start}</td>
+							<td>{end}</td>
 							<td>{pvalue}</td>
 							<td>{fdr}</td>
-							<td>{alteration}</td>
 						</tr>
 					</tbody>
 				</table>

@@ -184,12 +184,6 @@ GenericAnalysisToolBar = Ext.extend(Ext.Toolbar, {
  */
 GenericAnalysisResultGrid = Ext.extend(Ext.grid.GridPanel, {
 
-	view: new Ext.grid.GroupingView({
-		forceFit:true,
-		groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
-	}),
-
-	bbar: null,
 	frame:true,
 	height: 250,
 	collapsible: true,
@@ -244,7 +238,7 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 	},
 
-	addTab: function (region, tab_id, templateFile) {
+	addTab: function (region, tab_id, templateFile, tab_title) {
 
 		var p =  this.findById(tab_id); //find if the plot already displayed
 
@@ -252,7 +246,7 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 			// create tab item
 			p = this.add({
 				id: tab_id,
-				title: region.region,
+				title: tab_title,
 				closable:true
 			});
 		}
@@ -280,12 +274,8 @@ GenericAnalysisView = Ext.extend(Object, {
 
 	createJob: function (params) {
 
-		console.log('LOG: createJob');
-		console.log('LOG: URL is ', params.url);
-		console.log('LOG: Analysis Name is ', params.analysis);
-		console.log('LOG: Timeout is ', params.timeout);
-		console.log('LOG: Method is ', params.method);
-		console.log('LOG: Callback is ', params.callback);
+		// This is the real call to submit the job to the scheduler
+		//submitJob(params);
 
 		// TODO: invoke ajax call to create job
 		/*
