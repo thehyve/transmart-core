@@ -9,8 +9,9 @@ Brief description of the plugin.
   <type>RdcRmodulesGrailsPlugin</type>
   <resources>
     <resource>com.recomdata.transmart.data.association.BoxPlotController</resource>
+    <resource>com.recomdata.transmart.data.association.CorrelationAnalysisController</resource>
     <resource>com.recomdata.transmart.data.association.DataAssociationController</resource>
-    <resource>com.recomdata.transmart.data.association.IC50Controller</resource>
+    <resource>com.recomdata.transmart.data.association.LineGraphController</resource>
     <resource>com.recomdata.transmart.data.association.MarkerSelectionController</resource>
     <resource>com.recomdata.transmart.data.association.PCAController</resource>
     <resource>com.recomdata.transmart.data.association.RHClustController</resource>
@@ -20,17 +21,18 @@ Brief description of the plugin.
     <resource>com.recomdata.transmart.data.association.ScatterPlotController</resource>
     <resource>com.recomdata.transmart.data.association.SurvivalAnalysisController</resource>
     <resource>com.recomdata.transmart.data.association.TableWithFisherController</resource>
-    <resource>com.recomdata.transmart.data.association.WaterfallController</resource>
     <resource>com.recomdata.transmart.data.association.pdf.PDFController</resource>
     <resource>com.recomdata.transmart.data.association.RModulesOutputRenderService</resource>
     <resource>com.recomdata.transmart.data.association.RModulesService</resource>
     <resource>com.recomdata.transmart.data.association.asynchronous.RModulesJobService</resource>
   </resources>
   <repositories>
-    <repository name='grailsCentral' url='http://plugins.grails.org' />
-    <repository name='http://repo.grails.org/grails/plugins' url='http://repo.grails.org/grails/plugins/' />
-    <repository name='http://repo.grails.org/grails/core' url='http://repo.grails.org/grails/core/' />
-    <repository name='grailsCore' url='http://svn.codehaus.org/grails/trunk/grails-plugins' />
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+    <repository name='http://snapshots.repository.codehaus.org' url='http://snapshots.repository.codehaus.org/' />
+    <repository name='http://repository.codehaus.org' url='http://repository.codehaus.org/' />
+    <repository name='http://download.java.net/maven/2/' url='http://download.java.net/maven/2/' />
+    <repository name='http://repository.jboss.com/maven2/' url='http://repository.jboss.com/maven2/' />
   </repositories>
   <dependencies>
     <runtime>
@@ -39,8 +41,8 @@ Brief description of the plugin.
   </dependencies>
   <plugins>
     <compile>
-      <plugin group='org.grails.plugins' name='hibernate' version='2.0.4' />
       <plugin group='org.grails.plugins' name='quartz' version='0.4.2' />
+      <plugin group='org.grails.plugins' name='hibernate' version='2.2.1' />
     </compile>
   </plugins>
   <runtimePluginRequirements />
