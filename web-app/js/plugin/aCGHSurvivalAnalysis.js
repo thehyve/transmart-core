@@ -135,7 +135,7 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 			title: 'Region',
 			id:  'sa-input-region',
 			isDroppable: true,
-			notifyFunc: dropNumericOntoCategorySelection,
+			notifyFunc: dropOntoCategorySelection,
 			toolTipTxt: 'Tool-tip for Region'
 
 		},{
