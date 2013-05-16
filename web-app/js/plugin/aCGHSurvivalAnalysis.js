@@ -217,6 +217,8 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 		// create tab as many as selected rows
 		for (var i = 0; i < selectedRegions.length ; i++) {
 
+			// TODO : Get image path from controller
+
 			// compose tab_id form region name + cytoband + alteration type
 			var tab_id = 'survival_' +  selectedRegions[i].data.chromosome + '_' + selectedRegions[i].data.start + '_' +
 				selectedRegions[i].data.end;
@@ -386,7 +388,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		//check if alteration values has been selected
 		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-		alterationValues =  alterationChkGroup.getXValues();
+		alterationValues =  alterationChkGroup.getSelectedValue();
 		if (alterationValues.length < 1) {
 			isValid = false;
 			invalidInputs.push(this.inputBar.alterationPanel.title);
@@ -424,7 +426,10 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			root: 'result',
 			totalProperty: 'totalCount',
 			idProperty: 'threadid',
-			remoteSort: true,
+			remoteSort: false,   // can be enhanced with remote sort
+
+			baseParams: {jobName:'guest-aCGHSurvivalAnalysis-102920'},
+			// TODO this is hardcoded value, change it to get job name from jobParams
 
 			fields: [
 				'chromosome',
@@ -439,13 +444,14 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			proxy: new Ext.data.HttpProxy({
 				url: "../tsvFileReader/index"
 			})
+
 		});
-		store.setDefaultSort('chromosome', 'desc');
-		store.load({params:{start:0, limit:20}});
+		store.setDefaultSort('chromosome', 'asc');
+
 
 		// create paging bar with related store
 		var pagingbar = new Ext.PagingToolbar({
-			pageSize: 20,
+			pageSize: GEN_RESULT_GRID_LIMIT,
 			store: store,
 			displayInfo: true,
 			displayMsg: 'Displaying topics {0} - {1} of {2}',
@@ -463,6 +469,10 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			store: store,
 			bbar: pagingbar
 		});
+
+		view.intermediateResultGrid.render();
+
+		store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
 	}
 
 });

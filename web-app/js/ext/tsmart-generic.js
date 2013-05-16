@@ -6,6 +6,12 @@
 
 
 /**
+ * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
+ * @type {number}
+ */
+var GEN_RESULT_GRID_LIMIT = 25;
+
+/**
  * Individual Panel in Input Bar
  * @type {*|Object}
  */
@@ -277,25 +283,6 @@ GenericAnalysisView = Ext.extend(Object, {
 		// This is the real call to submit the job to the scheduler
 		//submitJob(params);
 
-		// TODO: invoke ajax call to create job
-		/*
-		 Ext.Ajax.request({
-		 url: pageInfo.basePath+"/groupTest/createnewjob",
-		 method: 'POST',
-		 success: function(result, request){
-		 //Handle data export process
-		 this.runDataExportJob(result);
-		 },
-		 failure: function(result, request){
-		 Ext.Msg.alert('Status', 'Unable to create data export job.');
-		 },
-		 timeout: '1800000',
-		 params: {
-		 analysis:  "Group Test Array CGH"
-		 }
-		 });
-		 */
-
 		return true;
 	},
 
@@ -316,7 +303,7 @@ GenericAnalysisView = Ext.extend(Object, {
 		setTimeout(function() {
 			 _this.jobWindow.close();
 			callback(result, view);
-		}, 5000); // dummy .. 5 seconds
+		}, 2); // dummy .. 5 seconds
 
 	},
 
