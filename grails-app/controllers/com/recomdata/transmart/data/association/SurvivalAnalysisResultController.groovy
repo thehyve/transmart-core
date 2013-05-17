@@ -27,8 +27,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 class SurvivalAnalysisResultController {
 
     def config = ConfigurationHolder.config;
-    String temporaryImageFolder = '/projects/transmartApp/web-app/images/templates'
-        //config.RModules.temporaryImageFolder
+    String temporaryImageFolder = config.RModules.temporaryImageFolder
     def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr']
     char DEFAULT_SEPARATOR = '\t'
     int TO_LAST_ROW = -1
