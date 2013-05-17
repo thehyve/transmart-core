@@ -36,17 +36,29 @@ function
 	print("-------------------")
 	print("aCGHBuildSurvivalData.R")
 	print("BUILDING ACGH SURVIVAL DATA")
-	
-  # Copy the aCGH file
-  file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
-  
-	#Read the input file.
+
+	# Check parameters
+	if( missing(concept.time) || is.null(concept.time) || nchar(concept.time) == 0) stop("||FRIENDLY||No survival time specified. Please check your time variable selection and run again.")
+
+	# Check presence of aCGH data file and clinical data file
+	if(!file.exists(input.acghFile)) stop("||FRIENDLY||No aCGH data file found. Please check your region variable selection and run again.")
+	if(!file.exists(input.dataFile)) stop("||FRIENDLY||No clinical data file found. Please check your time variable selection and run again.")
+
+	# Copy the aCGH file
+	file.copy(input.acghFile, output.acghFile, overwrite=TRUE)
+
+	#Read the clinical data file.
 	dataFile <- data.frame(read.delim(input.dataFile));
 	
 	#Set the column names.
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
 	
-	#Split the data by the CONCEPT_CD.
+	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
+	allConcepts <- unique(dataFile$CONCEPT_PATH)
+
+	if (! concept.time %in% allConcepts) stop(paste("||FRIENDLY||No observations found for survival time variable:",concept.time))
+
+	#Split the data by the CONCEPT_PATH.
 	splitData <- split(dataFile,dataFile$CONCEPT_PATH);
 	
 	#Create a matrix with unique patient_nums.
@@ -57,45 +69,49 @@ function
 	
 	#Add the value for the time to the final data.
 	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
-	
+
 	#If eventNo was not specified, we consider everyone to have had the event.
 	if(concept.eventNo=="")
 	{
-		finalData<-cbind(finalData,0)
-	}	else {
-		#We merge the eventNo in, everything else gets set to NA. We will mark them as censored later.
-		eventNo<-strsplit(concept.eventNo," [|] ")
-    if(length(eventNo[[1]])>1) {
-      #Multiple eventNo
-		  boundData<-rbind(splitData[eventNo[[1]][1]][[1]],splitData[eventNo[[1]][2]][[1]])
-    } else {
-      #Single eventNo
-      boundData<-splitData[eventNo[[1]][1]][[1]]
-    }
-		finalData<-merge(finalData,boundData[c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
-	}
-	
-	#This is the list of columns for the final data object.
-	finalColumnNames <- c("PATIENT_NUM","TIME","CENSOR") #,"CATEGORY")
-	
-	if("GROUP" %in% colnames(finalData)) finalColumnNames <- c(finalColumnNames,'GROUP')
-	
-	#Rename the columns.
-	colnames(finalData) <- finalColumnNames
-	
-	#Make sure we have the value levels for the CENSOR column. This may throw a warning for duplicate values, but we can ignore it.
-	finalData$CENSOR <- factor(finalData$CENSOR, levels = c(levels(finalData$CENSOR), "1"))
-	finalData$CENSOR <- factor(finalData$CENSOR, levels = c(levels(finalData$CENSOR), "0"))
+		# No censoring variables, all events happened ((EventHappened=1) == Death)
+		finalData<-cbind(finalData,1)
+		
+	} else {
+		# We merge the eventNo ((eventHappened=0 == Alive) in, everything else gets set to NA. We will mark them as uncensored later.
+		eventNo<-strsplit(concept.eventNo," *[|] *")
+		
+		# Check if at least one of the censor concepts is observed
+		if (! any(eventNo[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for censoring variable:",eventNo[[1]]))
 
-	#Replace the NA values in the CENSOR column with 0 (Censored).
-	finalData$'CENSOR'[is.na(finalData$'CENSOR')] <- 0
-	
-	#Everything that isn't a 0 in the CENSOR column needs to be a 1 (Event happened).
-	finalData$'CENSOR'[!finalData$'CENSOR'=='0'] <- 1
-	
+		boundData <- splitData[eventNo[[1]][1]][[1]]
+
+		if(length(eventNo[[1]])>1) {
+			# Multiple eventNo concepts
+			for (i in 2:length(eventNo[[1]]) )
+			{
+				boundData<-rbind(boundData,splitData[eventNo[[1]][i]][[1]])
+			}
+		}
+		# For all patients for which the censoring variable has been observed the event didn't happen ((EventHappened=0) == Alive)
+		# The censoring variable has been observed for all patients for which the VALUE column contains a value not equal to NA
+		boundData$CENSOR[!is.na(boundData$VALUE)] <- 0
+		boundData$CENSOR <- factor(boundData$CENSOR , levels = c("0", "1"))
+
+		censorData<-unique(boundData[c('PATIENT_NUM','CENSOR')])
+		finalData<-merge(finalData,censorData,by="PATIENT_NUM",all.x=TRUE)	
+	}
+
+	# This is the list of columns for the final data object.
+	finalColumnNames <- c("PATIENT_NUM","TIME","CENSOR")
+	# Rename the columns.
+	colnames(finalData) <- finalColumnNames
+
+	#Replace the NA values in the CENSOR column with 1 (Not Censored, (EventHapped=1), Death).
+	finalData$'CENSOR'[is.na(finalData$'CENSOR')] <- 1
+
 	finalColumnNames <- c("PATIENT_NUM",output.survival,output.status)
 	colnames(finalData) <- finalColumnNames
-  
+
 	###################################	
 	
 	#We need MASS to dump the matrix to a file.
