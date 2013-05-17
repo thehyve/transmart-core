@@ -1,4 +1,4 @@
-{"id":"aCGHsurvivalAnalysis",
+{"id":"aCGHSurvivalAnalysis",
  "converter":{"R":["source('||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildSurvivalData.R')",
                    "aCGHSurvivalData.build(
                       input.dataFile = '||TEMPFOLDERDIRECTORY||Clinical/clinical.txt',
@@ -26,7 +26,7 @@
                    "acgh.plot.survival(survival='Overall survival time',status='Survival status',aberrations='||ABERRATIONTYPE||',confidence.intervals='||CONFIDENCEINTERVALS||')"
                   ]
              },
- "renderer":{"GSP":"/aCGHsurvivalAnalysis/aCGHsurvivalAnalysisOutput"},
+ "renderer":{"GSP":"/aCGHSurvivalAnalysis/aCGHSurvivalAnalysisOutput"},
  "variableMapping":{"||REGION||":"regionVariable",
                     "||TIME||":"timeVariable",
                     "||EVENTNO||":"censoringVariable",
