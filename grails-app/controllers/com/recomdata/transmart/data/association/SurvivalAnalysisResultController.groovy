@@ -28,9 +28,9 @@ class SurvivalAnalysisResultController {
 
     def config = ConfigurationHolder.config;
     String temporaryImageFolder = config.RModules.temporaryImageFolder
-    def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr']
-    char DEFAULT_SEPARATOR = '\t'
-    int TO_LAST_ROW = -1
+    final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
+    final char DEFAULT_SEPARATOR = '\t'
+    def numberFields = ['start', 'end', 'pvalue', 'fdr'] as Set
 
     def list = {
         response.contentType = 'text/json'
@@ -40,11 +40,14 @@ class SurvivalAnalysisResultController {
         }
         def file = new File("${temporaryImageFolder}", "${params.jobName}/survival-test.txt")
         if(file.exists()) {
-            def from = params.start ? params.int('start') : 1
-            def to = params.limit ? from + params.int('limit') - 1 : -1
-            def fields = (params.fields?.split('\\s*,\\s*') ?: DEFAULT_FIELDS) as Set<String>
+            def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 
-            def obj = parseTsv(file, from, to, fields)
+            def obj = parseTsv(file,
+                    start: params.int('start'),
+                    limit: params.int('limit'),
+                    fields: fields,
+                    sort: params.sort,
+                    dir: params.dir)
 
             def json = new JSON(obj)
             json.prettyPrint = false
@@ -55,38 +58,51 @@ class SurvivalAnalysisResultController {
         }
     }
 
-    def parseTsv(file, from, to, fields) {
+    def parseTsv(args, file) {
         def resultRows = []
         def csvReader = new CSVReader(new BufferedReader(new InputStreamReader(new FileInputStream(file), 'UTF-8')), DEFAULT_SEPARATOR)
-        int rowNumber = 0
+        def rows = []
         try {
-            String[] headerRow
-            if((headerRow = csvReader.readNext()) != null) {
-                def useFields = []
-                def usePositions = []
-                headerRow.eachWithIndex{ String entry, int i ->
-                    if(fields.contains(entry)) {
-                        useFields << entry
-                        usePositions << i
-                    }
-                }
-                String[] row
-                while ((row = csvReader.readNext()) != null) {
-                    rowNumber += 1
-                    if(rowNumber >= from && (to == TO_LAST_ROW || rowNumber <= to)) {
-                        def rowMap = [:]
-                        def useValues = row[usePositions]
-                        useFields.eachWithIndex{ String entry, int i ->
-                            rowMap[entry] = useValues[i]
-                        }
-                        resultRows.add(rowMap)
-                    }
-                }
-            }
+            rows = csvReader.readAll()
         } finally {
             csvReader.close()
         }
-        [totalCount: rowNumber, result: resultRows]
+        if(rows) {
+            def headerRow = rows.remove(0)
+            def useFields = []
+            def usePositions = []
+            headerRow.eachWithIndex{ String entry, int i ->
+                if(!args.fields || args.fields.contains(entry)) {
+                    useFields << entry
+                    usePositions << i
+                }
+            }
+            def sortByPosition = args.sort ? useFields.indexOf(args.sort) : -1
+            if(sortByPosition >= 0) {
+                int dirMultiplier = args.dir ==~ /(?i)DESC/ ? -1 : 1
+                boolean isNumberSort = numberFields.contains(args.sort)
+                rows.sort { row1, row2 ->
+                    def val1 = isNumberSort ? row1[sortByPosition].toDouble() : row1[sortByPosition]
+                    def val2 = isNumberSort ? row2[sortByPosition].toDouble() : row2[sortByPosition]
+                    val1.compareTo(val2) * dirMultiplier
+                }
+            }
+            int start = args.start > 0 ? args.start : 0
+            final int TO_END = -1
+            int end = args.limit >= 0 ? args.limit + start - 1 : TO_END
+            if(end == TO_END || start <= end) {
+                rows[start..end].each {
+                    def rowMap = [:]
+                    List<String> useValues = it[usePositions]
+                    useFields.eachWithIndex{ String entry, int i ->
+                        rowMap[entry] = numberFields.contains(entry) ? useValues[i].toDouble() : useValues[i]
+                    }
+                    resultRows.add(rowMap)
+                }
+            }
+        }
+
+        [totalCount: rows.size(), result: resultRows]
     }
 
     def image = {
