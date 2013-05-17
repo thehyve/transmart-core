@@ -24,6 +24,17 @@ acgh.plot.survival <- function
   dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
+  # Allow both numeric as well as string argument for aberrations parameter (acgh.survival.test function expects numeric argument values)
+  aberrations_dic <- c('losses','losses','both','both','gains','gains')
+  names(aberrations_dic) <- c('-1','losses','0','both','1','gains')
+  aberrations<-toString(aberrations)
+  if ( !(aberrations %in% names(aberrations_dic)) )
+  {
+    aberrations <- 'both'
+  } else {
+    aberrations <- aberrations_dic[[aberrations]]
+  }
+
   s <- Surv(phenodata[,survival], phenodata[,status])
   reg <- as.matrix(dat[, grep('^flag\\.', colnames(dat))])
   if (aberrations == 'gains') {
