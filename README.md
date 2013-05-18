@@ -1,7 +1,7 @@
 **tranSMART Core API** is a library with Groovy interfaces that define
 the interactions and calls between the various componements of [tranSMART](http://transmartproject.org).
 
-# Clinical data API
+# Clinical Data API
 
 ## I2B2-based query tool
 
@@ -24,3 +24,15 @@ is defined which can be exposed by clinical data sources as a means of querying
 clinical data. This resource exposes methods to run queries and retrieve query results.
 The API is modelled after the [i2b2 CRC query message API](https://www.i2b2.org/software/files/PDF/current/CRC_Messaging.pdf).
 
+# High Dimensional Data API
+
+## High Dimensional Query API
+
+A [DataQueryResource](org/transmartproject/core/dataquery/DataQueryResource.html)
+is defined which can be exposed by high dimensional data sources to allow querying of
+high dimensional data. A general [DataQueryResult](org/transmartproject/core/dataquery/DataQueryResult.html)
+is defined which can be extended for specific data types. For now, all omics data types
+(inside specific packages) as well as possible queries are defined inside the core API project.
+To model general query constraints (e.g. on subjects or timepoints), a 
+[CommonHighDimensionalQueryConstraints](org/transmartproject/core/dataquery/constraints/CommonHighDimensionalQueryConstraints.html)
+class is defined which can be embedded into specific constraint classes.
