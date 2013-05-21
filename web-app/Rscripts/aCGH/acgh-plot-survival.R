@@ -64,7 +64,7 @@ acgh.plot.survival <- function
     } else {
       main <- paste('Survival for chr.',dat[i, 'chromosome'],', ',dat[i, 'start'],'-',dat[i, 'end'],', ',aberrations)
     }
-    pngname<-paste('survival_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'_',aberrations,'.png',sep='')
+    pngname<-paste('aCGHSurvivalAnalysis_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'_',aberrations,'.png',sep='')
     png(pngname)
     plot(f, main=main, xlab='t', ylab=expression(hat(S)(t)), col=cols)
     if (confidence.intervals == 'yes') {
