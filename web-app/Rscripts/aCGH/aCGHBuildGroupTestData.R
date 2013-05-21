@@ -35,6 +35,13 @@ function
 	print("aCGHBuildGroupTestData.R")
 	print("BUILDING ACGH GROUP TEST DATA")
 
+	# Check parameters
+	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0) stop("||FRIENDLY||No grouping specified. Please check your group variable selection and run again.")
+
+	# Check presence of aCGH data file and clinical data file
+	if(!file.exists(input.acghFile)) stop("||FRIENDLY||No aCGH data file found. Please check your region variable selection and run again.")
+	if(!file.exists(input.dataFile)) stop("||FRIENDLY||No clinical data file found. Please check your group variable selection and run again.")
+
 	# Copy the aCGH file
 	file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
 	  
@@ -43,28 +50,43 @@ function
 	
 	#Set the column names.
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
+
+	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
+	allConcepts <- unique(dataFile$CONCEPT_PATH)
 	
 	#Split the data by the CONCEPT_CD.
-	splitData <- split(dataFile,dataFile$CONCEPT_PATH);
+	splitData <- split(dataFile,dataFile$CONCEPT_PATH)
 	
 	#Create a matrix with unique patient_nums.
-	finalData <- matrix(unique(dataFile$PATIENT_NUM));
+	finalData <- matrix(unique(dataFile$PATIENT_NUM))
 	
 	#Name the column.
 	colnames(finalData) <- c("PATIENT_NUM")
 	
-	#Add the value for the time to the final data.
-	#group<-strsplit(gsub("([\\])","\\\\\\\\",concept.group)," [|] ")
-	group<-strsplit(concept.group," [|] ")
-	if(length(group[[1]])>1) {
-	#Multiple groups
-	  boundData<-rbind(splitData[group[[1]][1]][[1]],splitData[group[[1]][2]][[1]])
-	} else {
-	#Single eventNo
-	  boundData<-splitData[group[[1]][1]][[1]]
-	}
-	finalData<-merge(finalData,boundData[c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
+	#Calculate number of patients
+	npatients <- nrow(finalData)
 	
+	#Add the value for the group to the final data.
+	group<-strsplit(concept.group," *[|] *")
+	# Check if at least one of the censor concepts is observed
+	if (! any(group[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",group[[1]]))
+
+	groupData <- splitData[group[[1]][1]][[1]]
+
+	if(length(group[[1]])>1) {
+		#Multiple groups
+		for (i in 2:length(group[[1]]) )
+		{
+			groupData<-rbind(groupData,splitData[group[[1]][i]][[1]])
+		}
+	} else {
+		#Single group
+		stop(paste("||FRIENDLY||Only a single group specified. Please check your group variable selection and run again."))
+	}
+	finalData<-merge(finalData,groupData[c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
+	
+	if (nrow(finalData)>npatients) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
+
 	finalColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(finalData) <- finalColumnNames
 	  
