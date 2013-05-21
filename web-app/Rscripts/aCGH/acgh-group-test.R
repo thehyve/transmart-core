@@ -49,9 +49,20 @@ acgh.group.test <- function
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
 
-  library(CGHtest)
-  pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations)
-  fdrs <- fdrperm(pvs)
+  # first try parallel computing
+  prob <- TRUE
+  try({
+    library(CGHtestpar)
+    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
+    fdrs <- fdrperm(pvs)
+    prob <- FALSE
+  }, silent=TRUE)
+  # if problems, fall back to sequential computing
+  if (prob) {
+    library(CGHtest)
+    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations)
+    fdrs <- fdrperm(pvs)
+  }
 
   options(scipen=10)
   write.table(fdrs, file='groups-test.txt', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
