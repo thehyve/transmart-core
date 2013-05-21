@@ -277,18 +277,106 @@ GenericAnalysisView = Ext.extend(Object, {
 
 	jobWindow: null,
 
+	jobTask: null,
 
-	createJob: function (params) {
+	/**
+	 * Submit job defined to the backend
+	 * @param formParams
+	 * @param callback
+	 * @param view
+	 * @returns {boolean}
+	 */
+	submitJob: function (formParams, callback, view) {
 
-		// This is the real call to submit the job to the scheduler
-		//submitJob(params);
+		console.log('formParams before create job ..', formParams)
+
+		var _me = this;
+
+		//Make sure at least one subset is filled in.
+		if(isSubsetEmpty(1) && isSubsetEmpty(2))
+		{
+			Ext.Msg.alert('Missing input!','Please select a cohort from the \'Comparison\' tab.');
+			return;
+		}
+
+		if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) || (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null))
+		{
+			setupSubsetIds(formParams);
+			return;
+		}
+
+		// submit request to create new job
+		Ext.Ajax.request({
+			url: pageInfo.basePath+"/asyncJob/createnewjob",
+			method: 'POST',
+			success: function(result, request){
+				//If job is successfully created then execute it
+				_me.executeJob(result, formParams, callback, view);
+			},
+			failure: function(result, request){
+				Ext.Msg.alert('Status', 'Unable to create job.');
+			},
+			timeout: '1800000',
+			params: formParams
+		});
+
 
 		return true;
 	},
 
+	executeJob: function (jobInfo, formParams, callback, view) {
+
+		console.log("about to execute job ....")
+
+		var jobNameInfo = Ext.util.JSON.decode(jobInfo.responseText);
+
+		var jobName = jobNameInfo.jobName;
+		setJobNameFromRun(jobName);
+
+		formParams.result_instance_id1=GLOBAL.CurrentSubsetIDs[1];
+		formParams.result_instance_id2=GLOBAL.CurrentSubsetIDs[2];
+		formParams.analysis=document.getElementById("analysis").value;
+		formParams.jobName=jobName;
+
+		console.log('formParams before executing job ..', formParams);
+
+		Ext.Ajax.request(
+		{
+			url: pageInfo.basePath+"/RModules/scheduleJob",
+			method: 'POST',
+			timeout: '1800000',
+			params: Ext.urlEncode(formParams) // or a URL encoded string
+		});
+
+		//Start the js code to check the job status so we can display results when we are done.
+		this.checkPluginJobStatus(jobName, callback, view)
+	},
+
+	//Called to check the heatmap job status
+	checkPluginJobStatus: function(jobName, callback, view)
+	{
+
+		var pollInterval = 1000;   // 1 second
+
+		this.jobTask =	{
+			jobName: jobName,
+			callback: callback,
+			view: view,
+			parent: this,
+			run: function() {
+				this.parent.updateJobStatus(this.jobName, this.callback, this.view)
+			},
+			interval: pollInterval
+		}
+
+		Ext.TaskMgr.start(this.jobTask);
+	},
+
+
+	/*
 	runJob: function (params, callback, view) {
 
-		this.showJobStatusWindow();
+		//this.showJobStatusWindow();
 
 		// TODO: invoke ajax call to run job
 		// TODO: invoke checkJobStatus(jobname)
@@ -300,11 +388,73 @@ GenericAnalysisView = Ext.extend(Object, {
 		var _this = this;
 		var result; // TODO get job result
 
+		submitJob(params);
+		callback(result, view);
+
 		setTimeout(function() {
 			 _this.jobWindow.close();
-			callback(result, view);
 		}, 2); // dummy .. 5 seconds
 
+	},
+	*/
+
+	updateJobStatus: function (jobName, callback, view) {
+
+		_me = this;
+
+		Ext.Ajax.request(
+			{
+				url : pageInfo.basePath+"/asyncJob/checkJobStatus",
+				method : 'POST',
+				success : function(result, request)
+				{
+					var jobStatusInfo = Ext.util.JSON.decode(result.responseText);
+					var status = jobStatusInfo.jobStatus;
+					var errorType = jobStatusInfo.errorType;
+					var viewerURL = jobStatusInfo.jobViewerURL;
+					var altViewerURL = jobStatusInfo.jobAltViewerURL;
+					var exception = jobStatusInfo.jobException;
+					var resultType = jobStatusInfo.resultType;
+					var jobResults = jobStatusInfo.jobResults;
+
+					if(status =='Completed') {
+						//Ext.getCmp('dataAssociationPanel').body.unmask();
+						Ext.TaskMgr.stop(_me.jobTask);
+
+						var fullViewerURL = pageInfo.basePath + viewerURL;
+
+						//Set the results DIV to use the URL from the job.
+						Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
+
+						//Set the flag that says we run an analysis so we can warn the user if they navigate away.
+						GLOBAL.AnalysisRun = true;
+
+						console.log('jobStatusInfo', jobStatusInfo);
+						console.log('status', status);
+						console.log('errorType', errorType);
+						console.log('viewerURL', viewerURL);
+						console.log('altViewerURL', altViewerURL);
+						console.log('exception', exception);
+						console.log('resultType', resultType);
+						console.log('jobResults', jobResults);
+						console.log('jobName', jobName);
+
+						callback(jobName, view)
+
+					} else if(status == 'Cancelled' || status == 'Error') {
+						Ext.TaskMgr.stop(_me.jobTask);
+					}
+					updateWorkflowStatus(jobStatusInfo);
+				},
+				failure : function(result, request)
+				{
+					Ext.TaskMgr.stop(_me.jobTask);
+					showWorkflowStatusErrorDialog('Failed', 'Could not complete the job, please contact an administrator');
+				},
+				timeout : '300000',
+				params: {jobName: jobName}
+			}
+		);
 	},
 
 	cancelJob: function() {

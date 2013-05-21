@@ -6,6 +6,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
+ * @type {number}
+ */
+var SA_JOB_TYPE = 'aCGHSurvivalAnalysis';
 
 /**
  * survival analysis acgh view
@@ -22,7 +27,7 @@ var _inputpanel_items = ['->',{  // '->' making it right aligned
 	scale: 'medium',
 	iconCls: 'runbutton',
 	handler: function () {
-		survivalAnalysisACGHView.submitSurvivalAnalysisaCGHJob();
+		survivalAnalysisACGHView.submitACGHSurvivalAnalysisJob();
 	}
 }];
 
@@ -312,25 +317,30 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		});
 	},
 
-	submitSurvivalAnalysisaCGHJob: function() {
+	submitACGHSurvivalAnalysisJob: function() {
+
+		// DUMMY
+		//this.generateResultGrid(this);
+
 		if (this.validateInputs()) {
 			console.log('LOG: submit survival analysis acgh job');
 
+			// get concept codes
 			var variablesConceptCode = '';
 			var regionVarConceptCode = this.inputBar.regionPanel.getConceptCode();
 			var survivalVarConceptCode = this.inputBar.survivalPanel.getConceptCode();
 			var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCode();
-			var jobType = 'aCGHSurvivalAnalysis';
 
+			// get alteration value
 			var alterationBtnGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
 			var alterationVal =  alterationBtnGroup.getSelectedValue();
-			console.log("alterationVal", alterationVal);
 
-			//Create a string of all the concepts we need for the i2b2 data.
+			// create a string of all the concepts we need for the i2b2 data.
 			variablesConceptCode = regionVarConceptCode;
 			variablesConceptCode += survivalVarConceptCode != '' ? "|" + survivalVarConceptCode : "";
 			variablesConceptCode += censoringVarConceptCode != '' ? "|" + censoringVarConceptCode : "";
 
+			// compose params
 			var formParams = {
 				regionVariable : regionVarConceptCode,
 				timeVariable : survivalVarConceptCode,
@@ -338,16 +348,14 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 				variablesConceptPaths:	variablesConceptCode,
 				aberrationType:alterationVal,
 				confidenceIntervals:'',
-				jobType: jobType
+				jobType: SA_JOB_TYPE
 			};
 
+			// reset previous analysis result
 			this.resetResult();
 
-			var job = this.createJob(formParams);
-
-			if (job) {
-				this.runJob(formParams, this.generateResultGrid, this);
-			}
+			// submit job
+			var job = this.submitJob(formParams, this.generateResultGrid, this);
 
 		}
 	},
@@ -419,22 +427,23 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	 * generates intermediate result in grid panel
 	 * @param data
 	 */
-	generateResultGrid: function (data, view) {
+	generateResultGrid: function (jobName, view) {
+
+		console.log('about to render grid ... ');
 
 		// create store data
 		var store = new Ext.data.JsonStore({
 			root: 'result',
 			totalProperty: 'totalCount',
 			idProperty: 'threadid',
-			remoteSort: false,   // can be enhanced with remote sort
+			remoteSort: true,   // can be enhanced with remote sort
 
-			baseParams: {jobName:'guest-aCGHSurvivalAnalysis-102920'},
-			// TODO this is hardcoded value, change it to get job name from jobParams
+			baseParams: {jobName:jobName},
 
 			fields: [
 				'chromosome',
-				'start',
-				'end',
+				{name: 'start', type: 'int'},
+				{name: 'end', type: 'int'},
 				{name: 'pvalue', type: 'float'},
 				{name: 'fdr', type: 'float'}
 			],
@@ -442,7 +451,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			// load using script tags for cross domain, if the data in on the same domain as
 			// this page, an HttpProxy would be better
 			proxy: new Ext.data.HttpProxy({
-				url: "../tsvFileReader/index"
+				url: "../SurvivalAnalysisResult/list"
 			})
 
 		});
