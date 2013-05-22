@@ -29,6 +29,7 @@ class SurvivalAnalysisResultController {
     def config = ConfigurationHolder.config;
     String temporaryImageFolder = config.RModules.temporaryImageFolder
     String tempFolderDirectory = config.RModules.tempFolderDirectory
+	String imageURL = config.RModules.imageURL
     final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
     final char DEFAULT_SEPARATOR = '\t'
     def numberFields = ['start', 'end', 'pvalue', 'fdr'] as Set
@@ -108,6 +109,7 @@ class SurvivalAnalysisResultController {
     }
 
     def image = {
+
         def imageFile = new File("${temporaryImageFolder}", "${params.jobName}/survival_${params.chromosome}_${params.start}_${params.end}_${params.type ?: '1'}.png")
         if(imageFile.exists()) {
             response.setHeader("Content-disposition", "attachment;filename=${imageFile.getName()}")
@@ -118,6 +120,14 @@ class SurvivalAnalysisResultController {
             response.status = 404
         }
     }
+
+	/**
+	 * This function will return the image path
+	 */
+	def imagePath = {
+		def imagePath = "${imageURL}${params.jobName}/${params.jobType}_${params.chromosome}_${params.start}_${params.end}_${params.type ?: '1'}.png"
+		render imagePath
+	}
 
     def zipFile = {
         def zipFile = new File("${temporaryImageFolder}", "${params.jobName}/${params.jobName}.zip")
@@ -130,4 +140,13 @@ class SurvivalAnalysisResultController {
             response.status = 404
         }
     }
+
+	/**
+	 * This function will return the zipped file path
+	 */
+	def zipFilePath = {
+		def zipFilePath = "${imageURL}${params.jobName}/zippedData.zip"
+		render zipFilePath
+	}
+
 }
