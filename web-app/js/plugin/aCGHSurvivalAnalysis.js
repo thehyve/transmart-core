@@ -111,8 +111,6 @@ var _resultgrid_columns = [{
 	sortable: true
 }];
 
-
-
 /**
  * This object represents Input Bar in the Survival Analysis page
  * @type {*|Object}
@@ -428,8 +426,6 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	 * @param data
 	 */
 	generateResultGrid: function (jobName, view) {
-
-		console.log('about to render grid ... ');
 
 		// create store data
 		var store = new Ext.data.JsonStore({

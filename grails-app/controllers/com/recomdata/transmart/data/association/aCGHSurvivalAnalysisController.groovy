@@ -20,6 +20,8 @@ class aCGHSurvivalAnalysisController {
 
 			println("about to render the page ...")
 
-			render (template: "/plugin/aCGHSurvivalAnalysis_out")
+			render(contentType: "text/json") {
+				result(status:'success')
+			}
 		}
 }
