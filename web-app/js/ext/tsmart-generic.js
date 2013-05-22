@@ -417,16 +417,14 @@ GenericAnalysisView = Ext.extend(Object, {
 					console.log('***********************************************************************************');
 
 					if(status =='Completed') {
-						//Ext.getCmp('dataAssociationPanel').body.unmask();
+						Ext.getCmp('dataAssociationPanel').body.unmask();
 						Ext.TaskMgr.stop(_me.jobTask);
 
 
-						// TODO: From original code, need to be examined
-
-						//var fullViewerURL = pageInfo.basePath + viewerURL;
+						var fullViewerURL = pageInfo.basePath + viewerURL;
 
 						//Set the results DIV to use the URL from the job.
-						//Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
+						Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
 
 						//Set the flag that says we run an analysis so we can warn the user if they navigate away.
 						GLOBAL.AnalysisRun = true;
