@@ -28,6 +28,7 @@ class SurvivalAnalysisResultController {
 
     def config = ConfigurationHolder.config;
     String temporaryImageFolder = config.RModules.temporaryImageFolder
+    String tempFolderDirectory = config.RModules.tempFolderDirectory
     final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
     final char DEFAULT_SEPARATOR = '\t'
     def numberFields = ['start', 'end', 'pvalue', 'fdr'] as Set
@@ -38,7 +39,7 @@ class SurvivalAnalysisResultController {
             render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
             return
         }
-        def file = new File("${temporaryImageFolder}", "${params.jobName}/survival-test.txt")
+        def file = new File("${tempFolderDirectory}", "${params.jobName}/workingDirectory/survival-test.txt")
         if(file.exists()) {
             def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 
@@ -90,7 +91,8 @@ class SurvivalAnalysisResultController {
             int start = args.start > 0 ? args.start : 0
             final int TO_END = -1
             int end = args.limit >= 0 ? args.limit + start - 1 : TO_END
-            if(end == TO_END || start <= end) {
+            if(end >= rows.size()) end = TO_END
+            if((end == TO_END || start <= end) && start < rows.size()) {
                 rows[start..end].each {
                     def rowMap = [:]
                     List<String> useValues = it[usePositions]
