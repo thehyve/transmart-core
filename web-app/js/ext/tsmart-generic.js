@@ -416,6 +416,9 @@ GenericAnalysisView = Ext.extend(Object, {
 					console.log('jobName', jobName);
 					console.log('***********************************************************************************');
 
+					//Mask the panel while the analysis runs.
+					Ext.getCmp('dataAssociationPanel').body.mask("Job status .." + status, 'x-mask-loading');
+
 					if(status =='Completed') {
 						Ext.getCmp('dataAssociationPanel').body.unmask();
 						Ext.TaskMgr.stop(_me.jobTask);
