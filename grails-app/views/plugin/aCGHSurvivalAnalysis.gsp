@@ -17,7 +17,7 @@
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
-				<g:img dir="images/tempImages/{foldername}" file="{filename}" height='350' width='350'></g:img>
+				<g:img file="{filename}" height='350' width='350'></g:img>
 			</div>
 
 			<div id="plotCurveDesc">

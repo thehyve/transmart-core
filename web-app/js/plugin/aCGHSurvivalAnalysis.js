@@ -209,6 +209,8 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 	 */
 	displaySurvivalPlot: function (selectedRegions) {
 
+		var outer_scope = this;
+
 		// creating tab panel
 		if (this.plotCurvePanel == null) {
 			this.plotCurvePanel =  new GenericTabPlotPanel({
@@ -220,45 +222,72 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 		// create tab as many as selected rows
 		for (var i = 0; i < selectedRegions.length ; i++) {
 
-			// TODO : Get image path from controller
+			var imagePath = '';
+			var data = selectedRegions[i].data;
+			var _me = this;
 
-			// compose tab_id form region name + cytoband + alteration type
-			var tab_id = 'survival_' +  selectedRegions[i].data.chromosome + '_' + selectedRegions[i].data.start + '_' +
-				selectedRegions[i].data.end;
-			tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
 
-			// Getting the template as blue print for survival curve plot.
-			// Template is defined in SurvivalAnalysisaCGH.gsp
-			var survivalPlotTpl = Ext.Template.from('template-survival-plot');
+			Ext.Ajax.request({
+				url: pageInfo.basePath+"/SurvivalAnalysisResult/imagePath",
+				method: 'POST',
+				success: function(result, request){
+					console.log ('result isss ... ', result.responseText);
+					console.log ('selectedRegions ... ', data);
 
-			// generate id for download btn
-			var survivalDownloadBtn = 'survivalDownloadBtn_' +  tab_id;
+					imagePath = result.responseText;
 
-			// create data instance
-			var region = {
-				chromosome:  selectedRegions[i].data.chromosome,
-				start:  selectedRegions[i].data.start,
-				end:  selectedRegions[i].data.end,
-				pvalue:  selectedRegions[i].data.pvalue,
-				fdr:  selectedRegions[i].data.fdr,
-				survivalDownloadBtn: survivalDownloadBtn,
-				alteration:  selectedRegions[i].data.alteration,
-				foldername: 'guest-SurvivalAnalysis-102086',  // TODO: get dynamic path to the analysis result
-				filename: 'SurvivalCurve2.png' // TODO: get image from analysis result
-			};
+					// compose tab_id form region name + cytoband + alteration type
+					var tab_id = 'survival_' +  data.chromosome + '_' + data.start + '_' + data.end;
+					tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
 
-			//create tab title
-			var tab_title = 'Chr' + region.chromosome + ' (' + region.start + '-' + region.end + ')';
+					// Getting the template as blue print for survival curve plot.
+					// Template is defined in SurvivalAnalysisaCGH.gsp
+					var survivalPlotTpl = Ext.Template.from('template-survival-plot');
 
-			// add tab to the container
-			this.plotCurvePanel.addTab(region, tab_id, survivalPlotTpl, tab_title);
+					// generate id for download btn
+					var survivalDownloadBtn = 'survivalDownloadBtn_' +  tab_id;
 
-			// create export button
-			var exportBtn = new Ext.Button ({
-				text : 'Download Survival Plot',
-				iconCls : 'downloadbutton',
-				renderTo: survivalDownloadBtn
+					// create data instance
+					var region = {
+						chromosome:  data.chromosome,
+						start:  data.start,
+						end:  data.end,
+						pvalue:  data.pvalue,
+						fdr:  data.fdr,
+						survivalDownloadBtn: survivalDownloadBtn,
+						alteration:  data.alteration,
+						filename: imagePath // TODO: get image from analysis result
+					};
+
+					//create tab title
+					var tab_title = 'Chr' + region.chromosome + ' (' + region.start + '-' + region.end + ')';
+
+					// add tab to the container
+					_me.plotCurvePanel.addTab(region, tab_id, survivalPlotTpl, tab_title);
+
+					// create export button
+					var exportBtn = new Ext.Button ({
+						text : 'Download Survival Plot',
+						iconCls : 'downloadbutton',
+						renderTo: survivalDownloadBtn
+					});
+
+				},
+				failure: function(result, request){
+					Ext.Msg.alert('Status', 'Unable to get image');
+				},
+				timeout: '1800000',
+				params: {
+					jobName: this.jobName,
+					jobType: SA_JOB_TYPE,
+					chromosome:  selectedRegions[i].data.chromosome,
+					start:  selectedRegions[i].data.start,
+					end:  selectedRegions[i].data.end,
+					alteration:  selectedRegions[i].data.alteration
+				}
 			});
+
+
 		}
 
 	}
@@ -472,7 +501,8 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			loadMask: true,
 			columns: _resultgrid_columns,
 			store: store,
-			bbar: pagingbar
+			bbar: pagingbar,
+			jobName: jobName
 		});
 
 		view.intermediateResultGrid.render();
