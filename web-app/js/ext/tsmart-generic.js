@@ -197,9 +197,7 @@ GenericAnalysisResultGrid = Ext.extend(Ext.grid.GridPanel, {
 	iconCls: 'gridbutton',
 
 	constructor: function(config) {
-
 		GenericAnalysisResultGrid.superclass.constructor.apply(this, arguments);
-
 	}
 
 });
@@ -376,7 +374,7 @@ GenericAnalysisView = Ext.extend(Object, {
 			jobName: jobName,
 			parent: this,
 			run: function() {
-				this.parent.updateJobStatus(this.jobName, _me.callback);
+				this.parent.updateJobStatus(this.jobName);
 			},
 			interval: pollInterval
 		}
@@ -403,40 +401,44 @@ GenericAnalysisView = Ext.extend(Object, {
 					var resultType = jobStatusInfo.resultType;
 					var jobResults = jobStatusInfo.jobResults;
 
-					// TODO: THIS NEEDS TO BE IN THE WAITING WINDOW
-					console.log('***********************************************************************************');
-					console.log('jobStatusInfo', jobStatusInfo);
-					console.log('status', status);
-					console.log('errorType', errorType);
-					console.log('viewerURL', viewerURL);
-					console.log('altViewerURL', altViewerURL);
-					console.log('exception', exception);
-					console.log('resultType', resultType);
-					console.log('jobResults', jobResults);
-					console.log('jobName', jobName);
-					console.log('***********************************************************************************');
+					// show job status
+					_me.showJobStatusWindow(status, jobStatusInfo.jobStatusHTML);
 
-					//Mask the panel while the analysis runs.
-					Ext.getCmp('dataAssociationPanel').body.mask("Job status .." + status, 'x-mask-loading');
+					if (status =='Completed') {
 
-					if(status =='Completed') {
-						Ext.getCmp('dataAssociationPanel').body.unmask();
+						// close the job window
+						_me.jobWindow.close();
+
+						// stop the task manager
 						Ext.TaskMgr.stop(_me.jobTask);
 
-
-						var fullViewerURL = pageInfo.basePath + viewerURL;
-
 						//Set the results DIV to use the URL from the job.
+						var fullViewerURL = pageInfo.basePath + viewerURL;
 						Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
 
 						//Set the flag that says we run an analysis so we can warn the user if they navigate away.
 						GLOBAL.AnalysisRun = true;
 
+						// run the callback
 						_me.callback(jobName, _me.subView);
 
-					} else if(status == 'Cancelled' || status == 'Error') {
+					} else if (status == 'Cancelled') {
 						Ext.TaskMgr.stop(_me.jobTask);
+					} else if (status == 'Error') {
+						// close the job window
+						_me.jobWindow.close();
+						// stop the task
+						Ext.TaskMgr.stop(_me.jobTask);
+						// inform user on mandatory inputs need to be defined
+						Ext.MessageBox.show({
+							title: 'Error',
+							msg: jobStatusInfo.jobException,
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.ERROR
+						});
 					}
+
+					// update work flow status
 					updateWorkflowStatus(jobStatusInfo);
 				},
 				failure : function(result, request)
@@ -456,43 +458,52 @@ GenericAnalysisView = Ext.extend(Object, {
 		this.jobWindow.close();
 	},
 
-	showJobStatusWindow: function() {
-		var _this = this;
-		_this.jobWindow = new Ext.Window({
-			id: 'showJobStatus',
-			title: 'Job Status',
-			layout:'fit',
-			width:350,
-			height:400,
-			closable: false,
-			plain: true,
-			modal: true,
-			border:false,
-			resizable: false,
-			buttons: [
-				{
-					text: 'Cancel Job',
-					handler: function()	{
+	showJobStatusWindow: function(status, statusHTML) {
 
-						// inform user on mandatory inputs need to be defined
-						Ext.MessageBox.show({
-							title: 'Cancel Job',
-							msg: 'Are you sure you want to cancel your job?',
-							buttons: Ext.MessageBox.YESNO,
-							icon: Ext.MessageBox.QUESTION,
-							fn: function (btn) {
-								_this.cancelJobHandler(btn);
-							}
-						});
+		if (this.jobWindow == null) { // only create status window when it doesn't exist yet
 
+			this.jobWindow = new Ext.Window({
+				id: 'showJobStatus',
+				title: 'Job Status',
+				layout:'fit',
+				width:350,
+				height:400,
+				closable: false,
+				plain: true,
+				modal: true,
+				border:false,
+				resizable: false,
+				statusMessage: '',
+				buttons: [
+					{
+						text: 'Cancel Job',
+						handler: function()	{
 
-					}
-				}],
-			autoLoad: {
-				//TODO
-			}
-		});
-		_this.jobWindow.show(viewport);
+							// inform user on mandatory inputs need to be defined
+							Ext.MessageBox.show({
+								title: 'Cancel Job',
+								msg: 'Are you sure you want to cancel your job?',
+								buttons: Ext.MessageBox.YESNO,
+								icon: Ext.MessageBox.QUESTION,
+								fn: function (btn) {
+									//_this.cancelJobHandler(btn);
+								}
+							});
+
+						}
+					}],
+				html: statusHTML
+
+			});
+
+			// show it
+			this.jobWindow.show(viewport);
+
+		}  else {
+			// update status
+			this.jobWindow.body.update(statusHTML);
+
+		}
 	},
 
 	cancelJobHandler: function (btn) {
@@ -502,4 +513,6 @@ GenericAnalysisView = Ext.extend(Object, {
 	}
 
 });
+
+
 

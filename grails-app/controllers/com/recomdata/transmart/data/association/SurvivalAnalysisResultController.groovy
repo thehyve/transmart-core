@@ -125,7 +125,7 @@ class SurvivalAnalysisResultController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${imageURL}${params.jobName}/${params.jobType}_${params.chromosome}_${params.start}_${params.end}_${params.type ?: '1'}.png"
+		def imagePath = "${imageURL}${params.jobName}/${params.jobType}_${params.chromosome}_${params.start}_${params.end}.png"
 		render imagePath
 	}
 

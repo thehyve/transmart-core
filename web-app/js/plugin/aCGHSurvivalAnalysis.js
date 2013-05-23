@@ -231,8 +231,6 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 				url: pageInfo.basePath+"/SurvivalAnalysisResult/imagePath",
 				method: 'POST',
 				success: function(result, request){
-					console.log ('result isss ... ', result.responseText);
-					console.log ('selectedRegions ... ', data);
 
 					imagePath = result.responseText;
 

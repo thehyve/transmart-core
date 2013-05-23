@@ -34,7 +34,8 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 class RModulesJobService implements Job {
 
     static transactional = true
-	static scope = 'request'
+	static scope = 'request'
+
 	def ctx = AH.application.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService
@@ -105,6 +106,44 @@ class RModulesJobService implements Job {
 		}
 	}
 	
+
+	// stub -------------------------------------------------------
+	private void clinicalDataStub()
+	{
+		// create subset study
+		def subsetFolderStr = jobTmpDirectory + File.separator + "subset1_Goos"
+		File subsetFolder = new File(subsetFolderStr)
+		subsetFolder.mkdirs()
+
+		// create clinical folder
+		def clinicalFolderStr = subsetFolderStr + File.separator +  "Clinical"
+		File clinicalFolder = new File(clinicalFolderStr)
+		clinicalFolder.mkdirs()
+
+		// create acgh folder
+		def acghFolderStr = subsetFolderStr + File.separator +  "aCGH"
+		File acghFolder = new File(acghFolderStr)
+		acghFolder.mkdirs()
+
+
+		// get files
+		File clinicalFileTxt = new File (tempFolderDirectory + "clinical.txt");
+		File acghFileTxt = new File (tempFolderDirectory + "regions.txt");
+
+		new AntBuilder().copy(todir: clinicalFolderStr) {
+			fileset(dir : tempFolderDirectory) {
+				include(name:"clinical.txt")
+			}
+		}
+		new AntBuilder().copy(todir: acghFolderStr) {
+			fileset(dir : tempFolderDirectory) {
+				include(name:"regions.txt")
+			}
+		}
+	}
+	// stub -------------------------------------------------------
+
+
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 		try	{
@@ -112,9 +151,13 @@ class RModulesJobService implements Job {
 			setupTempDirsAndJobFile()
 			
 			//TODO identify a different way of fetching the statusList and stepping through them
-			if (updateStatusAndCheckIfJobCancelled(jobName, "Gathering Data")) return
-			getData()
-			
+//			if (updateStatusAndCheckIfJobCancelled(jobName, "Gathering Data")) return
+//			getData()
+
+			// stub -------------------------------------------------------
+			clinicalDataStub()
+			// stub -------------------------------------------------------
+
 			if (updateStatusAndCheckIfJobCancelled(jobName, "Running Conversions")) return
 			runConversions()
 			
@@ -180,6 +223,8 @@ class RModulesJobService implements Job {
 		//Get the data based on the job configuration.
 		def analysisSteps = jobDataMap.get("analysisSteps")
 		
+		printf ('analysisSteps -->' +  analysisSteps)
+
 		analysisSteps.each
 		{
 			currentStep ->
