@@ -44,7 +44,7 @@ acgh.survival.test <- function
   fdrs <- cbind(fdrs, dat[,first.data.col:ncol(dat)])
 
   options(scipen=10)
-  write.table(fdrs, file='survival-test.txt', quote=FALSE, sep='\t')
+  write.table(fdrs, file='survival-test.txt', quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
 }
 
