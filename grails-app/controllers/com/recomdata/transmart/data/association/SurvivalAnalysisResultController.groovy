@@ -70,7 +70,7 @@ class SurvivalAnalysisResultController {
 			csvReader.close()
 		}
 		if(rows) {
-			def headerRow = rows.remove(0)
+			def headerRow = rows.remove(0) as List
 			def useFields = []
 			def usePositions = []
 			headerRow.eachWithIndex{ String entry, int i ->
@@ -79,7 +79,7 @@ class SurvivalAnalysisResultController {
 					usePositions << i
 				}
 			}
-			def sortByPosition = args.sort ? useFields.indexOf(args.sort) : -1
+			def sortByPosition = args.sort ? headerRow.indexOf(args.sort) : -1
 			if(sortByPosition >= 0) {
 				int dirMultiplier = args.dir ==~ /(?i)DESC/ ? -1 : 1
 				boolean isNumberSort = numberFields.contains(args.sort)
