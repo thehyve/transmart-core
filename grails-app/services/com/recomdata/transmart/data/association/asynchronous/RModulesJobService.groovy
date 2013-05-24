@@ -34,7 +34,8 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 class RModulesJobService implements Job {
 
     static transactional = true
-	static scope = 'request'
+	static scope = 'request'
+
 	def ctx = AH.application.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService
@@ -43,23 +44,23 @@ class RModulesJobService implements Job {
 	def snpDataService = ctx.snpDataService
 	def dataExportService = ctx.dataExportService
 	def zipService = ctx.zipService
-	
+
 	def config = ConfigurationHolder.config
 	def String tempFolderDirectory = config.RModules.tempFolderDirectory
-	
+
 	def jobTmpParentDir
 	def jobTmpDirectory
 	//This is where all the R scripts get run, intermediate files are created, images are initially saved, etc.
 	def jobTmpWorkingDirectory
 	def finalOutputFile
-	
+
 	def jobDataMap
 	def jobName
-	
+
 	File jobInfoFile
-	
-	
-	
+
+
+
 	def private initJob(jobExecutionContext) throws Exception {
 		try {
 			//We use the job detail class to get information about the job.
@@ -69,7 +70,7 @@ class RModulesJobService implements Job {
 			if (StringUtils.isEmpty(jobName)) jobName = jobDataMap.getAt('jobName')
 			//Put an entry in our log.
 			log.info("${jobName} has been triggered to run ")
-			
+
 			//Write our attributes to a log file.
 			if (log.isDebugEnabled())	{
 				jobDataMap.getKeys().each {_key ->
@@ -80,21 +81,21 @@ class RModulesJobService implements Job {
 			throw new Exception('Job Initialization failed!!! Please contact an administrator.', e)
 		}
 	}
-	
+
 	def private setupTempDirsAndJobFile() throws Exception {
 		try {
 			//Initialize the jobTmpDirectory which will be used during bundling in ZipUtil
 			jobTmpDirectory = tempFolderDirectory + File.separator + "${jobDataMap.jobName}" + File.separator
 			jobTmpDirectory = jobTmpDirectory.replace("\\","\\\\")
 			jobTmpWorkingDirectory = jobTmpDirectory + "workingDirectory"
-			
+
 			//Try to make the working directory.
 			File jtd = new File(jobTmpWorkingDirectory)
 			jtd.mkdirs();
-			
+
 			//Create a file that will have all the job parameters for debugging purposes.
 			jobInfoFile = new File(jobTmpWorkingDirectory + File.separator + 'jobInfo.txt')
-			
+
 			//Write our parameters to the file.
 			jobInfoFile.write("Parameters" + System.getProperty("line.separator"))
 			jobDataMap.getKeys().each {_key ->
@@ -104,26 +105,26 @@ class RModulesJobService implements Job {
 			throw new Exception('Failed to create Temporary Directories and Job Info File, maybe there is not enough space on disk. Please contact an administrator.', e);
 		}
 	}
-	
+
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 		try	{
 			initJob(jobExecutionContext)
 			setupTempDirsAndJobFile()
-			
+
 			//TODO identify a different way of fetching the statusList and stepping through them
 			if (updateStatusAndCheckIfJobCancelled(jobName, "Gathering Data")) return
 			getData()
-			
+
 			if (updateStatusAndCheckIfJobCancelled(jobName, "Running Conversions")) return
 			runConversions()
-			
+
 			if (updateStatusAndCheckIfJobCancelled(jobName, "Running Analysis")) return
 			runAnalysis()
-			
+
 			if (updateStatusAndCheckIfJobCancelled(jobName, "Rendering Output")) return
 			renderOutput(jobExecutionContext.getJobDetail())
-			
+
 		} catch(Exception e)	{
 			log.error("Exception thrown executing job: " + e.getMessage(), e)
 			def errorMsg = null
@@ -138,24 +139,24 @@ class RModulesJobService implements Job {
 			jobResultsService[jobName]["Exception"] = errorMsg
 			return
 		}
-		
+
 		//Marking the status as complete makes the
 		updateStatusAndCheckIfJobCancelled(jobName, "Completed")
 	}
-	
+
 	private void getData() throws Exception
 	{
 		jobDataMap.put('jobTmpDirectory', jobTmpDirectory)
-		
+
 		dataExportService.exportData(jobDataMap)
 	}
-	
+
 	private void runConversions()
 	{
 		try {
 		//Get the data based on the job configuration.
 		def conversionSteps = jobDataMap.get("conversionSteps")
-		
+
 		conversionSteps.each
 		{
 			currentStep ->
@@ -163,27 +164,27 @@ class RModulesJobService implements Job {
 			switch (currentStep.key)
 			{
 				case "R":
-				
+
 					//Call a function to process our R commands.
 					runRCommandList(currentStep.value);
 			}
-			
+
 		}
 		} catch (Exception e) {
 			throw new Exception('Job Failed while running Conversions.'+e?.message, e)
 		}
 	}
-	
+
 	private void runAnalysis()
 	{
 		try {
 		//Get the data based on the job configuration.
 		def analysisSteps = jobDataMap.get("analysisSteps")
-		
+
 		analysisSteps.each
 		{
 			currentStep ->
-			
+
 			switch (currentStep.key)
 			{
 				case "bundle":
@@ -192,13 +193,13 @@ class RModulesJobService implements Job {
 					try {
 						File outputFile = new File(zipFileLoc+finalOutputFile);
 						if (outputFile.isFile()) {
-							
+
 							//TODO replace FTPUtil with FTPService from core
 							String remoteFilePath = FTPUtil.uploadFile(true, outputFile);
 							if (StringUtils.isNotEmpty(remoteFilePath)) {
 								//Since File has been uploaded to the FTP server, we can delete the
 								//ZIP file and the folder which has been zipped
-								
+
 								//Delete the output Folder
 								String outputFolder = null;
 								int index = outputFile.name.lastIndexOf('.');
@@ -209,7 +210,7 @@ class RModulesJobService implements Job {
 								if (outputDir.isDirectory()) {
 									outputDir.deleteDir()
 								}
-								
+
 								//Delete the ZIP file
 								outputFile.delete();
 							}
@@ -223,31 +224,31 @@ class RModulesJobService implements Job {
 					runRCommandList(currentStep.value);
 					break
 			}
-			
+
 		}
-		
+
 		} catch (Exception e) {
 			throw new Exception('Job Failed while running Analysis.'+e?.message, e)
 		}
 	}
-	
+
 	private void renderOutput(jobDetail)
 	{
 		try {
 		//Get the data based on the job configuration.
 		def renderSteps = jobDataMap.get("renderSteps")
-			
+
 		renderSteps.each
 		{
 			currentStep ->
-		
+
 			switch (currentStep.key)
 			{
 				case "FILELINK":
-				
+
 					//Gather the jobs name.
 					def jobName = jobDetail.getName()
-					
+
 					//Add the result file link to the job.
 					jobResultsService[jobName]['resultType'] = "DataExport"
 					jobResultsService[jobName]["ViewerURL"] = finalOutputFile
@@ -255,7 +256,7 @@ class RModulesJobService implements Job {
 				case "GSP":
 					//Gather the jobs name.
 					def jobName = jobDetail.getName()
-				
+
 					//Add the link to the output URL to the jobs object. We get the base URL from the job parameters.
 					jobResultsService[jobName]["ViewerURL"] = currentStep.value + "?jobName=" + jobName
 					break;
@@ -266,52 +267,52 @@ class RModulesJobService implements Job {
 		}
 
 	}
-	
+
 	private void runRCommandList(stepList)
 	{
-		
+
 		//We need to get the study ID for this study so we can know the path to the clinical output file.
 		def studies = jobDataMap.get("studyAccessions")
-		
+
 		//String representing rOutput Directory.
 		String rOutputDirectory = jobTmpWorkingDirectory
-	
+
 		//Make sure an rOutputFiles folder exists in our job directory.
 		new File(rOutputDirectory).mkdir()
-	
+
 		//Establish a connection to R Server.
 		RConnection c = new RConnection();
-		
+
 		log.debug("Attempting following R Command : " + "setwd('${rOutputDirectory}')".replace("\\","\\\\"))
 		println("Attempting following R Command : " + "setwd('${rOutputDirectory}')".replace("\\","\\\\"))
-		
+
 		//Set the working directory to be our temporary location.
 		String workingDirectoryCommand = "setwd('${rOutputDirectory}')".replace("\\","\\\\")
-		
+
 		//Run the R command to set the working directory to our temp directory.
 		REXP x = c.eval(workingDirectoryCommand);
-		
+
 		//For each R step there is a list of commands.
 		stepList.each
 		{
 			currentCommand ->
-			
+
 			//Need to escape backslashes for R commands.
 			String reformattedCommand = currentCommand.replace("\\","\\\\")
-			
+
 			//Replace the working directory flag if it exists in the string.
 			reformattedCommand = reformattedCommand.replace("||PLUGINSCRIPTDIRECTORY||", config.RModules.pluginScriptDirectory)
 			reformattedCommand = reformattedCommand.replace("||TEMPFOLDERDIRECTORY||", jobTmpDirectory + "subset1_" + studies[0] + File.separator.replace("\\","\\\\"))
 			reformattedCommand = reformattedCommand.replace("||TOPLEVELDIRECTORY||", jobTmpDirectory)
-			
+
 			//We need to loop through the variable map and do string replacements on the R command.
 			jobDataMap.get("variableMap").each
 				{
 					variableItem ->
-					
+
 					//Try and grab the variable from the Job Data Map. These were fed in from the HTML form.
 					def valueFromForm = jobDataMap.get(variableItem.value)
-					
+
 					//Clean up the variable if it was found in the form.
 					if(valueFromForm)
 					{
@@ -321,23 +322,23 @@ class RModulesJobService implements Job {
 					{
 						valueFromForm = ""
 					}
-					
+
 					reformattedCommand = reformattedCommand.replace(variableItem.key,valueFromForm)
 				}
-				
+
 			log.debug("Attempting following R Command : " + reformattedCommand)
 			println("Attempting following R Command : " + reformattedCommand)
-			
+
 			REXP r = c.parseAndEval("try("+reformattedCommand+",silent=TRUE)");
-			
-			if (r.inherits("try-error")) 
+
+			if (r.inherits("try-error"))
 			{
 				//Grab the error R gave us.
 				String rError = r.asString()
-				
+
 				//This is the error we will eventually throw.
 				RserveException newError = null
-				
+
 				//If it is a friendly error, use that, otherwise throw the default message.
 				if(rError ==~ /(?ms).*\|\|FRIENDLY\|\|.*/)
 				{
@@ -349,14 +350,14 @@ class RModulesJobService implements Job {
 					log.error("RserveException thrown executing job: " + rError)
 					newError = new RserveException(c,"There was an error running the R script for your job. Please contact an administrator.");
 				}
-				
+
 				throw newError;
-				
+
 			}
 		}
-	
+
 	}
-	
+
 	/**
 	* Helper to update the status of the job and log it and check if the job was Cancelled
 	*
@@ -369,14 +370,14 @@ class RModulesJobService implements Job {
 		   jobResultsService[jobName]["Status"] = status
 		   log.debug(status)
 	   }
-	   
+
 	   boolean jobCancelled = false
 	   //log.debug("Checking to see if the user cancelled the job")
 	   if (jobResultsService[jobName]["Status"] == "Cancelled")	{
 		   log.warn("${jobName} has been cancelled")
 		   return jobCancelled
 	   }
-	   
+
 	   return jobCancelled
    }
 }

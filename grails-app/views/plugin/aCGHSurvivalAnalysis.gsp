@@ -51,8 +51,6 @@
 				</table>
 			</div>
 		</div>
-
-		<div id="{survivalDownloadBtn}" class="downloadBtnInnerPage"></div>
 	</div>
 </extjs-tpl>
 
