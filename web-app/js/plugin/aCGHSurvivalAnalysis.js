@@ -355,7 +355,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			var variablesConceptCode = '';
 			var regionVarConceptCode = this.inputBar.regionPanel.getConceptCode();
 			var survivalVarConceptCode = this.inputBar.survivalPanel.getConceptCode();
-			var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCode();
+			var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCodes();
 
 			// get alteration value
 			var alterationBtnGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');

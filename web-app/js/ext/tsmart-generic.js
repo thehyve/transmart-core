@@ -74,7 +74,31 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	},
 
 	getConceptCode: function() {
-		return getQuerySummaryItem(this.getInputEl().dom.childNodes[0]);
+		var v = getQuerySummaryItem(this.getInputEl().dom.childNodes[0]);
+		v = v.trim();
+		return v;
+	},
+
+	getConceptCodes: function() {
+		var v = '';
+		var separator = '|';
+
+		nodes = this.getInputEl().dom.childNodes;
+
+		for (var i =0; i<nodes.length; i++ ) {
+
+			var node = getQuerySummaryItem(nodes[i]).trim();
+
+			if (i == nodes.length-1) {
+				v = v + node;
+			} else {
+				v = v + (node + separator);
+			}
+
+		}
+
+		return v;
+
 	},
 
 	getNodeList: function() {
