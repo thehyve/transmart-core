@@ -77,6 +77,15 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 		return getQuerySummaryItem(this.getInputEl().dom.childNodes[0]);
 	},
 
+	getConceptCodes: function() {
+		var nodes = this.getInputEl().dom.childNodes
+		var conceptCodes = [];
+		for (var i = 0; i < nodes.length; i++) {
+			conceptCodes.push(getQuerySummaryItem(nodes[i]));
+		}
+		return conceptCodes;
+	},
+
 	getNodeList: function() {
 		return createNodeTypeArrayFromDiv(this.getInputEl(), "setnodetype");
 	}

@@ -16,7 +16,6 @@
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
-				<g:img dir="images/tempImages/guest-GroupTest-100000" file="GroupTestPlot.png" height='50%' width='50%'></g:img>
 			</div>
 		</div>
 
