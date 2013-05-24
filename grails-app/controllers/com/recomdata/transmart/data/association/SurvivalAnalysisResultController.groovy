@@ -129,8 +129,11 @@ class SurvivalAnalysisResultController {
 		render imagePath
 	}
 
+	/**
+	 * This function returns survival acgh analysis result in zipped file
+	 */
 	def zipFile = {
-		def zipFile = new File("${temporaryImageFolder}", "${params.jobName}/${params.jobName}.zip")
+		def zipFile = new File("${temporaryImageFolder}", "${params.jobName}/zippedData.zip")
 		if(zipFile.exists()) {
 			response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
 			response.contentType  = 'application/octet-stream'

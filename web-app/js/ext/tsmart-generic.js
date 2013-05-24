@@ -211,11 +211,6 @@ GenericPlotPanel = Ext.extend(Ext.Panel, {
 
 	constructor: function () {
 		GenericPlotPanel.superclass.constructor.apply(this, arguments);
-		this.init();
-	},
-
-	init: function () {
-
 	}
 
 });
@@ -235,11 +230,6 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 	constructor: function () {
 		GenericTabPlotPanel.superclass.constructor.apply(this, arguments);
-		this.init();
-	},
-
-	init: function () {
-
 	},
 
 	addTab: function (region, tab_id, templateFile, tab_title) {
@@ -282,7 +272,6 @@ GenericAnalysisView = Ext.extend(Object, {
 	formParams: null, // form parameters
 
 	subView: null, // subclass of view who invokes the submit job
-
 
 	/**
 	 * Submit job defined to the backend
@@ -333,7 +322,6 @@ GenericAnalysisView = Ext.extend(Object, {
 		});
 
 	},
-
 
 	executeJob: function (jobInfo) {
 
@@ -402,7 +390,7 @@ GenericAnalysisView = Ext.extend(Object, {
 					var jobResults = jobStatusInfo.jobResults;
 
 					// show job status
-					_me.showJobStatusWindow(status, jobStatusInfo.jobStatusHTML);
+					_me.showJobStatusWindow(status, jobStatusInfo.jobStatusHTML, jobName);
 
 					if (status =='Completed') {
 
@@ -452,13 +440,8 @@ GenericAnalysisView = Ext.extend(Object, {
 		);
 	},
 
-	cancelJob: function() {
-		console.log('LOG: cancelJob');
-		// TODO: invoke ajax call to cancel running job
-		this.jobWindow.close();
-	},
-
-	showJobStatusWindow: function(status, statusHTML) {
+	showJobStatusWindow: function(status, statusHTML, jobName) {
+		var _this = this;
 
 		if (this.jobWindow == null) { // only create status window when it doesn't exist yet
 
@@ -486,7 +469,7 @@ GenericAnalysisView = Ext.extend(Object, {
 								buttons: Ext.MessageBox.YESNO,
 								icon: Ext.MessageBox.QUESTION,
 								fn: function (btn) {
-									//_this.cancelJobHandler(btn);
+									_this.cancelJobHandler(btn, jobName);
 								}
 							});
 
@@ -506,9 +489,19 @@ GenericAnalysisView = Ext.extend(Object, {
 		}
 	},
 
-	cancelJobHandler: function (btn) {
+	cancelJobHandler: function (btn, jobName) {
 		if (btn == 'yes') {
-			this.cancelJob();
+
+			Ext.Ajax.request(
+				{
+					url : pageInfo.basePath+"/asyncJob/canceljob",
+					method : 'POST',
+					timeout : '300000',
+					params: {jobName: jobName}
+				}
+			);
+
+			this.jobWindow.close();
 		}
 	}
 
