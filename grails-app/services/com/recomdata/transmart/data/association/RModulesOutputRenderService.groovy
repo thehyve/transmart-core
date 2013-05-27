@@ -77,7 +77,7 @@ class RModulesOutputRenderService {
 			def tempDirectoryFile = new File(this.tempDirectory)
             println("tempDirectoryFile:" + tempDirectoryFile)
 	
-			tempDirectoryFile.traverse(nameFilter:~/.*${jobTypeName}.*\.png/) 
+			tempDirectoryFile.traverse(nameFilter:~/(?i).*\.png/)
 			{
 				currentImageFile -> 
 			
