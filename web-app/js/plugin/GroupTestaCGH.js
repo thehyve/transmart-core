@@ -28,15 +28,15 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 	alterationPanel: null,
 
 	statRadios: [
-		{boxLabel: 'Chi-square', name: 'stat-test-opt', XValue:'chi-square'},
-		{boxLabel: 'Wilcoxon', name: 'stat-test-opt', XValue:'wilcoxon'},
-		{boxLabel: 'Kruskal-Wallis', name: 'stat-test-opt', XValue:'kruskal-wallis'}
+		{boxLabel: 'Chi-square', name: 'stat-test-opt', XValue:'Chi-square'},
+		{boxLabel: 'Wilcoxon', name: 'stat-test-opt', XValue:'Wilcoxon'},
+		{boxLabel: 'Kruskal-Wallis', name: 'stat-test-opt', XValue:'KW'}
 	],
 
-	alterationCheckboxes: [
-		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col-1', XValue:'gain-no-gain'},
-		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col-2', XValue:'loss-no-loss'},
-		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col-3', XValue:'loss-normal-gain'}
+	alterationRadios: [
+		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col', XValue:'1'},
+		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col', XValue:'-1'},
+		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col', XValue:'0'}
 	],
 
 	constructor: function(config) {
@@ -51,7 +51,7 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 			title: 'Region',
 			id:  'gt-input-region',
 			isDroppable: true,
-			notifyFunc: dropNumericOntoCategorySelection,
+			notifyFunc: dropOntoCategorySelection,
 			toolTipTxt: 'Tool-tip for Region'
 
 		},{
@@ -79,7 +79,7 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
 		// create check boxes
 		this.statTestPanel.add(this.createRadioBtnGroup(this.statRadios,'stat-test-chk-group'));
-		this.alterationPanel.add(this.createCheckBoxForm(this.alterationCheckboxes,'alteration-types-chk-group'));
+		this.alterationPanel.add(this.createRadioBtnGroup(this.alterationRadios,'alteration-types-chk-group'));
 
 		// re-draw
 		this.doLayout();
@@ -134,13 +134,10 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		});
 	},
 
-	validateInputs: function () {
-
+	areAllMandatoryFieldsFilled: function() {
 		var isValid = true;
 		var invalidInputs = [];
 
-		var regionVal;
-		var groupVal;
 		var statisticalVal;
 		var alterationVal;
 
@@ -148,16 +145,12 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		if (this.inputBar.regionPanel.isEmpty()) {
 			invalidInputs.push(this.inputBar.regionPanel.title);
 			isValid = false;
-		} else {
-			regionVal =  this.inputBar.regionPanel.getInputEl();
 		}
 
 		// check if group panel is empty
 		if (this.inputBar.groupPanel.isEmpty()) {
 			invalidInputs.push(this.inputBar.groupPanel.title);
 			isValid = false;
-		} else {
-			groupVal =  this.inputBar.groupPanel.getInputEl();
 		}
 
 		//check if stat test values has been selected
@@ -193,7 +186,23 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		}
 
 		return isValid;
+	},
 
+	isGroupFieldValid: function() {
+		if (this.inputBar.groupPanel.getConceptCodes().length < 2) {
+			Ext.MessageBox.show({
+				title: 'Number of groups',
+				msg: 'There should be selected more than one group.',
+				buttons: Ext.MessageBox.OK,
+				icon: Ext.MessageBox.ERROR
+			});
+			return false;
+		}
+		return true;
+	},
+
+	validateInputs: function() {
+		return this.areAllMandatoryFieldsFilled() && this.isGroupFieldValid()
 	},
 
 	createResultPlotPanel: function (result) {
@@ -223,21 +232,31 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
 	},
 
+    onJobFinish: function() {
+	    //FIXME To be able to run test again
+	    GLOBAL.CurrentSubsetIDs[1] = null;
+	    GLOBAL.CurrentSubsetIDs[2] = null;
+    },
+
 	submitGroupTestJob: function () {
 		if (this.validateInputs()) {
-			 var params = {
-				 url:'url',
-				 method:'POST',
-				 timeout:'180000',
-				 analysis:'GroupTestAnalysis',
-				 inputs: [] //TODO
-			 };
+            var regionVal = this.inputBar.regionPanel.getConceptCode();
+            var groupVals = this.inputBar.groupPanel.getConceptCodes();
+            var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+            var statTestVal =  statTestComponent.getSelectedValue();
+            var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+            var alternationVal =  alternationComponent.getSelectedValue();
 
-			var job = this.createJob(params);
+            // compose params
+            var formParams = {
+	            regionVariable: regionVal,
+	            groupVariable: groupVals.join('|'),
+	            statisticsType: statTestVal,
+	            aberrationType: alternationVal,
+                jobType: 'aCGHgroupTest'
+            };
 
-			if (job) {
-				this.runJob(params, this.createResultPlotPanel);
-			}
+            var job = this.submitJob(formParams, this.onJobFinish, this);
 		}
 
 	}
