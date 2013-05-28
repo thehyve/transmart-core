@@ -51,51 +51,41 @@ function
 	#Set the column names.
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
 
-	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
-	allConcepts <- unique(dataFile$CONCEPT_PATH)
-	
 	#Split the data by the CONCEPT_CD.
 	splitData <- split(dataFile,dataFile$CONCEPT_PATH)
 	
-	#Create a matrix with unique patient_nums.
-	finalData <- matrix(unique(dataFile$PATIENT_NUM))
-	
-	#Name the column.
-	colnames(finalData) <- c("PATIENT_NUM")
-	
-	#Calculate number of patients
-	npatients <- nrow(finalData)
-	
-	#Add the value for the group to the final data.
+	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
+	allConcepts <- unique(dataFile$CONCEPT_PATH)
+
+	#Add the value for the group to the group data table.
 	group<-strsplit(concept.group," *[|] *")
 	# Check if at least one of the censor concepts is observed
 	if (! any(group[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",group[[1]]))
 
 	groupData <- splitData[group[[1]][1]][[1]]
-
 	if(length(group[[1]])>1) {
 		#Multiple groups
 		for (i in 2:length(group[[1]]) )
 		{
 			groupData<-rbind(groupData,splitData[group[[1]][i]][[1]])
 		}
-	} else {
-		#Single group
-		stop(paste("||FRIENDLY||Only a single group specified. Please check your group variable selection and run again."))
 	}
-	finalData<-merge(finalData,groupData[c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
-	
-	if (nrow(finalData)>npatients) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 
-	finalColumnNames <- c("PATIENT_NUM",output.column.group)
-	colnames(finalData) <- finalColumnNames
-	  
-	###################################	
+	groupData <- groupData[c('PATIENT_NUM','VALUE')]
 	
+	# Check if patient are uniquely divided over the groups
+	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
+	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
+	if (nrow(groupData) == length(unique(groupData$VALUE))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients)"))
+
+	groupColumnNames <- c("PATIENT_NUM",output.column.group)
+	colnames(groupData) <- groupColumnNames
+
+	###################################	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
 	
-	#Write the final data file.
-	write.matrix(finalData,output.dataFile,sep = "\t")
+	#Write the group data file.
+	write.matrix(groupData,output.dataFile,sep = "\t")
 	print("-------------------")
 }

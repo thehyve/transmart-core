@@ -19,8 +19,7 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
-
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
+  dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
@@ -65,7 +64,7 @@ acgh.group.test <- function
   }
 
   options(scipen=10)
-  write.table(fdrs, file='groups-test.txt', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
+  write.table(fdrs, file='groups-test.txt', quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
   FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
     par(mar=c(5,4,4,5) + 0.1)
@@ -81,6 +80,7 @@ acgh.group.test <- function
       b.freq <- rep(b.freq, fdrs$num.probes)
       fdr <- rep(fdr, fdrs$num.probes)
     }
+    
     plot(a.freq, ylim=c(-1,1), type='h', col=cols[which], xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
     points(-b.freq, type='h', col=cols[which])
     abline(h=0)
@@ -100,13 +100,18 @@ acgh.group.test <- function
     mtext(groupnames[2], side=2, line=3, at=-0.5)
   }
 
-  png('groups-test.png')
   if (test.aberrations != '-1')
-    FDRplot(fdrs, 'gain')
-  if (test.aberrations != '1')
-    FDRplot(fdrs, 'loss')
-  dev.off()
-
+  {
+  	png('groups-test-gain.png')
+		FDRplot(fdrs, 'gain')
+		dev.off()
+	}
+  if (test.aberrations !=  '1')
+	{
+		png('groups-test-loss.png')
+		FDRplot(fdrs, 'loss')
+		dev.off()
+	}
 }
 
 # EOF
