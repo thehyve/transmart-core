@@ -21,7 +21,10 @@ acgh.plot.survival <- function
 
   library(survival)
 
-  dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+  dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names = NULL, as.is=TRUE, check.names=FALSE)
+  # To enforce preservation of rownames by as.matrix, the automatic generated rownames need to be made explicit
+  rownames(dat) <- c(1:nrow(dat))
+
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
   # Allow both numeric as well as string argument for aberrations parameter (acgh.survival.test function expects numeric argument values)
@@ -64,7 +67,7 @@ acgh.plot.survival <- function
     } else {
       main <- paste('Survival for chr.',dat[i, 'chromosome'],', ',dat[i, 'start'],'-',dat[i, 'end'],', ',aberrations)
     }
-    pngname<-paste('survival_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'_',aberrations,'.png',sep='')
+    pngname<-paste('aCGHSurvivalAnalysis_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'.png',sep='')
     png(pngname)
     plot(f, main=main, xlab='t', ylab=expression(hat(S)(t)), col=cols)
     if (confidence.intervals == 'yes') {

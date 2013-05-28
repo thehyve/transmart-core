@@ -6,9 +6,14 @@
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
+ * @type {number}
+ */
+var SA_JOB_TYPE = 'aCGHSurvivalAnalysis';
 
 /**
- * survival analysis acgh view
+ * survival analysis acgh view instance
  */
 var survivalAnalysisACGHView;
 
@@ -22,7 +27,7 @@ var _inputpanel_items = ['->',{  // '->' making it right aligned
 	scale: 'medium',
 	iconCls: 'runbutton',
 	handler: function () {
-		survivalAnalysisACGHView.submitSurvivalAnalysisaCGHJob();
+		survivalAnalysisACGHView.submitACGHSurvivalAnalysisJob();
 	}
 }];
 
@@ -39,12 +44,9 @@ var _resultgrid_items = [
 		scale: 'medium',
 		iconCls: 'downloadbutton',
 		handler: function (b, e) {
-
-			// ****************************************************************** //
-			// TODO: To provide handler for download Intermediate result data     //
-			// ****************************************************************** //
-
-			console.log("LOG: about to download intermediate result data");
+			// get job name
+			var jobName = survivalAnalysisACGHView.intermediateResultGrid.jobName;
+			return survivalAnalysisACGHView.intermediateResultGrid.downloadIntermediateResult(jobName);
 		}
 	},
 	{
@@ -105,8 +107,6 @@ var _resultgrid_columns = [{
 	width: 100,
 	sortable: true
 }];
-
-
 
 /**
  * This object represents Input Bar in the Survival Analysis page
@@ -181,6 +181,7 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
  */
 var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
+	jobName : '',
 
 	constructor: function(config) {
 		IntermediateResultGrid.superclass.constructor.apply(this, arguments);
@@ -190,7 +191,6 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 	init: function () {
 
 	},
-
 
 	/**
 	 * Get selected rows from the grid
@@ -206,6 +206,8 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 	 */
 	displaySurvivalPlot: function (selectedRegions) {
 
+		var outer_scope = this;
+
 		// creating tab panel
 		if (this.plotCurvePanel == null) {
 			this.plotCurvePanel =  new GenericTabPlotPanel({
@@ -217,47 +219,79 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 		// create tab as many as selected rows
 		for (var i = 0; i < selectedRegions.length ; i++) {
 
-			// TODO : Get image path from controller
+			var imagePath = '';
+			var data = selectedRegions[i].data;
+			var _me = this;
 
-			// compose tab_id form region name + cytoband + alteration type
-			var tab_id = 'survival_' +  selectedRegions[i].data.chromosome + '_' + selectedRegions[i].data.start + '_' +
-				selectedRegions[i].data.end;
-			tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
+			// get image path
+			Ext.Ajax.request({
+				url: pageInfo.basePath+"/SurvivalAnalysisResult/imagePath",
+				method: 'POST',
+				success: function(result, request){
 
-			// Getting the template as blue print for survival curve plot.
-			// Template is defined in SurvivalAnalysisaCGH.gsp
-			var survivalPlotTpl = Ext.Template.from('template-survival-plot');
+					imagePath = result.responseText;
 
-			// generate id for download btn
-			var survivalDownloadBtn = 'survivalDownloadBtn_' +  tab_id;
+					// compose tab_id form region name + cytoband + alteration type
+					var tab_id = 'survival_' +  data.chromosome + '_' + data.start + '_' + data.end;
+					tab_id = tab_id.replace(/\s/g,'');   // remove whitespaces
 
-			// create data instance
-			var region = {
-				chromosome:  selectedRegions[i].data.chromosome,
-				start:  selectedRegions[i].data.start,
-				end:  selectedRegions[i].data.end,
-				pvalue:  selectedRegions[i].data.pvalue,
-				fdr:  selectedRegions[i].data.fdr,
-				survivalDownloadBtn: survivalDownloadBtn,
-				alteration:  selectedRegions[i].data.alteration,
-				foldername: 'guest-SurvivalAnalysis-102086',  // TODO: get dynamic path to the analysis result
-				filename: 'SurvivalCurve2.png' // TODO: get image from analysis result
-			};
+					// Getting the template as blue print for survival curve plot.
+					// Template is defined in SurvivalAnalysisaCGH.gsp
+					var survivalPlotTpl = Ext.Template.from('template-survival-plot');
 
-			//create tab title
-			var tab_title = 'Chr' + region.chromosome + ' (' + region.start + '-' + region.end + ')';
+					// create data instance
+					var region = {
+						chromosome:  data.chromosome,
+						start:  data.start,
+						end:  data.end,
+						pvalue:  data.pvalue,
+						fdr:  data.fdr,
+						filename: imagePath
+					};
 
-			// add tab to the container
-			this.plotCurvePanel.addTab(region, tab_id, survivalPlotTpl, tab_title);
+					//create tab title
+					var tab_title = 'Chr' + region.chromosome + ' (' + region.start + '-' + region.end + ')';
 
-			// create export button
-			var exportBtn = new Ext.Button ({
-				text : 'Download Survival Plot',
-				iconCls : 'downloadbutton',
-				renderTo: survivalDownloadBtn
+					// add tab to the container
+					_me.plotCurvePanel.addTab(region, tab_id, survivalPlotTpl, tab_title);
+
+				},
+				failure: function(result, request){
+					Ext.Msg.alert('Status', 'Unable to get image');
+				},
+				timeout: '1800000',
+				params: {
+					jobName: this.jobName,
+					jobType: SA_JOB_TYPE,
+					chromosome:  selectedRegions[i].data.chromosome,
+					start:  selectedRegions[i].data.start,
+					end:  selectedRegions[i].data.end,
+					alteration:  selectedRegions[i].data.alteration
+				}
 			});
+
 		}
 
+	},
+
+	downloadIntermediateResult: function (jobName) {
+
+		// clean up
+		try {
+			Ext.destroy(Ext.get('downloadIframe'));
+		}
+		catch(e) {}
+
+		// get the file
+		Ext.DomHelper.append(document.body, {
+			tag: 'iframe',
+			id:'downloadIframe',
+			frameBorder: 0,
+			width: 0,
+			height: 0,
+			css: 'display:none;visibility:hidden;height:0px;',
+			src: pageInfo.basePath+"/survivalAnalysisResult/zipFile?jobName=" + jobName
+		});
 	}
 
 });
@@ -312,25 +346,27 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		});
 	},
 
-	submitSurvivalAnalysisaCGHJob: function() {
+	submitACGHSurvivalAnalysisJob: function() {
+
 		if (this.validateInputs()) {
 			console.log('LOG: submit survival analysis acgh job');
 
+			// get concept codes
 			var variablesConceptCode = '';
 			var regionVarConceptCode = this.inputBar.regionPanel.getConceptCode();
 			var survivalVarConceptCode = this.inputBar.survivalPanel.getConceptCode();
 			var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCode();
-			var jobType = 'aCGHSurvivalAnalysis';
 
+			// get alteration value
 			var alterationBtnGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
 			var alterationVal =  alterationBtnGroup.getSelectedValue();
-			console.log("alterationVal", alterationVal);
 
-			//Create a string of all the concepts we need for the i2b2 data.
+			// create a string of all the concepts we need for the i2b2 data.
 			variablesConceptCode = regionVarConceptCode;
 			variablesConceptCode += survivalVarConceptCode != '' ? "|" + survivalVarConceptCode : "";
 			variablesConceptCode += censoringVarConceptCode != '' ? "|" + censoringVarConceptCode : "";
 
+			// compose params
 			var formParams = {
 				regionVariable : regionVarConceptCode,
 				timeVariable : survivalVarConceptCode,
@@ -338,16 +374,14 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 				variablesConceptPaths:	variablesConceptCode,
 				aberrationType:alterationVal,
 				confidenceIntervals:'',
-				jobType: jobType
+				jobType: SA_JOB_TYPE
 			};
 
+			// reset previous analysis result
 			this.resetResult();
 
-			var job = this.createJob(formParams);
-
-			if (job) {
-				this.runJob(formParams, this.generateResultGrid, this);
-			}
+			// submit job
+			var job = this.submitJob(formParams, this.generateResultGrid, this);
 
 		}
 	},
@@ -403,7 +437,6 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			// inform user on mandatory inputs need to be defined
 			Ext.MessageBox.show({
 				title: 'Missing mandatory inputs',
-				//	msg: 'Following needs to be defined: ' + invalidInputs,
 				msg: strErrMsg,
 				buttons: Ext.MessageBox.OK,
 				icon: Ext.MessageBox.ERROR
@@ -419,22 +452,21 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	 * generates intermediate result in grid panel
 	 * @param data
 	 */
-	generateResultGrid: function (data, view) {
+	generateResultGrid: function (jobName, view) {
 
 		// create store data
 		var store = new Ext.data.JsonStore({
 			root: 'result',
 			totalProperty: 'totalCount',
 			idProperty: 'threadid',
-			remoteSort: false,   // can be enhanced with remote sort
+			remoteSort: true,   // can be enhanced with remote sort
 
-			baseParams: {jobName:'guest-aCGHSurvivalAnalysis-102920'},
-			// TODO this is hardcoded value, change it to get job name from jobParams
+			baseParams: {jobName:jobName},
 
 			fields: [
 				'chromosome',
-				'start',
-				'end',
+				{name: 'start', type: 'int'},
+				{name: 'end', type: 'int'},
 				{name: 'pvalue', type: 'float'},
 				{name: 'fdr', type: 'float'}
 			],
@@ -442,7 +474,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			// load using script tags for cross domain, if the data in on the same domain as
 			// this page, an HttpProxy would be better
 			proxy: new Ext.data.HttpProxy({
-				url: "../tsvFileReader/index"
+				url: "../SurvivalAnalysisResult/list"
 			})
 
 		});
@@ -467,7 +499,8 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			loadMask: true,
 			columns: _resultgrid_columns,
 			store: store,
-			bbar: pagingbar
+			bbar: pagingbar,
+			jobName: jobName
 		});
 
 		view.intermediateResultGrid.render();

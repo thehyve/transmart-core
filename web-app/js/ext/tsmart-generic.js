@@ -77,6 +77,15 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 		return getQuerySummaryItem(this.getInputEl().dom.childNodes[0]);
 	},
 
+	getConceptCodes: function() {
+		var nodes = this.getInputEl().dom.childNodes
+		var conceptCodes = [];
+		for (var i = 0; i < nodes.length; i++) {
+			conceptCodes.push(getQuerySummaryItem(nodes[i]));
+		}
+		return conceptCodes;
+	},
+
 	getNodeList: function() {
 		return createNodeTypeArrayFromDiv(this.getInputEl(), "setnodetype");
 	}
@@ -197,9 +206,7 @@ GenericAnalysisResultGrid = Ext.extend(Ext.grid.GridPanel, {
 	iconCls: 'gridbutton',
 
 	constructor: function(config) {
-
 		GenericAnalysisResultGrid.superclass.constructor.apply(this, arguments);
-
 	}
 
 });
@@ -213,11 +220,6 @@ GenericPlotPanel = Ext.extend(Ext.Panel, {
 
 	constructor: function () {
 		GenericPlotPanel.superclass.constructor.apply(this, arguments);
-		this.init();
-	},
-
-	init: function () {
-
 	}
 
 });
@@ -237,11 +239,6 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 	constructor: function () {
 		GenericTabPlotPanel.superclass.constructor.apply(this, arguments);
-		this.init();
-	},
-
-	init: function () {
-
 	},
 
 	addTab: function (region, tab_id, templateFile, tab_title) {
@@ -275,88 +272,249 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
  */
 GenericAnalysisView = Ext.extend(Object, {
 
-	jobWindow: null,
+	jobWindow: null, // status window to display job status
 
+	jobTask: null, // task to check job status
 
-	createJob: function (params) {
+	callback: null, // callback from original submit call to be invoked when analysis job is finished
 
-		// This is the real call to submit the job to the scheduler
-		//submitJob(params);
+	formParams: null, // form parameters
+
+	subView: null, // subclass of view who invokes the submit job
+
+	/**
+	 * Submit job defined to the backend
+	 * @param formParams
+	 * @param callback
+	 * @param view
+	 * @returns {boolean}
+	 */
+	submitJob: function (formParams, callback, view) {
+
+		this.callback = callback;
+		this.formParams = formParams;
+		this.subView = view;
+
+		//Make sure at least one subset is filled in.
+		if(isSubsetEmpty(1) && isSubsetEmpty(2))
+		{
+			Ext.Msg.alert('Missing input!','Please select a cohort from the \'Comparison\' tab.');
+			return;
+		}
+
+		if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) || (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null))
+		{
+			var _parent = this;
+			runAllQueries(function() {
+				_parent.createJob();
+			});
+		}
 
 		return true;
 	},
 
-	runJob: function (params, callback, view) {
+	createJob: function () {
+		var _parent = this;
+		// submit request to create new job
+		Ext.Ajax.request({
+			url: pageInfo.basePath+"/asyncJob/createnewjob",
+			method: 'POST',
+			success: function(result, request){
+				_parent.executeJob(result);
 
-		this.showJobStatusWindow();
-
-		// TODO: invoke ajax call to run job
-		// TODO: invoke checkJobStatus(jobname)
-
-		// ***************************
-		// dummy to mock status window
-		// ***************************
-
-		var _this = this;
-		var result; // TODO get job result
-
-		setTimeout(function() {
-			 _this.jobWindow.close();
-			callback(result, view);
-		}, 2); // dummy .. 5 seconds
+			},
+			failure: function(result, request){
+				Ext.Msg.alert('Status', 'Unable to create job.');
+			},
+			timeout: '1800000',
+			params: this.formParams
+		});
 
 	},
 
-	cancelJob: function() {
-		console.log('LOG: cancelJob');
-		// TODO: invoke ajax call to cancel running job
-		this.jobWindow.close();
+	executeJob: function (jobInfo) {
+
+		var _parent = this;
+		var jobNameInfo = Ext.util.JSON.decode(jobInfo.responseText);
+
+		var jobName = jobNameInfo.jobName;
+		setJobNameFromRun(jobName);
+
+		this.formParams.result_instance_id1=GLOBAL.CurrentSubsetIDs[1];
+		this.formParams.result_instance_id2=GLOBAL.CurrentSubsetIDs[2];
+		this.formParams.analysis=document.getElementById("analysis").value;
+		this.formParams.jobName=jobName;
+
+		Ext.Ajax.request(
+		{
+			url: pageInfo.basePath+"/RModules/scheduleJob",
+			method: 'POST',
+			timeout: '1800000',
+			failure: function (result) {
+				Ext.Msg.alert('Status', 'Unable to schedule job.');
+			},
+			params: Ext.urlEncode(this.formParams) // or a URL encoded string
+		});
+
+		_parent.checkPluginJobStatus(jobName);
+
 	},
 
-	showJobStatusWindow: function() {
-		var _this = this;
-		_this.jobWindow = new Ext.Window({
-			id: 'showJobStatus',
-			title: 'Job Status',
-			layout:'fit',
-			width:350,
-			height:400,
-			closable: false,
-			plain: true,
-			modal: true,
-			border:false,
-			resizable: false,
-			buttons: [
+	//Called to check the heatmap job status
+	checkPluginJobStatus: function(jobName)
+	{
+
+		var pollInterval = 1000;   // 1 second
+		var _me = this;
+
+		this.jobTask =	{
+			jobName: jobName,
+			parent: this,
+			run: function() {
+				this.parent.updateJobStatus(this.jobName);
+			},
+			interval: pollInterval
+		}
+
+		Ext.TaskMgr.start(this.jobTask);
+	},
+
+	updateJobStatus: function (jobName) {
+
+		var _me = this;
+
+		Ext.Ajax.request(
+			{
+				url : pageInfo.basePath+"/asyncJob/checkJobStatus",
+				method : 'POST',
+				success : function(result, request)
 				{
-					text: 'Cancel Job',
-					handler: function()	{
+					var jobStatusInfo = Ext.util.JSON.decode(result.responseText);
+					var status = jobStatusInfo.jobStatus;
+					var errorType = jobStatusInfo.errorType;
+					var viewerURL = jobStatusInfo.jobViewerURL;
+					var altViewerURL = jobStatusInfo.jobAltViewerURL;
+					var exception = jobStatusInfo.jobException;
+					var resultType = jobStatusInfo.resultType;
+					var jobResults = jobStatusInfo.jobResults;
 
+					// show job status
+					_me.showJobStatusWindow(status, jobStatusInfo.jobStatusHTML, jobName);
+
+					if (status =='Completed') {
+
+						// close the job window
+						_me.jobWindow.close();
+
+						// stop the task manager
+						Ext.TaskMgr.stop(_me.jobTask);
+
+						//Set the results DIV to use the URL from the job.
+						var fullViewerURL = pageInfo.basePath + viewerURL;
+						Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
+
+						//Set the flag that says we run an analysis so we can warn the user if they navigate away.
+						GLOBAL.AnalysisRun = true;
+
+						// run the callback
+						_me.callback(jobName, _me.subView);
+
+					} else if (status == 'Cancelled') {
+						Ext.TaskMgr.stop(_me.jobTask);
+					} else if (status == 'Error') {
+						// close the job window
+						_me.jobWindow.close();
+						// stop the task
+						Ext.TaskMgr.stop(_me.jobTask);
 						// inform user on mandatory inputs need to be defined
 						Ext.MessageBox.show({
-							title: 'Cancel Job',
-							msg: 'Are you sure you want to cancel your job?',
-							buttons: Ext.MessageBox.YESNO,
-							icon: Ext.MessageBox.QUESTION,
-							fn: function (btn) {
-								_this.cancelJobHandler(btn);
-							}
+							title: 'Error',
+							msg: jobStatusInfo.jobException,
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.ERROR
 						});
-
-
 					}
-				}],
-			autoLoad: {
-				//TODO
+
+					// update work flow status
+					updateWorkflowStatus(jobStatusInfo);
+				},
+				failure : function(result, request)
+				{
+					Ext.TaskMgr.stop(_me.jobTask);
+					showWorkflowStatusErrorDialog('Failed', 'Could not complete the job, please contact an administrator');
+				},
+				timeout : '300000',
+				params: {jobName: jobName}
 			}
-		});
-		_this.jobWindow.show(viewport);
+		);
 	},
 
-	cancelJobHandler: function (btn) {
+	showJobStatusWindow: function(status, statusHTML, jobName) {
+		var _this = this;
+
+		if (this.jobWindow == null) { // only create status window when it doesn't exist yet
+
+			this.jobWindow = new Ext.Window({
+				id: 'showJobStatus',
+				title: 'Job Status',
+				layout:'fit',
+				width:350,
+				height:400,
+				closable: false,
+				plain: true,
+				modal: true,
+				border:false,
+				resizable: false,
+				statusMessage: '',
+				buttons: [
+					{
+						text: 'Cancel Job',
+						handler: function()	{
+
+							// inform user on mandatory inputs need to be defined
+							Ext.MessageBox.show({
+								title: 'Cancel Job',
+								msg: 'Are you sure you want to cancel your job?',
+								buttons: Ext.MessageBox.YESNO,
+								icon: Ext.MessageBox.QUESTION,
+								fn: function (btn) {
+									_this.cancelJobHandler(btn, jobName);
+								}
+							});
+
+						}
+					}],
+				html: statusHTML
+
+			});
+
+			// show it
+			this.jobWindow.show(viewport);
+
+		}  else {
+			// update status
+			this.jobWindow.body.update(statusHTML);
+
+		}
+	},
+
+	cancelJobHandler: function (btn, jobName) {
 		if (btn == 'yes') {
-			this.cancelJob();
+
+			Ext.Ajax.request(
+				{
+					url : pageInfo.basePath+"/asyncJob/canceljob",
+					method : 'POST',
+					timeout : '300000',
+					params: {jobName: jobName}
+				}
+			);
+
+			this.jobWindow.close();
 		}
 	}
 
 });
+
+
 

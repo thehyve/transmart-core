@@ -16,28 +16,28 @@
             )"
         ]
     },
-       "name": "aCGH Survival Analysis",
-       "dataFileInputMapping": {
+    "name": "aCGH Survival Analysis",
+    "dataFileInputMapping": {
         "CLINICAL.TXT":"TRUE",
         "ACGH_REGIONS.TXT":"TRUE"
     },
-       "dataTypes": {
+    "dataTypes": {
         "subset1": ["CLINICAL.TXT"]
     },
-       "pivotData": false,
-       "view": "aCGHSurvivalAnalysis",
+    "pivotData": false,
+    "view": "aCGHSurvivalAnalysis",
     "processor": {
         "R": [
             "source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-survival-test.R')",
-            "acgh.survival.test(survival='Overall survival time',status='Survival status',number.of.permutations=10000,test.aberrations='||ABERRATIONTYPE||')",
+            "acgh.survival.test(survival='Overall survival time',status='Survival status',number.of.permutations=100,test.aberrations='||ABERRATIONTYPE||')",
             "source('||PLUGINSCRIPTDIRECTORY||aCGH/acgh-plot-survival.R')",
             "acgh.plot.survival(survival='Overall survival time',status='Survival status',aberrations='||ABERRATIONTYPE||',confidence.intervals='||CONFIDENCEINTERVALS||')"
         ]
     },
-       "renderer": {
-        "GSP": "/aCGHsurvivalAnalysis/aCGHSurvivalAnalysisOutput"
+    "renderer": {
+        "GSP": "/aCGHSurvivalAnalysis/aCGHSurvivalAnalysisOutput"
     },
-       "variableMapping": {
+    "variableMapping": {
         "||REGION||":"regionVariable",
         "||TIME||":"timeVariable",
         "||EVENTNO||":"censoringVariable",
