@@ -19,7 +19,7 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
+  dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
