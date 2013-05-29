@@ -138,25 +138,27 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 			id:  'sa-input-region',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Region'
-
+			toolTipTitle: 'Tip: Regions',
+			toolTipTxt: 'Drag and drop regions here.'
 		},{
 			title: 'Survival Time',
 			id:  'sa-input-survival',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Survival Time'
-
+			toolTipTitle: 'Tip: Survival Time',
+			toolTipTxt: 'Drag and drop phenodata with survival data.'
 		},{
 			title: 'Censoring Variable',
 			id: 'sa-input-censoring',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Censoring variable'
+			toolTipTitle: 'Tip: Censoring Variable',
+			toolTipTxt: 'Drag and drop survival status (e.g alive or dead).'
 		},{
 			title: 'Alteration Type',
 			id:  'sa-input-alteration',
-			toolTipTxt: 'Tool-tip for Alteration Type'
+			toolTipTitle: 'Tip: Alteration Type',
+			toolTipTxt: 'Select type of chromosomal alteration to test the association.'
 		}];
 
 		// create child panels

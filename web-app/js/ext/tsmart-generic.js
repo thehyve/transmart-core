@@ -11,6 +11,16 @@
  */
 var GEN_RESULT_GRID_LIMIT = 25;
 
+
+GenericToolTip = Ext.extend(Ext.ToolTip, {
+	html: null,
+	autoHide: true,
+	constructor: function(config) {
+		GenericToolTip.superclass.constructor.apply(this, arguments);
+	}
+});
+
+
 /**
  * Individual Panel in Input Bar
  * @type {*|Object}
@@ -21,6 +31,7 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	height: 120,
 	layout: 'fit',
 	notifyFunc: null,
+	toolTipTitle : null,
 	toolTipTxt: null,
 
 	isDroppable: false, // by default panel is not droppable
@@ -36,7 +47,7 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 			}
 			// apply tool tip
 			if (this.toolTipTxt != null) {
-				this.applyToolTip(this.toolTipTxt);
+				this.applyToolTip(this.toolTipTitle, this.toolTipTxt);
 			}
 		}
 	},
@@ -52,9 +63,10 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	},
 
 
-	applyToolTip: function(html) {
-		var ttip = new Ext.ToolTip({
+	applyToolTip: function(title, html) {
+		var ttip = new GenericToolTip ({
 			target: this.getEl(),
+			title: title,
 			html: html
 		});
 	},
@@ -140,6 +152,7 @@ GenericAnalysisInputBar = Ext.extend(Ext.Panel, {
 			id: config.id,
 			isDroppable: config.isDroppable,
 			notifyFunc: config.notifyFunc,
+			toolTipTitle: config.toolTipTitle,
 			toolTipTxt: config.toolTipTxt
 		});
 

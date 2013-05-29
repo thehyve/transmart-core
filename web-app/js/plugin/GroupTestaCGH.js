@@ -52,23 +52,29 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 			id:  'gt-input-region',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Region'
-
+			toolTipTitle: 'Tip: Survival Time',
+			toolTipTxt: 'Drag and drop regions here.'
 		},{
 			title: 'Group',
 			id:  'gt-input-group',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Group'
-
+			toolTipTitle: 'Tip: Group',
+			toolTipTxt: 'Drag and drop clinical variables to associate copy number data with. Please keep in mind that only ' +
+				'one variable can be compared, e.g. gender (female) with gender (male); not gender (female) with age ' +
+				'(>60)!'
 		},{
 			title: 'Statistical Test',
 			id: 'gt-input-stat-test',
-			toolTipTxt: 'Tool-tip for Statistical Test'
+			toolTipTitle: 'Tip: Statistical Test',
+			toolTipTxt: '<ul><li><i>Chi-square</i>: test for association between aberration pattern and group label; can also do ' +
+				'multiple comparisons</li> <li><i>Wilcoxon</i>: rank-sum test for two groups</li> <li><i>Kruskal-Wallis</i>: generalisation of ' +
+				'Wilcoxon for more than two groups</li></ul>'
 		},{
 			title: 'Alteration Type',
 			id:  'gt-input-alteration',
-			toolTipTxt: 'Tool-tip for Alteration Type'
+			toolTipTitle: 'Tip: Alteration Type',
+			toolTipTxt: 'Select type of chromosomal alteration to test the association.'
 		}];
 
 		// create child panels
