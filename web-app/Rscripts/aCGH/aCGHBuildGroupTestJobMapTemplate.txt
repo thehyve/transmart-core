@@ -6,7 +6,7 @@
             "aCGHGroupTestData.build(\
                 input.dataFile = '||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans',\
                 input.acghFile = '||TEMPFOLDERDIRECTORY||aCGH/regions.txt',\
-                concept.region'||REGION||',\
+                concept.region='||REGION||',\
                 concept.group='||GROUP||',\
                 output.column.group='group',\
                 output.dataFile='phenodata.tsv',\
@@ -16,7 +16,7 @@
     "name": "aCGH Group Test",
     "dataFileInputMapping": {
         "CLINICAL.TXT": "TRUE",
-        "ACGH.TXT": "TRUE"
+        "ACGH_REGIONS.TXT": "TRUE"
     },
     "dataTypes": {
         "subset1": [

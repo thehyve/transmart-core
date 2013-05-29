@@ -256,7 +256,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
             // compose params
             var formParams = {
 	            regionVariable: regionVal,
-	            groupVariable: groupVals.join('|'),
+	            groupVariable: groupVals,
 	            statisticsType: statTestVal,
 	            aberrationType: alternationVal,
                 jobType: 'aCGHgroupTest'
