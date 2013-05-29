@@ -297,6 +297,19 @@ GenericAnalysisView = Ext.extend(Object, {
 
 	subView: null, // subclass of view who invokes the submit job
 
+
+	reset: function () {
+
+		// destroy jobWindow instance
+		Ext.destroy(Ext.get('showJobStatus'));
+		this.jobWindow = null;
+
+		// reset current subset IDs
+		GLOBAL.CurrentSubsetIDs[1] = null;
+		GLOBAL.CurrentSubsetIDs[2] = null;
+	},
+
+
 	/**
 	 * Submit job defined to the backend
 	 * @param formParams
@@ -305,10 +318,14 @@ GenericAnalysisView = Ext.extend(Object, {
 	 * @returns {boolean}
 	 */
 	submitJob: function (formParams, callback, view) {
+		var _parent = this;
 
 		this.callback = callback;
 		this.formParams = formParams;
 		this.subView = view;
+
+		// reset instances
+		this.reset();
 
 		//Make sure at least one subset is filled in.
 		if(isSubsetEmpty(1) && isSubsetEmpty(2))
@@ -319,7 +336,6 @@ GenericAnalysisView = Ext.extend(Object, {
 
 		if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) || (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null))
 		{
-			var _parent = this;
 			runAllQueries(function() {
 				_parent.createJob();
 			});

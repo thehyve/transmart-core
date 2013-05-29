@@ -322,6 +322,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		// start drawing  input panel
 		this.inputBar = new SurvivalAnalysisInputBar({
+			id: 'survivalAnalysisACGHInputBar',
 			title: 'Input Parameters',
 			iconCls: 'newbutton',
 			renderTo: 'analysisContainer',
@@ -330,14 +331,22 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	},
 
 	resetAll: function () {
-		Ext.destroy(this.inputBar);
-		Ext.destroy(this.intermediateResultGrid);
-		Ext.destroy(this.plotCurvePanel);
+		// destroy input bar
+		Ext.destroy(Ext.get('survivalAnalysisACGHInputBar'));
+		this.inputBar = null;
+
+		// and destroy the rest ..
+		this.resetResult();
 	},
 
 	resetResult: function () {
-		Ext.destroy(this.intermediateResultGrid);
-		Ext.destroy(this.plotCurvePanel);
+		// destroy intermediate grid
+		Ext.destroy(Ext.get('intermediateGridPanel'));
+		this.intermediateResultGrid = null;
+
+		// destroy plot result curve
+		Ext.destroy(Ext.get('plotResultCurve'));
+		this.plotCurvePanel = null;
 	},
 
 	createToolBar: function(btnList) {
