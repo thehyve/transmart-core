@@ -502,6 +502,10 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			items: _resultgrid_items
 		});
 
+		// make sure no instance from previous job
+		Ext.destroy(Ext.get('intermediateGridPanel'));
+
+		// create new grid and render it
 		view.intermediateResultGrid  = new IntermediateResultGrid({
 			id: 'intermediateGridPanel',
 			title: 'Intermediate Result',
@@ -516,6 +520,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		view.intermediateResultGrid.render();
 
+		// finally load the data
 		store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
 	}
 
