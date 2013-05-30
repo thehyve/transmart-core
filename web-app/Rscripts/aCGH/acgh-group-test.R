@@ -19,8 +19,19 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', row.names=1, as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+  aberrations_dict <- c('loss', 'both', 'gain')
+  aberrations_options <- c('-1', '0', '1')
+  names(aberrations_dict) <- aberrations_options
+  
+  aberrations <- aberrations_dict[['0']]
+  test.aberrations <- as.character(as.integer(test.aberrations))
+  if (test.aberrations %in% aberrations_options)
+  {
+    aberrations <- aberrations_dict[[test.aberrations]]
+  }
+
+  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
+  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
   groupnames <- groupnames[!is.na(groupnames)]
@@ -47,7 +58,6 @@ acgh.group.test <- function
     if (2 %in% calls)
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
-
   # first try parallel computing
   prob <- TRUE
   try({
@@ -64,7 +74,8 @@ acgh.group.test <- function
   }
 
   options(scipen=10)
-  write.table(fdrs, file='groups-test.txt', quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
+  filename <- paste('groups-test-',aberrations,'.txt',sep='')
+  write.table(fdrs, file=filename, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
   FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
     par(mar=c(5,4,4,5) + 0.1)
@@ -100,18 +111,24 @@ acgh.group.test <- function
     mtext(groupnames[2], side=2, line=3, at=-0.5)
   }
 
-  if (test.aberrations != '-1')
-  {
-  	png('groups-test-gain.png')
-		FDRplot(fdrs, 'gain')
-		dev.off()
-	}
-  if (test.aberrations !=  '1')
+  filename <- paste('groups-test-',aberrations,'.png',sep='')
+	if (aberrations == 'both')
 	{
-		png('groups-test-loss.png')
-		FDRplot(fdrs, 'loss')
-		dev.off()
+		png(filename, width=1000, height=800)
+		par(mfrow = c(2,1))
+	} else {
+		png(filename, width=1000, height=400)
 	}
+
+  if (aberrations != 'loss')
+  {
+		FDRplot(fdrs, 'gain', 'Frequency Plot of Gains with FDR')
+	}
+  if (aberrations !=  'gain')
+	{
+		FDRplot(fdrs, 'loss', 'Frequency Plot of Losses with FDR')
+	}
+	dev.off()
 }
 
 # EOF
