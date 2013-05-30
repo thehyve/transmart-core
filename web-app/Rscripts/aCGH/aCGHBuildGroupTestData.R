@@ -44,21 +44,32 @@ function
 
 	# Copy the aCGH file
 	file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
-	  
-	#Read the input file.
-	dataFile <- data.frame(read.delim(input.dataFile));
 	
+	# Extract patient list from aCGH data column names for which calls (flag) have been observed
+	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
+	pids <- sub("flag.", "" , headernames[grep('flag.', headernames)] )
+	if(!length(pids)>0) stop("||FRIENDLY||No subjects with call data found in aCGH data file.")
+
+	#Read the input file.
+	dataFile <- read.table(input.dataFile, header=TRUE, sep='\t', quote='\"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
+
 	#Set the column names.
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
 
+	#Filter on patients for which aCGH data is available
+	filteredData <- matrix(pids)
+	colnames(filteredData) <- c("PATIENT_NUM")
+	filteredData <- merge(filteredData, dataFile)
+
 	#Split the data by the CONCEPT_CD.
-	splitData <- split(dataFile,dataFile$CONCEPT_PATH)
+	splitData <- split(filteredData,filteredData$CONCEPT_PATH)
 	
 	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
-	allConcepts <- unique(dataFile$CONCEPT_PATH)
+	allConcepts <- unique(filteredData$CONCEPT_PATH)
 
 	#Add the value for the group to the group data table.
-	group<-strsplit(concept.group," *[|] *")
+	group <- strsplit(concept.group," *[|] *")
+	
 	# Check if at least one of the censor concepts is observed
 	if (! any(group[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",group[[1]]))
 
@@ -86,6 +97,7 @@ function
 	require(MASS)
 	
 	#Write the group data file.
-	write.matrix(groupData,output.dataFile,sep = "\t")
+	write.table(groupData,output.dataFile,sep = "\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+
 	print("-------------------")
 }
