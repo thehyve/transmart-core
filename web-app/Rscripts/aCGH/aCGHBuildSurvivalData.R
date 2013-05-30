@@ -47,28 +47,38 @@ function
 	# Copy the aCGH file
 	file.copy(input.acghFile, output.acghFile, overwrite=TRUE)
 
+	# Extract patient list from aCGH data column names for which calls (flag) have been observed
+	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
+	pids <- sub("flag.", "" , headernames[grep('flag.', headernames)] )
+	if(!length(pids)>0) stop("||FRIENDLY||No subjects with call data found in aCGH data file.")
+
 	#Read the clinical data file.
-	dataFile <- data.frame(read.delim(input.dataFile));
+	dataFile <- read.table(input.dataFile, header=TRUE, sep='\t', quote='"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
 	
 	#Set the column names.
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
-	
+
+	#Filter on patients for which aCGH data is available
+	filteredData <- matrix(pids)
+	colnames(filteredData) <- c("PATIENT_NUM")
+	filteredData <- merge(filteredData, dataFile, all.x=TRUE)
+		
 	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
-	allConcepts <- unique(dataFile$CONCEPT_PATH)
+	allConcepts <- unique(filteredData$CONCEPT_PATH)
 
 	if (! concept.time %in% allConcepts) stop(paste("||FRIENDLY||No observations found for survival time variable:",concept.time))
 
 	#Split the data by the CONCEPT_PATH.
-	splitData <- split(dataFile,dataFile$CONCEPT_PATH);
+	splitData <- split(filteredData,filteredData$CONCEPT_PATH);
 	
 	#Create a matrix with unique patient_nums.
-	finalData <- matrix(unique(dataFile$PATIENT_NUM));
-	
+	finalData <- matrix(unique(filteredData$PATIENT_NUM))
+		
 	#Name the column.
 	colnames(finalData) <- c("PATIENT_NUM")
 	
 	#Add the value for the time to the final data.
-	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
+	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM", all.x=TRUE)
 
 	#If eventNo was not specified, we consider everyone to have had the event.
 	if(concept.eventNo=="")
@@ -98,6 +108,7 @@ function
 		boundData$CENSOR <- factor(boundData$CENSOR , levels = c("0", "1"))
 
 		censorData<-unique(boundData[c('PATIENT_NUM','CENSOR')])
+
 		finalData<-merge(finalData,censorData,by="PATIENT_NUM",all.x=TRUE)	
 	}
 
@@ -118,6 +129,7 @@ function
 	require(MASS)
 	
 	#Write the final data file.
-	write.matrix(finalData,output.dataFile,sep = "\t")
+	write.table(finalData,output.dataFile,sep = "\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+
 	print("-------------------")
 }
