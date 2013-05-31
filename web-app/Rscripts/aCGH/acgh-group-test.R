@@ -34,6 +34,7 @@ acgh.group.test <- function
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
+  groupnames <- sort(groupnames)
   groupnames <- groupnames[!is.na(groupnames)]
   groupnames <- groupnames[groupnames!='']
 
