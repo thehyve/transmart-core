@@ -4,6 +4,12 @@
  * Time: 11:28
  */
 
+/**
+ * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
+ * @type {number}
+ */
+var GT_JOB_TYPE = 'aCGHgroupTest';
+
 var groupTestView;
 
 /**
@@ -52,8 +58,8 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 			id:  'gt-input-region',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTitle: 'Tip: Survival Time',
-			toolTipTxt: 'Drag and drop regions here.'
+			toolTipTitle: 'Tip: Region',
+			toolTipTxt: 'Drag and drop aCGH region here.'
 		},{
 			title: 'Group',
 			id:  'gt-input-group',
@@ -105,6 +111,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 	// result panel
 	resultPanel : null,
 
+	// alteration
+	alteration : '',
+
 	// constructor
 	constructor: function() {
 		this.init();
@@ -130,7 +139,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		Ext.destroy(this.inputBar);
 		Ext.destroy(this.resultPanel);
 	},
-
 
 	createInputToolBar: function() {
 		var _this = this;
@@ -169,7 +177,8 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
 		//check if alteration values has been selected
 		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-		alterationVal =  alterationChkGroup.getXValues();
+		alterationVal =  alterationChkGroup.getSelectedValue();
+
 		if (alterationVal.length < 1) {
 			isValid = false;
 			invalidInputs.push(this.inputBar.alterationPanel.title);
@@ -194,6 +203,24 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		return isValid;
 	},
 
+	translateAlteration: function(alt) {
+
+		var v = 'NaN';
+		switch (alt)
+		{
+			case "1":
+				v="gain";
+				break;
+			case "0":
+				v="both";
+				break;
+			case "-1":
+				v="loss";
+				break;
+		}
+		return v;
+	},
+
 	isGroupFieldValid: function() {
 		if (this.inputBar.groupPanel.getConceptCodes().length < 2) {
 			Ext.MessageBox.show({
@@ -211,58 +238,111 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		return this.areAllMandatoryFieldsFilled() && this.isGroupFieldValid()
 	},
 
-	createResultPlotPanel: function (result) {
+	createResultPlotPanel: function (jobName, view) {
 
-		this.resultPanel = new GenericPlotPanel({
-			id: 'plotResultCurve',
-			renderTo: 'gtPlotWrapper',
-			width:'100%',
-			frame:true,
-			height:600,
-			defaults: {autoScroll:true}
+		var _this = view;
+
+		// initialize image path
+		var imagePath = '';
+
+
+		// get image path
+		Ext.Ajax.request({
+			url: pageInfo.basePath+"/aCGHgroupTest/imagePath",
+			method: 'POST',
+			success: function(result, request){
+
+				console.log('result', result.responseText);
+				imagePath = result.responseText;
+
+				_this.resultPanel = new GenericPlotPanel({
+					id: 'plotResultCurve',
+					renderTo: 'gtPlotWrapper',
+					width:'100%',
+					frame:true,
+					height:600,
+					defaults: {autoScroll:true}
+				});
+
+				// Getting the template as blue print for survival curve plot.
+				// Template is defined in GroupTestaCGH.gsp
+				var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
+
+				// create data instance
+				var region = {
+					filename: imagePath
+				};
+
+				// generate template
+				groupTestPlotTpl.overwrite(Ext.get('gtPlotWrapper'), region);
+
+				// generate download button
+				var exportBtn = new Ext.Button ({
+					text : 'Download Result',
+					iconCls : 'downloadbutton',
+					renderTo: 'downloadBtn',
+					handler: function () {
+						_this.downloadGroupTestResult(jobName);
+					}
+				});
+			},
+			params: {
+				jobName: jobName,
+				alteration: _this.alteration
+			}
 		});
-
-		// Getting the template as blue print for survival curve plot.
-		// Template is defined in GroupTestaCGH.gsp
-		var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
-
-		// generate template with associated region values in selected tab
-		groupTestPlotTpl.overwrite(Ext.get( 'plotResultCurve'));
-
-		// create export button
-		var exportBtn = new Ext.Button ({
-			text : 'Download Survival Plot',
-			iconCls : 'downloadbutton',
-			renderTo: 'gtDownload'
-		});
-
 	},
 
-    onJobFinish: function() {
-	    //FIXME To be able to run test again
-	    GLOBAL.CurrentSubsetIDs[1] = null;
-	    GLOBAL.CurrentSubsetIDs[2] = null;
-    },
+	downloadGroupTestResult: function (jobName) {
+
+		// clean up
+		try {
+			Ext.destroy(Ext.get('downloadIframe'));
+		}
+		catch(e) {}
+
+		// get the file
+		Ext.DomHelper.append(document.body, {
+			tag: 'iframe',
+			id:'downloadIframe',
+			frameBorder: 0,
+			width: 0,
+			height: 0,
+			css: 'display:none;visibility:hidden;height:0px;',
+			src: pageInfo.basePath+"/aCGHgroupTest/zipFile?jobName=" + jobName
+		});
+	},
+
+	onJobFinish: function(jobName, view) {
+		GLOBAL.CurrentSubsetIDs[1] = null;
+		GLOBAL.CurrentSubsetIDs[2] = null;
+
+		this.createResultPlotPanel(jobName, view);
+	},
 
 	submitGroupTestJob: function () {
 		if (this.validateInputs()) {
-            var regionVal = this.inputBar.regionPanel.getConceptCode();
-            var groupVals = this.inputBar.groupPanel.getConceptCodes();
-            var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
-            var statTestVal =  statTestComponent.getSelectedValue();
-            var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-            var alternationVal =  alternationComponent.getSelectedValue();
 
-            // compose params
-            var formParams = {
-	            regionVariable: regionVal,
-	            groupVariable: groupVals,
-	            statisticsType: statTestVal,
-	            aberrationType: alternationVal,
-                jobType: 'aCGHgroupTest'
-            };
+			var regionVal = this.inputBar.regionPanel.getConceptCode();
+			var groupVals = this.inputBar.groupPanel.getConceptCodes();
+			var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+			var statTestVal =  statTestComponent.getSelectedValue();
+			var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+			var alternationVal =  alternationComponent.getSelectedValue();
 
-            var job = this.submitJob(formParams, this.onJobFinish, this);
+			this.alteration = this.translateAlteration(alternationVal);
+			console.log('this.alteration->', this.alteration);
+
+			// compose params
+			var formParams = {
+				regionVariable: regionVal,
+				groupVariable: groupVals,
+				statisticsType: statTestVal,
+				aberrationType: alternationVal,
+				jobType: GT_JOB_TYPE
+			};
+
+			var job = this.submitJob(formParams, this.onJobFinish, this);
 		}
 
 	}
