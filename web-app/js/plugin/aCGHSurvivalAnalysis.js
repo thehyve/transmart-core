@@ -138,8 +138,8 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 			id:  'sa-input-region',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTitle: 'Tip: Regions',
-			toolTipTxt: 'Drag and drop regions here.'
+			toolTipTitle: 'Tip: Region',
+			toolTipTxt: 'Drag and drop aCGH region here.'
 		},{
 			title: 'Survival Time',
 			id:  'sa-input-survival',
