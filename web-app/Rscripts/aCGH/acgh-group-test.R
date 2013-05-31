@@ -23,18 +23,17 @@ acgh.group.test <- function
   aberrations_options <- c('-1', '0', '1')
   names(aberrations_dict) <- aberrations_options
   
-  aberrations <- aberrations_dict[['0']]
-  test.aberrations <- as.character(as.integer(test.aberrations))
-  if (test.aberrations %in% aberrations_options)
-  {
-    aberrations <- aberrations_dict[[test.aberrations]]
-  }
+	aberrations <- aberrations_dict[['0']]
+	test.aberrations <- as.character(as.integer(test.aberrations))
+	if (test.aberrations %in% aberrations_options)
+	{
+	  aberrations <- aberrations_dict[[test.aberrations]]
+	}
 
   dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
-  groupnames <- sort(groupnames)
   groupnames <- groupnames[!is.na(groupnames)]
   groupnames <- groupnames[groupnames!='']
 
@@ -47,6 +46,7 @@ acgh.group.test <- function
   group.sizes <- integer()
   for (group in groupnames) {
     group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
+    group.samples <- phenodata[group.samples,"PATIENT_NUM"]
     group.calls <- calls[,group.samples, drop=FALSE]
     if (nrow(datacgh)==0) {
       datacgh <- group.calls
