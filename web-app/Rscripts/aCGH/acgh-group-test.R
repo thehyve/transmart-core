@@ -100,7 +100,7 @@ acgh.group.test <- function
     for(i in cumsum(table(chromosomes)))
       abline(v=i, lty='dashed')
     ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
-    axis(side=1, at=ax, labels=unique(chromosomes))
+    axis(side=1, at=ax, labels=unique(chromosomes), las=2)
     axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
     logfdr <- -log10(fdr)
     logfdr[logfdr == Inf] <- 10
