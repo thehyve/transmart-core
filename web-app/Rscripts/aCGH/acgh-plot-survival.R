@@ -27,6 +27,13 @@ acgh.plot.survival <- function
 
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
+  # Extract sample list from aCGH data column names for which calls (flag) have been observed
+	samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(dat))] )
+	# Make row names equal to the sample id
+	rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
+	# Reorder phenodata rows to match the order in the aCGH data columns
+	phenodata <- phenodata[samplelist,,drop=FALSE]
+	
   # Allow both numeric as well as string argument for aberrations parameter (acgh.survival.test function expects numeric argument values)
   aberrations_dic <- c('losses','losses','both','both','gains','gains')
   names(aberrations_dic) <- c('-1','losses','0','both','1','gains')
