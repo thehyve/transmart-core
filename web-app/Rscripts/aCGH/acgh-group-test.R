@@ -46,14 +46,14 @@ acgh.group.test <- function
   group.sizes <- integer()
   for (group in groupnames) {
     group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
-    group.samples <- phenodata[group.samples,"PATIENT_NUM"]
-    group.calls <- calls[,group.samples, drop=FALSE]
+    group.ids <- phenodata[group.samples,"PATIENT_NUM"]
+    group.calls <- calls[,paste("flag.",group.ids,sep=""), drop=FALSE]
     if (nrow(datacgh)==0) {
       datacgh <- group.calls
     } else {
       datacgh <- cbind(datacgh, group.calls)
     }
-    group.sizes <- c(group.sizes, length(group.samples))
+    group.sizes <- c(group.sizes, length(group.ids))
     data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls == -1), digits=3)
     data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls == 1), digits=3)
     if (2 %in% calls)
