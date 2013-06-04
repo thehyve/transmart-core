@@ -23,11 +23,12 @@ acgh.plot.survival <- function
   library(foreach)
   library(doParallel)
 
-  nrcpus<-system("cat /proc/cpuinfo | grep 'processor' | wc -l");
+  #nrcpus<-system("cat /proc/cpuinfo | grep 'processor' | wc -l");
   if(nrcpus<1) {
     nrcpus=1
   }
-  registerDoParallel(nrcpus)
+  #registerDoParallel(nrcpus)
+  registerDoParallel()
 
   dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names = NULL, as.is=TRUE, check.names=FALSE)
   # To enforce preservation of rownames by as.matrix, the automatic generated rownames need to be made explicit
