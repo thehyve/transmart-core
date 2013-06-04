@@ -20,6 +20,14 @@ acgh.plot.survival <- function
 {
 
   library(survival)
+  library(foreach)
+  library(doParallel)
+
+  nrcpus<-system("cat /proc/cpuinfo | grep 'processor' | wc -l");
+  if(nrcpus<1) {
+    nrcpus=1
+  }
+  registerDoParallel(nrcpus)
 
   dat <- read.table('survival-test.txt', header=TRUE, sep='\t', quote='', row.names = NULL, as.is=TRUE, check.names=FALSE)
   # To enforce preservation of rownames by as.matrix, the automatic generated rownames need to be made explicit
@@ -61,7 +69,7 @@ acgh.plot.survival <- function
   names(call.legend) <- -1:1
   call.cols <- c('red', 'black', 'blue')
   names(call.cols) <- -1:1
-  for (i in rownames(dat)) {
+  foreach (i=rownames(dat)) %dopar% {
     f <- survfit(s ~ reg[i,])
     call <- sub('^.*=(.*)', '\\1', names(f$strata))
     n <- length(call)
