@@ -69,11 +69,11 @@
 
     <distributionManagement>
         <repository>
-            <id>repo.hyve.nl-releases</id>
+            <id>repo.thehyve.nl-releases</id>
             <url>http://repo.thehyve.nl/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>repo.hyve.nl-snapshots</id>
+            <id>repo.thehyve.nl-snapshots</id>
             <url>http://repo.thehyve.nl/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
