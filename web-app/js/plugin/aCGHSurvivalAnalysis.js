@@ -138,25 +138,27 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 			id:  'sa-input-region',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Region'
-
+			toolTipTitle: 'Tip: Region',
+			toolTipTxt: 'Drag and drop aCGH region here.'
 		},{
 			title: 'Survival Time',
 			id:  'sa-input-survival',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Survival Time'
-
+			toolTipTitle: 'Tip: Survival Time',
+			toolTipTxt: 'Drag and drop phenodata with survival data.'
 		},{
 			title: 'Censoring Variable',
 			id: 'sa-input-censoring',
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
-			toolTipTxt: 'Tool-tip for Censoring variable'
+			toolTipTitle: 'Tip: Censoring Variable',
+			toolTipTxt: 'Drag and drop survival status (e.g alive or dead).'
 		},{
 			title: 'Alteration Type',
 			id:  'sa-input-alteration',
-			toolTipTxt: 'Tool-tip for Alteration Type'
+			toolTipTitle: 'Tip: Alteration Type',
+			toolTipTxt: 'Select type of chromosomal alteration to test the association.'
 		}];
 
 		// create child panels
@@ -322,6 +324,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		// start drawing  input panel
 		this.inputBar = new SurvivalAnalysisInputBar({
+			id: 'survivalAnalysisACGHInputBar',
 			title: 'Input Parameters',
 			iconCls: 'newbutton',
 			renderTo: 'analysisContainer',
@@ -330,14 +333,22 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	},
 
 	resetAll: function () {
-		Ext.destroy(this.inputBar);
-		Ext.destroy(this.intermediateResultGrid);
-		Ext.destroy(this.plotCurvePanel);
+		// destroy input bar
+		Ext.destroy(Ext.get('survivalAnalysisACGHInputBar'));
+		this.inputBar = null;
+
+		// and destroy the rest ..
+		this.resetResult();
 	},
 
 	resetResult: function () {
-		Ext.destroy(this.intermediateResultGrid);
-		Ext.destroy(this.plotCurvePanel);
+		// destroy intermediate grid
+		Ext.destroy(Ext.get('intermediateGridPanel'));
+		this.intermediateResultGrid = null;
+
+		// destroy plot result curve
+		Ext.destroy(Ext.get('plotResultCurve'));
+		this.plotCurvePanel = null;
 	},
 
 	createToolBar: function(btnList) {
@@ -491,6 +502,10 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 			items: _resultgrid_items
 		});
 
+		// make sure no instance from previous job
+		Ext.destroy(Ext.get('intermediateGridPanel'));
+
+		// create new grid and render it
 		view.intermediateResultGrid  = new IntermediateResultGrid({
 			id: 'intermediateGridPanel',
 			title: 'Intermediate Result',
@@ -505,6 +520,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 		view.intermediateResultGrid.render();
 
+		// finally load the data
 		store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
 	}
 

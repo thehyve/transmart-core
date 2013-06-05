@@ -19,11 +19,22 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
+  aberrations_dict <- c('loss', 'both', 'gain')
+  aberrations_options <- c('-1', '0', '1')
+  names(aberrations_dict) <- aberrations_options
+  
+  aberrations <- aberrations_dict[['0']]
+  test.aberrations <- as.character(as.integer(test.aberrations))
+  if (test.aberrations %in% aberrations_options)
+  {
+    aberrations <- aberrations_dict[[test.aberrations]]
+  }
 
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
+  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
 
   groupnames <- unique(phenodata[,column])
+  groupnames <- sort(groupnames)
   groupnames <- groupnames[!is.na(groupnames)]
   groupnames <- groupnames[groupnames!='']
 
@@ -48,13 +59,24 @@ acgh.group.test <- function
     if (2 %in% calls)
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
-
-  library(CGHtest)
-  pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations)
-  fdrs <- fdrperm(pvs)
+  # first try parallel computing
+  prob <- TRUE
+  try({
+    library(CGHtestpar)
+    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
+    fdrs <- fdrperm(pvs)
+    prob <- FALSE
+  }, silent=TRUE)
+  # if problems, fall back to sequential computing
+  if (prob) {
+    library(CGHtest)
+    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations)
+    fdrs <- fdrperm(pvs)
+  }
 
   options(scipen=10)
-  write.table(fdrs, file='groups-test.txt', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
+  filename <- paste('groups-test-',aberrations,'.txt',sep='')
+  write.table(fdrs, file=filename, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
   FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
     par(mar=c(5,4,4,5) + 0.1)
@@ -70,6 +92,7 @@ acgh.group.test <- function
       b.freq <- rep(b.freq, fdrs$num.probes)
       fdr <- rep(fdr, fdrs$num.probes)
     }
+    
     plot(a.freq, ylim=c(-1,1), type='h', col=cols[which], xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
     points(-b.freq, type='h', col=cols[which])
     abline(h=0)
@@ -89,13 +112,24 @@ acgh.group.test <- function
     mtext(groupnames[2], side=2, line=3, at=-0.5)
   }
 
-  png('groups-test.png')
-  if (test.aberrations != '-1')
-    FDRplot(fdrs, 'gain')
-  if (test.aberrations != '1')
-    FDRplot(fdrs, 'loss')
-  dev.off()
+  filename <- paste('groups-test-',aberrations,'.png',sep='')
+	if (aberrations == 'both')
+	{
+		png(filename, width=1000, height=800)
+		par(mfrow = c(2,1))
+	} else {
+		png(filename, width=1000, height=400)
+	}
 
+  if (aberrations != 'loss')
+  {
+		FDRplot(fdrs, 'gain', 'Frequency Plot of Gains with FDR')
+	}
+  if (aberrations !=  'gain')
+	{
+		FDRplot(fdrs, 'loss', 'Frequency Plot of Losses with FDR')
+	}
+	dev.off()
 }
 
 # EOF

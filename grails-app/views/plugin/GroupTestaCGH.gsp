@@ -1,9 +1,3 @@
-<%--
-  User: riza
-  Date: 23-04-13
-  Time: 11:33
---%>
-
 %{--Input Container--}%
 <div id="gtContainer"></div>
 
@@ -13,13 +7,12 @@
 %{-- template --}%
 <extjs-tpl id="template-group-test-plot" class="x-hidden">
 	<div id="plotResultContainer" class="plotResultContainer">
-
-		<div id="plotBody" class="plotBody">
-			<div id="plotCurve">
-			</div>
+		%{--Image--}%
+		<g:img file="{filename}" class="freq-plot"></g:img>
+		<hr class="separator"/>
+		%{--Download button --}%
+		<div class="resultToolBar">
+			<div id="downloadBtn"></div>
 		</div>
-
-		<div id="gtDownload" class="downloadBtnInnerPage"></div>
-
 	</div>
 </extjs-tpl>

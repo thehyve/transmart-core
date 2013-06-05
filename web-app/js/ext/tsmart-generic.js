@@ -11,6 +11,16 @@
  */
 var GEN_RESULT_GRID_LIMIT = 25;
 
+
+GenericToolTip = Ext.extend(Ext.ToolTip, {
+	html: null,
+	autoHide: true,
+	constructor: function(config) {
+		GenericToolTip.superclass.constructor.apply(this, arguments);
+	}
+});
+
+
 /**
  * Individual Panel in Input Bar
  * @type {*|Object}
@@ -21,6 +31,7 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	height: 120,
 	layout: 'fit',
 	notifyFunc: null,
+	toolTipTitle : null,
 	toolTipTxt: null,
 
 	isDroppable: false, // by default panel is not droppable
@@ -36,7 +47,7 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 			}
 			// apply tool tip
 			if (this.toolTipTxt != null) {
-				this.applyToolTip(this.toolTipTxt);
+				this.applyToolTip(this.toolTipTitle, this.toolTipTxt);
 			}
 		}
 	},
@@ -52,9 +63,10 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 	},
 
 
-	applyToolTip: function(html) {
-		var ttip = new Ext.ToolTip({
+	applyToolTip: function(title, html) {
+		var ttip = new GenericToolTip ({
 			target: this.getEl(),
+			title: title,
 			html: html
 		});
 	},
@@ -101,15 +113,6 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 
 	},
 
-	getConceptCodes: function() {
-		var nodes = this.getInputEl().dom.childNodes
-		var conceptCodes = [];
-		for (var i = 0; i < nodes.length; i++) {
-			conceptCodes.push(getQuerySummaryItem(nodes[i]));
-		}
-		return conceptCodes;
-	},
-
 	getNodeList: function() {
 		return createNodeTypeArrayFromDiv(this.getInputEl(), "setnodetype");
 	}
@@ -140,6 +143,7 @@ GenericAnalysisInputBar = Ext.extend(Ext.Panel, {
 			id: config.id,
 			isDroppable: config.isDroppable,
 			notifyFunc: config.notifyFunc,
+			toolTipTitle: config.toolTipTitle,
 			toolTipTxt: config.toolTipTxt
 		});
 
@@ -306,6 +310,19 @@ GenericAnalysisView = Ext.extend(Object, {
 
 	subView: null, // subclass of view who invokes the submit job
 
+
+	reset: function () {
+
+		// destroy jobWindow instance
+		Ext.destroy(Ext.get('showJobStatus'));
+		this.jobWindow = null;
+
+		// reset current subset IDs
+		GLOBAL.CurrentSubsetIDs[1] = null;
+		GLOBAL.CurrentSubsetIDs[2] = null;
+	},
+
+
 	/**
 	 * Submit job defined to the backend
 	 * @param formParams
@@ -314,10 +331,14 @@ GenericAnalysisView = Ext.extend(Object, {
 	 * @returns {boolean}
 	 */
 	submitJob: function (formParams, callback, view) {
+		var _parent = this;
 
 		this.callback = callback;
 		this.formParams = formParams;
 		this.subView = view;
+
+		// reset instances
+		this.reset();
 
 		//Make sure at least one subset is filled in.
 		if(isSubsetEmpty(1) && isSubsetEmpty(2))
@@ -328,7 +349,6 @@ GenericAnalysisView = Ext.extend(Object, {
 
 		if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) || (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null))
 		{
-			var _parent = this;
 			runAllQueries(function() {
 				_parent.createJob();
 			});
