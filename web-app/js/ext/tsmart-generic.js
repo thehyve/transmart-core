@@ -514,6 +514,12 @@ GenericAnalysisView = Ext.extend(Object, {
 				statusMessage: '',
 				buttons: [
 					{
+						text: 'Run Job in Background',
+						handler: function()	{
+							_this.jobWindow.close();
+						}
+					},
+					{
 						text: 'Cancel Job',
 						handler: function()	{
 
