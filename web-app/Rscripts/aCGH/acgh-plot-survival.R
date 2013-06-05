@@ -23,7 +23,7 @@ acgh.plot.survival <- function
   library(foreach)
   library(doParallel)
 
-  nrcpus<-as.numeric(system("cat /proc/cpuinfo | grep 'processor' | wc -l"));
+  nrcpus<-as.numeric(system("cat /proc/cpuinfo | grep 'processor' | wc -l", intern=TRUE));
   if(nrcpus<1) {
     nrcpus=1
   }
