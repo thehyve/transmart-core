@@ -26,18 +26,23 @@ acgh.survival.test <- function
   data.info <- dat[,1:(first.data.col-1)]
   calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 
+  nrcpus<-as.numeric(system("cat /proc/cpuinfo | grep 'processor' | wc -l", intern=TRUE));
+  if(nrcpus<1) {
+    nrcpus=1
+  }
+
   # first try parallel computing
   prob <- TRUE
   try({
     library(CGHtestpar)
-    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
+    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=nrcpus)
     fdrs <- fdrperm(pvs)
     prob <- FALSE
   }, silent=TRUE)
   # if problems, fall back to sequential computing
   if (prob) {
     library(CGHtest)
-    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations)
+    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=nrcpus)
     fdrs <- fdrperm(pvs)
   }
 
