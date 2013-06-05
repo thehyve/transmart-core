@@ -508,7 +508,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		// create new grid and render it
 		view.intermediateResultGrid  = new IntermediateResultGrid({
 			id: 'intermediateGridPanel',
-			title: 'Intermediate Result',
+			title: 'Intermediate Result - Job Name: ' + jobName ,
 			renderTo: 'intermediateResultWrapper',
 			trackMouseOver:false,
 			loadMask: true,

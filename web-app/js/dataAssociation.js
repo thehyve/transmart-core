@@ -40,9 +40,9 @@ function advancedWorkflowMenu() {
 }
 
 function createAdvancedWorkflowMenu(result) {
-	var response = Ext.util.JSON.decode(result.responseText)
+	var response = Ext.util.JSON.decode(result.responseText);
 	if (response.success) {
-		var advMenuItems = createAdvancedWorkflowMenuItems(response.modules)
+		var advMenuItems = createAdvancedWorkflowMenuItems(response.modules);
 		var advMenu = new Ext.menu.Menu({
 			id : 'advancedWorkflowMenu',
 			minWidth: 250,
@@ -84,19 +84,47 @@ function createAdvancedWorkflowMenuItems(modules) {
 	return menuItems;
 }
 
-function onItemClick(item) {
-	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+item.text);
-	if(!checkPreviousAnalysis()) return false;
-	
+function loadAnalysisPage(itemId, isCompletedJob, jobName) {
+	// translate group test module name ..
+	// TODO: Please change with the consistent naming for all related files and variable
+	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
+
+	// fyi ..  Ajax.Updater is a jquery syntax
+	// will update 'variableSelection' div with whatever the response from
+	// the call
 	new Ajax.Updater('variableSelection', pageInfo.basePath+'/dataAssociation/variableSelection',
 	{
-		asynchronous:true,evalScripts:true,
-		onComplete: function(e) { 
-			loadPluginView(item.id);
-		},parameters:{analysis:item.id}
+		asynchronous:true,
+		evalScripts:true,
+		onComplete: function(e) {
+
+			// load the plugin view
+			loadPluginView(itemId);
+
+			// if it's loading completed job then display the result as well
+			if (isCompletedJob) {
+				if (itemId == 'aCGHSurvivalAnalysis') {
+					survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
+				} else if (itemId == 'groupTestaCGH') {
+					groupTestView.createResultPlotPanel(jobName, groupTestView);
+				}
+			}
+		},
+		parameters:{analysis:itemId}
 	});
+
+	// update analysis element
+	Ext.get('analysis').dom.value = itemId;
+}
+
+function onItemClick(item) {
+	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+item.text);
+
+	if(!checkPreviousAnalysis()) return false;
+
+	loadAnalysisPage(item.id);
+
 	Ext.fly('selectedAnalysis').update(item.text, false).removeClass('warning').addClass('selected');
-	Ext.get('analysis').dom.value = item.id;
 	item.parentMenu.hide(true);
 	/*var mgr = Ext.Updater('variableSelection')
 	
