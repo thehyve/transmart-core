@@ -67,15 +67,16 @@ class DataQueryResourceService implements DataQueryResource {
          * query before just to get the regions. This would minimize the
          * amount of data that the postgres server has to send us.
          */
-        def mainHQL = 'select acgh, acgh.region\n' +
-                'from DeSubjectAcghData as acgh\n' +
-                'inner join acgh.assay assay\n'
-                //'inner join acgh.region\n'
-        mainHQL <<= 'where ' + whereClauses.join("\nand ") + "\n"
-        mainHQL <<= 'order by acgh.region.id, assay\n'
+	    def mainHQL = '''
+			select acgh, acgh.region
+			from DeSubjectAcghData as acgh
+			inner join acgh.assay assay
+			where assay in (:assays)
+			order by acgh.region.id, assay'''
 
-        new RegionResultImpl(assays,
-                createQuery(session, mainHQL, params).scroll(FORWARD_ONLY))
+	    def mainQuery = createQuery(session, mainHQL, ['assays' : assays]).scroll(FORWARD_ONLY)
+
+        new RegionResultImpl(assays, mainQuery)
     }
 
     private void validateQuery(ACGHRegionQuery q) {
