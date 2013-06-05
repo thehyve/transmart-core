@@ -1,7 +1,7 @@
 // configuration for plugin testing - will not be included in the plugin zip
 
 def dataSourceConfig = new File("${userHome}/" +
-        ".grails/transmartConfig/DataSource.groovy")
+        ".grails/transmartConfig/DataSource-coredb.groovy")
 
 if (!dataSourceConfig.exists())
     throw new RuntimeException("Coult not find ${dataSourceConfig}")
