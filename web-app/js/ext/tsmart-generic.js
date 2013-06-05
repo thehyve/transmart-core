@@ -350,6 +350,8 @@ GenericAnalysisView = Ext.extend(Object, {
 		if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) || (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null))
 		{
 			runAllQueries(function() {
+				formParams.result_instance_id1 = GLOBAL.CurrentSubsetIDs[1];
+				formParams.result_instance_id2 = GLOBAL.CurrentSubsetIDs[2];
 				_parent.createJob();
 			});
 		}
