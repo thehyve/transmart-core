@@ -144,7 +144,7 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
 			title: 'Survival Time',
 			id:  'sa-input-survival',
 			isDroppable: true,
-			notifyFunc: dropOntoCategorySelection,
+			notifyFunc: dropNumericOntoCategorySelection,
 			toolTipTitle: 'Tip: Survival Time',
 			toolTipTxt: 'Drag and drop phenodata with survival data.'
 		},{
