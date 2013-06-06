@@ -18,7 +18,6 @@ acgh.plot.survival <- function
   confidence.intervals='no'
 )
 {
-now <- Sys.time()
   library(survival)
   library(foreach)
   library(doParallel)
@@ -100,7 +99,6 @@ now <- Sys.time()
       mtext(paste('p = ', sprintf('%.4f', dat[i, 'pvalue'])), side=1, line=-3, adj=0.99)
     dev.off()
   }
-print(Sys.time() - now)
 }
 
 # EOF
