@@ -19,6 +19,7 @@ Ext.onReady(function(){
 });
 
 var analysisConcept = null;
+var module_array;
 
 function advancedWorkflowMenu() {
 	var advancedMenu = null;
@@ -39,9 +40,31 @@ function advancedWorkflowMenu() {
 	});
 }
 
+/**
+ * Find module by module id
+ * @param id
+ * @returns {null}
+ */
+function findModuleById(id) {
+	var v = null;
+	if (module_array != null) {
+		Ext.each(module_array, function (module, index) {
+			if (module.id == id) {
+				v = module;
+				return false;
+			}
+		});
+	}
+	return v;
+}
+
 function createAdvancedWorkflowMenu(result) {
 	var response = Ext.util.JSON.decode(result.responseText);
 	if (response.success) {
+
+		// reserve modules in a global var
+		module_array = response.modules;
+
 		var advMenuItems = createAdvancedWorkflowMenuItems(response.modules);
 		var advMenu = new Ext.menu.Menu({
 			id : 'advancedWorkflowMenu',
@@ -84,7 +107,17 @@ function createAdvancedWorkflowMenuItems(modules) {
 	return menuItems;
 }
 
+/**
+ * This function will load the analysis page
+ * @param itemId
+ * @param isCompletedJob
+ * @param jobName
+ */
 function loadAnalysisPage(itemId, isCompletedJob, jobName) {
+
+	// get analysis module attribute
+	var module = findModuleById(itemId);
+
 	// translate group test module name ..
 	// TODO: Please change with the consistent naming for all related files and variable
 	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
@@ -115,6 +148,7 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 
 	// update analysis element
 	Ext.get('analysis').dom.value = itemId;
+	Ext.fly('selectedAnalysis').update(module.text, false).removeClass('warning').addClass('selected');
 }
 
 function onItemClick(item) {
@@ -124,7 +158,6 @@ function onItemClick(item) {
 
 	loadAnalysisPage(item.id);
 
-	Ext.fly('selectedAnalysis').update(item.text, false).removeClass('warning').addClass('selected');
 	item.parentMenu.hide(true);
 	/*var mgr = Ext.Updater('variableSelection')
 	
