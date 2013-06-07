@@ -59,11 +59,18 @@ acgh.group.test <- function
     if (2 %in% calls)
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
+  nrcpus=0
+  try ({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
+  if(nrcpus<1) {
+    nrcpus=2
+  }
   # first try parallel computing
   prob <- TRUE
   try({
     library(CGHtestpar)
-    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
+    pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=nrcpus)
     fdrs <- fdrperm(pvs)
     prob <- FALSE
   }, silent=TRUE)

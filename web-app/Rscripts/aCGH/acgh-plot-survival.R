@@ -18,12 +18,14 @@ acgh.plot.survival <- function
   confidence.intervals='no'
 )
 {
-
   library(survival)
   library(foreach)
   library(doParallel)
 
-  nrcpus<-as.numeric(system("cat /proc/cpuinfo | grep 'processor' | wc -l", intern=TRUE));
+  nrcpus=0
+  try({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
   if(nrcpus<1) {
     nrcpus=1
   }
@@ -100,7 +102,6 @@ acgh.plot.survival <- function
       mtext(paste('p = ', sprintf('%.4f', dat[i, 'pvalue'])), side=1, line=-3, adj=0.99)
     dev.off()
   }
-
 }
 
 # EOF

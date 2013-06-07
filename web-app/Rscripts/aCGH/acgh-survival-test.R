@@ -26,9 +26,12 @@ acgh.survival.test <- function
   data.info <- dat[,1:(first.data.col-1)]
   calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 
-  nrcpus<-as.numeric(system("cat /proc/cpuinfo | grep 'processor' | wc -l", intern=TRUE));
+  nrcpus=0
+  try({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
   if(nrcpus<1) {
-    nrcpus=1
+    nrcpus=2
   }
 
   # first try parallel computing
@@ -42,7 +45,7 @@ acgh.survival.test <- function
   # if problems, fall back to sequential computing
   if (prob) {
     library(CGHtest)
-    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=nrcpus)
+    pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations)
     fdrs <- fdrperm(pvs)
   }
 
