@@ -1,4 +1,4 @@
-/*************************************************************************   
+/*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,7 +128,7 @@ class RModulesOutputRenderService {
                 createDirectory(outputDirectoryFile)
             }
         }
-	
+
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
             File oldImage = new File(currentImageFile.path),
                  newImage = new File(outputDirectory, currentImageFile.name);
@@ -153,42 +153,40 @@ class RModulesOutputRenderService {
             zipService.zipFolder(tempDirectory, zipLocation)
         }
     }
-	
-	def String fileParseLoop(tempDirectoryFile,fileNamePattern,fileNameExtractionPattern,fileParseFunction)
-	{
+
+	def String fileParseLoop(tempDirectoryFile, fileNamePattern,
+                             fileNameExtractionPattern, fileParseFunction) {
 		//This is the string we return.
 		String parseValueString = ""
-		
+
 		//Reinitialize the text files array list.
 		def ArrayList<String> txtFiles = new ArrayList<String>()
-		
+
 		//Loop through the directory create an array of txt files to be parsed.
-		tempDirectoryFile.traverse(nameFilter:~fileNamePattern)
-		{
+		tempDirectoryFile.traverse(nameFilter: ~fileNamePattern) {
 			currentTextFile ->
-			
+
 			txtFiles.add(currentTextFile.path)
 		}
 
 		//Loop through the file path array and parse each of the files. We do this to make different tables if there are multiple files.
-		txtFiles.each
-		{
+		txtFiles.each {
 			//Parse out the name of the group from the name of the text file.
 			def matcher = (it =~ fileNameExtractionPattern)
-			
-			if (matcher.matches() && txtFiles.size > 1)
-			{
-				//Add the HTML that will separate the different files.
-				parseValueString += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
+
+			if (matcher.matches() && txtFiles.size > 1) {
+                //Add the HTML that will separate the different files.
+				parseValueString += "<br /><br /><span class='AnalysisHeader'>" +
+                        "${matcher[0][1]}</span><hr />"
 			}
-			
+
 			//Create objects for the output file.
 			File parsableFile = new File(it);
-			
+
 			//Parse the output files.
 			parseValueString += fileParseFunction.call(parsableFile.getText())
 		}
-		
+
 		parseValueString
 	}
 
