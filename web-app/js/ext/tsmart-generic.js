@@ -260,7 +260,7 @@ GenericTabPlotPanel = Ext.extend(Ext.TabPanel, {
 
 	width:'100%',
 	frame:true,
-	height:600,
+	height:1000,
 	defaults: {autoScroll:true},
 
 	templateId: null,
@@ -322,6 +322,27 @@ GenericAnalysisView = Ext.extend(Object, {
 		GLOBAL.CurrentSubsetIDs[2] = null;
 	},
 
+    /**
+     * translate abberation/alteration to readable format
+     * TODO: this function can be refactored to be placed in the utils object.
+     */
+    translateAlteration: function(alt) {
+
+        var v = 'NaN';
+        switch (alt)
+        {
+            case "1":
+                v="gain";
+                break;
+            case "0":
+                v="both";
+                break;
+            case "-1":
+                v="loss";
+                break;
+        }
+        return v;
+    },
 
 	/**
 	 * Submit job defined to the backend

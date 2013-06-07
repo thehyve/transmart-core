@@ -30,7 +30,7 @@ class SurvivalAnalysisResultController {
 	String temporaryImageFolder = config.RModules.temporaryImageFolder
 	String tempFolderDirectory = config.RModules.tempFolderDirectory
 	String imageURL = config.RModules.imageURL
-	final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
+	final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
 	final char DEFAULT_SEPARATOR = '\t'
 	def numberFields = ['start', 'end', 'pvalue', 'fdr'] as Set
 

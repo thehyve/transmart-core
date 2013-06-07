@@ -17,31 +17,68 @@
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
-				<g:img file="{filename}" height='350' width='350'></g:img>
+				<g:img file="{filename}"  class="survivalPlotImg"></g:img>
 			</div>
 
 			<div id="plotCurveDesc">
-				<table id="newspaper-a">
-					<caption>Table: Selected region details.</caption>
+				<table class="newspaper-a">
+					<caption>Table 1: Input Parameters for {jobName}</caption>
 					<thead>
 					<tr>
-						<th scope="col">Chromosome</th>
+						<th scope="col" class="first-col">Parameters</th>
+						<th scope="col">Value</th>
+					</tr>
+					</thead>
+
+					<tbody>
+                    <tr>
+                        <td class="first-col">Started date</td>
+                        <td>{startDate}</td>
+                    </tr>
+                    <tr>
+                        <td class="first-col">Run Time</td>
+                        <td>{runTime}</td>
+                    </tr>
+                    %{--TODO: display cohort selection--}%
+                    %{--<tr>--}%
+						%{--<td class="first-col">Selected Cohort</td>--}%
+						%{--<td>{inputCohort}</td>--}%
+					%{--</tr>--}%
+					<tr>
+						<td class="first-col">Region</td>
+						<td>{inputRegion}</td>
+					</tr>
+					<tr>
+						<td class="first-col">Survival Time</td>
+						<td>{inputSurvivalTime}</td>
+					</tr>
+					<tr>
+						<td class="first-col">Censoring Variable</td>
+						<td>{inputCensoring}</td>
+					</tr>
+					<tr>
+						<td class="first-col">Alteration Type</td>
+						<td>{inputAlteration}</td>
+					</tr>
+					</tbody>
+				</table>
+				<br/>
+				<table class="newspaper-a">
+					<caption>Table 2: Result</caption>
+					<thead>
+					<tr>
+						<th scope="col" class="first-col">Chromosome</th>
+						<th scope="col">cytoband</th>
 						<th scope="col">start</th>
 						<th scope="col">end</th>
 						<th scope="col">p-value</th>
 						<th scope="col">fdr</th>
 					</tr>
 					</thead>
-					<tfoot>
-					<tr>
-						<td colspan="5">
-							<em></em>
-						</td>
-					</tr>
-					</tfoot>
 					<tbody>
 					<tr>
-						<td>{chromosome}</td>
+						<td class="first-col">{chromosome}</td>
+						<td>{cytoband}</td>
 						<td>{start}</td>
 						<td>{end}</td>
 						<td>{pvalue}</td>

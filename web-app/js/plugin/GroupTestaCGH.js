@@ -203,24 +203,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		return isValid;
 	},
 
-	translateAlteration: function(alt) {
-
-		var v = 'NaN';
-		switch (alt)
-		{
-			case "1":
-				v="gain";
-				break;
-			case "0":
-				v="both";
-				break;
-			case "-1":
-				v="loss";
-				break;
-		}
-		return v;
-	},
-
 	isGroupFieldValid: function() {
 		if (this.inputBar.groupPanel.getConceptCodes().length < 2) {
 			Ext.MessageBox.show({

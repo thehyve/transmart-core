@@ -84,6 +84,11 @@ var _resultgrid_columns = [{
 	width: 400,
 	sortable: true
 },{
+	header: "cytoband",
+	dataIndex: 'cytoband',
+	width: 100,
+	sortable: true
+},{
 	header: "start",
 	dataIndex: 'start',
 	width: 100,
@@ -241,8 +246,19 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 					// Template is defined in SurvivalAnalysisaCGH.gsp
 					var survivalPlotTpl = Ext.Template.from('template-survival-plot');
 
+                    var translatedAlteration = survivalAnalysisACGHView.translateAlteration(
+                        survivalAnalysisACGHView.jobInfo.jobInputsJson.aberrationType
+                    );
+
 					// create data instance
 					var region = {
+                        jobName: survivalAnalysisACGHView.jobInfo.name,
+                        startDate: survivalAnalysisACGHView.jobInfo.startDate,
+                        runTime: survivalAnalysisACGHView.jobInfo.runTime,
+                        inputRegion: survivalAnalysisACGHView.jobInfo.jobInputsJson.regionVariable,
+                        inputSurvivalTime: survivalAnalysisACGHView.jobInfo.jobInputsJson.timeVariable,
+                        inputCensoring: survivalAnalysisACGHView.jobInfo.jobInputsJson.censoringVariable,
+                        inputAlteration: translatedAlteration,
 						chromosome:  data.chromosome,
 						start:  data.start,
 						end:  data.end,
@@ -312,6 +328,9 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
 	// plot curve panel
 	plotCurvePanel : null,
+
+    // job info
+    jobInfo : null,
 
 	constructor: function () {
 		this.init();
@@ -465,63 +484,84 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 	 */
 	generateResultGrid: function (jobName, view) {
 
-		// create store data
-		var store = new Ext.data.JsonStore({
-			root: 'result',
-			totalProperty: 'totalCount',
-			idProperty: 'threadid',
-			remoteSort: true,   // can be enhanced with remote sort
+        var _this = this;
 
-			baseParams: {jobName:jobName},
+		Ext.Ajax.request ({
+            // retrieve information about the job (status, inputs, run-time, etc)
+            url: pageInfo.basePath+"/asyncJob/getjobbyname",
+			method: 'GET',
+			success: function (result, request) {
 
-			fields: [
-				'chromosome',
-				{name: 'start', type: 'int'},
-				{name: 'end', type: 'int'},
-				{name: 'pvalue', type: 'float'},
-				{name: 'fdr', type: 'float'}
-			],
+                var resultJSON = JSON.parse(result.responseText);
+                _this.jobInfo = resultJSON.jobs[0];
 
-			// load using script tags for cross domain, if the data in on the same domain as
-			// this page, an HttpProxy would be better
-			proxy: new Ext.data.HttpProxy({
-				url: "../SurvivalAnalysisResult/list"
-			})
+				// create store data
+				var store = new Ext.data.JsonStore({
+					root: 'result',
+					totalProperty: 'totalCount',
+					idProperty: 'threadid',
+					remoteSort: true,   // can be enhanced with remote sort
 
-		});
-		store.setDefaultSort('chromosome', 'asc');
+					baseParams: {jobName:jobName},
+
+					fields: [
+						'chromosome',
+                        'cytoband',
+						{name: 'start', type: 'int'},
+						{name: 'end', type: 'int'},
+						{name: 'pvalue', type: 'float'},
+						{name: 'fdr', type: 'float'}
+					],
+
+					// load using script tags for cross domain, if the data in on the same domain as
+					// this page, an HttpProxy would be better
+					proxy: new Ext.data.HttpProxy({
+						url: "../SurvivalAnalysisResult/list"
+					})
+
+				});
+				store.setDefaultSort('chromosome', 'asc');
 
 
-		// create paging bar with related store
-		var pagingbar = new Ext.PagingToolbar({
-			pageSize: GEN_RESULT_GRID_LIMIT,
-			store: store,
-			displayInfo: true,
-			displayMsg: 'Displaying topics {0} - {1} of {2}',
-			emptyMsg: "No topics to display",
-			items: _resultgrid_items
-		});
+				// create paging bar with related store
+				var pagingbar = new Ext.PagingToolbar({
+					pageSize: GEN_RESULT_GRID_LIMIT,
+					store: store,
+					displayInfo: true,
+					displayMsg: 'Displaying topics {0} - {1} of {2}',
+					emptyMsg: "No topics to display",
+					items: _resultgrid_items
+				});
 
-		// make sure no instance from previous job
-		Ext.destroy(Ext.get('intermediateGridPanel'));
+				// make sure no instance from previous job
+				Ext.destroy(Ext.get('intermediateGridPanel'));
 
-		// create new grid and render it
-		view.intermediateResultGrid  = new IntermediateResultGrid({
-			id: 'intermediateGridPanel',
-			title: 'Intermediate Result - Job Name: ' + jobName ,
-			renderTo: 'intermediateResultWrapper',
-			trackMouseOver:false,
-			loadMask: true,
-			columns: _resultgrid_columns,
-			store: store,
-			bbar: pagingbar,
-			jobName: jobName
-		});
+				// create new grid and render it
+				view.intermediateResultGrid  = new IntermediateResultGrid({
+					id: 'intermediateGridPanel',
+					title: 'Intermediate Result - Job Name: ' + jobName ,
+					renderTo: 'intermediateResultWrapper',
+					trackMouseOver:false,
+					loadMask: true,
+					columns: _resultgrid_columns,
+					store: store,
+					bbar: pagingbar,
+					jobName: jobName
+				});
 
-		view.intermediateResultGrid.render();
+				view.intermediateResultGrid.render();
 
-		// finally load the data
-		store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
+				// finally load the data
+				store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
+			},
+			failure: function (result, request) {
+				console.log('failure ....')
+			},
+			params: {
+				jobName: jobName
+			}
+		})
+
 	}
 
 });
