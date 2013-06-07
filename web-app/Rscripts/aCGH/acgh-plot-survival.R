@@ -22,7 +22,10 @@ acgh.plot.survival <- function
   library(foreach)
   library(doParallel)
 
-  nrcpus<-as.numeric(system("nproc", intern=TRUE));
+  nrcpus=0
+  try({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
   if(nrcpus<1) {
     nrcpus=1
   }

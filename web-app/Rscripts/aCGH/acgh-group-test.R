@@ -59,10 +59,13 @@ acgh.group.test <- function
     if (2 %in% calls)
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
-  nrcpus<-as.numeric(system("nproc", intern=TRUE));
-    if(nrcpus<1) {
-      nrcpus=2
-    }
+  nrcpus=0
+  try ({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
+  if(nrcpus<1) {
+    nrcpus=2
+  }
   # first try parallel computing
   prob <- TRUE
   try({

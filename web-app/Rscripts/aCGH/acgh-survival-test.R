@@ -26,7 +26,10 @@ acgh.survival.test <- function
   data.info <- dat[,1:(first.data.col-1)]
   calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 
-  nrcpus<-as.numeric(system("nproc", intern=TRUE));
+  nrcpus=0
+  try({
+    nrcpus=as.numeric(system("nproc", intern=TRUE))
+  }, silent=TRUE);
   if(nrcpus<1) {
     nrcpus=2
   }
