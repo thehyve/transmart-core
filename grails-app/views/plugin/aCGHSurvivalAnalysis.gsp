@@ -22,7 +22,7 @@
 
 			<div id="plotCurveDesc">
 				<table class="newspaper-a">
-					<caption>Table 1: Input Parameters for {jobName}</caption>
+					<caption>Table 1: Input Parameters </caption>
 					<thead>
 					<tr>
 						<th scope="col" class="first-col">Parameters</th>
@@ -31,6 +31,10 @@
 					</thead>
 
 					<tbody>
+                    <tr>
+                        <td class="first-col">Job Name</td>
+                        <td>{jobName}</td>
+                    </tr>
                     <tr>
                         <td class="first-col">Started date</td>
                         <td>{startDate}</td>
