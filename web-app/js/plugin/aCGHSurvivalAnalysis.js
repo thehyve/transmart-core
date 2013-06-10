@@ -258,6 +258,8 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
                         inputRegion: survivalAnalysisACGHView.jobInfo.jobInputsJson.regionVariable,
                         inputSurvivalTime: survivalAnalysisACGHView.jobInfo.jobInputsJson.timeVariable,
                         inputCensoring: survivalAnalysisACGHView.jobInfo.jobInputsJson.censoringVariable,
+                        inputCohort1: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id1,
+                        inputCohort2: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id2,
                         inputAlteration: translatedAlteration,
 						chromosome:  data.chromosome,
 						start:  data.start,

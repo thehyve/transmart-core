@@ -43,14 +43,16 @@
                         <td class="first-col">Run Time</td>
                         <td>{runTime}</td>
                     </tr>
-                    %{--TODO: display cohort selection--}%
-                    %{--<tr>--}%
-						%{--<td class="first-col">Selected Cohort</td>--}%
-						%{--<td>{inputCohort}</td>--}%
-					%{--</tr>--}%
+                    <tr>
+						<td class="first-col">Selected Cohort</td>
+						<td>
+                            <div> Subset 1: {inputCohort1} </div>
+                            <div> Subset 2: {inputCohort2} </div>
+                        </td>
+				    </tr>
 					<tr>
 						<td class="first-col">Region</td>
-						<td>{inputRegion}</td>
+                        <td>{inputRegion}</td>
 					</tr>
 					<tr>
 						<td class="first-col">Survival Time</td>
