@@ -119,24 +119,28 @@ acgh.group.test <- function
     mtext(groupnames[2], side=2, line=3, at=-0.5)
   }
 
-  filename <- paste('groups-test-',aberrations,'.png',sep='')
-	if (aberrations == 'both')
-	{
-		png(filename, width=1000, height=800)
-		par(mfrow = c(2,1))
-	} else {
-		png(filename, width=1000, height=400)
-	}
+  # Not necessary to use aberration specific file name for image file
+  # Remove aberrations from image file name
+  # filename <- paste('groups-test-',aberrations,'.png',sep='')
+  filename <- paste('groups-test-','.png',sep='')
+  
+  if (aberrations == 'both')
+  {
+    png(filename, width=1000, height=800)
+    par(mfrow = c(2,1))
+  } else {
+    png(filename, width=1000, height=400)
+  }
 
   if (aberrations != 'loss')
   {
-		FDRplot(fdrs, 'gain', 'Frequency Plot of Gains with FDR')
-	}
+    FDRplot(fdrs, 'gain', 'Frequency Plot of Gains with FDR')
+  }
   if (aberrations !=  'gain')
-	{
-		FDRplot(fdrs, 'loss', 'Frequency Plot of Losses with FDR')
-	}
-	dev.off()
+  {
+    FDRplot(fdrs, 'loss', 'Frequency Plot of Losses with FDR')
+  }
+  dev.off()
 }
 
 # EOF
