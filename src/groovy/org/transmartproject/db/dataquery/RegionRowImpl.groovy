@@ -1,10 +1,12 @@
 package org.transmartproject.db.dataquery
 
+import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.acgh.ACGHValues
 import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.acgh.RegionRow
 import org.transmartproject.core.dataquery.assay.Assay
 
+@CompileStatic
 class RegionRowImpl implements RegionRow {
 
     final Region region
@@ -37,11 +39,13 @@ class RegionRowImpl implements RegionRow {
 
     @Override
     ACGHValues getRegionDataForAssay(Assay assay) throws ArrayIndexOutOfBoundsException {
-        values[assay.id] ?: {
-            throw new ArrayIndexOutOfBoundsException("Assay with id $assay.id" +
-                    " is not a valid index for this row; valid indexes are " +
-                    "${values.keySet()}, which should match " +
-                    assayList.collect { it.id })
-        }()
+	    ACGHValues result = values[assay.id]
+        if(!result) {
+	        def ids = assayList.collect { Assay assayp -> assayp.id }
+            throw new ArrayIndexOutOfBoundsException("""Assay with id $assay.id
+                    is not a valid index for this row; valid indexes are
+                    ${values.keySet()}, which should match $ids""")
+        }
+	    result
     }
 }
