@@ -91,6 +91,7 @@ class DataQueryResourceServiceTests {
                 equalTo(testACGHData[0])
         assertThat regionRows[1].getRegionDataForAssay(testRegionAssays[1]),
                 equalTo(testACGHData[1])
+        fail()
     }
 
     @Test
