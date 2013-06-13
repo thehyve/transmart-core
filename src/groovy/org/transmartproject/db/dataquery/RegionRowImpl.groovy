@@ -39,13 +39,13 @@ class RegionRowImpl implements RegionRow {
 
     @Override
     ACGHValues getRegionDataForAssay(Assay assay) throws ArrayIndexOutOfBoundsException {
-	    ACGHValues result = values[assay.id]
+        ACGHValues result = values[assay.id]
         if(!result) {
-	        def ids = assayList.collect { Assay assayp -> assayp.id }
+            def ids = assayList.collect { Assay assayp -> assayp.id }
             throw new ArrayIndexOutOfBoundsException("""Assay with id $assay.id
                     is not a valid index for this row; valid indexes are
                     ${values.keySet()}, which should match $ids""")
         }
-	    result
+        result
     }
 }
