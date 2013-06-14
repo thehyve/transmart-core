@@ -28,7 +28,7 @@ class aCGHgroupTestController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${imageURL}${params.jobName}/groups-test-${params.alteration}.png"
+		def imagePath = "${imageURL}${params.jobName}/groups-test.png"
 		render imagePath
 	}
 

@@ -122,7 +122,7 @@ acgh.group.test <- function
   # Not necessary to use aberration specific file name for image file
   # Remove aberrations from image file name
   # filename <- paste('groups-test-',aberrations,'.png',sep='')
-  filename <- paste('groups-test-','.png',sep='')
+  filename <- paste('groups-test','.png',sep='')
   
   if (aberrations == 'both')
   {
