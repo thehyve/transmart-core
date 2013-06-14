@@ -262,6 +262,7 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
                         inputCohort2: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id2,
                         inputAlteration: translatedAlteration,
 						chromosome:  data.chromosome,
+						cytoband:  data.cytoband,
 						start:  data.start,
 						end:  data.end,
 						pvalue:  data.pvalue,
