@@ -3,7 +3,6 @@ package org.transmartproject.db.highdim
 import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.querytool.QtQueryResultInstance
 
 class HighDimTestData {
 
