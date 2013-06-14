@@ -24,22 +24,22 @@ class Matchers {
                 //TODO Implement better way
                 if (DomainClassArtefactHandler.isDomainClass(it.getClass()) &&
                         it.id != null) {
-                      ret.id = it.id
+                    ret.id = it.id
                 }
                 ret
             }
 
-            if(interf.isAssignableFrom(item.class)) {
+            if (interf.isAssignableFrom(item.class)) {
                 def itemPropertyMap = propertyMap(item)
                 def valuePropertyMap = propertyMap(value)
                 failDetails << value.properties
                 def diff1 = itemPropertyMap - valuePropertyMap
-                if(diff1) {
+                if (diff1) {
                     failDetails << "$item has different values than $value:\n$diff1"
                 }
 
                 def diff2 = valuePropertyMap - itemPropertyMap
-                if(diff2) {
+                if (diff2) {
                     failDetails << "$value has different values than $item:\n$diff2"
                 }
 
