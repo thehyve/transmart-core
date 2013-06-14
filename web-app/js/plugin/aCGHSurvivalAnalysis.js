@@ -339,6 +339,13 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		this.init();
 	},
 
+    redraw: function () {
+        this.inputBar.doLayout();
+        if (this.intermediateResultGrid) {
+            this.intermediateResultGrid.doLayout();
+        }
+    },
+
 	init: function() {
 
 		// first of all, let's reset all major components
@@ -456,7 +463,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 		//check if alteration values has been selected
 		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
 		alterationValues =  alterationChkGroup.getSelectedValue();
-		if (alterationValues.length < 1) {
+		if (!alterationValues) {
 			isValid = false;
 			invalidInputs.push(this.inputBar.alterationPanel.title);
 		}

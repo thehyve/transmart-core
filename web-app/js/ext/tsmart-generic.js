@@ -22,6 +22,18 @@ GenericToolTip = Ext.extend(Ext.ToolTip, {
 
 
 /**
+ * redraw input bar when window is being resized
+ */
+Ext.EventManager.onWindowResize(function() {
+
+    // redraw survival analysis view
+    if (survivalAnalysisACGHView) survivalAnalysisACGHView.redraw();
+    // redraw group test view
+    if (groupTestView) groupTestView.redraw();
+
+});
+
+/**
  * Individual Panel in Input Bar
  * @type {*|Object}
  */

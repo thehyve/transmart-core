@@ -134,6 +134,10 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		});
 	},
 
+    redraw: function () {
+        this.inputBar.doLayout();
+    },
+
 	resetAll: function () {
 		this.tabIndex = 0;
 		Ext.destroy(this.inputBar);
