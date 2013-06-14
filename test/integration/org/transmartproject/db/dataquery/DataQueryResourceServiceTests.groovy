@@ -14,28 +14,22 @@ import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 import org.transmartproject.core.dataquery.constraints.CommonHighDimensionalQueryConstraints
 import org.transmartproject.db.highdim.DeGplInfo
 import org.transmartproject.db.highdim.DeSubjectSampleMapping
-import org.transmartproject.db.highdim.HighDimTestData
 import org.transmartproject.db.querytool.QtQueryResultInstance
-import org.transmartproject.db.querytool.QueryResultData
+
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.junit.Assert.fail
 import static org.hamcrest.Matchers.*
+import static org.junit.Assert.fail
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
-@Mixin(HighDimTestData)
-@Mixin(QueryResultData)
-class DataQueryResourceServiceTests {
+abstract class DataQueryResourceServiceTests {
 
     def sessionFactory
-    def dataQueryResourceService
-    def dataQueryResourceNoGormService
     def resultInstance
     def testedService
 
     @Before
     void setUp() {
         def queryMaster
-        testedService = dataQueryResourceNoGormService
         assertThat testRegionPlatform.save(), isA(Platform)
         assertThat testRegions*.save(), everyItem(isA(Region))
         assertThat testRegionPatients*.save(), everyItem(isA(Patient))
