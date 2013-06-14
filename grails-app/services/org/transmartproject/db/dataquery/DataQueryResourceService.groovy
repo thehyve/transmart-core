@@ -18,7 +18,7 @@ class DataQueryResourceService implements DataQueryResource {
     @Override
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec, session) {
         if (!(session == null || session instanceof Session || session
-        instanceof StatelessSession)) {
+                instanceof StatelessSession)) {
             throw new IllegalArgumentException('Expected session to be null ' +
                     'or an instance of type org.hibernate.Session or ' +
                     'org.hibernate.StatelessSession')
@@ -86,7 +86,7 @@ class DataQueryResourceService implements DataQueryResource {
     }
 
     private void validateQuery(ACGHRegionQuery q) {
-        def checkEmptiness = {it, name ->
+        def checkEmptiness = { it, name ->
             if (!it) {
                 throw new IllegalArgumentException("$name not specified/empty")
             }
@@ -105,7 +105,7 @@ class DataQueryResourceService implements DataQueryResource {
         assayQuery.readOnly = true
         assayQuery.cacheable = false
 
-        params.each {key, val ->
+        params.each { key, val ->
             if (val instanceof Collection) {
                 assayQuery.setParameterList(key, val)
             } else {
