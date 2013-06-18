@@ -50,6 +50,8 @@ grails.project.dependency.resolution = {
               ) {
             exported: false
         }
+
+		test ":code-coverage:1.2.6"
     }
 
     // see http://jira.grails.org/browse/GPRELEASE-42
