@@ -82,7 +82,8 @@ acgh.group.test <- function
   }
 
   options(scipen=10)
-  filename <- paste('groups-test-',aberrations,'.txt',sep='')
+  #filename <- paste('groups-test-',aberrations,'.txt',sep='')
+  filename <- paste('groups-test','.txt',sep='')
   write.table(fdrs, file=filename, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
   FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {

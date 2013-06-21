@@ -98,6 +98,89 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 	}
 });
 
+/**
+ * list of result grid columns
+ * @type {Array}
+ * @private
+ */
+var _resultgrid_columns = [{
+    id: 'chromosome', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
+    header: "chromosome",
+    dataIndex: 'chromosome',
+    width: 400,
+    sortable: true
+},{
+    header: "cytoband",
+    dataIndex: 'cytoband',
+    width: 100,
+    sortable: true
+},{
+    header: "start",
+    dataIndex: 'start',
+    width: 100,
+    sortable: true
+},{
+    header: "end",
+    dataIndex: 'end',
+    width: 100,
+    sortable: true
+},{
+    header: "pvalue",
+    dataIndex: 'pvalue',
+    width: 100,
+    align: 'right',
+    sortable: true
+},{
+    id: 'fdr',
+    header: "fdr",
+    dataIndex: 'fdr',
+    align: 'right',
+    width: 100,
+    sortable: true
+}];
+
+/**
+ * This object represents the intermediate result grid
+ * @type {*|Object}
+ */
+var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+
+    jobName : '',
+
+    constructor: function(config) {
+        IntermediateResultGrid.superclass.constructor.apply(this, arguments);
+        this.init();
+    },
+
+    init: function () {
+
+    },
+
+    /**
+     * Get selected rows from the grid
+     * @returns {*}
+     */
+    getSelectedRows: function () {
+        return this.getSelectionModel().getSelections();
+    },
+
+    /**
+     * Display selected rows in tab panel
+     * @param selectedRegions
+     */
+    displaySurvivalPlot: function (selectedRegions) {
+
+        var outer_scope = this;
+
+        // creating tab panel
+        if (this.plotCurvePanel == null) {
+            this.plotCurvePanel =  new GenericTabPlotPanel({
+                id: 'plotResultCurve',
+                renderTo: 'plotResultWrapper'
+            });
+        }
+    }
+});
 
 /**
  * This class represents the whole Group Test view
@@ -279,6 +362,91 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		});
 	},
 
+    /**
+     * generates intermediate result in grid panel
+     * @param data
+     */
+    generateResultGrid: function (jobName, view) {
+
+        var _this = this;
+
+        Ext.Ajax.request ({
+            // retrieve information about the job (status, inputs, run-time, etc)
+            url: pageInfo.basePath+"/asyncJob/getjobbyname",
+            method: 'GET',
+            success: function (result, request) {
+
+                var resultJSON = JSON.parse(result.responseText);
+                _this.jobInfo = resultJSON.jobs[0];
+
+                // create store data
+                var store = new Ext.data.JsonStore({
+                    root: 'result',
+                    totalProperty: 'totalCount',
+                    idProperty: 'threadid',
+                    remoteSort: true,   // can be enhanced with remote sort
+
+                    baseParams: {jobName:jobName},
+
+                    fields: [
+                        'chromosome',
+                        'cytoband',
+                        {name: 'start', type: 'int'},
+                        {name: 'end', type: 'int'},
+                        {name: 'pvalue', type: 'float'},
+                        {name: 'fdr', type: 'float'}
+                    ],
+
+                    // load using script tags for cross domain, if the data in on the same domain as
+                    // this page, an HttpProxy would be better
+                    proxy: new Ext.data.HttpProxy({
+                        url: "../aCGHgroupTest/resultTable"
+                    })
+
+                });
+                store.setDefaultSort('chromosome', 'asc');
+
+
+                // create paging bar with related store
+                var pagingbar = new Ext.PagingToolbar({
+                    pageSize: 10,
+                    store: store,
+                    displayInfo: true,
+                    displayMsg: 'Displaying topics {0} - {1} of {2}',
+                    emptyMsg: "No topics to display"
+                });
+
+                // make sure no instance from previous job
+                Ext.destroy(Ext.get('intermediateGridPanel'));
+
+                // create new grid and render it
+                view.intermediateResultGrid  = new IntermediateResultGrid({
+                    id: 'intermediateGridPanel',
+                    title: 'Intermediate Result - Job Name: ' + jobName ,
+                    renderTo: 'intermediateResultWrapper',
+                    trackMouseOver:false,
+                    loadMask: true,
+                    columns: _resultgrid_columns,
+                    store: store,
+                    bbar: pagingbar,
+                    jobName: jobName
+                });
+
+                view.intermediateResultGrid.render();
+
+                // finally load the data
+                store.load({params:{start:0, limit:10}});
+            },
+            failure: function (result, request) {
+                console.log('failure ....')
+            },
+            params: {
+                jobName: jobName
+            }
+        })
+
+    },
+
 	downloadGroupTestResult: function (jobName) {
 
 		// clean up
@@ -303,6 +471,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		GLOBAL.CurrentSubsetIDs[1] = null;
 		GLOBAL.CurrentSubsetIDs[2] = null;
 
+		this.generateResultGrid(jobName, view);
 		this.createResultPlotPanel(jobName, view);
 	},
 

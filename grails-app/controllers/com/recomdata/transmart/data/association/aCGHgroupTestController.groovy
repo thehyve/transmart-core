@@ -1,6 +1,8 @@
 package com.recomdata.transmart.data.association
 
+import grails.converters.JSON
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.transmartproject.utils.FileUtils
 
 class aCGHgroupTestController {
 
@@ -12,6 +14,8 @@ class aCGHgroupTestController {
 	String temporaryImageFolder = config.RModules.temporaryImageFolder
 	String tempFolderDirectory = config.RModules.tempFolderDirectory
 	String imageURL = config.RModules.imageURL
+    final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
+    final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
 
 	def aCGHgroupTestOutput =
 		{
@@ -47,4 +51,31 @@ class aCGHgroupTestController {
 		}
 	}
 
+    def resultTable = {
+        response.contentType = 'text/json'
+        if (!(params?.jobName ==~ /(?i)[-a-z0-9]+/)) {
+            render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
+            return
+        }
+        def file = new File("${tempFolderDirectory}", "${params.jobName}/workingDirectory/groups-test.txt")
+        if (file.exists()) {
+            def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
+
+            def obj = FileUtils.parseTable(file,
+                    start: params.int('start'),
+                    limit: params.int('limit'),
+                    fields: fields,
+                    sort: params.sort,
+                    dir: params.dir,
+                    numberFields: DEFAULT_NUMBER_FIELDS,
+                    separator: '\t')
+
+            def json = new JSON(obj)
+            json.prettyPrint = false
+            render json
+        } else {
+            response.status = 404
+            render '[]'
+        }
+    }
 }

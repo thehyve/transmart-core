@@ -1,6 +1,9 @@
 %{--Input Container--}%
 <div id="gtContainer"></div>
 
+%{-- Analysis Output --}%
+<div id="intermediateResultWrapper"></div>
+
 %{--Plot wrapper--}%
 <div id="gtPlotWrapper"></div>
 
