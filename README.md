@@ -1,5 +1,5 @@
 **tranSMART Core API** is a library with Groovy interfaces that define
-the interactions and calls between the various componements of [tranSMART](http://transmartproject.org).
+the interactions and calls between the various components of [tranSMART](http://transmartproject.org).
 
 # Clinical Data API
 
