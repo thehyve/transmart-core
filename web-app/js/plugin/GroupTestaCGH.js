@@ -471,9 +471,13 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		GLOBAL.CurrentSubsetIDs[1] = null;
 		GLOBAL.CurrentSubsetIDs[2] = null;
 
-		this.generateResultGrid(jobName, view);
-		this.createResultPlotPanel(jobName, view);
+		this.renderResults(jobName, view);
 	},
+
+    renderResults: function(jobName, view) {
+        this.generateResultGrid(jobName, view);
+        this.createResultPlotPanel(jobName, view);
+    },
 
 	submitGroupTestJob: function () {
 		if (this.validateInputs()) {

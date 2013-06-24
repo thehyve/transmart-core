@@ -139,7 +139,7 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 				if (itemId == 'aCGHSurvivalAnalysis') {
 					survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
 				} else if (itemId == 'groupTestaCGH') {
-					groupTestView.createResultPlotPanel(jobName, groupTestView);
+					groupTestView.renderResults(jobName, groupTestView);
 				}
 			}
 		},
