@@ -103,7 +103,7 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
  * @type {Array}
  * @private
  */
-var _resultgrid_columns = [{
+var _grouptestgrid_columns = [{
     id: 'chromosome', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
     header: "chromosome",
     dataIndex: 'chromosome',
@@ -143,12 +143,12 @@ var _resultgrid_columns = [{
  * This object represents the intermediate result grid
  * @type {*|Object}
  */
-var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
     jobName : '',
 
     constructor: function(config) {
-        IntermediateResultGrid.superclass.constructor.apply(this, arguments);
+        GroupTestResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -426,7 +426,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     renderTo: 'intermediateResultWrapper',
                     trackMouseOver:false,
                     loadMask: true,
-                    columns: _resultgrid_columns,
+                    columns: _grouptestgrid_columns,
                     store: store,
                     bbar: pagingbar,
                     jobName: jobName
