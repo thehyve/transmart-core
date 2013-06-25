@@ -409,7 +409,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // create paging bar with related store
                 var pagingbar = new Ext.PagingToolbar({
-                    pageSize: 10,
+                    pageSize: GEN_RESULT_GRID_LIMIT,
                     store: store,
                     displayInfo: true,
                     displayMsg: 'Displaying topics {0} - {1} of {2}',
@@ -435,7 +435,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 view.intermediateResultGrid.render();
 
                 // finally load the data
-                store.load({params:{start:0, limit:10}});
+                store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
             },
             failure: function (result, request) {
                 console.log('failure ....')
