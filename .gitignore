@@ -4,5 +4,8 @@
 target
 **/*.iml
 .idea
-
+.settings
+.classpath
+.project
+.settings/*
 /bin
