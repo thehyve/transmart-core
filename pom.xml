@@ -69,12 +69,12 @@
 
     <distributionManagement>
         <repository>
-            <id>repo.hyve.nl-releases</id>
-            <url>http://repo.thehyve.nl/content/repositories/releases/</url>
+            <id>repo.transmartfoundation.org-releases</id>
+            <url>https://repo.transmartfoundation.org/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>repo.hyve.nl-snapshots</id>
-            <url>http://repo.thehyve.nl/content/repositories/snapshots/</url>
+            <id>repo.transmartfoundation.org-snapshots</id>
+            <url>https://repo.transmartfoundation.org/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

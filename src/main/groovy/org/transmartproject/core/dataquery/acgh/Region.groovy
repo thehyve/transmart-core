@@ -28,11 +28,11 @@ public interface Region {
     Long getId()
 
     /**
-     * A friendly name for the region, probably a cytoband.
+     * A cytoband name that identities the region
      *
-     * @return a friendly name for the region
+     * @return a friendly cytoband name for the region or null
      */
-    String getName()
+    String getCytoband()
 
     /**
      * The synthetic platform that groups all the regions for the same trial.
