@@ -9,6 +9,7 @@ class DeChromosomalRegion implements Region {
     Long    end
     Integer numberOfProbes
     String  name
+    String  cytoband
 
     /* unused */
     String  geneSymbol
@@ -41,6 +42,7 @@ class DeChromosomalRegion implements Region {
         end            nullable: true
         numberOfProbes nullable: true
         name           nullable: true, maxSize: 100
+        cytoband       nullable: true, maxSize: 100
         geneSymbol     nullable: true, maxSize: 100
         geneId         nullable: true
         organism       nullable: true, maxSize: 200

@@ -1,14 +1,13 @@
 package org.transmartproject.db.dataquery
 
-import org.apache.commons.beanutils.PropertyUtils
 import org.hibernate.Query
 import org.hibernate.Session
 import org.hibernate.StatelessSession
+import org.hibernate.impl.AbstractSessionImpl
 import org.transmartproject.core.dataquery.DataQueryResource
 import org.transmartproject.core.dataquery.acgh.RegionResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
-import org.transmartproject.db.highdim.DeSubjectAcghData
 
 import static org.hibernate.ScrollMode.FORWARD_ONLY
 
@@ -19,35 +18,42 @@ class DataQueryResourceService implements DataQueryResource {
     @Override
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec, session) {
         if (!(session == null || session instanceof Session || session
-                instanceof StatelessSession))
+                instanceof StatelessSession)) {
             throw new IllegalArgumentException('Expected session to be null ' +
                     'or an instance of type org.hibernate.Session or ' +
                     'org.hibernate.StatelessSession')
+        }
 
         validateQuery(spec)
 
         session = session ?: sessionFactory.currentSession
+        List<Assay> assays = getAssaysForACGHRegionQuery(spec, session)
+        if (log.isDebugEnabled()) {
+            log.debug("Found ${assays.size()} assays: " +
+                    assays.collect {
+                        "{id: $it.id, subjectId: $it.subjectId}"
+                    }.join(", "))
+        }
 
-        def whereClauses,
-            params
+        getRegionResultForAssays(assays, session)
+    }
+
+    protected List<Assay> getAssaysForACGHRegionQuery(ACGHRegionQuery spec, AbstractSessionImpl session) {
+        def whereClauses, params
 
         /* first obtain list of assays */
         whereClauses = []
         params = [:]
-        populateWhereClauses(spec,whereClauses, params)
+        populateWhereClauses(spec, whereClauses, params)
 
         def assayHQL = 'from DeSubjectSampleMapping assay\n'
         assayHQL <<= 'where ' + whereClauses.join("\nand ") + "\n"
         assayHQL <<= 'order by assay\n'
 
-        List<Assay> assays = createQuery(session, assayHQL, params).list()
-        if (log.isDebugEnabled()) {
-            log.debug("Found ${assays.size()} assays: " +
-                    assays.collect {
-                        "{id: $it.id, subjectId: $id.subjectId}"
-                    }.join(", "))
-        }
+        createQuery(session, assayHQL, params).list()
+    }
 
+    protected RegionResult getRegionResultForAssays(final List<Assay> assays, AbstractSessionImpl session) {
         /* Then obtain the meat.
          *
          * Doing 'select acgh from ... inner join fetch acgh.region' should
@@ -67,21 +73,23 @@ class DataQueryResourceService implements DataQueryResource {
          * query before just to get the regions. This would minimize the
          * amount of data that the postgres server has to send us.
          */
-        def mainHQL = 'select acgh, acgh.region\n' +
-                'from DeSubjectAcghData as acgh\n' +
-                'inner join acgh.assay assay\n'
-                //'inner join acgh.region\n'
-        mainHQL <<= 'where ' + whereClauses.join("\nand ") + "\n"
-        mainHQL <<= 'order by acgh.region.id, assay\n'
+        def mainHQL = '''
+            select acgh, acgh.region
+            from DeSubjectAcghData as acgh
+            inner join acgh.assay assay
+            where assay in (:assays)
+            order by acgh.region.id, assay'''
 
-        new RegionResultImpl(assays,
-                createQuery(session, mainHQL, params).scroll(FORWARD_ONLY))
+        def mainQuery = createQuery(session, mainHQL, ['assays': assays]).scroll(FORWARD_ONLY)
+
+        new RegionResultImpl(assays, mainQuery)
     }
 
     private void validateQuery(ACGHRegionQuery q) {
         def checkEmptiness = { it, name ->
-            if (!it)
+            if (!it) {
                 throw new IllegalArgumentException("$name not specified/empty")
+            }
         }
         checkEmptiness(q.common, "query.common")
         checkEmptiness(q.common.studies, "query.common.studies")

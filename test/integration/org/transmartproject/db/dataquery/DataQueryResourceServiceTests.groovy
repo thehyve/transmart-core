@@ -3,11 +3,7 @@ package org.transmartproject.db.dataquery
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
-import org.junit.runner.RunWith
-import org.junit.runners.BlockJUnit4ClassRunner
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Platform
 import org.transmartproject.core.dataquery.acgh.ACGHValues
@@ -18,26 +14,22 @@ import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 import org.transmartproject.core.dataquery.constraints.CommonHighDimensionalQueryConstraints
 import org.transmartproject.db.highdim.DeGplInfo
 import org.transmartproject.db.highdim.DeSubjectSampleMapping
-import org.transmartproject.db.highdim.HighDimTestData
 import org.transmartproject.db.querytool.QtQueryResultInstance
-import org.transmartproject.db.querytool.QueryResultData
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.junit.Assert.fail
 import static org.hamcrest.Matchers.*
+import static org.junit.Assert.fail
+import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
-@Mixin(HighDimTestData)
-@Mixin(QueryResultData)
-class DataQueryResourceServiceTests {
+abstract class DataQueryResourceServiceTests {
 
     def sessionFactory
-    def dataQueryResourceService
     def resultInstance
+    def testedService
 
     @Before
     void setUp() {
         def queryMaster
-
         assertThat testRegionPlatform.save(), isA(Platform)
         assertThat testRegions*.save(), everyItem(isA(Region))
         assertThat testRegionPatients*.save(), everyItem(isA(Patient))
@@ -62,14 +54,14 @@ class DataQueryResourceServiceTests {
                         patientQueryResult: resultInstance
                 ),
         )
-        def result = dataQueryResourceService.runACGHRegionQuery(q, null)
+        def result = testedService.runACGHRegionQuery(q, null)
 
         assertThat result, allOf(
                 is(notNullValue()),
                 hasProperty('indicesList', contains(
                         /* they're ordered by assay id */
-                        equalTo(testRegionAssays[1]),
-                        equalTo(testRegionAssays[0]),
+                        hasSameInterfaceProperties(Assay, testRegionAssays[1], ['platform']),
+                        hasSameInterfaceProperties(Assay, testRegionAssays[0], ['platform']),
                 ))
         )
 
@@ -79,18 +71,18 @@ class DataQueryResourceServiceTests {
         assertThat regionRows, hasSize(2)
         /* results are ordered (asc) by region id */
         assertThat regionRows[0],
-                hasProperty('region', equalTo(testRegions[1]))
+                hasProperty('region', hasSameInterfaceProperties(Region, testRegions[1], ['platform']))
         assertThat regionRows[1],
-                hasProperty('region', equalTo(testRegions[0]))
+                hasProperty('region', hasSameInterfaceProperties(Region, testRegions[0], ['platform']))
 
         assertThat regionRows[0].getRegionDataForAssay(testRegionAssays[0]),
-                equalTo(testACGHData[2])
+                hasSameInterfaceProperties(ACGHValues, testACGHData[2])
         assertThat regionRows[0].getRegionDataForAssay(testRegionAssays[1]),
-                equalTo(testACGHData[3])
+                hasSameInterfaceProperties(ACGHValues, testACGHData[3])
         assertThat regionRows[1].getRegionDataForAssay(testRegionAssays[0]),
-                equalTo(testACGHData[0])
+                hasSameInterfaceProperties(ACGHValues, testACGHData[0])
         assertThat regionRows[1].getRegionDataForAssay(testRegionAssays[1]),
-                equalTo(testACGHData[1])
+                hasSameInterfaceProperties(ACGHValues, testACGHData[1])
     }
 
     @Test
@@ -114,35 +106,35 @@ class DataQueryResourceServiceTests {
         assays << a
 
         a = new DeSubjectSampleMapping([
-                *:base,
+                *: base,
                 trialName: 'TRIAL_NOT_MATCHING'
         ])
         a.id = -4002
         assays << a
 
         a = new DeSubjectSampleMapping([
-                *:base,
+                *: base,
                 timepointCd: 'non_match'
         ])
         a.id = -4003
         assays << a
 
         a = new DeSubjectSampleMapping([
-                *:base,
+                *: base,
                 sampleTypeCd: 'non_match'
         ])
         a.id = -4004
         assays << a
 
         a = new DeSubjectSampleMapping([
-                *:base,
+                *: base,
                 tissueTypeCd: 'non_match'
         ])
         a.id = -4005
         assays << a
 
         a = new DeSubjectSampleMapping([
-                *:base,
+                *: base,
                 platform: extraPlatform
         ])
         a.id = -4006
@@ -151,7 +143,7 @@ class DataQueryResourceServiceTests {
         assertThat extraPlatform.save(), isA(Platform)
         assertThat assays*.save(), everyItem(isA(Assay))
 
-        assertThat assays.collect { assay ->
+        assertThat assays.collect {assay ->
             createACGHData(testRegions[0], assay, -1)
         }*.save(), everyItem(isA(ACGHValues))
 
@@ -166,7 +158,7 @@ class DataQueryResourceServiceTests {
                 ),
         )
 
-        def result = dataQueryResourceService.runACGHRegionQuery(q, null)
+        def result = testedService.runACGHRegionQuery(q, null)
 
         assertThat result, hasProperty('indicesList', contains(
                 hasProperty('id', equalTo(-4001L))
@@ -185,7 +177,7 @@ class DataQueryResourceServiceTests {
                                 QtQueryResultInstance, resultInstance.id)
                 ),
         )
-        def result = dataQueryResourceService.runACGHRegionQuery(q, session)
+        def result = testedService.runACGHRegionQuery(q, session)
 
         assertThat result, hasProperty('indicesList', hasSize(2))
         def regionRows = Lists.newArrayList(result.rows)
@@ -201,7 +193,7 @@ class DataQueryResourceServiceTests {
         )
 
         try {
-            dataQueryResourceService.runACGHRegionQuery(q, null)
+            testedService.runACGHRegionQuery(q, null)
             fail("Expected exception")
         } catch (e) {
             assertThat(e, allOf(
@@ -222,7 +214,7 @@ class DataQueryResourceServiceTests {
         )
 
         try {
-            dataQueryResourceService.runACGHRegionQuery(q, null)
+            testedService.runACGHRegionQuery(q, null)
             fail("Expected exception")
         } catch (e) {
             assertThat(e, allOf(
@@ -233,5 +225,4 @@ class DataQueryResourceServiceTests {
             ))
         }
     }
-
 }
