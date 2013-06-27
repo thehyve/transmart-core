@@ -250,6 +250,8 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
                         survivalAnalysisACGHView.jobInfo.jobInputsJson.aberrationType
                     );
 
+                    var censoringVariable = survivalAnalysisACGHView.jobInfo.jobInputsJson.censoringVariable;
+                    var censoringVariableHtml = censoringVariable ? censoringVariable.replace('|', '<br />') : '';
 					// create data instance
 					var region = {
                         jobName: survivalAnalysisACGHView.jobInfo.name,
@@ -257,7 +259,7 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
                         runTime: survivalAnalysisACGHView.jobInfo.runTime,
                         inputRegion: survivalAnalysisACGHView.jobInfo.jobInputsJson.regionVariable,
                         inputSurvivalTime: survivalAnalysisACGHView.jobInfo.jobInputsJson.timeVariable,
-                        inputCensoring: survivalAnalysisACGHView.jobInfo.jobInputsJson.censoringVariable,
+                        inputCensoring: censoringVariableHtml,
                         inputCohort1: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id1,
                         inputCohort2: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id2,
                         inputAlteration: translatedAlteration,

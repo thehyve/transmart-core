@@ -344,6 +344,8 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     groupTestView.jobInfo.jobInputsJson.aberrationType
                 );
 
+                var groupVariable = groupTestView.jobInfo.jobInputsJson.groupVariable;
+                var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
 				// create data instance
 				var region = {
 					filename: imagePath,
@@ -351,7 +353,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     startDate: groupTestView.jobInfo.startDate,
                     runTime: groupTestView.jobInfo.runTime,
                     inputRegion: groupTestView.jobInfo.jobInputsJson.regionVariable,
-                    inputGroupVariable: groupTestView.jobInfo.jobInputsJson.groupVariable,
+                    inputGroupVariable: groupVariableHtml,
                     inputStatisticsType: groupTestView.jobInfo.jobInputsJson.statisticsType,
                     inputCohort1: groupTestView.jobInfo.jobInputsJson.result_instance_id1,
                     inputCohort2: groupTestView.jobInfo.jobInputsJson.result_instance_id2,
