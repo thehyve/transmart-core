@@ -197,6 +197,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 	// alteration
 	alteration : '',
 
+    // job info
+    jobInfo : null,
+
 	// constructor
 	constructor: function() {
 		this.init();
@@ -337,9 +340,22 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 				// Template is defined in GroupTestaCGH.gsp
 				var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
 
+                var translatedAlteration = groupTestView.translateAlteration(
+                    groupTestView.jobInfo.jobInputsJson.aberrationType
+                );
+
 				// create data instance
 				var region = {
-					filename: imagePath
+					filename: imagePath,
+                    jobName: groupTestView.jobInfo.name,
+                    startDate: groupTestView.jobInfo.startDate,
+                    runTime: groupTestView.jobInfo.runTime,
+                    inputRegion: groupTestView.jobInfo.jobInputsJson.regionVariable,
+                    inputGroupVariable: groupTestView.jobInfo.jobInputsJson.groupVariable,
+                    inputStatisticsType: groupTestView.jobInfo.jobInputsJson.statisticsType,
+                    inputCohort1: groupTestView.jobInfo.jobInputsJson.result_instance_id1,
+                    inputCohort2: groupTestView.jobInfo.jobInputsJson.result_instance_id2,
+                    inputAlteration: translatedAlteration
 				};
 
 				// generate template
