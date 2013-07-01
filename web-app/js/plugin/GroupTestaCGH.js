@@ -40,9 +40,9 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 	],
 
 	alterationRadios: [
-		{boxLabel: 'GAIN vs NO GAIN', name: 'cb-col', XValue:'1'},
-		{boxLabel: 'LOSS vs NO LOSS', name: 'cb-col', XValue:'-1'},
-		{boxLabel: 'LOSS vs NORMAL vs GAIN', name: 'cb-col', XValue:'0'}
+		{boxLabel: 'GAIN', name: 'cb-col', XValue:'1'},
+		{boxLabel: 'LOSS', name: 'cb-col', XValue:'-1'},
+		{boxLabel: 'BOTH', name: 'cb-col', XValue:'0'}
 	],
 
 	constructor: function(config) {
