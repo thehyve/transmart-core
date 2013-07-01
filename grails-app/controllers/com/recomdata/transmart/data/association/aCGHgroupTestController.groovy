@@ -14,7 +14,7 @@ class aCGHgroupTestController {
 	String temporaryImageFolder = config.RModules.temporaryImageFolder
 	String tempFolderDirectory = config.RModules.tempFolderDirectory
 	String imageURL = config.RModules.imageURL
-    final def DEFAULT_FIELDS = ['chromosome', 'start', 'end', 'pvalue', 'fdr'] as Set
+    final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
 
 	def aCGHgroupTestOutput =

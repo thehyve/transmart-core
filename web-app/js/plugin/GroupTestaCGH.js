@@ -197,6 +197,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 	// alteration
 	alteration : '',
 
+    // job info
+    jobInfo : null,
+
 	// constructor
 	constructor: function() {
 		this.init();
@@ -337,9 +340,24 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 				// Template is defined in GroupTestaCGH.gsp
 				var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
 
+                var translatedAlteration = groupTestView.translateAlteration(
+                    groupTestView.jobInfo.jobInputsJson.aberrationType
+                );
+
+                var groupVariable = groupTestView.jobInfo.jobInputsJson.groupVariable;
+                var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
 				// create data instance
 				var region = {
-					filename: imagePath
+					filename: imagePath,
+                    jobName: groupTestView.jobInfo.name,
+                    startDate: groupTestView.jobInfo.startDate,
+                    runTime: groupTestView.jobInfo.runTime,
+                    inputRegion: groupTestView.jobInfo.jobInputsJson.regionVariable,
+                    inputGroupVariable: groupVariableHtml,
+                    inputStatisticsType: groupTestView.jobInfo.jobInputsJson.statisticsType,
+                    inputCohort1: groupTestView.jobInfo.jobInputsJson.result_instance_id1,
+                    inputCohort2: groupTestView.jobInfo.jobInputsJson.result_instance_id2,
+                    inputAlteration: translatedAlteration
 				};
 
 				// generate template
@@ -409,7 +427,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // create paging bar with related store
                 var pagingbar = new Ext.PagingToolbar({
-                    pageSize: 10,
+                    pageSize: GEN_RESULT_GRID_LIMIT,
                     store: store,
                     displayInfo: true,
                     displayMsg: 'Displaying topics {0} - {1} of {2}',
@@ -435,7 +453,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 view.intermediateResultGrid.render();
 
                 // finally load the data
-                store.load({params:{start:0, limit:10}});
+                store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
             },
             failure: function (result, request) {
                 console.log('failure ....')
@@ -471,9 +489,13 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		GLOBAL.CurrentSubsetIDs[1] = null;
 		GLOBAL.CurrentSubsetIDs[2] = null;
 
-		this.generateResultGrid(jobName, view);
-		this.createResultPlotPanel(jobName, view);
+		this.renderResults(jobName, view);
 	},
+
+    renderResults: function(jobName, view) {
+        this.generateResultGrid(jobName, view);
+        this.createResultPlotPanel(jobName, view);
+    },
 
 	submitGroupTestJob: function () {
 		if (this.validateInputs()) {
