@@ -79,10 +79,10 @@ acgh.plot.survival <- function
     cols <- call.cols[call]
     ltys <- rep(0, n)
     pchs <- rep(22, n)
-    if (!is.null(dat$cytoband)) {
-      main <- paste('Survival for', dat[i, 'cytoband'])
-    } else {
+    if (is.null(dat$cytoband) | is.na(dat[i, 'cytoband']) | dat[i, 'cytoband'] == '') {
       main <- paste('Survival for chr.',dat[i, 'chromosome'],', ',dat[i, 'start'],'-',dat[i, 'end'],', ',aberrations)
+    } else {
+      main <- paste('Survival for', dat[i, 'cytoband'])
     }
     pngname<-paste('aCGHSurvivalAnalysis_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'.png',sep='')
     png(pngname)
