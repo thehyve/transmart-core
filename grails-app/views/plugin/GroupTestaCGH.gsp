@@ -8,7 +8,7 @@
 <div id="gtPlotWrapper"></div>
 
 %{-- template --}%
-<extjs-tpl id="template-group-test-plot" class="x-hidden">
+<div id="template-group-test-plot" class="x-hidden">
 	<div id="plotResultContainer" class="plotResultContainer">
 		%{--Image--}%
 		<g:img file="{filename}" class="freq-plot"></g:img>
@@ -65,4 +65,4 @@
             </tbody>
         </table>
 	</div>
-</extjs-tpl>
+</div>

@@ -11,7 +11,7 @@
 %{--Template for Survival Plot--}%
 %{--==========================--}%
 
-<extjs-tpl id="template-survival-plot" class="x-hidden">
+<div id="template-survival-plot" class="x-hidden x-hide-display">
 	<div id="plotResultContainer" class="plotResultContainer">
 		<h1>Chr: {chromosome} ({start}-{end})</h1>
 
@@ -95,5 +95,4 @@
 			</div>
 		</div>
 	</div>
-</extjs-tpl>
-
+</div>
