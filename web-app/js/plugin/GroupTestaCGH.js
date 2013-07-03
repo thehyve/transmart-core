@@ -269,7 +269,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
 		alterationVal =  alterationChkGroup.getSelectedValue();
 
-		if (alterationVal.length < 1) {
+		if (!alterationVal) {
 			isValid = false;
 			invalidInputs.push(this.inputBar.alterationPanel.title);
 		}
