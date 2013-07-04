@@ -59,6 +59,7 @@ acgh.group.test <- function
     if (2 %in% calls)
       data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
   }
+
   nrcpus=0
   try ({
     nrcpus=as.numeric(system("nproc", intern=TRUE))
@@ -81,6 +82,12 @@ acgh.group.test <- function
     fdrs <- fdrperm(pvs)
   }
 
+  # Replace chromosome X with number 23 to get only integer column values
+  fdrs$chromosome[fdrs$chromosome=='X'] <- 23
+  fdrs$chromosome <- as.integer(fdrs$chromosome)
+  # Order by chromosome and start bp to ensure correct chromosome labels in frequency plots
+  fdrs <- fdrs[with(fdrs,order(chromosome,start)),]
+  
   options(scipen=10)
   #filename <- paste('groups-test-',aberrations,'.txt',sep='')
   filename <- paste('groups-test','.txt',sep='')
@@ -90,25 +97,32 @@ acgh.group.test <- function
     par(mar=c(5,4,4,5) + 0.1)
     cols <- c('blue', 'red')
     names(cols) <- c('gain', 'loss')
+
     chromosomes <- fdrs$chromosome
     a.freq <- fdrs[,paste(which, '.freq.', groupnames[1], sep='')]
     b.freq <- fdrs[,paste(which, '.freq.', groupnames[2], sep='')]
     fdr <- fdrs$fdr
+    
     if ('num.probes' %in% colnames(fdrs)) {
       chromosomes <- rep(chromosomes, fdrs$num.probes)
       a.freq <- rep(a.freq, fdrs$num.probes)
       b.freq <- rep(b.freq, fdrs$num.probes)
       fdr <- rep(fdr, fdrs$num.probes)
     }
-    
+
     plot(a.freq, ylim=c(-1,1), type='h', col=cols[which], xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
     points(-b.freq, type='h', col=cols[which])
     abline(h=0)
     abline(v=0, lty='dashed')
-    for(i in cumsum(table(chromosomes)))
+    cs.chr = cumsum(table(chromosomes))
+    for(i in cs.chr)
       abline(v=i, lty='dashed')
-    ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
-    axis(side=1, at=ax, labels=unique(chromosomes), las=2)
+      
+    ax <- (cs.chr + c(0,cs.chr[-length(cs.chr)])) / 2
+    lbl.chr <- unique(chromosomes)
+    lbl.chr[lbl.chr==23] <- 'X'
+    
+    axis(side=1, at=ax, labels=lbl.chr, las=2)
     axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
     logfdr <- -log10(fdr)
     logfdr[logfdr == Inf] <- 10
