@@ -49,5 +49,6 @@ grails.project.dependency.resolution = {
     plugins {
         compile ":hibernate:$grailsVersion"
         compile ":quartz:0.4.2"
+	build   ":release:2.2.1"
     }
 }
