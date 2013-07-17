@@ -122,7 +122,7 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 	// TODO: Please change with the consistent naming for all related files and variable
 	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
 
-	// fyi ..  Ajax.Updater is a jquery syntax
+	// fyi ..  Ajax.Updater is a Prototype.js syntax
 	// will update 'variableSelection' div with whatever the response from
 	// the call
 	new Ajax.Updater('variableSelection', pageInfo.basePath+'/dataAssociation/variableSelection',
