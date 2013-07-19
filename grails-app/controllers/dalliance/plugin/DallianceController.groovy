@@ -1,5 +1,7 @@
 package dalliance.plugin
-import org.json.*
+
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class DallianceController {
 
@@ -48,10 +50,11 @@ class DallianceController {
         JSONArray rows = new JSONArray()
 
         for (file in scripts) {
-            def m = [:]
-            m["path"] = file.toString()
-            m["type"] = "script"
-            rows.put(m);
+
+            JSONObject aScript = new JSONObject()
+            aScript.put("path", file.toString())
+            aScript.put("type", "script")
+            rows.put(aScript)
         }
 
         result.put("success", true)
