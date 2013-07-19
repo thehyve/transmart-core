@@ -2,6 +2,13 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+grails.project.repos.default = 'repo.thehyve.nl-snapshots'
+grails.project.repos."${grails.project.repos.default}".url = 'http://repo.thehyve.nl/content/repositories/snapshots/'
+grails.project.repos."${grails.project.repos.default}".type = "maven"
+grails.project.repos."${grails.project.repos.default}".username = "deployment"
+grails.project.repos."${grails.project.repos.default}".password = "7FizAgzECt9k"
+//grails.project.repos."${grails.project.repos.default}".portal = "grailsCentral"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
