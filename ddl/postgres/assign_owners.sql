@@ -24,11 +24,11 @@ BEGIN
     INTO dummy
     FROM
         pg_proc p
-        JOIN pg_namespace n ON ( p.pronamespace = n.oid )
+        JOIN pg_namespace n ON (p.pronamespace = n.oid)
     WHERE
         n.nspname = 'public'
         AND proname = 'array_accum'
-        AND proargtypes = ARRAY [ 2283 ] ::oidvector;
+        AND proargtypes = ARRAY[2283]::oidvector; --oid for anyelement
 
     IF NOT FOUND THEN
         CREATE AGGREGATE public.array_accum(anyelement) (
@@ -89,8 +89,8 @@ BEGIN
                         rolname
                     FROM
                         pg_proc p
-                        JOIN pg_namespace n ON ( p.pronamespace = n.oid )
-                        JOIN pg_roles r ON ( p.proowner = r.oid )
+                        JOIN pg_namespace n ON (p.pronamespace = n.oid)
+                        JOIN pg_roles r ON (p.proowner = r.oid)
                     WHERE
                         n.nspname = schema_name
                 ) LOOP
