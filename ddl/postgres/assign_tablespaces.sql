@@ -1,9 +1,9 @@
 DO $$
 DECLARE
-	table_name text;
+    table_name text;
     cur_ts     text;
     index_name text;
-	command    text;
+    command    text;
     spec       text[][];
     pair       text[];
 BEGIN
