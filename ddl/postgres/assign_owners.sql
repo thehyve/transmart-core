@@ -61,7 +61,7 @@ BEGIN
 
         -- http://stackoverflow.com/a/6852484/127724
         FOR obj_name, obj_type, cur_owner IN
-                (
+                (  -- tables, views and sequences
                     SELECT
                         quote_ident(relname) AS relname,
                         relkind,
@@ -76,7 +76,18 @@ BEGIN
                     ORDER BY c.relkind = 'S'
                 )
                 UNION
-                (
+                ( -- schemas
+                    SELECT
+                        nspname,
+                        's',
+                        rolname
+                    FROM
+                        pg_namespace n
+                        JOIN pg_roles r ON (n.nspowner = r.oid)
+                    WHERE nspname = schema_name
+                )
+                UNION
+                ( -- functions (including aggregates)
                     SELECT
                         quote_ident(p.proname) || '(' || array_to_string((
                                 SELECT
@@ -115,6 +126,7 @@ BEGIN
                         WHEN 'S' THEN 'sequence'
                         WHEN 'v' THEN 'view'
                         WHEN 'f' THEN 'function'
+                        WHEN 's' THEN 'schema'
                     END,
                     schema_name,
                     obj_name,
@@ -125,9 +137,14 @@ BEGIN
             command := 'ALTER ' ||
                     CASE obj_type
                         WHEN 'f' THEN 'FUNCTION'
+                        WHEN 's' THEN 'SCHEMA'
                         ELSE 'TABLE'
-                    END || ' ' || schema_name || '.' || obj_name
-                    || ' OWNER TO ' || wanted_owner;
+                    END || ' ' ||
+                    CASE obj_type
+                        WHEN 's' THEN '' -- do not qualify schema names
+                        ELSE schema_name || '.'
+                    END
+                    || obj_name || ' OWNER TO ' || wanted_owner;
 
             EXECUTE(command);
 
