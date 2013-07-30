@@ -1,0 +1,8 @@
+i2b2demodata	qt_query_master
+i2b2demodata	qt_query_instance
+i2b2demodata	qt_query_result_instance
+i2b2demodata	async_job
+deapp	de_saved_comparison
+biomart	bio_assay_feature_group
+biomart	bio_marker
+biomart	bio_assay_data_annotation

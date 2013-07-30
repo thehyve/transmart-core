@@ -1,0 +1,12 @@
+#Do not use libpqʼs environment variables
+PGHOST=/tmp
+PGPORT=5433
+PGDATABASE=transmart
+PGUSER=gustavo
+PGPASSWORD=
+
+TABLESPACES=/spin/pg/tablespaces
+#end with /
+PGSQL_BIN=/spin/pg/master/bin/
+
+export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES

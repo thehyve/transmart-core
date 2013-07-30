@@ -19,25 +19,6 @@ BEGIN
         ['biomart', 'heat_map_results', 'tm_cz']
     ];
 
-    -- Make sure we have array_accum aggregate
-    SELECT proname
-    INTO dummy
-    FROM
-        pg_proc p
-        JOIN pg_namespace n ON (p.pronamespace = n.oid)
-    WHERE
-        n.nspname = 'public'
-        AND proname = 'array_accum'
-        AND proargtypes = ARRAY[2283]::oidvector; --oid for anyelement
-
-    IF NOT FOUND THEN
-        CREATE AGGREGATE public.array_accum(anyelement) (
-            sfunc = array_append,
-            stype = anyarray,
-            initcond = '{}'
-        );
-    END IF;
-
     -- Convert array to table
     CREATE TEMPORARY TABLE ownership_exceptions(
         schema_name,
@@ -59,52 +40,11 @@ BEGIN
 
     FOREACH schema_name IN ARRAY spec LOOP
 
-        -- http://stackoverflow.com/a/6852484/127724
         FOR obj_name, obj_type, cur_owner IN
-                (  -- tables, views and sequences
-                    SELECT
-                        quote_ident(relname) AS relname,
-                        relkind,
-                        rolname
-                    FROM
-                        pg_class c
-                        JOIN pg_namespace n ON (c.relnamespace = n.oid)
-                        JOIN pg_roles r ON (c.relowner = r.oid)
-                    WHERE
-                        n.nspname = schema_name
-                        AND c.relkind IN ('r','S','v')
-                    ORDER BY c.relkind = 'S'
-                )
-                UNION
-                ( -- schemas
-                    SELECT
-                        nspname,
-                        's',
-                        rolname
-                    FROM
-                        pg_namespace n
-                        JOIN pg_roles r ON (n.nspowner = r.oid)
-                    WHERE nspname = schema_name
-                )
-                UNION
-                ( -- functions (including aggregates)
-                    SELECT
-                        quote_ident(p.proname) || '(' || array_to_string((
-                                SELECT
-                                    public.array_accum (typname)
-                                FROM
-                                    UNNEST(p.proargtypes) AS A(oid)
-                                    JOIN pg_type T ON (T.oid = A.oid)),
-                            ', ') || ')',
-                        'f',
-                        rolname
-                    FROM
-                        pg_proc p
-                        JOIN pg_namespace n ON (p.pronamespace = n.oid)
-                        JOIN pg_roles r ON (p.proowner = r.oid)
-                    WHERE
-                        n.nspname = schema_name
-                ) LOOP
+                SELECT relname, relkind, rolname
+                FROM public.schemas_tables_funcs
+                WHERE nspname = schema_name
+                LOOP
 
             SELECT proper_owner
             INTO wanted_owner
