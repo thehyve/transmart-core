@@ -56,7 +56,8 @@ $stdout = fopen('php://stdout', 'w');
 foreach ($permissions as $schema => $spec) {
 	foreach ($spec as $user => $perm) {
 		foreach (['r', 'S', 'f'] as $type) {
-			fputcsv($stdout, array($schema, $user, $type, $permission_tr[$perm][$type]), "\t");
+			$data = array($schema, $user, $type, $permission_tr[$perm][$type]);
+			fputcsv($stdout, $data, "\t");
 		}
 	}
 }

@@ -41,7 +41,7 @@ BEGIN
     FOREACH schema_name IN ARRAY spec LOOP
 
         FOR obj_name, obj_type, cur_owner IN
-                SELECT relname, relkind, rolname
+                SELECT name, kind, owner
                 FROM public.schemas_tables_funcs
                 WHERE nspname = schema_name
                 LOOP

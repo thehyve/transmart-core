@@ -220,7 +220,11 @@ BEGIN
                 CONTINUE;
             END IF;
 
-            RAISE NOTICE 'Updating default permissions for creator % on schema % for % to % (before: %)',
+            RAISE NOTICE '% default permissions for creator % on schema % for % to % (before: %)',
+                CASE FOUND
+                    WHEN true THEN 'Updating'
+                    ELSE 'Inserting'
+                END,
                 creator,
                 obj.nschema,
                 CASE obj.ntype
