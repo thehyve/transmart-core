@@ -2,14 +2,13 @@ include ../../../makefile.inc
 
 ALL_FIXES = fix_tablespaces fix_owners fix_permissions
 
-all_meta_fixes: $(ALL_FIXES)
-.PHONY: all_meta_fixes
-
 .PHONY: fix_%
 fix_%: assign_%.sql
 	$(PSQL_COMMAND) -f $<
 
 $(ALL_FIXES): fix_support
+fix_owners: fix_tablespaces
+fix_permissions: fix_owners
 
 default_permissions.tsv: default_permissions.php
 	php $< > $@
@@ -21,17 +20,5 @@ clean:
 
 .PHONY: clean
 
-SCHEMAS = tm_cz \
-		  tm_wz \
-		  tm_lz \
-		  i2b2metadata \
-		  i2b2demodata \
-		  searchapp \
-		  deapp \
-		  biomart
-
-$(SCHEMAS) :
-	mkdir $@
-
-biomart/table.sql : biomart
-	$(PGDUMP_COMMAND) -x -s -O --no-tablespaces -n $< > $@
+load: $(ALL_FIXES)
+.PHONY: load
