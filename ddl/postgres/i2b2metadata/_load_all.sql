@@ -1,0 +1,10 @@
+\ir prelude.sql
+\ir birn.sql
+\ir custom_meta.sql
+\ir i2b2.sql
+\ir i2b2_secure.sql
+\ir i2b2_tags.sql
+\ir ont_process_status.sql
+\ir schemes.sql
+\ir table_access.sql
+\ir _misc.sql
