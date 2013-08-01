@@ -22,7 +22,7 @@
 <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 <meta http-equiv="description" content="this is my page">
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
+<link rel="stylesheet" type="text/css" href="${resource(dir:pluginContextPath, file:'css/dataAssociation.css')}">
 
 </head>
 
@@ -195,7 +195,7 @@
 		</div>
 		<div align="center" style="width: 65%;">
 			<input type="button" value="Run"
-				onClick="submitSurvivalJob(this.form);"></input>
+				onClick="submitSurvivalJob(this.form);">
 		</div>
 	</form>
 </body>

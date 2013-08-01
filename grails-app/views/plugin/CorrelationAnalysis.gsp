@@ -68,7 +68,7 @@
 		<table class="subsettable" style="margin: 10px;width:530px; border: 0px none; border-collapse: collapse;">
 			<tr>
 				<td align="center">
-					<input type="button" value="Run" onClick="submitCorrelationAnalysisJob(this.form);"></input>
+					<input type="button" value="Run" onClick="submitCorrelationAnalysisJob(this.form);">
 				</td>
 			</tr>
 		</table>

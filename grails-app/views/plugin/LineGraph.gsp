@@ -88,7 +88,7 @@
 			</tr>
 			<tr>
 				<td>
-					<input type="button" value="Run" onClick="submitLineGraphJob(this.form);"></input>
+					<input type="button" value="Run" onClick="submitLineGraphJob(this.form);">
 				</td>
 			</tr>
 		</table>

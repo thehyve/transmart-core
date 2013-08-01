@@ -22,7 +22,7 @@
 <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 <meta http-equiv="description" content="this is my page">
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
+<link rel="stylesheet" type="text/css" href="${resource(dir:pluginContextPath, file:'css/dataAssociation.css')}">
 
 </head>
 
@@ -100,7 +100,7 @@
 			</tr>
 			<tr>
 				<td colspan="4" align="center">
-					<input type="button" value="Run" onClick="submitScatterPlotJob(this.form);"></input>
+					<input type="button" value="Run" onClick="submitScatterPlotJob(this.form);">
 				</td>
 			</tr>
 		</table>

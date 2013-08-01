@@ -35,7 +35,7 @@
 					<span class='AnalysisHeader'>Cohorts</span>
 				</td>
 				<td align="right">
-					<input type="button" value="Save To PDF" onclick="javascript: generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');"></input>
+					<input type="button" value="Save To PDF" onclick="javascript: generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');">
 				</td>
 			</tr>
 			<tr>
@@ -45,7 +45,7 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<hr></hr>
+					<hr/>
 				</td>
 			</tr>
   			<tr>
@@ -60,7 +60,7 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<hr></hr>
+					<hr/>
 				</td>
 			</tr>
 		</table>
