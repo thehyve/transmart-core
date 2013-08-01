@@ -71,6 +71,18 @@ BEGIN
             JOIN pg_roles r ON (c.relowner = r.oid)
         WHERE
             c.relkind IN ('r','S','v')
+            AND (
+                relkind <> 'S'
+                OR c.oid NOT IN ( --restriction to prevent error "cannot change owner; sequence is linked to table..."
+                    SELECT
+                        objid
+                    FROM
+                        pg_depend
+                    WHERE
+                        refobjsubid <> 0 -- dependent is a table
+                        AND deptype = 'a' -- dependency is automatic
+                )
+            )
         ORDER BY c.relkind = 'S'
     )
     UNION
@@ -90,10 +102,22 @@ BEGIN
         SELECT
             quote_ident(p.proname) || '(' || array_to_string((
                     SELECT
-                        public.array_accum (typname)
+                        public.array_accum(typname)
                     FROM
-                        UNNEST(p.proargtypes) AS A(oid)
-                        JOIN pg_type T ON (T.oid = A.oid)),
+                        ( -- we need this subquery to force the args to the correct order
+                            SELECT typname
+                            FROM
+                                (
+                                    SELECT
+                                        Z.id, p.proargtypes[Z.id]
+                                    FROM
+                                        generate_subscripts(p.proargtypes, 1) AS Z(id)
+                                ) AS A(id, oid)
+                                JOIN pg_type T ON (T.oid = A.oid)
+                            GROUP BY A.id, T.typname
+                            ORDER BY A.id
+                        ) AS Y
+                ),
                 ', ') || ')',
             'f',
             rolname,
