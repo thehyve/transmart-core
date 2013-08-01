@@ -11,6 +11,7 @@
 -- – Assign insert,delete,update permissions on a manually defined set of
 --   tables to biomart_user, as required by the tranSMART application.
 
+-- {{{ assign_permissions_1
 -- If the table owner does not match the schema owner, assign all permissions to
 -- the schema owner.
 CREATE OR REPLACE FUNCTION public.assign_permissions_1(name text, schema_name text, type char, owner text)
@@ -23,7 +24,9 @@ BEGIN
     RETURN 'user ' || schema_name || '=arwdDxt/' || (SELECT current_user);
 END;
 $$ LANGUAGE plpgsql;
+-- }}}
 
+-- {{{ assign_permissions_2
 -- Assign all permissions on all objects to tm_cz, which even needs to
 -- drop and create tables in some cases.
 -- ALSO assign all permissions to the owner
@@ -53,7 +56,9 @@ BEGIN
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;
+-- }}}
 
+-- {{{ assign_permissions_3
 -- Assign read/usage permissions on all tables, views, sequences and
 -- functions to biomart_user, except if:
 -- 1) it's an ETL schema, in which case no permissions should be granted
@@ -99,18 +104,162 @@ BEGIN
         '/' || (SELECT current_user);
 END;
 $$ LANGUAGE plpgsql;
+-- }}}
 
+-- {{{ grant_aclitems
+CREATE OR REPLACE FUNCTION public.grant_aclitems(aclitems aclitem[], type text, objname text)
+        RETURNS void AS $$
+DECLARE
+    grantee text;
+    priv    text;
+    command text;
+    objtype text;
+BEGIN
+    objtype :=
+        CASE type
+            WHEN 'r' THEN 'TABLE'
+            WHEN 'v' THEN 'TABLE'
+            WHEN 'S' THEN 'SEQUENCE'
+            WHEN 'f' THEN 'FUNCTION'
+            WHEN 's' THEN 'SCHEMA'
+            ELSE 'BAD TYPE: ' || type
+        END;
+
+    -- first revoke everything
+    FOR grantee IN
+            SELECT
+                DISTINCT R.rolname
+            FROM
+                (
+                    SELECT (R.rec).*
+                    FROM
+                        (
+                            SELECT
+                                aclexplode(aclitems)
+                        ) AS R (rec)
+                ) AS B
+                INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
+
+        command := 'REVOKE ALL PRIVILEGES ON ' || objtype ||
+                ' ' || objname || ' FROM ' || grantee;
+        EXECUTE(command);
+    END LOOP;
+
+    -- then grant the permissions individually
+    FOR grantee, priv IN
+            SELECT
+                R.rolname, B.privilege_type
+            FROM
+                (
+                    SELECT (R.rec).*
+                    FROM
+                        (
+                            SELECT
+                                aclexplode(aclitems)
+                        ) AS R (rec)
+                ) AS B
+                INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
+
+        command := 'GRANT ' || priv || ' ON ' || objtype ||
+                ' ' || objname || ' TO ' || grantee;
+        EXECUTE(command);
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+-- }}}
+
+-- {{{ equal_aclitem_arrays
+-- Compare aclitem arrays ignoring grantor and with grant permission
+CREATE OR REPLACE FUNCTION public.equal_aclitem_arrays(aclitems1 aclitem[], aclitems2 aclitem[])
+        RETURNS boolean AS $$
+DECLARE
+    ret boolean;
+BEGIN
+    -- aclexplode can't handle empty arrays
+    IF aclitems1 = '{}'::aclitem[] THEN
+        IF aclitems2 = aclitems1 THEN
+            RETURN true;
+        ELSE
+            RETURN false;
+        END IF;
+    END IF;
+
+    SELECT
+        NOT EXISTS (
+            SELECT
+                A.grantee,
+                A.privilege_type,
+                COUNT(*)
+            FROM
+                (
+                    SELECT
+                        (R.rec).grantee,
+                        (R.rec).privilege_type
+                    FROM
+                        (SELECT ACLEXPLODE(aclitems1)) AS R(rec)
+
+                    UNION ALL
+
+                    SELECT
+                        (R.rec).grantee,
+                        (R.rec).privilege_type
+                    FROM
+                        (SELECT ACLEXPLODE(aclitems2)) AS R(rec)
+                ) A
+            GROUP BY
+                A.grantee,
+                A.privilege_type
+            HAVING
+                COUNT(*) <> 2
+         )
+     INTO ret;
+
+    RETURN ret;
+END;
+$$ LANGUAGE plpgsql;
+-- }}}
+
+-- {{{ main function
 DO $$
 <<locals>>
 DECLARE
     obj         record;
+    priv        record;
     command     text;
     wanted_acls aclitem[];
     cur_acls    aclitem[];
     creator     text;
+    grantee     text;
+    permission  text;
+    schemas     text[];
+    s           text;
 BEGIN
+    schemas := ARRAY[
+            'i2b2demodata',
+            'i2b2metadata',
+            'deapp',
+            'searchapp',
+            'biomart',
+            'tm_cz',
+            'tm_lz',
+            'tm_wz'];
+
     RAISE NOTICE 'Started assigning permissions';
 
+    RAISE NOTICE 'Revoke everything from PUBLIC';
+    FOREACH s IN ARRAY schemas LOOP
+        command := 'REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA ' ||
+                s || ' FROM PUBLIC';
+        EXECUTE(command);
+        command := 'REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA ' ||
+                s || ' FROM PUBLIC';
+        EXECUTE(command);
+        command := 'REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ' ||
+                s || ' FROM PUBLIC';
+        EXECUTE(command);
+    END LOOP;
+
+    -- {{{ Object permissions
     FOR obj IN
         SELECT
             name,
@@ -121,14 +270,7 @@ BEGIN
         FROM
             public.schemas_tables_funcs
         WHERE
-            nspname = ANY(ARRAY['i2b2demodata',
-                'i2b2metadata',
-                'deapp',
-                'searchapp',
-                'biomart',
-                'tm_cz',
-                'tm_lz',
-                'tm_wz']) LOOP
+            nspname = ANY(schemas) LOOP
 
         SELECT
             ARRAY[]::aclitem[] ||
@@ -157,51 +299,37 @@ BEGIN
         SELECT COALESCE(obj.acl, ARRAY[]::aclitem[])
         INTO obj.acl;
 
-        IF wanted_acls @> obj.acl AND obj.acl @> wanted_acls THEN
+        IF public.equal_aclitem_arrays(obj.acl, wanted_acls) THEN
             CONTINUE;
         END IF;
 
         RAISE NOTICE 'Updating permissions of %.% to % (before: %)',
             obj.nspname, obj.name, wanted_acls, obj.acl;
 
-        IF obj.kind = 's' THEN -- schema
-            UPDATE pg_namespace
-            SET nspacl = wanted_acls
-            WHERE nspname = obj.name;
-        ELSIF obj.kind = 'f' THEN -- functions
-            UPDATE pg_proc p
-            SET proacl = wanted_acls
-            FROM pg_namespace n
-            WHERE
-                p.pronamespace = n.oid
-                AND n.nspname = obj.nspname
-                AND p.proname = obj.name;
-        ELSE
-            UPDATE pg_class c
-            SET relacl = wanted_acls
-            FROM pg_namespace n
-            WHERE
-                c.relnamespace = n.oid
-                AND n.nspname = obj.nspname
-                AND c.relname = obj.name;
-        END IF;
+        PERFORM public.grant_aclitems(wanted_acls,
+            obj.kind,
+            CASE obj.kind
+                WHEN 's' THEN obj.name
+                ELSE obj.nspname || '.' || obj.name
+            END);
 
     END LOOP;
+    -- }}}
 
+    -- {{{ Default permissions
     RAISE NOTICE 'Assigning default permissions';
 
-    FOR obj IN
-            SELECT
-                nschema,
-                ntype,
-                array_accum(('user ' || nuser || '=' || nperm || '/'
-                    || (SELECT current_user))) as acl
-            FROM public.ts_default_permissions
-            GROUP BY nschema, ntype LOOP
+    FOREACH creator IN ARRAY ARRAY['tm_cz', (SELECT current_user)] LOOP
+        FOR obj IN
+                SELECT
+                    nschema,
+                    ntype,
+                    array_accum(('user ' || nuser || '=' || nperm || '/'
+                        || creator)::aclitem) as acl
+                FROM public.ts_default_permissions
+                GROUP BY nschema, ntype LOOP
 
-        wanted_acls := obj.acl;
-
-        FOREACH creator IN ARRAY ARRAY['tm_cz', (SELECT current_user)] LOOP
+            wanted_acls := obj.acl;
 
             SELECT
                 defaclacl
@@ -216,7 +344,7 @@ BEGIN
                 AND nspname = obj.nschema
                 AND defaclobjtype = obj.ntype;
 
-            IF wanted_acls @> cur_acls AND cur_acls @> wanted_acls THEN
+            IF public.equal_aclitem_arrays(cur_acls, wanted_acls) THEN
                 CONTINUE;
             END IF;
 
@@ -235,41 +363,71 @@ BEGIN
                 wanted_acls,
                 cur_acls;
 
-            IF FOUND THEN
-                UPDATE
-                    pg_default_acl D
-                SET
-                    defaclacl = wanted_acls
-                FROM
-                    pg_roles R,
-                    pg_namespace N
-                WHERE
-                    R.oid             = D.defaclrole      -- join condition
-                    AND N.oid         = D.defaclnamespace -- join condition
-                    AND R.rolname     = creator
-                    AND N.nspname     = obj.nschema
-                    AND defaclobjtype = obj.ntype;
-            ELSE
-                INSERT INTO pg_default_acl(
-                    defaclrole,
-                    defaclnamespace,
-                    defaclobjtype,
-                    defaclacl)
-                VALUES(
-                    (SELECT oid FROM pg_roles WHERE rolname = creator),
-                    (SELECT oid FROM pg_namespace WHERE nspname = obj.nschema),
-                    obj.ntype,
-                    wanted_acls
-                );
-            END IF;
+            -- first revoke all default privileges
+            FOR grantee IN
+                    SELECT
+                        DISTINCT R.rolname
+                    FROM
+                        (
+                            SELECT (R.rec).*
+                            FROM
+                                (
+                                    SELECT
+                                        aclexplode(wanted_acls)
+                                ) AS R (rec)
+                        ) AS B
+                        INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
 
-        END LOOP;
+                command := 'ALTER DEFAULT PRIVILEGES FOR USER ' || creator ||
+                        ' IN SCHEMA ' || obj.nschema || ' REVOKE ALL PRIVILEGES' ||
+                        ' ON ' ||
+                        CASE obj.ntype
+                            WHEN 'r' THEN 'TABLES'
+                            WHEN 'S' THEN 'SEQUENCES'
+                            WHEN 'f' THEN 'FUNCTIONS'
+                        END ||
+                        ' FROM ' || grantee;
+                EXECUTE(command);
+            END LOOP;
 
-    END LOOP;
+            -- then assign the new
+            FOR priv IN
+                    SELECT
+                        R.rolname AS grantee,
+                        B.privilege_type
+                    FROM
+                        (
+                            SELECT (R.rec).*
+                            FROM
+                                (
+                                    SELECT
+                                        aclexplode(wanted_acls)
+                                ) AS R(rec)
+                        ) AS B
+                        INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
+
+                    command := 'ALTER DEFAULT PRIVILEGES FOR USER ' || creator ||
+                            ' IN SCHEMA ' || obj.nschema || ' GRANT ' ||
+                            priv.privilege_type ||
+                            ' ON ' ||
+                            CASE obj.ntype
+                                WHEN 'r' THEN 'TABLES'
+                                WHEN 'S' THEN 'SEQUENCES'
+                                WHEN 'f' THEN 'FUNCTIONS'
+                            END ||
+                            ' TO ' || priv.grantee;
+                    EXECUTE(command);
+            END LOOP;
+
+        END LOOP; -- each schema/type pair
+
+    END LOOP; -- each creator
+    -- }}}
 
     RAISE NOTICE 'Finished assigning permissions';
 
 END;
 $$ LANGUAGE plpgsql;
+-- }}}
 
 -- vim: ft=plsql ts=4 sw=4 tw=80 et:
