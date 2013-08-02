@@ -47,7 +47,7 @@ class PGTableGrouper {
 			}
 			return $stream;
 		};
-		 
+
 		$items = $this->groups[$groupName];
 		foreach ($items as $i) {
 			if (!in_array([$i->type, preg_replace('/\(.*/', '', $i->name)],
@@ -69,6 +69,13 @@ class PGTableGrouper {
 		$f_load_all = fopen("$basePath/_load_all.sql", "wb");
 		if (!$f_load_all) {
 			throw new Exception("Could not open file $basePath/_load_all.sql");
+		}
+
+		if (!file_put_contents("$basePath/dependencies.php",
+				"<?php\n\$dependencies = "
+				. var_export($this->dependencies, true)
+				. "\n;")) {
+			throw new Exception("Could not write file $basePath/dependencies.php");
 		}
 
 		$this->writtenItems = new SplObjectStorage();
