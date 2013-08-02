@@ -93,5 +93,4 @@
 \ir ctd_sec_endpts.sql
 \ir ctd_study.sql
 \ir heat_map_results.sql
-\ir tmp_analysis_data_tea_rank.sql
 \ir _misc.sql
