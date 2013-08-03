@@ -34,7 +34,7 @@
 				<td colspan="5">
 					<span class='AnalysisHeader'>Variable Selection</span>
 					<a href='JavaScript:D2H_ShowHelp(1291,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-						<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+						<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
 					</a>						
 				</td>			
 			</tr>	
@@ -88,7 +88,7 @@
 			</tr>
 			<tr>
 				<td>
-					<input type="button" value="Run" onClick="submitLineGraphJob(this.form);"></input>
+					<input type="button" value="Run" onClick="submitLineGraphJob(this.form);">
 				</td>
 			</tr>
 		</table>

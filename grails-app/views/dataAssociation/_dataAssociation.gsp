@@ -22,7 +22,6 @@
     <meta http-equiv="keywords" content="keyword1,keyword2,keyword3"/>
     <meta http-equiv="description" content="this is my page"/>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"/>
-    <link rel="stylesheet" type="text/css" href="${resource(dir:pluginContextPath, file:'css/dataAssociation.css')}"/>
   </head>
   
   <body>
@@ -35,7 +34,7 @@
 					<span class='AnalysisHeader'>Cohorts</span>
 				</td>
 				<td align="right">
-					<input type="button" value="Save To PDF" onclick="javascript: generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');"></input>
+					<input type="button" value="Save To PDF" onclick="javascript: generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');">
 				</td>
 			</tr>
 			<tr>
@@ -45,7 +44,7 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<hr></hr>
+					<hr/>
 				</td>
 			</tr>
   			<tr>
@@ -54,13 +53,13 @@
   				<input type="hidden" id="analysis" name="analysis" />
   				
 				<a href='JavaScript:D2H_ShowHelp(1503,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-			<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+			<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
 				</a>	  				
   				</td>
 			</tr>
 			<tr>
 				<td colspan="2">
-					<hr></hr>
+					<hr/>
 				</td>
 			</tr>
 		</table>

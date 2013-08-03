@@ -22,6 +22,7 @@
 <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 <meta http-equiv="description" content="this is my page">
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
 
 </head>
 
@@ -32,9 +33,9 @@
 			<tr>
 				<td colspan="4">
 					<span class='AnalysisHeader'>Variable Selection</span>
-					<a href='JavaScript:D2H_ShowHelp(1511,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-				<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
-					</a>					
+					<a href='JavaScript:D2H_ShowHelp(1510,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+				<img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+				</a>					
 				</td>			
 			</tr>	
 			<tr>
@@ -44,35 +45,38 @@
 			</tr>	
 			<tr>
 				<td align="center">
-					<span class='AnalysisHeader'>PCA Variable</span>
+					<span class='AnalysisHeader'>Cell Lines</span>
 					<br />
 					<br />
-					Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.
+					Select the categorical variable that represents the cell lines you wish to plot.
 				</td>
-			</tr>	
-			<tr>
+				<td id="subsetdivider" rowspan="2" valign="center" align="center" height="100%">
+					<div style="margin: 15px; border: 1px solid black; background: black; width: 1px; height: 150px"></div>
+				</td>
+				<td align="center">
+					<span class='AnalysisHeader'>Concentration Variable</span>
+					<br />
+					<br />
+					Select the concentration folder from the Data Set Explorer tree and drag it into the box.					
+				</td>
+			</tr>
+			<tr>			
 				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupPCA('divIndependentVariable')" value="X"> 
+					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupIC50('divCellLinesVariable')" value="X"> 
 					<br />
-					<div id='divIndependentVariable' class="queryGroupIncludeSmall"></div>
+					<div id='divCellLinesVariable' class="queryGroupIncludeSmall"></div>
 				</td>
-			</tr>
-			<tr>
 				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">
-					<input type="hidden" id="multipleSubsets" name="multipleSubsets" value="true" />
-				</td>
+					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupIC50('divConcentrationVariable')" value="X"> 
+					<br />
+					<div id='divConcentrationVariable' class="queryGroupIncludeSmall"></div>
+				</td>			
 			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					<div id = "displaydivIndependentVariable"></div>
-				</td>
-			</tr>
+			
 			<tr><td><br/></td></tr>
 			<tr>
 				<td colspan="4" align="center">
-					<input type="button" value="Run" onClick="submitPCAJob(this.form);">
+					<input type="button" value="Run" onClick="submitIC50Job(this.form);"></input>
 				</td>
 			</tr>
 		</table>
