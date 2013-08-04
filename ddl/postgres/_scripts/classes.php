@@ -241,7 +241,7 @@ class PGTableGrouper {
 		}
 	}
 }
-abstract class PGDumpFilter extends PGDumpReaderWriter {
+class PGDumpFilter extends PGDumpReaderWriter {
 	private $inner;
 	private $keepFunction;
 	public function __construct(PGDumpReaderWriter $inner, $keepFunction) {
@@ -268,6 +268,11 @@ abstract class PGDumpFilter extends PGDumpReaderWriter {
 class PGDumpReaderWriter {
 	private $file;
 	private $items = [];
+	private static $CLUSTER_DUMP_HEADERS = [
+		"Roles",
+		"Tablespaces",
+		"Per-Database Role Settings",
+	];
 
 	public function __construct($file) {
 		$this->file = fopen($file, 'r');
@@ -367,6 +372,12 @@ class PGDumpReaderWriter {
 			$type = $matches[2];
 			return true;
 		}
+		if (preg_match('/^-- ([a-zA-Z ]+)$/', $data, $matches)) {
+			if (in_array($matches[1], self::$CLUSTER_DUMP_HEADERS)) {
+				$type = $name = $matches[1];
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -374,7 +385,8 @@ class PGDumpReaderWriter {
 		return $data === "--\n";
 	}
 	public static function isEndHeader($data) {
-		return $data === "-- PostgreSQL database dump complete\n";
+		return $data === "-- PostgreSQL database dump complete\n" ||
+				$data === "-- PostgreSQL database cluster dump complete\n";
 	}
 }
 

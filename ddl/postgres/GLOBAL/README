@@ -1,0 +1,4 @@
+Directory for cluster objects or database objects that do not belong to any
+specific namespace, such as casts and roles.
+
+Also included here are targets for creating and removing the database.

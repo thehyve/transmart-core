@@ -54,6 +54,11 @@ clean: clean_macroed_functions
 # Loading data
 LOAD_TARGETS = $(foreach schema, $(SCHEMAS), load_$(schema))
 
+load_global:
+	$(MAKE) -C GLOBAL load
+
+$(LOAD_TARGETS): load_global
+
 #dependency just to get an error when nothing's available
 load_%: %/_load_all.sql
 	test `$(PSQL_COMMAND) -c "select exists(select * from pg_namespace where nspname = '$(subst load_,,$@)')" -tA` = t || \
@@ -67,4 +72,4 @@ load_tm_lz: load_deapp
 load: $(LOAD_TARGETS)
 	$(MAKE) -C META load
 
-.PHONY: load
+.PHONY: load load_global
