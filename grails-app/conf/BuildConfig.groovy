@@ -24,22 +24,17 @@ grails.project.dependency.resolution = {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    log "warn"
+
     repositories {
         grailsPlugins()
         grailsHome()
         grailsCentral()
 
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
         mavenLocal()
         mavenCentral()
     }
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.13'
-        runtime 'hsqldb:hsqldb:1.8.0.10'
         compile 'net.sf.opencsv:opencsv:2.3'
     }
 
