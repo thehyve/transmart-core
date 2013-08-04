@@ -13,10 +13,13 @@ DECLARE
 BEGIN
     RAISE NOTICE 'Started assigning owners';
 
-    -- One must be owner to create child tables
+    -- One must be owner to create child tables and indexes
     exceptions := ARRAY[
         -- schema, object, owner
-        ['biomart', 'heat_map_results', 'tm_cz']
+        ['biomart', 'heat_map_results',            'tm_cz'],
+        ['deapp',   'de_subject_microarray_data',  'tm_cz'],
+        ['tm_wz',   'wt_subject_microarray_logs',  'tm_cz'],
+        ['tm_wz',   'wt_subject_microarray_calcs', 'tm_cz']
     ];
 
     -- Convert array to table
