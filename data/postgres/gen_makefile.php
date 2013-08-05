@@ -50,7 +50,7 @@ foreach ($tableList as $table) {
 	echo "load_" . $table, ": ", array_reduce($theseDeps,
 		function (&$result, $item) {
 			if ($result) $result .= " ";
-			return "load_" . $item;
+			return $result . "load_" . $item;
 		}, ''), "\n";
 }
 
