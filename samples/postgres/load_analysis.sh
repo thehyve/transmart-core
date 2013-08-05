@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 set -x
@@ -26,18 +25,20 @@ if [ -h $DATA_LOCATION/logs ]; then
 fi
 ln -s `pwd`/logs $DATA_LOCATION/logs
 
-$KITCHEN -norep=Y                                                       \
--file=$KETTLE_JOBS/ETL.search.process_analysis_data.kjb                 \
--log=logs/search.process_analysis_data_$(date +"%Y%m%d%H%M").log        \
--param:DATA_LOCATION=$DATA_LOCATION                                     \
--param:ANALYSIS_DATA_FILENAME=$ANALYSIS_DATA_FILENAME                   \
--param:ANALYSIS_FILENAME=$ANALYSIS_FILENAME                             \
--param:COHORTS_FILENAME=$COHORTS_FILENAME                               \
--param:LOG_FILENAME=logs/search.process_analysis_data_2_${log_date}.log \
--param:SAMPLES_FILENAME=$SAMPLES_FILENAME                               \
--param:STUDY_ID=$STUDY_ID                                               \
--param:SORT_DIR=/tmp                                                    \
--param:STUDY_DATA_CATEGORY=$STUDY_DATA_CATEGORY                         \
+$KITCHEN -norep=Y                                                \
+-file=$KETTLE_JOBS/ETL.search.process_analysis_data.kjb          \
+-log=logs/search.process_analysis_data_$(date +"%Y%m%d%H%M").log \
+-param:DATA_LOCATION=$DATA_LOCATION                              \
+-param:ANALYSIS_DATA_FILENAME=$ANALYSIS_DATA_FILENAME            \
+-param:ANALYSIS_FILENAME=$ANALYSIS_FILENAME                      \
+-param:COHORTS_FILENAME=$COHORTS_FILENAME                        \
+-param:LOG_FILENAME=logs/search.process_analysis_data_e          \
+-param:SAMPLES_FILENAME=$SAMPLES_FILENAME                        \
+-param:STUDY_ID=$STUDY_ID                                        \
+-param:SORT_DIR=/tmp                                             \
+-param:STUDY_DATA_CATEGORY=$STUDY_DATA_CATEGORY                  \
 -param:STUDY_DISPLAY_CATEGORY=$STUDY_DISPLAY_CATEGORY
+
+echo -e '\e[32mDONE\e[m Do not forget to reindex Solr'
 
 rm $DATA_LOCATION/logs
