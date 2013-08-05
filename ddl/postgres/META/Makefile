@@ -4,7 +4,7 @@ ALL_FIXES = fix_tablespaces fix_owners fix_permissions
 
 .PHONY: fix_%
 fix_%: assign_%.sql
-	$(PSQL_COMMAND) -f $<
+	test -n "$$skip_fix_$*" || $(PSQL_COMMAND) -f $<
 
 $(ALL_FIXES): fix_support
 fix_owners: fix_tablespaces
