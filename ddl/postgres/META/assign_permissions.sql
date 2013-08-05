@@ -10,6 +10,7 @@
 -- – Assign insert,delete,update permissions on all tables on searchapp.
 -- – Assign insert,delete,update permissions on a manually defined set of
 --   tables to biomart_user, as required by the tranSMART application.
+-- – Assign misc permissions.
 
 -- {{{ assign_permissions_1
 -- If the table owner does not match the schema owner, assign all permissions to
@@ -105,6 +106,30 @@ BEGIN
                 WHEN 's' THEN 'U' -- usage only; not create
             END ||
         '/' || (SELECT current_user);
+END;
+$$ LANGUAGE plpgsql;
+-- }}}
+
+-- {{{ assign_permissions_4
+-- Assign misc permissions.
+CREATE OR REPLACE FUNCTION public.assign_permissions_4(name text, schema_name text, type char, owner text)
+        RETURNS aclitem[] AS $$
+DECLARE
+    res aclitem[];
+BEGIN
+    SELECT
+        array_accum(
+                ('user ' || nuser || '=' || nperm || '/'
+                        || (SELECT current_user))::aclitem)
+    INTO res
+    FROM
+        public.ts_misc_permissions
+    WHERE
+        nschema = schema_name
+        AND nname = name
+        AND ntype = type;
+
+    RETURN res;
 END;
 $$ LANGUAGE plpgsql;
 -- }}}
@@ -290,6 +315,11 @@ BEGIN
                 obj.kind::char,
                 obj.ownr)
             || public.assign_permissions_3(
+                obj.name,
+                obj.nspname,
+                obj.kind::char,
+                obj.ownr)
+            || public.assign_permissions_4(
                 obj.name,
                 obj.nspname,
                 obj.kind::char,

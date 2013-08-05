@@ -50,6 +50,21 @@ BEGIN
             nperm text);
     END IF;
 
+    -- Ensure ts_misc_permissions exists
+    SELECT relname
+    INTO dummy
+    FROM pg_class c
+    WHERE relname = 'ts_misc_permissions';
+
+    IF NOT FOUND THEN
+        CREATE TABLE public.ts_misc_permissions(
+            nschema text,
+            nname text,
+            ntype text,
+            nuser text,
+            nperm text);
+    END IF;
+
     -- Make sure we have the schemas_tables_funcs view
     CREATE OR REPLACE VIEW public.schemas_tables_funcs(
         name,
@@ -149,5 +164,9 @@ TRUNCATE public.biomart_write_tables;
 TRUNCATE public.ts_default_permissions;
 
 \COPY public.ts_default_permissions FROM 'default_permissions.tsv'
+
+TRUNCATE public.ts_misc_permissions;
+
+\COPY public.ts_misc_permissions FROM 'misc_permissions.tsv';
 
 -- vim: ft=plsql ts=4 sw=4 et:
