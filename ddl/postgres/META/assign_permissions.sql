@@ -345,8 +345,12 @@ BEGIN
                 ELSE obj.nspname
             END, obj.name, wanted_acls, obj.acl;
 
-        PERFORM public.grant_aclitems(wanted_acls,
-            obj.acl,
+        PERFORM public.grant_aclitems(
+            wanted_acls,
+            CASE COALESCE(array_length(obj.acl, 1), 0)
+                WHEN 0 THEN NULL
+                ELSE obj.acl
+            END,
             obj.kind,
             CASE obj.kind
                 WHEN 's' THEN obj.name
