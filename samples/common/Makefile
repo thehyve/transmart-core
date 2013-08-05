@@ -10,7 +10,10 @@ DATA_LOCATION := http://files.thehyve.net/sample_data/
 %/expression: %/%_expression.tar.xz
 	tar -C $* -xJf $(subst %,$*,$<)
 
-%/%_clinical.tar.xz %/%_annotation.tar.xz %/%_expression.tar.xz:
+%/analysis: %/%_analysis.tar.xz
+	tar -C $* -xJf $(subst %,$*,$<)
+
+%/%_clinical.tar.xz %/%_annotation.tar.xz %/%_expression.tar.xz %/%_analysis.tar.xz:
 	curl -f $(DATA_LOCATION)$(notdir $(subst %,$*,$@)) > $(subst %,$*,$@)
 
 	
