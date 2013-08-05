@@ -6,11 +6,14 @@ This repository is a set of make files and scripts for:
 * creating the tranSMART database and all its objects;
 * populating the database with the bare minimum data necessary to start
   tranSMART and use the ETL scripts;
-* generating the SQL scripts and dependency metadata for necessary for the two
+* generating the SQL scripts and dependency metadata necessary for the two
   points above, from a clean database;
 * fixing permissions and tablespace assignments;
 * importing some example data – these are intended for development, the targets
   are not robust enough to be generally applicable.
+
+The current schema is the one necessary to support the
+[`ImperialBranch_FacetedSearch` branch][impbr] on The Hyve's fork.
 
 Oracle databases are still not supported. This goal is to have this project
 displace `transmart-DB` by providing a better way to manage the tranSMART
@@ -28,7 +31,7 @@ The following are required:
 * GNU make
 * PostgreSQL client utilities (`psql`, `psql_dump`, etc.)
 * curl
-* php (&gt;= 5.4)
+* php (>= 5.4)
 * tar with support for the -J switch (GNU tar only?)
 * An up-to-date checkout of the [`tranSMART-ETL` repository][ts_etl]. Revision
   e712fcd7 is necessary for Faceted Search support (ETL only)
@@ -57,13 +60,13 @@ machine. The target does not attempt to create the tablespaces if they already
 exist, but it will nevertheless attempt to create the directories where it
 thinks the tablespaces should be according to `$TABLESPACES`.
 
-Note that if the tablespaces directories do not already exist and are assigned
-the correct owner (i.e., the user PostgreSQL runs as), then the install target
-will run into problems when attempting to create the tablespaces. If the user
-PostgreSQL runs as and the user running the targets are not the same AND the
-tablespace directories do not already exist, then manual intervention is
-necessary for creating all the tablespaces' directories and assigning them the
-correct owner.
+Note that if the tablespaces directories do not already exist or are not
+assigned the correct owner (i.e., the user PostgreSQL runs as), then the
+install target will run into problems when attempting to create the
+tablespaces. If the user PostgreSQL runs as and the user running the targets
+are not the same AND the tablespace directories do not already exist, then
+manual intervention is necessary for creating all the tablespaces' directories
+and assigning them the correct owner.
 
 ### Drop the database
 
@@ -78,6 +81,9 @@ development, by setting the environment variable `skip_fix_tablespaces` to any
 non-empty value:
 
     skip_fix_tablespaces=1 make -j4 postgres
+
+There's a simple script in `data/postgres/set_password.sh` for changing users'
+passwords.
 
 ### Only fix permissions, owners or tablespace assignments
 
@@ -101,10 +107,11 @@ triggered manually.
 
 The ETL functionality is not meant for any non-development purposes.
 
-### Changging ownership or permission information
+### Changing ownership or permission information
 
-The default permissions are set in `ddl/postgres/META/default_permissions.php`.
-Tables where `biomart_user` should be able to write are defined in
+The default schema permissions are set in
+`ddl/postgres/META/default_permissions.php`.  Tables where `biomart_user`
+should be able to write are defined in
 `ddl/postgres/META/biomart_user_write.tsv`. Extra miscellaneous permissions are
 defined in `ddl/postgres/META/misc_permissions.tsv`.
 
@@ -116,7 +123,7 @@ Ownership information can only be added by editing an array in
 This part still needs some work, but it goes more or less like this:
 
 * Start with a *clean* database. Preferably load if from scratch with `make
-  postgres` and make only necessary changes on top of this.
+  postgres` and make only the necessary changes on top of this.
 * Go to `ddl/postgres`.
 * Run `make clean`.
 * Manually delete the subdirectories with the names of the schemas that you
@@ -130,7 +137,9 @@ This part still needs some work, but it goes more or less like this:
   should be dumped.
 * If you changed global objects like roles (unlikely), look at the makefile on
   `ddl/postgresql/GLOBAL` for more information.
+* Make sure you test the changes by recreating the database.
 
+  [impbr]: https://github.com/thehyve/transmartApp/tree/ImperialBranch_FacetedSearch
   [liquibase]: http://www.liquibase.com/
   [ts_etl]: https://github.com/thehyve/tranSMART-ETL
   [kettle]: http://kettle.pentaho.com/
