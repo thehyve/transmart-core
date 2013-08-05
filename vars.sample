@@ -1,4 +1,4 @@
-#Do not use libpqʼs environment variables
+# Use libpqʼs environment variables
 PGHOST=/tmp
 PGPORT=5433
 PGDATABASE=transmart
