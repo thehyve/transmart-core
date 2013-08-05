@@ -1,0 +1,6 @@
+ANALYSIS_DATA_FILENAME=analysis_data_ext.txt
+ANALYSIS_FILENAME=rwg_analysis_ext.txt
+COHORTS_FILENAME=rwg_cohort_ext.txt
+SAMPLES_FILENAME=rwg_sample_ext.txt
+STUDY_DATA_CATEGORY=Study
+STUDY_DISPLAY_CATEGORY=GEO
