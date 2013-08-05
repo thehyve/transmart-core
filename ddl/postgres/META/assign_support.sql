@@ -98,6 +98,17 @@ BEGIN
             JOIN pg_roles r ON (n.nspowner = r.oid)
     )
     UNION
+    ( -- tablespaces
+        SELECT
+            quote_ident(spcname),
+            'T',
+            NULL,
+            spcacl,
+            NULL
+        FROM
+            pg_tablespace
+    )
+    UNION
     ( -- functions (including aggregates)
         SELECT
             quote_ident(p.proname) || '(' || array_to_string((

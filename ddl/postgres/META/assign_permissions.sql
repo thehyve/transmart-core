@@ -43,13 +43,16 @@ BEGIN
             WHEN 'v' THEN 'arwdDxt'
             WHEN 'f' THEN 'X'
             WHEN 's' THEN 'UC'
+            WHEN 'T' THEN 'C'
         END ||
         '/' || (SELECT current_user);
 
-    result := ARRAY[
-        ('user ' || owner || '=' || allPermissions)::aclitem
-    ];
-    IF owner <> 'tm_cz' THEN
+    IF owner IS NOT NULL THEN
+        result := ARRAY[
+            ('user ' || owner || '=' || allPermissions)::aclitem
+        ];
+    END IF;
+    IF owner <> 'tm_cz' OR owner IS NULL THEN
         result := result || ('user tm_cz=' || allPermissions)::aclitem;
     END IF;
 
@@ -107,7 +110,8 @@ $$ LANGUAGE plpgsql;
 -- }}}
 
 -- {{{ grant_aclitems
-CREATE OR REPLACE FUNCTION public.grant_aclitems(aclitems aclitem[], type text, objname text)
+CREATE OR REPLACE FUNCTION public.grant_aclitems(new_aclitems aclitem[],
+        old_aclitems aclitem[], type text, objname text)
         RETURNS void AS $$
 DECLARE
     grantee text;
@@ -122,6 +126,7 @@ BEGIN
             WHEN 'S' THEN 'SEQUENCE'
             WHEN 'f' THEN 'FUNCTION'
             WHEN 's' THEN 'SCHEMA'
+            WHEN 'T' THEN 'TABLESPACE'
             ELSE 'BAD TYPE: ' || type
         END;
 
@@ -135,7 +140,7 @@ BEGIN
                     FROM
                         (
                             SELECT
-                                aclexplode(aclitems)
+                                aclexplode(old_aclitems)
                         ) AS R (rec)
                 ) AS B
                 INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
@@ -155,7 +160,7 @@ BEGIN
                     FROM
                         (
                             SELECT
-                                aclexplode(aclitems)
+                                aclexplode(new_aclitems)
                         ) AS R (rec)
                 ) AS B
                 INNER JOIN pg_roles R ON (B.grantee = R.oid) LOOP
@@ -270,7 +275,7 @@ BEGIN
         FROM
             public.schemas_tables_funcs
         WHERE
-            nspname = ANY(schemas) LOOP
+            nspname = ANY(schemas) OR nspname IS NULL LOOP
 
         SELECT
             ARRAY[]::aclitem[] ||
@@ -304,12 +309,18 @@ BEGIN
         END IF;
 
         RAISE NOTICE 'Updating permissions of %.% to % (before: %)',
-            obj.nspname, obj.name, wanted_acls, obj.acl;
+            CASE obj.kind
+                WHEN 's' THEN 'SCHEMA'
+                WHEN 'T' THEN 'TABLESPACE'
+                ELSE obj.nspname
+            END, obj.name, wanted_acls, obj.acl;
 
         PERFORM public.grant_aclitems(wanted_acls,
+            obj.acl,
             obj.kind,
             CASE obj.kind
                 WHEN 's' THEN obj.name
+                WHEN 'T' THEN obj.name
                 ELSE obj.nspname || '.' || obj.name
             END);
 
