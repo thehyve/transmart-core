@@ -5,6 +5,7 @@ import org.hibernate.Session
 import org.hibernate.StatelessSession
 import org.hibernate.impl.AbstractSessionImpl
 import org.transmartproject.core.dataquery.DataQueryResource
+import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.acgh.RegionResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
@@ -18,7 +19,7 @@ class DataQueryResourceService implements DataQueryResource {
     @Override
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec, session) {
         if (!(session == null || session instanceof Session || session
-                instanceof StatelessSession)) {
+        instanceof StatelessSession)) {
             throw new IllegalArgumentException('Expected session to be null ' +
                     'or an instance of type org.hibernate.Session or ' +
                     'org.hibernate.StatelessSession')
@@ -35,7 +36,22 @@ class DataQueryResourceService implements DataQueryResource {
                     }.join(", "))
         }
 
-        getRegionResultForAssays(assays, session)
+        getRegionResultForAssays(spec, assays, session)
+    }
+
+    @Override
+    List<ChromosomalSegment> getChromosomalSegments(ACGHRegionQuery spec) {
+        def session = sessionFactory.currentSession
+        List<Assay> assays = getAssaysForACGHRegionQuery(spec, session)
+        def platformIds = assays.collect { it.platform.id } as Set
+        def rows = createQuery(session, '''
+            select region.chromosome, min(region.start), max(region.end) from DeChromosomalRegion region
+            where region.platform.id in (:platformIds)
+            group by region.chromosome
+        ''', ['platformIds': platformIds]).list()
+        rows.collect{
+            new ChromosomalSegment(chromosome: it[0], start: it[1], end: it[2])
+        }
     }
 
     protected List<Assay> getAssaysForACGHRegionQuery(ACGHRegionQuery spec, AbstractSessionImpl session) {
@@ -53,7 +69,7 @@ class DataQueryResourceService implements DataQueryResource {
         createQuery(session, assayHQL, params).list()
     }
 
-    protected RegionResult getRegionResultForAssays(final List<Assay> assays, AbstractSessionImpl session) {
+    protected RegionResult getRegionResultForAssays(final ACGHRegionQuery spec, final List<Assay> assays, final AbstractSessionImpl session) {
         /* Then obtain the meat.
          *
          * Doing 'select acgh from ... inner join fetch acgh.region' should
@@ -73,26 +89,48 @@ class DataQueryResourceService implements DataQueryResource {
          * query before just to get the regions. This would minimize the
          * amount of data that the postgres server has to send us.
          */
-        def mainHQL = '''
+
+        def params = ['assayIds': assays.collect {Assay assay -> assay.id}]
+        def regionsWhereClauses = []
+
+        if (spec.segments) {
+            spec.segments.eachWithIndex {ChromosomalSegment segment, int indx ->
+                def subClauses = []
+                if(segment.chromosome) {
+                    params["chromosome$indx"] = segment.chromosome
+                    subClauses = ["region.chromosome like :chromosome$indx"]
+                }
+                if(segment.start && segment.end) {
+                    params["start$indx"] = segment.start
+                    params["end$indx"] = segment.end
+                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
+                            " or (region.end >= :start$indx and region.end <= :end$indx)"
+                }
+                regionsWhereClauses << "(${subClauses.join(' and ')})"
+            }
+        }
+
+        def mainHQL = """
             select acgh, acgh.region
             from DeSubjectAcghData as acgh
             inner join acgh.assay assay
-            where assay in (:assays)
-            order by acgh.region.id, assay'''
+            inner join acgh.region region
+            where assay.id in (:assayIds) ${regionsWhereClauses ? 'and (' + regionsWhereClauses.join('\nor ') + ')' : ''}
+            order by acgh.region.id, assay
+         """
 
-        def mainQuery = createQuery(session, mainHQL, ['assays': assays]).scroll(FORWARD_ONLY)
+        def mainQuery = createQuery(session, mainHQL, params).scroll(FORWARD_ONLY)
 
         new RegionResultImpl(assays, mainQuery)
     }
 
     private void validateQuery(ACGHRegionQuery q) {
-        def checkEmptiness = { it, name ->
+        def checkEmptiness = {it, name ->
             if (!it) {
                 throw new IllegalArgumentException("$name not specified/empty")
             }
         }
         checkEmptiness(q.common, "query.common")
-        checkEmptiness(q.common.studies, "query.common.studies")
         checkEmptiness(q.common.patientQueryResult, "query.common.patientQueryResult")
     }
 
@@ -105,7 +143,7 @@ class DataQueryResourceService implements DataQueryResource {
         assayQuery.readOnly = true
         assayQuery.cacheable = false
 
-        params.each { key, val ->
+        params.each {key, val ->
             if (val instanceof Collection) {
                 assayQuery.setParameterList(key, val)
             } else {
@@ -119,10 +157,6 @@ class DataQueryResourceService implements DataQueryResource {
     private void populateWhereClauses(ACGHRegionQuery q,
                                       List whereClauses,
                                       Map params) {
-
-        /* assay in the desired studies */
-        whereClauses << 'assay.trialName in (:studies)'
-        params['studies'] = q.common.studies
 
         /* assays correspond to patients in the result set */
         /* do not use assay.patient in ( select pset.patient ... ); hibernate
@@ -140,6 +174,13 @@ class DataQueryResourceService implements DataQueryResource {
          * empty result set -- there simply won't be any filtering by platform
          * Idem for the rest
          */
+
+        if (q.common.studies) {
+            /* assay in the desired studies */
+            whereClauses << 'assay.trialName in (:studies)'
+            params['studies'] = q.common.studies
+        }
+
         if (q.common.platforms) {
             whereClauses << 'assay.platform in (:platforms)'
             params['platforms'] = q.common.platforms
@@ -153,6 +194,7 @@ class DataQueryResourceService implements DataQueryResource {
             whereClauses << 'assay.tissueTypeCd in (:tissueCodes)'
             params['tissueCodes'] = q.common.tissueCodes
         }
+
         if (q.common.timepointCodes) {
             whereClauses << 'assay.timepointCd in (:timepointCodes)'
             params['timepointCodes'] = q.common.timepointCodes

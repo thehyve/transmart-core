@@ -3,6 +3,7 @@ package org.transmartproject.db.i2b2data
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.highdim.HighDimTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -33,9 +34,8 @@ class PatientDimensionTests {
 
     @Test
     void testAssaysProperty() {
-        testRegionAssays.reverse().each {
-            testRegionPatients[1].addToAssays(it)
-        }
+        testRegionPatients[1].assays = testRegionAssays
+        testRegionPatients[1].assays = testRegionAssays.reverse()
 
         def patient = PatientDimension.get(testRegionPatients[1].id)
 

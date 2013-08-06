@@ -1,16 +1,13 @@
 package org.transmartproject.db.dataquery
 
 import groovy.transform.CompileStatic
-import org.hibernate.Query
 import org.hibernate.ScrollableResults
-import org.hibernate.Session
-import org.hibernate.StatelessSession
 import org.hibernate.impl.AbstractSessionImpl
-import org.transmartproject.core.dataquery.DataQueryResource
+import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
+import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.acgh.RegionResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
-import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.acgh.ACGHValues
 import org.transmartproject.core.dataquery.acgh.CopyNumberState
 import org.transmartproject.core.dataquery.Platform
@@ -21,8 +18,29 @@ import static org.hibernate.ScrollMode.FORWARD_ONLY
 class DataQueryResourceNoGormService extends DataQueryResourceService {
 
     @Override
-    protected RegionResult getRegionResultForAssays(final List<Assay> assays, AbstractSessionImpl session) {
-        def mainHQL = '''
+    protected RegionResult getRegionResultForAssays(final ACGHRegionQuery spec, final List<Assay> assays, final AbstractSessionImpl session) {
+
+        def params = ['assayIds': assays.collect {Assay assay -> assay.id}]
+        def regionsWhereClauses = []
+
+        if(spec.segments) {
+            spec.segments.eachWithIndex { ChromosomalSegment segment, int indx ->
+                def subClauses = []
+                if(segment.chromosome) {
+                    params["chromosome$indx"] = segment.chromosome
+                    subClauses = ["region.chromosome like :chromosome$indx"]
+                }
+                if(segment.start && segment.end) {
+                    params["start$indx"] = segment.start
+                    params["end$indx"] = segment.end
+                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
+                            " or (region.end >= :start$indx and region.end <= :end$indx)"
+                }
+                regionsWhereClauses << "(${subClauses.join(' and ')})"
+            }
+        }
+
+        def mainHQL = """
             select
                 acgh.assay.id,
                 acgh.chipCopyNumberValue,
@@ -41,10 +59,12 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
                 region.numberOfProbes
             from DeSubjectAcghData as acgh
             inner join acgh.region region
-            where acgh.assay.id in (:assayIds)
-            order by region.id, acgh.assay.id'''.stripIndent()
+            inner join acgh.assay assay
+            where assay.id in (:assayIds) ${regionsWhereClauses ? 'and (' + regionsWhereClauses.join('\nor ') + ')' : ''}
+            order by region.id, assay.id
+        """
 
-        def mainQuery = createQuery(session, mainHQL, ['assayIds': assays.collect {Assay assay -> assay.id}]).scroll(FORWARD_ONLY)
+        def mainQuery = createQuery(session, mainHQL, params).scroll(FORWARD_ONLY)
 
         new RegionResultListImpl(assays, mainQuery)
     }
@@ -100,6 +120,12 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
 
         Integer getNumberOfProbes() { rowList[13] as Integer }
 
+        @Override
+        public java.lang.String toString() {
+            return "RegionImpl{" +
+                    "rowList=" + rowList +
+                    '}';
+        }
     }
 
     @CompileStatic
