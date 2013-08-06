@@ -1,0 +1,46 @@
+--- solrconfig.xml	2013-08-06 18:05:56.761370932 +0200
++++ solrconfig-patched.xml	2013-08-06 18:12:16.758031674 +0200
+@@ -72,17 +72,12 @@
+        The examples below can be used to load some solr-contribs along 
+        with their external dependencies.
+     -->
+-  <lib dir="../../../contrib/extraction/lib" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-cell-\d.*\.jar" />
+ 
+-  <lib dir="../../../contrib/clustering/lib/" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-clustering-\d.*\.jar" />
++  <lib dir="../../contrib/velocity/lib" regex=".*\.jar" />
++  <lib dir="../../dist/" regex="solr-velocity-\d.*\.jar" />
+ 
+-  <lib dir="../../../contrib/langid/lib/" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-langid-\d.*\.jar" />
+-
+-  <lib dir="../../../contrib/velocity/lib" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-velocity-\d.*\.jar" />
++  <lib dir="../../contrib/dataimporthandler/lib" regex=".*\.jar" />
++  <lib dir="../../dist/" regex="solr-dataimporthandler-\d.*\.jar" />
+ 
+   <!-- an exact 'path' can be used instead of a 'dir' to specify a 
+        specific jar file.  This will cause a serious error to be logged 
+@@ -807,7 +802,7 @@
+      <lst name="defaults">
+        <str name="echoParams">explicit</str>
+        <int name="rows">10</int>
+-       <str name="df">text</str>
++       <str name="df">STUDY</str>
+      </lst>
+     <!-- In addition to defaults, "appends" params can be specified
+          to identify values which should be appended to the list of
+@@ -1536,6 +1531,12 @@
+     </arr>
+   </requestHandler>
+ 
++  <requestHandler name="/dataimport" class="org.apache.solr.handler.dataimport.DataImportHandler">
++    <lst name="defaults">
++      <str name="config">data-config.xml</str>
++    </lst>
++  </requestHandler>
++
+   <!-- Highlighting Component
+ 
+        http://wiki.apache.org/solr/HighlightingParameters
