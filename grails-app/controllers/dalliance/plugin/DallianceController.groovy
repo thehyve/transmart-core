@@ -26,6 +26,7 @@ class DallianceController {
                servletContext.contextPath+pluginContextPath+'/js/karyoscape.js',
                servletContext.contextPath+pluginContextPath+'/js/quant-config.js',
                servletContext.contextPath+pluginContextPath+'/js/track-adder.js',
+               servletContext.contextPath+pluginContextPath+'/js/track-adder-custom.js',
                servletContext.contextPath+pluginContextPath+'/js/chainset.js',
                servletContext.contextPath+pluginContextPath+'/js/version.js',
                servletContext.contextPath+pluginContextPath+'/js/sha1.js',
