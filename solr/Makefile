@@ -34,28 +34,32 @@ solr/collection1:
 		-C solr solr-$(SOLR_VERSION)/example/solr/collection1
 	rm $@/core.properties #so solr doesn't see the dir as core
 
-RWG_CORE_TARGETS=solr/rwg solr/rwg/conf/schema.xml solr/rwg/conf/data-config.xml
-solr/rwg: solr/collection1 dataimport.patch
+CORE_TARGETS=solr/<core_name> solr/<core_name>/conf/schema.xml solr/<core_name>/conf/data-config.xml
+RWG_CORE_TARGETS=$(subst <core_name>,rwg,$(CORE_TARGETS))
+SAMPLE_CORE_TARGETS=$(subst <core_name>,sample,$(CORE_TARGETS))
+
+solr/rwg solr/sample: solr/collection1 dataimport.patch
 	rsync -a $</* $@
 	echo "name=$(notdir $@)" > $@/core.properties
 	rm $@/conf/schema.xml
 	cd $@/conf && patch -p0 < $(realpath dataimport.patch)
-	#sed -i 's|\.\./dist|dist|' $@/conf/solrconfig.xml
-	#sed -i 's|\.\./contrib|contrib|' $@/conf/solrconfig.xml
 
-solr/rwg/conf/schema.xml: solr/rwg schemas/schema_rwg.xml
-	test -d solr/rwg || $(MAKE) solr/rwg #solr/rwg is touched on each solr run
-	cp schemas/schema_rwg.xml $@
+solr/%/conf/schema.xml: solr/% schemas/schema_%.xml
+	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
+	cp schemas/schema_$*.xml $@
 
-solr/rwg/conf/data-config.xml: data-config/postgres/data-config_rwg.xml.php
-	test -d solr/rwg || $(MAKE) solr/rwg #solr/rwg is touched on each solr run
+solr/%/conf/data-config.xml: data-config/postgres/data-config_%.xml.php
+	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
-start: $(EXAMPLE_FILES) $(DRIVER) $(RWG_CORE_TARGETS) $(ROOT_FILES)
+start: $(EXAMPLE_FILES) $(DRIVER) $(RWG_CORE_TARGETS) $(SAMPLE_CORE_TARGETS) $(ROOT_FILES)
 	java -jar start.jar
 
-rwg_full_import:
-	curl -f "http://localhost:8983/solr/rwg/dataimport?command=full-import"
+rwg_full_import sample_full_import:
+	curl -f "http://localhost:8983/solr/$(patsubst %_full_import,%,$@)/dataimport?command=full-import"
+
+rwg_delta_import sample_delta_import:
+	curl -f "http://localhost:8983/solr/$(patsubst %_delta_import,%,$@)/dataimport?command=delta-import"
 
 clean:
 	rm -rf $(EXAMPLE_FILES) $(ROOT_FILES)
