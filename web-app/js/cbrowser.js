@@ -18,11 +18,11 @@ function Region(chr, min, max) {
 }
 
 function Browser(opts) {
-
-    console.log("Browser ...");
     if (!opts) {
         opts = {};
     }
+
+    this.uiPrefix = 'http://www.biodalliance.org/canvas/';
 
     this.sources = [];
     this.tiers = [];
@@ -97,16 +97,11 @@ function Browser(opts) {
     }
 
     var thisB = this;
-    console.log("about to add event listener ...");
-
     //window.addEventListener('load', function(ev) {thisB.realInit();}, false);
     thisB.realInit();
-
 }
 
 Browser.prototype.realInit = function() {
-    console.log("realInit");
-
     this.supportsBinary = true; /* (typeof Int8Array === 'function');*/ 
     
     this.defaultChr = this.chr;
@@ -184,11 +179,14 @@ Browser.prototype.realInit = function() {
         }
     }, false);
 
+
+    /*
     this.tierHolder.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
     this.tierHolder.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
     this.tierHolder.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
     this.tierHolder.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false); 
 
+    */
 
     var keyHandler = function(ev) {
         if (ev.keyCode == 13) {
@@ -352,7 +350,6 @@ Browser.prototype.realInit = function() {
                             bumpStatus = !t.bumped;
                         }
                         t.bumped = bumpStatus;
-                        t.isLabelValid = false;
                         t.layoutWasDone = false;
                         t.draw();
                         t.updateLabel();
@@ -366,7 +363,6 @@ Browser.prototype.realInit = function() {
                     }
                     t.bumped = bumpStatus;
                     t.layoutWasDone = false;
-                    t.isLabelValid = false;
                     t.draw();
                     t.updateLabel();
                 }
@@ -404,7 +400,8 @@ Browser.prototype.realInit = function() {
     this.hPopupHolder = makeElement('div');
     this.hPopupHolder.style['font-family'] = 'helvetica';
     this.hPopupHolder.style['font-size'] = '12pt';
-    this.svgHolder.appendChild(this.hPopupHolder);
+    this.hPopupHolder.classList.add('dalliance');
+    document.body.appendChild(this.hPopupHolder);
 
     for (var t = 0; t < this.sources.length; ++t) {
         var source = this.sources[t];
@@ -528,10 +525,12 @@ Browser.prototype.realMakeTier = function(source) {
           pointerEvents: 'none'});
 
     var placardContent = makeElement('span', 'blah');
-    var placard = makeElement('div', [makeElement('i', null, {className: 'icon-warning-sign'}), placardContent], {}, {
+    var placard = makeElement('div', [makeElement('i', null, {className: 'icon-warning-sign'}), ' ', placardContent], {}, {
         display: 'none',
         position: 'relative',
-        width: '100%',
+//        width: '100%',
+        borderCollapse: 'collapse',
+        marginTop: '-1px',
         height: '50px',
         textAlign: 'center',
         lineHeight: '50px',
@@ -541,8 +540,14 @@ Browser.prototype.realMakeTier = function(source) {
     
     var vph = makeElement('div', [viewport, viewportOverlay], {}, {display: 'inline-block', position: 'relative', width: '100%' , overflowX: 'hidden', overflowY: 'hidden', border: '0px', borderBottom: '0px', borderStyle: 'solid'});
     vph.className = 'tier-viewport-background';
+
+    vph.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
+    vph.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
+    vph.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
+    vph.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false); 
+
     var tier = new DasTier(this, source, viewport, vph, viewportOverlay, placard, placardContent);
-    tier.oorigin = (this.viewStart + this.viewEnd)/2;
+    tier.oorigin = this.viewStart;
     tier.background = background;
 
     tier.quantOverlay = makeElement(
@@ -552,7 +557,8 @@ Browser.prototype.realMakeTier = function(source) {
          padding: '0px', 
          margin: '0px',
          border: '0px', 
-         left: '' + ((this.featurePanelWidth/2)|0) + 'px', top: '0px',
+         left: '' + ((this.featurePanelWidth/2)|0) + 'px',
+         top: '0px',
          display: 'none'});
     tier.holder.appendChild(tier.quantOverlay);
     
@@ -603,9 +609,10 @@ Browser.prototype.realMakeTier = function(source) {
         
 
     vph.addEventListener('mousedown', function(ev) {
+        thisB.svgHolder.focus();
         ev.preventDefault();
         var br = vph.getBoundingClientRect();
-        var rx = ev.clientX - br.left, ry = ev.clientY - br.top;
+        var rx = ev.clientX, ry = ev.clientY;
 
         window.addEventListener('mousemove', dragMoveHandler, true);
         window.addEventListener('mouseup', dragUpHandler, true);
@@ -622,10 +629,10 @@ Browser.prototype.realMakeTier = function(source) {
         }
 
         if (isDragging) {
-            if (tier.dasSource.tier_type !== 'sequence' && rx != dragMoveOrigin) {
-                thisB.move((rx - dragMoveOrigin));
-                dragMoveOrigin = rx;
-            }
+            // if (tier.dasSource.tier_type !== 'sequence' && rx != dragMoveOrigin) {
+            //    thisB.move((rx - dragMoveOrigin));
+            //    dragMoveOrigin = rx;
+            // }
         } else {
             hoverTimeout = setTimeout(function() {
                 var hit = featureLookup(rx, ry);
@@ -678,16 +685,18 @@ Browser.prototype.realMakeTier = function(source) {
     tier.init(); // fetches stylesheet
 
 
-    tier.removeButton =  makeElement('a', makeElement('i', null, {className: 'icon-remove'}), {className: 'btn'});
+    tier.removeButton = makeElement('i', null, {className: 'icon-remove'});
     tier.bumpButton = makeElement('i', null, {className: 'icon-plus-sign'});
-    tier.nameButton = makeElement('a', [source.name + ' ', tier.bumpButton], {className: 'tier-tab'});
+    tier.infoElement = makeElement('div', tier.dasSource.desc, {}, {display: 'none', maxWidth: '200px', whiteSpace: 'normal', color: 'rgb(100,100,100)'});
+    tier.nameButton = makeElement('a', [tier.removeButton, makeElement('span', [source.name, tier.infoElement], {}, {display: 'inline-block', marginLeft: '5px', marginRight: '5px'}), tier.bumpButton], {className: 'tier-tab'});
+    
     tier.label = makeElement('span',
-       [tier.removeButton,
-        tier.nameButton],
+       [tier.nameButton],
        {className: 'btn-group'},
-       {zIndex: 1001, position: 'absolute', left: /* tier.quantOverlay ? '35px' :*/ '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
-    var row = makeElement('div', [vph, placard, tier.label], {}, {position: 'relative', display: 'block'});
+       {zIndex: 1001, position: 'absolute', left: '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
+    var row = makeElement('div', [vph, placard, tier.label], {}, {position: 'relative', display: 'block' /*, transition: 'height 0.5s' */});
     tier.row = row;
+
 
     tier.removeButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
@@ -695,22 +704,26 @@ Browser.prototype.realMakeTier = function(source) {
     }, false);
     tier.nameButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
-        thisB.selectedTier = -1;
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
             if (thisB.tiers[ti] === tier) {
-                thisB.setSelectedTier(ti);
-                break;
+                if (ti != thisB.selectedTier) {
+                    thisB.setSelectedTier(ti);
+                    return;
+                }
             }
         }
 
-        /*
-        console.log('before: ' + nameButton.clientHeight);
-        nameButton.appendChild(makeElement('p', 'Really interesting stuff'));
-        nameButton.appendChild(makeElement('p', 'And more stuff'));
-        console.log('after: ' + nameButton.clientHeight);
-        if (nameButton.clientHeight > row.clientHeight) {
-            row.style.height = '' + (nameButton.clientHeight + 4) + 'px';
-        }*/
+        if (!tier.infoVisible) {
+            tier.infoElement.style.display = 'block';
+            if (tier.label.clientHeight > row.clientHeight) {
+                row.style.height = '' + (tier.label.clientHeight + 4) + 'px';
+            } 
+            tier.infoVisible = true;
+        } else {
+            tier.infoElement.style.display = 'none';
+            row.style.height = 'auto';
+            tier.infoVisible = false;
+        }
     }, false);
     tier.bumpButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
@@ -723,7 +736,6 @@ Browser.prototype.realMakeTier = function(source) {
             }
             t.bumped = bumpStatus;
             t.layoutWasDone = false;
-            t.isLabelValid = false;
             t.draw();
             
             t.updateLabel();
@@ -815,6 +827,12 @@ Browser.prototype.realMakeTier = function(source) {
         document.addEventListener('mousemove', labelDragHandler, false);
         document.addEventListener('mouseup', labelReleaseHandler, false);
     }, false);
+
+
+/*    tier.label.addEventListener('touchstart', function(ev) {
+        console.log('touchStartInLabel');
+        ev.stopPropagation(); ev.preventDefault();
+    }, false); */
 
     this.tierHolder.appendChild(row);    
     this.tiers.push(tier);  // NB this currently tells any extant knownSpace about the new tier.
@@ -972,9 +990,9 @@ Browser.prototype.move = function(pos)
     var viewCenter = (this.viewStart + this.viewEnd)/2;
     
     for (var i = 0; i < this.tiers.length; ++i) {
-        var offset = (viewCenter - this.tiers[i].norigin)*this.scale;
+        var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
 	this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
-        var ooffset = (viewCenter - this.tiers[i].oorigin)*this.scale;
+        var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
         this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
     }
 
@@ -1046,19 +1064,18 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
     var width = this.tierHolder.getBoundingClientRect().width | 0;
 
     var oldFPW = this.featurePanelWidth;
-    // this.featurePanelWidth = (width - this.tabMargin - this.embedMargin)|0;
     this.featurePanelWidth = width|0;
 
     if (oldFPW != this.featurePanelWidth) {
-        for (var ti = 0; ti < this.tiers.length; ++ti) {
-            var tier = this.tiers[ti];
-        }
-
         var viewWidth = this.viewEnd - this.viewStart;
         var nve = this.viewStart + (viewWidth * this.featurePanelWidth) / oldFPW;
-        var delta = nve - this.viewEnd;
-        this.viewStart = this.viewStart - (delta/2);
-        this.viewEnd = this.viewEnd + (delta/2);
+
+
+        // var delta = nve - this.viewEnd;
+        // this.viewStart = this.viewStart - (delta/2);
+        // this.viewEnd = this.viewEnd + (delta/2);
+
+        this.viewEnd = nve;
 
         var wid = this.viewEnd - this.viewStart + 1;
         if (this.currentSeqMax > 0 && this.viewEnd > this.currentSeqMax) {
@@ -1069,7 +1086,6 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
             this.viewStart = 1;
             this.viewEnd = this.viewStart + wid - 1;
         }
-        
 
         this.ruler.style.left = '' + ((this.featurePanelWidth/2)|0) + 'px';
         for (var ti = 0; ti < this.tiers.length; ++ti) {
@@ -1094,6 +1110,9 @@ Browser.prototype.addTier = function(conf) {
 Browser.prototype.removeTier = function(conf) {
     var target = -1;
 
+    // FIXME can this be done in a way that doesn't need changing every time we add
+    // new datasource types.
+
     if (typeof conf.index !== 'undefined' && conf.index >=0 && conf.index < this.tiers.length) {
         target = conf.index;
     } else {
@@ -1104,7 +1123,9 @@ Browser.prototype.removeTier = function(conf) {
                 (conf.bamURI && ts.bamURI === conf.bamURI) ||
                 (conf.twoBitURI && ts.twoBitURI === conf.twoBitURI))
             {
-                target = ti; break;
+                 if (ts.stylesheet_uri == conf.stylesheet_uri) {
+                    target = ti; break;
+                }
             }
         }
     }
@@ -1161,6 +1182,9 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
 
 Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, callback) {
     if (newChr) {
+        if (newChr.indexOf('chr') == 0)
+            newChr = newChr.substring(3);
+
         this.chr = newChr;
         this.currentSeqMax = newChrInfo.length;
     }
@@ -1191,9 +1215,9 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
         var viewCenter = (this.viewStart + this.viewEnd)/2;
     
         for (var i = 0; i < this.tiers.length; ++i) {
-            var offset = (viewCenter - this.tiers[i].norigin)*this.scale;
+            var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
 	    this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
-            var ooffset = (viewCenter - this.tiers[i].oorigin)*this.scale;
+            var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
             this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
         }
     }
@@ -1310,7 +1334,7 @@ Browser.prototype.drawOverlays = function() {
         }
         }
 
-        t.oorigin = (this.viewStart + this.viewEnd)/2;
+        t.oorigin = this.viewStart;
         t.overlay.style.left = '-1000px'
     }
 }
@@ -1337,8 +1361,10 @@ Browser.prototype.setSelectedTier = function(t) {
     this.selectedTier = t;
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var button = this.tiers[ti].nameButton;
+
         if (ti == this.selectedTier) {
             button.classList.add('active');
+            // this.tiers[ti].label.focus();
         } else {
             button.classList.remove('active');
         }

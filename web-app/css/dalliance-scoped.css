@@ -1,3 +1,6 @@
+*.dalliance * {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 *.dalliance .tier-viewport-background {
   background-color: #fff;
   background-image: -webkit-linear-gradient(#000 2px, transparent 2px), -webkit-linear-gradient(0, #000 2px, transparent 2px), -webkit-linear-gradient(rgba(0, 0, 0, .3) 1px, transparent 1px), -webkit-linear-gradient(0, rgba(0, 0, 0, .3) 1px, transparent 1px);
@@ -51,11 +54,7 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 *.dalliance .tier-tab.active {
-  background-image: -moz-linear-gradient(top, #faa, #e6aaaa);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#faa), to(#e6aaaa));
-  background-image: -webkit-linear-gradient(top, #faa, #e6aaaa);
-  background-image: -o-linear-gradient(top, #faa, #e6aaaa);
-  background-image: linear-gradient(to bottom, #faa, #e6aaaa);
+  border: 3px solid rgb(150, 150, 230);
 }
 *.dalliance .loc-field {
   width: 300px;

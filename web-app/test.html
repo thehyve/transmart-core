@@ -4,9 +4,6 @@
 
 <head>
 <title>Human NCBI36 :: Dalliance</title> 
-<style>
-body {font-family: 'helvetica'}
-</style>
 <script language="javascript" src="js/spans.js"></script>
 <script language="javascript" src="js/utils.js"></script>
 <script language="javascript" src="js/das.js"></script>
@@ -56,23 +53,23 @@ body {font-family: 'helvetica'}
                                })
     },
 
-    sources:     [{name:                 'Genome',
+    sources:     [{name:                 'Genome',      
                    twoBitURI:            'http://www.biodalliance.org/datasets/hg18.2bit',
-                   // uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
+                   // uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',      
                    tier_type:            'sequence'},
-                  {name:                 'Genes',
+                  {name:                 'Genes',     
                    desc:                 'Gene structures from Ensembl 54',
-                   uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
+                   uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',      
                    collapseSuperGroups:  true,
                    provides_karyotype:   true,
                    provides_search:      true,
                    provides_entrypoints: true,
-                   maxbins:              false},
-                  {name:                 'Repeats',
-                   uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
-                   stylesheet_uri:       'http://www.biodalliance.org/stylesheets/repeats-L1.xml'},
-                  {name:                 'CpG Density',
-                   uri:                  'http://www.derkholm.net:8080/das/hg18comp/',
+                   maxbins:              false}, 
+                  {name:                 'Repeats',     
+                   uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',      
+                   stylesheet_uri:       'http://www.biodalliance.org/stylesheets/repeats-L1.xml'}, 
+                  {name:                 'CpG Density', 
+                   uri:                  'http://www.derkholm.net:8080/das/hg18comp/',        
                    // stylesheet_uri:       'http://www.biodalliance.org/stylesheets/cpg-hist.xml',
                    style:                [{type: 'cpgoe',
                                            style: {glyph: 'LINEPLOT',

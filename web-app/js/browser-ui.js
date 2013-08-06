@@ -11,6 +11,10 @@ function formatLongInt(n) {
     return (n|0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
+function parseIntCommas(s) {
+    return s.replace(/,/g, '')|0
+}
+
 /*
  * Quite a bit of this ought to be done using a templating system, but
  * since web-components isn't quite ready for prime time yet we'll stick
@@ -18,17 +22,18 @@ function formatLongInt(n) {
  */
 
 Browser.prototype.initUI = function(holder, genomePanel) {
-
-
-    document.head.appendChild(makeElement('link', '', {rel: 'stylesheet', href: pageInfo.basePath + '/css/bootstrap-scoped.css'}));
-    document.head.appendChild(makeElement('link', '', {rel: 'stylesheet', href: pageInfo.basePath + '/css/dalliance-scoped.css'}));
+    // FIXME shouldn't be hard-coded...
+    document.head.appendChild(makeElement('link', '', {rel: 'stylesheet', href: this.uiPrefix + 'css/bootstrap-scoped.css'}));
+    document.head.appendChild(makeElement('link', '', {rel: 'stylesheet', href: this.uiPrefix + 'css/dalliance-scoped.css'}));
 
     var b = this;
-    var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):(\d+)([\-,\,.](\d+))?/;
+    var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):([0-9,]+)([\-,\,.]+([0-9,]+))?/;
 
-    this.addFeatureListener(function(ev, hit) {
-        b.featurePopup(ev, hit, null);
-    });
+    if (!b.disableDefaultFeaturePopup) {
+        this.addFeatureListener(function(ev, hit) {
+            b.featurePopup(ev, hit, null);
+        });
+    }
 
     holder.classList.add('dalliance');
     var toolbar = makeElement('div', null, {className: 'btn-toolbar'});
@@ -38,14 +43,17 @@ Browser.prototype.initUI = function(holder, genomePanel) {
         document.title = title + ' :: dalliance';
     }
     
-    toolbar.appendChild(makeElement('div', makeElement('h4', title, {}, {margin: '0px'}), {className: 'btn-group'}, {verticalAlign: 'top'}));
+    if (!this.noTitle) {
+        toolbar.appendChild(makeElement('div', makeElement('h4', title, {}, {margin: '0px'}), {className: 'btn-group'}, {verticalAlign: 'top'}));
+    }
 
     var locField = makeElement('input', '', {className: 'loc-field'});
+    b.makeTooltip(locField, 'Enter a genomic location or gene name');
     var locStatusField = makeElement('p', '', {className: 'loc-status'});
     toolbar.appendChild(makeElement('div', [locField, locStatusField], {className: 'btn-group'}, {verticalAlign: 'top', marginLeft: '10px', marginRight: '5px'}));
 
     var zoomInBtn = makeElement('a', [makeElement('i', null, {className: 'icon-zoom-in'})], {className: 'btn'});
-    var zoomSlider = makeElement('input', '', {type: 'range', min: 100, max: 250});
+    var zoomSlider = makeElement('input', '', {type: 'range', min: 100, max: 250}, {width: '200px'});  // NB min and max get overwritten.
     var zoomOutBtn = makeElement('a', [makeElement('i', null, {className: 'icon-zoom-out'})], {className: 'btn'});
     toolbar.appendChild(makeElement('div', [zoomInBtn,
                                             makeElement('span', zoomSlider, {className: 'btn'}),
@@ -57,7 +65,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     var resetBtn = makeElement('a', [makeElement('i', null, {className: 'icon-refresh'})], {className: 'btn'});
     var optsButton = makeElement('a', [makeElement('i', null, {className: 'icon-cog'})], {className: 'btn'});
     toolbar.appendChild(makeElement('div', [addTrackBtn,
-                                            favBtn,
+                                            // favBtn,
                                             svgBtn,
                                             resetBtn,
                                             optsButton], {className: 'btn-group'}, {verticalAlign: 'top'}));
@@ -93,14 +101,14 @@ Browser.prototype.initUI = function(holder, genomePanel) {
                 };
 
             if (m) {
-                console.log(m);
+                // console.log(m);
                 var chr = m[1], start, end;
                 if (m[4]) {
-                    start = m[2]|0;
-                    end = m[4]|0;
+                    start = parseIntCommas(m[2]);
+                    end = parseIntCommas(m[4]);
                 } else {
                     var width = b.viewEnd - b.viewStart + 1;
-                    start = ((m[2]|0) - (width/2))|0;
+                    start = (parseIntCommas(m[2]) - (width/2))|0;
                     end = start + width - 1;
                 }
                 b.setLocation(chr, start, end, setLocationCB);
@@ -215,14 +223,22 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     optsButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
 
-        var optsBox = makeElement('div');
-        var scrollModeButton = makeElement('input', '', {type: 'checkbox', checked: b.reverseScrolling});
-        scrollModeButton.addEventListener('change', function(ev) {
-            b.reverseScrolling = scrollModeButton.checked;
-        }, false);
-        optsBox.appendChild(makeElement('p', ['Reverse trackpad scrolling', scrollModeButton]));
-        b.removeAllPopups();
-        b.popit(ev, 'Options', optsBox, {width: 300});
+        if (b.optionsVisible) {
+            b.removeAllPopups();
+        } else {
+            var optsForm = makeElement('form', null, {className: 'popover-content'});
+            var scrollModeButton = makeElement('input', '', {type: 'checkbox', checked: b.reverseScrolling});
+            scrollModeButton.addEventListener('change', function(ev) {
+                b.reverseScrolling = scrollModeButton.checked;
+            }, false);
+            optsForm.appendChild(makeElement('label', [scrollModeButton, 'Reverse trackpad scrolling'], {className: 'checkbox'}));
+            b.removeAllPopups();
+            b.popit(ev, 'Options', optsForm, {width: 300});
+            b.optionsVisible = true;
+            optsForm.addEventListener('DOMNodeRemovedFromDocument', function(ev) {
+                b.optionsVisible = false;
+            }, false);
+        }
     }, false);
 
     b.addTierSelectionWrapListener(function(dir) {

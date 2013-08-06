@@ -30,6 +30,7 @@ Browser.prototype.makeTooltip = function(ele, text)
     var setup;
     setup = function(ev) {
         var mx = ev.clientX + window.scrollX, my = ev.clientY + window.scrollY;
+
         if (!timer) {
             timer = setTimeout(function() {
                 var popup = makeElement('div',
@@ -77,6 +78,14 @@ Browser.prototype.makeTooltip = function(ele, text)
     }, false);
 }
 
+function getPos(el) {
+    // yay readability
+    for (var lx=0, ly=0;
+         el != null;
+         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    return {x: lx,y: ly};
+}
+
 Browser.prototype.popit = function(ev, name, ele, opts)
 {
     var thisB = this;
@@ -86,13 +95,20 @@ Browser.prototype.popit = function(ev, name, ele, opts)
 
     var width = opts.width || 200;
 
+
+    var dalInstance = document.getElementById('dallianceBrowser');
+    var dalPos = getPos(dalInstance);
+
+    console.log("dalPos.lx", dalPos.x);
+    console.log("dalPos ly", dalPos.y);
+
     var mx =  ev.clientX, my = ev.clientY;
     mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
     my +=  document.documentElement.scrollTop || document.body.scrollTop;
     var winWidth = window.innerWidth;
 
-    var top = (my + 30);
-    var left = Math.min((mx - 30), (winWidth - width - 10));
+    var top = (my + 30) - dalPos.y;
+    var left = (Math.min((mx - 30), (winWidth - width - 10)));
 
     var popup = makeElement('div');
     popup.className = 'popover fade bottom in';
@@ -156,7 +172,7 @@ Browser.prototype.popit = function(ev, name, ele, opts)
     }
 
     popup.appendChild(makeElement('div', ele, {className: 'popover-content'}, {
-        padding: '0px'
+        padding: '10px'
     }));
     this.hPopupHolder.appendChild(popup);
 

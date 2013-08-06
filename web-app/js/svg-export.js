@@ -9,18 +9,20 @@ function saveSVG(b) {
     var saveDoc = document.implementation.createDocument(NS_SVG, 'svg', null);
 
     var saveRoot = makeElementNS(NS_SVG, 'g', null, {
-        fontFamily: 'helvetica'
+        fontFamily: 'helvetica',
+	fontSize: '10pt'
     });
     saveDoc.documentElement.appendChild(saveRoot);
 
     var margin = 200;
 
     var dallianceAnchor = makeElementNS(NS_SVG, 'text', 'Graphics from Dalliance ' + VERSION, {
-        x: 300,
+        x: (b.featurePanelWidth + margin + 20)/2,
         y: 30,
         strokeWidth: 0,
         fill: 'black',
-        fontSize: '12pt'
+        fontSize: '12pt',
+	textAnchor: 'middle'
     });
     saveRoot.appendChild(dallianceAnchor);
     
@@ -50,7 +52,7 @@ function saveSVG(b) {
 	if (tier.dasSource.tier_type === 'sequence') {
 	    var seqTrack = svgSeqTier(tier, tier.currentSequence);
 	    
-	    tierHolder.appendChild(makeElementNS(NS_SVG, 'g', seqTrack, {transform: 'translate(0, ' + pos + ')'}));
+	    tierHolder.appendChild(makeElementNS(NS_SVG, 'g', seqTrack, {transform: 'translate(' + (margin) + ', ' + pos + ')'}));
 	    pos += 80;
 	} else {
             if (!tier.subtiers) {
@@ -74,13 +76,13 @@ function saveSVG(b) {
     }
     saveRoot.appendChild(tierHolder);
 
-    saveDoc.documentElement.setAttribute('width', b.featurePanelWidth + 20);
+    saveDoc.documentElement.setAttribute('width', b.featurePanelWidth + 20 + margin);
     saveDoc.documentElement.setAttribute('height', pos + 50);
 
     var svgBlob = new Blob([new XMLSerializer().serializeToString(saveDoc)]);
     var fr = new FileReader();
     fr.onload = function(fre) {
-        window.open('data:image/svg+xml;' + fre.target.result.substring(6), 'Dalliance graphics');
+        window.open('data:image/svg+xml;' + fre.target.result.substring(6), 'Dalliance graphics', 'width=' + ( b.featurePanelWidth + 20 + margin + 'px'));
     };
     fr.readAsDataURL(svgBlob);
 }
