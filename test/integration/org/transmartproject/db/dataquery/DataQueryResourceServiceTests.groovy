@@ -96,9 +96,12 @@ abstract class DataQueryResourceServiceTests {
                 ),
         )
         def result = testedService.getChromosomalSegments(q)
-        assertThat result, hasSize(2)
-        assertThat result[0], equalTo(new ChromosomalSegment(chromosome: '2', start: 66L, end: 99L))
-        assertThat result[1], equalTo(new ChromosomalSegment(chromosome: '1', start: 33L, end: 9999L))
+        assertThat result, allOf(hasSize(2),
+                containsInAnyOrder(
+                        new ChromosomalSegment(chromosome: '2', start: 66L, end: 99L),
+                        new ChromosomalSegment(chromosome: '1', start: 33L, end: 9999L)
+                )
+        )
     }
 
     @Test
