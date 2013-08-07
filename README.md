@@ -13,7 +13,7 @@ This repository is a set of make files and scripts for:
   are not robust enough to be generally applicable.
 
 The current schema is the one necessary to support the
-[`ImperialBranch_FacetedSearch` branch][impbr] on The Hyve's fork.
+[`master` branch][master] on The Hyve's fork.
 
 Oracle databases are still not supported. This goal is to have this project
 displace `transmart-DB` by providing a better way to manage the tranSMART
@@ -139,7 +139,7 @@ This part still needs some work, but it goes more or less like this:
   `ddl/postgresql/GLOBAL` for more information.
 * Make sure you test the changes by recreating the database.
 
-  [impbr]: https://github.com/thehyve/transmartApp/tree/ImperialBranch_FacetedSearch
+  [master]: https://github.com/thehyve/transmartApp/tree/master
   [liquibase]: http://www.liquibase.com/
   [ts_etl]: https://github.com/thehyve/tranSMART-ETL
   [kettle]: http://kettle.pentaho.com/
