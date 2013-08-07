@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <dataConfig>
 <dataSource name="ds1" driver="org.postgresql.Driver"
 			url="jdbc:postgresql://<?= $_ENV['PGHOST'] ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
