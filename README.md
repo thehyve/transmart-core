@@ -11,6 +11,7 @@ This repository is a set of make files and scripts for:
 * fixing permissions and tablespace assignments;
 * importing some example data – these are intended for development, the targets
   are not robust enough to be generally applicable.
+* Running the Solr cores for Faceted Search and the Sample Explorer
 
 The current schema is the one necessary to support the
 [`master` branch][master] on The Hyve's fork.
@@ -35,7 +36,9 @@ The following are required:
 * tar with support for the -J switch (GNU tar only?)
 * An up-to-date checkout of the [`tranSMART-ETL` repository][ts_etl]. Revision
   e712fcd7 is necessary for Faceted Search support (ETL only)
-* A copy of [Kettle][kettle] (ETL only)
+* [Kettle][kettle] (ETL only)
+* rsync (Solr only)
+* Java environment (JDK) (Solr only)
 
 Usage
 -----
