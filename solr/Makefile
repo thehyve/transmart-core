@@ -62,6 +62,6 @@ rwg_delta_import sample_delta_import:
 	curl -f "http://localhost:8983/solr/$(patsubst %_delta_import,%,$@)/dataimport?command=delta-import"
 
 clean:
-	rm -rf $(EXAMPLE_FILES) $(ROOT_FILES)
+	rm -rf $(EXAMPLE_FILES) $(ROOT_FILES) solr solr-$(SOLR_VERSION).tgz
 
 .PHONY: start clean
