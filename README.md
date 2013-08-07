@@ -107,6 +107,21 @@ triggered manually.
 
 The ETL functionality is not meant for any non-development purposes.
 
+### Starting Solr
+
+To start a Solr instance with one core for Faceted Search and another for the
+sample explorer:
+
+    make -C solr start
+
+Once it is running, you can run full imports with:
+
+	make -C solr rwg_full_import sample_full_import
+
+The Faceted Search core also supports delta imports:
+
+    make -C solr rwg_delta_import
+
 ### Changing ownership or permission information
 
 The default schema permissions are set in
