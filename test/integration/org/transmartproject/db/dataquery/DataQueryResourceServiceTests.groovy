@@ -110,7 +110,7 @@ abstract class DataQueryResourceServiceTests {
                 common: new CommonHighDimensionalQueryConstraints(
                         patientQueryResult: resultInstance
                 ),
-                //It's enough for getting to result that either start or end belongs to region. In this case just start belong to region
+                //In this case just start of tested range belong to segment and it get into results
                 segments: [ new ChromosomalSegment(chromosome: '1', start: 33, end: 44) ]
         )
         def result = testedService.runACGHRegionQuery(q, null)
@@ -127,8 +127,10 @@ abstract class DataQueryResourceServiceTests {
                 common: new CommonHighDimensionalQueryConstraints(
                         patientQueryResult: resultInstance
                 ),
-                segments: [ new ChromosomalSegment(chromosome: '1'),
-                        //It's enough for getting to result that either start or end belongs to region. In this case just end belong to region
+                segments: [
+                        //In this case tested region wider then the segment and it get into results
+                        new ChromosomalSegment(chromosome: '1', start: 44, end: 8888),
+                        //In this case just end of tested region belong to segment and it get into results
                         new ChromosomalSegment(chromosome: '2', start: 88, end: 99) ]
         )
 
@@ -163,12 +165,16 @@ abstract class DataQueryResourceServiceTests {
     }
 
     @Test
-    void testSegmentss_unexistedRegion() {
+    void testSegmentss_meetNone() {
         def q = new ACGHRegionQuery(
                 common: new CommonHighDimensionalQueryConstraints(
                         patientQueryResult: resultInstance
                 ),
-                segments: [ new ChromosomalSegment(chromosome: 'X') ]
+                segments: [
+                        new ChromosomalSegment(chromosome: 'X'),
+                        new ChromosomalSegment(chromosome: '1', start: 1, end: 32),
+                        new ChromosomalSegment(chromosome: '2', start: 100, end: 1000)
+                ]
         )
         def result = testedService.runACGHRegionQuery(q, null)
         def regionRows = Lists.newArrayList(result.rows)
