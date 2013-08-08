@@ -1,5 +1,3 @@
-
-
 /**
  * Load Dalliance Genome Browser
  * @param resultsTabPanel
@@ -8,11 +6,6 @@ function loadDalliance(resultsTabPanel) {
     // everything starts here ..
     resultsTabPanel.add(genomeBrowserPanel);
     resultsTabPanel.doLayout();
-}
-
-
-var nodeMapping = {
-
 }
 
 /**
@@ -60,8 +53,6 @@ var genomeBrowserPanel = new Ext.Panel(
 
         notifyDrop: function(source, e, data) {
 
-            console.log("im in the notify drop data ...", data);
-
             // get selected concept from the dropped node
             var concept = convertNodeToConcept(data.node);
 
@@ -78,8 +69,8 @@ var genomeBrowserPanel = new Ext.Panel(
         createGenomeBrowser : function () {
             this.genomeBrowser = new Browser({
                 chr:          '22',
-                viewStart:    30000000,
-                viewEnd:      30030000,
+                viewStart:    30096000,
+                viewEnd:      30276000,
                 cookieKey:    'human2',
 
                 chains: {
@@ -99,45 +90,39 @@ var genomeBrowserPanel = new Ext.Panel(
                         // uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
                         tier_type:            'sequence'
                     },
-
                     {
                         name: 'MeDIP-raw',
                         desc: 'MeDIP-seq reads from Nature Biotech. 26:779-785',
                         uri: 'http://www.derkholm.net:8080/das/medipseq_reads/'
+                    },
+                    {
+                        name:                 'Genes',
+                        desc:                 'Gene structures from Ensembl 54',
+                        uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
+                        collapseSuperGroups:  true,
+                        provides_karyotype:   true,
+                        provides_search:      true,
+                        provides_entrypoints: true,
+                        maxbins:              false
+                    },
+                    {
+                        name:                 'Repeats',
+                        uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
+                        stylesheet_uri:       'http://www.biodalliance.org/stylesheets/repeats-L1.xml'
+                    },
+                    {
+                        name:                 'CpG Density',
+                        uri:                  'http://www.derkholm.net:8080/das/hg18comp/',
+                        // stylesheet_uri:       'http://www.biodalliance.org/stylesheets/cpg-hist.xml',
+                        style:                [{type: 'cpgoe',style: {glyph: 'LINEPLOT', FGCOLOR: 'green', HEIGHT: '50'}}]
                     }
-
-                    /*
-
-                     {name:                 'Genes',
-                     desc:                 'Gene structures from Ensembl 54',
-                     uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
-                     collapseSuperGroups:  true,
-                     provides_karyotype:   true,
-                     provides_search:      true,
-                     provides_entrypoints: true,
-                     maxbins:              false },
-                     {name:                 'Repeats',
-                     uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
-                     stylesheet_uri:       'http://www.biodalliance.org/stylesheets/repeats-L1.xml'},
-                     {name:                 'CpG Density',
-                     uri:                  'http://www.derkholm.net:8080/das/hg18comp/',
-                     // stylesheet_uri:       'http://www.biodalliance.org/stylesheets/cpg-hist.xml',
-                     style:                [{type: 'cpgoe',
-                     style: {glyph: 'LINEPLOT',
-                     FGCOLOR: 'green', HEIGHT: '50'}}]},
-
-                     {name:                 'aCGH',
-                     uri:                  'http://localhost:8080/das/transmart-acgh/',
-                     stylesheet_uri:       'http://localhost:8080/das/transmart-acgh/stylesheet'
-                     }
-
-                     */
 
                 ],
 
                 setDocumentTitle: true,
 
                 searchEndpoint: new DASSource('http://www.derkholm.net:8080/das/hsa_54_36p/'),
+
                 browserLinks: {
                     Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
                     UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr${chr}:${start}-${end}',
