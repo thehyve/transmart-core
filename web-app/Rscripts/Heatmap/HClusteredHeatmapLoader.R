@@ -64,6 +64,8 @@ pointsize = 15
 	
 	#Store the heatmap in a temp variable.
 	tmp <- heatmap(	matrixData,
+	                Rowv=NA,
+	                Colv=NA,
 					col=colorPanelList,
 					margins=c(25,25),
 					cexRow=1.5,
