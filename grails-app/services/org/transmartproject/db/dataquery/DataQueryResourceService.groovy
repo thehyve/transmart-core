@@ -103,8 +103,8 @@ class DataQueryResourceService implements DataQueryResource {
                 if(segment.start && segment.end) {
                     params["start$indx"] = segment.start
                     params["end$indx"] = segment.end
-                    subClauses << "((region.start >= :start$indx and region.start <= :end$indx)" +
-                            " or (region.end >= :start$indx and region.end <= :end$indx)" +
+                    subClauses << "(region.start between :start$indx and :end$indx" +
+                            " or region.end between :start$indx and :end$indx" +
                             " or (region.start < :start$indx and region.end > :end$indx))"
                 }
                 regionsWhereClauses << "(${subClauses.join(' and ')})"
