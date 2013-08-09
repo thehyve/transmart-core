@@ -78,16 +78,34 @@ Browser.prototype.makeTooltip = function(ele, text)
     }, false);
 }
 
-function getPos(el) {
-    // yay readability
-    for (var lx=0, ly=0;
-         el != null;
-         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-    return {x: lx,y: ly};
+
+function getOffsetRect(el) {
+    // (1)
+    var box = el.getBoundingClientRect()
+
+    var body = document.body
+    var docElem = document.documentElement
+
+    // (2)
+    var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
+    var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
+
+    // (3)
+    var clientTop = docElem.clientTop || body.clientTop || 0
+    var clientLeft = docElem.clientLeft || body.clientLeft || 0
+
+    // (4)
+    var top  = box.top +  scrollTop - clientTop
+    var left = box.left + scrollLeft - clientLeft
+
+    return { y: Math.round(top), x: Math.round(left) }
 }
+
 
 Browser.prototype.popit = function(ev, name, ele, opts)
 {
+
+
     var thisB = this;
     if (!opts) {
         opts = {};
@@ -97,18 +115,50 @@ Browser.prototype.popit = function(ev, name, ele, opts)
 
 
     var dalInstance = document.getElementById('dallianceBrowser');
-    var dalPos = getPos(dalInstance);
+    var dalPos = getOffsetRect(dalInstance);
 
-    console.log("dalPos.lx", dalPos.x);
-    console.log("dalPos ly", dalPos.y);
+// ==========================================
+// Original code to return the mouse position
+// ==========================================
+//    var mx =  ev.clientX, my = ev.clientY;
+//    mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
+//    my +=  document.documentElement.scrollTop || document.body.scrollTop;
+//    var winWidth = window.innerWidth;
+//
+//    var top = (my + 30) - dalPos.y;
+//    var left = (Math.min((mx - 30), (winWidth - width - 10))) - dalPos.x;
 
-    var mx =  ev.clientX, my = ev.clientY;
-    mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
-    my +=  document.documentElement.scrollTop || document.body.scrollTop;
     var winWidth = window.innerWidth;
 
-    var top = (my + 30) - dalPos.y;
-    var left = (Math.min((mx - 30), (winWidth - width - 10)));
+    // return the mouse position (x & y)
+    function myHandleEvent(e){
+        var evt = e ? e:window.event;
+        var clickX=0, clickY=0;
+
+        if ((evt.clientX || evt.clientY) &&
+            document.body &&
+            document.body.scrollLeft!=null) {
+            clickX = evt.clientX + document.body.scrollLeft;
+            clickY = evt.clientY + document.body.scrollTop;
+        }
+        if ((evt.clientX || evt.clientY) &&
+            document.compatMode=='CSS1Compat' &&
+            document.documentElement &&
+            document.documentElement.scrollLeft!=null) {
+            clickX = evt.clientX + document.documentElement.scrollLeft;
+            clickY = evt.clientY + document.documentElement.scrollTop;
+        }
+        if (evt.pageX || evt.pageY) {
+            clickX = evt.pageX;
+            clickY = evt.pageY;
+        }
+        return {x:clickX, y:clickY};
+    }
+
+    var mouseClick = myHandleEvent(ev);
+
+    var top = mouseClick.y;
+    var left = mouseClick.x - (width/2);
 
     var popup = makeElement('div');
     popup.className = 'popover fade bottom in';
