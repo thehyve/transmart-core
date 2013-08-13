@@ -57,12 +57,12 @@ class PGTableGrouper {
 			$this->writtenItems[$i] = null;
 		}
 
-		$this->writeLoadInclude("$groupName.sql", $load_stream);
+		$this->writeLoadInclude($basePath, "$groupName.sql", $load_stream);
 		$this->writtenGroups[$groupName] = null;
 	}
 
-	private function writeLoadInclude($script, $stream) {
-		fwrite($stream, '\ir ' . $script . "\n");
+	private function writeLoadInclude($basePath, $script, $stream) {
+		fwrite($stream, "\\i $basePath/$script\n");
 	}
 
 	public function writeResults($basePath) {
@@ -89,7 +89,7 @@ class PGTableGrouper {
 		if (!$f_rest) {
 			throw new Exception("Could not open file $basePath/misc.sql");
 		}
-		$this->writeLoadInclude("_misc.sql", $f_load_all);
+		$this->writeLoadInclude($basePath, "_misc.sql", $f_load_all);
 
 		foreach ($this->inner->getItems() as $i) {
 			if ($this->writtenItems->contains($i)) {
