@@ -66,7 +66,7 @@ load_%: %/_load_all.sql
 
 #dependencies between schemas
 load_searchapp: load_biomart
-load_tm_cz: load_tm_lz load_i2b2metadata
+load_tm_cz: load_tm_lz load_i2b2metadata load_i2b2metadata load_searchapp load_biomart
 load_tm_lz: load_deapp
 
 load: $(LOAD_TARGETS)
