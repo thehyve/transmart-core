@@ -985,18 +985,6 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
 
 Browser.prototype.move = function(pos)
 {
-
-    function getPos(el) {
-        // yay readability
-        for (var lx=0, ly=0;
-             el != null;
-             lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-        return {x: lx,y: ly};
-    }
-
-    var offsetPos = getPos(this);
-    console.log(offsetPos);
-
     var wid = this.viewEnd - this.viewStart;
     this.viewStart -= pos / this.scale;
     this.viewEnd = this.viewStart + wid;

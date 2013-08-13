@@ -697,8 +697,6 @@ function dasNotesOf(element)
 function doCrossDomainRequest(url, handler, credentials, custAuth) {
     // TODO: explicit error handlers?
 
-    console.log('url',url);
-
     if (window.XDomainRequest) {
         var req = new XDomainRequest();
         req.onload = function() {
