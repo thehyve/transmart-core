@@ -296,7 +296,7 @@ class PGDumpReaderWriter {
 //			fwrite($stream, sprintf("--\n-- Name: %s; Type: %s\n--\n\n",
 //					$item->name, $item->type));
 //		}
-		fwrite($stream, $item->data . "\n");
+		fwrite($stream, $item->getFixedData() . "\n");
 	}
 
 	public function readAll() {
@@ -399,4 +399,12 @@ class Item {
 	public $type;
 	public $name;
 	public $data = '';
+
+	public function getFixedData() {
+		if ($this->type === 'prelude') {
+			/* postgres 9.1 has no such thing: */
+			return str_replace("SET lock_timeout = 0;\n", "", $this->data);
+		}
+		return $this->data;
+	}
 }
