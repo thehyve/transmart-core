@@ -767,8 +767,19 @@ Browser.prototype.realMakeTier = function(source) {
 
             yAtLastReorder = ev.clientY;
         }
-        dragLabel.style.left = label.getBoundingClientRect().left + 'px'; dragLabel.style.top = ev.clientY - 10 + 'px';
-        
+
+
+        // get mouse position and label position
+        var mousePos = myHandleEvent(ev);
+        var labelPos = getPosition(label);
+
+//        dragLabel.style.left = (label.getBoundingClientRect().left - mousePos.y) + 'px';
+//        dragLabel.style.top = (ev.clientY - 10) + 'px';
+
+        // not the best solution but this fix the wrong position in transmart's tab
+        dragLabel.style.left = (mousePos.x - labelPos.x - 55)  + 'px';
+        dragLabel.style.top = (labelPos.y - 70) + 'px';
+
         var pty = ev.clientY - thisB.tierHolder.getBoundingClientRect().top;
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
             var tt = thisB.tiers[ti];
@@ -974,6 +985,18 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
 
 Browser.prototype.move = function(pos)
 {
+
+    function getPos(el) {
+        // yay readability
+        for (var lx=0, ly=0;
+             el != null;
+             lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+        return {x: lx,y: ly};
+    }
+
+    var offsetPos = getPos(this);
+    console.log(offsetPos);
+
     var wid = this.viewEnd - this.viewStart;
     this.viewStart -= pos / this.scale;
     this.viewEnd = this.viewStart + wid;

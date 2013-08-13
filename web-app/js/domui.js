@@ -78,27 +78,42 @@ Browser.prototype.makeTooltip = function(ele, text)
     }, false);
 }
 
+// return the mouse position (x & y)
+function myHandleEvent(e) {
+    var evt = e ? e:window.event;
+    var clickX=0, clickY=0;
 
-function getOffsetRect(el) {
-    // (1)
-    var box = el.getBoundingClientRect()
+    if ((evt.clientX || evt.clientY) &&
+        document.body &&
+        document.body.scrollLeft!=null) {
+        clickX = evt.clientX + document.body.scrollLeft;
+        clickY = evt.clientY + document.body.scrollTop;
+    }
+    if ((evt.clientX || evt.clientY) &&
+        document.compatMode=='CSS1Compat' &&
+        document.documentElement &&
+        document.documentElement.scrollLeft!=null) {
+        clickX = evt.clientX + document.documentElement.scrollLeft;
+        clickY = evt.clientY + document.documentElement.scrollTop;
+    }
+    if (evt.pageX || evt.pageY) {
+        clickX = evt.pageX;
+        clickY = evt.pageY;
+    }
+    return {x:clickX, y:clickY};
+}
 
-    var body = document.body
-    var docElem = document.documentElement
+// get position of element
+function getPosition(element) {
+    var xPosition = 0;
+    var yPosition = 0;
 
-    // (2)
-    var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
-    var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
-
-    // (3)
-    var clientTop = docElem.clientTop || body.clientTop || 0
-    var clientLeft = docElem.clientLeft || body.clientLeft || 0
-
-    // (4)
-    var top  = box.top +  scrollTop - clientTop
-    var left = box.left + scrollLeft - clientLeft
-
-    return { y: Math.round(top), x: Math.round(left) }
+    while(element) {
+        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+        element = element.offsetParent;
+    }
+    return { x: xPosition, y: yPosition };
 }
 
 
@@ -113,10 +128,6 @@ Browser.prototype.popit = function(ev, name, ele, opts)
 
     var width = opts.width || 200;
 
-
-    var dalInstance = document.getElementById('dallianceBrowser');
-    var dalPos = getOffsetRect(dalInstance);
-
 // ==========================================
 // Original code to return the mouse position
 // ==========================================
@@ -129,31 +140,6 @@ Browser.prototype.popit = function(ev, name, ele, opts)
 //    var left = (Math.min((mx - 30), (winWidth - width - 10))) - dalPos.x;
 
     var winWidth = window.innerWidth;
-
-    // return the mouse position (x & y)
-    function myHandleEvent(e){
-        var evt = e ? e:window.event;
-        var clickX=0, clickY=0;
-
-        if ((evt.clientX || evt.clientY) &&
-            document.body &&
-            document.body.scrollLeft!=null) {
-            clickX = evt.clientX + document.body.scrollLeft;
-            clickY = evt.clientY + document.body.scrollTop;
-        }
-        if ((evt.clientX || evt.clientY) &&
-            document.compatMode=='CSS1Compat' &&
-            document.documentElement &&
-            document.documentElement.scrollLeft!=null) {
-            clickX = evt.clientX + document.documentElement.scrollLeft;
-            clickY = evt.clientY + document.documentElement.scrollTop;
-        }
-        if (evt.pageX || evt.pageY) {
-            clickX = evt.pageX;
-            clickY = evt.pageY;
-        }
-        return {x:clickX, y:clickY};
-    }
 
     var mouseClick = myHandleEvent(ev);
 
