@@ -69,6 +69,7 @@ BEGIN
                         WHEN 'S' THEN 'sequence'
                         WHEN 'v' THEN 'view'
                         WHEN 'f' THEN 'function'
+                        WHEN 'a' THEN 'aggregate'
                         WHEN 's' THEN 'schema'
                     END,
                     schema_name,
@@ -80,6 +81,7 @@ BEGIN
             command := 'ALTER ' ||
                     CASE obj_type
                         WHEN 'f' THEN 'FUNCTION'
+                        WHEN 'a' THEN 'AGGREGATE'
                         WHEN 's' THEN 'SCHEMA'
                         ELSE 'TABLE'
                     END || ' ' ||

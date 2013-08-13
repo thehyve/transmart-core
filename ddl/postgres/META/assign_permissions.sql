@@ -43,6 +43,7 @@ BEGIN
             WHEN 'S' THEN 'rwU'
             WHEN 'v' THEN 'arwdDxt'
             WHEN 'f' THEN 'X'
+            WHEN 'a' THEN 'X'
             WHEN 's' THEN 'UC'
             WHEN 'T' THEN 'C'
         END ||
@@ -103,6 +104,7 @@ BEGIN
                 WHEN 'S' THEN 'rwU' -- from the docs, w or U would suffice
                 WHEN 'v' THEN 'r'
                 WHEN 'f' THEN 'X'
+                WHEN 'a' THEN 'X'
                 WHEN 's' THEN 'U' -- usage only; not create
             END ||
         '/' || (SELECT current_user);
@@ -150,6 +152,7 @@ BEGIN
             WHEN 'v' THEN 'TABLE'
             WHEN 'S' THEN 'SEQUENCE'
             WHEN 'f' THEN 'FUNCTION'
+            WHEN 'f' THEN 'AGGREGATE'
             WHEN 's' THEN 'SCHEMA'
             WHEN 'T' THEN 'TABLESPACE'
             ELSE 'BAD TYPE: ' || type

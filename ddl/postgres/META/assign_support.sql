@@ -145,7 +145,10 @@ BEGIN
                         ) AS Y
                 ),
                 ', ') || ')',
-            'f',
+            CASE proisagg
+                WHEN FALSE THEN 'f'
+                ELSE 'a'
+            END::"char",
             rolname,
             proacl,
             nspname
