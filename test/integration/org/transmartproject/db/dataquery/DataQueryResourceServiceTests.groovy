@@ -7,17 +7,20 @@ import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Platform
 import org.transmartproject.core.dataquery.acgh.ACGHValues
+import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.acgh.RegionRow
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 import org.transmartproject.core.dataquery.constraints.CommonHighDimensionalQueryConstraints
+import org.transmartproject.db.highdim.DeChromosomalRegion
 import org.transmartproject.db.highdim.DeGplInfo
 import org.transmartproject.db.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.querytool.QtQueryResultInstance
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.junit.Assert.assertEquals
 import static org.junit.Assert.fail
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
@@ -83,6 +86,100 @@ abstract class DataQueryResourceServiceTests {
                 hasSameInterfaceProperties(ACGHValues, testACGHData[0])
         assertThat regionRows[1].getRegionDataForAssay(testRegionAssays[1]),
                 hasSameInterfaceProperties(ACGHValues, testACGHData[1])
+    }
+
+    @Test
+    void testGetChromosomalSegments() {
+        def q = new ACGHRegionQuery(
+                common: new CommonHighDimensionalQueryConstraints(
+                        patientQueryResult: resultInstance
+                ),
+        )
+        def result = testedService.getChromosomalSegments(q)
+        assertThat result, allOf(hasSize(2),
+                containsInAnyOrder(
+                        new ChromosomalSegment(chromosome: '2', start: 66L, end: 99L),
+                        new ChromosomalSegment(chromosome: '1', start: 33L, end: 9999L)
+                )
+        )
+    }
+
+    @Test
+    void testSegments_meetOne() {
+        def q = new ACGHRegionQuery(
+                common: new CommonHighDimensionalQueryConstraints(
+                        patientQueryResult: resultInstance
+                ),
+                //In this case just start of tested range belong to segment and it get into results
+                segments: [ new ChromosomalSegment(chromosome: '1', start: 33, end: 44) ]
+        )
+        def result = testedService.runACGHRegionQuery(q, null)
+        Iterator<RegionRow> rows = result.rows
+        def regionRows = Lists.newArrayList(rows)
+
+        assertThat regionRows, hasSize(1)
+        assertEquals '1', regionRows[0].getRegion().getChromosome()
+    }
+
+    @Test
+    void testSegments_meetBoth() {
+        def q = new ACGHRegionQuery(
+                common: new CommonHighDimensionalQueryConstraints(
+                        patientQueryResult: resultInstance
+                ),
+                segments: [
+                        //In this case tested region wider then the segment and it get into results
+                        new ChromosomalSegment(chromosome: '1', start: 44, end: 8888),
+                        //In this case just end of tested region belong to segment and it get into results
+                        new ChromosomalSegment(chromosome: '2', start: 88, end: 99) ]
+        )
+
+        def anotherPlatform = new DeGplInfo(
+                title: 'Another Test Region Platform',
+                organism: 'Homo Sapiens',
+                annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
+                markerTypeId: DeChromosomalRegion.MARKER_TYPE.id,
+                genomeBuild: 'genome build #2',
+        )
+        anotherPlatform.id = 'test-another-platform'
+        anotherPlatform.save(failOnError: true)
+        //NOTE: This region should not apear in result set
+        def anotherRegion = new DeChromosomalRegion(
+                platform: anotherPlatform,
+                chromosome: '1',
+                start: 1,
+                end: 10,
+                numberOfProbes: 42,
+                name: 'region 1:1-10'
+        )
+        anotherRegion.id = -2000L
+        anotherRegion.save(failOnError: true)
+
+        def result = testedService.runACGHRegionQuery(q, null)
+        Iterator<RegionRow> rows = result.rows
+        def regionRows = Lists.newArrayList(rows)
+
+        assertThat regionRows, hasSize(2)
+        assertEquals '2', regionRows[0].getRegion().getChromosome()
+        assertEquals '1', regionRows[1].getRegion().getChromosome()
+    }
+
+    @Test
+    void testSegmentss_meetNone() {
+        def q = new ACGHRegionQuery(
+                common: new CommonHighDimensionalQueryConstraints(
+                        patientQueryResult: resultInstance
+                ),
+                segments: [
+                        new ChromosomalSegment(chromosome: 'X'),
+                        new ChromosomalSegment(chromosome: '1', start: 1, end: 32),
+                        new ChromosomalSegment(chromosome: '2', start: 100, end: 1000)
+                ]
+        )
+        def result = testedService.runACGHRegionQuery(q, null)
+        def regionRows = Lists.newArrayList(result.rows)
+
+        assertThat regionRows, hasSize(0)
     }
 
     @Test
@@ -183,27 +280,6 @@ abstract class DataQueryResourceServiceTests {
         def regionRows = Lists.newArrayList(result.rows)
         assertThat regionRows, hasSize(2)
     }
-
-    @Test
-    void testRequiredTrialsConstraints() {
-        def q = new ACGHRegionQuery(
-                common: new CommonHighDimensionalQueryConstraints(
-                        patientQueryResult: resultInstance
-                ),
-        )
-
-        try {
-            testedService.runACGHRegionQuery(q, null)
-            fail("Expected exception")
-        } catch (e) {
-            assertThat(e, allOf(
-                    instanceOf(IllegalArgumentException),
-                    hasProperty('message', equalTo('query.common.studies not ' +
-                            'specified/empty'))
-            ))
-        }
-    }
-
 
     @Test
     void testRequiredPatientSet() {
