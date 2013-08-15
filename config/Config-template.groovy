@@ -64,14 +64,14 @@ log4j = {
                 info 'stdout'
             }
 
-            debug  'org.transmartproject'
-            debug  'com.recomdata'
-            debug  'grails.app.services.com.recomdata'
-            debug  'grails.app.services.org.transmartproject'
-            debug  'grails.app.controllers.com.recomdata'
-            debug  'grails.app.controllers.org.transmartproject'
-            debug  'grails.app.domain.com.recomdata'
-            debug  'grails.app.domain.org.transmartproject'
+            debug 'org.transmartproject'
+            debug 'com.recomdata'
+            debug 'grails.app.services.com.recomdata'
+            debug 'grails.app.services.org.transmartproject'
+            debug 'grails.app.controllers.com.recomdata'
+            debug 'grails.app.controllers.org.transmartproject'
+            debug 'grails.app.domain.com.recomdata'
+            debug 'grails.app.domain.org.transmartproject'
             debug 'org.springframework.security'
             //very verbose) debug  'org.grails.plugin.resource'
         }
