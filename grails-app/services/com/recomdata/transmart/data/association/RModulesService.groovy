@@ -28,7 +28,16 @@ class RModulesService {
 
     static transactional = true
 	static scope = 'request'
-	
+
+    static STATUS_LIST = [
+            "Started",
+            "Validating Cohort Information",
+            "Triggering Data-Export Job",
+            "Gathering Data",
+            "Running Conversions",
+            "Running Analysis",
+            "Rendering Output"]
+
 	/**
 	* quartzScheduler is available from the Quartz grails-plugin
 	*/
@@ -53,12 +62,7 @@ class RModulesService {
 	 * @return
 	 */
 	def private setJobStatusList(params) {
-		def moduleName = params.jobType
-		//if (StringUtils.isNotEmpty(moduleName)) {
-		//	jobStatusList = config.RModules.'$moduleName'.statusList
-		//} else {
-			jobStatusList = config.RModules.defaultStatusList
-		//}
+        jobStatusList = STATUS_LIST
 		
 		//Set the status list and update the first status.
 		jobResultsService[params.jobName]["StatusList"] = jobStatusList
