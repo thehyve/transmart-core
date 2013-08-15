@@ -185,8 +185,8 @@ environments {
 
     production {
         // The location of RDC module's R scripts
-        com.recomdata.plugins.pluginScriptDirectory = explodedWarDir +
-                                                      '/plugins/rdc-rmodules-' + rdcModulesVersion + '/Rscripts/'
+        RModules.pluginScriptDirectory = explodedWarDir + '/plugins/rdc-rmodules-' +
+                                         rdcModulesVersion + '/Rscripts/'
 
         // The working direcotry for R scripts, where the jobs get created and
         // output files get generated
@@ -209,7 +209,7 @@ environments {
         com.recomdata.transmart.data.export.rScriptDirectory = explodedWarDir + '/dataExportRScripts'
     }
     development {
-        com.recomdata.plugins.pluginScriptDirectory = rdcModulesDirectory + '/Rscripts/'
+        RModules.pluginScriptDirectory = rdcModulesDirectory + '/Rscripts/'
 
         RModules.tempFolderDirectory = "/tmp"
 
