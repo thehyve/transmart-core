@@ -1003,7 +1003,7 @@ BEGIN
 		  ,current_timestamp
 		  ,c.sourcesystem_cd
 		  ,c.concept_cd
-		  ,t.data_type  --'T'
+		  ,'LIKE'
 		  ,'T'
 		  ,'trial:' || TrialID 
 		  ,'@'
