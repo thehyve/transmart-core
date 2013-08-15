@@ -29,18 +29,21 @@ Browser.prototype.makeTooltip = function(ele, text)
 
     var setup;
     setup = function(ev) {
-        var mx = ev.clientX + window.scrollX, my = ev.clientY + window.scrollY;
+        var mouseOver = myHandleEvent(ev);
+        var top = mouseOver.y;
+        var left = mouseOver.x;
 
         if (!timer) {
             timer = setTimeout(function() {
                 var popup = makeElement('div',
                     [makeElement('div', null, {className: 'tooltip-arrow'}),
-                     makeElement('div', text, {className: 'tooltip-inner'})], 
-                    {className: 'tooltip bottom in'}, {
-                    display: 'block',
-                    top: '' + (my + 20) + 'px',
-                    left: '' + Math.max(mx - 30, 20) + 'px'
+                     makeElement('div', text, {className: 'tooltip-inner'})],
+                    {className: 'tooltip in'}, {
+                        display: 'block',
+                        top: '' + (top + 10) + 'px',
+                        left: '' + left + 'px'
                 });
+
                 thisB.hPopupHolder.appendChild(popup);
                 var moveHandler;
                 moveHandler = function(ev) {
@@ -119,7 +122,6 @@ function getPosition(element) {
 
 Browser.prototype.popit = function(ev, name, ele, opts)
 {
-
 
     var thisB = this;
     if (!opts) {
