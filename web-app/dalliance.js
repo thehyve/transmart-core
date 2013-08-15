@@ -16,7 +16,7 @@ var genomeBrowserPanel = new Ext.Panel(
     {
         id : 'dallianceBrowser',
         pluginName : 'dalliance-plugin',
-        title : 'Dalliance Browser',
+        title : 'Genome Browser',
         region : 'center',
         split : true,
         height : 90,
