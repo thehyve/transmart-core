@@ -72,8 +72,8 @@ log4j = {
             debug 'grails.app.controllers.org.transmartproject'
             debug 'grails.app.domain.com.recomdata'
             debug 'grails.app.domain.org.transmartproject'
-            debug 'org.springframework.security'
-            //very verbose) debug  'org.grails.plugin.resource'
+            // debug 'org.springframework.security'
+            // (very verbose) debug  'org.grails.plugin.resource'
         }
 
         production {
