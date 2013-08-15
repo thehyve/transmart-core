@@ -219,7 +219,7 @@ environments {
 
         /* we don't need to specify temporaryImageDirectory, because we're not copying */
 
-        com.recomdata.transmart.data.export.rScriptDirectory = transmartAppRoot + '/dataExportRScripts'
+        com.recomdata.transmart.data.export.rScriptDirectory = transmartAppRoot + '/web-app/dataExportRScripts'
     }
 }
 /* }}} */
