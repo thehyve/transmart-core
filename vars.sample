@@ -10,8 +10,14 @@ TABLESPACES=/spin/pg/tablespaces/
 #end with /
 PGSQL_BIN=/spin/pg/master/bin/
 
+#only needed for ETL
 #end with /
 KETTLE_JOBS=/home/glopes/repos/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
 KITCHEN=kitchen.sh
 
-export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN KETTLE_JOBS KITCHEN
+#only needed for configuration
+#end with /
+TSUSER_HOME=$HOME/
+
+export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
+	KETTLE_JOBS KITCHEN TSUSER_HOME

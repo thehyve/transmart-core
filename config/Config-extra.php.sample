@@ -1,0 +1,32 @@
+<?php
+// If you create a file named Config-extra.php, its contents will be inserted
+// to the externalized configuration file Config.groovy whenever it's generated.
+// There are currently two insertion points. The first one is to override the
+// helper variables defined at the top of the template (Config-template.groovy),
+// the other one is to override actual Grails settings
+
+$insertionPoints = [
+    /* this is the text to be inserted in the template after the WAR variables */
+    'I001' => /* post-WAR-variables */ <<<EOD
+//def explodedWarDir    = catalinaBase + '/webapps/transmart'
+//def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
+//def searchIndex       = catalinaBase + '/searchIndex' //create this directory
+// for running transmart as WAR, create this directory and then create an alias
+// in tomcat or apache for serving the images here from <context path>/tempImages
+//def jobsDirectory     = "/var/tmp/jobs/"
+EOD
+,
+    /* this is the text to be inserted at the very end of the file.
+     * You can override configuration settings defined elsewhere in the file */
+    'I002' => /* end */ <<<EOD
+//com.recomdata.contactUs = "mailto:support@mycompany.com"
+
+// You MUST leave this at the end
+// Do not move it up, otherwise syntax errors may not be detected
+
+org.transmart.configFine = true
+EOD
+];
+
+
+// vim: filetype=php et ts=4 sw=4 ai tw=80:
