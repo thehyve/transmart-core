@@ -81,7 +81,7 @@ BEGIN
 		set c_fullname = replace(c_fullname, old_path, new_path)
 			,c_dimcode = replace(c_fullname, old_path, new_path)
 			,c_tooltip = replace(c_fullname, old_path, new_path)
-			,c_hlevel =  (length(replace(c_fullname, old_path, new_path)) - nvl(length(replace(replace(c_fullname, old_path, new_path), '\')),0)) / length('\') - 2 + root_level
+			,c_hlevel =  (length(replace(c_fullname, old_path, new_path)) - COALESCE(length(replace(replace(c_fullname, old_path, new_path), '\')),0)) / length('\') - 2 + root_level
 		where c_fullname like old_path || '%';
 		get diagnostics rowCt := ROW_COUNT;
 		stepCt := stepCt + 1;
