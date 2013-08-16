@@ -19,6 +19,7 @@
 \i tm_cz/functions/i2b2_load_clinical_data.sql
 \i tm_cz/functions/i2b2_load_security_data.sql
 \i tm_cz/functions/i2b2_move_study.sql
+\i tm_cz/functions/i2b2_process_acgh_data.sql
 \i tm_cz/functions/i2b2_process_mrna_data.sql
 \i tm_cz/functions/instr.sql
 \i tm_cz/functions/is_date.sql
