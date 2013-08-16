@@ -8,12 +8,12 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
-//def explodedWarDir    = catalinaBase + '/webapps/transmart'
-//def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
-//def searchIndex       = catalinaBase + '/searchIndex' //create this directory
+//explodedWarDir    = catalinaBase + '/webapps/transmart'
+//solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
+//searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
 // in tomcat or apache for serving the images here from <context path>/tempImages
-//def jobsDirectory     = "/var/tmp/jobs/"
+//jobsDirectory     = "/var/tmp/jobs/"
 EOD
 ,
     /* this is the text to be inserted at the very end of the file.
