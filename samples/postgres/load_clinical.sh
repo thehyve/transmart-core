@@ -3,7 +3,7 @@
 set -x
 set -e
 
-if [ -z "$KETTLE_HOME"]; then
+if [ -z "$KETTLE_HOME" ]; then
 	echo "KETTLE_HOME is not set"
 	exit 1
 fi
