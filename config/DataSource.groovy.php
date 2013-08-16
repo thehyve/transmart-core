@@ -1,6 +1,8 @@
+<?php $host = (empty($_ENV['PGHOST']) || $_ENV['PGHOST'][0] == '/')
+              ? 'localhost' : $_ENV['PGHOST']; ?>
 dataSource {
     driverClassName = 'org.postgresql.Driver'
-    url             = 'jdbc:postgresql://<?= $_ENV['PGHOST'] ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>'
+    url             = 'jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>'
     username        = 'biomart_user'
     password        = 'biomart_user'
     dialect         = 'org.hibernate.dialect.PostgreSQLDialect'

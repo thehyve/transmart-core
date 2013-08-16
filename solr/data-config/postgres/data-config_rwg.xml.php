@@ -1,6 +1,7 @@
+<?php require __DIR__ . '/host_fixup.php'; ?>
 <dataConfig>
 <dataSource name="ds1" driver="org.postgresql.Driver"
-			url="jdbc:postgresql://<?= $_ENV['PGHOST'] ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
+			url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
 			user="biomart_user" password="biomart_user" readOnly="true"
  autoCommit="false" />
 
