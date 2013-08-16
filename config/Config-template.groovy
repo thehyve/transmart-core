@@ -34,24 +34,38 @@ def jobsDirectory     = "/var/tmp/jobs/"
  * the transmart-data checkout. That file will be appended to this one whenever
  * the Config.groovy target is run */
 
-
 /* {{{ Helper variables – not user configurable */
-def grailsSettings = org.transmart.originalConfigBinding.grailsSettings
+def transmartAppRoot     // only relevant for dev
+def rdcModulesDirectory  // idem
+def rdcModulesVersion
 
-def transmartAppRoot  = grailsSettings.baseDir.absolutePath
+environments {
+    development {
+        def grailsSettings = org.transmart.originalConfigBinding.grailsSettings
+        transmartAppRoot  = grailsSettings.baseDir.absolutePath
 
-def rdcModulesVersion = grailsSettings.dependencyManager.
-                        getPluginDependencyDescriptor('rdc-rmodules').attributes.revision
+        rdcModulesVersion = grailsSettings.dependencyManager.
+                            getPluginDependencyDescriptor('rdc-rmodules').attributes.revision
 
-def rdcModulesDirectory
-def rdcModulesInlineSetting = grailsSettings.flatConfig.'grails.plugin.location.rdc-rmodules'
-// Figure out directory for RDC modules' RScripts dir if we're running with grails run-app
-// This is not used for production configuration
-if (rdcModulesInlineSetting) { // inline plugin
-    rdcModulesDirectory = new File(new File(rdcModulesInlineSetting), 'web-app').canonicalPath
-} else {
-    rdcModulesDirectory = grailsSettings.projectWorkDir.absolutePath +
-                          '/plugins/rdc-rmodules-' + rdcModulesVersion + '/web-app'
+        def rdcModulesInlineSetting = grailsSettings.flatConfig.'grails.plugin.location.rdc-rmodules'
+        // Figure out directory for RDC modules' RScripts dir if we're running with grails run-app
+        // This is not used for production configuration
+        rdcModulesDirectory = org.codehaus.groovy.grails.plugins.GrailsPluginUtils.getPluginDirForName('rdc-rmodules').file.absolutePat;
+        println rdcModulesDirectory
+        System.exit(1)
+        GrailsPluginUtils.pluginInfos.find { it.name == pluginName }.pluginDir
+        if (rdcModulesInlineSetting) { // inline plugin
+            rdcModulesDirectory = new File(new File(rdcModulesInlineSetting), 'web-app').canonicalPath
+        } else {
+            rdcModulesDirectory = grailsSettings.projectWorkDir.absolutePath +
+                                  '/plugins/rdc-rmodules-' + rdcModulesVersion + '/web-app'
+        }
+    }
+
+    production {
+        rdcModulesVersion = new File(explodedWarDir, 'plugins').listFiles().
+                            find { it.name =~ /^rdc-rmodules-/ }.name.replace('rdc-rmodules-', '')
+    }
 }
 /* }}} */
 
