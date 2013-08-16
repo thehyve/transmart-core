@@ -1,4 +1,4 @@
-<?php require __DIR__ . '/host_fixup.php'; ?>
+<?php require __DIR__ . '/../../../inc/host_fixup.php'; ?>
 <dataConfig>
   <dataSource name="ds1" driver="org.postgresql.Driver"
               url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"

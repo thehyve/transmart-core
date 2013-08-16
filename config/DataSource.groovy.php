@@ -1,5 +1,4 @@
-<?php $host = (empty($_ENV['PGHOST']) || $_ENV['PGHOST'][0] == '/')
-              ? 'localhost' : $_ENV['PGHOST']; ?>
+<?php require __DIR__ . '/../inc/host_fixup.php'; ?>
 dataSource {
     driverClassName = 'org.postgresql.Driver'
     url             = 'jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>'
