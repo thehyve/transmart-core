@@ -75,6 +75,10 @@ log4j = {
                 info 'stdout'
             }
 
+            // for a less verbose startup
+            warn  'org.codehaus.groovy.grails.commons.spring'
+            warn  'org.codehaus.groovy.grails.orm.hibernate.cfg'
+
             debug 'org.transmartproject'
             debug 'com.recomdata'
             debug 'grails.app.services.com.recomdata'
