@@ -295,10 +295,8 @@ grails { plugins { springsecurity {
 
     // Hash algorithm
     password.algorithm = 'bcrypt'
-    // Property to use as salt
-    dao.reflectionSaltSourceProperty = 'username'
-    // Number of bscrypt rounds
-    password.bcrypt.logrounds = 15
+    // Number of bcrypt rounds
+    password.bcrypt.logrounds = 14
 
     /* {{{ Spring security – error messages */
     errors.login.expired         = 'Your account has expired'
