@@ -50,10 +50,8 @@ environments {
         def rdcModulesInlineSetting = grailsSettings.flatConfig.'grails.plugin.location.rdc-rmodules'
         // Figure out directory for RDC modules' RScripts dir if we're running with grails run-app
         // This is not used for production configuration
-        rdcModulesDirectory = org.codehaus.groovy.grails.plugins.GrailsPluginUtils.getPluginDirForName('rdc-rmodules').file.absolutePat;
-        println rdcModulesDirectory
-        System.exit(1)
-        GrailsPluginUtils.pluginInfos.find { it.name == pluginName }.pluginDir
+        rdcModulesDirectory = org.codehaus.groovy.grails.plugins.GrailsPluginUtils.
+                              getPluginDirForName('rdc-rmodules').file.absolutePath;
         if (rdcModulesInlineSetting) { // inline plugin
             rdcModulesDirectory = new File(new File(rdcModulesInlineSetting), 'web-app').canonicalPath
         } else {
