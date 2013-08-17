@@ -34,6 +34,9 @@ $(TABLE_DIRS):
 
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),../common/$d)
 
+# for autocompletion
+$(DUMP_TARGETS) $(LOAD_TARGETS):
+
 dump_schema_%: %/Makefile ../common/%
 	$(MAKE) -C $* dump
 
