@@ -259,7 +259,7 @@ grails { plugins { springsecurity {
     // url to redirect after login in
     successHandler.defaultTargetUrl = '/userLanding'
     // logout url
-    logout.afterLogoutUrl = '/login/auth'
+    logout.afterLogoutUrl = '/login/forceAuth'
 
     // configurable requestmap functionality in transmart is deprecated
     def useRequestMap = false
