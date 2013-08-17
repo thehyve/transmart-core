@@ -8,6 +8,7 @@ minimize_diffs:
 		exec 3< <(git show :./$$f); \
 		temp_file=temp.$$RANDOM; \
 		cp $$f $$temp_file; \
+		echo minimize_diff for $$f 2>&1; \
 		php -d memory_limit=1500m minimize_diff.php < $$temp_file > $$f; \
 		rm $$temp_file; \
 		exec 3>&-; \
