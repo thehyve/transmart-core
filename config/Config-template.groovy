@@ -134,7 +134,7 @@ com.recomdata.searchtool.smallLogo="transmartlogosmall.jpg"
 com.recomdata.contactUs = "mailto:transmartGPLsupport@recomdata.com"
 
 // application title
-com.recomdata.appTitle = "tranSMART v" + grailsSettings.dependencyManager.applicationVersion +  " (GPL, PostgresSQL)"
+com.recomdata.appTitle = "tranSMART v" + org.transmart.originalConfigBinding.appVersion +  " (GPL, PostgresSQL)"
 
 // Location of the help pages
 // Currently, these are distribution with transmart, so it can also point to
