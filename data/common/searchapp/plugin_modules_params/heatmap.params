@@ -27,6 +27,9 @@ array (
     '||TISSUES2||' => 'divIndependentVariabletissues2',
     '||SAMPLE2||' => 'divIndependentVariablesamples2',
     '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
   ),
   'converter' => 
   array (
@@ -59,7 +62,10 @@ array (
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HeatmapLoader.R\')',
       1 => '					Heatmap.loader(
-					input.filename=\'outputfile\'
+					input.filename=\'outputfile\',
+					imageWidth = ||IMAGE_WIDTH||,
+					imageHeight = ||IMAGE_HEIGHT||,
+					pointsize = ||TEXT_POINT_SIZE||
 					)
 					',
     ),

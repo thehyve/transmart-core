@@ -1,6 +1,6 @@
 1	1	"Survival Analysis"	#placeholder#	.1	Y	N		SurvivalAnalysis	survivalAnalysis	DEFAULT
-31	1	"Scatter Plot with Linear Regression"		.1	Y	N		ScatterPlot	scatterPlot	DEFAULT
-3	1	"Box Plot with ANOVA"		.1	Y	N		BoxPlot	boxPlot	DEFAULT
+31	1	"Scatter Plot with Linear Regression"	#placeholder#	.1	Y	N		ScatterPlot	scatterPlot	DEFAULT
+3	1	"Box Plot with ANOVA"	#placeholder#	.1	Y	N		BoxPlot	boxPlot	DEFAULT
 32	1	"Table with Fisher Test"		.1	Y	N		TableWithFisher	tableWithFisher	DEFAULT
 33	1	Heatmap	#placeholder#	.1	Y	N		Heatmap	heatmap	DEFAULT
 34	1	IC50	#placeholder#	.1	Y	N		IC50	ic50	DEFAULT

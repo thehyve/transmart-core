@@ -10,13 +10,29 @@ array (
   ),
   'dataFileInputMapping' => 
   array (
-    'CLINICAL.TXT' => 'FALSE',
-    'MRNA_DETAILED.TXT' => 'TRUE',
+    'CLINICAL.TXT' => 'TRUE',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
     'SNP.TXT' => 'snpData',
   ),
   'pivotData' => false,
   'variableMapping' => 
   array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||IMAGEHEIGHT||' => 'txtImageHeight',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||IMAGEWIDTH||' => 'txtImageWidth',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||SNPTYPE||' => 'divIndependentVariableSNPType',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||TEXTSIZE||' => 'txtTextSize',
+    '||NUMBEROFMARKERS||' => 'txtNumberOfMarkers',
   ),
   'converter' => 
   array (
@@ -29,24 +45,36 @@ array (
       4 => 'source(\'||PLUGINSCRIPTDIRECTORY||MarkerSelection/BuildMSData.R\')',
       5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
 					',
-      6 => '							MSData.build(input.dataFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\')
-					',
+      6 => 'MSData.build(input.dataFile = \'||TOPLEVELDIRECTORY||workingDirectory/mRNA.trans\',
+	sample.subset1=\'||SAMPLE1||\',
+	time.subset1=\'||TIMEPOINTS1||\',
+	tissues.subset1=\'||TISSUES1||\',
+	platform.subset1=\'||GPL1||\',
+	sample.subset2=\'||SAMPLE2||\',
+	time.subset2=\'||TIMEPOINTS2||\',
+	tissues.subset2=\'||TISSUES2||\',
+	platform.subset2=\'||GPL2||\',
+	genes = \'||GENES||\')',
     ),
   ),
   'processor' => 
   array (
     'R' => 
     array (
-      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HeatmapLoader.R\')',
-      1 => '					Heatmap.loader(
-					input.filename=\'outputfile\'
-					)
-					',
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||MarkerSelection/MarkerSelection.R\')',
+      1 => 'MS.loader(input.filename=\'outputfile\',numberOfMarkers=||NUMBEROFMARKERS||)',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HeatmapLoader.R\')',
+      3 => 'Heatmap.loader(
+	input.filename=\'heatmapdata\',
+	meltData = FALSE,
+	imageWidth=\'||IMAGEWIDTH||\',
+	imageHeight=\'||IMAGEHEIGHT||\',
+	pointsize=\'||TEXTSIZE||\')',
     ),
   ),
   'renderer' => 
   array (
-    'GSP' => '/MarkerSelection/markerSelectionOut',
+    'GSP' => '/markerSelection/markerSelectionOut',
   ),
   'view' => 'MarkerSelection',
 )

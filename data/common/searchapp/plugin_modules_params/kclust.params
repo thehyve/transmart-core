@@ -17,12 +17,17 @@ array (
   'pivotData' => false,
   'variableMapping' => 
   array (
-    '||TISSUES||' => 'divIndependentVariabletissues',
-    '||TIMEPOINTS||' => 'divIndependentVariabletimepoints',
     '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
-    '||SAMPLE||' => 'divIndependentVariablesamples',
     '||CLUSTERS||' => 'txtClusters',
     '||GENES||' => 'divIndependentVariablePathway',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
   ),
   'converter' => 
   array (
@@ -38,10 +43,14 @@ array (
       6 => '							HeatmapData.build(input.gexFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
 							genes = \'||GENES||\',
 							genes.aggregate = \'||AGGREGATE||\',
-							sample=\'||SAMPLE||\',
-							time=\'||TIMEPOINTS||\',
-							tissues=\'||TISSUES||\')
-					',
+	sample.subset1=\'||SAMPLE1||\',
+	time.subset1=\'||TIMEPOINTS1||\',
+	tissues.subset1=\'||TISSUES1||\',
+	platform.subset1=\'||GPL1||\',
+	sample.subset2=\'||SAMPLE2||\',
+	time.subset2=\'||TIMEPOINTS2||\',
+	tissues.subset2=\'||TISSUES2||\',
+	platform.subset2=\'||GPL2||\')',
     ),
   ),
   'processor' => 

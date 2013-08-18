@@ -26,7 +26,7 @@ while (($data = fgetcsv(STDIN, 0, "\t", '"', '"')) !== false) {
 		fprintf(STDERR, "No params for %s\n", $data[9]);
 	} else {
 		uksort($params, $sortingFunc);
-		file_put_contents($filename, var_export($params, true));
+		file_put_contents($filename, var_export($params, true) . "\n");
 		$data[3] = '#placeholder#';
 	}
 
