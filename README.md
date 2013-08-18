@@ -10,8 +10,9 @@ This repository is a set of make files and scripts for:
   points above, from a clean database;
 * fixing permissions and tablespace assignments;
 * importing some example data – these are intended for development, the targets
-  are not robust enough to be generally applicable.
-* Running the Solr cores for Faceted Search and the Sample Explorer
+  are not robust enough to be generally applicable;
+* running the Solr cores for Faceted Search and the Sample Explorer;
+* generating configuration files for tranSMART.
 
 The current schema is the one necessary to support the
 [`master` branch][master] on The Hyve's fork.
@@ -40,6 +41,15 @@ The following are required:
 * rsync (Solr only)
 * Java environment (JDK) (Solr only)
 
+If you are using Ubuntu, you should be able to install all these dependencies
+by running
+
+    sudo make -C env ubuntu_deps_root
+	make -C env ubuntu_deps_regular
+
+which will also prepare some directories for the tablespaces and assign them the
+correct ownership.
+
 Usage
 -----
 
@@ -50,10 +60,10 @@ Start with copying the `vars.sample` file, editing it and sourcing it in:
 	. ./vars
 
 The several options are fairly self-explanatory. The configured PostgreSQL user
-must be a database superuser. If you do not intend to use the ETL targets, you
-may leave `KETTLE_JOBS` and `KITCHEN` undefined and you can connect to
-PostgreSQL with UNIX sockets by specifying the parent directory of the socket in
-`PGHOST`.
+must be a database superuser. You can connect to PostgreSQL with UNIX sockets by
+specifying the parent directory of the socket in `PGHOST`. In that case,
+`localhost` will be used in the situation where UNIX sockets are not supported,
+such as for JDBC connections.
 
 The variable `$TABLESPACES` is the parent directory for where the tablespaces
 will be created in the PostgreSQL server's filesystem.
@@ -135,6 +145,27 @@ defined in `ddl/postgres/META/misc_permissions.tsv`.
 
 Ownership information can only be added by editing an array in
 `ddl/postgres/META/assign_owners.sql`.
+
+### Writing the configuration files
+
+For development, the default configuration should be sufficient. For production,
+the configuration may have to be changed, but even if it doesn't, some
+directories described in the configuration will need to be created.
+
+If you need to change configuration parameters, you can change the files in
+`~/.grails/transmartConfig` that are createdi by the `install` target, but they
+will be overwritten (after being backed up) the next time you install the
+configuration again using the same target. Therefore, it is preferrable to copy
+`config/Config-extra.php.sample` into `config/Config-extra.php` and edit the new
+file. In this file, you can edit two blocks of text which will be inserted into
+two different points in the configuration template, allowing you override any
+option that the configuration template sets.
+
+To install the configuration files into `$TSUSER_HOME/.grails/transmartConfig`,
+(`$TSUSER_HOME` is one of the environment variables defined in the `vars` file)
+run:
+
+    make -C conf install
 
 ### Generating new import files from model database
 
