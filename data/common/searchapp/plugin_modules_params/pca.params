@@ -1,0 +1,62 @@
+array (
+  'id' => 'pca',
+  'name' => 'PCA',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'FALSE',
+    'SNP.TXT' => 'snpData',
+    'MRNA_DETAILED.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
+    '||TIMEPOINTS||' => 'divIndependentVariabletimepoints',
+    '||TISSUES||' => 'divIndependentVariabletissues',
+    '||SAMPLE||' => 'divIndependentVariablesamples',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/BuildPCAData.R\')',
+      5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
+					',
+      6 => '							PCAData.build(input.gexFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+							genes = \'||GENES||\',
+							genes.aggregate = \'||AGGREGATE||\',
+							sample=\'||SAMPLE||\',
+							time=\'||TIMEPOINTS||\',
+							tissues=\'||TISSUES||\')
+					',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/LoadPCA.R\')',
+      1 => '					PCA.loader(
+					input.filename=\'outputfile\'
+					)
+					',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/PCA/pcaOut',
+  ),
+  'view' => 'PCA',
+)

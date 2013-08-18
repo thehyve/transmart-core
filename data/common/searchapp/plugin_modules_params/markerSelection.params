@@ -1,0 +1,52 @@
+array (
+  'id' => 'markerSelection',
+  'name' => 'MarkerSelection',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'FALSE',
+    'MRNA_DETAILED.TXT' => 'TRUE',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||MarkerSelection/BuildMSData.R\')',
+      5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
+					',
+      6 => '							MSData.build(input.dataFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\')
+					',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HeatmapLoader.R\')',
+      1 => '					Heatmap.loader(
+					input.filename=\'outputfile\'
+					)
+					',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/MarkerSelection/markerSelectionOut',
+  ),
+  'view' => 'MarkerSelection',
+)

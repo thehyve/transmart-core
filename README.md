@@ -157,6 +157,15 @@ This part still needs some work, but it goes more or less like this:
   `ddl/postgresql/GLOBAL` for more information.
 * Make sure you test the changes by recreating the database.
 
+To update the plugin module params from the database (a doubtful course of
+action; better to edit the files in
+`data/common/searchapp/plugin_modules_params/`), then do:
+
+    cd data/postgres
+	make searchapp/Makefile
+    make -C searchapp dump_plugin_module
+    make -C ../common/searchapp/plugin_modules_params process_dump
+
   [master]: https://github.com/thehyve/transmartApp/tree/master
   [liquibase]: http://www.liquibase.com/
   [ts_etl]: https://github.com/thehyve/tranSMART-ETL

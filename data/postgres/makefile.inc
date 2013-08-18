@@ -4,8 +4,6 @@ ifndef THIS_SCHEMA
 $(error THIS_SCHEMA variable is not set)
 endif
 
-.PHONY: load_% dump_%
-
 OUTDIR := ../../common/$(THIS_SCHEMA)
 
 dump_%: $(OUTDIR)
@@ -19,3 +17,16 @@ load_%:
 		$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* FROM STDIN \
 			CSV DELIMITER E'\t'" < $(OUTDIR)/$*.tsv; \
 	fi
+
+ifeq ($(THIS_SCHEMA), searchapp)
+#special case
+load_plugin_module: load_plugin update_plugin_module
+load: load_plugin_module
+
+update_plugin_module:
+	$(MAKE) -C ../../common/searchapp/plugin_modules_params ../plugin_module.tsv
+
+.PHONY: update_plugin_module
+endif
+
+# vim: set filetype=make:

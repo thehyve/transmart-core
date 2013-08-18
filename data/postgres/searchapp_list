@@ -1,5 +1,4 @@
 plugin
-plugin_module
 search_auth_group
 search_auth_principal
 search_auth_user

@@ -57,4 +57,4 @@ clean:
 
 #don't include this in clean; dumping everything should only be needed sporadically
 clean_dumps:
-	rm -rf ../common
+	rm -rf ../common/*/*.tsv
