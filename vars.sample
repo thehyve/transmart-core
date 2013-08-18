@@ -1,19 +1,38 @@
-# Use libpqʼs environment variables
+# If you are using Ubuntu or a related distribution, you can try to prepare
+# the environment by running
+#    sudo make -C env ubuntu_deps_root
+#    make -C env ubuntu_deps_regular
+# This will create a vars-ubuntu file in this directory which you can use
+# instead of editing this sample.
+
+# These database settings are probably fine if you built postgres from source
+# and you running it under your user. If you installed it from a package
+# manager, like apt-get/dpkg in debian/ubuntu, this won't work.
+# See the template in env/vars-ubuntu.php
 PGHOST=/tmp
-PGPORT=5433
+PGPORT=5432
 PGDATABASE=transmart
-PGUSER=gustavo
+PGUSER=$USER
 PGPASSWORD=
 
-#end with /
-TABLESPACES=/spin/pg/tablespaces/
-#end with /
-PGSQL_BIN=/spin/pg/master/bin/
+# This directory must exist. If you are running PostgreSQL under your own user,
+# you just have to make sure the directory is owned by you.
+# Otherwise, you must create some directories under it and assign ownership to
+# them to the postgres user. For instance:
+#     mkdir -p $TABLESPACES/{biomart,deapp,indx,search_app,transmart}
+#     chown -R postgres:postgres $TABLESPACES
+# end with /
+TABLESPACES=$HOME/pg/tablespaces/
 
-#only needed for ETL
-#end with /
-KETTLE_JOBS=/home/glopes/repos/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
-KITCHEN=kitchen.sh
+# The directory where the postgres client utilities are
+# If using a package manager, probably /usr/bin/
+# end with /
+PGSQL_BIN=$HOME/pg/bin/
+
+# Only needed for ETL
+# End with /
+KETTLE_JOBS=/path/to/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+KITCHEN=/path/to/data-integration/kitchen.sh
 
 #only needed for configuration
 #end with /
