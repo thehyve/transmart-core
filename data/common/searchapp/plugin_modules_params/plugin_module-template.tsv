@@ -9,3 +9,5 @@
 62	1	"Hierarchical Clustering"	#placeholder#	.1	Y	N		HClust	hclust	DEFAULT
 63	1	"Marker Selection"	#placeholder#	.1	Y	N		MarkerSelection	markerSelection	DEFAULT
 64	1	PCA	#placeholder#	.1	Y	N		pca	pca	DEFAULT
+65	1	"aCGH Survival Analysis"	#placeholder#	.1	Y	N		aCGHSurvivalAnalysis	aCGHSurvivalAnalysis	DEFAULT
+66	1	"Group Test for aCGH"	#placeholder#	.1	Y	N		GroupTestaCGH	groupTestaCGH	DEFAULT
