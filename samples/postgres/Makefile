@@ -12,14 +12,16 @@ ANNOTATION_PARAMS_FILES := $(wildcard ../common/*/annotation.params)
 REF_ANNOTATION_PARAMS_FILES := $(wildcard ../common/*/ref_annotation.params)
 EXPRESSION_PARAMS_FILES := $(wildcard ../common/*/expression.params)
 ANALYSIS_PARAMS_FILES := $(wildcard ../common/*/analysis.params)
+ACGH_PARAMS_FILES := $(wildcard ../common/*/acgh.params)
 
 LOAD_CLINICAL_TARGETS := $(patsubst ../common/%/clinical.params,load_clinical_%, $(CLINICAL_PARAMS_FILES))
 LOAD_ANNOTATION_TARGETS := $(patsubst ../common/%/annotation.params,load_annotation_%, $(ANNOTATION_PARAMS_FILES))
 LOAD_REF_ANNOTATION_TARGETS := $(patsubst ../common/%/ref_annotation.params,load_ref_annotation_%, $(REF_ANNOTATION_PARAMS_FILES))
 LOAD_EXPRESSION_PARAMS_TARGETS := $(patsubst ../common/%/expression.params,load_expression_%, $(EXPRESSION_PARAMS_FILES))
 LOAD_ANALYSIS_PARAMS_TARGETS := $(patsubst ../common/%/analysis.params,load_analysis_%, $(ANALYSIS_PARAMS_FILES))
+LOAD_ACGH_PARAMS_TARGETS := $(patsubst ../common/%/acgh.params,load_acgh_%, $(ACGH_PARAMS_FILES))
 
-KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS)
+KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS)
 
 $(KETTLE_TARGETS): write_kettle_properties
 #these ones are here just for autocompletion:
