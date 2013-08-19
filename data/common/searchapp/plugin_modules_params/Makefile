@@ -6,3 +6,5 @@ process_dump:
 	php $< < plugin_module-template.tsv > $@
 
 .PHONY: process_dump
+
+.DELETE_ON_ERROR:
