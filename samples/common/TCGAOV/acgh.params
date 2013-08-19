@@ -1,0 +1,3 @@
+DATA_FILE_PREFIX=TCGAOV_samples_subset.txt
+MAP_FILENAME=TCGAOV_subjectmapping_subset.txt
+REGION_PLATFORM_FILE=GPL4091_region_platform.tsv

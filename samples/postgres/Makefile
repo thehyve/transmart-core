@@ -52,6 +52,12 @@ load_analysis_%: ../common/%/analysis.params ../common/%/analysis
 			KETTLE_HOME="$(realpath kettle-home)" \
 			./load_analysis.sh $<
 
+load_acgh_%: ../common/%/acgh.params ../common/%/acgh
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../common/$*/acgh)" \
+			PSQL_COMMAND="$(PSQL_COMMAND)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_acgh.sh $<
+
 ../common/%/clinical: ../common/Makefile
 	$(MAKE) -C ../common $*/clinical
 
@@ -63,6 +69,9 @@ load_analysis_%: ../common/%/analysis.params ../common/%/analysis
 
 ../common/%/analysis: ../common/Makefile
 	$(MAKE) -C ../common $*/analysis
+
+../common/%/acgh: ../common/Makefile
+	$(MAKE) -C ../common $*/acgh
 
 clean:
 	rm -f logs/*.log kettle-home/kettle.properties
