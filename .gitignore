@@ -1,4 +1,7 @@
 target
+target/*
+target-eclipse
+target-eclipse/*
 .idea
 *.iml
 plugin.xml
