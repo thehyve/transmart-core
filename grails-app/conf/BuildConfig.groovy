@@ -2,8 +2,6 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
-grails.project.repos.default = 'repo.transmartfoundation.org-snapshots'
-grails.project.repos."${grails.project.repos.default}".url = 'http://repo.transmartfoundation.org/content/repositories/snapshots/'
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -14,9 +12,9 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
     repositories {
-	mavenRepo([
-                name: 'repo.transmartfoundation.org-snapshots',
-                root: 'http://repo.transmartfoundation.org/content/repositories/snapshots/'
+        mavenRepo([
+                name: 'repo.transmartfoundation.org',
+                root: 'http://repo.transmartfoundation.org/content/repositories/public/'
         ])
         grailsCentral()
         mavenLocal()
