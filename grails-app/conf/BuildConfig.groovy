@@ -33,9 +33,14 @@ grails.project.dependency.resolution = {
 
         mavenLocal()
         mavenCentral()
+        mavenRepo([
+                name: 'repo.theyve.nl-public',
+                root: 'http://repo.thehyve.nl/content/repositories/public/',
+        ])
     }
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
+        compile "org.rosuda:Rserve:1.7.3"
     }
 
     plugins {

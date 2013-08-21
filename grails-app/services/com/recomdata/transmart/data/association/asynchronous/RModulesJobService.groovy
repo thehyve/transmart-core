@@ -27,7 +27,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.*;
-import org.rosuda.Rserve.*;
 import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
