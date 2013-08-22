@@ -188,6 +188,19 @@ This part still needs some work, but it goes more or less like this:
   `ddl/postgresql/GLOBAL` for more information.
 * Make sure you test the changes by recreating the database.
 
+Note that pg\_dump does not output the data in any specific order; after a
+table is modified, it will dump the old data out of order. This results in a
+larger changeset than necessary and obfuscates the actual changes made to the
+tableʼs data. A target is included that attempts to remedy this problem by
+changing the modified files so that the old rows are kept at the top of the
+modified file in the same order (but with the removed rows left out):
+
+    make -C data/common minimize_diffs
+
+Use this target after modifying the tsv files but before checking them into the
+git index with `git add`. The procedure compares the version in the working
+directory with the version in the git index.
+
 To update the plugin module params from the database (a doubtful course of
 action; better to edit the files in
 `data/common/searchapp/plugin_modules_params/`), then do:
