@@ -16,6 +16,7 @@
 
 package com.recomdata.transmart.data.association.asynchronous
 
+import com.recomdata.transmart.util.RUtil
 import groovy.util.ConfigObject;
 
 import java.io.File;
@@ -281,52 +282,41 @@ class RModulesJobService implements Job {
 
 		//Establish a connection to R Server.
 		RConnection c = new RConnection();
+        c.setStringEncoding("utf8")
 
-		log.debug("Attempting following R Command : " + "setwd('${rOutputDirectory}')".replace("\\","\\\\"))
-		println("Attempting following R Command : " + "setwd('${rOutputDirectory}')".replace("\\","\\\\"))
+        //Set the working directory to be our temporary location.
+        String workingDirectoryCommand = "setwd('" +
+                RUtil.escapeRStringContent(rOutputDirectory) + "')"
 
-		//Set the working directory to be our temporary location.
-		String workingDirectoryCommand = "setwd('${rOutputDirectory}')".replace("\\","\\\\")
+		log.info("Attempting following R Command : $workingDirectoryCommand")
 
 		//Run the R command to set the working directory to our temp directory.
-		REXP x = c.eval(workingDirectoryCommand);
+		c.eval(workingDirectoryCommand);
 
 		//For each R step there is a list of commands.
-		stepList.each
-		{
-			currentCommand ->
-
-			//Need to escape backslashes for R commands.
-			String reformattedCommand = currentCommand.replace("\\","\\\\")
+		stepList.each { String currentCommand ->
+            def reformattedCommand
 
 			//Replace the working directory flag if it exists in the string.
-			reformattedCommand = reformattedCommand.replace("||PLUGINSCRIPTDIRECTORY||", config.RModules.pluginScriptDirectory)
-			reformattedCommand = reformattedCommand.replace("||TEMPFOLDERDIRECTORY||", jobTmpDirectory + "subset1_" + studies[0] + File.separator.replace("\\","\\\\"))
-			reformattedCommand = reformattedCommand.replace("||TOPLEVELDIRECTORY||", jobTmpDirectory)
+			reformattedCommand = currentCommand.replace("||PLUGINSCRIPTDIRECTORY||",
+                    RUtil.escapeRStringContent(config.RModules.pluginScriptDirectory))
+			reformattedCommand = reformattedCommand.replace("||TEMPFOLDERDIRECTORY||",
+                    RUtil.escapeRStringContent(jobTmpDirectory + "subset1_" + studies[0] + File.separator))
+			reformattedCommand = reformattedCommand.replace("||TOPLEVELDIRECTORY||",
+                    RUtil.escapeRStringContent(jobTmpDirectory))
 
 			//We need to loop through the variable map and do string replacements on the R command.
-			jobDataMap.get("variableMap").each
-				{
-					variableItem ->
+			jobDataMap.get("variableMap").each { variableItem ->
+                //Try and grab the variable from the Job Data Map. These were fed in from the HTML form.
+                def valueFromForm = jobDataMap.get(variableItem.value)
 
-					//Try and grab the variable from the Job Data Map. These were fed in from the HTML form.
-					def valueFromForm = jobDataMap.get(variableItem.value)
+                valueFromForm = valueFromForm ? valueFromForm.trim() : ''
+                valueFromForm = RUtil.escapeRStringContent(valueFromForm)
 
-					//Clean up the variable if it was found in the form.
-					if(valueFromForm)
-					{
-						valueFromForm = valueFromForm.replace("\\","\\\\").trim()
-					}
-					else
-					{
-						valueFromForm = ""
-					}
+                reformattedCommand = reformattedCommand.replace(variableItem.key, valueFromForm)
+		    }
 
-					reformattedCommand = reformattedCommand.replace(variableItem.key,valueFromForm)
-				}
-
-			log.debug("Attempting following R Command : " + reformattedCommand)
-			println("Attempting following R Command : " + reformattedCommand)
+			log.info("Attempting following R Command : " + reformattedCommand)
 
 			REXP r = c.parseAndEval("try("+reformattedCommand+",silent=TRUE)");
 
