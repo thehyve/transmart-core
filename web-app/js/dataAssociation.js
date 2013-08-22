@@ -19,6 +19,7 @@ Ext.onReady(function(){
 });
 
 var analysisConcept = null;
+var module_array;
 
 function advancedWorkflowMenu() {
 	var advancedMenu = null;
@@ -39,23 +40,58 @@ function advancedWorkflowMenu() {
 	});
 }
 
+/**
+ * Find module by module id
+ * @param id
+ * @returns {null}
+ */
+function findModuleById(id) {
+	var v = null;
+	if (module_array != null) {
+		Ext.each(module_array, function (module, index) {
+			if (module.id == id) {
+				v = module;
+				return false;
+			}
+		});
+	}
+	return v;
+}
+
 function createAdvancedWorkflowMenu(result) {
-	var response = Ext.util.JSON.decode(result.responseText)
+	var response = Ext.util.JSON.decode(result.responseText);
 	if (response.success) {
-		var advMenuItems = createAdvancedWorkflowMenuItems(response.modules)
+
+		// reserve modules in a global var
+		module_array = response.modules;
+
+		var advMenuItems = createAdvancedWorkflowMenuItems(response.modules);
 		var advMenu = new Ext.menu.Menu({
 			id : 'advancedWorkflowMenu',
 			minWidth: 250,
 			items : advMenuItems
 		});
 		
+		// add components to the advanced workflow toolbar
 		Ext.getCmp('advancedWorkflowToolbar')
-			.add({
+			.add(
+			{
 					text : 'Analysis',
 					iconCls : 'comparebutton',
 					disabled : false,
 					menu : advMenu
-				});
+			},
+			'->',
+			{
+				text : 'Save to PDF',
+				iconCls : 'savepdfbutton',
+				hidden : false,
+				id : 'savetopdfbtn',
+				handler: function(){
+					generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');
+				}
+			}
+		);
 	}
 }
 
@@ -71,19 +107,57 @@ function createAdvancedWorkflowMenuItems(modules) {
 	return menuItems;
 }
 
-function onItemClick(item) {
-	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+item.text);
-	if(!checkPreviousAnalysis()) return false;
+/**
+ * This function will load the analysis page
+ * @param itemId
+ * @param isCompletedJob
+ * @param jobName
+ */
+function loadAnalysisPage(itemId, isCompletedJob, jobName) {
+
+	// get analysis module attribute
+	var module = findModuleById(itemId);
+
+	// translate group test module name ..
+	// TODO: Please change with the consistent naming for all related files and variable
+	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
 	
+	// fyi ..  Ajax.Updater is a Prototype.js syntax
+	// will update 'variableSelection' div with whatever the response from
+	// the call
 	new Ajax.Updater('variableSelection', pageInfo.basePath+'/dataAssociation/variableSelection',
 	{
-		asynchronous:true,evalScripts:true,
+		asynchronous:true,
+		evalScripts:true,
 		onComplete: function(e) { 
-			loadPluginView(item.id);
-		},parameters:{analysis:item.id}
+
+			// load the plugin view
+			loadPluginView(itemId);
+
+			// if it's loading completed job then display the result as well
+			if (isCompletedJob) {
+				if (itemId == 'aCGHSurvivalAnalysis') {
+					survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
+				} else if (itemId == 'groupTestaCGH') {
+					groupTestView.renderResults(jobName, groupTestView);
+				}
+			}
+		},
+		parameters:{analysis:itemId}
 	});
-	Ext.fly('selectedAnalysis').update(item.text, false);
-	Ext.get('analysis').dom.value = item.id;
+
+	// update analysis element
+	Ext.get('analysis').dom.value = itemId;
+	Ext.fly('selectedAnalysis').update(module.text, false).removeClass('warning').addClass('selected');
+}
+
+function onItemClick(item) {
+	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+item.text);
+
+	if(!checkPreviousAnalysis()) return false;
+
+	loadAnalysisPage(item.id);
+
 	item.parentMenu.hide(true);
 	/*var mgr = Ext.Updater('variableSelection')
 	
@@ -102,6 +176,8 @@ function onItemClick(item) {
 }
 function renderCohortSummary(){
 	var cohortsSummary=""
+
+	// get selected cohort summary
 	for(var i = 1; i<=GLOBAL.NumOfSubsets; i++){
 		var currentQuery = getQuerySummary(i)
 		if(currentQuery!=""){
@@ -111,15 +187,21 @@ function renderCohortSummary(){
 		}
 		
 	}
-	var innerHtml = ""
+
 	if(""==cohortsSummary){
-		innerHtml = "<font style='color:red;font-weight:bold;'>Warning! You have not selected a study and the analyses will not work. Please go back to the 'Comparison' tab and make a cohort selection.</font>";
-	}else{
-		innerHtml = cohortsSummary;
+		// hide cohort Summary & show warning
+		Ext.get('cohortSummary').hide();
+		Ext.get('cohortWarningMsg').show();
+		Ext.fly('cohortWarningMsg').update("WARNING: You have not selected a study and the analysis will not work. " +
+			"Please go back to the Comparison tab and make a cohort selection.").addClass("warning");
+	} else {
+		// hide warning & show cohort Summary
+		Ext.fly('cohortSummary').update(cohortsSummary);
+		Ext.get('cohortWarningMsg').hide();
+		Ext.get('cohortSummary').show();
 	}
 		
 	
-	document.getElementById("cohortSummary").innerHTML=innerHtml;
 }
 
 function checkPreviousAnalysis()

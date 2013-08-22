@@ -16,88 +16,146 @@
 
 package com.recomdata.transmart.data.association
 
-import org.apache.commons.io.FileUtils;
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-
-import groovy.util.ConfigObject;
+import org.apache.commons.io.FileUtils
 
 class RModulesOutputRenderService {
 
-    static transactional = true
-	static scope= "request"
+	static scope         = "request"
 
 	def grailsApplication
 	def zipService
-	
-	def config = ConfigurationHolder.config
-	def tempFolderDirectory = config.RModules.tempFolderDirectory
-	
-	//This is a boolean indicating if we need to move the file before serving it to the user.
-	boolean transferImageFile = config.RModules.transferImageFile
-	
-	//This is the URL we use to serve the user the image.
-	def imageURL = config.RModules.imageURL
-	
 	def tempDirectory = ""
 	def jobName = ""
 	def jobTypeName = ""
-	
 	def zipLink = ""
 	
-    def initializeAttributes(jobName,jobTypeName,linksArray) {
+    //<editor-fold desc="Configuration fetching">
 		
+    /**
+     * The directOry where the job data is stored and from where the R scripts
+     * run.
+     *
+     * The odd name ("folderDirectory") is an historical artifact.
+     *
+     * @return the jobs directory
+     */
+    private String getTempFolderDirectory() {
+        String dir = grailsApplication.config.RModules.tempFolderDirectory
+        if (dir && !dir.endsWith(File.separator)) {
+            dir += File.separator
+        }
+        dir
+    }
+		
+    /**
+     * The directory where the zip file (and, if transferImageFile is true, the
+     * images as well) will be copied to. The web server should be able to serve
+     * static files from this directory via the logical name specified in
+     * the imageURL configuration entry.
+     *
+     * If transferImageFile is false, then this should be temporary jobs
+     * directory (see {@link #getTempFolderDirectory()}).
+     *
+     * @return the directory where the analysis files will be copied to.
+     */
+    private String getTempImageFolder() {
+        def dir = grailsApplication.config.RModules.temporaryImageFolder
+        if (dir && !dir.endsWith(File.separator)) {
+            dir += File.separator
+        }
+        if (!dir && !transferImageFile) {
+            dir = tempFolderDirectory
+        }
+	
+        if (!transferImageFile && dir != tempFolderDirectory) {
+            log.warn "We're not copying images, but the image directory is \
+                    not the same as the jobs directory!"
+        }
+	
+        dir
+    }
+			
+    /**
+     * Whether to copy the images from the jobs directory to another directory
+     * from which they can be served. This should be set to false for
+     * production for performance reasons.
+     *
+     * @return whether to copy images from the jobs directory to the
+     *         tempFolderDirectory.
+     */
+    private boolean isTransferImageFile() {
+        grailsApplication.config.RModules.transferImageFile
+    }
+			
+    /**
+     * The logical path from which the images will be served.
+     *
+     * @return URL path from which images will be served
+     */
+    private String getImageURL() {
+        String url = grailsApplication.config.RModules.imageURL
+        if (!url) {
+            return url;
+        }
+        if (!url.endsWith('/') && !url.toLowerCase().endsWith("%2f")) {
+            url += "/"
+        }
+        url
+			}
+    //</editor-fold>
+
+    def initializeAttributes(jobName, jobTypeName, linksArray) {
+        def zipLocation
+
+        log.debug "initializeAttributes for jobName '$jobName'; jobTypeName " +
+                "'$jobTypeName'"
+        log.debug "Settings are: jobs directory -> $tempFolderDirectory, " +
+                "images directory -> $tempImageFolder, images URL -> " +
+                "$imageURL, transfer image -> $transferImageFile"
+
 		this.jobName = jobName
 		this.jobTypeName = jobTypeName
-		
-		//Create the string that represents the directory to the temporary files.
-		this.tempDirectory = "${tempFolderDirectory}${jobName}" + File.separator + "workingDirectory" + File.separator
-	
-		def zipLocation = ""
-	
-		//If we need to use a different location so that the image is under a web path, use the config here.
-		if(transferImageFile)
-		{
-			String tempImageFolder = config.RModules.temporaryImageFolder
-			String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${this.jobName}" + File.separator
 			
-			File createDirectory = new File(tempImageJobFolder)
-			
-			//Determine if the folder for this job exists in the temp image directory.
-			if(!createDirectory.exists())
-			{
-				createDirectory.mkdir()
-			}
-			
-			def tempDirectoryFile = new File(this.tempDirectory)
+		this.tempDirectory = tempFolderDirectory + jobName + File.separator +
+                "workingDirectory" + File.separator
+        String outputDirectory = tempImageFolder + this.jobName + File.separator
 	
-			tempDirectoryFile.traverse(nameFilter:~/.*${jobTypeName}.*\.png/) 
-			{
-				currentImageFile -> 
+        File tempDirectoryFile   = new File(this.tempDirectory)
+        File outputDirectoryFile = new File(outputDirectory)
 			
-				//For each of the image files we find, move them to the new directory.
-				String tempImageLocation = "${tempImageJobFolder}" + File.separator + currentImageFile.name
+        if (!outputDirectoryFile.exists()) {
+            if (transferImageFile) {
+                createDirectory(outputDirectoryFile)
+            }
+        }
 	
-				//Move the image to a location where we can actually render it.
-				File oldImage = new File(currentImageFile.path);
-				File newImage = new File(tempImageLocation);
+        tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
+            File oldImage = new File(currentImageFile.path),
+                 newImage = new File(outputDirectory, currentImageFile.name);
+            log.debug("Move or copy $oldImage to $newImage")
+            if (transferImageFile) {
+                newImage = new File(outputDirectory, currentImageFile.name);
 				//TODO move FileUtils to Core
-				FileUtils.copyFile(oldImage,newImage)
+                FileUtils.copyFile(oldImage, newImage)
+            } else {
+                oldImage.renameTo(newImage)
+            }
 				
-				String currentLink = "${imageURL}${jobName}/${currentImageFile.name}"
+            String currentLink = "${imageURL}$jobName/${currentImageFile.name}"
+            log.debug("New image link: " + currentLink)
 				linksArray.add(currentLink)
 			};
 			
-			zipLocation = "${tempImageJobFolder}" + File.separator + "zippedData.zip"
+        zipLocation = "${outputDirectory}" + File.separator + "zippedData.zip"
 			this.zipLink = "${imageURL}${jobName}/zippedData.zip"
 			
-			zipService.zipFolder(tempDirectory,zipLocation)
-			
-			zipLink = "${imageURL}${jobName}/zippedData.zip"
+        if (!new File(zipLocation).isFile()) {
+            zipService.zipFolder(tempDirectory, zipLocation)
 		}
     }
 	
-	def String fileParseLoop(tempDirectoryFile,fileNamePattern,fileNameExtractionPattern,fileParseFunction)
-	{
+	def String fileParseLoop(tempDirectoryFile, fileNamePattern,
+                             fileNameExtractionPattern, fileParseFunction) {
 		//This is the string we return.
 		String parseValueString = ""
 		
@@ -105,23 +163,21 @@ class RModulesOutputRenderService {
 		def ArrayList<String> txtFiles = new ArrayList<String>()
 		
 		//Loop through the directory create an array of txt files to be parsed.
-		tempDirectoryFile.traverse(nameFilter:~fileNamePattern)
-		{
+		tempDirectoryFile.traverse(nameFilter: ~fileNamePattern) {
 			currentTextFile ->
 			
 			txtFiles.add(currentTextFile.path)
 		}
 
 		//Loop through the file path array and parse each of the files. We do this to make different tables if there are multiple files.
-		txtFiles.each
-		{
+		txtFiles.each {
 			//Parse out the name of the group from the name of the text file.
 			def matcher = (it =~ fileNameExtractionPattern)
 			
-			if (matcher.matches() && txtFiles.size > 1)
-			{
+			if (matcher.matches() && txtFiles.size > 1) {
 				//Add the HTML that will separate the different files.
-				parseValueString += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
+				parseValueString += "<br /><br /><span class='AnalysisHeader'>" +
+                        "${matcher[0][1]}</span><hr />"
 			}
 			
 			//Create objects for the output file.
@@ -131,7 +187,24 @@ class RModulesOutputRenderService {
 			parseValueString += fileParseFunction.call(parsableFile.getText())
 		}
 		
-		return parseValueString
+		parseValueString
 	}
 	
+    def createDirectory(File directory) {
+        def dirs = []
+        while (directory && !directory.exists()) {
+            dirs = [directory] + dirs
+            directory = directory.parentFile
+        }
+        dirs.each {
+            if (!it.mkdir()) {
+                log.error "Directory $it neither exists, " +
+                        "nor could it be created"
+                return false;
+            } else {
+                log.debug "Created directory $it"
+            }
+        }
+        true
+    }
 }
