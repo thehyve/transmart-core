@@ -1,4 +1,14 @@
 --
+-- Name: de_chromosomal_region_region_id_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE de_chromosomal_region_region_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
 -- Name: de_chromosomal_region; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_chromosomal_region (
@@ -14,6 +24,11 @@ CREATE TABLE de_chromosomal_region (
     gene_id bigint,
     organism character varying(200)
 );
+
+--
+-- Name: region_id; Type: DEFAULT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_chromosomal_region ALTER COLUMN region_id SET DEFAULT nextval('de_chromosomal_region_region_id_seq'::regclass);
 
 --
 -- Name: de_chromosomal_region_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -

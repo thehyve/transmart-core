@@ -1,14 +1,4 @@
 --
--- Name: de_chromosomal_region_region_id_seq; Type: SEQUENCE; Schema: deapp; Owner: -
---
-CREATE SEQUENCE de_chromosomal_region_region_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
 -- Name: de_chromosomal_region_region_id_seq; Type: SEQUENCE OWNED BY; Schema: deapp; Owner: -
 --
 ALTER SEQUENCE de_chromosomal_region_region_id_seq OWNED BY de_chromosomal_region.region_id;
@@ -47,9 +37,4 @@ CREATE SEQUENCE seq_mrna_partition_id
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
---
--- Name: region_id; Type: DEFAULT; Schema: deapp; Owner: -
---
-ALTER TABLE ONLY de_chromosomal_region ALTER COLUMN region_id SET DEFAULT nextval('de_chromosomal_region_region_id_seq'::regclass);
 

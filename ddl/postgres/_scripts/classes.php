@@ -116,7 +116,7 @@ class PGTableGrouper {
 
 			switch ($item->type) {
 			case 'prelude':
-			CASE 'SCHEMA':
+			case 'SCHEMA':
 				$group = 'prelude';
 				break;
 			case 'TABLE':
@@ -135,8 +135,9 @@ class PGTableGrouper {
 					$prefix = 'functions/';
 				}
 				break;
-			CASE 'FK CONSTRAINT':
+			case 'FK CONSTRAINT':
 			case 'CONSTRAINT':
+			case 'DEFAULT':
 				$regex = '/^ALTER TABLE(?: IF EXISTS)?(?: ONLY)? "?(?P<group>[^"\s]+)"?/m';
 				break;
 			case 'INDEX':
@@ -176,7 +177,7 @@ class PGTableGrouper {
 						} //XXX: we don't handle setting the dependency otherwise
 					}
 				}
-			} elseif ($item->type == 'TABLE') {
+			} elseif ($item->type == 'TABLE' || $item->type == 'DEFAULT') {
 				/* handle sequences as default values */
 				if (preg_match_all('/\bnextval\(\'(?:[^.\']+\.)?(.+?)\'/i', $item->data, $matches)) {
 					foreach ($matches[1] as $m) {
