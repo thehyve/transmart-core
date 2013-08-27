@@ -55,7 +55,7 @@ clean: clean_macroed_functions
 LOAD_TARGETS = $(foreach schema, $(SCHEMAS), load_$(schema))
 
 load_global:
-	$(MAKE) -C GLOBAL load
+	test $$skip_ddl_global = "1" || $(MAKE) -C GLOBAL load
 
 $(LOAD_TARGETS): load_global
 
