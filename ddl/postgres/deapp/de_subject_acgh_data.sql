@@ -17,6 +17,21 @@ CREATE TABLE de_subject_acgh_data (
 );
 
 --
+-- Name: COLUMN de_subject_acgh_data.chip; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_acgh_data.chip IS 'log2ratio';
+
+--
+-- Name: COLUMN de_subject_acgh_data.segmented; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_acgh_data.segmented IS 'segmented log2ratio';
+
+--
+-- Name: COLUMN de_subject_acgh_data.flag; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_acgh_data.flag IS 'call  -1:loss, 0:normal, 1:gain, 2:amplification';
+
+--
 -- Name: de_subject_acgh_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_acgh_data

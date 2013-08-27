@@ -144,6 +144,11 @@ class PGTableGrouper {
 			case 'TRIGGER':
 				$regex = '/\bON "?(?P<group>[^"\s]+)"?/m';
 				break;
+			case 'COMMENT':
+				if (preg_match('/^COMMENT ON COLUMN/m', $item->data)) {
+					$regex = '/^COMMENT ON COLUMN (?P<group>[^.\s]+)\./m';
+				}
+				break;
 			}
 
 			if ($regex) {
