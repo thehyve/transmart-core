@@ -51,7 +51,8 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 			isDroppable: true,
 			notifyFunc: dropOntoCategorySelection,
 			toolTipTitle: 'Tip: RNASeq',
-			toolTipTxt: 'Drag and drop RNASeq data here.'
+			toolTipTxt: 'Drag and drop RNASeq data here.',
+            columnWidth:.33
 		},{
 			title: 'Group',
 			id: 'rgt-input-group',
@@ -61,13 +62,15 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 			toolTipTxt: 'Drag and drop clinical variables to define multiple groups. '+
                                     'Please keep in mind that only one variable can be compared, '+
                                     'e.g. gender (female) with gender (male); '+
-                                    'not gender (female) with age (>60)!'
+                                    'not gender (female) with age (>60)!',
+            columnWidth:.33
 		},{
 			title: 'Analysis type',
 			id: 'rgt-input-analysis-type',
 			toolTipTitle: 'Tip: Statistical Test',
 			toolTipTxt: '<ul><li><i>two group unpaired</i>: differential expression test for two groups</li> '+
-                                    '<li><i>Wilcoxon</i>: differential expression test for multiple groups</li></ul>'
+                                    '<li><i>Wilcoxon</i>: differential expression test for multiple groups</li></ul>',
+            columnWidth:.34
 		}];
 
 		// create child panels
