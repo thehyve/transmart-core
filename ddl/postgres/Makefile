@@ -10,7 +10,12 @@ SCHEMAS = \
 		  tm_wz \
 		  searchapp
 
-FULL_SCHEMA_DUMPS = $(foreach schema, $(SCHEMAS), full_$(schema).sql)
+FULL_SCHEMA_DUMPS = $(foreach schema, $(SCHEMAS), _dumps/$(schema).sql)
+
+SCHEMA_DEPENDENCIES = $(foreach schema, $(SCHEMAS), _dumps/$(schema)_deps.tsv)
+
+#phony targets to combine the first two
+DUMP_SCHEMA_TARGETS = $(foreach schema, $(SCHEMAS), dump_$(schema))
 
 SCHEMA_SQLFILES = $(foreach schema, $(SCHEMAS), $(schema)_files)
 
@@ -23,13 +28,28 @@ all: $(foreach schema, $(SCHEMAS), $(schema)_files)
 
 files_all: $(SCHEMA_SQLFILES)
 
-$(SCHEMAS) $(SCHEMA_FUNCTIONS):
+$(SCHEMAS) $(SCHEMA_FUNCTIONS) _dumps:
 	mkdir -p $@
+	touch $@
 
-$(FULL_SCHEMA_DUMPS):
-	$(PGDUMP_COMMAND) -x -s -O --no-tablespaces -n $(subst full_,,$(basename $@)) > $@
+$(FULL_SCHEMA_DUMPS): _dumps
+	$(PGDUMP_COMMAND) -x -s -O --no-tablespaces -n $(patsubst _dumps/%.sql,%,$@) > $@
 
-%_files: full_%.sql % %/functions _scripts/split_schema.php _scripts/classes.php
+$(SCHEMA_DEPENDENCIES): _dumps
+	$(foreach file,$(wildcard support/*.sql),$(PSQL_COMMAND) -f $(file);)
+	$(PSQL_COMMAND) -c "COPY (SELECT * FROM public.views_dependencies WHERE \
+			objschema = '$(patsubst _dumps/%_deps.tsv,%,$@)') TO STDOUT \
+			CSV DELIMITER E'\t' FORCE QUOTE *" > $@
+
+$(DUMP_SCHEMA_TARGETS):
+	$(MAKE) _dumps/$(patsubst dump_%,%,$@).sql _dumps/$(patsubst dump_%,%,$@)_deps.tsv
+
+dump: $(DUMP_SCHEMA_TARGETS)
+
+.PHONY: $(DUMP_SCHEMA_TARGETS) dump
+
+%_files: _dumps/%.sql _dumps/%_deps.tsv _scripts/split_schema.php _scripts/classes.php
+	mkdir -p $(patsubst %_files,%/functions,$@)
 	php _scripts/split_schema.php $(subst _files,,$@)
 
 #additional dependencies for tm_cz:
@@ -47,15 +67,22 @@ clean_macroed_functions:
 #manually. Full generation from DB dump be rare.
 
 clean: clean_macroed_functions
-	rm -f $(FULL_SCHEMA_DUMPS)
+	rm -rf _dumps
 
-.PHONY: clean clean_macroed_functions all files_all
+clean_all: clean
+	rm -rf $(SCHEMAS)
+
+.PHONY: clean clean_macroed_functions all files_all clean_all
 
 # Loading data
 LOAD_TARGETS = $(foreach schema, $(SCHEMAS), load_$(schema))
 
 load_global:
 	test $$skip_ddl_global = "1" || $(MAKE) -C GLOBAL load
+
+load_cross: $(wildcard */_cross.sql)
+	$(foreach cf,$?, { grep SET $(patsubst %/_cross.sql,%/prelude.sql,$(cf)); \
+		cat $(cf); } | $(PSQL_COMMAND);)
 
 $(LOAD_TARGETS): load_global
 
@@ -64,12 +91,8 @@ load_%: %/_load_all.sql
 	test `$(PSQL_COMMAND) -c "select exists(select * from pg_namespace where nspname = '$(subst load_,,$@)')" -tA` = t || \
 		$(PSQL_COMMAND) -f $<
 
-#dependencies between schemas
-load_searchapp: load_biomart
-load_tm_cz: load_tm_lz load_i2b2metadata load_i2b2metadata load_searchapp load_biomart
-load_tm_lz: load_deapp
-
 load: $(LOAD_TARGETS)
 	$(MAKE) -C META load
+	$(MAKE) load_cross
 
-.PHONY: load load_global
+.PHONY: load load_global load_cross

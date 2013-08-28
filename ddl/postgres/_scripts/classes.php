@@ -3,14 +3,25 @@ class PGTableGrouper {
 	private $inner;
 	private $groups;
 	private $dependencies = []; // dependent group => array of dependency groups
+	private $seededDependencies = []; // type\0name => array of type\0name (external dep: name incl namespace)
 	private $writtenGroups;
 	private $writtenItems;
 	private $skippedObjects;
 	private $processing = [];
 
-	public function __construct(PGDumpReaderWriter $inner, $skippedObjects) {
+	/* seeded dependencies are currently only used for views, where it would be
+	 * difficult to parse the SQL query and find the dependencies */
+
+	const MISC_GROUP  = "_misc";
+	const CROSS_GROUP = "_cross";
+
+	public function __construct(PGDumpReaderWriter $inner,
+								$skippedObjects,
+								$seededDependencies = [])
+	{
 		$this->inner = $inner;
 		$this->skippedObjects = $skippedObjects ?: [];
+		$this->seededDependencies = $seededDependencies;
 	}
 	private function writeItem($groupName, $basePath, $load_stream) {
 		if (key_exists($groupName, $this->writtenGroups)) {
@@ -40,6 +51,11 @@ class PGTableGrouper {
 		$f = function() use ($sqlFile) {
 			static $stream = null;
 			if ($stream === null) {
+				if (!is_dir(dirname($sqlFile))) {
+					if (!mkdir(dirname($sqlFile))) {
+						throw new Exception("Could not create directory $sqlFile");
+					}
+				}
 				$stream = fopen($sqlFile, "wb");
 			}
 			if (!$stream) {
@@ -50,6 +66,9 @@ class PGTableGrouper {
 
 		$items = $this->groups[$groupName];
 		foreach ($items as $i) {
+			if (!($i instanceof Item)) {
+				throw new RuntimeException("Non-item in group $groupName: $i");
+			}
 			if (!in_array([$i->type, preg_replace('/\(.*/', '', $i->name)],
 					$this->skippedObjects, true)) {
 				PGDumpReaderWriter::writeSingleItem($f(), $i);
@@ -57,7 +76,9 @@ class PGTableGrouper {
 			$this->writtenItems[$i] = null;
 		}
 
-		$this->writeLoadInclude($basePath, "$groupName.sql", $load_stream);
+		if ($load_stream !== null) {
+			$this->writeLoadInclude($basePath, "$groupName.sql", $load_stream);
+		}
 		$this->writtenGroups[$groupName] = null;
 	}
 
@@ -82,26 +103,30 @@ class PGTableGrouper {
 		$this->writtenGroups = [];
 		$this->writeItem('prelude', $basePath, $f_load_all);
 		for (reset($this->groups); current($this->groups); next($this->groups)) {
+			if (key($this->groups) == self::CROSS_GROUP) {
+				continue;
+			}
 			$this->writeItem(key($this->groups), $basePath, $f_load_all);
 		}
 
-		$f_rest = fopen("$basePath/_misc.sql", "wb");
-		if (!$f_rest) {
-			throw new Exception("Could not open file $basePath/misc.sql");
+		if (isset($this->groups[self::CROSS_GROUP])) {
+			$this->writeItem(self::CROSS_GROUP, $basePath, null /* don't write in load script */);
 		}
-		$this->writeLoadInclude($basePath, "_misc.sql", $f_load_all);
 
 		foreach ($this->inner->getItems() as $i) {
-			if ($this->writtenItems->contains($i)) {
-				continue;
+			if (!$this->writtenItems->contains($i)) {
+				$this->groups[self::MISC_GROUP][] = $i;
 			}
-			PGDumpReaderWriter::writeSingleItem($f_rest, $i);
 		}
-
-		fclose($f_rest);
+		if (isset($this->groups[self::MISC_GROUP])) {
+			$this->writeItem(self::MISC_GROUP, $basePath, $f_load_all);
+		}
 	}
 
 	public function process() {
+		// arrange stuff into groups and determine dependencies
+		// not pretty :(
+
 		$this->inner->readAll();
 		$sequencePool = [];
 		$committedSequences = [];
@@ -122,6 +147,31 @@ class PGTableGrouper {
 			case 'TABLE':
 				$regex = '/^CREATE TABLE "?(?P<group>[^"\s]+)"?/m';
 				break;
+			case 'VIEW':
+				$hasCrossDep = false;
+				$collectedDeps = [];
+				$key = "VIEW\0$item->name";
+				if (key_exists($key, $this->seededDependencies)) {
+					foreach ($this->seededDependencies[$key] as $dep) {
+						list($type, $name) = explode("\0", $dep);
+						if (strpos($name, '.') !== false) {
+							$hasCrossDep = true;
+							break;
+						}
+						if ($type != 'TABLE' && $type != 'VIEW') {
+							fprintf(STDERR, "Only table and view deps supported for views "
+									. " (found %s)\n", $type);
+						}
+						$collectedDeps[] = $type == 'TABLE' ? $name : "views/$name";
+					}
+				}
+				if ($hasCrossDep) {
+					$group = self::CROSS_GROUP;
+				} else {
+					$group = "views/$item->name";
+					$this->dependencies[$group] = $collectedDeps;
+				}
+				continue; /* we use seededDependencies only for views (for now) */
 			case 'SEQUENCE':
 				$sequencePool[$item->name] = $item;
 				break;
@@ -201,9 +251,9 @@ class PGTableGrouper {
 			} elseif ($item->type == "FK CONSTRAINT") {
 				if (!preg_match('/REFERENCES ([^.\s]+?)\(\b/i', $item->data, $matches)) {
 					if (preg_match('/REFERENCES ([^.\s]+\.[^.\s]+)\(/i', $item->data, $matches)) {
-						fprintf(STDERR, "WARN: Cross-schema dependency to %s from object %s;"
-								. " make sure schemas are loaded in the correct order\n",
+						fprintf(STDERR, "INFO: Cross-schema dependency to %s from object %s\n",
 								$matches[1], $item->name);
+						$this->groups[self::CROSS_GROUP][] = $item;
 					} else {
 						throw new Exception("Could not find table references by constaint "
 								. "{$item->name}; data: {$item->data}");

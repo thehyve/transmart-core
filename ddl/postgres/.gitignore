@@ -1,2 +1,2 @@
 default_permissions.tsv
-full_*.sql
+_dumps/
