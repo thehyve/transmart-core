@@ -6,4 +6,3 @@
 \i i2b2metadata/ont_process_status.sql
 \i i2b2metadata/schemes.sql
 \i i2b2metadata/table_access.sql
-\i i2b2metadata/_misc.sql

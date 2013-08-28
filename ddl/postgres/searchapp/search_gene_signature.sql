@@ -71,3 +71,9 @@ ALTER TABLE ONLY search_gene_signature
 ALTER TABLE ONLY search_gene_signature
     ADD CONSTRAINT gene_sig_mod_auth_user_fk1 FOREIGN KEY (modified_by_auth_user_id) REFERENCES search_auth_user(id);
 
+--
+-- Name: gene_sig_parent_fk1; Type: FK CONSTRAINT; Schema: searchapp; Owner: -
+--
+ALTER TABLE ONLY search_gene_signature
+    ADD CONSTRAINT gene_sig_parent_fk1 FOREIGN KEY (parent_gene_signature_id) REFERENCES search_gene_signature(search_gene_signature_id);
+

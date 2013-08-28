@@ -1,5 +1,149 @@
 <?php
 $dependencies = array (
+  'views/bio_lit_int_model_view' => 
+  array (
+    0 => 'bio_lit_int_data',
+    1 => 'bio_lit_model_data',
+  ),
+  'views/bio_marker_correl_mv' => 
+  array (
+    0 => 'bio_data_correl_descr',
+    1 => 'bio_data_correlation',
+    2 => 'bio_marker',
+  ),
+  'views/bio_marker_correl_view' => 
+  array (
+    0 => 'bio_data_correl_descr',
+    1 => 'bio_data_correlation',
+    2 => 'bio_marker',
+  ),
+  'views/bio_marker_exp_analysis_mv' => 
+  array (
+    0 => 'bio_assay_analysis_data',
+    1 => 'bio_assay_data_annotation',
+    2 => 'bio_experiment',
+    3 => 'bio_marker',
+  ),
+  'views/ctd_arm_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_biomarker_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_cell_info_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_clinical_chars_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_drug_effects_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_drug_inhibitor_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_events_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_experiments_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_expr_after_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_expr_baseline_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_expr_bio_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_expr_source_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_full_clinical_endpts_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_full_search_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_primary_endpts_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_prior_med_use_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_pulmonary_path_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_quant_params_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_reference_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_runin_therapies_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_secondary_endpts_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_stats_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_study_details_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_design_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_excl_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_inclusion_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_smoker_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_sponsor_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_td_status_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
+  'views/ctd_treatment_phases_view' => 
+  array (
+    0 => 'ctd_full',
+  ),
   'bio_assay_analysis_data' => 
   array (
     0 => 'bio_assay_analysis',

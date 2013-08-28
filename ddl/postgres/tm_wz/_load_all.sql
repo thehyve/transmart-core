@@ -18,4 +18,3 @@
 \i tm_wz/wt_subject_mrna_probeset.sql
 \i tm_wz/wt_trial_nodes.sql
 \i tm_wz/wt_xtrial_nodes.sql
-\i tm_wz/_misc.sql

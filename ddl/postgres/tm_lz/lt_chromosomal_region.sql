@@ -1,4 +1,14 @@
 --
+-- Name: lt_chromosomal_region_region_id_seq; Type: SEQUENCE; Schema: tm_lz; Owner: -
+--
+CREATE SEQUENCE lt_chromosomal_region_region_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
 -- Name: lt_chromosomal_region; Type: TABLE; Schema: tm_lz; Owner: -
 --
 CREATE TABLE lt_chromosomal_region (
@@ -14,6 +24,11 @@ CREATE TABLE lt_chromosomal_region (
     gene_id bigint,
     organism character varying(200)
 );
+
+--
+-- Name: region_id; Type: DEFAULT; Schema: tm_lz; Owner: -
+--
+ALTER TABLE ONLY lt_chromosomal_region ALTER COLUMN region_id SET DEFAULT nextval('lt_chromosomal_region_region_id_seq'::regclass);
 
 --
 -- Name: lt_chromosomal_region_pkey; Type: CONSTRAINT; Schema: tm_lz; Owner: -
