@@ -1,21 +1,19 @@
 package com.recomdata.transmart.data.association
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.transmartproject.utils.FileUtils
 
 class RNASeqgroupTestController {
 
 	def RModulesOutputRenderService;
+	def grailsApplication;
 
-	def defaultAction = "RNASeqgroupTestOutput"
-
-	def config = ConfigurationHolder.config;
-	String temporaryImageFolder = config.RModules.temporaryImageFolder
-	String tempFolderDirectory = config.RModules.tempFolderDirectory
-	String imageURL = config.RModules.imageURL
     final def DEFAULT_FIELDS = ['genes', 'logFC', 'logCPM', 'PValue', 'FDR'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['logFC', 'logCPM', 'PValue', 'FDR'] as Set
+
+    private getConfig() {
+        grailsApplication.config.RModules
+    }
 
 	def RNASeqgroupTestOutput =
 		{
@@ -32,7 +30,7 @@ class RNASeqgroupTestController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${imageURL}${params.jobName}/rnaseq-groups-test.png"
+		def imagePath = "${config.imageURL}${params.jobName}/rnaseq-groups-test.png"
 		render imagePath
 	}
 
@@ -40,7 +38,7 @@ class RNASeqgroupTestController {
 	 * This function returns survival acgh analysis result in zipped file
 	 */
 	def zipFile = {
-		def zipFile = new File("${temporaryImageFolder}", "${params.jobName}/zippedData.zip")
+		def zipFile = new File("${config.temporaryImageFolder}", "${params.jobName}/zippedData.zip")
 		if(zipFile.exists()) {
 			response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
 			response.contentType  = 'application/octet-stream'
@@ -57,7 +55,7 @@ class RNASeqgroupTestController {
             render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
             return
         }
-        def file = new File("${tempFolderDirectory}", "${params.jobName}/workingDirectory/rnaseq-groups-test.txt")
+        def file = new File("${config.tempFolderDirectory}", "${params.jobName}/workingDirectory/rnaseq-groups-test.txt")
         if (file.exists()) {
             def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 
