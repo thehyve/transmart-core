@@ -28,15 +28,16 @@ all: $(foreach schema, $(SCHEMAS), $(schema)_files)
 
 files_all: $(SCHEMA_SQLFILES)
 
-$(SCHEMAS) $(SCHEMA_FUNCTIONS) _dumps:
+$(SCHEMAS) $(SCHEMA_FUNCTIONS):
 	mkdir -p $@
-	touch $@
 
-$(FULL_SCHEMA_DUMPS): _dumps
+$(FULL_SCHEMA_DUMPS):
+	mkdir -p _dumps
 	$(PGDUMP_COMMAND) -x -s -O --no-tablespaces -n $(patsubst _dumps/%.sql,%,$@) > $@
 
-$(SCHEMA_DEPENDENCIES): _dumps
+$(SCHEMA_DEPENDENCIES):
 	$(foreach file,$(wildcard support/*.sql),$(PSQL_COMMAND) -f $(file);)
+	mkdir -p _dumps
 	$(PSQL_COMMAND) -c "COPY (SELECT * FROM public.views_dependencies WHERE \
 			objschema = '$(patsubst _dumps/%_deps.tsv,%,$@)') TO STDOUT \
 			CSV DELIMITER E'\t' FORCE QUOTE *" > $@
