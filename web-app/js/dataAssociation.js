@@ -121,7 +121,8 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 	// translate group test module name ..
 	// TODO: Please change with the consistent naming for all related files and variable
 	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
-	
+	if (itemId ==  'RNASeqgroupTest' ) itemId = 'groupTestRNASeq';
+
 	// fyi ..  Ajax.Updater is a Prototype.js syntax
 	// will update 'variableSelection' div with whatever the response from
 	// the call
@@ -140,7 +141,9 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 					survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
 				} else if (itemId == 'groupTestaCGH') {
 					groupTestView.renderResults(jobName, groupTestView);
-				}
+				} else if (itemId == 'groupTestRNASeq') {
+                    RNASeqgroupTestView.renderResults(jobName, RNASeqgroupTestView);
+                }
 			}
 		},
 		parameters:{analysis:itemId}
