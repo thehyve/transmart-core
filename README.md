@@ -178,6 +178,8 @@ This part still needs some work, but it goes more or less like this:
 * Manually delete the subdirectories with the names of the schemas that you
   changed.
 * Run `make <schema name>_files` for every schema whose directory you deleted.
+* (If you want to regenerate all the schemas, you can replace the last three
+  steps with `make clean_all dump files_all`).
 * If you have data changes, go to `data/postgres`. If you need to dump data from
   a table no data was being dumped before, add that table to one of the `<schema
   name>_list` files.
