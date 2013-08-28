@@ -210,10 +210,10 @@ class PGTableGrouper {
 					}
 				} else {
 					if ($group != $matches[1]) {
-						// skip foreign key on own table
+						// skip dependency if foreign key is on own table
 						$this->dependencies[$group][] = $matches[1];
-						$this->groups[$group][] = $item;
 					}
+					$this->groups[$group][] = $item;
 				}
 			} elseif ($group) {
 				$this->groups[$group][] = $item;
