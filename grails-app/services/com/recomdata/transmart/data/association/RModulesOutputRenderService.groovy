@@ -147,7 +147,7 @@ class RModulesOutputRenderService {
 			};
 			
         zipLocation = "${outputDirectory}" + File.separator + "zippedData.zip"
-			this.zipLink = "${imageURL}${jobName}/zippedData.zip"
+			this.zipLink = "images/${imageURL}${jobName}/zippedData.zip"
 			
         if (!new File(zipLocation).isFile()) {
             zipService.zipFolder(tempDirectory, zipLocation)
