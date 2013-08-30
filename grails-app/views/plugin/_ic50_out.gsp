@@ -36,7 +36,7 @@
 		
 		<g:each var="location" in="${imageLocations}">
 	    	<g:if test="${(location ==~ /.*DOSAGE\_ALL\.png.*/)}">
-	    		<img src='${location}'  width="600" height="600"/> <br />
+                <g:img file="${location}" width="600" height="600"></g:img> <br/>
 	    	</g:if>
 		</g:each>		
 		
@@ -44,14 +44,14 @@
 		
 		<g:each var="location" in="${imageLocations}">
 	    	<g:if test="${!(location ==~ /.*DOSAGE\_ALL\.png.*/)}">
-	    		<img src='${location}'  width="600" height="600"/> <br />
+                <g:img file="${location}" width="600" height="600"></g:img> <br/>
 	    	</g:if>
 		</g:each>
 	
 		<br />
-		<br />	
-		
-		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+		<br />
+
+        <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
 		
 	</form>
 </body>

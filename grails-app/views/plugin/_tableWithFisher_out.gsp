@@ -55,7 +55,7 @@
 			</tr>			
 			<tr>
 				<td>
-					<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+                    <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
 				</td>
 			</tr>			
 		</table>

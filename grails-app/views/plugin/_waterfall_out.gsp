@@ -34,12 +34,12 @@
 		<span class='AnalysisHeader'>Waterfall Plot</span><br /><br />
 		
 		<g:each var="location" in="${imageLocations}">
-	    	<img src='${location}'  width="600" height="600"/> <br />
+            <g:img file="${location}" width="600" height="600"></g:img> <br />
 		</g:each>
 		
 		<br />
-		
-		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+
+        <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
 		
 	</form>
 </body>
