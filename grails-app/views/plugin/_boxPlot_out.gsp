@@ -33,7 +33,7 @@
 		<br />		
 		<span class='AnalysisHeader'>Box Plot</span><br /><br />
 		
-        <g:each var="location" in="${imageLocation}">
+        <g:each var="location" in="${imageLocations}">
             <g:img file="${location}" width="600" height="600"></g:img>
         </g:each>
 	
