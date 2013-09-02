@@ -36,7 +36,7 @@
 		<br />
 		<br />
 
-        <g:each var="location" in="${imageLocation}">
+        <g:each var="location" in="${imageLocations}">
             <a onclick="window.open('${location}','_blank')">
                 <g:img file="${location}" width="600" height="600"></g:img>
             </a>
