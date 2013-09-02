@@ -236,6 +236,9 @@ environments {
 
         com.recomdata.transmart.data.export.rScriptDirectory = transmartAppRoot + '/web-app/dataExportRScripts'
     }
+
+    // Used to access R jobs parent directory outside RModules (e.g. data export)
+    com.recomdata.plugins.tempFolderDirectory = RModules.tempFolderDirectory
 }
 /* }}} */
 
