@@ -1,0 +1,82 @@
+array (
+  'id' => 'tableWithFisher',
+  'name' => 'Table with Fisher Test',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||AGGREGATEIND||' => 'divIndependentVariableprobesAggregation',
+    '||BINNINGVARIABLETYPEINDEP||' => 'variableTypeIndep',
+    '||GPLDEP||' => 'divDependentVariablegpls',
+    '||NUMBERBINSDEP||' => 'numberOfBinsDep',
+    '||BINNINGRANGESTRINGINDEP||' => 'binRangesIndep',
+    '||BINNINGMANUALDEP||' => 'manualBinningDep',
+    '||BINNINGRANGESTRINGDEP||' => 'binRangesDep',
+    '||BINNINGDEP||' => 'binningDep',
+    '||TIMEPOINTSDEP||' => 'divDependentVariabletimepoints',
+    '||RBMPANELDEP||' => 'divDependentVariablerbmPanels',
+    '||BINNINGTYPEINDEP||' => 'binDistributionIndep',
+    '||TYPEDEP||' => 'divDependentVariableType',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||SNPTYPEIND||' => 'divIndependentVariableprobesAggregation',
+    '||GPLIND||' => 'divIndependentVariablegpls',
+    '||SNPTYPEDEP||' => 'divDependentVariableSNPType',
+    '||RBMPANELIND||' => 'divIndependentVariablerbmPanels',
+    '||TIMEPOINTIND||' => 'divIndependentVariabletimepoints',
+    '||DEPENDENT||' => 'dependentVariable',
+    '||GENESDEPNAME||' => 'divDependentPathwayName',
+    '||PLATFORMDEP||' => 'divDependentVariableplatforms',
+    '||GENESIND||' => 'divIndependentVariablePathway',
+    '||TISSUEDEP||' => 'divDependentVariabletissues',
+    '||SAMPLEIND||' => 'divIndependentVariablesamples',
+    '||BINNINGVARIABLETYPEDEP||' => 'variableTypeDep',
+    '||PLATFORMIND||' => 'divIndependentVariableplatforms',
+    '||GENESDEP||' => 'divDependentVariablePathway',
+    '||AGGREGATEDEP||' => 'divDependentVariableprobesAggregation',
+    '||SAMPLEDEP||' => 'divDependentVariablesamples',
+    '||TISSUEIND||' => 'divIndependentVariabletissues',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||GENESINDNAME||' => 'divIndependentPathwayName',
+    '||BINNINGMANUALINDEP||' => 'manualBinningIndep',
+    '||BINNINGTYPEDEP||' => 'binDistributionDep',
+    '||NUMBERBINSINDEP||' => 'numberOfBinsIndep',
+    '||BINNINGINDEP||' => 'binningIndep',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/BinData.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||TableWithFisher/BuildFisherData.R\')',
+      5 => 'FisherData.build(input.dataFile = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',concept.dependent="||DEPENDENT||",concept.independent="||INDEPENDENT||",binning.Dep.enabled=\'||BINNINGDEP||\',binning.Indep.enabled=\'||BINNINGINDEP||\',binning.Dep.bins=\'||NUMBERBINSDEP||\',binning.Indep.bins=\'||NUMBERBINSINDEP||\',binning.Dep.type=\'||BINNINGTYPEDEP||\',binning.Indep.type=\'||BINNINGTYPEINDEP||\',binning.Dep.manual=\'||BINNINGMANUALDEP||\',binning.Indep.manual=\'||BINNINGMANUALINDEP||\',binning.Dep.binrangestring=\'||BINNINGRANGESTRINGDEP||\',binning.Indep.binrangestring=\'||BINNINGRANGESTRINGINDEP||\',binning.Dep.variabletype=\'||BINNINGVARIABLETYPEDEP||\',binning.Indep.variabletype=\'||BINNINGVARIABLETYPEINDEP||\',input.gexFile = \'||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans\',input.snpFile = \'||TEMPFOLDERDIRECTORY||SNP/snp.trans\',concept.dependent.type = \'||TYPEDEP||\',concept.independent.type = \'||TYPEIND||\',genes.dependent = \'||GENESDEP||\',genes.independent = \'||GENESIND||\',genes.dependent.aggregate = \'||AGGREGATEDEP||\',genes.independent.aggregate = \'||AGGREGATEIND||\',sample.dependent = \'||SAMPLEDEP||\',sample.independent = \'||SAMPLEIND||\',time.dependent = \'||TIMEPOINTSDEP||\',time.independent = \'||TIMEPOINTIND||\',snptype.dependent = \'||SNPTYPEDEP||\',snptype.independent = \'||SNPTYPEIND||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||TableWithFisher/FisherTableLoader.R\')',
+      1 => 'FisherTable.loader(input.filename=\'outputfile\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/tableWithFisher/fisherTableOut',
+  ),
+  'view' => 'TableWithFisher',
+)

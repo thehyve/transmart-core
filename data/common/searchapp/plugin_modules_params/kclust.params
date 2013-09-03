@@ -10,24 +10,30 @@ array (
   ),
   'dataFileInputMapping' => 
   array (
+    'CLINICAL.TXT' => 'TRUE',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
     'SNP.TXT' => 'snpData',
-    'MRNA_DETAILED.TXT' => 'TRUE',
-    'CLINICAL.TXT' => 'FALSE',
   ),
   'pivotData' => false,
   'variableMapping' => 
   array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||IMAGEHEIGHT||' => 'txtImageHeight',
     '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
     '||CLUSTERS||' => 'txtClusters',
-    '||GENES||' => 'divIndependentVariablePathway',
-    '||GPL1||' => 'divIndependentVariablegplsValue',
-    '||GPL2||' => 'divIndependentVariablegplsValue2',
-    '||SAMPLE1||' => 'divIndependentVariablesamples',
-    '||SAMPLE2||' => 'divIndependentVariablesamples2',
-    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
-    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
     '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||IMAGEWIDTH||' => 'txtImageWidth',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||TYPEIND||' => 'divIndependentVariableType',
     '||TISSUES2||' => 'divIndependentVariabletissues2',
+    '||SNPTYPE||' => 'divIndependentVariableSNPType',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||TEXTSIZE||' => 'txtTextSize',
   ),
   'converter' => 
   array (
@@ -38,19 +44,19 @@ array (
       2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
       3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
       4 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/BuildHeatmapData.R\')',
-      5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
-					',
-      6 => '							HeatmapData.build(input.gexFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
-							genes = \'||GENES||\',
-							genes.aggregate = \'||AGGREGATE||\',
-	sample.subset1=\'||SAMPLE1||\',
-	time.subset1=\'||TIMEPOINTS1||\',
-	tissues.subset1=\'||TISSUES1||\',
-	platform.subset1=\'||GPL1||\',
-	sample.subset2=\'||SAMPLE2||\',
-	time.subset2=\'||TIMEPOINTS2||\',
-	tissues.subset2=\'||TISSUES2||\',
-	platform.subset2=\'||GPL2||\')',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'HeatmapData.build(
+        input.gexFile    = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\')',
     ),
   ),
   'processor' => 
@@ -58,11 +64,12 @@ array (
     'R' => 
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/KMeansHeatmap.R\')',
-      1 => '					KMeansHeatmap.loader(
-					input.filename=\'outputfile\',
-					clusters.number = \'||CLUSTERS||\'
-					)
-					',
+      1 => 'KMeansHeatmap.loader(
+        input.filename  = \'outputfile\',
+        clusters.number = \'||CLUSTERS||\',
+        imageWidth      = \'||IMAGEWIDTH||\',
+        imageHeight     = \'||IMAGEHEIGHT||\',
+        pointsize       = \'||TEXTSIZE||\')',
     ),
   ),
   'renderer' => 

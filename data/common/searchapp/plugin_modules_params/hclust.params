@@ -19,9 +19,17 @@ array (
   array (
     '||GENES||' => 'divIndependentVariablePathway',
     '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
-    '||TIMEPOINTS||' => 'divIndependentVariabletimepoints',
-    '||TISSUES||' => 'divIndependentVariabletissues',
-    '||SAMPLE||' => 'divIndependentVariablesamples',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
   ),
   'converter' => 
   array (
@@ -32,15 +40,19 @@ array (
       2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
       3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
       4 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/BuildHeatmapData.R\')',
-      5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
-					',
-      6 => '							HeatmapData.build(input.gexFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
-							genes = \'||GENES||\',
-							genes.aggregate = \'||AGGREGATE||\',
-							sample=\'||SAMPLE||\',
-							time=\'||TIMEPOINTS||\',
-							tissues=\'||TISSUES||\')
-					',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'HeatmapData.build(
+        input.gexFile    = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\')',
     ),
   ),
   'processor' => 
@@ -48,10 +60,11 @@ array (
     'R' => 
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HClusteredHeatmapLoader.R\')',
-      1 => '					HClusteredHeatmap.loader(
-					input.filename=\'outputfile\'
-					)
-					',
+      1 => 'HClusteredHeatmap.loader(
+        input.filename = \'outputfile\',
+        imageWidth     = ||IMAGE_WIDTH||,
+        imageHeight    = ||IMAGE_HEIGHT||,
+        pointsize      = ||TEXT_POINT_SIZE||)',
     ),
   ),
   'renderer' => 

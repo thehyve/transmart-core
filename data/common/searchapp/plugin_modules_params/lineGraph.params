@@ -1,0 +1,49 @@
+array (
+  'id' => 'lineGraph',
+  'name' => 'LineGraph',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'MRNA.TXT' => 'FALSE',
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'FALSE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||GROUPBY||' => 'groupByVariable',
+    '||DEPENDENT||' => 'dependentVariable',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||GRAPHTYPE||' => 'graphType',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||LineGraph/BuildLinearData.R\')',
+      4 => 'LinearData.build(input.dataFile = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',concept.dependent=\'||DEPENDENT||\', concept.group=\'||GROUPBY||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||LineGraph/LineGraphLoader.r\')',
+      1 => 'LineGraph.loader(input.filename=\'outputfile.txt\', graphType=\'||GRAPHTYPE||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/lineGraph/lineGraphOutput',
+  ),
+  'view' => 'LineGraph',
+)
