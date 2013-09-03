@@ -29,11 +29,11 @@ array (
       1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
       2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
       3 => 'source(\'||PLUGINSCRIPTDIRECTORY||IC50/BuildIC50Data.R\')',
-      4 => '							IC50Data.build(input.dataFile = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
-							concept.celllines=\'||CELLLINES||\',
-							concept.dosage=\'||DOSAGE||\',
-							concept.response = \'||RESPONSE||\')
-					',
+      4 => 'IC50Data.build(
+        input.dataFile    = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept.celllines = \'||CELLLINES||\',
+        concept.dosage    = \'||DOSAGE||\',
+        concept.response  = \'||RESPONSE||\')',
     ),
   ),
   'processor' => 
@@ -41,10 +41,7 @@ array (
     'R' => 
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||IC50/IC50Loader.R\')',
-      1 => '					IC50Plot.loader(
-					input.filename=\'outputfile\'
-					)
-					',
+      1 => 'IC50Plot.loader(input.filename=\'outputfile\')',
     ),
   ),
   'renderer' => 

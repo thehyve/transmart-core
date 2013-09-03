@@ -37,19 +37,19 @@ array (
       2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
       3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
       4 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/BuildPCAData.R\')',
-      5 => '						parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')
-					',
-      6 => 'PCAData.build(input.gexFile = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
-	sample.subset1=\'||SAMPLE1||\',
-	time.subset1=\'||TIMEPOINTS1||\',
-	tissues.subset1=\'||TISSUES1||\',
-	platform.subset1=\'||GPL1||\',
-	sample.subset2=\'||SAMPLE2||\',
-	time.subset2=\'||TIMEPOINTS2||\',
-	tissues.subset2=\'||TISSUES2||\',
-	platform.subset2=\'||GPL2||\',
-	genes = \'||GENES||\',
-	genes.aggregate = \'||AGGREGATE||\')',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'PCAData.build(
+        input.gexFile    = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\')',
     ),
   ),
   'processor' => 
@@ -57,10 +57,7 @@ array (
     'R' => 
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/LoadPCA.R\')',
-      1 => '					PCA.loader(
-					input.filename=\'outputfile\'
-					)
-					',
+      1 => 'PCA.loader(input.filename=\'outputfile\')',
     ),
   ),
   'renderer' => 
