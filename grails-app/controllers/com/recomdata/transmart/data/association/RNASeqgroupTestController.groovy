@@ -55,7 +55,7 @@ class RNASeqgroupTestController {
             render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
             return
         }
-        def file = new File("${config.tempFolderDirectory}", "${params.jobName}/workingDirectory/rnaseq-groups-test.txt")
+        def file = new File("${config.tempFolderDirectory}", "${params.jobName}/workingDirectory/probability.txt")
         if (file.exists()) {
             def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 

@@ -42,14 +42,30 @@ function
 	if(!file.exists(input.rnaseqFile)) stop("||FRIENDLY||No RNASeq data file found. Please check your region variable selection and run again.")
 	if(!file.exists(input.clinicalFile)) stop("||FRIENDLY||No clinical data file found. Please check your group variable selection and run again.")
 
-	# Copy the RNAseq file
-	file.copy(input.rnaseqFile,output.rnaseqFile,overwrite = TRUE)
+	readcountTable <- read.table(input.rnaseqFile, header=TRUE, sep='\t', quote='\"', as.is=TRUE, check.names=FALSE)
+	readcountTableColumnNames <- colnames(readcountTable)
+
+	# Use regionname as row names
+	rownames(readcountTable) <- readcountTable$regionname
+
+	# Only readcount columns
+	filteredReadcountTableColumnNames <- readcountTableColumnNames[ grep("readcount.", readcountTableColumnNames) ]
+	if(length(filteredReadcountTableColumnNames)==0)  stop("||FRIENDLY||No read count data found. Please check your read count variable selection and run again.")
 	
+	readcountTable <- readcountTable[filteredReadcountTableColumnNames]
+
+	readcountTableColumnNames <- colnames(readcountTable)
+	readcountTableColumnNames <- gsub("\"", "", readcountTableColumnNames)
+	readcountTableColumnNames <- sub("readcount.", "" , readcountTableColumnNames)
+	colnames(readcountTable) <- readcountTableColumnNames
+	# Write the readcount file
+	write.table(readcountTable,output.rnaseqFile, sep='\t', quote=FALSE, row.names=TRUE, col.names=TRUE)
+
 	# Extract patient list from RNASeq data column names for which readcounts have been observed
 	headernames <- gsub("\"", "", strsplit(readLines(input.rnaseqFile,1),' *\t *')[[1]])
 	
-	#pids <- sub("readcount.", "" , headernames[grep('readcount.', headernames)] )
-	pids <- headernames
+	pids <- sub("readcount.", "" , headernames[grep('readcount.', headernames)] )
+
 	if(!length(pids)>0) stop("||FRIENDLY||No subjects with readcount data found in RNASeq data file.")
 
 	#Read the input file.
@@ -68,6 +84,8 @@ function
 	
 	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
 	allConcepts <- unique(filteredData$CONCEPT_PATH)
+	
+
 
 	#Add the value for the group to the group data table.
 	group <- strsplit(concept.group," *[|] *")
@@ -103,3 +121,4 @@ function
 
 	print("-------------------")
 }
+

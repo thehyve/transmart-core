@@ -26,7 +26,7 @@ input.dataFile,
 output.dataFile="input",
 concept.time,
 concept.category = "",
-concept.eventYes = "",
+concept.eventNo = "",
 binning.enabled = FALSE,
 binning.bins = "",
 binning.type = "",
@@ -68,14 +68,14 @@ snptype.category = ''
 	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
 	
 	#If no event was selected, we consider everyone to have had the event.
-	if(concept.eventYes=="")
+	if(concept.eventNo=="")
 	{
 		finalData<-cbind(finalData,1)
 	}
 	else
 	{
 		#We merge the Yes events in, everything else gets set to NA. We will mark them as censored later.
-		finalData<-merge(finalData,splitData[[concept.eventYes]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
+		finalData<-merge(finalData,splitData[[concept.eventNo]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM",all.x=TRUE)	
 	}
 	
 	#If no group was selected, everyone is put in the same category.

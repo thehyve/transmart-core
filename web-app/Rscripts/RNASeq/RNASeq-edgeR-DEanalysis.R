@@ -25,7 +25,7 @@
 DEanalysis.group.test <- 
 function
 (
-	analysisType        = 'two_group_unpaired',
+	analysisType        = 'two_group_unpaired',  ## two_group_unpaired, two_group_paired, multi_group
 	readcountFileName   = 'readcount.tsv',
 	phenodataFileName   = 'phenodata.tsv',
 	QCchoice            = TRUE,
@@ -84,11 +84,11 @@ function
 		}
 		
 		# Extract sample list from RNASeq data column names for which readcounts have been observed
-		#samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(dat))] )
+		#samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(countTable))] )
 		samplelist <- colnames(countTable)
 		# Make row names equal to the sample id
 		rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
-		# Reorder phenodata rows to match the order in the aCGH data columns
+		# Reorder phenodata rows to match the order in the RNASeq data columns
 		phenodata <- phenodata[samplelist,,drop=FALSE]		
 
 		conditions <- phenodata$group
@@ -102,38 +102,43 @@ function
 		dge 	= estimateTagwiseDisp(dge)
 		
 		if(QC == TRUE) {
+		
+			png("rnaseq-groups-test.png", width=1000, height=1000)
+			par(mfrow = c(3,1))
+		  
 			print("Creating QC plots...")
 			## MDS Plot
-			print(output_4)
-			pdf(output_4)
+			#print(output_4)
+			#pdf(output_4)
 			plotMDS(dge, main="edgeR MDS Plot")
-			dev.off()
+			#dev.off()
 			
 			## Biological coefficient of variation plot
-			print(output_5)
-			pdf(output_5)
+			#print(output_5)
+			#pdf(output_5)
 			plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
-			dev.off()
+			#dev.off()
 	 	}
 		
 		print("Performing exact tests...")
 		et 		= exactTest(dge)
 		
 		# Additional multiple testing correction should follow here
-		write.table(file=output_1,topTags(et,n=nrow(countTable)),sep="\t")
+		write.table(file=output_1,topTags(et,n=nrow(countTable)),sep="\t",row.names=FALSE)
 		write.table(file=output_2,cpm(dge,normalized.lib.sizes=TRUE),sep="\t")
 		write.table(file=output_3,dge$counts,sep="\t")
 		
 		if (QC == TRUE) {
-			print(output_6)
+			#print(output_6)
 			print("Creating MA plot...")
 			## ~MA Plot
 			etable <- topTags(et, n=nrow(dge))$table
 			etable <- etable[order(etable$FDR), ]
-			pdf(output_6)
+			#pdf(output_6)
 			with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
 			with(subset(etable, FDR<0.05), points(logCPM, logFC, pch=20, col="red"))
 			abline(h=c(-1,1), col="blue")
+			
 			dev.off()
 		}
 		print("Done!")
@@ -176,17 +181,19 @@ function
 		dge 	= estimateGLMTagwiseDisp(dge,design)
 		
 		if (QC == TRUE) {
+
+			png("rnaseq-groups-test.png", width=1000, height=1000)
+			par(mfrow = c(3,1))
+
 			print("Creating QC plots...")
 			## MDS Plot
 			#pdf(output_4)
-			pdf(output_4)
 			plotMDS(dge, main="edgeR MDS Plot")
-			dev.off()
+			#dev.off()
 			## Biological coefficient of variation plot
 			#pdf(output_5)
-			pdf(output_5)
 			plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
-			dev.off()
+			#dev.off()
 	 	}
 		
 		print("Fitting GLM...")
@@ -194,7 +201,7 @@ function
 		print("Performing likelihood ratio tests...")
 		lrt		= glmLRT(fit)
 		
-		write.table(file=output_1,topTags(lrt,n=nrow(countTable)),sep="\t")
+		write.table(file=output_1,topTags(lrt,n=nrow(countTable)),sep="\t", row.names=FALSE)
 		write.table(file=output_2,cpm(dge,normalized.lib.sizes=TRUE),sep="\t")
 		write.table(file=output_3,dge$counts,sep="\t")
 		
@@ -203,10 +210,11 @@ function
 			## ~MA Plot
 			etable <- topTags(lrt, n=nrow(dge))$table
 			etable <- etable[order(etable$FDR), ]
-			pdf(output_6)
+			#pdf(output_6)
 			with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
 			with(subset(etable, FDR<0.05), points(logCPM, logFC, pch=20, col="red"))
 			abline(h=c(-1,1), col="blue")
+			
 			dev.off()
 		}
 		print("Done!")
@@ -248,22 +256,26 @@ function
 		dge 	= estimateGLMTagwiseDisp(dge,design)
 		
 		if (QC == TRUE) {
+		
+			png("rnaseq-groups-test.png", width=1000, height=1000)
+			par(mfrow = c(3,1))
+		
 			print("Creating QC plots...")
 			## MDS Plot
-			pdf(output_4)
+			#pdf(output_4)
 			plotMDS(dge, main="edgeR MDS Plot")
-			dev.off()
+			#dev.off()
 			## Biological coefficient of variation plot
-			pdf(output_5)
+			#pdf(output_5)
 			plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
-			dev.off()
+			#dev.off()
 	 	}
 		
 		print("Fitting GLM...")
 		fit 	= glmFit(dge,design)
 		print("Performing likelihood ratio tests...")
 		lrt		= glmLRT(fit,coef=2:3)
-		write.table(file=output_1,topTags(lrt,n=nrow(countTable)),sep="\t")
+		write.table(file=output_1,topTags(lrt,n=nrow(countTable)),sep="\t", row.names=FALSE)
 		write.table(file=output_2,cpm(dge,normalized.lib.sizes=TRUE),sep="\t")
 		write.table(file=output_3,dge$counts,sep="\t")
 		
@@ -272,10 +284,11 @@ function
 			## ~MA Plot
 			etable <- topTags(lrt, n=nrow(dge))$table
 			etable <- etable[order(etable$FDR), ]
-			pdf(output_6)
+			#pdf(output_6)
 			with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
 			with(subset(etable, FDR<0.05), points(logCPM, logFC, pch=20, col="red"))
 			abline(h=c(-1,1), col="blue")
+			
 			dev.off()
 		}
 		print("Done!")
