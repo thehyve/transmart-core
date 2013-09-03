@@ -39,7 +39,7 @@
 		<br />	
 		
 		<g:each var="location" in="${imageLocations}">
-	    	<img src='${location}'/> <br />
+            <g:img file="${location}"></g:img> <br />
 		</g:each>
 
 		<br />
@@ -50,9 +50,9 @@
 		${geneListTable}
 		
 		<br />
-		<br />	
-		
-		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+		<br />
+
+        <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
 		
 	</form>
 </body>

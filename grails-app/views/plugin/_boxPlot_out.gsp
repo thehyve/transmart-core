@@ -33,9 +33,9 @@
 		<br />		
 		<span class='AnalysisHeader'>Box Plot</span><br /><br />
 		
-		<g:each var="location" in="${imageLocations}">
-	    	<img src='${location}'  width="600" height="600"/> <br />
-		</g:each>
+        <g:each var="location" in="${imageLocations}">
+            <g:img file="${location}" width="600" height="600"></g:img>
+        </g:each>
 	
 		<br />
 		<br />	
@@ -48,7 +48,7 @@
 		
 		<br />
 		
-		<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+		<a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
 		
 	</form>
 </body>
