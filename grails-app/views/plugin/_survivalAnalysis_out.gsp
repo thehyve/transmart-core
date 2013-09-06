@@ -34,7 +34,7 @@
 		<span class='AnalysisHeader'>Survival Curve</span><br /><br />
 		
 		<g:each var="location" in="${imageLocation}">
-			<g:img file="${location}"></g:img>
+			<img src='${location}'></>
 		</g:each>
 	
 		<br />
