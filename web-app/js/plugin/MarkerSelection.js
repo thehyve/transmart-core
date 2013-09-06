@@ -58,17 +58,17 @@ function submitMarkerSelectionJob(form){
 	
 	if(document.getElementById("txtNumberOfMarkers").value < 1)
 	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 1 into the "Number of markers" text box.');
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 0 into the "Number of markers" text box.');
 		return;			
 	}	
 		
 	//----------------------------------	
 	
 	var formParams = {
-			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,			
-			jobType:								'MarkerSelection',
-			txtNumberOfMarkers:						document.getElementById("txtNumberOfMarkers").value
+			independentVariable:		independentVariableConceptCode,
+			variablesConceptPaths:		variablesConceptCode,			
+			jobType:			'MarkerSelection',
+			txtNumberOfMarkers:		document.getElementById("txtNumberOfMarkers").value
 	};
 	
 	//Use a common function to load the High Dimensional Data params.
