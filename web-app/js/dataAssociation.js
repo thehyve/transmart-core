@@ -797,9 +797,9 @@ function loadCommonHighDimFormObjects(formParams, divName)
 
 function loadCommonHeatmapImageAttributes(formParams)
 {
-	formParams["txtImageWidth"]		=	document.getElementById("txtImageWidth").value,
-	formParams["txtImageHeight"]	=	document.getElementById("txtImageHeight").value,
-	formParams["txtTextSize"]		=	document.getElementById("txtImagePointsize").value
+	formParams["txtImageWidth"]	= document.getElementById("txtImageWidth").value,
+	formParams["txtImageHeight"]	= document.getElementById("txtImageHeight").value,
+	formParams["txtImagePointsize"]	= document.getElementById("txtImagePointsize").value
 }
 
 function validateCommonHeatmapImageAttributes(formParams)
@@ -842,19 +842,19 @@ function validateCommonHeatmapImageAttributes(formParams)
 	
 	if(document.getElementById("txtImageWidth").value < 1 || document.getElementById("txtImageWidth").value > 9000)
 	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Image Width" text box that is greater than 0 and less than 9000.');
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Image Width" text box that is between 1 and 9000.');
 		return false;			
 	}	
 
 	if(document.getElementById("txtImageHeight").value < 1 || document.getElementById("txtImageHeight").value > 9000)
 	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Image Height" text box that is greater than 0 and less than 9000.');
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Image Height" text box that is between 1 and 9000.');
 		return false;			
 	}	
 	
 	if(document.getElementById("txtImagePointsize").value < 1 || document.getElementById("txtImagePointsize").value > 100)
 	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Text Size" text box that is greater than 0 and less than 100.');
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Text Size" text box that is between 1 and 100.');
 		return false;			
 	}	
 
