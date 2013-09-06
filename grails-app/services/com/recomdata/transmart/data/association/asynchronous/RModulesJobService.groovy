@@ -148,6 +148,7 @@ class RModulesJobService implements Job {
 	{
 		jobDataMap.put('jobTmpDirectory', jobTmpDirectory)
 
+		log.debug("RModulesJobService getData directory ${jobTmpDirectory}")
 		dataExportService.exportData(jobDataMap)
 	}
 
@@ -171,7 +172,7 @@ class RModulesJobService implements Job {
 
 		}
 		} catch (Exception e) {
-			throw new Exception('Job Failed while running Conversions.'+e?.message, e)
+			throw new Exception('Job Failed while running Conversions. '+e?.message, e)
 		}
 	}
 
@@ -228,7 +229,7 @@ class RModulesJobService implements Job {
 		}
 
 		} catch (Exception e) {
-			throw new Exception('Job Failed while running Analysis.'+e?.message, e)
+			throw new Exception('Job Failed while running Analysis. '+e?.message, e)
 		}
 	}
 
@@ -263,7 +264,7 @@ class RModulesJobService implements Job {
 			}
 		}
 		} catch (Exception e) {
-			throw new Exception('Job Failed while rendering Output.', e)
+			throw new Exception('Job Failed while rendering Output. ', e)
 		}
 
 	}
