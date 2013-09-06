@@ -123,6 +123,11 @@ function
 	finalColumnNames <- c("PATIENT_NUM",output.survival,output.status)
 	colnames(finalData) <- finalColumnNames
 
+	# Make row names equal to the patient_num column value
+	rownames(finalData) <- finalData[,"PATIENT_NUM"]
+	# Reorder finalData rows to match the order in the aCGH data columns
+	finalData <- finalData[pids,,drop=FALSE]
+
 	###################################	
 	
 	#We need MASS to dump the matrix to a file.
