@@ -44,10 +44,11 @@ conceptColumn = FALSE
 )
 {
 	print("     -------------------")
+	print(Sys.time())
 	print("     dataBuilders.R")
-	print("     BUILDING DATA")
+	sprintf("     BUILDING DATA: %s", concept.type)
 	
-	#Depedning on the type of data we are using we use a different extraction method.
+	#Depending on the type of data we are using we use a different extraction method.
 	if(concept.type == "CLINICAL")
 	{
 		#Extract the concepts from the clinical data file.
@@ -56,12 +57,12 @@ conceptColumn = FALSE
 	else if(concept.type == "MRNA")
 	{
 		axisValueMatrix <- gexBuilder(	GEXFile = GEXFile,
-										sampleType = sampleType,
-										timepointType = timepointType,
-										tissueType = tissueType,
-										platform.type = platform.type,
-										gene.list = gene.list,
-										gene.aggregate = gene.aggregate)
+						sampleType = sampleType,
+						timepointType = timepointType,
+						tissueType = tissueType,
+						platform.type = platform.type,
+						gene.list = gene.list,
+						gene.aggregate = gene.aggregate)
 	}
 	else if(concept.type == "SNP")
 	{
