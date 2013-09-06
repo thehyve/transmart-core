@@ -62,13 +62,32 @@ function submitKClustJob(form){
 		return;			
 	}
 	
+	if(document.getElementById("txtMaxDrawNumber").value == '')
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter the maximumm number of markers to display into the "Max rows to display" text box.');
+		return;			
+	}	
+	
+	if(!isNumber(document.getElementById("txtMaxDrawNumber").value))
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Max rows to display" text box.');
+		return;			
+	}
+	
+	if(document.getElementById("txtMaxDrawNumber").value < 1)
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 0 into the "Max rows to display" text box.');
+		return;			
+	}	
+		
 	//----------------------------------	
 		
 	var formParams = {
-			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,		
-			jobType:								'RKClust',
-			txtClusters:							document.getElementById("txtClusters").value
+			independentVariable:	independentVariableConceptCode,
+			variablesConceptPaths:	variablesConceptCode,		
+			jobType:		'RKClust',
+			txtMaxDrawNumber:	document.getElementById("txtMaxDrawNumber").value,
+			txtClusters:		document.getElementById("txtClusters").value
 	};
 	
 	
