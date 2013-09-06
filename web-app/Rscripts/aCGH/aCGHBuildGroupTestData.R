@@ -92,6 +92,11 @@ function
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
 
+	# Make row names equal to the patient_num column value
+	rownames(groupData) <- groupData[,"PATIENT_NUM"]
+	# Reorder groupData rows to match the order in the aCGH data columns
+	groupData <- groupData[pids,,drop=FALSE]
+
 	###################################	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
