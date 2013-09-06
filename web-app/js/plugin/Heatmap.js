@@ -43,12 +43,32 @@ function submitHeatmapJob(form){
 		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The heatmap variable input box has multiple nodes.');
 		return;		
 	}		
+
+	if(document.getElementById("txtMaxDrawNumber").value == '')
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter the maximumm number of markers to display into the "Max rows to display" text box.');
+		return;			
+	}	
+	
+	if(!isNumber(document.getElementById("txtMaxDrawNumber").value))
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Max rows to display" text box.');
+		return;			
+	}
+	
+	if(document.getElementById("txtMaxDrawNumber").value < 1)
+	{
+		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 0 into the "Max rows to display" text box.');
+		return;			
+	}	
+		
 	//----------------------------------	
 	
 	var formParams = {
-			independentVariable:					independentVariableConceptCode,
-			variablesConceptPaths:					variablesConceptCode,
-			jobType:								'RHeatmap'
+			independentVariable:		independentVariableConceptCode,
+			variablesConceptPaths:		variablesConceptCode,
+			jobType:			'RHeatmap',
+			txtMaxDrawNumber:		document.getElementById("txtMaxDrawNumber").value
 				
 	};
 	

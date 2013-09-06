@@ -66,6 +66,12 @@
 			<tr><td><br/></td></tr>
 			<tr>
 				<td>
+					Max rows to display :  <input id="txtMaxDrawNumber" name="txtMaxDrawNumber" value="50" />
+				</td>
+			</tr>			
+			<tr><td><br/></td></tr>
+			<tr>
+				<td>
 					<div id = "displaydivIndependentVariable"></div>
 				</td>
 			</tr>
@@ -92,7 +98,7 @@
 			<tr><td><br/></td></tr>
 			<tr>
 				<td align="center">
-					Text size (pointsize) :  <input id="txtImagePointsize" value="12" />					
+					Text Size (pointsize) :  <input id="txtImagePointsize" value="12" />					
 					<br />
 					<br />
 				</td>
