@@ -49,8 +49,50 @@ function readDeps($df) {
 	return $seededDependencies;
 }
 
+$filters = [ /* {{{ */
+	function (Item $item) {
+		if ($item->type != 'prelude') {
+			return true;
+		}
+		$newItem = new Item($item->type, $item->name);
+		/* postgres 9.1 has no such thing: */
+		$newItem->data = str_replace("SET lock_timeout = 0;\n", "", $item->data);
+		return [$newItem];
+	},
+	function (Item $item) {
+		if ($item->type != 'FUNCTION') {
+			return true;
+		}
+		$needle = 'SET search_path TO';
+		if (strpos($item->data, $needle) === false) {
+			return true;
+		}
+		$lines = explode("\n", $item->data);
+		$newFunctionItem = new Item($item->type, $item->name);
+		$newSearchPathItem = new Item('FUNCTION SEARCH PATH', $item->name);
+		foreach ($lines as $lineNumber => $l) {
+			if (strpos($l, $needle) === false) {
+				continue;
+			}
+			unset($lines[$lineNumber]);
+			break;
+		}
+
+		$newFunctionItem->data = implode("\n", $lines);
+		$newSearchPathItem->data = "ALTER FUNCTION $item->name "
+			. trim($l) . ";\n";
+
+		return [$newFunctionItem, $newSearchPathItem];
+	},
+]; /* }}} */
+
+$itemSource = new PGDumpReaderWriter("_dumps/$schema.sql");
+foreach ($filters as $f) {
+	$itemSource = new PGDumpFilter($itemSource, $f);
+}
+
 $grouper = new PGTableGrouper(
-	new PGDumpReaderWriter("_dumps/$schema.sql"),
+	$itemSource,
 	@$manual_objects[$schema],
 	readDeps($df));
 $grouper->process();

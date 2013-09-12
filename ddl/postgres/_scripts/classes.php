@@ -1,5 +1,5 @@
 <?php
-class PGTableGrouper {
+class PGTableGrouper { /* {{{ */
 	private $inner;
 	private $groups;
 	private $dependencies = []; // dependent group => array of dependency groups
@@ -185,6 +185,9 @@ class PGTableGrouper {
 					$prefix = 'functions/';
 				}
 				break;
+			case 'FUNCTION SEARCH PATH':
+				$group = self::CROSS_GROUP;
+				break;
 			case 'FK CONSTRAINT':
 			case 'CONSTRAINT':
 			case 'DEFAULT':
@@ -296,32 +299,51 @@ class PGTableGrouper {
 			}
 		}
 	}
-}
-class PGDumpFilter extends PGDumpReaderWriter {
+} /* }}} */
+
+class PGDumpFilter extends PGDumpReaderWriter { /* {{{ */
 	private $inner;
-	private $keepFunction;
-	public function __construct(PGDumpReaderWriter $inner, $keepFunction) {
+	private $items = [];
+	private $filterFunction;
+
+	public function __construct(PGDumpReaderWriter $inner, $filterFunction) {
 		$this->inner = $inner;
-		$this->keepFunction = $keepFunction;
+		$this->filterFunction = $filterFunction;
 	}
 
 	public function readAll() {
-		return $this->inner->readAll();
+		$this->inner->readAll();
+		/* we can't filter on getItems() instead because we need to return
+		 * always the same set of identical objects, not just equal objects */
+		$this->items = $this->filterItems();
 	}
 	public function writeItems() {
 		return $this->inner->writeItems();
 	}
 	public function getItems() {
+		return $this->items;
+	}
+
+	private function filterItems() {
 		$items = [];
 		foreach ($this->inner->getItems() as $it) {
-			if (call_user_func($this->keepFunction, $it)) {
-				$items[] = $it;
+			$res = call_user_func($this->filterFunction, $it);
+			if (is_bool($res)) {
+				if ($res) {
+					$items[] = $it;
+				}
+			} elseif (is_array($res)) {
+				$items = array_merge($items, $res);
+			} else {
+				throw new RuntimeException("Invalid type for return of filter function: "
+						. gettype($res));
 			}
 		}
 		return $items;
 	}
-}
-class PGDumpReaderWriter {
+} /* }}} */
+
+class PGDumpReaderWriter { /* {{{ */
 	private $file;
 	private $items = [];
 	private static $CLUSTER_DUMP_HEADERS = [
@@ -352,7 +374,7 @@ class PGDumpReaderWriter {
 //			fwrite($stream, sprintf("--\n-- Name: %s; Type: %s\n--\n\n",
 //					$item->name, $item->type));
 //		}
-		fwrite($stream, $item->getFixedData() . "\n");
+		fwrite($stream, $item->data . "\n");
 	}
 
 	public function readAll() {
@@ -444,7 +466,7 @@ class PGDumpReaderWriter {
 		return $data === "-- PostgreSQL database dump complete\n" ||
 				$data === "-- PostgreSQL database cluster dump complete\n";
 	}
-}
+} /* }}} */
 
 class Item {
 	public function __construct($type, $name) {
@@ -455,12 +477,4 @@ class Item {
 	public $type;
 	public $name;
 	public $data = '';
-
-	public function getFixedData() {
-		if ($this->type === 'prelude') {
-			/* postgres 9.1 has no such thing: */
-			return str_replace("SET lock_timeout = 0;\n", "", $this->data);
-		}
-		return $this->data;
-	}
 }
