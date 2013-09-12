@@ -122,6 +122,8 @@ BEGIN
             NULL
         FROM
             pg_tablespace
+        WHERE
+            spcname NOT LIKE 'pg\_%'
     )
     UNION
     ( -- functions (including aggregates)
