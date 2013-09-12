@@ -82,6 +82,7 @@ load_global:
 	test $$skip_ddl_global = "1" || $(MAKE) -C GLOBAL load
 
 load_cross: $(wildcard */_cross.sql)
+	#before executing _cross.sql, execute SET statements from prelude
 	$(foreach cf,$?, { grep SET $(patsubst %/_cross.sql,%/prelude.sql,$(cf)); \
 		cat $(cf); } | $(PSQL_COMMAND);)
 
@@ -93,7 +94,7 @@ load_%: %/_load_all.sql
 		$(PSQL_COMMAND) -f $<
 
 load: $(LOAD_TARGETS)
-	$(MAKE) -C META load
 	$(MAKE) load_cross
+	$(MAKE) -C META load
 
 .PHONY: load load_global load_cross
