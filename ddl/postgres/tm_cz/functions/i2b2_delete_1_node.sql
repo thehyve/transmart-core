@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION i2b2_delete_1_node(path character varying) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp
     AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.

@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION i2b2_process_mrna_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, tm_lz, tm_wz, deapp, i2b2demodata, pg_temp
     AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.

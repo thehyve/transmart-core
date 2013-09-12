@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION cz_write_audit(jobid numeric, databasename character varying, procedurename character varying, stepdesc character varying, recordsmanipulated numeric, stepnumber numeric, stepstatus character varying) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, pg_temp
     AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.

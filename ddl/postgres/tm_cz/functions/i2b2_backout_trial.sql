@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION i2b2_backout_trial(trialid character varying, path_string character varying, currentjobid numeric) RETURNS integer
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, i2b2metadata, i2b2demodata, pg_temp
     AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.

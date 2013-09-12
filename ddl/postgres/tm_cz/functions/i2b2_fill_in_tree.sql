@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION i2b2_fill_in_tree(trial_id character varying, path character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp
     AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.

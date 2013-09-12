@@ -1,3 +1,41 @@
+ALTER FUNCTION cz_end_audit(numeric, character varying) SET search_path TO tm_cz, pg_temp;
+
+ALTER FUNCTION cz_error_handler(numeric, character varying, character varying, character varying) SET search_path TO tm_cz, pg_temp;
+
+ALTER FUNCTION cz_start_audit(character varying, character varying) SET search_path TO tm_cz, pg_temp;
+
+ALTER FUNCTION cz_write_audit(numeric, character varying, character varying, character varying, numeric, numeric, character varying) SET search_path TO tm_cz, pg_temp;
+
+ALTER FUNCTION cz_write_error(numeric, character varying, character varying, character varying, character varying) SET search_path TO tm_cz, pg_temp;
+
+ALTER FUNCTION i2b2_add_node(character varying, character varying, character varying, numeric) SET search_path TO tm_cz, i2b2metadata, i2b2demodata, pg_temp;
+
+ALTER FUNCTION i2b2_add_root_node(character varying, numeric) SET search_path TO tm_cz, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_backout_trial(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2metadata, i2b2demodata, pg_temp;
+
+ALTER FUNCTION i2b2_create_concept_counts(character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_create_security_for_trial(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, searchapp, biomart, pg_temp;
+
+ALTER FUNCTION i2b2_delete_1_node(character varying) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_delete_all_nodes(character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_fill_in_tree(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_load_annotation_deapp(numeric) SET search_path TO tm_cz, deapp, biomart, pg_temp;
+
+ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+
+ALTER FUNCTION i2b2_load_security_data(numeric) SET search_path TO tm_cz, i2b2metadata, pg_temp;
+
+ALTER FUNCTION i2b2_move_study(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2metadata, i2b2demodata, pg_temp;
+
+ALTER FUNCTION i2b2_process_acgh_data(character varying, character varying, character varying, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, deapp, i2b2demodata, pg_temp;
+
+ALTER FUNCTION i2b2_process_mrna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, deapp, i2b2demodata, pg_temp;
+
 --
 -- Name: czv_pivot_sample_categories; Type: VIEW; Schema: tm_cz; Owner: -
 --

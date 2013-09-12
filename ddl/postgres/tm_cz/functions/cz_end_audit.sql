@@ -3,7 +3,6 @@
 --
 CREATE FUNCTION cz_end_audit(jobid numeric, jobstatus character varying) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO tm_cz, pg_temp
     AS $$
 declare
 	endDate timestamp;
