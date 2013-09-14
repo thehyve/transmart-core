@@ -20,11 +20,11 @@ array (
     '||GENES||' => 'divIndependentVariablePathway',
     '||SAMPLE1||' => 'divIndependentVariablesamples',
     '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
-    '||IMAGEHEIGHT||' => 'txtImageHeight',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
     '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
     '||CLUSTERS||' => 'txtClusters',
     '||TISSUES1||' => 'divIndependentVariabletissues',
-    '||IMAGEWIDTH||' => 'txtImageWidth',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
     '||GPL2||' => 'divIndependentVariablegplsValue2',
     '||SAMPLE2||' => 'divIndependentVariablesamples2',
     '||TYPEIND||' => 'divIndependentVariableType',
@@ -33,7 +33,8 @@ array (
     '||INDEPENDENT||' => 'independentVariable',
     '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
     '||GPL1||' => 'divIndependentVariablegplsValue',
-    '||TEXTSIZE||' => 'txtTextSize',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
+    '||MAXDRAWNUMBER||' => 'txtMaxDrawNumber',
   ),
   'converter' => 
   array (
@@ -67,9 +68,10 @@ array (
       1 => 'KMeansHeatmap.loader(
         input.filename  = \'outputfile\',
         clusters.number = \'||CLUSTERS||\',
-        imageWidth      = \'||IMAGEWIDTH||\',
-        imageHeight     = \'||IMAGEHEIGHT||\',
-        pointsize       = \'||TEXTSIZE||\')',
+        imageWidth      = \'||IMAGE_WIDTH||\',
+        imageHeight     = \'||IMAGE_HEIGHT||\',
+        pointsize       = as.integer(\'||TEXT_POINT_SIZE||\'),
+        maxDrawNumber   = as.integer(\'||MAXDRAWNUMBER||\'))',
     ),
   ),
   'renderer' => 

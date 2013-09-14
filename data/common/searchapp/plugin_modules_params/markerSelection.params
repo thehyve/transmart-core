@@ -20,9 +20,9 @@ array (
     '||GENES||' => 'divIndependentVariablePathway',
     '||SAMPLE1||' => 'divIndependentVariablesamples',
     '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
-    '||IMAGEHEIGHT||' => 'txtImageHeight',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
     '||TISSUES1||' => 'divIndependentVariabletissues',
-    '||IMAGEWIDTH||' => 'txtImageWidth',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
     '||GPL2||' => 'divIndependentVariablegplsValue2',
     '||SAMPLE2||' => 'divIndependentVariablesamples2',
     '||TYPEIND||' => 'divIndependentVariableType',
@@ -31,7 +31,7 @@ array (
     '||TISSUES2||' => 'divIndependentVariabletissues2',
     '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
     '||GPL1||' => 'divIndependentVariablegplsValue',
-    '||TEXTSIZE||' => 'txtTextSize',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
     '||NUMBEROFMARKERS||' => 'txtNumberOfMarkers',
   ),
   'converter' => 
@@ -46,6 +46,8 @@ array (
       5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
       6 => 'MSData.build(
         input.dataFile   = \'||TOPLEVELDIRECTORY||workingDirectory/mRNA.trans\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\',
         sample.subset1   = \'||SAMPLE1||\',
         time.subset1     = \'||TIMEPOINTS1||\',
         tissues.subset1  = \'||TISSUES1||\',
@@ -53,8 +55,7 @@ array (
         sample.subset2   = \'||SAMPLE2||\',
         time.subset2     = \'||TIMEPOINTS2||\',
         tissues.subset2  = \'||TISSUES2||\',
-        platform.subset2 = \'||GPL2||\',
-        genes            = \'||GENES||\')',
+        platform.subset2 = \'||GPL2||\')',
     ),
   ),
   'processor' => 
@@ -67,9 +68,9 @@ array (
       3 => 'Heatmap.loader(
         input.filename = \'heatmapdata\',
         meltData       = FALSE,
-        imageWidth     = \'||IMAGEWIDTH||\',
-        imageHeight    = \'||IMAGEHEIGHT||\',
-        pointsize      = \'||TEXTSIZE||\')',
+        imageWidth     = as.integer(\'||IMAGE_WIDTH||\'),
+        imageHeight    = as.integer(\'||IMAGE_HEIGHT||\'),
+        pointsize      = as.integer(\'||TEXT_POINT_SIZE||\'))',
     ),
   ),
   'renderer' => 

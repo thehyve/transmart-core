@@ -30,6 +30,7 @@ array (
     '||IMAGE_HEIGHT||' => 'txtImageHeight',
     '||IMAGE_WIDTH||' => 'txtImageWidth',
     '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
+    '||MAXDRAWNUMBER||' => 'txtMaxDrawNumber',
   ),
   'converter' => 
   array (
@@ -62,9 +63,10 @@ array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HClusteredHeatmapLoader.R\')',
       1 => 'HClusteredHeatmap.loader(
         input.filename = \'outputfile\',
-        imageWidth     = ||IMAGE_WIDTH||,
-        imageHeight    = ||IMAGE_HEIGHT||,
-        pointsize      = ||TEXT_POINT_SIZE||)',
+        imageWidth     = as.integer(\'||IMAGE_WIDTH||\'),
+        imageHeight    = as.integer(\'||IMAGE_HEIGHT||\'),
+        pointsize      = as.integer(\'||TEXT_POINT_SIZE||\'),
+        maxDrawNumber  = as.integer(\'||MAXDRAWNUMBER||\'))',
     ),
   ),
   'renderer' => 
