@@ -17,7 +17,8 @@
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
+
+grails.project.dependency.resolver = "maven"
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -27,15 +28,12 @@ grails.project.dependency.resolution = {
     log "warn"
 
     repositories {
-        grailsPlugins()
-        grailsHome()
         grailsCentral()
 
-        mavenLocal()
         mavenCentral()
         mavenRepo([
                 name: 'repo.transmartfoundation.org-public',
-                root: 'https://repo.transmartfoundation.org/content/repositories/public/',
+                url: 'https://repo.transmartfoundation.org/content/repositories/public/',
         ])
     }
     dependencies {
@@ -44,13 +42,13 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ":hibernate:$grailsVersion"
+        compile ":hibernate:3.6.10.1"
         compile ":quartz:0.4.2"
         runtime ":resources:1.2"
 
-        build(":tomcat:$grailsVersion",
-              ":release:2.2.1",
-              ":rest-client-builder:1.0.3",
+        build(":tomcat:7.0.41",
+              ":release:3.0.0",
+			  ":rest-client-builder:1.0.3"
               ) {
             exported: false
         }
