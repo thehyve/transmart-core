@@ -45,7 +45,7 @@ environments {
         transmartAppRoot  = grailsSettings.baseDir.absolutePath
 
         rdcModulesVersion = grailsSettings.dependencyManager.
-                            getPluginDependencyDescriptor('rdc-rmodules').attributes.revision
+                            allDependencies.find({ it.name == 'rdc-rmodules' }).version
 
         def rdcModulesInlineSetting = grailsSettings.flatConfig.'grails.plugin.location.rdc-rmodules'
         // Figure out directory for RDC modules' RScripts dir if we're running with grails run-app

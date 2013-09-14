@@ -12,7 +12,7 @@ grails.project.dependency.resolution = {
     repositories {
         mavenRepo([
                 name: 'repo.thehyve.nl-public',
-                root: 'https://repo.thehyve.nl/content/repositories/public/',
+                url: 'https://repo.thehyve.nl/content/repositories/public/',
         ])
 
         /* If you set the grails.project.dependency.resolution config property,
