@@ -43,7 +43,7 @@ BEGIN
   
   exception 
 	when OTHERS then
-		select tm_cz.cz_write_error(jobId,0,SQLERRML,SQLSTATE,SQLERRM,null) into rtnCd;
+		select tm_cz.cz_write_error(jobId,0,SQLSTATE,SQLERRM,null) into rtnCd;
 		return -16;
 
 END;
