@@ -24,7 +24,8 @@ output.file ="Heatmap",
 meltData = TRUE,
 imageWidth = 1200,
 imageHeight = 800,
-pointsize = 15
+pointsize = 15,
+maxDrawNumber = 50
 )
 {
 
@@ -39,7 +40,7 @@ pointsize = 15
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
-		
+
 	#If we have to melt and cast, do it here, otherwise we make the group column the rownames
 	if(meltData == TRUE)
 	{
@@ -65,11 +66,11 @@ pointsize = 15
 	}
 	
 	#Set the name of the rows to be the names of the probes.
-	rownames(mRNAData) = mRNAData$GROUP	  
-  
+	rownames(mRNAData) = mRNAData$GROUP
+
 	#Convert data to a integer matrix.
-	mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))	
-	
+	mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
+
 	#We can't draw a heatmap for a matrix with only 1 row.
 	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
 	if(ncol(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
@@ -77,23 +78,66 @@ pointsize = 15
 	#Prepare the package to capture the image file.
 	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
 	
-	colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
-	
-	#Store the heatmap in a temp variable.
-	tmp <- heatmap(
-			mRNAData,
-			Rowv=NA,
-			Colv=NA,
-			col=colorPanelList,
-			margins=c(25,25),
-			cexRow=1.5,
-			cexCol=1.5
-			)
+# by Serge and Wei to filter a sub set and reorder markers
 
-	
-	#Print the heatmap to an image
-	print (tmp)		
-	
+        num_markers<-dim(mRNAData)[1]                                                          # number of markers in the dataset
+        if (num_markers > maxDrawNumber) {                                                       # if more markers in the dataset, apply filter
+                sd_rows_mRNA<-apply (mRNAData,1,sd,na.rm=T)
+                mRNAData<-mRNAData[!is.na(sd_rows_mRNA),]                                      # remove markers where sd is NA
+                sd_rows_mRNA<-sd_rows_mRNA[!is.na(sd_rows_mRNA)]
+                cutoff_sd<- sd_rows_mRNA[order(sd_rows_mRNA,decreasing = T)][maxDrawNumber+1]      # filter by SD, draw only the top maxDrawNumber
+                mRNAData<-mRNAData[sd_rows_mRNA>cutoff_sd,]
+        }
+
+        colcolor<-colnames(mRNAData)                                                           # assign colors for different subset
+        colcolor[grep("S1",colnames(mRNAData))]<-"orange"
+        colcolor[grep("S2",colnames(mRNAData))]<-"yellow"
+
+        mean_reorder<-rowMeans(mRNAData[,colcolor=="orange" ], na.rm = T)                      # reorder the data by rowmean of Subset 1
+        mRNAData<-mRNAData[order(mean_reorder,decreasing = T),]
+        rownames(mRNAData)<-gsub("_\\s+$","",rownames(mRNAData), ignore.case = FALSE, perl = T)                       # remove the _ at the end of the marker label
+
+# end filter subset
+
+# check whether there is enough data to draw heatmap
+        n_remaining_marker<-nrow(mRNAData)
+        n_remaining_sample<-ncol(mRNAData)
+        if (n_remaining_marker>1 & n_remaining_sample >1) {
+		#Store the heatmap in a temp variable.
+		tmp <- heatmap(
+                            mRNAData,
+                    	    Rowv=NA,
+                            Colv=NA,
+		# by Serge and Wei to make the map more informative
+                            ColSideColors=colcolor,
+#                           col=cm.colors(800),
+                       	    col=greenred(800),
+                            margins=c(5,5),
+                            labCol=NA,
+                            )
+
+		# add a legend to heatmap.
+		tmp_legend <- legend("topleft",
+                	   legend = c("Subset 1","Subset 2"),
+                           fill = c("orange","yellow"),
+                           bg = "white", ncol = 1,
+ 			   cex=1.2,
+			   )
+		# end map informative
+
+        	#Print the heatmap to an image
+        	print (tmp)
+
+        	# by Serge and Wei to print out the legend
+        	print (tmp_legend)
+
+        } else {
+               tmp<-frame()
+               tmp2<-mtext ("not enough marker/samples to draw heatmap", cex=2)
+               print (tmp)
+               print (tmp2)
+        }
+
 	dev.off()
 	print("-------------------")
 }

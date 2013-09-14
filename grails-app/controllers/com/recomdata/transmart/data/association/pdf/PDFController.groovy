@@ -49,6 +49,7 @@ class PDFController {
 			String html = null;
 			if (StringUtils.isNotEmpty(pathStr)) {
 				html = StringUtils.replace(buf.toString(), '/transmart/images', pathStr+'/images')
+				log.info "generatePDF replacing '"+buf.toString()+"' ==> '${html}'"
 			} else {
 				html = buf.toString()
 			}

@@ -24,6 +24,10 @@ output.file ="PCA"
 )
 {
 
+	print("-------------------")
+	print("LoadPCA.R")
+	print("CREATING PCA PLOT")
+
 	library(reshape2)
 	library(Cairo)
 	
@@ -46,14 +50,30 @@ output.file ="PCA"
 	#Make the rownames be the patient nums so we can drop the patient_num column.
 	rownames(mRNAData) <- mRNAData$PATIENT.ID
   
+	print(sprintf("rows %d cols %d", nrow(mRNAData), ncol(mRNAData)))
+
 	#Drop patient_num column.
 	mRNAData <- subset(mRNAData, select = -c(PATIENT.ID))
-	
-	#Run the PCA Analysis.
+
+	print(sprintf("rows %d cols %d PATIENT.ID dropped", nrow(mRNAData), ncol(mRNAData)))
+
+	### for poorly curated data, drop columns where there are one or more missing values
+	### print(colSums(is.na(mRNAData)))   # print numbers os NA values for each column
+	mRNAData <- subset(mRNAData, select = colSums(is.na(mRNAData))<1)
+
+	print(sprintf("rows %d cols %d NA columns dropped", nrow(mRNAData), ncol(mRNAData)))
+
+	###print(mRNAData)
+
+	print("Run the PCA Analysis")
+	#Run the PCA Analysis
 	pca.results <- prcomp(mRNAData)
+	#print("Completed PCA Analysis")
 	
 	#Get the number of components.
 	numberOfComponents <- length(pca.results$sdev)
+	
+	print(sprintf("Number of components %d", numberOfComponents))
 	
 	GENELISTLENGTH <- length(pca.results$center)
 	if(GENELISTLENGTH > 20) GENELISTLENGTH <- 20
