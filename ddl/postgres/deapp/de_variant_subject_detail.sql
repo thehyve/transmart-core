@@ -17,12 +17,12 @@ CREATE TABLE de_variant_subject_detail (
     chr character varying(50),
     pos bigint,
     rs_id character varying(50),
-    ref character varying(100),
-    alt character varying(100),
+    ref character varying(500),
+    alt character varying(500),
     qual character varying(100),
     filter character varying(50),
-    info character varying(2000),
-    format character varying(50),
+    info character varying(5000),
+    format character varying(500),
     variant_value text
 );
 

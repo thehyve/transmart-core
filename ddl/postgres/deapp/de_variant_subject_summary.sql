@@ -18,10 +18,16 @@ CREATE TABLE de_variant_subject_summary (
     dataset_id character varying(50) NOT NULL,
     subject_id character varying(50) NOT NULL,
     rs_id character varying(50),
-    variant character varying(100),
+    variant character varying(1000),
     variant_format character varying(100),
-    variant_type character varying(100)
+    variant_type character varying(100),
+    reference boolean
 );
+
+--
+-- Name: COLUMN de_variant_subject_summary.reference; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_variant_subject_summary.reference IS 'This column contains a flag whether this subject has a reference value on this variant, or not.';
 
 --
 -- Name: variant_subject_summary_id; Type: CONSTRAINT; Schema: deapp; Owner: -
