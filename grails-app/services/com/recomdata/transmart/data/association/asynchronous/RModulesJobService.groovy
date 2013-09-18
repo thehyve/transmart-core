@@ -39,6 +39,7 @@ class RModulesJobService implements Job {
 	def ctx = AH.application.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService
+	def asyncJobService = ctx.asyncJobService
 	def i2b2HelperService = ctx.i2b2HelperService
 	def i2b2ExportHelperService = ctx.i2b2ExportHelperService
 	def snpDataService = ctx.snpDataService
@@ -137,6 +138,7 @@ class RModulesJobService implements Job {
 				errorMsg = "There was an error running your job \'${jobName}\'. Please contact an administrator."
 			}
 			jobResultsService[jobName]["Exception"] = errorMsg
+            updateStatusAndCheckIfJobCancelled(jobName, "Error")
 			return
 		}
 
@@ -361,13 +363,16 @@ class RModulesJobService implements Job {
 		   log.debug(status)
 	   }
 
-	   boolean jobCancelled = false
-	   //log.debug("Checking to see if the user cancelled the job")
-	   if (jobResultsService[jobName]["Status"] == "Cancelled")	{
+       def viewerURL = jobResultsService[jobName]["ViewerURL"]
+       def altViewerURL = jobResultsService[jobName]["AltViewerURL"]
+       def jobResults = jobResultsService[jobName]["Results"]
+       asyncJobService.updateStatus(jobName, status, viewerURL, altViewerURL, jobResults)
+
+	   boolean jobCancelled = jobResultsService[jobName]["Status"] == "Cancelled"
+	   if (jobCancelled)	{
 		   log.warn("${jobName} has been cancelled")
-		   return jobCancelled
 	   }
 
-	   return jobCancelled
+	   jobCancelled
    }
 }
