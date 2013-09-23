@@ -11,3 +11,4 @@
 64	1	PCA	#placeholder#	.1	Y	N		pca	pca	DEFAULT
 65	1	"aCGH Survival Analysis"	#placeholder#	.1	Y	N		aCGHSurvivalAnalysis	aCGHSurvivalAnalysis	DEFAULT
 66	1	"Group Test for aCGH"	#placeholder#	.1	Y	N		GroupTestaCGH	groupTestaCGH	DEFAULT
+67	1	"Group Test for RNASeq"	#placeholder#	.1	Y	N		GroupTestRNASeq	groupTestRNASeq	DEFAULT

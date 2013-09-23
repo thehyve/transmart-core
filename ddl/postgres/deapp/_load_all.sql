@@ -21,6 +21,7 @@
 \i deapp/de_subject_microarray_med.sql
 \i deapp/de_subject_protein_data.sql
 \i deapp/de_subject_rbm_data.sql
+\i deapp/de_subject_rnaseq_data.sql
 \i deapp/de_subject_sample_mapping.sql
 \i deapp/de_subject_snp_dataset.sql
 \i deapp/de_xtrial_child_map.sql
