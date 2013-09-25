@@ -11,8 +11,15 @@ function formatLongInt(n) {
     return (n|0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-function parseIntCommas(s) {
-    return s.replace(/,/g, '')|0
+function parseLocCardinal(n, m) {
+    var i = n.replace(/,/g, '');
+    if (m === 'k' || m === 'K') {
+        return i * 1000;
+    } else if (m == 'm' || m === 'M') {
+        return i * 1000000;
+    } else {
+        return i;
+    }
 }
 
 /*
@@ -27,11 +34,12 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     document.head.appendChild(makeElement('link', '', {rel: 'stylesheet', href: this.uiPrefix + 'css/dalliance-scoped.css'}));
 
     var b = this;
-    var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):([0-9,]+)([\-,\,.]+([0-9,]+))?/;
+    var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):([0-9,]+)([KkMmGg])?([\-,\,.]+([0-9,]+)([KkMmGg])?)?/;
+    // var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):([0-9,]+)([\-,\,.]+([0-9,]+))?/;
 
     if (!b.disableDefaultFeaturePopup) {
-        this.addFeatureListener(function(ev, hit) {
-            b.featurePopup(ev, hit, null);
+        this.addFeatureListener(function(ev, feature, hit, tier) {
+            b.featurePopup(ev, feature, hit, tier);
         });
     }
 
@@ -63,20 +71,33 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     var favBtn = makeElement('a', [makeElement('i', null, {className: 'icon-bookmark'})], {className: 'btn'});
     var svgBtn = makeElement('a', [makeElement('i', null, {className: 'icon-print'})], {className: 'btn'});
     var resetBtn = makeElement('a', [makeElement('i', null, {className: 'icon-refresh'})], {className: 'btn'});
-    var optsButton = makeElement('a', [makeElement('i', null, {className: 'icon-cog'})], {className: 'btn'});
+    var optsButton = makeElement('div', [makeElement('i', null, {className: 'icon-cog'})], {className: 'btn'});
+
+    var helpButton = makeElement('div', [makeElement('i', null, {className: 'icon-info-sign'})], {className: 'btn'});
+    
     toolbar.appendChild(makeElement('div', [addTrackBtn,
                                             // favBtn,
                                             svgBtn,
                                             resetBtn,
                                             optsButton], {className: 'btn-group'}, {verticalAlign: 'top'}));
 
+    toolbar.appendChild(makeElement('div', [helpButton], {className: 'btn-group'}, {verticalAlign: 'top'}));
+
     holder.appendChild(toolbar);
     holder.appendChild(genomePanel);
 
-    this.addViewListener(function(chr, min, max, zoom) {
+    this.addViewListener(function(chr, min, max, _oldZoom, zoom) {
         locField.value = '';
         locField.placeholder = ('chr' + chr + ':' + formatLongInt(min) + '..' + formatLongInt(max));
-        zoomSlider.value = zoom;
+        zoomSlider.min = zoom.min;
+        zoomSlider.max = zoom.max;
+        zoomSlider.value = zoom.current;
+        if (b.storeStatus) {
+            b.storeStatus();
+        }
+    });
+
+    this.addTierListener(function() {
         if (b.storeStatus) {
             b.storeStatus();
         }
@@ -91,6 +112,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
 
             var g = locField.value;
             var m = REGION_PATTERN.exec(g);
+            // console.log(m);
 
             var setLocationCB = function(err) {
                     if (err) {
@@ -101,14 +123,13 @@ Browser.prototype.initUI = function(holder, genomePanel) {
                 };
 
             if (m) {
-                // console.log(m);
                 var chr = m[1], start, end;
-                if (m[4]) {
-                    start = parseIntCommas(m[2]);
-                    end = parseIntCommas(m[4]);
+                if (m[5]) {
+                    start = parseLocCardinal(m[2],  m[3]);
+                    end = parseLocCardinal(m[5], m[6]);
                 } else {
                     var width = b.viewEnd - b.viewStart + 1;
-                    start = (parseIntCommas(m[2]) - (width/2))|0;
+                    start = (parseLocCardinal(m[2], m[3]) - (width/2))|0;
                     end = start + width - 1;
                 }
                 b.setLocation(chr, start, end, setLocationCB);
@@ -203,7 +224,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
 
     svgBtn.addEventListener('click', function(ev) {
        ev.stopPropagation(); ev.preventDefault();
-       saveSVG(b);
+        b.saveSVG();
     }, false);
     b.makeTooltip(svgBtn, 'Export publication-quality SVG.');
 
@@ -225,19 +246,15 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     optsButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
 
-        if (optsPopup && optsPopup.displayed) {
-            b.removeAllPopups();
-        } else {
-            var optsForm = makeElement('form', null, {className: 'popover-content'});
-            var scrollModeButton = makeElement('input', '', {type: 'checkbox', checked: b.reverseScrolling});
-            scrollModeButton.addEventListener('change', function(ev) {
-                b.reverseScrolling = scrollModeButton.checked;
-            }, false);
-            optsForm.appendChild(makeElement('label', [scrollModeButton, 'Reverse trackpad scrolling'], {className: 'checkbox'}));
-            b.removeAllPopups();
-            optsPopup = b.popit(ev, 'Options', optsForm, {width: 300});
-        }
+        b.toggleOptsPopup(ev);
     }, false);
+    b.makeTooltip(optsButton, 'Configure options.');
+
+    helpButton.addEventListener('click', function(ev) {
+        ev.stopPropagation(); ev.preventDefault();
+        b.toggleHelpPopup(ev);
+    });
+    b.makeTooltip(helpButton, 'Help; Keyboard shortcuts.');
 
     b.addTierSelectionWrapListener(function(dir) {
         if (dir < 0) {
@@ -247,3 +264,50 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     });
 
   }
+
+Browser.prototype.toggleHelpPopup = function(ev) {
+    if (this.helpPopup && this.helpPopup.displayed) {
+        this.removeAllPopups();
+    } else {
+        var helpFrame = makeElement('iframe', null, {src: this.uiPrefix + 'help/index.html'}, {width: '490px', height: '500px'});
+        this.helpPopup = this.popit(ev, 'Help', helpFrame, {width: 500});
+    }
+}
+
+Browser.prototype.toggleOptsPopup = function(ev) {
+    var b = this;
+
+    if (this.optsPopup && this.optsPopup.displayed) {
+        this.removeAllPopups();
+    } else {
+        var optsForm = makeElement('form', null, {className: 'popover-content form-horizontal'});
+        var optsTable = makeElement('table');
+        optsTable.cellPadding = 5;
+        var scrollModeButton = makeElement('input', '', {type: 'checkbox', checked: b.reverseScrolling});
+        scrollModeButton.addEventListener('change', function(ev) {
+            b.reverseScrolling = scrollModeButton.checked;
+        }, false);
+        optsTable.appendChild(makeElement('tr', [makeElement('td', 'Reverse trackpad scrolling', {align: 'right'}), makeElement('td', scrollModeButton)]));
+
+
+        var rulerSelect = makeElement('select');
+        rulerSelect.appendChild(makeElement('option', 'Left', {value: 'left'}));
+        rulerSelect.appendChild(makeElement('option', 'Center', {value: 'center'}));
+        rulerSelect.appendChild(makeElement('option', 'Right', {value: 'right'}));
+        rulerSelect.appendChild(makeElement('option', 'None', {value: 'none'}));
+        rulerSelect.value = b.rulerLocation;
+        rulerSelect.addEventListener('change', function(ev) {
+            b.rulerLocation = rulerSelect.value;
+            b.positionRuler();
+            for (var ti = 0; ti < b.tiers.length; ++ti) {
+                b.tiers[ti].paintQuant();
+            }
+        }, false);
+        optsTable.appendChild(makeElement('tr', [makeElement('td', 'Vertical guideline', {align: 'right'}), makeElement('td', rulerSelect)]));
+        
+        optsForm.appendChild(optsTable);
+        this.removeAllPopups();
+        this.optsPopup = this.popit(ev, 'Options', optsForm, {width: 500});
+    }
+}
+

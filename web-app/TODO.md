@@ -1,46 +1,69 @@
-For 0.9 (?)
------------
+For 0.9
+--------
 
-  - True tiled rendering.
+  - Tidy up feature source creation [DONE]
+  - Overlay sources [DONE, at least for the merge-by-coords case]
+  - Scatter-plot views [DONE]
+  - Track-hub support [Basics done, now lots more options to support...]
+  - Tracks via Ensembl-REST [DONE]
+  - Tracks via JBrowse-JSON [DONE]
+  - Abbreviations when typing locations. [DONE]
+  - Thresholding/leaping on quantitative tracks [DONE]
+  - SVG export parity [DONE: Label placement, better grouping, quant-scales]
+  - Configurability of ruler [DONE]
+  - Sort out feature popups for composite features [DONE]
+  - Feature popup extensibility [DONE]
+  - Help popup [DONE]
+  - Better way of packaging CSS etc.?  (can we lose uiPrefix?) [CORS on the css/ and img/ directories seems to fix most of the issues here]
+  - Reinstate MAX_VEW_SIZE in some configurable manner. [DONE Browser.maxViewWidth]
+ 
+For 0.10
+--------
+   
   - UI for next/prev
-  - Undo/redo.
   - Animate when leaping.
-  - Cleaner separation between genome canvases and UI chrome.
-  - Track-hub support
-  - Assembly hub support
-  - VCF+Tabix support
-     - Anything else in Tabix envelopes?  GFF?  BED?
+    + Also snap-zooming?
+    + Inform user of progress
+  - Better zoom control
   - Small BED/WIG support
+  - Tabix support (VCF/GFF/GTF)  [DONE on dart_backends branch]
+  - Chromosome overviews
+  - Incremental data fetching
+  - Try to preserve layout when expanding/collapsing variants.
+  - Better search (using TRIX?)
   - Stylesheet editor.
   - Out-to-chromosome zooming
     + Probably needs a better set of semantic zoom hints in the
       stylesheet language.  
-  - Refactor next/prev support in big* code.
-  - next/prev peak support for quantitative tracks
-    + Needs a UI for setting thresholds.
-  - Incremental data fetching
-  - Work out the kinks in security/preflighting.
-  - Chromosome overviews
-  - Tracks via Ensembl-REST?
-  - Try to preserve layout when expanding/collapsing variants.
-  - Abbreviations when typing locations.
-  - Construct as a web-component.
+  - Bulk addition of local files.
+  - Assembly hub support.
+  - Track hub composite tracks.
+  - User interface for connecting to a track hub.
+  - Replace feature popups with inspector?
+     + Maybe a more general popupocalypse? (track-adder, help, etc.?)
+
+For 0.11
+--------
+
+  - Undo/redo.  
   - History of recently-viewed tracks.
-  - Better control of vertical resize.
- 
+  - RDF/FALDO support?
+
+
 Future
 -------------
 
+ - Work out the kinks in security/preflighting.
+ - Construct as a web-component
+   + (web component polyfills aren't quite ready yet).
+ - Better tiling in renderer.
+ - Better control of vertical resize.
  - Better configuration of quantitative tracks.
      + Global y-zoom? [Matias wants this.  Wouldn't per-trackgroup be better?  Needs an explicit idea of track-groups.]
      + Switch between bars/colourways? [Leave this for now]
      + Increase/decrease viewed height of quant tracks?
  - Non-positional annotation.
- - Undo.
  - Alignment improvements.
- - Better dialogs.
- - Improved karyoscape.
- - Factor out browser tiers from UI chrome.
  - Consider JSON-DAS -- is this alive???
 
 Nice to have

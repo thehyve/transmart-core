@@ -29,6 +29,12 @@ Browser.prototype.makeTooltip = function(ele, text)
 
     var setup;
     setup = function(ev) {
+
+        // [rnugraha] fix tooltip elements
+        // -- start customization --
+
+        // var mx = ev.clientX + window.scrollX, my = ev.clientY + window.scrollY;
+
         var mouseOver = myHandleEvent(ev);
         var top = mouseOver.y;
         var left = mouseOver.x;
@@ -37,13 +43,15 @@ Browser.prototype.makeTooltip = function(ele, text)
             timer = setTimeout(function() {
                 var popup = makeElement('div',
                     [makeElement('div', null, {className: 'tooltip-arrow'}),
-                     makeElement('div', text, {className: 'tooltip-inner'})],
+                     makeElement('div', text, {className: 'tooltip-inner'})], 
+                    // {className: 'tooltip bottom in'}, {
                     {className: 'tooltip in'}, {
-                        display: 'block',
-                        top: '' + (top + 10) + 'px',
-                        left: '' + left + 'px'
+                    display: 'block',
+                    // top: '' + (my + 20) + 'px',
+                    // left: '' + Math.max(mx - 30, 20) + 'px'
+                    top: '' + (top + 10) + 'px',
+                    left: '' + left + 'px'
                 });
-
                 thisB.hPopupHolder.appendChild(popup);
                 var moveHandler;
                 moveHandler = function(ev) {
@@ -81,7 +89,11 @@ Browser.prototype.makeTooltip = function(ele, text)
     }, false);
 }
 
-// return the mouse position (x & y)
+/**
+ * [rnugraha] helper function to return the mouse position (x & y)
+ * @param e
+ * @returns {{x: number, y: number}}
+ */
 function myHandleEvent(e) {
     var evt = e ? e:window.event;
     var clickX=0, clickY=0;
@@ -106,7 +118,11 @@ function myHandleEvent(e) {
     return {x:clickX, y:clickY};
 }
 
-// get position of element
+/**
+ * [rnugraha] helper function to get position of element
+ * @param element
+ * @returns {{x: number, y: number}}
+ */
 function getPosition(element) {
     var xPosition = 0;
     var yPosition = 0;
@@ -122,34 +138,44 @@ function getPosition(element) {
 
 Browser.prototype.popit = function(ev, name, ele, opts)
 {
-
     var thisB = this;
-    if (!opts) {
+    if (!opts) 
         opts = {};
-    }
+    if (!ev) 
+        ev = {};
 
     var width = opts.width || 200;
 
-// ==========================================
-// Original code to return the mouse position
-// ==========================================
-//    var mx =  ev.clientX, my = ev.clientY;
+
+    // [rnugraha] fix popup elements
+    //  -- start customization --
+
+//    var mx, my;
+//
+//    if (ev.clientX) {
+//        var mx =  ev.clientX, my = ev.clientY;
+//    } else {
+//        mx = 500; my= 50;
+//    }
 //    mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
 //    my +=  document.documentElement.scrollTop || document.body.scrollTop;
+//
 //    var winWidth = window.innerWidth;
 //
-//    var top = (my + 30) - dalPos.y;
-//    var left = (Math.min((mx - 30), (winWidth - width - 10))) - dalPos.x;
+//    var top = (my + 20);
+//    var left = Math.min(mx - (width/2), (winWidth - width - 30));
 
     var winWidth = window.innerWidth;
-
     var mouseClick = myHandleEvent(ev);
 
     var top = mouseClick.y;
     var left = mouseClick.x - (width/2);
 
+    // -- end customization --
+
+
     var popup = makeElement('div');
-    popup.className = 'popover fade bottom in';
+    popup.className = 'popover fade ' + (ev.clientX ? 'bottom ' : '') + 'in';
     popup.style.display = 'block';
     popup.style.position = 'absolute';
     popup.style.top = '' + top + 'px';
@@ -172,10 +198,11 @@ Browser.prototype.popit = function(ev, name, ele, opts)
         closeButton.addEventListener('mouseout', function(ev) {
             closeButton.style.color = 'black';
         }, false);
-        closeButton.addEventListener('mousedown', function(ev) {
+        closeButton.addEventListener('click', function(ev) {
+            ev.preventDefault(); ev.stopPropagation();
             thisB.removeAllPopups();
         }, false);
-        var tbar = makeElement('h3', [makeElement('span', name, null, {maxWidth: '200px'}), closeButton], {className: 'popover-title'}, {});
+        var tbar = makeElement('h4', [makeElement('span', name, null, {maxWidth: '200px'}), closeButton], {/*className: 'popover-title' */}, {paddingLeft: '10px', paddingRight: '10px'});
 
         var dragOX, dragOY;
         var moveHandler, upHandler;
@@ -210,7 +237,7 @@ Browser.prototype.popit = function(ev, name, ele, opts)
     }
 
     popup.appendChild(makeElement('div', ele, {className: 'popover-content'}, {
-        padding: '10px'
+        padding: '0px'
     }));
     this.hPopupHolder.appendChild(popup);
 
@@ -219,7 +246,9 @@ Browser.prototype.popit = function(ev, name, ele, opts)
         displayed: true
     };
     popup.addEventListener('DOMNodeRemoved', function(ev) {
-        popupHandle.displayed = false;
+        if (ev.target == popup) {
+            popupHandle.displayed = false;
+        }
     }, false);
     return popupHandle;
 }

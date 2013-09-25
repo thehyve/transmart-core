@@ -22,7 +22,7 @@ function Browser(opts) {
         opts = {};
     }
 
-    this.uiPrefix = 'http://www.biodalliance.org/canvas/';
+    this.uiPrefix = 'http://www.biodalliance.org/release-0.9/';
 
     this.sources = [];
     this.tiers = [];
@@ -41,7 +41,8 @@ function Browser(opts) {
         speciesName: 'Human',
         taxon: 9606,
         auth: 'NCBI',
-        version: '36'
+        version: '36',
+        ucscName: 'hg18'
     };
     this.chains = {};
 
@@ -50,12 +51,12 @@ function Browser(opts) {
     this.minExtra = 0.5;
     this.zoomFactor = 1.0;
     this.zoomMin = 10.0;
-    this.zoomMax = 220.0;
+    this.zoomMax;       // Allow configuration for compatibility, but otherwise clobber.
     this.origin = 0;
     this.targetQuantRes = 5.0;
     this.featurePanelWidth = 750;
     this.zoomBase = 100;
-    this.zoomExpt = 30; // Now gets clobbered.
+    this.zoomExpt = 30.0; // Back to being fixed....
     this.zoomSliderValue = 100;
     this.entryPoints = null;
     this.currentSeqMax = -1; // init once EPs are fetched.
@@ -72,13 +73,16 @@ function Browser(opts) {
 
     this.placards = [];
 
+    this.maxViewWidth = 500000;
+
     // Options.
     
     this.reverseScrolling = false;
+    this.rulerLocation = 'center';
 
     // Visual config.
 
-    this.tierBackgroundColors = ['white'];
+    this.tierBackgroundColors = ["rgb(245,245,245)", "rgb(230,230,250)" /* 'white' */];
     this.minTierHeight = 25;
 
     this.browserLinks = {
@@ -92,12 +96,21 @@ function Browser(opts) {
     this.defaultSources = [];
     this.mappableSources = {};
 
+    this.hubs = [];
+    this.hubObjects = [];
+
     for (var k in opts) {
         this[k] = opts[k];
     }
 
     var thisB = this;
+
+    /**
+     * [rnugraha] is disabled to avoid waiting for window load being triggered since as plugin, dalliance will be
+     * embedded inside a tab in tranSMART.
+     */
     //window.addEventListener('load', function(ev) {thisB.realInit();}, false);
+
     thisB.realInit();
 }
 
@@ -116,10 +129,13 @@ Browser.prototype.realInit = function() {
         this.restoreStatus();
     }
 
+    var helpPopup;
     var thisB = this;
-    this.browserHolder = document.getElementById(this.pageName);
-    removeChildren(this.browserHolder);
-    this.svgHolder = makeElement('div', null, {tabIndex: 100}, {overflow: 'hidden', display: 'inline-block', width: '100%', fontSize: '10pt', outline: 'none'});
+    this.browserHolderHolder = document.getElementById(this.pageName);
+    this.browserHolder = makeElement('div', null, {tabIndex: -1}, {outline: 'none'});
+    removeChildren(this.browserHolderHolder);
+    this.browserHolderHolder.appendChild(this.browserHolder);
+    this.svgHolder = makeElement('div', null, {}, {overflow: 'hidden', display: 'inline-block', width: '100%', fontSize: '10pt', outline: 'none'});
 
     this.initUI(this.browserHolder, this.svgHolder);
 
@@ -142,13 +158,16 @@ Browser.prototype.realInit = function() {
         thisB.resizeViewer();
     }, false);
 
-    this.ruler = makeElement('div', null, null, {width: '1px', height: '2000px', backgroundColor: 'blue', position: 'absolute', zIndex: '900', left: '' + ((this.featurePanelWidth/2)|0) + 'px', top: '0px'});
+    this.ruler = makeElement('div', null, null, {width: '1px', height: '2000px', backgroundColor: 'blue', position: 'absolute', zIndex: '900', top: '0px'});
     this.tierHolder.appendChild(this.ruler);
 
     // Dimension stuff
 
     this.scale = this.featurePanelWidth / (this.viewEnd - this.viewStart);
-    this.zoomExpt = 250 / Math.log(/* MAX_VIEW_SIZE */ 500000.0 / this.zoomBase);
+    // this.zoomExpt = 250 / Math.log(/* MAX_VIEW_SIZE */ 500000.0 / this.zoomBase);
+    if (!this.zoomMax) {
+        this.zoomMax = this.zoomExpt * Math.log(this.maxViewWidth / this.zoomBase);
+    }
     this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
 
     // Event handlers
@@ -165,7 +184,6 @@ Browser.prototype.realInit = function() {
         thisB.move(delta);
     }, false);
     this.tierHolder.addEventListener('MozMousePixelScroll', function(ev) {
-        console.log('mps');
         if (ev.axis == 1) {
             ev.stopPropagation(); ev.preventDefault();
 
@@ -189,7 +207,7 @@ Browser.prototype.realInit = function() {
     */
 
     var keyHandler = function(ev) {
-        if (ev.keyCode == 13) {
+        if (ev.keyCode == 13) { // enter
             var layoutsChanged = false;
             for (var ti = 0; ti < thisB.tiers.length; ++ti) {
                 var t = thisB.tiers[ti];
@@ -203,7 +221,7 @@ Browser.prototype.realInit = function() {
             if (layoutsChanged) {
                 thisB.arrangeTiers();
             }
-        } else if (ev.keyCode == 32 || ev.charCode == 32) {
+        } else if (ev.keyCode == 32 || ev.charCode == 32) { // space
             // if (!thisB.snapZoomLockout) {
                 if (!thisB.isSnapZooming) {
                     thisB.isSnapZooming = true;
@@ -227,7 +245,7 @@ Browser.prototype.realInit = function() {
                 thisB.snapZoomLockout = true;
             // }
             ev.stopPropagation(); ev.preventDefault();      
-        } else if (ev.keyCode == 39) {
+        } else if (ev.keyCode == 39) { // right arrow
             ev.stopPropagation(); ev.preventDefault();
             if (ev.ctrlKey) {
                 var fedge = 0;
@@ -265,7 +283,7 @@ Browser.prototype.realInit = function() {
             } else {
                 thisB.move(ev.shiftKey ? 100 : 25);
             }
-        } else if (ev.keyCode == 37) {
+        } else if (ev.keyCode == 37) { // left arrow
             ev.stopPropagation(); ev.preventDefault();
             if (ev.ctrlKey) {
                 var fedge = 0;
@@ -303,16 +321,29 @@ Browser.prototype.realInit = function() {
             } else {
                 thisB.move(ev.shiftKey ? -100 : -25);
             }
-        } else if (ev.keyCode == 38 || ev.keyCode == 87) {
+        } else if (ev.keyCode == 38 || ev.keyCode == 87) { // up arrow | w
             ev.stopPropagation(); ev.preventDefault();
 
             if (ev.shiftKey) {
                 var tt = thisB.tiers[thisB.selectedTier];
                 var ch = tt.forceHeight || tt.subtiers[0].height;
-                if (ch >= 20) {
-                    tt.forceHeight = ch - 20;
+                if (ch >= 40) {
+                    tt.forceHeight = ch - 10;
                     tt.draw();
                 }
+            } else if (ev.ctrlKey) {
+                var tt = thisB.tiers[thisB.selectedTier];
+  
+                if (tt.quantLeapThreshold) {
+                    var th = tt.subtiers[0].height;
+                    var tq = tt.subtiers[0].quant;
+                    if (!tq)
+                        return;
+
+                    var qscale = (tq.max - tq.min) / th;
+                    tt.quantLeapThreshold = tq.min + ((((tt.quantLeapThreshold - tq.min)/qscale)|0)+1)*qscale;
+                    tt.draw();
+                }                
             } else {
                 if (thisB.selectedTier > 0) {
                     thisB.setSelectedTier(thisB.selectedTier - 1);
@@ -320,7 +351,7 @@ Browser.prototype.realInit = function() {
                     thisB.notifyTierSelectionWrap(-1);
                 }
             }
-        } else if (ev.keyCode == 40 || ev.keyCode == 83) {
+        } else if (ev.keyCode == 40 || ev.keyCode == 83) { // down arrow | s
             ev.stopPropagation(); ev.preventDefault();
 
             if (ev.shiftKey) {
@@ -328,18 +359,49 @@ Browser.prototype.realInit = function() {
                 var ch = tt.forceHeight || tt.subtiers[0].height;
                 tt.forceHeight = ch + 10;
                 tt.draw();
+            } else if (ev.ctrlKey) {
+                var tt = thisB.tiers[thisB.selectedTier];
+
+                if (tt.quantLeapThreshold) {
+                    var th = tt.subtiers[0].height;
+                    var tq = tt.subtiers[0].quant;
+                    if (!tq)
+                        return;
+
+                    var qscale = (tq.max - tq.min) / th;
+                    var it = ((tt.quantLeapThreshold - tq.min)/qscale)|0;
+                    if (it > 1) {
+                        tt.quantLeapThreshold = tq.min + (it-1)*qscale;
+                        tt.draw();
+                    }
+                }
             } else {
                 if (thisB.selectedTier < thisB.tiers.length -1) {
                     thisB.setSelectedTier(thisB.selectedTier + 1);
                 }
             }
-        } else if (ev.keyCode == 187 || ev.keyCode == 61) {
+        } else if (ev.keyCode == 187 || ev.keyCode == 61) { // +
             ev.stopPropagation(); ev.preventDefault();
             thisB.zoomStep(-10);
-        } else if (ev.keyCode == 189 || ev.keyCode == 173) {
+        } else if (ev.keyCode == 189 || ev.keyCode == 173) { // -
             ev.stopPropagation(); ev.preventDefault();
             thisB.zoomStep(10);
-        } else if (ev.keyCode == 84 || ev.keyCode == 116) {
+        } else if (ev.keyCode == 72 || ev.keyCode == 104) { // h
+            ev.stopPropagation(); ev.preventDefault();
+            thisB.toggleHelpPopup(ev);
+        } else if (ev.keyCode == 73 || ev.keyCode == 105) { // i
+            ev.stopPropagation(); ev.preventDefault();
+            var t = thisB.tiers[thisB.selectedTier];
+            if (!t.infoVisible) {
+                t.infoElement.style.display = 'block';
+                t.updateHeight();
+                t.infoVisible = true;
+            } else {
+                t.infoElement.style.display = 'none';
+                t.updateHeight();
+                t.infoVisible = false;
+            }
+        } else if (ev.keyCode == 84 || ev.keyCode == 116) { // t
             ev.stopPropagation(); ev.preventDefault();
             var bumpStatus;
             if( ev.shiftKey ){
@@ -368,32 +430,18 @@ Browser.prototype.realInit = function() {
                 }
             }
         } else {
-            console.log('key: ' + ev.keyCode + '; char: ' + ev.charCode);
+            // console.log('key: ' + ev.keyCode + '; char: ' + ev.charCode);
         }
     };
     var keyUpHandler = function(ev) {
-
         thisB.snapZoomLockout = false;
-/*
-        if (ev.keyCode == 32) {
-            if (thisB.isSnapZooming) {
-                thisB.isSnapZooming = false;
-                thisB.zoomSlider.setValue(thisB.savedZoom);
-                thisB.zoom(Math.exp((1.0 * thisB.savedZoom / thisB.zoomExpt)));
-                thisB.invalidateLayouts();
-                thisB.refresh();
-            }
-            ev.stopPropagation(); ev.preventDefault();
-        } */
     }
 
-    this.svgHolder.addEventListener('focus', function(ev) {
-        // console.log('holder focussed');
-        thisB.svgHolder.addEventListener('keydown', keyHandler, false);
+    this.browserHolder.addEventListener('focus', function(ev) {
+        thisB.browserHolder.addEventListener('keydown', keyHandler, false);
     }, false);
-    this.svgHolder.addEventListener('blur', function(ev) {
-        // console.log('holder blurred');
-        thisB.svgHolder.removeEventListener('keydown', keyHandler, false);
+    this.browserHolder.addEventListener('blur', function(ev) {
+        thisB.browserHolder.removeEventListener('keydown', keyHandler, false);
     }, false);
 
     // Popup support (does this really belong here? FIXME)
@@ -418,6 +466,8 @@ Browser.prototype.realInit = function() {
     thisB.refresh();
     thisB.setSelectedTier(1);
 
+    thisB.positionRuler();
+
 
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var t = this.tiers[ti];
@@ -435,6 +485,18 @@ Browser.prototype.realInit = function() {
     this.queryRegistry();
     for (var m in this.chains) {
         this.queryRegistry(m, true);
+    }
+
+    if (this.hubs) {
+        for (var hi = 0; hi < this.hubs.length; ++hi) {
+            connectTrackHub(this.hubs[hi], function(hub, err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    thisB.hubObjects.push(hub);
+                }
+            });
+        }
     }
 }
 
@@ -494,7 +556,7 @@ Browser.prototype.makeTier = function(source) {
     try {
         this.realMakeTier(source);
     } catch (e) {
-        console.log(e);
+        console.log(e.stack);
     }
 }
 
@@ -538,8 +600,9 @@ Browser.prototype.realMakeTier = function(source) {
         borderColor: 'red',
         borderWidth: '1px'});
     
-    var vph = makeElement('div', [viewport, viewportOverlay], {}, {display: 'inline-block', position: 'relative', width: '100%' , overflowX: 'hidden', overflowY: 'hidden', border: '0px', borderBottom: '0px', borderStyle: 'solid'});
-    vph.className = 'tier-viewport-background';
+    var vph = makeElement('div', [viewport, viewportOverlay], {}, {display: 'inline-block', position: 'relative', width: '100%' , overflowX: 'hidden', overflowY: 'hidden'});
+    // vph.className = 'tier-viewport-background';
+    vph.style.background = background;
 
     vph.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
     vph.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
@@ -609,7 +672,7 @@ Browser.prototype.realMakeTier = function(source) {
         
 
     vph.addEventListener('mousedown', function(ev) {
-        thisB.svgHolder.focus();
+        thisB.browserHolder.focus();
         ev.preventDefault();
         var br = vph.getBoundingClientRect();
         var rx = ev.clientX, ry = ev.clientY;
@@ -636,8 +699,8 @@ Browser.prototype.realMakeTier = function(source) {
         } else {
             hoverTimeout = setTimeout(function() {
                 var hit = featureLookup(rx, ry);
-                if (hit) {
-                    thisB.notifyFeatureHover(ev, hit); // FIXME group
+                if (hit && hit.length > 0) {
+                    thisB.notifyFeatureHover(ev, hit[hit.length - 1], hit, tier);
                 }
             }, 1000);
         }
@@ -649,7 +712,7 @@ Browser.prototype.realMakeTier = function(source) {
         var rx = ev.clientX - br.left, ry = ev.clientY - br.top;
 
         var hit = featureLookup(rx, ry);
-        if (hit && !thisB.isDragging) {
+        if (hit && hit.length > 0 && !thisB.isDragging) {
             if (doubleClickTimeout) {
                 clearTimeout(doubleClickTimeout);
                 doubleClickTimeout = null;
@@ -657,7 +720,7 @@ Browser.prototype.realMakeTier = function(source) {
             } else {
                 doubleClickTimeout = setTimeout(function() {
                     doubleClickTimeout = null;
-                    thisB.notifyFeature(ev, hit);
+                    thisB.notifyFeature(ev, hit[hit.length-1], hit, tier);
                 }, 500);
             }
         }
@@ -682,7 +745,6 @@ Browser.prototype.realMakeTier = function(source) {
         isDragging = false;
     });
 
-    tier.init(); // fetches stylesheet
 
 
     tier.removeButton = makeElement('i', null, {className: 'icon-remove'});
@@ -694,7 +756,7 @@ Browser.prototype.realMakeTier = function(source) {
        [tier.nameButton],
        {className: 'btn-group'},
        {zIndex: 1001, position: 'absolute', left: '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
-    var row = makeElement('div', [vph, placard, tier.label], {}, {position: 'relative', display: 'block' /*, transition: 'height 0.5s' */});
+    var row = makeElement('div', [vph, placard , tier.label ], {}, {position: 'relative', display: 'block' /*, transition: 'height 0.5s' */});
     tier.row = row;
 
 
@@ -706,6 +768,7 @@ Browser.prototype.realMakeTier = function(source) {
         ev.stopPropagation(); ev.preventDefault();
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
             if (thisB.tiers[ti] === tier) {
+                thisB.browserHolder.focus();
                 if (ti != thisB.selectedTier) {
                     thisB.setSelectedTier(ti);
                     return;
@@ -715,13 +778,11 @@ Browser.prototype.realMakeTier = function(source) {
 
         if (!tier.infoVisible) {
             tier.infoElement.style.display = 'block';
-            if (tier.label.clientHeight > row.clientHeight) {
-                row.style.height = '' + (tier.label.clientHeight + 4) + 'px';
-            } 
+            tier.updateHeight();
             tier.infoVisible = true;
         } else {
             tier.infoElement.style.display = 'none';
-            row.style.height = 'auto';
+            tier.updateHeight();
             tier.infoVisible = false;
         }
     }, false);
@@ -769,16 +830,22 @@ Browser.prototype.realMakeTier = function(source) {
         }
 
 
+        /**
+         * [rnugraha] to fix position of popup elements. Embedding dalliance inside tranSMART's tab has caused floating
+         * elements changed it's position.
+         */
+
+        //  -- start customization --
+
+        // dragLabel.style.left = label.getBoundingClientRect().left + 'px'; dragLabel.style.top = ev.clientY - 10 + 'px';
+
         // get mouse position and label position
         var mousePos = myHandleEvent(ev);
         var labelPos = getPosition(label);
 
-//        dragLabel.style.left = (label.getBoundingClientRect().left - mousePos.y) + 'px';
-//        dragLabel.style.top = (ev.clientY - 10) + 'px';
+        dragLabel.style.left = (mousePos.x - labelPos.x - 55)  + 'px'; dragLabel.style.top = (labelPos.y - 70) + 'px';
 
-        // not the best solution but this fix the wrong position in transmart's tab
-        dragLabel.style.left = (mousePos.x - labelPos.x - 55)  + 'px';
-        dragLabel.style.top = (labelPos.y - 70) + 'px';
+        // -- end customization --
 
         var pty = ev.clientY - thisB.tierHolder.getBoundingClientRect().top;
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
@@ -810,6 +877,7 @@ Browser.prototype.realMakeTier = function(source) {
                     }
                     thisB.tierHolder.appendChild(thisB.ruler);
                     tiersWereReordered = true;
+                    thisB.arrangeTiers();
                 }
                 break;
             }
@@ -839,15 +907,10 @@ Browser.prototype.realMakeTier = function(source) {
         document.addEventListener('mouseup', labelReleaseHandler, false);
     }, false);
 
-
-/*    tier.label.addEventListener('touchstart', function(ev) {
-        console.log('touchStartInLabel');
-        ev.stopPropagation(); ev.preventDefault();
-    }, false); */
-
     this.tierHolder.appendChild(row);    
     this.tiers.push(tier);  // NB this currently tells any extant knownSpace about the new tier.
-    this.refreshTier(tier);
+    
+    tier.init(); // fetches stylesheet
     this.arrangeTiers();
     tier.updateLabel();
 }
@@ -859,7 +922,11 @@ Browser.prototype.refreshTier = function(tier) {
 }
 
 Browser.prototype.arrangeTiers = function() {
-    // Do we need anything like this now?
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        var t = this.tiers[ti];
+        t.background = this.tierBackgroundColors[ti % this.tierBackgroundColors.length];
+        t.holder.style.background = t.background;
+    }
 }
 
 
@@ -1020,8 +1087,6 @@ Browser.prototype.zoomStep = function(delta) {
         nz = this.zoomMax;
     }
 
-    // console.log('zoom ' + oz + ' -> ' + nz);
-
     if (nz != oz) {
         this.zoomSliderValue = nz; // FIXME maybe ought to set inside zoom!
         this.zoom(Math.exp((1.0 * nz) / this.zoomExpt));
@@ -1098,13 +1163,7 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
             this.viewEnd = this.viewStart + wid - 1;
         }
 
-        this.ruler.style.left = '' + ((this.featurePanelWidth/2)|0) + 'px';
-        for (var ti = 0; ti < this.tiers.length; ++ti) {
-            var q = this.tiers[ti].quantOverlay;
-            if (q) {
-                q.style.left = '' + ((this.featurePanelWidth/2)|0) + 'px';
-            }
-        }
+        this.positionRuler();
 
         if (!skipRefresh) {
             this.spaceCheck();
@@ -1116,6 +1175,7 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 Browser.prototype.addTier = function(conf) {
     this.sources.push(conf);
     this.makeTier(conf);
+    this.notifyTier();
 }
 
 Browser.prototype.removeTier = function(conf) {
@@ -1150,10 +1210,9 @@ Browser.prototype.removeTier = function(conf) {
     this.tiers.splice(target, 1);
     this.sources.splice(target, 1);
 
-    for (var ti = target; ti < this.tiers.length; ++ti) {
-        this.tiers[ti].background = this.tierBackgroundColors[ti % this.tierBackgroundColors.length];
-    }
-    this.refresh();
+    this.arrangeTiers();
+    
+    this.notifyTier();
 }
 
 
@@ -1183,9 +1242,22 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
 
         ss.getSeqInfo(newChr, function(si) {
             if (!si) {
-                callback("Couldn't find sequence '" + newChr + "'");
+                var altChr;
+                if (newChr.indexOf('chr') == 0) {
+                    altChr = newChr.substr(3);
+                } else {
+                    altChr = 'chr' + newChr;
+                }
+                ss.getSeqInfo(altChr, function(si2) {
+                    if (!si2) {
+                        return callback("Couldn't find sequence '" + newChr + "'");
+                    } else {
+                        return thisB._setLocation(altChr, newMin, newMax, si2, callback);
+                    }
+                });
+            } else {
+                return thisB._setLocation(newChr, newMin, newMax, si, callback);
             }
-            return thisB._setLocation(newChr, newMin, newMax, si, callback);
         });
     }
 }
@@ -1242,12 +1314,12 @@ Browser.prototype.addFeatureListener = function(handler, opts) {
     this.featureListeners.push(handler);
 }
 
-Browser.prototype.notifyFeature = function(ev, feature, group) {
+Browser.prototype.notifyFeature = function(ev, feature, hit, tier) {
   for (var fli = 0; fli < this.featureListeners.length; ++fli) {
       try {
-          this.featureListeners[fli](ev, feature, group);
+          this.featureListeners[fli](ev, feature, hit, tier);
       } catch (ex) {
-          console.log(ex);
+          console.log(ex.stack);
       }
   }
 }
@@ -1257,12 +1329,12 @@ Browser.prototype.addFeatureHoverListener = function(handler, opts) {
     this.featureHoverListeners.push(handler);
 }
 
-Browser.prototype.notifyFeatureHover = function(ev, feature, group) {
+Browser.prototype.notifyFeatureHover = function(ev, feature, hit, tier) {
     for (var fli = 0; fli < this.featureHoverListeners.length; ++fli) {
         try {
-            this.featureHoverListeners[fli](ev, feature, group);
+            this.featureHoverListeners[fli](ev, feature, hit, tier);
         } catch (ex) {
-            console.log(ex);
+            console.log(ex.stack);
         }
     }
 }
@@ -1275,9 +1347,9 @@ Browser.prototype.addViewListener = function(handler, opts) {
 Browser.prototype.notifyLocation = function() {
     for (var lli = 0; lli < this.viewListeners.length; ++lli) {
         try {
-            this.viewListeners[lli](this.chr, this.viewStart|0, this.viewEnd|0, this.zoomSliderValue);
+            this.viewListeners[lli](this.chr, this.viewStart|0, this.viewEnd|0, this.zoomSliderValue, {current: this.zoomSliderValue, min: this.zoomMin, max: this.zoomMax});
         } catch (ex) {
-            console.log(ex);
+            console.log(ex.stack);
         }
     }
 }
@@ -1291,7 +1363,7 @@ Browser.prototype.notifyTier = function() {
         try {
             this.tierListeners[tli]();
         } catch (ex) {
-            console.log(ex);
+            console.log(ex.stack);
         }
     }
 }
@@ -1305,7 +1377,7 @@ Browser.prototype.notifyRegionSelect = function(chr, min, max) {
         try {
             this.regionSelectListeners[rli](chr, min, max);
         } catch (ex) {
-            console.log(ex);
+            console.log(ex.stack);
         }
     }
 }
@@ -1322,31 +1394,7 @@ Browser.prototype.highlightRegion = function(chr, min, max) {
 
 Browser.prototype.drawOverlays = function() {
     for (var ti = 0; ti < this.tiers.length; ++ti) {
-        var t = this.tiers[ti];
-        var g = t.overlay.getContext('2d');
-        
-        t.overlay.height = t.viewport.height;
-        // g.clearRect(0, 0, t.overlay.width, t.overlay.height);
-        
-        var origin = this.viewStart - (1000/this.scale);
-        var visStart = this.viewStart - (1000/this.scale);
-        var visEnd = this.viewEnd + (1000/this.scale);
-
-
-        for (var hi = 0; hi < this.highlights.length; ++hi) {
-            var h = this.highlights[hi];
-            if (h.chr == this.chr && h.min < visEnd && h.max > visStart) {
-                g.globalAlpha = 0.3;
-                g.fillStyle = 'red';
-                g.fillRect((h.min - origin) * this.scale,
-                           0,
-                           (h.max - h.min) * this.scale,
-                           t.overlay.height);
-        }
-        }
-
-        t.oorigin = this.viewStart;
-        t.overlay.style.left = '-1000px'
+        this.tiers[ti].drawOverlay();
     }
 }
 
@@ -1381,7 +1429,7 @@ Browser.prototype.setSelectedTier = function(t) {
         }
     }
     if (t != null) {
-        this.svgHolder.focus();
+        this.browserHolder.focus();
     }
 }
 
@@ -1394,12 +1442,49 @@ Browser.prototype.notifyTierSelectionWrap = function(i) {
         try {
             this.tierSelectionWrapListeners[fli](i);
         } catch (ex) {
-            console.log(ex);
+            console.log(ex.stack);
         }
     }
 }
 
-Browser.prototype.featureDoubleClick = function(f, rx, ry) {
+Browser.prototype.positionRuler = function() {
+    var display = 'none';
+    var left = '';
+    var right = '';
+
+    if (this.rulerLocation == 'center') {
+        display = 'block';
+        left = '' + ((this.featurePanelWidth/2)|0) + 'px';
+    } else if (this.rulerLocation == 'left') {
+        display = 'block';
+        left = '0px';
+    } else if (this.rulerLocation == 'right') {
+        display = 'block';
+        right = '0px'
+    } else {
+        display = 'none';
+    }
+
+    this.ruler.style.display = display;
+    this.ruler.style.left = left;
+    this.ruler.style.right = right;
+
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        var q = this.tiers[ti].quantOverlay;
+        if (q) {
+            q.style.display = display;
+            q.style.left = left;
+            q.style.right = right;
+        }
+    }
+}
+
+Browser.prototype.featureDoubleClick = function(hit, rx, ry) {
+    if (!hit || hit.length == 0)
+        return;
+
+    f = hit[hit.length - 1];
+
     if (!f.min || !f.max) {
         return;
     }
@@ -1421,23 +1506,26 @@ Browser.prototype.featureDoubleClick = function(f, rx, ry) {
     this.setLocation(null, newMid - (width/2), newMid + (width/2));
 }
 
+function glyphLookup(glyphs, rx, matches) {
+    matches = matches || [];
 
-
-
-function glyphLookup(glyphs, rx) {
     for (var gi = 0; gi < glyphs.length; ++gi) {
         var g = glyphs[gi];
-        if (g.min() <= rx && g.max() >= rx) {
+        if (!g.notSelectable && g.min() <= rx && g.max() >= rx) {
             if (g.feature) {
-                return g.feature;
-            } else if (g.glyphs) {
-                return glyphLookup(g.glyphs, rx) || g.group;
+                matches.push(g.feature);
+            } else if (g.group) {
+                matches.push(g.group);
+            }
+    
+            if (g.glyphs) {
+                return glyphLookup(g.glyphs, rx, matches);
             } else if (g.glyph) {
-                return glyphLookup([g.glyph], rx) || g.group;
+                return glyphLookup([g.glyph], rx, matches);
             } else {
-                return g.group;
+                return matches;
             }
         }
     }
-    return null;
+    return matches;
 }
