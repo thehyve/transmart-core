@@ -37,8 +37,9 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
                 if(segment.start && segment.end) {
                     params["start$indx"] = segment.start
                     params["end$indx"] = segment.end
-                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
-                            " or (region.end >= :start$indx and region.end <= :end$indx)"
+                    subClauses << "(region.start between :start$indx and :end$indx" +
+                            " or region.end between :start$indx and :end$indx" +
+                            " or (region.start < :start$indx and region.end > :end$indx))"
                 }
                 regionsWhereClauses << "(${subClauses.join(' and ')})"
             }
@@ -60,8 +61,7 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
                 region.chromosome,
                 region.start,
                 region.end,
-                region.numberOfProbes,
-                region.name
+                region.numberOfProbes
             from DeSubjectAcghData as acgh
             inner join acgh.region region
             inner join acgh.assay assay
@@ -90,8 +90,9 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
                 if(segment.start && segment.end) {
                     params["start$indx"] = segment.start
                     params["end$indx"] = segment.end
-                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
-                            " or (region.end >= :start$indx and region.end <= :end$indx)"
+                    subClauses << "(region.start between :start$indx and :end$indx" +
+                            " or region.end between :start$indx and :end$indx" +
+                            " or (region.start < :start$indx and region.end > :end$indx))"
                 }
                 regionsWhereClauses << "(${subClauses.join(' and ')})"
             }
@@ -103,12 +104,12 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
                 rnaseq.readCountValue,
 
                 region.id,
+		region.name,
                 region.cytoband,
                 region.chromosome,
                 region.start,
                 region.end,
-                region.numberOfProbes,
-                region.name
+                region.numberOfProbes
             from DeSubjectRnaseqData as rnaseq
             inner join rnaseq.region region
             inner join rnaseq.assay assay
@@ -172,6 +173,10 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
 
         Long getId() { rowList[8] as Long }
 
+        String getName() {
+            throw new UnsupportedOperationException('Getter for get name is not implemented')
+        }
+
         String getCytoband() { rowList[9] as String }
 
         Platform getPlatform() {
@@ -185,8 +190,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
         Long getEnd() { rowList[12] as Long }
 
         Integer getNumberOfProbes() { rowList[13] as Integer }
-
-        String getName() { rowList[14] as String }
 
         @Override
         public java.lang.String toString() {
@@ -207,21 +210,21 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
 
         Long getId() { rowList[2] as Long }
 
-        String getCytoband() { rowList[3] as String }
+	String getName() { rowList[3] as String }
+
+        String getCytoband() { rowList[4] as String }
 
         Platform getPlatform() {
             throw new UnsupportedOperationException('Getter for get platform is not implemented')
         }
 
-        String getChromosome() { rowList[4] as String }
+        String getChromosome() { rowList[5] as String }
 
-        Long getStart() { rowList[5] as Long }
+        Long getStart() { rowList[6] as Long }
 
-        Long getEnd() { rowList[6] as Long }
+        Long getEnd() { rowList[7] as Long }
 
-        Integer getNumberOfProbes() { rowList[7] as Integer }
-
-        String getName() { rowList[8] as String }
+        Integer getNumberOfProbes() { rowList[8] as Integer }
 
         @Override
         public java.lang.String toString() {
