@@ -88,18 +88,18 @@ function
 		
 	} else {
 		# We merge the eventNo ((eventHappened=0 == Alive) in, everything else gets set to NA. We will mark them as uncensored later.
-		eventNo<-strsplit(concept.eventNo," *[|] *")
+		specifiedEventNoConcepts <- strsplit(concept.eventNo," *[|] *")[[1]]
 		
 		# Check if at least one of the censor concepts is observed
-		if (! any(eventNo[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for censoring variable:",eventNo[[1]]))
+		if (! any(specifiedEventNoConcepts %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for censoring variable:",specifiedEventNoConcepts))
 
-		boundData <- splitData[eventNo[[1]][1]][[1]]
+		boundData <- splitData[specifiedEventNoConcepts[1]] [[1]]
 
-		if(length(eventNo[[1]])>1) {
+		if(length(specifiedEventNoConcepts)>1) {
 			# Multiple eventNo concepts
-			for (i in 2:length(eventNo[[1]]) )
+			for (i in 2:length(specifiedEventNoConcepts) )
 			{
-				boundData<-rbind(boundData,splitData[eventNo[[1]][i]][[1]])
+				boundData<-rbind(boundData,splitData[specifiedEventNoConcepts[i]] [[1]])
 			}
 		}
 		# For all patients for which the censoring variable has been observed the event didn't happen ((EventHappened=0) == Alive)
@@ -122,6 +122,11 @@ function
 
 	finalColumnNames <- c("PATIENT_NUM",output.survival,output.status)
 	colnames(finalData) <- finalColumnNames
+
+	# Make row names equal to the patient_num column value
+	rownames(finalData) <- finalData[,"PATIENT_NUM"]
+	# Reorder finalData rows to match the order in the aCGH data columns
+	finalData <- finalData[pids,,drop=FALSE]
 
 	###################################	
 	

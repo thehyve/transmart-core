@@ -56,62 +56,88 @@ function
 
 	readcountTableColumnNames <- colnames(readcountTable)
 	readcountTableColumnNames <- gsub("\"", "", readcountTableColumnNames)
-	readcountTableColumnNames <- sub("readcount.", "" , readcountTableColumnNames)
-	colnames(readcountTable) <- readcountTableColumnNames
-	# Write the readcount file
-	write.table(readcountTable,output.rnaseqFile, sep='\t', quote=FALSE, row.names=TRUE, col.names=TRUE)
-
-	# Extract patient list from RNASeq data column names for which readcounts have been observed
-	headernames <- gsub("\"", "", strsplit(readLines(input.rnaseqFile,1),' *\t *')[[1]])
+	readcountTableSubjectIds <- sub("readcount.", "" , readcountTableColumnNames)
 	
-	pids <- sub("readcount.", "" , headernames[grep('readcount.', headernames)] )
+	if(!length(readcountTableSubjectIds)>0) stop("||FRIENDLY||No subjects with readcount data found in RNASeq data file.")
 
-	if(!length(pids)>0) stop("||FRIENDLY||No subjects with readcount data found in RNASeq data file.")
-
+	colnames(readcountTable) <- readcountTableSubjectIds
+	
 	#Read the input file.
 	clinicaldataFile <- read.table(input.clinicalFile, header=TRUE, sep='\t', quote='\"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
 
 	#Set the column names.
-	colnames(clinicaldataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
+	colnames(clinicaldataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH_FULL")
 
 	#Filter on patients for which RNASeq data is available
-	filteredData <- matrix(pids)
+	filteredData <- matrix(readcountTableSubjectIds)
 	colnames(filteredData) <- c("PATIENT_NUM")
-	filteredData <- merge(filteredData, clinicaldataFile)
+	filteredData <- merge(filteredData, clinicaldataFile) # natural (inner) join
 
-	#Split the data by the CONCEPT_CD.
-	splitData <- split(filteredData,filteredData$CONCEPT_PATH)
+	#List of available CONCEPT_PATH_FULL values to check availability of concepts specified as arguments
+	allAvailableFullConcepts <- unique(filteredData$CONCEPT_PATH_FULL)
+	#Parse the concepts specifying the groups
+	specifiedGroupConcepts <- strsplit(concept.group," *[|] *")[[1]]
+
+	# Check if at least one of the group concepts is observed
+	if (! any(specifiedGroupConcepts %in% allAvailableFullConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
+
+	#Further filter data on specified full concept paths only
+	filteredData <- subset(filteredData, CONCEPT_PATH_FULL %in% specifiedGroupConcepts)
 	
-	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
-	allConcepts <- unique(filteredData$CONCEPT_PATH)
+	allAvailableShortConcepts <- unique(filteredData$CONCEPT_PATH_SHORT)
+	if(length(allAvailableShortConcepts)==0) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
 	
+	#Split the data by the CONCEPT_PATH_SHORT (categorical variable).
+	splitData <- split(filteredData,filteredData$CONCEPT_PATH_SHORT)
 
-
-	#Add the value for the group to the group data table.
-	group <- strsplit(concept.group," *[|] *")
-	
-	# Check if at least one of the censor concepts is observed
-	if (! any(group[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",group[[1]]))
-
-	groupData <- splitData[group[[1]][1]][[1]]
-	if(length(group[[1]])>1) {
-		#Multiple groups
-		for (i in 2:length(group[[1]]) )
+	groupData <- splitData[allAvailableShortConcepts[1]] [[1]] [,c("PATIENT_NUM","VALUE")]
+	colnames(groupData) <- c("PATIENT_NUM",allAvailableShortConcepts[1])
+  
+	if(length(allAvailableShortConcepts)>1) {
+		# Multiple categorical variables
+		for (i in 2:length(allAvailableShortConcepts) )
 		{
-			groupData<-rbind(groupData,splitData[group[[1]][i]][[1]])
+			grpdata <- splitData[allAvailableShortConcepts[i]] [[1]] [,c("PATIENT_NUM","VALUE")]
+			colnames(grpdata) <- c("PATIENT_NUM",allAvailableShortConcepts[i])
+		 	groupData <- merge(groupData ,grpdata, by="PATIENT_NUM", all=TRUE)
 		}
 	}
-
-	groupData <- groupData[c('PATIENT_NUM','VALUE')]
 	
+	# Select only patients/subjects for which all concepts have been observed
+	groupData <- groupData[apply(!is.na(groupData), 1, all), ]
+
+	# Check if still patients are left that match the criteria
+	if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
+
+	# Merge the multiple observations into a single combined observation of a combined concept (cross table)
+	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConcepts], sep = "_"))
+
+	groupData <- groupData[c('PATIENT_NUM','combinedConcepts')]
+	
+	# Check if at least two groups have been specified
+	if ( length(unique(groupData$combinedConcepts)) < 2 ) stop(paste("||FRIENDLY||All patient belong to the same group. Please specifiy at least 2 distinct groups"))
 	# Check if patient are uniquely divided over the groups
 	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
-	if (nrow(groupData) == length(unique(groupData$VALUE))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients)"))
+	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
 
+	# Make row names equal to the patient_num column value
+	rownames(groupData) <- groupData[,"PATIENT_NUM"]
+
+	# Reorder the readcount table columns like the groupData rows
+	# If the group contains less patients than the readcounts table, subset to the smaller group.
+	readcountTable <- readcountTable[,rownames(groupData)]
+  
+	## Reorder groupData rows to match the order in the readcount data columns
+	## Not needed anymore since reordering and subsetting readcounts
+	#  groupData <- groupData[readcountTableSubjectIds,,drop=FALSE]
+
+	# Write the readcount file
+	write.table(readcountTable,output.rnaseqFile, sep='\t', quote=FALSE, row.names=TRUE, col.names=TRUE)
+  
 	###################################	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
@@ -121,4 +147,3 @@ function
 
 	print("-------------------")
 }
-

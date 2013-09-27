@@ -44,6 +44,8 @@ function
 
 	# Copy the aCGH file
 	file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
+	#wl#acghTable <- read.table(input.acghFile, header=TRUE, sep='\t', quote='\"', as.is=TRUE, check.names=FALSE)
+	#wl#headernames <- colnames(acghTable)
 	
 	# Extract patient list from aCGH data column names for which calls (flag) have been observed
 	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
@@ -54,43 +56,72 @@ function
 	dataFile <- read.table(input.dataFile, header=TRUE, sep='\t', quote='\"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
 
 	#Set the column names.
-	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
+	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH_FULL")
 
 	#Filter on patients for which aCGH data is available
 	filteredData <- matrix(pids)
 	colnames(filteredData) <- c("PATIENT_NUM")
-	filteredData <- merge(filteredData, dataFile)
+	filteredData <- merge(filteredData, dataFile) # natural (inner) join
 
-	#Split the data by the CONCEPT_CD.
-	splitData <- split(filteredData,filteredData$CONCEPT_PATH)
+	#List of available CONCEPT_PATH_FULL values to check availability of concepts specified as arguments
+	allAvailableFullConcepts <- unique(filteredData$CONCEPT_PATH_FULL)
+	#Parse the concepts specifying the groups
+	specifiedGroupConcepts <- strsplit(concept.group," *[|] *")[[1]]
+
+	# Check if at least one of the group concepts is observed
+	if (! any(specifiedGroupConcepts %in% allAvailableFullConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
+
+	#Further filter data on specified full concept paths only
+	filteredData <- subset(filteredData, CONCEPT_PATH_FULL %in% specifiedGroupConcepts)
 	
-	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
-	allConcepts <- unique(filteredData$CONCEPT_PATH)
-
-	#Add the value for the group to the group data table.
-	group <- strsplit(concept.group," *[|] *")
+	allAvailableShortConcepts <- unique(filteredData$CONCEPT_PATH_SHORT)
+	if(length(allAvailableShortConcepts)==0) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
 	
-	# Check if at least one of the censor concepts is observed
-	if (! any(group[[1]] %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",group[[1]]))
-
-	groupData <- splitData[group[[1]][1]][[1]]
-	if(length(group[[1]])>1) {
-		#Multiple groups
-		for (i in 2:length(group[[1]]) )
+	#Split the data by the CONCEPT_PATH_SHORT.
+	splitData <- split(filteredData,filteredData$CONCEPT_PATH_SHORT)
+	
+	groupData <- splitData[allAvailableShortConcepts[1]] [[1]] [,c("PATIENT_NUM","VALUE")]
+	colnames(groupData) <- c("PATIENT_NUM",allAvailableShortConcepts[1])
+  
+	if(length(allAvailableShortConcepts)>1) {
+		#Multiple categorical variables
+		for (i in 2:length(allAvailableShortConcepts) )
 		{
-			groupData<-rbind(groupData,splitData[group[[1]][i]][[1]])
+			grpdata <- splitData[allAvailableShortConcepts[i]] [[1]] [,c("PATIENT_NUM","VALUE")]
+			colnames(grpdata) <- c("PATIENT_NUM",allAvailableShortConcepts[i])
+		 	groupData <- merge(groupData ,grpdata, by="PATIENT_NUM", all=TRUE)
 		}
 	}
-
-	groupData <- groupData[c('PATIENT_NUM','VALUE')]
 	
+	# Select only patients/subjects for which all concepts have been observed
+	groupData <- groupData[apply(!is.na(groupData), 1, all), ]
+
+	# Check if still patients are left that match the criteria
+	if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
+
+	# Merge the observations of multiple variables into a combined observation of a single variable (cross table)
+	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConcepts], sep = "_"))
+
+	groupData <- groupData[c('PATIENT_NUM','combinedConcepts')]
+	
+	# Check if at least two groups have been specified
+	if ( length(unique(groupData$combinedConcepts)) < 2 ) stop(paste("||FRIENDLY||All patient belong to the same group. Please specifiy at least 2 distinct groups"))
 	# Check if patient are uniquely divided over the groups
 	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
-	if (nrow(groupData) == length(unique(groupData$VALUE))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients)"))
+	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
+	
+	# Make row names equal to the patient_num column value
+	rownames(groupData) <- groupData[,"PATIENT_NUM"]
+
+	# Reorder groupData rows to match the order in the aCGH data columns
+	groupData <- groupData[pids,,drop=FALSE]
+	# In case aCGH data contains more patients/samples columns than groupData rows, groupData will have a number of rows with NA values.
+	# These patients/samples/rows will be neglect in the acgh group test script.
+	# TODO: It would however be cleaner to remove those patients/samples from the acgh data (columns) completely 
 
 	###################################	
 	#We need MASS to dump the matrix to a file.

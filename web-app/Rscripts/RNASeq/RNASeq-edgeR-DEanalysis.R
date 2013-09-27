@@ -83,6 +83,7 @@ function
 			countTable = countTable[-exclude,]
 		}
 		
+		# Make sure that the order of the subjects/samples in the readcount columns is consistent with the order of the subjects/samples in the phenodata rows
 		# Extract sample list from RNASeq data column names for which readcounts have been observed
 		#samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(countTable))] )
 		samplelist <- colnames(countTable)
@@ -103,8 +104,8 @@ function
 		
 		if(QC == TRUE) {
 		
-			png("rnaseq-groups-test.png", width=1000, height=1000)
-			par(mfrow = c(3,1))
+			png("rnaseq-groups-test.png", width=800, height=2400)
+			par(mfrow = c(3,1), cex=1.3)
 		  
 			print("Creating QC plots...")
 			## MDS Plot
@@ -182,8 +183,8 @@ function
 		
 		if (QC == TRUE) {
 
-			png("rnaseq-groups-test.png", width=1000, height=1000)
-			par(mfrow = c(3,1))
+			png("rnaseq-groups-test.png", width=800, height=2400)
+			par(mfrow = c(3,1), cex=1.3)
 
 			print("Creating QC plots...")
 			## MDS Plot
@@ -221,17 +222,32 @@ function
 	}
 	
 	# Multi group analysis (three groups, all vs. all), analogous to one-way ANOVA
-	DEanalysis.threeGroups = function (fileName,QC,output_1,output_2,output_3,output_4,output_5,output_6) {
+	DEanalysis.threeGroups = function (readcountfileName, phenodatafileName, QC,output_1,output_2,output_3,output_4,output_5,output_6) {
+
 		print("Multi group analysis")
-		conditionsFile 	= read.delim(fileName,header=F,stringsAsFactors=F)
-		countfiles 		= conditionsFile[,1]
-		conditions 		= as.factor(conditionsFile[,2])
-		sampleID		= conditionsFile[,3]
-		print("Reading count files...")
-		countTable 		= read.delim(countfiles[1],header=F,stringsAsFactors=F,row.names=1)
-		for (b in 2:length(countfiles)) {
-			countTable = cbind(countTable,read.delim(countfiles[b],header=F,stringsAsFactors=F,row.names=1))
-		}
+		## conditionsFile 	= read.delim(fileName,header=F,stringsAsFactors=F)
+		## countfiles 		= conditionsFile[,1]
+		## conditions 		= as.factor(conditionsFile[,2])
+		## sampleID		= conditionsFile[,3]
+		## print("Reading count files...")
+		## countTable 		= read.delim(countfiles[1],header=F,stringsAsFactors=F,row.names=1)
+		## for (b in 2:length(countfiles)) {
+		## 	countTable = cbind(countTable,read.delim(countfiles[b],header=F,stringsAsFactors=F,row.names=1))
+		## }
+		
+		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
+		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
+		
+		# Make sure that the order of the subjects/samples in the readcount columns is consistent with the order of the subjects/samples in the phenodata rows
+		# Extract sample list from RNASeq data column names for which readcounts have been observed
+		samplelist <- colnames(countTable)
+		# Make row names equal to the sample id
+		rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
+		# Reorder phenodata rows to match the order in the RNASeq data columns
+		phenodata <- phenodata[samplelist,,drop=FALSE]
+		
+		conditions <- sort(phenodata$group)
+		ngrp <- length(unique(conditions))
 		
 		# Filter for HTSeq predifined counts:
 		exclude_HTSeq = c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
@@ -241,11 +257,11 @@ function
 		if(length(exclude) != 0)  {
 			countTable = countTable[-exclude,]
 		}
-		
-		colnames(countTable) 	= sampleID
-		dge 					= DGEList(counts=countTable,genes=rownames(countTable))
-		design 					= model.matrix(~conditions,data=dge$samples)
-		rownames(design) 		= colnames(dge)
+
+		#colnames(countTable) 	= sampleID
+		dge = DGEList(counts=countTable,genes=rownames(countTable))
+		design = model.matrix(~conditions,data=dge$samples)
+		rownames(design) = colnames(dge)
 		print("Calculating normalization factors...")
 		dge		= calcNormFactors(dge)
 		print("Estimating common dispersion...")
@@ -257,8 +273,8 @@ function
 		
 		if (QC == TRUE) {
 		
-			png("rnaseq-groups-test.png", width=1000, height=1000)
-			par(mfrow = c(3,1))
+			png("rnaseq-groups-test.png", width=800, height=(2+(ngrp-1))*800)
+			par(mfrow = c(2+(ngrp-1),1), cex=1.3)			
 		
 			print("Creating QC plots...")
 			## MDS Plot
@@ -274,7 +290,7 @@ function
 		print("Fitting GLM...")
 		fit 	= glmFit(dge,design)
 		print("Performing likelihood ratio tests...")
-		lrt		= glmLRT(fit,coef=2:3)
+		lrt		= glmLRT(fit,coef=2:ngrp)
 		write.table(file=output_1,topTags(lrt,n=nrow(countTable)),sep="\t", row.names=FALSE)
 		write.table(file=output_2,cpm(dge,normalized.lib.sizes=TRUE),sep="\t")
 		write.table(file=output_3,dge$counts,sep="\t")
@@ -285,10 +301,28 @@ function
 			etable <- topTags(lrt, n=nrow(dge))$table
 			etable <- etable[order(etable$FDR), ]
 			#pdf(output_6)
-			with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
-			with(subset(etable, FDR<0.05), points(logCPM, logFC, pch=20, col="red"))
-			abline(h=c(-1,1), col="blue")
-			
+
+			if (ngrp == 2) {
+				with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
+				with(subset(etable, FDR<0.05), points(logCPM, logFC, pch=20, col="red"))
+				abline(h=c(-1,1), col="blue")
+			}
+			if (ngrp > 2) {
+						
+				ids <- c()
+				for(name in names(etable)){
+					if(substr(name,0,16) == "logFC.conditions"){
+						ids = c(ids,name)
+					}
+				}
+				for (logFC in ids){
+					print(logFC)
+					plot(etable$logCPM, etable[,logFC], pch=20, main=paste("edgeR: Fold change (",substr(logFC,17,nchar(logFC)+1),"/",conditions[1],") vs abundance",sep=""))
+					points(subset(etable, FDR<0.05)$logCPM, subset(etable, FDR<0.05)[,logFC], pch=20, col="red")
+					abline(h=c(-1,1), col="blue")
+				} 
+			}
+
 			dev.off()
 		}
 		print("Done!")
@@ -302,6 +336,6 @@ function
 	switch(analysisType,
 		two_group_unpaired = DEanalysis.twoGroups  (readcountFileName,phenodataFileName,QCchoice,output_1,output_2,output_3,output_4,output_5,output_6),
 		##two_group_paired   = DEanalysis.paired     (tsvAbsoluteFilePath,QCchoice,output_1,output_2,output_3,output_4,output_5,output_6),
-		##multi_group        = DEanalysis.threeGroups(tsvAbsoluteFile,QCchoice,output_1,output_2,output_3,output_4,output_5,output_6),
+		multi_group        = DEanalysis.threeGroups(readcountFileName,phenodataFileName,QCchoice,output_1,output_2,output_3,output_4,output_5,output_6),
 		"Unknown analysis type: Use on of: two_group_unpaired, two_group_paired or multi_group")
 }
