@@ -12,10 +12,6 @@ import org.transmartproject.core.dataquery.acgh.ACGHValues
 import org.transmartproject.core.dataquery.acgh.CopyNumberState
 import org.transmartproject.core.dataquery.Platform
 import org.transmartproject.core.dataquery.acgh.RegionRow
-import org.transmartproject.core.dataquery.rnaseq.RegionRNASeqResult
-import org.transmartproject.core.dataquery.rnaseq.RNASEQValues
-import org.transmartproject.core.dataquery.rnaseq.RegionRNASeqRow
-
 
 import static org.hibernate.ScrollMode.FORWARD_ONLY
 
@@ -74,54 +70,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
         new RegionResultListImpl(assays, mainQuery)
     }
 
-    @Override
-    protected RegionRNASeqResult getRegionRNASeqResultForAssays(final ACGHRegionQuery spec, final List<Assay> assays, final AbstractSessionImpl session) {
-
-        def params = ['assayIds': assays.collect {Assay assay -> assay.id}]
-        def regionsWhereClauses = []
-
-        if(spec.segments) {
-            spec.segments.eachWithIndex { ChromosomalSegment segment, int indx ->
-                def subClauses = []
-                if(segment.chromosome) {
-                    params["chromosome$indx"] = segment.chromosome
-                    subClauses = ["region.chromosome like :chromosome$indx"]
-                }
-                if(segment.start && segment.end) {
-                    params["start$indx"] = segment.start
-                    params["end$indx"] = segment.end
-                    subClauses << "(region.start between :start$indx and :end$indx" +
-                            " or region.end between :start$indx and :end$indx" +
-                            " or (region.start < :start$indx and region.end > :end$indx))"
-                }
-                regionsWhereClauses << "(${subClauses.join(' and ')})"
-            }
-        }
-
-        def mainHQL = """
-            select
-                rnaseq.assay.id,
-                rnaseq.readCountValue,
-
-                region.id,
-		region.name,
-                region.cytoband,
-                region.chromosome,
-                region.start,
-                region.end,
-                region.numberOfProbes
-            from DeSubjectRnaseqData as rnaseq
-            inner join rnaseq.region region
-            inner join rnaseq.assay assay
-            where assay.id in (:assayIds) ${regionsWhereClauses ? 'and (' + regionsWhereClauses.join('\nor ') + ')' : ''}
-            order by region.id, assay.id
-        """
-
-        def mainQuery = createQuery(session, mainHQL, params).scroll(FORWARD_ONLY)
-
-        new RegionRNASeqResultListImpl(assays, mainQuery)
-    }
-
     @CompileStatic
     class ACGHValuesImpl implements ACGHValues {
         final List rowList
@@ -149,20 +97,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
     }
 
     @CompileStatic
-    class RNASEQValuesImpl implements RNASEQValues {
-        final List rowList
-
-        RNASEQValuesImpl(final List rowList) {
-            this.rowList = rowList
-        }
-
-        Long getAssayId() { rowList[0] as Long }
-
-        Integer getReadCountValue() { rowList[1] as Integer }
-
-    }
-
-    @CompileStatic
     class RegionImpl implements Region {
 
         final List rowList
@@ -172,10 +106,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
         }
 
         Long getId() { rowList[8] as Long }
-
-        String getName() {
-            throw new UnsupportedOperationException('Getter for get name is not implemented')
-        }
 
         String getCytoband() { rowList[9] as String }
 
@@ -194,41 +124,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
         @Override
         public java.lang.String toString() {
             return "RegionImpl{" +
-                    "rowList=" + rowList +
-                    '}';
-        }
-    }
-
-    @CompileStatic
-    class RegionRNASeqImpl implements Region {
-
-        final List rowList
-
-        RegionRNASeqImpl(final List rowList) {
-            this.rowList = rowList
-        }
-
-        Long getId() { rowList[2] as Long }
-
-	String getName() { rowList[3] as String }
-
-        String getCytoband() { rowList[4] as String }
-
-        Platform getPlatform() {
-            throw new UnsupportedOperationException('Getter for get platform is not implemented')
-        }
-
-        String getChromosome() { rowList[5] as String }
-
-        Long getStart() { rowList[6] as Long }
-
-        Long getEnd() { rowList[7] as Long }
-
-        Integer getNumberOfProbes() { rowList[8] as Integer }
-
-        @Override
-        public java.lang.String toString() {
-            return "RegionRNASeqImpl{" +
                     "rowList=" + rowList +
                     '}';
         }
@@ -262,37 +157,6 @@ class DataQueryResourceNoGormService extends DataQueryResourceService {
             }
 
             new RegionRowImpl(region, indicesList, values)
-        }
-    }
-
-    @CompileStatic
-    class RegionRNASeqResultListImpl extends org.transmartproject.db.dataquery.RegionRNASeqResultImpl {
-        RegionRNASeqResultListImpl(List<Assay> indicesList, ScrollableResults results) {
-            super(indicesList, results)
-        }
-
-        @Override
-        protected RegionRNASeqRow getNextRegionRNASeqRow() {
-            List rowList = results.get() as List
-            if (rowList == null) {
-                return null
-            }
-
-            RegionRNASeqImpl region = new RegionRNASeqImpl(rowList)
-            RNASEQValuesImpl rnaseqValue = new RNASEQValuesImpl(rowList)
-
-            Map values = new HashMap(indicesList.size(), 1)
-            while (new RegionRNASeqImpl(rowList).id == region.id) {
-                values[rnaseqValue.assayId] = rnaseqValue
-
-                if (!results.next()) {
-                    break
-                }
-                rowList = results.get() as List
-                rnaseqValue = new RNASEQValuesImpl(rowList)
-            }
-
-            new RegionRNASeqRowImpl(region, indicesList, values)
         }
     }
 }
