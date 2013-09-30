@@ -28,13 +28,6 @@ public interface Region {
     Long getId()
 
     /**
-     * A name that identifies the region
-     *
-     * @return a friendly region name for the region or null
-     */
-    String getName()
-
-    /**
      * A cytoband name that identities the region
      *
      * @return a friendly cytoband name for the region or null

@@ -3,7 +3,6 @@ package org.transmartproject.core.dataquery
 import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 import org.transmartproject.core.dataquery.acgh.RegionResult
-import org.transmartproject.core.dataquery.rnaseq.RegionRNASeqResult
 import org.transmartproject.core.dataquery.acgh.Region
 
 /**
@@ -20,15 +19,6 @@ public interface DataQueryResource {
      * @return the query result result
      */
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec, session)
-    /**
-     * Runs a query for RNASeq region data. Optionally,  it can be run on a
-	 * separate session; a stateless session may be useful here.
-     *
-     * @param spec the specification of the query
-     * @param session session where to run the query or null to use current
-     * @return the query result result
-     */
-    RegionRNASeqResult runRNASEQRegionQuery(ACGHRegionQuery spec, session)
 
     /**
      * Retrieve chromosomal regions
