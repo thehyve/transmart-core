@@ -1,9 +1,5 @@
 package org.transmartproject.db.ontology
 
-import org.transmartproject.db.support.DatabasePortabilityService
-
-import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
-
 /**
  * Properties that specify queries to be made in other tables. Used by
  * TableAccess and i2b2 metadata tables
@@ -17,22 +13,15 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       operator
     String       dimensionCode
 
-    DatabasePortabilityService databasePortabilityService
-
     /**
      * Returns the SQL for the query that this object represents.
      *
      * @return raw SQL of the query that this type represents
      */
     String getQuerySql() {
-        def res = "SELECT $factTableColumn " +
+        "SELECT $factTableColumn " +
                 "FROM $dimensionTableName " +
                 "WHERE $columnName $operator $processedDimensionCode"
-        if (operator.equalsIgnoreCase('like') &&
-                databasePortabilityService.databaseType == ORACLE) {
-            res += ' ESCAPE \'\\\''
-        }
-        res
     }
 
     /* implements (hopefully improved) transformations described here:
