@@ -21,10 +21,7 @@ A runtime dependency for tranSMART that implements the Core API
     // URL to the plugin's documentation
     def documentation = "http://transmartproject.org"
 
-    // Extra (optional) plugin metadata
-
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
+    def license = "GPL3"
 
     // Details of company behind the plugin (if there is one)
 //    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
