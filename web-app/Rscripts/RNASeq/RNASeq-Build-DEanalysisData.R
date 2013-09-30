@@ -15,53 +15,63 @@
 ###########################################################################
 
 ###########################################################################
-#aCGHBuildGroupTestDataFile
-#Parse the i2b2 output file and create input files for Group Test.
+#RNASeq-Build-DEanalysisData
+#Parse the i2b2 output file and create input files for RNASeq-EdgeR-DEanalysis.
 ###########################################################################
 
-aCGHGroupTestData.build <- 
+RNASeqDEanalysisData.build <- 
 function
 (
-  input.dataFile='clinical.txt',
-  input.acghFile='aCGH.txt',
-  concept.region,
+  input.clinicalFile='clinical.txt',
+  input.rnaseqFile='RNASeq.txt',
+  concept.readcount,
   concept.group,
   output.column.group='group',
-  output.dataFile='phenodata.tsv',
-  output.acghFile='regions.tsv'                      
+  output.clinicalFile='phenodata.tsv',
+  output.rnaseqFile='readcount.tsv'                      
 )
 {
 	print("-------------------")
-	print("aCGHBuildGroupTestData.R")
-	print("BUILDING ACGH GROUP TEST DATA")
+	print("RNASeq-Build-DEanalysisData.R")
+	print("BUILDING RNASeq DEanalysis DATA")
 
 	# Check parameters
 	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0) stop("||FRIENDLY||No grouping specified. Please check your group variable selection and run again.")
 
-	# Check presence of aCGH data file and clinical data file
-	if(!file.exists(input.acghFile)) stop("||FRIENDLY||No aCGH data file found. Please check your region variable selection and run again.")
-	if(!file.exists(input.dataFile)) stop("||FRIENDLY||No clinical data file found. Please check your group variable selection and run again.")
+	# Check presence of rnaseq data file and clinical data file
+	if(!file.exists(input.rnaseqFile)) stop("||FRIENDLY||No RNASeq data file found. Please check your region variable selection and run again.")
+	if(!file.exists(input.clinicalFile)) stop("||FRIENDLY||No clinical data file found. Please check your group variable selection and run again.")
 
-	# Copy the aCGH file
-	file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
-	#wl#acghTable <- read.table(input.acghFile, header=TRUE, sep='\t', quote='\"', as.is=TRUE, check.names=FALSE)
-	#wl#headernames <- colnames(acghTable)
+	readcountTable <- read.table(input.rnaseqFile, header=TRUE, sep='\t', quote='\"', as.is=TRUE, check.names=FALSE)
+	readcountTableColumnNames <- colnames(readcountTable)
+
+	# Use regionname as row names
+	rownames(readcountTable) <- readcountTable$regionname
+
+	# Only readcount columns
+	filteredReadcountTableColumnNames <- readcountTableColumnNames[ grep("readcount.", readcountTableColumnNames) ]
+	if(length(filteredReadcountTableColumnNames)==0)  stop("||FRIENDLY||No read count data found. Please check your read count variable selection and run again.")
 	
-	# Extract patient list from aCGH data column names for which calls (flag) have been observed
-	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
-	pids <- sub("flag.", "" , headernames[grep('flag.', headernames)] )
-	if(!length(pids)>0) stop("||FRIENDLY||No subjects with call data found in aCGH data file.")
+	readcountTable <- readcountTable[filteredReadcountTableColumnNames]
 
+	readcountTableColumnNames <- colnames(readcountTable)
+	readcountTableColumnNames <- gsub("\"", "", readcountTableColumnNames)
+	readcountTableSubjectIds <- sub("readcount.", "" , readcountTableColumnNames)
+	
+	if(!length(readcountTableSubjectIds)>0) stop("||FRIENDLY||No subjects with readcount data found in RNASeq data file.")
+
+	colnames(readcountTable) <- readcountTableSubjectIds
+	
 	#Read the input file.
-	dataFile <- read.table(input.dataFile, header=TRUE, sep='\t', quote='\"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
+	clinicaldataFile <- read.table(input.clinicalFile, header=TRUE, sep='\t', quote='\"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
 
 	#Set the column names.
-	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH_FULL")
+	colnames(clinicaldataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH_FULL")
 
-	#Filter on patients for which aCGH data is available
-	filteredData <- matrix(pids)
+	#Filter on patients for which RNASeq data is available
+	filteredData <- matrix(readcountTableSubjectIds)
 	colnames(filteredData) <- c("PATIENT_NUM")
-	filteredData <- merge(filteredData, dataFile) # natural (inner) join
+	filteredData <- merge(filteredData, clinicaldataFile) # natural (inner) join
 
 	#List of available CONCEPT_PATH_FULL values to check availability of concepts specified as arguments
 	allAvailableFullConcepts <- unique(filteredData$CONCEPT_PATH_FULL)
@@ -77,14 +87,14 @@ function
 	allAvailableShortConcepts <- unique(filteredData$CONCEPT_PATH_SHORT)
 	if(length(allAvailableShortConcepts)==0) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
 	
-	#Split the data by the CONCEPT_PATH_SHORT.
+	#Split the data by the CONCEPT_PATH_SHORT (categorical variable).
 	splitData <- split(filteredData,filteredData$CONCEPT_PATH_SHORT)
-	
+
 	groupData <- splitData[allAvailableShortConcepts[1]] [[1]] [,c("PATIENT_NUM","VALUE")]
 	colnames(groupData) <- c("PATIENT_NUM",allAvailableShortConcepts[1])
   
 	if(length(allAvailableShortConcepts)>1) {
-		#Multiple categorical variables
+		# Multiple categorical variables
 		for (i in 2:length(allAvailableShortConcepts) )
 		{
 			grpdata <- splitData[allAvailableShortConcepts[i]] [[1]] [,c("PATIENT_NUM","VALUE")]
@@ -99,7 +109,7 @@ function
 	# Check if still patients are left that match the criteria
 	if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
 
-	# Merge the observations of multiple variables into a combined observation of a single variable (cross table)
+	# Merge the multiple observations into a single combined observation of a combined concept (cross table)
 	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConcepts], sep = "_"))
 
 	groupData <- groupData[c('PATIENT_NUM','combinedConcepts')]
@@ -109,31 +119,31 @@ function
 	# Check if patient are uniquely divided over the groups
 	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
-	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
+	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
-	
-	# Make row names equal to the patient_num column value
-	rownames(groupData) <- groupData[,"PATIENT_NUM"]
-
-	# Reorder groupData rows to match the order in the aCGH data columns
-	groupData <- groupData[pids,,drop=FALSE]
-	# In case aCGH data contains more patients/samples columns than groupData rows, groupData will have a number of rows with NA values.
-	# These patients/samples/rows will be neglect in the acgh group test script.
-	# TODO: It would however be cleaner to remove those patients/samples from the acgh data (columns) completely 
 
 	# Make row names equal to the patient_num column value
 	rownames(groupData) <- groupData[,"PATIENT_NUM"]
-	# Reorder groupData rows to match the order in the aCGH data columns
-	groupData <- groupData[pids,,drop=FALSE]
 
+	# Reorder the readcount table columns like the groupData rows
+	# If the group contains less patients than the readcounts table, subset to the smaller group.
+	readcountTable <- readcountTable[,rownames(groupData)]
+  
+	## Reorder groupData rows to match the order in the readcount data columns
+	## Not needed anymore since reordering and subsetting readcounts
+	#  groupData <- groupData[readcountTableSubjectIds,,drop=FALSE]
+
+	# Write the readcount file
+	write.table(readcountTable,output.rnaseqFile, sep='\t', quote=FALSE, row.names=TRUE, col.names=TRUE)
+  
 	###################################	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
 	
 	#Write the group data file.
-	write.table(groupData,output.dataFile,sep = "\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
+	write.table(groupData,output.clinicalFile,sep = "\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
 
 	print("-------------------")
 }

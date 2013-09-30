@@ -159,6 +159,11 @@ GenericAnalysisInputBar = Ext.extend(Ext.Panel, {
 			toolTipTxt: config.toolTipTxt
 		});
 
+        // apply column width if config consists column width attribute
+        if (config.columnWidth) {
+            childPanel["columnWidth"] = config.columnWidth;
+        }
+
 		var _this = this;
 
 		//add tool button if it is droppable
