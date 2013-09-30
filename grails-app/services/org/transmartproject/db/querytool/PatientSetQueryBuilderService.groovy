@@ -9,10 +9,13 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.AbstractQuerySpecifyingType
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 class PatientSetQueryBuilderService {
 
     def conceptsResourceService
+
+    def databasePortabilityService
 
     String buildPatientSetQuery(QtQueryResultInstance resultInstance,
                                 QueryDefinition definition) throws
@@ -117,7 +120,7 @@ class PatientSetQueryBuilderService {
     private String doItem(AbstractQuerySpecifyingType term,
                           ConstraintByValue constraint) {
         /* constraint represented by the ontology term */
-        def clause = "$term.factTableColumn IN ($term.querySql)"
+        def clause = "$term.factTableColumn IN (${getQuerySql(term)})"
 
         /* additional (and optional) constraint by value */
         if (!constraint) {
@@ -143,6 +146,21 @@ class PatientSetQueryBuilderService {
         }
 
         clause
+    }
+
+    /**
+     * Returns the SQL for the query that this object represents.
+     *
+     * @return raw SQL of the query that this type represents
+     */
+    private String getQuerySql(AbstractQuerySpecifyingType term) {
+        def res = "SELECT $term.factTableColumn " +
+                "FROM $term.dimensionTableName " +
+                "WHERE $term.columnName $term.operator $term.processedDimensionCode"
+        if (databasePortabilityService.databaseType == ORACLE) {
+            res += " ESCAPE '\\'"
+        }
+        res
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,

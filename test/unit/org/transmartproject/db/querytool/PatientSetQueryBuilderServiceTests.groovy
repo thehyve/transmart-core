@@ -1,5 +1,11 @@
 package org.transmartproject.db.querytool
 
+import grails.test.mixin.TestFor
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
@@ -9,14 +15,14 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.db.ontology.I2b2
-import grails.test.mixin.*
-import grails.test.mixin.support.*
-import org.junit.*
+import org.transmartproject.db.support.DatabasePortabilityService
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
-import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.*
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.POSTGRESQL
 
 @TestMixin(GrailsUnitTestMixin)
 @TestFor(PatientSetQueryBuilderService)
@@ -46,6 +52,11 @@ class PatientSetQueryBuilderServiceTests {
                 }
         ] as ConceptsResourceService
         service.conceptsResourceService = conceptsResourceServiceStub
+
+        def databasePortabilityStub = [
+                getDatabaseType: { -> POSTGRESQL }
+        ] as DatabasePortabilityService
+        service.databasePortabilityService = databasePortabilityStub
 
         resultInstance = new QtQueryResultInstance()
         resultInstance.id = 42
