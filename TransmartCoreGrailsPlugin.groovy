@@ -1,4 +1,5 @@
 import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
@@ -48,6 +49,10 @@ A runtime dependency for tranSMART that implements the Core API
 
     def doWithDynamicMethods = { ctx ->
         String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
+
+        /* Force this bean to be initialized, as it has some dynamic methods
+         * to register during its init() method */
+        ctx.getBean DatabasePortabilityService
     }
 
     def doWithApplicationContext = { applicationContext ->
