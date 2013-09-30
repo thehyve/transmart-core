@@ -7,6 +7,7 @@
 \i tm_lz/lt_src_deapp_annot.sql
 \i tm_lz/lt_src_mrna_data.sql
 \i tm_lz/lt_src_mrna_subj_samp_map.sql
+\i tm_lz/lt_src_rnaseq_data.sql
 \i tm_lz/lt_src_sample_categories.sql
 \i tm_lz/lt_src_study_metadata.sql
 \i tm_lz/lz_src_clinical_data.sql

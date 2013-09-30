@@ -16,5 +16,6 @@
 \i tm_wz/wt_subject_microarray_med.sql
 \i tm_wz/wt_subject_mrna_data.sql
 \i tm_wz/wt_subject_mrna_probeset.sql
+\i tm_wz/wt_subject_rnaseq_region.sql
 \i tm_wz/wt_trial_nodes.sql
 \i tm_wz/wt_xtrial_nodes.sql
