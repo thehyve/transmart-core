@@ -5,22 +5,21 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.repos.default = 'repo.thehyve.nl-snapshots'
 grails.project.repos."${grails.project.repos.default}".url = 'http://repo.thehyve.nl/content/repositories/snapshots/'
 
-grails.project.dependency.resolver = 'maven'
-
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
-    log "warn"
+    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
     repositories {
         grailsCentral()
+        mavenLocal()
         mavenCentral()
-
         mavenRepo([
                 name: 'repo.thehyve.nl-snapshots',
-                url: 'http://repo.thehyve.nl/content/repositories/snapshots/',
+                root: 'http://repo.thehyve.nl/content/repositories/snapshots/',
         ])
     }
     dependencies {
@@ -43,11 +42,10 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ':hibernate:3.6.10.1'
         compile(':db-reverse-engineer:0.5') { exported: false }
 
-        build(":tomcat:7.0.42",
-              ":release:3.0.1",
+        build(":tomcat:$grailsVersion",
+              ":release:2.2.1",
               ":rest-client-builder:1.0.3",
               ) {
             exported: false
@@ -55,4 +53,8 @@ grails.project.dependency.resolution = {
 
 		test ":code-coverage:1.2.6"
     }
+
+    // see http://jira.grails.org/browse/GPRELEASE-42
+    if (grailsVersion >= '2.1.3')
+        legacyResolve true
 }
