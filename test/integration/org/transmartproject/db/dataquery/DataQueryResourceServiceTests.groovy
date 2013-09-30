@@ -139,7 +139,7 @@ abstract class DataQueryResourceServiceTests {
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
                 markerTypeId: DeChromosomalRegion.MARKER_TYPE.id,
-                genomeBuild: 'genome build #2',
+                releaseNumber: 19,
         )
         anotherPlatform.id = 'test-another-platform'
         anotherPlatform.save(failOnError: true)

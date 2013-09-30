@@ -19,7 +19,7 @@ class DeGplInfoTests {
                 is(notNullValue()),
                 hasProperty('title', equalTo('Test Region Platform')),
                 hasProperty('organism', equalTo('Homo Sapiens')),
-                hasProperty('genomeBuild', equalTo('genome build #1')),
+                hasProperty('releaseNumber', equalTo(18)),
                 hasProperty('annotationDate', equalTo(
                         Date.parse('yyyy-MM-dd', '2013-05-03'))),
 
