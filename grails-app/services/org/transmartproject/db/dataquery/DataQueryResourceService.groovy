@@ -7,7 +7,6 @@ import org.hibernate.impl.AbstractSessionImpl
 import org.transmartproject.core.dataquery.DataQueryResource
 import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.acgh.RegionResult
-import org.transmartproject.core.dataquery.rnaseq.RegionRNASeqResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 
@@ -38,31 +37,6 @@ class DataQueryResourceService implements DataQueryResource {
         }
 
         getRegionResultForAssays(spec, assays, session)
-    }
-
-    @Override
-    RegionRNASeqResult runRNASEQRegionQuery(ACGHRegionQuery spec, session) {
-        if (!(session == null || session instanceof Session || session
-        instanceof StatelessSession)) {
-            throw new IllegalArgumentException('Expected session to be null ' +
-                    'or an instance of type org.hibernate.Session or ' +
-                    'org.hibernate.StatelessSession')
-        }
-
-        log.error("... DataQueryResourceService.runRNASEQRegionQuery: at start ...wl")
-
-        validateQuery(spec)
-
-        session = session ?: sessionFactory.currentSession
-        List<Assay> assays = getAssaysForACGHRegionQuery(spec, session)
-        if (log.isDebugEnabled()) {
-            log.debug("Found ${assays.size()} assays: " +
-                    assays.collect {
-                        "{id: $it.id, subjectId: $it.subjectId}"
-                    }.join(", "))
-        }
-
-        getRegionRNASeqResultForAssays(spec, assays, session)
     }
 
     @Override
@@ -129,8 +103,9 @@ class DataQueryResourceService implements DataQueryResource {
                 if(segment.start && segment.end) {
                     params["start$indx"] = segment.start
                     params["end$indx"] = segment.end
-                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
-                            " or (region.end >= :start$indx and region.end <= :end$indx)"
+                    subClauses << "(region.start between :start$indx and :end$indx" +
+                            " or region.end between :start$indx and :end$indx" +
+                            " or (region.start < :start$indx and region.end > :end$indx))"
                 }
                 regionsWhereClauses << "(${subClauses.join(' and ')})"
             }
@@ -148,42 +123,6 @@ class DataQueryResourceService implements DataQueryResource {
         def mainQuery = createQuery(session, mainHQL, params).scroll(FORWARD_ONLY)
 
         new RegionResultImpl(assays, mainQuery)
-    }
-
-    protected RegionRNASeqResult getRegionRNASeqResultForAssays(final ACGHRegionQuery spec, final List<Assay> assays, final AbstractSessionImpl session) {
-
-        def params = ['assayIds': assays.collect {Assay assay -> assay.id}]
-        def regionsWhereClauses = []
-
-        if (spec.segments) {
-            spec.segments.eachWithIndex {ChromosomalSegment segment, int indx ->
-                def subClauses = []
-                if(segment.chromosome) {
-                    params["chromosome$indx"] = segment.chromosome
-                    subClauses = ["region.chromosome like :chromosome$indx"]
-                }
-                if(segment.start && segment.end) {
-                    params["start$indx"] = segment.start
-                    params["end$indx"] = segment.end
-                    subClauses << "(region.start >= :start$indx and region.start <= :end$indx)" +
-                            " or (region.end >= :start$indx and region.end <= :end$indx)"
-                }
-                regionsWhereClauses << "(${subClauses.join(' and ')})"
-            }
-        }
-
-        def mainHQL = """
-            select rnaseq, rnaseq.region
-            from DeSubjectRnaseqData as rnaseq
-            inner join rnaseq.assay assay
-            inner join rnaseq.region region
-            where assay.id in (:assayIds) ${regionsWhereClauses ? 'and (' + regionsWhereClauses.join('\nor ') + ')' : ''}
-            order by rnaseq.region.id, assay
-         """
-
-        def mainQuery = createQuery(session, mainHQL, params).scroll(FORWARD_ONLY)
-
-        new RegionRNASeqResultImpl(assays, mainQuery)
     }
 
     private void validateQuery(ACGHRegionQuery q) {
