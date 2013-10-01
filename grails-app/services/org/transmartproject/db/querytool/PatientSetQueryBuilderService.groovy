@@ -87,17 +87,23 @@ class PatientSetQueryBuilderService {
                         (acc.empty
                             ? ""
                             : panel.invert
-                                    ? ' EXCEPT '
+                                    ? " $databasePortabilityService.complementOperator "
                                     : ' INTERSECT ') +
                         "($panel.select)"
             }
         }
 
+        //$patientSubQuery has result set with single column: 'patient_num'
+        def windowFunctionOrderBy = ''
+        if (databasePortabilityService.databaseType == ORACLE) {
+            //Oracle requires this, PostgreSQL supports it, and H2 rejects it
+            windowFunctionOrderBy = 'ORDER BY patient_num'
+        }
 
         def sql = "INSERT INTO qt_patient_set_collection (result_instance_id," +
                 " patient_num, set_index) " +
                 "SELECT ${resultInstance.id}, P.patient_num, " +
-                " row_number() OVER () " +
+                " row_number() OVER ($windowFunctionOrderBy) " +
                 "FROM ($patientSubQuery ORDER BY 1) P"
 
         log.debug "SQL statement: $sql"

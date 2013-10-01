@@ -31,14 +31,28 @@ class DatabasePortabilityService {
     }
 
     private runCorrectImplementation(Closure postgresImpl, Closure oracleImpl) {
-        switch (databaseType) {
+        switch (getDatabaseType()) {
             case DatabaseType.POSTGRESQL:
                 return postgresImpl()
             case DatabaseType.ORACLE:
                 return oracleImpl()
             default:
-                throw new IllegalStateException("Should not reach this point")
+                throw new IllegalStateException("Should not reach this point. " +
+                        "Value of databaseType is $databaseType")
         }
+    }
+
+    /**
+     * The operator that computes the relative complement of two sets, like
+     * MINUS in Oracle and EXCEPT in PostgreSQL.
+     *
+     * @return the relative complement operator
+     */
+    String getComplementOperator() {
+        runCorrectImplementation(
+                { 'EXCEPT' },
+                { 'MINUS' }
+        )
     }
 
     String createTopNQuery(String s) {
@@ -120,6 +134,18 @@ class DatabasePortabilityService {
         runCorrectImplementation(
                 { [end - start + 1, start - 1] },
                 { [end, start] } /* do not convert for Oracle */
+        )
+    }
+
+    /**
+     * The SQL fragment for obtaining the next value in a sequence.
+     *
+     * @return sql fragment
+     */
+    String getNextSequenceValueSql(String schema, String sequenceName) {
+        runCorrectImplementation(
+                { "SELECT nextval('$schema.$sequenceName)" },
+                { "SELECT $schema.$sequenceName.nextval FROM DUAL" }
         )
     }
 
