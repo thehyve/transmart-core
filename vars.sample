@@ -5,6 +5,8 @@
 # This will create a vars-ubuntu file in this directory which you can use
 # instead of editing this sample.
 
+# {{{ PostgreSQL
+#
 # These database settings are probably fine if you built postgres from source
 # and you running it under your user. If you installed it from a package
 # manager, like apt-get/dpkg in debian/ubuntu, this won't work.
@@ -28,6 +30,15 @@ TABLESPACES=$HOME/pg/tablespaces/
 # If using a package manager, probably /usr/bin/
 # end with /
 PGSQL_BIN=$HOME/pg/bin/
+# }}}
+
+# {{{ Oracle
+ORAHOST=localhost
+ORAPORT=1521
+ORASID=orcl
+ORAUSER="sys as sysdba"
+ORAPASSWORD=mypassword
+# }}}
 
 # Only needed for ETL
 # End with /
@@ -39,4 +50,4 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 TSUSER_HOME=$HOME/
 
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
-	KETTLE_JOBS KITCHEN TSUSER_HOME
+	KETTLE_JOBS KITCHEN TSUSER_HOME ORAHOST ORAPORT ORASID ORAUSER ORAPASSWORD
