@@ -1,9 +1,16 @@
 include ../makefile.inc
 
 SOLR_DL=http://psg.mtu.edu/pub/apache/lucene/solr
-JDBC_DL=http://jdbc.postgresql.org/download
 SOLR_VERSION=4.4.0
-JDBC_DRIVER=postgresql-9.2-1003.jdbc4.jar
+ifdef ORACLE
+  JDBC_DRIVER=ojdbc6-12.1.0.1.0.jar
+  JDBC_DL=http://files.thehyve.net
+  DBSUBDIR=oracle
+else
+  JDBC_DRIVER=postgresql-9.2-1003.jdbc4.jar
+  JDBC_DL=http://jdbc.postgresql.org/download
+  DBSUBDIR=postgres
+endif
 
 solr-$(SOLR_VERSION).tgz:
 	curl -f '$(SOLR_DL)/$(SOLR_VERSION)/solr-$(SOLR_VERSION).tgz' -o $@
@@ -35,10 +42,17 @@ solr/collection1:
 	rm $@/core.properties #so solr doesn't see the dir as core
 
 CORE_TARGETS=solr/<core_name> solr/<core_name>/conf/schema.xml solr/<core_name>/conf/data-config.xml
-RWG_CORE_TARGETS=$(subst <core_name>,rwg,$(CORE_TARGETS))
-SAMPLE_CORE_TARGETS=$(subst <core_name>,sample,$(CORE_TARGETS))
+FOUND_CORES=$(patsubst data-config/$(DBSUBDIR)/data-config_%.xml.php,\
+            %,\
+            $(wildcard data-config/$(DBSUBDIR)/data-config_*.xml.php))
+FOUND_CORE_TARGETS=$(foreach corename,$(FOUND_CORES),\
+        $(subst <core_name>,$(corename),$(CORE_TARGETS)))
+#$(info targets: $(FOUND_CORE_TARGETS))
+FOUND_CORE_DIRS=$(foreach corename,$(FOUND_CORES),solr/$(corename))
+FULL_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_full_import)
+DELTA_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_delta_import)
 
-solr/rwg solr/sample: solr/collection1 dataimport.patch
+$(FOUND_CORE_DIRS): solr/collection1 dataimport.patch
 	rsync -a $</* $@
 	echo "name=$(notdir $@)" > $@/core.properties
 	rm $@/conf/schema.xml
@@ -48,20 +62,23 @@ solr/%/conf/schema.xml: solr/% schemas/schema_%.xml
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	cp schemas/schema_$*.xml $@
 
-solr/%/conf/data-config.xml: data-config/postgres/data-config_%.xml.php
+solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
-start: $(EXAMPLE_FILES) $(DRIVER) $(RWG_CORE_TARGETS) $(SAMPLE_CORE_TARGETS) $(ROOT_FILES)
+start: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(ROOT_FILES)
 	java -jar start.jar
 
-rwg_full_import sample_full_import:
+$(FULL_IMPORT_TARGETS):
 	curl -f "http://localhost:8983/solr/$(patsubst %_full_import,%,$@)/dataimport?command=full-import"
 
-rwg_delta_import sample_delta_import:
+$(DELTA_IMPORT_TARGETS):
 	curl -f "http://localhost:8983/solr/$(patsubst %_delta_import,%,$@)/dataimport?command=delta-import"
 
 clean:
 	rm -rf $(EXAMPLE_FILES) $(ROOT_FILES) solr solr-$(SOLR_VERSION).tgz
+
+clean_cores:
+	find solr -maxdepth 1 -mindepth 1 -type d ! -name bin ! -name collection1 -exec rm -r {} \;
 
 .PHONY: start clean
