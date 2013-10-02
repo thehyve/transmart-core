@@ -1,0 +1,23 @@
+<?php
+// See Config-extra.php.sample for more information about this file
+
+$insertionPoints = [
+    'I001' => /* post-WAR-variables */ <<<EOD
+EOD
+,
+    'I002' => /* end */ <<<EOD
+grails { plugins { springsecurity {
+    userLookup.userDomainClassName = 'auth.AuthUser'
+    userLookup.authorityJoinClassName = 'auth.AuthUser'
+    authority.className = 'auth.Role'
+    requestMap.className = 'auth.Requestmap'
+} } }
+
+// You MUST leave this at the end
+// Do not move it up, otherwise syntax errors may not be detected
+
+org.transmart.configFine = true
+EOD
+];
+
+// vim: filetype=php et ts=4 sw=4 ai tw=80:
