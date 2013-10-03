@@ -68,8 +68,8 @@ var genomeBrowserPanel = new Ext.Panel(
         createGenomeBrowser: function () {
             this.genomeBrowser = new Browser({
                 chr: '22',
-                viewStart: 30096000,
-                viewEnd: 30276000,
+                viewStart: 30188400,
+                viewEnd: 30189550,
                 cookieKey: 'human2',
 
                 chains: {
@@ -120,41 +120,61 @@ var genomeBrowserPanel = new Ext.Panel(
                         twoBitURI: 'http://www.biodalliance.org/datasets/hg18.2bit',
                         // uri:                  'http://www.derkholm.net:8080/das/hsa_54_36p/',
                         tier_type: 'sequence'},
-                    {name: 'e! transcripts',
-                        uri: 'http://beta.rest.ensembl.org',
-                        tier_type: 'ensembl',
-                        species: 'human',
-                        type: ['transcript', 'exon', 'cds'],
-                        mapping: 'hg19ToHg18'
-                    },
-                    {name: 'Genes',
-                        desc: 'Gene structures from Ensembl 54',
-                        uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
-                        collapseSuperGroups: true,
-                        provides_karyotype: true,
-                        provides_search: true,
-                        provides_entrypoints: true,
-                        maxbins: false,
-                        featureInfoPlugin: function (f, info) {
-                            info.add('Testing', 'This is another test!');
-                        }
-                    },
-                    {name: 'Repeats',
-                        uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
-                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/repeats-L1.xml'},
-                    {name: 'CpG Density',
-                        uri: 'http://www.derkholm.net:8080/das/hg18comp/',
-                        // stylesheet_uri:       'http://www.biodalliance.org/stylesheets/cpg-hist.xml',
-                        quantLeapThreshold: 0.8,
-                        forceReduction: -1,
-                        style: [
-                            {type: 'cpgoe',
-                                style: {glyph: 'LINEPLOT',
-                                    FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}
-                        ]},
-                    {name: 'MeDIP-raw',
-                        desc: 'MeDIP-seq reads from Nature Biotech. 26:779-785',
-                        uri: 'http://www.derkholm.net:8080/das/medipseq_reads/'},
+//                    {name: 'e! transcripts',
+//                        uri: 'http://beta.rest.ensembl.org',
+//                        tier_type: 'ensembl',
+//                        species: 'human',
+//                        type: ['transcript', 'exon', 'cds'],
+//                        mapping: 'hg19ToHg18'
+//                    },
+//                    {name: 'Genes',
+//                        desc: 'Gene structures from Ensembl 54',
+//                        uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
+//                        collapseSuperGroups: true,
+//                        provides_karyotype: true,
+//                        provides_search: true,
+//                        provides_entrypoints: true,
+//                        maxbins: false,
+//                        featureInfoPlugin: function (f, info) {
+//                            info.add('Testing', 'This is another test!');
+//                        }
+//                    },
+//                    {name: 'Repeats',
+//                        uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
+//                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/repeats-L1.xml'},
+
+                    /** GWAS Related DAS Source **/
+
+                    {name: 'MAF Cohort',
+                        uri: 'http://gwas-test.thehyve.net/transmart/das/vcf-41/',
+                        desc: 'Minor Alele Frequency in Cohort level',
+                        stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/vcf/stylesheet'},
+                    {name: 'MAF Summary',
+                        uri: 'http://gwas-test.thehyve.net/transmart/das/smaf/',
+                        desc: 'Minor Alele Frequency in Summary level',
+                        stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/smaf/stylesheet'},
+                    {name: 'Quality of Depth',
+                        uri: 'http://gwas-test.thehyve.net/transmart/das/qd/',
+                        desc: 'Quality of Depth',
+                        stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/qd/stylesheet'},
+                    {name: 'OV Genomic Variants',
+                        uri: 'http://gwas-test.thehyve.net/transmart/das/gv/',
+                        desc: 'Genomic Variants',
+                        stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/gv/stylesheet'},
+
+//                    {name: 'CpG Density',
+//                        uri: 'http://www.derkholm.net:8080/das/hg18comp/',
+//                        // stylesheet_uri:       'http://www.biodalliance.org/stylesheets/cpg-hist.xml',
+//                        quantLeapThreshold: 0.8,
+//                        forceReduction: -1,
+//                        style: [
+//                            {type: 'cpgoe',
+//                                style: {glyph: 'LINEPLOT',
+//                                    FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}
+//                        ]},
+//                    {name: 'MeDIP-raw',
+//                        desc: 'MeDIP-seq reads from Nature Biotech. 26:779-785',
+//                        uri: 'http://www.derkholm.net:8080/das/medipseq_reads/'},
                     {name: 'BWG test',
                         bwgURI: 'http://www.biodalliance.org/datasets/spermMethylation.bw',
                         stylesheet_uri: 'http://www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
