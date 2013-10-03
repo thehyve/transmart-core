@@ -52,11 +52,11 @@ FOUND_CORE_DIRS=$(foreach corename,$(FOUND_CORES),solr/$(corename))
 FULL_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_full_import)
 DELTA_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_delta_import)
 
-$(FOUND_CORE_DIRS): solr/collection1 dataimport.patch
+$(FOUND_CORE_DIRS): solr/collection1 solrconfig.patch
 	rsync -a $</* $@
 	echo "name=$(notdir $@)" > $@/core.properties
 	rm $@/conf/schema.xml
-	cd $@/conf && patch -p0 < $(realpath dataimport.patch)
+	cd $@/conf && patch -p0 < $(realpath solrconfig.patch)
 
 solr/%/conf/schema.xml: solr/% schemas/schema_%.xml
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
