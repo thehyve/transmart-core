@@ -55,6 +55,8 @@ var genomeBrowserPanel = new Ext.Panel(
             // get selected concept from the dropped node
             var concept = convertNodeToConcept(data.node);
 
+            //console.log('data', data);
+
             var result_instance_id_1 = GLOBAL.CurrentSubsetIDs[1];
             var result_instance_id_2 = GLOBAL.CurrentSubsetIDs[2];
 
@@ -150,7 +152,7 @@ var genomeBrowserPanel = new Ext.Panel(
                         desc: 'Minor Alele Frequency in Cohort level',
                         stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/vcf/stylesheet'},
                     {name: 'MAF Summary',
-                        uri: 'http://gwas-test.thehyve.net/transmart/das/smaf/',
+                        uri: 'http://localhost:8090/transmart/das/smaf-'+GLOBAL.CurrentSubsetIDs[1]+'/',
                         desc: 'Minor Alele Frequency in Summary level',
                         stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/smaf/stylesheet'},
                     {name: 'Quality of Depth',
@@ -161,6 +163,26 @@ var genomeBrowserPanel = new Ext.Panel(
                         uri: 'http://gwas-test.thehyve.net/transmart/das/gv/',
                         desc: 'Genomic Variants',
                         stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/gv/stylesheet'},
+
+                    /** GWAS Related DAS Source
+
+                    {name: 'MAF Cohort',
+                        uri: 'http://localhost:8090/transmart/das/vcf-41/',
+                        desc: 'Minor Alele Frequency in Cohort level',
+                        stylesheet_uri: 'http://localhost:8090/transmart/das/vcf/stylesheet'},
+                    {name: 'MAF Summary',
+                        uri: 'http://localhost:8090/transmart/das/smaf-'+GLOBAL.CurrentSubsetIDs[1]+'/',
+                        desc: 'Minor Alele Frequency in Summary level',
+                        stylesheet_uri: 'http://localhost:8090/transmart/das/smaf/stylesheet'},
+                    {name: 'Quality of Depth',
+                        uri: 'http://localhost:8090/transmart/das/qd/',
+                        desc: 'Quality of Depth',
+                        stylesheet_uri: 'http://localhost:8090/transmart/das/qd/stylesheet'},
+                    {name: 'OV Genomic Variants',
+                        uri: 'http://localhost:8090/transmart/das/gv/',
+                        desc: 'Genomic Variants',
+                        stylesheet_uri: 'http://localhost:8090/transmart/das/gv/stylesheet'},
+                     **/
 
 //                    {name: 'CpG Density',
 //                        uri: 'http://www.derkholm.net:8080/das/hg18comp/',
