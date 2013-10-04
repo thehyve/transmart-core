@@ -152,7 +152,7 @@ var genomeBrowserPanel = new Ext.Panel(
                         desc: 'Minor Alele Frequency in Cohort level',
                         stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/vcf/stylesheet'},
                     {name: 'MAF Summary',
-                        uri: 'http://localhost:8090/transmart/das/smaf-'+GLOBAL.CurrentSubsetIDs[1]+'/',
+                        uri: 'http://gwas-test.thehyve.net/transmart/das/smaf-'+GLOBAL.CurrentSubsetIDs[1]+'/',
                         desc: 'Minor Alele Frequency in Summary level',
                         stylesheet_uri: 'http://gwas-test.thehyve.net/transmart/das/smaf/stylesheet'},
                     {name: 'Quality of Depth',
