@@ -5,8 +5,21 @@
  * @returns {string}
  */
 function convertConceptKeyToDASSource (concept_key) {
+    // TODO to check DAS server and then return the uri
+    return ["acgh", "smaf"];
+}
 
-    return "acgh";
+/**
+ *
+ */
+function retrieveTransmartDASSources (track_label, result_instance_id) {
+    // TODO parse the local das features
+    var arrNds = new Array();
+
+    arrNds[0] = new DASSource({name: 'acgh-'+track_label, uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
+    arrNds[1] = new DASSource({name: 'smaf-'+track_label, uri: pageInfo.basePath + "/das/smaf/"});
+
+    return arrNds;
 }
 
 /**
@@ -19,6 +32,8 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
     var thisB = this;
     var track_label, das_source;
     var res_inst_id_1, res_inst_id_2;
+
+    console.log('concept', concept);
 
     track_label = concept.name;
     das_source =  convertConceptKeyToDASSource(concept.key);
@@ -40,15 +55,16 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
         res_inst_id_1 = GLOBAL.CurrentSubsetIDs[1];
         res_inst_id_2 = GLOBAL.CurrentSubsetIDs[2];
 
-        var transmart_curi = pageInfo.basePath + "/das/" +  das_source + "-" + res_inst_id_1 + "/";
+//        var transmart_curi = pageInfo.basePath + "/das/" +  das_source + "-" + res_inst_id_1 + "/";
+//
+//        // define DAS Source
+//        var nds = new DASSource({name: track_label, uri: transmart_curi});
 
-        // define DAS Source
-        var nds = new DASSource({name: track_label, uri: transmart_curi});
         var knownSpace = thisB.knownSpace;
 
         // validate space
         if (!knownSpace) {
-            alert("Can't confirm track-addition to an uninit browser.");
+            alert("Can't confirm track-addition to an unit browser.");
             return;
         }
 
@@ -56,18 +72,29 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
         var testSegment = new DASSegment(knownSpace.chr, tsm, Math.min(tsm + 99, knownSpace.max));
 
         // define features
-        nds.features(testSegment, {}, function(features) {
+        var arrNds = retrieveTransmartDASSources(track_label, res_inst_id_1);
 
-            var nameExtractPattern = new RegExp('/([^/]+)/?$');
-            var match = nameExtractPattern.exec(nds.uri);
-            if (match) {
-                nds.name = match[1];
-            }
 
-            tryAddDASxSources(nds);
 
-            return;
-        });
+        for (var i = 0; i < arrNds.length; ++i) {
+
+            var nds = arrNds[i];
+
+            nds.features(testSegment, {}, function(features) {
+
+                var nameExtractPattern = new RegExp('/([^/]+)/?$');
+                var match = nameExtractPattern.exec(nds.uri);
+                if (match) {
+                    nds.name = match[1];
+                }
+
+                tryAddDASxSources(nds);
+
+                return;
+            });
+
+        }
+
 
         /**
          * Add DAS x Sources
