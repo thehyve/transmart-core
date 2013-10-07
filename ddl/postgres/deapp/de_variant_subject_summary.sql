@@ -21,7 +21,9 @@ CREATE TABLE de_variant_subject_summary (
     variant character varying(1000),
     variant_format character varying(100),
     variant_type character varying(100),
-    reference boolean
+    reference boolean,
+    allele1 integer,
+    allele2 integer
 );
 
 --
