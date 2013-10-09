@@ -13,10 +13,19 @@ function BlobFetchable(b) {
 
 BlobFetchable.prototype.slice = function(start, length) {
     var b;
-    if (length) {
-        b = this.blob.slice(start, start + length);
+
+    if (this.blob.slice) {
+        if (length) {
+            b = this.blob.slice(start, start + length);
+        } else {
+            b = this.blob.slice(start);
+        }
     } else {
-        b = this.blob.slice(start);
+        if (length) {
+            b = this.blob.webkitSlice(start, start + length);
+        } else {
+            b = this.blob.webkitSlice(start);
+        }
     }
     return new BlobFetchable(b);
 }
@@ -83,7 +92,7 @@ URLFetchable.prototype.fetch = function(callback, attempt, truncatedLength) {
     req.open('GET', url, true);
     req.overrideMimeType('text/plain; charset=x-user-defined');
     if (this.end) {
-        // dlog('req bytes=' + this.start + '-' + this.end);
+        // console.log('req bytes=' + this.start + '-' + this.end);
         req.setRequestHeader('Range', 'bytes=' + this.start + '-' + this.end);
         length = this.end - this.start + 1;
     }

@@ -16,11 +16,15 @@ function isDasBooleanTrue(s) {
 function SubTier() {
     this.glyphs = [];
     this.height = 0;
+    this.quant = null;
 }
 
 SubTier.prototype.add = function(glyph) {
     this.glyphs.push(glyph);
     this.height = Math.max(this.height, glyph.height());
+    if (glyph.quant && this.quant == null) {
+	this.quant = glyph.quant;
+    }
 }
 
 SubTier.prototype.hasSpaceFor = function(glyph) {
@@ -58,7 +62,8 @@ function drawFeatureTier(tier)
                     continue;
                 }
                 var g = glyphForFeature(f, 0, tier.styleForFeature(f), tier);
-                glyphs.push(g);
+		if (g)
+                    glyphs.push(g);
             }
         }
     }
@@ -225,6 +230,13 @@ function drawFeatureTier(tier)
         bumpedSTs = [unbumpedST].concat(bumpedSTs);
     }
 
+    for (var sti = 0; sti < bumpedSTs.length; ++sti) {
+	var st = bumpedSTs[sti];
+	if (st.quant) {
+	    st.glyphs.unshift(new GridGlyph(st.height));
+	}
+    }
+
     tier.subtiers = bumpedSTs;
     tier.glyphCacheOrigin = tier.browser.viewStart;
 }
@@ -260,14 +272,17 @@ DasTier.prototype.paint = function() {
     for (var s = 0; s < subtiers.length; ++s) {
 	lh = lh + subtiers[s].height + MIN_PADDING;
     }
-    this.viewport.setAttribute('height', Math.max(lh, 50));
+    lh += 6
+    this.viewport.setAttribute('height', lh);
     this.viewport.style.left = '-1000px';
-    this.holder.style.height = '' + Math.max(lh,35) + 'px';
+    this.holder.style.height = '' + Math.max(lh, 35) + 'px';
+    this.updateHeight();
+    this.drawOverlay();
     this.norigin = this.browser.viewStart;
 
     var gc = this.viewport.getContext('2d');
     gc.fillStyle = this.background;
-    gc.fillRect(0, 0, fpw, Math.max(lh, 200));
+    gc.clearRect(0, 0, fpw, Math.max(lh, 200));
     gc.restore();
 
     gc.save();
@@ -291,31 +306,72 @@ DasTier.prototype.paint = function() {
     }
     gc.restore();
 
-    if (quant && this.quantOverlay) {
-	this.quantOverlay.style.display = 'block';
+    if (quant && this.quantLeapThreshold && this.featureSource && sourceAdapterIsCapable(this.featureSource, 'quantLeap')) {
+	var ry = 3 + subtiers[0].height * (1.0 - ((this.quantLeapThreshold - quant.min) / (quant.max - quant.min)));
 
-	var h = this.viewport.height;
+	gc.save();
+	gc.strokeStyle = 'red';
+	gc.lineWidth = 0.3;
+	gc.moveTo(0, ry);
+	gc.lineTo(5000, ry);
+	gc.stroke();
+	gc.restore();
+    }
+
+    this.paintQuant();
+}
+
+DasTier.prototype.paintQuant = function() {
+    var quant;
+    if (this.subtiers && this.subtiers.length > 0)
+	quant = this.subtiers[0].quant;
+
+    if (quant && this.quantOverlay) {
+	var h = this.subtiers[0].height;
+	var w = this.quantOverlay.width;
 	this.quantOverlay.height = this.viewport.height;
 	var ctx = this.quantOverlay.getContext('2d');
 
         ctx.fillStyle = 'white'
         ctx.globalAlpha = 0.6;
-        ctx.fillRect(0, 0, 30, 20);
-        ctx.fillRect(0, h-20, 30, 20);
+
+	if (this.browser.rulerLocation == 'right') {
+	    ctx.fillRect(w-30, 0, 30, 20);
+            ctx.fillRect(w-30, h-20 + MIN_PADDING*2, 30, 20);
+	} else {
+            ctx.fillRect(0, 0, 30, 20);
+            ctx.fillRect(0, h - 20 + MIN_PADDING*2, 30, 20);
+	}
         ctx.globalAlpha = 1.0;
 
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(8, 3);
-        ctx.lineTo(0,3);
-        ctx.lineTo(0,h-3);
-        ctx.lineTo(8,h-3);
+
+	if (this.browser.rulerLocation == 'right') {
+	    ctx.moveTo(w - 8, MIN_PADDING);
+            ctx.lineTo(w, MIN_PADDING);
+            ctx.lineTo(w, h + MIN_PADDING);
+            ctx.lineTo(w - 8, h + MIN_PADDING);
+	} else {
+            ctx.moveTo(8, MIN_PADDING);
+            ctx.lineTo(0, MIN_PADDING);
+            ctx.lineTo(0, h+MIN_PADDING);
+            ctx.lineTo(8, h+MIN_PADDING);
+	}
         ctx.stroke();
 
         ctx.fillStyle = 'black';
-        ctx.fillText(formatQuantLabel(quant.max), 8, 8);
-        ctx.fillText(formatQuantLabel(quant.min), 8, h-5);
+
+	if (this.browser.rulerLocation == 'right') {
+	    ctx.textAlign = 'right';
+	    ctx.fillText(formatQuantLabel(quant.max), w-8, 10);
+            ctx.fillText(formatQuantLabel(quant.min), w-8, h + MIN_PADDING - 2);
+	} else {
+	    ctx.textAlign = 'left';
+            ctx.fillText(formatQuantLabel(quant.max), 8, 10);
+            ctx.fillText(formatQuantLabel(quant.min), 8, h + MIN_PADDING - 2);
+	}
     }
 }
 
@@ -347,6 +403,9 @@ function glyphsForGroup(features, y, groupElement, tier, connectorType) {
 	    glyphs.push(g);
 	}
     }
+
+    if (glyphs.length == 0)
+	return null;
     
     var connector = 'flat';
     if (tier.dasSource.collapseSuperGroups && !tier.bumped) {
@@ -523,8 +582,25 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
 	var smin = tier.dasSource.forceMin || style.MIN || tier.currentFeaturesMinScore || 0;
 	var smax = tier.dasSource.forceMax || style.MAX || tier.currentFeaturesMaxScore || 10;
 	var yscale = ((1.0 * height) / (smax - smin));
+	var relScore = ((1.0 * score) - smin) / (smax-smin);
 	var sc = ((score - (1.0*smin)) * yscale)|0;
-	gg = new PointGlyph((minPos + maxPos)/2, height-sc, height);
+	quant = {min: smin, max: smax};
+
+	var fill = feature.override_color || style.FGCOLOR || style.COLOR1 || 'black';
+	if (style.COLOR2) {
+	    var grad = style._gradient;
+	    if (!grad) {
+		grad = makeGradient(50, style.COLOR1, style.COLOR2, style.COLOR3);
+		style._gradient = grad;
+	    }
+
+	    var step = (relScore*grad.length)|0;
+	    if (step < 0) step = 0;
+	    if (step >= grad.length) step = grad.length - 1;
+	    fill = grad[step];
+        } 
+
+	gg = new PointGlyph((minPos + maxPos)/2, height-sc, height, fill);
     } else if (gtype === '__SEQUENCE') {
 	var refSeq = null;
 	if (tier.currentSequence) {
@@ -535,6 +611,8 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
 	    }
 	}
 	gg = new SequenceGlyph(minPos, maxPos, height, feature.seq, refSeq);
+    } else if (gtype === '__NONE') {
+	return null;
     } else /* default to BOX */ {
 	var stroke = style.FGCOLOR || null;
 	var fill = feature.override_color || style.BGCOLOR || style.COLOR1 || 'green';
@@ -584,7 +662,7 @@ DasTier.prototype.styleForFeature = function(f) {
         }
 
 	var labelRE = sh._labelRE;
-	if (!labelRE) {
+	if (!labelRE || !labelRE.test) {
 	    labelRE = new RegExp('^' + sh.label + '$');
 	    sh._labelRE = labelRE;
 	}
@@ -592,7 +670,7 @@ DasTier.prototype.styleForFeature = function(f) {
             continue;
         }
 	var methodRE = sh._methodRE;
-	if (!methodRE) {
+	if (!methodRE || !methodRE.test) {
 	    methodRE = new RegExp('^' + sh.method + '$');
 	    sh._methodRE = methodRE;
 	}

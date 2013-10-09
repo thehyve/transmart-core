@@ -15,6 +15,7 @@ Browser.prototype.nukeStatus = function() {
     delete localStorage['dalliance.' + this.cookieKey + '.version'];
 
     delete localStorage['dalliance.' + this.cookieKey + '.reverse-scrolling'];
+    delete localStorage['dalliance.' + this.cookieKey + '.ruler-location'];
 }
 
 Browser.prototype.storeStatus = function() {
@@ -38,6 +39,7 @@ Browser.prototype.storeStatus = function() {
     }
     localStorage['dalliance.' + this.cookieKey + '.sources'] = JSON.stringify(currentSourceList);
     localStorage['dalliance.' + this.cookieKey + '.reverse-scrolling'] = this.reverseScrolling;
+    localStorage['dalliance.' + this.cookieKey + '.ruler-location'] = this.rulerLocation;
     
     localStorage['dalliance.' + this.cookieKey + '.version'] = VERSION.CONFIG;
 }
@@ -63,6 +65,12 @@ Browser.prototype.restoreStatus = function() {
         return;
     }
 
+    var defaultSourcesByConfigHash = {};
+    for (var si = 0; si < this.sources.length; ++si) {
+        var source = this.sources[si];
+        defaultSourcesByConfigHash[hex_sha1(miniJSONify(source))] = source;
+    }
+
     var qChr = localStorage['dalliance.' + this.cookieKey + '.view-chr'];
     var qMin = localStorage['dalliance.' + this.cookieKey + '.view-start']|0;
     var qMax = localStorage['dalliance.' + this.cookieKey + '.view-end']|0;
@@ -79,8 +87,23 @@ Browser.prototype.restoreStatus = function() {
     var rs = localStorage['dalliance.' + this.cookieKey + '.reverse-scrolling'];
     this.reverseScrolling = (rs && rs == 'true');
 
+    var rl = localStorage['dalliance.' + this.cookieKey + '.ruler-location'];
+    if (rl)
+        this.rulerLocation = rl;
+
     var sourceStr = localStorage['dalliance.' + this.cookieKey + '.sources'];
     if (sourceStr) {
 	this.sources = JSON.parse(sourceStr);
+        for (var si = 0; si < this.sources.length; ++si) {
+            var source = this.sources[si];
+            var hash = hex_sha1(miniJSONify(source, {props: true, coords: true}));
+            var oldSource = defaultSourcesByConfigHash[hash];
+            if (oldSource) {
+                if (oldSource.featureInfoPlugin) {
+                    // console.log('revivifying ' + hash);
+                    source.featureInfoPlugin = oldSource.featureInfoPlugin;
+                }
+            }
+        }
     }
 }

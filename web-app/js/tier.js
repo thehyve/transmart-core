@@ -11,8 +11,6 @@ var __tier_idSeed = 0;
 
 function DasTier(browser, source, viewport, holder, overlay, placard, placardContent)
 {
-    var thisTier = this;
-
     this.id = 'tier' + (++__tier_idSeed);
     this.browser = browser;
     this.dasSource = new DASSource(source);
@@ -24,185 +22,30 @@ function DasTier(browser, source, viewport, holder, overlay, placard, placardCon
     this.req = null;
     this.layoutHeight = 25;
     this.bumped = true; 
+    if (source.quantLeapThreshold) {
+        this.quantLeapThreshold = source.quantLeapThreshold;
+    }
     if (this.dasSource.collapseSuperGroups) {
         this.bumped = false;
     }
     this.y = 0;
     this.layoutWasDone = false;
 
-    var fs, ss;
-    if (this.dasSource.bwgURI || this.dasSource.bwgBlob) {
-        fs = new BWGFeatureSource(this.dasSource, {
-            credentials: this.dasSource.credentials,
-            preflight: this.dasSource.preflight,
-            clientBin: this.dasSource.clientBin,
-            forceReduction: this.dasSource.forceReduction,
-            link: this.dasSource.link
-        });
-        this.sourceFindNextFeature = function(chr, pos, dir, callback) {
-            fs.bwgHolder.res.getUnzoomedView().getFirstAdjacent(chr, pos, dir, function(res) {
-                    // dlog('got a result');
-                    if (res.length > 0 && res[0] != null) {
-                        callback(res[0]);
-                    }
-                });
-        };
-
-        if (!this.dasSource.uri && !this.dasSource.stylesheet_uri) {
-            fs.bwgHolder.await(function(bwg) {
-                if (!bwg) {
-                    // Dummy version so that an error placard gets shown.
-                    thisTier.stylesheet = new DASStylesheet();
-                    return  thisTier.browser.refreshTier(thisTier);
-                }
-
-                if (thisTier.dasSource.collapseSuperGroups === undefined) {
-                    if (bwg.definedFieldCount == 12 && bwg.fieldCount >= 14) {
-                        thisTier.dasSource.collapseSuperGroups = true;
-                        thisTier.bumped = false;
-                    }
-                }
-
-                if (bwg.type == 'bigbed') {
-                    thisTier.stylesheet = new DASStylesheet();
-                    
-                    var wigStyle = new DASStyle();
-                    wigStyle.glyph = 'BOX';
-                    wigStyle.FGCOLOR = 'black';
-                    wigStyle.BGCOLOR = 'blue'
-                    wigStyle.HEIGHT = 8;
-                    wigStyle.BUMP = true;
-                    wigStyle.LABEL = true;
-                    wigStyle.ZINDEX = 20;
-                    thisTier.stylesheet.pushStyle({type: 'bigwig'}, null, wigStyle);
-
-                    wigStyle.glyph = 'BOX';
-                    wigStyle.FGCOLOR = 'black';
-                    wigStyle.BGCOLOR = 'red'
-                    wigStyle.HEIGHT = 10;
-                    wigStyle.BUMP = true;
-                    wigStyle.ZINDEX = 20;
-                    thisTier.stylesheet.pushStyle({type: 'bb-translation'}, null, wigStyle);
-                    
-                    var tsStyle = new DASStyle();
-                    tsStyle.glyph = 'BOX';
-                    tsStyle.FGCOLOR = 'black';
-                    tsStyle.BGCOLOR = 'white';
-                    tsStyle.HEIGHT = 10;
-                    tsStyle.ZINDEX = 10;
-                    tsStyle.BUMP = true;
-                    tsStyle.LABEL = true;
-                    thisTier.stylesheet.pushStyle({type: 'bb-transcript'}, null, tsStyle);
-
-                    var densStyle = new DASStyle();
-                    densStyle.glyph = 'HISTOGRAM';
-                    densStyle.COLOR1 = 'white';
-                    densStyle.COLOR2 = 'black';
-                    densStyle.HEIGHT=30;
-                    thisTier.stylesheet.pushStyle({type: 'density'}, null, densStyle);
-                } else {
-                    thisTier.stylesheet = new DASStylesheet();
-                    var wigStyle = new DASStyle();
-                    wigStyle.glyph = 'HISTOGRAM';
-                    wigStyle.COLOR1 = 'white';
-                    wigStyle.COLOR2 = 'black';
-                    wigStyle.HEIGHT=30;
-                    thisTier.stylesheet.pushStyle({type: 'default'}, null, wigStyle);
-                }
-                thisTier.browser.refreshTier(thisTier);
-            });
-        }
-    } else if (this.dasSource.bamURI || this.dasSource.bamBlob) {
-        fs = new BAMFeatureSource(this.dasSource, {
-            credentials: this.dasSource.credentials,
-            preflight: this.dasSource.preflight
-        });
-
-        if (!this.dasSource.uri && !this.dasSource.stylesheet_uri) {
-            fs.bamHolder.await(function(bam) {
-                thisTier.stylesheet = new DASStylesheet();
-                
-                var densStyle = new DASStyle();
-                densStyle.glyph = 'HISTOGRAM';
-                densStyle.COLOR1 = 'black';
-                densStyle.COLOR2 = 'red';
-                densStyle.HEIGHT=30;
-                thisTier.stylesheet.pushStyle({type: 'density'}, 'low', densStyle);
-                thisTier.stylesheet.pushStyle({type: 'density'}, 'medium', densStyle);
-
-                var wigStyle = new DASStyle();
-                wigStyle.glyph = '__SEQUENCE';
-                wigStyle.FGCOLOR = 'black';
-                wigStyle.BGCOLOR = 'blue'
-                wigStyle.HEIGHT = 8;
-                wigStyle.BUMP = true;
-                wigStyle.LABEL = false;
-                wigStyle.ZINDEX = 20;
-                thisTier.stylesheet.pushStyle({type: 'bam'}, 'high', wigStyle);
-//                thisTier.stylesheet.pushStyle({type: 'bam'}, 'medium', wigStyle);
-
-                thisTier.browser.refreshTier(thisTier);
-            });
-        }
-    } else if (this.dasSource.bamblrURI) {
-        fs = new BamblrFeatureSource(this.dasSource.bamblrURI);
-
-        if (!this.dasSource.uri && !this.dasSource.stylesheet_uri) {
-            thisTier.stylesheet = new DASStylesheet();
-            
-            var densStyle = new DASStyle();
-            densStyle.glyph = 'HISTOGRAM';
-            densStyle.COLOR1 = 'black';
-            densStyle.COLOR2 = 'red';
-            densStyle.HEIGHT=30;
-            thisTier.stylesheet.pushStyle({type: 'default'}, null, densStyle);
-            
-            thisTier.browser.refreshTier(thisTier);
-        }
-    } else if (this.dasSource.tier_type == 'sequence') {
-        if (this.dasSource.twoBitURI) {
-            ss = new TwoBitSequenceSource(this.dasSource);
-        } else {
-            ss = new DASSequenceSource(this.dasSource);
-        }
-    } else {
-        fs = new DASFeatureSource(this.dasSource);
-        var dasAdjLock = false;
-        if (this.dasSource.capabilities && arrayIndexOf(this.dasSource.capabilities, 'das1:adjacent-feature') >= 0) {
-            this.sourceFindNextFeature = function(chr, pos, dir, callback) {
-                if (dasAdjLock) {
-                    return dlog('Already looking for a next feature, be patient!');
-                }
-                dasAdjLock = true;
-                var fops = {
-                    adjacent: chr + ':' + (pos|0) + ':' + (dir > 0 ? 'F' : 'B')
-                }
-                var types = thisTier.getDesiredTypes(thisTier.browser.scale);
-                if (types) {
-                    fops.types = types;
-                }
-                thisTier.dasSource.features(null, fops, function(res) {
-                    dasAdjLock = false;
-                    if (res.length > 0 && res[0] != null) {
-                        dlog('DAS adjacent seems to be working...');
-                        callback(res[0]);
-                    }
-                });
-            };
-        }
-    }
-    
-    if (this.dasSource.mapping) {
-        fs = new MappedFeatureSource(fs, this.browser.chains[this.dasSource.mapping]);
+    if (source.featureInfoPlugin) {
+        this.addFeatureInfoPlugin(source.featureInfoPlugin);
     }
 
-    this.featureSource = fs;
-    this.sequenceSource = ss;
-    this.setBackground();
+    this.initSources();
 }
 
 DasTier.prototype.toString = function() {
     return this.id;
+}
+
+DasTier.prototype.addFeatureInfoPlugin = function(p) {
+    if (!this.featureInfoPlugins) 
+        this.featureInfoPlugins = [];
+    this.featureInfoPlugins.push(p);
 }
 
 DasTier.prototype.init = function() {
@@ -211,30 +54,31 @@ DasTier.prototype.init = function() {
     if (tier.dasSource.style) {
         this.stylesheet = {styles: tier.dasSource.style};
         this.browser.refreshTier(this);
-    } else if (tier.dasSource.uri || tier.dasSource.stylesheet_uri) {
+    } else {
+        var ssSource;
+        if (tier.dasSource.stylesheet_uri) {
+            ssSource = new DASFeatureSource(tier.dasSource);
+        } else {
+            ssSource = tier.getSource();
+        }
         tier.status = 'Fetching stylesheet';
-        this.dasSource.stylesheet(function(stylesheet) {
-            tier.stylesheet = stylesheet;
-            tier.browser.refreshTier(tier);
-        }, function() {
-            // tier.error = 'No stylesheet';
-            tier.stylesheet = new DASStylesheet();
-            var defStyle = new DASStyle();
-            defStyle.glyph = 'BOX';
-            defStyle.BGCOLOR = 'blue';
-            defStyle.FGCOLOR = 'black';
-            tier.stylesheet.pushStyle({type: 'default'}, null, defStyle);
-            tier.browser.refreshTier(tier);
+        
+        ssSource.getStyleSheet(function(ss, err) {
+            if (err) {
+                tier.error = 'No stylesheet';
+                tier.stylesheet = new DASStylesheet();
+                var defStyle = new DASStyle();
+                defStyle.glyph = 'BOX';
+                defStyle.BGCOLOR = 'blue';
+                defStyle.FGCOLOR = 'black';
+                tier.stylesheet.pushStyle({type: 'default'}, null, defStyle);
+                tier.browser.refreshTier(tier);
+            } else {
+                tier.stylesheet = ss;
+                tier.browser.refreshTier(tier);
+            }
         });
-    } else if (tier.dasSource.twoBitURI) {
-        tier.stylesheet = new DASStylesheet();
-        var defStyle = new DASStyle();
-        defStyle.glyph = 'BOX';
-        defStyle.BGCOLOR = 'blue';
-        defStyle.FGCOLOR = 'black';
-        tier.stylesheet.pushStyle({type: 'default'}, null, defStyle);
-        tier.browser.refreshTier(tier);
-    };
+    }
 }
 
 DasTier.prototype.styles = function(scale) {
@@ -289,7 +133,6 @@ DasTier.prototype.needsSequence = function(scale ) {
     if (this.dasSource.tier_type === 'sequence' && scale < 5) {
         return true;
     } else if ((this.dasSource.bamURI || this.dasSource.bamBlob) && scale < 20) {
-        dlog('reqSeq');
         return true
     }
     return false;
@@ -307,7 +150,6 @@ DasTier.prototype.viewFeatures = function(chr, min, max, scale, features, sequen
     this.knownStart = min; this.knownEnd = max;
     this.status = null; this.error = null;
 
-    this.setBackground();
     this.draw();
 }
 
@@ -351,74 +193,65 @@ function zoomForScale(scale) {
 }
 
 
-DasTier.prototype.setBackground = function() {            
-    /*
-//    if (this.knownStart) {
-
-    var ks = this.knownStart || -100000000;
-    var ke = this.knownEnd || -100000001;
-        this.background.setAttribute('x', (ks - this.browser.origin) * this.browser.scale);
-        this.background.setAttribute('width', (ke - this.knownStart + 1) * this.browser.scale);
-//    }    */
-}
-
-DasTier.prototype.sourceFindNextFeature = function(chr, pos, dir, callback) {
-    callback(null);
-}
-
 DasTier.prototype.findNextFeature = function(chr, pos, dir, fedge, callback) {
-    if (this.knownStart && pos >= this.knownStart && pos <= this.knownEnd) {
-        if (this.currentFeatures) {
-            var bestFeature = null;
-            for (var fi = 0; fi < this.currentFeatures.length; ++fi) {
-                var f = this.currentFeatures[fi];
-                if (!f.min || !f.max) {
-                    continue;
+    if (this.quantLeapThreshold) {
+        var width = this.browser.viewEnd - this.browser.viewStart + 1;
+        pos = (pos +  ((width * dir) / 2))|0
+        this.featureSource.quantFindNextFeature(chr, pos, dir, this.quantLeapThreshold, callback);
+    } else {
+        if (this.knownStart && pos >= this.knownStart && pos <= this.knownEnd) {
+            if (this.currentFeatures) {
+                var bestFeature = null;
+                for (var fi = 0; fi < this.currentFeatures.length; ++fi) {
+                    var f = this.currentFeatures[fi];
+                    if (!f.min || !f.max) {
+                        continue;
+                    }
+                    if (f.parents && f.parents.length > 0) {
+                        continue;
+                    }
+                    if (dir < 0) {
+                        if (fedge == 1 && f.max >= pos && f.min < pos) {
+                            if (!bestFeature || f.min > bestFeature.min ||
+                                (f.min == bestFeature.min && f.max < bestFeature.max)) {
+                                bestFeature = f;
+                            }
+                        } else if (f.max < pos) {
+                            if (!bestFeature || f.max > bestFeature.max || 
+                                (f.max == bestFeature.max && f.min < bestFeature.min) ||
+                                (f.min == bestFeature.mmin && bestFeature.max >= pos)) {
+                                bestFeature = f;
+                            } 
+                        }
+                    } else {
+                        if (fedge == 1 && f.min <= pos && f.max > pos) {
+                            if (!bestFeature || f.max < bestFeature.max ||
+                                (f.max == bestFeature.max && f.min > bestFeature.min)) {
+                                bestFeature = f;
+                            }
+                        } else if (f.min > pos) {
+                            if (!bestFeature || f.min < bestFeature.min ||
+                                (f.min == bestFeature.min && f.max > bestFeature.max) ||
+                                (f.max == bestFeature.max && bestFeature.min <= pos)) {
+                                bestFeature = f;
+                            }
+                        }
+                    }
                 }
-                if (f.parents && f.parents.length > 0) {
-                    continue;
+                if (bestFeature) {
+                    //                dlog('bestFeature = ' + miniJSONify(bestFeature));
+                    return callback(bestFeature);
                 }
                 if (dir < 0) {
-                    if (fedge == 1 && f.max >= pos && f.min < pos) {
-                        if (!bestFeature || f.min > bestFeature.min ||
-                            (f.min == bestFeature.min && f.max < bestFeature.max)) {
-                            bestFeature = f;
-                        }
-                    } else if (f.max < pos) {
-                        if (!bestFeature || f.max > bestFeature.max || 
-                            (f.max == bestFeature.max && f.min < bestFeature.min) ||
-                            (f.min == bestFeature.mmin && bestFeature.max >= pos)) {
-                            bestFeature = f;
-                        } 
-                    }
+                    pos = this.knownStart;
                 } else {
-                    if (fedge == 1 && f.min <= pos && f.max > pos) {
-                        if (!bestFeature || f.max < bestFeature.max ||
-                            (f.max == bestFeature.max && f.min > bestFeature.min)) {
-                            bestFeature = f;
-                        }
-                    } else if (f.min > pos) {
-                        if (!bestFeature || f.min < bestFeature.min ||
-                            (f.min == bestFeature.min && f.max > bestFeature.max) ||
-                            (f.max == bestFeature.max && bestFeature.min <= pos)) {
-                            bestFeature = f;
-                        }
-                    }
+                    pos = this.knownEnd;
                 }
             }
-            if (bestFeature) {
-//                dlog('bestFeature = ' + miniJSONify(bestFeature));
-                return callback(bestFeature);
-            }
-            if (dir < 0) {
-                pos = this.knownStart;
-            } else {
-                pos = this.knownEnd;
-            }
         }
+
+        this.featureSource.findNextFeature(chr, pos, dir, callback);
     }
-//    dlog('delegating to source: ' + pos);
-    this.sourceFindNextFeature(chr, pos, dir, callback);
 }
 
 
@@ -429,4 +262,38 @@ DasTier.prototype.updateLabel = function() {
     } else {
         this.bumpButton.style.display = 'none';
     }
+}
+
+DasTier.prototype.updateHeight = function() {
+    //if (this.row)
+        this.row.style.height = '' + Math.max(this.holder.clientHeight, this.label.clientHeight + 4) + 'px';
+ }
+
+DasTier.prototype.drawOverlay = function() {
+    var t = this;
+    var b = this.browser;
+    var g = t.overlay.getContext('2d');
+    
+    t.overlay.height = t.viewport.height;
+    // g.clearRect(0, 0, t.overlay.width, t.overlay.height);
+    
+    var origin = b.viewStart - (1000/b.scale);
+    var visStart = b.viewStart - (1000/b.scale);
+    var visEnd = b.viewEnd + (1000/b.scale);
+
+
+    for (var hi = 0; hi < b.highlights.length; ++hi) {
+        var h = b.highlights[hi];
+        if (h.chr == b.chr && h.min < visEnd && h.max > visStart) {
+            g.globalAlpha = 0.3;
+            g.fillStyle = 'red';
+            g.fillRect((h.min - origin) * b.scale,
+                       0,
+                       (h.max - h.min) * b.scale,
+                       t.overlay.height);
+        }
+    }
+
+    t.oorigin = b.viewStart;
+    t.overlay.style.left = '-1000px'
 }
