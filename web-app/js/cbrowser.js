@@ -76,7 +76,7 @@ function Browser(opts) {
     this.maxViewWidth = 500000;
 
     // Options.
-    
+
     this.reverseScrolling = false;
     this.rulerLocation = 'center';
 
@@ -104,12 +104,19 @@ function Browser(opts) {
     }
 
     var thisB = this;
-    window.addEventListener('load', function(ev) {thisB.realInit();}, false);
+
+    /**
+     * [rnugraha] is disabled to avoid waiting for window load being triggered since as plugin, dalliance will be
+     * embedded inside a tab in tranSMART.
+     */
+        //window.addEventListener('load', function(ev) {thisB.realInit();}, false);
+
+    thisB.realInit();
 }
 
 Browser.prototype.realInit = function() {
-    this.supportsBinary = true; /* (typeof Int8Array === 'function');*/ 
-    
+    this.supportsBinary = true; /* (typeof Int8Array === 'function');*/
+
     this.defaultChr = this.chr;
     this.defaultStart = this.viewStart;
     this.defaultEnd = this.viewEnd;
@@ -192,12 +199,12 @@ Browser.prototype.realInit = function() {
 
 
     /*
-    this.tierHolder.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
-    this.tierHolder.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
-    this.tierHolder.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
-    this.tierHolder.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false); 
+     this.tierHolder.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
+     this.tierHolder.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
+     this.tierHolder.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
+     this.tierHolder.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false);
 
-    */
+     */
 
     var keyHandler = function(ev) {
         if (ev.keyCode == 13) { // enter
@@ -216,28 +223,28 @@ Browser.prototype.realInit = function() {
             }
         } else if (ev.keyCode == 32 || ev.charCode == 32) { // space
             // if (!thisB.snapZoomLockout) {
-                if (!thisB.isSnapZooming) {
-                    thisB.isSnapZooming = true;
-                    var newZoom = thisB.savedZoom || 1.0;
-                    thisB.savedZoom = thisB.zoomSliderValue;
-                    thisB.zoomSliderValue = newZoom;
-                    thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
-                    // thisB.invalidateLayouts();
-                    // thisB.zoomSlider.setColor('red');
-                    // thisB.refresh();
-                } else {
-                    thisB.isSnapZooming = false;
-                    var newZoom = thisB.savedZoom || 10.0;
-                    thisB.savedZoom = thisB.zoomSliderValue;
-                    thisB.zoomSliderValue = newZoom;
-                    thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
-                    // thisB.invalidateLayouts();
-                    // thisB.zoomSlider.setColor('blue');
-                    // thisB.refresh();
-                }
-                thisB.snapZoomLockout = true;
+            if (!thisB.isSnapZooming) {
+                thisB.isSnapZooming = true;
+                var newZoom = thisB.savedZoom || 1.0;
+                thisB.savedZoom = thisB.zoomSliderValue;
+                thisB.zoomSliderValue = newZoom;
+                thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
+                // thisB.invalidateLayouts();
+                // thisB.zoomSlider.setColor('red');
+                // thisB.refresh();
+            } else {
+                thisB.isSnapZooming = false;
+                var newZoom = thisB.savedZoom || 10.0;
+                thisB.savedZoom = thisB.zoomSliderValue;
+                thisB.zoomSliderValue = newZoom;
+                thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
+                // thisB.invalidateLayouts();
+                // thisB.zoomSlider.setColor('blue');
+                // thisB.refresh();
+            }
+            thisB.snapZoomLockout = true;
             // }
-            ev.stopPropagation(); ev.preventDefault();      
+            ev.stopPropagation(); ev.preventDefault();
         } else if (ev.keyCode == 39) { // right arrow
             ev.stopPropagation(); ev.preventDefault();
             if (ev.ctrlKey) {
@@ -247,32 +254,32 @@ Browser.prototype.realInit = function() {
                 }
                 var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
                 thisB.tiers[thisB.selectedTier].findNextFeature(
-                      thisB.chr,
-                      pos,
-                      -1,
-                      fedge,
-                      function(nxt) {
-                          if (nxt) {
-                              var nmin = nxt.min;
-                              var nmax = nxt.max;
-                              if (fedge) {
-                                  if (nmax<pos-1) {
-                                      nmax++;
-                                      nmin=nmax;
-                                  } else {
-                                      nmax=nmin;
-                                  }
-                              }
-                              var wid = thisB.viewEnd - thisB.viewStart + 1;
-                              if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
-                              var newStart = (nmin + nmax - wid)/2 + 1;
-                              var newEnd = newStart + wid - 1;
-                              var pos2=pos;
-                              thisB.setLocation(nxt.segment, newStart, newEnd);
-                          } else {
-                              alert('no next feature');
-                          }
-                      });
+                    thisB.chr,
+                    pos,
+                    -1,
+                    fedge,
+                    function(nxt) {
+                        if (nxt) {
+                            var nmin = nxt.min;
+                            var nmax = nxt.max;
+                            if (fedge) {
+                                if (nmax<pos-1) {
+                                    nmax++;
+                                    nmin=nmax;
+                                } else {
+                                    nmax=nmin;
+                                }
+                            }
+                            var wid = thisB.viewEnd - thisB.viewStart + 1;
+                            if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
+                            var newStart = (nmin + nmax - wid)/2 + 1;
+                            var newEnd = newStart + wid - 1;
+                            var pos2=pos;
+                            thisB.setLocation(nxt.segment, newStart, newEnd);
+                        } else {
+                            alert('no next feature');
+                        }
+                    });
             } else {
                 thisB.move(ev.shiftKey ? 100 : 25);
             }
@@ -285,32 +292,32 @@ Browser.prototype.realInit = function() {
                 }
                 var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
                 thisB.tiers[thisB.selectedTier].findNextFeature(
-                      thisB.chr,
-                      pos,
-                      1,
-                      fedge,
-                      function(nxt) {
-                          if (nxt) {
-                              var nmin = nxt.min;
-                              var nmax = nxt.max;
-                              if (fedge) { 
-                                  if (nmin>pos+1) {
-                                      nmax=nmin;
-                                  } else {
-                                      nmax++;
-                                      nmin=nmax
-                                  }
-                              }
-                              var wid = thisB.viewEnd - thisB.viewStart + 1;
-                              if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
-                              var newStart = (nmin + nmax - wid)/2 + 1;
-                              var newEnd = newStart + wid - 1;
-                              var pos2=pos;
-                              thisB.setLocation(nxt.segment, newStart, newEnd);
-                          } else {
-                              alert('no next feature'); // FIXME better reporting would be nice!
-                          }
-                      });
+                    thisB.chr,
+                    pos,
+                    1,
+                    fedge,
+                    function(nxt) {
+                        if (nxt) {
+                            var nmin = nxt.min;
+                            var nmax = nxt.max;
+                            if (fedge) {
+                                if (nmin>pos+1) {
+                                    nmax=nmin;
+                                } else {
+                                    nmax++;
+                                    nmin=nmax
+                                }
+                            }
+                            var wid = thisB.viewEnd - thisB.viewStart + 1;
+                            if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
+                            var newStart = (nmin + nmax - wid)/2 + 1;
+                            var newEnd = newStart + wid - 1;
+                            var pos2=pos;
+                            thisB.setLocation(nxt.segment, newStart, newEnd);
+                        } else {
+                            alert('no next feature'); // FIXME better reporting would be nice!
+                        }
+                    });
             } else {
                 thisB.move(ev.shiftKey ? -100 : -25);
             }
@@ -326,7 +333,7 @@ Browser.prototype.realInit = function() {
                 }
             } else if (ev.ctrlKey) {
                 var tt = thisB.tiers[thisB.selectedTier];
-  
+
                 if (tt.quantLeapThreshold) {
                     var th = tt.subtiers[0].height;
                     var tq = tt.subtiers[0].quant;
@@ -336,7 +343,7 @@ Browser.prototype.realInit = function() {
                     var qscale = (tq.max - tq.min) / th;
                     tt.quantLeapThreshold = tq.min + ((((tt.quantLeapThreshold - tq.min)/qscale)|0)+1)*qscale;
                     tt.draw();
-                }                
+                }
             } else {
                 if (thisB.selectedTier > 0) {
                     thisB.setSelectedTier(thisB.selectedTier - 1);
@@ -499,7 +506,7 @@ Browser.prototype.realInit = function() {
 Browser.prototype.touchStartHandler = function(ev)
 {
     ev.stopPropagation(); ev.preventDefault();
-    
+
     this.touchOriginX = ev.touches[0].pageX;
     if (ev.touches.length == 2) {
         var sep = Math.abs(ev.touches[0].pageX - ev.touches[1].pageX);
@@ -512,7 +519,7 @@ Browser.prototype.touchStartHandler = function(ev)
 Browser.prototype.touchMoveHandler = function(ev)
 {
     ev.stopPropagation(); ev.preventDefault();
-    
+
     if (ev.touches.length == 1) {
         var touchX = ev.touches[0].pageX;
         if (this.touchOriginX && touchX != this.touchOriginX) {
@@ -527,7 +534,7 @@ Browser.prototype.touchMoveHandler = function(ev)
             this.scale = this.zoomInitialScale * (sep/this.zoomInitialSep);
             this.viewStart = scp - (cp/this.scale)|0;
             for (var i = 0; i < this.tiers.length; ++i) {
-	        this.tiers[i].draw();
+                this.tiers[i].draw();
             }
         }
         this.zoomLastSep = sep;
@@ -557,27 +564,27 @@ Browser.prototype.realMakeTier = function(source) {
     var thisB = this;
     var background = this.tierBackgroundColors[this.tiers.length % this.tierBackgroundColors.length];
 
-    var viewport = makeElement('canvas', null, 
-                               {width: '' + ((this.featurePanelWidth|0) + 2000), height: "50"}, 
-                               {position: 'absolute', 
-                                padding: '0px', 
-                                margin: '0px',
-                                border: '0px', 
-                                left: '-1000px', /* borderTopStyle: 'solid', borderTopColor: 'black', */ 
-                                borderBottomStyle: 'solid', 
-                                borderBottomColor: 'rgb(180,180,180)', 
-                                borderRightStyle: 'solid', 
-                                borderRightColor: 'rgb(180,180,180)'});
+    var viewport = makeElement('canvas', null,
+        {width: '' + ((this.featurePanelWidth|0) + 2000), height: "50"},
+        {position: 'absolute',
+            padding: '0px',
+            margin: '0px',
+            border: '0px',
+            left: '-1000px', /* borderTopStyle: 'solid', borderTopColor: 'black', */
+            borderBottomStyle: 'solid',
+            borderBottomColor: 'rgb(180,180,180)',
+            borderRightStyle: 'solid',
+            borderRightColor: 'rgb(180,180,180)'});
 
     var viewportOverlay = makeElement('canvas', null,
-         {width: + ((this.featurePanelWidth|0) + 2000), height: "50"}, 
-         {position: 'relative', 
-          padding: '0px', 
-          margin: '0px',
-          border: '0px', 
-          left: '-1000px',
-          zIndex: '1000',
-          pointerEvents: 'none'});
+        {width: + ((this.featurePanelWidth|0) + 2000), height: "50"},
+        {position: 'relative',
+            padding: '0px',
+            margin: '0px',
+            border: '0px',
+            left: '-1000px',
+            zIndex: '1000',
+            pointerEvents: 'none'});
 
     var placardContent = makeElement('span', 'blah');
     var placard = makeElement('div', [makeElement('i', null, {className: 'icon-warning-sign'}), ' ', placardContent], {}, {
@@ -592,7 +599,7 @@ Browser.prototype.realMakeTier = function(source) {
         borderStyle: 'solid',
         borderColor: 'red',
         borderWidth: '1px'});
-    
+
     var vph = makeElement('div', [viewport, viewportOverlay], {}, {display: 'inline-block', position: 'relative', width: '100%' , overflowX: 'hidden', overflowY: 'hidden'});
     // vph.className = 'tier-viewport-background';
     vph.style.background = background;
@@ -600,24 +607,24 @@ Browser.prototype.realMakeTier = function(source) {
     vph.addEventListener('touchstart', function(ev) {return thisB.touchStartHandler(ev)}, false);
     vph.addEventListener('touchmove', function(ev) {return thisB.touchMoveHandler(ev)}, false);
     vph.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
-    vph.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false); 
+    vph.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false);
 
     var tier = new DasTier(this, source, viewport, vph, viewportOverlay, placard, placardContent);
     tier.oorigin = this.viewStart;
     tier.background = background;
 
     tier.quantOverlay = makeElement(
-        'canvas', null, 
-        {width: '50', height: "56"}, 
-        {position: 'absolute', 
-         padding: '0px', 
-         margin: '0px',
-         border: '0px', 
-         left: '' + ((this.featurePanelWidth/2)|0) + 'px',
-         top: '0px',
-         display: 'none'});
+        'canvas', null,
+        {width: '50', height: "56"},
+        {position: 'absolute',
+            padding: '0px',
+            margin: '0px',
+            border: '0px',
+            left: '' + ((this.featurePanelWidth/2)|0) + 'px',
+            top: '0px',
+            display: 'none'});
     tier.holder.appendChild(tier.quantOverlay);
-    
+
     var isDragging = false;
     var dragOrigin, dragMoveOrigin;
     var hoverTimeout;
@@ -642,7 +649,7 @@ Browser.prototype.realMakeTier = function(source) {
         var viewCenter = (thisB.viewStart + thisB.viewEnd)/2;
         var offset = (tier.glyphCacheOrigin - thisB.viewStart)*thisB.scale;
         rx -= offset;
-       
+
         return glyphLookup(glyphs, rx);
     }
 
@@ -660,9 +667,9 @@ Browser.prototype.realMakeTier = function(source) {
         window.removeEventListener('mousemove', dragMoveHandler, true);
         window.removeEventListener('mouseup', dragUpHandler, true);
         // thisB.isDragging = false;    // Can't clear here before the per-tier mouseups get called later :-(.
-                                        // Shouldn't matter because cleared on next mousedown. 
+        // Shouldn't matter because cleared on next mousedown.
     }
-        
+
 
     vph.addEventListener('mousedown', function(ev) {
         thisB.browserHolder.focus();
@@ -744,11 +751,11 @@ Browser.prototype.realMakeTier = function(source) {
     tier.bumpButton = makeElement('i', null, {className: 'icon-plus-sign'});
     tier.infoElement = makeElement('div', tier.dasSource.desc, {}, {display: 'none', maxWidth: '200px', whiteSpace: 'normal', color: 'rgb(100,100,100)'});
     tier.nameButton = makeElement('a', [tier.removeButton, makeElement('span', [source.name, tier.infoElement], {}, {display: 'inline-block', marginLeft: '5px', marginRight: '5px'}), tier.bumpButton], {className: 'tier-tab'});
-    
+
     tier.label = makeElement('span',
-       [tier.nameButton],
-       {className: 'btn-group'},
-       {zIndex: 1001, position: 'absolute', left: '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
+        [tier.nameButton],
+        {className: 'btn-group'},
+        {zIndex: 1001, position: 'absolute', left: '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
     var row = makeElement('div', [vph, placard , tier.label ], {}, {position: 'relative', display: 'block' /*, transition: 'height 0.5s' */});
     tier.row = row;
 
@@ -784,19 +791,19 @@ Browser.prototype.realMakeTier = function(source) {
         var bumpStatus;
         var t = tier;
         if (t.dasSource.collapseSuperGroups) {
-            
+
             if (bumpStatus === undefined) {
                 bumpStatus = !t.bumped;
             }
             t.bumped = bumpStatus;
             t.layoutWasDone = false;
             t.draw();
-            
+
             t.updateLabel();
         }
     }, false);
 
-    
+
     var dragLabel;
     var tierOrdinal;
     var yAtLastReorder;
@@ -810,7 +817,7 @@ Browser.prototype.realMakeTier = function(source) {
             dragLabel.style.cursor = 'pointer';
             thisB.svgHolder.appendChild(dragLabel);
             label.style.visibility = 'hidden';
-            
+
 
             for (var ti = 0; ti < thisB.tiers.length; ++ti) {
                 if (thisB.tiers[ti] === tier) {
@@ -821,8 +828,26 @@ Browser.prototype.realMakeTier = function(source) {
 
             yAtLastReorder = ev.clientY;
         }
-        dragLabel.style.left = label.getBoundingClientRect().left + 'px'; dragLabel.style.top = ev.clientY - 10 + 'px';
-        
+
+
+        /**
+         * [rnugraha] to fix position of popup elements. Embedding dalliance inside tranSMART's tab has caused floating
+         * elements changed it's position.
+         */
+
+        //  -- start customization --
+
+        // dragLabel.style.left = label.getBoundingClientRect().left + 'px'; dragLabel.style.top = ev.clientY - 10 + 'px';
+
+        // get mouse position and label position
+        var mousePos = myHandleEvent(ev);
+        var labelPos = getPosition(label);
+
+        dragLabel.style.left = (mousePos.x - labelPos.x - 55)  + 'px'; dragLabel.style.top = (labelPos.y - 70) + 'px';
+
+        // -- end customization --
+
+
         var pty = ev.clientY - thisB.tierHolder.getBoundingClientRect().top;
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
             var tt = thisB.tiers[ti];
@@ -883,9 +908,9 @@ Browser.prototype.realMakeTier = function(source) {
         document.addEventListener('mouseup', labelReleaseHandler, false);
     }, false);
 
-    this.tierHolder.appendChild(row);    
+    this.tierHolder.appendChild(row);
     this.tiers.push(tier);  // NB this currently tells any extant knownSpace about the new tier.
-    
+
     tier.init(); // fetches stylesheet
     this.arrangeTiers();
     tier.updateLabel();
@@ -911,7 +936,7 @@ Browser.prototype.refresh = function() {
     this.notifyLocation();
     var width = (this.viewEnd - this.viewStart) + 1;
     /* var minExtraW = (width * this.minExtra) | 0;
-    var maxExtraW = (width * this.maxExtra) | 0;*/
+     var maxExtraW = (width * this.maxExtra) | 0;*/
     var minExtraW = (100.0/this.scale)|0;
     var maxExtraW = (1000.0/this.scale)|0;
 
@@ -944,7 +969,7 @@ Browser.prototype.refresh = function() {
         }
         this.knownSpace = new KnownSpace(this.tiers, this.chr, outerDrawnStart, outerDrawnEnd, scaledQuantRes, ss);
     }
-    
+
     var seg = this.knownSpace.bestCacheOverlapping(this.chr, innerDrawnStart, innerDrawnEnd);
     if (seg && seg.min <= innerDrawnStart && seg.max >= innerDrawnEnd) {
         this.drawnStart = Math.max(seg.min, outerDrawnStart);
@@ -953,7 +978,7 @@ Browser.prototype.refresh = function() {
         this.drawnStart = outerDrawnStart;
         this.drawnEnd = outerDrawnEnd;
     }
-    
+
     this.knownSpace.viewFeatures(this.chr, this.drawnStart, this.drawnEnd, scaledQuantRes);
     this.drawOverlays();
 }
@@ -998,7 +1023,7 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
             }
         }
     }
-            
+
     new DASRegistry(this.registry).sources(function(sources) {
         var availableSources = [];
         for (var s = 0; s < sources.length; ++s) {
@@ -1009,13 +1034,13 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
             var scoords = source.coords[0];
             if (scoords.taxon != coords.taxon || scoords.auth != coords.auth || scoords.version != coords.version) {
                 continue;
-            }   
+            }
             availableSources.push(source);
         }
 
         localStorage['dalliance.registry.' + cacheHash + '.sources'] = JSON.stringify(availableSources);
         localStorage['dalliance.registry.' + cacheHash + '.last_queried'] = '' + Date.now();
-        
+
         setSources(msh, availableSources, maybeMapping);
     }, function(error) {
         // msh.set(null);
@@ -1040,12 +1065,12 @@ Browser.prototype.move = function(pos)
         this.viewEnd = this.viewStart + wid;
     }
     this.notifyLocation();
-    
+
     var viewCenter = (this.viewStart + this.viewEnd)/2;
-    
+
     for (var i = 0; i < this.tiers.length; ++i) {
         var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
-	this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
+        this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
         var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
         this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
     }
@@ -1086,7 +1111,7 @@ Browser.prototype.zoom = function(factor) {
     }
     this.scale = this.featurePanelWidth / (this.viewEnd - this.viewStart)
     var width = this.viewEnd - this.viewStart + 1;
-    
+
     var scaleRat = (this.scale / this.scaleAtLastRedraw);
 
     this.refresh();
@@ -1096,7 +1121,7 @@ Browser.prototype.spaceCheck = function(dontRefresh) {
     if (!this.knownSpace || this.knownSpace.chr !== this.chr) {
         this.refresh();
         return;
-    } 
+    }
 
     var width = ((this.viewEnd - this.viewStart)|0) + 1;
     // var minExtraW = (width * this.minExtra) | 0;
@@ -1170,7 +1195,7 @@ Browser.prototype.removeTier = function(conf) {
                 (conf.bamURI && ts.bamURI === conf.bamURI) ||
                 (conf.twoBitURI && ts.twoBitURI === conf.twoBitURI))
             {
-                 if (ts.stylesheet_uri == conf.stylesheet_uri) {
+                if (ts.stylesheet_uri == conf.stylesheet_uri) {
                     target = ti; break;
                 }
             }
@@ -1187,7 +1212,7 @@ Browser.prototype.removeTier = function(conf) {
     this.sources.splice(target, 1);
 
     this.arrangeTiers();
-    
+
     this.notifyTier();
 }
 
@@ -1272,10 +1297,10 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
         this.refresh();
     } else {
         var viewCenter = (this.viewStart + this.viewEnd)/2;
-    
+
         for (var i = 0; i < this.tiers.length; ++i) {
             var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
-	    this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
+            this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
             var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
             this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
         }
@@ -1291,13 +1316,13 @@ Browser.prototype.addFeatureListener = function(handler, opts) {
 }
 
 Browser.prototype.notifyFeature = function(ev, feature, hit, tier) {
-  for (var fli = 0; fli < this.featureListeners.length; ++fli) {
-      try {
-          this.featureListeners[fli](ev, feature, hit, tier);
-      } catch (ex) {
-          console.log(ex.stack);
-      }
-  }
+    for (var fli = 0; fli < this.featureListeners.length; ++fli) {
+        try {
+            this.featureListeners[fli](ev, feature, hit, tier);
+        } catch (ex) {
+            console.log(ex.stack);
+        }
+    }
 }
 
 Browser.prototype.addFeatureHoverListener = function(handler, opts) {
@@ -1419,6 +1444,7 @@ Browser.prototype.notifyTierSelectionWrap = function(i) {
             this.tierSelectionWrapListeners[fli](i);
         } catch (ex) {
             console.log(ex.stack);
+
         }
     }
 }
@@ -1467,7 +1493,7 @@ Browser.prototype.featureDoubleClick = function(hit, rx, ry) {
 
     var fstart = (((f.min|0) - (this.viewStart|0)) * this.scale);
     var fwidth = (((f.max - f.min) + 1) * this.scale);
-    
+
     var newMid = (((f.min|0) + (f.max|0)))/2;
     if (fwidth > 10) {
         var frac = (1.0 * (rx - fstart)) / fwidth;
@@ -1493,7 +1519,7 @@ function glyphLookup(glyphs, rx, matches) {
             } else if (g.group) {
                 matches.push(g.group);
             }
-    
+
             if (g.glyphs) {
                 return glyphLookup(g.glyphs, rx, matches);
             } else if (g.glyph) {

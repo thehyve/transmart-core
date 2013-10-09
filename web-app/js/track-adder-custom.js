@@ -1,29 +1,50 @@
 /**
- * Convert concept node key to DAS data source
- * TODO: BEST WAY TO TRANSLATE NODE TO DAS DATA SOURCE
- * @param concept_key
- * @returns {string}
+ * forEach is a recent addition to the ECMA-262 standard; as such it may not be present in other implementations of the
+ * standard. You can work around this by inserting the following code at the beginning of your scripts, allowing use of
+ * forEach in implementations which do not natively support it.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
  */
-function convertConceptKeyToDASSource (concept_key) {
-    // TODO to check DAS server and then return the uri
-    return ["acgh", "smaf"];
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fn, scope) {
+        'use strict';
+        var i, len;
+        for (i = 0, len = this.length; i < len; ++i) {
+            if (i in this) {
+                fn.call(scope, this[i], i, this);
+            }
+        }
+    };
 }
 
+
 /**
+ * Retrieve DAS resources from tranSMART's DAS
  *
+ * @param track_label
+ * @param result_instance_id
+ * @returns {Array}
  */
 function retrieveTransmartDASSources (track_label, result_instance_id) {
-    // TODO parse the local das features
+
     var arrNds = new Array();
 
+    // Code below is hardcoded
+    // TODO : Check the local Das features and then collect them in arrNDS
+
     arrNds[0] = new DASSource({name: 'acgh-'+track_label, uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
-    arrNds[1] = new DASSource({name: 'smaf-'+track_label, uri: pageInfo.basePath + "/das/smaf/"});
+    arrNds[1] = new DASSource({name: 'smaf-'+track_label, uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
+    arrNds[2] = new DASSource({name: 'qd-'+track_label, uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
+    arrNds[3] = new DASSource({name: 'maf-'+track_label, uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
+    arrNds[4] = new DASSource({name: 'gv-'+track_label, uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
+    arrNds[5] = new DASSource({name: 'vcf-'+track_label, uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
 
     return arrNds;
 }
 
 /**
- *
+ * Add track when user drag & drop a node
  * @param node
  * @param result_instance_id_1
  */
@@ -33,16 +54,7 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
     var track_label, das_source;
     var res_inst_id_1, res_inst_id_2;
 
-    console.log('concept', concept);
-
     track_label = concept.name;
-    das_source =  convertConceptKeyToDASSource(concept.key);
-
-    // validate concept code
-    if (!das_source) {
-        alert("Cannot add track. Cannot recognize concept node.");
-        return
-    }
 
     // reseting the global subset ids (result instance ids)
     GLOBAL.CurrentSubsetIDs[1] = null;
@@ -54,11 +66,6 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
 
         res_inst_id_1 = GLOBAL.CurrentSubsetIDs[1];
         res_inst_id_2 = GLOBAL.CurrentSubsetIDs[2];
-
-//        var transmart_curi = pageInfo.basePath + "/das/" +  das_source + "-" + res_inst_id_1 + "/";
-//
-//        // define DAS Source
-//        var nds = new DASSource({name: track_label, uri: transmart_curi});
 
         var knownSpace = thisB.knownSpace;
 
@@ -74,11 +81,7 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
         // define features
         var arrNds = retrieveTransmartDASSources(track_label, res_inst_id_1);
 
-
-
-        for (var i = 0; i < arrNds.length; ++i) {
-
-            var nds = arrNds[i];
+        arrNds.forEach(function(nds) {
 
             nds.features(testSegment, {}, function(features) {
 
@@ -92,9 +95,7 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
 
                 return;
             });
-
-        }
-
+        });
 
         /**
          * Add DAS x Sources
@@ -137,8 +138,6 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
                     }
 
                     var coordsDetermined = false, quantDetermined = false;
-
-    //                    console.log("fs", fs);
 
                     if (fs) {
                         nds.name = fs.name;
