@@ -1,6 +1,6 @@
 class DalliancePluginGrailsPlugin {
     // the plugin version
-    def version = "0.1-SNAPSHOT"
+    def version = "0.1-gwas-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.2 > *"
     // resources that are excluded from plugin packaging
@@ -9,11 +9,11 @@ class DalliancePluginGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def title = "Dalliance Plugin Plugin" // Headline display name of the plugin
-    def author = "Riza Nugraha"
-    def authorEmail = "rnugraha@gmail.con"
+    def title = "Dalliance Plugin for TranSMART" // Headline display name of the plugin
+    def author = "The Hyve"
+    def authorEmail = "office@thehyve.nl"
     def description = '''\
-Brief summary/description of the plugin.
+Dalliance Plugin for TranSMART.
 '''
 
     // URL to the plugin's documentation
