@@ -42,7 +42,10 @@ ORAPASSWORD=mypassword
 
 # Only needed for ETL
 # End with /
-KETTLE_JOBS=/path/to/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+KETTLE_JOBS_PSQL=/path/to/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+# End with /
+KETTLE_JOBS_ORA=/path/to/transmart-ETL/Kettle-GPL/Kettle-ETL/
+
 KITCHEN=/path/to/data-integration/kitchen.sh
 
 #only needed for configuration
@@ -50,4 +53,5 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 TSUSER_HOME=$HOME/
 
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
-	KETTLE_JOBS KITCHEN TSUSER_HOME ORAHOST ORAPORT ORASID ORAUSER ORAPASSWORD
+	KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \
+	ORASID ORAUSER ORAPASSWORD
