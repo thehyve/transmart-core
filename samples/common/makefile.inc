@@ -8,6 +8,7 @@ include ../../makefile.inc
 # PostgreSQL's Makefile and only the common stuff should be here.
 # To be done when more analsyes are ported to Oracle
 
+
 IMPL_DIR = $(notdir $(shell pwd))
 
 ifeq ($(IMPL_DIR),postgres)
@@ -15,16 +16,31 @@ ifeq ($(IMPL_DIR),postgres)
     $(error You need to set KETTLE_JOBS_PSQL; KETTLE_JOBS has been renamed)
   endif
   KETTLE_JOBS = $(KETTLE_JOBS_PSQL)
+  JDBC_DRIVER = postgresql-9.2-1003.jdbc4.jar
+  JDBC_DL = http://jdbc.postgresql.org/download
+  RDBMS = postgres
 else
   ifeq ($(IMPL_DIR),oracle)
     ifndef KETTLE_JOBS_ORA
       $(error You need to set KETTLE_JOBS_ORA)
     endif
     KETTLE_JOBS = $(KETTLE_JOBS_ORA)
+    JDBC_DRIVER = ojdbc6-12.1.0.1.0.jar
+    JDBC_DL = http://files.thehyve.net
+    RDBMS = oracle
   else
     $(error Working directory is neither postgres nor oracle)
   endif
 endif
+
+# env vars set in including Makefile
+$(JDBC_DRIVER):
+	curl -f $(JDBC_DL)/$@ > $@
+
+showdblog: $(JDBC_DRIVER)
+	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
+
+.PHONY: showdblog
 
 export KETTLE_JOBS
 
