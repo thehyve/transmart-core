@@ -33,7 +33,6 @@ else
   endif
 endif
 
-# env vars set in including Makefile
 $(JDBC_DRIVER):
 	curl -f $(JDBC_DL)/$@ > $@
 
