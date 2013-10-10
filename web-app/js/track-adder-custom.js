@@ -1,46 +1,30 @@
 /**
- * forEach is a recent addition to the ECMA-262 standard; as such it may not be present in other implementations of the
- * standard. You can work around this by inserting the following code at the beginning of your scripts, allowing use of
- * forEach in implementations which do not natively support it.
- *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
- */
-
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function (fn, scope) {
-        'use strict';
-        var i, len;
-        for (i = 0, len = this.length; i < len; ++i) {
-            if (i in this) {
-                fn.call(scope, this[i], i, this);
-            }
-        }
-    };
-}
-
-
-/**
  * Retrieve DAS resources from tranSMART's DAS
  *
  * @param track_label
  * @param result_instance_id
  * @returns {Array}
  */
-function retrieveTransmartDASSources (track_label, result_instance_id) {
+function retrieveTransmartDASSources (node, result_instance_id, callback) {
 
-    var arrNds = new Array();
+    if (isHighDimensionalNode(node)) {
+        var arrNds = new Array();
 
-    // Code below is hardcoded
-    // TODO : Check the local Das features and then collect them in arrNDS
+        // Code below is hardcoded
+        // TODO : Check the local Das features and then collect them in arrNDS
 
-    arrNds[0] = new DASSource({name: 'acgh-'+track_label, uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
-    arrNds[1] = new DASSource({name: 'smaf-'+track_label, uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
-    arrNds[2] = new DASSource({name: 'qd-'+track_label, uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
-    arrNds[3] = new DASSource({name: 'maf-'+track_label, uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
-    arrNds[4] = new DASSource({name: 'gv-'+track_label, uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
-    arrNds[5] = new DASSource({name: 'vcf-'+track_label, uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+        arrNds[0] = new DASSource({name: 'acgh', uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
+        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
+        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
+        arrNds[3] = new DASSource({name: 'maf', uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
+        arrNds[4] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
+        arrNds[5] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
 
-    return arrNds;
+        callback(arrNds);
+
+    } else {
+        displayError('Error', 'Cannot display non-High Dimensional node');
+    }
 }
 
 /**
@@ -48,13 +32,11 @@ function retrieveTransmartDASSources (track_label, result_instance_id) {
  * @param node
  * @param result_instance_id_1
  */
-Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, result_instance_id_2) {
+Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_instance_id_2) {
 
     var thisB = this;
-    var track_label, das_source;
+    var das_source;
     var res_inst_id_1, res_inst_id_2;
-
-    track_label = concept.name;
 
     // reseting the global subset ids (result instance ids)
     GLOBAL.CurrentSubsetIDs[1] = null;
@@ -78,24 +60,32 @@ Browser.prototype.addTrackByNode = function (concept, result_instance_id_1, resu
         var tsm = Math.max(knownSpace.min, (knownSpace.min + knownSpace.max - 100) / 2)|0;
         var testSegment = new DASSegment(knownSpace.chr, tsm, Math.min(tsm + 99, knownSpace.max));
 
+
+        /** ----------------------------------------------------------- **/
+        /** Code below contains callback hell .. TODO: refactor please! **/
+        /** ----------------------------------------------------------- **/
+
         // define features
-        var arrNds = retrieveTransmartDASSources(track_label, res_inst_id_1);
+        var arrNds = retrieveTransmartDASSources(node, res_inst_id_1, function(arr) {
 
-        arrNds.forEach(function(nds) {
+            arr.forEach(function(nds) {
 
-            nds.features(testSegment, {}, function(features) {
+                nds.features(testSegment, {}, function(features) {
 
-                var nameExtractPattern = new RegExp('/([^/]+)/?$');
-                var match = nameExtractPattern.exec(nds.uri);
-                if (match) {
-                    nds.name = match[1];
-                }
+                    var nameExtractPattern = new RegExp('/([^/]+)/?$');
+                    var match = nameExtractPattern.exec(nds.uri);
+                    if (match) {
+                        nds.name = match[1];
+                    }
 
-                tryAddDASxSources(nds);
+                    tryAddDASxSources(nds);
 
-                return;
+                    return;
+                });
             });
+
         });
+
 
         /**
          * Add DAS x Sources

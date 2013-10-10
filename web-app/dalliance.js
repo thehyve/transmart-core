@@ -52,17 +52,12 @@ var genomeBrowserPanel = new Ext.Panel(
 
         notifyDrop: function (source, e, data) {
 
-            // get selected concept from the dropped node
-            var concept = convertNodeToConcept(data.node);
-
-            //console.log('data', data);
-
             var result_instance_id_1 = GLOBAL.CurrentSubsetIDs[1];
             var result_instance_id_2 = GLOBAL.CurrentSubsetIDs[2];
 
             // add track in the genome browser
             var b = this.parent.genomeBrowser;
-            b.addTrackByNode(concept, result_instance_id_1, result_instance_id_2);
+            b.addTrackByNode(data.node, result_instance_id_1, result_instance_id_2);
             //this.parent.genomeBrowser.showTrackAdder(e);
         },
 
