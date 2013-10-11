@@ -198,6 +198,90 @@ BEGIN
 		
 	end if;
 	
+
+	--	delete acgh data
+	
+	select count(*) into pExists
+	from deapp.de_subject_sample_mapping
+	where trial_name = TrialId
+	  and platform = 'ACGH'
+	  and trial_name = TrialId
+	  and coalesce(omic_source_study,trial_name) = TrialId;
+
+	if pExists > 0 then
+		select distinct partition_id::text into v_partition_id
+		from deapp.de_subject_sample_mapping
+		where trial_name = TrialId
+		  and platform = 'ACGH'
+		  and coalesce(omic_source_study,trial_name) = TrialId;
+		  
+		sqlTxt := 'drop table deapp.de_subject_acgh_data_' || v_partition_id;
+		execute sqlTxt;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_acgh_data',rowCt,stepCt,'Done') into rtnCd;
+		
+		begin
+		delete from deapp.de_subject_sample_mapping
+		where trial_name = TrialID
+		  and platform = 'ACGH';
+		get diagnostics rowCt := ROW_COUNT;
+		exception
+		when others then
+			errorNumber := SQLSTATE;
+			errorMessage := SQLERRM;
+			--Handle errors.
+			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			--End Proc
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete data for trial from DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
+		
+	end if;
+
+	--	delete rnaseq data
+	
+	select count(*) into pExists
+	from deapp.de_subject_sample_mapping
+	where trial_name = TrialId
+	  and platform = 'RNASEQ'
+	  and trial_name = TrialId
+	  and coalesce(omic_source_study,trial_name) = TrialId;
+
+	if pExists > 0 then
+		select distinct partition_id::text into v_partition_id
+		from deapp.de_subject_sample_mapping
+		where trial_name = TrialId
+		  and platform = 'RNASEQ'
+		  and coalesce(omic_source_study,trial_name) = TrialId;
+		  
+		sqlTxt := 'drop table deapp.de_subject_rnaseq_data_' || v_partition_id;
+		execute sqlTxt;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_rnaseq_data',rowCt,stepCt,'Done') into rtnCd;
+		
+		begin
+		delete from deapp.de_subject_sample_mapping
+		where trial_name = TrialID
+		  and platform = 'RNASEQ';
+		get diagnostics rowCt := ROW_COUNT;
+		exception
+		when others then
+			errorNumber := SQLSTATE;
+			errorMessage := SQLERRM;
+			--Handle errors.
+			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			--End Proc
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete data for trial from DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
+		
+	end if;
+
+
       ---Cleanup OVERALL JOB if this proc is being run standalone
 	IF newJobFlag = 1
 	THEN
