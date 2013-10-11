@@ -145,7 +145,10 @@ BEGIN
 	,subject_id
 	,visit_name
 	,data_label
+        ,modifier_cd
 	,data_value
+        ,units_cd
+        ,date_timestamp
 	,category_cd
 	,etl_job_id
 	,etl_date
@@ -155,7 +158,10 @@ BEGIN
 		  ,subject_id
 		  ,visit_name
 		  ,data_label
+                  ,modifier_cd
 		  ,data_value
+                  ,units_cd
+                  ,date_timestamp
 		  ,category_cd
 		  ,jobId
 		  ,etlDate
@@ -188,7 +194,10 @@ BEGIN
 	,subject_id
 	,visit_name
 	,data_label
+        ,modifier_cd
 	,data_value
+        ,units_cd
+        ,date_timestamp
 	,category_cd
 	,ctrl_vocab_code
 	)
@@ -197,7 +206,10 @@ BEGIN
 		  ,subject_id
 		  ,visit_name
 		  ,data_label
+                  ,modifier_cd
 		  ,data_value
+                  ,units_cd
+                  ,date_timestamp
 		  ,category_cd
 		  ,ctrl_vocab_code
 	from tm_lz.lt_src_clinical_data;
@@ -585,8 +597,9 @@ BEGIN
 	,subject_id
 	,visit_name
 	,data_label
-	,category_cd)
-	select w.site_id, w.subject_id, w.visit_name, w.data_label, w.category_cd
+	,category_cd
+        ,modifier_cd)
+	select w.site_id, w.subject_id, w.visit_name, w.data_label, w.category_cd, w.modifier_cd
 	from tm_wz.wrk_clinical_data w
 	where exists
 		 (select 1 from tm_wz.wt_num_data_types t
@@ -594,7 +607,7 @@ BEGIN
 		   and coalesce(w.data_label,'@') = coalesce(t.data_label,'@')
 		   and coalesce(w.visit_name,'@') = coalesce(t.visit_name,'@')
 		  )
-	group by w.site_id, w.subject_id, w.visit_name, w.data_label, w.category_cd
+	group by w.site_id, w.subject_id, w.visit_name, w.data_label, w.category_cd, w.modifier_cd
 	having count(*) > 1;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
@@ -1084,6 +1097,7 @@ BEGIN
      valtype_cd,
      tval_char,
      nval_num,
+     units_cd,
      sourcesystem_cd,
      import_date,
      valueflag_cd,
@@ -1094,8 +1108,8 @@ BEGIN
 	select distinct c.patient_num,
 		   c.patient_num,
 		   i.c_basecode,
-		   current_timestamp,
-		   a.study_id,
+		   coalesce(a.date_timestamp, 'infinity'),
+		   coalesce(a.modifier_cd, '@'),
 		   a.data_type,
 		   case when a.data_type = 'T' then a.data_value
 				else 'E'  --Stands for Equals for numeric types
@@ -1103,12 +1117,13 @@ BEGIN
 		   case when a.data_type = 'N' then a.data_value::numeric
 				else null --Null for text types
 				end,
+                   a.units_cd,
 		   a.study_id, 
 		   current_timestamp, 
 		   '@',
 		   '@',
 		   '@',
-                   0
+                   1
 	from tm_wz.wrk_clinical_data a
 		,i2b2demodata.patient_dimension c
 		,tm_wz.wt_trial_nodes t
