@@ -31,8 +31,16 @@ install_packages: cran_packages other_packages
 start_Rserve start_Rserve.dbg:
 	$(R_EXEC) CMD $(patsubst start_%,%,$@)
 
+# must be run as root
+install_rserve_init:
+	TRANSMART_USER=$(TRANSMART_USER) php -d variables_order=E -d open_basedir=/ \
+		rserve.php > /etc/init.d/rserve
+	chmod +x /etc/init.d/rserve
+
 clean:
 	rm -rf build $(R_SOURCE) root
 
 .PHONY: install_packages cran_packages other_packages clean \
-		start_Rserve start_Rserve.dbg
+		start_Rserve start_Rserve.dbg install_init
+
+.DELETE_ON_ERROR:
