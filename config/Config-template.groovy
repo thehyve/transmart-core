@@ -17,7 +17,8 @@ def explodedWarDir    = catalinaBase + '/webapps/transmart'
 def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
-// in tomcat or apache for serving the images here from <context path>/tempImages
+// in tomcat or apache for serving the images here from <context path>/images/<RModules.imageURL>
+// (usually transmart/images/tempImages)
 def jobsDirectory     = "/var/tmp/jobs/"
 
 // I001 – Insertion point 'post-WAR-variables'
@@ -153,19 +154,6 @@ environments { development { com.recomdata.guestAutoLogin = true } }
 com.recomdata.guestUserName = 'guest'
 /* }}} */
 
-/* {{{ Misc Configuration */
-
-// This can be used to debug JavaScript callbacks in the dataset explorer in
-// Chrome. Unfortunately, it also sometimes causes chrome to segfault
-com.recomdata.debug.jsCallbacks = 'false'
-
-environments {
-    production {
-        com.recomdata.debug.jsCallbacks = 'false'
-    }
-}
-/* }}} */
-
 /* {{{ Search tool configuration */
 
 // Lucene index location for documentation search
@@ -240,6 +228,22 @@ environments {
     // Used to access R jobs parent directory outside RModules (e.g. data export)
     com.recomdata.plugins.tempFolderDirectory = RModules.tempFolderDirectory
 }
+/* }}} */
+
+/* {{{ Misc Configuration */
+
+// This can be used to debug JavaScript callbacks in the dataset explorer in
+// Chrome. Unfortunately, it also sometimes causes chrome to segfault
+com.recomdata.debug.jsCallbacks = 'false'
+
+environments {
+    production {
+        com.recomdata.debug.jsCallbacks = 'false'
+    }
+}
+
+grails.resources.adhoc.excludes = [ '/images/' + RModules.imageURL + '/**' ]
+
 /* }}} */
 
 /* {{{ Spring Security configuration */
