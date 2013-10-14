@@ -242,7 +242,7 @@ environments {
     }
 }
 
-grails.resources.adhoc.excludes = [ '/images/' + RModules.imageURL + '/**' ]
+grails.resources.adhoc.excludes = [ '/images' + RModules.imageURL + '**' ]
 
 /* }}} */
 
