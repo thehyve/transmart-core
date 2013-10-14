@@ -98,7 +98,7 @@ log4j = {
                 rollingFile(name: 'transmart',
                             file: "${logDirectory}/transmart.log",
                             layout: pattern(conversionPattern: '%d{dd-MM-yyyy HH:mm:ss,SSS} %5p %c{1} - %m%n'),
-                            maxFileSize: '100m')
+                            maxFileSize: '100MB')
             }
             root {
                 warn 'transmart'
