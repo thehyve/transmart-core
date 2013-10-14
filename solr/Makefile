@@ -1,6 +1,6 @@
 include ../makefile.inc
 
-SOLR_DL=http://apache.proserve.nl/lucene/solr
+SOLR_DL=http://files.thehyve.net/solr
 SOLR_VERSION=4.5.0
 ifdef ORACLE
   JDBC_DRIVER=ojdbc6-12.1.0.1.0.jar
