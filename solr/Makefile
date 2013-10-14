@@ -66,7 +66,9 @@ solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
-start: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(ROOT_FILES)
+solr_home: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(ROOT_FILES)
+
+start: solr_home
 	java -jar start.jar
 
 $(FULL_IMPORT_TARGETS):
@@ -81,4 +83,4 @@ clean:
 clean_cores:
 	find solr -maxdepth 1 -mindepth 1 -type d ! -name bin ! -name collection1 -exec rm -r {} \;
 
-.PHONY: start clean
+.PHONY: start solr_home clean
