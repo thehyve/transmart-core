@@ -37,7 +37,7 @@
 		<br />
 
         <g:each var="location" in="${imageLocations}">
-            <a onclick="window.open('${location}','_blank')">
+            <a onclick="window.open('${resource(file: location)}','_blank')">
                 <g:img file="${location}" width="600" height="600"></g:img>
             </a>
             <br />
