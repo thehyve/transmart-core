@@ -1,0 +1,23 @@
+<plugin name='folder-management' version='1.0-SNAPSHOT' grailsVersion='1.3.7 &gt; *'>
+  <author>David Newton</author>
+  <authorEmail>davinewton@deloitte.com</authorEmail>
+  <title>Folder Management for tranSMART</title>
+  <description>\
+Adds folder management features to tranSMART, allowing files to be attached to studies and analyses.
+</description>
+  <resources>
+    <resource>BuildConfig</resource>
+    <resource>Config</resource>
+    <resource>DataSource</resource>
+    <resource>UrlMappings</resource>
+    <resource>com.recomdata.grails.plugin.fm.FileExportController</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmFolderController</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmData</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmFile</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmFolder</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmFolderAssociation</resource>
+    <resource>com.recomdata.grails.plugin.fm.FmFolderService</resource>
+  </resources>
+  <dependencies />
+  <behavior />
+</plugin>
