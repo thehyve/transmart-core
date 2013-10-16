@@ -83,7 +83,7 @@ class QueriesResourceService implements QueriesResource {
             throw e /* unchecked; rolls back transaction */
         } catch (Exception e) {
             // 6e. Handle error when building/running patient set query
-            log.error 'Error running (or build) querytool SQL query, ' +
+            log.error 'Error running (or building) querytool SQL query, ' +
                     "failing query was '$sql'", e
 
             // Rollback to save point
