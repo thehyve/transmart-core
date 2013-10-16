@@ -25,6 +25,7 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
     def queriesResourceService
     def sessionFactory
+    def patientSetQueryBuilderService
 
     private void addObservationFact(Map extra,
                                     String conceptCd,
@@ -298,6 +299,24 @@ class QueriesResourceServiceTests extends GroovyTestCase {
                 .getQueryDefinitionForResult(result)
 
         assertThat outputDefinition, is(equalTo(inputDefinition))
+    }
+
+    @Test
+    void testFailingQuery() {
+        def inputDefinition = new QueryDefinition([])
+
+        def realService = queriesResourceService.patientSetQueryBuilderService
+        queriesResourceService.patientSetQueryBuilderService = [
+                buildPatientSetQuery: { a, b -> 'fake query' }
+        ] as PatientSetQueryBuilderService
+
+        try {
+            QueryResult result = queriesResourceService.runQuery(inputDefinition)
+
+            assertThat result, hasProperty('status', equalTo(QueryStatus.ERROR))
+        } finally {
+            queriesResourceService.patientSetQueryBuilderService = realService
+        }
     }
 
 }
