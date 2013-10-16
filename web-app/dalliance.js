@@ -64,9 +64,12 @@ var genomeBrowserPanel = new Ext.Panel(
         // create new instance of dalliance browser
         createGenomeBrowser: function () {
             this.genomeBrowser = new Browser({
+
+                // default chromosome position start view
                 chr: '17',
                 viewStart: 19274199,
                 viewEnd: 19278199,
+
                 cookieKey: 'human2',
 
                 chains: {
@@ -176,15 +179,16 @@ var genomeBrowserPanel = new Ext.Panel(
                     {name: 'MeDIP-raw',
                         desc: 'MeDIP-seq reads from Nature Biotech. 26:779-785',
                         uri: 'http://www.derkholm.net:8080/das/medipseq_reads/'},
+                    /*
                     {name: 'BWG test',
                         bwgURI: 'http://www.biodalliance.org/datasets/spermMethylation.bw',
                         stylesheet_uri: 'http://www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
                         quantLeapThreshold: 80},
-                    /* {name:                 'BBD test',
+                    {name:                 'BBD test',
                      bwgURI:               'http://www.biodalliance.org/datasets/ensGene.bb',
                      link:                 'http://ncbi36.ensembl.org/Homo_sapiens/Gene/Summary?t=$$',
                      collapseSuperGroups:  true,
-                     disable: true} */
+                     disable: true}
                     {name: 'BWG hist',
                         bwgURI: 'http://www.biodalliance.org/datasets/spermMethylation.bw',
                         style: [
@@ -192,6 +196,7 @@ var genomeBrowserPanel = new Ext.Panel(
                                 style: {glyph: 'HISTOGRAM', HEIGHT: 50, MIN: 0, MAX: 100}}
                         ],
                         quantLeapThreshold: 80}
+                     */
 
                 ],
 
