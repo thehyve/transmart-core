@@ -30,6 +30,8 @@ class BioAssayAnalysisExt {
 	String sampleSize
 	String modelName
 	String modelDescription
+	String sensitiveFlag
+	String sensitiveDesc
 	
 	static belongsTo=[bioAssayAnalysis: BioAssayAnalysis]
 
@@ -51,6 +53,8 @@ class BioAssayAnalysisExt {
 			sampleSize column:'SAMPLE_SIZE'
 			modelName column:'MODEL_NAME'
 			modelDescription column:'MODEL_DESC'
+			sensitiveFlag column:'SENSITIVE_FLAG'
+			sensitiveDesc column:'SENSITIVE_DESC'
 		}
 	}
 
@@ -65,5 +69,7 @@ class BioAssayAnalysisExt {
 		sampleSize(nullable: true)
 		modelName(nullable: true)
 		modelDescription(nullable: true)
+		sensitiveFlag(nullable: true)
+		sensitiveDesc(nullable: true)
 	}
 }

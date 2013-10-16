@@ -42,6 +42,8 @@ class AnalysisMetadata {
 	Date processDate
 	String filename
 	String status = "NEW"
+	String sensitiveFlag = 0
+	String sensitiveDesc
 
 	static mapping = {
 		table 'LZ_SRC_ANALYSIS_METADATA'
@@ -71,6 +73,8 @@ class AnalysisMetadata {
 			processDate				column:'PROCESS_DATE'
 			modelName				column:'MODEL_NAME'
 			modelDescription		column:'MODEL_DESC'
+			sensitiveFlag			column:'SENSITIVE_FLAG'
+			sensitiveDesc			column:'SENSITIVE_DESC'
 		}
 	}
 	
@@ -95,5 +99,7 @@ class AnalysisMetadata {
 		processDate(nullable:true)
 		modelName(nullable:true)
 		modelDescription(nullable:true)
+		sensitiveFlag(nullable:false)
+		sensitiveDesc(nullable:true)
 	}
 }
