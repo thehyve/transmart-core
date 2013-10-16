@@ -58,7 +58,7 @@ class PatientSetQueryBuilderService {
             [
                 id: panelNum++,
                 select: "SELECT patient_num " +
-                        "FROM observation_fact WHERE $bigPredicate",
+                        "FROM observation_fact WHERE $bigPredicate AND concept_cd != 'SECURITY'",
                 invert: panel.invert,
             ]
         }.sort { a, b ->
