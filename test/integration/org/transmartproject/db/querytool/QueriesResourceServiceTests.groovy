@@ -305,9 +305,13 @@ class QueriesResourceServiceTests extends GroovyTestCase {
     void testFailingQuery() {
         def inputDefinition = new QueryDefinition([])
 
-        def realService = queriesResourceService.patientSetQueryBuilderService
+        def orig = queriesResourceService.patientSetQueryBuilderService
         queriesResourceService.patientSetQueryBuilderService = [
-                buildPatientSetQuery: { a, b -> 'fake query' }
+                buildPatientSetQuery: {
+                    QtQueryResultInstance resultInstance,
+                    QueryDefinition definition ->
+                    'fake query'
+                }
         ] as PatientSetQueryBuilderService
 
         try {
@@ -315,7 +319,31 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
             assertThat result, hasProperty('status', equalTo(QueryStatus.ERROR))
         } finally {
-            queriesResourceService.patientSetQueryBuilderService = realService
+            queriesResourceService.patientSetQueryBuilderService = orig
+        }
+
+    }
+
+
+    @Test
+    void testFailingQueryBuilding() {
+        def inputDefinition = new QueryDefinition([])
+
+        def orig = queriesResourceService.patientSetQueryBuilderService
+        queriesResourceService.patientSetQueryBuilderService = [
+                buildPatientSetQuery: {
+                    QtQueryResultInstance resultInstance,
+                    QueryDefinition definition ->
+                        throw new RuntimeException('foo bar')
+                }
+        ] as PatientSetQueryBuilderService
+
+        try {
+        QueryResult result = queriesResourceService.runQuery(inputDefinition)
+
+        assertThat result, hasProperty('status', equalTo(QueryStatus.ERROR))
+        } finally {
+            queriesResourceService.patientSetQueryBuilderService = orig
         }
     }
 
