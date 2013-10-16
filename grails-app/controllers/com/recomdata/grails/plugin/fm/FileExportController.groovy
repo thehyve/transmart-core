@@ -20,6 +20,7 @@
 
 package com.recomdata.grails.plugin.fm
 
+import bio.Experiment
 import com.recomdata.grails.plugin.fm.FmFile
 
 import java.util.zip.ZipEntry;
@@ -158,4 +159,37 @@ class FileExportController {
 			render(contentType: "text/plain", text: errorResponse.join("\n") + "\nError writing ZIP: " + e.getMessage())
 		}
 	}
+
+    def exportStudyFiles = {
+        def ids = []
+        def studyId = null
+        if (params.accession) {
+            studyId = Experiment.findByAccession(params.accession).id
+        }
+
+        def folder = FmFolder.findByFolderTag(studyId);
+        for (file in folder) {
+            ids.add(file.id)
+        }
+        ids = ids.join(",")
+        redirect(action: export, params: [id: ids])
+    }
+
+    def exportFile = {
+        def id = params.id
+        def filestorePath = grailsApplication.config.com.recomdata.FmFolderService.filestoreDirectory
+
+        FmFile fmFile = FmFile.get(id)
+        def fileLocation = filestorePath + "/" + fmFile.filestoreLocation + "/" + fmFile.filestoreName
+        File file = new File(fileLocation)
+        if (file.exists()) {
+            String dirName = fmFolderService.getPath(fmFile.folder, true)
+            response.setHeader('Content-disposition', 'attachment; filename=' + fmFile.displayName)
+            file.withInputStream({is -> response.outputStream << is})
+            response.outputStream.flush()
+        }
+        else {
+            render(status:500, text: "This file (" + fileLocation + ") was not found in the repository.")
+        }
+    }
 }
