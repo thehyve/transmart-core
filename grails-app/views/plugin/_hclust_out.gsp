@@ -35,7 +35,7 @@
       <i>Click on the heatmap image to open it in a new window as this may increase readability.</i>
       <br />
       <br />
-      <g:each var="location" in="${imageLocation}">
+      <g:each var="location" in="${imageLocations}">
         <a onclick="window.open('${resource(file: location)}','_blank')">
           <g:img file="${location}" width="600" height="600"></g:img>
         </a>
