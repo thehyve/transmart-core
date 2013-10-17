@@ -1,4 +1,4 @@
-/*************************************************************************   
+/*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,29 +19,34 @@ import java.util.ArrayList;
 
 class RHeatmapController {
 
-	def RModulesOutputRenderService
-	
-	def heatmapOut = 
-	{
-		//This will be the array of image links.
-		def ArrayList<String> imageLinks = new ArrayList<String>()
-		
-		//This will be the array of text file locations.
-		def ArrayList<String> txtFiles = new ArrayList<String>()
-		
-		//Grab the job ID from the query string.
-		String jobName = params.jobName
-		
-		//Gather the image links.
-		RModulesOutputRenderService.initializeAttributes(jobName,"Heatmap",imageLinks)
-		
-		String tempDirectory = RModulesOutputRenderService.tempDirectory
-		
-		//Traverse the temporary directory for the LinearRegression files.
-		def tempDirectoryFile = new File(tempDirectory)
-		
-		render(template: "/plugin/heatmap_out", model:[imageLocations:imageLinks,zipLink:RModulesOutputRenderService.zipLink],contextPath:pluginContextPath)
+  def RModulesOutputRenderService
 
-	}
-	
+  def heatmapOut =
+  {
+    //This will be the array of image links.
+    def ArrayList<String> imageLinks = new ArrayList<String>()
+
+    //This will be the array of text file locations.
+    def ArrayList<String> txtFiles = new ArrayList<String>()
+
+    //Grab the job ID from the query string.
+    String jobName = params.jobName
+
+    //Gather the image links.
+    RModulesOutputRenderService.initializeAttributes(jobName,"Heatmap",imageLinks)
+
+    String tempDirectory = RModulesOutputRenderService.tempDirectory
+
+    //Traverse the temporary directory for the LinearRegression files.
+    def tempDirectoryFile = new File(tempDirectory)
+
+    render(template: "/plugin/heatmap_out", 
+        model:[
+          imageLocations:imageLinks,
+          zipLink:RModulesOutputRenderService.zipLink
+        ],
+        contextPath:pluginContextPath)
+
+  }
+
 }
