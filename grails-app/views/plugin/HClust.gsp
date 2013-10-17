@@ -1,4 +1,4 @@
-<!--
+%{--
  Copyright 2008-2012 Janssen Research & Development, LLC.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
--->
+--}%
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -26,91 +26,91 @@
 </head>
 
 <body>
-	<form>
-	
-		<table class="subsettable" style="margin: 10px;width:300px; border: 0px none; border-collapse: collapse;" >
-			<tr>
-				<td colspan="4">
-					<span class='AnalysisHeader'>Variable Selection</span>
-					<a href='JavaScript:D2H_ShowHelp(1506,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-				<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
-					</a>					
-				</td>			
-			</tr>	
-			<tr>
-				<td colspan="4">
-					<hr />
-				</td>
-			</tr>	
-			<tr>
-				<td align="center">
-					<span class='AnalysisHeader'>Heatmap Variable</span>
-					<br />
-					<br />
-					Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.
-				</td>
-			</tr>	
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupHeatmap('divIndependentVariable')" value="X"> 
-					<br />
-					<div id='divIndependentVariable' class="queryGroupIncludeSmall"></div>
-				</td>
-			</tr>
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">
-					<input type="hidden" id="multipleSubsets" name="multipleSubsets" value="true" />
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					Max rows to display :  <input id="txtMaxDrawNumber" name="txtMaxDrawNumber" value="50" />
-				</td>
-			</tr>			
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					<div id = "displaydivIndependentVariable"></div>
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td><i>Images will look best when the height and width in pixels is set so that the image is square.</i></td>
-			</tr>
-			<tr><td><br/></td></tr>		
-			<tr>
-				<td align="center">
-					Image Width (pixels) :  <input id="txtImageWidth" value="1200" />					
-					<br />
-					<br />
-				</td>
-			</tr>				
-			<tr><td><br/></td></tr>
-			<tr>
-				<td align="center">
-					Image Height (pixels) :  <input id="txtImageHeight" value="800" />					
-					<br />
-					<br />
-				</td>
-			</tr>				
-			<tr><td><br/></td></tr>
-			<tr>
-				<td align="center">
-					Text Size (pointsize) :  <input id="txtImagePointsize" value="12" />					
-					<br />
-					<br />
-				</td>
-			</tr>							
-			<tr><td><br/></td></tr>
-			<tr>
-				<td colspan="4" align="center">
-					<input type="button" value="Run" onClick="submitHClustJob(this.form);">
-				</td>
-			</tr>
-		</table>
-	</form>
+  <form>
+
+    <table class="subsettable" style="margin: 10px;width:300px; border: 0px none; border-collapse: collapse;" >
+      <tr>
+        <td colspan="4">
+          <span class='AnalysisHeader'>Variable Selection</span>
+          <a href='JavaScript:D2H_ShowHelp(1506,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+        <img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          <hr />
+        </td>
+      </tr>
+      <tr>
+        <td align="center">
+          <span class='AnalysisHeader'>Heatmap Variable</span>
+          <br />
+          <br />
+          Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <input style="font: 9pt tahoma;" type="button" onclick="clearGroupHeatmap('divIndependentVariable')" value="X">
+          <br />
+          <div id='divIndependentVariable' class="queryGroupIncludeSmall"></div>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">
+          <input type="hidden" id="multipleSubsets" name="multipleSubsets" value="true" />
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td>
+          Max rows to display :  <input id="txtMaxDrawNumber" name="txtMaxDrawNumber" value="50" />
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td>
+          <div id = "displaydivIndependentVariable"></div>
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td><i>Images will look best when the height and width in pixels is set so that the image is square.</i></td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td align="center">
+          Image Width (pixels) :  <input id="txtImageWidth" value="1200" />
+          <br />
+          <br />
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td align="center">
+          Image Height (pixels) :  <input id="txtImageHeight" value="800" />
+          <br />
+          <br />
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td align="center">
+          Text Size (pointsize) :  <input id="txtImagePointsize" value="12" />
+          <br />
+          <br />
+        </td>
+      </tr>
+      <tr><td><br/></td></tr>
+      <tr>
+        <td colspan="4" align="center">
+          <input type="button" value="Run" onClick="submitHClustJob(this.form);">
+        </td>
+      </tr>
+    </table>
+  </form>
 </body>
 
 </html>
