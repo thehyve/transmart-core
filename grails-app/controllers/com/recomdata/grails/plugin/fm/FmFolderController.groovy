@@ -1414,17 +1414,18 @@ class FmFolderController {
         return true
     }
 
+    //TODO Make generic, not just Experiment
     def getFolderFiles = {
-        //Get the folder ID for the study/analysis selected
+        //Get the folder ID for the study selected
         def paramMap = params
-        def id;
+        def experiment = null
         if (params.id) {
-            id = params.id;
+            experiment = Experiment.get(params.id)
         }
         else if (params.accession) {
-            id = Experiment.findByAccession(params.accession).id
+            experiment = Experiment.findByAccession(params.accession)
         }
-        def folder = FmFolder.findByFolderTag(id);
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
         if (params.returnJSON) {
             def fileList = folder.getFmFiles()
             def infoList = [:]
@@ -1438,6 +1439,19 @@ class FmFolderController {
         else {
             render(template:'filesTable', model:[folder: folder], plugin:'folderManagement')
         }
+    }
+
+    def getFolderHasFiles = {
+        def paramMap = params
+        def experiment = null
+        if (params.id) {
+            experiment = Experiment.get(params.id)
+        }
+        else if (params.accession) {
+            experiment = Experiment.findByAccession(params.accession)
+        }
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        render (text: folder?.fmFiles ? true : false);
     }
 
 

@@ -162,14 +162,13 @@ class FileExportController {
 
     def exportStudyFiles = {
         def ids = []
-        def studyId = null
-        if (params.accession) {
-            studyId = Experiment.findByAccession(params.accession).id
-        }
+        def folder = fmFolderService.getFolderByBioDataObject(Experiment.findByAccession(params.accession))
 
-        def folder = FmFolder.findByFolderTag(studyId);
-        for (file in folder) {
-            ids.add(file.id)
+        def files = folder.fmFiles
+        for (file in files) {
+            if (file.activeInd) {
+                ids.add(file.id)
+            }
         }
         ids = ids.join(",")
         redirect(action: export, params: [id: ids])
