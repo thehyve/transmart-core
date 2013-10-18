@@ -9,7 +9,7 @@
  * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
  * @type {number}
  */
-var GEN_RESULT_GRID_LIMIT = 25;
+var GEN_RESULT_GRID_LIMIT = 100;
 
 
 GenericToolTip = Ext.extend(Ext.ToolTip, {
