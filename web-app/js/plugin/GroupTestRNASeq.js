@@ -263,10 +263,10 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 	},
 
 	isGroupFieldValid: function() {
-		if (this.inputBar.groupPanel.getConceptCodes().length < 2) {
+        if (this.inputBar.groupPanel.getNumberOfConceptCodes() < 2) {
 			Ext.MessageBox.show({
-				title: 'Number of groups',
-				msg: 'There should be selected more than one group.',
+				title: 'Incorrect number of groups',
+				msg: '[Group] input field should contain than one variables. Please add more variable.',
 				buttons: Ext.MessageBox.OK,
 				icon: Ext.MessageBox.ERROR
 			});
@@ -486,6 +486,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
  * Invoked when user selects Group Test for RNAseq from Analysis combo box
  */
 function loadGroupTestRNASeqView() {
+    console.log("loadGroupTestRNASeqView() .....");
 	// everything starts here ..
 	RNASeqgroupTestView = new RNASeqGroupTestView();
 }
