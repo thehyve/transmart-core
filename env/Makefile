@@ -1,7 +1,7 @@
 KETTLE_VERSION=4.4.0
 
-UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli curl tar \
-				openjdk-7-jdk gfortran g++
+UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
+				tar openjdk-7-jdk gfortran g++
 
 OBDREJ_KEY=E5267A6C 
 install_ubuntu_packages:
