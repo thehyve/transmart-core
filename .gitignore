@@ -4,3 +4,5 @@ target
 plugin.xml
 /web-app
 **/*.iml
+/.classpath
+/.project
