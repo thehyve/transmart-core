@@ -40,6 +40,11 @@ install_rserve_init:
 		rserve.php > /etc/init.d/rserve
 	chmod +x /etc/init.d/rserve
 
+install_rserve_unit:
+	TRANSMART_USER=$(TRANSMART_USER) php -d variables_order=E -d open_basedir=/ \
+		rserve.service.php > /etc/systemd/system/rserve.service
+	systemctl daemon-reload
+
 clean:
 	rm -rf build $(R_SOURCE) root
 
