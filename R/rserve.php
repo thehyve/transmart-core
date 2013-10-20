@@ -6,7 +6,7 @@ if (!isset($_ENV['TRANSMART_USER'])) {
 $u = $_ENV['TRANSMART_USER'];
 $r = __DIR__ . '/root/bin/R';
 ?>
-#!/bin/sh
+#!/bin/bash
 
 ### BEGIN INIT INFO
 # Provides:             rserve
@@ -17,37 +17,65 @@ $r = __DIR__ . '/root/bin/R';
 # Short-Description:    rserve
 ### END INIT INFO
 
+function do_start {
+        # Rserve does not daemonize properly. We need to reopen stdout
+        # as /dev/null, otherwise we get all kinds of output
+        # The standard way to do it is to connect /dev/null to file
+        # descriptors 0, 1 and 2 only in the child (daemonized) process
+        # but obviously we are unable to do that
+        exec 7>&1
+        exec 1>/dev/null
+        su - -c "<?= $r ?> CMD Rserve --quiet --vanilla" <?= $u, "\n" ?> >&7
+        EXIT_VAL=$?
+        exec 1>&7 7>&-
+        if [ $EXIT_VAL -eq 0 ]; then
+                echo "Rserve started"
+        else
+                echo "Failed starting Rserve"
+        fi
+}
+
+function do_stop {
+        if pgrep -u <?= $u ?> -f Rserve  > /dev/null
+        then
+                kill `pgrep -u  <?= $u ?> -f Rserve`
+				if [ $? -eq 0 ]; then
+						echo "Rserve killed"
+				else
+						echo "Failed killing Rserve"
+				fi
+        else
+                echo "nothing to stop; Rserve is not running"
+                exit 0
+        fi
+}
+
 case "$1" in
         start)
-                su - -c "<?= $r ?> CMD Rserve --quiet --vanilla" <?= $u, "\n" ?>
+                do_start
         ;;
 
         stop)
-                if pgrep -u <?= $u ?> -f Rserve  > /dev/null
-                then
-                    kill `pgrep -u  <?= $u ?> -f Rserve`
-                else
-                    echo "nothing to stop; Rserve is not running"
-                    exit 0
-                fi
+                do_stop
         ;;
 
         restart|reload|force-reload)
-                kill `pgrep -u <?= $u ?> -f Rserve`
-                su - -c "<?= $r ?> CMD Rserve --vanilla" <?= $u, "\n" ?>
+                do_stop
+                do_start
         ;;
 
         status)
                 if pgrep -u <?= $u ?> -f Rserve > /dev/null
                 then
-                    echo "Rserve service running."
-                    exit 0
+                        echo "Rserve service running."
+                        exit 0
                 else
-                    echo "Rserve is not running"
-                    exit 1
+                        echo "Rserve is not running"
+                        exit 1
                 fi
         ;;
-          *)
+
+        *)
                 echo "Usage: $0 {start|stop|status|restart|force-reload|reload}" >&2
                 exit 1
         ;;
