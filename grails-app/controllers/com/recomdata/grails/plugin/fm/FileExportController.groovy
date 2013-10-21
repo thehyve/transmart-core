@@ -183,7 +183,9 @@ class FileExportController {
         File file = new File(fileLocation)
         if (file.exists()) {
             String dirName = fmFolderService.getPath(fmFile.folder, true)
-            response.setHeader('Content-disposition', 'attachment; filename=' + fmFile.displayName)
+            if (!params.open) {
+                response.setHeader('Content-disposition', 'attachment; filename=' + fmFile.displayName)
+            }
             file.withInputStream({is -> response.outputStream << is})
             response.outputStream.flush()
         }

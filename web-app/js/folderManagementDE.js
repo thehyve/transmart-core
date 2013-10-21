@@ -122,6 +122,13 @@ FM.fileNodeRightClick = function(eventNode, event)
                 id : 'contextMenuFile',
                 items : [
                     {
+                        text : 'Open', handler : function()
+                    {
+                        window.open(pageInfo.basePath + "/fileExport/exportFile/?id=" + eventNode.attributes.fileId + "&open=true", '_blank');
+                    }
+                    }
+                    ,
+                    {
                         text : 'Download', handler : function()
                     {
                         window.location.href = pageInfo.basePath + "/fileExport/exportFile/?id=" + eventNode.attributes.fileId;
