@@ -33,11 +33,11 @@ public interface Platform {
     String getOrganism()
 
     /**
-     * A genome build identifier.
+     * A genome build release identifier.
      *
-     * @return genome build identifier
+     * @return the genome build number
      */
-    String getGenomeBuild()
+    Integer getReleaseNumber()
 
     /**
      * The time when this platform was imported to the database. Maybe.
