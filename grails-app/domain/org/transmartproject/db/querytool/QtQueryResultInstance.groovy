@@ -24,7 +24,10 @@ class QtQueryResultInstance implements QueryResult {
 	static mapping = {
         table          schema: 'I2B2DEMODATA'
 
-        id             column: "result_instance_id", generator: "identity"
+        /* use sequence instead of identity because our Oracle schema doesn't
+         * have a trigger that fills the column in this case */
+        id             column: 'result_instance_id', generator: 'sequence',
+                       params: [sequence: 'qt_sq_qri_qriid']
         errorMessage   column: 'message'
         queryInstance  column: 'query_instance_id'
 

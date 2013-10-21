@@ -9,10 +9,13 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.AbstractQuerySpecifyingType
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 class PatientSetQueryBuilderService {
 
     def conceptsResourceService
+
+    def databasePortabilityService
 
     String buildPatientSetQuery(QtQueryResultInstance resultInstance,
                                 QueryDefinition definition) throws
@@ -84,17 +87,23 @@ class PatientSetQueryBuilderService {
                         (acc.empty
                             ? ""
                             : panel.invert
-                                    ? ' EXCEPT '
+                                    ? " $databasePortabilityService.complementOperator "
                                     : ' INTERSECT ') +
                         "($panel.select)"
             }
         }
 
+        //$patientSubQuery has result set with single column: 'patient_num'
+        def windowFunctionOrderBy = ''
+        if (databasePortabilityService.databaseType == ORACLE) {
+            //Oracle requires this, PostgreSQL supports it, and H2 rejects it
+            windowFunctionOrderBy = 'ORDER BY patient_num'
+        }
 
         def sql = "INSERT INTO qt_patient_set_collection (result_instance_id," +
                 " patient_num, set_index) " +
                 "SELECT ${resultInstance.id}, P.patient_num, " +
-                " row_number() OVER () " +
+                " row_number() OVER ($windowFunctionOrderBy) " +
                 "FROM ($patientSubQuery ORDER BY 1) P"
 
         log.debug "SQL statement: $sql"
@@ -117,7 +126,7 @@ class PatientSetQueryBuilderService {
     private String doItem(AbstractQuerySpecifyingType term,
                           ConstraintByValue constraint) {
         /* constraint represented by the ontology term */
-        def clause = "$term.factTableColumn IN ($term.querySql)"
+        def clause = "$term.factTableColumn IN (${getQuerySql(term)})"
 
         /* additional (and optional) constraint by value */
         if (!constraint) {
@@ -143,6 +152,21 @@ class PatientSetQueryBuilderService {
         }
 
         clause
+    }
+
+    /**
+     * Returns the SQL for the query that this object represents.
+     *
+     * @return raw SQL of the query that this type represents
+     */
+    private String getQuerySql(AbstractQuerySpecifyingType term) {
+        def res = "SELECT $term.factTableColumn " +
+                "FROM $term.dimensionTableName " +
+                "WHERE $term.columnName $term.operator $term.processedDimensionCode"
+        if (databasePortabilityService.databaseType == ORACLE) {
+            res += " ESCAPE '\\'"
+        }
+        res
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,

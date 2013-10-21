@@ -19,7 +19,11 @@ class QtQueryMaster {
 
 	static mapping = {
         table           schema: 'I2B2DEMODATA'
-        id              column: "query_master_id",  generator: "identity"
+
+        /* use sequence instead of identity because our Oracle schema doesn't
+         * have a trigger that fills the column in this case */
+        id              column: 'query_master_id', generator: 'sequence',
+                        params: [sequence: 'qt_sq_qm_qmid']
         generatedSql    type:   'text'
         requestXml      type:   'text'
         i2b2RequestXml  column: 'I2B2_REQUEST_XML', type: 'text'

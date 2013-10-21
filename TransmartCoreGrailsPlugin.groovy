@@ -1,4 +1,5 @@
 import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
@@ -21,10 +22,7 @@ A runtime dependency for tranSMART that implements the Core API
     // URL to the plugin's documentation
     def documentation = "http://transmartproject.org"
 
-    // Extra (optional) plugin metadata
-
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
+    def license = "GPL3"
 
     // Details of company behind the plugin (if there is one)
 //    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
@@ -51,6 +49,10 @@ A runtime dependency for tranSMART that implements the Core API
 
     def doWithDynamicMethods = { ctx ->
         String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
+
+        /* Force this bean to be initialized, as it has some dynamic methods
+         * to register during its init() method */
+        ctx.getBean DatabasePortabilityService
     }
 
     def doWithApplicationContext = { applicationContext ->

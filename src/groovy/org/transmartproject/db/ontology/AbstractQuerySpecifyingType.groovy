@@ -13,17 +13,6 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       operator
     String       dimensionCode
 
-    /**
-     * Returns the SQL for the query that this object represents.
-     *
-     * @return raw SQL of the query that this type represents
-     */
-    String getQuerySql() {
-        "SELECT $factTableColumn " +
-                "FROM $dimensionTableName " +
-                "WHERE $columnName $operator $processedDimensionCode"
-    }
-
     /* implements (hopefully improved) transformations described here:
      * https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology
      */

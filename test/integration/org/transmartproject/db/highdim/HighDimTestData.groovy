@@ -12,7 +12,7 @@ class HighDimTestData {
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
                 markerTypeId: DeChromosomalRegion.MARKER_TYPE.id,
-                genomeBuild: 'genome build #1',
+                releaseNumber: 18,
         )
         p.id = 'test-region-platform'
         p

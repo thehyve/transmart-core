@@ -11,15 +11,16 @@ class DeGplInfo implements Platform {
     String organism
     Date   annotationDate
     String markerTypeId
-    String genomeBuild
+    Integer releaseNumber
 
     static transients = ['markerType']
 
 	static mapping = {
-        table        schema: 'deapp'
+        table         schema: 'deapp'
 
-        id           column: "platform",   generator: "assigned"
-        markerTypeId column: 'marker_type'
+        id            column: "platform",   generator: "assigned"
+        markerTypeId  column: 'marker_type'
+        releaseNumber column: 'release_nbr'
 
         version      false
 	}
@@ -31,7 +32,7 @@ class DeGplInfo implements Platform {
         organism       nullable: true, maxSize: 100
         annotationDate nullable: true
         markerTypeId   nullable: true, maxSize: 100
-        genomeBuild    nullable: true, maxSize: 20
+        releaseNumber  nullable: true
 	}
 
     @Override

@@ -2,6 +2,8 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+grails.project.repos.default = 'repo.thehyve.nl-snapshots'
+grails.project.repos."${grails.project.repos.default}".url = 'https://repo.thehyve.nl/content/repositories/snapshots/'
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -12,14 +14,13 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
     repositories {
-        mavenRepo([
-                name: 'repo.transmartfoundation.org',
-                root: 'http://repo.transmartfoundation.org/content/repositories/public/'
-        ])
         grailsCentral()
         mavenLocal()
         mavenCentral()
-
+        mavenRepo([
+                name: 'repo.thehyve.nl-snapshots',
+                root: 'http://repo.thehyve.nl/content/repositories/snapshots/',
+        ])
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -50,7 +51,9 @@ grails.project.dependency.resolution = {
             exported: false
         }
 
-		test ":code-coverage:1.2.6"
+        test ":code-coverage:1.2.6", {
+            exported: false
+        }
     }
 
     // see http://jira.grails.org/browse/GPRELEASE-42
