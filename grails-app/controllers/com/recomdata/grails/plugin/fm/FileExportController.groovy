@@ -109,9 +109,16 @@ class FileExportController {
 				def fileLocation = filestorePath + "/" + fmFile.filestoreLocation + "/" + fmFile.filestoreName
 				File file = new File(fileLocation)
 				if (file.exists()) {
+
+                    //Construct a file name out of the display name + suffix, if needed
+                    def exportName = fmFile.displayName;
+                    if (!exportName.endsWith("." + fmFile.fileType)) {
+                        exportName += "." + fmFile.fileType
+                    }
+
 					String dirName = fmFolderService.getPath(fmFile.folder, true)
 					if (dirName.startsWith("/") || dirName.startsWith("\\")) { dirName = dirName.substring(1) } //Lose the first separator character, this would cause a blank folder name in the zip
-					def fileEntry = new ZipEntry(dirName + "/" + fmFolderService.safeFileName(fmFile.displayName))
+					def fileEntry = new ZipEntry(dirName + "/" + fmFolderService.safeFileName(exportName))
 					zipStream.putNextEntry(fileEntry)
 					file.withInputStream({is -> zipStream << is})
 					zipStream.closeEntry()
@@ -183,9 +190,17 @@ class FileExportController {
         File file = new File(fileLocation)
         if (file.exists()) {
             String dirName = fmFolderService.getPath(fmFile.folder, true)
-            if (!params.open) {
-                response.setHeader('Content-disposition', 'attachment; filename=' + fmFile.displayName)
+
+            //Construct a file name out of the display name + suffix, if needed
+            def exportName = fmFile.displayName;
+            if (!exportName.endsWith("." + fmFile.fileType)) {
+                exportName += "." + fmFile.fileType
             }
+            def mimeType = URLConnection.guessContentTypeFromName(file.getName())
+            if (!params.open) {
+                response.setHeader('Content-disposition', 'attachment; filename=' + exportName)
+            }
+            response.setHeader('Content-Type', mimeType)
             file.withInputStream({is -> response.outputStream << is})
             response.outputStream.flush()
         }

@@ -112,28 +112,35 @@ class FmFolderService {
      * @param file file to be proceessed
      * @return
      */
-    def processFile(File file) {
+    def processFile(File file, FmFolder fmFolder = null, String customName = null, String description = null) {
 
 //		log.info("FmFolderService.processFile(" + file.getPath() + ")");
         // Use file's parent directory as ID of folder which file will
         // be associated with.
+
+        //This method is used to import from the import folder as well as import manually uploaded files.
+        //If we haven't been given a folder, work it out from the file's location.
         File directory = file.getParentFile();
-        FmFolder fmFolder;
-        try {
-            long folderId = Long.parseLong(directory.getName());
-            fmFolder = FmFolder.get(folderId);
-            if (fmFolder == null) {
-                log.error("Folder with id " + folderId + " does not exist.")
+        if (fmFolder == null) {
+            try {
+                long folderId = Long.parseLong(directory.getName());
+                fmFolder = FmFolder.get(folderId);
+                if (fmFolder == null) {
+                    log.error("Folder with id " + folderId + " does not exist.")
+                    return;
+                }
+            } catch (NumberFormatException ex) {
                 return;
             }
-        } catch (NumberFormatException ex) {
-            return;
         }
 
         // Check if folder already contains file with same name.
         def fmFile;
+
+        def newFileName = customName?:file.getName()
+
         for (f in fmFolder.fmFiles) {
-            if (f.originalName == file.getName()) {
+            if (f.displayName == newFileName) {
                 fmFile = f;
                 break;
             }
@@ -147,13 +154,14 @@ class FmFolderService {
             log.info("File = " + file.getName() + " (" + fmFile.id + ") - Existing");
         } else {
             fmFile = new FmFile(
-                    displayName: file.getName(),
+                    displayName: newFileName,
                     originalName: file.getName(),
                     fileType: getFileType(file),
                     fileSize: file.length(),
                     filestoreLocation: "",
                     filestoreName: "",
-                    linkUrl: ""
+                    linkUrl: "",
+                    fileDescription: description
             );
             if (!fmFile.save(flush:true)) {
                 fmFile.errors.each {
