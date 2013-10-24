@@ -9,16 +9,9 @@ def parseOptions() {
   options
 }
 
-def getEnvVars(var) {
-  System.getenv(var)
-  //def e = new Object()
-  //e.metaClass.propertyMissing = System.&getenv
-  //def err = System.err.&println
-}
-
 def setupDatabaseConnection() {
   def driver = "oracle.jdbc.driver.OracleDriver"
-  def jdbcUrl = "jdbc:oracle:thin:@${getEnvVar('ORAHOST')}:${getEnvVar('ORAPORT')}:${getEnvVars('ORASID')}"
+  def jdbcUrl = "jdbc:oracle:thin:@${System.getenv('ORAHOST')}:${System.getenv('ORAPORT')}:${System.getenv('ORASID')}"
   def username = 'tm_cz'
   def password = 'tm_cz'
   Sql sql = Sql.newInstance jdbcUrl, username, password, driver
