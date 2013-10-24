@@ -1,6 +1,6 @@
 @Grab(group='net.sf.opencsv', module='opencsv', version='2.3')
 import au.com.bytecode.opencsv.CSVReader
-import groovy.sql.Sql
+import DatabaseConnection
 
 def parseOptions() {
   def cli = new CliBuilder(usage: "load_tsv_file.groovy -t table -f file")
@@ -10,17 +10,8 @@ def parseOptions() {
   options
 }
 
-def setupDatabaseConnection() {
-  def driver = "oracle.jdbc.driver.OracleDriver"
-  def jdbcUrl = "jdbc:oracle:thin:@${System.getenv('ORAHOST')}:${System.getenv('ORAPORT')}:${System.getenv('ORASID')}"
-  def username = 'tm_cz'
-  def password = 'tm_cz'
-  Sql sql = Sql.newInstance jdbcUrl, username, password, driver
-  sql
-}
-
 def uploadTsvFileToTable(file, table) {
-  sql = setupDatabaseConnection()
+  sql = DatabaseConnection.setupDatabaseConnection()
   CSVReader reader = new CSVReader(new FileReader(file), '\t'.toCharacter());
   int i = 0
   String [] nextLine;
@@ -40,7 +31,7 @@ def uploadTsvFileToTable(file, table) {
 }
 
 def truncateTable(table) {
-  sql = setupDatabaseConnection()
+  sql = DatabaseConnection.setupDatabaseConnection()
   sql.execute("TRUNCATE TABLE $table" as String)
   sql.close()
 }

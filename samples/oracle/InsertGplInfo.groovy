@@ -1,13 +1,5 @@
 import groovy.sql.Sql
-
-def setupDatabaseConnection() {
-  def driver = "oracle.jdbc.driver.OracleDriver"
-  def jdbcUrl = "jdbc:oracle:thin:@${System.getenv('ORAHOST')}:${System.getenv('ORAPORT')}:${System.getenv('ORASID')}"
-  def username = 'tm_cz'
-  def password = 'tm_cz'
-  Sql sql = Sql.newInstance jdbcUrl, username, password, driver
-  sql
-}
+import DatabaseConnection
 
 def parseOptions() {
   def cli = new CliBuilder(usage: "InsertGplInfo.groovy -p platform -t title -o organism")
@@ -20,7 +12,7 @@ def parseOptions() {
 
 
 def alreadyLoaded(platform) {
-  sql = setupDatabaseConnection()
+  sql = DatabaseConnection.setupDatabaseConnection()
   result = sql.firstRow(
     "SELECT platform FROM deapp.de_gpl_info WHERE platform = ?", [platform]
   )
@@ -34,7 +26,7 @@ def alreadyLoaded(platform) {
 }
 
 def insertGlpInfo(options) {
-  sql = setupDatabaseConnection()
+  sql = DatabaseConnection.setupDatabaseConnection()
   sql.execute(
       "INSERT INTO deapp.de_gpl_info(platform, title, organism, marker_type)" +
       " VALUES (:platform, :title, :organism, 'Gene Expression')",
