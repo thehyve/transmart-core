@@ -165,7 +165,7 @@ To install the configuration files into `$TSUSER_HOME/.grails/transmartConfig`,
 (`$TSUSER_HOME` is one of the environment variables defined in the `vars` file)
 run:
 
-    make -C conf install
+    make -C config install
 
 ### Generating new import files from model database
 
