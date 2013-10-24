@@ -1,7 +1,1 @@
-#!/bin/bash
-
-set -e
-
-source $1
-
-echo $PLATFORM
+../common/load_ref_annotation.sh
