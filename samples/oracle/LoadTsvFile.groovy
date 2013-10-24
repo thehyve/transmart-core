@@ -1,4 +1,5 @@
 @Grab(group='net.sf.opencsv', module='opencsv', version='2.3')
+import au.com.bytecode.opencsv.CSVReader
 import groovy.sql.Sql
 
 def parseOptions() {
@@ -20,12 +21,28 @@ def setupDatabaseConnection() {
 
 def uploadTsvFileToTable(file, table) {
   sql = setupDatabaseConnection()
-  sql.execute("LOAD DATA INFILE ${options.file} INTO TABLE ${options.table}")
+  CSVReader reader = new CSVReader(new FileReader(file), '\t'.toCharacter());
+  int i = 0
+  String [] nextLine;
+  //keep memory load by doing one by one
+  while ((nextLine = reader.readNext()) != null) {
+    print '.'
+    i++
+    if (i % 500 == 0) { print i }
+
+    sql.execute(
+    "INSERT INTO ${table}(gpl_id, probe_id, gene_symbol, gene_id, organism)" +
+    " VALUES ('${nextLine[0]}', '${nextLine[1]}', '${nextLine[2]}', '${nextLine[3]}', '${nextLine[4]}')" as String
+    )
+  }
+  print '\n'
+  sql.close()
 }
 
 def truncateTable(table) {
   sql = setupDatabaseConnection()
-  sql.execute("TRUNCATE ${table}")
+  sql.execute("TRUNCATE TABLE $table" as String)
+  sql.close()
 }
 
 //def loadAnnotationParams() {
