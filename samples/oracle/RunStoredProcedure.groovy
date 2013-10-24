@@ -7,9 +7,11 @@ def runStoredProcedure() {
   if (return_value != 1) {
     println return_value
     println "Call to load function failed; run showdblog target"
-	System.exit 1
+    System.exit 1
   }
   sql.close()
 }
 
 runStoredProcedure()
+
+// vim: et sts=0 sw=2 ts=2 cindent cinoptions=(0,u0,U0
