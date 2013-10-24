@@ -36,10 +36,15 @@ def insertGlpInfo(options) {
 }
 
 options = parseOptions()
-if (!options) return
+if (!options) {
+	System.exit 1
+}
 
 if (!alreadyLoaded(options.platform)) {
   insertGlpInfo(options)
 } else {
   println "Platform ${options.platform} already loaded; skipping"
+  System.exit 3
 }
+
+// vim: et sts=0 sw=2 ts=2 cindent cinoptions=(0,u0,U0

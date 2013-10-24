@@ -7,3 +7,5 @@ JDBC_DL = http://files.thehyve.net
 RDBMS = oracle
 
 include ../common/makefile.inc
+
+export JDBC_DRIVER

@@ -1,43 +1,88 @@
 @Grab(group='net.sf.opencsv', module='opencsv', version='2.3')
 import au.com.bytecode.opencsv.CSVReader
 import DatabaseConnection
+import groovy.sql.Sql
+import groovy.sql.BatchingPreparedStatementWrapper
 
 def parseOptions() {
-  def cli = new CliBuilder(usage: "load_tsv_file.groovy -t table -f file")
-  cli.f('which file', required: true, longOpt: "file", args: 1)
-  cli.t('which table', required: true, longOpt: "table", args: 1)
+  def cli = new CliBuilder(usage: "LoadTsvFile.groovy")
+  cli.t 'qualified table name', required: true, longOpt: 'table', args: 1, argName: 'table'
+  cli.f 'tsv file; stdin if unspecified', longOpt: 'file', args: 1, argName: 'file'
+  cli.c 'column names', longOpt: 'cols', argName: 'col1,col2,...', args: 1
+  cli._ 'truncate table before', longOpt: 'truncate'
+  cli.b 'batch size', longOpt: 'batch', args: 1
   def options = cli.parse(args)
+  if (options && options.b && (!options.b.isInteger() || options.b < 0)) {
+      System.err.println 'Bad value for batch size'
+      return false
+  }
   options
 }
 
-def uploadTsvFileToTable(file, table) {
-  sql = DatabaseConnection.setupDatabaseConnection()
-  CSVReader reader = new CSVReader(new FileReader(file), '\t'.toCharacter());
-  int i = 0
-  String [] nextLine;
-  //keep memory load by doing one by one
-  while ((nextLine = reader.readNext()) != null) {
-    print '.'
-    i++
-    if (i % 500 == 0) { print i }
+def uploadTsvFileToTable(Sql sql, File file, String table, String columns, int batchSize) {
+  CSVReader reader       = new CSVReader(file.newReader('UTF-8'), '\t' as char)
+  int       i            = 0
+  String    colGroup     = ''
+  String    placeHolders
+  String[]  line
 
-    sql.execute(
-    "INSERT INTO ${table}(gpl_id, probe_id, gene_symbol, gene_id, organism)" +
-    " VALUES ('${nextLine[0]}', '${nextLine[1]}', '${nextLine[2]}', '${nextLine[3]}', '${nextLine[4]}')" as String
-    )
+  if (columns) {
+    colGroup = columns.split(',').collect({ String it ->
+      it[0] == '"' ?
+        it :
+        ('"' + it.toUpperCase(Locale.ENGLISH) + '"')
+    }).join(', ')
+    colGroup = "($colGroup)"
   }
-  print '\n'
-  sql.close()
+
+  line = reader.readNext()
+
+  if (!line) {
+    return
+  }
+
+  placeHolders = line.collect({ '?' }).join(', ')
+
+  sql.withBatch batchSize, "INSERT INTO $table$colGroup VALUES ($placeHolders)", {
+    BatchingPreparedStatementWrapper it ->
+    while (line != null) {
+      i++
+      if (i % 10000 == 0) {
+        println i
+      }
+
+      it.addBatch line
+
+      line = reader.readNext()
+    }
+  }
+  println i
 }
 
-def truncateTable(table) {
-  sql = DatabaseConnection.setupDatabaseConnection()
+def truncateTable(sql, table) {
   sql.execute("TRUNCATE TABLE $table" as String)
-  sql.close()
 }
 
 options = parseOptions()
-if (!options) { return }
 
-truncateTable(options.table)
-uploadTsvFileToTable(options.file, options.table)
+if (!options) {
+	System.exit 1
+}
+
+def sql = DatabaseConnection.setupDatabaseConnection()
+
+sql.withTransaction {
+  if (options.truncate) {
+    print "Truncating table ${options.table}... "
+    truncateTable(sql, options.table)
+    println 'Done'
+  }
+
+  uploadTsvFileToTable(sql,
+                       options.file ? new File(options.file) : System.in,
+                       options.table,
+                       options.c,
+                       options.b ? options.b as int : 5000)
+}
+
+// vim: et sts=0 sw=2 ts=2 cindent cinoptions=(0,u0,U0

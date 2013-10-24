@@ -6,7 +6,8 @@ def runStoredProcedure() {
   return_value = sql.execute("SELECT TM_CZ.i2b2_load_annotation_deapp()")
   if (return_value != 1) {
     println return_value
-    println "Call to load function failed; check error/audit tables"
+    println "Call to load function failed; run showdblog target"
+	System.exit 1
   }
   sql.close()
 }
