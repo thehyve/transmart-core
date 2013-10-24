@@ -11,6 +11,11 @@ include ../../makefile.inc
 $(JDBC_DRIVER):
 	curl -f $(JDBC_DL)/$@ > $@
 
+showdblog: $(JDBC_DRIVER)
+	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
+
+.PHONY: showdblog
+
 export KETTLE_JOBS
 
 ifndef KITCHEN

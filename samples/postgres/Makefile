@@ -7,8 +7,3 @@ JDBC_DL = http://jdbc.postgresql.org/download
 RDBMS = postgres
 
 include ../common/makefile.inc
-
-showdblog: $(JDBC_DRIVER)
-	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
-
-.PHONY: showdblog
