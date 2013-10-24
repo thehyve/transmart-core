@@ -45,16 +45,6 @@ def truncateTable(table) {
   sql.close()
 }
 
-//def loadAnnotationParams() {
-  //def annotationParams = new File('')
-//}
-
-//def uploadPlatformGplInfo() {
-  //loadAnnotationParams()
-  //sql = setupDatabaseConnection()
-  //sql.
-//}
-
 options = parseOptions()
 if (!options) { return }
 
