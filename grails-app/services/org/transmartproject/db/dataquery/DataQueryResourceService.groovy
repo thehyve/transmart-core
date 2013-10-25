@@ -202,5 +202,3 @@ class DataQueryResourceService implements DataQueryResource {
         }
     }
 }
-
-
