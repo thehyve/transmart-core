@@ -19,6 +19,16 @@ def parseOptions() {
   options
 }
 
+private String constructColumnExpression(String columns) {
+  columnExpression = columns.split(',').collect({ String it ->
+    if (it[0] != '"') {
+      it = '"' + it.toUpperCase(Locale.ENGLISH) + '"'
+    }
+    it
+  }).join(', ')
+  "($colGroup)"
+}
+
 def uploadTsvFileToTable(Sql sql, File file, String table, String columns, int batchSize) {
   CSVReader reader       = new CSVReader(file.newReader('UTF-8'), '\t' as char)
   int       i            = 0
@@ -27,12 +37,7 @@ def uploadTsvFileToTable(Sql sql, File file, String table, String columns, int b
   String[]  line
 
   if (columns) {
-    colGroup = columns.split(',').collect({ String it ->
-      it[0] == '"' ?
-        it :
-        ('"' + it.toUpperCase(Locale.ENGLISH) + '"')
-    }).join(', ')
-    colGroup = "($colGroup)"
+    colGroup = constructColumnExpression(columns)
   }
 
   line = reader.readNext()
