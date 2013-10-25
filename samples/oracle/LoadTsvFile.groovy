@@ -66,7 +66,7 @@ def truncateTable(sql, table) {
 options = parseOptions()
 
 if (!options) {
-	System.exit 1
+  System.exit 1
 }
 
 def sql = DatabaseConnection.setupDatabaseConnection()
