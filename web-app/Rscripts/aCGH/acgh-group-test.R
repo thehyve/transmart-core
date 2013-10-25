@@ -103,7 +103,7 @@ acgh.group.test <- function
     b.freq <- fdrs[,paste(which, '.freq.', groupnames[2], sep='')]
     fdr <- fdrs$fdr
     
-    if ('num.probes' %in% colnames(fdrs)) {
+    if ('num.probes' %in% colnames(fdrs) & !any(is.na(fdrs$num.probes))) {
       chromosomes <- rep(chromosomes, fdrs$num.probes)
       a.freq <- rep(a.freq, fdrs$num.probes)
       b.freq <- rep(b.freq, fdrs$num.probes)
