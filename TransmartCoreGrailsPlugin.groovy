@@ -4,7 +4,7 @@ import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
     // the plugin version
-    def version = "1.0-SNAPSHOT"
+    def version = "1.0-rc2_dev-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.2 > *"
     // resources that are excluded from plugin packaging
