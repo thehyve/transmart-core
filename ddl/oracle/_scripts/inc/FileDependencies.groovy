@@ -1,12 +1,5 @@
 package inc
 
-/**
- * Created with IntelliJ IDEA.
- * User: gustavo
- * Date: 10/28/13
- * Time: 4:22 PM
- * To change this template use File | Settings | File Templates.
- */
 class FileDependencies {
 
     Map<File, Set<File>> deps
