@@ -1,0 +1,5 @@
+/ojdbc*
+*/_synonyms.sql
+*/_grants.sql
+/GLOBAL/tablespaces.sql
+/runsql.sh

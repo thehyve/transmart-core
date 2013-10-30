@@ -11,4 +11,10 @@ postgres_load:
 postgres_drop:
 	$(MAKE) -C ddl/postgres/GLOBAL drop
 
-.PHONY: postgres postgres_load postgres_drop
+oracle:
+	$(MAKE) -C ddl/oracle load
+
+oracle_drop:
+	$(MAKE) -C ddl/oracle drop
+
+.PHONY: postgres postgres_load postgres_drop oracle oracle_drop
