@@ -8,9 +8,6 @@ include ../../makefile.inc
 # PostgreSQL's Makefile and only the common stuff should be here.
 # To be done when more analsyes are ported to Oracle
 
-$(JDBC_DRIVER):
-	curl -f $(JDBC_DL)/$@ > $@
-
 showdblog: $(JDBC_DRIVER)
 	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
 
