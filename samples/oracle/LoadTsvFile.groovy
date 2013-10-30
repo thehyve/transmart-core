@@ -26,7 +26,7 @@ private String constructColumnExpression(String columns) {
     }
     it
   }).join(', ')
-  "($colGroup)"
+  "($columnExpression)"
 }
 
 def uploadTsvFileToTable(Sql sql, File file, String table, String columns, int batchSize) {
