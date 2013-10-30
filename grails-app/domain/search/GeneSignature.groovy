@@ -30,7 +30,8 @@
  import bio.Compound
  import bio.ConceptCode
  import bio.CellLine
-import com.recomdata.util.IDomainExcelWorkbook
+
+ import com.recomdata.util.IDomainExcelWorkbook
  import com.recomdata.util.ExcelSheet
  import com.recomdata.util.ExcelGenerator
 
@@ -194,12 +195,17 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 	 */
 	def beforeUpdate = {
 		lastUpdated = new Date()
-		uniqueId = DOMAIN_KEY+":"+id
+        //uniqueId = DOMAIN_KEY_GL+":"+id
 	}
 
 	def updateUniqueId(){
-		setUniqueId(DOMAIN_KEY+":"+id);
+		setUniqueId(DOMAIN_KEY+":"+id)
 	}
+
+    def updateUniqueIdList(){
+        setUniqueId(DOMAIN_KEY_GL+":"+id)
+    }
+
 
 	/**
 	 * parse comma separated Ids into a list
