@@ -20,7 +20,15 @@ source $1
 
 #FilePivot.jar expected in $KETTLE_JOBS/..
 
-TOP_NODE='\Public Studies\'$STUDY_ID'\'$NODE_NAME
+SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
+
+if [ $SECURITY_REQUIRED = 'Y' ]; then
+    TOP_NODE_PREFIX='Private Studies'
+else
+    TOP_NODE_PREFIX='Public Studies'
+fi
+
+TOP_NODE='\'$TOP_NODE_PREFIX'\'$STUDY_ID'\'$NODE_NAME 
 
 $KITCHEN -norep=Y                                        \
 -file=$KETTLE_JOBS/load_gene_expression_data.kjb         \
@@ -34,7 +42,7 @@ $KITCHEN -norep=Y                                        \
 /param:MAP_FILENAME=$MAP_FILENAME                        \
 /param:SAMPLE_REMAP_FILENAME=NOSAMPLEREMAP               \
 /param:SAMPLE_SUFFIX=.rma-Signal                         \
-/param:SECURITY_REQUIRED=N                               \
+/param:SECURITY_REQUIRED=$SECURITY_REQUIRED              \
 /param:SORT_DIR=/tmp                                     \
 /param:SOURCE_CD=STD                                     \
 /param:STUDY_ID=$STUDY_ID                                \
