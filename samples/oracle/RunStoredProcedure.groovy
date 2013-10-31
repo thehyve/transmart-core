@@ -3,12 +3,14 @@ import DatabaseConnection
 
 def runStoredProcedure() {
   sql = DatabaseConnection.setupDatabaseConnection()
-  return_value = sql.execute("BEGIN TM_CZ.i2b2_load_annotation_deapp(); END;")
-  if (return_value != 1) {
-    println return_value
+  try {
+    rows_changed = sql.call("TM_CZ.i2b2_load_annotation_deapp()")
+  } catch(SQLException e) {
+    println e.getMessage()
     println "Call to load function failed; run showdblog target"
     System.exit 1
   }
+  println "Rows changed ${rows_changed}"
   sql.close()
 }
 
