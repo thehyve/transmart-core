@@ -81,7 +81,7 @@ def sqls = new LinkedBlockingQueue(
 if (options.schema) {
     withPool sqls.size(), {
         sqls.eachParallel {
-            it.setCurentSchema options.schema.toUpperCase(Locale.ENGLISH)
+            it.setCurrentSchema options.schema.toUpperCase(Locale.ENGLISH)
         }
     }
 }

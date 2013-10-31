@@ -25,49 +25,9 @@ class SqlProducer {
          * Sql::cacheConnection() */
         def sql = new Sql(connection)
         if (enhance) {
-            String defaultSchema = fetchCurrentSchema sql
-            sql.metaClass.setCurrentSchema = { newSchema ->
-                delegate.execute ("ALTER SESSION SET current_schema = $newSchema" as String)
-            }
-            sql.metaClass.restoreCurrentSchema = { ->
-                delegate.setCurrentSchema defaultSchema
-            }
-
-            sql.metaClass.executeAndDoWithStatement = { String sqlStatement, Closure closure ->
-                Connection conn = delegate.createConnection()
-                Statement statement = null;
-                try {
-                    statement = delegate.getStatement(conn, sqlStatement)
-                    boolean isResultSet = statement.execute(sqlStatement)
-                    delegate.updateCount = statement.getUpdateCount()
-                    closure.call(statement)
-                    return isResultSet
-                } finally {
-                    delegate.closeResources(conn, statement)
-                }
-            }
-
-            sql.metaClass.executeAndPrintWarnings = { String sqlStatement ->
-                delegate.executeAndDoWithStatement(sqlStatement,
-                        SqlProducer.&printWarnings.curry(sqlStatement))
-            }
+            sql = new EnhancedSql(sql)
         }
         sql
-    }
-
-    static void printWarnings(String statementString, Statement statement) {
-        SQLWarning warning = statement.getWarnings()
-        def abbreviatedStatement = statementString[0..((Math.min(65, statementString.size() - 1)))]
-        if (statementString.size() > 65) {
-            abbreviatedStatement += '...'
-        }
-        if (warning) {
-            Log.err "Warnings for statement $abbreviatedStatement"
-            while (warning) {
-                Log.err warning.message
-                warning = warning.nextWarning
-            }
-        }
     }
 
     static List<Sql> createMultipleFromEnv(Integer n,
@@ -78,10 +38,6 @@ class SqlProducer {
             def sqlProducerAsync = SqlProducer.&createFromEnv.curry(user, password, enhance).asyncFun()
             Collections.nCopies(n, sqlProducerAsync)*.call()*.get()
         }
-    }
-
-    static String fetchCurrentSchema(Sql sql) {
-        sql.firstRow("SELECT sys_context('userenv', 'current_schema') FROM DUAL")[0]
     }
 
     static closeConnections(Collection<Sql> sqls, Closure beforeShutdown = null) {
