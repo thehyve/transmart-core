@@ -550,63 +550,51 @@ function waitWindowForAnalysis()
 	Ext.getCmp('dataAssociationPanel').body.mask("Running analysis...", 'x-mask-loading');
 }
 
+/**
+ * A scheduler to check the job status of a job. When the job status completed, cancelled or error it should stop and
+ * update the workflow status
+ * @param jobName
+ */
+function checkPluginJobStatus(jobName)
+{
+    var checkTask =	{
+        run: function () {
+            Ext.Ajax.request({
+                url : pageInfo.basePath+"/asyncJob/checkJobStatus",
+                method : 'POST',
+                timeout : '300000',
+                params: {jobName: jobName},
+                scope: this,
+                success : function (result, options) {
+                    var jobStatusInfo = Ext.util.JSON.decode(result.responseText);
+                    var status = jobStatusInfo.jobStatus;
+                    var viewerURL = jobStatusInfo.jobViewerURL;
+                    var fullViewerURL = pageInfo.basePath + viewerURL;
 
-//Called to check the heatmap job status 
-function checkPluginJobStatus(jobName)	
-{	
-	var secCount = 0;
-	var pollInterval = 1000;   // 1 second
-	
-	var updateJobStatus = function(){
-		secCount++;
-		Ext.Ajax.request(
-			{
-				url : pageInfo.basePath+"/asyncJob/checkJobStatus",
-				method : 'POST',
-				success : function(result, request)
-				{
-					var jobStatusInfo = Ext.util.JSON.decode(result.responseText);					 
-					var status = jobStatusInfo.jobStatus;
-					var errorType = jobStatusInfo.errorType;
-					var viewerURL = jobStatusInfo.jobViewerURL;
-					var altViewerURL = jobStatusInfo.jobAltViewerURL;
-					var exception = jobStatusInfo.jobException;
-					var resultType = jobStatusInfo.resultType;
-					var jobResults = jobStatusInfo.jobResults;
-					
-					if(status =='Completed') {
-						//Ext.getCmp('dataAssociationPanel').body.unmask();
-						Ext.TaskMgr.stop(checkTask);
-						
-						var fullViewerURL = pageInfo.basePath + viewerURL;
-						
-						//Set the results DIV to use the URL from the job.
-						Ext.get('analysisOutput').load({url : fullViewerURL,callback: loadModuleOutput});
-						
-						//Set the flag that says we run an analysis so we can warn the user if they navigate away.
-						GLOBAL.AnalysisRun = true;
-						
-					} else if(status == 'Cancelled' || status == 'Error') {
-						Ext.TaskMgr.stop(checkTask);						
-					}
-					updateWorkflowStatus(jobStatusInfo);
-				},
-				failure : function(result, request)
-				{
-					Ext.TaskMgr.stop(checkTask);
-					showWorkflowStatusErrorDialog('Failed', 'Could not complete the job, please contact an administrator');
-				},
-				timeout : '300000',
-				params: {jobName: jobName}
-			}
-		);
-  	}
+                    if (status =='Completed') {
+                        runner.stopAll();
+                        //Set the results DIV to use the URL from the job.
+                        Ext.get('analysisOutput').load({url : fullViewerURL, callback: loadModuleOutput});
+                        //Set the flag that says we run an analysis so we can warn the user if they navigate away.
+                        GLOBAL.AnalysisRun = true;
+                    } else if (status == 'Cancelled' || status == 'Error') {
+                        runner.stopAll();
+                    }
+                    updateWorkflowStatus(jobStatusInfo);
+                },
+                failure : function () {
+                    runner.stopAll();
+                    showWorkflowStatusErrorDialog('Failed', 'Could not complete the job, please contact an ' +
+                        'administrator');
+                }
+            });
+        },
+        interval: 1000
+    }
 
-	var checkTask =	{
-			run: updateJobStatus,
-	  	    interval: pollInterval	
-	}	
-	Ext.TaskMgr.start(checkTask);
+    //
+    var runner = new Ext.util.TaskRunner();  // define a runner
+    runner.start(checkTask); // start the task
 }
 
 function loadModuleOutput()
