@@ -58,7 +58,15 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 #end with /
 TSUSER_HOME=$HOME/
 
+# If your distro uses an old version of groovy, do make -C env groovy,
+# and uncomment this. Version 2.1.9 is known to work, versions before 2
+# are known not to work
+#DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#export PATH=$DIR/env:$PATH
+
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
 	KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \
 	ORASID ORAUSER ORAPASSWORD ORACLE_MANAGE_TABLESPACES \
 	ORACLE_TABLESPACES_DIR
+
+# vim: fdm=marker
