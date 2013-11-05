@@ -13,6 +13,9 @@ import static java.util.UUID.randomUUID
 class GwasSearchController {
 
     def regionSearchService
+    def RModulesFileWritingService
+    def RModulesJobProcessingService
+    def RModulesOutputRenderService
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
@@ -380,152 +383,158 @@ class GwasSearchController {
 
     def getQQPlotImage = {
 
-        //We need to determine the data type of this analysis so we know where to pull the data from.
-        def currentAnalysis = bio.BioAssayAnalysis.get(params.analysisId)
-
-        def pvalueCutoff = params.pvalueCutoff as double
-        def search = params.search
-
-        if (!pvalueCutoff) {pvalueCutoff = 0}
-        if (!search) {search = ""}
-
-        //Throw an error if we don't find the analysis for some reason.
-        if(!currentAnalysis)
-        {
-            throw new Exception("Analysis not found.")
-        }
-
-        //This will hold the index lookups for deciphering the large text meta-data field.
-        def indexMap = [:]
-
-        //Initiate Data Access object to get to search data.
-        def searchDAO = new GwasSearchDAO()
-
-        //Get the GWAS Data. Call a different class based on the data type.
-        def analysisData
-
-        //Get the data from the index table for GWAS.
-        def analysisIndexData
-
-        def returnedAnalysisData = []
         def returnJSON = [:]
 
-        //Get list of REGION restrictions from session and translate to regions
-        def regions = getSearchRegions(session['solrSearchFilter'])
-        def geneNames = getGeneNames(session['solrSearchFilter'])
-        def analysisIds = [currentAnalysis.id]
+        try {
+            //We need to determine the data type of this analysis so we know where to pull the data from.
+            def currentAnalysis = bio.BioAssayAnalysis.get(params.analysisId)
 
-        switch(currentAnalysis.assayDataType)
-        {
-            case "GWAS" :
-            case "Metabolic GWAS" :
-                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames,false).results
-                analysisIndexData = searchDAO.getGwasIndexData()
-                break;
-            case "EQTL" :
-                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames,false).results
-                analysisIndexData = searchDAO.getEqtlIndexData()
-                break;
-            default :
-                throw new Exception("Not Applicable Data Type Found.")
-        }
+            def pvalueCutoff = params.double('pvalueCutoff')
+            def search = params.search
 
-        analysisIndexData.each()
-                {
-                    //Put the index information into a map so we can look it up later. Only add the GOOD_CLUSTERING column.
-                    if(it.field_name == "GOOD_CLUSTERING")
+            if (!pvalueCutoff) {pvalueCutoff = 0}
+            if (!search) {search = ""}
+
+            //Throw an error if we don't find the analysis for some reason.
+            if(!currentAnalysis)
+            {
+                throw new Exception("Analysis not found.")
+            }
+
+            //This will hold the index lookups for deciphering the large text meta-data field.
+            def indexMap = [:]
+
+            //Initiate Data Access object to get to search data.
+            def searchDAO = new GwasSearchDAO()
+
+            //Get the GWAS Data. Call a different class based on the data type.
+            def analysisData
+
+            //Get the data from the index table for GWAS.
+            def analysisIndexData
+
+            def returnedAnalysisData = []
+
+            //Get list of REGION restrictions from session and translate to regions
+            def regions = getSearchRegions(session['solrSearchFilter'])
+            def geneNames = getGeneNames(session['solrSearchFilter'])
+            def analysisIds = [currentAnalysis.id]
+
+            switch(currentAnalysis.assayDataType)
+            {
+                case "GWAS" :
+                case "Metabolic GWAS" :
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames,false).results
+                    analysisIndexData = searchDAO.getGwasIndexData()
+                    break;
+                case "EQTL" :
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames,false).results
+                    analysisIndexData = searchDAO.getEqtlIndexData()
+                    break;
+                default :
+                    throw new Exception("No applicable data type found.")
+            }
+
+            analysisIndexData.each()
                     {
-                        indexMap[it.field_idx] = it.display_idx
+                        //Put the index information into a map so we can look it up later. Only add the GOOD_CLUSTERING column.
+                        if(it.field_name == "GOOD_CLUSTERING")
+                        {
+                            indexMap[it.field_idx] = it.display_idx
+                        }
                     }
-                }
 
-        //Create an entry that represents the headers to print to the file.
-        def columnHeaderList = ["PROBEID","pvalue","good_clustering"]
-        returnedAnalysisData.add(columnHeaderList)
+            //Create an entry that represents the headers to print to the file.
+            def columnHeaderList = ["PROBEID","pvalue","good_clustering"]
+            returnedAnalysisData.add(columnHeaderList)
 
-        //The returned data needs to have the large text field broken out by delimiter.
-        analysisData.each()
-                {
-                    //This temporary list is used so that we return a list of lists.
-                    def temporaryList = []
+            //The returned data needs to have the large text field broken out by delimiter.
+            analysisData.each()
+                    {
+                        //This temporary list is used so that we return a list of lists.
+                        def temporaryList = []
 
-                    //This will be used to fill in the data array.
-                    def indexCount = 0;
+                        //This will be used to fill in the data array.
+                        def indexCount = 0;
 
-                    //The third element is our large text field. Split it into an array.
-                    def largeTextField = it[3].split(";", -1)
+                        //The third element is our large text field. Split it into an array.
+                        def largeTextField = it[3].split(";", -1)
 
-                    //This will be the array that is reordered according to the meta-data index table.
-                    String[] newLargeTextField = new String[indexMap.size()]
+                        //This will be the array that is reordered according to the meta-data index table.
+                        String[] newLargeTextField = new String[indexMap.size()]
 
-                    //Loop over the elements in the index map.
-                    indexMap.each()
-                            {
-                                //Reorder the array based on the index table.
-                                newLargeTextField[indexCount] = largeTextField[it.key-1]
+                        //Loop over the elements in the index map.
+                        indexMap.each()
+                                {
+                                    //Reorder the array based on the index table.
+                                    newLargeTextField[indexCount] = largeTextField[it.key-1]
 
-                                indexCount++;
-                            }
+                                    indexCount++;
+                                }
 
-                    //Swap around the data types for easy array addition.
-                    def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
+                        //Swap around the data types for easy array addition.
+                        def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
 
-                    //Add the non-dynamic meta data fields to the returned data.
-                    temporaryList.add(it[0])
-                    temporaryList.add(it[1])
+                        //Add the non-dynamic meta data fields to the returned data.
+                        temporaryList.add(it[0])
+                        temporaryList.add(it[1])
 
-                    //Add the dynamic fields to the returned data.
-                    temporaryList+=finalFields
+                        //Add the dynamic fields to the returned data.
+                        temporaryList+=finalFields
 
-                    returnedAnalysisData.add(temporaryList)
-                }
+                        returnedAnalysisData.add(temporaryList)
+                    }
 
-        println "QQPlot row count = " + returnedAnalysisData.size()
-//		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
-//			println returnedAnalysisData[i]
-//		}
+            println "QQPlot row count = " + returnedAnalysisData.size()
+            //		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
+            //			println returnedAnalysisData[i]
+            //		}
 
-        //Get a unique key for the image file.
-        def uniqueId = randomUUID() as String
+            //Get a unique key for the image file.
+            def uniqueId = randomUUID() as String
 
-        //Create a unique name using the id.
-        def uniqueName = "QQPlot-" + uniqueId
+            //Create a unique name using the id.
+            def uniqueName = "QQPlot-" + uniqueId
 
-        //Create the temporary directories for processing the image.
-        def currentTempDirectory = RModulesFileWritingService.createTemporaryDirectory(uniqueName)
+            //Create the temporary directories for processing the image.
+            def currentTempDirectory = RModulesFileWritingService.createTemporaryDirectory(uniqueName)
 
-        def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
+            def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
 
-        //Write the data file for generating the image.
-        def currentDataFile = RModulesFileWritingService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
+            //Write the data file for generating the image.
+            def currentDataFile = RModulesFileWritingService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
 
-        //Run the R script to generate the image file.
-        RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
+            //Run the R script to generate the image file.
+            RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
 
-        //Verify the image file exists.
-        def imagePath = currentWorkingDirectory + File.separator + "QQPlot.png"
+            //Verify the image file exists.
+            def imagePath = currentWorkingDirectory + File.separator + "QQPlot.png"
 
-        if(!new File(imagePath))
-        {
-            throw new Exception("Image file creation failed!")
+            if(!new File(imagePath))
+            {
+                throw new Exception("Image file creation failed!")
+            }
+            else
+            {
+                //Move the image to the web directory so we can render it.
+                def imageURL = RModulesOutputRenderService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
+
+                returnJSON['imageURL'] = imageURL
+
+                //Delete the working directory.
+                def directoryToDelete = new File(currentTempDirectory)
+
+                //This isn't working. I think something is holding the directory open? We need a way to clear out the temp files.
+                directoryToDelete.deleteDir()
+
+                //Render the image URL in a JSON object so we can reference it later.
+                render returnJSON as JSON
+            }
         }
-        else
-        {
-            //Move the image to the web directory so we can render it.
-            def imageURL = RModulesOutputRenderService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
-
-            returnJSON['imageURL'] = imageURL
-
-            //Delete the working directory.
-            def directoryToDelete = new File(currentTempDirectory)
-
-            //This isn't working. I think something is holding the directory open? We need a way to clear out the temp files.
-            directoryToDelete.deleteDir()
-
-            //Render the image URL in a JSON object so we can reference it later.
-            render returnJSON as JSON
+        catch (Exception e) {
+            response.status = 500
+            renderException(e)
         }
-
     }
 
     //Retrieve the results for the search filter. This is used to populate the result grids on the search page.

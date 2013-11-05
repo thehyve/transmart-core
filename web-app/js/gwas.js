@@ -12,8 +12,9 @@ function loadQQPlot(analysisID)
             jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
             jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
         },
-        "error": function ( json ) {
-            jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
+        "error": function ( xhm ) {
+            jQuery('#qqplot_results_' + analysisID).removeClass('ajaxloading');
+            jQuery('#qqplot_results_' + analysisID).prepend(xhm.responseText)
             jQuery('#analysis_holder_' +analysisID).unmask();
         },
         "dataType": "json"
