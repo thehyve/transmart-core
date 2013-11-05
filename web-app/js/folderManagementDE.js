@@ -122,6 +122,13 @@ FM.fileNodeRightClick = function(eventNode, event)
                 id : 'contextMenuFile',
                 items : [
                     {
+                        text : 'Show details', handler : function()
+                    {
+                        FM.openFileDetailsWindow(eventNode);
+                    }
+                    }
+                    ,
+                    {
                         text : 'Open', handler : function()
                     {
                         window.open(pageInfo.basePath + "/fileExport/exportFile/?id=" + eventNode.attributes.fileId + "&open=true", '_blank');
@@ -182,4 +189,51 @@ FM.addFileNodes = function(source, response, node, callback) {
         node.appendChild(FM.getFileNode(fileId, json[fileId]));
     }
     source.endAppending(node, callback);
+}
+
+FM.openFileDetailsWindow = function(node)
+{
+
+    if( !FM.filedetailswin)
+    {
+        FM.filedetailswin = new Ext.Window(
+            {
+                id : 'showFileDetailsWindow',
+                title : 'File Details',
+                layout : 'fit',
+                width : 600,
+                height : 500,
+                closable : false,
+                plain : true,
+                modal : true,
+                border : false,
+                autoScroll: true,
+                buttons : [
+                    {
+                        text : 'Close',
+                        handler : function()
+                        {
+                            FM.filedetailswin.hide();
+                        }
+                    }
+                ],
+                resizable : false
+            }
+        );
+    }
+
+    FM.filedetailswin.show(viewport);
+    FM.filedetailswin.header.update("File Details - " + node.attributes.text);
+
+    FM.filedetailswin.load({
+        url: pageInfo.basePath+"/fmFile/show",
+        params: {id:node.attributes.fileId},
+        discardUrl: true,
+        nocache: true,
+        text: "Loading...",
+        timeout: 30000,
+        scripts: false
+    });
+    //}
+
 }

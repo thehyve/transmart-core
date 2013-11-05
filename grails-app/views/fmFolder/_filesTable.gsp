@@ -1,15 +1,12 @@
 <div style="margin-left: 25px">
     <table class="analysis-table filelisttable" style="table-layout: fixed" id="file-list-table-${folder.id}" name="${folder.id}">
-        <colgroup>
-            <col span="1" class="wide"/>
-            <col span="3" />
-        </colgroup>
         <thead>
         <tr>
             <th class="columnheader">File Name</th>
-            <th class="columnheader">Created on</th>
-            <th class="columnheader">Updated on</th>
-            <th class="columnheader">&nbsp;</th>
+            <th class="columnheader">Description</th>
+            <th class="columnheader" style="width: 100px">Created on</th>
+            <th class="columnheader" style="width: 100px">Updated on</th>
+            <th class="columnheader" style="width: 100px">&nbsp;</th>
         </tr>
         </thead>
         <tfoot>
@@ -25,14 +22,15 @@
         <tbody>
         <g:each in="${folder?.fmFiles.sort{a,b-> a.displayName.toUpperCase().compareTo(b.displayName.toUpperCase())}}" status="i" var="fmFile">
             <tr id="${fmFile.id}-filerow" class="" style="border-top: 1px solid #ccc">
-                <td class="columnname" style="text-align: left;"><span class="fileicon ${fmFile.fileType}"></span>&nbsp;${fmFile.displayName}</td>
-                <td class="columnvalue">
-                    <g:formatDate format="yyyy-MM-dd" date="${fmFile.createDate}" />
+                <td class="columnname textsmall" style="text-align: left;"><g:link controller="fileExport" action="exportFile" id="${fmFile.id}"><span class="fileicon ${fmFile.fileType}">&nbsp;</span>${fmFile.displayName}</g:link></td>
+                <td class="columnvalue textsmall" style="text-align: left; white-space: pre-wrap">${fmFile.fileDescription}</td>
+                <td class="columnvalue textsmall">
+                    <g:formatDate format="yyyy-MM-dd" date="${fmFile.createDate}"/>
                 </td>
-                <td class="columnvalue">
-                    <g:formatDate format="yyyy-MM-dd" date="${fmFile.updateDate}" />
+                <td class="columnvalue textsmall">
+                    <g:formatDate format="yyyy-MM-dd" date="${fmFile.updateDate}"/>
                 </td>
-                <td class="columnvalue">
+                <td class="columnvalue textsmall">
                     <div>
                         <span class="exportaddspan foldericon addcart link" name="${fmFile.id}">&nbsp;</span>
                         <sec:ifAnyGranted roles="ROLE_ADMIN">
