@@ -22,19 +22,19 @@ package com.recomdata.grails.plugin.gwas
 
 class GwasWebController {
 
-	def webserviceService
+	def gwasWebService
 	
     def computeGeneBounds = {
 		def snpSource = params.snpSource;
 		if (!snpSource) {snpSource = '19'}
-		def results = webserviceService.computeGeneBounds(params.geneSymbol, '0', snpSource)
+		def results = gwasWebService.computeGeneBounds(params.geneSymbol, '0', snpSource)
 		renderDataSet(results)
 	}
 	
 	def getGeneByPosition = {
 		def snpSource = params.snpSource;
 		if (!snpSource) {snpSource = '19'}
-		def results = webserviceService.getGeneByPosition(params.chromosome, params.long('start'), params.long('stop'), snpSource)
+		def results = gwasWebService.getGeneByPosition(params.chromosome, params.long('start'), params.long('stop'), snpSource)
 		renderDataSet(results)
 	}
 	
@@ -49,7 +49,7 @@ class GwasWebController {
 			case 3: type = "Metabolic GWAS"; break;
 		}
 		
-		def results = webserviceService.getModelInfo(type)
+		def results = gwasWebService.getModelInfo(type)
 		renderDataSet(results)
 	}
 	
@@ -61,11 +61,11 @@ class GwasWebController {
 		def sourceId = null
 		def geneName = params.geneName
 		
-		def geneBounds = webserviceService.computeGeneBounds(geneName, '0', snpSource)
+		def geneBounds = gwasWebService.computeGeneBounds(geneName, '0', snpSource)
 		def low = geneBounds[0]
 		def high = geneBounds[1]
         def chrom = geneBounds[2]
-		def results = webserviceService.getAnalysisDataBetween(analysisIds, low-range, high+range, chrom, snpSource)
+		def results = gwasWebService.getAnalysisDataBetween(analysisIds, low-range, high+range, chrom, snpSource)
 		
 		renderDataSet(results)
 	}
