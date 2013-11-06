@@ -5,6 +5,7 @@
     var exportURL = "${createLink([controller:'fileExport', action:'export'])}";
 
     var folderContentsURL = "${createLink([controller:'fmFolder',action:'getFolderContents'])}";
+    var folderFilesURL = "${createLink([controller:'fmFolder',action:'getFolderFiles'])}";
     var folderDetailsURL = "${createLink(controller:'fmFolder',action:'folderDetail')}";
     var analysisDataURL = "${createLink([controller:'fmFolder',action:'analysisTable'])}";
     var editMetaDataURL = "${createLink([controller:'fmFolder',action:'editMetaData'])}";
@@ -19,4 +20,6 @@
     var saveStudyURL = "${createLink([controller:'fmFolder',action:'saveStudy'])}";
     var saveFolderURL = "${createLink([controller:'fmFolder',action:'saveFolder'])}";
     var saveProgramURL = "${createLink([controller:'fmFolder',action:'saveProgram'])}";
+
+    var deleteFileURL = "${createLink(controller:'fmFolder',action:'deleteFile')}";
 </script>

@@ -1295,14 +1295,14 @@ class FmFolderController {
 
     def deleteFile = {
 
-        if (!isAdmin()) return;
+        //if (!isAdmin()) return;
 
         def id = params.id
         def file = FmFile.get(id)
-        def folder = file.getFolder()
+        def folder = file?.getFolder()
         if (file) {
             fmFolderService.deleteFile(file)
-            render(template: 'filesTable', model: [folder: folder])
+            render(status:200, text:"OK")
         }
         else {
             render(status:500, text:"FmFile not found")

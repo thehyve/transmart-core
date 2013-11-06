@@ -112,20 +112,24 @@ jQuery(document).ready(function() {
 
     jQuery('body').on('click', '#results-div .foldericon.deletefile', function() {
         var id = jQuery(this).attr('name');
-
+        var deleteFileObject = jQuery(this);
         if (confirm("Are you sure you want to delete this file?")) {
             jQuery.ajax({
                 url:deleteFileURL,
                 data: {id: id},
                 success: function(response) {
-                    jQuery('#files-table').html(response);
-                    //Get document count and reduce by 1
-//                    var folderId = jQuery('#file-list-table').attr('name');
-//                    var documentCount = jQuery('#folder-header-' + folderId + ' .document-count');
-//                    if (documentCount.size() > 0) {
-//                        var currentValue = documentCount.text();
-//                        documentCount.text(currentValue - 1);
-//                    }
+                    //Reload the contents of the clicked table!
+                    var targetElement = deleteFileObject.closest('.detailexpand');
+                    var expId = targetElement.attr('name');
+                    jQuery.ajax({
+                        url: folderFilesURL + "?id=" + expId,
+                        success: function(response) {
+                            jQuery(targetElement).html(response);
+                        },
+                        error: function(xhr) {
+                            console.log('Error!  Status = ' + xhr.status + xhr.statusText);
+                        }
+                    });
                 },
                 error: function(xhr) {
                     alert(xhr.message);
