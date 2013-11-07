@@ -229,7 +229,6 @@ class GwasSearchController {
 
 
     def runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames) throws Exception {
-        log.warn("Start execution of query")
 
         //This will hold the index lookups for deciphering the large text meta-data field.
         def indexMap = [:]
@@ -260,9 +259,10 @@ class GwasSearchController {
 //			totalCount = session['cachedCount']
 //			session['cachedAnalysisData'] = analysisData
 //		}
-
+        def wasShortcut = false
         if (!regions && !geneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
             println("Triggering shortcut query")
+            wasShortcut = true
             //If displaying no regions and only one analysis, run the alternative query and pull back the rows for the limits
             def analysis = BioAssayAnalysis.get(analysisIds[0])
             def quickAnalysisData = regionSearchService.getQuickAnalysisDataByName(analysis.name, type)
@@ -303,6 +303,9 @@ class GwasSearchController {
         columnNames.add(["sTitle":"RS Gene", "sortField":"gmap.gene_name"])
         columnNames.add(["sTitle":"Chromosome", "sortField":"info.chrom"])
         columnNames.add(["sTitle":"Position", "sortField":"info.pos"])
+        columnNames.add(["sTitle":"Exon/Intron", "sortField":"info.exon_intron"])
+        columnNames.add(["sTitle":"Recombination Rate", "sortField":"info.recombination_rate"])
+        columnNames.add(["sTitle":"Regulome Score", "sortField":"info.regulome_score"])
 
         if (type.equals("eqtl")) {
             columnNames.add(["sTitle":"Gene", "sortField":"data.gene"])
@@ -363,8 +366,11 @@ class GwasSearchController {
                         temporaryList.add(it[5])
                         temporaryList.add(it[6])
                         temporaryList.add(it[7])
+                        temporaryList.add(it[8])
+                        temporaryList.add(it[9])
+                        temporaryList.add(it[10])
                         if (type.equals("eqtl")) {
-                            temporaryList.add(it[8])
+                            temporaryList.add(it[11])
                         }
 
                         //Add the dynamic fields to the returned data.
@@ -376,7 +382,7 @@ class GwasSearchController {
 
         log.warn("Results processed")
         println("Results processed OK")
-        return [analysisData: returnedAnalysisData, columnNames: columnNames, max: max, offset: offset, cutoff: cutoff, totalCount: totalCount, wasRegionFiltered: wasRegionFiltered]
+        return [analysisData: returnedAnalysisData, columnNames: columnNames, max: max, offset: offset, cutoff: cutoff, totalCount: totalCount, wasRegionFiltered: wasRegionFiltered, wasShortcut: wasShortcut]
 
     }
 
@@ -614,7 +620,7 @@ class GwasSearchController {
                 exportResults(regionSearchResults.columnNames, regionSearchResults.analysisData, "analysis" + analysisId + ".csv")
             }
             else {
-                render(plugin: "transmartGwas", template: "/gwas/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, analysisId: analysisId])
+                render(plugin: "transmartGwas", template: "/gwas/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, wasShortcut: regionSearchResults.wasShortcut, analysisId: analysisId])
             }
         }
         catch (Exception e) {
@@ -715,7 +721,7 @@ class GwasSearchController {
                 for (r in regionparams) {
                     //Chromosome
                     if (r.startsWith("CHROMOSOME")) {
-                        def region = r.split(";")
+                        def region = r.split("\\^")
                         def chrom = region[1]
                         def position = region[3] as long
                         def direction = region[4]
@@ -739,7 +745,7 @@ class GwasSearchController {
                     }
                     //Gene
                     else {
-                        def region = r.split(";")
+                        def region = r.split("\\^")
                         def geneId = region[1] as long
                         def direction = region[2]
                         def range = region[3] as long
@@ -863,9 +869,9 @@ class GwasSearchController {
 
         def stackTrace = e.getStackTrace()
 
-        render(text: "<pre>")
+        render(text: "<div class='errorbox'>tranSMART encountered an error while running this query (" + e.class.getName() + " " + e.getMessage() + "). Please contact an administrator with your search criteria and the information below.</div>")
+        render(text: "<pre class='errorstacktrace'>")
         render(text: "<b>Error while retrieving data: " + e.class.getName() + ".</b> Message: " + e.getMessage() + "\n")
-        render(text: "Copy and paste the following information:\n")
 
         for (el in stackTrace) {
             render(text: "\t" + el.getClassName() + "." + el.getMethodName() + ", line " + el.getLineNumber() + " " + "\n")

@@ -65,7 +65,7 @@
 	</table>						
 	<div class="dataTables_info" id="analysis_results_table_${analysisId}_info">
 		<g:if test="${totalCount > 0}">
-			Showing ${Math.min(offset+1, totalCount)} to ${Math.min(totalCount,offset+max)} of ${totalCount} entries
+			Showing ${Math.min(offset+1, totalCount)} to ${Math.min(totalCount,offset+max)} of${wasShortcut?' about ':' '}${totalCount} entries
 		</g:if>
 		<g:else>
 			No entries to display

@@ -1,3 +1,5 @@
+var REGION_TERM_DELIMITER = "^";
+
 //This function will kick off the webservice that generates the QQ plot.
 function loadQQPlot(analysisID)
 {
@@ -122,11 +124,11 @@ function applyPopupFiltersRegions()
             }
 
             use = jQuery('#filterGeneUse').val();
-            searchString += "GENE;" + geneId
+            searchString += "GENE" + REGION_TERM_DELIMITER + geneId
 
             text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
 
-            searchString += ";" + range + ";" + basePairs + ";" + use;
+            searchString += REGION_TERM_DELIMITER + range + REGION_TERM_DELIMITER + basePairs + REGION_TERM_DELIMITER + use;
 
             var searchParam={id:searchString,
                 display:'Region',
@@ -153,7 +155,7 @@ function applyPopupFiltersRegions()
             pos = 0;
         }
 
-        searchString += "CHROMOSOME;" + chromNum + ";" + use + ";" + pos;
+        searchString += "CHROMOSOME" + REGION_TERM_DELIMITER + chromNum + REGION_TERM_DELIMITER + use + REGION_TERM_DELIMITER + pos;
 
         if (pos != 0 && range != 0) {
             text = "HG" + use + " chromosome " + chromNum + " position " + pos + " " + getRangeSymbol(range) + " " + basePairs;
@@ -162,7 +164,7 @@ function applyPopupFiltersRegions()
             text = "HG" + use + " chromosome " + chromNum;
         }
 
-        searchString += ";" + range + ";" + basePairs + ";" + use;
+        searchString += REGION_TERM_DELIMITER + range + REGION_TERM_DELIMITER + basePairs + REGION_TERM_DELIMITER + use;
 
         var searchParam={id:searchString,
             display:'Region',
