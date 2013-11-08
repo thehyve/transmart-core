@@ -13,12 +13,19 @@ import static java.util.UUID.randomUUID
 class GwasSearchController {
 
     def regionSearchService
+    def RModulesFileWritingService
+    def RModulesJobProcessingService
+    def RModulesOutputRenderService
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
      */
     def getRegionFilter = {
         render(template:'/gwas/regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']], plugin: "transmartGwas")
+    }
+
+    def getEqtlTranscriptGeneFilter = {
+        render(template:'/gwas/eqtlTranscriptGeneFilter', plugin: "transmartGwas")
     }
 
     def webStartPlotter = {
@@ -195,9 +202,6 @@ class GwasSearchController {
         //Get list of REGION restrictions from session and translate to regions
         def regions = getSearchRegions(session['solrSearchFilter'])
         def geneNames = getGeneNames(session['solrSearchFilter'])
-		if (getSearchCutoff(session['solrSearchFilter'])){
-			cutoff = getSearchCutoff(session['solrSearchFilter'])
-		}
 
         //Find out if we're querying for EQTL, GWAS, or both
         def hasGwas = BioAssayAnalysis.createCriteria().list([max: 1]) {
@@ -229,7 +233,6 @@ class GwasSearchController {
 
 
     def runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames) throws Exception {
-        log.warn("Start execution of query")
 
         //This will hold the index lookups for deciphering the large text meta-data field.
         def indexMap = [:]
@@ -260,9 +263,10 @@ class GwasSearchController {
 //			totalCount = session['cachedCount']
 //			session['cachedAnalysisData'] = analysisData
 //		}
-
+        def wasShortcut = false
         if (!regions && !geneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
             println("Triggering shortcut query")
+            wasShortcut = true
             //If displaying no regions and only one analysis, run the alternative query and pull back the rows for the limits
             def analysis = BioAssayAnalysis.get(analysisIds[0])
             def quickAnalysisData = regionSearchService.getQuickAnalysisDataByName(analysis.name, type)
@@ -303,6 +307,9 @@ class GwasSearchController {
         columnNames.add(["sTitle":"RS Gene", "sortField":"gmap.gene_name"])
         columnNames.add(["sTitle":"Chromosome", "sortField":"info.chrom"])
         columnNames.add(["sTitle":"Position", "sortField":"info.pos"])
+        columnNames.add(["sTitle":"Exon/Intron", "sortField":"info.exon_intron"])
+        columnNames.add(["sTitle":"Recombination Rate", "sortField":"info.recombination_rate"])
+        columnNames.add(["sTitle":"Regulome Score", "sortField":"info.regulome_score"])
 
         if (type.equals("eqtl")) {
             columnNames.add(["sTitle":"Gene", "sortField":"data.gene"])
@@ -363,8 +370,11 @@ class GwasSearchController {
                         temporaryList.add(it[5])
                         temporaryList.add(it[6])
                         temporaryList.add(it[7])
+                        temporaryList.add(it[8])
+                        temporaryList.add(it[9])
+                        temporaryList.add(it[10])
                         if (type.equals("eqtl")) {
-                            temporaryList.add(it[8])
+                            temporaryList.add(it[11])
                         }
 
                         //Add the dynamic fields to the returned data.
@@ -376,159 +386,165 @@ class GwasSearchController {
 
         log.warn("Results processed")
         println("Results processed OK")
-        return [analysisData: returnedAnalysisData, columnNames: columnNames, max: max, offset: offset, cutoff: cutoff, totalCount: totalCount, wasRegionFiltered: wasRegionFiltered]
+        return [analysisData: returnedAnalysisData, columnNames: columnNames, max: max, offset: offset, cutoff: cutoff, totalCount: totalCount, wasRegionFiltered: wasRegionFiltered, wasShortcut: wasShortcut]
 
     }
 
 
     def getQQPlotImage = {
 
-        //We need to determine the data type of this analysis so we know where to pull the data from.
-        def currentAnalysis = bio.BioAssayAnalysis.get(params.analysisId)
-
-        def pvalueCutoff = params.pvalueCutoff as double
-        def search = params.search
-
-        if (!pvalueCutoff) {pvalueCutoff = 0}
-        if (!search) {search = ""}
-
-        //Throw an error if we don't find the analysis for some reason.
-        if(!currentAnalysis)
-        {
-            throw new Exception("Analysis not found.")
-        }
-
-        //This will hold the index lookups for deciphering the large text meta-data field.
-        def indexMap = [:]
-
-        //Initiate Data Access object to get to search data.
-        def searchDAO = new GwasSearchDAO()
-
-        //Get the GWAS Data. Call a different class based on the data type.
-        def analysisData
-
-        //Get the data from the index table for GWAS.
-        def analysisIndexData
-
-        def returnedAnalysisData = []
         def returnJSON = [:]
 
-        //Get list of REGION restrictions from session and translate to regions
-        def regions = getSearchRegions(session['solrSearchFilter'])
-        def geneNames = getGeneNames(session['solrSearchFilter'])
-        def analysisIds = [currentAnalysis.id]
+        try {
+            //We need to determine the data type of this analysis so we know where to pull the data from.
+            def currentAnalysis = bio.BioAssayAnalysis.get(params.analysisId)
 
-        switch(currentAnalysis.assayDataType)
-        {
-            case "GWAS" :
-            case "Metabolic GWAS" :
-                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames,false).results
-                analysisIndexData = searchDAO.getGwasIndexData()
-                break;
-            case "EQTL" :
-                analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames,false).results
-                analysisIndexData = searchDAO.getEqtlIndexData()
-                break;
-            default :
-                throw new Exception("Not Applicable Data Type Found.")
-        }
+            def pvalueCutoff = params.double('pvalueCutoff')
+            def search = params.search
 
-        analysisIndexData.each()
-                {
-                    //Put the index information into a map so we can look it up later. Only add the GOOD_CLUSTERING column.
-                    if(it.field_name == "GOOD_CLUSTERING")
+            if (!pvalueCutoff) {pvalueCutoff = 0}
+            if (!search) {search = ""}
+
+            //Throw an error if we don't find the analysis for some reason.
+            if(!currentAnalysis)
+            {
+                throw new Exception("Analysis not found.")
+            }
+
+            //This will hold the index lookups for deciphering the large text meta-data field.
+            def indexMap = [:]
+
+            //Initiate Data Access object to get to search data.
+            def searchDAO = new GwasSearchDAO()
+
+            //Get the GWAS Data. Call a different class based on the data type.
+            def analysisData
+
+            //Get the data from the index table for GWAS.
+            def analysisIndexData
+
+            def returnedAnalysisData = []
+
+            //Get list of REGION restrictions from session and translate to regions
+            def regions = getSearchRegions(session['solrSearchFilter'])
+            def geneNames = getGeneNames(session['solrSearchFilter'])
+            def analysisIds = [currentAnalysis.id]
+
+            switch(currentAnalysis.assayDataType)
+            {
+                case "GWAS" :
+                case "Metabolic GWAS" :
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames,false).results
+                    analysisIndexData = searchDAO.getGwasIndexData()
+                    break;
+                case "EQTL" :
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames,false).results
+                    analysisIndexData = searchDAO.getEqtlIndexData()
+                    break;
+                default :
+                    throw new Exception("No applicable data type found.")
+            }
+
+            analysisIndexData.each()
                     {
-                        indexMap[it.field_idx] = it.display_idx
+                        //Put the index information into a map so we can look it up later. Only add the GOOD_CLUSTERING column.
+                        if(it.field_name == "GOOD_CLUSTERING")
+                        {
+                            indexMap[it.field_idx] = it.display_idx
+                        }
                     }
-                }
 
-        //Create an entry that represents the headers to print to the file.
-        def columnHeaderList = ["PROBEID","pvalue","good_clustering"]
-        returnedAnalysisData.add(columnHeaderList)
+            //Create an entry that represents the headers to print to the file.
+            def columnHeaderList = ["PROBEID","pvalue","good_clustering"]
+            returnedAnalysisData.add(columnHeaderList)
 
-        //The returned data needs to have the large text field broken out by delimiter.
-        analysisData.each()
-                {
-                    //This temporary list is used so that we return a list of lists.
-                    def temporaryList = []
+            //The returned data needs to have the large text field broken out by delimiter.
+            analysisData.each()
+                    {
+                        //This temporary list is used so that we return a list of lists.
+                        def temporaryList = []
 
-                    //This will be used to fill in the data array.
-                    def indexCount = 0;
+                        //This will be used to fill in the data array.
+                        def indexCount = 0;
 
-                    //The third element is our large text field. Split it into an array.
-                    def largeTextField = it[3].split(";", -1)
+                        //The third element is our large text field. Split it into an array.
+                        def largeTextField = it[3].split(";", -1)
 
-                    //This will be the array that is reordered according to the meta-data index table.
-                    String[] newLargeTextField = new String[indexMap.size()]
+                        //This will be the array that is reordered according to the meta-data index table.
+                        String[] newLargeTextField = new String[indexMap.size()]
 
-                    //Loop over the elements in the index map.
-                    indexMap.each()
-                            {
-                                //Reorder the array based on the index table.
-                                newLargeTextField[indexCount] = largeTextField[it.key-1]
+                        //Loop over the elements in the index map.
+                        indexMap.each()
+                                {
+                                    //Reorder the array based on the index table.
+                                    newLargeTextField[indexCount] = largeTextField[it.key-1]
 
-                                indexCount++;
-                            }
+                                    indexCount++;
+                                }
 
-                    //Swap around the data types for easy array addition.
-                    def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
+                        //Swap around the data types for easy array addition.
+                        def finalFields = new ArrayList(Arrays.asList(newLargeTextField));
 
-                    //Add the non-dynamic meta data fields to the returned data.
-                    temporaryList.add(it[0])
-                    temporaryList.add(it[1])
+                        //Add the non-dynamic meta data fields to the returned data.
+                        temporaryList.add(it[0])
+                        temporaryList.add(it[1])
 
-                    //Add the dynamic fields to the returned data.
-                    temporaryList+=finalFields
+                        //Add the dynamic fields to the returned data.
+                        temporaryList+=finalFields
 
-                    returnedAnalysisData.add(temporaryList)
-                }
+                        returnedAnalysisData.add(temporaryList)
+                    }
 
-        println "QQPlot row count = " + returnedAnalysisData.size()
-//		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
-//			println returnedAnalysisData[i]
-//		}
+            println "QQPlot row count = " + returnedAnalysisData.size()
+            //		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
+            //			println returnedAnalysisData[i]
+            //		}
 
-        //Get a unique key for the image file.
-        def uniqueId = randomUUID() as String
+            //Get a unique key for the image file.
+            def uniqueId = randomUUID() as String
 
-        //Create a unique name using the id.
-        def uniqueName = "QQPlot-" + uniqueId
+            //Create a unique name using the id.
+            def uniqueName = "QQPlot-" + uniqueId
 
-        //Create the temporary directories for processing the image.
-        def currentTempDirectory = RModulesFileWritingService.createTemporaryDirectory(uniqueName)
+            //Create the temporary directories for processing the image.
+            def currentTempDirectory = RModulesFileWritingService.createTemporaryDirectory(uniqueName)
 
-        def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
+            def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
 
-        //Write the data file for generating the image.
-        def currentDataFile = RModulesFileWritingService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
+            //Write the data file for generating the image.
+            def currentDataFile = RModulesFileWritingService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
 
-        //Run the R script to generate the image file.
-        RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
+            //Run the R script to generate the image file.
+            RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
 
-        //Verify the image file exists.
-        def imagePath = currentWorkingDirectory + File.separator + "QQPlot.png"
+            //Verify the image file exists.
+            def imagePath = currentWorkingDirectory + File.separator + "QQPlot.png"
 
-        if(!new File(imagePath))
-        {
-            throw new Exception("Image file creation failed!")
+            if(!new File(imagePath))
+            {
+                throw new Exception("Image file creation failed!")
+            }
+            else
+            {
+                //Move the image to the web directory so we can render it.
+                def imageURL = RModulesOutputRenderService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
+
+                returnJSON['imageURL'] = imageURL
+
+                //Delete the working directory.
+                def directoryToDelete = new File(currentTempDirectory)
+
+                //This isn't working. I think something is holding the directory open? We need a way to clear out the temp files.
+                directoryToDelete.deleteDir()
+
+                //Render the image URL in a JSON object so we can reference it later.
+                render returnJSON as JSON
+            }
         }
-        else
-        {
-            //Move the image to the web directory so we can render it.
-            def imageURL = RModulesOutputRenderService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
-
-            returnJSON['imageURL'] = imageURL
-
-            //Delete the working directory.
-            def directoryToDelete = new File(currentTempDirectory)
-
-            //This isn't working. I think something is holding the directory open? We need a way to clear out the temp files.
-            directoryToDelete.deleteDir()
-
-            //Render the image URL in a JSON object so we can reference it later.
-            render returnJSON as JSON
+        catch (Exception e) {
+            response.status = 500
+            renderException(e)
         }
-
     }
 
     //Retrieve the results for the search filter. This is used to populate the result grids on the search page.
@@ -608,7 +624,7 @@ class GwasSearchController {
                 exportResults(regionSearchResults.columnNames, regionSearchResults.analysisData, "analysis" + analysisId + ".csv")
             }
             else {
-                render(plugin: "transmartGwas", template: "/gwas/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, analysisId: analysisId])
+                render(plugin: "transmartGwas", template: "/gwas/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, wasShortcut: regionSearchResults.wasShortcut, analysisId: analysisId])
             }
         }
         catch (Exception e) {
@@ -697,21 +713,7 @@ class GwasSearchController {
             render(plugin: "transmartGwas", template: "/gwas/gwasAndEqtlResults", model: [results: regionSearchResults, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search])
         }
     }
-	
-	def getSearchCutoff(solrSearch) {
-		def cutoff
-		for (s in solrSearch) {
-			if (s.startsWith("PVALUE")) {
-				s = s.substring(7)
-				def pvalue = s.split(";")
-				cutoff = pvalue[1]
-			}
-		}
-		if (cutoff) {
-		return cutoff.toDouble()
-		}
-	}
-	
+
     def getSearchRegions(solrSearch) {
         def regions = []
 
@@ -723,7 +725,7 @@ class GwasSearchController {
                 for (r in regionparams) {
                     //Chromosome
                     if (r.startsWith("CHROMOSOME")) {
-                        def region = r.split(";")
+                        def region = r.split("\\^")
                         def chrom = region[1]
                         def position = region[3] as long
                         def direction = region[4]
@@ -747,7 +749,7 @@ class GwasSearchController {
                     }
                     //Gene
                     else {
-                        def region = r.split(";")
+                        def region = r.split("\\^")
                         def geneId = region[1] as long
                         def direction = region[2]
                         def range = region[3] as long
@@ -871,9 +873,9 @@ class GwasSearchController {
 
         def stackTrace = e.getStackTrace()
 
-        render(text: "<pre>")
+        render(text: "<div class='errorbox'>tranSMART encountered an error while running this query (" + e.class.getName() + " " + e.getMessage() + "). Please contact an administrator with your search criteria and the information below.</div>")
+        render(text: "<pre class='errorstacktrace'>")
         render(text: "<b>Error while retrieving data: " + e.class.getName() + ".</b> Message: " + e.getMessage() + "\n")
-        render(text: "Copy and paste the following information:\n")
 
         for (el in stackTrace) {
             render(text: "\t" + el.getClassName() + "." + el.getMethodName() + ", line " + el.getLineNumber() + " " + "\n")

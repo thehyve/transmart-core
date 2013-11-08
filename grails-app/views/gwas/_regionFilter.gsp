@@ -6,7 +6,7 @@
 <div onclick="jQuery('[name=\'regionFilter\'][value=\'gene\']').attr('checked', true);">
 <g:radio name="regionFilter" value="gene"/> 
 Gene/RSID: <tmpl:/RWG/extTagSearchField width="100" fieldName="filterGeneId" searchAction="searchAutoComplete" searchController="RWG" />
-<a style="color: blue; cursor: pointer" id="filterGeneIdChangeButton" onclick="changeField('filterGeneId-combobox', 'filterGeneId')">Change</a>
+<%--<a style="color: blue; cursor: pointer" id="filterGeneIdChangeButton" onclick="changeField('filterGeneId-combobox', 'filterGeneId')">Change</a>--%>
 <br/><br/> <br/>
 Use: <g:select name="filterGeneUse" from="${['19':'HG19','18':'HG18']}" optionKey="${{it.key}}" optionValue="${{it.value}}"/>
 <br/><br/>

@@ -12,8 +12,8 @@ function loadQQPlot(analysisID)
             jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
             jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
         },
-        "error": function ( json ) {
-            jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
+        "error": function ( xhr ) {
+            jQuery('#qqplot_results_' + analysisID).append(xhr.responseText).removeClass('ajaxloading');
             jQuery('#analysis_holder_' +analysisID).unmask();
         },
         "dataType": "json"
@@ -135,7 +135,7 @@ function applyPopupFiltersRegions()
                 text:text};
 
             addSearchTerm(searchParam);
-        })
+        });
         //This destroys our popup window.
         jQuery(this).dialog("destroy");
     }
@@ -187,6 +187,24 @@ function applyPopupFiltersRegions()
 	jQuery(this).dialog("destroy");
 }
 
+function applyPopupFiltersEqtlTranscriptGene()
+{
+    jQuery("#filterEqtlTranscriptGeneId :selected").each(function(i,selected){
+        var geneId= selected.value
+        var geneName = selected.text;
+
+        var searchParam={id:geneName,
+            display:'Transcript Gene',
+            keyword:geneName,
+            category:'TRANSCRIPTGENE',
+            text:geneName};
+
+        addSearchTerm(searchParam);
+    });
+    //This destroys our popup window.
+    jQuery(this).dialog("destroy");
+}
+
 function getRangeSymbol(string) {
 
     if (string == 'both') {
@@ -202,4 +220,5 @@ function getRangeSymbol(string) {
 
 jQuery(document).ready(function() {
     popupWindowPropertiesMap['Region of Interest'] = {'URLToUse': regionBrowseWindow, 'filteringFunction': applyPopupFiltersRegions, 'dialogHeight': 450, 'dialogWidth': 900}
+    popupWindowPropertiesMap['eQTL Transcript Gene'] = {'URLToUse': eqtlTranscriptGeneWindow, 'filteringFunction': applyPopupFiltersEqtlTranscriptGene}
 });
