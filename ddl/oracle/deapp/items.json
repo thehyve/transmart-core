@@ -352,6 +352,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
     },
     "parents" : [ ]
@@ -450,6 +457,13 @@
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -644,6 +658,50 @@
       "name" : "HAPLOVIEW_DATA"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_MIRNA_DATA_1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_MIRNA_DATA_2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
   }, {
     "child" : {
       "type" : "INDEX",
@@ -1336,6 +1394,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    },
+    "file" : "deapp/de_subject_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
     },
     "file" : "deapp/de_subject_protein_data.sql"
@@ -1402,6 +1467,13 @@
       "name" : "DE_SUBJECT_RBM_MCIDX4"
     },
     "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1556,6 +1628,34 @@
       "name" : "HAPLOVIEW_DATA"
     },
     "file" : "deapp/haploview_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_MIRNA_DATA_1"
+    },
+    "file" : "deapp/de_subject_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_MIRNA_DATA_2"
+    },
+    "file" : "deapp/de_subject_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_1"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_2"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
   }, {
     "item" : {
       "type" : "INDEX",

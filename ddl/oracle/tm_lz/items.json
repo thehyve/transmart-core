@@ -1,6 +1,36 @@
 {
   "dependencies" : [ {
     "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "I2B2_PROCESS_QPCR_MIRNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_QPCR_MIRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_CEL_FILES"
@@ -25,6 +55,13 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_DEAPP_ANNOT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
     },
     "parents" : [ ]
   }, {
@@ -74,6 +111,27 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_PATHWAY_ORG"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_QPCR_MIRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_SEQ_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_SEQ_SUBJ_SAMP_MAP"
     },
     "parents" : [ ]
   }, {
@@ -163,6 +221,20 @@
   } ],
   "fileAssignments" : [ {
     "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "I2B2_PROCESS_QPCR_MIRNA_DATA"
+    },
+    "file" : "tm_lz/procedures/i2b2_process_qpcr_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    },
+    "file" : "tm_lz/lt_qpcr_mirna_annotation.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_CEL_FILES"
@@ -189,6 +261,13 @@
       "name" : "LT_SRC_DEAPP_ANNOT"
     },
     "file" : "tm_lz/lt_src_deapp_annot.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
+    },
+    "file" : "tm_lz/lt_src_mirna_subj_samp_map.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -238,6 +317,27 @@
       "name" : "LT_SRC_PATHWAY_ORG"
     },
     "file" : "tm_lz/lt_src_pathway_org.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_QPCR_MIRNA_DATA"
+    },
+    "file" : "tm_lz/lt_src_qpcr_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_SEQ_DATA"
+    },
+    "file" : "tm_lz/lt_src_rna_seq_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_SEQ_SUBJ_SAMP_MAP"
+    },
+    "file" : "tm_lz/lt_src_rna_seq_subj_samp_map.sql"
   }, {
     "item" : {
       "type" : "TABLE",
