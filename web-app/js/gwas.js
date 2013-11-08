@@ -1,5 +1,3 @@
-var REGION_TERM_DELIMITER = "^";
-
 //This function will kick off the webservice that generates the QQ plot.
 function loadQQPlot(analysisID)
 {
@@ -14,9 +12,8 @@ function loadQQPlot(analysisID)
             jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
             jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
         },
-        "error": function ( xhm ) {
-            jQuery('#qqplot_results_' + analysisID).removeClass('ajaxloading');
-            jQuery('#qqplot_results_' + analysisID).prepend(xhm.responseText)
+        "error": function ( json ) {
+            jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
             jQuery('#analysis_holder_' +analysisID).unmask();
         },
         "dataType": "json"
@@ -112,6 +109,7 @@ function applyPopupFiltersRegions()
     var version = null;
     var searchString = "";
     var text = "";
+	var pValue= jQuery('#pValue').val();
     if (jQuery('[name=\'regionFilter\'][value=\'gene\']:checked').size() > 0) {
         jQuery("#filterGeneId :selected").each(function(i,selected){
             var geneId= selected.value
@@ -124,11 +122,11 @@ function applyPopupFiltersRegions()
             }
 
             use = jQuery('#filterGeneUse').val();
-            searchString += "GENE" + REGION_TERM_DELIMITER + geneId
+            searchString += "GENE;" + geneId
 
             text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
 
-            searchString += REGION_TERM_DELIMITER + range + REGION_TERM_DELIMITER + basePairs + REGION_TERM_DELIMITER + use;
+            searchString += ";" + range + ";" + basePairs + ";" + use;
 
             var searchParam={id:searchString,
                 display:'Region',
@@ -155,7 +153,7 @@ function applyPopupFiltersRegions()
             pos = 0;
         }
 
-        searchString += "CHROMOSOME" + REGION_TERM_DELIMITER + chromNum + REGION_TERM_DELIMITER + use + REGION_TERM_DELIMITER + pos;
+        searchString += "CHROMOSOME;" + chromNum + ";" + use + ";" + pos;
 
         if (pos != 0 && range != 0) {
             text = "HG" + use + " chromosome " + chromNum + " position " + pos + " " + getRangeSymbol(range) + " " + basePairs;
@@ -164,7 +162,7 @@ function applyPopupFiltersRegions()
             text = "HG" + use + " chromosome " + chromNum;
         }
 
-        searchString += REGION_TERM_DELIMITER + range + REGION_TERM_DELIMITER + basePairs + REGION_TERM_DELIMITER + use;
+        searchString += ";" + range + ";" + basePairs + ";" + use;
 
         var searchParam={id:searchString,
             display:'Region',
@@ -177,6 +175,16 @@ function applyPopupFiltersRegions()
         //This destroys our popup window.
         jQuery(this).dialog("destroy");
     }
+	if (pValue.trim() != "") {
+	var searchParam={id:'PVALUE;'+pValue,
+		        display:'PVALUE',
+		        keyword:'PVALUE;'+pValue,
+		        category:'PVALUE',
+		        text:pValue};
+		addSearchTerm(searchParam);
+	}
+	//This destroys our popup window.
+	jQuery(this).dialog("destroy");
 }
 
 function getRangeSymbol(string) {
@@ -193,5 +201,5 @@ function getRangeSymbol(string) {
 }
 
 jQuery(document).ready(function() {
-    popupWindowPropertiesMap['Region of Interest'] = {'URLToUse': regionBrowseWindow, 'filteringFunction': applyPopupFiltersRegions, 'dialogHeight': 420, 'dialogWidth': 900}
+    popupWindowPropertiesMap['Region of Interest'] = {'URLToUse': regionBrowseWindow, 'filteringFunction': applyPopupFiltersRegions, 'dialogHeight': 450, 'dialogWidth': 900}
 });

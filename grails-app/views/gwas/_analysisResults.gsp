@@ -9,7 +9,7 @@
 	</div>
 	<div class="dataTables_filter">
 		<label>P-value cutoff: 
-			<input type="text" style="width: 50px" id="analysis_results_table_${analysisId}_cutoff"> <%-- removed value="${cutoff}" --%>
+			<input type="text" style="width: 50px" id="analysis_results_table_${analysisId}_cutoff" onclick="removepvalue(${analysisId})"> <%-- removed value="${cutoff}" --%>
 		</label>
 		<label>Search: 
 			<input value="${search}" type="text" style="width: 50px" id="analysis_results_table_${analysisId}_search">
@@ -65,7 +65,7 @@
 	</table>						
 	<div class="dataTables_info" id="analysis_results_table_${analysisId}_info">
 		<g:if test="${totalCount > 0}">
-			Showing ${Math.min(offset+1, totalCount)} to ${Math.min(totalCount,offset+max)} of${wasShortcut?' about ':' '}${totalCount} entries
+			Showing ${Math.min(offset+1, totalCount)} to ${Math.min(totalCount,offset+max)} of ${totalCount} entries
 		</g:if>
 		<g:else>
 			No entries to display
