@@ -1,0 +1,264 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_WZ",
+      "name" : "UTIL_GRANT_ALL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_MRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_CLINICAL_DATA_DUPS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_NODES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_NODE_VALUES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_SUBJ_SAMPLE_MAP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_NUM_DATA_TYPES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_CALCS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_LOGS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_MED"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_CALCS_I1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_CALCS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_LOGS_I1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_LOGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    },
+    "parents" : [ ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_WZ",
+      "name" : "UTIL_GRANT_ALL"
+    },
+    "file" : "tm_wz/procedures/util_grant_all.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    },
+    "file" : "tm_wz/wrk_clinical_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_MRNA_DATA"
+    },
+    "file" : "tm_wz/wrk_mrna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_CLINICAL_DATA_DUPS"
+    },
+    "file" : "tm_wz/wt_clinical_data_dups.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_DATA"
+    },
+    "file" : "tm_wz/wt_mrna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_NODES"
+    },
+    "file" : "tm_wz/wt_mrna_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_NODE_VALUES"
+    },
+    "file" : "tm_wz/wt_mrna_node_values.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_SUBJ_SAMPLE_MAP"
+    },
+    "file" : "tm_wz/wt_mrna_subj_sample_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_NUM_DATA_TYPES"
+    },
+    "file" : "tm_wz/wt_num_data_types.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_INFO"
+    },
+    "file" : "tm_wz/wt_subject_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_CALCS"
+    },
+    "file" : "tm_wz/wt_subject_microarray_calcs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_LOGS"
+    },
+    "file" : "tm_wz/wt_subject_microarray_logs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MICROARRAY_MED"
+    },
+    "file" : "tm_wz/wt_subject_microarray_med.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_CALCS_I1"
+    },
+    "file" : "tm_wz/wt_subject_microarray_calcs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_DATA"
+    },
+    "file" : "tm_wz/wt_subject_mrna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_LOGS_I1"
+    },
+    "file" : "tm_wz/wt_subject_microarray_logs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    },
+    "file" : "tm_wz/wt_subject_mrna_probeset.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    },
+    "file" : "tm_wz/wt_trial_nodes.sql"
+  } ]
+}
