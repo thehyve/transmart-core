@@ -14,93 +14,96 @@
 * limitations under the License.
 ******************************************************************/
 
-function submitHeatmapJob(form){
-	
-	var independentVariableConceptCode = "";	
-	
-	independentVariableConceptCode = readConceptVariables("divIndependentVariable");
+/**
+ *  Submitting the heatmap job
+ * @param form
+ */
+function submitHeatmapJob (frm) {
 
-	var variablesConceptCode = independentVariableConceptCode;
-		
-	//----------------------------------
-	//Validation
-	//----------------------------------
-	//This is the independent variable.
-	var independentVariableEle = Ext.get("divIndependentVariable");	
+    // get formParams
+    var formParams = getFormParameters();
 
-	//Get the types of nodes from the input box.
-	var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
-	
-	//Validate to make sure a concept was dragged in.
-	if(independentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the Heatmap Variable box.');
-		return;
-	}	
-	
-	if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1))
-	{
-		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The heatmap variable input box has multiple nodes.');
-		return;		
-	}		
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
+}
 
-	if(document.getElementById("txtMaxDrawNumber").value == '')
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter the maximumm number of markers to display into the "Max rows to display" text box.');
-		return;			
-	}	
-	
-	if(!isNumber(document.getElementById("txtMaxDrawNumber").value))
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Max rows to display" text box.');
-		return;			
-	}
-	
-	if(document.getElementById("txtMaxDrawNumber").value < 1)
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 0 into the "Max rows to display" text box.');
-		return;			
-	}	
-		
-	//----------------------------------	
-	
-	var formParams = {
-			independentVariable:		independentVariableConceptCode,
-			variablesConceptPaths:		variablesConceptCode,
-			jobType:			'RHeatmap',
-			txtMaxDrawNumber:		document.getElementById("txtMaxDrawNumber").value
-				
-	};
-	
-	//Use a common function to load the High Dimensional Data params.
-	loadCommonHighDimFormObjects(formParams,"divIndependentVariable");
-	loadCommonHeatmapImageAttributes(formParams);
-	
-	if(!validateCommonHeatmapImageAttributes(formParams))
-	{
-		return false;
-	}
-	
-	//------------------------------------
-	//More Validation
-	//------------------------------------	
-	//If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-	if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
-	{
-		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the category variable box but did not select any filters! Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
-		return;			
-	}
-	
-	//For the time being if the user is trying to run anything but GEX, stop them.
-	if(formParams["divIndependentVariableType"] != "MRNA")
-	{
-		Ext.Msg.alert("Invalid selection", "The heatmap only supports GEX data at this time. Please drag a Gene Expression node into the Heatmap variable and click the 'High Dimensional Data' button.")
-		return false;
-	}
-		
-	//------------------------------------	
-	
-	submitJob(formParams);
+/**
+ * get form parameters
+ * @param frm
+ */
+function getFormParameters () {
+
+    var formParameters = {}; // init
+
+    //Use a common function to load the High Dimensional Data params.
+    loadCommonHighDimFormObjects(formParameters, "divIndependentVariable");
+
+    // instantiate input elements object with their corresponding validations
+    var inputArray = [
+        {
+            "label" : "High Dimensional Data",
+            "el" : Ext.get("divIndependentVariable"),
+            "validations" : [
+                {type:"REQUIRED"},
+                {
+                    type:"HIGH_DIMENSIONAL",
+                    platform:formParameters["divIndependentVariableType"],
+                    pathway:formParameters["divIndependentVariablePathway"]
+                }
+            ]
+        },
+       {
+            "label" : "Max Row to Display",
+            "el" : document.getElementById("txtMaxDrawNumber"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
+        },
+        {
+            "label" : "Image Width",
+            "el" : document.getElementById("txtImageWidth"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Height",
+            "el" : document.getElementById("txtImageHeight"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Point Size",
+            "el" : document.getElementById("txtImagePointsize"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
+        }
+    ]
+
+    // define the validator for this form
+    var formValidator = new FormValidator(inputArray);
+
+    if (formValidator.validateInputForm()) { // if input files satisfy the validations
+
+        // get values
+        var inputConceptPathVar = readConceptVariables("divIndependentVariable");
+        var maxDrawNum = inputArray[1].el.value;
+        var imageWidth = inputArray[2].el.value;
+        var imageHeight = inputArray[3].el.value;
+        var imagePointSize = inputArray[4].el.value;
+
+        // assign values to form parameters
+        formParameters['jobType'] = 'RHeatmap';
+        formParameters['independentVariable'] = inputConceptPathVar;
+        formParameters['variablesConceptPaths'] = inputConceptPathVar;
+        formParameters['txtMaxDrawNumber'] = maxDrawNum;
+        formParameters['txtImageWidth'] = imageWidth;
+        formParameters['txtImageHeight'] = imageHeight;
+        formParameters['txtImagePointsize'] = imagePointSize;
+
+    } else { // something is not correct in the validation
+        // empty form parameters
+        formParameters = null;
+        // display the error message
+        formValidator.display_errors();
+    }
+
+    return formParameters;
 }
 
 /**
@@ -108,8 +111,8 @@ function submitHeatmapJob(form){
  * Clear out all gobal variables and reset them to blank.
  */
 function loadHeatmapView(){
-	registerHeatmapDragAndDrop();
-	clearHighDimDataSelections('divIndependentVariable');
+    registerHeatmapDragAndDrop();
+    clearHighDimDataSelections('divIndependentVariable');
 }
 
 /**
@@ -120,27 +123,26 @@ function loadHeatmapView(){
  */
 function clearGroupHeatmap(divName)
 {
-	//Clear the drag and drop div.
-	var qc = Ext.get(divName);
-	
-	for(var i=qc.dom.childNodes.length-1;i>=0;i--)
-	{
-		var child=qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}	
-	clearHighDimDataSelections(divName);
-	clearSummaryDisplay(divName);
+    //Clear the drag and drop div.
+    var qc = Ext.get(divName);
+    
+    for(var i=qc.dom.childNodes.length-1;i>=0;i--)
+    {
+        var child=qc.dom.childNodes[i];
+        qc.dom.removeChild(child);
+    }    
+    clearHighDimDataSelections(divName);
+    clearSummaryDisplay(divName);
 }
 
 function registerHeatmapDragAndDrop()
 {
-	//Set up drag and drop for Dependent and Independent variables on the data association tab.
-	//Get the Independent DIV
-	var independentDiv = Ext.get("divIndependentVariable");
-	
-	dtgI = new Ext.dd.DropTarget(independentDiv,{ddGroup : 'makeQuery'});
-	dtgI.notifyDrop =  dropOntoCategorySelection;
-	
+    //Set up drag and drop for Dependent and Independent variables on the data association tab.
+    //Get the Independent DIV
+    var independentDiv = Ext.get("divIndependentVariable");
+    
+    dtgI = new Ext.dd.DropTarget(independentDiv,{ddGroup : 'makeQuery'});
+    dtgI.notifyDrop =  dropOntoCategorySelection;
 }
 
 
