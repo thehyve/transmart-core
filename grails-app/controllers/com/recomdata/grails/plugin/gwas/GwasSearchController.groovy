@@ -1,5 +1,6 @@
 package com.recomdata.grails.plugin.gwas
 
+import au.com.bytecode.opencsv.CSVWriter
 import bio.BioAssayAnalysis
 import grails.converters.JSON
 import search.GeneSignature
@@ -202,7 +203,7 @@ class GwasSearchController {
         //Get list of REGION restrictions from session and translate to regions
         def regions = getSearchRegions(session['solrSearchFilter'])
         def geneNames = getGeneNames(session['solrSearchFilter'])
-
+        def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
         //Find out if we're querying for EQTL, GWAS, or both
         def hasGwas = BioAssayAnalysis.createCriteria().list([max: 1]) {
             or {
@@ -222,17 +223,17 @@ class GwasSearchController {
         def eqtlResult
 
         if (hasGwas) {
-            gwasResult = runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, "gwas", geneNames)
+            gwasResult = runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, "gwas", geneNames, transcriptGeneNames)
         }
         if (hasEqtl) {
-            eqtlResult = runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, "eqtl", geneNames)
+            eqtlResult = runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, "eqtl", geneNames, transcriptGeneNames)
         }
 
         return [gwasResults: gwasResult, eqtlResults: eqtlResult]
     }
 
 
-    def runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames) throws Exception {
+    def runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, transcriptGeneNames) throws Exception {
 
         //This will hold the index lookups for deciphering the large text meta-data field.
         def indexMap = [:]
@@ -264,7 +265,7 @@ class GwasSearchController {
 //			session['cachedAnalysisData'] = analysisData
 //		}
         def wasShortcut = false
-        if (!regions && !geneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
+        if (!regions && !geneNames && !transcriptGeneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
             println("Triggering shortcut query")
             wasShortcut = true
             //If displaying no regions and only one analysis, run the alternative query and pull back the rows for the limits
@@ -278,7 +279,7 @@ class GwasSearchController {
         }
         else {
             //Otherwise, run the query and recache the returned data
-            queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, true)
+            queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, transcriptGeneNames, true)
             analysisData = queryResult.results
             totalCount = queryResult.total
 
@@ -312,7 +313,7 @@ class GwasSearchController {
         columnNames.add(["sTitle":"Regulome Score", "sortField":"info.regulome_score"])
 
         if (type.equals("eqtl")) {
-            columnNames.add(["sTitle":"Gene", "sortField":"data.gene"])
+            columnNames.add(["sTitle":"Transcript Gene", "sortField":"data.gene"])
         }
 
         analysisIndexData.each()
@@ -334,7 +335,7 @@ class GwasSearchController {
                         def temporaryList = []
 
                         //The third element is our large text field. Split it into an array, leaving trailing empties.
-                        def largeTextField = it[3].split(";", -1)
+                        def largeTextField = it[3]?.split(";", -1)
 
                         //This will be the array that is reordered according to the meta-data index table.
                         //String[] newLargeTextField = new String[largeTextField.size()]
@@ -428,17 +429,18 @@ class GwasSearchController {
             //Get list of REGION restrictions from session and translate to regions
             def regions = getSearchRegions(session['solrSearchFilter'])
             def geneNames = getGeneNames(session['solrSearchFilter'])
+            def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
             def analysisIds = [currentAnalysis.id]
 
             switch(currentAnalysis.assayDataType)
             {
                 case "GWAS" :
                 case "Metabolic GWAS" :
-                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames,false).results
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames, transcriptGeneNames, false).results
                     analysisIndexData = searchDAO.getGwasIndexData()
                     break;
                 case "EQTL" :
-                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames,false).results
+                    analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames, transcriptGeneNames, false).results
                     analysisIndexData = searchDAO.getEqtlIndexData()
                     break;
                 default :
@@ -468,7 +470,7 @@ class GwasSearchController {
                         def indexCount = 0;
 
                         //The third element is our large text field. Split it into an array.
-                        def largeTextField = it[3].split(";", -1)
+                        def largeTextField = it[3]?.split(";", -1)
 
                         //This will be the array that is reordered according to the meta-data index table.
                         String[] newLargeTextField = new String[indexMap.size()]
@@ -859,6 +861,24 @@ class GwasSearchController {
         return genes
     }
 
+    def getTranscriptGeneNames(solrSearch) {
+        def genes = []
+
+        for (s in solrSearch) {
+            if (s.startsWith("TRANSCRIPTGENE")) {
+                //If just plain genes, get the names
+                s = s.substring(15)
+                def geneIds = s.split("\\|")
+                for (geneString in geneIds) {
+                    genes.push(geneString)
+                }
+            }
+        }
+
+        return genes
+    }
+
+
     def renderException(e) {
         e.printStackTrace()
 
@@ -881,5 +901,30 @@ class GwasSearchController {
             render(text: "\t" + el.getClassName() + "." + el.getMethodName() + ", line " + el.getLineNumber() + " " + "\n")
         }
         render("</pre>")
+    }
+
+    def exportResults(columns, rows, filename) {
+
+        response.setHeader('Content-disposition', 'attachment; filename=' + filename)
+        response.contentType = 'text/plain'
+
+        String lineSeparator = System.getProperty('line.separator')
+        CSVWriter csv = new CSVWriter(response.writer)
+        def headList = []
+        for (column in columns) {
+            headList.push(column.sTitle)
+        }
+        String[] head = headList
+        csv.writeNext(head)
+
+        for (row in rows) {
+            def rowData = []
+            for (data in row) {
+                rowData.push(data)
+            }
+            String[] vals = rowData
+            csv.writeNext(vals)
+        }
+        csv.close()
     }
 }

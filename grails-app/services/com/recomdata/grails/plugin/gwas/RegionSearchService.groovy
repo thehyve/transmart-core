@@ -232,7 +232,7 @@ class RegionSearchService {
         }
     }
 
-    def getAnalysisData(analysisIds, ranges, Long limit, Long offset, Double cutoff, String sortField, String order, String search, String type, geneNames, doCount) {
+    def getAnalysisData(analysisIds, ranges, Long limit, Long offset, Double cutoff, String sortField, String order, String search, String type, geneNames, transcriptGeneNames, doCount) {
 
         def con, stmt, rs = null;
         con = dataSource.getConnection()
@@ -353,6 +353,15 @@ class RegionSearchService {
             queryCriteria.append( "'" + geneNames[0] + "'");
             for (int i = 1; i < geneNames.size(); i++) {
                 queryCriteria.append(", " + "'" + geneNames[i] + "'");
+            }
+            queryCriteria.append(") ")
+        }
+
+        else if (type.equals("eqtl") && transcriptGeneNames) {
+            queryCriteria.append(" AND data.gene IN (")
+            queryCriteria.append( "'" + transcriptGeneNames[0] + "'");
+            for (int i = 1; i < transcriptGeneNames.size(); i++) {
+                queryCriteria.append(", " + "'" + transcriptGeneNames[i] + "'");
             }
             queryCriteria.append(") ")
         }

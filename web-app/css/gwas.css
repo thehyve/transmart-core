@@ -8,6 +8,17 @@ div.errorbox {
     font-size: 10pt;
 }
 
+div.infobox {
+    background-color: #BFCFFD;
+    border: 1px solid #88F;
+    background-image: url('../images/information.png');
+    background-repeat: no-repeat;
+    background-position: 8px 50%;
+    padding: 8px 8px 8px 32px;
+    font-size: 10pt;
+    margin: 4px;
+}
+
 pre.errorstacktrace {
     font-size: 8pt;
     background-color: #EEE;

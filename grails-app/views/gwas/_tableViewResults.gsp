@@ -1,9 +1,10 @@
 
 	<div class='vis-toolBar' >
-		<div id="btnResultsExport" class='vis-toolbar-item'><a href="${createLink([controller:'search', action:'getTableResults', params:[export: true, type: type]])}"><img alt="" src="${resource(dir:'images',file:'internal-link.gif')}" /> Export as CSV</a></div>
+		<div id="btnResultsExport" class='vis-toolbar-item'><a href="${createLink([plugin: 'transmart-gwas', controller:'gwasSearch', action:'getTableResults', params:[export: true, type: type]])}"><img alt="" src="${resource(dir:'/images',file:'internal-link.gif')}" /> Export as CSV</a></div>
 	</div>
+    <br/>
 	<g:if test="${wasRegionFiltered}">
-		<i>These results have been filtered according to gene/chromosome region criteria.</i><br/><br/>
+        <div class="infobox">These results have been filtered according to gene/chromosome region criteria.</div>
 	</g:if>
 	<div id="table_results_length_div" class="dataTables_length">
 		<label>Show 

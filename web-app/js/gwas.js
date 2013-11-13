@@ -1,3 +1,5 @@
+var REGION_DELIMITER = "^";
+
 //This function will kick off the webservice that generates the QQ plot.
 function loadQQPlot(analysisID)
 {
@@ -109,7 +111,7 @@ function applyPopupFiltersRegions()
     var version = null;
     var searchString = "";
     var text = "";
-	var pValue= jQuery('#pValue').val();
+    var pValue= jQuery('#pValue').val();
     if (jQuery('[name=\'regionFilter\'][value=\'gene\']:checked').size() > 0) {
         jQuery("#filterGeneId :selected").each(function(i,selected){
             var geneId= selected.value
@@ -122,11 +124,11 @@ function applyPopupFiltersRegions()
             }
 
             use = jQuery('#filterGeneUse').val();
-            searchString += "GENE;" + geneId
+            searchString += "GENE" + REGION_DELIMITER + geneId
 
             text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
 
-            searchString += ";" + range + ";" + basePairs + ";" + use;
+            searchString += REGION_DELIMITER + range + REGION_DELIMITER + basePairs + REGION_DELIMITER + use;
 
             var searchParam={id:searchString,
                 display:'Region',
@@ -153,7 +155,7 @@ function applyPopupFiltersRegions()
             pos = 0;
         }
 
-        searchString += "CHROMOSOME;" + chromNum + ";" + use + ";" + pos;
+        searchString += "CHROMOSOME" + REGION_DELIMITER + chromNum + REGION_DELIMITER + use + REGION_DELIMITER + pos;
 
         if (pos != 0 && range != 0) {
             text = "HG" + use + " chromosome " + chromNum + " position " + pos + " " + getRangeSymbol(range) + " " + basePairs;
@@ -162,7 +164,7 @@ function applyPopupFiltersRegions()
             text = "HG" + use + " chromosome " + chromNum;
         }
 
-        searchString += ";" + range + ";" + basePairs + ";" + use;
+        searchString += REGION_DELIMITER + range + REGION_DELIMITER + basePairs + REGION_DELIMITER + use;
 
         var searchParam={id:searchString,
             display:'Region',
@@ -175,16 +177,16 @@ function applyPopupFiltersRegions()
         //This destroys our popup window.
         jQuery(this).dialog("destroy");
     }
-	if (pValue.trim() != "") {
-	var searchParam={id:'PVALUE;'+pValue,
-		        display:'PVALUE',
-		        keyword:'PVALUE;'+pValue,
-		        category:'PVALUE',
-		        text:pValue};
-		addSearchTerm(searchParam);
-	}
-	//This destroys our popup window.
-	jQuery(this).dialog("destroy");
+    if (pValue.trim() != "") {
+        var searchParam={id:'PVALUE;'+pValue,
+            display:'PVALUE',
+            keyword:'PVALUE;'+pValue,
+            category:'PVALUE',
+            text:pValue};
+        addSearchTerm(searchParam);
+    }
+    //This destroys our popup window.
+    jQuery(this).dialog("destroy");
 }
 
 function applyPopupFiltersEqtlTranscriptGene()
