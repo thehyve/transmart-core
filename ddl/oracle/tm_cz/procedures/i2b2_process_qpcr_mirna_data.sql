@@ -926,7 +926,7 @@ BEGIN
 
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
  
-	if dataType = 'T' then
+	if dataType = 'R' then
 		insert into de_subject_mirna_data
 		(trial_source
 		,probeset_id
@@ -937,7 +937,7 @@ BEGIN
 		,trial_name
 		,zscore
 		)
-		select TrialId || ':' || sourceCd
+		select (TrialId || ':' || sourceCd)
 			  ,probeset_id
 			  ,assay_id
 			  ,patient_id
@@ -961,7 +961,7 @@ BEGIN
 	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
 	--	wt_subject_mirna_probeset as part of a Load.  
 
-		if dataType = 'R' or dataType = 'L' then
+		if dataType = 'T' or dataType = 'L' then
 			i2b2_mirna_zscore_calc(TrialID,'L',jobId,dataType,logBase,sourceCD);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score',0,stepCt,'Done');
