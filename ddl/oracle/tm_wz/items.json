@@ -127,11 +127,33 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_CALCS_I1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_CALCS"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WT_SUBJECT_MIRNA_LOGS"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_LOGS_I1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_LOGS"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -339,9 +361,23 @@
     "file" : "tm_wz/wt_subject_mirna_calcs.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_CALCS_I1"
+    },
+    "file" : "tm_wz/wt_subject_mirna_calcs.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WT_SUBJECT_MIRNA_LOGS"
+    },
+    "file" : "tm_wz/wt_subject_mirna_logs.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MIRNA_LOGS_I1"
     },
     "file" : "tm_wz/wt_subject_mirna_logs.sql"
   }, {

@@ -84,7 +84,7 @@ BEGIN
 		raise invalid_runType;
 	end if;
   
---	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mrna_data
+--	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mirna_data
 --	If not, raise exception
 
 	if runType = 'L' then
@@ -125,22 +125,22 @@ BEGIN
 	into idxExists
 	from all_indexes
 	where table_name = 'WT_SUBJECT_MIRNA_LOGS'
-	  and index_name = 'WT_SUBJECT_MRNA_LOGS_I1'
+	  and index_name = 'WT_SUBJECT_MIRNA_LOGS_I1'
 	  and owner = 'TM_WZ';
 		
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.wt_subject_mrna_logs_i1');		
+		execute immediate('drop index tm_wz.wt_subject_mirna_logs_i1');		
 	end if;
 	
 	select count(*) 
 	into idxExists
 	from all_indexes
 	where table_name = 'WT_SUBJECT_MIRNA_CALCS'
-	  and index_name = 'WT_SUBJECT_MRNA_CALCS_I1'
+	  and index_name = 'WT_SUBJECT_MIRNA_CALCS_I1'
 	  and owner = 'TM_WZ';
 		
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.wt_subject_mrna_calcs_i1');
+		execute immediate('drop index tm_wz.wt_subject_mirna_calcs_i1');
 	end if;
 	
 	stepCt := stepCt + 1;
@@ -241,7 +241,7 @@ BEGIN
 
 	commit;
     
-	execute immediate('create index tm_wz.wt_subject_mrna_logs_i1 on tm_wz.wt_subject_mirna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
+	execute immediate('create index tm_wz.wt_subject_mirna_logs_i1 on tm_wz.wt_subject_mirna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_logs',0,stepCt,'Done');
 		
@@ -267,7 +267,7 @@ BEGIN
 
 	commit;
 
-	execute immediate('create index tm_wz.wt_subject_mrna_calcs_i1 on tm_wz.wt_subject_mirna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
+	execute immediate('create index tm_wz.wt_subject_mirna_calcs_i1 on tm_wz.wt_subject_mirna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_calcs',0,stepCt,'Done');
 		
@@ -310,7 +310,7 @@ BEGIN
 	from wt_subject_MIRNA_med;
 	
 	if nbrRecs > 10000000 then
-		i2b2_mrna_index_maint('DROP',,jobId);
+		i2b2_mirna_index_maint('DROP',,jobId);
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
 	else
@@ -355,7 +355,7 @@ BEGIN
 
 --	add indexes, if indexes were not dropped, procedure will not try and recreate
 /*
-	i2b2_mrna_index_maint('ADD',,jobId);
+	i2b2_mirna_index_maint('ADD',,jobId);
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
 */
