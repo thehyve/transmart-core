@@ -28,6 +28,7 @@ class Disease {
 		String meshCode
 		String icd9Code
 		String preferredName
+        String primarySourceCode
 		static hasMany=[experiments:Experiment,literatures:Literature,analyses:BioAssayAnalysis]
  static mapping = {
 	 table 'BIO_DISEASE'
@@ -42,6 +43,7 @@ class Disease {
 		meshCode column:'MESH_CODE'
 		icd9Code column:'ICD9_CODE'
 		preferredName column:'PREFERED_NAME'
+        primarySourceCode column:'PRIMARY_SOURCE_CD'
 		experiments joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DISEASE_ID']
 		analyses joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DISEASE_ID']
 		literatures joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DISEASE_ID']
