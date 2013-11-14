@@ -123,31 +123,30 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 	if (itemId ==  'aCGHgroupTest' ) itemId = 'groupTestaCGH';
 	if (itemId ==  'RNASeqgroupTest' ) itemId = 'groupTestRNASeq';
 
-	// fyi ..  Ajax.Updater is a Prototype.js syntax
-	// will update 'variableSelection' div with whatever the response from
-	// the call
-	new Ajax.Updater('variableSelection', pageInfo.basePath+'/dataAssociation/variableSelection',
-	{
-		asynchronous:true,
-		evalScripts:true,
-		onComplete: function(e) { 
+    // ajax call to
+    $j.ajax({
+        url : pageInfo.basePath+'/dataAssociation/variableSelection',
+        data : {analysis:itemId},
+        success : function (response, status) {
 
-			// load the plugin view
-			loadPluginView(itemId);
+            // insert response into 'variableSelection' html element
+            $j('#variableSelection').html(response);
 
-			// if it's loading completed job then display the result as well
-			if (isCompletedJob) {
-				if (itemId == 'aCGHSurvivalAnalysis') {
-					survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
-				} else if (itemId == 'groupTestaCGH') {
-					groupTestView.renderResults(jobName, groupTestView);
-				} else if (itemId == 'groupTestRNASeq') {
+            // load the plugin view
+            loadPluginView(itemId);
+
+            // if it's loading completed job then display the result as well
+            if (isCompletedJob) {
+                if (itemId == 'aCGHSurvivalAnalysis') {
+                    survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
+                } else if (itemId == 'groupTestaCGH') {
+                    groupTestView.renderResults(jobName, groupTestView);
+                } else if (itemId == 'groupTestRNASeq') {
                     RNASeqgroupTestView.renderResults(jobName, RNASeqgroupTestView);
                 }
-			}
-		},
-		parameters:{analysis:itemId}
-	});
+            }
+        }
+    }),
 
 	// update analysis element
 	Ext.get('analysis').dom.value = itemId;
@@ -673,7 +672,6 @@ function clearDataAssociation()
 
 function loadCommonHighDimFormObjects(formParams, divName)
 {
-	
 	formParams[divName + "timepoints"]			= window[divName + 'timepoints1'];
 	formParams[divName + "samples"]				= window[divName + 'samples1'];
 	formParams[divName + "rbmPanels"]			= window[divName + 'rbmPanels1'];
