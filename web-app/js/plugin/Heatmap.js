@@ -15,6 +15,16 @@
 ******************************************************************/
 
 /**
+ * Where everything starts
+ * - Register drag and drop.
+ * - Clear out all gobal variables and reset them to blank.
+ */
+function loadHeatmapView(){
+    registerHeatmapDragAndDrop();
+    clearHighDimDataSelections('divIndependentVariable');
+}
+
+/**
  *  Submitting the heatmap job
  * @param form
  */
@@ -104,15 +114,6 @@ function getFormParameters () {
     }
 
     return formParameters;
-}
-
-/**
- * Register drag and drop.
- * Clear out all gobal variables and reset them to blank.
- */
-function loadHeatmapView(){
-    registerHeatmapDragAndDrop();
-    clearHighDimDataSelections('divIndependentVariable');
 }
 
 /**
