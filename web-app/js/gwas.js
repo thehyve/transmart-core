@@ -178,9 +178,9 @@ function applyPopupFiltersRegions()
         jQuery(this).dialog("destroy");
     }
     if (pValue.trim() != "") {
-        var searchParam={id:'PVALUE;'+pValue,
+        var searchParam={id:'PVALUE'+REGION_DELIMITER+pValue,
             display:'PVALUE',
-            keyword:'PVALUE;'+pValue,
+            keyword:'PVALUE'+REGION_DELIMITER+pValue,
             category:'PVALUE',
             text:pValue};
         addSearchTerm(searchParam);
