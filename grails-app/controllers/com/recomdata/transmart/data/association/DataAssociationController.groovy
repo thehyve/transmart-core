@@ -59,8 +59,7 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestaCGH.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestRNASeq.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/PCA.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/MarkerSelection.js']
+                servletContext.contextPath + pluginContextPath + '/js/plugin/PCA.js']
 
         // list of required css
         def styles = [servletContext.contextPath+pluginContextPath+'/css/rmodules.css']
