@@ -1,3 +1,4 @@
+package search
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -16,36 +17,30 @@
  * 
  *
  ******************************************************************/
-  
 
- /**
-  * $Id: Requestmap.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
-  * @author $Author: mmcduffie $
-  * @version $Revision: 9178 $
-  */
 
-/**
- * Request Map domain class.
- */
-class Requestmap {
 
-	String url
-	String configAttribute
-	Long id
-	Long version
-	static mapping ={
-		table 'SEARCH_REQUEST_MAP'
-		 id generator:'sequence', params:[sequence:'SEQ_SEARCH_DATA_ID']
-		 columns {
-			id column:'ID'
-			version column:'VERSION'
-			configAttribute column:'CONFIG_ATTRIBUTE'
-			url column:'URL'
-			}
-
+class SecureObject {
+		Long id
+		Long bioDataId
+		String displayName
+		String dataType
+		String bioDataUniqueId
+		static hasMany=[conceptPaths:SecureObjectPath]
+ static mapping = {
+	 table 'SEARCH_SECURE_OBJECT'
+	 version false
+	 id generator:'sequence', params:[sequence:'SEQ_SEARCH_DATA_ID']
+	 columns {
+		id column:'SEARCH_SECURE_OBJECT_ID'
+		bioDataId column:'BIO_DATA_ID'
+		displayName column:'DISPLAY_NAME'
+		dataType column:'DATA_TYPE'
+		bioDataUniqueId column:'BIO_DATA_UNIQUE_ID'
+	 }
 	}
-	static constraints = {
-		url(blank: false, unique: true)
-		configAttribute(blank: false)
+ static constraints = {
+	bioDataId(nullable:true)
+	dataType(nullable:true, maxSize:400)
 	}
 }

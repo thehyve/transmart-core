@@ -1,3 +1,4 @@
+package search
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 

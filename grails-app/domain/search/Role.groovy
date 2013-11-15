@@ -1,3 +1,4 @@
+package search
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -19,63 +20,38 @@
   
 
  /**
-  * $Id: Principal.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
+  * $Id: Role.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
   * @author $Author: mmcduffie $
   * @version $Revision: 9178 $
   */
 
 /**
- * principal class.
+ * Authority domain class.
  */
-class Principal {
-	static transients = ['principalNameWithType']
+class Role {
 
-	Long id ;
-	boolean enabled
-	String type;
-	String name;
-	String uniqueId =''
-	Date dateCreated
-	Date lastUpdated
+	// role types
+	static def ADMIN_ROLE = "ROLE_ADMIN"
+	static def STUDY_OWNER_ROLE = "ROLE_STUDY_OWNER"
+	static def SPECTATOR_ROLE = "ROLE_SPECTATOR"
+	static def DS_EXPLORER_ROLE = "ROLE_DATASET_EXPLORER_ADMIN"
+	static def PUBLIC_USER_ROLE ="ROLE_PUBLIC_USER"
+	static def TRAINING_USER_ROLE ="ROLE_TRAINING_USER"
+
+
+	static hasMany = [people: AuthUser]
+
 	/** description */
-	String description = ''
-	String principalNameWithType
-
+	String description
+	/** ROLE String */
+	String authority
 
 	static mapping = {
-		table 'SEARCH_AUTH_PRINCIPAL'
-		tablePerHierarchy false
-		version false
-		id generator:'assigned'
-		columns
-		{
-			id column:'ID'
-			uniqueId column:'UNIQUE_ID'
-			name column:'NAME'
-			description column:'DESCRIPTION'
-			enabled column:'ENABLED'
-			type column:'PRINCIPAL_TYPE'
-			dateCreated column:'DATE_CREATED'
-			lastUpdated column:'LAST_UPDATED'
-		}
-
+		table 'SEARCH_ROLE'
+		people joinTable:[name:'SEARCH_ROLE_AUTH_USER', key:'PEOPLE_ID',column:'AUTHORITIES_ID']
 	}
 	static constraints = {
-		//enabled()
-		type(nullable:false)
-		description(nullable:true, maxSize:255)
-		uniqueId(nullable:true)
-	}
-
-	def beforeInsert = {
-		uniqueId = type+" "+id;
-	}
-
-	public String getPrincipalNameWithType(){
-		return type+' - '+name;
-	}
-
-	public void setPrincipalNameWithType(String n){
-
+		authority(blank: false, unique: true)
+		description()
 	}
 }

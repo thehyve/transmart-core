@@ -1,3 +1,4 @@
+package search
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -19,27 +20,22 @@
 
 
 
-class SecureObject {
+class SecureAccessLevel {
+	static def OWN = "OWN"
+		Long accessLevelValue
 		Long id
-		Long bioDataId
-		String displayName
-		String dataType
-		String bioDataUniqueId
-		static hasMany=[conceptPaths:SecureObjectPath]
+		String accessLevelName
  static mapping = {
-	 table 'SEARCH_SECURE_OBJECT'
+	 table 'SEARCH_SEC_ACCESS_LEVEL'
 	 version false
 	 id generator:'sequence', params:[sequence:'SEQ_SEARCH_DATA_ID']
 	 columns {
-		id column:'SEARCH_SECURE_OBJECT_ID'
-		bioDataId column:'BIO_DATA_ID'
-		displayName column:'DISPLAY_NAME'
-		dataType column:'DATA_TYPE'
-		bioDataUniqueId column:'BIO_DATA_UNIQUE_ID'
-	 }
+		accessLevelValue column:'ACCESS_LEVEL_VALUE'
+		id column:'SEARCH_SEC_ACCESS_LEVEL_ID'
+		accessLevelName column:'ACCESS_LEVEL_NAME'
+		}
 	}
  static constraints = {
-	bioDataId(nullable:true)
-	dataType(nullable:true, maxSize:400)
+	accessLevelName(nullable:true, maxSize:400)
 	}
 }

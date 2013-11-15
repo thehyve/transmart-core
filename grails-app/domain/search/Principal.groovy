@@ -1,3 +1,4 @@
+package search
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -16,24 +17,66 @@
  * 
  *
  ******************************************************************/
+  
+
+ /**
+  * $Id: Principal.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
+  * @author $Author: mmcduffie $
+  * @version $Revision: 9178 $
+  */
+
+/**
+ * principal class.
+ */
+class Principal {
+	static transients = ['principalNameWithType']
+
+	Long id ;
+	boolean enabled
+	String type;
+	String name;
+	String uniqueId =''
+	Date dateCreated
+	Date lastUpdated
+	/** description */
+	String description = ''
+	String principalNameWithType
 
 
-
-class SecureObjectPath {
-		Long id
-		SecureObject secureObject
-		String conceptPath
- static mapping = {
-	 table 'SEARCH_SECURE_OBJECT_PATH'
-	 id generator:'sequence', params:[sequence:'SEQ_SEARCH_DATA_ID']
-	 version false
-	 columns {
-		id column:'SEARCH_SECURE_OBJ_PATH_ID'
-		secureObject column:'SEARCH_SECURE_OBJECT_ID'
-		conceptPath column:'I2B2_CONCEPT_PATH'
+	static mapping = {
+		table 'SEARCH_AUTH_PRINCIPAL'
+		tablePerHierarchy false
+		version false
+		id generator:'assigned'
+		columns
+		{
+			id column:'ID'
+			uniqueId column:'UNIQUE_ID'
+			name column:'NAME'
+			description column:'DESCRIPTION'
+			enabled column:'ENABLED'
+			type column:'PRINCIPAL_TYPE'
+			dateCreated column:'DATE_CREATED'
+			lastUpdated column:'LAST_UPDATED'
 		}
+
+	}
+	static constraints = {
+		//enabled()
+		type(nullable:false)
+		description(nullable:true, maxSize:255)
+		uniqueId(nullable:true)
 	}
 
- static constraints = {
- }
+	def beforeInsert = {
+		uniqueId = type+" "+id;
+	}
+
+	public String getPrincipalNameWithType(){
+		return type+' - '+name;
+	}
+
+	public void setPrincipalNameWithType(String n){
+
+	}
 }
