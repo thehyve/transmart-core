@@ -26,6 +26,7 @@ class Report {
 	   Long id
 	   String name
 	   Date timestamp = new Date()
+	   String moduleName
 	   String description
 	   String creatingUser
 	   String publicFlag
@@ -45,6 +46,7 @@ static mapping = {
 	   creatingUser column:'CREATINGUSER'
 	   publicFlag column:'PUBLIC_FLAG'
 	   study column:'STUDY'
+	   moduleName column:'MODULE_NAME'
 	   }
    }
 
@@ -52,6 +54,7 @@ static constraints = {
 	timestamp(nullable:true)
 	description(nullable:true)
 	name(nullable:true)
+	moduleName(nullable:true)
 	   }
 
 def getDisplayDate(){
