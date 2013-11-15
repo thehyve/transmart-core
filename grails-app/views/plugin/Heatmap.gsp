@@ -25,7 +25,7 @@
             </div>
 
             %{--Display independent variable--}%
-            <div id="displaydivIndependentVariable"></div>
+            <div id="displaydivIndependentVariable" class="independentVars"></div>
 
             <label for="txtMaxDrawNumber">Max rows to display:</label>
             <input type="text" id="txtMaxDrawNumber" value="50"/>
