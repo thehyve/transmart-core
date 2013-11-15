@@ -14,7 +14,7 @@
 	<g:if test="${showSearch}">
 		<div class="dataTables_filter">
 			<label>P-value cutoff: 
-				<input value="${cutoff}" type="text" style="width: 50px" id="table_results_cutoff">
+				<input type="text" style="width: 50px" id="table_results_cutoff">
 			</label>
 			<label>Search: 
 				<input value="${search}" type="text" style="width: 50px" id="table_results_search">
