@@ -1,6 +1,9 @@
-target
-.idea
-*.iml
-plugin.xml
+/target
+/.idea
+/*.iml
+/plugin.xml
 /web-app
-**/*.iml
+/.classpath
+/.project
+/.settings
+/*.zip

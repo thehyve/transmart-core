@@ -141,7 +141,8 @@ class PatientSetQueryBuilderServiceTests {
                 'patient_dimension EXCEPT (SELECT patient_num FROM ' +
                 'observation_fact WHERE (concept_cd IN (SELECT concept_cd ' +
                 'FROM concept_dimension WHERE concept_path ' +
-                'LIKE \'\\\\full\\\\name\\\\%\'))) ORDER BY 1')
+                'LIKE \'\\\\full\\\\name\\\\%\')) ' +
+                'AND concept_cd != \'SECURITY\') ORDER BY 1')
     }
 
     @Test
@@ -168,7 +169,7 @@ class PatientSetQueryBuilderServiceTests {
         assertThat sql, containsString('EXCEPT (SELECT patient_num ' +
                 'FROM observation_fact WHERE (concept_cd IN (SELECT ' +
                 'concept_cd FROM concept_dimension WHERE concept_path ' +
-                'LIKE \'\\\\b\\\\%\')))')
+                'LIKE \'\\\\b\\\\%\')) AND concept_cd != \'SECURITY\')')
     }
 
     @Test
