@@ -40,6 +40,7 @@ class DataAssociationController {
 
         // list of required javascripts
         def scripts = [
+                servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
                 servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
                 servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
                 servletContext.contextPath + pluginContextPath + '/js/PDFGenerator.js',
@@ -58,8 +59,7 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestaCGH.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestRNASeq.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/PCA.js']
+                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestRNASeq.js']
 
         // list of required css
         def styles = [servletContext.contextPath+pluginContextPath+'/css/rmodules.css']
