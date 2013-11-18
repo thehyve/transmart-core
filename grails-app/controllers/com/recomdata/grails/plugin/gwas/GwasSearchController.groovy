@@ -203,7 +203,10 @@ class GwasSearchController {
         //Get list of REGION restrictions from session and translate to regions
         def regions = getSearchRegions(session['solrSearchFilter'])
         def geneNames = getGeneNames(session['solrSearchFilter'])
-        def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
+		if (getSearchCutoff(session['solrSearchFilter'])){
+		cutoff = getSearchCutoff(session['solrSearchFilter'])
+		}
+		def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
         //Find out if we're querying for EQTL, GWAS, or both
         def hasGwas = BioAssayAnalysis.createCriteria().list([max: 1]) {
             or {
@@ -715,7 +718,21 @@ class GwasSearchController {
             render(plugin: "transmartGwas", template: "/gwas/gwasAndEqtlResults", model: [results: regionSearchResults, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search])
         }
     }
-
+	
+	def getSearchCutoff(solrSearch) {
+		def cutoff
+		for (s in solrSearch) {
+			if (s.startsWith("PVALUE")) {
+				s = s.substring(7)
+				def pvalue = s.split("\\^")
+				cutoff = pvalue[1]
+			}
+		}
+		if (cutoff) {
+		return cutoff.toDouble()
+		}
+	}
+	
     def getSearchRegions(solrSearch) {
         def regions = []
 
