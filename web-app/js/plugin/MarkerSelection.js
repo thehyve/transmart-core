@@ -8,7 +8,7 @@ function loadMarkerSelectionView(){
 }
 
 /**
- *  Submitting the heatmap job
+ *  Submitting the marker selection job
  * @param form
  */
 function submitMarkerSelectionJob (frm) {
