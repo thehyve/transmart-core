@@ -83,7 +83,7 @@ class GwasWebService {
         select position,rate
         from biomart.bio_recombination_rates recomb,
         (select CASE WHEN chrom_start between 0 and ? THEN 0 ELSE (chrom_start-?) END s, (chrom_stop+?) e, chrom from deapp.de_gene_info g where gene_symbol=? order by chrom_start) geneSub
-        where recomb.chromosome=('chr' || geneSub.chrom) and position between s and e
+        where recomb.chromosome=(geneSub.chrom) and position between s and e
     """
 
     def final snpSearchQuery = """
