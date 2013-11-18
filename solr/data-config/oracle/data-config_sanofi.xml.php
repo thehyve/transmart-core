@@ -204,70 +204,74 @@ and ('${dataimporter.request.clean}' != 'false' or id = '${dataimporter.request.
         <field name="ACCESSION" column="ACCESSION" />
     </entity>
 
+
     <entity name="ASSAY" transformer="RegexTransformer" query="
-select DISTINCT fd.unique_id as id
-, 'FOLDER' as type
-, 'ASSAY' as subtype
-, f.folder_name as title
-, f.description as description
-, listagg(to_char(bdu.unique_id), '|') within group (order by bdu.unique_id) as bio_assay_platform
-, listagg(to_char(bap.platform_type), '|') within group (order by bap.platform_type) as measurement_type
-, listagg(to_char(bap.platform_name), '|') within group (order by bap.platform_name ) as platform_name
-, listagg(to_char(bap.platform_vendor), '|') within group (order by bap.platform_vendor) as vendor
-, listagg(to_char(bap.platform_technology), '|') within group (order by bap.platform_technology) as technology
-, x.gene
-, x.biomarker_type
-from fmapp.fm_folder f
-inner join fmapp.fm_data_uid fd on f.folder_id = fd.fm_data_id
-left outer join amapp.am_tag_association ata on fd.unique_id = ata.subject_uid and ata.object_type = 'BIO_ASSAY_PLATFORM'
-left outer join biomart.bio_data_uid bdu on bdu.unique_id = ata.object_uid
-left outer join biomart.bio_assay_platform bap on bap.bio_assay_platform_id = bdu.bio_data_id
-left outer join
-  (select id, gene, biomarker_type from
-    (
-    select
-      fdu.unique_id as id, ata.object_type as object_type, ata.object_uid as object_uid
-      from
-        fmapp.fm_folder ff
-        inner join fmapp.fm_data_uid fdu on ff.folder_id = fdu.fm_data_id
-        inner join amapp.am_tag_association ata on fdu.unique_id = ata.subject_uid
+    select DISTINCT fd.unique_id as id
+    , 'FOLDER' as type
+    , 'ASSAY' as subtype
+    , f.folder_name as title
+    , f.description as description
+    , listagg(to_char(bdu.unique_id), '|') within group (order by bdu.unique_id) as bio_assay_platform
+    , listagg(to_char(bap.platform_type), '|') within group (order by bap.platform_type) as measurement_type
+    , listagg(to_char(bap.platform_name), '|') within group (order by bap.platform_name ) as platform_name
+    , listagg(to_char(bap.platform_vendor), '|') within group (order by bap.platform_vendor) as vendor
+    , listagg(to_char(bap.platform_technology), '|') within group (order by bap.platform_technology) as technology
+    , x.gene
+    , x.mirna
+    , x.biomarker_type
+    from fmapp.fm_folder f
+    inner join fmapp.fm_data_uid fd on f.folder_id = fd.fm_data_id
+    left outer join amapp.am_tag_association ata on fd.unique_id = ata.subject_uid and ata.object_type = 'BIO_ASSAY_PLATFORM'
+    left outer join biomart.bio_data_uid bdu on bdu.unique_id = ata.object_uid
+    left outer join biomart.bio_assay_platform bap on bap.bio_assay_platform_id = bdu.bio_data_id
+    left outer join
+      (select id, gene, mirna, biomarker_type from
+        (
+        select
+          fdu.unique_id as id, 'BIO_MARKER_' || SUBSTR( ata.object_uid, 1, INSTR( ata.object_uid, ':' ) - 1 )  as object_type, ata.object_uid as object_uid
 
-      where
-        ata.object_type in ('BIO_MARKER')
-        and ff.folder_type = 'ASSAY'
+          from
+            fmapp.fm_folder ff
+            inner join fmapp.fm_data_uid fdu on ff.folder_id = fdu.fm_data_id
+            inner join amapp.am_tag_association ata on fdu.unique_id = ata.subject_uid
+          where
+            ata.object_type in ('BIO_MARKER')
+            and ff.folder_type = 'ASSAY'
+        union
+        select
+          fdu.unique_id as id, ati.code_type_name as object_type, ata.object_uid as object_uid
+        from
+          fmapp.fm_folder ff
+          inner join fmapp.fm_data_uid fdu on ff.folder_id = fdu.fm_data_id
+          inner join amapp.am_tag_association ata on fdu.unique_id = ata.subject_uid
+          inner join amapp.am_tag_item ati on ata.tag_item_id = ati.tag_item_id
+        where
+          ata.object_type = 'BIO_CONCEPT_CODE'
+          and ff.folder_type = 'ASSAY'
+      ) pivot (
+        listagg(to_char(object_uid), '|') within group (order by object_uid)
+        for object_type in ('BIO_MARKER_GENE' as gene,'BIO_MARKER_MIRNA' as mirna,'ASSAY_TYPE_OF_BM_STUDIED' as biomarker_type)
 
-    union
-    select
-      fdu.unique_id as id, ati.code_type_name as object_type, ata.object_uid as object_uid
-    from
-      fmapp.fm_folder ff
-      inner join fmapp.fm_data_uid fdu on ff.folder_id = fdu.fm_data_id
-      inner join amapp.am_tag_association ata on fdu.unique_id = ata.subject_uid
-      inner join amapp.am_tag_item ati on ata.tag_item_id = ati.tag_item_id
-    where
-      ata.object_type = 'BIO_CONCEPT_CODE'
-      and ff.folder_type = 'ASSAY'
-  ) pivot (
-    listagg(to_char(object_uid), '|') within group (order by object_uid)
-    for object_type in ('BIO_MARKER' as gene,'ASSAY_TYPE_OF_BM_STUDIED' as biomarker_type)
-  )
-  )x on x.id = fd.unique_id
-where f.folder_type = 'ASSAY' and f.active_ind = 1
-and ('${dataimporter.request.clean}' != 'false' or id = '${dataimporter.request.uid}')
-group by fd.unique_id, f.folder_name, f.description, x.gene,  x.biomarker_type
-">
-        <field name="id" column="ID" />
-                <field name="title" column="TITLE"/>
-                <field name="description" column="DESCRIPTION"/>
-        <field name="TYPE" column="TYPE" />
-        <field name="SUBTYPE" column="SUBTYPE" />
-        <field name="GENE" column="GENE" splitBy="\|" />
-        <field name="ASSAY_TYPE_OF_BM_STUDIED" column="BIOMARKER_TYPE" splitBy="\|" />
-        <field name="ASSAY_MEASUREMENT_TYPE" column="MEASUREMENT_TYPE" splitBy="\|" />
-        <field name="ASSAY_PLATFORM_NAME" column="PLATFORM_NAME" splitBy="\|" />
-        <field name="ASSAY_VENDOR" column="VENDOR" splitBy="\|" />
-        <field name="ASSAY_TECHNOLOGY" column="TECHNOLOGY" splitBy="\|" />
-    </entity>
+      )
+      ) x on x.id = fd.unique_id
+    where f.folder_type = 'ASSAY' and f.active_ind = 1
+    and ('${dataimporter.request.clean}' != 'false' or id = '${dataimporter.request.uid}')
+    group by fd.unique_id, f.folder_name, f.description, x.gene, x.mirna, x.biomarker_type
+    ">
+            <field name="id" column="ID" />
+            <field name="title" column="TITLE"/>
+            <field name="description" column="DESCRIPTION"/>
+            <field name="TYPE" column="TYPE" />
+            <field name="SUBTYPE" column="SUBTYPE" />
+            <field name="GENE" column="GENE" splitBy="\|" />
+            <field name="MIRNA" column="MIRNA" splitBy="\|" />
+            <field name="ASSAY_TYPE_OF_BM_STUDIED" column="BIOMARKER_TYPE" splitBy="\|" />
+            <field name="ASSAY_MEASUREMENT_TYPE" column="MEASUREMENT_TYPE" splitBy="\|" />
+            <field name="ASSAY_PLATFORM_NAME" column="PLATFORM_NAME" splitBy="\|" />
+            <field name="ASSAY_VENDOR" column="VENDOR" splitBy="\|" />
+            <field name="ASSAY_TECHNOLOGY" column="TECHNOLOGY" splitBy="\|" />
+        </entity>
+
 
     <entity name="ANALYSIS" transformer="RegexTransformer" query="
 select

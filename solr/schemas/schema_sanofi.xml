@@ -35,6 +35,7 @@
     <field name="COUNTRY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="DISEASE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="GENE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="MIRNA" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="OBSERVATION" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="PATHWAY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="PLATFORM_NAME" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
