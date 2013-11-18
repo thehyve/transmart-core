@@ -20,7 +20,7 @@
                 <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                 <div id="highDimBtns">
                     <button type="button" onclick="gatherHighDimensionalData('divIndependentVariable')">High Dimensional Data</button>
-                    <button type="button" onclick="clearGroupHeatmap('divIndependentVariable')">Clear</button>
+                    <button type="button" onclick="heatMapView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                 </div>
             </div>
 
@@ -40,7 +40,7 @@
             <input type="text" id="txtImagePointsize" value="12"/>
 
             <div>
-                <input type="button" value="Run" onClick="submitHeatmapJob(this.form);" class="runAnalysisBtn">
+                <input type="button" value="Run" onClick="heatMapView.submit_job(this.form);" class="runAnalysisBtn">
             </div>
 
         </fieldset>
