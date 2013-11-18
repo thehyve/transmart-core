@@ -281,6 +281,3 @@ FormValidator.prototype.display_errors = function () {
         icon: Ext.MessageBox.ERROR
     });
 }
-
-
-
