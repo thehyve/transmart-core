@@ -158,20 +158,20 @@ BEGIN
   	--	check if platform exists in de_qpcr_mirna_annotation .  If not, abort run.
 	
 	select count(*) into pCount
-	from "TM_LZ".LT_QPCR_MIRNA_ANNOTATION
-	where PLT_ID in (select distinct m.platform from LT_SRC_MIRNA_SUBJ_SAMP_MAP m);
+	from LT_QPCR_MIRNA_ANNOTATION
+	where ID_REF in (select distinct m.platform from LT_SRC_MIRNA_SUBJ_SAMP_MAP m);
 	
-	if PCOUNT = 0 then
-		RAISE UNMAPPED_platform;
-	end if;--mod
+	--if PCOUNT = 0 then
+		--RAISE UNMAPPED_platform;
+	--end if;--mod
 	
 	select count(*) into pCount
 	from DE_gpl_info
 	where platform in (select distinct m.platform from LT_SRC_MIRNA_SUBJ_SAMP_MAP m);
 	
-	if PCOUNT = 0 then
+	/*if PCOUNT = 0 then
 		RAISE UNMAPPED_platform;
-	end if;
+	end if;*/
 		
 	--	check if all subject_sample map records have a tissue_type, If not, abort run
 	
@@ -297,7 +297,7 @@ BEGIN
 	from all_tables
 	where table_name = 'DE_SUBJECT_MIRNA_DATA'
 	  and partitioned = 'YES';
-	  
+	
 	if pExists = 0 then
 		--	dataset is not partitioned so must delete
 		
@@ -379,6 +379,7 @@ BEGIN
 	  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
+        
 	--  and decode(dataType,'R',sign(a.intensity_value),1) = 1;	--	take all values when dataType T, only >0 for dataType R
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert node values into DEAPP wt_qpcr_mirna_node_values',SQL%ROWCOUNT,stepCt,'Done');
@@ -490,7 +491,7 @@ BEGIN
 	commit;
 	
 	--	insert for tissue_type node so sample_type_cd can be populated
-	
+
 	insert into WT_QPCR_MIRNA_NODES
 	(leaf_node
 	,category_cd
@@ -708,6 +709,7 @@ BEGIN
 
   commit;
 
+--	recreate de_subject_sam
 --	recreate de_subject_sample_mapping indexes
 
 	--execute immediate('create index de_subject_smpl_mpng_idx1 on de_subject_sample_mapping(timepoint, patient_id, trial_name) parallel nologging'); 
@@ -822,7 +824,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
-  
+ 
 /*
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
@@ -846,7 +848,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
 	COMMIT;
-    
+  
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
   -- a unique top-level node for miRNA data
@@ -892,25 +894,24 @@ BEGIN
 	,trial_name
 	,assay_id
 	)
-	select gs.mirna_id 
+	select gs.id_ref 
 		  ,avg(md.intensity_value)
                   ,sd.patient_id
 		  ,TrialId
 		  ,sd.assay_id
 	from deapp.de_subject_sample_mapping sd
 		,LT_SRC_QPCR_MIRNA_DATA md   
-		,(select distinct mirna_id
+		,(select distinct id_ref
                     ,coalesce(organism,'Homo sapiens')
-                    ,plt_id
-                    from tm_lz.LT_QPCR_MIRNA_ANNOTATION ) gs
+                     from tm_lz.LT_QPCR_MIRNA_ANNOTATION ) gs
 	where sd.sample_cd = md.expr_id
 	  and sd.platform = 'MIRNA_AFFYMETRIX'
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
-	  and sd.gpl_id = gs.plt_id
-	  and md.probeset = gs.mirna_id
+	 -- and sd.gpl_id = gs.id_ref
+	  and md.probeset =( select distinct mirna_id from tm_lz.LT_QPCR_MIRNA_ANNOTATION where mirna_id=md.probeset )-- gs.mirna_id
 	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
-	group by gs.mirna_id
+	group by gs.id_ref
 		  ,sd.patient_id,sd.assay_id;
 		  
 	pExists := SQL%ROWCOUNT;
@@ -926,7 +927,7 @@ BEGIN
 
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
  
-	if dataType = 'R' then
+	if dataType = 'T' then
 		insert into de_subject_mirna_data
 		(trial_source
 		,probeset_id
@@ -961,7 +962,7 @@ BEGIN
 	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
 	--	wt_subject_mirna_probeset as part of a Load.  
 
-		if dataType = 'T' or dataType = 'L' then
+		if dataType = 'R' or dataType = 'L' then
 			i2b2_mirna_zscore_calc(TrialID,'L',jobId,dataType,logBase,sourceCD);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score',0,stepCt,'Done');
@@ -969,7 +970,7 @@ BEGIN
 		end if;
 	
 	end if;
-	
+
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;

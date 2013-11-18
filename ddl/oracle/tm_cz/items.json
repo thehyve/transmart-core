@@ -2139,6 +2139,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "DE_SAMPLE_SNP_DATA"
     },
     "parents" : [ {
@@ -3532,6 +3543,61 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_MIRNA_ANNOT_DEAPP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_ANNOTATION_DEAPP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_PROBESET_DEAPP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_LOAD_OMICSOFT_ANNOT"
     },
     "parents" : [ {
@@ -4230,6 +4296,10 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
     }, {
       "type" : "SYNONYM",
@@ -4800,6 +4870,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_SRC_CEL_FILES"
     },
     "parents" : [ {
@@ -4839,6 +4920,17 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_DEAPP_ANNOT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MIRNA_DEAPP_ANNOT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_DEAPP_ANNOT"
     } ]
   }, {
     "child" : {
@@ -5148,6 +5240,42 @@
       "owner" : "BIOMART",
       "name" : "MESH_TEMP"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_ANNOTATION_DEAPP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_PROBESET_DEAPP"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -6831,6 +6959,21 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "TM_CZ",
+      "name" : "TRG_MIRNA_PROBESET_DEAPP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_PROBESET_DEAPP"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PROBESET_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
       "name" : "TRG_PROBESET_DEAPP"
     },
     "parents" : [ {
@@ -7964,6 +8107,13 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_MIRNA_ANNOT_DEAPP"
+    },
+    "file" : "tm_cz/procedures/i2b2_load_mirna_annot_deapp.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_LOAD_OMICSOFT_ANNOT"
     },
     "file" : "tm_cz/procedures/i2b2_load_omicsoft_annot.sql"
@@ -8163,6 +8313,20 @@
       "name" : "LOAD_KEGG_CONTENT_DATA"
     },
     "file" : "tm_cz/procedures/load_kegg_content_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_ANNOTATION_DEAPP"
+    },
+    "file" : "tm_cz/mirna_annotation_deapp.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_PROBESET_DEAPP"
+    },
+    "file" : "tm_cz/mirna_probeset_deapp.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -8379,7 +8543,7 @@
       "owner" : "TM_CZ",
       "name" : "SEQ_PROBESET_ID"
     },
-    "file" : "tm_cz/probeset_deapp.sql"
+    "file" : "tm_cz/_misc.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -8541,6 +8705,13 @@
       "name" : "TRG_CZ_TEST_RESULT_ID"
     },
     "file" : "tm_cz/cz_test_result.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
+      "name" : "TRG_MIRNA_PROBESET_DEAPP"
+    },
+    "file" : "tm_cz/mirna_probeset_deapp.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

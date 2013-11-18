@@ -195,6 +195,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SAMPLE_SNP_DATA"
     },
     "parents" : [ ]
@@ -1257,6 +1264,13 @@
       "name" : "DE_PATHWAY_NAME_IDX"
     },
     "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "file" : "deapp/de_qpcr_mirna_annotation.sql"
   }, {
     "item" : {
       "type" : "TABLE",

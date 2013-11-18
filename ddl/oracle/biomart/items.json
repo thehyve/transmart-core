@@ -3023,6 +3023,27 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART",
       "name" : "MODIFIER_DIMENSION"
@@ -4522,6 +4543,21 @@
       "type" : "SEQUENCE",
       "owner" : "BIOMART",
       "name" : "SEQ_CLINICAL_TRIAL_DESIGN_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "BIOMART",
+      "name" : "TRG_MIRNA_BIO_ASSAY_F_G_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "SEQ_BIO_DATA_ID"
     } ]
   }, {
     "child" : {
@@ -6112,6 +6148,27 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    },
+    "file" : "biomart/mirna_bio_assay_data_annot.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    },
+    "file" : "biomart/mirna_bio_assay_feature_group.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    },
+    "file" : "biomart/mirna_bio_marker.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
       "name" : "PROJECT_INFO"
     },
     "file" : "biomart/project_info.sql"
@@ -6535,6 +6592,13 @@
       "name" : "TRG_CTD2_TRIAL_DETAILS"
     },
     "file" : "biomart/ctd2_trial_details.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "BIOMART",
+      "name" : "TRG_MIRNA_BIO_ASSAY_F_G_ID"
+    },
+    "file" : "biomart/mirna_bio_assay_feature_group.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

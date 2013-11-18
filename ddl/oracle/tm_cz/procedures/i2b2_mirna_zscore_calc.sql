@@ -72,7 +72,7 @@ BEGIN
     newJobFlag := 1; -- True
     cz_start_audit (procedureName, databaseName, jobID);
   END IF;
-    	
+    	--dbms_output.PUT_LINE('1');
   stepCt := 0;
   
 	stepCt := stepCt + 1;
@@ -84,9 +84,9 @@ BEGIN
 		raise invalid_runType;
 	end if;
   
---	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mirna_data
+--	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mrna_data
 --	If not, raise exception
-
+--dbms_output.PUT_LINE('2');
 	if runType = 'L' then
 		select distinct trial_name into stgTrial
 		from WT_SUBJECT_MIRNA_PROBESET;
@@ -97,7 +97,7 @@ BEGIN
 			raise trial_mismatch;
 		end if;
 	end if;
-   
+  -- dbms_output.PUT_LINE('3');
 /*	remove Reload processing
 --	For Reload, make sure that the TrialId passed as parameter has data in de_subject_MIRNA_data
 --	If not, raise exception
@@ -120,27 +120,29 @@ BEGIN
 	execute immediate('truncate table tm_wz.wt_subject_mirna_logs');
 	execute immediate('truncate table tm_wz.wt_subject_mirna_calcs');
 	execute immediate('truncate table tm_wz.wt_subject_mirna_med');
-	
+	--dbms_output.PUT_LINE('3.1');
 	select count(*) 
 	into idxExists
 	from all_indexes
 	where table_name = 'WT_SUBJECT_MIRNA_LOGS'
+	  and index_name = 'WT_SUBJECT_MRNA_LOGS_I1'
 	  and owner = 'TM_WZ';
+		--dbms_output.PUT_LINE('4');
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.wt_subject_mirna_logs_i1');		
+		execute immediate('drop index tm_wz.wt_subject_mrna_logs_i1');		
 	end if;
 	
 	select count(*) 
 	into idxExists
 	from all_indexes
 	where table_name = 'WT_SUBJECT_MIRNA_CALCS'
-	  and index_name = 'WT_SUBJECT_MIRNA_CALCS_I1'
+	  and index_name = 'WT_SUBJECT_MRNA_CALCS_I1'
 	  and owner = 'TM_WZ';
 		
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.wt_subject_mirna_calcs_i1');
+		execute immediate('drop index tm_wz.wt_subject_mrna_calcs_i1');
 	end if;
-	
+	--dbms_output.PUT_LINE('5');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
 	
@@ -167,6 +169,7 @@ BEGIN
 			--	  ,subject_id
 			from wt_subject_mirna_probeset
 			where trial_name = TrialId;
+                        dbms_output.PUT_LINE('5.2');
 		--end if;
 	else	
                 	insert into wt_subject_mirna_logs 
@@ -188,14 +191,20 @@ BEGIN
 			from wt_subject_mirna_probeset
 			where trial_name = TrialId;
 --		end if;
+--dbms_output.PUT_LINE('5.3');
 	end if;
+--dbms_output.PUT_LINE('5.4');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_mirna_logs',SQL%ROWCOUNT,stepCt,'Done');
 
 	commit;
     
+--	execute immediate('create index tm_wz.wt_subject_mrna_logs_i1 on tm_wz.wt_subject_mirna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
+	--stepCt := stepCt + 1;
+	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_logs',0,stepCt,'Done');
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
+--dbms_output.PUT_LINE('5.5');
 	insert into wt_subject_mirna_calcs
 	(trial_name
 	,probeset_id
@@ -215,6 +224,10 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ wt_subject_mirna_calcs',SQL%ROWCOUNT,stepCt,'Done');
 
 	commit;
+--dbms_output.PUT_LINE('6');
+	--execute immediate('create index tm_wz.wt_subject_mrna_calcs_i1 on tm_wz.wt_subject_mirna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
+	--stepCt := stepCt + 1;
+	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_calcs',0,stepCt,'Done');
 		
 -- calculate zscore
 
@@ -249,13 +262,14 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ wt_subject_mirna_med',SQL%ROWCOUNT,stepCt,'Done');
 
     commit;
+  --dbms_output.PUT_LINE('7');
 /*
 	select count(*) into n
 	select count(*) into nbrRecs
 	from wt_subject_MIRNA_med;
 	
 	if nbrRecs > 10000000 then
-		i2b2_mirna_index_maint('DROP',,jobId);
+		i2b2_mrna_index_maint('DROP',,jobId);
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
 	else
@@ -297,9 +311,10 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP de_subject_mirna_data',SQL%ROWCOUNT,stepCt,'Done');
 
   	commit;
+--dbms_output.PUT_LINE('8');
 --	add indexes, if indexes were not dropped, procedure will not try and recreate
 /*
-	i2b2_mirna_index_maint('ADD',,jobId);
+	i2b2_mrna_index_maint('ADD',,jobId);
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
 */
@@ -318,16 +333,20 @@ BEGIN
   THEN
     cz_end_audit (jobID, 'SUCCESS');
   END IF;
+--dbms_output.PUT_LINE('9');
   EXCEPTION
 
   WHEN invalid_runType or trial_mismatch or trial_missing then
     --Handle errors.
     cz_error_handler (jobID, procedureName);
     --End Proc
+    --dbms_output.PUT_LINE('9.1');
     cz_end_audit (jobID, 'FAIL');
   when OTHERS THEN
     --Handle errors.
     cz_error_handler (jobID, procedureName);
+    --End Procdbms_output.PUT_LINE('9');
+   -- dbms_output.PUT_LINE('10');
     cz_end_audit (jobID, 'FAIL');
 	
 END;
