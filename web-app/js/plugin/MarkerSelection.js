@@ -3,29 +3,33 @@
  * Clear out all gobal variables and reset them to blank.
  */
 function loadMarkerSelectionView(){
-    registerMarkerSelectionDragAndDrop();
-    clearHighDimDataSelections('divIndependentVariable');
+    markerSelectionView.clear_high_dimensional_input('divIndependentVariable');
+    markerSelectionView.register_drag_drop();
 }
 
-/**
- *  Submitting the marker selection job
- * @param form
- */
-function submitMarkerSelectionJob (frm) {
+// constructor
+var MarkerSelectionView = function () {
+    RmodulesView.call(this);
+}
 
+// inherit RmodulesView
+MarkerSelectionView.prototype = new RmodulesView();
+
+// correct the pointer
+MarkerSelectionView.prototype.constructor = MarkerSelectionView;
+
+// submit analysis job
+MarkerSelectionView.prototype.submit_job = function () {
     // get formParams
-    var formParams = getFormParameters();
+    var formParams = this.get_form_params();
 
     if (formParams) { // if formParams is not null
         submitJob(formParams);
     }
 }
 
-/**
- * get form parameters
- * @param frm
- */
-function getFormParameters () {
+// get form params
+MarkerSelectionView.prototype.get_form_params = function () {
 
     var formParameters = {}; // init
 
@@ -33,46 +37,7 @@ function getFormParameters () {
     loadCommonHighDimFormObjects(formParameters, "divIndependentVariable");
 
     // instantiate input elements object with their corresponding validations
-    var inputArray = [
-        {
-            "label" : "High Dimensional Data",
-            "el" : Ext.get("divIndependentVariable"),
-            "validations" : [
-                {type:"REQUIRED"},
-                {
-                    type:"HIGH_DIMENSIONAL",
-                    platform:formParameters["divIndependentVariableType"],
-                    pathway:formParameters["divIndependentVariablePathway"]
-                }
-            ]
-        },
-        {
-            "label" : "Number of Markers",
-            "el" : document.getElementById("txtNumberOfMarkers"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
-        },
-        {
-            "label" : "Image Width",
-            "el" : document.getElementById("txtImageWidth"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Height",
-            "el" : document.getElementById("txtImageHeight"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Point Size",
-            "el" : document.getElementById("txtImagePointsize"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
-        },
-        {
-            "label" : "Subsets",
-            "el" : null,
-            "value" : [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "validations" : [{type:"MIN_TWO_SUBSETS"}]
-        }
-    ]
+    var inputArray = this.get_inputs(formParameters);
 
     // define the validator for this form
     var formValidator = new FormValidator(inputArray);
@@ -105,38 +70,48 @@ function getFormParameters () {
     return formParameters;
 }
 
-function loadMarkerSelectionOutput()
-{
-	$j("#markerSelectionTable").tablesorter(); 
+MarkerSelectionView.prototype.get_inputs = function (form_params) {
+    return [
+        {
+            "label" : "High Dimensional Data",
+            "el" : Ext.get("divIndependentVariable"),
+            "validations" : [
+                {type:"REQUIRED"},
+                {
+                    type:"HIGH_DIMENSIONAL",
+                    platform:form_params["divIndependentVariableType"],
+                    pathway:form_params["divIndependentVariablePathway"]
+                }
+            ]
+        },
+        {
+            "label" : "Number of Markers",
+            "el" : document.getElementById("txtNumberOfMarkers"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
+        },
+        {
+            "label" : "Image Width",
+            "el" : document.getElementById("txtImageWidth"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Height",
+            "el" : document.getElementById("txtImageHeight"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Point Size",
+            "el" : document.getElementById("txtImagePointsize"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
+        },
+        {
+            "label" : "Subsets",
+            "el" : null,
+            "value" : [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+            "validations" : [{type:"MIN_TWO_SUBSETS"}]
+        }
+    ];
 }
 
-/**
- * Clear the variable selection box
- * Clear all selection stored in global variables
- * Clear the selection display
- * @param divName
- */
-function clearGroupMarkerSelection(divName)
-{
-	//Clear the drag and drop div.
-	var qc = Ext.get(divName);
-	
-	for(var i=qc.dom.childNodes.length-1;i>=0;i--)
-	{
-		var child=qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}	
-	clearHighDimDataSelections(divName);
-	clearSummaryDisplay(divName);
-}
-
-function registerMarkerSelectionDragAndDrop()
-{
-	//Set up drag and drop for Dependent and Independent variables on the data association tab.
-	//Get the Independent DIV
-	var independentDiv = Ext.get("divIndependentVariable");
-	
-	dtgI = new Ext.dd.DropTarget(independentDiv,{ddGroup : 'makeQuery'});
-	dtgI.notifyDrop =  dropOntoCategorySelection;
-	
-}
+// init heat map view instance
+var markerSelectionView = new MarkerSelectionView();
