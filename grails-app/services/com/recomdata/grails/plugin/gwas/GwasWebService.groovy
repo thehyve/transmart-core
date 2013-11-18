@@ -79,6 +79,31 @@ class GwasWebService {
 		select STRAND from DEAPP.de_gene_info where gene_source_id=1 and entrez_id=?
 	"""
 
+    def final getRecombinationRatesForGeneQuery = """
+        select position,rate
+        from biomart.bio_recombination_rates recomb,
+        (select CASE WHEN chrom_start between 0 and ? THEN 0 ELSE (chrom_start-?) END s, (chrom_stop+?) e, chrom from deapp.de_gene_info g where gene_symbol=? order by chrom_start) geneSub
+        where recomb.chromosome=('chr' || geneSub.chrom) and position between s and e
+    """
+
+    def final snpSearchQuery = """
+        with data_subset as
+        (
+        select gwas.rs_id rs_id, LOG_P_VALUE, analysis_name||' - '||bio_experiment.title analysis_name from BIOMART.bio_assay_analysis_gwas gwas
+        join biomart.bio_assay_analysis analysis on (gwas.bio_assay_analysis_id=analysis.bio_assay_analysis_id)
+        left outer join biomart.bio_assay_analysis_ext bax on analysis.bio_assay_analysis_id = bax.bio_assay_analysis_id
+        JOIN biomart.bio_experiment on bio_experiment.accession=analysis.etl_id
+        where gwas.bio_assay_analysis_id in (_analysisIds_)
+        )
+        select * from (select snps.rs_id rs_id, chrom, pos from deapp.de_rc_snp_info snps,
+        (select pos+? sta, pos-? sto, chrom c from deapp.de_rc_snp_info
+        where
+        RS_ID =? and
+        hg_version=?) ak
+        where pos between sto and sta and hg_version=? and chrom=c ) ann_res
+        join data_subset on (data_subset.rs_id=ann_res.rs_id)
+"""
+
     def computeGeneBounds(String geneSymbol, String geneSourceId, String snpSource) {
         def query = geneLimitsSqlQueryByKeyword;
 
@@ -322,6 +347,72 @@ class GwasWebService {
                 ])
             }
             return results;
+        }finally{
+            rs?.close();
+            stmt?.close();
+            con?.close();
+        }
+    }
+
+    def getRecombinationRatesForGene(String geneSymbol, Long range) {
+        def query = getRecombinationRatesForGeneQuery;
+
+        //Create objects we use to form JDBC connection.
+        def con, stmt, rs = null;
+
+        //Grab the connection from the grails object.
+        con = dataSource.getConnection()
+
+        //Prepare the SQL statement.
+        stmt = con.prepareStatement(query);
+        stmt.setLong(1, range)
+        stmt.setLong(2, range)
+        stmt.setLong(3, range)
+        stmt.setString(4, geneSymbol)
+
+        rs = stmt.executeQuery();
+
+        def results = []
+        try{
+            while(rs.next()){
+                results.push([rs.getLong("POSITION"), rs.getDouble("RATE")])
+            }
+            return results
+
+        }finally{
+            rs?.close();
+            stmt?.close();
+            con?.close();
+        }
+    }
+
+    def snpSearch(analysisIds, Long range, String rsId, String hgVersion) {
+        def query = snpSearchQuery;
+
+        //Create objects we use to form JDBC connection.
+        def con, stmt, rs = null;
+
+        //Grab the connection from the grails object.
+        con = dataSource.getConnection()
+
+        query = query.replace("_analysisIds_", analysisIds.join(","))
+        //Prepare the SQL statement.
+        stmt = con.prepareStatement(query);
+        stmt.setLong(1, range)
+        stmt.setLong(2, range)
+        stmt.setString(3, rsId)
+        stmt.setString(4, hgVersion)
+        stmt.setString(5, hgVersion)
+
+        rs = stmt.executeQuery();
+
+        def results = []
+        try{
+            while(rs.next()){
+                results.push([rs.getString("RS_ID"), rs.getLong("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME")])
+            }
+            return results
+
         }finally{
             rs?.close();
             stmt?.close();
