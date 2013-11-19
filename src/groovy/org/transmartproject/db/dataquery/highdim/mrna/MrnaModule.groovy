@@ -2,7 +2,6 @@ package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,9 +26,6 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mrna'
-
-    @Autowired
-    SessionFactory sessionFactory
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

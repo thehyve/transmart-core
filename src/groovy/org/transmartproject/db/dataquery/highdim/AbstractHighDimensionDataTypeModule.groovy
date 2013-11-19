@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct
 
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
+    @Autowired
     SessionFactory sessionFactory
 
     protected List<DataRetrievalParameterFactory> assayConstraintFactories
