@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.assay.SampleType
@@ -48,7 +48,7 @@ class DeSubjectSampleMapping implements Assay {
     static mapping = {
         table          schema: 'deapp'
 
-        id             column: "assay_id",    generator: "assigned"
+        id             column: 'assay_id',    generator: 'assigned'
 
         patient        column: 'patient_id', cascade: 'save-update'
         platform       column: 'gpl_id',     cascade: 'save-update'

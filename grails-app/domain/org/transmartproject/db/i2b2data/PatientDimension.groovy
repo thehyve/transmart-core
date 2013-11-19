@@ -1,8 +1,7 @@
 package org.transmartproject.db.i2b2data
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class PatientDimension implements Patient {
 
