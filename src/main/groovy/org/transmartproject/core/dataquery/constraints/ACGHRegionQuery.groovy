@@ -3,6 +3,7 @@ package org.transmartproject.core.dataquery.constraints
 import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.acgh.Region
 
+@Deprecated
 class ACGHRegionQuery {
 
     /**

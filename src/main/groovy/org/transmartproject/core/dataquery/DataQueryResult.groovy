@@ -7,7 +7,10 @@ package org.transmartproject.core.dataquery
  *
  * @param < I > The type for the row indexes
  * @param < R > The type for the rows themselves
+ *
+ * @deprecated To be removed when aCGH is ported to new interface
  */
+@Deprecated
 public interface DataQueryResult<I, R> extends Closeable {
 
     /**
@@ -16,6 +19,7 @@ public interface DataQueryResult<I, R> extends Closeable {
      *
      * @return a typed list of indices present in all the rows
      */
+    @Deprecated
     List<I> getIndicesList()
 
     /**
@@ -24,5 +28,6 @@ public interface DataQueryResult<I, R> extends Closeable {
      *
      * @return the typed result set rows
      */
+    @Deprecated
     Iterator<R> getRows()
 }

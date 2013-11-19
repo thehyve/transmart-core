@@ -6,6 +6,7 @@ import org.transmartproject.core.dataquery.assay.Assay
  * A <code>RegionRow</code> associates a list of {@link Assay}s with {@link
  * ACGHValues} (one for each assay) in the context of an aCGH region.
  */
+@Deprecated
 public interface RegionRow {
 
     /**
