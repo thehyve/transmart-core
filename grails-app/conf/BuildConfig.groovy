@@ -42,9 +42,11 @@ grails.project.dependency.resolution = {
         }
 
         test('org.hamcrest:hamcrest-library:1.3',
-             'org.hamcrest:hamcrest-core:1.3')
+             'org.hamcrest:hamcrest-core:1.3') {
+            transitive: false
+        }
 
-        test('org.gmock:gmock:0.8.3')
+        test('org.gmock:gmock:0.8.3') { transitive: false }
     }
 
     plugins {
