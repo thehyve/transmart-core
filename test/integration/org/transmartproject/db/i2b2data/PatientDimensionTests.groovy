@@ -3,8 +3,7 @@ package org.transmartproject.db.i2b2data
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*

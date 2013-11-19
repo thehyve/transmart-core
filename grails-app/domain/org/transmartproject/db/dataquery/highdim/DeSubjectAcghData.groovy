@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.apache.commons.lang.builder.EqualsBuilder
 import org.apache.commons.lang.builder.HashCodeBuilder

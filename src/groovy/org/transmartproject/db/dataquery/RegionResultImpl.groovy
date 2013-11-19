@@ -5,8 +5,8 @@ import org.hibernate.ScrollableResults
 import org.transmartproject.core.dataquery.acgh.RegionResult
 import org.transmartproject.core.dataquery.acgh.RegionRow
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.highdim.DeChromosomalRegion
-import org.transmartproject.db.highdim.DeSubjectAcghData
+import org.transmartproject.db.dataquery.highdim.DeChromosomalRegion
+import org.transmartproject.db.dataquery.highdim.DeSubjectAcghData
 
 @CompileStatic
 class RegionResultImpl implements RegionResult, Closeable {

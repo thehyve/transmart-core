@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.hibernate.cfg.NotYetImplementedException
 import org.transmartproject.core.dataquery.Platform
@@ -18,7 +18,7 @@ class DeGplInfo implements Platform {
 	static mapping = {
         table         schema: 'deapp'
 
-        id            column: "platform",   generator: "assigned"
+        id            column: 'platform',   generator: 'assigned'
         markerTypeId  column: 'marker_type'
         releaseNumber column: 'release_nbr'
 

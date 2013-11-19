@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.assay.SampleType
@@ -20,6 +20,7 @@ class DeSubjectSampleMapping implements Assay {
     String   timepointName
     String   timepointCd
 
+    String   sampleCode
     String   sampleTypeName
     String   sampleTypeCd
 
@@ -34,7 +35,6 @@ class DeSubjectSampleMapping implements Assay {
     String   dataUid
     String   rbmPanel
     Long     sampleId
-    String   sampleCd
     String   categoryCd
     String   sourceCd
     String   omicSourceStudy
@@ -48,13 +48,14 @@ class DeSubjectSampleMapping implements Assay {
     static mapping = {
         table          schema: 'deapp'
 
-        id             column: "assay_id",    generator: "assigned"
+        id             column: 'assay_id',    generator: 'assigned'
 
         patient        column: 'patient_id', cascade: 'save-update'
         platform       column: 'gpl_id',     cascade: 'save-update'
         platformType   column: 'platform'
         platformTypeCd column: 'platform_cd'
         timepointName  column: 'timepoint'
+        sampleCode     column: 'sample_cd'
         sampleTypeName column: 'sample_type'
         tissueTypeName column: 'tissue_type'
 
@@ -76,7 +77,7 @@ class DeSubjectSampleMapping implements Assay {
         platformType    nullable: true, maxSize: 50
         platformTypeCd  nullable: true, maxSize: 50
         rbmPanel        nullable: true, maxSize: 50
-        sampleCd        nullable: true, maxSize: 200
+        sampleCode      nullable: true, maxSize: 200
         sampleId        nullable: true
         sampleTypeCd    nullable: true, maxSize: 50
         sampleTypeName  nullable: true, maxSize: 100

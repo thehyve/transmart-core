@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.junit.Before
 import org.junit.Test
@@ -8,7 +8,6 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
 import org.transmartproject.core.dataquery.assay.TissueType
-import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*

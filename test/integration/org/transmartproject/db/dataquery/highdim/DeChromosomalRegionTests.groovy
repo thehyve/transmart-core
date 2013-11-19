@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim
+package org.transmartproject.db.dataquery.highdim
 
 import org.junit.*
 import org.transmartproject.core.dataquery.Platform
