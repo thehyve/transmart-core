@@ -282,6 +282,7 @@ class GwasSearchController {
         }
         else {
             //Otherwise, run the query and recache the returned data
+			if (sortField.equals('null')) {sortField = 'data.p_value';}
             queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, transcriptGeneNames, true)
             analysisData = queryResult.results
             totalCount = queryResult.total
