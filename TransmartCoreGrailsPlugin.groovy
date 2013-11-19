@@ -1,13 +1,12 @@
 import org.springframework.stereotype.Component
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
-import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
     // the plugin version
-    def version = "1.0-rc2_dev-SNAPSHOT"
+    def version = "1.0-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.2 > *"
     // resources that are excluded from plugin packaging
