@@ -8,8 +8,8 @@ class BioMarkerCorrelMv implements Serializable {
     Long   mvId
 
     static belongsTo = [
-            bioMarker:           BioMarker, /* maybe these can come from other tables */
-            associatedBioMarker: BioMarker,
+            bioMarker:           BioMarkerCoreDb, /* maybe these can come from other tables */
+            associatedBioMarker: BioMarkerCoreDb,
     ]
 
 	static mapping = {

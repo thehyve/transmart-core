@@ -1,14 +1,14 @@
 package org.transmartproject.db.search
 
-import org.transmartproject.db.bioassay.BioAssayFeatureGroup
-import org.transmartproject.db.biomarker.BioMarker
+import org.transmartproject.db.bioassay.BioAssayFeatureGroupCoreDb
+import org.transmartproject.db.biomarker.BioMarkerCoreDb
 
 class SearchGeneSignatureItem {
 
-    BioMarker            bioMarker
+    BioMarkerCoreDb            bioMarker
     Long                 foldChangeMetric
     String               bioDataUniqueId
-    BioAssayFeatureGroup probeSet
+    BioAssayFeatureGroupCoreDb probeSet
 
     static belongsTo = [
             geneSignature: SearchGeneSignature

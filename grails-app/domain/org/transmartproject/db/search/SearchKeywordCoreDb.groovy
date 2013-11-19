@@ -1,6 +1,6 @@
 package org.transmartproject.db.search
 
-class SearchKeyword {
+class SearchKeywordCoreDb {
 
 	String keyword
     /* usage patterns shows joins of bioDataId with:
@@ -18,7 +18,7 @@ class SearchKeyword {
 	//BigDecimal ownerAuthUserId
 
 	static mapping = {
-        table   schema: 'searchapp'
+        table   schema: 'searchapp',         name:     'search_keyword'
 		id      column: 'search_keyword_id', generator: 'assigned'
 		version false
 	}

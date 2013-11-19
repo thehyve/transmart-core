@@ -1,17 +1,15 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
-import org.transmartproject.db.bioassay.BioAssayDataAnnotation
-import org.transmartproject.db.bioassay.BioAssayFeatureGroup
-import org.transmartproject.db.biomarker.BioMarker
+import org.transmartproject.db.bioassay.BioAssayDataAnnotationCoreDb
+import org.transmartproject.db.bioassay.BioAssayFeatureGroupCoreDb
+import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchGeneSignatureItem
-import org.transmartproject.db.search.SearchKeyword
+import org.transmartproject.db.search.SearchKeywordCoreDb
 import org.transmartproject.db.user.SearchAuthPrincipal
 import org.transmartproject.db.user.SearchAuthUser
 
@@ -32,26 +30,26 @@ class MrnaTestData {
         res
     }()
 
-    static List<BioMarker> bioMarkers = {
+    static List<BioMarkerCoreDb> bioMarkers = {
         def common = [
                 organism: 'HOME SAPIENS',
                 primarySourceCode: 'Entrez',
                 bioMarkerType: 'GENE',
         ]
         def res = [
-                new BioMarker(
+                new BioMarkerCoreDb(
                         bioMarkerName: 'BOGUSCPO',
                         bioMarkerDescription: 'carboxypeptidase O',
                         primaryExternalId: '-130749',
                         *: common,
                 ),
-                new BioMarker(
+                new BioMarkerCoreDb(
                         bioMarkerName: 'BOGUSRQCD1',
                         bioMarkerDescription: 'RCD1 required for cell differentiation1 homolog (S. pombe)',
                         primaryExternalId: '-9125',
                         *: common,
                 ),
-                new BioMarker(
+                new BioMarkerCoreDb(
                         bioMarkerName: 'BOGUSVNN3',
                         bioMarkerDescription: 'vanin 3',
                         primaryExternalId: '-55350',
@@ -66,7 +64,7 @@ class MrnaTestData {
     }()
 
 //    static List<BioMarkerCorrelMv> bioMarkerCorrelations = {
-//        def createCorrelation = { BioMarker b1, BioMarker b2 ->
+//        def createCorrelation = { BioMarkerCoreDb b1, BioMarkerCoreDb b2 ->
 //            new BioMarkerCorrelMv(
 //                    bioMarker: b1,
 //                    associatedBioMarker: b2,
@@ -124,9 +122,9 @@ class MrnaTestData {
         }
     }()
 
-    static List<BioAssayFeatureGroup> assayFeatureGroups = {
+    static List<BioAssayFeatureGroupCoreDb> assayFeatureGroups = {
         (-702..-701).reverse().collect {
-            def res = new BioAssayFeatureGroup(
+            def res = new BioAssayFeatureGroupCoreDb(
                     name: 'probeSet' + it,
                     type: 'foobar'
             )
@@ -135,13 +133,13 @@ class MrnaTestData {
         }
     }()
 
-    static List<BioAssayDataAnnotation> assayAnnotations = {
+    static List<BioAssayDataAnnotationCoreDb> assayAnnotations = {
         [
-                new BioAssayDataAnnotation(
+                new BioAssayDataAnnotationCoreDb(
                         probeSet: assayFeatureGroups[0],
                         bioMarker: bioMarkers[1],
                 ),
-                new BioAssayDataAnnotation(
+                new BioAssayDataAnnotationCoreDb(
                         probeSet: assayFeatureGroups[1],
                         bioMarker: bioMarkers[0],
                 ),
@@ -149,10 +147,10 @@ class MrnaTestData {
     }()
 
     static List<SearchGeneSignatureItem> geneSignatureItems = {
-        def createGeneSignatureItem = { BioMarker bioMarker,
+        def createGeneSignatureItem = { BioMarkerCoreDb bioMarker,
                                         SearchGeneSignature geneSignature,
                                         Long foldChangeMetric,
-                                        BioAssayFeatureGroup probeSet,
+                                        BioAssayFeatureGroupCoreDb probeSet,
                                         id ->
             def res = new SearchGeneSignatureItem(
                 bioMarker: bioMarker,
@@ -193,9 +191,9 @@ class MrnaTestData {
      *   item -903 -> probeSet -701 -> annotation #0 -> bioMarker -102 (BOGUSRQCD1)
      */
 
-    static List<SearchKeyword> searchKeywords = {
-        def createGeneKeyword = { BioMarker gene, id ->
-            def res = new SearchKeyword(
+    static List<SearchKeywordCoreDb> searchKeywords = {
+        def createGeneKeyword = { BioMarkerCoreDb gene, id ->
+            def res = new SearchKeywordCoreDb(
                     keyword: gene.bioMarkerName,
                     bioDataId: gene.id,
                     uniqueId: "GENE:$gene.primaryExternalId",
@@ -205,7 +203,7 @@ class MrnaTestData {
             res
         }
         def createGeneSignatureKeyword = { SearchGeneSignature sig, id ->
-            def res = new SearchKeyword(
+            def res = new SearchKeywordCoreDb(
                     keyword: "genesig_keyword_$sig.id",  /* what should this look like? */
                     bioDataId: sig.id,
                     uniqueId: "GENESIG:$sig.id", /* what should this look like? */
@@ -225,7 +223,7 @@ class MrnaTestData {
     }()
 
     static List<DeMrnaAnnotationCoreDb> annotations = {
-        def createAnnotation = { probesetId, probeId, BioMarker bioMarker ->
+        def createAnnotation = { probesetId, probeId, BioMarkerCoreDb bioMarker ->
             def res = new DeMrnaAnnotationCoreDb(
                     gplId: platform.id,
                     probeId: probeId,

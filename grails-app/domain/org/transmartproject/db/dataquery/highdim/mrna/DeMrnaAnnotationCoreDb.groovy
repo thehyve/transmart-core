@@ -1,7 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import groovy.transform.EqualsAndHashCode
-import org.transmartproject.db.biomarker.BioMarker
+import org.transmartproject.db.biomarker.BioMarkerCoreDb
 
 @EqualsAndHashCode(includes = [ 'gplId', 'probesetId' ])
 class DeMrnaAnnotationCoreDb {
@@ -31,7 +31,7 @@ class DeMrnaAnnotationCoreDb {
         organism   nullable: true, maxSize: 200
 	}
 
-    BioMarker getBioMarkerGene() {
-        BioMarker.findByPrimaryExternalId(geneId as String)
+    BioMarkerCoreDb getBioMarkerGene() {
+        BioMarkerCoreDb.findByPrimaryExternalId(geneId as String)
     }
 }

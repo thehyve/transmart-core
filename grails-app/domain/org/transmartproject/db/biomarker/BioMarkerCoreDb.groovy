@@ -1,6 +1,6 @@
 package org.transmartproject.db.biomarker
 
-class BioMarker {
+class BioMarkerCoreDb {
 
 	String bioMarkerName
 	String bioMarkerDescription

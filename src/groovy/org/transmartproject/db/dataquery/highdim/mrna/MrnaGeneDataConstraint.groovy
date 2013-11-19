@@ -10,7 +10,7 @@ import org.hibernate.type.Type
 import org.hibernate.util.StringHelper
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
-import org.transmartproject.db.search.SearchKeyword
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 class MrnaGeneDataConstraint implements CriteriaDataConstraint {
 
@@ -51,7 +51,7 @@ class MrnaGeneDataConstraint implements CriteriaDataConstraint {
     }
 
     static MrnaGeneDataConstraint createForSearchKeywordIds(List<Number> ids) {
-        def longIds = SearchKeyword.findAllByIdInList(ids*.longValue()).
+        def longIds = SearchKeywordCoreDb.findAllByIdInList(ids*.longValue()).
                 collect { it.uniqueId }
         createForLongIds longIds
     }

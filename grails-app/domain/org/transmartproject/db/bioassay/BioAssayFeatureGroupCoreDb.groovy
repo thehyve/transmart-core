@@ -1,12 +1,12 @@
 package org.transmartproject.db.bioassay
 
-import org.transmartproject.db.biomarker.BioMarker
+import org.transmartproject.db.biomarker.BioMarkerCoreDb
 
-class BioAssayFeatureGroup implements Serializable {
+class BioAssayFeatureGroupCoreDb implements Serializable {
     String name
     String type
 
-    static hasMany = [ markers: BioMarker ]
+    static hasMany = [ markers: BioMarkerCoreDb ]
 
     static mapping = {
         table schema: 'biomart', name: 'bio_assay_feature_group'

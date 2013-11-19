@@ -1,15 +1,15 @@
 package org.transmartproject.db.bioassay
 
 import groovy.transform.EqualsAndHashCode
-import org.transmartproject.db.biomarker.BioMarker
+import org.transmartproject.db.biomarker.BioMarkerCoreDb
 
 @EqualsAndHashCode(includes = [ 'bioMarker', 'probeSet' ])
-class BioAssayDataAnnotation implements Serializable {
+class BioAssayDataAnnotationCoreDb implements Serializable {
     String dataTable
 
     static belongsTo = [
-            bioMarker: BioMarker,
-            probeSet:  BioAssayFeatureGroup,
+            bioMarker: BioMarkerCoreDb,
+            probeSet:  BioAssayFeatureGroupCoreDb,
     ]
 
     static mapping = {
