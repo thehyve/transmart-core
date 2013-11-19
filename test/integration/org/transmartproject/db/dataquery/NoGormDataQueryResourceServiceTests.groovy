@@ -1,6 +1,6 @@
 package org.transmartproject.db.dataquery
 
-import org.transmartproject.db.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.querytool.QueryResultData;
 
 @Mixin(HighDimTestData)

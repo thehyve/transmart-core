@@ -13,9 +13,9 @@ import org.transmartproject.core.dataquery.acgh.RegionRow
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
 import org.transmartproject.core.dataquery.constraints.CommonHighDimensionalQueryConstraints
-import org.transmartproject.db.highdim.DeChromosomalRegion
-import org.transmartproject.db.highdim.DeGplInfo
-import org.transmartproject.db.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.DeChromosomalRegion
+import org.transmartproject.db.dataquery.highdim.DeGplInfo
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.querytool.QtQueryResultInstance
 
 import static org.hamcrest.MatcherAssert.assertThat

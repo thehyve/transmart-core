@@ -28,7 +28,7 @@ grails.project.dependency.resolution = {
         compile('org.transmartproject:transmart-core-api:1.0-SNAPSHOT')
         compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 
-        runtime('postgresql:postgresql:9.1-901.jdbc4') {
+        runtime('org.postgresql:postgresql:9.3-1100-jdbc41') {
             transitive: false
         }
 
@@ -37,8 +37,14 @@ grails.project.dependency.resolution = {
             transitive: false
         }
 
+        compile('com.h2database:h2:1.3.174') {
+            transitive: false
+        }
+
         test('org.hamcrest:hamcrest-library:1.3',
              'org.hamcrest:hamcrest-core:1.3')
+
+        test('org.gmock:gmock:0.8.3')
     }
 
     plugins {
