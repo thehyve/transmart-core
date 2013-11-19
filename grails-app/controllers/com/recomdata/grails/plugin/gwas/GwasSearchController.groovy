@@ -203,10 +203,10 @@ class GwasSearchController {
         //Get list of REGION restrictions from session and translate to regions
         def regions = getSearchRegions(session['solrSearchFilter'])
         def geneNames = getGeneNames(session['solrSearchFilter'])
-		if (getSearchCutoff(session['solrSearchFilter'])){
-		cutoff = getSearchCutoff(session['solrSearchFilter'])
-		}
-		def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
+        if (getSearchCutoff(session['solrSearchFilter'])){
+            cutoff = getSearchCutoff(session['solrSearchFilter'])
+        }
+        def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
         //Find out if we're querying for EQTL, GWAS, or both
         def hasGwas = BioAssayAnalysis.createCriteria().list([max: 1]) {
             or {
@@ -718,21 +718,21 @@ class GwasSearchController {
             render(plugin: "transmartGwas", template: "/gwas/gwasAndEqtlResults", model: [results: regionSearchResults, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search])
         }
     }
-	
-	def getSearchCutoff(solrSearch) {
-		def cutoff
-		for (s in solrSearch) {
-			if (s.startsWith("PVALUE")) {
-				s = s.substring(7)
-				def pvalue = s.split("\\^")
-				cutoff = pvalue[1]
-			}
-		}
-		if (cutoff) {
-		return cutoff.toDouble()
-		}
-	}
-	
+
+    def getSearchCutoff(solrSearch) {
+        def cutoff
+        for (s in solrSearch) {
+            if (s.startsWith("PVALUE")) {
+                s = s.substring(7)
+                def pvalue = s.split("\\^")
+                cutoff = pvalue[1]
+            }
+        }
+        if (cutoff) {
+            return cutoff.toDouble()
+        }
+    }
+
     def getSearchRegions(solrSearch) {
         def regions = []
 
@@ -776,10 +776,10 @@ class GwasSearchController {
                         def searchKeyword = SearchKeyword.get(geneId)
                         def limits
                         if (searchKeyword.dataCategory.equals("GENE")) {
-                            limits = regionSearchService.getGeneLimits(geneId, ver)
+                            limits = regionSearchService.getGeneLimits(geneId, ver, 0L)
                         }
                         else if (searchKeyword.dataCategory.equals("SNP")) {
-                            limits = regionSearchService.getSnpLimits(geneId, ver)
+                            limits = regionSearchService.getSnpLimits(geneId, ver, 0L)
                         }
                         def low = limits.get('low')
                         def high = limits.get('high')
@@ -804,16 +804,34 @@ class GwasSearchController {
                 s = s.substring(8)
                 def sigIds = s.split("\\|")
                 for (sigId in sigIds) {
+
                     def sigSearchKeyword = SearchKeyword.get(sigId as long)
+                    def sig = GeneSignature.get(sigSearchKeyword.bioDataId)
                     def sigItems = GeneSignatureItem.createCriteria().list() {
-                        eq('geneSignature', GeneSignature.get(sigSearchKeyword.bioDataId))
-                        like('bioDataUniqueId', 'GENE%')
+                        eq('geneSignature', sig)
+                        or {
+                            like('bioDataUniqueId', 'GENE%')
+                            like('bioDataUniqueId', 'SNP%')
+                        }
                     }
                     for (sigItem in sigItems) {
-                        def searchGene = SearchKeyword.findByUniqueId(sigItem.bioDataUniqueId)
-                        def geneId = searchGene.id
-                        def limits = regionSearchService.getGeneLimits(geneId, '19')
-                        regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+                        def searchItem = SearchKeyword.findByUniqueId(sigItem.bioDataUniqueId)
+
+                        if (searchItem.dataCategory?.equals('SNP')) {
+                            def rsId = searchItem.id as long
+                            if (!rsId) {
+                                println("No SNP found for identifier:" + sigItem.bioDataUniqueId)
+                                continue
+                            }
+                            def limits = regionSearchService.getSnpLimits(rsId, '19', sig.flankingRegion)
+                            regions.push([gene: rsId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+                        }
+                        else {
+                            def geneId = searchItem?.id
+                            def limits = regionSearchService.getGeneLimits(geneId, '19', sig.flankingRegion)
+                            regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+                        }
+
                     }
                 }
             }
@@ -823,7 +841,7 @@ class GwasSearchController {
                 def geneIds = s.split("\\|")
                 for (geneString in geneIds) {
                     def geneId = geneString as long
-                    def limits = regionSearchService.getGeneLimits(geneId, '19')
+                    def limits = regionSearchService.getGeneLimits(geneId, '19', 0L)
                     regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
                 }
             }
@@ -832,7 +850,7 @@ class GwasSearchController {
                 s = s.substring(4)
                 def rsIds = s.split("\\|")
                 for (rsId in rsIds) {
-                    def limits = regionSearchService.getSnpLimits(rsId as long, '19')
+                    def limits = regionSearchService.getSnpLimits(rsId as long, '19', 0L)
                     regions.push([gene: rsId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
                 }
             }
@@ -857,7 +875,8 @@ class GwasSearchController {
                     }
                     for (sigItem in sigItems) {
                         def searchGene = SearchKeyword.findByUniqueId(sigItem.bioDataUniqueId)
-                        def geneId = searchGene.id
+                        def geneId = searchGene?.id
+                        if (!geneId) continue; //Signature may contain SNPs or probes
                         def searchKeyword = SearchKeyword.get(geneId)
                         genes.push(searchKeyword.keyword)
                     }

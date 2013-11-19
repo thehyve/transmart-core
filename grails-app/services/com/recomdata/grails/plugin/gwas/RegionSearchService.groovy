@@ -204,7 +204,7 @@ class RegionSearchService {
         return results;
     }
 
-    def getSnpLimits(Long searchId, String ver) {
+    def getSnpLimits(Long searchId, String ver, Long flankingRegion) {
         //Create objects we use to form JDBC connection.
         def con, stmt, rs = null;
 
@@ -223,6 +223,10 @@ class RegionSearchService {
                 def high = rs.getLong("HIGH");
                 def low = rs.getLong("LOW");
                 def chrom = rs.getString("CHROM");
+                if (flankingRegion) {
+                    high += flankingRegion;
+                    low -= flankingRegion;
+                }
                 return [low: low, high:high, chrom: chrom]
             }
         }finally{
