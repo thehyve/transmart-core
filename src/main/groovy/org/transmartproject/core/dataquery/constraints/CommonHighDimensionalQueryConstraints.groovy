@@ -8,6 +8,7 @@ import org.transmartproject.core.querytool.QueryResult
  * Query constraints that are common to high dimensional data queries.
  */
 @Canonical
+@Deprecated
 class CommonHighDimensionalQueryConstraints {
 
     List<String> studies

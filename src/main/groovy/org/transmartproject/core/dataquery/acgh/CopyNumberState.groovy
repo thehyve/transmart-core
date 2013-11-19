@@ -6,6 +6,7 @@ package org.transmartproject.core.dataquery.acgh
  * segment or region in copy number variation trials (e.g. an array comparative
  * genomic hybridization trial).
  */
+@Deprecated
 public enum CopyNumberState {
 
     /**

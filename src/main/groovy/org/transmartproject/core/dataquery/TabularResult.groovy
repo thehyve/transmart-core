@@ -1,5 +1,8 @@
 package org.transmartproject.core.dataquery
 
+import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.DataRow
+
 /**
  * The result of a data query that provides a list of indices (columns) that
  * can be used to fetch individual values from the rows,
@@ -7,11 +10,8 @@ package org.transmartproject.core.dataquery
  *
  * @param < I > The type for the row indexes
  * @param < R > The type for the rows themselves
- *
- * @deprecated To be removed when aCGH is ported to new interface
  */
-@Deprecated
-public interface DataQueryResult<I, R> extends Closeable {
+public interface TabularResult<I extends DataColumn, R extends DataRow> extends Closeable {
 
     /**
      * Used to obtain the "columns" of the result set' the indices used to
@@ -19,7 +19,6 @@ public interface DataQueryResult<I, R> extends Closeable {
      *
      * @return a typed list of indices present in all the rows
      */
-    @Deprecated
     List<I> getIndicesList()
 
     /**
@@ -28,6 +27,9 @@ public interface DataQueryResult<I, R> extends Closeable {
      *
      * @return the typed result set rows
      */
-    @Deprecated
     Iterator<R> getRows()
+
+    String getColumnsDimensionLabel()
+
+    String getRowsDimensionLabel()
 }

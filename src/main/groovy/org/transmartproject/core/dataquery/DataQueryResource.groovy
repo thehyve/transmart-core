@@ -7,7 +7,10 @@ import org.transmartproject.core.dataquery.acgh.Region
 
 /**
  * A resource for querying about clinical and high-dimensional data.
+ *
+ * @deprecated To be removed when aCGH is ported to new interface
  */
+@Deprecated
 public interface DataQueryResource {
 
     /**
@@ -18,6 +21,7 @@ public interface DataQueryResource {
      * @param session session where to run the query or null to use current
      * @return the query result result
      */
+    @Deprecated
     RegionResult runACGHRegionQuery(ACGHRegionQuery spec, session)
 
     /**
@@ -26,6 +30,7 @@ public interface DataQueryResource {
      * @return Segment for each chromosome where start = min(region.start)
      * and stop = max(region.stop)
      */
+    @Deprecated
     List<ChromosomalSegment> getChromosomalSegments(ACGHRegionQuery spec)
 
 }

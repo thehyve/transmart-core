@@ -12,7 +12,10 @@ import org.transmartproject.core.dataquery.PlatformMarkerType
  * which is also part of the identity of the region (indeed,
  * at this point we may no longer have information about which probes
  * contributed to form the region).
+ *
+ * @deprecated to be moved to new package
  */
+@Deprecated
 public interface Region {
 
     /**

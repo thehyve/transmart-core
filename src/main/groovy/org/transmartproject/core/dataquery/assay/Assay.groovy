@@ -38,6 +38,12 @@ interface Assay {
     Timepoint getTimepoint()
 
     /**
+     * A string representing the sample used in this assay.
+     * @return string representing assay's sample name
+     */
+    String getSampleCode()
+
+    /**
      * The sample type associated with this assay.
      *
      * @return the sample used in this assay or null if not available

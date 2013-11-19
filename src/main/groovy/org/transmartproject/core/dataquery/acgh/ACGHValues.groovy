@@ -3,7 +3,10 @@ package org.transmartproject.core.dataquery.acgh
  * Aggregates certain values, both measured and calculated,
  * for a certain (assay, probe or region) pair in the context of a certain
  * array comparative genomic hybridization trial.
+ *
+ * @deprecated to be moved to new package
  */
+@Deprecated
 public interface ACGHValues {
 
     /**
