@@ -34,5 +34,6 @@ grails.project.dependency.resolution = {
         compile(':search-domain:1.0-SNAPSHOT')
         compile(':spring-security-core:1.1.2')
         compile(':quartz:0.4.2')
+        compile(':mail:1.0')
     }
 }

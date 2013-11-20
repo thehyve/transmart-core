@@ -2,12 +2,18 @@ package com.recomdata.grails.plugin.gwas
 
 import au.com.bytecode.opencsv.CSVWriter
 import bio.BioAssayAnalysis
+import bio.Experiment
 import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONObject
 import search.GeneSignature
 import search.GeneSignatureItem
 import search.SearchKeyword
 
 import java.lang.reflect.UndeclaredThrowableException
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 import static java.util.UUID.randomUUID
 
@@ -963,5 +969,407 @@ class GwasSearchController {
             csv.writeNext(vals)
         }
         csv.close()
+    }
+
+    //Common Method to export analysis data as link or attachment
+    def exportAnalysisData(analysisId, dataWriter,cutoff,regions,geneNames,max) {
+        def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
+        def analysisArr = []
+        analysisArr.push(analysisId)
+        def query
+        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,false)
+        } else {
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,false)
+        }
+        def dataset = query.results
+
+
+        dataWriter.write "Probe ID\tp-value\t-log10 p-value\tRS Gene\tChromosome\tPosition\n"
+        for (row in dataset) {
+            def rowData = []
+            for (data in row) {
+                rowData.push(data)
+            }
+            String[] vals = rowData
+            //println vals
+            for (int i = 0; i < vals.size(); i++) {
+                if ((i < 3) || (i > 4)) {
+                    if (vals[i] != null) {
+                        dataWriter.write vals[i] + "\t"
+                    } else {
+                        dataWriter.write "\t"
+                    }
+                }
+            }
+            dataWriter.write "\n"
+        }
+
+        dataWriter.close()
+    }
+
+    def exportAnalysis = {
+
+        def paramMap = params;
+        def isLink = params.isLink
+        def cutoff = params.double('cutoff')
+        if (getSearchCutoff(session['solrSearchFilter'])){
+            cutoff = getSearchCutoff(session['solrSearchFilter'])
+        }
+        def regions = getSearchRegions(session['solrSearchFilter'])
+        def geneNames = getGeneNames(session['solrSearchFilter'])
+        def queryparameter=session['solrSearchFilter']
+
+
+        if (isLink == "true") {
+            def analysisId = params.analysisId
+            analysisId = analysisId.toLong()
+            response.setHeader('Content-disposition', 'attachment; filename=' + analysisId + "_ANALYSIS_DATA.txt")
+            response.contentType = 'text/plain'
+            PrintWriter dataWriter = new PrintWriter(response.writer);
+            exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,0)
+
+        } else if (isLink == "false") {
+            def analysisIds = params?.analysisIds.split(",")
+            def mailId = params.toMailId
+            def link = new StringBuilder()
+            if(queryparameter){link.append("Query Criteria at time of export: "+queryparameter+"\n")}
+            link.append(createLink(controller: 'search', action: 'exportAnalysis', absolute: true))
+            def links = ""
+            if (analysisIds.size() > 0) {
+
+                for (analysisId in analysisIds) {
+                    analysisId = analysisId.toLong()
+                    links += link+"?analysisId=" + analysisId + "&regions="+regions.toString().replace(" ","")+"&cutoff="+cutoff+"&geneNames="+geneNames.toString().replace(" ","")+"&isLink=true\n"
+                }
+            }
+            def messageSubject = "Export Analysis Results"  //(links,messageSubject,mailId)
+
+            sendMail {
+                to mailId
+                subject messageSubject
+                text links
+            }
+
+        } else {
+            def analysisIds = params?.analysisIds.split(",")
+            def mailId = params.toMailId
+
+            def timestamp = new Date().format("yyyyMMddhhmmss")
+            def rootFolder = "Export_" + timestamp
+            String location = grailsApplication.config.grails.mail.attachments.dir
+            String rootDir = location + rootFolder + "/"
+            if (analysisIds.size() > 0) {
+
+                for (analysisId in analysisIds) {
+                    analysisId = analysisId.toLong()
+                    def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
+                    def accession = analysis.etlId
+                    def analysisName= analysis.name
+                    Pattern pt = Pattern.compile("[^a-zA-Z0-9 ]")
+                    Matcher match= pt.matcher(analysisName)
+                    while(match.find()){
+                        String s= match.group();
+                        analysisName=analysisName.replaceAll("\\"+s, "");
+                    }
+
+                    def dirStudy = rootDir + accession + "/"
+                    def dirAnalysis = dirStudy + analysisName + "/"
+                    def dir = new File(dirAnalysis)
+                    dir.mkdirs()
+
+                    //Creating Analysis Data file
+                    def fileName = dirAnalysis + analysisId + "_ANALYSIS_DATA.txt"
+                    File file = new File(fileName);
+                    BufferedWriter dataWriter = new BufferedWriter(new FileWriter(file));
+                    exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,200)
+
+                    //This is to generate a file with Study Metadata
+                    def FileStudyMeta = dirStudy + accession + "_STUDY_METADATA.txt"
+                    File FileStudy = new File(FileStudyMeta)
+                    BufferedWriter dataWriterStudy = new BufferedWriter(new FileWriter(FileStudy))
+
+                    def exp = Experiment.findByAccession(accession, [max: 1])
+                    //dataWriterStudy.write accession
+
+                    def formLayout = formLayoutService.getLayout('study');
+                    //def dispName =[]
+                    formLayout.each {
+                        def dispName = it.displayName
+                        dataWriterStudy.write dispName + ":"
+                        if (it.column == 'accession') {
+                            def add_col = exp.accession
+
+                            dataWriterStudy.write add_col + "\n"
+                        }
+                        if (it.column == 'title') {
+                            def add_col = exp.title
+                            if (exp.title) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                        if (it.column == 'description') {
+                            def add_col = exp.description
+                            if (exp.description) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                        if (it.column == 'institution') {
+                            def add_col = exp.institution
+                            if (exp.institution) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                        if (it.column == 'primaryInvestigator') {
+                            def add_col = exp.primaryInvestigator
+                            if (exp.primaryInvestigator) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                        if (it.column == 'adHocPropertyMap.Study Short Name') {
+
+                            def add_col = exp.getAdHocPropertyMap().get('Study Short Name')
+                            if (exp.getAdHocPropertyMap().get('Study Short Name')) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                        if (it.column == 'adHocPropertyMap.Data Availability') {
+                            def add_col = exp.getAdHocPropertyMap().get('Data Availability')
+                            if (exp.getAdHocPropertyMap().get('Data Availability')) {
+                                dataWriterStudy.write add_col + "\n"
+                            } else {
+                                dataWriterStudy.write "\n"
+                            }
+                        }
+                    }
+                    dataWriterStudy.close()
+
+                    def fileNameMeta = dirAnalysis + analysisId + "_ANALYSIS_METADATA.txt"
+
+
+                    File fileMeta = new File(fileNameMeta);
+                    BufferedWriter dataWriterMeta = new BufferedWriter(new FileWriter(fileMeta));
+                    def layout = formLayoutService.getLayout('analysis')
+                    layout.each {
+                        def dispName = it.displayName
+                        if (analysis.assayDataType == 'EQTL' && it.column == 'phenotypes') {
+                            dataWriterMeta.write "\nDiseases:"
+                        } else if ((analysis.assayDataType == "EQTL" || analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") && (it.column == 'pValueCutoff' || it.column == 'foldChangeCutoff')) {
+                            //do nothing
+                        } else {
+                            dataWriterMeta.write "\n" + dispName + ":"
+                        }
+                        if (it.column == 'study') {
+                            def add_col = exp.title
+                            if (exp.title) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'phenotypes') {
+                            analysis.diseases.disease.each() {
+                                def add_col = it
+                                dataWriterMeta.write add_col + ";"
+                            }
+
+                            if (!(analysis.assayDataType == "EQTL")) {
+                                analysis.observations.name.each() {
+
+                                    def add_col = it
+                                    dataWriterMeta.write add_col + ";"
+                                }
+                            }
+                        } else if (it.column == 'platforms') {
+                            analysis.platforms.each() {
+                                def add_col = it.vendor + ":" + it.name
+                                dataWriterMeta.write add_col + ";"
+                            }
+                        } else if (it.column == 'name') {
+
+                            def add_col = analysis.name
+                            if (analysis.name) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'assayDataType') {
+
+                            def add_col = analysis.assayDataType
+                            if (analysis.assayDataType) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'shortDescription') {
+
+                            def add_col = analysis.shortDescription
+                            if (analysis.shortDescription) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'longDescription') {
+                            def add_col = analysis.longDescription
+                            if (analysis.longDescription) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'pValueCutoff') {
+
+                            def add_col = analysis.pValueCutoff
+                            if (analysis.pValueCutoff) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'foldChangeCutoff') {
+
+                            def add_col = analysis.foldChangeCutoff
+                            if (analysis.foldChangeCutoff) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'qaCriteria') {
+
+                            def add_col = analysis.qaCriteria
+                            if (analysis.qaCriteria) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (it.column == 'analysisMethodCode') {
+
+                            def add_col = analysis.analysisMethodCode
+                            if (analysis.analysisMethodCode) {
+                                dataWriterMeta.write add_col + ""
+                            } else {
+                                dataWriterMeta.write ""
+                            }
+                        } else if (analysis.ext != null) {
+                            if (it.column == 'ext.population') {
+                                def add_col = analysis.ext.population
+                                if (analysis.ext.population) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.sampleSize') {
+
+                                def add_col = analysis.ext.sampleSize
+                                if (analysis.ext.sampleSize) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.tissue') {
+
+                                def add_col = analysis.ext.tissue
+                                if (analysis.ext.tissue) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.cellType') {
+
+                                def add_col = analysis.ext.cellType
+                                if (analysis.ext.cellType) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.genomeVersion') {
+
+                                def add_col = analysis.ext.genomeVersion
+                                if (analysis.ext.genomeVersion) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.researchUnit') {
+
+                                def add_col = analysis.ext.researchUnit
+                                if (analysis.ext.researchUnit) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.modelName') {
+
+                                def add_col = analysis.ext.modelName
+                                if (analysis.ext.modelName) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            } else if (it.column == 'ext.modelDescription') {
+
+                                def add_col = analysis.ext.modelDescription
+                                if (analysis.ext.modelDescription) {
+                                    dataWriterMeta.write add_col + ""
+                                } else {
+                                    dataWriterMeta.write ""
+                                }
+                            }
+                        }
+                    }
+                    dataWriterMeta.close();
+
+                }
+            }
+
+
+
+            File topDir = new File(rootDir)
+
+            def zipFile = location + rootFolder + ".zip"
+            ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(zipFile));
+
+            int topDirLength = topDir.absolutePath.length()
+
+            topDir.eachFileRecurse { file ->
+                def relative = file.absolutePath.substring(topDirLength).replace('\\', '/')
+                if (file.isDirectory() && !relative.endsWith('/')) {
+                    relative += "/"
+                }
+
+                ZipEntry entry = new ZipEntry(relative)
+                entry.time = file.lastModified()
+                zipOutput.putNextEntry(entry)
+                if (file.isFile()) {
+                    zipOutput << new FileInputStream(file)
+                }
+            }
+
+            zipOutput.close()
+
+            //the path of the file e.g. : "c:/Users/nikos7/Desktop/myFile.txt"
+            String messageBody = "Attached is the list of Analyses"
+            String file = zipFile
+            String messageSubject = "Export of Analysis as attachment"
+            if (queryparameter) {messageBody+="Query Criteria at time of export: "+queryparameter+"\n"}
+
+            sendMail {
+                multipart true
+                to mailId
+                subject messageSubject
+                text messageBody
+                attach file, "application/zip", new File(file)
+            }
+        }
+
+        def myString=new JSONObject().put("status","success").toString();
+        render myString
     }
 }
