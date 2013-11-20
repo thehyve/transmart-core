@@ -1,6 +1,5 @@
 package jobs
 
-import com.recomdata.transmart.asynchronous.job.AsyncJobService
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
@@ -80,7 +79,7 @@ class Heatmap implements Job {
         data.grailsApplication.applicationContext.getBean('jobResultsService')
     }*/
 
-    private AsyncJobService getAsyncJobService() {
+    private def getAsyncJobService() {
         data.grailsApplication.applicationContext.getBean 'asyncJobService'
     }
 }
