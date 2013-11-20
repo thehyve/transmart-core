@@ -28,4 +28,14 @@ public interface DataConstraint {
      */
     public final static String SEARCH_KEYWORD_IDS_CONSTRAINT = 'search_keyword_ids'
 
+    /**
+     * A well-known constraint for building a disjunction of several
+     * sub-constraints.
+     *
+     * Parameters: 'subconstraints' => <map with string key (the constraint
+     *                                  name) and a map value (the parameters of
+     *                                  the sub-constraint)>
+     */
+    public final static String DISJUNCTION_CONSTRAINT = 'disjunction'
+
 }
