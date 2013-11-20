@@ -58,7 +58,10 @@ class MrnaGeneDataConstraint implements CriteriaDataConstraint {
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteriaBuilder) {
-        criteriaBuilder.add(new MrnaGeneCriterion(ids, type))
+        /* call private addToCriteria, but this is necessary. Calling
+         * just add() would add the criterion to the root of the criteria,
+         * not to any open or() or and() criteria */
+        criteriaBuilder.addToCriteria(new MrnaGeneCriterion(ids, type))
     }
 
     static class MrnaGeneCriterion extends SQLCriterion {
