@@ -14,7 +14,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 class Heatmap implements Job {
     Map data
     String name
-    HighDimensionResource highDimensionResourceService
+    HighDimensionResource highDimensionResource
 
     String temporaryDirectory = Holders.config.RModules.tempFolderDirectory
 
@@ -37,7 +37,7 @@ class Heatmap implements Job {
     private writeData(TabularResult results) {}
 
     private TabularResult getData() {
-        HighDimensionDataTypeResource dataType = highDimensionResourceService.knownDataTypes[data["divIndependentVariableType"]]
+        HighDimensionDataTypeResource dataType = highDimensionResource.knownDataTypes[data["divIndependentVariableType"]]
 
         List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: data["result_instance_id1"])]
         assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, term: data["variablesConceptPaths"]))
