@@ -1,6 +1,7 @@
 package jobs
 
 import org.quartz.Job
+import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
@@ -17,7 +18,6 @@ class Heatmap implements Job {
 
     Map data
     String name
-    HighDimensionResource highDimensionResource
 
     String temporaryDirectory = Holders.config.RModules.tempFolderDirectory
 
@@ -40,19 +40,20 @@ class Heatmap implements Job {
 
     static void scheduleJob(params) {
         JobDetail jobDetail = new JobDetail(params.jobName, params.jobType, Heatmap.class)
+        jobDetail.jobDataMap = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
-        Holders.grailsApplication.mainContext.quartzService.scheduleJob(jobDetail, trigger)
+        Holders.grailsApplication.mainContext.quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
     private writeData(TabularResult results) {}
 
     private TabularResult getData() {
-        HighDimensionDataTypeResource dataType = highDimensionResource.knownDataTypes[data["divIndependentVariableType"]]
+        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(data.divIndependentVariableType)
 
         List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: data["result_instance_id1"])]
-        assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, term: data["variablesConceptPaths"]))
+        assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, term: data.variablesConceptPaths))
 
-        List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [data["divIndependentVariablePathway"]]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
+        List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [data.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
 
         Projection projection = dataType.createProjection([:], 'defaultRealProjection')
 
@@ -90,6 +91,10 @@ class Heatmap implements Job {
     }*/
 
     private def getAsyncJobService() {
-        data.grailsApplication.applicationContext.getBean 'asyncJobService'
+        data.grailsApplication.mainContext.asyncJobService
+    }
+
+    private HighDimensionResource getHighDimensionResource() {
+        data.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }
