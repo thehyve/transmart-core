@@ -16,6 +16,8 @@
 
 package com.recomdata.transmart.data.association
 
+import jobs.Heatmap
+
 class RModulesController {
 
     def springSecurityService
