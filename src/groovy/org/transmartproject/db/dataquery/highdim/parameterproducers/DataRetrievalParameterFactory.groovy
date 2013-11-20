@@ -14,8 +14,13 @@ interface DataRetrievalParameterFactory {
      * Returns the created object or null if the name is not recognized.
      * @param name
      * @param params
+     * @param createParameter Callable object that can be used to create a
+     * new constraint/projection. Takes the same parameters as the first
+     * two of this method.
      * @return
      */
-    def createFromParameters(String name, Map<String, Object> params)
+    def createFromParameters(String name,
+                             Map<String, Object> params,
+                             Object /* callable */ createParameter)
 
 }

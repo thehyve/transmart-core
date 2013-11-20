@@ -31,13 +31,23 @@ class AbstractMethodBasedParameterFactory implements DataRetrievalParameterFacto
     }
 
     @Override
-    def createFromParameters(String name, Map<String, Object> params) {
+    def createFromParameters(String name,
+                             Map<String, Object> params,
+                             Object createProducer) {
+
         Method producerMethod = producerMap[name]
         if (!producerMethod) {
             return null
         }
 
-        producerMethod.invoke this, params
+        if (producerMethod.parameterTypes.length == 1) {
+            producerMethod.invoke this, params
+        } else if (producerMethod.parameterTypes.length == 2) {
+            producerMethod.invoke this, params, createProducer
+        } else {
+            throw new RuntimeException('The producer method should take eithe ' +
+                    "one or two parameters; not the case for $producerMethod")
+        }
     }
 
     final protected Object getParam(Map params, String paramName, Class type) {

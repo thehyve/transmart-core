@@ -77,7 +77,8 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         initializeFactories()
         for (factory in assayConstraintFactories) {
             if (factory.supports(name)) {
-                return factory.createFromParameters(name, params)
+                return factory.createFromParameters(
+                        name, params, this.&createAssayConstraint)
             }
         }
 
@@ -90,7 +91,8 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         initializeFactories()
         for (factory in dataConstraintFactories) {
             if (factory.supports(name)) {
-                return factory.createFromParameters(name, params)
+                return factory.createFromParameters(
+                        name, params, this.&createDataConstraint)
             }
         }
 
@@ -103,7 +105,8 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         initializeFactories()
         for (factory in projectionFactories) {
             if (factory.supports(name)) {
-                return factory.createFromParameters(name, params)
+                return factory.createFromParameters(
+                        name, params, this.&createProjection)
             }
         }
 

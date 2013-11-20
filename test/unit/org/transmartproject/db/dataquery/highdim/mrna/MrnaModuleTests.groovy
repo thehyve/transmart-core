@@ -18,11 +18,6 @@ class MrnaModuleTests extends GMockTestCase {
 
     MrnaModule testee = new MrnaModule()
 
-    @Before
-    void setUp() {
-
-    }
-
     @Test
     void testSearchKeywordConstraintGeneration() {
 
@@ -43,7 +38,8 @@ class MrnaModuleTests extends GMockTestCase {
 
                 factory.createFromParameters(
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                        [ keyword_ids: keywordIdsInput ])
+                        [ keyword_ids: keywordIdsInput ],
+                        factory.&createFromParameters)
             }
 
             assertThat result, is(sameInstance(mockDataConstraint))
