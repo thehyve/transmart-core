@@ -5,10 +5,10 @@ import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
@@ -17,7 +17,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMeth
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
@@ -28,7 +27,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     final String name = 'mrna'
 
     @Autowired
-    StandardAssayConstraintFactory standardAssayConstraintFactory
+    DataRetrievalParameterFactory standardAssayConstraintFactory
+
+    @Autowired
+    DataRetrievalParameterFactory standardDataConstraintFactory
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection,
@@ -112,7 +114,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        [ new MrnaDataConstraintsProducers() ]
+        [ standardDataConstraintFactory,
+                new MrnaDataConstraintsProducers() ]
     }
 
     private final DataRetrievalParameterFactory defaultRealProjectionFactory =

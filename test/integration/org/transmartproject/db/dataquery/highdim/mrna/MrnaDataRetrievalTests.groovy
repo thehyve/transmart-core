@@ -12,6 +12,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -137,6 +138,37 @@ class MrnaDataRetrievalTests {
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('geneSymbol', equalTo('BOGUSRQCD1')))
+        )
+    }
+
+    @Test
+    void testWithDisjunctionConstraint() {
+        List assayConstraints = [
+                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+        ]
+        /* in this particular case, you could just use one MrnaGeneDataConstraint
+         * and include two ids in the list */
+        List dataConstraints = [
+                new DisjunctionDataConstraint(constraints: [
+                        MrnaGeneDataConstraint.createForLongIds([
+                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSRQCD1' }).uniqueId
+                        ]),
+                        MrnaGeneDataConstraint.createForLongIds([
+                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSVNN3' }).uniqueId
+                        ])
+                ])
+        ]
+
+        def projection = new SimpleRealProjection(property: 'rawIntensity')
+
+        dataQueryResult =
+            resource.retrieveData assayConstraints, dataConstraints, projection
+
+        def resultList = Lists.newArrayList dataQueryResult
+
+        assertThat resultList, containsInAnyOrder(
+                hasProperty('geneSymbol', equalTo('BOGUSRQCD1')),
+                hasProperty('geneSymbol', equalTo('BOGUSVNN3')),
         )
     }
 }

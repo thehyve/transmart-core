@@ -7,6 +7,7 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
@@ -17,6 +18,11 @@ import static org.hamcrest.Matchers.sameInstance
 class MrnaModuleTests extends GMockTestCase {
 
     MrnaModule testee = new MrnaModule()
+
+    @Before
+    void setUp() {
+        testee.standardDataConstraintFactory = new MapBasedParameterFactory([:])
+    }
 
     @Test
     void testSearchKeywordConstraintGeneration() {
