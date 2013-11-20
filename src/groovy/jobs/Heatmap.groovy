@@ -1,9 +1,11 @@
 package jobs
 
 import org.quartz.Job
+import org.quartz.JobDetail
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 import grails.util.Holders
+import org.quartz.SimpleTrigger
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -12,6 +14,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 class Heatmap implements Job {
+
     Map data
     String name
     HighDimensionResource highDimensionResource
@@ -31,7 +34,14 @@ class Heatmap implements Job {
         writeData(results)
 
         updateStatus('Running Analysis')
+
         updateStatus('Rendering Output')
+    }
+
+    static void scheduleJob(params) {
+        JobDetail jobDetail = new JobDetail(params.jobName, params.jobType, Heatmap.class)
+        SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
+        Holders.grailsApplication.mainContext.quartzService.scheduleJob(jobDetail, trigger)
     }
 
     private writeData(TabularResult results) {}

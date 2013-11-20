@@ -54,7 +54,7 @@ class RModulesController {
         def jsonResult
         if (params['analysis'] == "heatmap") {
             params.grailsApplication = grailsApplication
-            jsonResult = Heatmap.triggerNow(params)
+            jsonResult = Heatmap.scheduleJob(params)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
