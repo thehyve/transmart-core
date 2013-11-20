@@ -21,6 +21,7 @@ class RModulesController {
     def springSecurityService
     def asyncJobService
     def RModulesService
+    def grailsApplication
 
     /**
      * Method called that will cancel a running job
@@ -48,7 +49,13 @@ class RModulesController {
      * Method that will schedule a Job
      */
     def scheduleJob = {
-        def jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
+        def jsonResult
+        if (params['analysis'] == "heatmap") {
+            params.grailsApplication = grailsApplication
+            jsonResult = Heatmap.triggerNow(params)
+        } else {
+            jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
+        }
 
         response.setContentType("text/json")
         response.outputStream << jsonResult.toString()
