@@ -63,9 +63,10 @@ class Heatmap implements Job {
             writer.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
 
             results.rows.each { row ->
-                writer.writeNext([row.patient_num, row.value, row.group] as String[])
+                row.assayIndexMap.each { assay, index ->
+                    writer.writeNext([assay.assay.subjectId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
+                }
             }
-
         }
     }
 
@@ -77,7 +78,7 @@ class Heatmap implements Job {
 
         List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
 
-        Projection projection = dataType.createProjection([:], 'defaultRealProjection')
+        Projection projection = dataType.createProjection([:], 'default_real_projection')
 
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
