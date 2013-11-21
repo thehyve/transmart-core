@@ -24,6 +24,7 @@ class RModulesController {
     def asyncJobService
     def RModulesService
     def grailsApplication
+    def jobResultsService
 
     /**
      * Method called that will cancel a running job
@@ -52,6 +53,10 @@ class RModulesController {
      */
     def scheduleJob = {
         def jsonResult
+        if (jobResultsService[params.jobName] == null) {
+            throw new IllegalStateException('Cannot schedule job; it has not been created')
+        }
+
         if (params['analysis'] == "heatmap") {
             params.grailsApplication = grailsApplication
             jsonResult = Heatmap.scheduleJob(params)
