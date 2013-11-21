@@ -2,7 +2,7 @@ package org.transmartproject.db.dataquery.highdim.parameterproducers
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
-import org.gmock.GMockTestCase
+import org.gmock.WithGMock
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -13,7 +13,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @TestMixin(GrailsUnitTestMixin)
-class StandardDataConstraintFactoryTests extends GMockTestCase {
+@WithGMock
+class StandardDataConstraintFactoryTests {
 
     StandardDataConstraintFactory testee = new StandardDataConstraintFactory()
 
