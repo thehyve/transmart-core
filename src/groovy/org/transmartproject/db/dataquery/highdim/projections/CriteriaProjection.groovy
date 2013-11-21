@@ -5,7 +5,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 interface CriteriaProjection<T> extends Projection<T> {
 
-    public static final DEFAULT_REAL_PROJECTION = 'defaultRealProjection'
+    public static final DEFAULT_REAL_PROJECTION = 'default_real_projection'
 
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder)
 

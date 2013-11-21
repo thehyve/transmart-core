@@ -45,7 +45,7 @@ class MrnaEndToEndRetrievalTests {
                 )
         ]
         List dataConstraints = []
-        def projection = mrnaResource.createProjection [:], 'defaultRealProjection'
+        def projection = mrnaResource.createProjection [:], 'default_real_projection'
 
         dataQueryResult =
             mrnaResource.retrieveData assayConstraints, dataConstraints, projection
@@ -80,7 +80,7 @@ class MrnaEndToEndRetrievalTests {
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
-        def projection = mrnaResource.createProjection [:], 'defaultRealProjection'
+        def projection = mrnaResource.createProjection [:], 'default_real_projection'
 
         dataQueryResult =
             mrnaResource.retrieveData assayConstraints, dataConstraints, projection
