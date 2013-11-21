@@ -45,11 +45,11 @@ class Heatmap implements Job {
         updateStatus('Rendering Output')
     }
 
-    static void scheduleJob(params) {
+    static void scheduleJob(Map params) {
         JobDetail jobDetail = new JobDetail(params.jobName, params.jobType, Heatmap.class)
         jobDetail.jobDataMap = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
-        Holders.grailsApplication.mainContext.quartzScheduler.scheduleJob(jobDetail, trigger)
+        quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
     private def runAnalysis() {}
@@ -111,6 +111,10 @@ class Heatmap implements Job {
     /*private def getJobResultsService() {
         data.grailsApplication.applicationContext.getBean('jobResultsService')
     }*/
+
+    private static def getQuartzScheduler() {
+        Holders.grailsApplication.mainContext.quartzScheduler
+    }
 
     private def getConceptsResourceService() {
         jobDataMap.grailsApplication.mainContext.getBean ConceptsResource
