@@ -64,26 +64,6 @@ class MrnaTestData {
         res
     }()
 
-//    static List<BioMarkerCorrelMv> bioMarkerCorrelations = {
-//        def createCorrelation = { BioMarkerCoreDb b1, BioMarkerCoreDb b2 ->
-//            new BioMarkerCorrelMv(
-//                    bioMarker: b1,
-//                    associatedBioMarker: b2,
-//                    correlationType: 'GENE',
-//                    mvId: 1
-//            )
-//        }
-//
-//        def res = []
-//        /* do the self correlations... */
-//        bioMarkers.each {
-//            res += createCorrelation it, it
-//        }
-//        res += createCorrelation bioMarkers[0] /* CPO */, bioMarkers[1] /* RQCD1 */ /* no real-world relationship... */
-//
-//        res
-//    }()
-
     static List<SearchAuthPrincipal> principals = {
         def res = [
                new SearchAuthPrincipal(enabled: true)
