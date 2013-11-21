@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim
 
-import org.junit.*
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.dataquery.Platform
 import org.transmartproject.core.dataquery.acgh.Region
 

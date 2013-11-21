@@ -1,11 +1,12 @@
 package org.transmartproject.db.ontology
 
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.ontology.OntologyTerm
 
-import org.junit.*
-import static org.junit.Assert.fail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.junit.Assert.fail
 
 @Mixin(ConceptTestData)
 class TableAccessTests {

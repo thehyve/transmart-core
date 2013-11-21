@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import com.google.common.collect.Iterators
 import com.google.common.collect.Lists
 import org.junit.After
 import org.junit.Before
@@ -12,11 +11,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
-import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
-import org.transmartproject.db.dataquery.highdim.HighDimTestData
-import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
-import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
+import org.transmartproject.db.dataquery.highdim.*
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection

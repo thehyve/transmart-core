@@ -1,15 +1,16 @@
 package org.transmartproject.db.querytool
 
+import grails.test.mixin.TestFor
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
-
-import grails.test.mixin.*
-import grails.test.mixin.support.*
-import org.junit.*
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
@@ -18,8 +19,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
-import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.*
+import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_OR_EQUAL_TO
+import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_THAN
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
 @TestMixin(GrailsUnitTestMixin)
 @TestFor(QueryDefinitionXmlService)

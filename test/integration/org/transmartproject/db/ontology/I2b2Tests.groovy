@@ -1,11 +1,12 @@
 package org.transmartproject.db.ontology
 
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptKey
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.junit.*
 
 @Mixin(ConceptTestData)
 class I2b2Tests {

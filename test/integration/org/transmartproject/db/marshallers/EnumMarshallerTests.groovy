@@ -6,7 +6,8 @@ import org.junit.Test
 import org.transmartproject.core.ontology.OntologyTerm
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.equalTo
 
 class EnumMarshallerTests {
 

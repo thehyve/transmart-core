@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.hamcrest.MatcherAssert.assertThat

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
-import static H2Views.ObjectStatus.*
+import static org.transmartproject.db.test.H2Views.ObjectStatus.*
 
 /**
  * This class is for integration test purposes, but has to be here due to

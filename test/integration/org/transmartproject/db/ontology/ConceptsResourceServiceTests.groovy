@@ -1,14 +1,14 @@
 package org.transmartproject.db.ontology
 
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.db.concept.ConceptKey
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.assertThat
 import static org.junit.Assert.fail
-import org.junit.*
 
 @Mixin(ConceptTestData)
 class ConceptsResourceServiceTests extends GroovyTestCase {

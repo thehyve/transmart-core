@@ -1,13 +1,10 @@
 package org.transmartproject.db.querytool
 
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.ConstraintByValue
-import org.transmartproject.core.querytool.Item
-import org.transmartproject.core.querytool.Panel
-import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.core.querytool.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -15,10 +12,9 @@ import org.transmartproject.db.ontology.ConceptTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.junit.*
-
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
-import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.*
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
 @Mixin(ConceptTestData)
 class QueriesResourceServiceTests extends GroovyTestCase {

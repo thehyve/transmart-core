@@ -3,15 +3,10 @@ package org.transmartproject.db.dataquery
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.impl.AbstractSessionImpl
-import org.transmartproject.core.dataquery.acgh.ChromosomalSegment
-import org.transmartproject.core.dataquery.acgh.Region
-import org.transmartproject.core.dataquery.acgh.RegionResult
+import org.transmartproject.core.dataquery.Platform
+import org.transmartproject.core.dataquery.acgh.*
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.constraints.ACGHRegionQuery
-import org.transmartproject.core.dataquery.acgh.ACGHValues
-import org.transmartproject.core.dataquery.acgh.CopyNumberState
-import org.transmartproject.core.dataquery.Platform
-import org.transmartproject.core.dataquery.acgh.RegionRow
 
 import static org.hibernate.ScrollMode.FORWARD_ONLY
 

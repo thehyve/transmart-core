@@ -1,10 +1,10 @@
 package org.transmartproject.db.ontology.http
 
-import grails.test.mixin.*
-import org.junit.*
+import grails.test.mixin.TestFor
+import org.junit.Test
 import org.transmartproject.db.http.BusinessExceptionResolver
 
-import static org.hamcrest.MatcherAssert.*
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 /**

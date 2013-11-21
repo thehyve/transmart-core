@@ -1,11 +1,11 @@
 package org.transmartproject.db.http
 
+import org.junit.Test
 import org.springframework.context.ApplicationContext
 import org.springframework.web.servlet.HandlerExceptionResolver
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.junit.*
 
 class BusinessExceptionResolverTests {
 

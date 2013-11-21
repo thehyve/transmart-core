@@ -3,12 +3,12 @@ package org.transmartproject.db.dataquery.highdim
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollMode
 import org.hibernate.engine.SessionImplementor
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint

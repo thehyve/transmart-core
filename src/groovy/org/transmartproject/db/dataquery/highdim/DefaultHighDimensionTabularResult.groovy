@@ -6,8 +6,8 @@ import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.ScrollableResults
 import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 

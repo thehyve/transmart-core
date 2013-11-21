@@ -14,7 +14,8 @@ import org.transmartproject.db.user.SearchAuthPrincipal
 import org.transmartproject.db.user.SearchAuthUser
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MrnaTestData {
