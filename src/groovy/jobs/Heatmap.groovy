@@ -13,10 +13,12 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.ontology.ConceptsResource
+import au.com.bytecode.opencsv.CSVWriter
 
 class Heatmap implements Job {
 
-    Map data
+    Map jobDataMap
     String name
 
     String temporaryDirectory = Holders.config.RModules.tempFolderDirectory
@@ -24,17 +26,22 @@ class Heatmap implements Job {
     @Override
     void execute(JobExecutionContext context) throws JobExecutionException {
         name = context.jobDetail.jobDataMap["jobName"]
-        data = context.jobDetail.jobDataMap
+        jobDataMap = context.jobDetail.jobDataMap
 
         File dir = setupTemporaryDirectory()
         writeParametersFile(dir)
 
         updateStatus('Gathering Data')
-        TabularResult results = getData()
-        writeData(results)
+        TabularResult results = fetchResults()
+
+        try {
+            writeData(results, dir)
+        } finally {
+            results.close()
+        }
 
         updateStatus('Running Analysis')
-
+        runAnalysis()
         updateStatus('Rendering Output')
     }
 
@@ -45,15 +52,30 @@ class Heatmap implements Job {
         Holders.grailsApplication.mainContext.quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
-    private writeData(TabularResult results) {}
+    private def runAnalysis() {}
 
-    private TabularResult getData() {
-        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(data.divIndependentVariableType)
+    private def writeData(TabularResult results, File destinationDirectory) {
+        File output = new File(destinationDirectory, 'outputfile')
+        output.createNewFile()
+        output.withWriter {
+            CSVWriter writer = new CSVWriter(it, '\t' as char)
 
-        List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: data["result_instance_id1"])]
-        assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, term: data.variablesConceptPaths))
+            writer.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
 
-        List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [data.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
+            results.rows.each { row ->
+                writer.writeNext([row.patient_num, row.value, row.group] as String[])
+            }
+
+        }
+    }
+
+    private TabularResult fetchResults() {
+        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(jobDataMap.divIndependentVariableType.toLowerCase())
+
+        List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap["result_instance_id1"])]
+        assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths))
+
+        List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
 
         Projection projection = dataType.createProjection([:], 'defaultRealProjection')
 
@@ -63,9 +85,8 @@ class Heatmap implements Job {
     private File setupTemporaryDirectory() {
         File jobWorkingDirectory = new File(new File(temporaryDirectory, name), 'workingDirectory')
 
-        if (!jobWorkingDirectory.mkdirs()) {
-            throw new RuntimeException('harm is confident this will never fail')
-        }
+        //TODO: This is stupid of course, taking the 'name' from the client. What if the name is '../../'?
+        jobWorkingDirectory.mkdirs()
 
         jobWorkingDirectory
     }
@@ -75,7 +96,7 @@ class Heatmap implements Job {
 
         jobInfoFile.withWriter { BufferedWriter it ->
             it.writeLine 'Parameters'
-            data.each { key, value ->
+            jobDataMap.each { key, value ->
                 it.writeLine "\t$key -> $value"
             }
         }
@@ -90,11 +111,15 @@ class Heatmap implements Job {
         data.grailsApplication.applicationContext.getBean('jobResultsService')
     }*/
 
+    private def getConceptsResourceService() {
+        jobDataMap.grailsApplication.mainContext.getBean ConceptsResource
+    }
+
     private def getAsyncJobService() {
-        data.grailsApplication.mainContext.asyncJobService
+        jobDataMap.grailsApplication.mainContext.asyncJobService
     }
 
     private HighDimensionResource getHighDimensionResource() {
-        data.grailsApplication.mainContext.getBean HighDimensionResource
+        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }
