@@ -53,6 +53,8 @@ class MrnaEndToEndRetrievalTests {
 
         def resultList = Lists.newArrayList dataQueryResult
 
+        long delta = 0.0001
+
         /* more extensive assertions in MrnaDataRetrievalTests */
         assertThat resultList, allOf(
                 hasSize(3),
@@ -64,6 +66,20 @@ class MrnaEndToEndRetrievalTests {
                                 )
                         )
                 ),
+                contains(
+                        hasProperty('data', contains(
+                                closeTo(MrnaTestData.microarrayData[-1].zscore as Double, delta),
+                                closeTo(MrnaTestData.microarrayData[-2].zscore as Double, delta),
+                        )),
+                        hasProperty('data', contains(
+                                closeTo(MrnaTestData.microarrayData[-3].zscore as Double, delta),
+                                closeTo(MrnaTestData.microarrayData[-4].zscore as Double, delta),
+                        )),
+                        hasProperty('data', contains(
+                                closeTo(MrnaTestData.microarrayData[-5].zscore as Double, delta),
+                                closeTo(MrnaTestData.microarrayData[-6].zscore as Double, delta),
+                        )),
+                )
         )
     }
 

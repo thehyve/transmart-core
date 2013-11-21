@@ -242,7 +242,7 @@ class MrnaTestData {
                     patient: assay.patient,
                     rawIntensity: intensity,
                     logIntensity: Math.log(intensity) / Math.log(2),
-                    zscore: Math.random() * 4 - 2, /* non-sensical value */
+                    zscore: intensity * 2, /* non-sensical value */
                     *: common,
             )
         }

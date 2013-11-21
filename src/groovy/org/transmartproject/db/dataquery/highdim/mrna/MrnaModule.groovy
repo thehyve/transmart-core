@@ -129,7 +129,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                     if (!params.isEmpty())
                         throw new InvalidArgumentsException("No params expected here, got $params")
 
-                    new SimpleRealProjection('logIntensity')
+                    new SimpleRealProjection('zscore')
                 }
             )
 
