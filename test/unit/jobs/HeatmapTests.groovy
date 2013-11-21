@@ -7,7 +7,7 @@ import org.junit.Before
 import org.junit.Test
 
 @TestMixin(GrailsUnitTestMixin)
-class HeatmapTests {
+class HeatmapTests extends GMockTestCase {
 
     Heatmap testee
 
