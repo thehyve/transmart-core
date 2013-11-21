@@ -53,7 +53,7 @@ class MrnaEndToEndRetrievalTests {
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        long delta = 0.0001
+        double delta = 0.0001
 
         /* more extensive assertions in MrnaDataRetrievalTests */
         assertThat resultList, allOf(
