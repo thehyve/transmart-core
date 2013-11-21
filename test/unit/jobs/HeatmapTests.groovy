@@ -2,12 +2,14 @@ package jobs
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
-import org.gmock.GMockTestCase
+import org.gmock.WithGMock
+import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 
 @TestMixin(GrailsUnitTestMixin)
-class HeatmapTests extends GMockTestCase {
+@WithGMock
+class HeatmapTests {
 
     Heatmap testee
 
@@ -16,30 +18,25 @@ class HeatmapTests extends GMockTestCase {
         testee = new Heatmap()
     }
 
-
     @Test
     void scheduleJobTest() {
         def scheduler = mock()
-        scheduler.scheduleJob().once()
-        Heatmap heatmap = mock(Heatmap)
-        heatmap.static.getQuartzScheduler().returns(scheduler)
-        assert 1 == 1
+        scheduler.scheduleJob(Matchers.anything(), Matchers.anything()).once()
+
+        Heatmap.metaClass.static.getQuartzScheduler = { -> scheduler }
+
         play {
-            heatmap.scheduleJob([:])
+            Heatmap.scheduleJob([jobName: 'boar'])
         }
     }
 
-    @Test
-    void writesParameterFileTest() {
+    /*
+    void writesParameterFileTest() {}
 
-    }
-
-    @Test
     void fetchesResultsTest() {}
 
-    @Test
     void writesResultsTest() {}
 
-    @Test
     void runsAnalysisTest() {}
+    */
 }
