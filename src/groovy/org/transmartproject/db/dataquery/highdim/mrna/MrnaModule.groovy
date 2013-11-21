@@ -74,18 +74,23 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
+                allowMissingAssays:    false,
+                assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.probeId == b.probeId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
+                    /* we may have nulls because allowMissingAssays is true,
+                     * but we're guaranteed to have at least one non-null */
+                    def firstNonNullCell = list.find()
                     new ProbeRow(
-                            probe:         list[0][0].probeName,
-                            geneSymbol:    list[0][0].geneSymbol,
-                            organism:      list[0][0].organism,
+                            probe:         firstNonNullCell[0].probeName,
+                            geneSymbol:    firstNonNullCell[0].geneSymbol,
+                            organism:      firstNonNullCell[0].organism,
                             assayIndexMap: assayIndexMap,
-                            data:          list.collect { projection.doWithResult it[0] }
+                            data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )
                 }
         )

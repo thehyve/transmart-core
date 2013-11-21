@@ -40,6 +40,10 @@ class SimpleRealProjection implements CriteriaProjection<Double> {
 
     @Override
     Double doWithResult(Object obj) {
+        if (obj == null) {
+            return null /* missing data for an assay */
+        }
+
         if (addedProjection) {
             if (obj.getClass().isArray()) {
                 /* projection with default ResultTransformer results in

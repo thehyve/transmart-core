@@ -9,6 +9,7 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.UnexpectedResultException
 
 @Canonical
 @ToString
@@ -25,6 +26,9 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
     Closure<Boolean>  inSameGroup
     Closure<R>        finalizeGroup
 
+    Boolean           allowMissingAssays = false
+    Closure<Long>     assayIdFromRow
+
     Boolean           closeSession = true
 
     private Boolean   getRowsCalled = false
@@ -35,7 +39,6 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
     private RuntimeException initialException =
         new RuntimeException('Instantiated at this point')
 
-
     R getNextRow() {
         def firstEntry = results.get()
         if (firstEntry == null) {
@@ -43,13 +46,71 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
         }
 
         def collectedEntries = new ArrayList(indicesList.size())
-        collectedEntries.add firstEntry
+        addToCollectedEntries collectedEntries, firstEntry
 
         while (results.next() && inSameGroup(firstEntry, results.get())) {
-            collectedEntries.add results.get()
+            addToCollectedEntries collectedEntries, results.get()
         }
 
-        finalizeGroup(collectedEntries)
+        finalizeCollectedEntries collectedEntries
+
+        finalizeGroup collectedEntries
+    }
+
+    private void finalizeCollectedEntries(ArrayList collectedEntries) {
+        if (collectedEntries.size() == indicesList.size()) {
+            return
+        }
+
+        if (allowMissingAssays) {
+            /* fill with nulls till we have the expected size */
+            collectedEntries.addAll(Collections.nCopies(
+                    indicesList.size() - collectedEntries.size(),
+                    null
+            ))
+
+            return
+        }
+
+        // !allowMissingAssays
+        Set assaysNotFound
+        if (assayIdFromRow) {
+            Set expectedAssayIds = indicesList*.id
+            Set gottenAssayIds = collectedEntries.collect { row ->
+                assayIdFromRow row
+            }
+            assaysNotFound = expectedAssayIds - gottenAssayIds
+        }
+
+        String message = "Expected row group to be of size ${indicesList.size()}; " +
+                "got ${collectedEntries.size()} objects"
+        if (assaysNotFound) {
+            message += ". Assay ids not found: ${assaysNotFound}"
+        }
+
+        throw new UnexpectedResultException(message)
+    }
+
+    private void addToCollectedEntries(List collectedEntries, Object row) {
+        if (allowMissingAssays) {
+            def currentAssayId = assayIdFromRow row
+            def startSize = collectedEntries.size()
+            def i
+            for (i = startSize;
+                    indicesList[i] != null && indicesList[i].id != currentAssayId;
+                    i++) {
+                collectedEntries.add null
+            }
+            if (indicesList[i] == null) {
+                throw new IllegalStateException("Starting at position " +
+                        "$startSize in the assays list, could not find an assay " +
+                        "with id $currentAssayId. Possible causes: bad order by " +
+                        "clause in module query or bad assayIdFromRow closure. " +
+                        "Row was: $row. Assay id list was ${indicesList*.id}")
+            }
+        }
+
+        collectedEntries.add row
     }
 
     @Override
@@ -57,7 +118,10 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
         if (getRowsCalled) {
             throw new IllegalStateException('getRows() cannot be called more than once')
         }
-
+        if (allowMissingAssays && !assayIdFromRow) {
+            throw new IllegalArgumentException(
+                    'assayIdFromRow must be set when allowMissingAssays is true')
+        }
         if (!results.next()) {
             throw new EmptySetException('The result set is empty :(')
         }

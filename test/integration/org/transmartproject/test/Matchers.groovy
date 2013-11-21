@@ -59,9 +59,9 @@ class Matchers {
         }
     }
 
-    private static BaseMatcher hasSameInterfaceProperties(Class interf,
-                                                          Object value,
-                                                          List excludes = []) {
+    static BaseMatcher hasSameInterfaceProperties(Class interf,
+                                                  Object value,
+                                                  List excludes = []) {
         new CompareInterfacePropertiesMatcher(
                 value: value,
                 excludes: excludes,

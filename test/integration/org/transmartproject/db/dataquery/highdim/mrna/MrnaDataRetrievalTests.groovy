@@ -1,22 +1,31 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import com.google.common.collect.Iterators
 import com.google.common.collect.Lists
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
+import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
+import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
 class MrnaDataRetrievalTests {
 
@@ -170,5 +179,70 @@ class MrnaDataRetrievalTests {
                 hasProperty('geneSymbol', equalTo('BOGUSRQCD1')),
                 hasProperty('geneSymbol', equalTo('BOGUSVNN3')),
         )
+    }
+
+    private TabularResult testWithMissingDataAssay(Long baseAssayId) {
+        def extraAssays = createTestAssays([ MrnaTestData.patients[0] ], baseAssayId,
+                MrnaTestData.platform, MrnaTestData.TRIAL_NAME)
+        HighDimTestData.save extraAssays
+
+        List assayConstraints = [
+                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+        ]
+
+        def projection = new SimpleRealProjection(property: 'rawIntensity')
+
+        dataQueryResult =
+            resource.retrieveData assayConstraints, [], projection
+    }
+
+    @Test
+    void testWithMissingAssayLowestIdNumber() {
+        testWithMissingDataAssay(-50000L)
+        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
+
+        assertThat dataQueryResult.indicesList[0],
+                hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
+
+        assertThat Lists.newArrayList(dataQueryResult.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(3), // for the three assays
+                        contains(
+                                is(nullValue()),
+                                is(notNullValue()),
+                                is(notNullValue()),
+                        )
+                ))
+        )
+    }
+
+    @Test
+    void testWithMissingAssayHighestIdNumber() {
+        testWithMissingDataAssay(5000000L)
+        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
+
+        assertThat dataQueryResult.indicesList[2],
+                hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
+
+        assertThat Lists.newArrayList(dataQueryResult.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(3), // for the three assays
+                        contains(
+                                is(notNullValue()),
+                                is(notNullValue()),
+                                is(nullValue()),
+                        )
+                ))
+        )
+    }
+
+    @Test
+    void testWithMissingAssayDisallowMissingAssays() {
+        testWithMissingDataAssay(-50000L)
+        // default is not allowing missing assays
+
+        assertThat shouldFail(UnexpectedResultException) {
+            dataQueryResult.rows.next
+        }, hasProperty('message', containsString('Assay ids not found: [-50001]'))
     }
 }
