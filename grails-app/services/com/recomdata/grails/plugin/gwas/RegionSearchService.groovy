@@ -35,15 +35,20 @@ class RegionSearchService {
     def config = ConfigurationHolder.config
 
     def geneLimitsSqlQuery = """
-	
+
 	SELECT max(snpinfo.pos) as high, min(snpinfo.pos) as low, min(snpinfo.chrom) as chrom FROM SEARCHAPP.SEARCH_KEYWORD
 	INNER JOIN bio_marker bm ON bm.BIO_MARKER_ID = SEARCH_KEYWORD.BIO_DATA_ID
 	INNER JOIN deapp.de_snp_gene_map gmap ON gmap.entrez_gene_id = bm.PRIMARY_EXTERNAL_ID
 	INNER JOIN DEAPP.DE_RC_SNP_INFO snpinfo ON gmap.snp_name = snpinfo.rs_id
 	WHERE SEARCH_KEYWORD_ID=? AND snpinfo.hg_version = ?
-	
+
 	"""
 
+
+//    def geneLimitsSqlQuery = """
+//    SELECT CHROM_STOP as high, CHROM_START as low, CHROM FROM DEAPP.DE_GENE_INFO
+//    WHERE SEARCH_KEYWORD_ID=?
+//    """
     def genesForSnpQuery = """
 	
 	SELECT DISTINCT(GENE_NAME) as BIO_MARKER_NAME FROM DE_SNP_GENE_MAP
@@ -149,7 +154,7 @@ class RegionSearchService {
 	 JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	 WHERE 1=1
 """
-    def getGeneLimits(Long searchId, String ver) {
+    def getGeneLimits(Long searchId, String ver, Long flankingRegion) {
         //Create objects we use to form JDBC connection.
         def con, stmt, rs = null;
 
@@ -168,6 +173,10 @@ class RegionSearchService {
                 def high = rs.getLong("HIGH");
                 def low = rs.getLong("LOW");
                 def chrom = rs.getString("CHROM");
+                if (flankingRegion) {
+                    high += flankingRegion
+                    low -= flankingRegion
+                }
                 return [low: low, high:high, chrom: chrom]
             }
         }finally{

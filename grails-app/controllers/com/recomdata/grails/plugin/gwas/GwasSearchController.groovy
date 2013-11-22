@@ -972,15 +972,15 @@ class GwasSearchController {
     }
 
     //Common Method to export analysis data as link or attachment
-    def exportAnalysisData(analysisId, dataWriter,cutoff,regions,geneNames,max) {
+    def exportAnalysisData(analysisId, dataWriter,cutoff,regions,geneNames,transcriptGeneNames,max) {
         def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
         def analysisArr = []
         analysisArr.push(analysisId)
         def query
         if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
-            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,false)
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,transcriptGeneNames,false)
         } else {
-            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,false)
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,transcriptGeneNames,false)
         }
         def dataset = query.results
 
@@ -1018,6 +1018,7 @@ class GwasSearchController {
         }
         def regions = getSearchRegions(session['solrSearchFilter'])
         def geneNames = getGeneNames(session['solrSearchFilter'])
+        def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
         def queryparameter=session['solrSearchFilter']
 
 
@@ -1027,7 +1028,7 @@ class GwasSearchController {
             response.setHeader('Content-disposition', 'attachment; filename=' + analysisId + "_ANALYSIS_DATA.txt")
             response.contentType = 'text/plain'
             PrintWriter dataWriter = new PrintWriter(response.writer);
-            exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,0)
+            exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,transcriptGeneNames,0)
 
         } else if (isLink == "false") {
             def analysisIds = params?.analysisIds.split(",")
@@ -1082,7 +1083,7 @@ class GwasSearchController {
                     def fileName = dirAnalysis + analysisId + "_ANALYSIS_DATA.txt"
                     File file = new File(fileName);
                     BufferedWriter dataWriter = new BufferedWriter(new FileWriter(file));
-                    exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,200)
+                    exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,transcriptGeneNames,200)
 
                     //This is to generate a file with Study Metadata
                     def FileStudyMeta = dirStudy + accession + "_STUDY_METADATA.txt"
