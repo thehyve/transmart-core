@@ -53,7 +53,6 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/ScatterPlot.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/TableWithFisher.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/HClust.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/KClust.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',

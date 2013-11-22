@@ -8,4 +8,7 @@ modules = {
     pca {
         resource url:"/js/plugin/PCA.js"
     }
+    hclust {
+        resource url:"/js/plugin/HClust.js"
+    }
 }
