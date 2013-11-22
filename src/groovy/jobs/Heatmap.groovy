@@ -29,20 +29,12 @@ class Heatmap implements Job {
         jobDataMap = context.jobDetail.jobDataMap
 
         File dir = setupTemporaryDirectory()
+
         writeParametersFile(dir)
-
-        updateStatus('Gathering Data')
         TabularResult results = fetchResults()
-
-        try {
-            writeData(results, dir)
-        } finally {
-            results.close()
-        }
-
-        updateStatus('Running Analysis')
+        writeData(results, dir)
         runAnalysis()
-        updateStatus('Rendering Output')
+
     }
 
     static void scheduleJob(Map params) {
@@ -52,25 +44,33 @@ class Heatmap implements Job {
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
-    private def runAnalysis() {}
+    private def runAnalysis() {
+        updateStatus('Running Analysis')
+    }
 
     private def writeData(TabularResult results, File destinationDirectory) {
-        File output = new File(destinationDirectory, 'outputfile')
-        output.createNewFile()
-        output.withWriter {
-            CSVWriter writer = new CSVWriter(it, '\t' as char)
+        try {
+            File output = new File(destinationDirectory, 'outputfile')
+            output.createNewFile()
+            output.withWriter {
+                CSVWriter writer = new CSVWriter(it, '\t' as char)
 
-            writer.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
+                writer.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
 
-            results.rows.each { row ->
-                row.assayIndexMap.each { assay, index ->
-                    writer.writeNext([assay.assay.subjectId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
+                results.rows.each { row ->
+                    row.assayIndexMap.each { assay, index ->
+                        writer.writeNext([assay.assay.subjectId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
+                    }
                 }
             }
+        } finally {
+            results.close()
         }
     }
 
     private TabularResult fetchResults() {
+        updateStatus('Gathering Data')
+
         HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(jobDataMap.divIndependentVariableType.toLowerCase())
 
         List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap["result_instance_id1"])]
