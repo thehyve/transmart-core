@@ -202,6 +202,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SAMPLE_SNP_DATA"
     },
     "parents" : [ ]
@@ -419,7 +426,11 @@
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    } ]
   }, {
     "child" : {
       "type" : "INDEX",
@@ -902,6 +913,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0014934"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -1271,6 +1293,13 @@
       "name" : "DE_QPCR_MIRNA_ANNOTATION"
     },
     "file" : "deapp/de_qpcr_mirna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    },
+    "file" : "deapp/de_rbm_annotation.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1789,6 +1818,13 @@
       "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
     },
     "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0014934"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",
