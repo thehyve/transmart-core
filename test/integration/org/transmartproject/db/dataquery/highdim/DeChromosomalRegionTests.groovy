@@ -2,19 +2,22 @@ package org.transmartproject.db.dataquery.highdim
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.Platform
+import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.acgh.Region
+import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@Mixin(HighDimTestData)
 class DeChromosomalRegionTests {
+
+    AcghTestData testData = new AcghTestData()
 
     @Before
     void setUp() {
-        assertThat testRegionPlatform.save(), isA(Platform)
-        assertThat testRegions*.save(), contains(
+        assertThat testData.regionPlatform.save(), isA(Platform)
+        assertThat testData.regions*.save(), contains(
                 isA(Region), isA(Region)
         )
     }
@@ -22,7 +25,7 @@ class DeChromosomalRegionTests {
 
     @Test
     void testBasicDataFetch() {
-        Region r = DeChromosomalRegion.get(testRegions[0].id)
+        Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
         assertThat r, allOf(
                 is(notNullValue()),
@@ -36,13 +39,13 @@ class DeChromosomalRegionTests {
 
     @Test
     void testGetPlatform() {
-        Region r = DeChromosomalRegion.get(testRegions[0].id)
+        Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
         assertThat r, is(notNullValue())
 
         assertThat r.platform, allOf(
                 is(notNullValue()),
-                hasProperty('id', equalTo(testRegionPlatform.id))
+                hasProperty('id', equalTo(testData.regionPlatform.id))
         )
     }
 

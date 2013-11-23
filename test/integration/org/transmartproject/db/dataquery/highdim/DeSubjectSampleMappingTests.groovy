@@ -3,39 +3,39 @@ package org.transmartproject.db.dataquery.highdim
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.Platform
-import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
 import org.transmartproject.core.dataquery.assay.TissueType
+import org.transmartproject.core.dataquery.highdim.Platform
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@Mixin(HighDimTestData)
 class DeSubjectSampleMappingTests {
 
     def sessionFactory
 
+    SampleHighDimTestData testData = new SampleHighDimTestData()
+
     @Before
     void setUp() {
-        assertThat testRegionAssays*.save(), contains(
-                isA(Assay), isA(Assay)
-        )
+        testData.saveAll()
         sessionFactory.currentSession.flush()
+    }
 
-        System.out.println('Finished @Before')
+    Object getProperty(String name) {
+        testData."$name"
     }
 
     @Test
     void testSimpleFetchScalarProperties() {
-        def assay = DeSubjectSampleMapping.get(testRegionAssays[0].id)
+        def assay = DeSubjectSampleMapping.get(assays[0].id)
 
         assertThat assay, allOf(
                 is(notNullValue()),
                 hasProperty('siteId', equalTo('site id #1')),
                 hasProperty('conceptCode', equalTo('concept code #1')),
-                hasProperty('trialName', equalTo('REGION_SAMP_TRIAL')),
+                hasProperty('trialName', equalTo(TRIAL_NAME)),
                 hasProperty('subjectId', equalTo('SUBJ_ID_1'))
         )
     }
@@ -43,7 +43,7 @@ class DeSubjectSampleMappingTests {
     @Test
     void testOnDemandProperties() {
         // test the timepoint, sample and tissue properties
-        def assay = DeSubjectSampleMapping.get(testRegionAssays[0].id)
+        def assay = DeSubjectSampleMapping.get(assays[0].id)
 
         assertThat assay, allOf(
                 is(notNullValue()),
@@ -59,7 +59,7 @@ class DeSubjectSampleMappingTests {
 
     @Test
     void testReferences() {
-        def assay = DeSubjectSampleMapping.get(testRegionAssays[0].id)
+        def assay = DeSubjectSampleMapping.get(assays[0].id)
 
         assertThat assay, allOf(
                 is(notNullValue()),
