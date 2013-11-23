@@ -21,34 +21,50 @@ class StandardDataConstraintFactory extends AbstractMethodBasedParameterFactory 
         Map<String, Object> subConstraintsSpecs =
             getParam params, SUBCONSTRAINTS_PARAM, Map
 
+        List<DataConstraint> constraints = new LinkedList()
+
         if (subConstraintsSpecs.size() == 0) {
             LOG.info "Sub-constraints map that was provided is empty; this " +
                     "disjunction constraint will be a no-op"
-            new NoopDataConstraint()
-        } else if (subConstraintsSpecs.size() == 1) {
-            Map.Entry<String, Object> entry =
-                subConstraintsSpecs.entrySet().iterator().next()
-
-            checkIsMap entry.value
-            createConstraint entry.key, entry.value
+            constraints << new NoopDataConstraint()
         } else {
             def subConstraints = subConstraintsSpecs.collect {
                 String key, Object value ->
 
-                checkIsMap value
-                createConstraint key, value
+                checkValue value
+                if (value instanceof Map) {
+                    constraints << createConstraint(key, value)
+                } else { /* value is List of maps instead */
+                    value.each { def innerValue ->
+                        checkIsMap innerValue
+                        constraints << createConstraint(key, innerValue)
+                    }
+                }
             }
+        }
 
-            new DisjunctionDataConstraint(constraints: subConstraints)
+        if (constraints.size() == 1) {
+            constraints[0]
+        } else {
+            new DisjunctionDataConstraint(constraints: constraints)
         }
     }
 
     private static void checkIsMap(Object value) {
         if (!(value instanceof Map)) {
-            throw new InvalidArgumentsException("Values of " +
-                    "$SUBCONSTRAINTS_PARAM Map param should be maps themselves, " +
-                    "got a ${value.getClass()} with value $value")
+            throw new InvalidArgumentsException("On a disjunction constraint, " +
+                    "the $SUBCONSTRAINTS_PARAM parameter should be a map whose " +
+                    "values are themselves Maps or lists of maps; got a list " +
+                    "that instead of a map had a ${value.getClass()} with value $value")
         }
     }
 
+    private static void checkValue(Object value) {
+        if (!(value instanceof Map) && !(value instanceof List)) {
+            throw new InvalidArgumentsException("On a disjunction constraint, " +
+                    "the $SUBCONSTRAINTS_PARAM parameter should be a map whose " +
+                    "values are themselves Maps or lists of maps; got a " +
+                    "${value.getClass()} with value $value")
+        }
+    }
 }

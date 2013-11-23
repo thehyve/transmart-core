@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.*
 
 @TestMixin(GrailsUnitTestMixin)
 @WithGMock
-class StandardDataConstraintFactoryTests {
+class DisjunctionDataConstraintFactoryTests {
 
     StandardDataConstraintFactory testee = new StandardDataConstraintFactory()
 
@@ -75,6 +75,38 @@ class StandardDataConstraintFactoryTests {
                 { -> })
 
         assertThat result, is(instanceOf(NoopDataConstraint))
+    }
+
+    @Test
+    void testWithTwoSubConstraintsOfTheSameType() {
+        String nameOfSubConstraints  = 'subcontraint_1'
+        List   paramsOfSubConstraints = [
+                [ param1: 'param1 value 1' ],
+                [ param1: 'param1 value 2' ],
+        ]
+        DataConstraint fakeConstraint1 = mock(DataConstraint),
+                       fakeConstraint2 = mock(DataConstraint)
+
+        Closure createConstraint = mock(Closure)
+
+        createConstraint.call(nameOfSubConstraints, paramsOfSubConstraints[0]).
+                returns(fakeConstraint1)
+        createConstraint.call(nameOfSubConstraints, paramsOfSubConstraints[1]).
+                returns(fakeConstraint2)
+
+        play {
+            def result = testee.createDisjunctionConstraint(subconstraints: [
+                    (nameOfSubConstraints): paramsOfSubConstraints
+            ], createConstraint)
+
+            assertThat result, allOf(
+                    isA(DisjunctionDataConstraint),
+                    hasProperty('constraints', contains(
+                            sameInstance(fakeConstraint1),
+                            sameInstance(fakeConstraint2),
+                    ))
+            )
+        }
     }
 
     @Test
