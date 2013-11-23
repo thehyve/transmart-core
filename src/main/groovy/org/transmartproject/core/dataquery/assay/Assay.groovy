@@ -1,7 +1,7 @@
 package org.transmartproject.core.dataquery.assay
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.Platform
+import org.transmartproject.core.dataquery.highdim.Platform
 
 /**
  * An assay (used somewhat interchangeably with the term "sample" for tranSMART

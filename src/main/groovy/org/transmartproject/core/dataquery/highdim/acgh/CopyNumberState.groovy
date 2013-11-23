@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.acgh
 
 /**
  * This enumeration represents the set of possible "hard calls" about copy
@@ -6,7 +6,6 @@ package org.transmartproject.core.dataquery.acgh
  * segment or region in copy number variation trials (e.g. an array comparative
  * genomic hybridization trial).
  */
-@Deprecated
 public enum CopyNumberState {
 
     /**

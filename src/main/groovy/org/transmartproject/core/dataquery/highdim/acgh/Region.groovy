@@ -1,7 +1,7 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.acgh
 
-import org.transmartproject.core.dataquery.Platform
-import org.transmartproject.core.dataquery.PlatformMarkerType
+import org.transmartproject.core.dataquery.highdim.Platform
+import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 
 /**
  * A region is a set of contiguous probes (with respect to the chromosomal
@@ -12,10 +12,7 @@ import org.transmartproject.core.dataquery.PlatformMarkerType
  * which is also part of the identity of the region (indeed,
  * at this point we may no longer have information about which probes
  * contributed to form the region).
- *
- * @deprecated to be moved to new package
  */
-@Deprecated
 public interface Region {
 
     /**

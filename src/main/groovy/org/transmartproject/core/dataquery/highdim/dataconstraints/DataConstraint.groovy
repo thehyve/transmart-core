@@ -29,6 +29,16 @@ public interface DataConstraint {
     public final static String SEARCH_KEYWORD_IDS_CONSTRAINT = 'search_keyword_ids'
 
     /**
+     * A well-known constraint for filtering rows relevant to a certain
+     * chromosome segment.
+     *
+     * Parameters: 'chromosome' => <string with chromosome number, X or Y>
+     *             'start'      => <integer with start position (inclusive)>
+     *             'end'        => <integer with end position (inclusive)>
+     */
+    public final static String CHROMOSOME_SEGMENT_CONSTRAINT = 'chromosome_segment'
+
+    /**
      * A well-known constraint for building a disjunction of several
      * sub-constraints.
      *

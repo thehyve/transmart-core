@@ -1,6 +1,6 @@
-package org.transmartproject.core.dataquery
+package org.transmartproject.core.dataquery.highdim
 
-import org.transmartproject.core.dataquery.acgh.Region
+import org.transmartproject.core.dataquery.highdim.acgh.Region
 
 /**
  * A platform record. A platform may be a platform proper (identifying an
@@ -48,8 +48,8 @@ public interface Platform {
 
     /**
      * Indicates the type of platform or pseudo-platform,
-     * like {@link PlatformMarkerType#GENE_EXPRESSION} or
-     * {@link PlatformMarkerType#CHROMOSOMAL_REGION}.
+     * like {@link org.transmartproject.core.dataquery.highdim.PlatformMarkerType#GENE_EXPRESSION} or
+     * {@link org.transmartproject.core.dataquery.highdim.PlatformMarkerType#CHROMOSOMAL_REGION}.
      *
      * @return the platform marker type
      */
