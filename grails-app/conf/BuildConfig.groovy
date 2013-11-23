@@ -17,10 +17,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenLocal()
         mavenCentral()
-        mavenRepo([
-                name: 'repo.thehyve.nl-snapshots',
-                root: 'http://repo.thehyve.nl/content/repositories/snapshots/',
-        ])
+        mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -55,21 +52,19 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile(':db-reverse-engineer:0.5') { exported: false }
+        compile(':db-reverse-engineer:0.5') {
+            export = false
+        }
 
         build(":tomcat:$grailsVersion",
               ":release:2.2.1",
               ":rest-client-builder:1.0.3",
               ) {
-            exported: false
+            export = false
         }
 
         test ":code-coverage:1.2.6", {
-            exported: false
+            export = false
         }
     }
-
-    // see http://jira.grails.org/browse/GPRELEASE-42
-    if (grailsVersion >= '2.1.3')
-        legacyResolve true
 }
