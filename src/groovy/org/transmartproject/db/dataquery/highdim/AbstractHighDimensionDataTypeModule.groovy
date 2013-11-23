@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.impl.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -29,7 +30,13 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
     @PostConstruct
     void init() {
-        this.highDimensionResourceService.registerHighDimensionDataTypeModule(this)
+        this.highDimensionResourceService.registerHighDimensionDataTypeModule(
+                name, this.&createHighDimensionResource)
+    }
+
+    HighDimensionDataTypeResource createHighDimensionResource(Map params) {
+        /* params are unused; at least for now */
+        new HighDimensionDataTypeResourceImpl(this)
     }
 
     @Lazy volatile Set<String> supportedAssayConstraints = {

@@ -7,14 +7,15 @@ import org.transmartproject.core.querytool.QueryResult
 
 class HighDimensionResourceService implements HighDimensionResource {
 
-    Map<String, HighDimensionDataTypeModule> knownDataTypes = new HashMap()
+    Map<String, Closure<HighDimensionDataTypeResource>> knownDataTypes = new HashMap()
 
     @Override
-    HighDimensionDataTypeResource getSubResourceForType(String s) throws NoSuchResourceException {
-        if (!knownDataTypes.containsKey(s)) {
-            throw new NoSuchResourceException("Unknown data type: $s")
+    HighDimensionDataTypeResource getSubResourceForType(String dataTypeName)
+            throws NoSuchResourceException {
+        if (!knownDataTypes.containsKey(dataTypeName)) {
+            throw new NoSuchResourceException("Unknown data type: $dataTypeName")
         }
-        new HighDimensionDataTypeResourceImpl(knownDataTypes[s])
+        knownDataTypes[dataTypeName].call name: dataTypeName
     }
 
     @Override
@@ -22,9 +23,16 @@ class HighDimensionResourceService implements HighDimensionResource {
         throw new RuntimeException('Not yet implemented')
     }
 
-    void registerHighDimensionDataTypeModule(HighDimensionDataTypeModule module) {
-        this.knownDataTypes[module.name] = module
-        log.debug "Registered high dimensional data type module '$module.name': $module"
+    /**
+     * Register a new high dimensional type. Factory is a closure that takes a
+     * map with one entry: name: <module name>
+     * @param moduleName
+     * @param factory
+     */
+    void registerHighDimensionDataTypeModule(String moduleName,
+                                             Closure<HighDimensionDataTypeModule> factory) {
+        this.knownDataTypes[moduleName] = factory
+        log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
 
