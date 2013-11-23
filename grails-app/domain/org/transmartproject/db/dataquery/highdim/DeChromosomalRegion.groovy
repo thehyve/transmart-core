@@ -1,6 +1,6 @@
 package org.transmartproject.db.dataquery.highdim
 
-import org.transmartproject.core.dataquery.acgh.Region
+import org.transmartproject.core.dataquery.highdim.acgh.Region
 
 class DeChromosomalRegion implements Region {
 
@@ -17,6 +17,8 @@ class DeChromosomalRegion implements Region {
     String  organism
 
 	static hasMany = [aCGHValues: DeSubjectAcghData]
+
+    static mappedBy = [ aCGHValues: 'region' ]
 
     static belongsTo = [platform: DeGplInfo]
 

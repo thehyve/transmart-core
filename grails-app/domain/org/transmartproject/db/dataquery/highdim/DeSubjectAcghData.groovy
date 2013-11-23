@@ -1,12 +1,12 @@
 package org.transmartproject.db.dataquery.highdim
 
-import org.apache.commons.lang.builder.EqualsBuilder
-import org.apache.commons.lang.builder.HashCodeBuilder
-import org.transmartproject.core.dataquery.acgh.ACGHValues
-import org.transmartproject.core.dataquery.acgh.CopyNumberState
+import groovy.transform.EqualsAndHashCode
+import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
+import org.transmartproject.core.dataquery.highdim.acgh.CopyNumberState
 import org.transmartproject.db.i2b2data.PatientDimension
 
-class DeSubjectAcghData implements ACGHValues, Serializable {
+@EqualsAndHashCode(includes = [ 'assay', 'region' ])
+class DeSubjectAcghData implements AcghValues, Serializable {
 
     String trialName
     Double chipCopyNumberValue
@@ -17,19 +17,21 @@ class DeSubjectAcghData implements ACGHValues, Serializable {
     Double probabilityOfGain
     Double probabilityOfAmplification
 
+    // see comment in mapping
+    DeChromosomalRegion jRegion
+
     /* unused; should be the same as assay.patient */
     PatientDimension patient
 
-    /* unused */
-    static belongsTo = [region:  DeChromosomalRegion,
-                        assay:   DeSubjectSampleMapping]
+    static belongsTo = [region: DeChromosomalRegion,
+                        assay:  DeSubjectSampleMapping]
 
     static transients = ['copyNumberState']
 
 	static mapping = {
         table   schema:    'deapp'
 
-		id      composite: ["assay", "region"]
+		id      composite: [ 'assay', 'region' ]
 
         chipCopyNumberValue        column: 'chip'
         segmentCopyNumberValue     column: 'segmented'
@@ -39,9 +41,13 @@ class DeSubjectAcghData implements ACGHValues, Serializable {
         probabilityOfAmplification column: 'probamp'
 
         /* references */
-        region  column: 'region_id'
-        assay   column: 'assay_id'
-        patient column: 'patient_id'
+        region   column: 'region_id'
+        assay    column: 'assay_id'
+        patient  column: 'patient_id'
+
+        // this duplicate mapping is needed due to a Criteria bug.
+        // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
+        jRegion  column: 'region_id', insertable: false, updateable: false
 
         sort    assay:  'asc'
 
@@ -59,21 +65,6 @@ class DeSubjectAcghData implements ACGHValues, Serializable {
         probabilityOfAmplification nullable: true, scale:   17
         patient                    nullable: true
 	}
-
-    int hashCode() {
-        def builder = new HashCodeBuilder()
-        builder.append assay
-        builder.append region
-        builder.toHashCode()
-    }
-
-    boolean equals(other) {
-        if (other == null) return false
-        def builder = new EqualsBuilder()
-        builder.append assay, other.assay
-        builder.append region, other.region
-        builder.isEquals()
-    }
 
     @Override
     CopyNumberState getCopyNumberState() {

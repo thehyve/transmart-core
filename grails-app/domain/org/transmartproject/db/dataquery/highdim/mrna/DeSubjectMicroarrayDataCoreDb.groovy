@@ -4,7 +4,7 @@ import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.i2b2data.PatientDimension
 
-@EqualsAndHashCode(includes = [ 'assayId', 'probesetId' ])
+@EqualsAndHashCode(includes = [ 'assay', 'probe' ])
 class DeSubjectMicroarrayDataCoreDb implements Serializable {
 
     String     trialName

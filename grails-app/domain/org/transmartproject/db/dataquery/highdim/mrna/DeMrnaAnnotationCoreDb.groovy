@@ -1,9 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 
-@EqualsAndHashCode(includes = [ 'gplId', 'probesetId' ])
 class DeMrnaAnnotationCoreDb {
 
     String     gplId

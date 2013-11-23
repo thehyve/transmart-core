@@ -1,5 +1,8 @@
 package org.transmartproject.db.biomarker
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode(includes = [ 'bioMarker', 'associatedBioMarker' ] )
 class BioMarkerCorrelMv implements Serializable {
 
     /* view in PostgreSQL, table in Oracle (sanofi) */

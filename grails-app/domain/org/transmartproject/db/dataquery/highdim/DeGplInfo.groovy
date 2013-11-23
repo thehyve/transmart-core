@@ -1,8 +1,8 @@
 package org.transmartproject.db.dataquery.highdim
 
 import org.hibernate.cfg.NotYetImplementedException
-import org.transmartproject.core.dataquery.Platform
-import org.transmartproject.core.dataquery.PlatformMarkerType
+import org.transmartproject.core.dataquery.highdim.Platform
+import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 
 class DeGplInfo implements Platform {
 
