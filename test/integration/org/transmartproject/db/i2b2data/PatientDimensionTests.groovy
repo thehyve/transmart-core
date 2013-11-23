@@ -42,11 +42,11 @@ class PatientDimensionTests {
                 hasProperty('assays', containsInAnyOrder(
                         allOf(
                                 hasProperty('id', equalTo(-3002L)),
-                                hasProperty('subjectId', equalTo('SUBJ_ID_2')),
+                                hasProperty('patientInTrialId', equalTo('SUBJ_ID_2')),
                         ),
                         allOf(
                                 hasProperty('id', equalTo(-3001L)),
-                                hasProperty('subjectId', equalTo('SUBJ_ID_1')),
+                                hasProperty('patientInTrialId', equalTo('SUBJ_ID_1')),
                         ),
                 ))
         )

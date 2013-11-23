@@ -36,7 +36,7 @@ class DeSubjectSampleMappingTests {
                 hasProperty('siteId', equalTo('site id #1')),
                 hasProperty('conceptCode', equalTo('concept code #1')),
                 hasProperty('trialName', equalTo(TRIAL_NAME)),
-                hasProperty('subjectId', equalTo('SUBJ_ID_1'))
+                hasProperty('patientInTrialId', equalTo('SUBJ_ID_1'))
         )
     }
 

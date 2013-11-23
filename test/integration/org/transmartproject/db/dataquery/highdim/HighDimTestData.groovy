@@ -24,7 +24,7 @@ class HighDimTestData {
         patients.collect { PatientDimension p ->
             def s = new DeSubjectSampleMapping([
                     patient: p,
-                    subjectId: p.sourcesystemCd.split(':')[1],
+                    patientInTrialId: p.sourcesystemCd.split(':')[1],
 
                     /* common */
                     siteId: 'site id #1',
