@@ -35,39 +35,6 @@ def jobsDirectory     = "/var/tmp/jobs/"
  * the transmart-data checkout. That file will be appended to this one whenever
  * the Config.groovy target is run */
 
-/* {{{ Helper variables – not user configurable */
-def transmartAppRoot     // only relevant for dev
-def rdcModulesDirectory  // idem
-def rdcModulesVersion
-
-environments {
-    development {
-        def grailsSettings = org.transmart.originalConfigBinding.grailsSettings
-        transmartAppRoot  = grailsSettings.baseDir.absolutePath
-
-        rdcModulesVersion = grailsSettings.dependencyManager.
-                            allDependencies.find({ it.name == 'rdc-rmodules' }).version
-
-        def rdcModulesInlineSetting = grailsSettings.flatConfig.'grails.plugin.location.rdc-rmodules'
-        // Figure out directory for RDC modules' RScripts dir if we're running with grails run-app
-        // This is not used for production configuration
-        rdcModulesDirectory = org.codehaus.groovy.grails.plugins.GrailsPluginUtils.
-                              getPluginDirForName('rdc-rmodules').file.absolutePath;
-        if (rdcModulesInlineSetting) { // inline plugin
-            rdcModulesDirectory = new File(new File(rdcModulesInlineSetting), 'web-app').canonicalPath
-        } else {
-            rdcModulesDirectory = grailsSettings.projectWorkDir.absolutePath +
-                                  '/plugins/rdc-rmodules-' + rdcModulesVersion + '/web-app'
-        }
-    }
-
-    production {
-        rdcModulesVersion = new File(explodedWarDir, 'plugins').listFiles().
-                            find { it.name =~ /^rdc-rmodules-/ }.name.replace('rdc-rmodules-', '')
-    }
-}
-/* }}} */
-
 /* {{{ Log4J Configuration */
 log4j = {
     environments {
@@ -187,10 +154,6 @@ environments {
     RModules.imageURL = "/tempImages/" //must end and start with /
 
     production {
-        // The location of RDC module's R scripts
-        RModules.pluginScriptDirectory = explodedWarDir + '/plugins/rdc-rmodules-' +
-                                         rdcModulesVersion + '/Rscripts/'
-
         // The working direcotry for R scripts, where the jobs get created and
         // output files get generated
         RModules.tempFolderDirectory = jobsDirectory
@@ -207,13 +170,8 @@ environments {
         // directory via the logical name specified in the imageUrl config entry
         // Not needed because transferImageFile is false
         //Rmodules.temporaryImageFolder = explodedWarDir + '/images/tempImages/'
-
-        // Where the export R scripts are
-        com.recomdata.transmart.data.export.rScriptDirectory = explodedWarDir + '/dataExportRScripts'
     }
     development {
-        RModules.pluginScriptDirectory = rdcModulesDirectory + '/Rscripts/'
-
         RModules.tempFolderDirectory = "/tmp"
 
         // we have stuff in _Events.groovy to make available the contens in
@@ -221,8 +179,6 @@ environments {
         RModules.transferImageFile = false
 
         /* we don't need to specify temporaryImageDirectory, because we're not copying */
-
-        com.recomdata.transmart.data.export.rScriptDirectory = transmartAppRoot + '/web-app/dataExportRScripts'
     }
 
     // Used to access R jobs parent directory outside RModules (e.g. data export)
