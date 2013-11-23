@@ -34,7 +34,9 @@ public interface DataConstraint {
      *
      * Parameters: 'subconstraints' => <map with string key (the constraint
      *                                  name) and a map value (the parameters of
-     *                                  the sub-constraint)>
+     *                                  the sub-constraint) or a list of maps
+     *                                  value (for several constraints of the
+     *                                  same type)>
      */
     public final static String DISJUNCTION_CONSTRAINT = 'disjunction'
 
