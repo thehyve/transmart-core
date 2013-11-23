@@ -17,9 +17,7 @@ class AssayQuery {
         this.constraints = constraints
     }
 
-    /* Retrives all the assays that satisfy the constraints passed to this
-     * class constructor. Sorted by id asc */
-    List<AssayColumn> retrieveAssays() {
+    HibernateCriteriaBuilder prepareCriteriaWithConstraints() {
         HibernateCriteriaBuilder criteria = DeSubjectSampleMapping.createCriteria()
 
         /* we're calling a private method here... but I don't see a better way.
@@ -27,11 +25,18 @@ class AssayQuery {
          * we'd have to express the constraints very awkwardly */
         criteria.createCriteriaInstance()
 
-        criteria.order 'id', 'asc'
-
         constraints.each { c ->
             c.addConstraintsToCriteria criteria
         }
+
+        criteria
+    }
+
+    /* Retrieves all the assays that satisfy the constraints passed to this
+     * class constructor. Sorted by id asc */
+    List<AssayColumn> retrieveAssays() {
+        def criteria = prepareCriteriaWithConstraints()
+        criteria.order 'id', 'asc'
 
         criteria.instance.list().collect {
             new AssayColumnImpl(it)

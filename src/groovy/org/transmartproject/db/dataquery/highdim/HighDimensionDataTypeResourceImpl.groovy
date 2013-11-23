@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
@@ -14,9 +15,10 @@ import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
+@Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
-    private HighDimensionDataTypeModule module
+    protected HighDimensionDataTypeModule module
 
     HighDimensionDataTypeResourceImpl(HighDimensionDataTypeModule module) {
         this.module = module
