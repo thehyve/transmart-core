@@ -24,6 +24,16 @@ interface Assay {
     Patient getPatient()
 
     /**
+     * Shortcut to <code>patient.inTrialId<code>.
+     * The reason this method exists is that this external patient id is
+     * generally used to link an assay to clinical data and for performance
+     * reasons.
+     *
+     * @return the patient's "in trial id", or null if it doesn't exist
+     */
+    String getPatientInTrialId()
+
+    /**
      * The trial for which this assay was done. An all-uppercase name.
      *
      * @return The all-uppercase trial name; never null
