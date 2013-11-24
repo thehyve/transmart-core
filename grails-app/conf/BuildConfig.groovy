@@ -31,26 +31,18 @@ grails.project.dependency.resolution = {
         grailsCentral()
 
         mavenCentral()
-        mavenRepo([
-                name: 'repo.transmartfoundation.org-public',
-                url: 'https://repo.transmartfoundation.org/content/repositories/public/',
-        ])
+        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
     }
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
-        compile "org.rosuda:Rserve:1.7.3"
+        compile 'org.rosuda:Rserve:1.7.3'
     }
 
     plugins {
-        compile ":hibernate:3.6.10.1"
-        compile ":quartz:1.0-RC2"
-        runtime ":resources:1.2"
+        build(':release:3.0.1',
+              ':rest-client-builder:1.0.3') { export = false }
 
-        build(":tomcat:7.0.41",
-              ":release:3.0.0",
-			  ":rest-client-builder:1.0.3"
-              ) {
-            exported: false
-        }
+        compile ':quartz:1.0-RC2'
+        runtime ':resources:1.2.1'
     }
 }
