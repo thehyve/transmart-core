@@ -34,8 +34,6 @@ function
 	print("-------------------")
 	print("aCGHBuildGroupTestData.R")
 	print("BUILDING ACGH GROUP TEST DATA")
-	print("This script is deprecated and is replaced by aCGHBuildData.R")
-	print("   aCGHBuildData.R serves GroupTest and FrequencyPlot as well.")
 
 	# Check parameters
 	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0) stop("||FRIENDLY||No grouping specified. Please check your group variable selection and run again.")

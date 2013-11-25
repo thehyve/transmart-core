@@ -1,4 +1,4 @@
-acgh.group.test <- function
+acgh.frequency.plot <- function
 (
   column = 'group'
 )
