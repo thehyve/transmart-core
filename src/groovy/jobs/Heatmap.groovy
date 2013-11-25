@@ -19,6 +19,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.ontology.ConceptsResource
 import au.com.bytecode.opencsv.CSVWriter
+import groovy.text.SimpleTemplateEngine
 
 class Heatmap implements Job {
 
@@ -50,37 +51,24 @@ class Heatmap implements Job {
     private def runAnalysis() {
         updateStatus('Running Analysis')
 
-        Closure<GString> source = {
-            "source('$pluginDirectory/Heatmap/HeatmapLoader.R')"
-        }
+        String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
 
-        Closure<GString> createHeatmap = {
-            """
-            Heatmap.loader(
-                            input.filename = 'outputfile',
-                            imageWidth     = as.integer('$txtImageWidth'),
-                            imageHeight    = as.integer('$txtImageHeight'),
-                            pointsize      = as.integer('$txtImagePointsize'),
-                            maxDrawNumber  = as.integer('$txtMaxDrawNumber'))
-            """
-        }
+        String createHeatmap = '''Heatmap.loader(
+                            input.filename = \'outputfile\',
+                            imageWidth     = as.integer(\'$txtImageWidth\'),
+                            imageHeight    = as.integer(\'$txtImageHeight\'),
+                            pointsize      = as.integer(\'$txtImagePointsize\'),
+                            maxDrawNumber  = as.integer(\'$txtMaxDrawNumber\'))'''
 
         runRCommandList([source, createHeatmap])
     }
 
-    private static Object escapingWrapper(Map<String, String> vars) {
-        Object escapingWrapper = new Object()
-        escapingWrapper.metaClass.getProperty { name ->
-            if (name == null) {
-                ''
-            } else {
-                RUtil.escapeRStringContent(vars[name])
-            }
-        }
-        return escapingWrapper
+    private String processTemplates(String template, Map vars) {
+        def engine = new SimpleTemplateEngine()
+        engine.createTemplate(template).make(vars)
     }
 
-    private void runRCommandList(List<Closure<GString>> stepList) {
+    private void runRCommandList(List<String> stepList) {
         String study = i2b2ExportHelperService.findStudyAccessions([jobDataMap.result_instance_id1])
 
         //Establish a connection to R Server.
@@ -90,7 +78,7 @@ class Heatmap implements Job {
         rConnection.eval("setwd('$temporaryDirectory')");
 
         //For each R step there is a list of commands.
-        stepList.each { Closure<GString> currentCommand ->
+        stepList.each { String currentCommand ->
 
             /**
              * Please make sure that any and all variables you add to the map here are placed _after_ the putAll
@@ -99,21 +87,23 @@ class Heatmap implements Job {
             Map vars = [:]
             vars.putAll jobDataMap
             vars.pluginDirectory = Holders.config.RModules.pluginScriptDirectory
+            log.info "pluginScriptDirectory:${Holders.config.RModules.pluginScriptDirectory}"
             vars.temporaryDirectory = new File(temporaryDirectory, "subset1_" + study).absolutePath
 
-            def finalCommand = Heatmap.escapingWrapper(vars).with {
-                currentCommand.call().toString()
-            }
-
-            REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
+            String finalCommand = processTemplates(currentCommand, vars)
+            log.info "About to trigger R command:$finalCommand"
+            // REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
+            REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=FALSE)")
 
             if (rObject.inherits("try-error")) {
-                handleError(rObject)
+                log.error "R command failure for:$finalCommand"
+                handleError(rObject, rConnection)
             }
+            updateStatus('Completed')
         }
     }
 
-    private void handleError(REXP rObject) throws RserveException {
+    private void handleError(REXP rObject, RConnection rConnection) throws RserveException {
         //Grab the error R gave us.
         String rError = rObject.asString()
 
@@ -142,7 +132,8 @@ class Heatmap implements Job {
 
                 results.rows.each { row ->
                     row.assayIndexMap.each { assay, index ->
-                        writer.writeNext([assay.assay.subjectId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
+                        // TODO Handle subsets properly
+                        writer.writeNext(['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
                     }
                 }
             }
@@ -166,7 +157,7 @@ class Heatmap implements Job {
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
-    private File setupTemporaryDirectory() {
+    private void setupTemporaryDirectory() {
         //FIXME: This is stupid of course, taking the 'name' from the client. What if the name is '../../'?
         temporaryDirectory = new File(new File(Holders.config.RModules.tempFolderDirectory, name), 'workingDirectory')
         temporaryDirectory.mkdirs()
