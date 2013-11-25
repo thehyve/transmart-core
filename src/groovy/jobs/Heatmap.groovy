@@ -39,6 +39,7 @@ class Heatmap implements Job {
         TabularResult results = fetchResults()
         writeData(results)
         runAnalysis()
+        renderOutput()
     }
 
     static void scheduleJob(Map params) {
@@ -61,6 +62,10 @@ class Heatmap implements Job {
                             maxDrawNumber  = as.integer(\'$txtMaxDrawNumber\'))'''
 
         runRCommandList([source, createHeatmap])
+    }
+
+    private void renderOutput() {
+        updateStatus('Completed', "?jobName=${name}")
     }
 
     private String processTemplates(String template, Map vars) {
@@ -99,7 +104,6 @@ class Heatmap implements Job {
                 log.error "R command failure for:$finalCommand"
                 handleError(rObject, rConnection)
             }
-            updateStatus('Completed')
         }
     }
 
@@ -174,8 +178,8 @@ class Heatmap implements Job {
         }
     }
 
-    private void updateStatus(String status) {
-        asyncJobService.updateStatus name, status
+    private void updateStatus(String status, String viewerUrl = null) {
+        asyncJobService.updateStatus name, status, viewerUrl
     }
 
     //TODO: can't type this because of the circular dependency on transmartApp
