@@ -42,6 +42,7 @@ class Heatmap implements Job {
         renderOutput()
     }
 
+    //TODO: Move to to be created job scheduler. Or perhaps we can live with this code in the controller
     static void scheduleJob(Map params) {
         JobDetail jobDetail = new JobDetail(params.jobName, params.jobType, Heatmap.class)
         jobDetail.jobDataMap = new JobDataMap(params)
@@ -49,7 +50,7 @@ class Heatmap implements Job {
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
-    private def runAnalysis() {
+    private void runAnalysis() {
         updateStatus('Running Analysis')
 
         String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
@@ -64,6 +65,7 @@ class Heatmap implements Job {
         runRCommandList([source, createHeatmap])
     }
 
+    //TODO: Move to abstract Job class
     private void renderOutput() {
         updateStatus('Completed', "?jobName=${name}")
     }
@@ -73,6 +75,7 @@ class Heatmap implements Job {
         engine.createTemplate(template).make(vars)
     }
 
+    //TODO: Move to abstract Job class
     private void runRCommandList(List<String> stepList) {
         String study = i2b2ExportHelperService.findStudyAccessions([jobDataMap.result_instance_id1])
 
@@ -107,6 +110,7 @@ class Heatmap implements Job {
         }
     }
 
+    //TODO: Move to abstract Job class
     private void handleError(REXP rObject, RConnection rConnection) throws RserveException {
         //Grab the error R gave us.
         String rError = rObject.asString()
@@ -125,7 +129,8 @@ class Heatmap implements Job {
         throw newError
     }
 
-    private def writeData(TabularResult results) {
+    //TODO: Move to abstract Job class and extract writing of the header and row
+    private void writeData(TabularResult results) {
         try {
             File output = new File(temporaryDirectory, 'outputfile')
             output.createNewFile()
@@ -137,7 +142,9 @@ class Heatmap implements Job {
                 results.rows.each { row ->
                     row.assayIndexMap.each { assay, index ->
                         // TODO Handle subsets properly
-                        writer.writeNext(['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[])
+                        writer.writeNext(
+                                ['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
+                        )
                     }
                 }
             }
@@ -149,24 +156,40 @@ class Heatmap implements Job {
     private TabularResult fetchResults() {
         updateStatus('Gathering Data')
 
-        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(jobDataMap.divIndependentVariableType.toLowerCase())
+        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
+                jobDataMap.divIndependentVariableType.toLowerCase()
+        )
 
-        List<AssayConstraint> assayConstraints = [dataType.createAssayConstraint(AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap["result_instance_id1"])]
-        assayConstraints.add(dataType.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths))
+        List<AssayConstraint> assayConstraints = [
+                dataType.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap["result_instance_id1"]
+                )
+        ]
+        assayConstraints.add(
+                dataType.createAssayConstraint(
+                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths
+                )
+        )
 
-        List<DataConstraint> dataConstraints = [dataType.createDataConstraint([keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)]
+        List<DataConstraint> dataConstraints = [
+                dataType.createDataConstraint(
+                        [keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
 
         Projection projection = dataType.createProjection([:], 'default_real_projection')
 
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
+    //TODO: Move to abstract Job class
     private void setupTemporaryDirectory() {
         //FIXME: This is stupid of course, taking the 'name' from the client. What if the name is '../../'?
         temporaryDirectory = new File(new File(Holders.config.RModules.tempFolderDirectory, name), 'workingDirectory')
         temporaryDirectory.mkdirs()
     }
 
+    //TODO: Move to abstract Job class
     private void writeParametersFile() {
         File jobInfoFile = new File(temporaryDirectory, 'jobInfo.txt')
 
@@ -178,6 +201,7 @@ class Heatmap implements Job {
         }
     }
 
+    //TODO: Move to abstract Job class
     private void updateStatus(String status, String viewerUrl = null) {
         asyncJobService.updateStatus name, status, viewerUrl
     }
