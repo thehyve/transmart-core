@@ -88,9 +88,4 @@ class Heatmap extends AnalysisJob {
     private HighDimensionResource getHighDimensionResource() {
         jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
-
-    protected void renderOutput() {
-        updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
-    }
-
 }
