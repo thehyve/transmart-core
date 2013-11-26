@@ -15,11 +15,8 @@ import org.transmartproject.core.dataquery.highdim.acgh.Region
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.db.dataquery.highdim.DeChromosomalRegion
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION

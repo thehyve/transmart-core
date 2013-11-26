@@ -1,6 +1,8 @@
-package org.transmartproject.db.dataquery.highdim
+package org.transmartproject.db.dataquery.highdim.acgh
 
 import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.db.dataquery.highdim.DeGplInfo
+import org.transmartproject.db.dataquery.highdim.acgh.DeSubjectAcghData
 
 class DeChromosomalRegion implements Region {
 

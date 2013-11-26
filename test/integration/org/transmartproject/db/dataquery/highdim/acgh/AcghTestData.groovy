@@ -2,9 +2,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.acgh.Region
-import org.transmartproject.db.dataquery.highdim.DeChromosomalRegion
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
-import org.transmartproject.db.dataquery.highdim.DeSubjectAcghData
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster

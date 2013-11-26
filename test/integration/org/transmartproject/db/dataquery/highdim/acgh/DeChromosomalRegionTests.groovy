@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery.highdim
+package org.transmartproject.db.dataquery.highdim.acgh
 
 import org.junit.Before
 import org.junit.Test
@@ -6,6 +6,7 @@ import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.acgh.Region
 import org.transmartproject.core.dataquery.highdim.acgh.Region
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
+import org.transmartproject.db.dataquery.highdim.acgh.DeChromosomalRegion
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
