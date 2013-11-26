@@ -1,5 +1,6 @@
 package jobs
 
+import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.transmart.util.RUtil
 import grails.util.Holders
 import groovy.text.SimpleTemplateEngine
@@ -76,6 +77,19 @@ abstract class AnalysisJob implements Job {
             jobDataMap.each { key, value ->
                 it.writeLine "\t$key -> $value"
             }
+        }
+    }
+
+    protected void withDefaultCsvWriter(results, Closure body) {
+        try {
+            File output = new File(temporaryDirectory, 'outputfile')
+            output.createNewFile()
+            output.withWriter { writer ->
+                CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
+                body.call(csvWriter)
+            }
+        } finally {
+          results.close()
         }
     }
 
