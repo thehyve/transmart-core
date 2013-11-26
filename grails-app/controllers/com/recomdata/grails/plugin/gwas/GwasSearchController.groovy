@@ -730,10 +730,12 @@ class GwasSearchController {
     def getSearchCutoff(solrSearch) {
         def cutoff
         for (s in solrSearch) {
-            if (s.startsWith("PVALUE")) {
+            if (s.startsWith("PVALUE") && s.length() > 6) {
                 s = s.substring(7)
                 def pvalue = s.split("\\^")
-                cutoff = pvalue[1]
+                if (pvalue.size() > 1) {
+                    cutoff = pvalue[1]
+                }
             }
         }
         if (cutoff) {
