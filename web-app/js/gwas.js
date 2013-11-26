@@ -177,16 +177,19 @@ function applyPopupFiltersRegions()
         //This destroys our popup window.
         jQuery(this).dialog("destroy");
     }
-    if (pValue.trim() != "") {
+	var whitespace =" "
+    if ((pValue.match(/^[0-9]+\.[0-9]+$/) ||pValue.match(/^[0-9]$/) || pValue==0 || pValue.match(/^\.[0-9]+$/)) && (pValue.indexOf(whitespace) < 0)) {
         var searchParam={id:'PVALUE'+REGION_DELIMITER+pValue,
             display:'PVALUE',
             keyword:'PVALUE'+REGION_DELIMITER+pValue,
             category:'PVALUE',
             text:pValue};
         addSearchTerm(searchParam);
+		jQuery(this).dialog("destroy");
     }
+	else { alert("Please enter numeric P-value") };
     //This destroys our popup window.
-    jQuery(this).dialog("destroy");
+    
 }
 
 function applyPopupFiltersEqtlTranscriptGene()

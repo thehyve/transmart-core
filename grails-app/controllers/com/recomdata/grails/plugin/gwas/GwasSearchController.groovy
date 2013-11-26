@@ -8,6 +8,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import search.GeneSignature
 import search.GeneSignatureItem
 import search.SearchKeyword
+import com.recomdata.transmart.domain.searchapp.FormLayout
 
 import java.lang.reflect.UndeclaredThrowableException
 import java.util.regex.Matcher
@@ -729,10 +730,12 @@ class GwasSearchController {
     def getSearchCutoff(solrSearch) {
         def cutoff
         for (s in solrSearch) {
-            if (s.startsWith("PVALUE")) {
+            if (s.startsWith("PVALUE") && s.length() > 6) {
                 s = s.substring(7)
                 def pvalue = s.split("\\^")
-                cutoff = pvalue[1]
+                if (pvalue.size() > 1) {
+                    cutoff = pvalue[1]
+                }
             }
         }
         if (cutoff) {
@@ -1035,7 +1038,7 @@ class GwasSearchController {
             def mailId = params.toMailId
             def link = new StringBuilder()
             if(queryparameter){link.append("Query Criteria at time of export: "+queryparameter+"\n")}
-            link.append(createLink(controller: 'search', action: 'exportAnalysis', absolute: true))
+            link.append(createLink(controller: 'gwasSearch', action: 'exportAnalysis', absolute: true))
             def links = ""
             if (analysisIds.size() > 0) {
 
@@ -1093,8 +1096,10 @@ class GwasSearchController {
                     def exp = Experiment.findByAccession(accession, [max: 1])
                     //dataWriterStudy.write accession
 
-                    def formLayout = formLayoutService.getLayout('study');
-                    //def dispName =[]
+                    def formLayout = FormLayout.createCriteria().list() {
+                        eq('key', 'study')
+                        order('sequence', 'asc')
+                    }
                     formLayout.each {
                         def dispName = it.displayName
                         dataWriterStudy.write dispName + ":"
@@ -1160,7 +1165,10 @@ class GwasSearchController {
 
                     File fileMeta = new File(fileNameMeta);
                     BufferedWriter dataWriterMeta = new BufferedWriter(new FileWriter(fileMeta));
-                    def layout = formLayoutService.getLayout('analysis')
+                    def layout = FormLayout.createCriteria().list() {
+                        eq('key', 'analysis')
+                        order('sequence', 'asc')
+                    }
                     layout.each {
                         def dispName = it.displayName
                         if (analysis.assayDataType == 'EQTL' && it.column == 'phenotypes') {

@@ -52,10 +52,16 @@
 		<tbody role="alert" aria-live="polite" aria-relevant="all">
 			
 				<g:each in="${analysisData}" var="row" status="i">
+					<g:set var="link" value="http://regulomedb.org/snp/chr${row[5]}/${row[6]}" />
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 					<g:each in="${row}" var="data" status="colNum">
 						<g:unless test="${colNum == 0}"> <%-- Skip analysis name --%>
-							<td class="">${data}</td>
+							<g:if test="${colNum == 1}">
+								<td class=""><a href="${link}" target="_blank">${data}</a></td>
+							</g:if>
+							<g:else>
+								<td class="">${data}</td>
+							</g:else>
 						</g:unless>
 					</g:each>
 					</tr>
