@@ -12,7 +12,7 @@ class KMeansClustering extends AnalysisJob {
 
     @Override
     protected void runAnalysis() {
-        updateStatus('Running Analysis')
+        updateStatus('Running KMeans analysis')
 
         String source = 'source(\'$pluginDirectory/Heatmap/KMeansHeatmap.R\')'
 
@@ -82,12 +82,12 @@ class KMeansClustering extends AnalysisJob {
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
-    private HighDimensionResource getHighDimensionResource() {
-        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
-    }
-
+    @Override
     protected void renderOutput() {
         updateStatus('Completed', "/RKMeans/heatmapOut?jobName=${name}")
     }
 
+    private HighDimensionResource getHighDimensionResource() {
+        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
+    }
 }

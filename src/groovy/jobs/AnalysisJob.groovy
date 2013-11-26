@@ -33,7 +33,7 @@ abstract class AnalysisJob implements Job {
     @Override
     void execute(JobExecutionContext context) {
         if (foulJobName(context)) {
-            throw new JobExecutionException("Jobname mangled")
+            throw new JobExecutionException("Job name mangled")
         }
         name = context.jobDetail.jobDataMap["jobName"]
         jobDataMap = context.jobDetail.jobDataMap
@@ -47,6 +47,7 @@ abstract class AnalysisJob implements Job {
             runAnalysis()
             renderOutput()
         } catch (Exception e) {
+            log.error("Some exception occurred in the processing pipe", e)
             updateStatus("Error")
         }
     }
@@ -100,11 +101,11 @@ abstract class AnalysisJob implements Job {
              */
             Map vars = [:]
             vars.putAll jobDataMap
+            escapeUserStrings(vars)
+
             vars.pluginDirectory = Holders.config.RModules.pluginScriptDirectory
-            log.info "pluginScriptDirectory:${Holders.config.RModules.pluginScriptDirectory}"
             vars.temporaryDirectory = new File(temporaryDirectory, "subset1_" + study).absolutePath
 
-            vars.each { k, v -> vars[k] = RUtil.escapeRStringContent(v) }
             String finalCommand = processTemplates(currentCommand, vars)
             log.info "About to trigger R command:$finalCommand"
             // REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
@@ -113,6 +114,14 @@ abstract class AnalysisJob implements Job {
             if (rObject.inherits("try-error")) {
                 log.error "R command failure for:$finalCommand"
                 handleError(rObject, rConnection)
+            }
+        }
+    }
+
+    private static void escapeUserStrings(Map vars) {
+        vars.each { k, v ->
+            if (v.getClass() == String) {
+                vars[k] = RUtil.escapeRStringContent(v)
             }
         }
     }
@@ -142,7 +151,7 @@ abstract class AnalysisJob implements Job {
 
     protected void updateStatus(String status, String viewerUrl = null) {
         log.info "updateStatus called for status:$status, viewerUrl:$viewerUrl"
-        asyncJobService.updateStatus name, status, viewerUrl
+        asyncJobService.updateStatus(name, status, viewerUrl)
     }
 
     protected def getI2b2ExportHelperService() {

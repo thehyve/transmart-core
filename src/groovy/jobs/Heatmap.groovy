@@ -12,7 +12,7 @@ class Heatmap extends AnalysisJob {
 
     @Override
     protected void runAnalysis() {
-        updateStatus('Running Analysis')
+        updateStatus('Running Heatmap analysis')
 
         String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
 
@@ -81,6 +81,7 @@ class Heatmap extends AnalysisJob {
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
+    @Override
     protected void renderOutput() {
         updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
     }
