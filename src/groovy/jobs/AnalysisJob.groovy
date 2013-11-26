@@ -63,7 +63,8 @@ abstract class AnalysisJob implements Job {
     }
 
     protected void renderOutput() {
-        updateStatus('Completed', "?jobName=${name}")
+        // TODO make generic
+        updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
     }
 
     /**
