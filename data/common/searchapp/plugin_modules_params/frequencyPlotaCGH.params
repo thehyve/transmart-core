@@ -42,7 +42,7 @@ array (
     array (
       0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-frequency-plot.R\')',
       1 => 'acgh.frequency.plot(
-	column                 = \'group\',
+	column                 = \'group\')',
     ),
   ),
   'renderer' => 
