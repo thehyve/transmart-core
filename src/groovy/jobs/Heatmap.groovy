@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 class Heatmap extends AnalysisJob {
 
     @Override
-    private void runAnalysis() {
+    protected void runAnalysis() {
         updateStatus('Running Analysis')
 
         String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
@@ -27,7 +27,8 @@ class Heatmap extends AnalysisJob {
     }
 
     //TODO: Move to abstract Job class and extract writing of the header and row
-    private void writeData(TabularResult results) {
+    @Override
+    protected void writeData(TabularResult results) {
         try {
             File output = new File(temporaryDirectory, 'outputfile')
             output.createNewFile()
@@ -51,7 +52,7 @@ class Heatmap extends AnalysisJob {
     }
 
     @Override
-    private TabularResult fetchResults() {
+    protected TabularResult fetchResults() {
         updateStatus('Gathering Data')
 
         HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(

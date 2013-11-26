@@ -121,20 +121,21 @@ abstract class AnalysisJob implements Job {
         throw newError
     }
 
-    private static String processTemplates(String template, Map vars) {
+    protected static String processTemplates(String template, Map vars) {
         SimpleTemplateEngine engine = new SimpleTemplateEngine()
         engine.createTemplate(template).make(vars)
     }
 
-    private void updateStatus(String status, String viewerUrl = null) {
+    protected void updateStatus(String status, String viewerUrl = null) {
+        log.info "updatestatus called for status:$status, viewerUrl:$viewerUrl"
         asyncJobService.updateStatus name, status, viewerUrl
     }
 
-    private def getI2b2ExportHelperService() {
+    protected def getI2b2ExportHelperService() {
         jobDataMap.grailsApplication.mainContext.i2b2ExportHelperService
     }
 
-    private def getAsyncJobService() {
+    protected def getAsyncJobService() {
         jobDataMap.grailsApplication.mainContext.asyncJobService
     }
 }
