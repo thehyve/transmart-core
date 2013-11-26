@@ -33,7 +33,7 @@ abstract class AnalysisJob implements Job {
     @Override
     void execute(JobExecutionContext context) {
         if (foulJobName(context)) {
-            throw new JobExecutionContext("Jobname mangled")
+            throw new JobExecutionException("Jobname mangled")
         }
         name = context.jobDetail.jobDataMap["jobName"]
         jobDataMap = context.jobDetail.jobDataMap
