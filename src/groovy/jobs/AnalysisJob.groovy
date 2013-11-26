@@ -1,5 +1,6 @@
 package jobs
 
+import com.recomdata.transmart.util.RUtil
 import grails.util.Holders
 import groovy.text.SimpleTemplateEngine
 import org.quartz.Job
@@ -29,7 +30,7 @@ abstract class AnalysisJob implements Job {
      */
     @Override
     void execute(JobExecutionContext context) throws JobExecutionException {
-        name = context.jobDetail.jobDataMap["jobName"]
+        name = RUtil.escapeRStringContent(context.jobDetail.jobDataMap["jobName"] as String)
         jobDataMap = context.jobDetail.jobDataMap
 
         setupTemporaryDirectory()
@@ -91,6 +92,7 @@ abstract class AnalysisJob implements Job {
             log.info "pluginScriptDirectory:${Holders.config.RModules.pluginScriptDirectory}"
             vars.temporaryDirectory = new File(temporaryDirectory, "subset1_" + study).absolutePath
 
+            vars.each { k, v -> vars[k] = RUtil.escapeRStringContent(v) }
             String finalCommand = processTemplates(currentCommand, vars)
             log.info "About to trigger R command:$finalCommand"
             // REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
