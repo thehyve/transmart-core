@@ -16,7 +16,11 @@
 
 package com.recomdata.transmart.data.association
 
+import grails.util.Holders
 import jobs.Heatmap
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.SimpleTrigger
 
 class RModulesController {
 
@@ -59,12 +63,23 @@ class RModulesController {
 
         if (params['analysis'] == "heatmap") {
             params.grailsApplication = grailsApplication
-            jsonResult = Heatmap.scheduleJob(params)
+            jsonResult = scheduleJob(params)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
 
         response.setContentType("text/json")
         response.outputStream << jsonResult.toString()
+    }
+
+    static void scheduleJob(Map params) {
+        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, Heatmap.class)
+        jobDetail.jobDataMap  = new JobDataMap(params)
+        SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
+        quartzScheduler.scheduleJob(jobDetail, trigger)
+    }
+
+    private static def getQuartzScheduler() {
+        Holders.grailsApplication.mainContext.quartzScheduler
     }
 }
