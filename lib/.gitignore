@@ -1,1 +1,2 @@
-/ojdbc*
+/ojdbc*.jar
+/postgresql-*.jar
