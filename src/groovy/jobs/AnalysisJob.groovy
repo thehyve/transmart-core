@@ -29,17 +29,31 @@ abstract class AnalysisJob implements Job {
      * @throws JobExecutionException
      */
     @Override
-    void execute(JobExecutionContext context) throws JobExecutionException {
-        name = RUtil.escapeRStringContent(context.jobDetail.jobDataMap["jobName"] as String)
+    void execute(JobExecutionContext context) {
+        if (foulJobName(context)) {
+            throw new JobExecutionContext("Jobname mangled")
+        }
+        name = context.jobDetail.jobDataMap["jobName"]
         jobDataMap = context.jobDetail.jobDataMap
 
-        setupTemporaryDirectory()
+        try {
+            setupTemporaryDirectory()
 
-        writeParametersFile()
-        TabularResult results = fetchResults()
-        writeData(results)
-        runAnalysis()
-        renderOutput()
+            writeParametersFile()
+            TabularResult results = fetchResults()
+            writeData(results)
+            runAnalysis()
+            renderOutput()
+        } catch (Exception e) {
+            updateStatus("Error ${e.message}")
+        }
+    }
+
+    private static boolean foulJobName(JobExecutionContext context) {
+        if (context.jobDetail.jobDataMap["jobName"] ==~ /^[0-9A-Za-z-]+$/) {
+            return false
+        }
+        return true
     }
 
     protected void setupTemporaryDirectory() {
@@ -78,7 +92,7 @@ abstract class AnalysisJob implements Job {
         RConnection rConnection = new RConnection();
 
         //Run the R command to set the working directory to our temp directory.
-        rConnection.eval("setwd('$temporaryDirectory')");
+        rConnection.eval("setwd('${RUtil.escapeRStringContent(temporaryDirectory)}')");
 
         //For each R step there is a list of commands.
         stepList.each { String currentCommand ->
