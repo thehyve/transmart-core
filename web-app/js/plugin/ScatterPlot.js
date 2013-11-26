@@ -149,7 +149,6 @@ function loadScatterPlotView(){
 	registerScatterPlotDragAndDrop();
 	clearGroupScatter('divIndependentVariable');
 	clearGroupScatter('divDependentVariable');
-	clearHighDimensionalFields();
 }
 
 /**
