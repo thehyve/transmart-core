@@ -127,7 +127,7 @@ abstract class AnalysisJob implements Job {
     }
 
     protected void updateStatus(String status, String viewerUrl = null) {
-        log.info "updatestatus called for status:$status, viewerUrl:$viewerUrl"
+        log.info "updateStatus called for status:$status, viewerUrl:$viewerUrl"
         asyncJobService.updateStatus name, status, viewerUrl
     }
 
