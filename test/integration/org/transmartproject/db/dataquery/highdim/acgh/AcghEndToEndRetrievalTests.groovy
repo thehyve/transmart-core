@@ -206,12 +206,11 @@ class AcghEndToEndRetrievalTests {
                 )
         ]
 
-        def exception = shouldFail EmptySetException, {
-            dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
-            Lists.newArrayList(dataQueryResult.rows)
-        }
-        assertThat exception,
-                hasProperty('message', equalTo('The result set is empty :('))
+        dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
+        Lists.newArrayList(dataQueryResult.rows)
+
+        assertThat dataQueryResult, hasProperty('indicesList', is(not(empty())))
+        assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
     }
 
 }

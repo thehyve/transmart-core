@@ -122,10 +122,8 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
             throw new IllegalArgumentException(
                     'assayIdFromRow must be set when allowMissingAssays is true')
         }
-        if (!results.next()) {
-            throw new EmptySetException('The result set is empty :(')
-        }
 
+        results.next()
         R row = nextRow
 
         [
