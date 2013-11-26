@@ -81,10 +81,9 @@ class Heatmap extends AnalysisJob {
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
-    //TODO: can't type this because of the circular dependency on transmartApp
-    /*private def getJobResultsService() {
-        data.grailsApplication.applicationContext.getBean('jobResultsService')
-    }*/
+    protected void renderOutput() {
+        updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
+    }
 
     private HighDimensionResource getHighDimensionResource() {
         jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource

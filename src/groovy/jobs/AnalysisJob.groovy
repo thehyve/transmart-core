@@ -22,6 +22,8 @@ abstract class AnalysisJob implements Job {
 
     abstract protected TabularResult fetchResults()
 
+    abstract protected void renderOutput()
+
     /**
      * This method is called by Quartz (never directly) and is the main method of the extending classes
      *
@@ -75,8 +77,6 @@ abstract class AnalysisJob implements Job {
             }
         }
     }
-
-    abstract protected void renderOutput()
 
     /**
      *
