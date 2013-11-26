@@ -18,6 +18,7 @@ package com.recomdata.transmart.data.association
 
 import grails.util.Holders
 import jobs.Heatmap
+import jobs.KMeansClustering
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
@@ -63,7 +64,10 @@ class RModulesController {
 
         if (params['analysis'] == "heatmap") {
             params.grailsApplication = grailsApplication
-            jsonResult = scheduleJob(params)
+            jsonResult = scheduleJob(params, Heatmap.class)
+        } else if (params['analysis'] == "kclust") {
+            params.grailsApplication = grailsApplication
+            jsonResult = scheduleJob(params, KMeansClustering.class)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
@@ -72,8 +76,8 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    static void scheduleJob(Map params) {
-        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, Heatmap.class)
+    static void scheduleJob(Map params, def classFile) {
+        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
         quartzScheduler.scheduleJob(jobDetail, trigger)

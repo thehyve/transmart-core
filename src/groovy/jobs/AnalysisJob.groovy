@@ -45,7 +45,7 @@ abstract class AnalysisJob implements Job {
             runAnalysis()
             renderOutput()
         } catch (Exception e) {
-            updateStatus("Error ${e.message}")
+            updateStatus("Error")
         }
     }
 
@@ -76,10 +76,7 @@ abstract class AnalysisJob implements Job {
         }
     }
 
-    protected void renderOutput() {
-        // TODO make generic
-        updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
-    }
+    abstract protected void renderOutput()
 
     /**
      *
@@ -92,7 +89,7 @@ abstract class AnalysisJob implements Job {
         RConnection rConnection = new RConnection();
 
         //Run the R command to set the working directory to our temp directory.
-        rConnection.eval("setwd('${RUtil.escapeRStringContent(temporaryDirectory)}')");
+        rConnection.eval("setwd('$temporaryDirectory')");
 
         //For each R step there is a list of commands.
         stepList.each { String currentCommand ->

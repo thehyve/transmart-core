@@ -8,15 +8,16 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-class Heatmap extends AnalysisJob {
+class KMeansClustering extends AnalysisJob {
 
     @Override
     protected void runAnalysis() {
         updateStatus('Running Analysis')
 
-        String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
+        String source = 'source(\'$pluginDirectory/Heatmap/KMeansHeatmap.R\')'
 
-        String createHeatmap = '''Heatmap.loader(
+        // TODO What about clusters.number = 2, probes.aggregate = false?
+        String createHeatmap = '''KMeansHeatmap.loader(
                             input.filename = \'outputfile\',
                             imageWidth     = as.integer(\'$txtImageWidth\'),
                             imageHeight    = as.integer(\'$txtImageHeight\'),
@@ -81,17 +82,12 @@ class Heatmap extends AnalysisJob {
         dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
-    //TODO: can't type this because of the circular dependency on transmartApp
-    /*private def getJobResultsService() {
-        data.grailsApplication.applicationContext.getBean('jobResultsService')
-    }*/
-
     private HighDimensionResource getHighDimensionResource() {
         jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 
     protected void renderOutput() {
-        updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
+        updateStatus('Completed', "/RKMeans/heatmapOut?jobName=${name}")
     }
 
 }
