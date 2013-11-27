@@ -2,8 +2,6 @@ package jobs
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
-//import org.gmock.WithGMock
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -11,12 +9,9 @@ import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
-import org.quartz.core.QuartzScheduler
-import org.transmartproject.core.dataquery.TabularResult
 import static org.easymock.EasyMock.*;
 
 @TestMixin(GrailsUnitTestMixin)
-//@WithGMock
 class HeatmapTests {
 
     Heatmap heatmap
