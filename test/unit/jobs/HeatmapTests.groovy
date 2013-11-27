@@ -50,18 +50,6 @@ class HeatmapTests {
     }
 
     @Test
-    void scheduleJobTest() {
-        def scheduler = mock()
-        scheduler.scheduleJob(Matchers.anything(), Matchers.anything()).once()
-
-        Heatmap.metaClass.static.getQuartzScheduler = { -> scheduler }
-
-        play {
-            Heatmap.scheduleJob([jobName: 'boar'])
-        }
-    }
-
-    @Test
     void setupTemporaryDirectoryTest() {
         heatmap.metaClass.writeParametersFile = { }
         heatmap.metaClass.fetchResults = { }
