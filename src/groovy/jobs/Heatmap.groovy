@@ -34,7 +34,7 @@ class Heatmap extends AnalysisJob {
                 row.assayIndexMap.each { assay, index ->
                     // TODO Handle subsets properly
                     csvWriter.writeNext(
-                            ['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
+                            ['S1_' + assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
                     )
                 }
             }
@@ -56,7 +56,7 @@ class Heatmap extends AnalysisJob {
         ]
         assayConstraints.add(
                 dataType.createAssayConstraint(
-                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths
+                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: createConceptKeyFrom(jobDataMap.variablesConceptPaths)
                 )
         )
 
