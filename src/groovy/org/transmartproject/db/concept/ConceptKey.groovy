@@ -5,7 +5,7 @@ import groovy.transform.EqualsAndHashCode
 /*
  * A concept key is made of two parts: \\c_table_cd\c_fullname
  *
- * The c_table_cd describes the metadata table wherein the cocept results,
+ * The c_table_cd describes the metadata table wherein the concept results,
  * while c_fullname is a unique identifier for the concept itself.
  */
 @EqualsAndHashCode
