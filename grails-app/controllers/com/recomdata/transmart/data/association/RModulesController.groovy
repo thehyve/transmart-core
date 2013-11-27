@@ -19,6 +19,7 @@ package com.recomdata.transmart.data.association
 import grails.util.Holders
 import jobs.Heatmap
 import jobs.KMeansClustering
+import jobs.HierarchicalClustering
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
