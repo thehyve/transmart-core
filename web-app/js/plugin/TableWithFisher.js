@@ -201,7 +201,6 @@ function loadTableWithFisherView(){
 	registerFisherDragAndDrop();
 	clearGroupFisher('divIndependentVariable');
 	clearGroupFisher('divDependentVariable');
-	clearHighDimensionalFields();
 }
 
 function clearGroupFisher(divName) {
