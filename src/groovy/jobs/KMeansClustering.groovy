@@ -27,28 +27,18 @@ class KMeansClustering extends AnalysisJob {
         runRCommandList([source, createHeatmap])
     }
 
-    //TODO: Move to abstract Job class and extract writing of the header and row
     @Override
     protected void writeData(TabularResult results) {
-        try {
-            File output = new File(temporaryDirectory, 'outputfile')
-            output.createNewFile()
-            output.withWriter {
-                CSVWriter writer = new CSVWriter(it, '\t' as char)
-
-                writer.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
-
-                results.rows.each { row ->
-                    row.assayIndexMap.each { assay, index ->
-                        // TODO Handle subsets properly
-                        writer.writeNext(
-                                ['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
-                        )
-                    }
+        withDefaultCsvWriter(results) { csvWriter ->
+            csvWriter.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
+            results.rows.each { row ->
+                row.assayIndexMap.each { assay, index ->
+                    // TODO Handle subsets properly
+                    csvWriter.writeNext(
+                            ['S1_'+assay.assay.patientInTrialId, row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
+                    )
                 }
             }
-        } finally {
-            results.close()
         }
     }
 

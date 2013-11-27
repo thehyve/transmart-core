@@ -80,13 +80,13 @@ abstract class AnalysisJob implements Job {
         }
     }
 
-    protected void withDefaultCsvWriter(results, Closure body) {
+    protected void withDefaultCsvWriter(TabularResult results, Closure constructFile) {
         try {
             File output = new File(temporaryDirectory, 'outputfile')
             output.createNewFile()
             output.withWriter { writer ->
                 CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
-                body.call(csvWriter)
+                constructFile.call(csvWriter)
             }
         } finally {
           results.close()
