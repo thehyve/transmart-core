@@ -55,7 +55,7 @@ grails.project.dependency.resolution = {
             export     = false
         }
 
-        test('org.gmock:gmock:0.8.3') {
+        test('org.easymock:easymock:3.2') {
             export = false
         }
     }
