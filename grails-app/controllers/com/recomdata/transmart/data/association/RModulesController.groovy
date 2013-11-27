@@ -68,6 +68,9 @@ class RModulesController {
         } else if (params['analysis'] == "kclust") {
             params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, KMeansClustering.class)
+        } else if (params['analysis'] == "hclust") {
+            params.grailsApplication = grailsApplication
+            jsonResult = scheduleJob(params, HierarchicalClustering.class)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
