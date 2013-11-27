@@ -124,7 +124,7 @@ function applyPopupFiltersRegions()
             }
 
             use = jQuery('#filterGeneUse').val();
-            searchString += "GENE" + REGION_DELIMITER + geneId
+            searchString = "GENE" + REGION_DELIMITER + geneId
 
             text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
 
@@ -178,17 +178,19 @@ function applyPopupFiltersRegions()
         jQuery(this).dialog("destroy");
     }
 	var whitespace =" "
-    if ((pValue.match(/^[0-9]+\.[0-9]+$/) ||pValue.match(/^[0-9]$/) || pValue==0 || pValue.match(/^\.[0-9]+$/)) && (pValue.indexOf(whitespace) < 0)) {
-        var searchParam={id:'PVALUE'+REGION_DELIMITER+pValue,
+	if (pValue!="") {
+		if ((pValue.match(/^[0-9]+\.[0-9]+$/) ||pValue.match(/^[0-9]$/) || pValue.match(/^\.[0-9]+$/)) && (pValue.indexOf(whitespace) < 0)) {
+			var searchParam={id:'PVALUE'+REGION_DELIMITER+pValue,
             display:'PVALUE',
             keyword:'PVALUE'+REGION_DELIMITER+pValue,
             category:'PVALUE',
             text:pValue};
-        addSearchTerm(searchParam);
-		jQuery(this).dialog("destroy");
+			addSearchTerm(searchParam);
+			jQuery(this).dialog("destroy");
+		}
+		//This destroys our popup window.
+		else { alert("Please enter numeric P-value") };
     }
-	else { alert("Please enter numeric P-value") };
-    //This destroys our popup window.
     
 }
 
