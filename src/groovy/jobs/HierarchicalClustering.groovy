@@ -14,7 +14,7 @@ class HierarchicalClustering extends AnalysisJob {
     protected void runAnalysis() {
         updateStatus('Running Hierarchical analysis')
 
-        String source = 'source(\'$pluginDirectory/Heatmap/HCLusteredHeatmapLoader.R\')'
+        String source = 'source(\'$pluginDirectory/Heatmap/HClusteredHeatmapLoader.R\')'
 
         String createHeatmap = '''HClusteredHeatmap.loader(
                             input.filename = \'outputfile\',
