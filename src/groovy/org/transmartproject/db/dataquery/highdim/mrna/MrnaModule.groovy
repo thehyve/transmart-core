@@ -10,7 +10,6 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
@@ -66,8 +65,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                                      Projection projection) {
         /* assumption here is the assays in the passed in list are in the same
          * order as the assays in the result set */
-        int i = 0
-        Map assayIndexMap = assays.collectEntries { [ it, i++ ] }
+        Map assayIndexMap = createAssayIndexMap assays
 
         new DefaultHighDimensionTabularResult(
                 rowsDimensionLabel:    'Probes',
@@ -78,11 +76,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.probeId == b.probeId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
-                    if (list.size() != assays.size()) {
-                        throw new UnexpectedResultException(
-                                "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
-                    }
-                    /* we may have nulls because allowMissingAssays is true,
+                    /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
                     def firstNonNullCell = list.find()
                     new ProbeRow(

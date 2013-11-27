@@ -105,8 +105,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                                    Projection projection) {
         /* assumption here is the assays in the passed in list are in the same
          * order as the assays in the result set */
-        int i = 0
-        Map assayIndexMap = assays.collectEntries { [ it, i++ ] }
+        Map assayIndexMap = createAssayIndexMap assays
 
         new DefaultHighDimensionTabularResult(
                 rowsDimensionLabel:    'Regions',

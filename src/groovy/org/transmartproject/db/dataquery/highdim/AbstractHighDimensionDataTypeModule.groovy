@@ -144,4 +144,9 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
         builder
     }
+
+    final protected Map createAssayIndexMap(List assays) {
+        int i = 0
+        assays.collectEntries { [ it, i++ ] }
+    }
 }
