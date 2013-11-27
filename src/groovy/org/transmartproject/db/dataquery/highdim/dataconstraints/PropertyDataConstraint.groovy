@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.dataconstraints
 
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.Restrictions
 
 class PropertyDataConstraint implements CriteriaDataConstraint {
 
@@ -12,7 +13,12 @@ class PropertyDataConstraint implements CriteriaDataConstraint {
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
         criteria.with {
             if (values instanceof Collection) {
-                'in' property, values
+                if (!values.isEmpty()) {
+                    'in' property, values
+                } else {
+                    criteria.addToCriteria(Restrictions.sqlRestriction(
+                            "'empty_in_criteria_for_$property' = ''"))
+                }
             } else {
                 eq property, values
             }
