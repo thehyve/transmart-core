@@ -33,7 +33,7 @@ abstract class AnalysisJob implements Job {
      */
     @Override
     void execute(JobExecutionContext context) {
-        if (foulJobName(context)) {
+        if (isFoulJobName(context)) {
             throw new JobExecutionException("Job name mangled")
         }
         name = context.jobDetail.jobDataMap["jobName"]
@@ -53,7 +53,7 @@ abstract class AnalysisJob implements Job {
         }
     }
 
-    private static boolean foulJobName(JobExecutionContext context) {
+    private static boolean isFoulJobName(JobExecutionContext context) {
         if (context.jobDetail.jobDataMap["jobName"] ==~ /^[0-9A-Za-z-]+$/) {
             return false
         }
