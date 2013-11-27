@@ -50,18 +50,6 @@ class HeatmapTests {
     }
 
     @Test
-    void setupTemporaryDirectoryTest() {
-        heatmap.metaClass.writeParametersFile = { }
-        heatmap.metaClass.fetchResults = { }
-        heatmap.metaClass.writeData = { TabularResult a, File b -> null }
-        heatmap.metaClass.runAnalysis = { }
-        def context = mockedJobExecutionContext([jobName: 'foo-bar-baz'])
-
-        heatmap.execute(context)
-        assert new File(new File(heatmap.temporaryDirectory, 'foo-bar-baz'), 'workingDirectory').exists()
-    }
-
-    @Test
     void processTemplatesSuccessTest() {
         String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
         Map vars = [:]
