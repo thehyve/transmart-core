@@ -56,7 +56,7 @@ grails.project.dependency.resolution = {
             export = false
         }
 
-        build(':tomcat:7.0.47',
+        build(':tomcat:2.2.4',
               ":release:2.2.1",
               ":rest-client-builder:1.0.3",
               ) {
