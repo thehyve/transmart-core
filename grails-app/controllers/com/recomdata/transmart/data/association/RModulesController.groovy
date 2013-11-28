@@ -20,6 +20,7 @@ import grails.util.Holders
 import jobs.Heatmap
 import jobs.KMeansClustering
 import jobs.HierarchicalClustering
+import jobs.MarkerSelection
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
@@ -62,7 +63,6 @@ class RModulesController {
         if (jobResultsService[params.jobName] == null) {
             throw new IllegalStateException('Cannot schedule job; it has not been created')
         }
-
         if (params['analysis'] == "heatmap") {
             params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, Heatmap.class)
@@ -72,6 +72,9 @@ class RModulesController {
         } else if (params['analysis'] == "hclust") {
             params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, HierarchicalClustering.class)
+        } else if (params['analysis'] == "markerSelection") {
+            params.grailsApplication = grailsApplication
+            jsonResult = scheduleJob(params, MarkerSelection.class)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
