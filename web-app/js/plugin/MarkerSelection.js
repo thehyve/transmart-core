@@ -79,8 +79,8 @@ MarkerSelectionView.prototype.get_inputs = function (form_params) {
                 {type:"REQUIRED"},
                 {
                     type:"HIGH_DIMENSIONAL",
-                    platform:form_params["divIndependentVariableType"],
-                    pathway:form_params["divIndependentVariablePathway"]
+                    high_dimensional_type:form_params["divIndependentVariableType"],
+                    high_dimensional_pathway:form_params["divIndependentVariablePathway"]
                 }
             ]
         },
