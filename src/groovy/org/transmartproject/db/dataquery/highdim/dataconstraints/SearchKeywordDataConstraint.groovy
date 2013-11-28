@@ -96,11 +96,6 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         }
     }
 
-    static CriteriaDataConstraint createForUniqueIds(Map map, List<String> uniqueIds) {
-        createForSearchKeywords(map,
-                SearchKeywordCoreDb.findAllByUniqueIdInList(uniqueIds))
-    }
-
     static CriteriaDataConstraint createForSearchKeywordIds(Map map, List<Number> ids) {
         createForSearchKeywords(map,
                 SearchKeywordCoreDb.findAllByIdInList(ids))
@@ -112,28 +107,6 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         constraint.searchKeywords = searchKeywordIds
         constraint
     }
-
-//    /**
-//     * Creates a constraint of this type
-//     * @param keywords Multimap from data category to keyword
-//     * @return
-//     */
-//    static SearchKeywordDataConstraint createForKeyords(Map map, Multimap<String, String> keywords) {
-//        def ret = createObject map
-//        List results = SearchKeywordCoreDb.withCriteria {
-//            or {
-//                keywords.asMap().each { String category, Collection<String> kw ->
-//                    and {
-//                        eq   'dataCategory', category
-//                        'in' 'keyword',  kw
-//                    }
-//                }
-//            }
-//        }
-//
-//        ret.initialBioMarkerIds = results
-//        ret
-//    }
 
     private static SearchKeywordDataConstraint createObject(Map map) {
         def constraint = new SearchKeywordDataConstraint()
