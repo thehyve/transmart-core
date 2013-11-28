@@ -110,5 +110,27 @@ class MrnaEndToEndRetrievalTests {
         )
     }
 
+    @Test
+    void testConstraintAvailability() {
+        List assayConstraints = [
+                mrnaResource.createAssayConstraint([name: MrnaTestData.TRIAL_NAME],
+                        AssayConstraint.TRIAL_NAME_CONSTRAINT
+                )
+        ]
+        List dataConstraints = [
+                mrnaResource.createDataConstraint([keyword_ids: [MrnaTestData.searchKeywords.
+                        find({ it.keyword == 'BOGUSRQCD1' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = mrnaResource.createProjection [:], 'default_real_projection'
+        dataQueryResult =
+            mrnaResource.retrieveData assayConstraints, dataConstraints, projection
+
+        assertThat mrnaResource.supportedAssayConstraints, is(notNullValue())
+        assertThat mrnaResource.supportedDataConstraints, is(notNullValue())
+        assertThat mrnaResource.supportedProjections, is(notNullValue())
+    }
+
 
 }

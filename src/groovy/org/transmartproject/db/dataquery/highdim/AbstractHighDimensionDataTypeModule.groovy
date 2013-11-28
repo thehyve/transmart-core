@@ -42,24 +42,27 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     @Lazy volatile Set<String> supportedAssayConstraints = {
         initializeFactories()
         assayConstraintFactories.inject(new HashSet()) {
-            Set accum, DataRetrievalParameterFactory elem ->
-            accum.addAll elem.supportedNames
+                Set accum, DataRetrievalParameterFactory elem ->
+                    accum.addAll elem.supportedNames
+                    accum
         }
     }()
 
     @Lazy volatile Set<String> supportedDataConstraints = {
         initializeFactories()
         dataConstraintFactories.inject(new HashSet()) {
-            Set accum, DataRetrievalParameterFactory elem ->
-                accum.addAll elem.supportedNames
+                Set accum, DataRetrievalParameterFactory elem ->
+                    accum.addAll elem.supportedNames
+                    accum
         }
     }()
 
     @Lazy volatile Set<String> supportedProjections = {
         initializeFactories()
         projectionFactories.inject(new HashSet()) {
-            Set accum, DataRetrievalParameterFactory elem ->
-                accum.addAll elem.supportedNames
+                Set accum, DataRetrievalParameterFactory elem ->
+                    accum.addAll elem.supportedNames
+                    accum
         }
     }()
 
