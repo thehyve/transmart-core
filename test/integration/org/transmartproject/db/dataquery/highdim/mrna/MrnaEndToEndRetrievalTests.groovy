@@ -8,6 +8,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -34,7 +35,7 @@ class MrnaEndToEndRetrievalTests {
 
     @After
     void after() {
-        dataQueryResult.close()
+        dataQueryResult?.close()
     }
 
     @Test
@@ -110,26 +111,18 @@ class MrnaEndToEndRetrievalTests {
         )
     }
 
+    // not really retrieval
     @Test
     void testConstraintAvailability() {
-        List assayConstraints = [
-                mrnaResource.createAssayConstraint([name: MrnaTestData.TRIAL_NAME],
-                        AssayConstraint.TRIAL_NAME_CONSTRAINT
-                )
-        ]
-        List dataConstraints = [
-                mrnaResource.createDataConstraint([keyword_ids: [MrnaTestData.searchKeywords.
-                        find({ it.keyword == 'BOGUSRQCD1' }).id]],
-                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
-                )
-        ]
-        def projection = mrnaResource.createProjection [:], 'default_real_projection'
-        dataQueryResult =
-            mrnaResource.retrieveData assayConstraints, dataConstraints, projection
-
-        assertThat mrnaResource.supportedAssayConstraints, is(notNullValue())
-        assertThat mrnaResource.supportedDataConstraints, is(notNullValue())
-        assertThat mrnaResource.supportedProjections, is(notNullValue())
+        assertThat mrnaResource.supportedAssayConstraints, containsInAnyOrder(
+                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                AssayConstraint.PATIENT_SET_CONSTRAINT,
+                AssayConstraint.TRIAL_NAME_CONSTRAINT)
+        assertThat mrnaResource.supportedDataConstraints, containsInAnyOrder(
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                DataConstraint.DISJUNCTION_CONSTRAINT)
+        assertThat mrnaResource.supportedProjections, containsInAnyOrder(
+                CriteriaProjection.DEFAULT_REAL_PROJECTION)
     }
 
 
