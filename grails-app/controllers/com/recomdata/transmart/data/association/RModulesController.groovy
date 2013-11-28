@@ -24,6 +24,8 @@ import jobs.MarkerSelection
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
+import grails.converters.JSON
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 class RModulesController {
 
@@ -88,6 +90,16 @@ class RModulesController {
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
         quartzScheduler.scheduleJob(jobDetail, trigger)
+    }
+
+    def knownDataTypes() {
+        def resource = Holders.grailsApplication.mainContext.getBean HighDimensionResource
+        Map output = [:]
+        resource.knownDataTypes.each {
+            def subResource = resource.getSubResourceForType(it.key)
+            output[it.key] = ['assayConstraints':subResource.supportedAssayConstraints, 'dataConstraints':subResource.supportedDataConstraints,'projections':subResource.supportedProjections]
+        }
+        render output as JSON
     }
 
     private static def getQuartzScheduler() {
