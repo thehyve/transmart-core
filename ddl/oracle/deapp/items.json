@@ -195,6 +195,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_QPCR_MIRNA_ANNOTATION"
     },
     "parents" : [ ]
@@ -375,7 +382,11 @@
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    } ]
   }, {
     "child" : {
       "type" : "INDEX",
@@ -924,6 +935,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0015265"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -1286,6 +1308,13 @@
       "name" : "DE_PATHWAY_NAME_IDX"
     },
     "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1825,6 +1854,13 @@
       "name" : "SYS_C0014934"
     },
     "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0015265"
+    },
+    "file" : "deapp/de_subject_protein_data.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",
