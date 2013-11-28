@@ -67,7 +67,7 @@ class Heatmap extends AnalysisJob {
             ]
             assayConstraints.add(
                     dataType.createAssayConstraint(
-                            AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths
+                            AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: createConceptKeyFrom(jobDataMap.variablesConceptPaths)
                     )
             )
 

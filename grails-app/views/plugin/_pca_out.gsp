@@ -1,60 +1,20 @@
-<!--
- Copyright 2008-2012 Janssen Research & Development, LLC.
+<h2>Component Summary</h2>
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+${summaryTable}
 
-     http://www.apache.org/licenses/LICENSE-2.0
+<br />
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+<g:each var="location" in="${imageLocations}">
+    <g:img file="${location}"></g:img> <br />
+</g:each>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>subsetPanel.html</title>
+<br />
 
-<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
-<meta http-equiv="description" content="this is my page">
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
+<h2>Gene list by proximity to Component</h2>
 
-</head>
+${geneListTable}
 
-<body>
-	<form>
-	
-		<br />
-		<br />		
-		<span class='AnalysisHeader'>Component Summary</span><br /><br />
-
-		${summaryTable}
-
-		<br />
-		<br />	
-		
-		<g:each var="location" in="${imageLocations}">
-            <g:img file="${location}"></g:img> <br />
-		</g:each>
-
-		<br />
-		<br />		
-
-		<span class='AnalysisHeader'>Gene list by proximity to Component</span><br /><br />
-
-		${geneListTable}
-		
-		<br />
-		<br />
-
-        <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
-		
-	</form>
-</body>
-
-</html>
+<br />
+<div>
+    <a href="${resource(file: zipLink)}" class="downloadLink">Download raw R data</a>
+</div>

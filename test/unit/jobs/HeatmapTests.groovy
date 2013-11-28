@@ -2,20 +2,19 @@ package jobs
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
-import org.gmock.WithGMock
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
 import org.quartz.JobExecutionContext
-import org.transmartproject.core.dataquery.TabularResult
+import org.quartz.JobExecutionException
+import static org.easymock.EasyMock.*;
 
 @TestMixin(GrailsUnitTestMixin)
-@WithGMock
 class HeatmapTests {
 
     Heatmap heatmap
-
 
     @Before
     void setUp() {
@@ -29,38 +28,20 @@ class HeatmapTests {
     }
 
     @Test
-    void scheduleJobTest() {
-        def scheduler = mock()
-        scheduler.scheduleJob(Matchers.anything(), Matchers.anything()).once()
-
-        Heatmap.metaClass.static.getQuartzScheduler = { -> scheduler }
-
-        play {
-            Heatmap.scheduleJob([jobName: 'boar'])
-        }
+    void createConceptKeyFromTest() {
+        String prefix = Heatmap.createConceptKeyFrom(
+                '\\Public Studies\\GSE8581\\MRNA\\Biomarker Data\\Affymetrix Human Genome U133A 2.0 Array\\Lung\\'
+        )
+        assert prefix == '\\\\Public Studies\\Public Studies\\GSE8581\\MRNA\\Biomarker Data\\Affymetrix Human Genome U133A 2.0 Array\\Lung\\'
     }
 
     @Test
-    void setupTemporaryDirectoryTest() {
-        heatmap.metaClass.writeParametersFile = { }
-        heatmap.metaClass.fetchResults = { }
-        heatmap.metaClass.writeData = { TabularResult a, File b -> null }
-        heatmap.metaClass.runAnalysis = { }
-
-        JobExecutionContext context = mock(JobExecutionContext)
-        def jobDetailMap = mock()
-        jobDetailMap.jobDataMap.returns([jobName: 'foo_bar_baz']).stub()
-        context.jobDetail.returns(jobDetailMap).stub()
-
-        play {
+    void throwsExceptionOnMalformattedJobName() {
+        def context = mockedJobExecutionContext([jobName: 'contains_underscores'])
+        println(context.jobDetail)
+        shouldFail(JobExecutionException) {
             heatmap.execute(context)
-            assert new File(new File(heatmap.temporaryDirectory, 'foo_bar_baz'), 'workingDirectory').exists()
         }
-    }
-
-    @Test
-    void writesParameterFileTest() {
-
     }
 
     @Test
@@ -99,7 +80,21 @@ class HeatmapTests {
             """
     }
 
+    JobExecutionContext mockedJobExecutionContext(Map data) {
+        JobDetail jobDetail = createMock(JobDetail.class)
+        expect(jobDetail.getJobDataMap()).andReturn(new JobDataMap(data)).anyTimes()
+        replay(jobDetail)
+
+        JobExecutionContext context = createMock(JobExecutionContext.class)
+        expect(context.getJobDetail()).andReturn(jobDetail).anyTimes()
+        replay(context)
+
+        context
+    }
+
     /*
+    void writesParameterFileTest() {}
+
     void fetchesResultsTest() {}
 
     void writesResultsTest() {}

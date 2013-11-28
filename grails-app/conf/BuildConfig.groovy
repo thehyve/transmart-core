@@ -18,8 +18,6 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
-grails.project.fork.test = false
-
 grails.project.dependency.resolver = "maven"
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -33,43 +31,20 @@ grails.project.dependency.resolution = {
         grailsCentral()
 
         mavenCentral()
-        mavenRepo([
-                name: 'repo.transmartfoundation.org-public',
-                url: 'https://repo.transmartfoundation.org/content/repositories/public/',
-        ])
+        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
     }
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
-        compile "org.rosuda:Rserve:1.7.3"
+        compile 'org.rosuda:Rserve:1.7.3'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
-
-        /* for unknown reason, test scope is not enough */
-        compile('junit:junit:4.11') {
-            export     = false
-            transitive = false
-        }
-
-        test('org.hamcrest:hamcrest-library:1.3',
-                'org.hamcrest:hamcrest-core:1.3') {
-            transitive = false
-            export     = false
-        }
-
-        test('org.gmock:gmock:0.8.3') {
-            export = false
-        }
+        test 'org.easymock:easymock:3.2'
     }
 
     plugins {
-        compile ":hibernate:3.6.10.1"
-        compile ":quartz:1.0-RC2"
-        runtime ":resources:1.2"
+        build(':release:3.0.1',
+              ':rest-client-builder:1.0.3') { export = false }
 
-        build(":tomcat:7.0.41",
-              ":release:3.0.0",
-              ":rest-client-builder:1.0.3"
-              ) {
-            exported: false
-        }
+        compile ':quartz:1.0-RC2'
+        runtime ':resources:1.2.1'
     }
 }

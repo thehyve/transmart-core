@@ -1,0 +1,19 @@
+#analysisWidget h2, #analysisOutput h2 {margin: 0 20px 20px 0; font-size: 1.3em;}
+#analysisWidget {width : 800px; padding: 5px; font-size: 12px; font-family: Tahoma, Arial, Verdana, sans-serif;}
+#analysisOutput {padding: 5px;}
+#analysisForm fieldset {border: 0; width: 400px;}
+#analysisForm label {float: left; clear: left; margin: 11px 10px 0 0; width: 150px; text-align: right;}
+#analysisForm input:not([type=button]) {width: 230px; height: 20px; padding: 5px 5px 0 5px; margin: 0 0 10px 0; font: inherit}
+
+.runAnalysisBtn {float:right; margin-right:50px;}
+.highDimContainer {text-align: right; margin-right: 50px; margin-bottom: 20px;}
+.highDimBox {margin: 10px 0 10px 5px; width: 390px!important;}
+
+.independentVars {margin-bottom: 20px;}
+#dataAssociationBody {font-size: 11px; font-family: Tahoma, Arial, Verdana, sans-serif; background-color: #EEEEEE}
+#dataAssociationBody {padding: 5px; border-bottom: 2px silver solid;}
+#dataAssociationBody {font-weight: normal; color: #333}
+.warning {color: firebrick}
+
+.plot_hint {font-style: italic;}
+.downloadLink {font-weight: bold; margin: 10px 0 0 0;}

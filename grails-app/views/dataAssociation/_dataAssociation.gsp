@@ -2,14 +2,14 @@
 <div id="toolbar"></div>
 
 %{-- Data Association Content --}%
-<div id="dataAssociationBody" class="snowpanel">
+<div id="dataAssociationBody">
 
 	%{-- Variable Selection --}%
 	<div class="subsettable" >
 
 		    %{--display selected analysis--}%
 			<label for="selectedAnalysis">
-				Analysis:
+				<span>Analysis:</span>
 				<span id="selectedAnalysis" class="warning">WARNING: Analysis is not selected</span>
 
 				%{-- TBD: help hyperlink
@@ -23,7 +23,7 @@
 			<hr style="height: 1px;"/>
 			%{--display selected cohort--}%
 			<label for="cohortSummary">
-				Cohorts:
+				<span>Cohorts:</span>
 				<span id="cohortWarningMsg" class="warning"></span>
 				<div id="cohortSummary"></div>
 			</label>
@@ -31,11 +31,11 @@
   
 </div>
   				
-	%{-- Variable Selection --}%
-	<div id="variableSelection"></div>
+%{-- Variable Selection --}%
+<div id="variableSelection"></div>
 
-	%{-- Page Break for PDF--}%
-	<div style="page-break-after:always"></div>
-  
-	%{-- Analysis Output --}%
-	<div id="analysisOutput" ></div>
+%{-- Page Break for PDF--}%
+<div style="page-break-after:always"></div>
+
+%{-- Analysis Output --}%
+<div id="analysisOutput" ></div>

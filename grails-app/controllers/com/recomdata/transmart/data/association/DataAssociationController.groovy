@@ -37,32 +37,32 @@ class DataAssociationController {
 	}
 	
 	def loadScripts = {
-		def scripts = [
-        servletContext.contextPath+pluginContextPath+'/js/FormValidator.js',
-        servletContext.contextPath+pluginContextPath+'/js/dataAssociation.js',
-		servletContext.contextPath+pluginContextPath+'/js/PDFGenerator.js',
-		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-overrides.js',
-		servletContext.contextPath+pluginContextPath+'/js/ext/tsmart-generic.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/SurvivalAnalysis.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/aCGHSurvivalAnalysis.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/CorrelationAnalysis.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/LineGraph.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/ScatterPlot.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/BoxPlot.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/TableWithFisher.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/Heatmap.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/HClust.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/KClust.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/Waterfall.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/BoxPlot.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/IC50.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/GroupTestaCGH.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/GroupTestRNASeq.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/PCA.js',
-		servletContext.contextPath+pluginContextPath+'/js/plugin/MarkerSelection.js']
-		
 
-		
+        // list of required javascripts
+        def scripts = [
+                servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
+                servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
+                servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
+                servletContext.contextPath + pluginContextPath + '/js/PDFGenerator.js',
+                servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-overrides.js',
+                servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-generic.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/SurvivalAnalysis.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/aCGHSurvivalAnalysis.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/CorrelationAnalysis.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/LineGraph.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/ScatterPlot.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/TableWithFisher.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/KClust.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestaCGH.js',
+                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestRNASeq.js']
+
+        // list of required css
+        def styles = [servletContext.contextPath+pluginContextPath+'/css/rmodules.css']
+
 		JSONObject result = new JSONObject()
 		JSONArray rows = new JSONArray()
 		
@@ -72,11 +72,18 @@ class DataAssociationController {
 			m["type"] = "script"
 			rows.put(m);
 		}
+
+        for (file in styles) {
+            def n = [:]
+            n["path"] = file.toString()
+            n["type"] = "css"
+            rows.put(n);
+        }
 		
 		result.put("success", true)
 		result.put("totalCount", scripts.size())		
 		result.put("files", rows)
-		
+
 		response.setContentType("text/json")
 		response.outputStream << result.toString()
 	}

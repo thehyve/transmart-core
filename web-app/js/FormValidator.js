@@ -42,7 +42,9 @@ var defaults = {
             'following: {1}.',
         no_high_dimensional_platform: 'Unknown high dimensional data. Please verify first the high dimensional data ' +
             'in field {0}.',
-        no_high_dimensional_pathway: 'Please define pathway/gene for selected high dimensional data.'
+        no_high_dimensional_pathway: 'Please define pathway/gene for selected high dimensional data.',
+        min_two_subsets: 'Marker Selection requires two subsets of cohorts to be selected. Please use the Comparison ' +
+            'Tab and select the cohorts'
     },
     callback: function(errors) {
 
@@ -80,6 +82,7 @@ FormValidator.prototype.validateInputForm = function () {
 
         // single instance of input object
         var _el = _inputArr[i].el;
+        var _value = _inputArr[i].value;
         var _label = _inputArr[i].label;
         var _validations = _inputArr[i].validations;
 
@@ -87,26 +90,27 @@ FormValidator.prototype.validateInputForm = function () {
         var _isRequired = false;
         var _isInteger = false;
         var _isHighDimensional = false;
+        var _isTwoSubsets = false;
 
         for (var j = 0; j < _validations.length; j++) { // loop into validations for an input
 
             // 1st level validation - check mandatory
-
             if (_validations[j].type == "REQUIRED") {
                 _isRequired = this.required(_el, _label);
                 _isValid = _isValid && _isRequired;
             }
 
-            if (_isRequired) {
-
+            if (_isValid) {
                 // 2nd level validation
-
                 if (_validations[j].type == "INTEGER") {
                     _isInteger =  this.valid_integer(_el, _label, _validations[j]);
                     _isValid = _isValid && _isInteger;
                 } else if (_validations[j].type == "HIGH_DIMENSIONAL") {
                     _isHighDimensional =  this.valid_high_dimensional(_el, _label, _validations[j]);
                     _isValid = _isValid && _isHighDimensional;
+                } else if (_validations[j].type == "MIN_TWO_SUBSETS") {
+                    _isTwoSubsets = this.min_two_subsets(_value, _label);
+                    _isValid = _isValid && _isTwoSubsets;
                 }
             }
         } // end validation loop
@@ -229,6 +233,18 @@ FormValidator.prototype.valid_high_dimensional_pathway = function (validator, la
     return retVal;
 }
 
+// validate cohort selection must have at least two cohorts
+FormValidator.prototype.min_two_subsets = function (subsets, label) {
+    // validate high dimensional pathway
+    for (var i=0; i<subsets.length; i++) {
+        if (!subsets[i]) {
+            this.push_error(defaults.messages.min_two_subsets, [label]);
+            return false;
+        }
+    }
+    return true;
+}
+
 // Utils
 // -------------------------------------------------
 
@@ -265,6 +281,3 @@ FormValidator.prototype.display_errors = function () {
         icon: Ext.MessageBox.ERROR
     });
 }
-
-
-
