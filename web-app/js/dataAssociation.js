@@ -719,7 +719,8 @@ function loadCommonHighDimFormObjects(formParams, divName)
 	var tempTissueType		= window[divName + 'tissuesValues'];
 	var tempTime			= window[divName + 'timepointsValues'];	
 	
-	//If we are using High Dimensional data we need to create variables that represent genes from both independent and dependent selections (In the event they are both of a single high dimensional type).
+	//If we are using High Dimensional data we need to create variables that represent genes from both independent
+	//and dependent selections (In the event they are both of a single high dimensional type).
 	//Check to see if the user selected GEX in the independent input.
 	if(tempMarkerType == "Gene Expression")
 	{
@@ -739,7 +740,16 @@ function loadCommonHighDimFormObjects(formParams, divName)
 		mrnaData = true;
 		
 		//Fix the platform to be something the R script expects.
-		tempMarkerType = "MRNA";
+		//tempMarkerType = "MRNA"; // after this is commented out it seems does not affect the R script, however marker
+                                   // type needs to be aligned with what has been defined in the gpl info table
+
+        formParams["gexpathway"]								= fullGEXGeneList;
+        formParams["gextime"]									= fullGEXTime;
+        formParams["gextissue"]									= fullGEXTissueType;
+        formParams["gexsample"]									= fullGEXSampleType;
+        formParams["gexgpl"]									= fullGEXGPL;
+
+        formParams["mrnaData"]									= mrnaData;
 	}
 	
 	//Check to see if the user selected SNP in the temp input.
@@ -759,27 +769,20 @@ function loadCommonHighDimFormObjects(formParams, divName)
 		
 		//This flag will tell us to write the SNP text file.
 		snpData = true;
+
+        formParams["snppathway"]								= fullSNPGeneList;
+        formParams["snptime"]									= fullSNPTime;
+        formParams["snptissue"]									= fullSNPTissueType;
+        formParams["snpsample"]									= fullSNPSampleType;
+        formParams["snpgpl"]									= fullSNPGPL;
+        formParams["snpData"]									= snpData;
 	}
 
     if(tempMarkerType == "QPCR MIRNA")
     {
-        //The genes entered into the search box were GEX genes.
-        fullGEXGeneList 	= tempGeneList;
-        fullGEXSampleType 	= String(tempSampleType);
-        fullGEXTissueType 	= String(tempTissueType);
-        fullGEXTime			= String(tempTime);
-        fullGEXGPL			= String(tempGPL);
-
-        if(fullGEXSampleType == ",") 	fullGEXSampleType = ""
-        if(fullGEXTissueType == ",") 	fullGEXTissueType = ""
-        if(fullGEXTime == ",") 			fullGEXTime = ""
-        if(fullGEXGPL == ",") 			fullGEXGPL = ""
-
         //This flag will tell us to write the GEX text file.
         mirnaData = true;
-
-        //Fix the platform to be something the R script expects.
-        tempMarkerType = "MIRNA_AFFYMETRIX";
+        formParams["mirnaData"]									= mrnaData;
     }
 		
 	//If we don't have a platform, fill in Clinical.
@@ -787,23 +790,6 @@ function loadCommonHighDimFormObjects(formParams, divName)
 		
 	formParams[divName + "Type"]							= tempMarkerType;
 	formParams[divName + "Pathway"]							= tempGeneList;
-	
-	formParams["gexpathway"]								= fullGEXGeneList;
-	formParams["gextime"]									= fullGEXTime;
-	formParams["gextissue"]									= fullGEXTissueType;
-	formParams["gexsample"]									= fullGEXSampleType;
-	formParams["gexgpl"]									= fullGEXGPL;
-	
-	formParams["snppathway"]								= fullSNPGeneList;
-	formParams["snptime"]									= fullSNPTime;
-	formParams["snptissue"]									= fullSNPTissueType;
-	formParams["snpsample"]									= fullSNPSampleType;
-	formParams["snpgpl"]									= fullSNPGPL;
-	
-	formParams["mrnaData"]									= mrnaData;
-	formParams["mirnaData"]									= mrnaData;
-	formParams["snpData"]									= snpData;
-
 }
 
 function loadCommonHeatmapImageAttributes(formParams)
