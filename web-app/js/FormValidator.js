@@ -5,9 +5,6 @@
  * Time: 15:27
  */
 
-// high dimensional data types
-var high_dimensional_platforms = ["MRNA", "MIRNA_AFFYMETRIX"];
-
 // Default error messages
 var defaults = {
     messages: {
@@ -38,9 +35,8 @@ var defaults = {
         is_file_type: 'The {0} field must contain only {1} files.',
         valid_url: 'The {0} field must contain a valid URL.',
         valid_high_dimensional_node: 'The {0} field must contain high dimensional node only.',
-        valid_high_dimensional_platform: 'The {0} field contains invalid high dimensional data platform. Please use ' +
-            'following: {1}.',
-        no_high_dimensional_platform: 'Unknown high dimensional data. Please verify first the high dimensional data ' +
+        valid_high_dimensional_type: 'The {0} field contains invalid high dimensional data type.',
+        no_high_dimensional_type: 'Unknown high dimensional data. Please verify first the high dimensional data ' +
             'in field {0}.',
         no_high_dimensional_pathway: 'Please define pathway/gene for selected high dimensional data.',
         min_two_subsets: 'Marker Selection requires two subsets of cohorts to be selected. Please use the Comparison ' +
@@ -71,6 +67,18 @@ var ruleRegex = /^(.+?)\[(.+)\]$/,
 var FormValidator = function (inputArray) {
     this.inputs = inputArray;
     this.error_messages = [];
+}
+
+FormValidator.prototype.getHighDimensionalDataTypes = function () {
+    var retval = {
+        "MRNA_AFFYMETRIX"   : {"platform" : "MRNA_AFFYMETRIX", "type" : "Gene Expression"},
+        "MIRNA_AFFYMETRIX"  : {"platform" : "MIRNA_AFFYMETRIX", "type" : "QPCR MIRNA"},
+        "MIRNA_SEQ"         : {"platform" : "MIRNA_SEQ", "type" : "SEQ MIRNA"},
+        "RBM"               : {"platform" : "RBM", "type" : "RBM"},
+        "PROTEIN"           : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
+        "SNP"               : {"platform" : "SNP", "type" : "SNP"}
+    };
+    return (HIGH_DIMENSIONAL_DATA) ? HIGH_DIMENSIONAL_DATA : retval;
 }
 
 FormValidator.prototype.validateInputForm = function () {
@@ -189,7 +197,7 @@ FormValidator.prototype.valid_high_dimensional = function (el, label, validator)
 
         } else { // if yes
             retVal = retVal &&
-                this.valid_high_dimensional_platform (validator, label) &&
+                this.valid_high_dimensional_type (validator, label) &&
                 this.valid_high_dimensional_pathway(validator, label);
         }
     }
@@ -197,23 +205,26 @@ FormValidator.prototype.valid_high_dimensional = function (el, label, validator)
 }
 
 // validate selected high dimensional platform
-FormValidator.prototype.valid_high_dimensional_platform = function (validator, label) {
+FormValidator.prototype.valid_high_dimensional_type = function (validator, label) {
     var retVal = false;
 
     // validate high dimensional platform
-    if (!validator.platform) {
-        this.push_error(defaults.messages.no_high_dimensional_platform, [label]);
+    if (!validator.high_dimensional_type) {
+        this.push_error(defaults.messages.no_high_dimensional_type, [label]);
     } else {
         // validate supported high dimensional data types
-        for (var j=0; j<high_dimensional_platforms.length; j++) {
-            if (validator.platform == high_dimensional_platforms[j]) {
+        var _highDimensionalTypes = this.getHighDimensionalDataTypes();
+
+        for (var key in _highDimensionalTypes) {
+            if (validator.high_dimensional_type == _highDimensionalTypes[key].type) {
                 retVal = true;
                 break;
             }
         }
+
         if (!retVal) {
             this.push_error(
-                defaults.messages.valid_high_dimensional_platform, [label, high_dimensional_platforms]);
+                defaults.messages.valid_high_dimensional_type, [label]);
         }
     }
 
@@ -224,7 +235,7 @@ FormValidator.prototype.valid_high_dimensional_platform = function (validator, l
 FormValidator.prototype.valid_high_dimensional_pathway = function (validator, label) {
     var retVal = false;
     // validate high dimensional pathway
-    if (!validator.pathway) {
+    if (!validator.high_dimensional_pathway) {
         this.push_error(defaults.messages.no_high_dimensional_pathway, [label]);
     } else {
         retVal = true;
