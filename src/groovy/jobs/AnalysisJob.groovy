@@ -11,17 +11,24 @@ import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
 import org.transmartproject.core.dataquery.TabularResult
+import com.recomdata.asynchronous.JobResultsService
 
 abstract class AnalysisJob implements Job {
     Map jobDataMap
     String name
     File temporaryDirectory
+    final static String SUBSET1 = "subset1"
+    final static String SUBSET2 = "subset2"
+    final static String SUBSET1SHORT = "S1"
+    final static String SUBSET2SHORT = "S2"
+    final static String RESULTSET1 = "result_instance_id1"
+    final static String RESULTSET2 = "result_instance_id2"
 
-    abstract protected void writeData(TabularResult results)
+    abstract protected void writeData(Map<String, TabularResult> results)
 
     abstract protected void runAnalysis()
 
-    abstract protected TabularResult fetchResults()
+    abstract protected Map<String, TabularResult> fetchResults()
 
     abstract protected void renderOutput()
 
@@ -43,7 +50,7 @@ abstract class AnalysisJob implements Job {
             setupTemporaryDirectory()
 
             writeParametersFile()
-            TabularResult results = fetchResults()
+            Map<String, TabularResult> results = fetchResults()
             writeData(results)
             runAnalysis()
             renderOutput()
@@ -81,7 +88,7 @@ abstract class AnalysisJob implements Job {
         }
     }
 
-    protected void withDefaultCsvWriter(results, Closure body) {
+    protected void withDefaultCsvWriter(Map<String, TabularResult> results, Closure body) {
         try {
             File output = new File(temporaryDirectory, 'outputfile')
             output.createNewFile()
@@ -90,7 +97,8 @@ abstract class AnalysisJob implements Job {
                 body.call(csvWriter)
             }
         } finally {
-          results.close()
+            // close the tabularresults we processed (when not null)
+            results.each {it.value?.close()}
         }
     }
 
@@ -123,7 +131,7 @@ abstract class AnalysisJob implements Job {
 
             String finalCommand = processTemplates(currentCommand, vars)
             log.info "About to trigger R command:$finalCommand"
-            // REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
+            // TODO Set back silent mode REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=TRUE)")
             REXP rObject = rConnection.parseAndEval("try($finalCommand, silent=FALSE)")
 
             if (rObject.inherits("try-error")) {
