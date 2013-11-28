@@ -58,7 +58,7 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ dataConstraintFactory,
-                standardAssayConstraintFactory ]
+                standardDataConstraintFactory ]
     }
 
     private DataRetrievalParameterFactory projectionsFactory = new MapBasedParameterFactory(
