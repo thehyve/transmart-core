@@ -2,7 +2,7 @@ package org.transmartproject.db.search
 
 import groovy.transform.EqualsAndHashCode
 
-@EqualsAndHashCode(includes = [ 'domainObjectId', 'associatedBioMarkerId', 'correlationType', 'valueMetric', 'mvId' ])
+@EqualsAndHashCode(includes = [ 'domainObjectId', 'associatedBioMarkerId', 'name', 'valueMetric', 'mvId' ])
 class SearchBioMarkerCorrelationView implements Serializable {
 
     //is a view!

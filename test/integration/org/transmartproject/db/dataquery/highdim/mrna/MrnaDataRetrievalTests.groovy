@@ -13,7 +13,9 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.*
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
 import static groovy.test.GroovyAssert.shouldFail
@@ -120,15 +122,25 @@ class MrnaDataRetrievalTests {
         )
     }
 
+    private CriteriaDataConstraint createGenesDataConstraint(List skIds) {
+        SearchKeywordDataConstraint.createForSearchKeywordIds(
+                entityAlias:        'jProbe',
+                propertyToRestrict: 'geneId',
+                correlationTypes:   [
+                        SearchKeywordDataConstraint.Correlations.GENE_IDENTITY,
+                        SearchKeywordDataConstraint.Correlations.GENE_SIGNATURE],
+                skIds)
+    }
+
     @Test
     void testWithGeneConstraint() {
         List assayConstraints = [
                 new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
         ]
         List dataConstraints = [
-                MrnaGeneDataConstraint.createForLongIds([
+                createGenesDataConstraint([
                         MrnaTestData.searchKeywords.
-                                find({ it.keyword == 'BOGUSRQCD1' }).uniqueId
+                                find({ it.keyword == 'BOGUSRQCD1' }).id
                 ])
         ]
         def projection = new SimpleRealProjection(property: 'rawIntensity')
@@ -150,15 +162,15 @@ class MrnaDataRetrievalTests {
         List assayConstraints = [
                 new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
         ]
-        /* in this particular case, you could just use one MrnaGeneDataConstraint
+        /* in this particular case, you could just use one constraint
          * and include two ids in the list */
         List dataConstraints = [
                 new DisjunctionDataConstraint(constraints: [
-                        MrnaGeneDataConstraint.createForLongIds([
-                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSRQCD1' }).uniqueId
+                        createGenesDataConstraint([
+                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSRQCD1' }).id
                         ]),
-                        MrnaGeneDataConstraint.createForLongIds([
-                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSVNN3' }).uniqueId
+                        createGenesDataConstraint([
+                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSVNN3' }).id
                         ])
                 ])
         ]

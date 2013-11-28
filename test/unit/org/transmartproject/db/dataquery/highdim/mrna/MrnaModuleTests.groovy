@@ -3,9 +3,11 @@ package org.transmartproject.db.dataquery.highdim.mrna
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import org.gmock.WithGMock
+import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
@@ -30,11 +32,11 @@ class MrnaModuleTests {
         List keywordIdsInput = [ 10, 11.0, '0012' ]
         List typedKeywordIds = [ 10L, 11L, 12L ]
 
-        def mockMrnaGeneDataConstraint = mock(MrnaGeneDataConstraint)
+        def mockMrnaGeneDataConstraint = mock(SearchKeywordDataConstraint)
         def mockDataConstraint = mock(DataConstraint)
 
         mockMrnaGeneDataConstraint.static.
-                createForSearchKeywordIds(typedKeywordIds).
+                createForSearchKeywordIds(Matchers.instanceOf(Map), typedKeywordIds).
                 returns(mockDataConstraint)
 
         play {

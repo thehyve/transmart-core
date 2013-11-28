@@ -12,6 +12,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.dataconstraints.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
@@ -103,10 +104,18 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 throw new InvalidArgumentsException("Expected exactly one parameter (keyword_ids), got $params")
             }
 
-            def keywords = getParam params, 'keyword_ids', List
-            keywords = keywords.collect { convertToLong 'element of keyword_ids', it }
+            def keywordIds = getParam params, 'keyword_ids', List
+            keywordIds = keywordIds.collect { convertToLong 'element of keyword_ids', it }
 
-            MrnaGeneDataConstraint.createForSearchKeywordIds(keywords)
+            SearchKeywordDataConstraint.createForSearchKeywordIds(
+                    entityAlias:        'jProbe',
+                    propertyToRestrict: 'geneId',
+                    correlationTypes:   [
+                            SearchKeywordDataConstraint.Correlations.GENE_IDENTITY,
+                            SearchKeywordDataConstraint.Correlations.GENE_SIGNATURE,
+                    ],
+                    keywordIds
+            )
         }
     }
 
