@@ -49,6 +49,7 @@ abstract class AnalysisJob implements Job {
             renderOutput()
         } catch (Exception e) {
             log.error("Some exception occurred in the processing pipe", e)
+            jobResultsService[name]["Exception"] = e.message
             updateStatus("Error")
         }
     }
