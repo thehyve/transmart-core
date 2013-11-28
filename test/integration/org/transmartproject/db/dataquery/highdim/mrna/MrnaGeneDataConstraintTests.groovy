@@ -1,10 +1,12 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
+import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static junit.framework.TestCase.fail
@@ -13,6 +15,9 @@ import static org.hamcrest.Matchers.*
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class MrnaGeneDataConstraintTests {
+
+    MrnaModule.MrnaDataConstraintsProducers producers =
+        new MrnaModule.MrnaDataConstraintsProducers()
 
     @Before
     void setUp() {
@@ -30,15 +35,13 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    @Ignore
     void basicTestGene() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        def testee = MrnaGeneDataConstraint.createForLongIds([
-                MrnaTestData.searchKeywords.
-                        find({ it.keyword == 'BOGUSRQCD1' }).
-                        uniqueId
-                ])
+        def testee = producers.createSearchKeywordIdsConstraint(
+                keyword_ids: MrnaTestData.searchKeywords.
+                        findAll({ it.keyword == 'BOGUSRQCD1' })*.id
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -59,13 +62,12 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    @Ignore
-    void searchByKeywordIdTest() {
+    void testWithMultipleGenes() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        /* keywords for genes BOGUSCPO, BOGUSRQCD1 */
-        def testee = MrnaGeneDataConstraint.
-                createForSearchKeywordIds([ -501, -502 ])
+        /* keywords ids for genes BOGUSCPO, BOGUSRQCD1 */
+        def testee = producers.createSearchKeywordIdsConstraint(
+                keyword_ids: [ '-501', '-502' ])
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -86,31 +88,28 @@ class MrnaGeneDataConstraintTests {
         )
     }
 
+    private static Matcher matcherFor(PatientDimension patient, String gene) {
+        allOf(
+                hasProperty('probe',
+                        hasProperty('geneSymbol', equalTo(gene))
+                ),
+                hasProperty('patient', equalTo(patient))
+        )
+    }
+
     @Test
-    @Ignore
     void basicTestGeneSignature() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
-        def testee = MrnaGeneDataConstraint.createForLongIds([
-                MrnaTestData.searchKeywords.
-                        find({ it.keyword == 'genesig_keyword_-602' }).
-                        uniqueId
-        ])
+        def testee = producers.createSearchKeywordIdsConstraint(
+                keyword_ids: MrnaTestData.searchKeywords.
+                        findAll({ it.keyword == 'genesig_keyword_-602' })*.id)
 
         testee.doWithCriteriaBuilder(builder)
 
         List res = builder.instance.list()
-
-        def matcherFor = { PatientDimension patient, String gene ->
-            allOf(
-                    hasProperty('probe',
-                            hasProperty('geneSymbol', equalTo(gene))
-                    ),
-                    hasProperty('patient', equalTo(patient))
-            )
-        }
 
         assertThat res,
                 /* 2 patients * 2 probes (one for each gene) */
@@ -123,22 +122,41 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    @Ignore
     void testMixedConstraint() {
-        try {
-            MrnaGeneDataConstraint.createForLongIds(['GENE:234322', 'GENESIG:23434'])
-            fail 'Expected exception'
-        } catch (e) {
-            assertThat e, isA(InvalidArgumentsException)
-            assertThat e, hasProperty('message', containsString('exactly one type'))
-        }
+        HibernateCriteriaBuilder builder = createCriteriaBuilder()
+
+        /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
+         * See comment before MrnaTestData.searchKeywords */
+        def testee = producers.createSearchKeywordIdsConstraint(
+                keyword_ids: MrnaTestData.searchKeywords.
+                        findAll({
+                            it.keyword == 'genesig_keyword_-602' ||
+                                    it.keyword == 'BOGUSCPO'
+                        })*.id)
+
+        assertThat testee, is(instanceOf(DisjunctionDataConstraint))
+
+        testee.doWithCriteriaBuilder(builder)
+
+        List res = builder.instance.list()
+
+        assertThat res,
+                /* 2 patients * 3 probes (one for each gene) */
+                containsInAnyOrder(
+                        matcherFor(MrnaTestData.patients[0], 'BOGUSRQCD1'),
+                        matcherFor(MrnaTestData.patients[1], 'BOGUSRQCD1'),
+                        matcherFor(MrnaTestData.patients[0], 'BOGUSVNN3'),
+                        matcherFor(MrnaTestData.patients[1], 'BOGUSVNN3'),
+                        matcherFor(MrnaTestData.patients[0], 'BOGUSCPO'),
+                        matcherFor(MrnaTestData.patients[1], 'BOGUSCPO'),
+                )
     }
 
     @Test
     @Ignore
     void testEmptyConstraint() {
         try {
-            MrnaGeneDataConstraint.createForLongIds([])
+            producers.createSearchKeywordIdsConstraint(keyword_ids: [])
             fail 'Expected exception'
         } catch (e) {
             assertThat e, isA(InvalidArgumentsException)

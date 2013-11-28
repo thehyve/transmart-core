@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim.dataconstraints
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
+import groovy.util.logging.Log4j
 import org.hibernate.Criteria
 import org.hibernate.HibernateException
 import org.hibernate.criterion.CriteriaQuery
@@ -9,19 +10,22 @@ import org.hibernate.criterion.SQLCriterion
 import org.hibernate.type.LongType
 import org.hibernate.type.StringType
 import org.hibernate.type.Type
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 /*
  * Search for biomarkers in this fashion:
- * - start with biomarker ids (PK) from BIO_MARKER
- * - search correlations of the types specified in BIO_MARKER_CORREL_MV
- *   where the found biomarker ids are present in the BIO_MARKER_ID column
- *   (1 st column)
+ * - start with search keywords
+ * - search in BIO_MARKER_CORREL_MV/SEARCH_BIO_MKR_CORREL_VIEW for correlations
+ *   of the types specified where the found biomarker ids/domain ids (in any case
+ *   always the value of SEARCH_KEYWORD.BIO_DATA_ID) are present in the
+ *   BIO_MARKER_ID/DOMAIN_OBJECT_ID column of the view
  * - collect resulting associated biomarker ids (ASSO_BIO_MARKER_ID)
  * - go back to bio_marker to find the PRIMARY_EXTERNAL_ID of these new biomarker ids
  */
+@Log4j
 class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
 
-    List<Long> initialBioMarkerIds
+    List<SearchKeywordCoreDb> searchKeywords
 
     List<String> correlationTypes // hopefully these all map to the same data type!
 
@@ -53,19 +57,17 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
                             '   FROM biomart.bio_marker bm\n' +
                             "       INNER JOIN $c.correlationTable correl\n" +
                             '           ON correl.asso_bio_marker_id = bm.bio_marker_id\n' +
-                            '       INNER JOIN biomart.bio_marker bm_orig\n' +
-                            "           ON correl.$c.correlationColumn = bm_orig.bio_marker_id\n" +
                             '   WHERE \n' +
                             '       correl.correl_type IN (' + c.correlationTypes.collect { '?' }.join(', ') + ')\n' +
-                            '           AND bm_orig.bio_marker_id IN (' +
-                            '               ' + c.initialBioMarkerIds.collect { '?' }.join(', ') + ')\n' +
+                            "           AND correl.$c.correlationColumn IN ( " +
+                            '               ' + c.searchKeywords.collect { '?' }.join(', ') + ')\n' +
                     ')',
-                    (c.correlationTypes + c.initialBioMarkerIds) as Object[],
+                    (c.correlationTypes + c.searchKeywords*.bioDataId) as Object[],
                     (c.correlationTypes.collect { StringType.INSTANCE } +
-                            c.initialBioMarkerIds.collect { LongType.INSTANCE }) as Type[]
+                            c.searchKeywords.collect { LongType.INSTANCE }) as Type[]
             )
 
-            System.err.println "Params: " + (c.correlationTypes + c.initialBioMarkerIds)
+            log.debug "Params: ${(c.correlationTypes + c.searchKeywords*.bioDataId)}"
 
             outer = c
         }

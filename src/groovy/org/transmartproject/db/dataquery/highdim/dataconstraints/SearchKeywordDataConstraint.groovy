@@ -65,7 +65,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
 
         searchKeywords.each {
             def type = it.uniqueId.split(':')[0]
-            if (type == 'GENESIG' && type == 'GENELIST') {
+            if (type == 'GENESIG' || type == 'GENELIST') {
                 multimap.put Correlations.GENE_SIGNATURE.correlationTable, it
             } else {
                 /* GENE_IDENTITY or anything else */
@@ -80,18 +80,19 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
                             *:map,
                             correlationTypes: origCorrelationTypes.findAll { it.correlationTable == correlationTable },
                     ],
-                    keywords*.bioDataId as List
+                    keywords
             ]
 
         }
 
         if (buildParams.size() == 1) {
-            createForBioMarkerIdsInternal(*buildParams[0])
+            createForSearchKeywordIdsInternal(*buildParams[0])
         } else {
             def ret = new DisjunctionDataConstraint()
             ret.constraints = buildParams.collect {
-                createForBioMarkerIdsInternal(*it)
+                createForSearchKeywordIdsInternal(*it)
             }
+            ret
         }
     }
 
@@ -105,24 +106,21 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
                 SearchKeywordCoreDb.findAllByIdInList(ids))
     }
 
-    private static SearchKeywordDataConstraint createForBioMarkerIdsInternal(
-            Map map, List<Number> ids) {
+    private static SearchKeywordDataConstraint createForSearchKeywordIdsInternal(
+            Map map, List<SearchKeywordCoreDb> searchKeywordIds) {
         def constraint = createObject map
-        constraint.initialBioMarkerIds = ids
+        constraint.searchKeywords = searchKeywordIds
         constraint
     }
 
-    /**
-     * Creates a constraint of this type
-     * @param keywords Multimap from data category to keyword
-     * @return
-     */
+//    /**
+//     * Creates a constraint of this type
+//     * @param keywords Multimap from data category to keyword
+//     * @return
+//     */
 //    static SearchKeywordDataConstraint createForKeyords(Map map, Multimap<String, String> keywords) {
 //        def ret = createObject map
 //        List results = SearchKeywordCoreDb.withCriteria {
-//            projections {
-//                property 'bioDataId'
-//            }
 //            or {
 //                keywords.asMap().each { String category, Collection<String> kw ->
 //                    and {
@@ -176,7 +174,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         innerConstraint.propertyToRestrict = property
     }
 
-    void setInitialBioMarkerIds(List<Number> ids) {
-        innerConstraint.initialBioMarkerIds = ids*.toLong()
+    void setSearchKeywords(List<SearchKeywordCoreDb> searchKeywords) {
+        innerConstraint.searchKeywords = searchKeywords
     }
 }
