@@ -176,4 +176,8 @@ abstract class AnalysisJob implements Job {
     protected def getAsyncJobService() {
         jobDataMap.grailsApplication.mainContext.asyncJobService
     }
+
+    protected def getJobResultsService() {
+        jobDataMap.grailsApplication.mainContext.jobResultsService
+    }
 }
