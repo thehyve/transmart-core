@@ -68,13 +68,13 @@ class RModulesController {
         }
 
         if (params['analysis'] == "heatmap") {
-            jsonResult = scheduleJob(params, Heatmap.class)
+            jsonResult = createJob(params, Heatmap.class)
         } else if (params['analysis'] == "kclust") {
-            jsonResult = scheduleJob(params, KMeansClustering.class)
+            jsonResult = createJob(params, KMeansClustering.class)
         } else if (params['analysis'] == "hclust") {
-            jsonResult = scheduleJob(params, HierarchicalClustering.class)
+            jsonResult = createJob(params, HierarchicalClustering.class)
         } else if (params['analysis'] == "markerSelection") {
-            jsonResult = scheduleJob(params, MarkerSelection.class)
+            jsonResult = createJob(params, MarkerSelection.class)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
         }
@@ -93,7 +93,7 @@ class RModulesController {
         render output as JSON
     }
 
-    private void scheduleJob(Map params, def classFile) {
+    private void createJob(Map params, def classFile) {
         params.grailsApplication = grailsApplication
         params.analysisConstraints = JSON.parse(params.analysisConstraints)
         params.analysisConstraints["data_type"] = lookup[params.analysisConstraints["data_type"]]
@@ -104,7 +104,7 @@ class RModulesController {
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
-        quartzScheduler.scheduleJob(jobDetail, trigger)
+        quartzScheduler.createJob(jobDetail, trigger)
     }
 
     private Map massageConstraints(Map analysisConstraints) {
