@@ -95,9 +95,9 @@ class RModulesController {
     def knownDataTypes() {
         def resource = Holders.grailsApplication.mainContext.getBean HighDimensionResource
         Map output = [:]
-        resource.knownDataTypes.each {
-            def subResource = resource.getSubResourceForType(it.key)
-            output[it.key] = ['assayConstraints':subResource.supportedAssayConstraints, 'dataConstraints':subResource.supportedDataConstraints,'projections':subResource.supportedProjections]
+        resource.knownTypes.each {
+            def subResource = resource.getSubResourceForType(it)
+            output[it] = ['assayConstraints':subResource.supportedAssayConstraints, 'dataConstraints':subResource.supportedDataConstraints,'projections':subResource.supportedProjections]
         }
         render output as JSON
     }
