@@ -1,9 +1,9 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 
-class AcghSegmentConstraint implements CriteriaDataConstraint {
+class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
 
     String chromosome
     Long   start,
@@ -13,6 +13,8 @@ class AcghSegmentConstraint implements CriteriaDataConstraint {
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
+        // NOTE: depends on the alias of DeChromosomalRegion in the Criteria
+        //       being called 'region'
         criteria.with {
             and {
                 if (chromosome) {

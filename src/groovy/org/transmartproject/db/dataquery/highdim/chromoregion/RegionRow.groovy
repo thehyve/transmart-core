@@ -1,7 +1,7 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 final class RegionRow extends AbstractDataRow implements Region {

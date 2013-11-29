@@ -1,7 +1,8 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
+import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -19,7 +20,7 @@ class AcghTestData {
                 title: 'Test Region Platform',
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
-                markerTypeId: DeChromosomalRegion.MARKER_TYPE.id,
+                markerTypeId: PlatformMarkerType.CHROMOSOMAL_REGION.id,
                 releaseNumber: 18,
         )
         p.id = 'test-region-platform'

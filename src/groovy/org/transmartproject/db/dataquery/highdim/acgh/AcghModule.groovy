@@ -12,6 +12,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
+import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
@@ -30,7 +32,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     DataRetrievalParameterFactory standardDataConstraintFactory
 
     @Autowired
-    DataRetrievalParameterFactory acghDataConstraintProducers
+    ChromosomeSegmentConstraintFactory chromosomeSegmentConstraintFactory
 
     @Override
     HighDimensionDataTypeResource createHighDimensionResource(Map params) {
@@ -48,7 +50,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                acghDataConstraintProducers
+                chromosomeSegmentConstraintFactory
         ]
     }
 

@@ -1,10 +1,10 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.acgh.Region
-import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.acgh.DeChromosomalRegion
 

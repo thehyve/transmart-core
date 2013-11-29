@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -7,14 +7,14 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMeth
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
 
 @Component
-class AcghDataConstraintProducers extends AbstractMethodBasedParameterFactory {
+class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFactory {
 
     private static final String SEGMENT_CHROMOSOME_PARAM = 'chromosome'
     private static final String SEGMENT_START_PARAM      = 'start'
     private static final String SEGMENT_END_PARAM        = 'end'
 
     @ProducerFor(DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT)
-    AcghSegmentConstraint createChromosomeSegmentConstraint(Map<String, Object> params) {
+    ChromosomeSegmentConstraint createChromosomeSegmentConstraint(Map<String, Object> params) {
         String chromosome
         Long   start,
                end
@@ -45,7 +45,7 @@ class AcghDataConstraintProducers extends AbstractMethodBasedParameterFactory {
                     'makes the end parameter be required and vice-versa')
         }
 
-        new AcghSegmentConstraint(chromosome: chromosome, start: start, end: end)
+        new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end)
     }
 
 }

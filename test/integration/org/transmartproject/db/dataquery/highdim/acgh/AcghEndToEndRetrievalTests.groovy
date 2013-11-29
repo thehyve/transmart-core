@@ -10,12 +10,14 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
-import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
+import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRow
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -152,7 +154,7 @@ class AcghEndToEndRetrievalTests {
                 title:          'Another Test Region Platform',
                 organism:       'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
-                markerTypeId:   DeChromosomalRegion.MARKER_TYPE.id,
+                markerTypeId:   PlatformMarkerType.CHROMOSOMAL_REGION.id,
                 releaseNumber:  19,
         )
         anotherPlatform.id = 'test-another-platform'
