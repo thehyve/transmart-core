@@ -9,8 +9,12 @@ import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
+import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
@@ -35,11 +39,15 @@ class BusinessExceptionResolver implements ServletContextAware,
             '.transmartproject.db.http.BusinessExceptionResolver.EXCEPTION'
 
     static statusCodeMappings = [
-        /* we may want to make this list dynamic in future, for instance by
-         * marking the relevant exceptions with an annotation
-         */
-        (NoSuchResourceException): HttpServletResponse.SC_NOT_FOUND,
-        (InvalidRequestException): HttpServletResponse.SC_BAD_REQUEST,
+            /* we may want to make this list dynamic in future, for instance by
+             * marking the relevant exceptions with an annotation
+             */
+            (NoSuchResourceException):        HttpServletResponse.SC_NOT_FOUND,
+            (InvalidRequestException):        HttpServletResponse.SC_BAD_REQUEST,
+            (InvalidArgumentsException):      HttpServletResponse.SC_BAD_REQUEST,
+            (EmptySetException):              HttpServletResponse.SC_NOT_FOUND,
+            (UnsupportedByDataTypeException): HttpServletResponse.SC_BAD_REQUEST,
+            (UnexpectedResultException):      HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
     ]
 
     private Throwable resolveCause(Throwable t) {
