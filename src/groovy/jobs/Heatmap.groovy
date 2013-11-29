@@ -63,13 +63,17 @@ class Heatmap extends AnalysisJob {
                 jobDataMap.analysisConstraints["data_type"]
         )
 
-        List<DataConstraint> dataConstraints = jobDataMap.analysisConstraints["dataConstraints"].collect { String constraintType, List<String> values ->
-            dataType.createDataConstraint(constraintType, values)
-        }
+        List<DataConstraint> dataConstraints = jobDataMap.analysisConstraints["dataConstraints"].collect { String constraintType, values ->
+            if(values) {
+                dataType.createDataConstraint(values, constraintType)
+            }
+        }.grep()
 
-        List<AssayConstraint> assayConstraints = jobDataMap.analysisConstraints["assayConstraints"].collect { String constraintType, List<String> values ->
-            dataType.createAssayConstraint(constraintType, values)
-        }
+        List<AssayConstraint> assayConstraints = jobDataMap.analysisConstraints["assayConstraints"].collect { String constraintType, values ->
+            if(values) {
+                dataType.createAssayConstraint(values, constraintType)
+            }
+        }.grep()
 
         assayConstraints.add(
                 dataType.createAssayConstraint(
