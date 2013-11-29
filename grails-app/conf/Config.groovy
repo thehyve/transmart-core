@@ -15,12 +15,12 @@ grails.databinding.trimStrings = false
 org.transmartproject.i2b2.user_id = 'i2b2'
 org.transmartproject.i2b2.group_id = 'Demo'
 
-///*
+/*
 //Example configuration for using the reveng plugin
 grails.plugin.reveng.defaultSchema = 'DEAPP'
 grails.plugin.reveng.includeTables = ['DE_SUBJECT_RBM_DATA', 'DE_RBM_ANNOTATION']
 grails.plugin.reveng.packageName = 'org.transmartproject.db.dataquery.highdim.rbm'
-//*/
+*/
 
 log4j = {
     // Example of changing the log pattern for the default console
