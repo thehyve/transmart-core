@@ -104,7 +104,7 @@ class RModulesController {
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
-        quartzScheduler.createJob(jobDetail, trigger)
+        quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
     private Map massageConstraints(Map analysisConstraints) {
