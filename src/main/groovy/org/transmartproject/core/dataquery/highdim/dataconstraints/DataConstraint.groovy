@@ -50,4 +50,10 @@ public interface DataConstraint {
      */
     public final static String DISJUNCTION_CONSTRAINT = 'disjunction'
 
+    public final static String GENE_CONSTRAINT = 'gene'
+
+    public final static String PROTEIN_CONSTRAINT = 'protein'
+
+    public final static String ANALYTE_CONSTRAINT = 'analyte'
+
 }
