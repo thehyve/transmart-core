@@ -50,10 +50,46 @@ public interface DataConstraint {
      */
     public final static String DISJUNCTION_CONSTRAINT = 'disjunction'
 
-    public final static String GENE_CONSTRAINT = 'gene'
+    /**
+     * Filter rows relevant to some genes. Prefer this to
+     * {@link #SEARCH_KEYWORD_IDS_CONSTRAINT}.
+     *
+     * Parameters: 'names' => <list of gene names>
+     *             XOR
+     *             'ids' => <list of public gene ids (NCBI Gene accession)>
+     */
+    public final static String GENES_CONSTRAINT = 'genes'
 
-    public final static String PROTEIN_CONSTRAINT = 'protein'
+    /**
+     * Filter rows relevant to some proteins. Prefer this to
+     * {@link #SEARCH_KEYWORD_IDS_CONSTRAINT}.
+     *
+     * Parameters: 'names' => <list of protein names>
+     *             XOR
+     *             'ids'  => <list of UniProt ids>
+     */
+    public final static String PROTEINS_CONSTRAINT = 'proteins'
 
-    public final static String ANALYTE_CONSTRAINT = 'analyte'
+    /**
+     * Filter rows relevant to some pathways. Prefer this to
+     * {@link #SEARCH_KEYWORD_IDS_CONSTRAINT}.
+     *
+     * Parameters: 'names' => <list of pathway names>
+     *             XOR
+     *             'ids' => <list of names in the form
+     *                       <database>:<db specific id>>
+     */
+    public final static String PATHWAYS_CONSTRAINT = 'pathways'
+
+    /**
+     * Filter rows relevant to some gene signatures. Prefer this to
+     * {@link #SEARCH_KEYWORD_IDS_CONSTRAINT}.
+     *
+     * Parameters: 'names' => <list of pathway names>
+     *             XOR
+     *             'ids' => <list of gene signature ids>
+     */
+    public final static String GENE_SIGNATURE_CONSTRAINT = 'gene_signatures'
+
 
 }
