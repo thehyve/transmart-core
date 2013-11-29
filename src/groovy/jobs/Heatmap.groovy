@@ -55,33 +55,31 @@ class Heatmap extends AnalysisJob {
     }
 
     private TabularResult fetchSubset(String subset) {
-        // only do this when filled
-        if (jobDataMap[subset] != null) {
-            HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
-                    jobDataMap.divIndependentVariableType.toLowerCase()
-            )
-            List<AssayConstraint> assayConstraints = [
-                    dataType.createAssayConstraint(
-                            AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset==AnalysisJob.RESULTSET1)?AnalysisJob.RESULTSET1:AnalysisJob.RESULTSET2]
-                    )
-            ]
-            assayConstraints.add(
-                    dataType.createAssayConstraint(
-                            AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: createConceptKeyFrom(jobDataMap.variablesConceptPaths)
-                    )
-            )
-
-            List<DataConstraint> dataConstraints = [
-                    dataType.createDataConstraint(
-                            [keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
-                    )
-            ]
-
-            Projection projection = dataType.createProjection([:], 'default_real_projection')
-
-            // get the data
-            return dataType.retrieveData(assayConstraints, dataConstraints, projection)
+        if (jobDataMap[subset] == null) {
+            return
         }
+
+        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
+                jobDataMap.analysisConstraints["data_type"]
+        )
+
+        List<DataConstraint> dataConstraints = jobDataMap.analysisConstraints["dataConstraints"].collect { String constraintType, List<String> values ->
+            dataType.createDataConstraint(constraintType, values)
+        }
+
+        List<AssayConstraint> assayConstraints = jobDataMap.analysisConstraints["assayConstraints"].collect { String constraintType, List<String> values ->
+            dataType.createAssayConstraint(constraintType, values)
+        }
+
+        assayConstraints.add(
+                dataType.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset == AnalysisJob.RESULTSET1) ? AnalysisJob.RESULTSET1 : AnalysisJob.RESULTSET2]
+                )
+        )
+
+        Projection projection = dataType.createProjection([:], jobDataMap.analysisConstraints["projections"][0])
+
+        return dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
     @Override

@@ -33,7 +33,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
                 "trial_name": null
             },
             "dataConstraints": {
-                "search_keywords_ids": [window[_div_name + 'pathway']],
+                "search_keyword_ids": [window[_div_name + 'pathway']],
                 "disjunctions": null
             },
             projections: ["default_real_projection"]

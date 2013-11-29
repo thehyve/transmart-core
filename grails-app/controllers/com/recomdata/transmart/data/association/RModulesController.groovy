@@ -28,6 +28,7 @@ import grails.converters.JSON
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 class RModulesController {
+    final static Map<String, String> lookup = ["Gene Expression": "mrna"]
 
     def springSecurityService
     def asyncJobService
@@ -82,16 +83,6 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    void scheduleJob(Map params, def classFile) {
-        params.grailsApplication = grailsApplication
-        params.analysisConstraints = JSON.parse(params.analysisConstraints)
-
-        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
-        jobDetail.jobDataMap  = new JobDataMap(params)
-        SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
-        quartzScheduler.scheduleJob(jobDetail, trigger)
-    }
-
     def knownDataTypes() {
         def resource = Holders.grailsApplication.mainContext.getBean HighDimensionResource
         Map output = [:]
@@ -100,6 +91,52 @@ class RModulesController {
             output[it] = ['assayConstraints':subResource.supportedAssayConstraints, 'dataConstraints':subResource.supportedDataConstraints,'projections':subResource.supportedProjections]
         }
         render output as JSON
+    }
+
+    private void scheduleJob(Map params, def classFile) {
+        params.grailsApplication = grailsApplication
+        params.analysisConstraints = JSON.parse(params.analysisConstraints)
+        params.analysisConstraints["data_type"] = lookup[params.analysisConstraints["data_type"]]
+        params.analysisConstraints["assayConstraints"].remove("patient_set")
+
+        params.analysisConstraints = massageConstraints(params.analysisConstraints)
+
+        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
+        jobDetail.jobDataMap  = new JobDataMap(params)
+        SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
+        quartzScheduler.scheduleJob(jobDetail, trigger)
+    }
+
+    private Map massageConstraints(Map analysisConstraints) {
+        analysisConstraints["dataConstraints"].each { constraintType, value ->
+            if (constraintType == 'search_keyword_ids') {
+                analysisConstraints["dataConstraints"][constraintType] = [ keyword_ids: value ]
+            }
+        }
+
+        analysisConstraints["assayConstraints"].each { constraintType, value ->
+            if (constraintType == 'ontology_term') {
+                analysisConstraints["assayConstraints"][constraintType] = [ concept_key: createConceptKeyFrom(value) ]
+            }
+        }
+
+        analysisConstraints
+    }
+
+    /**
+     * This method takes a conceptPath provided by the frontend and turns it into a String representation of
+     * a concept key which the AssayConstraint can use. Such a string is pulled apart later in a
+     * table_access.c_table_cd part and a concept_dimension.concept_path part.
+     * The operation duplicates the first element of the conceptPath and prefixes it to the original with a double
+     * backslash.
+     * @param conceptPath
+     * @return String conceptKey
+     */
+    private static String createConceptKeyFrom(String conceptPath) {
+        // This crazy dance with slashes is "expected behaviour"
+        // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
+        def bs = '\\\\'
+        "\\\\" + (conceptPath =~ /$bs([\w ]+)$bs/)[0][-1] + conceptPath
     }
 
     private static def getQuartzScheduler() {

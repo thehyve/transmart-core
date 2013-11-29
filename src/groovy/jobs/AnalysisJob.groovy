@@ -167,22 +167,6 @@ abstract class AnalysisJob implements Job {
         throw newError
     }
 
-    /**
-     * This method takes a conceptPath provided by the frontend and turns it into a String representation of
-     * a concept key which the AssayConstraint can use. Such a string is pulled apart later in a
-     * table_access.c_table_cd part and a concept_dimension.concept_path part.
-     * The operation duplicates the first element of the conceptPath and prefixes it to the original with a double
-     * backslash.
-     * @param conceptPath
-     * @return String conceptKey
-     */
-    protected static String createConceptKeyFrom(String conceptPath) {
-        // This crazy dance with slashes is "expected behaviour"
-        // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
-        def bs = '\\\\'
-        "\\\\" + (conceptPath =~ /$bs([\w ]+)$bs/)[0][-1] + conceptPath
-    }
-
     protected static String processTemplates(String template, Map vars) {
         SimpleTemplateEngine engine = new SimpleTemplateEngine()
         engine.createTemplate(template).make(vars)
