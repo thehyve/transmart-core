@@ -21,3 +21,22 @@ RmodulesView.prototype.register_drag_drop = function () {
     dtgI = new Ext.dd.DropTarget(independentDiv, {ddGroup : 'makeQuery'});
     dtgI.notifyDrop =  dropOntoCategorySelection;
 }
+
+RmodulesView.prototype.get_analysis_constraints = function (jobType) {
+    var _div_name = "divIndependentVariable";
+    return {
+            "job_type" : jobType,
+            "data_type": window[_div_name + 'markerType'],
+            "assayConstraints": {
+                "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                "ontology_term": readConceptVariables("divIndependentVariable"),
+                "trial_name": null
+            },
+            "dataConstraints": {
+                "search_keywords_ids": [window[_div_name + 'pathway']],
+                "disjunctions": null
+            },
+            projections: ["default_real_projection"]
+        };
+
+}
