@@ -65,17 +65,14 @@ class RModulesController {
         if (jobResultsService[params.jobName] == null) {
             throw new IllegalStateException('Cannot schedule job; it has not been created')
         }
+
         if (params['analysis'] == "heatmap") {
-            params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, Heatmap.class)
         } else if (params['analysis'] == "kclust") {
-            params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, KMeansClustering.class)
         } else if (params['analysis'] == "hclust") {
-            params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, HierarchicalClustering.class)
         } else if (params['analysis'] == "markerSelection") {
-            params.grailsApplication = grailsApplication
             jsonResult = scheduleJob(params, MarkerSelection.class)
         } else {
             jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
@@ -85,7 +82,10 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    static void scheduleJob(Map params, def classFile) {
+    void scheduleJob(Map params, def classFile) {
+        params.grailsApplication = grailsApplication
+        params.analysisConstraints = JSON.parse(params.analysisConstraints)
+
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
