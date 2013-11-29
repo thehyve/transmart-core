@@ -11,6 +11,15 @@ import org.transmartproject.core.querytool.QueryResult
 public interface HighDimensionResource {
 
     /**
+     * Returns the set of data type names that can be used to obtain
+     * {@link HighDimensionDataTypeResource} objects with
+     * {@link #getSubResourceForType(java.lang.String)}.
+     *
+     * @return set of known data type names
+     */
+    Set<String> getKnownTypes()
+
+    /**
      * Obtains a sub-resource for doing operations on a certain type of data
      *
      * @param dataTypeName the string name with which the wanted data type is registered
