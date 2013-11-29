@@ -24,15 +24,17 @@ class DeSubjectAcghData implements AcghValues, Serializable {
     /* unused; should be the same as assay.patient */
     PatientDimension patient
 
-    static belongsTo = [region: DeChromosomalRegion,
-                        assay:  DeSubjectSampleMapping]
+    static belongsTo = [
+            region: DeChromosomalRegion,
+            assay:  DeSubjectSampleMapping
+    ]
 
     static transients = ['copyNumberState']
 
-	static mapping = {
+    static mapping = {
         table   schema:    'deapp'
 
-		id      composite: [ 'assay', 'region' ]
+        id      composite: [ 'assay', 'region' ]
 
         chipCopyNumberValue        column: 'chip'
         segmentCopyNumberValue     column: 'segmented'
@@ -52,10 +54,10 @@ class DeSubjectAcghData implements AcghValues, Serializable {
 
         sort    assay:  'asc'
 
-		version false
-	}
+        version false
+    }
 
-	static constraints = {
+    static constraints = {
         trialName                  nullable: true, maxSize: 50
         chipCopyNumberValue        nullable: true, scale:   17
         segmentCopyNumberValue     nullable: true, scale:   17
@@ -65,7 +67,7 @@ class DeSubjectAcghData implements AcghValues, Serializable {
         probabilityOfGain          nullable: true, scale:   17
         probabilityOfAmplification nullable: true, scale:   17
         patient                    nullable: true
-	}
+    }
 
     @Override
     CopyNumberState getCopyNumberState() {

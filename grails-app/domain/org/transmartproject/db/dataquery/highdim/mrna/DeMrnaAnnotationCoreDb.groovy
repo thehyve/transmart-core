@@ -12,22 +12,22 @@ class DeMrnaAnnotationCoreDb {
 
     static transients = [ 'bioMarkerGene' ]
 
-	static mapping = {
+    static mapping = {
         id      column: 'probeset_id',       generator: 'assigned'
         table   name:  'de_mrna_annotation', schema:     'deapp'
 
         sort    id: 'asc'
 
         version false
-	}
+    }
 
-	static constraints = {
+    static constraints = {
         gplId      nullable: true, maxSize: 100
         probeId    nullable: true, maxSize: 100
         geneSymbol nullable: true, maxSize: 100
         geneId     nullable: true
         organism   nullable: true, maxSize: 200
-	}
+    }
 
     BioMarkerCoreDb getBioMarkerGene() {
         BioMarkerCoreDb.findByPrimaryExternalId(geneId as String)
