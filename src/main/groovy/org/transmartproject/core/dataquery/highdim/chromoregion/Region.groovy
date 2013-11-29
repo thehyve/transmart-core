@@ -57,9 +57,10 @@ public interface Region {
     Long getEnd()
 
     /**
-     * The number of probes that were grouped in order to form this region.
+     * The number of probes that were grouped in order to form this region,
+     * if applicable.
      *
-     * @return number of probes aggregated in this region
+     * @return number of probes aggregated in this region or null if inapplicable
      */
     Integer getNumberOfProbes()
 
