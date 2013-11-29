@@ -27,7 +27,9 @@ class DeSubjectMirnaData implements Serializable {
 
         assay   column: 'assay_id'
         probe   column: 'probeset_id'
-        patient column: 'patient_id'
+
+        // irrelevant
+        //patient column: 'patient_id'
 
         // this is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
