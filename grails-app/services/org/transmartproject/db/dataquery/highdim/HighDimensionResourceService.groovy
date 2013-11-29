@@ -7,15 +7,20 @@ import org.transmartproject.core.querytool.QueryResult
 
 class HighDimensionResourceService implements HighDimensionResource {
 
-    Map<String, Closure<HighDimensionDataTypeResource>> knownDataTypes = new HashMap()
+    Map<String, Closure<HighDimensionDataTypeResource>> dataTypeRegistry = new HashMap()
+
+    @Override
+    Set<String> getKnownTypes() {
+        dataTypeRegistry.keySet()
+    }
 
     @Override
     HighDimensionDataTypeResource getSubResourceForType(String dataTypeName)
             throws NoSuchResourceException {
-        if (!knownDataTypes.containsKey(dataTypeName)) {
+        if (!dataTypeRegistry.containsKey(dataTypeName)) {
             throw new NoSuchResourceException("Unknown data type: $dataTypeName")
         }
-        knownDataTypes[dataTypeName].call name: dataTypeName
+        dataTypeRegistry[dataTypeName].call name: dataTypeName
     }
 
     @Override
@@ -31,7 +36,7 @@ class HighDimensionResourceService implements HighDimensionResource {
      */
     void registerHighDimensionDataTypeModule(String moduleName,
                                              Closure<HighDimensionDataTypeModule> factory) {
-        this.knownDataTypes[moduleName] = factory
+        this.dataTypeRegistry[moduleName] = factory
         log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
