@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery.highdim.acgh
+package org.transmartproject.core.dataquery.highdim.chromoregion
 
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn

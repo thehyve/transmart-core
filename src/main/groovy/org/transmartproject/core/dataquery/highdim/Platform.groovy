@@ -1,6 +1,6 @@
 package org.transmartproject.core.dataquery.highdim
 
-import org.transmartproject.core.dataquery.highdim.acgh.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 
 /**
  * A platform record. A platform may be a platform proper (identifying an
