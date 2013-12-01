@@ -89,7 +89,7 @@ public interface DataConstraint {
      *             XOR
      *             'ids' => <list of gene signature ids>
      */
-    public final static String GENE_SIGNATURE_CONSTRAINT = 'gene_signatures'
+    public final static String GENE_SIGNATURES_CONSTRAINT = 'gene_signatures'
 
 
 }
