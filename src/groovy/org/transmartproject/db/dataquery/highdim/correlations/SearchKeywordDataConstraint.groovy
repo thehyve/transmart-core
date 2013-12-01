@@ -1,50 +1,21 @@
-package org.transmartproject.db.dataquery.highdim.dataconstraints
+package org.transmartproject.db.dataquery.highdim.correlations
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Iterables
 import com.google.common.collect.Multimap
 import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 class SearchKeywordDataConstraint implements CriteriaDataConstraint {
-
-    enum Correlations {
-
-        GENE_IDENTITY   ('GENE'),
-        PROTEIN_IDENTITY('Protein'),
-        PATHWAY_GENE    ('PATHWAY_GENE'),
-        HOMOLOGENE      ('HOMOLOGENE_GENE'),
-        PROTEIN_GENE    ('PROTEIN TO GENE'),
-        GENE_PROTEIN    ('GENE TO PROTEIN'),
-        GENE_SIGNATURE  ('GENE_SIGNATURE_ITEM', 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW', 'DOMAIN_OBJECT_ID'),
-
-
-        public String name
-        public String correlationTable
-        public String correlationTableBioMarkerColumn
-
-        Correlations(String correlationType) {
-            this.name = correlationType
-            this.correlationTable = 'BIOMART.BIO_MARKER_CORREL_MV'
-            this.correlationTableBioMarkerColumn = 'BIO_MARKER_ID'
-
-        }
-
-        Correlations(String correlationType,
-                     String correlationTable,
-                     String correlationColumn) {
-            this.name = correlationType
-            this.correlationTable = correlationTable
-            this.correlationTableBioMarkerColumn = correlationColumn
-        }
-    }
 
     CorrelatedBiomarkersDataConstraint innerConstraint = new CorrelatedBiomarkersDataConstraint()
 
     static CriteriaDataConstraint createForSearchKeywords(Map map,
                                                           List<SearchKeywordCoreDb> searchKeywords) {
-        List<Correlations> origCorrelationTypes = map.correlationTypes
+        Set<CorrelationType> origCorrelationTypes = map.correlationTypes
 
         if (!origCorrelationTypes) {
             throw new IllegalArgumentException('Correlation types unspecified')
@@ -64,13 +35,20 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         Multimap<String, SearchKeywordCoreDb> multimap = ArrayListMultimap.create()
 
         searchKeywords.each {
-            def type = it.uniqueId.split(':')[0]
-            if (type == 'GENESIG' || type == 'GENELIST') {
-                multimap.put Correlations.GENE_SIGNATURE.correlationTable, it
-            } else {
-                /* GENE_IDENTITY or anything else */
-                multimap.put Correlations.GENE_IDENTITY.correlationTable, it
+            def type = it.dataCategory
+            CorrelationType correlationType = origCorrelationTypes.find {
+                it.sourceType == type
             }
+            if (!correlationType) {
+                Set acceptableCategories =
+                        origCorrelationTypes*.sourceType as Set
+                throw new InvalidArgumentsException(
+                        "A search keyword with data category $type is not " +
+                                "acceptable for this constraint; must be one of " +
+                                "$acceptableCategories")
+            }
+
+            multimap.put correlationType.correlationTable, it
         }
 
         def buildParams = multimap.asMap().collect { String correlationTable,
@@ -126,7 +104,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         innerConstraint.doWithCriteriaBuilder criteria
     }
 
-    void setCorrelationTypes(Set<Correlations> correlations)   {
+    void setCorrelationTypes(Set<CorrelationType> correlations)   {
         innerConstraint.correlationTypes = correlations*.name
 
         Set<String> tables = correlations*.correlationTable
@@ -136,7 +114,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
 
         innerConstraint.correlationTable = Iterables.getFirst tables, null
         innerConstraint.correlationColumn =
-            Iterables.getFirst(correlations, null).correlationTableBioMarkerColumn
+            Iterables.getFirst(correlations, null).leftSideColumn
     }
 
     void setEntityAlias(String alias) {

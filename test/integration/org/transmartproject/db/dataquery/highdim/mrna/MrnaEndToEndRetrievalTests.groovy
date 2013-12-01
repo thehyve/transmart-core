@@ -118,9 +118,15 @@ class MrnaEndToEndRetrievalTests {
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT)
-        assertThat mrnaResource.supportedDataConstraints, containsInAnyOrder(
+        assertThat mrnaResource.supportedDataConstraints, hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                DataConstraint.DISJUNCTION_CONSTRAINT)
+                DataConstraint.DISJUNCTION_CONSTRAINT,
+                DataConstraint.GENES_CONSTRAINT,
+                DataConstraint.GENE_SIGNATURES_CONSTRAINT,
+                DataConstraint.PATHWAYS_CONSTRAINT,
+                DataConstraint.PROTEINS_CONSTRAINT,
+                /* also others that may be added by registering new associations */
+        )
         assertThat mrnaResource.supportedProjections, containsInAnyOrder(
                 CriteriaProjection.DEFAULT_REAL_PROJECTION)
     }

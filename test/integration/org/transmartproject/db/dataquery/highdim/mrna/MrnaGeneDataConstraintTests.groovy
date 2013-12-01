@@ -5,6 +5,7 @@ import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -16,8 +17,7 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class MrnaGeneDataConstraintTests {
 
-    MrnaModule.MrnaDataConstraintsProducers producers =
-        new MrnaModule.MrnaDataConstraintsProducers()
+    MrnaModule mrnaModule
 
     @Before
     void setUp() {
@@ -38,10 +38,10 @@ class MrnaGeneDataConstraintTests {
     void basicTestGene() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        def testee = producers.createSearchKeywordIdsConstraint(
-                keyword_ids: MrnaTestData.searchKeywords.
-                        findAll({ it.keyword == 'BOGUSRQCD1' })*.id
-        )
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                [ keyword_ids: MrnaTestData.searchKeywords.
+                        findAll({ it.keyword == 'BOGUSRQCD1' })*.id ])
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -66,8 +66,10 @@ class MrnaGeneDataConstraintTests {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* keywords ids for genes BOGUSCPO, BOGUSRQCD1 */
-        def testee = producers.createSearchKeywordIdsConstraint(
-                keyword_ids: [ '-501', '-502' ])
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                [ keyword_ids: [ '-501', '-502' ] ])
+
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -103,9 +105,10 @@ class MrnaGeneDataConstraintTests {
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
-        def testee = producers.createSearchKeywordIdsConstraint(
-                keyword_ids: MrnaTestData.searchKeywords.
-                        findAll({ it.keyword == 'genesig_keyword_-602' })*.id)
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                [ keyword_ids: MrnaTestData.searchKeywords.
+                        findAll({ it.keyword == 'genesig_keyword_-602' })*.id ])
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -127,12 +130,13 @@ class MrnaGeneDataConstraintTests {
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
-        def testee = producers.createSearchKeywordIdsConstraint(
-                keyword_ids: MrnaTestData.searchKeywords.
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                [ keyword_ids: MrnaTestData.searchKeywords.
                         findAll({
                             it.keyword == 'genesig_keyword_-602' ||
                                     it.keyword == 'BOGUSCPO'
-                        })*.id)
+                        })*.id ])
 
         assertThat testee, is(instanceOf(DisjunctionDataConstraint))
 
@@ -156,7 +160,9 @@ class MrnaGeneDataConstraintTests {
     @Ignore
     void testEmptyConstraint() {
         try {
-            producers.createSearchKeywordIdsConstraint(keyword_ids: [])
+            mrnaModule.createDataConstraint(
+                    DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                    [ keyword_ids: [] ])
             fail 'Expected exception'
         } catch (e) {
             assertThat e, isA(InvalidArgumentsException)

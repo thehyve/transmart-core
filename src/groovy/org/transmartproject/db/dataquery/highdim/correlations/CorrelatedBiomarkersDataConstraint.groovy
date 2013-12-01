@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery.highdim.dataconstraints
+package org.transmartproject.db.dataquery.highdim.correlations
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
@@ -10,6 +10,7 @@ import org.hibernate.criterion.SQLCriterion
 import org.hibernate.type.LongType
 import org.hibernate.type.StringType
 import org.hibernate.type.Type
+import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 /*

@@ -12,7 +12,9 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
-import org.transmartproject.db.dataquery.highdim.dataconstraints.SearchKeywordDataConstraint
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
@@ -31,6 +33,9 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Autowired
     DataRetrievalParameterFactory standardDataConstraintFactory
+
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection,
@@ -97,33 +102,11 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
         [ standardAssayConstraintFactory ]
     }
 
-    static class MrnaDataConstraintsProducers extends AbstractMethodBasedParameterFactory {
-        @ProducerFor(DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)
-        DataConstraint createSearchKeywordIdsConstraint(Map<String, Object> params) {
-            if (params.size() != 1) {
-                throw new InvalidArgumentsException("Expected exactly one parameter (keyword_ids), got $params")
-            }
-
-            def keywordIds = getParam params, 'keyword_ids', List
-            keywordIds = keywordIds.collect { convertToLong 'element of keyword_ids', it }
-
-            SearchKeywordDataConstraint.createForSearchKeywordIds(
-                    entityAlias:        'jProbe',
-                    propertyToRestrict: 'geneId',
-                    correlationTypes:   [
-                            SearchKeywordDataConstraint.Correlations.GENE_IDENTITY,
-                            SearchKeywordDataConstraint.Correlations.GENE_SIGNATURE,
-                    ],
-                    keywordIds
-            )
-        }
-    }
-
-
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
-                new MrnaDataConstraintsProducers() ]
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'GENE', 'jProbe', 'geneId') ]
     }
 
     private final DataRetrievalParameterFactory defaultRealProjectionFactory =

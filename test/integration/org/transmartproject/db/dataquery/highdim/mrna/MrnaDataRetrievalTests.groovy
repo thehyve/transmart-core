@@ -13,9 +13,10 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.*
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
-import org.transmartproject.db.dataquery.highdim.dataconstraints.SearchKeywordDataConstraint
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
 import static groovy.test.GroovyAssert.shouldFail
@@ -27,6 +28,7 @@ import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 class MrnaDataRetrievalTests {
 
     private static final double DELTA = 0.0001
+
     @Autowired
     @Qualifier('mrnaModule')
     HighDimensionDataTypeModule mrnaModule
@@ -34,6 +36,8 @@ class MrnaDataRetrievalTests {
     HighDimensionDataTypeResource resource
 
     TabularResult dataQueryResult
+
+    CorrelationTypesRegistry correlationTypesRegistry
 
     @Before
     void setUp() {
@@ -126,9 +130,8 @@ class MrnaDataRetrievalTests {
         SearchKeywordDataConstraint.createForSearchKeywordIds(
                 entityAlias:        'jProbe',
                 propertyToRestrict: 'geneId',
-                correlationTypes:   [
-                        SearchKeywordDataConstraint.Correlations.GENE_IDENTITY,
-                        SearchKeywordDataConstraint.Correlations.GENE_SIGNATURE],
+                correlationTypes:
+                        correlationTypesRegistry.getCorrelationTypesForTargetType('GENE'),
                 skIds)
     }
 
