@@ -84,7 +84,7 @@ class HighDimTestData {
                     keyword: it.name,
                     bioDataId: it.id,
                     uniqueId: "$it.type:$it.primaryExternalId",
-                    dataCategory: $it.type,
+                    dataCategory: it.type,
             )
             res.id = --baseId
             res

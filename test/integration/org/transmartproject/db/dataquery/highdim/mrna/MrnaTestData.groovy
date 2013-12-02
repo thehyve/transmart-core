@@ -16,6 +16,7 @@ import org.transmartproject.db.user.SearchAuthUser
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createSearchKeywordsForBioMarkers
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MrnaTestData {
@@ -151,16 +152,6 @@ class MrnaTestData {
      */
 
     List<SearchKeywordCoreDb> searchKeywords = {
-        def createGeneKeyword = { BioMarkerCoreDb gene, id ->
-            def res = new SearchKeywordCoreDb(
-                    keyword: gene.name,
-                    bioDataId: gene.id,
-                    uniqueId: "GENE:$gene.primaryExternalId",
-                    dataCategory: 'GENE',
-            )
-            res.id = id
-            res
-        }
         def createGeneSignatureKeyword = { SearchGeneSignature sig, id ->
             def res = new SearchKeywordCoreDb(
                     keyword: "genesig_keyword_$sig.id",  /* what should this look like? */
@@ -172,10 +163,8 @@ class MrnaTestData {
             res
         }
 
-        int i = -500;
-        bioMarkers.collect {
-            createGeneKeyword it, --i
-        } +
+        int i = -500 - bioMarkers.size();
+        createSearchKeywordsForBioMarkers(bioMarkers, -500) +
         geneSignatures.collect {
             createGeneSignatureKeyword it, --i
         }
