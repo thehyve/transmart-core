@@ -6,6 +6,7 @@ import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchGeneSignatureItem
@@ -23,6 +24,8 @@ class MrnaTestData {
 
     public static final String TRIAL_NAME = 'MRNA_SAMP_TRIAL'
 
+    SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
+
     DeGplInfo platform = {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
@@ -32,16 +35,7 @@ class MrnaTestData {
         res
     }()
 
-    List<BioMarkerCoreDb> bioMarkers = HighDimTestData.createBioMarkers(-100, [
-            [ name: 'BOGUSCPO',
-                    description: 'carboxypeptidase O',
-                    primaryExternalId: '-130749' ],
-            [ name: 'BOGUSRQCD1',
-                    description: 'RCD1 required for cell differentiation1 homolog (S. pombe)',
-                    primaryExternalId: '-9125' ],
-            [ name: 'BOGUSVNN3',
-                    description: 'vanin 3',
-                    primaryExternalId: '-55350' ]])
+    List<BioMarkerCoreDb> bioMarkers = bioMarkerTestData.geneBioMarkers
 
     List<SearchAuthPrincipal> principals = {
         def res = [
@@ -163,9 +157,10 @@ class MrnaTestData {
             res
         }
 
-        int i = -500 - bioMarkers.size();
-        createSearchKeywordsForBioMarkers(bioMarkers, -500) +
-        geneSignatures.collect {
+        def res = bioMarkerTestData.geneSearchKeywords
+        int i = res*.id.min()
+
+        res + geneSignatures.collect {
             createGeneSignatureKeyword it, --i
         }
     }()
