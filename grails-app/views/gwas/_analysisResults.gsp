@@ -57,7 +57,8 @@
 					<g:each in="${row}" var="data" status="colNum">
 						<g:unless test="${colNum == 0}"> <%-- Skip analysis name --%>
 							<g:if test="${colNum == 1}">
-								<td class=""><a href="${link}" target="_blank">${data}</a></td>
+								<td class=""><a href="${link}" target="_blank"><span class="filter-item filter-item-gene">${data}</span></a>
+								<img alt="" src="${resource(dir:'images',file:'linkext7.gif')}" />
 							</g:if>
 							<g:else>
 								<td class="">${data}</td>
