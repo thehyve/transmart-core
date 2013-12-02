@@ -100,9 +100,8 @@ class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactor
         if (params.names) {
             List names = processStringList 'names', params.names
 
-            keywords = SearchKeywordDataConstraint.createForSearchKeywords(
-                    SearchKeywordCoreDb.findAllByKeywordInListAndDataCategory(
-                            names, correlation.sourceType))
+            keywords = SearchKeywordCoreDb.findAllByKeywordInListAndDataCategory(
+                            names, correlation.sourceType)
 
             if (keywords.isEmpty()) {
                 throw new InvalidArgumentsException("No search keywords " +
@@ -112,12 +111,11 @@ class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactor
         } else if (params.ids) {
             // these ids are the 'external' ids, not the search keyword PKs
 
-            List ids = processStringList 'ids', params.names
+            List ids = processStringList 'ids', params.ids
 
-            def uniqueIds = ids.collect { "$correlation.sourceType:$it" }
-            keywords = SearchKeywordDataConstraint.createForSearchKeywords(
-                    SearchKeywordCoreDb.findAllByUniqueIdInListAndDataCategory(
-                            uniqueIds, correlation.sourceType))
+            def uniqueIds = ids.collect { "$correlation.sourceType:$it" as String }
+            keywords = SearchKeywordCoreDb.findAllByUniqueIdInListAndDataCategory(
+                            uniqueIds, correlation.sourceType)
 
             if (keywords.isEmpty()) {
                 throw new InvalidArgumentsException("No search keywords " +
