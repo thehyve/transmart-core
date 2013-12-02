@@ -39,9 +39,11 @@ class MrnaDataRetrievalTests {
 
     CorrelationTypesRegistry correlationTypesRegistry
 
+    MrnaTestData testData = new MrnaTestData()
+
     @Before
     void setUp() {
-        MrnaTestData.saveAll()
+        testData.saveAll()
 
         assertThat mrnaModule, is(notNullValue())
 
@@ -142,7 +144,7 @@ class MrnaDataRetrievalTests {
         ]
         List dataConstraints = [
                 createGenesDataConstraint([
-                        MrnaTestData.searchKeywords.
+                        testData.searchKeywords.
                                 find({ it.keyword == 'BOGUSRQCD1' }).id
                 ])
         ]
@@ -170,10 +172,10 @@ class MrnaDataRetrievalTests {
         List dataConstraints = [
                 new DisjunctionDataConstraint(constraints: [
                         createGenesDataConstraint([
-                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSRQCD1' }).id
+                                testData.searchKeywords.find({ it.keyword == 'BOGUSRQCD1' }).id
                         ]),
                         createGenesDataConstraint([
-                                MrnaTestData.searchKeywords.find({ it.keyword == 'BOGUSVNN3' }).id
+                                testData.searchKeywords.find({ it.keyword == 'BOGUSVNN3' }).id
                         ])
                 ])
         ]
@@ -192,8 +194,8 @@ class MrnaDataRetrievalTests {
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
-        def extraAssays = createTestAssays([ MrnaTestData.patients[0] ], baseAssayId,
-                MrnaTestData.platform, MrnaTestData.TRIAL_NAME)
+        def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
+                testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
 
         List assayConstraints = [

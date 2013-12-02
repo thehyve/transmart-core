@@ -22,7 +22,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
         }
         if (!searchKeywords) {
             throw new InvalidArgumentsException(
-                    'Search keyword list cannot be empty. If trying to create the' +
+                    'Search keyword list cannot be empty. If trying to create the ' +
                             'constraint using identifiers, check that they do exist')
         }
 

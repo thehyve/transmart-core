@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim
 
-import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.I2b2
@@ -12,19 +11,28 @@ import static org.transmartproject.db.ontology.ConceptTestData.createTableAccess
 
 class AssayTestData {
 
-    static List<PatientDimension> patients = HighDimTestData.createTestPatients(3, -100)
+    DeGplInfo platform = {
+        def res = new DeGplInfo(
+                title: 'Affymetrix Human Genome U133A 2.0 Array',
+                organism: 'Homo Sapiens',
+                markerTypeId: 'Gene Expression')
+        res.id = 'BOGUSGPL570'
+        res
+    }()
 
-    static List<TableAccess> i2b2TopConcepts = [
+    List<PatientDimension> patients = HighDimTestData.createTestPatients(3, -100)
+
+    List<TableAccess> i2b2TopConcepts = [
             createTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                     tableCode: 'i2b2 main', tableName: 'i2b2'),
     ]
 
-    static List<I2b2> i2b2GenericConcepts = [
+    List<I2b2> i2b2GenericConcepts = [
             createI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'bar'),
             createI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto'),
     ]
 
-    static List<ConceptDimension> dimensionConcepts = {
+    List<ConceptDimension> dimensionConcepts = {
         [
                 new ConceptDimension(
                         conceptPath: '\\foo\\bar\\',
@@ -37,17 +45,17 @@ class AssayTestData {
         ]
     }()
 
-    static List<DeSubjectSampleMapping> assays = {
+    List<DeSubjectSampleMapping> assays = {
         //save is cascaded to the platform
-        HighDimTestData.createTestAssays(patients, -200, MrnaTestData.platform,
+        HighDimTestData.createTestAssays(patients, -200, platform,
                 'SAMPLE_TRIAL_1', dimensionConcepts[0].conceptCd) +
-            HighDimTestData.createTestAssays(patients, -300, MrnaTestData.platform,
+            HighDimTestData.createTestAssays(patients, -300, platform,
                     'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCd) +
-            HighDimTestData.createTestAssays(patients, -400, MrnaTestData.platform,
+            HighDimTestData.createTestAssays(patients, -400, platform,
                     'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCd)
     }()
 
-    static void saveAll() {
+    void saveAll() {
         save patients
         save i2b2TopConcepts
         save i2b2GenericConcepts

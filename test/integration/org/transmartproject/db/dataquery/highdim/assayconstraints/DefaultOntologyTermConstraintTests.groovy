@@ -14,9 +14,11 @@ class DefaultOntologyTermConstraintTests {
 
     ConceptsResourceService conceptsResourceService
 
+    AssayTestData testData = new AssayTestData()
+
     @Before
     void setUp() {
-        AssayTestData.saveAll()
+        testData.saveAll()
     }
 
     @Test
