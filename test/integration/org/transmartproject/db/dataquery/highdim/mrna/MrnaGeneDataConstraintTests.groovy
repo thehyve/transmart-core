@@ -161,7 +161,6 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    @Ignore
     void testEmptyConstraint() {
         try {
             mrnaModule.createDataConstraint(
@@ -170,7 +169,8 @@ class MrnaGeneDataConstraintTests {
             fail 'Expected exception'
         } catch (e) {
             assertThat e, isA(InvalidArgumentsException)
-            assertThat e, hasProperty('message', containsString('exactly one type'))
+            assertThat e, hasProperty('message',
+                    containsString('parameter \'keyword_ids\' is an empty list'))
         }
     }
 }
