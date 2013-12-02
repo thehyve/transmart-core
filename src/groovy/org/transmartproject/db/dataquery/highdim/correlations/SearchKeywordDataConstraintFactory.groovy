@@ -97,7 +97,7 @@ class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactor
                     "Expected exactly 1 parameter here; got $params.size()")
         }
 
-        if (params.names) {
+        if (params.containsKey('names')) {
             List names = processStringList 'names', params.names
 
             keywords = SearchKeywordCoreDb.findAllByKeywordInListAndDataCategory(
@@ -108,7 +108,7 @@ class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactor
                         "of the category $correlation.sourceType match with " +
                         "name in list $names")
             }
-        } else if (params.ids) {
+        } else if (params.containsKey('ids')) {
             // these ids are the 'external' ids, not the search keyword PKs
 
             List ids = processStringList 'ids', params.ids

@@ -8,8 +8,10 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
@@ -51,7 +53,7 @@ class MirnaEndToEndRetrievalTests {
     void basicTest() {
         def dataConstraints = [
                 mirnaResource.createDataConstraint(
-                        'mirnas', names: [ 'mmu-miR-153', 'mmu-miR-147' ])
+                        'mirnas', names: [ 'MIR323B', 'MIR3161' ])
         ]
 
         result = mirnaResource.retrieveData(
@@ -72,20 +74,36 @@ class MirnaEndToEndRetrievalTests {
         double delta = 0.0001
         assertThat rows, contains(
                 allOf(
-                        hasProperty('label', equalTo('mmu-miR-153')),
+                        hasProperty('label', equalTo('hsa-mir-323b')),
                         hasProperty('data', contains(
                                 closeTo(testData.mirnaData[5].zscore as Double, delta),
                                 closeTo(testData.mirnaData[4].zscore as Double, delta),
                         ))
                 ),
                 allOf(
-                        hasProperty('label', equalTo('mmu-miR-147')),
+                        hasProperty('label', equalTo('hsa-mir-3161')),
                         hasProperty('data', contains(
                                 closeTo(testData.mirnaData[1].zscore as Double, delta),
                                 closeTo(testData.mirnaData[0].zscore as Double, delta),
                         ))
                 ),
         )
+    }
+
+    @Test
+    void testSearchBySearchKeywordIds() {
+        def dataConstraints = [
+                mirnaResource.createDataConstraint(
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                        keyword_ids: SearchKeywordCoreDb.
+                                findAllByKeywordInList([ 'MIR3161' ])*.id)
+        ]
+
+        result = mirnaResource.retrieveData(
+                [ trialNameConstraint ], dataConstraints, projection)
+
+        assertThat Lists.newArrayList(result.rows), contains(
+                        hasProperty('label', equalTo('hsa-mir-3161')))
     }
 
     @Test
@@ -103,19 +121,6 @@ class MirnaEndToEndRetrievalTests {
                         hasProperty('label', equalTo(testData.probes[1].detector))
                 )
         )
-    }
-
-    @Test
-    void testEmptyMirnaConstraint() {
-        def dataConstraints = [
-                mirnaResource.createDataConstraint(
-                        'mirnas', names: [ ])
-        ]
-
-        result = mirnaResource.retrieveData(
-                [ trialNameConstraint ], dataConstraints, projection)
-
-        assertThat Lists.newArrayList(result.rows), is(empty())
     }
 
 
