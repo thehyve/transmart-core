@@ -44,6 +44,16 @@ class RegionSearchService {
 
 	"""
 
+    def geneLimitsHg19SqlQuery = """
+
+	SELECT ginfo.chrom_stop as high, ginfo.chrom_start as low, ginfo.chrom
+	FROM SEARCHAPP.SEARCH_KEYWORD
+	INNER JOIN bio_marker bm ON bm.BIO_MARKER_ID = SEARCH_KEYWORD.BIO_DATA_ID
+	INNER JOIN deapp.de_gene_info ginfo ON ginfo.entrez_id = bm.PRIMARY_EXTERNAL_ID
+	WHERE SEARCH_KEYWORD_ID=?
+
+	"""
+
 
 //    def geneLimitsSqlQuery = """
 //    SELECT CHROM_STOP as high, CHROM_START as low, CHROM FROM DEAPP.DE_GENE_INFO
@@ -72,7 +82,7 @@ class RegionSearchService {
     def gwasSqlQuery = """
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
-		                 info.pos AS pos, gmap.gene_name AS rsgene,
+		                 info.pos AS pos, info.gene_name AS rsgene,
 		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata,
 		                 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
@@ -81,7 +91,6 @@ class RegionSearchService {
 		                 FROM biomart.bio_assay_analysis_gwas DATA
 		                 _analysisJoin_
 		                 JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
-		                 LEFT JOIN deapp.de_snp_gene_map gmap ON info.snp_info_id = gmap.snp_id
 		                 WHERE 1=1
 	"""
     //changed query
@@ -103,7 +112,7 @@ class RegionSearchService {
     def eqtlSqlQuery = """
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
-		                 info.pos AS pos, gmap.gene_name AS rsgene,
+		                 info.pos AS pos, info.gene_name AS rsgene,
 		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene,
 		                 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
@@ -112,7 +121,6 @@ class RegionSearchService {
 		                 FROM biomart.bio_assay_analysis_eqtl DATA
 		                 _analysisJoin_
 		                 JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
-		                 LEFT JOIN deapp.de_snp_gene_map gmap ON info.snp_info_id = gmap.snp_id
 		                 WHERE 1=1
 	"""
 
@@ -134,7 +142,6 @@ class RegionSearchService {
     def gwasSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Gwas data 
 	     JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
-	     LEFT JOIN deapp.de_snp_gene_map gmap ON info.snp_info_id = gmap.snp_id
 	     WHERE 1=1
 	"""
 
@@ -146,7 +153,6 @@ class RegionSearchService {
     def eqtlSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Eqtl data
 	     JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
-	     LEFT JOIN deapp.de_snp_gene_map gmap ON info.snp_info_id = gmap.snp_id
 	     WHERE 1=1
     """
     def eqtlHg19SqlCountQuery = """
@@ -162,10 +168,16 @@ class RegionSearchService {
         con = dataSource.getConnection()
 
         //Prepare the SQL statement.
-        stmt = con.prepareStatement(geneLimitsSqlQuery);
-        stmt.setLong(1, searchId);
-        stmt.setString(2, ver);
 
+        if (ver.equals('19')) {
+            stmt = con.prepareStatement(geneLimitsHg19SqlQuery);
+            stmt.setLong(1, searchId);
+        }
+        else {
+            stmt = con.prepareStatement(geneLimitsSqlQuery);
+            stmt.setLong(1, searchId);
+            stmt.setString(2, ver);
+        }
         rs = stmt.executeQuery();
 
         try{
@@ -259,16 +271,16 @@ class RegionSearchService {
 
         def analysisNameMap =[:]
 
-        if(!ranges){
-            hg19only = true;
-        }else {
-            hg19only = true; // default to true
-            for(range in ranges){
-                //println(range)
-
-                if(range.ver!='19'){
-                    hg19only = false;
-                    break;
+        if (ConfigurationHolder.config.com.recomdata.gwas.usehg19table) {
+            if(!ranges){
+                hg19only = true;
+            }else {
+                hg19only = true; // default to true
+                for(range in ranges){
+                    if(range.ver!='19'){
+                        hg19only = false;
+                        break;
+                    }
                 }
             }
         }
@@ -314,17 +326,17 @@ class RegionSearchService {
                         regionList.append("(info.pos >= ${range.low} AND info.pos <= ${range.high} AND info.chrom = '${range.chromosome}' ")
                     }
 
-                    if(hg19only== false) {
-                        regionList.append("  AND info.hg_version = '${range.ver}' ")
-                    }
+                    //if(hg19only== false) {
+                    regionList.append("  AND info.hg_version = '${range.ver}' ")
+                    //}
                     regionList.append(")");
                 }
                 //Gene
                 else {
                     regionList.append("(info.pos >= ${range.low} AND info.pos <= ${range.high} ")
-                    if(hg19only== false) {
-                        regionList.append("  AND info.hg_version = '${range.ver}' ")
-                    }
+                    //if(hg19only== false) {
+                    regionList.append("  AND info.hg_version = '${range.ver}' ")
+                    //}
                     regionList.append(")")
                 }
                 rangesDone++
@@ -361,7 +373,7 @@ class RegionSearchService {
             if(hg19only){
                 queryCriteria.append(" AND info.rsgene IN (")
             }else{
-                queryCriteria.append(" AND gmap.gene_name IN (");
+                queryCriteria.append(" AND info.gene_name IN (");
             }
             queryCriteria.append( "'" + geneNames[0] + "'");
             for (int i = 1; i < geneNames.size(); i++) {
@@ -389,7 +401,7 @@ class RegionSearchService {
             if(hg19only){
                 queryCriteria.append(" OR info.rsgene LIKE '%${search}%'")
             }else{
-                queryCriteria.append(" OR gmap.gene_name LIKE '%${search}%'");
+                queryCriteria.append(" OR info.gene_name LIKE '%${search}%'");
             }
             queryCriteria.append(" OR info.pos LIKE '%${search}%'")
             queryCriteria.append(" OR info.chrom LIKE '%${search}%'")
@@ -410,7 +422,7 @@ class RegionSearchService {
         def sortOrder = sortField?.trim();
         //println(sortField)
         if(hg19only){
-            sortOrder = sortOrder.replaceAll("gmap.gene_name", "info.rsgene");
+            sortOrder = sortOrder.replaceAll("info.gene_name", "info.rsgene");
 
         }
         //println("after:"+sortOrder)
