@@ -31,38 +31,16 @@ class MrnaTestData {
         res
     }()
 
-    static List<BioMarkerCoreDb> bioMarkers = {
-        def common = [
-                organism: 'HOME SAPIENS',
-                primarySourceCode: 'Entrez',
-                bioMarkerType: 'GENE',
-        ]
-        def res = [
-                new BioMarkerCoreDb(
-                        bioMarkerName: 'BOGUSCPO',
-                        bioMarkerDescription: 'carboxypeptidase O',
-                        primaryExternalId: '-130749',
-                        *: common,
-                ),
-                new BioMarkerCoreDb(
-                        bioMarkerName: 'BOGUSRQCD1',
-                        bioMarkerDescription: 'RCD1 required for cell differentiation1 homolog (S. pombe)',
-                        primaryExternalId: '-9125',
-                        *: common,
-                ),
-                new BioMarkerCoreDb(
-                        bioMarkerName: 'BOGUSVNN3',
-                        bioMarkerDescription: 'vanin 3',
-                        primaryExternalId: '-55350',
-                        *: common,
-                ),
-        ]
-        res[0].id = -101
-        res[1].id = -102
-        res[2].id = -103
-
-        res
-    }()
+    static List<BioMarkerCoreDb> bioMarkers = HighDimTestData.createBioMarkers(-100, [
+            [ name: 'BOGUSCPO',
+                    description: 'carboxypeptidase O',
+                    primaryExternalId: '-130749' ],
+            [ name: 'BOGUSRQCD1',
+                    description: 'RCD1 required for cell differentiation1 homolog (S. pombe)',
+                    primaryExternalId: '-9125' ],
+            [ name: 'BOGUSVNN3',
+                    description: 'vanin 3',
+                    primaryExternalId: '-55350' ]])
 
     static List<SearchAuthPrincipal> principals = {
         def res = [
@@ -175,7 +153,7 @@ class MrnaTestData {
     static List<SearchKeywordCoreDb> searchKeywords = {
         def createGeneKeyword = { BioMarkerCoreDb gene, id ->
             def res = new SearchKeywordCoreDb(
-                    keyword: gene.bioMarkerName,
+                    keyword: gene.name,
                     bioDataId: gene.id,
                     uniqueId: "GENE:$gene.primaryExternalId",
                     dataCategory: 'GENE',
@@ -208,7 +186,7 @@ class MrnaTestData {
             def res = new DeMrnaAnnotationCoreDb(
                     gplId: platform.id,
                     probeId: probeId,
-                    geneSymbol: bioMarker.bioMarkerName,
+                    geneSymbol: bioMarker.name,
                     geneId: bioMarker.primaryExternalId,
                     organism: 'Homo sapiens',
             )
