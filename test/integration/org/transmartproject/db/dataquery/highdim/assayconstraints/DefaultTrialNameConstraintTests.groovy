@@ -10,9 +10,12 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 class DefaultTrialNameConstraintTests {
+
+    AssayTestData testData = new AssayTestData()
+
     @Before
     void setup() {
-        AssayTestData.saveAll()
+        testData.saveAll()
     }
 
     @Test

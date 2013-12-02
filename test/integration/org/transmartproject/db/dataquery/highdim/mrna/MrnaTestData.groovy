@@ -22,7 +22,7 @@ class MrnaTestData {
 
     public static final String TRIAL_NAME = 'MRNA_SAMP_TRIAL'
 
-    static DeGplInfo platform = {
+    DeGplInfo platform = {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
                 organism: 'Homo Sapiens',
@@ -31,7 +31,7 @@ class MrnaTestData {
         res
     }()
 
-    static List<BioMarkerCoreDb> bioMarkers = HighDimTestData.createBioMarkers(-100, [
+    List<BioMarkerCoreDb> bioMarkers = HighDimTestData.createBioMarkers(-100, [
             [ name: 'BOGUSCPO',
                     description: 'carboxypeptidase O',
                     primaryExternalId: '-130749' ],
@@ -42,7 +42,7 @@ class MrnaTestData {
                     description: 'vanin 3',
                     primaryExternalId: '-55350' ]])
 
-    static List<SearchAuthPrincipal> principals = {
+    List<SearchAuthPrincipal> principals = {
         def res = [
                new SearchAuthPrincipal(enabled: true)
         ]
@@ -50,7 +50,7 @@ class MrnaTestData {
         res
     }()
 
-    static List<SearchAuthUser> users = {
+    List<SearchAuthUser> users = {
         def res = [
                 new SearchAuthUser(username: 'foobar')
         ]
@@ -58,7 +58,7 @@ class MrnaTestData {
         res
     }()
 
-    static List<SearchGeneSignature> geneSignatures = {
+    List<SearchGeneSignature> geneSignatures = {
         /* only id and deletedFlag are important.
          * we also have to fill some not-null fields */
         def createGeneSignature = { id ->
@@ -81,7 +81,7 @@ class MrnaTestData {
         }
     }()
 
-    static List<BioAssayFeatureGroupCoreDb> assayFeatureGroups = {
+    List<BioAssayFeatureGroupCoreDb> assayFeatureGroups = {
         (-702..-701).reverse().collect {
             def res = new BioAssayFeatureGroupCoreDb(
                     name: 'probeSet' + it,
@@ -92,7 +92,7 @@ class MrnaTestData {
         }
     }()
 
-    static List<BioAssayDataAnnotationCoreDb> assayAnnotations = {
+    List<BioAssayDataAnnotationCoreDb> assayAnnotations = {
         [
                 new BioAssayDataAnnotationCoreDb(
                         probeSet: assayFeatureGroups[0],
@@ -105,7 +105,7 @@ class MrnaTestData {
         ]
     }()
 
-    static List<SearchGeneSignatureItem> geneSignatureItems = {
+    List<SearchGeneSignatureItem> geneSignatureItems = {
         def createGeneSignatureItem = { BioMarkerCoreDb bioMarker,
                                         SearchGeneSignature geneSignature,
                                         Long foldChangeMetric,
@@ -150,7 +150,7 @@ class MrnaTestData {
      *   item -903 -> probeSet -701 -> annotation #0 -> bioMarker -102 (BOGUSRQCD1)
      */
 
-    static List<SearchKeywordCoreDb> searchKeywords = {
+    List<SearchKeywordCoreDb> searchKeywords = {
         def createGeneKeyword = { BioMarkerCoreDb gene, id ->
             def res = new SearchKeywordCoreDb(
                     keyword: gene.name,
@@ -181,7 +181,7 @@ class MrnaTestData {
         }
     }()
 
-    static List<DeMrnaAnnotationCoreDb> annotations = {
+    List<DeMrnaAnnotationCoreDb> annotations = {
         def createAnnotation = { probesetId, probeId, BioMarkerCoreDb bioMarker ->
             def res = new DeMrnaAnnotationCoreDb(
                     gplId: platform.id,
@@ -200,13 +200,13 @@ class MrnaTestData {
         ]
     }()
 
-    static List<PatientDimension> patients =
+    List<PatientDimension> patients =
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
-    static List<DeSubjectSampleMapping> assays =
+    List<DeSubjectSampleMapping> assays =
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
-    static List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
+    List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [
                 trialName: TRIAL_NAME,
                 //trialSource: "$TRIAL_NAME:STD" (not mapped)
@@ -237,7 +237,7 @@ class MrnaTestData {
     }()
 
 
-    static void saveAll() {
+    void saveAll() {
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         save bioMarkers
         save principals

@@ -24,9 +24,11 @@ class MrnaEndToEndRetrievalTests {
 
     Closeable dataQueryResult
 
+    MrnaTestData testData = new MrnaTestData()
+
     @Before
     void setUp() {
-        MrnaTestData.saveAll()
+        testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
 
@@ -69,16 +71,16 @@ class MrnaEndToEndRetrievalTests {
                 ),
                 contains(
                         hasProperty('data', contains(
-                                closeTo(MrnaTestData.microarrayData[-1].zscore as Double, delta),
-                                closeTo(MrnaTestData.microarrayData[-2].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-1].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-2].zscore as Double, delta),
                         )),
                         hasProperty('data', contains(
-                                closeTo(MrnaTestData.microarrayData[-3].zscore as Double, delta),
-                                closeTo(MrnaTestData.microarrayData[-4].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-3].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-4].zscore as Double, delta),
                         )),
                         hasProperty('data', contains(
-                                closeTo(MrnaTestData.microarrayData[-5].zscore as Double, delta),
-                                closeTo(MrnaTestData.microarrayData[-6].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-5].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-6].zscore as Double, delta),
                         )),
                 )
         )
@@ -92,7 +94,7 @@ class MrnaEndToEndRetrievalTests {
                 )
         ]
         List dataConstraints = [
-                mrnaResource.createDataConstraint([keyword_ids: [MrnaTestData.searchKeywords.
+                mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
                         find({ it.keyword == 'BOGUSRQCD1' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )

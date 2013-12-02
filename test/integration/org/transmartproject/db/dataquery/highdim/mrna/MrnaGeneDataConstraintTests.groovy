@@ -19,9 +19,11 @@ class MrnaGeneDataConstraintTests {
 
     MrnaModule mrnaModule
 
+    MrnaTestData testData = new MrnaTestData()
+
     @Before
     void setUp() {
-        MrnaTestData.saveAll()
+        testData.saveAll()
     }
 
     private HibernateCriteriaBuilder createCriteriaBuilder() {
@@ -40,7 +42,7 @@ class MrnaGeneDataConstraintTests {
 
         def testee = mrnaModule.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: MrnaTestData.searchKeywords.
+                [ keyword_ids: testData.searchKeywords.
                         findAll({ it.keyword == 'BOGUSRQCD1' })*.id ])
 
         testee.doWithCriteriaBuilder(builder)
@@ -55,8 +57,8 @@ class MrnaGeneDataConstraintTests {
                         )
                 ),
                 containsInAnyOrder(
-                        hasProperty('patient', equalTo(MrnaTestData.patients[0])),
-                        hasProperty('patient', equalTo(MrnaTestData.patients[1]))
+                        hasProperty('patient', equalTo(testData.patients[0])),
+                        hasProperty('patient', equalTo(testData.patients[1]))
                 )
         )
     }
@@ -107,7 +109,7 @@ class MrnaGeneDataConstraintTests {
          * See comment before MrnaTestData.searchKeywords */
         def testee = mrnaModule.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: MrnaTestData.searchKeywords.
+                [ keyword_ids: testData.searchKeywords.
                         findAll({ it.keyword == 'genesig_keyword_-602' })*.id ])
 
         testee.doWithCriteriaBuilder(builder)
@@ -117,10 +119,10 @@ class MrnaGeneDataConstraintTests {
         assertThat res,
                 /* 2 patients * 2 probes (one for each gene) */
                 containsInAnyOrder(
-                        matcherFor(MrnaTestData.patients[0], 'BOGUSRQCD1'),
-                        matcherFor(MrnaTestData.patients[1], 'BOGUSRQCD1'),
-                        matcherFor(MrnaTestData.patients[0], 'BOGUSVNN3'),
-                        matcherFor(MrnaTestData.patients[1], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
                 )
     }
 
@@ -132,7 +134,7 @@ class MrnaGeneDataConstraintTests {
          * See comment before MrnaTestData.searchKeywords */
         def testee = mrnaModule.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: MrnaTestData.searchKeywords.
+                [ keyword_ids: testData.searchKeywords.
                         findAll({
                             it.keyword == 'genesig_keyword_-602' ||
                                     it.keyword == 'BOGUSCPO'
@@ -147,12 +149,12 @@ class MrnaGeneDataConstraintTests {
         assertThat res,
                 /* 2 patients * 3 probes (one for each gene) */
                 containsInAnyOrder(
-                        matcherFor(MrnaTestData.patients[0], 'BOGUSRQCD1'),
-                        matcherFor(MrnaTestData.patients[1], 'BOGUSRQCD1'),
-                        matcherFor(MrnaTestData.patients[0], 'BOGUSVNN3'),
-                        matcherFor(MrnaTestData.patients[1], 'BOGUSVNN3'),
-                        matcherFor(MrnaTestData.patients[0], 'BOGUSCPO'),
-                        matcherFor(MrnaTestData.patients[1], 'BOGUSCPO'),
+                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[0], 'BOGUSCPO'),
+                        matcherFor(testData.patients[1], 'BOGUSCPO'),
                 )
     }
 

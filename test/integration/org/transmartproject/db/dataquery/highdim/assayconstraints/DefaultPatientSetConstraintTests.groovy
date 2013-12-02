@@ -17,12 +17,14 @@ class DefaultPatientSetConstraintTests {
     /* patient set with only the first patient (AssayTestData.patients[0]) */
     QueryResult firstPatientResult
 
+    AssayTestData testData = new AssayTestData()
+
     @Before
     void setup() {
-        AssayTestData.saveAll()
+        testData.saveAll()
 
         QtQueryMaster master = QueryResultData.createQueryResult([
-                AssayTestData.patients[0]
+                testData.patients[0]
         ])
 
         master.save()
@@ -43,7 +45,7 @@ class DefaultPatientSetConstraintTests {
 
         assertThat assays, allOf(
                 everyItem(
-                        hasProperty('patient', equalTo(AssayTestData.patients[0]))
+                        hasProperty('patient', equalTo(testData.patients[0]))
                 ),
                 containsInAnyOrder(
                         /* see test data, -X01 ids are assays for the 1st patient */
