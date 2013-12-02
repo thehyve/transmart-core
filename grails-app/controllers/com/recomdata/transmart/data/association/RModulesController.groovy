@@ -28,7 +28,10 @@ import grails.converters.JSON
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 class RModulesController {
-    final static Map<String, String> lookup = ["Gene Expression": "mrna"]
+    final static Map<String, String> lookup = [
+            "Gene Expression": "mrna",
+            "QPCR MIRNA": "mirna"
+    ]
 
     def springSecurityService
     def asyncJobService
@@ -111,6 +114,10 @@ class RModulesController {
         analysisConstraints["dataConstraints"].each { constraintType, value ->
             if (constraintType == 'search_keyword_ids') {
                 analysisConstraints["dataConstraints"][constraintType] = [ keyword_ids: value ]
+            }
+
+            if (constraintType == 'mirnas') {
+                analysisConstraints["dataConstraints"][constraintType] = [ names: value ]
             }
         }
 
