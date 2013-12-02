@@ -70,7 +70,9 @@ class MrnaGeneDataConstraintTests {
         /* keywords ids for genes BOGUSCPO, BOGUSRQCD1 */
         def testee = mrnaModule.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: [ '-501', '-502' ] ])
+                [ keyword_ids: testData.searchKeywords.findAll {
+                    [ 'BOGUSCPO', 'BOGUSRQCD1' ].contains(it.keyword)
+                }*.id])
 
 
         testee.doWithCriteriaBuilder(builder)
@@ -110,7 +112,7 @@ class MrnaGeneDataConstraintTests {
         def testee = mrnaModule.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 [ keyword_ids: testData.searchKeywords.
-                        findAll({ it.keyword == 'genesig_keyword_-602' })*.id ])
+                        findAll({ it.keyword == 'bogus_gene_sig_-602' })*.id ])
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -136,7 +138,7 @@ class MrnaGeneDataConstraintTests {
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 [ keyword_ids: testData.searchKeywords.
                         findAll({
-                            it.keyword == 'genesig_keyword_-602' ||
+                            it.keyword == 'bogus_gene_sig_-602' ||
                                     it.keyword == 'BOGUSCPO'
                         })*.id ])
 

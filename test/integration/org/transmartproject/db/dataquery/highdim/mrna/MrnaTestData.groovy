@@ -35,134 +35,14 @@ class MrnaTestData {
         res
     }()
 
-    List<BioMarkerCoreDb> bioMarkers = bioMarkerTestData.geneBioMarkers
-
-    List<SearchAuthPrincipal> principals = {
-        def res = [
-               new SearchAuthPrincipal(enabled: true)
-        ]
-        res[0].id = -1001
-        res
-    }()
-
-    List<SearchAuthUser> users = {
-        def res = [
-                new SearchAuthUser(username: 'foobar')
-        ]
-        res[0].id = principals[0].id
-        res
-    }()
-
-    List<SearchGeneSignature> geneSignatures = {
-        /* only id and deletedFlag are important.
-         * we also have to fill some not-null fields */
-        def createGeneSignature = { id ->
-            def res = new SearchGeneSignature(
-                    deletedFlag: false,
-                    name: 'bogus_gene_sig_' + id,
-                    uploadFile: 'bogus_upload_file',
-                    speciesConceptId: '0',
-                    creator: users[0],
-                    createDate: new Date(),
-                    bioAssayPlatformId: 0,
-                    PValueCutoffConceptId: 0,
-            )
-            res.id = id
-            res
-        }
-
-        (-602..-601).reverse().collect {
-            createGeneSignature it
-        }
-    }()
-
-    List<BioAssayFeatureGroupCoreDb> assayFeatureGroups = {
-        (-702..-701).reverse().collect {
-            def res = new BioAssayFeatureGroupCoreDb(
-                    name: 'probeSet' + it,
-                    type: 'foobar'
-            )
-            res.id = it
-            res
-        }
-    }()
-
-    List<BioAssayDataAnnotationCoreDb> assayAnnotations = {
-        [
-                new BioAssayDataAnnotationCoreDb(
-                        probeSet: assayFeatureGroups[0],
-                        bioMarker: bioMarkers[1],
-                ),
-                new BioAssayDataAnnotationCoreDb(
-                        probeSet: assayFeatureGroups[1],
-                        bioMarker: bioMarkers[0],
-                ),
-        ]
-    }()
-
-    List<SearchGeneSignatureItem> geneSignatureItems = {
-        def createGeneSignatureItem = { BioMarkerCoreDb bioMarker,
-                                        SearchGeneSignature geneSignature,
-                                        Long foldChangeMetric,
-                                        BioAssayFeatureGroupCoreDb probeSet,
-                                        id ->
-            def res = new SearchGeneSignatureItem(
-                bioMarker: bioMarker,
-                geneSignature: geneSignature,
-                foldChangeMetric: foldChangeMetric,
-                probeSet: probeSet
-            )
-            res.id = id
-            res
-        }
-
-        [
-                createGeneSignatureItem(bioMarkers[0], geneSignatures[0], -1L, assayFeatureGroups[0], -901),
-                createGeneSignatureItem(bioMarkers[1], geneSignatures[0], 0L,  assayFeatureGroups[1], -902),
-                createGeneSignatureItem(bioMarkers[2], geneSignatures[1], 1L,  assayFeatureGroups[0], -903),
-        ]
-    }()
-
-    /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
-     * gene signature ids with bio marker ids in two ways:
-     *
-     *   1. take the bio_marker_id from the gene signature's items
-     *   2. take the bio assay feature groups associated with the gene
-     *      signature's items and then take the bio marker ids of the
-     *      annotations for those feature groups
-     *
-     * Therefore, the view should have the following associations after this
-     * test data is inserted:
-     *
-     * Gene signature -601:
-     *   item -901 -> bioMarker -101 (BOGUSCPO)
-     *   item -902 -> bioMarker -102 (BOGUSRQCD1)
-     *   item -901 -> probeSet -701 -> annotation #0 -> bioMarker -102 (BOGUSRQCD1)
-     *   item -902 -> probeSet -702 -> annotation #1 -> bioMarker -101 (BOGUSCPO)
-     *
-     * Gene signature -602:
-     *   item -903 -> bioMarker -103 (BOGUSVNN3)
-     *   item -903 -> probeSet -701 -> annotation #0 -> bioMarker -102 (BOGUSRQCD1)
-     */
+    List<BioMarkerCoreDb> getBioMarkers() {
+        bioMarkerTestData.geneBioMarkers
+    }
 
     List<SearchKeywordCoreDb> searchKeywords = {
-        def createGeneSignatureKeyword = { SearchGeneSignature sig, id ->
-            def res = new SearchKeywordCoreDb(
-                    keyword: "genesig_keyword_$sig.id",  /* what should this look like? */
-                    bioDataId: sig.id,
-                    uniqueId: "GENESIG:$sig.id", /* what should this look like? */
-                    dataCategory: 'GENESIG',     /* what should this look like? */
-            )
-            res.id = id
-            res
-        }
-
-        def res = bioMarkerTestData.geneSearchKeywords
-        int i = res*.id.min()
-
-        res + geneSignatures.collect {
-            createGeneSignatureKeyword it, --i
-        }
+        bioMarkerTestData.geneSearchKeywords +
+                bioMarkerTestData.proteinSearchKeywords +
+                bioMarkerTestData.geneSignatureSearchKeywords
     }()
 
     List<DeMrnaAnnotationCoreDb> annotations = {
@@ -222,15 +102,9 @@ class MrnaTestData {
 
 
     void saveAll() {
+        bioMarkerTestData.saveGeneData()
+
         assertThat platform.save(), is(notNullValue(DeGplInfo))
-        save bioMarkers
-        save principals
-        save users
-        save geneSignatures
-        save assayFeatureGroups
-        save assayAnnotations
-        save geneSignatureItems
-        save searchKeywords
         save annotations
         save patients
         save assays

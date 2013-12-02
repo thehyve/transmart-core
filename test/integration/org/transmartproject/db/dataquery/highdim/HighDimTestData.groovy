@@ -8,6 +8,7 @@ import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -91,6 +92,20 @@ class HighDimTestData {
         }
     }
 
+    static List<SearchKeywordCoreDb> createSearchKeywordsForGeneSignatures(
+           List<SearchGeneSignature> geneSignatures, long baseId) {
+        geneSignatures.collect { sig ->
+            def res = new SearchKeywordCoreDb(
+                    keyword: sig.name,
+                    bioDataId: sig.id,
+                    uniqueId: "GENESIG:$sig.id",
+                    dataCategory: 'GENESIG',
+            )
+            res.id = --baseId
+            res
+        }
+    }
+
     static CorrelationTypesRegistry CORRELATION_TYPES_REGISTRY = {
         def registry = new CorrelationTypesRegistry()
         registry.init()
@@ -100,7 +115,7 @@ class HighDimTestData {
     static long BIO_DATA_CORREL_DESCR_SEQ = -9100L
 
 
-    static List<BioDataCorrelationCoreDb> createCorrelationPair(
+    static List<BioDataCorrelationCoreDb> createCorrelationPairs(
             long baseId, List<BioMarkerCoreDb> from, List<BioMarkerCoreDb> to) {
 
         def createCorrelation = { long id,
@@ -108,10 +123,10 @@ class HighDimTestData {
                                   BioMarkerCoreDb right ->
 
             CorrelationType correlationType = CORRELATION_TYPES_REGISTRY.
-                    registryTable.get(from.type, to.type)
+                    registryTable.get(left.type, left.type)
             if (correlationType == null) {
                 throw new RuntimeException("Didn't know I could associate " +
-                        "$from.type with $to.type")
+                        "$left.type with $left.type")
             }
 
             BioDataCorrelDescr descr =
