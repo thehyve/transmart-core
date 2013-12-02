@@ -327,7 +327,7 @@ class RegionSearchService {
                     }
 
                     //if(hg19only== false) {
-                    regionList.append("  AND info.hg_version = '${range.ver}' ")
+            regionList.append("  AND info.hg_version = '${range.ver}' ")
                     //}
                     regionList.append(")");
                 }
@@ -343,7 +343,6 @@ class RegionSearchService {
             }
         }
 
-        def analysisNameIncluded = false
         //Add analysis IDs
         if (analysisIds) {
             analysisQCriteria.append(" AND data.BIO_ASSAY_ANALYSIS_ID IN (" + analysisIds[0]);
@@ -353,18 +352,9 @@ class RegionSearchService {
             analysisQCriteria.append(") ")
             queryCriteria.append(analysisQCriteria.toString())
 
-            //Only select the analysis name if we need to distinguish between them!
-            if (analysisIds.size() > 1) {
-                //analysisQuery = analysisQuery.replace("_analysisSelect_", "baa.analysis_name AS analysis, ")
-                analysisQuery = analysisQuery.replace("_analysisSelect_", "DATA.bio_assay_analysis_id AS analysis_id, ")
-                //analysisQuery = analysisQuery.replace("_analysisJoin_", " JOIN biomart.bio_assay_analysis baa ON baa.bio_assay_analysis_id = DATA.bio_assay_analysis_id ")
-                analysisQuery = analysisQuery.replace("_analysisJoin_", "");
-                analysisNameIncluded = true
-            }
-            else {
-                analysisQuery = analysisQuery.replace("_analysisSelect_", "");
-                analysisQuery = analysisQuery.replace("_analysisJoin_", "");
-            }
+            //Originally we only selected the analysis name if there was a need to (more than one analysis) - but this query is much faster
+            analysisQuery = analysisQuery.replace("_analysisSelect_", "DATA.bio_assay_analysis_id AS analysis_id, ")
+            analysisQuery = analysisQuery.replace("_analysisJoin_", "");
         }
 
         //Add gene names
@@ -431,25 +421,24 @@ class RegionSearchService {
 
         // analysis name query
 
-        if (analysisNameIncluded) {
-            try {
-                def nameQuery = analysisNameQuery + analysisQCriteria.toString();
-                log.debug(nameQuery)
-                stmt = con.prepareStatement(nameQuery)
 
-                rs = stmt.executeQuery();
-                while (rs.next()) {
-                    analysisNameMap.put(rs.getLong("id"), rs.getString("name"));
-                }
-            }catch(Exception e){
-                log.error(e.getMessage(),e)
-                throw e;
+        try {
+            def nameQuery = analysisNameQuery + analysisQCriteria.toString();
+            log.debug(nameQuery)
+            stmt = con.prepareStatement(nameQuery)
+
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                analysisNameMap.put(rs.getLong("id"), rs.getString("name"));
             }
-            finally {
-                rs?.close();
-                stmt?.close();
-                con?.close();
-            }
+        }catch(Exception e){
+            log.error(e.getMessage(),e)
+            throw e;
+        }
+        finally {
+            rs?.close();
+            stmt?.close();
+            con?.close();
         }
 
         //println(analysisNameMap)
@@ -471,27 +460,16 @@ class RegionSearchService {
         def results = []
         try{
             rs = stmt.executeQuery();
-            if (analysisNameIncluded) {
-                while(rs.next()){
-                    if ((type.equals("gwas"))) {
-                        results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"),analysisNameMap.get( rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
-                    }
-                    else {
-                        results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene")]);
-                    }
+            while(rs.next()){
+                if ((type.equals("gwas"))) {
+                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"),analysisNameMap.get( rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
+                }
+                else {
+                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene")]);
                 }
             }
-            else {
-                while(rs.next()){
-                    if ((type.equals("gwas"))) {
-                        results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), "analysis", rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
-                    }
-                    else {
-                        results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), "analysis", rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene")]);
-                    }
-                }
-            }
-        }catch(Exception e){
+        }
+        catch(Exception e){
             log.error(e.getMessage(), e);
         }
         finally{
@@ -573,7 +551,7 @@ class RegionSearchService {
             }
             else {
                 while(rs.next()){
-                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), "analysis", rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
+                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), rs.getString("analysis"), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
                 }
             }
         }

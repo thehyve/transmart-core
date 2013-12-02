@@ -357,7 +357,7 @@ class GwasSearchController {
                                 {
                                     //Reorder the array based on the index table.
                                     //if (it.key-1<newLargeTextField.size())
-                                    if (it.key-1<largeTextField.size())
+                                    if (it.key-1<largeTextField?.size())
                                     {
                                         //log.warn("Key: "+it.key+ "size "+newLargeTextField.size());
                                         newLargeTextField[it.value-1] = largeTextField[it.key-1]
