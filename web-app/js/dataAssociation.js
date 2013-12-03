@@ -137,12 +137,19 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 
             // if it's loading completed job then display the result as well
             if (isCompletedJob) {
-                if (itemId == 'aCGHSurvivalAnalysis') {
-                    survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
-                } else if (itemId == 'groupTestaCGH') {
-                    groupTestView.renderResults(jobName, groupTestView);
-                } else if (itemId == 'groupTestRNASeq') {
-                    RNASeqgroupTestView.renderResults(jobName, RNASeqgroupTestView);
+                switch (itemId) {
+                    case 'aCGHSurvivalAnalysis' :
+                        survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
+                        break;
+                    case 'groupTestaCGH' :
+                        groupTestView.renderResults(jobName, groupTestView);
+                        break;
+                    case 'groupTestRNASeq' :
+                        RNASeqgroupTestView.renderResults(jobName, RNASeqgroupTestView);
+                        break;
+                    case 'ACGHFrequencyPlot' :
+                        frequencyPlotView.renderResults(jobName, frequencyPlotView);
+                        break;
                 }
             }
         }
@@ -374,12 +381,6 @@ function dropOntoCategorySelection2(source, e, data, targetdiv)
 			//Grab the child node.
 			var child=data.node.childNodes[i];
 			
-			//This tells us whether it is a numeric or character node.
-			var val=child.attributes.oktousevalues;
-			
-			//Reset the alpha/numeric flag so we don't get the popup for entering a value.
-			child.attributes.oktousevalues = "N"; 
-			
 			//If this is a leaf node, add it.
 			if(child.leaf==true)
 			{
@@ -389,9 +390,6 @@ function dropOntoCategorySelection2(source, e, data, targetdiv)
 				//Set the flag indicating we had a leaf node.
 				foundLeafNode = true;
 			}
-			
-			//Set back to original value
-			child.attributes.oktousevalues=val;
 		}
 		//Adding this condition for certain nodes like Dosage and Response, where children of Dosage & Response are intentionally hidden 
 		if (data.node.childrenRendered && data.node.firstChild == null) {
@@ -404,20 +402,9 @@ function dropOntoCategorySelection2(source, e, data, targetdiv)
 		{
 			Ext.Msg.alert('No Nodes in Folder','When dragging in a folder you must select a folder that has leaf nodes directly under it.');
 		}				
-	}
-	else 
-	{
-		//This tells us whether it is a numeric or character node.
-		var val=data.node.attributes.oktousevalues;
-		
-		//Reset the alpha/numeric flag so we don't get the popup for entering a value.
-		data.node.attributes.oktousevalues="N";
-		
-		//Add the item to the input.
-		var concept = createPanelItemNew(targetdiv, convertNodeToConcept(data.node));
-		
-		//Set back to original value
-		data.node.attributes.oktousevalues=val;
+	} else {
+        //Add the item to the input.
+        var concept = createPanelItemNew(targetdiv, convertNodeToConcept(data.node));
 	}
 	return concept;
 } 
