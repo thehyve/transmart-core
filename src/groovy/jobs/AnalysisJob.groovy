@@ -11,7 +11,6 @@ import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
 import org.transmartproject.core.dataquery.TabularResult
-import com.recomdata.asynchronous.JobResultsService
 
 abstract class AnalysisJob implements Job {
     Map jobDataMap
@@ -19,10 +18,9 @@ abstract class AnalysisJob implements Job {
     File temporaryDirectory
     final static String SUBSET1 = "subset1"
     final static String SUBSET2 = "subset2"
-    final static String SUBSET1SHORT = "S1"
-    final static String SUBSET2SHORT = "S2"
-    final static String RESULTSET1 = "result_instance_id1"
-    final static String RESULTSET2 = "result_instance_id2"
+    final static Map<String, String> SHORT_NAME = [(AnalysisJob.SUBSET1): "S1", (AnalysisJob.SUBSET2): "S2"]
+    final static String RESULT_INSTANCE_ID1 = "result_instance_id1"
+    final static String RESULT_INSTANCE_ID2 = "result_instance_id2"
 
     abstract protected void writeData(Map<String, TabularResult> results)
 

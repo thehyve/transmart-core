@@ -1,6 +1,5 @@
 package jobs
 
-import au.com.bytecode.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -31,18 +30,13 @@ class KMeansClustering extends AnalysisJob {
     protected void writeData(Map<String, TabularResult> results) {
         withDefaultCsvWriter(results[AnalysisJob.SUBSET1]) { csvWriter ->
             csvWriter.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
-            results[AnalysisJob.SUBSET1]?.rows?.each { row ->
-                row.assayIndexMap.each { assay, index ->
-                    csvWriter.writeNext(
-                            ["${AnalysisJob.SUBSET1SHORT}_${assay.assay.patientInTrialId}", row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
-                    )
-                }
-            }
-            results[AnalysisJob.SUBSET2]?.rows.each { row ->
-                row.assayIndexMap.each { assay, index ->
-                    csvWriter.writeNext(
-                            ["${AnalysisJob.SUBSET2SHORT}_${assay.assay.patientInTrialId}", row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
-                    )
+            [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
+                results[subset]?.rows?.each { row ->
+                    row.assayIndexMap.each { assay, index ->
+                        csvWriter.writeNext(
+                                ["${AnalysisJob.SHORT_NAME[subset]}_${assay.assay.patientInTrialId}", row.data[index], "${row.label}"] as String[]
+                        )
+                    }
                 }
             }
         }
@@ -52,7 +46,10 @@ class KMeansClustering extends AnalysisJob {
     protected Map<String, TabularResult> fetchResults() {
         updateStatus('Gathering Data')
 
-        [(AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULTSET1), (AnalysisJob.RESULTSET2) : fetchSubset(AnalysisJob.SUBSET2)]
+        [
+                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_ID1),
+                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_ID2)
+        ]
     }
 
     private TabularResult fetchSubset(String subset) {
@@ -63,7 +60,7 @@ class KMeansClustering extends AnalysisJob {
             )
             List<AssayConstraint> assayConstraints = [
                     dataType.createAssayConstraint(
-                            AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset==AnalysisJob.RESULTSET1)?AnalysisJob.RESULTSET1:AnalysisJob.RESULTSET2]
+                            AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset==AnalysisJob.RESULT_INSTANCE_ID1)?AnalysisJob.RESULT_INSTANCE_ID1:AnalysisJob.RESULT_INSTANCE_ID2]
                     )
             ]
             assayConstraints.add(
