@@ -95,7 +95,7 @@ class MrnaTestData {
 
 
     void saveAll() {
-        bioMarkerTestData.saveMrnaData()
+        bioMarkerTestData.saveGeneData()
 
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         save annotations

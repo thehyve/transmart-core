@@ -91,7 +91,7 @@ class RbmTestData {
     }()
 
     void saveAll() {
-        bioMarkerTestData.saveRbmData()
+        bioMarkerTestData.saveProteinData()
 
         save([ platform ])
         save patients

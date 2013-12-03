@@ -217,18 +217,12 @@ class SampleBioMarkerTestData {
         save geneBioMarkers
         save geneSearchKeywords
         save geneCorrelations
-    }
 
-    void saveProteinData() {
         save proteinBioMarkers
         save proteinSearchKeywords
-    }
-
-    void saveMrnaData() {
-        saveGeneData()
-        saveProteinData()
 
         save proteinGeneCorrelations
+
         save principals
         save users
         save geneSignatures
@@ -238,15 +232,18 @@ class SampleBioMarkerTestData {
         save geneSignatureSearchKeywords
     }
 
+    void saveProteinData() {
+        save geneBioMarkers
+        save geneSearchKeywords
+
+        save proteinBioMarkers
+        save proteinSearchKeywords
+
+        save geneProteinCorrelations
+    }
+
     void saveMirnaData() {
         save mirnaBioMarkers
         save mirnaSearchKeywords
-    }
-
-    void saveRbmData() {
-        saveGeneData()
-        saveProteinData()
-
-        save geneProteinCorrelations
     }
 }
