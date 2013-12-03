@@ -1,15 +1,16 @@
-%{--Input Container--}%
-<div id="fpContainer"></div>
+%{--include js lib for heatmap dynamically--}%
+<r:require modules="freq_plot"/>
+<r:layoutResources disposition="defer"/>
 
-%{-- Analysis Output --}%
-%{--<div id="intermediateResultWrapper"></div>--}%
+%{--Input Container--}%
+<div id="freq_plot_container" class="analysis_container"></div>
 
 %{--Plot wrapper--}%
-<div id="fpPlotWrapper"></div>
+<div id="freq_plot_wrapper"></div>
 
 %{-- template --}%
-<div id="template-group-test-plot" class="x-hidden">
-    <div id="plotResultContainer" class="plotResultContainer">
+<div id="template-freq-plot" class="x-hidden">
+    <div id="plotResultContainer" class="plot_result_container">
         %{--Image--}%
         <g:img file="{filename}" class="freq-plot"></g:img>
         <hr class="separator"/>
@@ -48,21 +49,18 @@
             </tr>
             <tr>
                 <td class="first-col">Region</td>
-                <td>{inputRegion}</td>
+                <td>{regionVariable}</td>
             </tr>
             <tr>
                 <td class="first-col">Group</td>
                 <td>{inputGroupVariable}</td>
             </tr>
             <tr>
-                <td class="first-col">Statistical Test</td>
-                <td>{inputStatisticsType}</td>
-            </tr>
-            <tr>
-                <td class="first-col">Alteration Type</td>
-                <td>{inputAlteration}</td>
+                <td class="first-col">Job Type</td>
+                <td>{inputjobType}</td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
+
