@@ -193,9 +193,11 @@ class MrnaGeneDataConstraintTests {
 
         List res = builder.instance.list()
 
-        assertThat res, everyItem(
-                hasProperty('probe',
-                        hasProperty('geneSymbol', equalTo('BOGUSCPO'))))
+        assertThat res, allOf(
+                hasSize(2), /* 1 probe * 2 patients */
+                everyItem(
+                        hasProperty('probe',
+                                hasProperty('geneSymbol', equalTo('BOGUSCPO')))))
     }
 
     @Test
