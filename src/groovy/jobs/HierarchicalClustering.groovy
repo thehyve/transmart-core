@@ -27,7 +27,7 @@ class HierarchicalClustering extends AnalysisJob {
 
     @Override
     protected void writeData(Map<String, TabularResult> results) {
-        withDefaultCsvWriter(results[AnalysisJob.SUBSET1]) { csvWriter ->
+        withDefaultCsvWriter(results) { csvWriter ->
             csvWriter.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
 
             [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
