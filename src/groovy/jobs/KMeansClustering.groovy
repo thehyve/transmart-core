@@ -35,7 +35,7 @@ class KMeansClustering extends AnalysisJob {
                 results[subset]?.rows?.each { row ->
                     row.assayIndexMap.each { assay, index ->
                         csvWriter.writeNext(
-                                ["${AnalysisJob.SHORT_NAME[subset]}_${assay.assay.patientInTrialId}", row.data[index], "${row.label}"] as String[]
+                                ["${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
                         )
                     }
                 }

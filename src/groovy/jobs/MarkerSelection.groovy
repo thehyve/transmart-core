@@ -42,7 +42,7 @@ class MarkerSelection extends AnalysisJob {
             results[AnalysisJob.SUBSET1].rows.each { row ->
                 row.assayIndexMap.each { assay, index ->
                     csvWriter.writeNext(
-                            ['S1_'+assay.assay.patientInTrialId, row.data[index], row.probe, row.geneSymbol, "subset1_${assay.assay.trialName}"] as String[]
+                            ['S1_'+assay.patientInTrialId, row[index], row.probe, row.geneSymbol, "subset1_${assay.trialName}"] as String[]
                     )
                 }
             }
