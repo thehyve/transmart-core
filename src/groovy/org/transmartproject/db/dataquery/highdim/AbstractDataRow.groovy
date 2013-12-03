@@ -18,4 +18,9 @@ abstract class AbstractDataRow implements DataRow<AssayColumn, Object> {
     Object getAt(AssayColumn column) {
         data[assayIndexMap[column]]
     }
+
+    @Override
+    Iterator<Object> iterator() {
+        data.iterator()
+    }
 }
