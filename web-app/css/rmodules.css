@@ -17,3 +17,5 @@
 
 .plot_hint {font-style: italic;}
 .downloadLink {font-weight: bold; margin: 10px 0 0 0;}
+.plot_result_container {padding: 10px; font-family: Tahoma, Arial, "sans serif"; font-size: .8em;}
+.analysis_container {font-family: Arial, "sans serif";font-size: .7em;}
