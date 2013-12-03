@@ -138,7 +138,7 @@ class GwasSearchController {
                     }
                     //Gene
                     else {
-                        def region = r.split(";")
+                        def region = r.split("\\^")
                         def geneId = region[1] as long
                         def direction = region[2]
                         def range = region[3] as long
