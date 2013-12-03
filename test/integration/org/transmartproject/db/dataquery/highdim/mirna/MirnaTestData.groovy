@@ -3,6 +3,7 @@ package org.transmartproject.db.dataquery.highdim.mirna
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
@@ -10,6 +11,8 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 class MirnaTestData {
 
     public static final String TRIAL_NAME = 'MIRNA_SAMP_TRIAL'
+
+    SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
 
     static DeGplInfo platform = {
         def res = new DeGplInfo(
@@ -36,9 +39,9 @@ class MirnaTestData {
             res
         }
         [
-                createAnnotation(-501, 'mmu-miR-147', 'mmu-miR-147-4395373'),
+                createAnnotation(-501, 'hsa-mir-3161', 'mmu-miR-3161-4395373'),
                 createAnnotation(-502, null, 'snoRNA135-4380912'),
-                createAnnotation(-503, 'mmu-miR-153', 'mmu-miR-153-4373305'),
+                createAnnotation(-503, 'hsa-mir-323b', 'mmu-miR-323b-4373305'),
         ]
     }()
 
@@ -71,6 +74,8 @@ class MirnaTestData {
     }()
 
     void saveAll() {
+        bioMarkerTestData.saveMirnaData()
+
         save([ platform ])
         save patients
         save assays

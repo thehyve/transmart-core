@@ -11,13 +11,17 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
-import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
+
+import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -31,33 +35,30 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     StandardDataConstraintFactory standardDataConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
+    @PostConstruct
+    @Override
+    void init() {
+        super.init()
+        correlationTypesRegistry.registerConstraint('MIRNA', 'mirnas')
+        correlationTypesRegistry.registerCorrelation(
+                new CorrelationType(name: 'MIRNA', sourceType: 'MIRNA', targetType: 'MIRNA'))
+    }
+
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
         [ standardAssayConstraintFactory ]
     }
 
-    private DataRetrievalParameterFactory dataConstraintFactory = new MapBasedParameterFactory(
-            mirnas: { Map params ->
-                if (params.isEmpty() || params.names == null) {
-                    throw new InvalidArgumentsException(
-                            "Expected a single param, 'names', got ${params.keySet()}")
-                }
-                boolean paramsOk = params.names instanceof List &&
-                        params.names.every { it instanceof String }
-                if (!paramsOk) {
-                    throw new InvalidArgumentsException("Expected the parameter " +
-                            "'names' to be a list of strings, but got ${params.names}")
-                }
-
-                new PropertyDataConstraint(
-                        property: 'p.mirnaId',
-                        values:   params.names)
-            }
-    )
+    @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
+        new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                'MIRNA', 'jProbe', 'mirnaId')
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        [ dataConstraintFactory,
+        [ searchKeywordDataConstraintFactory,
                 standardDataConstraintFactory ]
     }
 

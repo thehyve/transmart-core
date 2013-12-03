@@ -161,7 +161,63 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    @Ignore
+    void testProteinConstraintByPrimaryExternalId() {
+        HibernateCriteriaBuilder builder = createCriteriaBuilder()
+
+        /* there's a correlation between the
+         * protein BOGUSCBPO_HUMAN and the gene BOGUSCPO */
+
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.PROTEINS_CONSTRAINT,
+                [ ids: testData.bioMarkerTestData.proteinBioMarkers.
+                        find { it.name == 'BOGUSCBPO_HUMAN' }*.primaryExternalId ])
+
+        testee.doWithCriteriaBuilder(builder)
+
+        List res = builder.instance.list()
+
+        assertThat res, everyItem(
+                hasProperty('probe',
+                        hasProperty('geneSymbol', equalTo('BOGUSCPO'))))
+    }
+
+    @Test
+    void testProteinConstraintByName() {
+        HibernateCriteriaBuilder builder = createCriteriaBuilder()
+
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.PROTEINS_CONSTRAINT,
+                [ names: [ 'BOGUSCBPO_HUMAN' ] ])
+
+        testee.doWithCriteriaBuilder(builder)
+
+        List res = builder.instance.list()
+
+        assertThat res, everyItem(
+                hasProperty('probe',
+                        hasProperty('geneSymbol', equalTo('BOGUSRQCD1'))))
+    }
+
+    @Test
+    void testGeneSignatureConstraintByName() {
+        HibernateCriteriaBuilder builder = createCriteriaBuilder()
+
+        def testee = mrnaModule.createDataConstraint(
+                DataConstraint.GENE_SIGNATURES_CONSTRAINT,
+                [ names: [ 'bogus_gene_sig_-602' ] ])
+
+        testee.doWithCriteriaBuilder(builder)
+
+        assertThat builder.instance.list(), allOf(
+                hasSize(4), /* 2 probes * 2 patients */
+                everyItem(
+                        hasProperty('probe',
+                                hasProperty('geneSymbol', anyOf(
+                                        equalTo('BOGUSVNN3'),
+                                        equalTo('BOGUSRQCD1'))))))
+    }
+
+    @Test
     void testEmptyConstraint() {
         try {
             mrnaModule.createDataConstraint(
@@ -170,7 +226,8 @@ class MrnaGeneDataConstraintTests {
             fail 'Expected exception'
         } catch (e) {
             assertThat e, isA(InvalidArgumentsException)
-            assertThat e, hasProperty('message', containsString('exactly one type'))
+            assertThat e, hasProperty('message',
+                    containsString('parameter \'keyword_ids\' is an empty list'))
         }
     }
 }

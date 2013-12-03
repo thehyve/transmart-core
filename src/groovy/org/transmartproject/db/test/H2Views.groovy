@@ -63,12 +63,22 @@ class H2Views {
             SELECT DISTINCT
                 b.bio_marker_id,
                 b.bio_marker_id AS asso_bio_marker_id,
-                'Protein' AS correl_type,
+                'PROTEIN' AS correl_type,
                 4 AS mv_id
             FROM
                 biomart.bio_marker b
             WHERE
-               b.bio_marker_type = 'Protein'
+               b.bio_marker_type = 'PROTEIN'
+            UNION
+            SELECT DISTINCT
+                b.bio_marker_id,
+                b.bio_marker_id AS asso_bio_marker_id,
+                'MIRNA' AS correl_type,
+                7 AS mv_id
+            FROM
+                biomart.bio_marker b
+            WHERE
+               b.bio_marker_type = 'MIRNA'
             UNION
             SELECT DISTINCT
                 c.bio_data_id AS bio_marker_id,

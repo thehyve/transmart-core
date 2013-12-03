@@ -40,11 +40,29 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'UniProt')
 
+    List<BioMarkerCoreDb> mirnaBioMarkers = createBioMarkers(-1400L, [
+            [ name: 'MIR3161',
+                    description: 'Homo sapiens miR-3161 stem-loop',
+                    primaryExternalId: 'hsa-mir-3161' ],
+            [ name: 'MIR1260B',
+                    description: 'Homo sapiens miR-1260b stem-loop',
+                    primaryExternalId: 'hsa-mir-1260b' ],
+            [ name: 'MIR323B',
+                    description: 'Homo sapiens miR-323b stem-loop',
+                    primaryExternalId: 'hsa-mir-323b' ]],
+            'MIRNA',
+            'HOMO SAPIENS',
+            'miRBase')
+
+
     List<SearchKeywordCoreDb> geneSearchKeywords =
         createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
 
     List<SearchKeywordCoreDb> proteinSearchKeywords =
         createSearchKeywordsForBioMarkers(proteinBioMarkers, -2200L)
+
+    List<SearchKeywordCoreDb> mirnaSearchKeywords =
+        createSearchKeywordsForBioMarkers(mirnaBioMarkers, -2400L)
 
     List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
@@ -182,5 +200,10 @@ class SampleBioMarkerTestData {
         save assayAnnotations
         save geneSignatureItems
         save geneSignatureSearchKeywords
+    }
+
+    void saveMirnaData() {
+        save mirnaBioMarkers
+        save mirnaSearchKeywords
     }
 }
