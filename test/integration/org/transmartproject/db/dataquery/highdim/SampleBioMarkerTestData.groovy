@@ -35,7 +35,16 @@ class SampleBioMarkerTestData {
     List<BioMarkerCoreDb> proteinBioMarkers = createBioMarkers(-1200L, [
             [ name: 'BOGUSCBPO_HUMAN',
                     description: 'Carboxypeptidase O',
-                    primaryExternalId: 'BOGUS_Q8IVL8' ]],
+                    primaryExternalId: 'BOGUS_Q8IVL8' ],
+            [ name: 'Adipogenesis regulatory factor',
+                    description: 'Adipogenesis factor rich in obesity',
+                    primaryExternalId: 'Q15847' ],
+            [ name: 'Adiponectin',
+                    description: '30 kDa adipocyte complement-related protein',
+                    primaryExternalId: 'Q15848' ],
+            [ name: 'Urea transporter 2',
+                    description: 'Solute carrier family 14 member 2',
+                    primaryExternalId: 'Q15849' ]],
             'PROTEIN',
             'HOMO SAPIENS',
             'UniProt')
@@ -200,6 +209,11 @@ class SampleBioMarkerTestData {
         save assayAnnotations
         save geneSignatureItems
         save geneSignatureSearchKeywords
+    }
+
+    void saveProteinData() {
+        save proteinBioMarkers
+        save proteinSearchKeywords
     }
 
     void saveMirnaData() {

@@ -11,6 +11,8 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -28,15 +30,21 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     DataRetrievalParameterFactory standardDataConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
-        [standardAssayConstraintFactory]
+        [ standardAssayConstraintFactory ]
     }
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        //TODO Reuse search keyword constraint
-        [standardDataConstraintFactory,]
+        [
+                standardDataConstraintFactory,
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'GENE', 'deRbmAnnotation', 'geneId'),
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'deRbmAnnotation', 'uniprotId'),
+        ]
     }
 
     private DataRetrievalParameterFactory projectionsFactory = new MapBasedParameterFactory(
@@ -52,7 +60,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [projectionsFactory]
+        [ projectionsFactory ]
     }
 
     @Override
