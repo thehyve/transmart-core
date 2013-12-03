@@ -33,7 +33,7 @@ class Heatmap extends AnalysisJob {
             results[AnalysisJob.SUBSET1]?.rows?.each { row ->
                 row.assayIndexMap.each { assay, index ->
                     csvWriter.writeNext(
-                            ["${AnalysisJob.SUBSET1SHORT}_${assay.assay.patientInTrialId}", row.data[index], "${row.probe}_${row.geneSymbol}"] as String[]
+                            ["${AnalysisJob.SUBSET1SHORT}_${assay.assay.patientInTrialId}", row.data[index], "${row.label}"] as String[]
                     )
                 }
             }
@@ -82,7 +82,6 @@ class Heatmap extends AnalysisJob {
         )
 
         Projection projection = dataType.createProjection([:], jobDataMap.analysisConstraints["projections"][0])
-
         return dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
