@@ -324,7 +324,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 			method: 'POST',
 			success: function(result, request){
 
-				console.log('result', result.responseText);
 				imagePath = result.responseText;
 
 				_this.resultPanel = new GenericPlotPanel({
@@ -508,7 +507,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 			var alternationVal =  alternationComponent.getSelectedValue();
 
 			this.alteration = this.translateAlteration(alternationVal);
-			console.log('this.alteration->', this.alteration);
 
 			// compose params
 			var formParams = {

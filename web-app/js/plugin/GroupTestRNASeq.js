@@ -176,8 +176,8 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 	// result panel
 	resultPanel : null,
 
-        // job info
-        jobInfo : null,
+    // job info
+    jobInfo : null,
 
 	// constructor
 	constructor: function() {
@@ -293,7 +293,6 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 			method: 'POST',
 			success: function(result, request){
 
-				console.log('result', result.responseText);
 				imagePath = result.responseText;
 
 				_this.resultPanel = new GenericPlotPanel({
@@ -486,7 +485,6 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
  * Invoked when user selects Group Test for RNAseq from Analysis combo box
  */
 function loadGroupTestRNASeqView() {
-    console.log("loadGroupTestRNASeqView() .....");
 	// everything starts here ..
 	RNASeqgroupTestView = new RNASeqGroupTestView();
 }
