@@ -8,4 +8,7 @@ modules = {
     pca {
         resource url:"/js/plugin/PCA.js"
     }
+    freq_plot {
+        resource url:"/js/plugin/FrequencyPlot.js"
+    }
 }
