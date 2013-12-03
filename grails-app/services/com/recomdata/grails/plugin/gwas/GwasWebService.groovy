@@ -95,7 +95,7 @@ class GwasWebService {
         JOIN biomart.bio_experiment on bio_experiment.accession=analysis.etl_id
         where gwas.bio_assay_analysis_id in (_analysisIds_)
         )
-        select * from (select snps.rs_id rs_id, chrom, pos from deapp.de_rc_snp_info snps,
+        select * from (select snps.rs_id rs_id, chrom, pos, gene_name as gene, exon_intron, recombination_rate, regulome_score from deapp.de_rc_snp_info snps,
         (select pos+? sta, pos-? sto, chrom c from deapp.de_rc_snp_info
         where
         RS_ID =? and
@@ -245,7 +245,7 @@ class GwasWebService {
     def final analysisDataSqlQueryGwas = """
 		SELECT gwas.rs_id as rsid, gwas.bio_asy_analysis_gwas_id as resultid, gwas.bio_assay_analysis_id as analysisid, 
     	gwas.p_value as pvalue, gwas.log_p_value as logpvalue, be.title as studyname, baa.analysis_name as analysisname, 
-    	baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome,
+    	baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome, info.gene_name as gene,
     	info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		FROM biomart.Bio_Assay_Analysis_Gwas gwas
 		LEFT JOIN deapp.de_rc_snp_info info ON gwas.rs_id = info.rs_id
@@ -259,7 +259,7 @@ class GwasWebService {
     def final analysisDataSqlQueryEqtl = """
 		SELECT eqtl.rs_id as rsid, eqtl.bio_asy_analysis_data_id as resultid, eqtl.bio_assay_analysis_id as analysisid,
 		eqtl.p_value as pvalue, eqtl.log_p_value as logpvalue, be.title as studyname, baa.analysis_name as analysisname,
-		baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome,
+		baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome, info.gene_name as gene,
 		info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		FROM biomart.Bio_Assay_Analysis_eqtl eqtl
 		LEFT JOIN deapp.de_rc_snp_info info ON eqtl.rs_id = info.rs_id
@@ -309,6 +309,7 @@ class GwasWebService {
                                 rs.getString("datatype"),
                                 rs.getLong("posstart"),
                                 rs.getString("chromosome"),
+                                rs.getString("gene"),
                                 rs.getString("intronexon"),
                                 rs.getLong("recombinationrate"),
                                 rs.getString("regulome")
@@ -341,6 +342,7 @@ class GwasWebService {
                         rs.getString("datatype"),
                         rs.getLong("posstart"),
                         rs.getString("chromosome"),
+                        rs.getString("gene"),
                         rs.getString("intronexon"),
                         rs.getLong("recombinationrate"),
                         rs.getString("regulome")
@@ -409,7 +411,8 @@ class GwasWebService {
         def results = []
         try{
             while(rs.next()){
-                results.push([rs.getString("RS_ID"), rs.getLong("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME")])
+                results.push([rs.getString("RS_ID"), rs.getLong("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME"),
+                rs.getString("gene"), rs.getString("exon_intron"), rs.getDouble("recombination_rate"), rs.getDouble("regulome_score")])
             }
             return results
 
