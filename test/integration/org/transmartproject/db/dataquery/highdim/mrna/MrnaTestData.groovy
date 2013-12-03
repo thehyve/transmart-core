@@ -1,23 +1,16 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import org.transmartproject.db.bioassay.BioAssayDataAnnotationCoreDb
-import org.transmartproject.db.bioassay.BioAssayFeatureGroupCoreDb
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.search.SearchGeneSignature
-import org.transmartproject.db.search.SearchGeneSignatureItem
 import org.transmartproject.db.search.SearchKeywordCoreDb
-import org.transmartproject.db.user.SearchAuthPrincipal
-import org.transmartproject.db.user.SearchAuthUser
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createSearchKeywordsForBioMarkers
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MrnaTestData {
@@ -102,7 +95,7 @@ class MrnaTestData {
 
 
     void saveAll() {
-        bioMarkerTestData.saveGeneData()
+        bioMarkerTestData.saveMrnaData()
 
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         save annotations

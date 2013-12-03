@@ -42,7 +42,6 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'GENE', 'deRbmAnnotation', 'geneId'),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'deRbmAnnotation', 'uniprotId'),
         ]
     }
@@ -76,7 +75,6 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
                 property 'p.id', 'rbmAnnotationId'
                 property 'p.uniprotId', 'uniprotId'
-                property 'p.geneSymbol', 'geneSymbol'
             }
 
             order 'p.id', 'asc'
@@ -101,7 +99,6 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                     new RbmRow(
                             rbmAnnotationId: firstNonNullCell[0].rbmAnnotationId,
                             uniprotId: firstNonNullCell[0].uniprotId,
-                            geneSymbol: firstNonNullCell[0].geneSymbol,
                             assayIndexMap: assayIndexes,
                             data: list.collect { projection.doWithResult it?.getAt(0) }
                     )

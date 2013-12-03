@@ -44,8 +44,11 @@ class RbmTestData {
             res
         }
         [
+                //Adiponectin
                 createAnnotation(-501, 'Antigene1', 'Q15848', 'AURKA', -601),
+                //Urea transporter 2
                 createAnnotation(-502, 'Antigene2', 'Q15849', 'SLC14A2', -602),
+                //Adipogenesis regulatory factor
                 createAnnotation(-503, 'Antigene3', 'Q15847', 'ADIRF', -603),
         ]
     }()
@@ -88,7 +91,7 @@ class RbmTestData {
     }()
 
     void saveAll() {
-        bioMarkerTestData.saveProteinData()
+        bioMarkerTestData.saveRbmData()
 
         save([ platform ])
         save patients

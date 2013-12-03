@@ -30,7 +30,16 @@ class SampleBioMarkerTestData {
                     primaryExternalId: '-55350' ],
             [ name: 'BOGUSCPOCORREL',
                     description: 'Bogus gene associated with BOGUSCPO',
-                    primaryExternalId: '-130750']])
+                    primaryExternalId: '-130750'],
+            [ name: 'AURKA',
+                    description: 'Related with Adiponectin antigene',
+                    primaryExternalId: '-130751'],
+            [ name: 'SLC14A2',
+                    description: 'Related with Urea transporter 2 antigen',
+                    primaryExternalId: '-130752'],
+            [ name: 'ADIRF',
+                    description: 'Related with Adipogenesis regulatory factor',
+                    primaryExternalId: '-130753']])
 
     List<BioMarkerCoreDb> proteinBioMarkers = createBioMarkers(-1200L, [
             [ name: 'BOGUSCBPO_HUMAN',
@@ -80,6 +89,18 @@ class SampleBioMarkerTestData {
     List<BioDataCorrelationCoreDb> proteinGeneCorrelations = createCorrelationPairs(-3200L,
             [ proteinBioMarkers.find { it.name == 'BOGUSCBPO_HUMAN' } ],
             [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ])
+
+    List<BioDataCorrelationCoreDb> geneProteinCorrelations = createCorrelationPairs(-3300L,
+            [
+                    geneBioMarkers.find { it.name ==  'AURKA' },
+                    geneBioMarkers.find { it.name ==  'SLC14A2' },
+                    geneBioMarkers.find { it.name ==  'ADIRF' },
+            ],
+            [
+                    proteinBioMarkers.find { it.name == 'Adiponectin' },
+                    proteinBioMarkers.find { it.name == 'Urea transporter 2' },
+                    proteinBioMarkers.find { it.name == 'Adipogenesis regulatory factor' },
+            ])
 
 
     /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
@@ -192,16 +213,22 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> geneSignatureSearchKeywords =
         createSearchKeywordsForGeneSignatures(geneSignatures, -2300L)
 
-
     void saveGeneData() {
         save geneBioMarkers
         save geneSearchKeywords
         save geneCorrelations
+    }
 
+    void saveProteinData() {
         save proteinBioMarkers
         save proteinSearchKeywords
-        save proteinGeneCorrelations
+    }
 
+    void saveMrnaData() {
+        saveGeneData()
+        saveProteinData()
+
+        save proteinGeneCorrelations
         save principals
         save users
         save geneSignatures
@@ -211,13 +238,15 @@ class SampleBioMarkerTestData {
         save geneSignatureSearchKeywords
     }
 
-    void saveProteinData() {
-        save proteinBioMarkers
-        save proteinSearchKeywords
-    }
-
     void saveMirnaData() {
         save mirnaBioMarkers
         save mirnaSearchKeywords
+    }
+
+    void saveRbmData() {
+        saveGeneData()
+        saveProteinData()
+
+        save geneProteinCorrelations
     }
 }

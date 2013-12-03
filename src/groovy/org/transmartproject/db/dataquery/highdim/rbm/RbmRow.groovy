@@ -8,8 +8,6 @@ class RbmRow extends AbstractDataRow {
 
     Long rbmAnnotationId
 
-    String geneSymbol
-
     String uniprotId
 
     @Override

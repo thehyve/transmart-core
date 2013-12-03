@@ -123,10 +123,10 @@ class HighDimTestData {
                                   BioMarkerCoreDb right ->
 
             CorrelationType correlationType = CORRELATION_TYPES_REGISTRY.
-                    registryTable.get(left.type, left.type)
+                    registryTable.get(left.type, right.type)
             if (correlationType == null) {
                 throw new RuntimeException("Didn't know I could associate " +
-                        "$left.type with $left.type")
+                        "$left.type with $right.type")
             }
 
             BioDataCorrelDescr descr =
@@ -148,7 +148,7 @@ class HighDimTestData {
         }
 
         (0..from.size() - 1).collect { i ->
-            createCorrelation baseId - 1 - i, from[0], to[0]
+            createCorrelation baseId - 1 - i, from[i], to[i]
         }
     }
 
