@@ -116,11 +116,6 @@ function
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
 	
-	# Make row names equal to the patient_num column value
-	rownames(groupData) <- groupData[,"PATIENT_NUM"]
-
-	# Reorder groupData rows to match the order in the aCGH data columns
-	groupData <- groupData[pids,,drop=FALSE]
 	# In case aCGH data contains more patients/samples columns than groupData rows, groupData will have a number of rows with NA values.
 	# These patients/samples/rows will be neglect in the acgh group test script.
 	# TODO: It would however be cleaner to remove those patients/samples from the acgh data (columns) completely 
