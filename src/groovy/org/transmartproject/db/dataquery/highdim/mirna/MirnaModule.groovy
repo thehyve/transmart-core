@@ -8,18 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
-import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
-import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
 import javax.annotation.PostConstruct
 
@@ -62,20 +59,9 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory ]
     }
 
-    private DataRetrievalParameterFactory projectionsFactory = new MapBasedParameterFactory(
-            (CriteriaProjection.DEFAULT_REAL_PROJECTION): { Map params ->
-                if (!params.isEmpty()) {
-                    throw new InvalidArgumentsException(
-                            'This projection takes no parameters')
-                }
-
-                new SimpleRealProjection(property: 'zscore')
-            }
-    )
-
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ projectionsFactory ]
+        [ new SimpleRealProjectionFactory('zscore') ]
     }
 
     @Override
