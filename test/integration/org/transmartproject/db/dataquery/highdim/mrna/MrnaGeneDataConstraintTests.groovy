@@ -195,7 +195,7 @@ class MrnaGeneDataConstraintTests {
 
         assertThat res, everyItem(
                 hasProperty('probe',
-                        hasProperty('geneSymbol', equalTo('BOGUSRQCD1'))))
+                        hasProperty('geneSymbol', equalTo('BOGUSCPO'))))
     }
 
     @Test

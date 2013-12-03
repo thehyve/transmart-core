@@ -122,8 +122,9 @@ class HighDimTestData {
                                   BioMarkerCoreDb left,
                                   BioMarkerCoreDb right ->
 
+            // registryTable's rows are the target, hence the order of the arg
             CorrelationType correlationType = CORRELATION_TYPES_REGISTRY.
-                    registryTable.get(left.type, right.type)
+                    registryTable.get(right.type, left.type)
             if (correlationType == null) {
                 throw new RuntimeException("Didn't know I could associate " +
                         "$left.type with $right.type")
