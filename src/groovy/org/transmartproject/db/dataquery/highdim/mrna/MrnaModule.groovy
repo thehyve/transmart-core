@@ -7,20 +7,13 @@ import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
-import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
-import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
-import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -109,18 +102,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                         'GENE', 'jProbe', 'geneId') ]
     }
 
-    private final DataRetrievalParameterFactory defaultRealProjectionFactory =
-            new MapBasedParameterFactory(
-                (CriteriaProjection.DEFAULT_REAL_PROJECTION): { Map params ->
-                    if (!params.isEmpty())
-                        throw new InvalidArgumentsException("No params expected here, got $params")
-
-                    new SimpleRealProjection('zscore')
-                }
-            )
-
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ defaultRealProjectionFactory ]
+        [ new SimpleRealProjectionFactory('zscore') ]
     }
 }
