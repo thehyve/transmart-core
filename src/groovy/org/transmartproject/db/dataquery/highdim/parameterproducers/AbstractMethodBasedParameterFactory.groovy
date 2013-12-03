@@ -3,6 +3,7 @@ package org.transmartproject.db.dataquery.highdim.parameterproducers
 import org.springframework.core.annotation.AnnotationUtils
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 /**
@@ -40,13 +41,17 @@ class AbstractMethodBasedParameterFactory implements DataRetrievalParameterFacto
             return null
         }
 
-        if (producerMethod.parameterTypes.length == 1) {
-            producerMethod.invoke this, params
-        } else if (producerMethod.parameterTypes.length == 2) {
-            producerMethod.invoke this, params, createProducer
-        } else {
-            throw new RuntimeException('The producer method should take eithe ' +
-                    "one or two parameters; not the case for $producerMethod")
+        try {
+            if (producerMethod.parameterTypes.length == 1) {
+                producerMethod.invoke this, params
+            } else if (producerMethod.parameterTypes.length == 2) {
+                producerMethod.invoke this, params, createProducer
+            } else {
+                throw new RuntimeException('The producer method should take eithe ' +
+                        "one or two parameters; not the case for $producerMethod")
+            }
+        } catch (InvocationTargetException ite) {
+            throw ite.targetException
         }
     }
 
