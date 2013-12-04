@@ -14,4 +14,4 @@
 65	1	"aCGH Survival Analysis"	#placeholder#	.1	Y	N		aCGHSurvivalAnalysis	aCGHSurvivalAnalysis	DEFAULT
 66	1	"Group Test for aCGH"	#placeholder#	.1	Y	N		GroupTestaCGH	groupTestaCGH	DEFAULT
 67	1	"Group Test for RNASeq"	#placeholder#	.1	Y	N		GroupTestRNASeq	groupTestRNASeq	DEFAULT
-68	1	"Frequency Plot for aCGH"	#placeholder#	.1	Y	N		FrequencyPLotaCGH	frequencyPlotaCGH	DEFAULT
+68	1	"Frequency Plot for aCGH"	#placeholder#	.1	Y	N		AcghFrequencyPlot	acghFrequencyPlot	DEFAULT

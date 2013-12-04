@@ -1,6 +1,6 @@
 array (
-  'id' => 'aCGHfrequencyPlot',
-  'name' => 'aCGH Frequency Plot',
+  'id' => 'acghFrequencyPlot',
+  'name' => 'Frequency Plot for aCGH',
   'dataTypes' => 
   array (
     'subset1' => 
@@ -47,7 +47,7 @@ array (
   ),
   'renderer' => 
   array (
-    'GSP' => '/aCGHfrequencyPlot/aCGHfrequencyPlotOutput',
+    'GSP' => '/AcghFrequencyPlot/acghFrequencyPlotOutput',
   ),
-  'view' => 'aCGHFrequencyPlot',
+  'view' => 'AcghFrequencyPlot',
 )
