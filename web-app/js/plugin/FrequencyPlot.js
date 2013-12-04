@@ -1,4 +1,4 @@
-var FP_JOB_TYPE = 'ACGHFrequencyPlot';
+var FP_JOB_TYPE = 'acghFrequencyPlot';
 
 var frequencyPlotView;
 
@@ -114,7 +114,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
         // get image path
         Ext.Ajax.request({
-            url: pageInfo.basePath+"/ACGHFrequencyPlot/imagePath",
+            url: pageInfo.basePath+"/AcghFrequencyPlot/imagePath",
             method: 'POST',
             success: function(result, request){
 
@@ -185,7 +185,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath+"/ACGHFrequencyPlot/zipFile?jobName=" + jobName
+            src: pageInfo.basePath+"/AcghFrequencyPlot/zipFile?jobName=" + jobName
         });
     },
 
@@ -278,7 +278,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
 });
 
-function loadACGHFrequencyPlotView(){
+function loadAcghFrequencyPlotView(){
     // everything starts here ..
     frequencyPlotView = new FrequencyPlotView();
 }

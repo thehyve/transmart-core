@@ -147,7 +147,7 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
                     case 'groupTestRNASeq' :
                         RNASeqgroupTestView.renderResults(jobName, RNASeqgroupTestView);
                         break;
-                    case 'ACGHFrequencyPlot' :
+                    case 'acghFrequencyPlot' :
                         frequencyPlotView.renderResults(jobName, frequencyPlotView);
                         break;
                 }

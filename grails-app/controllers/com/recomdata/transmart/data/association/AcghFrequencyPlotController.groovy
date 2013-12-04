@@ -2,7 +2,7 @@ package com.recomdata.transmart.data.association
 
 
 
-class ACGHFrequencyPlotController {
+class AcghFrequencyPlotController {
 
     def RModulesOutputRenderService;
     def grailsApplication;
@@ -11,14 +11,14 @@ class ACGHFrequencyPlotController {
         grailsApplication.config.RModules
     }
 
-    def ACGHFrequencyPlotOutput =
+    def acghFrequencyPlotOutput =
         {
-            def jobTypeName = "ACGHFrequencyPlot"
+            def jobTypeName = "acghFrequencyPlot"
             def imageLinks = new ArrayList<String>()
 
             RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
 
-            render (template: "/plugin/ACGHFrequencyPlot_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
+            render (template: "/plugin/acghFrequencyPlot_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
         }
     /**
      * This function will return the image path
