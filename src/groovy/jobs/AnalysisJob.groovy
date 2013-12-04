@@ -115,7 +115,7 @@ abstract class AnalysisJob implements Job {
 
         assayConstraints.add(
                 dataType.createAssayConstraint(
-                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[AnalysisJob.RESULT_INSTANCE_IDS[subset]]
+                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[subset]
                 )
         )
 
@@ -224,7 +224,7 @@ abstract class AnalysisJob implements Job {
         jobDataMap.grailsApplication.mainContext.jobResultsService
     }
 
-    private HighDimensionResource getHighDimensionResource() {
+    protected HighDimensionResource getHighDimensionResource() {
         jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }
