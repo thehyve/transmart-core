@@ -42,8 +42,8 @@ class HierarchicalClustering extends AnalysisJob {
         updateStatus('Gathering Data')
 
         [
-                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_ID1),
-                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_ID2)
+                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET1]),
+                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET2])
         ]
     }
 
