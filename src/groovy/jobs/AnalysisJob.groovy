@@ -115,6 +115,7 @@ abstract class AnalysisJob implements Job {
 
         assayConstraints.add(
                 dataType.createAssayConstraint(
+                        //TODO: use the analysisConstraints
                         AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[subset]
                 )
         )
