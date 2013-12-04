@@ -1,11 +1,6 @@
 package jobs
 
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 class Heatmap extends AnalysisJob {
 
@@ -54,43 +49,8 @@ class Heatmap extends AnalysisJob {
         ]
     }
 
-    private TabularResult fetchSubset(String subset) {
-        if (jobDataMap[subset] == null) {
-            return
-        }
-
-        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
-                jobDataMap.analysisConstraints["data_type"]
-        )
-
-        List<DataConstraint> dataConstraints = jobDataMap.analysisConstraints["dataConstraints"].collect { String constraintType, values ->
-            if(values) {
-                dataType.createDataConstraint(values, constraintType)
-            }
-        }.grep()
-
-        List<AssayConstraint> assayConstraints = jobDataMap.analysisConstraints["assayConstraints"].collect { String constraintType, values ->
-            if(values) {
-                dataType.createAssayConstraint(values, constraintType)
-            }
-        }.grep()
-
-        assayConstraints.add(
-                dataType.createAssayConstraint(
-                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset == AnalysisJob.RESULT_INSTANCE_ID1) ? AnalysisJob.RESULT_INSTANCE_ID1 : AnalysisJob.RESULT_INSTANCE_ID2]
-                )
-        )
-
-        Projection projection = dataType.createProjection([:], jobDataMap.analysisConstraints["projections"][0])
-        return dataType.retrieveData(assayConstraints, dataConstraints, projection)
-    }
-
     @Override
     protected void renderOutput() {
         updateStatus('Completed', "/RHeatmap/heatmapOut?jobName=${name}")
-    }
-
-    private HighDimensionResource getHighDimensionResource() {
-        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }

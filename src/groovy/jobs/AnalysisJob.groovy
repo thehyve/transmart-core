@@ -11,6 +11,11 @@ import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 abstract class AnalysisJob implements Job {
     Map jobDataMap
@@ -18,9 +23,10 @@ abstract class AnalysisJob implements Job {
     File temporaryDirectory
     final static String SUBSET1 = "subset1"
     final static String SUBSET2 = "subset2"
-    final static Map<String, String> SHORT_NAME = [(AnalysisJob.SUBSET1): "S1", (AnalysisJob.SUBSET2): "S2"]
-    final static String RESULT_INSTANCE_ID1 = "result_instance_id1"
-    final static String RESULT_INSTANCE_ID2 = "result_instance_id2"
+    final static Map<String, String> SHORT_NAME =
+        [(AnalysisJob.SUBSET1): "S1", (AnalysisJob.SUBSET2): "S2"]
+    final static Map<String, String> RESULT_INSTANCE_IDS =
+        [(AnalysisJob.SUBSET1): "result_instance_id1", (AnalysisJob.SUBSET2): "result_instance_id2"]
 
     abstract protected void writeData(Map<String, TabularResult> results)
 
@@ -84,6 +90,37 @@ abstract class AnalysisJob implements Job {
                 it.writeLine "\t$key -> $value"
             }
         }
+    }
+
+    protected TabularResult fetchSubset(String subset) {
+        if (jobDataMap[subset] == null) {
+            return
+        }
+
+        HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
+                jobDataMap.analysisConstraints["data_type"]
+        )
+
+        List<DataConstraint> dataConstraints = jobDataMap.analysisConstraints["dataConstraints"].collect { String constraintType, values ->
+            if(values) {
+                dataType.createDataConstraint(values, constraintType)
+            }
+        }.grep()
+
+        List<AssayConstraint> assayConstraints = jobDataMap.analysisConstraints["assayConstraints"].collect { String constraintType, values ->
+            if(values) {
+                dataType.createAssayConstraint(values, constraintType)
+            }
+        }.grep()
+
+        assayConstraints.add(
+                dataType.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[AnalysisJob.RESULT_INSTANCE_IDS[subset]]
+                )
+        )
+
+        Projection projection = dataType.createProjection([:], jobDataMap.analysisConstraints["projections"][0])
+        return dataType.retrieveData(assayConstraints, dataConstraints, projection)
     }
 
     protected void withDefaultCsvWriter(Map<String, TabularResult> results, Closure constructFile) {
@@ -185,5 +222,9 @@ abstract class AnalysisJob implements Job {
 
     protected def getJobResultsService() {
         jobDataMap.grailsApplication.mainContext.jobResultsService
+    }
+
+    private HighDimensionResource getHighDimensionResource() {
+        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }

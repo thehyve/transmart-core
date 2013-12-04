@@ -1,11 +1,6 @@
 package jobs
 
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 class HierarchicalClustering extends AnalysisJob {
 
@@ -52,42 +47,8 @@ class HierarchicalClustering extends AnalysisJob {
         ]
     }
 
-    private TabularResult fetchSubset(String subset) {
-        // only do this when filled
-        if (jobDataMap[subset] != null) {
-            HighDimensionDataTypeResource dataType = highDimensionResource.getSubResourceForType(
-                    jobDataMap.divIndependentVariableType.toLowerCase()
-            )
-            List<AssayConstraint> assayConstraints = [
-                    dataType.createAssayConstraint(
-                            AssayConstraint.PATIENT_SET_CONSTRAINT, result_instance_id: jobDataMap[(subset==AnalysisJob.RESULT_INSTANCE_ID1)?AnalysisJob.RESULT_INSTANCE_ID1:AnalysisJob.RESULT_INSTANCE_ID2]
-                    )
-            ]
-            assayConstraints.add(
-                    dataType.createAssayConstraint(
-                            AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: '\\\\Public Studies' + jobDataMap.variablesConceptPaths
-                    )
-            )
-
-            List<DataConstraint> dataConstraints = [
-                    dataType.createDataConstraint(
-                            [keyword_ids: [jobDataMap.divIndependentVariablePathway]], DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
-                    )
-            ]
-
-            Projection projection = dataType.createProjection([:], 'default_real_projection')
-
-            // get the data
-            return dataType.retrieveData(assayConstraints, dataConstraints, projection)
-        }
-    }
-
     @Override
     protected void renderOutput() {
         updateStatus('Completed', "/RHClust/heatmapOut?jobName=${name}")
-    }
-
-    private HighDimensionResource getHighDimensionResource() {
-        jobDataMap.grailsApplication.mainContext.getBean HighDimensionResource
     }
 }
