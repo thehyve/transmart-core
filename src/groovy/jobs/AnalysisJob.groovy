@@ -134,7 +134,7 @@ abstract class AnalysisJob implements Job {
 
             if (rObject.inherits("try-error")) {
                 log.error "R command failure for:$finalCommand"
-                handleError(rObject, rConnection)
+                handleRError(rObject, rConnection)
             }
         }
     }
@@ -147,7 +147,7 @@ abstract class AnalysisJob implements Job {
         }
     }
 
-    private void handleError(REXP rObject, RConnection rConnection) throws RserveException {
+    private void handleRError(REXP rObject, RConnection rConnection) throws RserveException {
         //Grab the error R gave us.
         String rError = rObject.asString()
 
