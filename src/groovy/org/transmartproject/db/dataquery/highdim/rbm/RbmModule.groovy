@@ -79,6 +79,9 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
+                //TODO Remove this. On real data missing assays are signaling about problems
+                allowMissingAssays: true,
+                assayIdFromRow: { it[0].assay.id },
                 inSameGroup: {a, b -> a.rbmAnnotationId == b.rbmAnnotationId},
                 finalizeGroup: {List list ->
                     def firstNonNullCell = list.find()
