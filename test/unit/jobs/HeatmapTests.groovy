@@ -28,14 +28,6 @@ class HeatmapTests {
     }
 
     @Test
-    void createConceptKeyFromTest() {
-        String prefix = Heatmap.createConceptKeyFrom(
-                '\\Public Studies\\GSE8581\\MRNA\\Biomarker Data\\Affymetrix Human Genome U133A 2.0 Array\\Lung\\'
-        )
-        assert prefix == '\\\\Public Studies\\Public Studies\\GSE8581\\MRNA\\Biomarker Data\\Affymetrix Human Genome U133A 2.0 Array\\Lung\\'
-    }
-
-    @Test
     void throwsExceptionOnMalformattedJobName() {
         def context = mockedJobExecutionContext([jobName: 'contains_underscores'])
         println(context.jobDetail)
