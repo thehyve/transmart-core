@@ -67,6 +67,8 @@ MarkerSelectionView.prototype.get_form_params = function () {
         formValidator.display_errors();
     }
 
+    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('MarkerSelection'));
+
     return formParameters;
 }
 
