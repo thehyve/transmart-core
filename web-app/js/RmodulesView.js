@@ -23,7 +23,7 @@ RmodulesView.prototype.register_drag_drop = function () {
 }
 
 
-function get_parameters_for_mrna(jobType) {
+RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
     var _div_name = "divIndependentVariable";
 
     return {
@@ -42,7 +42,7 @@ function get_parameters_for_mrna(jobType) {
     }
 }
 
-function get_parameters_for_mirna(jobType) {
+RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
     var _div_name = "divIndependentVariable";
 
     return {
@@ -62,7 +62,7 @@ function get_parameters_for_mirna(jobType) {
 }
 
 
-function get_parameters_for_rbm(jobType) {
+RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
     var _div_name = "divIndependentVariable";
 
     return {
@@ -85,10 +85,10 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var data_type = window[_div_name + 'markerType'];
 
     if (data_type == 'Gene Expression') {
-        return get_parameters_for_mrna(jobType);
+        return this.get_parameters_for_mrna(jobType);
     } else if (data_type == "QPCR MIRNA") {
-        return get_parameters_for_mirna(jobType);
+        return this.get_parameters_for_mirna(jobType);
     } else if (data_type == "RBM") {
-        return get_parameters_for_rbm(jobType);
+        return this.get_parameters_for_rbm(jobType);
     }
 }
