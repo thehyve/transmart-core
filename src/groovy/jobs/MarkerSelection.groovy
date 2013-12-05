@@ -39,8 +39,8 @@ class MarkerSelection extends AnalysisJob {
                                 [
                                         "${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}",
                                         row[index],
-                                        row.probe,
-                                        row.geneSymbol,
+                                        row.label,
+                                        row.bioMarker,
                                         assay.trialName
                                 ] as String[]
                         )
