@@ -108,7 +108,7 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
                     new MirnaProbeRow(
-                            label:         firstNonNullCell[0].probeId ?: firstNonNullCell[0].detector,
+                            label:         firstNonNullCell[0].probeId,
                             assayIndexMap: assayIndexes,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

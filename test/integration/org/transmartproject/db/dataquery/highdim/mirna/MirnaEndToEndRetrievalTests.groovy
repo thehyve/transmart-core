@@ -111,24 +111,6 @@ class MirnaEndToEndRetrievalTests {
                         hasProperty('label', equalTo('-501')))
     }
 
-    // @Test
-    // void testFallbackToDetector() {
-    //     def dataConstraints = []
-
-    //     result = mirnaResource.retrieveData(
-    //             [ trialNameConstraint ], dataConstraints, projection)
-
-    //     List rows = Lists.newArrayList result.rows
-
-    //     assertThat rows, allOf(
-    //             hasSize(3),
-    //             hasItem(
-    //                     hasProperty('label', equalTo(testData.probes[1].detector))
-    //             )
-    //     )
-    // }
-
-
     @Test
     void testBadMirnaConstraints() {
         shouldFail InvalidArgumentsException, {
@@ -169,7 +151,6 @@ class MirnaEndToEndRetrievalTests {
     @Test
     void testMissingAssaysAllowedSucceeds() {
         testWithMissingDataAssay(-50000L)
-        result.allowMissingAssays = true
         assertThat Lists.newArrayList(result.rows), everyItem(
                 hasProperty('data', allOf(
                         hasSize(3), // for the three assays
