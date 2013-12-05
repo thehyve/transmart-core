@@ -14,9 +14,9 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.*
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
-import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
 import static groovy.test.GroovyAssert.shouldFail
@@ -103,11 +103,11 @@ class MrnaDataRetrievalTests {
                 ),
                 contains(
                         allOf(
-                            hasProperty('geneSymbol', equalTo('BOGUSVNN3')),
+                            hasProperty('bioMarker', equalTo('BOGUSVNN3')),
                             hasProperty('label', equalTo('1553510_s_at')),
                         ),
-                        hasProperty('geneSymbol', equalTo('BOGUSRQCD1')),
-                        hasProperty('geneSymbol', equalTo('BOGUSCPO')),
+                        hasProperty('bioMarker', equalTo('BOGUSRQCD1')),
+                        hasProperty('bioMarker', equalTo('BOGUSCPO')),
                 )
         )
 
@@ -158,7 +158,7 @@ class MrnaDataRetrievalTests {
         assertThat resultList, allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
-                contains(hasProperty('geneSymbol', equalTo('BOGUSRQCD1')))
+                contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
         )
     }
 
@@ -188,8 +188,8 @@ class MrnaDataRetrievalTests {
         def resultList = Lists.newArrayList dataQueryResult
 
         assertThat resultList, containsInAnyOrder(
-                hasProperty('geneSymbol', equalTo('BOGUSRQCD1')),
-                hasProperty('geneSymbol', equalTo('BOGUSVNN3')),
+                hasProperty('bioMarker', equalTo('BOGUSRQCD1')),
+                hasProperty('bioMarker', equalTo('BOGUSVNN3')),
         )
     }
 

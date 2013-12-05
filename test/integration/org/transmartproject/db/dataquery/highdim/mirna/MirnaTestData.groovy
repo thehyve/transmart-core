@@ -14,7 +14,7 @@ class MirnaTestData {
 
     SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
 
-    static DeGplInfo platform = {
+    DeGplInfo platform = {
         def res = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
@@ -23,13 +23,13 @@ class MirnaTestData {
         res
     }()
 
-    static List<PatientDimension> patients =
+    List<PatientDimension> patients =
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
-    static List<DeSubjectSampleMapping> assays =
+    List<DeSubjectSampleMapping> assays =
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
-    static List<DeQpcrMirnaAnnotation> probes = {
+    List<DeQpcrMirnaAnnotation> probes = {
         def createAnnotation = { probesetId, mirna, detector ->
             def res = new DeQpcrMirnaAnnotation(
                     mirnaId: mirna,
@@ -45,7 +45,7 @@ class MirnaTestData {
         ]
     }()
 
-    static List<DeSubjectMirnaData> mirnaData = {
+    List<DeSubjectMirnaData> mirnaData = {
         def createMirnaEntry = { DeSubjectSampleMapping assay,
                                       DeQpcrMirnaAnnotation probe,
                                       double intensity ->

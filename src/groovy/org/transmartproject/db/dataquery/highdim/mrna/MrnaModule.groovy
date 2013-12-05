@@ -81,7 +81,6 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                     new ProbeRow(
                             probe:         firstNonNullCell[0].probeName,
                             geneSymbol:    firstNonNullCell[0].geneSymbol,
-                            organism:      firstNonNullCell[0].organism,
                             assayIndexMap: assayIndexMap,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

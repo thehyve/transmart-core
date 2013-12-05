@@ -94,18 +94,15 @@ class RbmDataRetrievalTests {
         def resultList = Lists.newArrayList result
 
         assertThat resultList, allOf(
-                hasSize(1),
                 everyItem(
-                        hasProperty('data', allOf(
-                                hasSize(2),
+                        allOf(
                                 contains(
                                         closeTo(testData.rbmData[-5].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-6].zscore as Double, delta),
-                                ))
-                        )
-                ),
-                contains(hasProperty('uniprotId', equalTo('Q15848')))
-        )
+                                        closeTo(testData.rbmData[-6].zscore as Double, delta)))),
+                contains(
+                        allOf(
+                                hasProperty('bioMarker', equalTo('Q15848')),
+                                hasProperty('label', equalTo('Q15848')))))
     }
 
     @Test
@@ -130,7 +127,7 @@ class RbmDataRetrievalTests {
                                 ))
                         )
                 ),
-                contains(hasProperty('uniprotId', equalTo('Q15848')))
+                contains(hasProperty('label', equalTo('Q15848')))
         )
     }
 
@@ -145,19 +142,12 @@ class RbmDataRetrievalTests {
 
         def resultList = Lists.newArrayList result
 
-        assertThat resultList, allOf(
-                hasSize(1),
-                everyItem(
-                        hasProperty('data', allOf(
-                                hasSize(2),
-                                contains(
-                                        closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-4].zscore as Double, delta),
-                                ))
-                        )
-                ),
-                contains(hasProperty('uniprotId', equalTo('Q15849')))
-        )
+        assertThat resultList, contains(
+                allOf(
+                        hasProperty('label', equalTo('Q15849')),
+                        contains(
+                                closeTo(testData.rbmData[-3].zscore as Double, delta),
+                                closeTo(testData.rbmData[-4].zscore as Double, delta))))
     }
 
     @Test
@@ -173,18 +163,12 @@ class RbmDataRetrievalTests {
         def resultList = Lists.newArrayList result
 
         assertThat resultList, allOf(
-                hasSize(1),
                 everyItem(
-                        hasProperty('data', allOf(
-                                hasSize(2),
+                        hasProperty('data',
                                 contains(
                                         closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-4].zscore as Double, delta),
-                                ))
-                        )
-                ),
-                contains(hasProperty('uniprotId', equalTo('Q15849')))
-        )
+                                        closeTo(testData.rbmData[-4].zscore as Double, delta)))),
+                contains(hasProperty('label', equalTo('Q15849'))))
     }
 
     @Test

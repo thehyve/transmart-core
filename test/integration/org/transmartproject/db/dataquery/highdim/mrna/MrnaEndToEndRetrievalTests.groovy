@@ -109,7 +109,7 @@ class MrnaEndToEndRetrievalTests {
         assertThat resultList, allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
-                contains(hasProperty('geneSymbol', equalTo('BOGUSRQCD1')))
+                contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
         )
     }
 

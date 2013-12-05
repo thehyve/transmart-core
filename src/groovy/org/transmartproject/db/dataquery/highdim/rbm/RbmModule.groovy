@@ -83,7 +83,6 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup: {List list ->
                     def firstNonNullCell = list.find()
                     new RbmRow(
-                            rbmAnnotationId: firstNonNullCell[0].rbmAnnotationId,
                             uniprotId: firstNonNullCell[0].uniprotId,
                             assayIndexMap: assayIndexes,
                             data: list.collect { projection.doWithResult it?.getAt(0) }

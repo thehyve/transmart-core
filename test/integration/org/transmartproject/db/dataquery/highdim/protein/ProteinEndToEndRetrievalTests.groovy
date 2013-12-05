@@ -34,6 +34,10 @@ class ProteinEndToEndRetrievalTests {
 
     static final Double DELTA = 0.00001
 
+    String ureaTransporterUniProtId,
+           adiponectinUnitProtId,
+           adipogenesisFactorUniProtId
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -47,6 +51,18 @@ class ProteinEndToEndRetrievalTests {
 
         projection = proteinResource.createProjection([:],
                 CriteriaProjection.DEFAULT_REAL_PROJECTION)
+
+        ureaTransporterUniProtId = testData.proteins.find {
+            it.name == 'Urea transporter 2'
+        }.primaryExternalId
+
+        adiponectinUnitProtId = testData.proteins.find {
+            it.name == 'Adiponectin'
+        }.primaryExternalId
+
+        adipogenesisFactorUniProtId = testData.proteins.find {
+            it.name == 'Adipogenesis regulatory factor'
+        }.primaryExternalId
     }
 
     @After
@@ -76,20 +92,12 @@ class ProteinEndToEndRetrievalTests {
         assertThat rows, allOf(
                 contains(
                         allOf(
-                                hasProperty('label', is(
-                                        testData.proteins.find {
-                                            it.name == 'Urea transporter 2'
-                                        }.primaryExternalId)),
+                                hasProperty('label', is(ureaTransporterUniProtId)),
+                                hasProperty('bioMarker', is(ureaTransporterUniProtId)),
                                 hasProperty('peptide', is(testData.annotations[-1].peptide))
                         ),
-                        hasProperty('label', is(
-                                testData.proteins.find {
-                                    it.name == 'Adiponectin'
-                                }.primaryExternalId)),
-                        hasProperty('label', is(
-                                testData.proteins.find {
-                                    it.name == 'Adipogenesis regulatory factor'
-                                }.primaryExternalId))))
+                        hasProperty('label', is(adiponectinUnitProtId)),
+                        hasProperty('label', is(adipogenesisFactorUniProtId))))
     }
 
     @Test
@@ -103,10 +111,7 @@ class ProteinEndToEndRetrievalTests {
 
         /* the result is iterable */
         assertThat result, contains(allOf(
-                hasProperty('label', is(
-                        testData.proteins.find {
-                            it.name == 'Urea transporter 2'
-                        }.primaryExternalId)),
+                hasProperty('label', is(ureaTransporterUniProtId)),
                 contains( /* the rows are iterable */
                         closeTo(testData.data[5].intensity as Double, DELTA),
                         closeTo(testData.data[4].intensity as Double, DELTA),)))
@@ -124,14 +129,8 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [ dataConstraint ], projection)
 
         assertThat result, contains(
-                hasProperty('label', is(
-                        testData.proteins.find {
-                            it.name == 'Urea transporter 2'
-                        }.primaryExternalId)),
-                hasProperty('label', is(
-                        testData.proteins.find {
-                            it.name == 'Adiponectin'
-                        }.primaryExternalId)))
+                hasProperty('label', is(ureaTransporterUniProtId)),
+                hasProperty('label', is(adiponectinUnitProtId)))
     }
 
     @Test
@@ -145,10 +144,7 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [ dataConstraint ], projection)
 
         assertThat result, contains(
-                hasProperty('label', is(
-                        testData.proteins.find {
-                            it.name == 'Adiponectin'
-                        }.primaryExternalId)))
+                hasProperty('label', is(adiponectinUnitProtId)))
     }
 
 

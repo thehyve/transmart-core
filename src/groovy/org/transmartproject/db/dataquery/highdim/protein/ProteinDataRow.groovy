@@ -1,8 +1,8 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
-import org.transmartproject.db.dataquery.highdim.AbstractDataRow
+import org.transmartproject.db.dataquery.highdim.AbstractBioMarkerDataRow
 
-class ProteinDataRow extends AbstractDataRow {
+class ProteinDataRow extends AbstractBioMarkerDataRow {
 
     String unitProtId
 
@@ -10,6 +10,11 @@ class ProteinDataRow extends AbstractDataRow {
 
     @Override
     String getLabel() {
+        unitProtId
+    }
+
+    @Override
+    String getBioMarker() {
         unitProtId
     }
 }

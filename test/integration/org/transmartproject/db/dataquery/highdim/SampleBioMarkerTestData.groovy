@@ -10,11 +10,7 @@ import org.transmartproject.db.search.SearchKeywordCoreDb
 import org.transmartproject.db.user.SearchAuthPrincipal
 import org.transmartproject.db.user.SearchAuthUser
 
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createBioMarkers
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createCorrelationPairs
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createSearchKeywordsForBioMarkers
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createSearchKeywordsForGeneSignatures
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 
 class SampleBioMarkerTestData {
 

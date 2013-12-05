@@ -11,16 +11,14 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
-import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
-import org.transmartproject.core.exceptions.UnexpectedResultException
 
 class MirnaEndToEndRetrievalTests {
 
@@ -80,6 +78,7 @@ class MirnaEndToEndRetrievalTests {
         assertThat rows, contains(
                 allOf(
                         hasProperty('label', equalTo('-503')),
+                        hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-503).mirnaId)),
                         hasProperty('data', contains(
                                 closeTo(testData.mirnaData[5].zscore as Double, delta),
                                 closeTo(testData.mirnaData[4].zscore as Double, delta),
@@ -87,6 +86,7 @@ class MirnaEndToEndRetrievalTests {
                 ),
                 allOf(
                         hasProperty('label', equalTo('-501')),
+                        hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-501).mirnaId)),
                         hasProperty('data', contains(
                                 closeTo(testData.mirnaData[1].zscore as Double, delta),
                                 closeTo(testData.mirnaData[0].zscore as Double, delta),

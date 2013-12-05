@@ -3,7 +3,6 @@ package org.transmartproject.db.dataquery.highdim.mrna
 import grails.orm.HibernateCriteriaBuilder
 import org.hamcrest.Matcher
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
