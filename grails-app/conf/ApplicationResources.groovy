@@ -11,4 +11,7 @@ modules = {
     hclust {
         resource url:"/js/plugin/HClust.js"
     }
+    kclust {
+        resource url:"/js/plugin/KClust.js"
+    }
 }
