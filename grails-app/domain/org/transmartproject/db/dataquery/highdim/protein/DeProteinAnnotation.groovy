@@ -26,7 +26,6 @@ class DeProteinAnnotation {
     }
 
     static constraints = {
-        platform    maxSize:  50
         peptide     maxSize:  800
         uniprotId   nullable: true, maxSize: 200
 
