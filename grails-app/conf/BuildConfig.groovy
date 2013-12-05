@@ -36,6 +36,8 @@ grails.project.dependency.resolution = {
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
         compile 'org.rosuda:Rserve:1.7.3'
+        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
+        test 'org.easymock:easymock:3.2'
     }
 
     plugins {

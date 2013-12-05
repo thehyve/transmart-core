@@ -70,6 +70,10 @@ var FormValidator = function (inputArray) {
 }
 
 FormValidator.prototype.getHighDimensionalDataTypes = function () {
+    if (typeof(HIGH_DIMENSIONAL_DATA) != "undefined") {
+        return HIGH_DIMENSIONAL_DATA
+    }
+
     var retval = {
         "MRNA_AFFYMETRIX"   : {"platform" : "MRNA_AFFYMETRIX", "type" : "Gene Expression"},
         "MIRNA_AFFYMETRIX"  : {"platform" : "MIRNA_AFFYMETRIX", "type" : "QPCR MIRNA"},
@@ -78,7 +82,8 @@ FormValidator.prototype.getHighDimensionalDataTypes = function () {
         "PROTEIN"           : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
         "SNP"               : {"platform" : "SNP", "type" : "SNP"}
     };
-    return (HIGH_DIMENSIONAL_DATA) ? HIGH_DIMENSIONAL_DATA : retval;
+
+    return retval;
 }
 
 FormValidator.prototype.validateInputForm = function () {

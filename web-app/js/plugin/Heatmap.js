@@ -69,6 +69,9 @@ HeatMapView.prototype.get_form_params = function () {
         formValidator.display_errors();
     }
 
+    // get analysis constraints
+    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RHeatmap'));
+
     return formParameters;
 }
 
