@@ -30,7 +30,8 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 class RModulesController {
     final static Map<String, String> lookup = [
             "Gene Expression": "mrna",
-            "QPCR MIRNA": "mirna"
+            "QPCR MIRNA": "mirna",
+            "RBM": "rbm",
     ]
 
     def springSecurityService
