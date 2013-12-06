@@ -696,20 +696,6 @@ function loadCommonHighDimFormObjects(formParams, divName)
 	var mirnaData = false
 	var snpData = false
 
-	//Gene expression filters.
-	var fullGEXSampleType 	= "";
-	var fullGEXTissueType 	= "";
-	var fullGEXTime 		= "";
-	var fullGEXGeneList 	= "";
-	var fullGEXGPL 			= "";	
-	
-	//SNP Filters.
-	var fullSNPSampleType 	= "";
-	var fullSNPTissueType 	= "";
-	var fullSNPTime 		= "";	
-	var fullSNPGeneList 	= "";
-	var fullSNPGPL 			= "";
-	
 	var tempGeneList 		= window[divName + 'pathway'];
 	var tempMarkerType		= window[divName + 'markerType'];
 	var tempGPL				= window[divName + 'gplValues'];
@@ -725,11 +711,11 @@ function loadCommonHighDimFormObjects(formParams, divName)
 	if(tempMarkerType == "Gene Expression")
 	{
 		//The genes entered into the search box were GEX genes.
-		fullGEXGeneList 	= tempGeneList;
-		fullGEXSampleType 	= String(tempSampleType);
-		fullGEXTissueType 	= String(tempTissueType);
-		fullGEXTime			= String(tempTime);
-		fullGEXGPL			= String(tempGPL);
+		var fullGEXGeneList 	= tempGeneList;
+		var fullGEXSampleType 	= String(tempSampleType);
+		var fullGEXTissueType 	= String(tempTissueType);
+		var fullGEXTime			= String(tempTime);
+		var fullGEXGPL			= String(tempGPL);
 		
 		if(fullGEXSampleType == ",") 	fullGEXSampleType = ""
 		if(fullGEXTissueType == ",") 	fullGEXTissueType = ""
@@ -756,11 +742,11 @@ function loadCommonHighDimFormObjects(formParams, divName)
 	if(tempMarkerType == "SNP")
 	{
 		//The genes entered into the search box were SNP genes.
-		fullSNPGeneList 	= tempGeneList;
-		fullSNPSampleType 	= String(tempSampleType);
-		fullSNPTissueType 	= String(tempTissueType);
-		fullSNPTime 		= String(tempTime);
-		fullSNPGPL			= String(tempGPL);
+		var fullSNPGeneList 	= tempGeneList;
+		var fullSNPSampleType 	= String(tempSampleType);
+		var fullSNPTissueType 	= String(tempTissueType);
+		var fullSNPTime 		= String(tempTime);
+		var fullSNPGPL			= String(tempGPL);
 		
 		if(fullSNPSampleType == ",") 	fullSNPSampleType = ""
 		if(fullSNPTissueType == ",") 	fullSNPTissueType = ""
