@@ -38,7 +38,7 @@ RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
         "search_keyword_ids": [window[_div_name + 'pathway']],
             "disjunctions": null
     },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
@@ -57,7 +57,7 @@ RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
             "mirnas": [window[_div_name + 'pathwayName']],
             "disjunctions": null
         },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
@@ -76,7 +76,7 @@ RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
         "dataConstraints": {
             "disjunctions": null
         },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
@@ -94,7 +94,7 @@ RmodulesView.prototype.get_parameters_for_proteomics = function (jobType) {
         "dataConstraints": {
             "disjunctions": null
         },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
