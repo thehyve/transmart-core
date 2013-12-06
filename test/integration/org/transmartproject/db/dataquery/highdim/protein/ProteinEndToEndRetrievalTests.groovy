@@ -12,7 +12,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -32,7 +31,7 @@ class ProteinEndToEndRetrievalTests {
 
     ProteinTestData testData = new ProteinTestData()
 
-    static final Double DELTA = 0.00001
+    static final Double DELTA = 0.0001
 
     String ureaTransporterUniProtId,
            adiponectinUnitProtId,
@@ -50,7 +49,7 @@ class ProteinEndToEndRetrievalTests {
                 name: ProteinTestData.TRIAL_NAME)
 
         projection = proteinResource.createProjection([:],
-                CriteriaProjection.DEFAULT_REAL_PROJECTION)
+                Projection.ZSCORE_PROJECTION)
 
         ureaTransporterUniProtId = testData.proteins.find {
             it.name == 'Urea transporter 2'
@@ -111,10 +110,25 @@ class ProteinEndToEndRetrievalTests {
 
         /* the result is iterable */
         assertThat result, contains(allOf(
-                hasProperty('label', is(ureaTransporterUniProtId)),
+                hasProperty('label', equalTo(ureaTransporterUniProtId)),
                 contains( /* the rows are iterable */
+                        closeTo(testData.data[5].zscore as Double, DELTA),
+                        closeTo(testData.data[4].zscore as Double, DELTA))))
+    }
+
+    @Test
+    void testDefaultRealProjection() {
+        def defaultRealProjection = proteinResource.createProjection(
+                [:], Projection.DEFAULT_REAL_PROJECTION)
+
+        result = proteinResource.retrieveData(
+                [ trialConstraint ], [], defaultRealProjection)
+
+        assertThat result, hasItem(allOf(
+                hasProperty('label', is(ureaTransporterUniProtId)),
+                contains(
                         closeTo(testData.data[5].intensity as Double, DELTA),
-                        closeTo(testData.data[4].intensity as Double, DELTA),)))
+                        closeTo(testData.data[4].intensity as Double, DELTA))))
     }
 
     @Test

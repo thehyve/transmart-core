@@ -8,7 +8,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.*
  */
 class MrnaEndToEndRetrievalTests {
 
+    private static final double DELTA = 0.0001
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource mrnaResource
@@ -26,13 +27,18 @@ class MrnaEndToEndRetrievalTests {
 
     MrnaTestData testData = new MrnaTestData()
 
+    AssayConstraint trialNameConstraint
+
     @Before
     void setUp() {
         testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
-
         assertThat mrnaResource, is(notNullValue())
+
+        trialNameConstraint = mrnaResource.createAssayConstraint(
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                name: MrnaTestData.TRIAL_NAME)
     }
 
     @After
@@ -42,21 +48,13 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void basicTest() {
-        List assayConstraints = [
-                mrnaResource.createAssayConstraint([name: MrnaTestData.TRIAL_NAME],
-                        AssayConstraint.TRIAL_NAME_CONSTRAINT
-                )
-        ]
         List dataConstraints = []
-        def projection = mrnaResource.createProjection [:], 'default_real_projection'
+        def projection = mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
-        dataQueryResult =
-            mrnaResource.retrieveData assayConstraints, dataConstraints, projection
-
+        dataQueryResult = mrnaResource.retrieveData(
+                [ trialNameConstraint ], dataConstraints, projection)
 
         def resultList = Lists.newArrayList dataQueryResult
-
-        double delta = 0.0001
 
         /* more extensive assertions in MrnaDataRetrievalTests */
         assertThat resultList, allOf(
@@ -71,16 +69,16 @@ class MrnaEndToEndRetrievalTests {
                 ),
                 contains(
                         hasProperty('data', contains(
-                                closeTo(testData.microarrayData[-1].zscore as Double, delta),
-                                closeTo(testData.microarrayData[-2].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-1].zscore as Double, DELTA),
+                                closeTo(testData.microarrayData[-2].zscore as Double, DELTA),
                         )),
                         hasProperty('data', contains(
-                                closeTo(testData.microarrayData[-3].zscore as Double, delta),
-                                closeTo(testData.microarrayData[-4].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-3].zscore as Double, DELTA),
+                                closeTo(testData.microarrayData[-4].zscore as Double, DELTA),
                         )),
                         hasProperty('data', contains(
-                                closeTo(testData.microarrayData[-5].zscore as Double, delta),
-                                closeTo(testData.microarrayData[-6].zscore as Double, delta),
+                                closeTo(testData.microarrayData[-5].zscore as Double, DELTA),
+                                closeTo(testData.microarrayData[-6].zscore as Double, DELTA),
                         )),
                 )
         )
@@ -88,21 +86,16 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void testWithGeneConstraint() {
-        List assayConstraints = [
-                mrnaResource.createAssayConstraint([name: MrnaTestData.TRIAL_NAME],
-                        AssayConstraint.TRIAL_NAME_CONSTRAINT
-                )
-        ]
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
                         find({ it.keyword == 'BOGUSRQCD1' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
-        def projection = mrnaResource.createProjection [:], 'default_real_projection'
+        def projection = mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
-        dataQueryResult =
-            mrnaResource.retrieveData assayConstraints, dataConstraints, projection
+        dataQueryResult = mrnaResource.retrieveData(
+                [ trialNameConstraint ], dataConstraints, projection)
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -110,6 +103,27 @@ class MrnaEndToEndRetrievalTests {
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
+        )
+    }
+
+    @Test
+    void testWithDefaultRealProjection() {
+        List dataConstraints = [
+                mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
+                        find({ it.keyword == 'BOGUSCPO' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = mrnaResource.createProjection [:], Projection.DEFAULT_REAL_PROJECTION
+
+        dataQueryResult = mrnaResource.retrieveData(
+                [ trialNameConstraint ], dataConstraints, projection)
+
+        assertThat dataQueryResult, contains(
+                contains(
+                        closeTo(testData.microarrayData[1].rawIntensity as Double, DELTA),
+                        closeTo(testData.microarrayData[0].rawIntensity as Double, DELTA),
+                )
         )
     }
 
@@ -130,7 +144,8 @@ class MrnaEndToEndRetrievalTests {
                 /* also others that may be added by registering new associations */
         )
         assertThat mrnaResource.supportedProjections, containsInAnyOrder(
-                CriteriaProjection.DEFAULT_REAL_PROJECTION)
+                Projection.DEFAULT_REAL_PROJECTION,
+                Projection.ZSCORE_PROJECTION)
     }
 
 

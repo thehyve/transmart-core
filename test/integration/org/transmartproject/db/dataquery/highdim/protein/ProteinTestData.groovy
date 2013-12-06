@@ -50,10 +50,11 @@ class ProteinTestData {
 
     List<DeSubjectProteinData> data = {
         def createDataEntry = { assay, annotation, intensity ->
-            def res = new DeSubjectProteinData(
+            new DeSubjectProteinData(
                     assay: assay,
                     annotation: annotation,
                     intensity: intensity,
+                    zscore:    (intensity - 0.35) / 0.1871
             )
         }
 

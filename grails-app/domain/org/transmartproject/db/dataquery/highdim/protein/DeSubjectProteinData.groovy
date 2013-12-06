@@ -5,6 +5,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 class DeSubjectProteinData implements Serializable {
 
     BigDecimal intensity
+    BigDecimal zscore
 
     // irrelevant...
     //String     trialName
@@ -18,7 +19,6 @@ class DeSubjectProteinData implements Serializable {
     //BigDecimal meanIntensity
     //BigDecimal stddevIntensity
     //BigDecimal medianIntensity
-    //BigDecimal zscore
     //BigDecimal logIntensity
 
     DeProteinAnnotation jAnnotation
@@ -42,7 +42,8 @@ class DeSubjectProteinData implements Serializable {
     }
 
     static constraints = {
-        intensity nullable: true
+        intensity nullable: true, scale: 4
+        zscore    nullable: true, scale: 4
 
         // irrelevant:
         //trialName       nullable: true, maxSize: 15
@@ -56,7 +57,6 @@ class DeSubjectProteinData implements Serializable {
         //meanIntensity   nullable: true
         //stddevIntensity nullable: true
         //medianIntensity nullable: true
-        //zscore          nullable: true
         //logIntensity    nullable: true
     }
 }

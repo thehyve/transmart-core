@@ -22,6 +22,8 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTe
 
 class MirnaEndToEndRetrievalTests {
 
+    private static final double DELTA = 0.0001
+
     MirnaTestData testData = new MirnaTestData()
 
     HighDimensionResource highDimensionResourceService
@@ -43,7 +45,7 @@ class MirnaEndToEndRetrievalTests {
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: MirnaTestData.TRIAL_NAME,
         )
-        projection = mirnaResource.createProjection [:], 'default_real_projection'
+        projection = mirnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
     }
 
     @After
@@ -74,25 +76,32 @@ class MirnaEndToEndRetrievalTests {
 
         List rows = Lists.newArrayList result.rows
 
-        double delta = 0.0001
         assertThat rows, contains(
                 allOf(
                         hasProperty('label', equalTo('-503')),
                         hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-503).mirnaId)),
-                        hasProperty('data', contains(
-                                closeTo(testData.mirnaData[5].zscore as Double, delta),
-                                closeTo(testData.mirnaData[4].zscore as Double, delta),
-                        ))
-                ),
+                        contains(
+                                closeTo(testData.mirnaData[5].zscore as Double, DELTA),
+                                closeTo(testData.mirnaData[4].zscore as Double, DELTA))),
                 allOf(
                         hasProperty('label', equalTo('-501')),
                         hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-501).mirnaId)),
-                        hasProperty('data', contains(
-                                closeTo(testData.mirnaData[1].zscore as Double, delta),
-                                closeTo(testData.mirnaData[0].zscore as Double, delta),
-                        ))
-                ),
-        )
+                        contains(
+                                closeTo(testData.mirnaData[1].zscore as Double, DELTA),
+                                closeTo(testData.mirnaData[0].zscore as Double, DELTA))))
+    }
+
+    @Test
+    void testDefaultRealProjection() {
+        def defaultRealProjection = mirnaResource.createProjection(
+                [:], Projection.DEFAULT_REAL_PROJECTION)
+        result = mirnaResource.retrieveData([ trialNameConstraint ], [], defaultRealProjection)
+
+        assertThat result, hasItem(allOf(
+                hasProperty('label', equalTo('-503')),
+                contains(
+                        closeTo(testData.mirnaData[5].rawIntensity as Double, DELTA),
+                        closeTo(testData.mirnaData[4].rawIntensity as Double, DELTA))))
     }
 
     @Test

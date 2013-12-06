@@ -7,28 +7,31 @@ import org.transmartproject.db.i2b2data.PatientDimension
 @EqualsAndHashCode(includes = ['assay', 'annotation'])
 class DeSubjectRbmData implements Serializable {
 
-    String trialName
-    String antigenName
-    String geneSymbol
-    Long geneId
-    String conceptCd
-    String timepoint
-    String dataUid
+    BigDecimal       value
+    BigDecimal       zscore
 
-    BigDecimal NValue
-    BigDecimal value
-    BigDecimal normalizedValue
-    BigDecimal logIntensity
-    BigDecimal meanIntensity
-    BigDecimal stddevIntensity
-    BigDecimal medianIntensity
-    BigDecimal zscore
-    String unit
+    // irrelevant
+    //String           trialName
+    //String           antigenName
+    //String           geneSymbol
+    //Long             geneId
+    //String           conceptCd
+    //String           timepoint
+    //String           dataUid
 
-    String rbmPanel
+    //BigDecimal       NValue
+    //BigDecimal       normalizedValue
+    //BigDecimal       logIntensity
+    //BigDecimal       meanIntensity
+    //BigDecimal       stddevIntensity
+    //BigDecimal       medianIntensity
+    //String           unit
 
-    PatientDimension patient
-    DeRbmAnnotation deRbmAnnotation
+    //String           rbmPanel
+
+    //PatientDimension patient
+
+    DeRbmAnnotation  deRbmAnnotation
 
     static belongsTo = [
             annotation: DeRbmAnnotation,
@@ -37,10 +40,14 @@ class DeSubjectRbmData implements Serializable {
 
     static mapping = {
         table schema: 'deapp', name: 'de_subject_rbm_data'
+
         id composite: ['assay', 'annotation']
+
         annotation column: 'rbm_annotation_id'
-        assay column: 'assay_id'
-        patient column: 'patient_id'
+        assay      column: 'assay_id'
+
+        // irrelevant
+        //patient    column: 'patient_id'
 
         // this is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
@@ -50,24 +57,26 @@ class DeSubjectRbmData implements Serializable {
     }
 
     static constraints = {
-        trialName nullable: true, maxSize: 100
-        antigenName nullable: true, maxSize: 100
-        'NValue' nullable: true
-        geneSymbol nullable: true, maxSize: 100
-        geneId nullable: true
-        annotation nullable: true
-        assay nullable: true
-        normalizedValue nullable: true, scale: 5
-        conceptCd nullable: true, maxSize: 200
-        timepoint nullable: true, maxSize: 100
-        dataUid nullable: true, maxSize: 100
-        value nullable: true
-        logIntensity nullable: true
-        meanIntensity nullable: true
-        stddevIntensity nullable: true
-        medianIntensity nullable: true
-        zscore nullable: true
-        rbmPanel nullable: true, maxSize: 50
-        unit nullable: true, maxSize: 200
+        annotation      nullable: true
+        assay           nullable: true
+        value           nullable: true, scale: 17
+        zscore          nullable: true, scale: 17
+
+        // irrelevant
+        //trialName       nullable: true, maxSize: 100
+        //antigenName     nullable: true, maxSize: 100
+        //'NValue'        nullable: true
+        //geneSymbol      nullable: true, maxSize: 100
+        //geneId          nullable: true
+        //normalizedValue nullable: true, scale:   5
+        //conceptCd       nullable: true, maxSize: 200
+        //timepoint       nullable: true, maxSize: 100
+        //dataUid         nullable: true, maxSize: 100
+        //logIntensity    nullable: true
+        //meanIntensity   nullable: true
+        //stddevIntensity nullable: true
+        //medianIntensity nullable: true
+        //rbmPanel        nullable: true, maxSize: 50
+        //unit            nullable: true, maxSize: 200
     }
 }

@@ -55,25 +55,21 @@ class RbmTestData {
 
     List<DeSubjectRbmData> rbmData = {
         def createRbmEntry = { DeSubjectSampleMapping assay,
-                                 DeRbmAnnotation deRbmAnnotation,
-                                      double intensity ->
+                               DeRbmAnnotation deRbmAnnotation,
+                               double value ->
             new DeSubjectRbmData(
-                    trialName: TRIAL_NAME,
-                    assay: assay,
-
                     annotation: deRbmAnnotation,
-                    patient: assay.patient,
-
-                    logIntensity: Math.log(intensity) / Math.log(2),
-                    zscore: intensity * 2,
+                    assay:      assay,
+                    value:      value,
+                    zscore:     (value - 0.35) / 0.1871,
             )
         }
 
         def res = []
-        Double intensity = 0
+        Double value = 0
         deRbmAnnotations.each { deRbmAnnotation ->
             assays.each { assay ->
-                res += createRbmEntry assay, deRbmAnnotation, (intensity += 0.1)
+                res += createRbmEntry assay, deRbmAnnotation, (value += 0.1)
             }
         }
 

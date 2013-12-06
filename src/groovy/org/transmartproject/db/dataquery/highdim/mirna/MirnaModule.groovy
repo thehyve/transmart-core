@@ -14,7 +14,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
 
@@ -61,7 +61,9 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ new SimpleRealProjectionFactory('zscore') ]
+        [ new SimpleRealProjectionsFactory(
+                (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
+                (Projection.ZSCORE_PROJECTION):       'zscore') ]
     }
 
     @Override

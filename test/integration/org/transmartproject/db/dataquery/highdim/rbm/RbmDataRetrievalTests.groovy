@@ -10,7 +10,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -53,18 +52,15 @@ class RbmDataRetrievalTests {
                         )
                 ),
                 contains(
-                        hasProperty('data', contains(
+                        contains(
                                 closeTo(testData.rbmData[-1].zscore as Double, delta),
-                                closeTo(testData.rbmData[-2].zscore as Double, delta),
-                        )),
-                        hasProperty('data', contains(
+                                closeTo(testData.rbmData[-2].zscore as Double, delta)),
+                        contains(
                                 closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                closeTo(testData.rbmData[-4].zscore as Double, delta),
-                        )),
-                        hasProperty('data', contains(
+                                closeTo(testData.rbmData[-4].zscore as Double, delta)),
+                        contains(
                                 closeTo(testData.rbmData[-5].zscore as Double, delta),
-                                closeTo(testData.rbmData[-6].zscore as Double, delta),
-                        )),
+                                closeTo(testData.rbmData[-6].zscore as Double, delta)),
                 ),
                 everyItem(
                         hasProperty('assayIndexMap', allOf(
@@ -80,6 +76,18 @@ class RbmDataRetrievalTests {
                         ))
                 )
         )
+    }
+
+    @Test
+    void testDefaultRealProjection() {
+        result = rbmResource.retrieveData([trialNameConstraint], [],
+            rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
+
+        assertThat result, hasItem(allOf(
+                hasProperty('label', is('Q15848')),
+                contains(
+                        closeTo(testData.rbmData[1].value as Double, delta),
+                        closeTo(testData.rbmData[0].value as Double, delta))))
     }
 
     @Test
@@ -185,7 +193,8 @@ class RbmDataRetrievalTests {
                 /* also others that may be added by registering new associations */
         )
         assertThat rbmResource.supportedProjections, containsInAnyOrder(
-                CriteriaProjection.DEFAULT_REAL_PROJECTION)
+                Projection.DEFAULT_REAL_PROJECTION,
+                Projection.ZSCORE_PROJECTION)
     }
 
     @Before
@@ -197,7 +206,7 @@ class RbmDataRetrievalTests {
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: RbmTestData.TRIAL_NAME,
         )
-        projection = rbmResource.createProjection [:], 'default_real_projection'
+        projection = rbmResource.createProjection [:], Projection.ZSCORE_PROJECTION
     }
 
     @After

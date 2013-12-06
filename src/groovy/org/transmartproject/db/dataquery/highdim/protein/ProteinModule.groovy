@@ -13,7 +13,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -47,7 +47,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ new SimpleRealProjectionFactory('intensity') ]
+        [ new SimpleRealProjectionsFactory(
+                (Projection.DEFAULT_REAL_PROJECTION): 'intensity',
+                (Projection.ZSCORE_PROJECTION):       'zscore') ]
     }
 
     @Override
