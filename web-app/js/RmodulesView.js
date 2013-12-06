@@ -80,15 +80,34 @@ RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
     }
 }
 
+RmodulesView.prototype.get_parameters_for_proteomics = function (jobType) {
+    var _div_name = "divIndependentVariable";
+
+    return {
+        "job_type" : jobType,
+        "data_type": window[_div_name + 'markerType'],
+        "assayConstraints": {
+            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+            "ontology_term": readConceptVariables("divIndependentVariable"),
+            "trial_name": null
+        },
+        "dataConstraints": {
+            "disjunctions": null
+        },
+        projections: ["default_real_projection"]
+    }
+}
+
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var _div_name = "divIndependentVariable";
     var data_type = window[_div_name + 'markerType'];
-
     if (data_type == 'Gene Expression') {
         return this.get_parameters_for_mrna(jobType);
     } else if (data_type == "QPCR MIRNA") {
         return this.get_parameters_for_mirna(jobType);
     } else if (data_type == "RBM") {
         return this.get_parameters_for_rbm(jobType);
+    } else if (data_type == "PROTEOMICS") {
+        return this.get_parameters_for_proteomics(jobType);
     }
 }
