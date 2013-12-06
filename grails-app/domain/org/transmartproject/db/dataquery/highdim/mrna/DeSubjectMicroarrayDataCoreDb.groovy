@@ -30,10 +30,10 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
             patient: PatientDimension,
     ]
 
-	static mapping = {
+    static mapping = {
         table    schema: 'deapp', name: 'de_subject_microarray_data'
 
-		id       composite: [ 'assay', 'probe' ]
+        id       composite: [ 'assay', 'probe' ]
 
         probe    column: 'probeset_id'
         assay    column: 'assay_id'
@@ -43,10 +43,10 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
         jProbe   column: 'probeset_id', insertable: false, updateable: false
 
-		version  false
-	}
+        version  false
+    }
 
-	static constraints = {
+    static constraints = {
         trialName    nullable: true, maxSize: 50
         probe        nullable: true
         assay        nullable: true
@@ -60,5 +60,5 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
         //newRaw       nullable: true, scale:   4
         //newLog       nullable: true, scale:   4
         //newZscore    nullable: true, scale:   4
-	}
+    }
 }
