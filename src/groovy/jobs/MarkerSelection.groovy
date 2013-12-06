@@ -41,7 +41,7 @@ class MarkerSelection extends AnalysisJob {
                                         row[index],
                                         row.label,
                                         row.bioMarker,
-                                        assay.trialName
+                                        subset
                                 ] as String[]
                         )
                     }
