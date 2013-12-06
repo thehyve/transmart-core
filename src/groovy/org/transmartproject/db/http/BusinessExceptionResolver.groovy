@@ -1,5 +1,6 @@
 package org.transmartproject.db.http
 
+import grails.util.Holders
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.web.mapping.DefaultUrlMappingInfo
 import org.codehaus.groovy.grails.web.mapping.UrlMappingData
@@ -16,6 +17,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 
+import javax.annotation.PostConstruct
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -30,6 +32,14 @@ class BusinessExceptionResolver implements ServletContextAware,
 
     String controllerName = 'businessException'
     String actionName = 'index'
+
+    Boolean oldUrlMappings
+
+    @PostConstruct
+    void init() {
+        oldUrlMappings = Holders.pluginManager.
+                getGrailsPlugin('urlMappings').version ==~ /2\.2\..+/
+    }
 
     private final ModelAndView EMPTY_MV = new ModelAndView()
 
@@ -86,9 +96,27 @@ class BusinessExceptionResolver implements ServletContextAware,
         if (exceptionPlusStatus) {
             log.debug("BusinessExceptionResolver will handle exception ${e}")
             Map model = exceptionPlusStatus
-            UrlMappingInfo info = new DefaultUrlMappingInfo(controllerName,
-                    actionName, (Object) null, (Object) null, [:],
-                    (UrlMappingData) null, servletContext)
+
+            UrlMappingInfo info
+
+            if (!oldUrlMappings) {
+                info = new DefaultUrlMappingInfo(
+                    (Object) null, /* redirectInfo */
+                    controllerName,
+                    actionName,
+                    (Object) null, /* namespace */
+                    (Object) null, /* pluginName */
+                    (Object) null, /* viewName */
+                    (String) null, /* method */
+                    (String) null, /* version */
+                    [:],           /* params */
+                    (UrlMappingData) null,
+                    servletContext)
+            } else {
+                info = new DefaultUrlMappingInfo(controllerName,
+                        actionName, (Object) null, (Object) null, [:],
+                        (UrlMappingData) null, servletContext)
+            }
             WebUtils.forwardRequestForUrlMappingInfo(
                     request, response, info, model, true)
 
