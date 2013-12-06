@@ -118,6 +118,7 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
         if (getRowsCalled) {
             throw new IllegalStateException('getRows() cannot be called more than once')
         }
+        getRowsCalled = true
         if (allowMissingAssays && !assayIdFromRow) {
             throw new IllegalArgumentException(
                     'assayIdFromRow must be set when allowMissingAssays is true')

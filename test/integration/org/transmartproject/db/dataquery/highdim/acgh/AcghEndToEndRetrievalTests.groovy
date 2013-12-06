@@ -206,7 +206,6 @@ class AcghEndToEndRetrievalTests {
         ]
 
         dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
-        Lists.newArrayList(dataQueryResult.rows)
 
         assertThat dataQueryResult, hasProperty('indicesList', is(not(empty())))
         assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
