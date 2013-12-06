@@ -827,7 +827,7 @@ class GwasSearchController {
                     for (sigItem in sigItems) {
                         def searchItem = SearchKeyword.findByUniqueId(sigItem.bioDataUniqueId)
 
-                        if (searchItem.dataCategory?.equals('SNP')) {
+                        if (searchItem?.dataCategory?.equals('SNP')) {
                             def rsId = searchItem.id as long
                             if (!rsId) {
                                 println("No SNP found for identifier:" + sigItem.bioDataUniqueId)
