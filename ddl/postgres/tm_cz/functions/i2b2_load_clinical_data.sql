@@ -1046,7 +1046,7 @@ BEGIN
 	
 	begin
 	delete from i2b2demodata.observation_fact f
-	where f.modifier_cd = TrialId
+	where f.sourcesystem_cd = TrialId
 	  and f.concept_cd not in
 		 (select distinct concept_code as concept_cd from deapp.de_subject_sample_mapping
 		  where trial_name = TrialId
