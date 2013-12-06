@@ -69,23 +69,6 @@ var FormValidator = function (inputArray) {
     this.error_messages = [];
 }
 
-FormValidator.prototype.getHighDimensionalDataTypes = function () {
-    if (typeof(HIGH_DIMENSIONAL_DATA) != "undefined") {
-        return HIGH_DIMENSIONAL_DATA
-    }
-
-    var retval = {
-        "MRNA_AFFYMETRIX"   : {"platform" : "MRNA_AFFYMETRIX", "type" : "Gene Expression"},
-        "MIRNA_AFFYMETRIX"  : {"platform" : "MIRNA_AFFYMETRIX", "type" : "QPCR MIRNA"},
-        "MIRNA_SEQ"         : {"platform" : "MIRNA_SEQ", "type" : "SEQ MIRNA"},
-        "RBM"               : {"platform" : "RBM", "type" : "RBM"},
-        "PROTEIN"           : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
-        "SNP"               : {"platform" : "SNP", "type" : "SNP"}
-    };
-
-    return retval;
-}
-
 FormValidator.prototype.validateInputForm = function () {
 
     var _isValid = true; //init
@@ -217,11 +200,12 @@ FormValidator.prototype.valid_high_dimensional_type = function (validator, label
     if (!validator.high_dimensional_type) {
         this.push_error(defaults.messages.no_high_dimensional_type, [label]);
     } else {
-        // validate supported high dimensional data types
-        var _highDimensionalTypes = this.getHighDimensionalDataTypes();
 
-        for (var key in _highDimensionalTypes) {
-            if (validator.high_dimensional_type == _highDimensionalTypes[key].type) {
+        // validate supported high dimensional data types
+        var _highDimensionalTypes = new HighDimensionalData();
+
+        for (var key in _highDimensionalTypes.supportedTypes) {
+            if (validator.high_dimensional_type == (_highDimensionalTypes.supportedTypes[key]).type) {
                 retVal = true;
                 break;
             }
