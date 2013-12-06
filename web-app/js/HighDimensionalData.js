@@ -18,7 +18,8 @@ var HighDimensionalData = function () {
             "MIRNA_SEQ"         : {"platform" : "MIRNA_SEQ", "type" : "SEQ MIRNA"},
             "RBM"               : {"platform" : "RBM", "type" : "RBM"},
             "PROTEIN"           : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
-            "SNP"               : {"platform" : "SNP", "type" : "SNP"}
+            "SNP"               : {"platform" : "SNP", "type" : "SNP"},
+            "RNASEQ"            : {"platform" : "RNASEQ", "type" : "RNASEQ"}
         };
     }
 
