@@ -422,4 +422,49 @@ class GwasWebService {
             con?.close();
         }
     }
+
+    def recombinationRateBySnpQuery = """
+SELECT chromosome, position, rate, map FROM BIOMART.BIO_RECOMBINATION_RATES
+WHERE POSITION > (SELECT (pos-?) as low FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
+AND POSITION < (SELECT (pos+?) as high FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
+AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
+"""
+
+    def getRecombinationRateBySnp(snp, range, hgVersion) {
+        def query = recombinationRateBySnpQuery;
+
+        //Create objects we use to form JDBC connection.
+        def con, stmt, rs = null;
+
+        //Grab the connection from the grails object.
+        con = dataSource.getConnection()
+
+        //Prepare the SQL statement.
+        stmt = con.prepareStatement(query);
+        stmt.setLong(1, range)
+        stmt.setString(2, snp)
+        stmt.setString(3, hgVersion)
+        stmt.setLong(4, range)
+        stmt.setString(5, snp)
+        stmt.setString(6, hgVersion)
+        stmt.setString(7, snp)
+        stmt.setString(8, hgVersion)
+
+        rs = stmt.executeQuery();
+
+        def results = []
+        try{
+            while(rs.next()){
+                results.push([rs.getString("chromosome"), rs.getLong("position"), rs.getDouble("rate"), rs.getDouble("map")])
+            }
+            return results
+
+        }finally{
+            rs?.close();
+            stmt?.close();
+            con?.close();
+        }
+
+
+    }
 }

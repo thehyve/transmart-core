@@ -98,6 +98,15 @@ class GwasWebController {
         renderDataSet(results)
     }
 
+    def recombinationRateBySnp = {
+        def range = params.long('range') ?: 0
+        def snp = params.snp
+        def hgVersion = params.snpSource ?: '19'
+        def results = gwasWebService.getRecombinationRateBySnp(snp, range, hgVersion)
+
+        renderDataSet(results)
+    }
+
     def renderDataSet(results) {
 
         render(contentType:"text/xml",encoding:"UTF-8") {
