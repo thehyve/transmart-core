@@ -38,8 +38,22 @@ class AssayQuery {
         def criteria = prepareCriteriaWithConstraints()
         criteria.order 'id', 'asc'
 
-        criteria.instance.list().collect {
-            new AssayColumnImpl(it)
+        /* Again, we have to go deep into implementation details.
+         * The problem is we cannot create the hibernate criteria
+         * and execute the query in different statements; you're
+         * supposed to do criteriaBuilder.list { .. constraints here .. }
+         * Maybe we could rewrite some code so that everything happens inside
+         * that closure, but for now let's break some abstractions.
+         */
+        try {
+            criteria.instance.list().collect {
+                new AssayColumnImpl(it)
+            }
+        } finally {
+            // important, otherwise the connection leaks
+            if (!criteria.participate) {
+                criteria?.hibernateSession?.close()
+            }
         }
     }
 
