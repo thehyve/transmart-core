@@ -17,4 +17,13 @@ modules = {
     kclust {
         resource url:"/js/plugin/KClust.js"
     }
+    acgh_survival_analysis {
+        resource url:"/js/plugin/aCGHSurvivalAnalysis.js"
+    }
+    acgh_group_test {
+        resource url:"/js/plugin/GroupTestaCGH.js"
+    }
+    rnaseq_group_test {
+        resource url:"/js/plugin/GroupTestRNASeq.js"
+    }
 }

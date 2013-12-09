@@ -1,3 +1,7 @@
+%{--include js lib for heatmap dynamically--}%
+<r:require modules="acgh_group_test"/>
+<r:layoutResources disposition="defer"/>
+
 %{--Input Container--}%
 <div id="gtContainer"></div>
 

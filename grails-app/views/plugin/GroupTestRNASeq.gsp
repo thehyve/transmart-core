@@ -1,3 +1,7 @@
+%{--include js lib for heatmap dynamically--}%
+<r:require modules="rnaseq_group_test"/>
+<r:layoutResources disposition="defer"/>
+
 %{--Input Container--}%
 <div id="rgtContainer"></div>
 
