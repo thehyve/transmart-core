@@ -28,9 +28,11 @@ class HierarchicalClustering extends AnalysisJob {
             [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
                 results[subset]?.rows?.each { row ->
                     row.assayIndexMap.each { assay, index ->
-                        csvWriter.writeNext(
-                                ["${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
-                        )
+                        if (row[index] != null) { // value might be 'empty'
+                            csvWriter.writeNext(
+                                    ["${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
+                            )
+                        }
                     }
                 }
             }
