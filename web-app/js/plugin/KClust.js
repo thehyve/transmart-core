@@ -1,165 +1,122 @@
-/*************************************************************************   
-* Copyright 2008-2012 Janssen Research & Development, LLC.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-******************************************************************/
-
-function submitKClustJob(form){
-	
-	var independentVariableConceptCode = "";	
-	
-	independentVariableConceptCode = readConceptVariables("divIndependentVariable");
-
-	var variablesConceptCode = independentVariableConceptCode;
-	
-	//----------------------------------
-	//Validation
-	//----------------------------------
-	//This is the independent variable.
-	var independentVariableEle = Ext.get("divIndependentVariable");	
-
-	//Get the types of nodes from the input box.
-	var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
-	
-	//Validate to make sure a concept was dragged in.
-	if(independentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input', 'Please drag at least one concept into the Heatmap Variable box.');
-		return;
-	}	
-	
-	if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1))
-	{
-		Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The heatmap variable input box has multiple nodes.');
-		return;		
-	}			
-
-	if(document.getElementById("txtClusters").value == '')
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter the number of clusters into the "Number of clusters" text box.');
-		return;			
-	}	
-	
-	if(!isNumber(document.getElementById("txtClusters").value))
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Number of clusters" text box.');
-		return;			
-	}
-	
-	if(document.getElementById("txtClusters").value < 2)
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 1 into the "Number of clusters" text box.');
-		return;			
-	}
-	
-	if(document.getElementById("txtMaxDrawNumber").value == '')
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter the maximumm number of markers to display into the "Max rows to display" text box.');
-		return;			
-	}	
-	
-	if(!isNumber(document.getElementById("txtMaxDrawNumber").value))
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer into the "Max rows to display" text box.');
-		return;			
-	}
-	
-	if(document.getElementById("txtMaxDrawNumber").value < 1)
-	{
-		Ext.Msg.alert('Wrong input', 'Please enter a valid integer greater than 0 into the "Max rows to display" text box.');
-		return;			
-	}	
-		
-	//----------------------------------	
-		
-	var formParams = {
-			independentVariable:	independentVariableConceptCode,
-			variablesConceptPaths:	variablesConceptCode,		
-			jobType:		'RKClust',
-			txtMaxDrawNumber:	document.getElementById("txtMaxDrawNumber").value,
-			txtClusters:		document.getElementById("txtClusters").value
-	};
-	
-	
-	//Use a common function to load the High Dimensional Data params.
-	loadCommonHighDimFormObjects(formParams,"divIndependentVariable")	
-	loadCommonHeatmapImageAttributes(formParams);
-	
-	if(!validateCommonHeatmapImageAttributes(formParams))
-	{
-		return false;
-	}
-	
-	//------------------------------------
-	//More Validation
-	//------------------------------------	
-	if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
-	{
-		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the heatmap variable box but did not select any filters. Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
-		return;			
-	}
-	
-	//For the time being if the user is trying to run anything but GEX, stop them.
-	if(formParams["divIndependentVariableType"] != "MRNA")
-	{
-		Ext.Msg.alert("Invalid selection", "The heatmap only supports GEX data at this time. Please drag a Gene Expression node into the Heatmap variable and click the 'High Dimensional Data' button.")
-		return false;
-	}	
-	//------------------------------------
-	
-	submitJob(formParams);
-}
-
-function isNumber(n) {
-	  return !isNaN(parseInt(n)) && isFinite(n);
-	}		
-
 /**
+ * Where everything starts
  * Register drag and drop.
  * Clear out all gobal variables and reset them to blank.
  */
 function loadKclustView(){
-	registerKClustDragAndDrop();
-	clearHighDimDataSelections('divIndependentVariable');
+    kmeansClustering.clear_high_dimensional_input('divIndependentVariable');
+    kmeansClustering.register_drag_drop();
 }
 
-/**
- * Clear the variable selection box
- * Clear all selection stored in global variables
- * Clear the selection display
- * @param divName
- */
-function clearGroupHeatmap(divName)
-{
-	//Clear the drag and drop div.
-	var qc = Ext.get(divName);
-	
-	for(var i=qc.dom.childNodes.length-1;i>=0;i--)
-	{
-		var child=qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}	
-	clearHighDimDataSelections(divName);
-	clearSummaryDisplay(divName);
+
+// constructor
+var KMeansClusteringView = function () {
+    RmodulesView.call(this);
 }
 
-function registerKClustDragAndDrop()
-{
-	//Set up drag and drop for Dependent and Independent variables on the data association tab.
-	//Get the Independent DIV
-	var independentDiv = Ext.get("divIndependentVariable");
-	
-	dtgI = new Ext.dd.DropTarget(independentDiv,{ddGroup : 'makeQuery'});
-	dtgI.notifyDrop =  dropOntoCategorySelection;
-	
+// inherit RmodulesView
+KMeansClusteringView.prototype = new RmodulesView();
+
+// correct the pointer
+KMeansClusteringView.prototype.constructor = KMeansClusteringView;
+
+// submit analysis job
+KMeansClusteringView.prototype.submit_job = function () {
+    // get formParams
+    var formParams = this.get_form_params();
+
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
 }
+
+// get form params
+KMeansClusteringView.prototype.get_form_params = function () {
+    var formParameters = {}; // init
+
+    //Use a common function to load the High Dimensional Data params.
+    loadCommonHighDimFormObjects(formParameters, "divIndependentVariable");
+
+    // instantiate input elements object with their corresponding validations
+    var inputArray = this.get_inputs(formParameters);
+
+    // define the validator for this form
+    var formValidator = new FormValidator(inputArray);
+
+    if (formValidator.validateInputForm()) { // if input files satisfy the validations
+
+        // get values
+        var inputConceptPathVar = readConceptVariables("divIndependentVariable");
+        var clusters = inputArray[1].el.value;
+        var maxDrawNum = inputArray[2].el.value;
+        var imageWidth = inputArray[3].el.value;
+        var imageHeight = inputArray[4].el.value;
+        var imagePointSize = inputArray[5].el.value;
+
+        // assign values to form parameters
+        formParameters['jobType'] = 'RKClust';
+        formParameters['independentVariable'] = inputConceptPathVar;
+        formParameters['variablesConceptPaths'] = inputConceptPathVar;
+        formParameters['txtClusters'] = clusters;
+        formParameters['txtMaxDrawNumber'] = maxDrawNum;
+        formParameters['txtImageWidth'] = imageWidth;
+        formParameters['txtImageHeight'] = imageHeight;
+        formParameters['txtImagePointsize'] = imagePointSize;
+
+    } else { // something is not correct in the validation
+        // empty form parameters
+        formParameters = null;
+        // display the error message
+        formValidator.display_errors();
+    }
+
+    // get analysis constraints
+    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RKClust'));
+
+    return formParameters;
+}
+
+KMeansClusteringView.prototype.get_inputs = function (form_params) {
+    return  [
+        {
+            "label" : "High Dimensional Data",
+            "el" : Ext.get("divIndependentVariable"),
+            "validations" : [
+                {type:"REQUIRED"},
+                {
+                    type:"HIGH_DIMENSIONAL",
+                    high_dimensional_type:form_params["divIndependentVariableType"],
+                    high_dimensional_pathway:form_params["divIndependentVariablePathway"]
+                }
+            ]
+        },
+        {
+            "label" : "Number of Clusters",
+            "el" : document.getElementById("txtClusters"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
+        },
+        {
+            "label" : "Max Row to Display",
+            "el" : document.getElementById("txtMaxDrawNumber"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
+        },
+        {
+            "label" : "Image Width",
+            "el" : document.getElementById("txtImageWidth"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Height",
+            "el" : document.getElementById("txtImageHeight"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
+        },
+        {
+            "label" : "Image Point Size",
+            "el" : document.getElementById("txtImagePointsize"),
+            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
+        }
+    ];
+}
+
+// init heat map view instance
+var kmeansClustering = new KMeansClusteringView();

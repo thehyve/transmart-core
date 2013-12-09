@@ -11,4 +11,10 @@ modules = {
     freq_plot {
         resource url:"/js/plugin/FrequencyPlot.js"
     }
+    hclust {
+        resource url:"/js/plugin/HClust.js"
+    }
+    kclust {
+        resource url:"/js/plugin/KClust.js"
+    }
 }

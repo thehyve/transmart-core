@@ -69,6 +69,9 @@ HeatMapView.prototype.get_form_params = function () {
         formValidator.display_errors();
     }
 
+    // get analysis constraints
+    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RHeatmap'));
+
     return formParameters;
 }
 
@@ -81,8 +84,8 @@ HeatMapView.prototype.get_inputs = function (form_params) {
                 {type:"REQUIRED"},
                 {
                     type:"HIGH_DIMENSIONAL",
-                    platform:form_params["divIndependentVariableType"],
-                    pathway:form_params["divIndependentVariablePathway"]
+                    high_dimensional_type:form_params["divIndependentVariableType"],
+                    high_dimensional_pathway:form_params["divIndependentVariablePathway"]
                 }
             ]
         },

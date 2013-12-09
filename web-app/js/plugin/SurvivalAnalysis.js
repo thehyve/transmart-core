@@ -197,7 +197,6 @@ function loadSurvivalAnalysisView() {
 	clearGroupSurvival('divTimeVariable');
 	clearGroupSurvival('divCategoryVariable');
 	clearGroupSurvival('divCensoringVariable');
-	clearHighDimensionalFields();
 }
 
 function registerSurvivalDragAndDrop() {
