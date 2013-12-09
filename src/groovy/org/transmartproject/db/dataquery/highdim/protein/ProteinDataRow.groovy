@@ -11,7 +11,7 @@ class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object>
 
     @Override
     String getLabel() {
-        unitProtId
+        peptide
     }
 
     @Override
