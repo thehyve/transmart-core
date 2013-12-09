@@ -826,21 +826,22 @@ class GwasSearchController {
                     }
                     for (sigItem in sigItems) {
                         def searchItem = SearchKeyword.findByUniqueId(sigItem.bioDataUniqueId)
-
-                        if (searchItem.dataCategory?.equals('SNP')) {
-                            def rsId = searchItem.id as long
-                            if (!rsId) {
-                                println("No SNP found for identifier:" + sigItem.bioDataUniqueId)
-                                continue
-                            }
-                            def limits = regionSearchService.getSnpLimits(rsId, '19', sig.flankingRegion)
-                            regions.push([gene: rsId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
-                        }
-                        else {
-                            def geneId = searchItem?.id
-                            def limits = regionSearchService.getGeneLimits(geneId, '19', sig.flankingRegion)
-                            regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
-                        }
+						
+							if (searchItem?.dataCategory?.equals('SNP')) {
+								def rsId = searchItem.id as long
+								if (!rsId) {
+									println("No SNP found for identifier:" + sigItem.bioDataUniqueId)
+									continue
+								}
+								def limits = regionSearchService.getSnpLimits(rsId, '19', sig.flankingRegion)
+								regions.push([gene: rsId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+							}
+							else if (searchItem?.dataCategory?.equals('GENE')) {
+								def geneId = searchItem?.id
+								def limits = regionSearchService.getGeneLimits(geneId, '19', sig.flankingRegion)
+								regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+							}
+						
 
                     }
                 }

@@ -412,7 +412,7 @@ class GwasWebService {
         try{
             while(rs.next()){
                 results.push([rs.getString("RS_ID"), rs.getLong("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME"),
-                rs.getString("gene"), rs.getString("exon_intron"), rs.getDouble("recombination_rate"), rs.getDouble("regulome_score")])
+                rs.getString("gene"), rs.getString("exon_intron"), rs.getDouble("recombination_rate"), rs.getString("regulome_score")])
             }
             return results
 
