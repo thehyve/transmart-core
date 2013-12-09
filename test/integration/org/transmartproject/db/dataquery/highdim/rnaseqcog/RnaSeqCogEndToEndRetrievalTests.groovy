@@ -10,6 +10,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -95,6 +96,20 @@ class RnaSeqCogEndToEndRetrievalTests {
                 hasProperty('label', is(testData.data[-1].annotation.transcriptId)) /* VNN3 */,
                 contains(testData.data[-1..-2]*.rawIntensity.collect { Double it -> closeTo it, DELTA })
         ))
+    }
+
+    @Test
+    void testGeneConstraint() {
+        DataConstraint geneConstraint = rnaSeqCogResource.createDataConstraint(
+                DataConstraint.GENES_CONSTRAINT,
+                names: [ 'BOGUSVNN3' ])
+
+        result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
+                [ geneConstraint ],
+                rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
+
+        assertThat Lists.newArrayList(result), contains(
+                hasProperty('bioMarker', is('BOGUSVNN3')))
     }
 
 }
