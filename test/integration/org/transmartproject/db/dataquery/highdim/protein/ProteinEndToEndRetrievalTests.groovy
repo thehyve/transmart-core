@@ -36,6 +36,9 @@ class ProteinEndToEndRetrievalTests {
     String ureaTransporterUniProtId,
            adiponectinUnitProtId,
            adipogenesisFactorUniProtId
+    String ureaTransporterPeptide,
+           adiponectinPeptide,
+           adipogenesisFactorPeptide
 
     @Before
     void setUp() {
@@ -62,6 +65,10 @@ class ProteinEndToEndRetrievalTests {
         adipogenesisFactorUniProtId = testData.proteins.find {
             it.name == 'Adipogenesis regulatory factor'
         }.primaryExternalId
+
+        ureaTransporterPeptide = testData.annotations[-1].peptide
+        adiponectinPeptide = testData.annotations[-2].peptide
+        adipogenesisFactorPeptide = testData.annotations[-3].peptide
     }
 
     @After
@@ -91,12 +98,12 @@ class ProteinEndToEndRetrievalTests {
         assertThat rows, allOf(
                 contains(
                         allOf(
-                                hasProperty('label', is(ureaTransporterUniProtId)),
+                                hasProperty('label', is(ureaTransporterPeptide)),
                                 hasProperty('bioMarker', is(ureaTransporterUniProtId)),
                                 hasProperty('peptide', is(testData.annotations[-1].peptide))
                         ),
-                        hasProperty('label', is(adiponectinUnitProtId)),
-                        hasProperty('label', is(adipogenesisFactorUniProtId))))
+                        hasProperty('label', is(adiponectinPeptide)),
+                        hasProperty('label', is(adipogenesisFactorPeptide))))
     }
 
     @Test
@@ -110,7 +117,7 @@ class ProteinEndToEndRetrievalTests {
 
         /* the result is iterable */
         assertThat result, contains(allOf(
-                hasProperty('label', equalTo(ureaTransporterUniProtId)),
+                hasProperty('label', equalTo(ureaTransporterPeptide)),
                 contains( /* the rows are iterable */
                         closeTo(testData.data[5].zscore as Double, DELTA),
                         closeTo(testData.data[4].zscore as Double, DELTA))))
@@ -125,7 +132,7 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [], defaultRealProjection)
 
         assertThat result, hasItem(allOf(
-                hasProperty('label', is(ureaTransporterUniProtId)),
+                hasProperty('label', is(ureaTransporterPeptide)),
                 contains(
                         closeTo(testData.data[5].intensity as Double, DELTA),
                         closeTo(testData.data[4].intensity as Double, DELTA))))
@@ -143,8 +150,8 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [ dataConstraint ], projection)
 
         assertThat result, contains(
-                hasProperty('label', is(ureaTransporterUniProtId)),
-                hasProperty('label', is(adiponectinUnitProtId)))
+                hasProperty('label', is(ureaTransporterPeptide)),
+                hasProperty('label', is(adiponectinPeptide)))
     }
 
     @Test
@@ -158,7 +165,7 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [ dataConstraint ], projection)
 
         assertThat result, contains(
-                hasProperty('label', is(adiponectinUnitProtId)))
+                hasProperty('label', is(adiponectinPeptide)))
     }
 
 
