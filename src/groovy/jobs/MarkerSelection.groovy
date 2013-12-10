@@ -1,12 +1,19 @@
 package jobs
 
-import org.transmartproject.core.dataquery.TabularResult
+import jobs.steps.BioMarkerDumpDataStep
+import jobs.steps.Step
 
-class MarkerSelection extends AnalysisJob {
+class MarkerSelection extends AbstractAnalysisJob {
 
     @Override
-    protected void runAnalysis() {
-        updateStatus('Running marker selection analysis')
+    protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
+        new BioMarkerDumpDataStep(
+                temporaryDirectory: temporaryDirectory,
+                resultsHolder: resultsHolder)
+    }
+
+    @Override
+    protected List<String> getRStatements() {
         // set path to markerselection processor
         String sourceMarkerSelection = 'source(\'$pluginDirectory/MarkerSelection/MarkerSelection.R\')'
         // call for analysis for marker selection
@@ -24,44 +31,11 @@ class MarkerSelection extends AnalysisJob {
                             imageHeight    = as.integer(\'$txtImageHeight\'),
                             pointsize      = as.integer(\'$txtImagePointsize\'))'''
 
-        runRCommandList([sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap])
+        [ sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap ]
     }
 
     @Override
-    protected void writeData(Map<String, TabularResult> results) {
-        withDefaultCsvWriter(results) { csvWriter ->
-            csvWriter.writeNext(['PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL','SUBSET'] as String[])
-
-            [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
-                results[subset].rows.each { row ->
-                    row.assayIndexMap.each { assay, index ->
-                        csvWriter.writeNext(
-                                [
-                                        "${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}",
-                                        row[index],
-                                        row.label,
-                                        row.bioMarker,
-                                        subset
-                                ] as String[]
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    protected Map<String, TabularResult> fetchResults() {
-        updateStatus('Gathering Data')
-
-        [
-                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET1]),
-                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET2])
-        ]
-    }
-
-    @Override
-    protected void renderOutput() {
-        updateStatus('Completed', "/markerSelection/markerSelectionOut?jobName=${name}")
+    final String getForwardPath() {
+        "/markerSelection/markerSelectionOut?jobName=${name}"
     }
 }

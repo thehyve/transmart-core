@@ -1,13 +1,19 @@
 package jobs
 
-import org.transmartproject.core.dataquery.TabularResult
+import jobs.steps.Step
+import jobs.steps.ValueGroupDumpDataStep
 
-class HierarchicalClustering extends AnalysisJob {
+class HierarchicalClustering extends AbstractAnalysisJob {
 
     @Override
-    protected void runAnalysis() {
-        updateStatus('Running Hierarchical analysis')
+    protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
+        new ValueGroupDumpDataStep(
+                temporaryDirectory: temporaryDirectory,
+                resultsHolder: resultsHolder)
+    }
 
+    @Override
+    protected List<String> getRStatements() {
         String source = 'source(\'$pluginDirectory/Heatmap/HClusteredHeatmapLoader.R\')'
 
         String createHeatmap = '''HClusteredHeatmap.loader(
@@ -17,40 +23,11 @@ class HierarchicalClustering extends AnalysisJob {
                             pointsize      = as.integer(\'$txtImagePointsize\'),
                             maxDrawNumber  = as.integer(\'$txtMaxDrawNumber\'))'''
 
-        runRCommandList([source, createHeatmap])
+        [ source, createHeatmap ]
     }
 
     @Override
-    protected void writeData(Map<String, TabularResult> results) {
-        withDefaultCsvWriter(results) { csvWriter ->
-            csvWriter.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
-
-            [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
-                results[subset]?.rows?.each { row ->
-                    row.assayIndexMap.each { assay, index ->
-                        if (row[index] != null) { // value might be 'empty'
-                            csvWriter.writeNext(
-                                    ["${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    protected Map<String, TabularResult> fetchResults() {
-        updateStatus('Gathering Data')
-
-        [
-                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET1]),
-                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET2])
-        ]
-    }
-
-    @Override
-    protected void renderOutput() {
-        updateStatus('Completed', "/RHClust/heatmapOut?jobName=${name}")
+    protected getForwardPath() {
+        "/RHClust/heatmapOut?jobName=${name}"
     }
 }

@@ -17,15 +17,22 @@
 package com.recomdata.transmart.data.association
 
 import grails.util.Holders
+import jobs.AnalysisQuartzJobAdapter
 import jobs.Heatmap
 import jobs.KMeansClustering
 import jobs.HierarchicalClustering
 import jobs.MarkerSelection
+import jobs.PCA
+import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
+import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
 import grails.converters.JSON
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+
+import static jobs.AnalysisQuartzJobAdapter.*
 
 class RModulesController {
     final static Map<String, String> lookup = [
@@ -72,16 +79,25 @@ class RModulesController {
             throw new IllegalStateException('Cannot schedule job; it has not been created')
         }
 
-        if (params['analysis'] == "heatmap") {
-            jsonResult = createJob(params, Heatmap.class)
-        } else if (params['analysis'] == "kclust") {
-            jsonResult = createJob(params, KMeansClustering.class)
-        } else if (params['analysis'] == "hclust") {
-            jsonResult = createJob(params, HierarchicalClustering.class)
-        } else if (params['analysis'] == "markerSelection") {
-            jsonResult = createJob(params, MarkerSelection.class)
-        } else {
-            jsonResult = RModulesService.scheduleJob(springSecurityService.getPrincipal().username, params)
+        switch (params['analysis']) {
+            case 'heatmap':
+                jsonResult = createJob(params, Heatmap)
+                break
+            case 'kclust':
+                jsonResult = createJob(params, KMeansClustering)
+                break
+            case 'hclust':
+                jsonResult = createJob(params, HierarchicalClustering)
+                break
+            case 'markerSelection':
+                jsonResult = createJob(params, MarkerSelection)
+                break
+            case 'pca':
+                jsonResult = createJob(params, PCA)
+                break
+            default:
+                jsonResult = RModulesService.scheduleJob(
+                        springSecurityService.principal.username, params)
         }
 
         response.setContentType("text/json")
@@ -98,21 +114,26 @@ class RModulesController {
         render output as JSON
     }
 
-    private void createJob(Map params, def classFile) {
-        params.grailsApplication = grailsApplication
-        params.analysisConstraints = JSON.parse(params.analysisConstraints)
-        params.analysisConstraints["data_type"] = lookup[params.analysisConstraints["data_type"]]
-        params.analysisConstraints["assayConstraints"].remove("patient_set")
+    private void createJob(Map params, Class clazz) {
+        params[PARAM_GRAILS_APPLICATION] = grailsApplication
+        params[PARAM_JOB_CLASS] = clazz
+        params[PARAM_ANALYSIS_CONSTRAINTS] = validateParamAnalysisConstraints params
+        params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"] =
+            lookup[params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"]]
 
-        params.analysisConstraints = massageConstraints(params.analysisConstraints)
+        //XXX: what is this doing here? Why is the client sending this in the first place?
+        params[PARAM_ANALYSIS_CONSTRAINTS]["assayConstraints"].remove("patient_set")
 
-        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, classFile)
+        params.analysisConstraints = massageConstraints params[PARAM_ANALYSIS_CONSTRAINTS]
+
+        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
     private Map massageConstraints(Map analysisConstraints) {
+        //XXX: client should send this correctly in the first place
         analysisConstraints["dataConstraints"].each { constraintType, value ->
             if (constraintType == 'search_keyword_ids') {
                 analysisConstraints["dataConstraints"][constraintType] = [ keyword_ids: value ]
@@ -130,6 +151,36 @@ class RModulesController {
         }
 
         analysisConstraints
+    }
+
+    private JSONElement validateParamAnalysisConstraints(Map params) {
+        if (!params[PARAM_ANALYSIS_CONSTRAINTS]) {
+            throw new InvalidArgumentsException("No parameter $PARAM_ANALYSIS_CONSTRAINTS")
+        }
+
+        def constraints
+        try {
+            constraints = JSON.parse(params[PARAM_ANALYSIS_CONSTRAINTS])
+        } catch (ConverterException ce) {
+            throw new InvalidArgumentsException("Parameter $PARAM_ANALYSIS_CONSTRAINTS " +
+                    "is not a valid JSON string")
+        }
+
+        if (!(constraints instanceof Map)) {
+            throw new InvalidArgumentsException(
+                    "Expected $PARAM_ANALYSIS_CONSTRAINTS to be an map (JSON object); " +
+                            "got ${constraints.getClass()}")
+        }
+
+        // great naming consistency here!
+        [ 'data_type', 'assayConstraints', 'dataConstraints' ].each {
+            if (!constraints[it]) {
+                throw new InvalidArgumentsException("No sub-parameter '$it' " +
+                        "for request parameter $PARAM_ANALYSIS_CONSTRAINTS")
+            }
+        }
+
+        constraints
     }
 
     /**
