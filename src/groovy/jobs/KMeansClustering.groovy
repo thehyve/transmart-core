@@ -1,13 +1,18 @@
 package jobs
 
+import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 
-class KMeansClustering extends AnalysisJob {
+import static jobs.AbstractAnalysisJob.SUBSET1
+import static jobs.AbstractAnalysisJob.SUBSET2
+import static jobs.AbstractAnalysisJob.SHORT_NAME
+import static jobs.AbstractAnalysisJob.RESULT_INSTANCE_IDS
+
+
+class KMeansClustering extends AbstractAnalysisJob {
 
     @Override
     protected void runAnalysis() {
-        updateStatus('Running KMeans analysis')
-
         String source = 'source(\'$pluginDirectory/Heatmap/KMeansHeatmap.R\')'
 
         // TODO What about clusters.number = 2, probes.aggregate = false?
@@ -26,11 +31,11 @@ class KMeansClustering extends AnalysisJob {
         withDefaultCsvWriter(results) { csvWriter ->
             csvWriter.writeNext(['PATIENT_NUM', 'VALUE', 'GROUP'] as String[])
 
-            [AnalysisJob.SUBSET1, AnalysisJob.SUBSET2].each { subset ->
-                results[subset]?.rows?.each { row ->
-                    row.assayIndexMap.each { assay, index ->
+            [SUBSET1, SUBSET2].each { subset ->
+                results[subset]?.rows?.each { DataRow row ->
+                    row.assayIndexMap.each { assay, index -> //XXX: assayIndexMap is private
                         csvWriter.writeNext(
-                                ["${AnalysisJob.SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
+                                ["${SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
                         )
                     }
                 }
@@ -40,16 +45,14 @@ class KMeansClustering extends AnalysisJob {
 
     @Override
     protected Map<String, TabularResult> fetchResults() {
-        updateStatus('Gathering Data')
-
         [
-                (AnalysisJob.SUBSET1) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET1]),
-                (AnalysisJob.SUBSET2) : fetchSubset(AnalysisJob.RESULT_INSTANCE_IDS[AnalysisJob.SUBSET2])
+                (SUBSET1) : fetchSubset(RESULT_INSTANCE_IDS[SUBSET1]),
+                (SUBSET2) : fetchSubset(RESULT_INSTANCE_IDS[SUBSET2])
         ]
     }
 
     @Override
-    protected void renderOutput() {
-        updateStatus('Completed', "/RKMeans/heatmapOut?jobName=${name}")
+    protected getForwardPath() {
+        "/RKMeans/heatmapOut?jobName=${name}"
     }
 }
