@@ -15,7 +15,7 @@ class DeGplInfo implements Platform {
 
     static transients = ['markerType']
 
-	static mapping = {
+    static mapping = {
         table         schema: 'deapp'
 
         id            column: 'platform',   generator: 'assigned'
@@ -23,9 +23,9 @@ class DeGplInfo implements Platform {
         releaseNumber column: 'release_nbr'
 
         version      false
-	}
+    }
 
-	static constraints = {
+    static constraints = {
         id             maxSize:  50
 
         title          nullable: true, maxSize: 500
@@ -33,7 +33,7 @@ class DeGplInfo implements Platform {
         annotationDate nullable: true
         markerTypeId   nullable: true, maxSize: 100
         releaseNumber  nullable: true
-	}
+    }
 
     @Override
     PlatformMarkerType getMarkerType() {
