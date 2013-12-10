@@ -26,10 +26,14 @@ GenericToolTip = Ext.extend(Ext.ToolTip, {
  */
 Ext.EventManager.onWindowResize(function() {
 
+    var redrawView = function (view) {
+        view.redraw();
+    }
+
     // redraw survival analysis view
-    if (survivalAnalysisACGHView) survivalAnalysisACGHView.redraw();
+    if(typeof survivalAnalysisACGHView !== 'undefined') redrawView(survivalAnalysisACGHView);
     // redraw group test view
-    if (groupTestView) groupTestView.redraw();
+    if(typeof groupTestView !== 'undefined') redrawView(groupTestView);
 
 });
 
