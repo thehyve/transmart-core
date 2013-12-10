@@ -30,6 +30,7 @@ class DataAssociationController {
 
         // list of required javascripts
         def scripts = [
+                servletContext.contextPath + pluginContextPath + '/js/HighDimensionalData.js',
                 servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
                 servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
                 servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
@@ -37,7 +38,6 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-overrides.js',
                 servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-generic.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/SurvivalAnalysis.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/aCGHSurvivalAnalysis.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/CorrelationAnalysis.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/LineGraph.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/ScatterPlot.js',
@@ -45,9 +45,7 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/TableWithFisher.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestaCGH.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/GroupTestRNASeq.js']
+                servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js']
 
         // list of required css
         def styles = [servletContext.contextPath+pluginContextPath+'/css/rmodules.css']

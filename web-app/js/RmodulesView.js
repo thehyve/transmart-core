@@ -38,7 +38,7 @@ RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
         "search_keyword_ids": [window[_div_name + 'pathway']],
             "disjunctions": null
     },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
@@ -57,12 +57,48 @@ RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
             "mirnas": [window[_div_name + 'pathwayName']],
             "disjunctions": null
         },
-        projections: ["default_real_projection"]
+        projections: ["zscore"]
     }
 }
 
 
 RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
+    var _div_name = "divIndependentVariable";
+
+    return {
+        "job_type" : jobType,
+        "data_type": window[_div_name + 'markerType'],
+        "assayConstraints": {
+            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+            "ontology_term": readConceptVariables("divIndependentVariable"),
+            "trial_name": null
+        },
+        "dataConstraints": {
+            "disjunctions": null
+        },
+        projections: ["zscore"]
+    }
+}
+
+RmodulesView.prototype.get_parameters_for_proteomics = function (jobType) {
+    var _div_name = "divIndependentVariable";
+
+    return {
+        "job_type" : jobType,
+        "data_type": window[_div_name + 'markerType'],
+        "assayConstraints": {
+            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+            "ontology_term": readConceptVariables("divIndependentVariable"),
+            "trial_name": null
+        },
+        "dataConstraints": {
+            "disjunctions": null
+        },
+        projections: ["zscore"]
+    }
+}
+
+RmodulesView.prototype.get_parameters_for_rnaseq = function (jobType) {
     var _div_name = "divIndependentVariable";
 
     return {
@@ -83,12 +119,23 @@ RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var _div_name = "divIndependentVariable";
     var data_type = window[_div_name + 'markerType'];
-
-    if (data_type == 'Gene Expression') {
+    switch (data_type) {
+        case 'Gene Expression':
         return this.get_parameters_for_mrna(jobType);
-    } else if (data_type == "QPCR MIRNA") {
-        return this.get_parameters_for_mirna(jobType);
-    } else if (data_type == "RBM") {
-        return this.get_parameters_for_rbm(jobType);
+            break;
+        case 'QPCR MIRNA':
+            _retVal = this.get_parameters_for_mirna(jobType);
+            break;
+        case 'RBM':
+            _retVal = this.get_parameters_for_rbm(jobType);
+            break;
+        case 'PROTEOMICS':
+            _retVal = this.get_parameters_for_proteomics(jobType);
+            break;
+        case 'RNASEQ':
+            _retVal = this.get_parameters_for_rnaseq(jobType);
+            break;
     }
+
+    return _retVal;
 }

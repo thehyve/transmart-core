@@ -34,8 +34,6 @@ function
 	print("-------------------")
 	print("aCGHBuildGroupTestData.R")
 	print("BUILDING ACGH GROUP TEST DATA")
-	print("This script is deprecated and is replaced by aCGHBuildData.R")
-	print("   aCGHBuildData.R serves GroupTest and FrequencyPlot as well.")
 
 	# Check parameters
 	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0) stop("||FRIENDLY||No grouping specified. Please check your group variable selection and run again.")
@@ -115,7 +113,7 @@ function
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
-	
+
 	# In case aCGH data contains more patients/samples columns than groupData rows, groupData will have a number of rows with NA values.
 	# These patients/samples/rows will be neglect in the acgh group test script.
 	# TODO: It would however be cleaner to remove those patients/samples from the acgh data (columns) completely 

@@ -39,6 +39,7 @@ class RModulesController {
             "Gene Expression": "mrna",
             "QPCR MIRNA": "mirna",
             "RBM": "rbm",
+            "PROTEOMICS": "protein",
     ]
 
     def springSecurityService

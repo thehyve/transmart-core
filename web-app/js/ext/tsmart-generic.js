@@ -9,7 +9,7 @@
  * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
  * @type {number}
  */
-var GEN_RESULT_GRID_LIMIT = 25;
+var GEN_RESULT_GRID_LIMIT = 100;
 
 
 GenericToolTip = Ext.extend(Ext.ToolTip, {
@@ -103,7 +103,12 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 		return v;
 	},
 
-	getConceptCodes: function() {
+
+    /**
+     * get all concept codes in an input field as string separated by |
+     * @returns {string}
+     */
+    getConceptCodes: function() {
 		var v = '';
 		var separator = '|';
 
@@ -124,6 +129,15 @@ GenericAnalysisInputPanel = Ext.extend(Ext.Panel, {
 		return v;
 
 	},
+
+    /**
+     * get number of concept codes
+     * @returns {number}
+     */
+    getNumberOfConceptCodes: function() {
+        var nodes = this.getInputEl().dom.childNodes;
+        return nodes.length;
+    },
 
 	getNodeList: function() {
 		return createNodeTypeArrayFromDiv(this.getInputEl(), "setnodetype");

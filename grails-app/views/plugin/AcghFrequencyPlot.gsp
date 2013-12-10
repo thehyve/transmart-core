@@ -1,26 +1,23 @@
 %{--include js lib for heatmap dynamically--}%
-<r:require modules="acgh_group_test"/>
+<r:require modules="freq_plot"/>
 <r:layoutResources disposition="defer"/>
 
 %{--Input Container--}%
-<div id="gtContainer"></div>
-
-%{-- Analysis Output --}%
-<div id="intermediateResultWrapper"></div>
+<div id="freq_plot_container" class="analysis_container"></div>
 
 %{--Plot wrapper--}%
-<div id="gtPlotWrapper"></div>
+<div id="freq_plot_wrapper"></div>
 
 %{-- template --}%
-<div id="template-group-test-plot" class="x-hidden">
-	<div id="plotResultContainer" class="plotResultContainer">
-		%{--Image--}%
-		<g:img file="{filename}" class="freq-plot"></g:img>
-		<hr class="separator"/>
-		%{--Download button --}%
-		<div class="resultToolBar">
-			<div id="downloadBtn"></div>
-		</div>
+<div id="template-freq-plot" class="x-hidden">
+    <div id="plotResultContainer" class="plot_result_container">
+        %{--Image--}%
+        <g:img file="{filename}" class="freq-plot"></g:img>
+        <hr class="separator"/>
+        %{--Download button --}%
+        <div class="resultToolBar">
+            <div id="downloadBtn"></div>
+        </div>
         <table class="newspaper-a">
             <caption>Table 1: Input Parameters </caption>
             <thead>
@@ -52,21 +49,18 @@
             </tr>
             <tr>
                 <td class="first-col">Region</td>
-                <td>{inputRegion}</td>
+                <td>{regionVariable}</td>
             </tr>
             <tr>
                 <td class="first-col">Group</td>
                 <td>{inputGroupVariable}</td>
             </tr>
             <tr>
-                <td class="first-col">Statistical Test</td>
-                <td>{inputStatisticsType}</td>
-            </tr>
-            <tr>
-                <td class="first-col">Alteration Type</td>
-                <td>{inputAlteration}</td>
+                <td class="first-col">Job Type</td>
+                <td>{inputjobType}</td>
             </tr>
             </tbody>
         </table>
-	</div>
+    </div>
 </div>
+

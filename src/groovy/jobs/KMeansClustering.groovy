@@ -34,6 +34,7 @@ class KMeansClustering extends AbstractAnalysisJob {
             [SUBSET1, SUBSET2].each { subset ->
                 results[subset]?.rows?.each { DataRow row ->
                     row.assayIndexMap.each { assay, index -> //XXX: assayIndexMap is private
+                        if (row[index] == null) { return }
                         csvWriter.writeNext(
                                 ["${SHORT_NAME[subset]}_${assay.patientInTrialId}", row[index], "${row.label}"] as String[]
                         )
