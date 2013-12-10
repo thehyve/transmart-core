@@ -57,7 +57,7 @@ class FmFolder implements Buildable {
 		folderFullName(nullable: true, maxSize:1000)
 		folderType(blank:false, maxSize:100)
 		folderTag(nullable: true, maxSize:50)
-		description(blank:false, maxSize: 2000)
+		description(nullable:true, maxSize: 2000)
 		parent(nullable: true)
 	}
 

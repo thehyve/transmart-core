@@ -38,6 +38,7 @@ import grails.validation.ValidationException
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.lang.StringUtils
 import search.SearchKeyword
+import search.AuthUser
 
 class FmFolderController {
 
