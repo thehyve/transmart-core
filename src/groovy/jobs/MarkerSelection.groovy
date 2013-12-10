@@ -1,12 +1,19 @@
 package jobs
 
+import jobs.steps.BioMarkerDumpDataStep
+import jobs.steps.Step
+
 class MarkerSelection extends AbstractAnalysisJob {
 
-    @Delegate
-    BioMarkerJobDelegate bioMarkerJobDelegate = new BioMarkerJobDelegate(this)
+    @Override
+    protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
+        new BioMarkerDumpDataStep(
+                temporaryDirectory: temporaryDirectory,
+                resultsHolder: resultsHolder)
+    }
 
     @Override
-    protected void runAnalysis() {
+    protected List<String> getRStatements() {
         // set path to markerselection processor
         String sourceMarkerSelection = 'source(\'$pluginDirectory/MarkerSelection/MarkerSelection.R\')'
         // call for analysis for marker selection
@@ -24,11 +31,11 @@ class MarkerSelection extends AbstractAnalysisJob {
                             imageHeight    = as.integer(\'$txtImageHeight\'),
                             pointsize      = as.integer(\'$txtImagePointsize\'))'''
 
-        runRCommandList([sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap])
+        [ sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap ]
     }
 
     @Override
-    protected getForwardPath() {
+    final String getForwardPath() {
         "/markerSelection/markerSelectionOut?jobName=${name}"
     }
 }

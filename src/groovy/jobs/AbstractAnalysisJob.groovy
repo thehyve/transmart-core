@@ -1,0 +1,108 @@
+package jobs
+
+import jobs.steps.OpenHighDimensionalDataStep
+import jobs.steps.ParametersFileStep
+import jobs.steps.RCommandsStep
+import jobs.steps.Step
+import org.apache.log4j.Logger
+import org.quartz.JobExecutionException
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+
+abstract class AbstractAnalysisJob {
+
+    static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
+
+    static final String SUBSET1 = 'subset1'
+    static final String SUBSET2 = 'subset2'
+    static final Map<String, String> SHORT_NAME = [(SUBSET1): 'S1', (SUBSET2): 'S2' ]
+    static final Map<String, String> RESULT_INSTANCE_IDS =
+        [ (SUBSET1): 'result_instance_id1', (SUBSET2): 'result_instance_id2' ]
+
+    Logger log = Logger.getLogger(getClass())
+
+    /* injected properties
+     *********************/
+
+    HighDimensionDataTypeResource dataTypeResource
+
+    Map<String, Object> params /* user parameters */
+
+    String name /* The job instance name */
+
+    Closure updateStatus
+
+    File topTemporaryDirectory
+
+    File scriptsDirectory
+
+    /* TODO: Used to build temporary working directory for R processing phase.
+             This is called subset1_<study name>. What about subset 2? Is this
+             really needed or an arbitrary directory is enough? Is it required
+             due to some interaction with clinical data? */
+    String studyName
+
+    /* end injected properties
+     *************************/
+
+    File temporaryDirectory /* the workingDirectory */
+
+
+    final void run() {
+        validateName()
+        setupTemporaryDirectory()
+
+        List<Step> stepList = prepareSteps()
+
+        for (Step step in stepList) {
+            if (step.statusName) {
+                updateStatus step.statusName
+            }
+
+            step.execute()
+        }
+
+        updateStatus('Completed', forwardPath)
+    }
+
+    protected List<Step> prepareSteps() {
+        List<Step> steps = []
+
+        steps << new ParametersFileStep(
+                temporaryDirectory: temporaryDirectory,
+                params: params)
+
+        def openResultSetStep = new OpenHighDimensionalDataStep(
+                params: params,
+                dataTypeResource: dataTypeResource)
+
+        steps << openResultSetStep
+
+        steps << createDumpHighDimensionDataStep { -> openResultSetStep.results }
+
+        steps << new RCommandsStep(
+                temporaryDirectory: temporaryDirectory,
+                scriptsDirectory: scriptsDirectory,
+                rStatements: RStatements,
+                studyName: studyName,
+                params: params)
+
+        steps
+    }
+
+    abstract protected Step createDumpHighDimensionDataStep(Closure resultsHolder)
+
+    abstract protected List<String> getRStatements()
+
+    private void validateName() {
+        if (!(name ==~ /^[0-9A-Za-z-]+$/)) {
+            throw new JobExecutionException("Job name mangled")
+        }
+    }
+
+    private void setupTemporaryDirectory() {
+        temporaryDirectory = new File(new File(topTemporaryDirectory, name), 'workingDirectory')
+        temporaryDirectory.mkdirs()
+    }
+
+    abstract protected getForwardPath()
+}
