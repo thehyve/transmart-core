@@ -196,7 +196,7 @@ class RModulesController {
         // This crazy dance with slashes is "expected behaviour"
         // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
         def bs = '\\\\'
-        "\\\\" + (conceptPath =~ /$bs([\w ]+)$bs/)[0][-1] + conceptPath
+        "\\\\" + (conceptPath =~ /$bs([^$bs]+)$bs/)[0][-1] + conceptPath
     }
 
     private static def getQuartzScheduler() {
