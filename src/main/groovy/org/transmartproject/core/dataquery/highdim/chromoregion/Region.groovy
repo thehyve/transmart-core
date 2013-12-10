@@ -1,7 +1,6 @@
 package org.transmartproject.core.dataquery.highdim.chromoregion
 
 import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 
 /**
  * A region is a platform- (and therefore data type-) bound portion of a

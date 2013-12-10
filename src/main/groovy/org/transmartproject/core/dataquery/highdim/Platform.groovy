@@ -48,12 +48,12 @@ public interface Platform {
 
     /**
      * Indicates the type of platform or pseudo-platform,
-     * like {@link org.transmartproject.core.dataquery.highdim.PlatformMarkerType#GENE_EXPRESSION} or
-     * {@link org.transmartproject.core.dataquery.highdim.PlatformMarkerType#CHROMOSOMAL_REGION}.
+     * like 'Chromosomal Region' or 'Gene Expression'. Each platform
+     * is associated with a specific type of high dimensional data.
      *
      * @return the platform marker type
      */
-    PlatformMarkerType getMarkerType()
+    String getMarkerType()
 
     /**
      * Returns an iterable with the platform template entries. The type of
