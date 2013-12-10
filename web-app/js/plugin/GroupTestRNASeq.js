@@ -1,8 +1,3 @@
-/**
- * User: riza
- * Date: 23-04-13
- * Time: 11:28
- */
 
 /**
  * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
@@ -161,6 +156,48 @@ var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
                 renderTo: 'plotResultWrapper'
             });
         }
+    }
+});
+
+var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+
+    jobName : '',
+
+    constructor: function(config) {
+        RNASeqGroupTestResultGrid.superclass.constructor.apply(this, arguments);
+        this.init();
+    },
+
+    init: function () {
+
+    },
+
+    /**
+     * Get selected rows from the grid
+     * @returns {*}
+     */
+    getSelectedRows: function () {
+        return this.getSelectionModel().getSelections();
+    },
+
+    downloadIntermediateResult: function (jobName) {
+
+        // clean up
+        try {
+            Ext.destroy(Ext.get('downloadIframe'));
+        }
+        catch(e) {}
+
+        // get the file
+        Ext.DomHelper.append(document.body, {
+            tag: 'iframe',
+            id:'downloadIframe',
+            frameBorder: 0,
+            width: 0,
+            height: 0,
+            css: 'display:none;visibility:hidden;height:0px;',
+            src: pageInfo.basePath+"/RNASeqgroupTest/zipFile?jobName=" + jobName
+        });
     }
 });
 
@@ -399,7 +436,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                 Ext.destroy(Ext.get('intermediateGridPanel'));
 
                 // create new grid and render it
-                view.intermediateResultGrid  = new IntermediateResultGrid({
+                view.intermediateResultGrid  = new RNASeqGroupTestResultGrid({
                     id: 'intermediateGridPanel',
                     title: 'Intermediate Result - Job Name: ' + jobName ,
                     renderTo: 'intermediateResultWrapper',
