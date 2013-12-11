@@ -6,6 +6,7 @@ import org.hibernate.engine.SessionImplementor
 import org.hibernate.impl.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -151,5 +152,12 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     final protected Map createAssayIndexMap(List assays) {
         int i = 0
         assays.collectEntries { [ it, i++ ] }
+    }
+
+    abstract protected String getPlatformMarkerType()
+
+    @Override
+    boolean matchesPlatform(Platform platform) {
+        platform.markerType == platformMarkerType
     }
 }

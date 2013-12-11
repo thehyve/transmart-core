@@ -26,6 +26,8 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mirna'
 
+    final String platformMarkerType = 'QPCR MIRNA'
+
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
 

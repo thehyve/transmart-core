@@ -21,6 +21,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'rbm'
 
+    final String platformMarkerType = 'RBM'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 

@@ -21,6 +21,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'protein'
 
+    final String platformMarkerType = 'PROTEOMICS'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 

@@ -27,6 +27,8 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'rnaseq_cog'
 
+    final String platformMarkerType = 'RNASEQ'
+
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
 
