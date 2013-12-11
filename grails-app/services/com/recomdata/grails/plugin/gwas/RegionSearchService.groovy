@@ -326,17 +326,17 @@ class RegionSearchService {
                         regionList.append("(info.pos >= ${range.low} AND info.pos <= ${range.high} AND info.chrom = '${range.chromosome}' ")
                     }
 
-                    //if(hg19only== false) {
-            regionList.append("  AND info.hg_version = '${range.ver}' ")
-                    //}
+                    if(hg19only== false) {
+                        regionList.append("  AND info.hg_version = '${range.ver}' ")
+                    }
                     regionList.append(")");
                 }
                 //Gene
                 else {
                     regionList.append("(info.pos >= ${range.low} AND info.pos <= ${range.high} ")
-                    //if(hg19only== false) {
-                    regionList.append("  AND info.hg_version = '${range.ver}' ")
-                    //}
+                    if(hg19only== false) {
+                        regionList.append("  AND info.hg_version = '${range.ver}' ")
+                    }
                     regionList.append(")")
                 }
                 rangesDone++
