@@ -1,5 +1,6 @@
 package org.transmartproject.core.dataquery.highdim
 
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
@@ -30,13 +31,13 @@ public interface HighDimensionResource {
 
     /**
      * Retrieves sub-resources for all the data types for which the given
-     * patient set has data, along with the number of patients associated with
-     * each data type
+     * patient set has data, along with the assays for each sub-resource.
      *
      * @param queryResult the patient set. If you have a result instance id instead,
      * you will have to go through the {@link QueriesResource}.
-     * @return A (possibly empty) map where the entries are the data type resources and
-     * the values are the number of patients
+     * @return A (possibly empty) map between the sub-resources and a collection of
+     * assays (associated with the patients in the passed in patient set) for each
+     * that sub-resource has data.
      */
-    Map<HighDimensionDataTypeResource, Long> getSubResourcesForPatientSet(QueryResult queryResult)
+    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(QueryResult queryResult)
 }

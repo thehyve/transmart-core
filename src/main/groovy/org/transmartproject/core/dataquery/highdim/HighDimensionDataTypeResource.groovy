@@ -2,6 +2,7 @@ package org.transmartproject.core.dataquery.highdim
 
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -117,4 +118,14 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      */
     Projection createProjection(Map<String, Object> params, String name) throws UnsupportedByDataTypeException
 
+    /**
+     * Whether the platform passed in refers to data of the type implemented by
+     * this resource.
+     *
+     * Used to match assays (via their platforms) to data types.
+     *
+     * @param platform the platform to match
+     * @return true iif the the platform and this data type match
+     */
+    boolean matchesPlatform(Platform platform)
 }
