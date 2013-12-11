@@ -10,7 +10,6 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
@@ -154,7 +153,7 @@ class AcghEndToEndRetrievalTests {
                 title:          'Another Test Region Platform',
                 organism:       'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
-                markerTypeId:   PlatformMarkerType.CHROMOSOMAL_REGION.id,
+                markerType:     'Chromosomal Region',
                 releaseNumber:  19,
         )
         anotherPlatform.id = 'test-another-platform'
