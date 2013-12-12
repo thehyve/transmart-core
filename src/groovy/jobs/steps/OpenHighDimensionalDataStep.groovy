@@ -6,9 +6,6 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import static jobs.AbstractAnalysisJob.RESULT_INSTANCE_IDS
-import static jobs.AbstractAnalysisJob.SUBSET1
-import static jobs.AbstractAnalysisJob.SUBSET2
 import static jobs.AbstractAnalysisJob.PARAM_ANALYSIS_CONSTRAINTS
 
 class OpenHighDimensionalDataStep implements Step {
@@ -24,24 +21,31 @@ class OpenHighDimensionalDataStep implements Step {
 
     @Override
     void execute() {
-        TabularResult subset1,
-                      subset2
         try {
-            subset1 = fetchSubset(RESULT_INSTANCE_IDS[SUBSET1])
-            subset2 = fetchSubset(RESULT_INSTANCE_IDS[SUBSET2])
-        } catch (Throwable t) {
-            subset1?.close()
-            throw t
+            extractPatientSets().eachWithIndex { resultInstanceId, index ->
+                extractOntologyTerms().each { ontologyTerm ->
+                    String seriesLabel = ontologyTerm.split('\\\\')[-1]
+                    results["S" + index + "_" + seriesLabel] = fetchSubset(resultInstanceId, ontologyTerm)
+                }
+            }
+        } finally {
+            results.each { it.close() }
         }
-
-        results = [
-                (SUBSET1) : subset1,
-                (SUBSET2) : subset2,
-        ]
     }
 
-    private TabularResult fetchSubset(String subset) {
-        if (params[subset] == null) {
+    private List<String> extractOntologyTerms() {
+        params.analysisConstraints.assayConstraints.remove('ontology_term').split('\\|').collect {
+            println(it)
+            createConceptKeyFrom(it)
+        }
+    }
+
+    private List<Integer> extractPatientSets() {
+        params.analysisConstraints.assayConstraints.remove("patient_set")
+    }
+
+    private TabularResult fetchSubset(Integer patientSetId, String ontologyTerm) {
+        if (patientSetId == null) {
             return
         }
 
@@ -61,13 +65,33 @@ class OpenHighDimensionalDataStep implements Step {
 
         assayConstraints.add(
                 dataTypeResource.createAssayConstraint(
-                        //TODO: use the analysisConstraints
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: params[subset]))
+                        result_instance_id: patientSetId))
+
+        assayConstraints.add(
+                dataTypeResource.createAssayConstraint(
+                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                        concept_key: ontologyTerm))
 
         Projection projection = dataTypeResource.createProjection([:],
                 params[PARAM_ANALYSIS_CONSTRAINTS]['projections'][0])
 
         dataTypeResource.retrieveData(assayConstraints, dataConstraints, projection)
+    }
+
+    /**
+     * This method takes a conceptPath provided by the frontend and turns it into a String representation of
+     * a concept key which the AssayConstraint can use. Such a string is pulled apart later in a
+     * table_access.c_table_cd part and a concept_dimension.concept_path part.
+     * The operation duplicates the first element of the conceptPath and prefixes it to the original with a double
+     * backslash.
+     * @param conceptPath
+     * @return String conceptKey
+     */
+    private static String createConceptKeyFrom(String conceptPath) {
+        // This crazy dance with slashes is "expected behaviour"
+        // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
+        def bs = '\\\\'
+        "\\\\" + (conceptPath =~ /$bs([\w ]+)$bs/)[0][-1] + conceptPath
     }
 }

@@ -121,9 +121,6 @@ class RModulesController {
         params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"] =
             lookup[params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"]]
 
-        //XXX: what is this doing here? Why is the client sending this in the first place?
-        params[PARAM_ANALYSIS_CONSTRAINTS]["assayConstraints"].remove("patient_set")
-
         params.analysisConstraints = massageConstraints params[PARAM_ANALYSIS_CONSTRAINTS]
 
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
@@ -133,7 +130,6 @@ class RModulesController {
     }
 
     private Map massageConstraints(Map analysisConstraints) {
-        //XXX: client should send this correctly in the first place
         analysisConstraints["dataConstraints"].each { constraintType, value ->
             if (constraintType == 'search_keyword_ids') {
                 analysisConstraints["dataConstraints"][constraintType] = [ keyword_ids: value ]
@@ -141,12 +137,6 @@ class RModulesController {
 
             if (constraintType == 'mirnas') {
                 analysisConstraints["dataConstraints"][constraintType] = [ names: value ]
-            }
-        }
-
-        analysisConstraints["assayConstraints"].each { constraintType, value ->
-            if (constraintType == 'ontology_term') {
-                analysisConstraints["assayConstraints"][constraintType] = [ concept_key: createConceptKeyFrom(value) ]
             }
         }
 
@@ -181,22 +171,6 @@ class RModulesController {
         }
 
         constraints
-    }
-
-    /**
-     * This method takes a conceptPath provided by the frontend and turns it into a String representation of
-     * a concept key which the AssayConstraint can use. Such a string is pulled apart later in a
-     * table_access.c_table_cd part and a concept_dimension.concept_path part.
-     * The operation duplicates the first element of the conceptPath and prefixes it to the original with a double
-     * backslash.
-     * @param conceptPath
-     * @return String conceptKey
-     */
-    private static String createConceptKeyFrom(String conceptPath) {
-        // This crazy dance with slashes is "expected behaviour"
-        // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
-        def bs = '\\\\'
-        "\\\\" + (conceptPath =~ /$bs([\w ]+)$bs/)[0][-1] + conceptPath
     }
 
     private static def getQuartzScheduler() {

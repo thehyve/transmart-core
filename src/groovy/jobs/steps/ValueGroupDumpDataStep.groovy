@@ -14,7 +14,7 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
                             AssayColumn column,
                             Object cell) {
         [
-                "${SHORT_NAME[subsetName]}_${column.patientInTrialId}",
+                "${subsetName}_${column.patientInTrialId}",
                 row[column],
                 row.label
         ]
