@@ -17,7 +17,7 @@ class OpenHighDimensionalDataStep implements Step {
     HighDimensionDataTypeResource dataTypeResource
 
     /* out */
-    Map<String, TabularResult> results
+    Map<String, TabularResult> results = [:]
 
     @Override
     void execute() {
