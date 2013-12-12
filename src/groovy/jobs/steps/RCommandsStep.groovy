@@ -63,14 +63,6 @@ class RCommandsStep implements Step {
         }
     }
 
-    private static void escapeUserStrings(Map vars) {
-        vars.each { k, v ->
-            if (v.getClass() == String) {
-                vars[k] = RUtil.escapeRStringContent(v)
-            }
-        }
-    }
-
     static private void handleRError(REXP rObject, RConnection rConnection) throws RserveException {
         throw new RserveException(rConnection,
                 'There was an error running the R script for your job. ' +
