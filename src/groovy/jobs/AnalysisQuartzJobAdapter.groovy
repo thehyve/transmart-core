@@ -21,7 +21,14 @@ class AnalysisQuartzJobAdapter implements Job {
     void execute(JobExecutionContext context) throws JobExecutionException {
         this.jobDataMap = context.jobDetail.jobDataMap
 
-        AbstractAnalysisJob job = createAnalysisJob()
+        AbstractAnalysisJob job
+        try {
+            job = createAnalysisJob()
+        } catch (Exception e) {
+            job.log.error 'Exception while creating the analysis job', e
+            jobResultsService[job.name]['Exception'] = e.message
+            job.updateStatus 'Error'
+        }
         try {
             job.run()
         } catch (Exception e) {
