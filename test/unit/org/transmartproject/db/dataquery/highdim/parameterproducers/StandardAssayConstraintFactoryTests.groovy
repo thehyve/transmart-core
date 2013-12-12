@@ -6,12 +6,14 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
@@ -168,12 +170,12 @@ class StandardAssayConstraintFactoryTests {
             assertThat shouldFail(InvalidArgumentsException) {
                 //few arguments
                 testee.createTrialNameConstraint [:]
-            }, containsString('exactly one parameter')
+            }, containsString('Missing required parameter "name"')
 
             assertThat shouldFail(InvalidArgumentsException) {
                 //bad argument name
                 testee.createTrialNameConstraint bad_name: 'foobar'
-            }, containsString('is not in map')
+            }, containsString('got the following parameters instead: [bad_name]')
 
             assertThat shouldFail(InvalidArgumentsException) {
                 //bad type
@@ -181,5 +183,22 @@ class StandardAssayConstraintFactoryTests {
             }, containsString('to be of type')
 
         }
+    }
+
+    @Test
+    void testCreateAssayIdListConstraint() {
+        AssayConstraint constraint = testee.createAssayIdListConstraint(ids: [0, '001'])
+        assertThat constraint, allOf(
+                isA(AssayIdListConstraint),
+                hasProperty('ids', contains(
+                        is(0L), is(1L)))
+        )
+    }
+
+    @Test
+    void testCreateAssayIsListConstraintEmptyList() {
+        assertThat shouldFail(InvalidArgumentsException) {
+            testee.createAssayIdListConstraint(ids: [])
+        }, containsString('empty list')
     }
 }

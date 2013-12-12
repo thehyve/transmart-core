@@ -184,7 +184,8 @@ class RbmDataRetrievalTests {
         assertThat rbmResource.supportedAssayConstraints, containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
-                AssayConstraint.TRIAL_NAME_CONSTRAINT)
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         assertThat rbmResource.supportedDataConstraints, hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 DataConstraint.DISJUNCTION_CONSTRAINT,

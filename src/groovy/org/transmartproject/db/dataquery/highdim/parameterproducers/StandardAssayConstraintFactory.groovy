@@ -9,9 +9,15 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processLongList
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.validateParameterNames
 
 /**
  * Created by glopes on 11/18/13.
@@ -64,13 +70,19 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
 
     @ProducerFor(AssayConstraint.TRIAL_NAME_CONSTRAINT)
     AssayConstraint createTrialNameConstraint(Map<String, Object> params) {
-        if (params.size() != 1) {
-            throw new InvalidArgumentsException("Expected exactly one parameter (name), got $params")
-        }
 
+        validateParameterNames(['name'], params)
         def name = getParam params, 'name', String
 
         new DefaultTrialNameConstraint(trialName: name)
+    }
+
+    @ProducerFor(AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+    AssayConstraint createAssayIdListConstraint(Map<String, Object> params) {
+        validateParameterNames(['ids'], params)
+        def ids = processLongList 'ids', params.ids
+
+        new AssayIdListConstraint(ids: ids)
     }
 
 }

@@ -8,6 +8,9 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.NoopDataConstraint
 
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.validateParameterNames
+
 @Component
 class StandardDataConstraintFactory extends AbstractMethodBasedParameterFactory {
 
@@ -18,6 +21,7 @@ class StandardDataConstraintFactory extends AbstractMethodBasedParameterFactory 
     @ProducerFor(DataConstraint.DISJUNCTION_CONSTRAINT)
     DataConstraint createDisjunctionConstraint(Map<String, Object> params,
                                                       Object createConstraint) {
+        validateParameterNames([SUBCONSTRAINTS_PARAM], params)
         Map<String, Object> subConstraintsSpecs =
             getParam params, SUBCONSTRAINTS_PARAM, Map
 
@@ -28,7 +32,7 @@ class StandardDataConstraintFactory extends AbstractMethodBasedParameterFactory 
                     "disjunction constraint will be a no-op"
             constraints << new NoopDataConstraint()
         } else {
-            def subConstraints = subConstraintsSpecs.collect {
+            subConstraintsSpecs.each {
                 String key, Object value ->
 
                 checkValue value

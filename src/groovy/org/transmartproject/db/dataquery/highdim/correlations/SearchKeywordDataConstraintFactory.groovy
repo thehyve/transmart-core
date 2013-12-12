@@ -9,6 +9,9 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processLongList
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processStringList
+
 class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactory {
 
     CorrelationTypesRegistry correlationTypesRegistry
@@ -133,54 +136,6 @@ class SearchKeywordDataConstraintFactory implements DataRetrievalParameterFactor
                 entityAlias:        alias,
                 propertyToRestrict: property,
                 correlationTypes:   ImmutableSet.of(correlation))
-    }
-
-     private List processList(String paramName, Object obj, Closure closure) {
-        if (!(obj instanceof List)) {
-            throw new InvalidArgumentsException("Parameter '$paramName' " +
-                    "is not a List, got a ${obj.getClass()}")
-        }
-
-        if (obj.isEmpty()) {
-            throw new InvalidArgumentsException('Value of parameter ' +
-                    "'$paramName' is an empty list; this is unacceptable")
-        }
-
-        obj.collect { closure.call it }
-    }
-
-    private List<String> processStringList(String paramName, Object obj) {
-        processList paramName, obj, {
-            if (it instanceof String) {
-                it
-            } else if (it instanceof Number) {
-                it.toString()
-            } else {
-                throw new InvalidArgumentsException("Parameter '$paramName' " +
-                        "is not a list of String; found in a list an object with " +
-                        "type ${it.getClass()}")
-            }
-        }
-    }
-
-    private List<Long> processLongList(String paramName, Object obj) {
-        processList paramName, obj, {
-            if (it instanceof String) {
-                if (!it.isLong()) {
-                    throw new InvalidArgumentsException("Parameter '$paramName' " +
-                            "is not a list of longs; found in a list an object " +
-                            "with type ${it.getClass()}")
-                } else {
-                    it as Long
-                }
-            } else if (it instanceof Number) {
-                ((Number) it).longValue()
-            } else {
-                throw new InvalidArgumentsException("Parameter '$paramName' " +
-                        "is not a list of longs; found in a list an object " +
-                        "with type ${it.getClass()}")
-            }
-        }
     }
 
 }
