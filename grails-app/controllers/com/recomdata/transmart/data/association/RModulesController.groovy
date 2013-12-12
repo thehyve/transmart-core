@@ -38,6 +38,7 @@ class RModulesController {
     final static Map<String, String> lookup = [
             "Gene Expression": "mrna",
             "QPCR MIRNA": "mirna",
+            "SEQ MIRNA": "mirna",
             "RBM": "rbm",
             "PROTEOMICS": "protein",
     ]
