@@ -182,7 +182,49 @@ var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
     }
 });
 
-/**
+var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+
+    jobName : '',
+
+    constructor: function(config) {
+        GroupTestResultGrid.superclass.constructor.apply(this, arguments);
+        this.init();
+    },
+
+    init: function () {
+
+    },
+
+    /**
+     * Get selected rows from the grid
+     * @returns {*}
+     */
+    getSelectedRows: function () {
+        return this.getSelectionModel().getSelections();
+    },
+
+    downloadIntermediateResult: function (jobName) {
+
+        // clean up
+        try {
+            Ext.destroy(Ext.get('downloadIframe'));
+        }
+        catch(e) {}
+
+        // get the file
+        Ext.DomHelper.append(document.body, {
+            tag: 'iframe',
+            id:'downloadIframe',
+            frameBorder: 0,
+            width: 0,
+            height: 0,
+            css: 'display:none;visibility:hidden;height:0px;',
+            src: pageInfo.basePath+"/aCGHgroupTest/zipFile?jobName=" + jobName
+        });
+    }
+});
+
+    /**
  * This class represents the whole Group Test view
  * @type {*|Object}
  */
@@ -437,7 +479,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 Ext.destroy(Ext.get('intermediateGridPanel'));
 
                 // create new grid and render it
-                view.intermediateResultGrid  = new IntermediateResultGrid({
+                view.intermediateResultGrid  = new GroupTestResultGrid({
                     id: 'intermediateGridPanel',
                     title: 'Intermediate Result - Job Name: ' + jobName ,
                     renderTo: 'intermediateResultWrapper',

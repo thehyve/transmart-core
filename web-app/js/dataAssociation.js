@@ -157,7 +157,9 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
 
 	// update analysis element
 	Ext.get('analysis').dom.value = itemId;
-	Ext.fly('selectedAnalysis').update(module.text, false).removeClass('warning').addClass('selected');
+    if (module) {
+        Ext.fly('selectedAnalysis').update(module.text, false).removeClass('warning').addClass('selected');
+    }
 }
 
 function onItemClick(item) {
