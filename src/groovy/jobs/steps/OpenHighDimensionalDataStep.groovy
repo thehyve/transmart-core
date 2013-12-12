@@ -22,20 +22,21 @@ class OpenHighDimensionalDataStep implements Step {
     @Override
     void execute() {
         try {
+            List<String> ontologyTerms = extractOntologyTerms()
             extractPatientSets().eachWithIndex { resultInstanceId, index ->
-                extractOntologyTerms().each { ontologyTerm ->
+                ontologyTerms.each { ontologyTerm ->
                     String seriesLabel = ontologyTerm.split('\\\\')[-1]
-                    results["S" + index + "_" + seriesLabel] = fetchSubset(resultInstanceId, ontologyTerm)
+                    results["S" + (index + 1) + "_" + seriesLabel] = fetchSubset(resultInstanceId, ontologyTerm)
                 }
             }
-        } finally {
-            results.each { it.close() }
+        } catch(Throwable t) {
+            results.values().each { it.close() }
+            throw t
         }
     }
 
     private List<String> extractOntologyTerms() {
         params.analysisConstraints.assayConstraints.remove('ontology_term').split('\\|').collect {
-            println(it)
             createConceptKeyFrom(it)
         }
     }
