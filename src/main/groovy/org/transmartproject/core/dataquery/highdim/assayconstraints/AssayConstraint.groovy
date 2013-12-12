@@ -1,5 +1,8 @@
 package org.transmartproject.core.dataquery.highdim.assayconstraints
 
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.querytool.QueryResult
+
 /**
  * Marker interface for limiting the assays returned in the the result of a
  * high dimensional data query.
@@ -27,9 +30,17 @@ public interface AssayConstraint {
      * limits the assays to the terms associated with the given node.
      *
      * NOTE: child nodes are NOT included. The parameter should be a leaf term
-     *        that is directly associated with the assays.
+     *       that is directly associated with the assays.
      *
      * Parameters: 'concept_key' => <full concept path, table code included>
      */
     public final static String ONTOLOGY_TERM_CONSTRAINT = 'ontology_term'
+
+    /**
+     * Well-known assay constraint for filtering the assays by id. Useful to
+     * pair with {@link HighDimensionResource#getSubResourcesAssayMultiMap(QueryResult)}.
+     *
+     * Parameters: 'ids' => <list of numeric ids>
+     */
+    public final static String ASSAY_ID_LIST_CONSTRAINT = 'assay_id_list'
 }
