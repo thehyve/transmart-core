@@ -41,13 +41,10 @@ class OpenHighDimensionalDataStep implements Step {
     }
 
     private List<Integer> extractPatientSets() {
-        params.analysisConstraints.assayConstraints.remove("patient_set")
+        params.analysisConstraints.assayConstraints.remove("patient_set").grep()
     }
 
     private TabularResult fetchSubset(Integer patientSetId, String ontologyTerm) {
-        if (patientSetId == null) {
-            return
-        }
 
         List<DataConstraint> dataConstraints = params[PARAM_ANALYSIS_CONSTRAINTS]['dataConstraints'].
                 collect { String constraintType, values ->
