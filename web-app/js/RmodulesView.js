@@ -46,6 +46,11 @@ RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
 
 RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
     var _div_name = "divIndependentVariable";
+    var _data_constraints = {};
+
+    if (window[_div_name + 'pathway']) {
+        _data_constraints['mirnas'] = [window[_div_name + 'pathway']];
+    }
 
     return {
         "job_type" : jobType,
@@ -55,10 +60,7 @@ RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
             "ontology_term": readConceptVariables("divIndependentVariable"),
             "trial_name": null
         },
-        "dataConstraints": {
-            "mirnas": [window[_div_name + 'pathwayName']],
-            "disjunctions": null
-        },
+        "dataConstraints": _data_constraints,
         projections: ["zscore"]
     }
 }
