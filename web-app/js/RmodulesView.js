@@ -22,23 +22,25 @@ RmodulesView.prototype.register_drag_drop = function () {
     dtgI.notifyDrop =  dropOntoCategorySelection;
 }
 
-
 RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
     var _div_name = "divIndependentVariable";
+    var _data_constraints = {};
+
+    if (window[_div_name + 'pathway']) {
+        _data_constraints['search_keyword_ids'] = [window[_div_name + 'pathway']];
+    }
+    _data_constraints['disjunctions'] = null;
 
     return {
         "job_type" : jobType,
         "data_type": window[_div_name + 'markerType'],
         "assayConstraints": {
-        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
             "ontology_term": readConceptVariables("divIndependentVariable"),
             "trial_name": null
-    },
-        "dataConstraints": {
-        "search_keyword_ids": [window[_div_name + 'pathway']],
-            "disjunctions": null
-    },
-        projections: ["zscore"]
+        },
+        "dataConstraints": _data_constraints,
+        "projections": ["zscore"]
     }
 }
 
@@ -121,7 +123,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var data_type = window[_div_name + 'markerType'];
     switch (data_type) {
         case 'Gene Expression':
-        return this.get_parameters_for_mrna(jobType);
+            _retVal =  this.get_parameters_for_mrna(jobType);
             break;
         case 'QPCR MIRNA':
             _retVal = this.get_parameters_for_mirna(jobType);
