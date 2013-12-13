@@ -16,7 +16,7 @@ class BioMarkerDumpDataStep extends AbstractDumpHighDimensionalDataStep {
         assert row instanceof BioMarkerDataRow
 
         [
-                "${jobs.AbstractAnalysisJob.SHORT_NAME[subsetName]}_${column.patientInTrialId}",
+                "${subsetName}_${column.patientInTrialId}",
                 row[column],
                 row.label,
                 row.bioMarker,

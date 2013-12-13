@@ -21,7 +21,14 @@ class AnalysisQuartzJobAdapter implements Job {
     void execute(JobExecutionContext context) throws JobExecutionException {
         this.jobDataMap = context.jobDetail.jobDataMap
 
-        AbstractAnalysisJob job = createAnalysisJob()
+        AbstractAnalysisJob job
+        try {
+            job = createAnalysisJob()
+        } catch (Exception e) {
+            job.log.error 'Exception while creating the analysis job', e
+            jobResultsService[job.name]['Exception'] = e.message
+            job.updateStatus 'Error'
+        }
         try {
             job.run()
         } catch (Exception e) {
@@ -34,23 +41,23 @@ class AnalysisQuartzJobAdapter implements Job {
     AbstractAnalysisJob createAnalysisJob() {
         Class jobClass = jobDataMap.jobClass
 
-        AbstractAnalysisJob result = jobClass.newInstance()
+        AbstractAnalysisJob job = jobClass.newInstance()
 
         /* wire things up; we could actually use some prototype bean here */
-        result.dataTypeResource  = highDimensionResource.getSubResourceForType(
+        job.dataTypeResource  = highDimensionResource.getSubResourceForType(
                 jobDataMap[PARAM_ANALYSIS_CONSTRAINTS]['data_type'])
 
-        result.updateStatus = { String status, String viewerUrl = null ->
-            result.log.info "updateStatus called for status:$status, viewerUrl:$viewerUrl"
-            asyncJobService.updateStatus result.name, status, viewerUrl
+        job.updateStatus = { String status, String viewerUrl = null ->
+            job.log.info "updateStatus called for status:$status, viewerUrl:$viewerUrl"
+            asyncJobService.updateStatus job.name, status, viewerUrl
         }
 
-        result.topTemporaryDirectory = new File(Holders.config.RModules.tempFolderDirectory)
-        result.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)
+        job.topTemporaryDirectory = new File(Holders.config.RModules.tempFolderDirectory)
+        job.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)
 
-        result.name = jobDataMap[PARAM_JOB_NAME]
+        job.name = jobDataMap[PARAM_JOB_NAME]
 
-        result.studyName = i2b2ExportHelperService.
+        job.studyName = i2b2ExportHelperService.
                 findStudyAccessions jobDataMap.result_instance_id1
 
         Map userParams = new HashMap(jobDataMap)
@@ -60,9 +67,9 @@ class AnalysisQuartzJobAdapter implements Job {
         userParams.remove PARAM_JOB_NAME /* save in RESULT.name */
 
 
-        result.params = userParams
+        job.params = userParams
 
-        result
+        job
     }
 
     def getAsyncJobService() {

@@ -112,8 +112,7 @@ maxDrawNumber = 50
                             ColSideColors=colcolor,
 #                           col=cm.colors(800),
                        	    col=greenred(800),
-                            margins=c(5,5),
-                            labCol=NA,
+                            margins=c(15, 15),
                             )
 
 		# add a legend to heatmap.

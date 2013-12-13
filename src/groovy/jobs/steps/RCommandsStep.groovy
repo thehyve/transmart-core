@@ -63,32 +63,10 @@ class RCommandsStep implements Step {
         }
     }
 
-    private static void escapeUserStrings(Map vars) {
-        vars.each { k, v ->
-            if (v.getClass() == String) {
-                vars[k] = RUtil.escapeRStringContent(v)
-            }
-        }
-    }
-
     static private void handleRError(REXP rObject, RConnection rConnection) throws RserveException {
-        //Grab the error R gave us.
-        String rError = rObject.asString()
-
-        //This is the error we will eventually throw.
-        RserveException newError
-
-        //If it is a friendly error, use that, otherwise throw the default message.
-        if (rError ==~ /.*\|\|FRIENDLY\|\|.*/) {
-            rError = rError.replaceFirst(/.*\|\|FRIENDLY\|\|/, "")
-            newError = new RserveException(rConnection, rError)
-        } else {
-            newError = new RserveException(rConnection,
-                    'There was an error running the R script for your job. ' +
-                            'Please contact an administrator.')
-        }
-
-        throw newError
+        throw new RserveException(rConnection,
+                'There was an error running the R script for your job. ' +
+                        "Details: ${rObject.asString()}")
     }
 
     static private String processTemplates(String template, Map vars) {

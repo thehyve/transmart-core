@@ -3,8 +3,6 @@ package jobs.steps
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
-import static jobs.AbstractAnalysisJob.SHORT_NAME
-
 class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
 
     @Override
@@ -14,7 +12,7 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
                             AssayColumn column,
                             Object cell) {
         [
-                "${SHORT_NAME[subsetName]}_${column.patientInTrialId}",
+                "${subsetName}_${column.patientInTrialId}",
                 row[column],
                 row.label
         ]

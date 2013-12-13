@@ -1,7 +1,6 @@
 package jobs.steps
 
 import au.com.bytecode.opencsv.CSVWriter
-import jobs.AbstractAnalysisJob
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,7 +33,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
 
     abstract List<String> getCsvHeader()
 
-    private void withDefaultCsvWriter(Map<String, TabularResult> results, Closure constructFile) {
+    private void withDefaultCsvWriter(Closure constructFile) {
         File output = new File(temporaryDirectory, 'outputfile')
         output.createNewFile()
         output.withWriter { writer ->
@@ -49,40 +48,40 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     private void writeDefaultCsv(Map<String, TabularResult<AssayColumn, DataRow<AssayColumn, Object>>> results,
                                  List<String> header) {
 
-        def doSubset = { String subset,
-                         CSVWriter csvWriter ->
 
-            def tabularResult = results[subset]
-            if (!tabularResult) {
-                return
-            }
-
-            def assayList = tabularResult.indicesList
-
-            long i = 0
-            tabularResult.each { DataRow row ->
-                assayList.each { AssayColumn assay ->
-                    if (!row[assay]) {
-                        return
-                    }
-
-                    def csvRow = computeCsvRow(subset,
-                            row,
-                            i++,
-                            assay,
-                            row[assay])
-
-                    csvWriter.writeNext csvRow as String[]
-                }
-            }
-        }
-
-        withDefaultCsvWriter(results) { CSVWriter csvWriter ->
+        withDefaultCsvWriter { CSVWriter csvWriter ->
 
             csvWriter.writeNext header as String[]
 
-            [AbstractAnalysisJob.SUBSET1, AbstractAnalysisJob.SUBSET2].each { subset ->
-                doSubset subset, csvWriter
+            results.keySet().each { key ->
+                doSubset(key, csvWriter)
+            }
+        }
+    }
+
+    private void doSubset (String subsetKey, CSVWriter csvWriter) {
+
+        def tabularResult = results[subsetKey]
+        if (!tabularResult) {
+            return
+        }
+
+        def assayList = tabularResult.indicesList
+
+        long i = 0
+        tabularResult.each { DataRow row ->
+            assayList.each { AssayColumn assay ->
+                if (!row[assay]) {
+                    return
+                }
+
+                def csvRow = computeCsvRow(subsetKey,
+                        row,
+                        i++,
+                        assay,
+                        row[assay])
+
+                csvWriter.writeNext csvRow as String[]
             }
         }
     }
