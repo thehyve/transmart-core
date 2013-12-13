@@ -1,18 +1,24 @@
 package org.transmartproject.db.dataquery.highdim
 
 import com.google.common.collect.HashMultimap
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.Platform
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AbstractAssayConstraint
+import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 
 class HighDimensionResourceService implements HighDimensionResource {
 
     private static final int MAX_CACHED_DATA_TYPE_RESOURCES = 50
     private static final int MAX_CACHED_PLATFORM_MAPPINGS = 200
+
+    @Autowired
+    StandardAssayConstraintFactory assayConstraintFactory
 
     Map<String, Closure<HighDimensionDataTypeResource>> dataTypeRegistry = new HashMap()
 
@@ -31,15 +37,17 @@ class HighDimensionResourceService implements HighDimensionResource {
     }
 
     @Override
-    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(QueryResult queryResult) {
-        DefaultPatientSetConstraint constraint =
-            new DefaultPatientSetConstraint(queryResult: queryResult)
+    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(
+            List<AssayConstraint> assayConstraints) {
 
         List<DeSubjectSampleMapping> assays = DeSubjectSampleMapping.withCriteria {
             platform {
                 // fetch platforms
             }
-            constraint.addConstraintsToCriteria delegate
+
+            assayConstraints.each { AbstractAssayConstraint constraint ->
+                constraint.addConstraintsToCriteria owner.delegate
+            }
 
             isNotNull 'platform'
         } /* one row per assay */
@@ -56,6 +64,18 @@ class HighDimensionResourceService implements HighDimensionResource {
         }
 
         multiMap.asMap()
+    }
+
+    @Override
+    AssayConstraint createAssayConstraint(Map<String, Object> params, String name) {
+        def res = assayConstraintFactory.createFromParameters(name, params,
+                null /* not needed */)
+
+        if (!res) {
+            throw new InvalidArgumentsException(
+                    "Unsupported assay constraint: $name")
+        }
+        res
     }
 
     @Lazy Closure<String> cachingDataTypeResourceForPlatform = { Platform p ->
