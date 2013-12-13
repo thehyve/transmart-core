@@ -13,13 +13,13 @@ var HighDimensionalData = function () {
         }
 
         return {
-            "MRNA_AFFYMETRIX"   : {"platform" : "MRNA_AFFYMETRIX", "type" : "Gene Expression"},
-            "MIRNA_AFFYMETRIX"  : {"platform" : "MIRNA_AFFYMETRIX", "type" : "QPCR MIRNA"},
-            "MIRNA_SEQ"         : {"platform" : "MIRNA_SEQ", "type" : "SEQ MIRNA"},
-            "RBM"               : {"platform" : "RBM", "type" : "RBM"},
-            "PROTEIN"           : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
-            "SNP"               : {"platform" : "SNP", "type" : "SNP"},
-            "RNASEQ"            : {"platform" : "RNASEQ", "type" : "RNASEQ"}
+            "mrna"          : {"platform" : "MRNA_AFFYMETRIX", "type" : "Gene Expression"},
+            "mirna_qpcr"    : {"platform" : "MIRNA_QPCR", "type" : "MIRNA_QPCR"},
+            "mirna_seq"     : {"platform" : "MIRNA_SEQ", "type" : "MIRNA_SEQ"},
+            "rbm"               : {"platform" : "RBM", "type" : "RBM"},
+            "proteomics"        : {"platform" : "PROTEIN", "type" : "PROTEOMICS"},
+            "snp"               : {"platform" : "SNP", "type" : "SNP"},
+            "rnaseq"            : {"platform" : "RNA_AFFYMETRIX", "type" : "RNASEQ"}
         };
     }
 
