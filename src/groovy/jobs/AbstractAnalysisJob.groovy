@@ -12,12 +12,6 @@ abstract class AbstractAnalysisJob {
 
     static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
 
-    static final String SUBSET1 = 'subset1'
-    static final String SUBSET2 = 'subset2'
-    static final Map<String, String> SHORT_NAME = [(SUBSET1): 'S1', (SUBSET2): 'S2' ]
-    static final Map<String, String> RESULT_INSTANCE_IDS =
-        [ (SUBSET1): 'result_instance_id1', (SUBSET2): 'result_instance_id2' ]
-
     Logger log = Logger.getLogger(getClass())
 
     /* injected properties
