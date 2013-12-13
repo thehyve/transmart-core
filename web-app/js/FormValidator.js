@@ -38,7 +38,6 @@ var defaults = {
         valid_high_dimensional_type: 'The {0} field contains invalid high dimensional data type.',
         no_high_dimensional_type: 'Unknown high dimensional data. Please verify first the high dimensional data ' +
             'in field {0}.',
-        no_high_dimensional_pathway: 'Please define pathway/gene for selected high dimensional data.',
         min_two_nodes: 'The {0} must be more than one nodes.',
         min_two_subsets: 'Marker Selection requires two subsets of cohorts to be selected. Please use the Comparison ' +
             'Tab and select the cohorts'
@@ -233,9 +232,7 @@ FormValidator.prototype.valid_high_dimensional = function (el, label, validator)
             this.push_error(defaults.messages.valid_high_dimensional_node, [label]);
 
         } else { // if yes
-            retVal = retVal &&
-                this.valid_high_dimensional_type (validator, label) &&
-                this.valid_high_dimensional_pathway(validator, label);
+            retVal = retVal && this.valid_high_dimensional_type (validator, label)
         }
     }
     return retVal;
@@ -264,19 +261,6 @@ FormValidator.prototype.valid_high_dimensional_type = function (validator, label
             this.push_error(
                 defaults.messages.valid_high_dimensional_type, [label]);
         }
-    }
-
-    return retVal;
-}
-
-// validate selected high dimensional gene/pathway
-FormValidator.prototype.valid_high_dimensional_pathway = function (validator, label) {
-    var retVal = false;
-    // validate high dimensional pathway
-    if (!validator.high_dimensional_pathway) {
-        this.push_error(defaults.messages.no_high_dimensional_pathway, [label]);
-    } else {
-        retVal = true;
     }
 
     return retVal;
