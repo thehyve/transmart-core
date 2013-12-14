@@ -89,6 +89,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
+                allowMissingAssays:    true,
+                assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.annotationId == b.annotationId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
