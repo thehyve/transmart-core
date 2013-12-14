@@ -1,9 +1,9 @@
 package org.transmartproject.core.dataquery.highdim
 
 import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.querytool.QueriesResource
-import org.transmartproject.core.querytool.QueryResult
 
 /**
  * A resource that serves an entry point to obtain sub-resources allowing access
@@ -30,14 +30,29 @@ public interface HighDimensionResource {
     HighDimensionDataTypeResource getSubResourceForType(String dataTypeName) throws NoSuchResourceException
 
     /**
-     * Retrieves sub-resources for all the data types for which the given
-     * patient set has data, along with the assays for each sub-resource.
+     * Finds all the assays that match the given assay constraints and returns
+     * a map mapping the data type sub-resources to their respective assays,
+     * where these assays are those found in the first step.
      *
-     * @param queryResult the patient set. If you have a result instance id instead,
-     * you will have to go through the {@link QueriesResource}.
+     * @param assayConstraints the assay constraints
      * @return A (possibly empty) map between the sub-resources and a collection of
      * assays (associated with the patients in the passed in patient set) for each
      * that sub-resource has data.
      */
-    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(QueryResult queryResult)
+    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(
+            List<AssayConstraint> assayConstraints)
+
+    /**
+     * Creates an assay constraint for use in {@link #getSubResourceForType(String)}.
+     *
+     * The supported constraints are those listed as constants in
+     * {@link AssayConstraint}.
+     *
+     * @param params the constraint parameters
+     * @param name the name of the constraint
+     * @return the constraint
+     * @throws InvalidArgumentsException if the parameters are inappropriate for
+     * the constraint or the constraint name is invalid
+     */
+    AssayConstraint createAssayConstraint(Map<String, Object> params, String name)
 }

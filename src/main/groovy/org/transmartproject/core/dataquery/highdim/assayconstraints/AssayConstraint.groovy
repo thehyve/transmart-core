@@ -38,7 +38,7 @@ public interface AssayConstraint {
 
     /**
      * Well-known assay constraint for filtering the assays by id. Useful to
-     * pair with {@link HighDimensionResource#getSubResourcesAssayMultiMap(QueryResult)}.
+     * pair with {@link HighDimensionResource#getSubResourcesAssayMultiMap(List)}.
      *
      * Parameters: 'ids' => <list of numeric ids>
      */
