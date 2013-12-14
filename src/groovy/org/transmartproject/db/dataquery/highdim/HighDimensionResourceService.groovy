@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim
 
 import com.google.common.collect.HashMultimap
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -12,11 +13,26 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.dataquery.highdim.assayconstraints.AbstractAssayConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 
+@Component
 class HighDimensionResourceService implements HighDimensionResource {
 
     private static final int MAX_CACHED_DATA_TYPE_RESOURCES = 50
     private static final int MAX_CACHED_PLATFORM_MAPPINGS = 200
 
+    /*
+     * I couldn't get this field autowired with this class in
+     * grails-app/services (or manually wired though doWithSpring for that
+     * matter).
+     *
+     * When doing dependency injection for ConceptsResourceService, spring was
+     * using the injection metadata for HighDimensionResourceService.
+     * findAutowiringMetadata(String beanName, Class<?> clazz) is called with
+     * '(inner bean)', ConceptsResourceService as parameters, and then does a
+     * lookup on a cache whose key is preferably the bean name.
+     * Only if the bean name is empty does it use the class name, excpet the
+     * the bean name is '(inner bean)', which I'm guessing is used with other
+     * inner beans.
+     */
     @Autowired
     StandardAssayConstraintFactory assayConstraintFactory
 
@@ -98,7 +114,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     void registerHighDimensionDataTypeModule(String moduleName,
                                              Closure<HighDimensionDataTypeResource> factory) {
         this.dataTypeRegistry[moduleName] = factory
-        log.debug "Registered high dimensional data type module '$moduleName'"
+        HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
 
