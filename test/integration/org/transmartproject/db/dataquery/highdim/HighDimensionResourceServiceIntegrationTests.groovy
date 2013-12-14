@@ -6,14 +6,10 @@ import org.junit.Test
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients
@@ -27,12 +23,6 @@ class HighDimensionResourceServiceIntegrationTests {
         new HighDimensionResourceServiceTestData()
 
     def highDimensionResourceService
-
-    private AssayConstraint getAllPatientsPatientSetConstraint() {
-        highDimensionResourceService.createAssayConstraint(
-                result_instance_id: testData.allPatientsQueryResult.id,
-                AssayConstraint.PATIENT_SET_CONSTRAINT)
-    }
 
     @Before
     void setUp() {
@@ -51,7 +41,7 @@ class HighDimensionResourceServiceIntegrationTests {
     @Test
     void testGetSubResourcesAssayMultiMap() {
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap(testData.allPatientsQueryResult)
 
         assertThat res.size(), is(2)
         assertThat res, allOf(
@@ -85,7 +75,7 @@ class HighDimensionResourceServiceIntegrationTests {
         save(assays)
 
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap(testData.allPatientsQueryResult)
 
         assertThat res.values().inject([], { accum, cur -> accum + cur }), not(
                 anyOf(
@@ -104,7 +94,7 @@ class HighDimensionResourceServiceIntegrationTests {
         save(assays)
 
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap(testData.allPatientsQueryResult)
 
         assertThat res.values().inject([], { accum, cur -> accum + cur }), not(
                 anyOf(
@@ -115,47 +105,8 @@ class HighDimensionResourceServiceIntegrationTests {
                 ))
     }
 
-    @Test
-    void testWithMultipleConstraints() {
-        def trialNameConstraint = highDimensionResourceService.createAssayConstraint(
-                name: HighDimensionResourceServiceTestData.MRNA_TRIAL_NAME,
-                AssayConstraint.TRIAL_NAME_CONSTRAINT)
-
-        Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([
-                        allPatientsPatientSetConstraint,
-                        trialNameConstraint ])
-
-        assertThat res.size(), is(1)
-        assertThat res, hasEntry(
-                        hasProperty('dataTypeName', is('mrna')),
-                        containsInAnyOrder(
-                                testData.mrnaAssays.collect {
-                                    hasSameInterfaceProperties(Assay, it)
-                                }
-                        ))
-    }
-
-    @Test
-    void testBogusConstraint() {
-        shouldFail InvalidArgumentsException, {
-                highDimensionResourceService.createAssayConstraint([:],
-                        'bogus constraint name')
-        }
-    }
-
-    @Test
-    void testInvalidParametersConstraint() {
-        shouldFail InvalidArgumentsException, {
-            highDimensionResourceService.createAssayConstraint(
-                    foobar: [],
-                    AssayConstraint.PATIENT_SET_CONSTRAINT)
-        }
-    }
 
     class HighDimensionResourceServiceTestData {
-
-        static final String MRNA_TRIAL_NAME = 'MRNA_TRIAL_NAME'
 
         static final String TRIAL_NAME = 'HIGH_DIM_RESOURCE_TRIAL'
 
@@ -179,7 +130,7 @@ class HighDimensionResourceServiceIntegrationTests {
         List<PatientDimension> patientsFoobar = createTestPatients(3, -3000, TRIAL_NAME)
 
         List<DeSubjectSampleMapping> mrnaAssays =
-            HighDimTestData.createTestAssays(patientsBoth, -4000, platformMrna, MRNA_TRIAL_NAME)
+            HighDimTestData.createTestAssays(patientsBoth, -4000, platformMrna, TRIAL_NAME)
 
         List<DeSubjectSampleMapping> foobarAssays =
             HighDimTestData.createTestAssays(patientsBoth, -5000, platformFoobar, TRIAL_NAME) +
