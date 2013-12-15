@@ -22,124 +22,82 @@ RmodulesView.prototype.register_drag_drop = function () {
     dtgI.notifyDrop =  dropOntoCategorySelection;
 }
 
-RmodulesView.prototype.get_parameters_for_mrna = function (jobType) {
-    var _div_name = "divIndependentVariable";
-    var _data_constraints = {};
+RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
 
-    if (window[_div_name + 'pathway']) {
-        _data_constraints['search_keyword_ids'] = [window[_div_name + 'pathway']];
-    }
-    _data_constraints['disjunctions'] = null;
+    // TODO : to be filled in with values expected by analysis job in the backend
+    constraints['dataConstraints']['gene_signatures'] = null;
+    constraints['dataConstraints']['genes'] = null;
+    constraints['dataConstraints']['disjunction'] = null;
+    constraints['dataConstraints']['pathways'] = null;
+    constraints['dataConstraints']['proteins'] = null;
+    constraints['dataConstraints']['homologenes'] = null;
 
-    return {
-        "job_type" : jobType,
-        "data_type": window[_div_name + 'markerType'],
-        "assayConstraints": {
-            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "ontology_term": readConceptVariables("divIndependentVariable"),
-            "trial_name": null
-        },
-        "dataConstraints": _data_constraints,
-        "projections": ["zscore"]
-    }
+    return constraints;
 }
 
-RmodulesView.prototype.get_parameters_for_mirna = function (jobType) {
-    var _div_name = "divIndependentVariable";
-    var _data_constraints = {};
+RmodulesView.prototype.get_parameters_for_mirna = function (constraints) {
 
-    if (window[_div_name + 'pathway']) {
-        _data_constraints['mirnas'] = [window[_div_name + 'pathway']];
-    }
+    // TODO : to be filled in with values expected by analysis job in the backend
+    constraints['dataConstraints']['disjunction'] = null;
+    constraints['dataConstraints']['mirna'] = null;
 
-    return {
-        "job_type" : jobType,
-        "data_type": window[_div_name + 'markerType'],
-        "assayConstraints": {
-            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "ontology_term": readConceptVariables("divIndependentVariable"),
-            "trial_name": null
-        },
-        "dataConstraints": _data_constraints,
-        projections: ["zscore"]
-    }
+    return constraints;
 }
 
+RmodulesView.prototype.get_parameters_for_rbm = function (constraints) {
 
-RmodulesView.prototype.get_parameters_for_rbm = function (jobType) {
-    var _div_name = "divIndependentVariable";
+    // TODO : to be filled in with values expected by analysis job in the backend
+    constraints['dataConstraints']['genes'] = null;
+    constraints['dataConstraints']['disjunction'] = null;
+    constraints['dataConstraints']['proteins'] = null;
 
-    return {
-        "job_type" : jobType,
-        "data_type": window[_div_name + 'markerType'],
-        "assayConstraints": {
-            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "ontology_term": readConceptVariables("divIndependentVariable"),
-            "trial_name": null
-        },
-        "dataConstraints": {
-            "disjunctions": null
-        },
-        projections: ["zscore"]
-    }
-}
-
-RmodulesView.prototype.get_parameters_for_proteomics = function (jobType) {
-    var _div_name = "divIndependentVariable";
-
-    return {
-        "job_type" : jobType,
-        "data_type": window[_div_name + 'markerType'],
-        "assayConstraints": {
-            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "ontology_term": readConceptVariables("divIndependentVariable"),
-            "trial_name": null
-        },
-        "dataConstraints": {
-            "disjunctions": null
-        },
-        projections: ["zscore"]
-    }
-}
-
-RmodulesView.prototype.get_parameters_for_rnaseq = function (jobType) {
-    var _div_name = "divIndependentVariable";
-
-    return {
-        "job_type" : jobType,
-        "data_type": window[_div_name + 'markerType'],
-        "assayConstraints": {
-            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-            "ontology_term": readConceptVariables("divIndependentVariable"),
-            "trial_name": null
-        },
-        "dataConstraints": {
-            "disjunctions": null
-        },
-        projections: ["default_real_projection"]
-    }
+    return constraints;
 }
 
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
+
     var _div_name = "divIndependentVariable";
-    var data_type = window[_div_name + 'markerType'];
-    switch (data_type) {
-        case 'Gene Expression':
-            _retVal =  this.get_parameters_for_mrna(jobType);
-            break;
-        case 'QPCR MIRNA':
-            _retVal = this.get_parameters_for_mirna(jobType);
-            break;
-        case 'RBM':
-            _retVal = this.get_parameters_for_rbm(jobType);
-            break;
-        case 'PROTEOMICS':
-            _retVal = this.get_parameters_for_proteomics(jobType);
-            break;
-        case 'RNASEQ':
-            _retVal = this.get_parameters_for_rnaseq(jobType);
-            break;
+    var _data_type = window[_div_name + 'markerType'];
+    var _returnVal;
+
+    // construct constraints object
+    var _get_constraints_obj = function () {
+        return  {
+            "job_type" : jobType,
+            "data_type": window[_div_name + 'markerType'],
+            "assayConstraints": {
+                "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                "assay_id_list": null,
+                "ontology_term": readConceptVariables("divIndependentVariable"),
+                "trial_name": null
+            },
+            "dataConstraints": {
+                "disjunction": null
+            },
+            projections: ["default_real_projection","zscore"]
+        }
+    }
+    _returnVal =  _get_constraints_obj();
+
+    // do not create search_keyword_ids param if  pathway / gene is not selected
+    // when gene / pathway is not selected, analysis will take up all pathways/genes.
+    if (window[_div_name + 'pathway']) {
+        _returnVal['dataConstraints']['search_keyword_ids'] = [window[_div_name + 'pathway']];
     }
 
-    return _retVal;
+    var cases =  {
+        'Gene Expression':this.get_parameters_for_mrna,
+        'MIRNA_QPCR':this.get_parameters_for_mirna,
+        'MIRNA_SEQ':this.get_parameters_for_mirna,
+        'RBM':this.get_parameters_for_rbm,
+        'PROTEOMICS':this.get_parameters_for_rbm,
+        'RNASEQ':this.get_parameters_for_mrna
+    }
+
+    if (cases[_data_type]) {
+       _returnVal =  cases[_data_type](_returnVal);
+    }
+
+    return _returnVal;
+
 }
