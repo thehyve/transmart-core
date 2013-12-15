@@ -95,4 +95,28 @@ class AcghDataTypeResourceTests {
                 containsString('No regions found for'))
     }
 
+    @Test
+    void testAcghPlatformIsRecognized() {
+        def constraint = highDimensionResourceService.createAssayConstraint(
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                name: AcghTestData.TRIAL_NAME)
+
+        testData.saveAll()
+
+        def map = highDimensionResourceService.
+                getSubResourcesAssayMultiMap([constraint])
+
+        assertThat map, hasKey(
+                hasProperty('dataTypeName', equalTo('acgh')))
+
+        def entry = map.entrySet().find { it.key.dataTypeName == 'acgh' }
+
+        assertThat entry.value, allOf(
+                hasSize(greaterThan(0)),
+                everyItem(
+                        hasProperty('platform',
+                                hasProperty('markerType',
+                                        equalTo(AcghTestData.ACGH_PLATFORM_MARKER_TYPE)))))
+    }
+
 }

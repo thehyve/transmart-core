@@ -14,12 +14,14 @@ class AcghTestData {
 
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL'
 
+    static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
+
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
                 title: 'Test Region Platform',
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
-                markerType: 'Chromosomal Region',
+                markerType: ACGH_PLATFORM_MARKER_TYPE,
                 releaseNumber: 18,
         )
         p.id = 'test-region-platform'
