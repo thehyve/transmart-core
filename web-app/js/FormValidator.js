@@ -231,8 +231,6 @@ FormValidator.prototype.valid_high_dimensional = function (el, label, validator)
             retVal = retVal && isHD;
             this.push_error(defaults.messages.valid_high_dimensional_node, [label]);
 
-        } else { // if yes
-            retVal = retVal && this.valid_high_dimensional_type (validator, label)
         }
     }
     return retVal;
