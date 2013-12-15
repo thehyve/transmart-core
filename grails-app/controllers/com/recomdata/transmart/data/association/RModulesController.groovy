@@ -105,16 +105,6 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    def knownDataTypes() {
-        def resource = Holders.grailsApplication.mainContext.getBean HighDimensionResource
-        Map output = [:]
-        resource.knownTypes.each {
-            def subResource = resource.getSubResourceForType(it)
-            output[it] = ['assayConstraints':subResource.supportedAssayConstraints, 'dataConstraints':subResource.supportedDataConstraints,'projections':subResource.supportedProjections]
-        }
-        render output as JSON
-    }
-
     private void createJob(Map params, Class clazz) {
         params[PARAM_GRAILS_APPLICATION] = grailsApplication
         params[PARAM_JOB_CLASS] = clazz
