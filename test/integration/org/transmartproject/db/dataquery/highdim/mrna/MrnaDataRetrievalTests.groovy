@@ -1,6 +1,8 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
+import org.hibernate.ScrollableResults
+import org.hibernate.engine.SessionImplementor
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -41,6 +43,12 @@ class MrnaDataRetrievalTests {
 
     MrnaTestData testData = new MrnaTestData()
 
+    DefaultTrialNameConstraint trialNameConstraint =
+            new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+
+    SimpleRealProjection rawIntensityProjection =
+            new SimpleRealProjection(property: 'rawIntensity')
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -59,14 +67,12 @@ class MrnaDataRetrievalTests {
 
     @Test
     void basicTest() {
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+        trialNameConstraint = new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+        List assayConstraints = [trialNameConstraint]
         List dataConstraints = []
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         assertThat dataQueryResult, allOf(
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
@@ -139,19 +145,15 @@ class MrnaDataRetrievalTests {
 
     @Test
     void testWithGeneConstraint() {
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+        List assayConstraints = [trialNameConstraint]
         List dataConstraints = [
                 createGenesDataConstraint([
                         testData.searchKeywords.
                                 find({ it.keyword == 'BOGUSRQCD1' }).id
                 ])
         ]
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
-
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -164,9 +166,7 @@ class MrnaDataRetrievalTests {
 
     @Test
     void testWithDisjunctionConstraint() {
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+        List assayConstraints = [trialNameConstraint]
         /* in this particular case, you could just use one constraint
          * and include two ids in the list */
         List dataConstraints = [
@@ -180,10 +180,8 @@ class MrnaDataRetrievalTests {
                 ])
         ]
 
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
-
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -198,14 +196,10 @@ class MrnaDataRetrievalTests {
                 testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
 
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
-
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
+        List assayConstraints = [trialNameConstraint]
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, [], projection
+            resource.retrieveData assayConstraints, [], rawIntensityProjection
     }
 
     @Test
@@ -246,6 +240,49 @@ class MrnaDataRetrievalTests {
                         )
                 ))
         )
+    }
+
+    @Test
+    void testRepeatedDataPoint() {
+        def assayConstraints = [trialNameConstraint]
+
+        dataQueryResult =
+                resource.retrieveData assayConstraints, [], rawIntensityProjection
+
+        /* make the last element to be repeated */
+        DefaultHighDimensionTabularResult castResult = dataQueryResult
+        def origResults = castResult.results
+        castResult.results = new ScrollableResults() {
+            @Delegate
+            ScrollableResults inner = origResults
+
+            boolean stop = false
+            Object last
+
+            boolean next() {
+                if (inner.next()) {
+                    last = inner.get()
+                    true
+                } else if (!stop) {
+                    stop = true
+                    true
+                } else {
+                    false
+                }
+            }
+
+            Object[] get() {
+                last
+            }
+
+            SessionImplementor getSession() {
+                inner.session
+            }
+        }
+
+        assertThat shouldFail(UnexpectedResultException) {
+            Lists.newArrayList(dataQueryResult)
+        }, hasProperty('message', containsString('Got more assays than expected'))
     }
 
     @Test

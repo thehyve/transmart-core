@@ -62,6 +62,16 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
             return
         }
 
+        if (collectedEntries.size() > indicesList.size()) {
+            throw new UnexpectedResultException(
+                    "Got more assays than expected in a row group. This can " +
+                            "generally only happen if primary keys on the data " +
+                            "table are not being enforced and the same assay " +
+                            "appears twice for same row entity (such as " +
+                            "annotation or row). Collected assays for this " +
+                            "row: ${indicesList}")
+        }
+
         if (allowMissingAssays) {
             /* fill with nulls till we have the expected size */
             collectedEntries.addAll(Collections.nCopies(
@@ -102,11 +112,18 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
                 collectedEntries.add null
             }
             if (indicesList[i] == null) {
+                String rowAsString
+                try {
+                    rowAsString = row.toString()
+                } catch (Exception e) {
+                    rowAsString = "<Could not convert row to string, " +
+                            "error was ${e.message}>"
+                }
                 throw new IllegalStateException("Starting at position " +
                         "$startSize in the assays list, could not find an assay " +
                         "with id $currentAssayId. Possible causes: bad order by " +
                         "clause in module query or bad assayIdFromRow closure. " +
-                        "Row was: $row. Assay id list was ${indicesList*.id}")
+                        "Row was: $rowAsString. Assay id list was ${indicesList*.id}")
             }
         }
 
