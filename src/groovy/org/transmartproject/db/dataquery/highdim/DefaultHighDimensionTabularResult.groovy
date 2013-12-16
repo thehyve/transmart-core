@@ -121,8 +121,9 @@ class DefaultHighDimensionTabularResult<R extends DataRow>
                 }
                 throw new IllegalStateException("Starting at position " +
                         "$startSize in the assays list, could not find an assay " +
-                        "with id $currentAssayId. Possible causes: bad order by " +
-                        "clause in module query or bad assayIdFromRow closure. " +
+                        "with id $currentAssayId. Possible causes: repeated " +
+                        "assay for the same row, bad order by clause in module " +
+                        "query or bad assayIdFromRow closure. " +
                         "Row was: $rowAsString. Assay id list was ${indicesList*.id}")
             }
         }
