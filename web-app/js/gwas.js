@@ -136,9 +136,10 @@ function applyPopupFiltersRegions()
                 category:'REGION',
                 text:text};
 
-            addSearchTerm(searchParam);
+            addSearchTerm(searchParam, true);
         });
         //This destroys our popup window.
+        updateSearch();
         jQuery(this).dialog("destroy");
     }
     else if (jQuery('[name=\'regionFilter\'][value=\'chromosome\']:checked').size() > 0) {
