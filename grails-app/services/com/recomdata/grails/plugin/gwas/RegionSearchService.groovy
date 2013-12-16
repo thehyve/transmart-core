@@ -402,8 +402,14 @@ class RegionSearchService {
         }
 
         // handle null regionlist issue
+        // If no regions, default to hg19. If hg19only, we don't need to check this.
         if(regionList.length()==0){
-            regionList.append("1=1")
+            if (hg19only) {
+                regionList.append("1=1")
+            }
+            else {
+                regionList.append("info.hg_version = '19'")
+            }
         }
 
         analysisQuery = analysisQuery.replace("_regionlist_", regionList.toString())
