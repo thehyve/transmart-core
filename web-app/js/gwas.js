@@ -206,10 +206,18 @@ function applyPopupFiltersEqtlTranscriptGene()
             category:'TRANSCRIPTGENE',
             text:geneName};
 
-        addSearchTerm(searchParam);
+        addSearchTerm(searchParam, true);
+
     });
-    //This destroys our popup window.
+    var searchParamEQTL={id:'EQTL',
+        display:'Data Types',
+        keyword:'eQTL',
+        category:'DATA_TYPE'};
+
+    addSearchTerm(searchParamEQTL, true);
+
     jQuery(this).dialog("destroy");
+    updateSearch();
 }
 
 function getRangeSymbol(string) {
