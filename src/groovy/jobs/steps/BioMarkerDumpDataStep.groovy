@@ -8,6 +8,7 @@ class BioMarkerDumpDataStep extends AbstractDumpHighDimensionalDataStep {
 
     @Override
     protected computeCsvRow(String subsetName,
+                            String seriesName,
                             DataRow row,
                             Long rowNumber,
                             AssayColumn column,
@@ -16,7 +17,7 @@ class BioMarkerDumpDataStep extends AbstractDumpHighDimensionalDataStep {
         assert row instanceof BioMarkerDataRow
 
         [
-                "${subsetName}_${column.patientInTrialId}",
+                getRowKey(subsetName, seriesName, column.patientInTrialId),
                 row[column],
                 row.label,
                 row.bioMarker,

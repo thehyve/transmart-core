@@ -26,12 +26,17 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     }
 
     abstract protected computeCsvRow(String subsetName,
+                                     String seriesName,
                                      DataRow row,
                                      Long rowNumber,
                                      AssayColumn column,
                                      Object cell)
 
     abstract List<String> getCsvHeader()
+
+    protected String getRowKey(String subsetName, String seriesName, String patientId) {
+        return [subsetName, seriesName, patientId].join("_")
+    }
 
     private void withDefaultCsvWriter(Closure constructFile) {
         File output = new File(temporaryDirectory, 'outputfile')
@@ -59,12 +64,16 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
         }
     }
 
-    private void doSubset (String subsetKey, CSVWriter csvWriter) {
+    private void doSubset (String resultsKey, CSVWriter csvWriter) {
 
-        def tabularResult = results[subsetKey]
+        def tabularResult = results[resultsKey]
         if (!tabularResult) {
             return
         }
+
+        String[] split = resultsKey.split("_")
+        String subsetName = split[0]
+        String seriesName = split[1]
 
         def assayList = tabularResult.indicesList
 
@@ -75,11 +84,12 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
                     return
                 }
 
-                def csvRow = computeCsvRow(subsetKey,
-                        row,
-                        i++,
-                        assay,
-                        row[assay])
+                def csvRow = computeCsvRow(subsetName,
+                                           seriesName,
+                                           row,
+                                           i++,
+                                           assay,
+                                           row[assay])
 
                 csvWriter.writeNext csvRow as String[]
             }

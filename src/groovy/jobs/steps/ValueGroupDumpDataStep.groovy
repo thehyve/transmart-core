@@ -7,12 +7,13 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
 
     @Override
     protected computeCsvRow(String subsetName,
+                            String seriesName,
                             DataRow row,
                             Long rowNumber,
                             AssayColumn column,
                             Object cell) {
         [
-                "${subsetName}_${column.patientInTrialId}",
+                getRowKey(subsetName, seriesName, column.patientInTrialId),
                 row[column],
                 row.label
         ]
