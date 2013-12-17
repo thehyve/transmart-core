@@ -73,7 +73,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    false,
+                allowMissingAssays:    true,
                 assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.probeId == b.probeId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
