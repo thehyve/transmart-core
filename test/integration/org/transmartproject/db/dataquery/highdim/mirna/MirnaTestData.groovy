@@ -18,7 +18,7 @@ class MirnaTestData {
         def res = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
-                markerTypeId: 'QPCR MIRNA')
+                markerTypeId: 'MIRNA_SEQ')
         res.id = 'BOGUSGPL15466'
         res
     }()
