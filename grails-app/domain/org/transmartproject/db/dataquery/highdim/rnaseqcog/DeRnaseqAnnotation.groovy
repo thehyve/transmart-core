@@ -22,6 +22,7 @@ class DeRnaseqAnnotation implements Serializable {
     }
 
     static constraints = {
+        transcriptId maxSize: 50
         geneSymbol   nullable: true, maxSize: 50
         geneId       nullable: true, maxSize: 50
 
