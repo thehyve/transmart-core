@@ -4,7 +4,7 @@ import org.transmartproject.db.dataquery.highdim.DeGplInfo
 
 class DeRnaseqAnnotation implements Serializable {
 
-    String id
+    String transcriptId
     String geneSymbol
     String geneId /* the Entrez accession; "primary external id" */
 
@@ -15,7 +15,7 @@ class DeRnaseqAnnotation implements Serializable {
 
     static mapping = {
         table    schema: 'deapp'
-        id       column: 'transcript_id', generator: 'assigned'
+        id       name: 'transcriptId', generator: 'assigned'
 
         platform column: 'gpl_id'
         version  false
