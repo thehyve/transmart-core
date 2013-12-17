@@ -5,7 +5,6 @@ import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -206,7 +205,6 @@ class MrnaDataRetrievalTests {
     @Test
     void testWithMissingAssayLowestIdNumber() {
         testWithMissingDataAssay(-50000L)
-        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
 
         assertThat dataQueryResult.indicesList[0],
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
@@ -226,7 +224,6 @@ class MrnaDataRetrievalTests {
     @Test
     void testWithMissingAssayHighestIdNumber() {
         testWithMissingDataAssay(5000000L)
-        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
 
         assertThat dataQueryResult.indicesList[2],
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
@@ -244,57 +241,17 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
-    @Ignore
-    void testRepeatedDataPoint() {
-        def assayConstraints = [trialNameConstraint]
-
-        dataQueryResult =
-                resource.retrieveData assayConstraints, [], rawIntensityProjection
-
-        /* make the last element to be repeated */
-        DefaultHighDimensionTabularResult castResult = dataQueryResult
-        def origResults = castResult.results
-        castResult.results = new ScrollableResults() {
-            @Delegate
-            ScrollableResults inner = origResults
-
-            boolean stop = false
-            Object last
-
-            boolean next() {
-                if (inner.next()) {
-                    last = inner.get()
-                    true
-                } else if (!stop) {
-                    stop = true
-                    true
-                } else {
-                    false
-                }
-            }
-
-            Object[] get() {
-                last
-            }
-
-            SessionImplementor getSession() {
-                inner.session
-            }
-        }
-
-        assertThat shouldFail(UnexpectedResultException) {
-            Lists.newArrayList(dataQueryResult)
-        }, hasProperty('message', containsString('Got more assays than expected'))
-    }
-
-    @Test
-    @Ignore
-    void testWithMissingAssayDisallowMissingAssays() {
+    void testWithMissingAssayAllowMissingAssays() {
         testWithMissingDataAssay(-50000L)
-        // default is not allowing missing assays
-
-        assertThat shouldFail(UnexpectedResultException) {
-            dataQueryResult.rows.next
-        }, hasProperty('message', containsString('Assay ids not found: [-50001]'))
+        assertThat Lists.newArrayList(dataQueryResult.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(3), // for the three assays
+                        contains(
+                                is(nullValue()),
+                                is(notNullValue()),
+                                is(notNullValue()),
+                        )
+                ))
+        )
     }
 }
