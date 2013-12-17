@@ -15,14 +15,14 @@ class DeRnaseqAnnotation implements Serializable {
 
     static mapping = {
         table    schema: 'deapp'
-        id       column: 'probeset_id', generator: 'assigned'
+        id       name: 'transcriptId', generator: 'assigned'
 
         platform column: 'gpl_id'
         version  false
     }
 
     static constraints = {
-        transcriptId nullable: true, maxSize: 50
+        transcriptId maxSize: 50
         geneSymbol   nullable: true, maxSize: 50
         geneId       nullable: true, maxSize: 50
 

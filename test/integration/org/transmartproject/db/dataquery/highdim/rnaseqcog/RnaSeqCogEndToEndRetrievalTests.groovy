@@ -12,9 +12,12 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.mirna.MirnaTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
 class RnaSeqCogEndToEndRetrievalTests {
@@ -68,9 +71,9 @@ class RnaSeqCogEndToEndRetrievalTests {
         def rows = Lists.newArrayList result
 
         assertThat(rows, contains(
-                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA }),
+                contains(testData.data[-5..-6]*.zscore.collect { Double it -> closeTo it, DELTA }),
                 contains(testData.data[-3..-4]*.zscore.collect { Double it -> closeTo it, DELTA }),
-                contains(testData.data[-5..-6]*.zscore.collect { Double it -> closeTo it, DELTA })))
+                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA })))
     }
 
     @Test
@@ -79,9 +82,9 @@ class RnaSeqCogEndToEndRetrievalTests {
                 [], projection)
 
         assertThat Lists.newArrayList(result), contains(
-                testData.annotations.reverse().collect { DeRnaseqAnnotation annotation ->
+                testData.annotations.collect { DeRnaseqAnnotation annotation ->
                     allOf(
-                            hasProperty('label',     is(annotation.transcriptId)),
+                            hasProperty('label',     is(annotation.id)),
                             hasProperty('bioMarker', is(annotation.geneSymbol)))
                 }
         )
@@ -93,7 +96,7 @@ class RnaSeqCogEndToEndRetrievalTests {
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
         assertThat Lists.newArrayList(result), hasItem(allOf(
-                hasProperty('label', is(testData.data[-1].annotation.transcriptId)) /* VNN3 */,
+                hasProperty('label', is(testData.data[-1].annotation.id)) /* VNN3 */,
                 contains(testData.data[-1..-2]*.rawIntensity.collect { Double it -> closeTo it, DELTA })
         ))
     }
@@ -112,4 +115,28 @@ class RnaSeqCogEndToEndRetrievalTests {
                 hasProperty('bioMarker', is('BOGUSVNN3')))
     }
 
+    @Test
+    void testMissingAssaysAllowedSucceeds() {
+        testWithMissingDataAssay(-50000L)
+        assertThat Lists.newArrayList(result.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(2), // for the three assays
+                        contains(
+                                is(notNullValue()),
+                                is(notNullValue()),
+                        )
+                ))
+        )
+    }
+
+    private TabularResult testWithMissingDataAssay(Long baseAssayId) {
+        def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
+                testData.platform, MirnaTestData.TRIAL_NAME)
+        HighDimTestData.save extraAssays
+
+        List assayConstraints = [trialNameConstraint]
+
+        result =
+            rnaSeqCogResource.retrieveData assayConstraints, [], projection
+    }
 }

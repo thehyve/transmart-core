@@ -5,13 +5,13 @@ import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 class RnaSeqCogDataRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
-    String transcriptId
+    String annotationId
 
     String gene
 
     @Override
     String getLabel() {
-        transcriptId
+        annotationId
     }
 
     @Override

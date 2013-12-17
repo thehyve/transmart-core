@@ -33,7 +33,6 @@ class RnaSeqCogTestData {
     List<DeRnaseqAnnotation> annotations = {
         def createAnnotation = { id, BioMarkerCoreDb gene ->
             def res = new DeRnaseqAnnotation(
-                    transcriptId: "transcript_for_${gene.name}",
                     geneSymbol:   gene.name,
                     geneId:       gene.primaryExternalId,
                     platform:     platform
@@ -45,7 +44,7 @@ class RnaSeqCogTestData {
         long id = -500L
 
         biomarkerTestData.geneBioMarkers[0..2].collect {
-            createAnnotation(--id, it)
+            createAnnotation(--id as String, it)
         }
     }()
 
