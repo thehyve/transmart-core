@@ -41,6 +41,7 @@ class RModulesController {
             "MIRNA_SEQ": "mirna",
             "RBM": "rbm",
             "PROTEOMICS": "protein",
+            "RNASEQ": "rnaseq_cog"
     ]
 
     def springSecurityService
