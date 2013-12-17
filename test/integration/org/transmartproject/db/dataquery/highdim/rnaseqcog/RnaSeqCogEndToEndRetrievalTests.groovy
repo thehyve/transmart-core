@@ -68,9 +68,9 @@ class RnaSeqCogEndToEndRetrievalTests {
         def rows = Lists.newArrayList result
 
         assertThat(rows, contains(
-                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA }),
+                contains(testData.data[-5..-6]*.zscore.collect { Double it -> closeTo it, DELTA }),
                 contains(testData.data[-3..-4]*.zscore.collect { Double it -> closeTo it, DELTA }),
-                contains(testData.data[-5..-6]*.zscore.collect { Double it -> closeTo it, DELTA })))
+                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA })))
     }
 
     @Test
@@ -79,9 +79,9 @@ class RnaSeqCogEndToEndRetrievalTests {
                 [], projection)
 
         assertThat Lists.newArrayList(result), contains(
-                testData.annotations.reverse().collect { DeRnaseqAnnotation annotation ->
+                testData.annotations.collect { DeRnaseqAnnotation annotation ->
                     allOf(
-                            hasProperty('label',     is(annotation.transcriptId)),
+                            hasProperty('label',     is(annotation.id)),
                             hasProperty('bioMarker', is(annotation.geneSymbol)))
                 }
         )
@@ -93,7 +93,7 @@ class RnaSeqCogEndToEndRetrievalTests {
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
         assertThat Lists.newArrayList(result), hasItem(allOf(
-                hasProperty('label', is(testData.data[-1].annotation.transcriptId)) /* VNN3 */,
+                hasProperty('label', is(testData.data[-1].annotation.id)) /* VNN3 */,
                 contains(testData.data[-1..-2]*.rawIntensity.collect { Double it -> closeTo it, DELTA })
         ))
     }

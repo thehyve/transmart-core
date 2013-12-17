@@ -51,7 +51,6 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
                 property 'ann.id',           'annotationId'
                 property 'ann.geneSymbol',   'gene'
-                property 'ann.transcriptId', 'transcript'
             }
 
             order 'ann.id',   'asc'
@@ -73,12 +72,13 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
+                allowMissingAssays:    true,
                 assayIdFromRow:        { it[0].assayId },
                 inSameGroup:           { a, b -> a.annotationId == b.annotationId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
                     new RnaSeqCogDataRow(
-                            transcriptId:  firstNonNullCell[0].transcript,
+                            annotationId:  firstNonNullCell[0].annotationId,
                             gene:          firstNonNullCell[0].gene,
                             assayIndexMap: assayIndexMap,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
