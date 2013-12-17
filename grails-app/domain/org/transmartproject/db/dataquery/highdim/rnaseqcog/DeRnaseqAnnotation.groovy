@@ -11,6 +11,8 @@ class DeRnaseqAnnotation implements Serializable {
     // irrelevant
     //String organism
 
+    static transients = ['id']
+
     static belongsTo = [ platform: DeGplInfo ]
 
     static mapping = {
@@ -27,5 +29,13 @@ class DeRnaseqAnnotation implements Serializable {
         geneId       nullable: true, maxSize: 50
 
         //organism nullable: true, maxSize: 30
+    }
+
+    void setId(String id) {
+        transcriptId = id
+    }
+
+    String getId() {
+        transcriptId
     }
 }
