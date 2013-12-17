@@ -12,9 +12,12 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.mirna.MirnaTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
 class RnaSeqCogEndToEndRetrievalTests {
@@ -112,4 +115,28 @@ class RnaSeqCogEndToEndRetrievalTests {
                 hasProperty('bioMarker', is('BOGUSVNN3')))
     }
 
+    @Test
+    void testMissingAssaysAllowedSucceeds() {
+        testWithMissingDataAssay(-50000L)
+        assertThat Lists.newArrayList(result.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(2), // for the three assays
+                        contains(
+                                is(notNullValue()),
+                                is(notNullValue()),
+                        )
+                ))
+        )
+    }
+
+    private TabularResult testWithMissingDataAssay(Long baseAssayId) {
+        def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
+                testData.platform, MirnaTestData.TRIAL_NAME)
+        HighDimTestData.save extraAssays
+
+        List assayConstraints = [trialNameConstraint]
+
+        result =
+            rnaSeqCogResource.retrieveData assayConstraints, [], projection
+    }
 }
