@@ -5,6 +5,7 @@ import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -243,6 +244,7 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
+    @Ignore
     void testRepeatedDataPoint() {
         def assayConstraints = [trialNameConstraint]
 
@@ -286,6 +288,7 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
+    @Ignore
     void testWithMissingAssayDisallowMissingAssays() {
         testWithMissingDataAssay(-50000L)
         // default is not allowing missing assays
