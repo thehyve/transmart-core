@@ -9,7 +9,8 @@ class HierarchicalClustering extends AbstractAnalysisJob {
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
         new ValueGroupDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
-                resultsHolder: resultsHolder)
+                resultsHolder: resultsHolder,
+                params: params)
     }
 
     @Override

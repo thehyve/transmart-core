@@ -9,7 +9,8 @@ class PCA extends AbstractAnalysisJob {
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
         new BioMarkerDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
-                resultsHolder: resultsHolder)
+                resultsHolder: resultsHolder,
+                params: params)
     }
 
 

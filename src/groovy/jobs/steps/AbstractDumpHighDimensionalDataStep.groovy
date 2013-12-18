@@ -11,6 +11,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
 
     File temporaryDirectory
     Closure<Map<String, TabularResult>> resultsHolder
+    Map<String, Object> params = [:]
 
     Map<String, TabularResult> getResults() {
         resultsHolder()
@@ -35,6 +36,9 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     abstract List<String> getCsvHeader()
 
     protected String getRowKey(String subsetName, String seriesName, String patientId) {
+        if (params.chkGroupBySubject == "true") {
+            return [subsetName, patientId, seriesName].join("_")
+        }
         return [subsetName, seriesName, patientId].join("_")
     }
 
