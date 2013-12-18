@@ -1,85 +1,84 @@
 package org.transmartproject.db.i2b2data
 
-import org.apache.commons.lang.builder.EqualsBuilder
-import org.apache.commons.lang.builder.HashCodeBuilder
+import groovy.transform.EqualsAndHashCode
 
-/**
- * Currently only used to make grails create the table when running the
- * integration tests on a memory database.
- * All the details of this class are subject to change.
- */
+@EqualsAndHashCode(includes = ['encounterNum', 'conceptCode', 'providerId', 'startDate', 'modifierCd', 'instanceNum'])
 class ObservationFact implements Serializable {
 
-    BigDecimal   encounterNum
-    String       conceptCd
-    String       providerId
-    Date         startDate
-    String       modifierCd
-    Long         instanceNum
-    BigDecimal   patientNum
-    String       valtypeCd //starting here they're nullable
-    String       tvalChar
-    BigDecimal   nvalNum
-    String       valueflagCd
-    BigDecimal   quantityNum
-    String       unitsCd
-    Date         endDate
-    String       locationCd
-    String       observationBlob
-    BigDecimal   confidenceNum
-    Date         updateDate
-    Date         downloadDate
-    Date         importDate
-    String       sourcesystemCd
-    BigDecimal   uploadId
+    public static String TYPE_TEXT   = 'T'
+    public static String TYPE_NUMBER = 'N'
 
-	static mapping = {
-        table   name: 'observation_fact', schema: 'I2B2DEMODATA'
-		id      composite: ["encounterNum", "conceptCd", "providerId", "startDate", "modifierCd", "instanceNum"]
-		version false
-	}
+    /* links to concept_dimension, but concept_code is not primary key in
+     * concept_dimension. Hence, i2b2 1.3 added a concept_path column here */
+    String     conceptCode
 
-	static constraints = {
-        conceptCd         maxSize:    50
-        providerId        maxSize:    50
-        modifierCd        maxSize:    100
-        valtypeCd         nullable:   true,   maxSize:   50
-        tvalChar          nullable:   true
-        nvalNum           nullable:   true,   scale:     5
-        valueflagCd       nullable:   true,   maxSize:   50
-        quantityNum       nullable:   true,   scale:     5
-        unitsCd           nullable:   true,   maxSize:   50
-        endDate           nullable:   true
-        locationCd        nullable:   true,   maxSize:   50
-        observationBlob   nullable:   true
-        confidenceNum     nullable:   true,   scale:     5
-        updateDate        nullable:   true
-        downloadDate      nullable:   true
-        importDate        nullable:   true
-        sourcesystemCd    nullable:   true,   maxSize:   50
-        uploadId          nullable:   true
-	}
+    String     valueType
+    String     textValue
+    BigDecimal numberValue
+    String     valueFlag
 
-    int hashCode() {
-        def builder = new HashCodeBuilder()
-        builder.append encounterNum
-        builder.append conceptCd
-        builder.append providerId
-        builder.append startDate
-        builder.append modifierCd
-        builder.append instanceNum
-        builder.toHashCode()
+
+    // these are not used, but we need them because they're not nullable
+    BigDecimal encounterNum
+    String     providerId
+    Date       startDate
+    String     modifierCd
+    Long       instanceNum
+
+    // unsed for now
+    //BigDecimal quantityNum
+    //String     unitsCd
+    //Date       endDate
+    //String     locationCd
+    //String     observationBlob
+    //BigDecimal confidenceNum
+    //Date       updateDate
+    //Date       downloadDate
+    //Date       importDate
+    //String     sourcesystemCd
+    //BigDecimal uploadId
+
+    static belongsTo = [
+            patient: PatientDimension,
+    ]
+
+    static mapping = {
+        table        name: 'observation_fact', schema: 'I2B2DEMODATA'
+
+        id           composite: ['encounterNum', 'conceptCode', 'providerId', 'startDate', 'modifierCd', 'instanceNum']
+
+        conceptCode  column: 'concept_cd'
+        patient      column: 'patient_num'
+        valueType    column: 'valtype_cd'
+        textValue    column: 'tval_char'
+        numberValue  column: 'nval_num'
+        valueFlag    column: 'valueflag_cd'
+
+        version false
     }
 
-    boolean equals(other) {
-        if (other == null) return false
-        def builder = new EqualsBuilder()
-        builder.append encounterNum, other.encounterNum
-        builder.append conceptCd,    other.conceptCd
-        builder.append providerId,   other.providerId
-        builder.append startDate,    other.startDate
-        builder.append modifierCd,   other.modifierCd
-        builder.append instanceNum,  other.instanceNum
-        builder.isEquals()
+    static constraints = {
+        patient           nullable:   true
+        conceptCode       maxSize:    50
+        providerId        maxSize:    50
+        modifierCd        maxSize:    100
+        valueType         nullable:   true,   maxSize:   50
+        textValue         nullable:   true
+        numberValue       nullable:   true,   scale:     5
+        valueFlag         nullable:   true,   maxSize:   50
+
+
+        // unused for now
+        //quantityNum       nullable:   true,   scale:     5
+        //unitsCd           nullable:   true,   maxSize:   50
+        //endDate           nullable:   true
+        //locationCd        nullable:   true,   maxSize:   50
+        //observationBlob   nullable:   true
+        //confidenceNum     nullable:   true,   scale:     5
+        //updateDate        nullable:   true
+        //downloadDate      nullable:   true
+        //importDate        nullable:   true
+        //sourcesystemCd    nullable:   true,   maxSize:   50
+        //uploadId          nullable:   true
     }
 }

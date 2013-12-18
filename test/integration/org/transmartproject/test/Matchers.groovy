@@ -17,10 +17,13 @@ class Matchers {
         boolean matches(Object item, Description description) {
             def interfacePropertyNames = interf.metaClass.properties*.name
             def propertyMap = {
-                def ret = it.properties.findAll {k, v ->
-                    interfacePropertyNames.contains(k) &&
-                            !excludes.contains(k)
+                def ret = it.metaClass.properties.findAll { prop ->
+                    interfacePropertyNames.contains(prop.name) &&
+                            !excludes.contains(prop.name)
+                }.collectEntries { prop ->
+                    [ prop.name, prop.getProperty(it) ]
                 }
+
                 //TODO Implement better way
                 if (DomainClassArtefactHandler.isDomainClass(it.getClass()) &&
                         it.id != null) {

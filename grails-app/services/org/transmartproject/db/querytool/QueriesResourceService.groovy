@@ -80,7 +80,7 @@ class QueriesResourceService implements QueriesResource {
                 log.debug "Inserted $setSize rows into qt_patient_set_collection"
             } as Work)
         } catch (InvalidRequestException e) {
-            log.error 'Invalid request; rollong back transaction', e
+            log.error 'Invalid request; rolling back transaction', e
             throw e /* unchecked; rolls back transaction */
         } catch (Exception e) {
             // 6e. Handle error when building/running patient set query

@@ -20,7 +20,7 @@ class DefaultOntologyTermConstraint extends AbstractAssayConstraint {
                 // HibernateCriteriaBuilder doesn't support subqueries with IN clauses
                 Property.forName('conceptCode').in(
                         DetachedCriteria.forClass(ConceptDimension).
-                                setProjection(Property.forName('conceptCd')).
+                                setProjection(Property.forName('conceptCode')).
                                 add(Restrictions.eq('conceptPath', term.fullName)))
         )
     }

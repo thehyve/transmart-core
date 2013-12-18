@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
+import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
 class HighDimensionResourceServiceIntegrationTests {
@@ -189,8 +190,7 @@ class HighDimensionResourceServiceIntegrationTests {
                 patientsBoth + patientsFoobar)
 
         QueryResult getAllPatientsQueryResult() {
-            def f = { Iterables.getFirst it, null }
-            f(f(allPatientsQueryMaster.queryInstances).queryResults)
+            getQueryResultFromMaster allPatientsQueryMaster
         }
 
         void saveAll() {
