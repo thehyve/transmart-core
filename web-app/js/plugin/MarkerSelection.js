@@ -50,6 +50,7 @@ MarkerSelectionView.prototype.get_form_params = function () {
         var imageWidth = inputArray[2].el.value;
         var imageHeight = inputArray[3].el.value;
         var imagePointSize = inputArray[4].el.value;
+        var doGroupBySubject = inputArray[6].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'MarkerSelection';
@@ -59,6 +60,7 @@ MarkerSelectionView.prototype.get_form_params = function () {
         formParameters['txtImageWidth'] = imageWidth;
         formParameters['txtImageHeight'] = imageHeight;
         formParameters['txtImagePointsize'] = imagePointSize;
+        formParameters['chkGroupBySubject'] = doGroupBySubject;
 
     } else { // something is not correct in the validation
         // empty form parameters
@@ -111,6 +113,11 @@ MarkerSelectionView.prototype.get_inputs = function (form_params) {
             "el" : null,
             "value" : [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
             "validations" : [{type:"MIN_TWO_SUBSETS"}]
+        },
+        {
+            "label" : "Do Group by Subject",
+            "el" : document.getElementById("chkGroupBySubject"),
+            "validations" : []
         }
     ];
 }

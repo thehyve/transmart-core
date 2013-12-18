@@ -39,6 +39,9 @@
             <label>Text Size (pointsize):</label>
             <input type="text" id="txtImagePointsize" value="12"/>
 
+            <br/>
+            <input type="checkbox" id="chkGroupBySubject" name="doGroupBySubject">Group by subject (instead of node) for multiple nodes</input>
+
             <div>
                 <input type="button" value="Run" onClick="heatMapView.submit_job(this.form);" class="runAnalysisBtn">
             </div>
