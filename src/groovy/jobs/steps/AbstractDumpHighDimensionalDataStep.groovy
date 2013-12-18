@@ -36,7 +36,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     abstract List<String> getCsvHeader()
 
     protected String getRowKey(String subsetName, String seriesName, String patientId) {
-        if (params.chkGroupBySubject == "true") {
+        if (params.doGroupBySubject == "true") {
             return [subsetName, patientId, seriesName].join("_")
         }
         return [subsetName, seriesName, patientId].join("_")

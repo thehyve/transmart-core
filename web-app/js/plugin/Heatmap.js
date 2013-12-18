@@ -62,7 +62,7 @@ HeatMapView.prototype.get_form_params = function () {
         formParameters['txtImageWidth'] = imageWidth;
         formParameters['txtImageHeight'] = imageHeight;
         formParameters['txtImagePointsize'] = imagePointSize;
-        formParameters['chkGroupBySubject'] = doGroupBySubject;
+        formParameters['doGroupBySubject'] = doGroupBySubject;
 
     } else { // something is not correct in the validation
         // empty form parameters
