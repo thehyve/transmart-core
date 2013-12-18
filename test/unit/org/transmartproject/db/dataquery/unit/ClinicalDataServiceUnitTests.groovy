@@ -4,8 +4,8 @@ import grails.test.mixin.TestFor
 import org.junit.Test
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.clinical.ClinicalDataResourceService
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import org.transmartproject.db.highdim.clinical.ClinicalDataResourceService
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
