@@ -1,4 +1,4 @@
-package org.transmartproject.db.highdim.clinical
+package org.transmartproject.db.clinical
 
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
