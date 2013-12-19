@@ -64,7 +64,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var _get_constraints_obj = function () {
         return  {
             "job_type" : jobType,
-            "data_type": window[_div_name + 'markerType'],
+            "data_type": GLOBAL.HighDimDataType,
             "assayConstraints": {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
                 "assay_id_list": null,
