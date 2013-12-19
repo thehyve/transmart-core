@@ -12,7 +12,7 @@
     </h2>
 
     <form id="analysisForm">
-        <fieldset>
+        <fieldset class="inputFields">
 
             %{--High dimensional input--}%
             <div class="highDimContainer">
@@ -27,11 +27,13 @@
             %{--Display independent variable--}%
             <div id="displaydivIndependentVariable" class="independentVars"></div>
 
-            <div>
-                <input type="button" value="Run" onClick="pcaView.submit_job(this.form);" class="runAnalysisBtn">
-            </div>
-
         </fieldset>
+
+        <fieldset class="toolFields">
+            <input type="button" value="Run" onClick="pcaView.submit_job(this.form);" class="runAnalysisBtn">
+        </fieldset>
+
+
     </form>
 
 </div>

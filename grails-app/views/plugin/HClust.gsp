@@ -12,7 +12,7 @@
     </h2>
 
     <form id="analysisForm">
-        <fieldset>
+        <fieldset class="inputFields">
 
             %{--High dimensional input--}%
             <div class="highDimContainer">
@@ -39,10 +39,10 @@
             <label>Text Size (pointsize):</label>
             <input type="text" id="txtImagePointsize" value="12"/>
 
-            <div>
-                <input type="button" value="Run" onClick="hierarchicalClusteringView.submit_job(this.form);" class="runAnalysisBtn">
-            </div>
+        </fieldset>
 
+        <fieldset class="toolFields">
+            <input type="button" value="Run" onClick="hierarchicalClusteringView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
     </form>
 

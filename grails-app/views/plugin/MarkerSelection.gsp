@@ -12,7 +12,7 @@
     </h2>
 
     <form id="analysisForm">
-        <fieldset>
+        <fieldset class="inputFields">
 
             %{--High dimensional input--}%
             <div class="highDimContainer">
@@ -40,13 +40,14 @@
             <label>Text Size (pointsize):</label>
             <input type="text" id="txtImagePointsize" value="12"/>
 
-            <br/>
-            <input type="checkbox" id="chkGroupBySubject" name="doGroupBySubject">Group by subject (instead of node) for multiple nodes</input>
-            
-            <div>
-                <input type="button" value="Run" onClick="markerSelectionView.submit_job(this.form);" class="runAnalysisBtn">
-            </div>
+        </fieldset>
 
+        <fieldset class="toolFields">
+            <div>
+                <input type="checkbox" id="chkGroupBySubject" name="doGroupBySubject">
+                <span>Group by subject (instead of node) for multiple nodes</span>
+            </div>
+            <input type="button" value="Run" onClick="markerSelectionView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
     </form>
 
