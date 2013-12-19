@@ -30,9 +30,9 @@ class DataAssociationController {
 
         // list of required javascripts
         def scripts = [
+                servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
                 servletContext.contextPath + pluginContextPath + '/js/HighDimensionalData.js',
                 servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
-                servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
                 servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
                 servletContext.contextPath + pluginContextPath + '/js/PDFGenerator.js',
                 servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-overrides.js',
