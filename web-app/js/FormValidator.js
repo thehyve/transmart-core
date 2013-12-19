@@ -245,11 +245,9 @@ FormValidator.prototype.valid_high_dimensional_type = function (validator, label
         this.push_error(defaults.messages.no_high_dimensional_type, [label]);
     } else {
 
-        // validate supported high dimensional data types
-        var _highDimensionalTypes = new HighDimensionalData();
 
-        for (var key in _highDimensionalTypes.supportedTypes) {
-            if (validator.high_dimensional_type == (_highDimensionalTypes.supportedTypes[key]).type) {
+        for (var key in highDimensionalData.supportedTypes) {
+            if (validator.high_dimensional_type == (highDimensionalData.supportedTypes[key]).type) {
                 retVal = true;
                 break;
             }

@@ -8,14 +8,20 @@
 .runAnalysisBtn {float:right; margin-right:50px;}
 .highDimContainer {text-align: right; margin-right: 50px; margin-bottom: 20px;}
 .highDimBox {margin: 10px 0 10px 5px; width: 390px!important;}
-
 .independentVars {margin-bottom: 20px;}
+
 #dataAssociationBody {font-size: 11px; font-family: Tahoma, Arial, Verdana, sans-serif; background-color: #EEEEEE}
 #dataAssociationBody {padding: 5px; border-bottom: 2px silver solid;}
 #dataAssociationBody {font-weight: normal; color: #333}
-.warning {color: firebrick}
 
+.warning {color: firebrick}
 .plot_hint {font-style: italic;}
 .downloadLink {font-weight: bold; margin: 10px 0 0 0;}
 .plot_result_container {padding: 10px; font-family: Tahoma, Arial, "sans serif"; font-size: .8em;}
 .analysis_container {font-family: Arial, "sans serif";font-size: .7em;}
+.singleDiv {width:100%; font:11px tahoma, arial, helvetica, sans-serif}
+
+.highDimForm {height:100%;padding:5px; font:11px tahoma, arial, helvetica, sans-serif;}
+.highDimForm label {display: block;padding: 0;margin: 10px 0 0;text-align: left;}
+.highDimForm input {height: 20px; background-color: #efefef}
+.highDimForm input:not([type=checkbox]), .highDimForm textarea { width: 100%;}
