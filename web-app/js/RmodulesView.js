@@ -57,14 +57,14 @@ RmodulesView.prototype.get_parameters_for_rbm = function (constraints) {
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 
     var _div_name = "divIndependentVariable";
-    var _data_type = window[_div_name + 'markerType'];
+    var _data_type = GLOBAL.HighDimDataType;
     var _returnVal;
 
     // construct constraints object
     var _get_constraints_obj = function () {
         return  {
             "job_type" : jobType,
-            "data_type": GLOBAL.HighDimDataType,
+            "data_type": _data_type,
             "assayConstraints": {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
                 "assay_id_list": null,
@@ -81,8 +81,8 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 
     // do not create search_keyword_ids param if  pathway / gene is not selected
     // when gene / pathway is not selected, analysis will take up all pathways/genes.
-    if (window[_div_name + 'pathway']) {
-        _returnVal['dataConstraints']['search_keyword_ids'] = [window[_div_name + 'pathway']];
+    if (GLOBAL.CurrentPathway) {
+        _returnVal['dataConstraints']['search_keyword_ids'] = [GLOBAL.CurrentPathway];
     }
 
     var cases =  {
