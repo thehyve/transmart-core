@@ -19,7 +19,7 @@
                 <span>Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.</span>
                 <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                 <div id="highDimBtns">
-                    <button type="button" onclick="gatherHighDimensionalData('divIndependentVariable')">High Dimensional Data</button>
+                    <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
                     <input type="hidden" id="multipleSubsets" name="multipleSubsets" value="true" />
                     <button type="button" onclick="markerSelectionView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                 </div>
