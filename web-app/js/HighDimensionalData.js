@@ -53,11 +53,13 @@ HighDimensionalData.prototype.create_pathway_search_box = function (searchInputE
     var ajaxurl, ds, resultTpl;
 
     // remove all elements
-    var el = document.getElementById(searchInputEltName );
+    var el = document.getElementById(searchInputEltName);
     if (el) {
-       while (el.firstChild) {
-           el.removeChild(el.firstChild);
-       }
+        el.value = '';   // empty the search input value
+        // then remove all child elements
+        while (el.firstChild) {
+            el.removeChild(el.firstChild);
+        }
     }
 
     ajaxurl = pageInfo.basePath + '/search/loadSearchPathways';
