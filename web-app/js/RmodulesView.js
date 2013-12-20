@@ -14,12 +14,27 @@ RmodulesView.prototype.clear_high_dimensional_input = function (div) {
 }
 
 RmodulesView.prototype.register_drag_drop = function () {
-    //Set up drag and drop for Dependent and Independent variables on the data association tab.
-    //Get the Independent DIV
-    var independentDiv = Ext.get("divIndependentVariable");
+    // list of div ids defined in the view
+    var _vars = ["divDependentVariable", "divIndependentVariable"];
 
-    dtgI = new Ext.dd.DropTarget(independentDiv, {ddGroup : 'makeQuery'});
-    dtgI.notifyDrop =  dropOntoCategorySelection;
+    /**
+     * Register div as drop zone
+     * @param divId
+     * @private
+     */
+    var _register_drop_zone = function (divId) {
+        var _el, _dtgI;
+
+        if (_el = Ext.get(divId)) {
+            _dtgI = new Ext.dd.DropTarget(_el, {ddGroup : 'makeQuery'});
+            _dtgI.notifyDrop =  dropOntoCategorySelection;
+        } else {
+        }
+    }
+
+    for (var i=0; i<_vars.length; i++) { // register all as drop zone ..
+        _register_drop_zone(_vars[i]);
+    }
 }
 
 RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
