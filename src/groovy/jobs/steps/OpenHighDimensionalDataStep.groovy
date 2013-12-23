@@ -17,7 +17,7 @@ class OpenHighDimensionalDataStep implements Step {
     HighDimensionDataTypeResource dataTypeResource
 
     /* out */
-    Map<String, TabularResult> results = [:]
+    Map<List<String>, TabularResult> results = [:]
 
     @Override
     void execute() {
@@ -26,7 +26,8 @@ class OpenHighDimensionalDataStep implements Step {
             extractPatientSets().eachWithIndex { resultInstanceId, index ->
                 ontologyTerms.each { ontologyTerm ->
                     String seriesLabel = ontologyTerm.split('\\\\')[-1]
-                    results["S" + (index + 1) + "_" + seriesLabel] = fetchSubset(resultInstanceId, ontologyTerm)
+                    List<String> keyList = ["S" + (index + 1), seriesLabel]
+                    results[keyList] = fetchSubset(resultInstanceId, ontologyTerm)
                 }
             }
         } catch(Throwable t) {
