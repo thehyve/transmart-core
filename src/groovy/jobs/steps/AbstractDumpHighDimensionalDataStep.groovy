@@ -10,10 +10,10 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     final String statusName = null
 
     File temporaryDirectory
-    Closure<Map<String, TabularResult>> resultsHolder
+    Closure<Map<List<String>, TabularResult>> resultsHolder
     Map<String, Object> params = [:]
 
-    Map<String, TabularResult> getResults() {
+    Map<List<String>, TabularResult> getResults() {
         resultsHolder()
     }
 
@@ -54,7 +54,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     /* nextRow is a closure with this signature:
      * (String subsetName, DataRow row, Long rowNumber, AssayColumn column, Object cell) -> List<Object> csv row
      */
-    private void writeDefaultCsv(Map<String, TabularResult<AssayColumn, DataRow<AssayColumn, Object>>> results,
+    private void writeDefaultCsv(Map<List<String>, TabularResult<AssayColumn, DataRow<AssayColumn, Object>>> results,
                                  List<String> header) {
 
 
@@ -68,16 +68,15 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
         }
     }
 
-    private void doSubset (String resultsKey, CSVWriter csvWriter) {
+    private void doSubset (List<String> resultsKey, CSVWriter csvWriter) {
 
         def tabularResult = results[resultsKey]
         if (!tabularResult) {
             return
         }
 
-        String[] split = resultsKey.split("_")
-        String subsetName = split[0]
-        String seriesName = split[1]
+        String subsetName = resultsKey[0]
+        String seriesName = resultsKey[1]
 
         def assayList = tabularResult.indicesList
 
