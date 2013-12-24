@@ -1,5 +1,7 @@
 
-var RmodulesView = function () {}
+var RmodulesView = function () {
+    this.variablesTypes = ["divDependentVariable", "divIndependentVariable"];
+}
 
 RmodulesView.prototype.clear_high_dimensional_input = function (div) {
     //Clear the drag and drop div.
@@ -14,8 +16,6 @@ RmodulesView.prototype.clear_high_dimensional_input = function (div) {
 }
 
 RmodulesView.prototype.register_drag_drop = function () {
-    // list of div ids defined in the view
-    var _vars = ["divDependentVariable", "divIndependentVariable"];
 
     /**
      * Register div as drop zone
@@ -32,8 +32,8 @@ RmodulesView.prototype.register_drag_drop = function () {
         }
     }
 
-    for (var i=0; i<_vars.length; i++) { // register all as drop zone ..
-        _register_drop_zone(_vars[i]);
+    for (var i=0; i<this.variablesTypes.length; i++) { // register all as drop zone ..
+        _register_drop_zone(this.variablesTypes[i]);
     }
 }
 
@@ -49,6 +49,57 @@ RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
 
     return constraints;
 }
+
+RmodulesView.prototype.read_concept_variables = function () {
+
+    var _el, _ontology_terms;
+
+    /**
+     * get ontology terms
+     * @param el
+     * @returns {Array}
+     * @private
+     */
+    var _get_ontology_terms = function (el, type) {
+        var _type, _terms = new Array();
+
+        for (var i=0; i < el.dom.childNodes.length; i++) {
+
+            var _term = getQuerySummaryItem(el.dom.childNodes[i]).trim();
+
+            // map the term type
+            switch (type) {
+                case 'divDependentVariable':
+                    _type = 'dependent';
+                    break;
+                case 'divIndependentVariable':
+                    _type = 'independent';
+                    break;
+                default :
+                    _type = 'default';
+                    break;
+            }
+
+            _terms.push({
+                'term' : _term,
+                'options' : {'type' : _type}
+            });
+        }
+
+        return _terms;
+    }
+
+    // register all as drop zone ..
+    for (var i=0; i<this.variablesTypes.length; i++) {
+        if (_el = Ext.get(this.variablesTypes[i])) {
+            _ontology_terms = _get_ontology_terms(_el, this.variablesTypes[i]);
+        }
+    }
+
+    return _ontology_terms;
+}
+
+
 
 RmodulesView.prototype.get_parameters_for_mirna = function (constraints) {
 
@@ -75,8 +126,13 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     var _data_type = GLOBAL.HighDimDataType;
     var _returnVal;
 
+    var _this = this;
+
     // construct constraints object
     var _get_constraints_obj = function () {
+
+        var _ontology_terms = _this.read_concept_variables();
+
         return  {
             "job_type" : jobType,
             "data_type": _data_type,
@@ -84,6 +140,8 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
                 "assay_id_list": null,
                 "ontology_term": readConceptVariables("divIndependentVariable"),
+                // TODO: future request will use this one.
+                //"ontology_term": _ontology_terms,
                 "trial_name": null
             },
             "dataConstraints": {
