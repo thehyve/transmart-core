@@ -63,15 +63,14 @@ KMeansClusteringView.prototype.get_form_params = function () {
         formParameters['txtImageHeight'] = imageHeight;
         formParameters['txtImagePointsize'] = imagePointSize;
 
+        // get analysis constraints
+        formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RKClust'));
     } else { // something is not correct in the validation
         // empty form parameters
         formParameters = null;
         // display the error message
         formValidator.display_errors();
     }
-
-    // get analysis constraints
-    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RKClust'));
 
     return formParameters;
 }
