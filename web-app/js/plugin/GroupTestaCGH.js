@@ -527,9 +527,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 	},
 
 	onJobFinish: function(jobName, view) {
-		GLOBAL.CurrentSubsetIDs[1] = null;
-		GLOBAL.CurrentSubsetIDs[2] = null;
-
 		this.renderResults(jobName, view);
 	},
 
