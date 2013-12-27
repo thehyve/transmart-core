@@ -122,7 +122,6 @@ RmodulesView.prototype.get_parameters_for_rbm = function (constraints) {
 
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 
-    var _div_name = "divIndependentVariable";
     var _data_type = GLOBAL.HighDimDataType;
     var _returnVal;
 
@@ -140,7 +139,9 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
                 "assay_id_list": null,
                 "ontology_term": readConceptVariables("divIndependentVariable"),
+                // ***************************************
                 // TODO: future request will use this one.
+                // ***************************************
                 //"ontology_term": _ontology_terms,
                 "trial_name": null
             },
