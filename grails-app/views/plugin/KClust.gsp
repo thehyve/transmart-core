@@ -18,7 +18,7 @@
             <div class="highDimContainer">
                 <span>Select a High Dimensional Data node from the Data Set Explorer Tree and drag it into the box.</span>
                 <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
-                <div id="highDimBtns">
+                <div class="highDimBtns">
                     <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
                     <button type="button" onclick="kmeansClustering.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                 </div>
