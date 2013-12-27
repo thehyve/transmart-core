@@ -2,81 +2,56 @@
 <r:require modules="scatter_plot"/>
 <r:layoutResources disposition="defer"/>
 
-	<form>
-	
-		<table class="subsettable" style="margin: 10px;width:300px; border: 0px none; border-collapse: collapse;" >
-			<tr>
-				<td colspan="4">
-					<span class='AnalysisHeader'>Variable Selection</span>
-					<a href='JavaScript:D2H_ShowHelp(1512,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-					<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
-					</a>					
-				</td>			
-			</tr>	
-			<tr>
-				<td colspan="4">
-					<hr />
-				</td>
-			</tr>	
-			<tr>
-				<td align="center">
-					<span class='AnalysisHeader'>Independent Variable</span>
-					<br />
-					<br />
-					Select a continuous variable from the Data Set Explorer Tree and drag it into the box.
-				</td>
-				<td id="subsetdivider" rowspan="2" valign="center" align="center" height="100%">
-					<div style="margin: 15px; border: 1px solid black; background: black; width: 1px; height: 150px"></div>
-				</td>
-				<td align="center">
-					<span class='AnalysisHeader'>Dependent Variable</span>
-					<br />
-					<br />
-					Select a continuous variable from the Data Set Explorer Tree and drag it into the box.					
-				</td>					
-			</tr>
-	
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupScatter('divIndependentVariable')" value="X"> 
-					<br />
-					<div id='divIndependentVariable' class="queryGroupIncludeSmall"></div>
-				</td>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupScatter('divDependentVariable')" value="X"> 
-					<br />
-					<div id='divDependentVariable' class="queryGroupIncludeSmall"></div>
-				</td>
-			</tr>
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalDataSingleSubset('divIndependentVariable')" value="High Dimensional Data">
-				</td>
-				<td>&nbsp;</td>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalDataSingleSubset('divDependentVariable')" value="High Dimensional Data">
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					<div id="displaydivIndependentVariable"></div>
-				</td>
-				<td>&nbsp;</td>
-				<td>
-					<div id = "displaydivDependentVariable"></div>
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					<g:checkBox name="logX"/> Perform log<sub>10</sub> transformation on independent variable
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" align="center">
-					<input type="button" value="Run" onClick="submitScatterPlotJob(this.form);">
-				</td>
-			</tr>
-		</table>
-	</form>
+
+<div id="analysisWidget">
+
+    <h2>
+        Variable Selection
+        <a href='JavaScript:D2H_ShowHelp(1505,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+            <img src="${resource(dir: 'images', file: 'help/helpicon_white.jpg')}" alt="Help"/>
+        </a>
+    </h2>
+
+    <form id="analysisForm">
+        <fieldset class="inputFields">
+
+            %{--Independent variable--}%
+            <div class="highDimContainer">
+                <h3>Independent Variable</h3>
+                <span>Select a continuous variable from the Data Set Explorer Tree and drag it into the box.</span>
+                <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                <div class="highDimBtns">
+                    <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
+                    <button type="button" onclick="scatterPlotView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
+                </div>
+            </div>
+
+            %{--Display independent variable--}%
+            <div id="displaydivIndependentVariable" class="independentVars"></div>
+
+
+            %{--Dependent variable--}%
+            <div class="highDimContainer">
+                <h3>Dependent Variable</h3>
+                <span>Select a continuous variable from the Data Set Explorer Tree and drag it into the box.</span>
+                <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                <div class="highDimBtns">
+                    <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable')">High Dimensional Data</button>
+                    <button type="button" onclick="scatterPlotView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
+                </div>
+            </div>
+
+            %{--Display independent variable--}%
+            <div id="displaydivDependentVariable" class="independentVars"></div>
+
+        </fieldset>
+
+        <fieldset class="toolFields">
+            <div>
+                <g:checkBox name="logX"/> Perform log<sub>10</sub> transformation on independent variable
+            </div>
+            <input type="button" value="Run" onClick="scatterPlotView.submit_job(this.form);" class="runAnalysisBtn">
+        </fieldset>
+    </form>
+
+</div>
