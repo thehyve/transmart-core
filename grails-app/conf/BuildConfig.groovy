@@ -36,8 +36,19 @@ grails.project.dependency.resolution = {
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
         compile 'org.rosuda:Rserve:1.7.3'
+        compile 'org.mapdb:mapdb:0.9.7'
+
+        compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
-        test 'org.easymock:easymock:3.2'
+
+        test    'org.gmock:gmock:0.8.3', {
+            transitive = false /* don't bring groovy-all */
+            export     = false
+        }
+        test('org.hamcrest:hamcrest-library:1.3',
+                'org.hamcrest:hamcrest-core:1.3') {
+            export     = false
+        }
     }
 
     plugins {
