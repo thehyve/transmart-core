@@ -148,7 +148,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
             "dataConstraints": {
                 "disjunction": null
             },
-            projections: ["default_real_projection","zscore"]
+            projections: ["zscore"]
         }
     }
     _returnVal =  _get_constraints_obj();
