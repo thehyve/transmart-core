@@ -143,7 +143,17 @@ public interface OntologyTerm {
          * !! tranSMART extension !!
          * Indicates high-dimensional data.
          */
-        HIGH_DIMENSIONAL    (2, 'H' as Character)
+        HIGH_DIMENSIONAL    (2, 'H' as Character),
+
+        /**
+         * To indicate the term as study
+         */
+        STUDY               (2, 'S' as Character),
+
+        /**
+         * To indicate the term as program
+         */
+        PROGRAM             (2, 'P' as Character)
 
         int position;
         char keyChar;
