@@ -26,14 +26,13 @@
 		<br />
 		<br />
 
-        <g:each var="location" in="${imageLocation}">
-            <g:img file="${location}" width="600" height="600"></g:img>
+        <g:each var="location" in="${imageLocations}">
+            <g:img file="${location}"></g:img>
         </g:each>
 
 		<br />
-		<br />	
-		
-		<a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
+		<br />
+        <a href="${resource(file: zipLink)}" class="downloadLink">Download raw R data</a>
 		
 	</form>
 </body>
