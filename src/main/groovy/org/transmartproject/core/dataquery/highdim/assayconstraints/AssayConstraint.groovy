@@ -43,4 +43,16 @@ public interface AssayConstraint {
      * Parameters: 'ids' => <list of numeric ids>
      */
     public final static String ASSAY_ID_LIST_CONSTRAINT = 'assay_id_list'
+
+    /**
+     * A well-known constraint for building a disjunction of several
+     * sub-constraints.
+     *
+     * Parameters: 'subconstraints' => <map with string key (the constraint
+     *                                  name) and a map value (the parameters of
+     *                                  the sub-constraint) or a list of maps
+     *                                  value (for several constraints of the
+     *                                  same type)>
+     */
+    public final static String DISJUNCTION_CONSTRAINT = 'disjunction'
 }
