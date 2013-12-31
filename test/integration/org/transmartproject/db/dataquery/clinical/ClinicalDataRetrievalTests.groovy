@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -12,10 +13,13 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.querytool.QtQueryMaster
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
+import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
 class ClinicalDataRetrievalTests {
@@ -83,6 +87,24 @@ class ClinicalDataRetrievalTests {
                 }.collect {
                     hasProperty('label', is(it.inTrialId))
                 })
+    }
+
+    @Test
+    void testMultipleQueryResultsVariant() {
+        results = clinicalDataResourceService.retrieveData(
+                testData.patients[0..1].collect {
+                    QtQueryMaster result = createQueryResult([it])
+                    result.save()
+                    getQueryResultFromMaster(result)
+                },
+                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+
+        assertThat results, contains(
+                testData.patients[0..1].
+                        sort { it.id }.
+                        collect {
+                            hasProperty('patient', hasProperty('id', is(it.id)))
+                        })
     }
 
     @Test

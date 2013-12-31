@@ -1,7 +1,10 @@
 package org.transmartproject.db.clinical
 
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
+import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
+import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
@@ -14,8 +17,8 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     def sessionFactory
 
     @Override
-    ClinicalDataTabularResult retrieveData(QueryResult patientSet,
-                                                       List<ClinicalVariable> variables) {
+    ClinicalDataTabularResult retrieveData(List<QueryResult> patientSets,
+                                           List<ClinicalVariable> variables) {
 
         def session = sessionFactory.openStatelessSession()
 
@@ -23,7 +26,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             TerminalConceptVariablesDataQuery query =
                     new TerminalConceptVariablesDataQuery(
                             session: session,
-                            resultInstance: patientSet,
+                            resultInstances: patientSets,
                             clinicalVariables: variables)
             query.init()
 
@@ -37,6 +40,12 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             session.close()
             throw t
         }
+    }
+
+    @Override
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(QueryResult patientSet,
+                                                                   List<ClinicalVariable> variables) {
+        retrieveData([patientSet], variables)
     }
 
     @Override

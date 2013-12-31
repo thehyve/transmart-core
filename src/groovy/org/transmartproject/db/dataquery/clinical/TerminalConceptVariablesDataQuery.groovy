@@ -18,7 +18,7 @@ class TerminalConceptVariablesDataQuery {
 
     List<TerminalConceptVariable> clinicalVariables
 
-    QueryResult resultInstance
+    List<QueryResult> resultInstances
 
     SessionImplementor session
 
@@ -43,12 +43,12 @@ class TerminalConceptVariablesDataQuery {
                     p.id IN (
                         SELECT pset.patient.id
                         FROM QtPatientSetCollection pset
-                        WHERE pset.resultInstance = :queryResult)
+                        WHERE pset.resultInstance IN (:queryResults))
                 ORDER BY p ASC'''
 
         query.cacheable = false
         query.readOnly  = true
-        query.setParameter 'queryResult', resultInstance
+        query.setParameterList 'queryResults', resultInstances
 
         def result = Maps.newTreeMap()
         ScrollableResults results = query.scroll ScrollMode.FORWARD_ONLY
@@ -79,7 +79,7 @@ class TerminalConceptVariablesDataQuery {
                     patient.id IN (
                         SELECT pset.patient.id
                         FROM QtPatientSetCollection pset
-                        WHERE pset.resultInstance = :queryResult)
+                        WHERE pset.resultInstance IN (:queryResults))
                     AND fact.conceptCode IN (:conceptCodes)
                 ORDER BY
                     patient ASC,
@@ -89,7 +89,7 @@ class TerminalConceptVariablesDataQuery {
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        query.setParameter     'queryResult',  resultInstance
+        query.setParameterList 'queryResults',  resultInstances
         query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
 
         query.scroll ScrollMode.FORWARD_ONLY
