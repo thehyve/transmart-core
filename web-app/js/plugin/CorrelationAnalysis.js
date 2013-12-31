@@ -19,7 +19,9 @@
 function submitCorrelationAnalysisJob(form){
 	var variablesConceptCode = readConceptVariables("divVariables");
 
-	var formParams = {	variablesConceptPaths:variablesConceptCode, 
+	var formParams = {
+                        jobType:'correlationAnalysis',
+                        variablesConceptPaths:variablesConceptCode,
 						correlationBy:form.correlationBy.value,
 						correlationType:form.correlationType.value
 					};
