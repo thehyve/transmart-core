@@ -13,6 +13,10 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListCon
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.NoopAssayConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.NoopDataConstraint
 
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
@@ -30,6 +34,9 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
 
     @Autowired
     QueriesResource queriesResource
+
+    private DisjunctionConstraintFactory disjunctionConstraintFactory =
+            new DisjunctionConstraintFactory(DisjunctionAssayConstraint, NoopAssayConstraint)
 
     @ProducerFor(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
     AssayConstraint createOntologyTermConstraint(Map<String, Object> params) {
@@ -83,6 +90,13 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         def ids = processLongList 'ids', params.ids
 
         new AssayIdListConstraint(ids: ids)
+    }
+
+    @ProducerFor(AssayConstraint.DISJUNCTION_CONSTRAINT)
+    AssayConstraint createDisjunctionConstraint(Map<String, Object> params,
+                                                Object createConstraint) {
+        disjunctionConstraintFactory.
+                createDisjunctionConstraint params, createConstraint
     }
 
 }

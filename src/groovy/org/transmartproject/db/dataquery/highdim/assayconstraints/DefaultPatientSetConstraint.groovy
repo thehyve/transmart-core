@@ -15,7 +15,7 @@ class DefaultPatientSetConstraint extends AbstractAssayConstraint {
 
     @Override
     void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        builder.instance.add(
+        builder.addToCriteria(
                 // we have to drop to hibernate because apparently
                 // HibernateCriteriaBuilder doesn't support subqueries with IN clauses
                 Property.forName('patient.id').in(

@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.junit.After
@@ -14,7 +15,10 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.*
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
@@ -165,7 +169,22 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
-    void testWithDisjunctionConstraint() {
+    void testWithDisjunctionAssayConstraint() {
+        List assayConstraints = [
+                new DisjunctionAssayConstraint(constraints: [
+                        new AssayIdListConstraint(ids: [testData.assays[0].id]),
+                        new AssayIdListConstraint(ids: [testData.assays[1].id])])]
+
+        dataQueryResult =
+                resource.retrieveData assayConstraints, [], rawIntensityProjection
+
+        assertThat dataQueryResult.indicesList, contains(
+                hasProperty('id', is(testData.assays[1].id)),
+                hasProperty('id', is(testData.assays[0].id)))
+    }
+
+    @Test
+    void testWithDisjunctionDataConstraint() {
         List assayConstraints = [trialNameConstraint]
         /* in this particular case, you could just use one constraint
          * and include two ids in the list */
