@@ -13,6 +13,10 @@ public interface ClinicalDataResource {
                                                                    List<ClinicalVariable> variables)
 
     @Experimental
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(List<QueryResult> patientSets,
+                                                                   List<ClinicalVariable> variables)
+
+    @Experimental
     ClinicalVariable createClinicalVariable(Map<String, Object> parameters,
                                             String type) throws InvalidArgumentsException
 
