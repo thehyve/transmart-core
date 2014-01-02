@@ -219,10 +219,10 @@ HighDimensionalData.prototype.generate_view = function () {
     return _view;
 }
 
-HighDimensionalData.prototype.get_inputs = function () {
+HighDimensionalData.prototype.get_inputs = function (divId) {
     return [{
         "label" : "High Dimensional Data",
-        "el" : Ext.get("divIndependentVariable"),
+        "el" : Ext.get(divId),
         "validations" : [
             {type:"REQUIRED"},
             {type:"HIGH_DIMENSIONAL"}
@@ -265,7 +265,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     _this.data = null;
 
     // instantiate input elements object with their corresponding validations
-    var inputArray = this.get_inputs();
+    var inputArray = this.get_inputs(divId);
     // define the validator for this form
     var formValidator = new FormValidator(inputArray);
 
