@@ -37,8 +37,8 @@ class OpenHighDimensionalDataStep implements Step {
     }
 
     private List<String> extractOntologyTerms() {
-        params.analysisConstraints.assayConstraints.remove('ontology_term').split('\\|').collect {
-            createConceptKeyFrom(it)
+        params.analysisConstraints.assayConstraints.remove('ontology_term').collect {
+            createConceptKeyFrom(it.term)
         }
     }
 

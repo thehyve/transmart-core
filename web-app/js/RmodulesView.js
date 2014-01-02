@@ -138,11 +138,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
             "assayConstraints": {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
                 "assay_id_list": null,
-                "ontology_term": readConceptVariables("divIndependentVariable"),
-                // ***************************************
-                // TODO: future request will use this one.
-                // ***************************************
-                //"ontology_term": _ontology_terms,
+                "ontology_term": _ontology_terms,
                 "trial_name": null
             },
             "dataConstraints": {
