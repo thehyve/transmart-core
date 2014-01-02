@@ -62,14 +62,14 @@ HierarchicalClusteringView.prototype.get_form_params = function () {
         formParameters['txtImageHeight'] = imageHeight;
         formParameters['txtImagePointsize'] = imagePointSize;
 
+        formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RHClust'));
+
     } else { // something is not correct in the validation
         // empty form parameters
         formParameters = null;
         // display the error message
         formValidator.display_errors();
     }
-
-    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RHClust'));
 
     return formParameters;
 }

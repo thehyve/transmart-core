@@ -53,14 +53,14 @@ PCAView.prototype.get_form_params = function () {
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
 
+        formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('PCA'));
+
     } else { // something is not correct in the validation
         // empty form parameters
         formParameters = null;
         // display the error message
         formValidator.display_errors();
     }
-
-    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('PCA'));
 
     return formParameters;
 }

@@ -47,7 +47,7 @@ class CorrelationAnalysisController {
 		String correlationLocation = "${tempDirectory}" + File.separator + "Correlation.txt"
 		String correlationData = RModulesOutputRenderService.fileParseLoop(tempDirectoryFile,/.*Correlation.*\.txt/,/.*Correlation(.*)\.txt/,parseCorrelationFile)
 
-		render(template: "/plugin/correlationAnalysis_out", model:[correlationData:correlationData,imageLocations:imageLinks,zipLocation:RModulesOutputRenderService.zipLink],contextPath:pluginContextPath)
+		render(template: "/plugin/correlationAnalysis_out", model:[correlationData:correlationData,imageLocations:imageLinks,zipLink:RModulesOutputRenderService.zipLink],contextPath:pluginContextPath)
 	}
 		
 	def parseCorrelationFile = {

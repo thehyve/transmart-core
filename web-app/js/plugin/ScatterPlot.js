@@ -1,18 +1,116 @@
-/*************************************************************************   
-* Copyright 2008-2012 Janssen Research & Development, LLC.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-******************************************************************/
+/**
+ * Register drag and drop.
+ * Clear out all global variables and reset them to blank.
+ */
+function loadScatterPlotView(){
+    scatterPlotView.clear_high_dimensional_input('divIndependentVariable');
+    scatterPlotView.clear_high_dimensional_input('divDependentVariable');
+    scatterPlotView.register_drag_drop();
+}
+
+// constructor
+var ScatterPlotView = function () {
+    RmodulesView.call(this);
+}
+
+// inherit RmodulesView
+ScatterPlotView.prototype = new RmodulesView();
+
+// correct the pointer
+ScatterPlotView.prototype.constructor = ScatterPlotView;
+
+// submit analysis job
+ScatterPlotView.prototype.submit_job = function (form) {
+
+    // get formParams
+    var formParams = this.get_form_params(form);
+
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
+
+}
+
+// get form params
+ScatterPlotView.prototype.get_form_params = function (form) {
+    var formParameters = {}; // init
+
+    //Use a common function to load the High Dimensional Data params.
+    loadHighDimensionalParameters(formParameters);
+
+    // instantiate input elements object with their corresponding validations
+    var inputArray = this.get_inputs(formParameters);
+
+    // define the validator for this form
+    var formValidator = new FormValidator(inputArray);
+
+    if (formValidator.validateInputForm()) { // if input files satisfy the validations
+
+        // get values
+        var dependentVariableConceptCode = readConceptVariables("divDependentVariable");
+        var independentVariableConceptCode = readConceptVariables("divIndependentVariable");
+        var logX = form.logX.checked;
+        var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
+
+        console.log("logX", logX)
+
+        // assign values to form parameters
+        formParameters['jobType'] = 'ScatterPlot';
+        formParameters['logX'] = logX;
+        formParameters['dependentVariable'] = dependentVariableConceptCode;
+        formParameters['independentVariable'] = independentVariableConceptCode;
+        formParameters['variablesConceptPaths'] = variablesConceptCode;
+
+
+        // get analysis constraints
+        formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('ScatterPlot'));
+
+    } else { // something is not correct in the validation
+        // empty form parameters
+        formParameters = null;
+        // display the error message
+        formValidator.display_errors();
+    }
+
+
+
+    return formParameters;
+}
+
+ScatterPlotView.prototype.get_inputs = function (form_params) {
+
+    /**
+     * TODO : To add more validations:
+     *
+     * - input can only be continuous or high dimensional
+     * - if type is "continuous", it can only be one node
+     * - if type is "high dimensional" --> ? TBC
+     * - can be one continuous, one high dimensional
+     */
+
+
+    return  [
+        {
+            "label" : "Independent Variable",
+            "el" : Ext.get("divIndependentVariable"),
+            "validations" : [
+                {type:"REQUIRED"}
+            ]
+        },
+        {
+            "label" : "Dependent Variable",
+            "el" : Ext.get("divDependentVariable"),
+            "validations" : [
+                {type:"REQUIRED"}
+            ]
+        }
+    ];
+}
+
+// init heat map view instance
+var scatterPlotView = new ScatterPlotView();
+
+/*
 
 function submitScatterPlotJob(form){
 	
@@ -140,50 +238,4 @@ function submitScatterPlotJob(form){
 	
 	submitJob(formParams);
 }
-
-/**
- * Register drag and drop.
- * Clear out all gobal variables and reset them to blank.
- */
-function loadScatterPlotView(){
-	registerScatterPlotDragAndDrop();
-	clearGroupScatter('divIndependentVariable');
-	clearGroupScatter('divDependentVariable');
-}
-
-/**
- * Clear the variable selection box
- * Clear all selection stored in global variables
- * Clear the selection display
- * @param divName
- */
-function clearGroupScatter(divName)
-{
-	//Clear the drag and drop div.
-	var qc = Ext.get(divName);
-	
-	for(var i=qc.dom.childNodes.length-1;i>=0;i--)
-	{
-		var child=qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}	
-	clearHighDimDataSelections(divName);
-	clearSummaryDisplay(divName);
-}
-
-function registerScatterPlotDragAndDrop()
-{
-	//Set up drag and drop for Dependent and Independent variables on the data association tab.
-	//Get the Dependent DIV.
-	var dependentDiv = Ext.get("divDependentVariable");
-	//Get the Independent DIV
-	var independentDiv = Ext.get("divIndependentVariable");
-	
-	//Add the drop targets and handler function.
-	dtgD = new Ext.dd.DropTarget(dependentDiv,{ddGroup : 'makeQuery'});
-	dtgD.notifyDrop =  dropOntoCategorySelection;
-	
-	dtgI = new Ext.dd.DropTarget(independentDiv,{ddGroup : 'makeQuery'});
-	dtgI.notifyDrop =  dropOntoCategorySelection;
-	
-}
+*/

@@ -26,4 +26,7 @@ modules = {
     rnaseq_group_test {
         resource url:"/js/plugin/GroupTestRNASeq.js"
     }
+    scatter_plot {
+        resource url:"/js/plugin/ScatterPlot.js"
+    }
 }

@@ -34,7 +34,7 @@ var defaults = {
         valid_credit_card: 'The {0} field must contain a valid credit card number.',
         is_file_type: 'The {0} field must contain only {1} files.',
         valid_url: 'The {0} field must contain a valid URL.',
-        valid_high_dimensional_node: 'The {0} field must contain high dimensional node only.',
+        valid_high_dimensional_node: 'The {0} field must contain high dimensional node.',
         valid_high_dimensional_type: 'The {0} field contains invalid high dimensional data type.',
         no_high_dimensional_type: 'Unknown high dimensional data. Please verify first the high dimensional data ' +
             'in field {0}.',
@@ -299,7 +299,7 @@ FormValidator.prototype.display_errors = function () {
 
     // concatenate all error messages into a nice HTML friendly string message.
     for (var i=0; i<_err_msgs.length; i++) {
-        _err_str = _err_str.concat("- " + _err_msgs[i] + "<br>");
+        _err_str = _err_str.concat("&bull; " + _err_msgs[i] + "<br>");
     }
 
     // Display error messages inside extJs message box

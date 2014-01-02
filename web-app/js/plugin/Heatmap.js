@@ -64,15 +64,18 @@ HeatMapView.prototype.get_form_params = function () {
         formParameters['txtImagePointsize'] = imagePointSize;
         formParameters['doGroupBySubject'] = doGroupBySubject;
 
+        // get analysis constraints
+        var constraints_json = this.get_analysis_constraints('RHeatmap');
+        constraints_json['projections'] = ["zscore"];
+
+        formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
+
     } else { // something is not correct in the validation
         // empty form parameters
         formParameters = null;
         // display the error message
         formValidator.display_errors();
     }
-
-    // get analysis constraints
-    formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('RHeatmap'));
 
     return formParameters;
 }
