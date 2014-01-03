@@ -1,13 +1,13 @@
 package jobs
 
-import jobs.steps.BioMarkerDumpDataStep
+import jobs.steps.PCADumpDataStep
 import jobs.steps.Step
 
 class PCA extends AbstractAnalysisJob {
 
     @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
-        new BioMarkerDumpDataStep(
+        new PCADumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
                 params: params)

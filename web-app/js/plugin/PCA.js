@@ -47,11 +47,13 @@ PCAView.prototype.get_form_params = function () {
 
         // get values
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
+        var doUseExperimentAsVariable = inputArray[1].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'PCA';
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
+        formParameters['doUseExperimentAsVariable'] = doUseExperimentAsVariable;
 
         formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('PCA'));
 
@@ -78,6 +80,11 @@ PCAView.prototype.get_inputs = function (form_params) {
                     high_dimensional_pathway:form_params["divIndependentVariablePathway"]
                 }
             ]
+        },
+        {
+            "label" : "Do Use Experiment As Variable",
+            "el" : document.getElementById("chkUseExperimentAsVariable"),
+            "validations" : []
         }
     ];
 }
