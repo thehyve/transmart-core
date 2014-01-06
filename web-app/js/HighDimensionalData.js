@@ -36,13 +36,13 @@ var HighDimensionalData = function () {
 HighDimensionalData.prototype.populate_data = function () {
 
     // set global marker type
-    GLOBAL.HighDimDataType = this.data.platforms[0].markerType;
+    GLOBAL.HighDimDataType = this.data.marker_type;
 
     if (document.getElementById("highDimContainer")) {
 
-        document.getElementById("gpl1").value = this.data.platforms[0].id;
-        document.getElementById("sample1").value = this.data.sampleTypes[0].label;
-        document.getElementById("tissue1").value = this.data.tissueTypes[0].label;
+        document.getElementById("gpl1").value = this.data.gpl;
+        document.getElementById("sample1").value = this.data.sample;
+        document.getElementById("tissue1").value = this.data.tissue;
 
         this.create_pathway_search_box('searchPathway', 'divpathway');
     }
@@ -273,34 +273,89 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
 
         // get nodes from the dropzone
         var _nodes = Ext.get(divId).dom.childNodes;
-        var _node = _nodes[0].concept.key;   // take the first node with assumption remaining nodes will have same
-                                             // marker type
+        var _i=0, _all=_nodes.length;
+        var _arrNodeDetails = new Array();
 
-        Ext.Ajax.request({
-            url: pageInfo.basePath + "/HighDimension/nodeDetails",
-            method: 'POST',
-            timeout: '1800000',
-            params: Ext.urlEncode({
-                conceptKey: _node
-            }),
-            success: function (result) {
-                var _node_detail = JSON.parse(result.responseText);
-                for (var key in _node_detail) {
-                    if (_node_detail.hasOwnProperty(key)) {
+        /**
+         * filter node details especially when high dimensional data are more than one
+         * @returns {*}
+         * @private
+         */
+        var _filterNodeDetails = function (arrNodeDetails) {
 
-                        // set data
-                        _this.data = _node_detail[key];
-                        _this.display_high_dimensional_popup();
+            var _tmp_gpl, _tmp_sample, _tmp_marker_type, _tmp_tissue = new Array();
+
+            for (var i = 0, max = arrNodeDetails.length; i < max; i++) {
+
+                for (var key in arrNodeDetails[i]) {
+
+                    if (arrNodeDetails[i].hasOwnProperty(key)) {
+
+                        var _tmp_data = arrNodeDetails[i][key]
+
+                        if (i>0 && _tmp_marker_type != _tmp_data.platforms[0].markerType) {
+                            Ext.Msg.alert("Error", "Cannot do analysis with different type of High Dimensional data");
+                            return -1;
+                        }
+
+                        _tmp_marker_type = _tmp_data.platforms[0].markerType;
+                        _tmp_gpl = _tmp_data.platforms[0].id;
+                        _tmp_sample =  _tmp_data.sampleTypes[0].label;
+                        _tmp_tissue.push(_tmp_data.tissueTypes[0].label);
 
                     } else {
                         Ext.Msg.alert("Error", "Unknown returned object.");
+                        return -1;
                     }
-                }
-            },
-            failure: function () {
-                Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
+                }// end for
+            } //end for
+
+            return {
+                "gpl":_tmp_gpl,
+                "sample":_tmp_sample,
+                "marker_type": _tmp_marker_type,
+                "tissue": _tmp_tissue
             }
-        });
+        }
+
+        /**
+         * get node details
+         * @param _i
+         * @private
+         */
+        var _getNodeDetails = function (_i) {
+
+            var _node = _nodes[_i].concept.key;
+
+            Ext.Ajax.request({
+                url: pageInfo.basePath + "/HighDimension/nodeDetails",
+                method: 'POST',
+                timeout: '1800000',
+                params: Ext.urlEncode({
+                    conceptKey: _node
+                }),
+                success: function (result) {
+                    _i++;
+                    _arrNodeDetails.push(JSON.parse(result.responseText));
+                    if (_i < _all) {
+                        _getNodeDetails(_i);
+                    } else {
+                        _this.data = _filterNodeDetails(_arrNodeDetails);
+                        if (_this.data != -1) {
+                            _this.display_high_dimensional_popup();
+                        }
+
+                    }
+                },
+                failure: function () {
+                    Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
+                }
+            });
+
+        }
+
+       // execute ajax call to get node details
+        _getNodeDetails(_i);
 
     } else { // something is not correct in the validation
         // display the error message
