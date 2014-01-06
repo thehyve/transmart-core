@@ -52,7 +52,8 @@ RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
 
 RmodulesView.prototype.read_concept_variables = function () {
 
-    var _el, _ontology_terms;
+    var _el;
+    var _ontology_terms = [];
 
     /**
      * get ontology terms
@@ -60,8 +61,8 @@ RmodulesView.prototype.read_concept_variables = function () {
      * @returns {Array}
      * @private
      */
-    var _get_ontology_terms = function (el, type) {
-        var _type, _terms = new Array();
+    var _add_ontology_terms = function (el, type) {
+        var _type;
 
         for (var i=0; i < el.dom.childNodes.length; i++) {
 
@@ -80,19 +81,17 @@ RmodulesView.prototype.read_concept_variables = function () {
                     break;
             }
 
-            _terms.push({
+            _ontology_terms.push({
                 'term' : _term,
                 'options' : {'type' : _type}
             });
         }
-
-        return _terms;
     }
 
     // register all as drop zone ..
     for (var i=0; i<this.variablesTypes.length; i++) {
         if (_el = Ext.get(this.variablesTypes[i])) {
-            _ontology_terms = _get_ontology_terms(_el, this.variablesTypes[i]);
+            _add_ontology_terms(_el, this.variablesTypes[i]);
         }
     }
 
