@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.acgh
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString

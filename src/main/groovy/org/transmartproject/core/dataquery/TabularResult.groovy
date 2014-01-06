@@ -8,7 +8,7 @@ package org.transmartproject.core.dataquery
  * @param < I > The type for the row indexes
  * @param < R > The type for the rows themselves
  */
-public interface DataQueryResult<I, R> extends Closeable {
+public interface TabularResult<I extends DataColumn, R extends DataRow> extends Closeable, Iterable<R> {
 
     /**
      * Used to obtain the "columns" of the result set' the indices used to
@@ -22,7 +22,13 @@ public interface DataQueryResult<I, R> extends Closeable {
      * The iterator result set, organized as rows, which is a map of values
      * indexed by the indices returned by {@link #getIndicesList()}.
      *
+     * Same as {@link Iterable#iterator()}.
+     *
      * @return the typed result set rows
      */
     Iterator<R> getRows()
+
+    String getColumnsDimensionLabel()
+
+    String getRowsDimensionLabel()
 }

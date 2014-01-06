@@ -1,7 +1,7 @@
 package org.transmartproject.core.dataquery.assay
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.Platform
+import org.transmartproject.core.dataquery.highdim.Platform
 
 /**
  * An assay (used somewhat interchangeably with the term "sample" for tranSMART
@@ -24,6 +24,16 @@ interface Assay {
     Patient getPatient()
 
     /**
+     * Shortcut to <code>patient.inTrialId<code>.
+     * The reason this method exists is that this external patient id is
+     * generally used to link an assay to clinical data and for performance
+     * reasons.
+     *
+     * @return the patient's "in trial id", or null if it doesn't exist
+     */
+    String getPatientInTrialId()
+
+    /**
      * The trial for which this assay was done. An all-uppercase name.
      *
      * @return The all-uppercase trial name; never null
@@ -36,6 +46,12 @@ interface Assay {
      * @return the nullable assay timepoint
      */
     Timepoint getTimepoint()
+
+    /**
+     * A string representing the sample used in this assay.
+     * @return string representing assay's sample name
+     */
+    String getSampleCode()
 
     /**
      * The sample type associated with this assay.

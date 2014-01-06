@@ -1,10 +1,10 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.acgh
 /**
  * Aggregates certain values, both measured and calculated,
  * for a certain (assay, probe or region) pair in the context of a certain
  * array comparative genomic hybridization trial.
  */
-public interface ACGHValues {
+public interface AcghValues {
 
     /**
      * The log2 ratio value for the (assay, probe/region) pair represented in

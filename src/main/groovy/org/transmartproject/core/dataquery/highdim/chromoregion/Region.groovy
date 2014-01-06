@@ -1,24 +1,16 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.chromoregion
 
-import org.transmartproject.core.dataquery.Platform
-import org.transmartproject.core.dataquery.PlatformMarkerType
+import org.transmartproject.core.dataquery.highdim.Platform
 
 /**
- * A region is a set of contiguous probes (with respect to the chromosomal
- * position targeted) that were grouped together by the aCGH algorithms based
- * on similar calls across a certain set of samples for such probes.
+ * A region is a platform- (and therefore data type-) bound portion of a
+ * chromosome.
  *
- * The set of continuous implies a contiguous chromosomal base pair interval,
- * which is also part of the identity of the region (indeed,
- * at this point we may no longer have information about which probes
- * contributed to form the region).
+ * For aCGH, is the result of the aggregation of several probes, but, in
+ * general, it's another platform element, that, when combined with an
+ * assay, identifies a data point in high dimensional data.
  */
 public interface Region {
-
-    /**
-     * The marker type for this platform; see {@link Platform#getMarkerType()}.
-     */
-    public final static PlatformMarkerType MARKER_TYPE = PlatformMarkerType.CHROMOSOMAL_REGION
 
     /**
      * A unique numeric identifier for the region.
@@ -64,9 +56,10 @@ public interface Region {
     Long getEnd()
 
     /**
-     * The number of probes that were grouped in order to form this region.
+     * The number of probes that were grouped in order to form this region,
+     * if applicable.
      *
-     * @return number of probes aggregated in this region
+     * @return number of probes aggregated in this region or null if inapplicable
      */
     Integer getNumberOfProbes()
 

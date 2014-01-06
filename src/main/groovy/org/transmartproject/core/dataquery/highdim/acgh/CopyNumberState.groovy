@@ -1,4 +1,4 @@
-package org.transmartproject.core.dataquery.acgh
+package org.transmartproject.core.dataquery.highdim.acgh
 
 /**
  * This enumeration represents the set of possible "hard calls" about copy
