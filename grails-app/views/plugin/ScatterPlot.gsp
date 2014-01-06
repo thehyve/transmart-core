@@ -41,8 +41,8 @@
                 </div>
             </div>
 
-            %{--Display independent variable--}%
-            <div id="displaydivDependentVariable" class="independentVars"></div>
+            %{--Display dependent variable--}%
+            <div id="displaydivDependentVariable" class="dependentVars"></div>
 
         </fieldset>
 
