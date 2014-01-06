@@ -53,7 +53,7 @@ class MrnaTestData {
         [
                 createAnnotation(-201, '1553506_at', bioMarkers[0]),
                 createAnnotation(-202, '1553510_s_at', bioMarkers[1]),
-                createAnnotation(-203, '1553510_s_at', bioMarkers[2]),
+                createAnnotation(-203, '1553513_at', bioMarkers[2]),
         ]
     }()
 
