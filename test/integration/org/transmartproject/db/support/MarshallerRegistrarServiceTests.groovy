@@ -2,13 +2,13 @@ package org.transmartproject.db.support
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
+import org.junit.Test
 import org.transmartproject.db.marshallers.OntologyTermMarshaller
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.junit.*
 
 @Mixin(ConceptTestData)
 class MarshallerRegistrarServiceTests {

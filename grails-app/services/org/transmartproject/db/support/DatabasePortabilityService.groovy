@@ -2,17 +2,14 @@ package org.transmartproject.db.support
 
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.Criteria
-import org.hibernate.HibernateException
-import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.LikeExpression
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.SimpleExpression
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
 import java.sql.DatabaseMetaData
+
 /**
  * Helper service to make it easier to write code that works on both Oracle and
  * PostgreSQL. Of course, the best option in this respect is to use Hibernate.

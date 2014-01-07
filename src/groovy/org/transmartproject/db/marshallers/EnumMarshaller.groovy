@@ -1,7 +1,5 @@
 package org.transmartproject.db.marshallers
 
-import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
-
 class EnumMarshaller {
     static targetType = Enum
 

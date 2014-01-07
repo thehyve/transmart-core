@@ -1,3 +1,5 @@
+import org.springframework.stereotype.Component
+import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.support.DatabasePortabilityService
 import org.transmartproject.db.support.MarshallerRegistrarService
@@ -44,7 +46,21 @@ A runtime dependency for tranSMART that implements the Core API
     }
 
     def doWithSpring = {
+        xmlns context:"http://www.springframework.org/schema/context"
+
         businessExceptionResolver(BusinessExceptionResolver)
+
+        context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {
+            context.'include-filter'(
+                    type:       'assignable',
+                    expression: AbstractHighDimensionDataTypeModule.canonicalName)
+        }
+
+        context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {
+            context.'include-filter'(
+                    type:       'annotation',
+                    expression: Component.canonicalName)
+        }
     }
 
     def doWithDynamicMethods = { ctx ->

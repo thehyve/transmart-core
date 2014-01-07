@@ -1,10 +1,12 @@
 package org.transmartproject.db.ontology
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.concept.ConceptKey
 
+@EqualsAndHashCode(includes = [ 'fullName', 'name' ])
 abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         implements OntologyTerm {
 

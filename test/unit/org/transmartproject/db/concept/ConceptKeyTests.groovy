@@ -1,13 +1,11 @@
 package org.transmartproject.db.concept
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
 import org.junit.Test
 
-import static org.hamcrest.MatcherAssert.*
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-
-import grails.test.mixin.*
-import grails.test.mixin.support.*
-
 
 @TestMixin(GrailsUnitTestMixin)
 class ConceptKeyTests {

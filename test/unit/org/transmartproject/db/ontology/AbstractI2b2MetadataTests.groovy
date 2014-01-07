@@ -1,10 +1,10 @@
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.*
-import grails.test.mixin.support.*
-import org.junit.*
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import org.junit.Before
 
-import static org.hamcrest.MatcherAssert.*
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 /**

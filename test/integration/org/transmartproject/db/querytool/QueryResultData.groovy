@@ -1,5 +1,7 @@
 package org.transmartproject.db.querytool
 
+import com.google.common.collect.Iterables
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.i2b2data.PatientDimension
 
@@ -41,6 +43,11 @@ class QueryResultData {
         }
 
         queryMaster
+    }
+
+    static QueryResult getQueryResultFromMaster(QtQueryMaster master) {
+        def f = { Iterables.getFirst it, null }
+        f(f(master.queryInstances).queryResults)
     }
 
 }

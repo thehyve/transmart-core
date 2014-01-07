@@ -1,8 +1,5 @@
 package org.transmartproject.db.http
 
-import grails.converters.JSON
-import grails.test.mixin.*
-import grails.test.mixin.support.*
 import groovy.json.JsonSlurper
 import org.junit.Before
 import org.junit.Test
@@ -11,7 +8,6 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.ontology.http.QueryToolController
-import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.querytool.QueriesResourceService
 import org.transmartproject.db.querytool.QueryDefinitionXmlService
 

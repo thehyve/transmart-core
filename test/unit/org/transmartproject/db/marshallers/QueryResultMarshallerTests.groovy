@@ -1,10 +1,9 @@
 package org.transmartproject.db.marshallers
 
-import grails.converters.JSON
-import grails.test.mixin.*
-import grails.test.mixin.support.*
-import groovy.json.JsonSlurper
-import org.junit.*
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import org.junit.Before
+import org.junit.Test
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.querytool.QtQueryResultInstance
 

@@ -2,10 +2,12 @@ package org.transmartproject.db.ontology
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.concept.ConceptKey
 
+@EqualsAndHashCode(includes = [ 'tableCode' ])
 class TableAccess extends AbstractQuerySpecifyingType implements
         OntologyTerm, Serializable {
 

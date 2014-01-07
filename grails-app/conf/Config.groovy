@@ -15,13 +15,12 @@ grails.databinding.trimStrings = false
 org.transmartproject.i2b2.user_id = 'i2b2'
 org.transmartproject.i2b2.group_id = 'Demo'
 
-/*
-Example configuration for using the reveng plugin
-grails.plugin.reveng.defaultSchema = 'i2b2demodata'
-grails.plugin.reveng.includeTables = ['qt_query_master', 'qt_query_instance',
-        'qt_query_result_instance']
-grails.plugin.reveng.packageName = 'org.transmartproject.db.querytool'
-*/
+///*
+//Example configuration for using the reveng plugin
+grails.plugin.reveng.defaultSchema = 'BIOMART'
+grails.plugin.reveng.includeTables = ['BIO_DATA_CORRELATION', 'BIO_DATA_CORREL_DESCR']
+grails.plugin.reveng.packageName = 'org.transmartproject.db.biomarker'
+//*/
 
 log4j = {
     // Example of changing the log pattern for the default console

@@ -1,5 +1,6 @@
 package org.transmartproject.db.http
 
+import grails.util.Holders
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.web.mapping.DefaultUrlMappingInfo
 import org.codehaus.groovy.grails.web.mapping.UrlMappingData
@@ -9,9 +10,14 @@ import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
+import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 
+import javax.annotation.PostConstruct
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -27,6 +33,14 @@ class BusinessExceptionResolver implements ServletContextAware,
     String controllerName = 'businessException'
     String actionName = 'index'
 
+    Boolean oldUrlMappings
+
+    @PostConstruct
+    void init() {
+        oldUrlMappings = Holders.pluginManager.
+                getGrailsPlugin('urlMappings').version ==~ /2\.2\..+/
+    }
+
     private final ModelAndView EMPTY_MV = new ModelAndView()
 
     public final static String REQUEST_ATTRIBUTE_STATUS = 'org' +
@@ -35,11 +49,15 @@ class BusinessExceptionResolver implements ServletContextAware,
             '.transmartproject.db.http.BusinessExceptionResolver.EXCEPTION'
 
     static statusCodeMappings = [
-        /* we may want to make this list dynamic in future, for instance by
-         * marking the relevant exceptions with an annotation
-         */
-        (NoSuchResourceException): HttpServletResponse.SC_NOT_FOUND,
-        (InvalidRequestException): HttpServletResponse.SC_BAD_REQUEST,
+            /* we may want to make this list dynamic in future, for instance by
+             * marking the relevant exceptions with an annotation
+             */
+            (NoSuchResourceException):        HttpServletResponse.SC_NOT_FOUND,
+            (InvalidRequestException):        HttpServletResponse.SC_BAD_REQUEST,
+            (InvalidArgumentsException):      HttpServletResponse.SC_BAD_REQUEST,
+            (EmptySetException):              HttpServletResponse.SC_NOT_FOUND,
+            (UnsupportedByDataTypeException): HttpServletResponse.SC_BAD_REQUEST,
+            (UnexpectedResultException):      HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
     ]
 
     private Throwable resolveCause(Throwable t) {
@@ -78,9 +96,27 @@ class BusinessExceptionResolver implements ServletContextAware,
         if (exceptionPlusStatus) {
             log.debug("BusinessExceptionResolver will handle exception ${e}")
             Map model = exceptionPlusStatus
-            UrlMappingInfo info = new DefaultUrlMappingInfo(controllerName,
-                    actionName, (Object) null, (Object) null, [:],
-                    (UrlMappingData) null, servletContext)
+
+            UrlMappingInfo info
+
+            if (!oldUrlMappings) {
+                info = new DefaultUrlMappingInfo(
+                    (Object) null, /* redirectInfo */
+                    controllerName,
+                    actionName,
+                    (Object) null, /* namespace */
+                    (Object) null, /* pluginName */
+                    (Object) null, /* viewName */
+                    (String) null, /* method */
+                    (String) null, /* version */
+                    [:],           /* params */
+                    (UrlMappingData) null,
+                    servletContext)
+            } else {
+                info = new DefaultUrlMappingInfo(controllerName,
+                        actionName, (Object) null, (Object) null, [:],
+                        (UrlMappingData) null, servletContext)
+            }
             WebUtils.forwardRequestForUrlMappingInfo(
                     request, response, info, model, true)
 
