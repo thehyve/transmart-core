@@ -14,7 +14,7 @@ Ideally, one would run the integration tests against a temporary in-memory
 database. This is the default. The grails-app/conf/DataSource.groovy has an H2
 data source configured.
 
-However, transitional considerations recommend alsl running the integration
+However, transitional considerations recommend also running the integration
 tests against a production database (PostgreSQL or Oracle). For this, you can
 either change the in-tree DataSource.groovy file mentioned before or you can
 (preferably) create a file in
