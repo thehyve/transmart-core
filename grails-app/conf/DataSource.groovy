@@ -1,14 +1,9 @@
-dataSource {
-    pooled = true
-    driverClassName = "org.h2.Driver"
-    username = "sa"
-    password = ""
-}
 hibernate {
     cache.use_second_level_cache = true
     cache.use_query_cache = false
     cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory'
 }
+
 // environment specific settings
 environments {
     /*development {
@@ -17,12 +12,13 @@ environments {
             url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
         }
     }*/
-    /*test {
+    test {
         dataSource {
-            dbCreate = "update"
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=" +
-                    "RUNSCRIPT FROM './h2_init.sql'"
-
+            dbCreate  = "update"
+            logSql    = true
+            formatSql = true
+            url       = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=" +
+                        "RUNSCRIPT FROM './h2_init.sql'"
         }
-    }*/
+    }
 }
