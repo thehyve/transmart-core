@@ -90,8 +90,8 @@ maxDrawNumber = 50
         }
 
         colcolor<-colnames(mRNAData)                                                           # assign colors for different subset
-        colcolor[grep("S1",colnames(mRNAData))]<-"orange"
-        colcolor[grep("S2",colnames(mRNAData))]<-"yellow"
+        colcolor[grep("^S1_|_S1_|_S1$",colnames(mRNAData))]<-"orange"
+        colcolor[grep("^S2_|_S2_|_S2$",colnames(mRNAData))]<-"yellow"
 
         mean_reorder<-rowMeans(mRNAData[,colcolor=="orange" ], na.rm = T)                      # reorder the data by rowmean of Subset 1
         mRNAData<-mRNAData[order(mean_reorder,decreasing = T),]
