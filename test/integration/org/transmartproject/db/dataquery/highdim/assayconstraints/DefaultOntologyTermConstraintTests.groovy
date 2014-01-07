@@ -41,5 +41,18 @@ class DefaultOntologyTermConstraintTests {
         )
     }
 
+    @Test
+    void testOntologyTermConstraintSupportsDisjunctions() {
+        AssayQuery assayQuery = new AssayQuery([
+                new DisjunctionAssayConstraint(constraints: [
+                        new DefaultTrialNameConstraint(trialName: 'bad name'),
+                        new DefaultOntologyTermConstraint(
+                                term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
+                        )])])
+
+        List<AssayColumn> assays = assayQuery.retrieveAssays()
+
+        assertThat assays, hasSize(3) /* see basic test */
+    }
 
 }

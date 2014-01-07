@@ -6,15 +6,18 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryResultInstance
 
@@ -168,12 +171,12 @@ class StandardAssayConstraintFactoryTests {
             assertThat shouldFail(InvalidArgumentsException) {
                 //few arguments
                 testee.createTrialNameConstraint [:]
-            }, containsString('exactly one parameter')
+            }, containsString('Missing required parameter "name"')
 
             assertThat shouldFail(InvalidArgumentsException) {
                 //bad argument name
                 testee.createTrialNameConstraint bad_name: 'foobar'
-            }, containsString('is not in map')
+            }, containsString('got the following parameters instead: [bad_name]')
 
             assertThat shouldFail(InvalidArgumentsException) {
                 //bad type
@@ -181,5 +184,121 @@ class StandardAssayConstraintFactoryTests {
             }, containsString('to be of type')
 
         }
+    }
+
+    @Test
+    void testCreateAssayIdListConstraint() {
+        AssayConstraint constraint = testee.createAssayIdListConstraint(ids: [0, '001'])
+        assertThat constraint, allOf(
+                isA(AssayIdListConstraint),
+                hasProperty('ids', contains(
+                        is(0L), is(1L)))
+        )
+    }
+
+    @Test
+    void testCreateAssayIsListConstraintEmptyList() {
+        assertThat shouldFail(InvalidArgumentsException) {
+            testee.createAssayIdListConstraint(ids: [])
+        }, containsString('empty list')
+    }
+
+    @Test
+    void testCreatDisjunctionConstraintTwoDifferentTypes() {
+        def trialName = 'foobar'
+
+        AssayConstraint constraint = testee.createDisjunctionConstraint(
+                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                subconstraints: [
+                        (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
+                                name: trialName
+                        ],
+                        (AssayConstraint.ASSAY_ID_LIST_CONSTRAINT): [
+                                ids: [0]
+                        ]
+                ])
+
+        assertThat constraint, allOf(
+                isA(DisjunctionAssayConstraint),
+                hasProperty('constraints', containsInAnyOrder(
+                        allOf(
+                                isA(DefaultTrialNameConstraint),
+                                hasProperty('trialName', is(trialName))
+                        ),
+                        allOf(
+                                isA(AssayIdListConstraint),
+                                hasProperty('ids', contains(0L))
+                        ))))
+    }
+
+    @Test
+    void testCreateDisjunctionConstraintTwoConstraintsOfSameType() {
+        def trialNames = ['t1', 't2']
+
+        AssayConstraint constraint = testee.createDisjunctionConstraint(
+                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                subconstraints: [
+                        (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
+                                [name: trialNames[0]],
+                                [name: trialNames[1]]]])
+
+        assertThat constraint, allOf(
+                isA(DisjunctionAssayConstraint),
+                hasProperty('constraints', containsInAnyOrder(
+                        trialNames.collect {
+                            allOf(
+                                    isA(DefaultTrialNameConstraint),
+                                    hasProperty('trialName', is(it))
+                            )
+                        })))
+    }
+
+    @Test
+    void testCreateNestedDisjunctionConstraint() {
+        def trialNames = ['t1', 't2', 't3', 't4']
+        def createFromParameters
+        createFromParameters = { a1, a2 -> testee.createFromParameters(a1, a2, createFromParameters) }
+
+        AssayConstraint constraint = testee.createDisjunctionConstraint(
+                createFromParameters,
+                subconstraints: [
+                        (AssayConstraint.DISJUNCTION_CONSTRAINT): [
+                                [
+                                    subconstraints: [
+                                            (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
+                                                    [name: trialNames[0]],
+                                                    [name: trialNames[1]]]]
+                                ],
+                                [
+                                    subconstraints: [
+                                            (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
+                                                    [name: trialNames[2]],
+                                                    [name: trialNames[3]]]]]]])
+
+
+        assertThat constraint, allOf(
+                isA(DisjunctionAssayConstraint),
+                hasProperty('constraints', allOf(
+                        everyItem(isA(DisjunctionAssayConstraint)),
+                        hasSize(2),
+                        everyItem(
+                                hasProperty('constraints', allOf(
+                                        everyItem(isA(DefaultTrialNameConstraint)),
+                                        hasSize(2)))))))
+    }
+
+    @Test
+    void testCreateDisjunctionOneSubconstraint() {
+        def trialName = 'foobar'
+
+        AssayConstraint constraint = testee.createDisjunctionConstraint(
+                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                subconstraints: [
+                        (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
+                                name: trialName]])
+
+        assertThat constraint, allOf(
+                isA(DefaultTrialNameConstraint),
+                hasProperty('trialName', equalTo(trialName)))
     }
 }

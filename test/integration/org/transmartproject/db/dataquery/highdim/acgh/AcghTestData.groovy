@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.dataquery.highdim.PlatformMarkerType
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -15,12 +14,14 @@ class AcghTestData {
 
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL'
 
+    static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
+
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
                 title: 'Test Region Platform',
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
-                markerTypeId: PlatformMarkerType.CHROMOSOMAL_REGION.id,
+                markerType: ACGH_PLATFORM_MARKER_TYPE,
                 releaseNumber: 18,
         )
         p.id = 'test-region-platform'

@@ -55,4 +55,18 @@ class DefaultPatientSetConstraintTests {
                 )
         )
     }
+
+    @Test
+    void testPatientSetConstraintSupportsDisjunctions() {
+        AssayQuery assayQuery = new AssayQuery([
+                new DisjunctionAssayConstraint(constraints: [
+                        new DefaultTrialNameConstraint(trialName: 'bad name'),
+                        new DefaultPatientSetConstraint(
+                                queryResult: firstPatientResult
+                        )])])
+
+        List<AssayColumn> assays = assayQuery.retrieveAssays()
+
+        assertThat assays, hasSize(3) /* see basic test */
+    }
 }

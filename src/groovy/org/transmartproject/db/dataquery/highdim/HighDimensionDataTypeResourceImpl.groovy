@@ -7,6 +7,7 @@ import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -106,5 +107,10 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     Projection createProjection(Map<String, Object> params, String name)
             throws UnsupportedByDataTypeException {
         module.createProjection name, params
+    }
+
+    @Override
+    boolean matchesPlatform(Platform platform) {
+        module.matchesPlatform platform
     }
 }

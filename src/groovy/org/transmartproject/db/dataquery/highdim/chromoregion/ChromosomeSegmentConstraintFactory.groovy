@@ -6,6 +6,9 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
 
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
+
 @Component
 class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFactory {
 

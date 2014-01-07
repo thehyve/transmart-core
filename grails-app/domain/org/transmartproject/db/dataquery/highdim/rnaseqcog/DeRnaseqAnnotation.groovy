@@ -11,21 +11,31 @@ class DeRnaseqAnnotation implements Serializable {
     // irrelevant
     //String organism
 
+    static transients = ['id']
+
     static belongsTo = [ platform: DeGplInfo ]
 
     static mapping = {
         table    schema: 'deapp'
-        id       column: 'probeset_id', generator: 'assigned'
+        id       name: 'transcriptId', generator: 'assigned'
 
         platform column: 'gpl_id'
         version  false
     }
 
     static constraints = {
-        transcriptId nullable: true, maxSize: 50
+        transcriptId maxSize: 50
         geneSymbol   nullable: true, maxSize: 50
         geneId       nullable: true, maxSize: 50
 
         //organism nullable: true, maxSize: 30
+    }
+
+    void setId(String id) {
+        transcriptId = id
+    }
+
+    String getId() {
+        transcriptId
     }
 }

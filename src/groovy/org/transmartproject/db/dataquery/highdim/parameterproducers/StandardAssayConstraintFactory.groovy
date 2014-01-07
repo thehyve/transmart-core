@@ -9,9 +9,19 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.NoopAssayConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.NoopDataConstraint
+
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processLongList
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.validateParameterNames
 
 /**
  * Created by glopes on 11/18/13.
@@ -24,6 +34,9 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
 
     @Autowired
     QueriesResource queriesResource
+
+    private DisjunctionConstraintFactory disjunctionConstraintFactory =
+            new DisjunctionConstraintFactory(DisjunctionAssayConstraint, NoopAssayConstraint)
 
     @ProducerFor(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
     AssayConstraint createOntologyTermConstraint(Map<String, Object> params) {
@@ -64,13 +77,26 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
 
     @ProducerFor(AssayConstraint.TRIAL_NAME_CONSTRAINT)
     AssayConstraint createTrialNameConstraint(Map<String, Object> params) {
-        if (params.size() != 1) {
-            throw new InvalidArgumentsException("Expected exactly one parameter (name), got $params")
-        }
 
+        validateParameterNames(['name'], params)
         def name = getParam params, 'name', String
 
         new DefaultTrialNameConstraint(trialName: name)
+    }
+
+    @ProducerFor(AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+    AssayConstraint createAssayIdListConstraint(Map<String, Object> params) {
+        validateParameterNames(['ids'], params)
+        def ids = processLongList 'ids', params.ids
+
+        new AssayIdListConstraint(ids: ids)
+    }
+
+    @ProducerFor(AssayConstraint.DISJUNCTION_CONSTRAINT)
+    AssayConstraint createDisjunctionConstraint(Map<String, Object> params,
+                                                Object createConstraint) {
+        disjunctionConstraintFactory.
+                createDisjunctionConstraint params, createConstraint
     }
 
 }

@@ -21,7 +21,6 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
     def queriesResourceService
     def sessionFactory
-    def patientSetQueryBuilderService
 
     private void addObservationFact(Map extra,
                                     String conceptCd,
@@ -37,8 +36,8 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         ObservationFact fact = new ObservationFact([
                 *:commonProperties,
                 *:extra,
-                conceptCd:  conceptCd,
-                patientNum: patientNum,
+                conceptCode:  conceptCd,
+                patient: PatientDimension.load(patientNum),
         ])
         def ret = fact.save()
         assertThat(ret, is(notNullValue()))
@@ -46,7 +45,7 @@ class QueriesResourceServiceTests extends GroovyTestCase {
 
     private void addConceptDimension(String conceptCd, String conceptPath) {
         ConceptDimension conceptDimension = new ConceptDimension(
-                conceptCd:   conceptCd,
+                conceptCode:   conceptCd,
                 conceptPath: conceptPath
         )
         def ret = conceptDimension.save()
@@ -88,15 +87,15 @@ class QueriesResourceServiceTests extends GroovyTestCase {
         }
 
         /* 3. Create facts */
-        addObservationFact('A:B', 100, valtypeCd: 'N', nvalNum: 50, tvalChar: 'E')
-        addObservationFact('A:C', 100, valtypeCd: 'T', tvalChar: 'FOO')
-        addObservationFact('A:B', 101, valtypeCd: 'N', nvalNum: 75, tvalChar: 'E')
-        addObservationFact('A:B', 102, valtypeCd: 'N', nvalNum: 99, tvalChar: 'E')
-        addObservationFact('A:B', 103, valtypeCd: 'N', nvalNum: 40, tvalChar: 'GE')
-        addObservationFact('A:B', 104, valueflagCd: 'L')
-        addObservationFact('A:B', 105, valtypeCd: 'N', tvalChar: 'BAR')
-        addObservationFact('A:C', 105, valtypeCd: 'N', nvalNum: 40, tvalChar: 'L')
-        addObservationFact('A:C', 106, valtypeCd: 'N', tvalChar: 'XPTO')
+        addObservationFact('A:B', 100, valueType: 'N', numberValue: 50, textValue: 'E')
+        addObservationFact('A:C', 100, valueType: 'T', textValue: 'FOO')
+        addObservationFact('A:B', 101, valueType: 'N', numberValue: 75, textValue: 'E')
+        addObservationFact('A:B', 102, valueType: 'N', numberValue: 99, textValue: 'E')
+        addObservationFact('A:B', 103, valueType: 'N', numberValue: 40, textValue: 'GE')
+        addObservationFact('A:B', 104, valueFlag: 'L')
+        addObservationFact('A:B', 105, valueType: 'N', textValue: 'BAR')
+        addObservationFact('A:C', 105, valueType: 'N', numberValue: 40, textValue: 'L')
+        addObservationFact('A:C', 106, valueType: 'N', textValue: 'XPTO')
 
         /* 4. Flush session so these objects are available from SQL */
         sessionFactory.currentSession.flush()

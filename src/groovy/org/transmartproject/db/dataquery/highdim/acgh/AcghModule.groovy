@@ -23,6 +23,8 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     static final String ACGH_VALUES_PROJECTION = 'acgh_values'
 
+    final String platformMarkerType = 'Chromosomal'
+
     final String name = 'acgh'
 
     @Autowired

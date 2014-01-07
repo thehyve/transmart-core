@@ -36,11 +36,11 @@ class AssayTestData {
         [
                 new ConceptDimension(
                         conceptPath: '\\foo\\bar\\',
-                        conceptCd: 'CODE-BAR'
+                        conceptCode: 'CODE-BAR'
                 ),
                 new ConceptDimension(
                         conceptPath: '\\foo\\xpto\\',
-                        conceptCd: 'CODE-XPTO'
+                        conceptCode: 'CODE-XPTO'
                 )
         ]
     }()
@@ -48,11 +48,11 @@ class AssayTestData {
     List<DeSubjectSampleMapping> assays = {
         //save is cascaded to the platform
         HighDimTestData.createTestAssays(patients, -200, platform,
-                'SAMPLE_TRIAL_1', dimensionConcepts[0].conceptCd) +
+                'SAMPLE_TRIAL_1', dimensionConcepts[0].conceptCode) +
             HighDimTestData.createTestAssays(patients, -300, platform,
-                    'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCd) +
+                    'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCode) +
             HighDimTestData.createTestAssays(patients, -400, platform,
-                    'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCd)
+                    'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCode)
     }()
 
     void saveAll() {

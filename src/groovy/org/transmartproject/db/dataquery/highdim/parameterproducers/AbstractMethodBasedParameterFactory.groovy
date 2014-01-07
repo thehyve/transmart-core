@@ -54,31 +54,4 @@ class AbstractMethodBasedParameterFactory implements DataRetrievalParameterFacto
             throw ite.targetException
         }
     }
-
-    final protected Object getParam(Map params, String paramName, Class type) {
-        def result = params[paramName]
-
-        if (result == null) {
-            throw new InvalidArgumentsException("The parameter $paramName is not in map $params")
-        }
-
-
-        if (!type.isAssignableFrom(result.getClass())) {
-            throw new InvalidArgumentsException("Expected parameter $paramName to be of type $type; " +
-                    "got class ${result.getClass()}")
-        }
-
-        result
-    }
-
-    final protected Long convertToLong(String paramName, Object obj) {
-        if (obj instanceof Number) {
-            obj = obj.longValue()
-        } else if (obj instanceof String && obj.isLong()) {
-            obj = obj.toLong()
-        } else {
-            throw new InvalidArgumentsException("Invalid value for $paramName: $obj")
-        }
-        obj
-    }
 }

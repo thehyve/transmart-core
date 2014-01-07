@@ -15,12 +15,12 @@ class DefaultOntologyTermConstraint extends AbstractAssayConstraint {
 
     @Override
     void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        builder.instance.add(
+        builder.addToCriteria(
                 // we have to drop to hibernate because apparently
                 // HibernateCriteriaBuilder doesn't support subqueries with IN clauses
                 Property.forName('conceptCode').in(
                         DetachedCriteria.forClass(ConceptDimension).
-                                setProjection(Property.forName('conceptCd')).
+                                setProjection(Property.forName('conceptCode')).
                                 add(Restrictions.eq('conceptPath', term.fullName)))
         )
     }

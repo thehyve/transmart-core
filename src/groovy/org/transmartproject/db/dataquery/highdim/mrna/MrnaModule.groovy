@@ -1,10 +1,14 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import com.google.common.collect.AbstractIterator
+import com.google.common.collect.Iterators
+import com.google.common.collect.PeekingIterator
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -20,6 +24,8 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mrna'
+
+    final String platformMarkerType = 'Gene Expression'
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -48,8 +54,9 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 property 'p.organism',   'organism'
             }
 
-            order 'p.id',     'asc'
-            order 'assay.id', 'asc' // important! See assumption below
+            order 'p.id',         'asc'
+            order 'p.geneSymbol', 'asc' // see below
+            order 'assay.id',     'asc' // important! See assumption below
 
             // because we're using this transformer, every column has to have an alias
             instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
@@ -66,14 +73,14 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult(
                 rowsDimensionLabel:    'Probes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                allowMissingAssays:    false,
+                allowMissingAssays:    true,
                 assayIdFromRow:        { it[0].assay.id },
-                inSameGroup:           { a, b -> a.probeId == b.probeId },
+                inSameGroup:           { a, b -> a.probeId == b.probeId && a.geneSymbol == b.geneSymbol },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
                      * but we're guaranteed to have at least one non-null */
@@ -87,6 +94,54 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 }
         )
 
+        /* In some implementations, probeset_id is actually not a primary key on
+         * the annotations table and several rows will be returned for the same
+         * probeset_id, just with different genes.
+         * Hence the order by clause and the definition of inSameGroup above */
+        new TabularResult<DataColumn, ProbeRow>() {
+            @Delegate
+            TabularResult<DataColumn, ProbeRow> delegate = preliminaryResult
+
+            Iterator<ProbeRow> getRows() {
+                new RepeatedProbesCollectingIterator(delegate.iterator())
+            }
+
+            Iterator<ProbeRow> iterator() {
+                getRows()
+            }
+        }
+    }
+
+    public static class RepeatedProbesCollectingIterator
+            extends AbstractIterator<ProbeRow> {
+
+        PeekingIterator<ProbeRow> sourceIterator
+
+        RepeatedProbesCollectingIterator(Iterator<ProbeRow> sourceIterator) {
+            this.sourceIterator = Iterators.peekingIterator sourceIterator
+        }
+
+        @Override
+        protected ProbeRow computeNext() {
+            List<ProbeRow> collected = []
+            if (!sourceIterator.hasNext()) {
+                endOfData()
+                return
+            }
+
+            collected << sourceIterator.next()
+            while (sourceIterator.hasNext() &&
+                    sourceIterator.peek().probe != null &&
+                    sourceIterator.peek().probe == collected[0].probe) {
+                collected << sourceIterator.next()
+            }
+
+            if (collected.size() > 1) {
+                /* modify 1st element with info from subsequents */
+                collected[0].geneSymbol = collected*.geneSymbol.join('/')
+            }
+            collected[0]
+        }
     }
 
     @Override

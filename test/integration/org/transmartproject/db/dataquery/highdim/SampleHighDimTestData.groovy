@@ -15,7 +15,7 @@ class SampleHighDimTestData {
         def p = new DeGplInfo(
                 title: 'Test Generic Platform',
                 organism: 'Homo Sapiens',
-                markerTypeId: 'generic',
+                markerType: 'generic',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
                 releaseNumber: 18,
         )

@@ -1,8 +1,11 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
+import groovy.sql.Sql
+import org.hibernate.Session
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -10,16 +13,21 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.db.dataquery.highdim.*
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
+import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
 
-import static groovy.test.GroovyAssert.shouldFail
+import javax.sql.DataSource
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
@@ -33,6 +41,10 @@ class MrnaDataRetrievalTests {
     @Qualifier('mrnaModule')
     HighDimensionDataTypeModule mrnaModule
 
+    def sessionFactory
+
+    DataSource dataSource
+
     HighDimensionDataTypeResource resource
 
     TabularResult dataQueryResult
@@ -40,6 +52,12 @@ class MrnaDataRetrievalTests {
     CorrelationTypesRegistry correlationTypesRegistry
 
     MrnaTestData testData = new MrnaTestData()
+
+    DefaultTrialNameConstraint trialNameConstraint =
+            new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+
+    SimpleRealProjection rawIntensityProjection =
+            new SimpleRealProjection(property: 'rawIntensity')
 
     @Before
     void setUp() {
@@ -59,14 +77,12 @@ class MrnaDataRetrievalTests {
 
     @Test
     void basicTest() {
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+        trialNameConstraint = new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+        List assayConstraints = [trialNameConstraint]
         List dataConstraints = []
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         assertThat dataQueryResult, allOf(
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
@@ -104,7 +120,7 @@ class MrnaDataRetrievalTests {
                 contains(
                         allOf(
                             hasProperty('bioMarker', equalTo('BOGUSVNN3')),
-                            hasProperty('label', equalTo('1553510_s_at')),
+                            hasProperty('label', equalTo('1553513_at')),
                         ),
                         hasProperty('bioMarker', equalTo('BOGUSRQCD1')),
                         hasProperty('bioMarker', equalTo('BOGUSCPO')),
@@ -139,19 +155,15 @@ class MrnaDataRetrievalTests {
 
     @Test
     void testWithGeneConstraint() {
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+        List assayConstraints = [trialNameConstraint]
         List dataConstraints = [
                 createGenesDataConstraint([
                         testData.searchKeywords.
                                 find({ it.keyword == 'BOGUSRQCD1' }).id
                 ])
         ]
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
-
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -163,10 +175,23 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
-    void testWithDisjunctionConstraint() {
+    void testWithDisjunctionAssayConstraint() {
         List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
+                new DisjunctionAssayConstraint(constraints: [
+                        new AssayIdListConstraint(ids: [testData.assays[0].id]),
+                        new AssayIdListConstraint(ids: [testData.assays[1].id])])]
+
+        dataQueryResult =
+                resource.retrieveData assayConstraints, [], rawIntensityProjection
+
+        assertThat dataQueryResult.indicesList, contains(
+                hasProperty('id', is(testData.assays[1].id)),
+                hasProperty('id', is(testData.assays[0].id)))
+    }
+
+    @Test
+    void testWithDisjunctionDataConstraint() {
+        List assayConstraints = [trialNameConstraint]
         /* in this particular case, you could just use one constraint
          * and include two ids in the list */
         List dataConstraints = [
@@ -180,10 +205,8 @@ class MrnaDataRetrievalTests {
                 ])
         ]
 
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
-
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, projection
+            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -198,20 +221,15 @@ class MrnaDataRetrievalTests {
                 testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
 
-        List assayConstraints = [
-                new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
-        ]
-
-        def projection = new SimpleRealProjection(property: 'rawIntensity')
+        List assayConstraints = [trialNameConstraint]
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, [], projection
+            resource.retrieveData assayConstraints, [], rawIntensityProjection
     }
 
     @Test
     void testWithMissingAssayLowestIdNumber() {
         testWithMissingDataAssay(-50000L)
-        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
 
         assertThat dataQueryResult.indicesList[0],
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
@@ -231,7 +249,6 @@ class MrnaDataRetrievalTests {
     @Test
     void testWithMissingAssayHighestIdNumber() {
         testWithMissingDataAssay(5000000L)
-        ((DefaultHighDimensionTabularResult) dataQueryResult).allowMissingAssays = true
 
         assertThat dataQueryResult.indicesList[2],
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
@@ -249,12 +266,82 @@ class MrnaDataRetrievalTests {
     }
 
     @Test
-    void testWithMissingAssayDisallowMissingAssays() {
+    void testWithMissingAssayAllowMissingAssays() {
         testWithMissingDataAssay(-50000L)
-        // default is not allowing missing assays
+        assertThat Lists.newArrayList(dataQueryResult.rows), everyItem(
+                hasProperty('data', allOf(
+                        hasSize(3), // for the three assays
+                        contains(
+                                is(nullValue()),
+                                is(notNullValue()),
+                                is(notNullValue()),
+                        )
+                ))
+        )
+    }
 
-        assertThat shouldFail(UnexpectedResultException) {
-            dataQueryResult.rows.next
-        }, hasProperty('message', containsString('Assay ids not found: [-50001]'))
+    @Test
+    @Ignore // this somehow breaks 3 tests in MrnaGeneDataConstraintTests
+            // saying the column correl.correl_type does not exist (!)
+    void testWithDuplicateProbes() {
+        /* this tests support for a schema variation where probeset_id is not
+         * a primary key for the annotation table and actually the same probe
+         * can be repeated but with different genes associated */
+
+        /* The ALTER TABLE statements commit the transaction and therefore the
+         * data won't be cleaned up afterwards.
+         * Try to save the database state and restore it later */
+        Session session = sessionFactory.currentSession
+        File schemaDump = File.createTempFile("coredb-database-dump", ".sql")
+        Sql sql = new Sql(dataSource)
+        sql.execute "SCRIPT DROP TO '${schemaDump.absolutePath}'"
+
+        String constraint = session.createSQLQuery('''
+                SELECT constraint_name FROM information_schema.constraints
+                WHERE table_name = 'DE_SUBJECT_MICROARRAY_DATA' AND column_list = 'PROBESET_ID'
+        ''').list()[0]
+        runStatement "ALTER TABLE deapp.de_subject_microarray_data DROP CONSTRAINT $constraint"
+        runStatement 'ALTER TABLE deapp.de_mrna_annotation DROP PRIMARY KEY'
+        try {
+            runStatement """
+                    insert into deapp.de_mrna_annotation(probeset_id, probe_id, gene_symbol, gene_id)
+                    values('${testData.annotations[0].id}',
+                            '${testData.annotations[0].probeId}',
+                            'Z_EXTRA_GENE_SYMB',
+                            '0')
+                    """
+
+            trialNameConstraint = new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+            List assayConstraints = [trialNameConstraint]
+            List dataConstraints = []
+
+            dataQueryResult =
+                    resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
+
+
+            ArrayList results = Lists.newArrayList(dataQueryResult)
+            assertThat results, allOf(
+                    hasSize(3),
+                    hasItem(allOf(
+                            hasProperty('geneSymbol',
+                                    anyOf(
+                                            equalTo('BOGUSCPO/Z_EXTRA_GENE_SYMB'),
+                                            equalTo('Z_EXTRA_GENE_SYMB/BOGUSCPO'))),
+                            contains(
+                                    testData.microarrayData.
+                                            findAll { it.probe.geneSymbol == 'BOGUSCPO' }.
+                                            sort { it.assay.id }.
+                                            collect {
+                                                closeTo(it.rawIntensity as Double, DELTA)
+                                            }))))
+        } finally {
+            sql.execute "RUNSCRIPT FROM ${schemaDump.absolutePath}"
+            session.clear()
+            schemaDump.delete()
+        }
+    }
+
+    private runStatement(String statement) {
+        sessionFactory.currentSession.createSQLQuery(statement).executeUpdate()
     }
 }

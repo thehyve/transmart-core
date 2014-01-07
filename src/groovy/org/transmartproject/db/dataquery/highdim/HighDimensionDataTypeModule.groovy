@@ -5,7 +5,10 @@ import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -73,9 +76,20 @@ public interface HighDimensionDataTypeModule {
 
     /**
      * Transform the query result into the final object to be returned by
-     * {@link org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource#retrieveData()}.
+     * {@link HighDimensionDataTypeResource#retrieveData(List, List, Projection)}.
      */
     TabularResult transformResults(ScrollableResults results,
                                      List<AssayColumn> assays,
                                      Projection projection)
+
+    /**
+     * Whether the platform passed in refers to data of the type implemented by
+     * this module.
+     *
+     * See {@link HighDimensionDataTypeResource#matchesPlatform(Platform)}.
+     *
+     * @param platform the platform to match
+     * @return true iif the the platform and this data type match
+     */
+    boolean matchesPlatform(Platform platform)
 }
