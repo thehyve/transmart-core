@@ -85,7 +85,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     @Override
     AssayConstraint createAssayConstraint(Map<String, Object> params, String name) {
         def res = assayConstraintFactory.createFromParameters(name, params,
-                null /* not needed */)
+                { name2, params2 -> createAssayConstraint(params2, name2) })
 
         if (!res) {
             throw new InvalidArgumentsException(
