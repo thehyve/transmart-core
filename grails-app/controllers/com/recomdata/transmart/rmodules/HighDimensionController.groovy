@@ -42,8 +42,12 @@ class HighDimensionController {
         def constraints = []
 
         constraints << highDimensionResourceService.createAssayConstraint(
-                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
-                concept_key: params.conceptKey)
+                AssayConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                (params.conceptKeys instanceof String[] ?
+                                        params.conceptKeys :
+                                        [params.conceptKeys]).collect {[concept_key: it]} ])
 
         def assayMultiMap = highDimensionResourceService.
                 getSubResourcesAssayMultiMap(constraints)
