@@ -1,4 +1,8 @@
-/*************************************************************************   
+import com.google.common.collect.ImmutableMap
+import org.springframework.beans.factory.config.CustomScopeConfigurer
+import org.springframework.stereotype.Component
+
+/*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +46,23 @@ Brief description of the plugin.
     }
 
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+        xmlns context: 'http://www.springframework.org/schema/context'
+
+        context.'component-scan'('base-package': 'jobs') {
+            context.'include-filter'(
+                    type:       'annotation',
+                    expression: Component.canonicalName)
+        }
+
+        jobScopeConfigurer(CustomScopeConfigurer) {
+            scopes = ImmutableMap.of('job', ref('jobSpringScope'))
+        }
+
+        jobName(String) { bean ->
+            /* this bean is actually created manually and put
+             * in the storage for the job scope */
+            bean.scope = 'job'
+        }
     }
 
     def doWithDynamicMethods = { ctx ->

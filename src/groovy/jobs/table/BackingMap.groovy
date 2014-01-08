@@ -1,11 +1,12 @@
 package jobs.table
 
+import com.google.common.collect.Sets
 import org.mapdb.BTreeMap
 import org.mapdb.DB
 import org.mapdb.DBMaker
 import org.mapdb.Fun
 
-class BackingMap {
+class BackingMap implements AutoCloseable {
 
     private static final String MAPDB_TABLE_NAME = 'Rmodules_jobs_table'
     private static final int NODE_SIZE = 16
@@ -31,10 +32,21 @@ class BackingMap {
     void putCell(String primaryKey, int columnNumber, String value) {
         if (columnNumber < 0 || columnNumber >= numColumns) {
             throw new IllegalArgumentException("Bad column number, expected " +
-                    "number btween - and ${numColumns - 1}, got $columnNumber")
+                    "number between - and ${numColumns - 1}, got $columnNumber")
         }
 
         map[Fun.t2(primaryKey, columnNumber)] = value
+    }
+
+    public Set<String> getPrimaryKeys() {
+        Set<String> ret = Sets.newHashSet()
+
+        // not very efficient
+        map.keySet().each { Fun.Tuple2<String, Integer> pair ->
+            ret << pair.a
+        }
+
+        ret
     }
 
     public Iterable<Fun.Tuple2<String, List<String>>> getRowIterable() {
@@ -45,10 +57,6 @@ class BackingMap {
             Map.Entry<Fun.Tuple2<String, Integer>, String> entry = null
             if (entrySet.hasNext()) {
                 entry = entrySet.next()
-            }
-
-            if (entry && entry.key.b != 0) {
-                throw new RuntimeException('foo bar')
             }
 
             [
@@ -77,4 +85,8 @@ class BackingMap {
         } as Iterable
     }
 
+    @Override
+    void close() throws Exception {
+        map.close()
+    }
 }

@@ -12,7 +12,7 @@ class SimpleConceptVariableColumn extends AbstractColumn {
 
     ClinicalVariableColumn column
 
-    PatientRow lastRow
+    private PatientRow lastRow
 
     @Override
     void onReadRow(String dataSourceName, Object row) {
@@ -23,10 +23,15 @@ class SimpleConceptVariableColumn extends AbstractColumn {
 
     @Override
     Map<String, String> consumeResultingTableRows() {
+        if (!lastRow) return ImmutableMap.of()
+
         /* if we only subscribe one source, as we should, there calls to
          * onReadRow() are guaranteed to be called interleaved with
          * consumeResultingTableRow */
-        ImmutableMap.of(getPrimaryKey(lastRow), (String) lastRow.getAt(column))
+        def res = ImmutableMap.of(getPrimaryKey(lastRow),
+                (String) lastRow.getAt(column))
+        lastRow = null
+        res
     }
 
     protected String getPrimaryKey(PatientRow row) {

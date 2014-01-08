@@ -1,18 +1,20 @@
 package jobs.table.columns
 
 import com.google.common.collect.ImmutableMap
+import groovy.util.logging.Log4j
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
 
+@Log4j
 class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
     final boolean globalComputation = false
 
     private DataRow row
 
-    List<AssayColumn> assays
+    private List<AssayColumn> assays
 
     @Override
     void beforeDataSourceIteration(String dataSourceName, Iterable dataSource) {
@@ -26,7 +28,8 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
         assert row instanceof DataRow
 
         if (this.row) {
-            throw new UnexpectedResultException('Expected only one row')
+            log.warn("Further rows from $dataSourceName ignored")
+            return
         }
 
         this.row = row
@@ -34,11 +37,13 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
     @Override
     Map<String, String> consumeResultingTableRows() {
-        ImmutableMap.Builder builder = ImmutableMap.builder()
+        if (!row) return ImmutableMap.of()
 
+        ImmutableMap.Builder builder = ImmutableMap.builder()
         assays.each {
             builder.put(it.patientInTrialId, (row[it] ?: '') as String)
         }
+        row = null
         builder.build()
     }
 

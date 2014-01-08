@@ -5,13 +5,19 @@ import com.google.common.base.Predicate
 import com.google.common.collect.*
 import groovy.transform.CompileStatic
 import org.mapdb.Fun
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
+@Component
+@Scope('job')
 @CompileStatic
-class Table {
+class Table implements AutoCloseable {
 
     private BiMap<String, Iterable> dataSources = HashBiMap.create()
 
     private List<Column> columns = Lists.newArrayList()
+
+    private Map<Column, Integer> columnsToIndex = Maps.newHashMap()
 
     private SortedSetMultimap<Iterable, Column> dataSourceSubscriptions
 
@@ -31,7 +37,28 @@ class Table {
     }
 
     void addDataSource(String name, Iterable dataSource) {
+        if (dataSources.containsKey(name) && dataSources[name] != dataSource) {
+            throw new IllegalStateException("Data source with $name " +
+                    "already exists and it is different. Currently " +
+                    "registered data source under this name is $dataSource")
+        }
+        if (dataSources.containsValue(dataSource) &&
+                dataSources.inverse().get(dataSource) != name) {
+            throw new IllegalStateException("Data source $dataSource " +
+                    "was already registered under the name " +
+                    "${dataSources.inverse().get(dataSource)}; " +
+                    "given name $name this time")
+        }
+
         dataSources[name] = dataSource
+    }
+
+    String getDataSourceName(Iterable dataSource) {
+        dataSources.inverse()[dataSource]
+    }
+
+    Iterable getDataSource(String name) {
+        dataSources[name]
     }
 
     void addColumn(Column col, Set<String> subscribedDataSources) {
@@ -42,6 +69,7 @@ class Table {
         }
 
         columns << col
+        columnsToIndex[col] = columns.size() - 1
 
         for (dataSourceName in subscribedDataSources) {
             dataSourceSubscriptions.put(dataSources[dataSourceName], col)
@@ -80,7 +108,7 @@ class Table {
         }
 
         def transformed = Iterables.transform(backingMap.rowIterable,
-                { Fun.Tuple2<String, List<String>> from ->
+                { Fun.Tuple2<String, List<String>> from -> /* (pk, list of values) */
                     for (int i = 0; i < from.b.size(); i++) {
                         if (from.b[i] == null) {
                             def replacement =
@@ -111,6 +139,7 @@ class Table {
         }
 
         afterIterableDepleted dataSourceName, dataSource
+        afterAllDataSourcesDepleted()
     }
 
     private void buildTableGeneralCase() {
@@ -141,14 +170,24 @@ class Table {
             dataSourcesToRemove.clear()
         }
 
+        quasiFinalProcessing()
+        afterAllDataSourcesDepleted()
+    }
+
+    private Map quasiFinalProcessing() {
         /* consume rows for GlobalComputationColumn columns
          * and columns without subscriptions */
+
         columns.findAll { Column it ->
             it.globalComputation ||
                     !dataSourceSubscriptions.values().contains(it)
-        }.collectEntries { Column it -> [columns.indexOf(it),
-                it.consumeResultingTableRows() ]
+        }.collectEntries { Column it ->
+            [columns.indexOf(it),
+                    it.consumeResultingTableRows()]
         }.each { int columnNumber, Map<String, String> values ->
+            if (values == null) {
+                throw new RuntimeException("Column $columnNumber returned a null map")
+            }
             values.each { String primaryKey, String cellValue ->
                 backingMap.putCell primaryKey, columnNumber, cellValue
             }
@@ -156,15 +195,14 @@ class Table {
     }
 
     private void processSourceRow(Object row, String dataSourceName, Iterable dataSource) {
-        dataSourceSubscriptions.get(dataSource).eachWithIndex{ Column col,
-                                                               Integer colNumber ->
+        dataSourceSubscriptions.get(dataSource).each { Column col ->
             col.onReadRow dataSourceName, row
             if (col.globalComputation) {
                 return
             }
             col.consumeResultingTableRows().each { String pk,
                                                    String value ->
-                backingMap.putCell pk, colNumber, value
+                backingMap.putCell pk, columnsToIndex[col], value
             }
         }
     }
@@ -183,9 +221,57 @@ class Table {
     private void afterIterableDepleted(String dataSourceName,
                                        Iterable dataSource) {
         dataSourceSubscriptions.get(dataSource).each { Column col ->
-            col.onDataSourceDepleted dataSourceName, dataSource, backingMap
+            col.onDataSourceDepleted dataSourceName, dataSource
         }
     }
 
+    private void afterAllDataSourcesDepleted() {
+        columns.eachWithIndex { Column column, int index ->
+            column.onAllDataSourcesDepleted(index, backingMap)
+        }
+    }
 
+    List<String> getHeaders() {
+        columns.collect { Column it ->
+            it.header
+        }
+    }
+
+    @Override
+    void close() {
+        def backingMapException
+
+        try {
+            backingMap?.close()
+            backingMap = null
+        } catch (Exception e) {
+            backingMapException = e
+        }
+
+        def dataSourceExceptions = [:]
+
+        for (Iterable dataSource in dataSources.values()) {
+            try {
+                if (dataSource instanceof Closeable) {
+                    ((Closeable) dataSource).close()
+                } else if (dataSource instanceof AutoCloseable) {
+                    ((AutoCloseable) dataSource).close()
+                }
+            } catch (Exception e) {
+                dataSourceExceptions[dataSource] = e
+            }
+        }
+
+        if (backingMapException != null) {
+            throw backingMapException
+        }
+
+        if (!dataSourceExceptions.isEmpty()) {
+            throw new RuntimeException("One or more dataSourceExceptions when " +
+                    "closing data sources: " + dataSourceExceptions.collect {
+                Iterable ds, Exception e ->
+                "$ds (${dataSources.inverse().getAt(ds)}): $e.message"
+            }.join(', '), (Throwable)Iterables.getFirst(dataSourceExceptions.values(), null))
+        }
+    }
 }

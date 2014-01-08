@@ -1,5 +1,6 @@
 package jobs.steps
 
+import jobs.UserParameters
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -13,7 +14,7 @@ class OpenHighDimensionalDataStep implements Step {
     final String statusName = 'Gathering Data'
 
     /* in */
-    Map<String, Object> params
+    UserParameters params
     HighDimensionDataTypeResource dataTypeResource
 
     /* out */
@@ -87,7 +88,7 @@ class OpenHighDimensionalDataStep implements Step {
      * @param conceptPath
      * @return String conceptKey
      */
-    private static String createConceptKeyFrom(String conceptPath) {
+    public static String createConceptKeyFrom(String conceptPath) {
         // This crazy dance with slashes is "expected behaviour"
         // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
         def bs = '\\\\'

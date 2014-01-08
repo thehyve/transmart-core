@@ -3,6 +3,7 @@ package jobs.table
 import com.google.common.collect.ImmutableMap
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
+import jobs.table.columns.PrimaryKeyColumn
 import org.gmock.WithGMock
 import org.junit.Test
 
@@ -137,6 +138,8 @@ class TableTests {
 
         column.consumeResultingTableRows().returns(ImmutableMap.of('foo', 'bar'))
 
+        column.onAllDataSourcesDepleted(0, isA(BackingMap))
+
         play {
             testee.addDataSource DATA_SOURCE_NAME, sampleDataSource
             testee.addColumn(column, [] as Set)
@@ -190,8 +193,8 @@ class TableTests {
 
         columns << mockGlobalColumn(dataSourceNames[0], dataSources[0], rows[0],
                 ImmutableMap.of(rowPKs[0], 'datasource 1'))
-        columns << mockGlobalColumn(dataSourceNames[1], dataSources[1], rows[1],
-                ImmutableMap.of(rowPKs[0], 'datasource 2'))
+        columns << mockNonGlobalColumn(dataSourceNames[1], dataSources[1], rows[1],
+                [ ImmutableMap.of(rowPKs[0], 'datasource 2'), ImmutableMap.of() ])
 
         play {
             (0..1).each {
@@ -230,11 +233,12 @@ class TableTests {
                 column.consumeResultingTableRows().returns(ImmutableMap.of('1', '1')).atLeast(1)
             }
 
-            column.onDataSourceDepleted dataSourceNames[1], dataSources[1], isA(BackingMap)
+            column.onDataSourceDepleted dataSourceNames[1], dataSources[1]
             column.onReadRow dataSourceNames[0], rows[0][1]
             column.consumeResultingTableRows().returns(ImmutableMap.of('2', '2'))
 
-            column.onDataSourceDepleted dataSourceNames[0], dataSources[0], isA(BackingMap)
+            column.onDataSourceDepleted dataSourceNames[0], dataSources[0]
+            column.onAllDataSourcesDepleted(0, isA(BackingMap))
         }
 
         play {
@@ -266,7 +270,6 @@ class TableTests {
 
         columns.last().missingValueAction.returns(
                 new MissingValueAction.DropRowMissingValueAction())
-        println columns
 
         play {
             testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
@@ -276,6 +279,29 @@ class TableTests {
 
             assertThat testee.result, contains(
                     is(['col 1, row 2', 'col 2, row 2']))
+        }
+    }
+
+    @Test
+    void testOnAllDataSourcesDepleted() {
+        List<Column> columns = []
+        List         values
+
+        values = [ 'row1', 'row2' ]
+
+        columns << new PrimaryKeyColumn()
+        columns << mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+                combinePKsAndValues(twoPKs, values))
+
+        play {
+            testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
+            columns.each { testee.addColumn(it, [DATA_SOURCE_NAME] as Set) }
+
+            testee.buildTable()
+
+            assertThat testee.result, contains(
+                    is([twoPKs[0], values[0]]),
+                    is([twoPKs[1], values[1]]),)
         }
     }
 
@@ -309,7 +335,9 @@ class TableTests {
             // this is overspecified here. onDataSourceDepleted() could be called
             // before the last consumeResultingTableRows(), or
             // consumeResultingTableRows() could be called again afterwards.
-            column.onDataSourceDepleted(dataSourceName, dataSource, isA(BackingMap))
+            column.onDataSourceDepleted(dataSourceName, dataSource)
+
+            column.onAllDataSourcesDepleted(isA(Integer), isA(BackingMap))
         }
 
         column
@@ -331,9 +359,11 @@ class TableTests {
             }
 
             //depletion comes before here!
-            column.onDataSourceDepleted(dataSourceName, dataSource, isA(BackingMap))
+            column.onDataSourceDepleted(dataSourceName, dataSource)
 
             column.consumeResultingTableRows().returns(returnValue)
+
+            column.onAllDataSourcesDepleted(isA(Integer), isA(BackingMap))
         }
 
         column

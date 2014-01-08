@@ -7,7 +7,7 @@ interface Column {
      *
      * @return column name
      */
-    String getColumnHeader()
+    String getHeader()
 
     /**
      * What to do when a value is missing.
@@ -52,7 +52,16 @@ interface Column {
      *
      * @param dataSourceName
      */
-    void onDataSourceDepleted(String dataSourceName, Iterable dataSource, BackingMap backingMap)
+    void onDataSourceDepleted(String dataSourceName, Iterable dataSource)
+
+    /**
+     * Method called when all the tables' data sources (and not just the ones
+     * this column subscribes to) are exhausted.
+     *
+     * @param columnNumber
+     * @param backingMap
+     */
+    void onAllDataSourcesDepleted(int columnNumber, BackingMap backingMap)
 
     /**
      * Method called just before the data source starts being iterated

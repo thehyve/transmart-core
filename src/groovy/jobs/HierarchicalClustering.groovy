@@ -2,8 +2,12 @@ package jobs
 
 import jobs.steps.Step
 import jobs.steps.ValueGroupDumpDataStep
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
-class HierarchicalClustering extends AbstractAnalysisJob {
+@Component
+@Scope('job')
+class HierarchicalClustering extends HighDimensionalOnlyJob {
 
     @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {

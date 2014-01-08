@@ -2,8 +2,12 @@ package jobs
 
 import jobs.steps.PCADumpDataStep
 import jobs.steps.Step
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
-class PCA extends AbstractAnalysisJob {
+@Component
+@Scope('job')
+class PCA extends HighDimensionalOnlyJob {
 
     @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {

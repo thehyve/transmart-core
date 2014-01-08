@@ -2,8 +2,12 @@ package jobs
 
 import jobs.steps.Step
 import jobs.steps.ValueGroupDumpDataStep
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
-class KMeansClustering extends AbstractAnalysisJob {
+@Component
+@Scope('job')
+class KMeansClustering extends HighDimensionalOnlyJob {
 
 
     @Override

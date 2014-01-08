@@ -8,18 +8,23 @@ import jobs.table.MissingValueAction
 @CompileStatic
 abstract class AbstractColumn implements Column {
 
-    String columnHeader
+    String header
 
     MissingValueAction missingValueAction =
             new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '')
 
     @Override
-    void onDataSourceDepleted(String dataSourceName, Iterable dataSource, BackingMap backingMap) {
+    void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
         /* override to do something here */
     }
 
     @Override
     void beforeDataSourceIteration(String dataSourceName, Iterable dataSource) {
+        /* override to do something here */
+    }
+
+    @Override
+    void onAllDataSourcesDepleted(int columnNumber, BackingMap backingMap) {
         /* override to do something here */
     }
 }

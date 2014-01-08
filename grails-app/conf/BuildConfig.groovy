@@ -14,6 +14,26 @@
 * limitations under the License.
 ******************************************************************/
 
+def forkSettingsRun = [
+        minMemory: 1536,
+        maxMemory: 4096,
+        maxPerm:   384,
+        debug:     false,
+]
+def forkSettingsOther = [
+        minMemory: 256,
+        maxMemory: 1024,
+        maxPerm:   384,
+        debug:     false,
+]
+/* We can't enable forked run-app now because of a bug in Grails:
+ * http://stackoverflow.com/questions/19371859 */
+grails.project.fork = [
+        test:    [ *:forkSettingsOther, daemon: true ],
+        run:     forkSettingsRun,
+        war:     forkSettingsRun,
+        console: forkSettingsOther ]
+
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
@@ -41,7 +61,9 @@ grails.project.dependency.resolution = {
         compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
 
-        test    'org.gmock:gmock:0.8.3', {
+        /* compile instead of test due to technical limitations
+         * (referenced from resources.groovy) */
+        runtime 'org.gmock:gmock:0.8.3', {
             transitive = false /* don't bring groovy-all */
             export     = false
         }

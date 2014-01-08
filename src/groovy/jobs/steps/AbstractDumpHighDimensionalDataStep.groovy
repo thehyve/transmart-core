@@ -1,6 +1,7 @@
 package jobs.steps
 
 import au.com.bytecode.opencsv.CSVWriter
+import jobs.UserParameters
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -11,7 +12,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
 
     File temporaryDirectory
     Closure<Map<List<String>, TabularResult>> resultsHolder
-    Map<String, Object> params = [:]
+    UserParameters params
 
     Map<List<String>, TabularResult> getResults() {
         resultsHolder()

@@ -1,12 +1,11 @@
 package jobs
 
-import jobs.steps.OpenHighDimensionalDataStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
 import jobs.steps.Step
 import org.apache.log4j.Logger
 import org.quartz.JobExecutionException
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.springframework.beans.factory.annotation.Autowired
+
+import javax.annotation.Resource
 
 abstract class AbstractAnalysisJob {
 
@@ -14,14 +13,14 @@ abstract class AbstractAnalysisJob {
 
     Logger log = Logger.getLogger(getClass())
 
-    /* injected properties
-     *********************/
+    @Autowired
+    UserParameters params
 
-    HighDimensionDataTypeResource dataTypeResource
-
-    Map<String, Object> params /* user parameters */
-
+    @Resource(name = 'jobName')
     String name /* The job instance name */
+
+    /* manually injected properties
+     *********************/
 
     Closure updateStatus
 
@@ -35,7 +34,7 @@ abstract class AbstractAnalysisJob {
              due to some interaction with clinical data? */
     String studyName
 
-    /* end injected properties
+    /* end manually injected properties
      *************************/
 
     File temporaryDirectory /* the workingDirectory */
@@ -58,32 +57,7 @@ abstract class AbstractAnalysisJob {
         updateStatus('Completed', forwardPath)
     }
 
-    protected List<Step> prepareSteps() {
-        List<Step> steps = []
-
-        steps << new ParametersFileStep(
-                temporaryDirectory: temporaryDirectory,
-                params: params)
-
-        def openResultSetStep = new OpenHighDimensionalDataStep(
-                params: params,
-                dataTypeResource: dataTypeResource)
-
-        steps << openResultSetStep
-
-        steps << createDumpHighDimensionDataStep { -> openResultSetStep.results }
-
-        steps << new RCommandsStep(
-                temporaryDirectory: temporaryDirectory,
-                scriptsDirectory: scriptsDirectory,
-                rStatements: RStatements,
-                studyName: studyName,
-                params: params)
-
-        steps
-    }
-
-    abstract protected Step createDumpHighDimensionDataStep(Closure resultsHolder)
+    abstract protected List<Step> prepareSteps()
 
     abstract protected List<String> getRStatements()
 

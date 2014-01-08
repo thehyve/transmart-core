@@ -3,6 +3,7 @@ package jobs.steps
 import com.recomdata.transmart.util.RUtil
 import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Log4j
+import jobs.UserParameters
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
@@ -14,7 +15,7 @@ class RCommandsStep implements Step {
 
     File temporaryDirectory
     File scriptsDirectory
-    Map<String, Object> params
+    UserParameters params
     List<String> rStatements
     String studyName /* see comment on AbstractAnalysisJob::studyName */
 
@@ -36,7 +37,9 @@ class RCommandsStep implements Step {
              * as otherwise you create a potential security vulnerability
              */
             Map vars = [:]
-            vars.putAll params
+            params.each { k,v ->
+                vars[k] = v
+            }
 
             vars.pluginDirectory = scriptsDirectory.absolutePath
             vars.temporaryDirectory = new File(temporaryDirectory, "subset1_$studyName").absolutePath

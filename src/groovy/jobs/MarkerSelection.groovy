@@ -2,8 +2,12 @@ package jobs
 
 import jobs.steps.BioMarkerDumpDataStep
 import jobs.steps.Step
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
-class MarkerSelection extends AbstractAnalysisJob {
+@Component
+@Scope('job')
+class MarkerSelection extends HighDimensionalOnlyJob {
 
     @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {

@@ -1,9 +1,11 @@
 package jobs.steps
 
+import jobs.UserParameters
+
 class ParametersFileStep implements Step{
 
     File temporaryDirectory
-    Map<String, Object> params
+    UserParameters params
 
     final String statusName = null
 

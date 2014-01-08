@@ -23,6 +23,7 @@ import jobs.KMeansClustering
 import jobs.HierarchicalClustering
 import jobs.MarkerSelection
 import jobs.PCA
+import jobs.TableWithFisher
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
@@ -97,6 +98,9 @@ class RModulesController {
             case 'pca':
                 jsonResult = createJob(params, PCA)
                 break
+            case 'tableWithFisher':
+                jsonResult = createJob(params, TableWithFisher, false)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
@@ -106,14 +110,16 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    private void createJob(Map params, Class clazz) {
+    private void createJob(Map params, Class clazz, boolean useAnalysisContrants = true) {
         params[PARAM_GRAILS_APPLICATION] = grailsApplication
         params[PARAM_JOB_CLASS] = clazz
-        params[PARAM_ANALYSIS_CONSTRAINTS] = validateParamAnalysisConstraints params
-        params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"] =
-            lookup[params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"]]
+        if (useAnalysisContrants) {
+            params[PARAM_ANALYSIS_CONSTRAINTS] = validateParamAnalysisConstraints params
+            params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"] =
+                    lookup[params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"]]
 
-        params.analysisConstraints = massageConstraints params[PARAM_ANALYSIS_CONSTRAINTS]
+            params.analysisConstraints = massageConstraints params[PARAM_ANALYSIS_CONSTRAINTS]
+        }
 
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
         jobDetail.jobDataMap  = new JobDataMap(params)
