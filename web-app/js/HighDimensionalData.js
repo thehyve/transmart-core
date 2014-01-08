@@ -30,21 +30,39 @@ var HighDimensionalData = function () {
 
     // high dimensional data
     this.data = null;
-
 }
 
+/**
+ * Populate data to the popup window
+ */
 HighDimensionalData.prototype.populate_data = function () {
 
-    // set global marker type
-    GLOBAL.HighDimDataType = this.data.marker_type;
+    for (var key in this.data) {
+        if (this.data.hasOwnProperty(key)) {
 
-    if (document.getElementById("highDimContainer")) {
+            var _tmp_data = this.data[key];
 
-        document.getElementById("gpl1").value = this.data.gpl;
-        document.getElementById("sample1").value = this.data.sample;
-        document.getElementById("tissue1").value = this.data.tissue;
+            // set global marker type
+            GLOBAL.HighDimDataType = _tmp_data.platforms[0].markerType;
 
-        this.create_pathway_search_box('searchPathway', 'divpathway');
+            if (document.getElementById("highDimContainer")) {
+
+                document.getElementById("gpl1").value = _tmp_data.platforms[0].id;
+                document.getElementById("sample1").value = _tmp_data.sampleTypes[0].label;
+
+                var _strTissueTypes = "";
+                for (var i= 0, max=_tmp_data.tissueTypes.length; i<max; i++) {
+                    _strTissueTypes += _tmp_data.tissueTypes[i].label.concat( (i<max-1) ? ", " : "")
+                }
+                document.getElementById("tissue1").value = _strTissueTypes;
+
+                this.create_pathway_search_box('searchPathway', 'divpathway');
+            }
+
+        } else {
+            Ext.Msg.alert("Error", "Returned object is unknown.");
+            console.error("Object does not have key");
+        }
     }
 }
 
@@ -318,44 +336,28 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
             }
         }
 
-        /**
-         * get node details
-         * @param _i
-         * @private
-         */
-        var _getNodeDetails = function (_i) {
+        var _conceptPaths = new Array();
 
-            var _node = _nodes[_i].concept.key;
-
-            Ext.Ajax.request({
-                url: pageInfo.basePath + "/HighDimension/nodeDetails",
-                method: 'POST',
-                timeout: '1800000',
-                params: Ext.urlEncode({
-                    conceptKey: _node
-                }),
-                success: function (result) {
-                    _i++;
-                    _arrNodeDetails.push(JSON.parse(result.responseText));
-                    if (_i < _all) {
-                        _getNodeDetails(_i);
-                    } else {
-                        _this.data = _filterNodeDetails(_arrNodeDetails);
-                        if (_this.data != -1) {
-                            _this.display_high_dimensional_popup();
-                        }
-
-                    }
-                },
-                failure: function () {
-                    Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
-                }
-            });
-
+        for (var i= 0; i<_nodes.length; i++) {
+            var _str_key = _nodes[i].concept.key;
+            _conceptPaths.push(_str_key);
         }
 
-       // execute ajax call to get node details
-        _getNodeDetails(_i);
+        Ext.Ajax.request({
+            url: pageInfo.basePath + "/HighDimension/nodeDetails",
+            method: 'POST',
+            timeout: '1800000',
+            params: Ext.urlEncode({
+                conceptKeys: _conceptPaths
+            }),
+            success: function (result) {
+                _this.data = JSON.parse(result.responseText);
+                _this.display_high_dimensional_popup();
+            },
+            failure: function () {
+                Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
+            }
+        });
 
     } else { // something is not correct in the validation
         // display the error message
@@ -372,7 +374,7 @@ HighDimensionalData.prototype.display_high_dimensional_popup = function () {
     if (typeof viewport !== undefined) {
         this.view.show(viewport, this.populate_data());
     } else {
-        console.error("No viewport to display the window.");
+        console.error("No view port to display the window.");
     }
 
 }
