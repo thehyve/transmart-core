@@ -29,4 +29,7 @@ modules = {
     scatter_plot {
         resource url:"/js/plugin/ScatterPlot.js"
     }
+    table_fisher {
+        resource url:"/js/plugin/TableWithFisher.js"
+    }
 }
