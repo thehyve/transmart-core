@@ -291,50 +291,6 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
 
         // get nodes from the dropzone
         var _nodes = Ext.get(divId).dom.childNodes;
-        var _i=0, _all=_nodes.length;
-        var _arrNodeDetails = new Array();
-
-        /**
-         * filter node details especially when high dimensional data are more than one
-         * @returns {*}
-         * @private
-         */
-        var _filterNodeDetails = function (arrNodeDetails) {
-
-            var _tmp_gpl, _tmp_sample, _tmp_marker_type, _tmp_tissue = new Array();
-
-            for (var i = 0, max = arrNodeDetails.length; i < max; i++) {
-
-                for (var key in arrNodeDetails[i]) {
-
-                    if (arrNodeDetails[i].hasOwnProperty(key)) {
-
-                        var _tmp_data = arrNodeDetails[i][key]
-
-                        if (i>0 && _tmp_marker_type != _tmp_data.platforms[0].markerType) {
-                            Ext.Msg.alert("Error", "Cannot do analysis with different type of High Dimensional data");
-                            return -1;
-                        }
-
-                        _tmp_marker_type = _tmp_data.platforms[0].markerType;
-                        _tmp_gpl = _tmp_data.platforms[0].id;
-                        _tmp_sample =  _tmp_data.sampleTypes[0].label;
-                        _tmp_tissue.push(_tmp_data.tissueTypes[0].label);
-
-                    } else {
-                        Ext.Msg.alert("Error", "Unknown returned object.");
-                        return -1;
-                    }
-                }// end for
-            } //end for
-
-            return {
-                "gpl":_tmp_gpl,
-                "sample":_tmp_sample,
-                "marker_type": _tmp_marker_type,
-                "tissue": _tmp_tissue
-            }
-        }
 
         var _conceptPaths = new Array();
 
