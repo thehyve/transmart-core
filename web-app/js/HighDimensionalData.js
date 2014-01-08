@@ -47,6 +47,7 @@ HighDimensionalData.prototype.populate_data = function () {
 
             if (document.getElementById("highDimContainer")) {
 
+                document.getElementById("platforms1").value = _tmp_data.platforms[0].markerType;
                 document.getElementById("gpl1").value = _tmp_data.platforms[0].id;
                 document.getElementById("sample1").value = _tmp_data.sampleTypes[0].label;
 
@@ -308,6 +309,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
             }),
             success: function (result) {
                 _this.data = JSON.parse(result.responseText);
+                console.log(_this.data);
                 _this.display_high_dimensional_popup();
             },
             failure: function () {
