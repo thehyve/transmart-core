@@ -1,18 +1,216 @@
-/*************************************************************************   
-* Copyright 2008-2012 Janssen Research & Development, LLC.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-******************************************************************/
+
+function loadTableWithFisherView(){
+    tableWithFisherView.register_drag_drop();
+    tableWithFisherView.clear_high_dimensional_input('divIndependentVariable');
+    tableWithFisherView.clear_high_dimensional_input('divDependentVariable');
+    tableWithFisherView.toggle_binning_fisher();
+}
+
+
+// constructor
+var TableWithFisherView = function () {
+    RmodulesView.call(this);
+}
+
+// inherit RmodulesView
+TableWithFisherView.prototype = new RmodulesView();
+
+// correct the pointer
+TableWithFisherView.prototype.constructor = TableWithFisherView;
+
+// get form params
+TableWithFisherView.prototype.get_form_params = function (form) {
+    console.log("get form parameters ....");
+
+    var dependentVariableEle = Ext.get("divDependentVariable");
+    var independentVariableEle = Ext.get("divIndependentVariable");
+
+    var dependentVariableConceptCode = "";
+    var independentVariableConceptCode = "";
+
+    //If the category variable element has children, we need to parse them and concatenate their values.
+    if(independentVariableEle.dom.childNodes[0])
+    {
+        //Loop through the category variables and add them to a comma seperated list.
+        for(nodeIndex = 0; nodeIndex < independentVariableEle.dom.childNodes.length; nodeIndex++)
+        {
+            //If we already have a value, add the seperator.
+            if(independentVariableConceptCode != '') independentVariableConceptCode += '|'
+
+            //Add the concept path to the string.
+            independentVariableConceptCode += getQuerySummaryItem(independentVariableEle.dom.childNodes[nodeIndex]).trim()
+        }
+    }
+
+    //If the category variable element has children, we need to parse them and concatenate their values.
+    if(dependentVariableEle.dom.childNodes[0])
+    {
+        //Loop through the category variables and add them to a comma seperated list.
+        for(nodeIndex = 0; nodeIndex < dependentVariableEle.dom.childNodes.length; nodeIndex++)
+        {
+            //If we already have a value, add the seperator.
+            if(dependentVariableConceptCode != '') dependentVariableConceptCode += '|'
+
+            //Add the concept path to the string.
+            dependentVariableConceptCode += getQuerySummaryItem(dependentVariableEle.dom.childNodes[nodeIndex]).trim()
+        }
+    }
+
+    var variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode;
+
+    var formParams = {dependentVariable:dependentVariableConceptCode,
+        independentVariable:independentVariableConceptCode,
+        jobType:'TableWithFisher',
+        variablesConceptPaths:variablesConceptCode};
+
+    if(!loadHighDimensionalParameters(formParams)) return false;
+    loadBinningParametersFisher(formParams);
+
+    return formParams;
+}
+
+// submit analysis job
+TableWithFisherView.prototype.submit_job = function (form) {
+
+    // get formParams
+    var formParams = this.get_form_params(form);
+    console.log("formParams ....",formParams)
+
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
+
+}
+
+/**
+ * When we change the number of bins in the "Number of Bins" input, we have to
+ * change the number of bins on the screen.
+ */
+TableWithFisherView.prototype.manage_bins_fisher = function (newNumberOfBins,binningSuffix) {
+
+    // This is the row template for a continousBinningRow.
+    var tpl = new Ext.Template(
+        '<tr id="binningContinousRow{0}{1}">',
+        '<td>Bin {0}</td><td><input type="text" id="txtBin{0}{1}RangeLow" /> - <input type="text" id="txtBin{0}{1}RangeHigh" /></td>',
+        '</tr>');
+    var tplcat = new Ext.Template(
+        '<tr id="binningCategoricalRow{0}{1}">',
+        '<td>Bin {0}<div id="divCategoricalBin{0}{1}" class="manualBinningBin"></div></td>',
+        '</tr>');
+
+    // This is the table we add continuous variables to.
+    continuousBinningTable = Ext.get('tblBinContinuous' + binningSuffix);
+    categoricalBinningTable = Ext.get('tblBinCategorical' + binningSuffix);
+
+    // For each bin, we add a row to the binning table.
+    for (i = 1; i <= newNumberOfBins; i++) {
+        // If the object isn't already on the screen, add it.
+        if (!(Ext.get("binningContinousRow" + i  + binningSuffix))) {
+            tpl.append(continuousBinningTable, [ i, binningSuffix ]);
+        } else {
+            Ext.get("binningContinousRow" + i  + binningSuffix).show()
+        }
+
+        // If the object isn't already on the screen, add it-Categorical
+        if (!(Ext.get("binningCategoricalRow" + i  + binningSuffix))) {
+            tplcat.append(categoricalBinningTable, [ i, binningSuffix]);
+            // Add the drop targets and handler function.
+            var bin = Ext.get("divCategoricalBin" + i  + binningSuffix);
+            var dragZone = new Ext.dd.DragZone(bin, {
+                ddGroup : 'makeBin',
+                isTarget: true,
+                ignoreSelf: false
+
+            });
+            var dropZone = new Ext.dd.DropTarget(bin, {
+                ddGroup : 'makeBin',
+                isTarget: true,
+                ignoreSelf: false
+            });
+            // dropZone.notifyEnter = test;
+            dropZone.notifyDrop = dropOntoBin; // dont forget to make each
+            // dropped
+            // node a drag target
+        } else {
+            Ext.get("binningCategoricalRow" + i  + binningSuffix).show()
+        }
+    }
+
+    // If the new number of bins is less than the old, hide the old bins.
+    if (newNumberOfBins < GLOBAL.NumberOfBins) {
+        // For each bin, we add a row to the binning table.
+        for (i = parseInt(newNumberOfBins) + 1; i <= GLOBAL.NumberOfBins; i++) {
+            // If the object isn't already on the screen, add it.
+            if (Ext.get("binningContinousRow" + i  + binningSuffix)) {
+                Ext.get("binningContinousRow" + i  + binningSuffix).hide();
+            }
+            // If the object isn't already on the screen, add it.
+            if (Ext.get("binningCategoricalRow" + i  + binningSuffix)) {
+                Ext.get("binningCategoricalRow" + i  + binningSuffix).hide();
+            }
+        }
+    }
+
+    // Set the global variable to reflect the new bin count.
+    GLOBAL.NumberOfBins = newNumberOfBins;
+    this.update_manual_binning_fisher(binningSuffix);
+    //updateManualBinningFisher(binningSuffix);
+}
+
+TableWithFisherView.prototype.update_manual_binning_fisher = function (binningSuffix) {
+    // Change the ManualBinning flag.
+    GLOBAL.ManualBinning = document.getElementById('chkManualBinDep').checked || document.getElementById('chkManualBinIndep').checked;
+
+    // Get the type of the variable we are dealing with.
+    variableType = Ext.get('variableType' + binningSuffix).getValue();
+
+    // Hide both DIVs.
+    var divContinuous = Ext.get('divManualBinContinuous' + binningSuffix);
+    var divCategorical = Ext.get('divManualBinCategorical' + binningSuffix);
+    divContinuous.setVisibilityMode(Ext.Element.DISPLAY);
+    divCategorical.setVisibilityMode(Ext.Element.DISPLAY);
+    divContinuous.hide();
+    divCategorical.hide();
+
+    // Show the div with the binning options relevant to our variable type.
+    if (document.getElementById('chkManualBin' + binningSuffix).checked) {
+        if (variableType == "Continuous") {
+            divContinuous.show();
+            divCategorical.hide();
+        } else {
+            divContinuous.hide();
+            divCategorical.show();
+
+            //We need to make sure we choose the values from the proper category.
+            if(binningSuffix=="Dep")
+            {
+                setupCategoricalItemsList("divDependentVariable","divCategoricalItems" + binningSuffix);
+            }
+            else if(binningSuffix=="Indep")
+            {
+                setupCategoricalItemsList("divIndependentVariable","divCategoricalItems" + binningSuffix);
+            }
+
+        }
+    }
+}
+
+// toggle binning
+TableWithFisherView.prototype.toggle_binning_fisher = function () {
+
+    // Change the Binning flag.
+    GLOBAL.Binning = !GLOBAL.Binning;
+
+    if ($j("#isBinning").prop('checked') ) {
+        $j(".binningDiv").show();
+    } else {
+        $j(".binningDiv").hide();
+    }
+
+}
+
+// init heat map view instance
+var tableWithFisherView = new TableWithFisherView();
 
 function submitTableWithFisherJob(form){
 	var dependentVariableEle = Ext.get("divDependentVariable");
@@ -197,11 +395,6 @@ function submitTableWithFisherJob(form){
 	submitJob(formParams);
 }
 
-function loadTableWithFisherView(){
-	registerFisherDragAndDrop();
-	clearGroupFisher('divIndependentVariable');
-	clearGroupFisher('divDependentVariable');
-}
 
 function clearGroupFisher(divName) {
 	// Clear the drag and drop div.
@@ -288,7 +481,7 @@ function manageBinsFisher(newNumberOfBins,binningSuffix) {
 			'</tr>');
 	var tplcat = new Ext.Template(
 			'<tr id="binningCategoricalRow{0}{1}">',
-			'<td><b>Bin {0}</b><div id="divCategoricalBin{0}{1}" class="queryGroupIncludeSmall"></div></td>',
+			'<td>Bin {0}<div id="divCategoricalBin{0}{1}" class="manualBinningBin"></div></td>',
 			'</tr>');
 
 	// This is the table we add continuous variables to.
@@ -313,7 +506,7 @@ function manageBinsFisher(newNumberOfBins,binningSuffix) {
 				ddGroup : 'makeBin',
 				isTarget: true,
 				ignoreSelf: false
-			
+
 			});
 			var dropZone = new Ext.dd.DropTarget(bin, {
 				ddGroup : 'makeBin',
