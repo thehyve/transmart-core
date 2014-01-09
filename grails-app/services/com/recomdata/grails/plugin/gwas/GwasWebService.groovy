@@ -83,13 +83,13 @@ class GwasWebService {
         select position,rate
         from biomart.bio_recombination_rates recomb,
         (select CASE WHEN chrom_start between 0 and ? THEN 0 ELSE (chrom_start-?) END s, (chrom_stop+?) e, chrom from deapp.de_gene_info g where gene_symbol=? order by chrom_start) geneSub
-        where recomb.chromosome=(geneSub.chrom) and position between s and e
+        where recomb.chromosome=(geneSub.chrom) and position between s and e order by position
     """
 
     def final snpSearchQuery = """
         with data_subset as
         (
-        select gwas.rs_id rs_id, LOG_P_VALUE, analysis_name||' - '||bio_experiment.title analysis_name from BIOMART.bio_assay_analysis_gwas gwas
+        select gwas.rs_id rs_id, LOG_P_VALUE, analysis_name||' - '||bio_experiment.accession analysis_name from BIOMART.bio_assay_analysis_gwas gwas
         join biomart.bio_assay_analysis analysis on (gwas.bio_assay_analysis_id=analysis.bio_assay_analysis_id)
         left outer join biomart.bio_assay_analysis_ext bax on analysis.bio_assay_analysis_id = bax.bio_assay_analysis_id
         JOIN biomart.bio_experiment on bio_experiment.accession=analysis.etl_id
@@ -244,7 +244,7 @@ class GwasWebService {
 
     def final analysisDataSqlQueryGwas = """
 		SELECT gwas.rs_id as rsid, gwas.bio_asy_analysis_gwas_id as resultid, gwas.bio_assay_analysis_id as analysisid, 
-    	gwas.p_value as pvalue, gwas.log_p_value as logpvalue, be.title as studyname, baa.analysis_name as analysisname, 
+    	gwas.p_value as pvalue, gwas.log_p_value as logpvalue, be.accession as studyname, baa.analysis_name as analysisname, 
     	baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome, info.gene_name as gene,
     	info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		FROM biomart.Bio_Assay_Analysis_Gwas gwas
@@ -427,7 +427,7 @@ class GwasWebService {
 SELECT chromosome, position, rate, map FROM BIOMART.BIO_RECOMBINATION_RATES
 WHERE POSITION > (SELECT (pos-?) as low FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
 AND POSITION < (SELECT (pos+?) as high FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
-AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
+AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?) order by position
 """
 
     def getRecombinationRateBySnp(snp, range, hgVersion) {
