@@ -55,7 +55,13 @@ PCAView.prototype.get_form_params = function () {
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['doUseExperimentAsVariable'] = doUseExperimentAsVariable;
 
-        formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('PCA'));
+        //formParameters['analysisConstraints'] = JSON.stringify(this.get_analysis_constraints('PCA'));
+
+        //get analysis constraints
+        var constraints_json = this.get_analysis_constraints('PCA');
+        constraints_json['projections'] = ["zscore"];
+
+        formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
     } else { // something is not correct in the validation
         // empty form parameters
