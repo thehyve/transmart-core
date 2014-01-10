@@ -124,8 +124,12 @@ class TerminalConceptVariablesDataQuery {
             }
 
             or {
-                'in' 'conceptPath', conceptPaths.keySet()
-                'in' 'conceptCode', conceptCodes.keySet()
+                if (conceptPaths.keySet()) {
+                    'in' 'conceptPath', conceptPaths.keySet()
+                }
+                if (conceptCodes.keySet()) {
+                    'in' 'conceptCode', conceptCodes.keySet()
+                }
             }
         }
 
