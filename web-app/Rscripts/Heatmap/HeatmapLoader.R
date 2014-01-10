@@ -85,8 +85,8 @@ maxDrawNumber = 50
                 sd_rows_mRNA<-apply (mRNAData,1,sd,na.rm=T)
                 mRNAData<-mRNAData[!is.na(sd_rows_mRNA),]                                      # remove markers where sd is NA
                 sd_rows_mRNA<-sd_rows_mRNA[!is.na(sd_rows_mRNA)]
-                cutoff_sd<- sd_rows_mRNA[order(sd_rows_mRNA,decreasing = T)][maxDrawNumber+1]      # filter by SD, draw only the top maxDrawNumber
-                mRNAData<-mRNAData[sd_rows_mRNA>cutoff_sd,]
+                indices_to_include <- order(sd_rows_mRNA,decreasing = T)[1:maxDrawNumber]     # filter by SD, keep only the top maxDrawNumber
+                mRNAData <- mRNAData[indices_to_include,]
         }
 
         colcolor<-colnames(mRNAData)                                                           # assign colors for different subset
