@@ -34,6 +34,7 @@
                             <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
                             <button type="button" onclick="tableWithFisherView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                         </div>
+                        <input type="hidden" id="independentVarDataType">
                     </div>
 
                     %{--Display independent variable--}%
@@ -117,7 +118,8 @@
                             <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable')">High Dimensional Data</button>
                             <button type="button" onclick="tableWithFisherView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
                         </div>
-                    </div>
+                        <input type="hidden" id="dependentVarDataType">
+                </div>
 
                     %{--Display dependent variable--}%
                     <div id="displaydivDependentVariable" class="dependentVars"></div>
