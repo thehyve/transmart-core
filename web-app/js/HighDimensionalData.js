@@ -30,6 +30,9 @@ var HighDimensionalData = function () {
 
     // high dimensional data
     this.data = null;
+
+    // div id
+    this.divId = null;
 }
 
 /**
@@ -42,11 +45,14 @@ HighDimensionalData.prototype.populate_data = function () {
 
             var _tmp_data = this.data[key];
 
+            console.log("key", key);
+
             // set global marker type
             GLOBAL.HighDimDataType = _tmp_data.platforms[0].markerType;
 
             if (document.getElementById("highDimContainer")) {
 
+                document.getElementById("highDimensionType").value = key;
                 document.getElementById("platforms1").value = _tmp_data.platforms[0].markerType;
                 document.getElementById("gpl1").value = _tmp_data.platforms[0].id;
                 document.getElementById("sample1").value = _tmp_data.sampleTypes[0].label;
@@ -147,6 +153,7 @@ HighDimensionalData.prototype.create_pathway_search_box = function (searchInputE
 
 HighDimensionalData.prototype.generate_view = function () {
 
+    var _this = this;
     var _view = this.view;
 
     /**
@@ -154,6 +161,16 @@ HighDimensionalData.prototype.generate_view = function () {
      * @private
      */
     var _display_high_dim_selection_summary = function () {
+
+        console.log(_this.divId);
+
+        // set high dimensional data type
+        if (_this.divId == 'divIndependentVariable' &&  document.getElementById("independentVarDataType")) {
+            document.getElementById("independentVarDataType").value =  Ext.get('highDimensionType').dom.value;
+        }
+        if (_this.divId == 'divDependentVariable' && document.getElementById("dependentVarDataType")) {
+            document.getElementById("dependentVarDataType").value =  Ext.get('highDimensionType').dom.value;
+        }
 
         // init summary string
         var summaryString = '<br> <b>GPL Platform:</b> ' + Ext.get('gpl1').dom.value +
@@ -265,6 +282,9 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
 
         // set global div id
         GLOBAL.CurrentAnalysisDivId = divId;
+        _this.divId = divId;
+
+        console.log(_this.divId)
 
     }
 
@@ -456,9 +476,8 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
         return false;
     }
 
-    //If we don't have a platform, fill in Clinical.
-    if(dependentPlatform == null || dependentPlatform == "") dependentType = "CLINICAL"
-    if(independentPlatform == null || independentPlatform == "") independentType = "CLINICAL"
+    var _dependentDataType = document.getElementById('dependentVarDataType').value;
+    var _independentDataType = document.getElementById('independentVarDataType').value;
 
     formParams["divDependentVariabletimepoints"] 			= window['divDependentVariabletimepoints1'];
     formParams["divDependentVariablesamples"] 				= window['divDependentVariablesamples1'];
@@ -468,7 +487,7 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     formParams["divDependentVariabletissues"]				= window['divDependentVariabletissues1'];
     formParams["divDependentVariableprobesAggregation"]	 	= window['divDependentVariableprobesAggregation'];
     formParams["divDependentVariableSNPType"]				= window['divDependentVariableSNPType'];
-    formParams["divDependentVariableType"]					= dependentType;
+    formParams["divDependentVariableType"]					= _dependentDataType;
     formParams["divDependentVariablePathway"]				= dependentGeneList;
     formParams["divIndependentVariabletimepoints"]			= window['divIndependentVariabletimepoints1'];
     formParams["divIndependentVariablesamples"]				= window['divIndependentVariablesamples1'];
@@ -478,7 +497,7 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     formParams["divIndependentVariabletissues"]				= window['divIndependentVariabletissues1'];
     formParams["divIndependentVariableprobesAggregation"]	= window['divIndependentVariableprobesAggregation'];
     formParams["divIndependentVariableSNPType"]				= window['divIndependentVariableSNPType'];
-    formParams["divIndependentVariableType"]				= independentType;
+    formParams["divIndependentVariableType"]				= _independentDataType;
     formParams["divIndependentVariablePathway"]				= independentGeneList;
     formParams["gexpathway"]								= fullGEXGeneList;
     //formParams["gextime"]									= fullGEXTime;
