@@ -476,8 +476,8 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
         return false;
     }
 
-    var _dependentDataType = document.getElementById('dependentVarDataType').value;
-    var _independentDataType = document.getElementById('independentVarDataType').value;
+    var _dependentDataType = document.getElementById('dependentVarDataType').value ? document.getElementById('dependentVarDataType').value : 'CLINICAL';
+    var _independentDataType = document.getElementById('independentVarDataType').value ? document.getElementById('independentVarDataType').value : 'CLINICAL';
 
     formParams["divDependentVariabletimepoints"] 			= window['divDependentVariabletimepoints1'];
     formParams["divDependentVariablesamples"] 				= window['divDependentVariablesamples1'];
