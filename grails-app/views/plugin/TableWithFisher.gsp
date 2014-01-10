@@ -35,6 +35,7 @@
                             <button type="button" onclick="tableWithFisherView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="independentVarDataType">
+                        <input type="hidden" id="independentPathway">
                     </div>
 
                     %{--Display independent variable--}%
@@ -119,6 +120,7 @@
                             <button type="button" onclick="tableWithFisherView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="dependentVarDataType">
+                        <input type="hidden" id="dependentPathway">
                 </div>
 
                     %{--Display dependent variable--}%

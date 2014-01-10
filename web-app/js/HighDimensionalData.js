@@ -162,14 +162,14 @@ HighDimensionalData.prototype.generate_view = function () {
      */
     var _display_high_dim_selection_summary = function () {
 
-        console.log(_this.divId);
-
         // set high dimensional data type
         if (_this.divId == 'divIndependentVariable' &&  document.getElementById("independentVarDataType")) {
             document.getElementById("independentVarDataType").value =  Ext.get('highDimensionType').dom.value;
+            document.getElementById("independentPathway").value =  GLOBAL.CurrentPathway ;
         }
         if (_this.divId == 'divDependentVariable' && document.getElementById("dependentVarDataType")) {
             document.getElementById("dependentVarDataType").value =  Ext.get('highDimensionType').dom.value;
+            document.getElementById("dependentPathway").value =  GLOBAL.CurrentPathway ;
         }
 
         // init summary string
@@ -365,8 +365,15 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     var fullSNPGPL 			= "";
 
     //Pull the individual filters from the window object.
-    var independentGeneList = window['divIndependentVariablepathway'];
-    var dependentGeneList 	= window['divDependentVariablepathway'];
+//    var independentGeneList = window['divIndependentVariablepathway'];
+//    var dependentGeneList 	= window['divDependentVariablepathway'];
+
+    var independentGeneList = document.getElementById('independentPathway').value
+    var dependentGeneList 	= document.getElementById('dependentPathway').value
+
+    console.log("independentGeneList", independentGeneList);
+    console.log("dependentGeneList", dependentGeneList);
+
 
     var dependentPlatform 	= window['divDependentVariableplatforms1'];
     var independentPlatform = window['divIndependentVariableplatforms1'];
