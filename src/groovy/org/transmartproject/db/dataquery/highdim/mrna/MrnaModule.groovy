@@ -25,7 +25,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mrna'
 
-    final String platformMarkerType = 'Gene Expression'
+    final List<String> platformMarkerTypes = ['Gene Expression']
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

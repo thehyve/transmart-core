@@ -7,6 +7,7 @@ import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
@@ -26,7 +27,7 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mirna'
 
-    final String platformMarkerType = 'MIRNA_QPCR'
+    final List<String> platformMarkerTypes = ['MIRNA_QPCR', 'MIRNA_SEQ']
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

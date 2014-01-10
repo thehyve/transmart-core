@@ -154,10 +154,10 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         assays.collectEntries { [ it, i++ ] }
     }
 
-    abstract protected String getPlatformMarkerType()
+    abstract protected List<String> getPlatformMarkerTypes()
 
     @Override
     boolean matchesPlatform(Platform platform) {
-        platform.markerType == platformMarkerType
+        platform.markerType in platformMarkerTypes
     }
 }
