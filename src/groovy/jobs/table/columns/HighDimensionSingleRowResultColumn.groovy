@@ -14,6 +14,8 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
     private DataRow row
 
+    private boolean sawRow = false
+
     private List<AssayColumn> assays
 
     @Override
@@ -27,10 +29,12 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
     void onReadRow(String dataSourceName, Object row) {
         assert row instanceof DataRow
 
-        if (this.row) {
+        if (sawRow) {
             log.warn("Further rows from $dataSourceName ignored")
             return
         }
+
+        sawRow = true
 
         this.row = row
     }
