@@ -274,7 +274,7 @@ TableWithFisherView.prototype.manage_bins_fisher = function (newNumberOfBins, bi
                 ignoreSelf: false
             });
             // dropZone.notifyEnter = test;
-            dropZone.notifyDrop = dropOntoBin; // dont forget to make each
+            dropZone.notifyDrop = this.drop_onto_bin; // dont forget to make each
             // dropped
             // node a drag target
         } else {
