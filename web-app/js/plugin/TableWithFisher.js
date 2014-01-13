@@ -156,11 +156,11 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked) indVariableType = "CAT"
     if(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked) depVariableType = "CAT"
 
-    console.log(document.getElementById('EnableBinningIndep').checked)
-    console.log(document.getElementById('EnableBinningIndep').checked)
-
-    console.log ("indVariableType", indVariableType)
-    console.log ("depVariableType", depVariableType)
+//    console.log(document.getElementById('EnableBinningIndep').checked)
+//    console.log(document.getElementById('EnableBinningIndep').checked)
+//
+//    console.log ("indVariableType", indVariableType)
+//    console.log ("depVariableType", depVariableType)
 
     //If there is a categorical variable in either box (This means either of the lists are empty)
     if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
