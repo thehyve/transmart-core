@@ -32,4 +32,7 @@ modules = {
     table_fisher {
         resource url:"/js/plugin/TableWithFisher.js"
     }
+    box_plot {
+        resource url:"/js/plugin/BoxPlot.js"
+    }
 }

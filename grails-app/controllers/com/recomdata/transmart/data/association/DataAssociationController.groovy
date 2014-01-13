@@ -40,9 +40,7 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/SurvivalAnalysis.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/CorrelationAnalysis.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/LineGraph.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/BoxPlot.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js']
 
         // list of required css
