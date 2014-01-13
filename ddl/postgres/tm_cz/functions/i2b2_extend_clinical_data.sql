@@ -802,12 +802,12 @@ BEGIN
         --  check if there are observation in the upload which already exist in database
         --         (is there already an observation for given patient and concept)
 
-	select count(*) into pExists from i2b2demodata.observation_fact of
-             where of.patient_num IN 
-                   (select pd.patient_num from i2b2demodata.patient_dimension pd, tm_wz.wrk_clinical_data cd where pd.sourcesystem_cd = cd.usubjid)
-               AND of.concept_cd IN 
-                   (select cd.concept_cd from i2b2demodata.concept_dimension cd, tm_wz.wt_trial_nodes td where cd.concept_path = td.leaf_node);
 
+with maps as (select leaf_node, usubjid from tm_wz.wrk_clinical_data cd, tm_wz.wt_trial_nodes td where cd.data_label = td.data_label)
+select count(*) into pExists from i2b2demodata.observation_fact of where (of.patient_num, of.concept_cd) IN
+                           (select pd.patient_num, cd.concept_cd from i2b2demodata.patient_dimension pd 
+                                                                      INNER JOIN maps on pd.sourcesystem_cd = maps.usubjid
+                                                                      INNER JOIN i2b2demodata.concept_dimension cd on cd.concept_path = maps.leaf_node);
 
         if pExists > 0 then
                   stepCt := stepCt + 1;
