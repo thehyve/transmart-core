@@ -4,6 +4,9 @@ import org.scribe.model.Token
 import org.scribe.model.Verifier
 import uk.co.desirableobjects.oauth.scribe.OauthService
 import grails.plugin.springsecurity.annotation.Secured
+import grails.converters.JSON
+import org.transmartproject.webservices.Study
+import org.transmartproject.webservices.Observation
 
 class TestController {
     OauthService oauthService
@@ -11,7 +14,15 @@ class TestController {
 
     @Secured('permitAll')
 	def test() {
-		render "hoi"
+        // Study study1 = new Study(name:"yeah")
+        // Study study2 = new Study(name:"ohno")
+        // Study study3 = new Study(name:"ole!")
+        // List list = [study1,study2,study3]
+        Observation obs1 = new Observation(name:"yeah", id:1)
+        Observation obs2 = new Observation(name:"yeah 2", id:2)
+        Observation obs3 = new Observation(name:"yeah 3", id:3)
+        List list = [obs1,obs2,obs3]
+        render list as JSON
 	}
 
     @Secured('permitAll')
