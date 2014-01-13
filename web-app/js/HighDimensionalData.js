@@ -45,23 +45,33 @@ HighDimensionalData.prototype.populate_data = function () {
 
             var _tmp_data = this.data[key];
 
-            console.log("key", key);
-
             // set global marker type
-            GLOBAL.HighDimDataType = _tmp_data.platforms[0].markerType;
+            if (_tmp_data.platforms[0].markerType) {
+                GLOBAL.HighDimDataType = _tmp_data.platforms[0].markerType;
+            } else {
+                GLOBAL.HighDimDataType = "";
+                console.log ("Warning: This high dimensional data has no marker type.");
+            }
 
             if (document.getElementById("highDimContainer")) {
 
                 document.getElementById("highDimensionType").value = key;
-                document.getElementById("platforms1").value = _tmp_data.platforms[0].markerType;
-                document.getElementById("gpl1").value = _tmp_data.platforms[0].id;
-                document.getElementById("sample1").value = _tmp_data.sampleTypes[0].label;
+                document.getElementById("platforms1").value = GLOBAL.HighDimDataType;
+                document.getElementById("gpl1").value = _tmp_data.platforms[0].id ? _tmp_data.platforms[0].id : "";
+                document.getElementById("sample1").value = _tmp_data.sampleTypes[0].label ? _tmp_data.sampleTypes[0].label : "";
 
                 var _strTissueTypes = "";
-                for (var i= 0, max=_tmp_data.tissueTypes.length; i<max; i++) {
-                    _strTissueTypes += _tmp_data.tissueTypes[i].label.concat( (i<max-1) ? ", " : "")
+
+                if (_tmp_data.tissueTypes) {
+                    for (var i= 0, max=_tmp_data.tissueTypes.length; i<max; i++) {
+                        if (_tmp_data.tissueTypes[i].label) {
+                            _strTissueTypes += _tmp_data.tissueTypes[i].label.concat( (i<max-1) ? ", " : "");
+                        } else {
+                            _strTissueTypes += "";
+                        }
+                    }
+                    document.getElementById("tissue1").value = _strTissueTypes;
                 }
-                document.getElementById("tissue1").value = _strTissueTypes;
 
                 this.create_pathway_search_box('searchPathway', 'divpathway');
             }
@@ -284,8 +294,6 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
         GLOBAL.CurrentAnalysisDivId = divId;
         _this.divId = divId;
 
-        console.log(_this.divId)
-
     }
 
     _reset_global_var();
@@ -329,7 +337,6 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
             }),
             success: function (result) {
                 _this.data = JSON.parse(result.responseText);
-                console.log(_this.data);
                 _this.display_high_dimensional_popup();
             },
             failure: function () {
