@@ -1,4 +1,4 @@
-%{--include js lib for scatter plot dynamically--}%
+%{--include js lib for table fisher dynamically--}%
 <r:require modules="table_fisher"/>
 <r:layoutResources disposition="defer"/>
 
@@ -96,9 +96,6 @@
                         </div>
 
                     </fieldset>
-
-
-
                 </fieldset>
             </div>
 
