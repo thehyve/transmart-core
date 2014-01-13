@@ -1,0 +1,9 @@
+/target
+/.idea
+/*.iml
+/plugin.xml
+/web-app
+/.classpath
+/.project
+/.settings
+/*.zip
