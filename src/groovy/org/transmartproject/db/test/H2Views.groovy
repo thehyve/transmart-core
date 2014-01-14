@@ -135,7 +135,20 @@ class H2Views {
             WHERE
                 b.bio_marker_id = c.bio_data_id
                 AND c.bio_data_correl_descr_id = d.bio_data_correl_descr_id
-                AND d.correlation = 'GENE TO PROTEIN';'''
+                AND d.correlation = 'GENE TO PROTEIN'
+            UNION
+            SELECT
+                c1.bio_data_id,
+                c2.asso_bio_data_id,
+                'PATHWAY TO PROTEIN' as correl_type,
+                8 AS mv_id
+            FROM
+                bio_data_correlation c1
+                INNER JOIN bio_data_correlation c2 ON c1.asso_bio_data_id = c2.bio_data_id
+                INNER JOIN bio_data_correl_descr d1 ON c1.bio_data_correl_descr_id = d1.bio_data_correl_descr_id
+                INNER JOIN bio_data_correl_descr d2 ON c2.bio_data_correl_descr_id = d2.bio_data_correl_descr_id
+                WHERE d1.correlation = 'PATHWAY GENE'
+                AND d2.correlation = 'GENE TO PROTEIN';'''
     }
 
     void createSearchBioMkrCorrelView() {

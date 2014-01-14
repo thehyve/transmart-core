@@ -168,5 +168,18 @@ class ProteinEndToEndRetrievalTests {
                 hasProperty('label', is(adiponectinPeptide)))
     }
 
+    @Test
+    void testSearchByPathways() {
+        def dataConstraint = proteinResource.createDataConstraint(
+                DataConstraint.PATHWAYS_CONSTRAINT,
+                names: [ 'FOOPATHWAY' ])
+        // in our test data, pathway FOOPATHWAY is correlated with Adiponectin
+
+        result = proteinResource.retrieveData(
+                [ trialConstraint ], [ dataConstraint ], projection)
+        //TODO It returns empty result. It would be nice to investigate db state at this point
+        assertThat Lists.newArrayList(result), contains(
+                hasProperty('label', is(adiponectinPeptide)))
+    }
 
 }

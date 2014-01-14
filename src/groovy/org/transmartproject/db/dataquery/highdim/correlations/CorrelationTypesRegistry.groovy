@@ -35,12 +35,13 @@ class CorrelationTypesRegistry {
         registryTable << new CorrelationType(name: 'PROTEIN',         sourceType: 'PROTEIN',    targetType: 'PROTEIN')
 
         /* no example data for these; not sure the sourceType is correct */
-        registryTable << new CorrelationType(name: 'PATHWAY_GENE',    sourceType: 'PATHWAY',    targetType: 'GENE')
+        registryTable << new CorrelationType(name: 'PATHWAY GENE',    sourceType: 'PATHWAY',    targetType: 'GENE')
         registryTable << new CorrelationType(name: 'HOMOLOGENE_GENE', sourceType: 'HOMOLOGENE', targetType: 'GENE')
 
         /* yes, space instead of underscore and extra TO word... */
         registryTable << new CorrelationType(name: 'PROTEIN TO GENE', sourceType: 'PROTEIN',    targetType: 'GENE')
         registryTable << new CorrelationType(name: 'GENE TO PROTEIN', sourceType: 'GENE',       targetType: 'PROTEIN')
+        registryTable << new CorrelationType(name: 'PATHWAY TO PROTEIN', sourceType: 'PATHWAY', targetType: 'PROTEIN')
 
         registryTable << new CorrelationType(
                 name:             'GENE_SIGNATURE_ITEM',

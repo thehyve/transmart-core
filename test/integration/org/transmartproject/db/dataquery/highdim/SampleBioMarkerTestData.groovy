@@ -68,6 +68,13 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'miRBase')
 
+    List<BioMarkerCoreDb> pathwayBioMarkers = createBioMarkers(-1500L, [
+            [ name: 'FOOPATHWAY',
+                    description: 'Foo pathway',
+                    primaryExternalId: 'foo_pathway']],
+            'PATHWAY',
+            'HOMO SAPIENS',
+            'foo')
 
     List<SearchKeywordCoreDb> geneSearchKeywords =
         createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
@@ -77,6 +84,9 @@ class SampleBioMarkerTestData {
 
     List<SearchKeywordCoreDb> mirnaSearchKeywords =
         createSearchKeywordsForBioMarkers(mirnaBioMarkers, -2400L)
+
+    List<SearchKeywordCoreDb> pathwaySearchKeywords =
+        createSearchKeywordsForBioMarkers(pathwayBioMarkers, -2500L)
 
     List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
@@ -98,6 +108,13 @@ class SampleBioMarkerTestData {
                     proteinBioMarkers.find { it.name == 'Adipogenesis regulatory factor' },
             ])
 
+    List<BioDataCorrelationCoreDb> pathwayGeneCorrelation = createCorrelationPairs(-3400L,
+            [
+                    pathwayBioMarkers.find { it.name == 'FOOPATHWAY'},
+            ],
+            [
+                    geneBioMarkers.find { it.name == 'AURKA'}
+            ])
 
     /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
      * gene signature ids with bio marker ids in two ways:
@@ -235,6 +252,10 @@ class SampleBioMarkerTestData {
         save proteinBioMarkers
         save proteinSearchKeywords
 
+        save pathwayBioMarkers
+        save pathwaySearchKeywords
+
+        save pathwayGeneCorrelation
         save geneProteinCorrelations
     }
 
