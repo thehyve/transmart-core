@@ -30,6 +30,14 @@ public interface Projection<CELL> {
     public static final ZSCORE_PROJECTION = 'zscore'
 
     /**
+     * This generic projection returns a map with the values of all fields of
+     * the datatype it is applied to. To find out which fields are available,
+     * see the dataProperties property of the datatype specific
+     * HighDimensionResource subresource.
+     */
+    public static final GENERIC_PROJECTION = 'generic'
+
+    /**
      * This method takes an implementation-defined object and returns the final
      * cell value.
      * @param object an implementation-defined object

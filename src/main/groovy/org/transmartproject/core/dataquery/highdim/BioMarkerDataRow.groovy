@@ -14,4 +14,10 @@ public interface BioMarkerDataRow<CELL> extends DataRow<AssayColumn, CELL> {
      * rows) can be can be associated with one biomarker.
      */
     String getBioMarker()
+
+    /**
+     * Some data types support datatype specific properties, which are needed for example when exporting the data. This property
+     * @return
+     */
+    Map<String, Object> getAssociatedData()
 }
