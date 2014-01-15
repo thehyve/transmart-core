@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
+import com.google.common.collect.ImmutableSet
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
@@ -33,6 +34,10 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
+    final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'zscore')
+
+    final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
+
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
 
@@ -55,6 +60,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
                 property 'ann.id',           'annotationId'
                 property 'ann.geneSymbol',   'geneSymbol'
+                property 'ann.geneId',       'geneId'
             }
 
             order 'ann.id',         'asc'
@@ -84,7 +90,8 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
                     def firstNonNullCell = list.find()
                     new RnaSeqCogDataRow(
                             annotationId:  firstNonNullCell[0].annotationId,
-                            geneSymbol:          firstNonNullCell[0].geneSymbol,
+                            geneSymbol:    firstNonNullCell[0].geneSymbol,
+                            geneId:        firstNonNullCell[0].geneId,
                             assayIndexMap: assayIndexMap,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

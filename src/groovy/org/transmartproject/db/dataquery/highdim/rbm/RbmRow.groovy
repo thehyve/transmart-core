@@ -9,6 +9,8 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     String uniprotId
 
+    String antigenName
+
     @Override
     String getLabel() {
         uniprotId
@@ -17,5 +19,10 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
     @Override
     String getBioMarker() {
         uniprotId
+    }
+
+    @Override
+    Map<String, Object> getAssociatedData() {
+        [uniprotId: uniprotId, antigenName: antigenName]
     }
 }

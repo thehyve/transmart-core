@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.AbstractIterator
+import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
 import grails.orm.HibernateCriteriaBuilder
@@ -17,6 +18,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.GenericProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
@@ -26,6 +28,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     final String name = 'mrna'
 
     final List<String> platformMarkerTypes = ['Gene Expression']
+
+    final Set<String> dataProperties = ImmutableSet.of('trialName', 'rawIntensity', 'logIntensity', 'zscore')
+
+    final Set<String> rowProperties = ImmutableSet.of('probe', 'geneId', 'geneSymbol')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -51,6 +57,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 property 'p.id',         'probeId'
                 property 'p.probeId',    'probeName'
                 property 'p.geneSymbol', 'geneSymbol'
+                property 'p.geneId',     'geneId'
                 property 'p.organism',   'organism'
             }
 
@@ -88,6 +95,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                     new ProbeRow(
                             probe:         firstNonNullCell[0].probeName,
                             geneSymbol:    firstNonNullCell[0].geneSymbol,
+                            geneId:        firstNonNullCell[0].geneId,
                             assayIndexMap: assayIndexMap,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )
@@ -138,7 +146,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
             if (collected.size() > 1) {
                 /* modify 1st element with info from subsequents */
-                collected[0].geneSymbol = collected*.geneSymbol.join('/')
+                collected[0].geneSymbol = collected*.geneSymbol.grep().join('/') ?: null
+                collected[0].geneId = collected*.geneId.grep().join('/') ?: null
             }
             collected[0]
         }
@@ -160,6 +169,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore') ]
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
+          new GenericProjectionsFactory(dataProperties)]
     }
 }

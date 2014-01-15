@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
+import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -28,6 +29,10 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
     final String name = 'mirna'
 
     final List<String> platformMarkerTypes = ['MIRNA_QPCR', 'MIRNA_SEQ']
+
+    final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+
+    final Set<String> rowProperties = ImmutableSet.of('probeId', 'mirnaId')
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
@@ -113,8 +118,8 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
                     new MirnaProbeRow(
-                            label:         firstNonNullCell[0].probeId,
-                            bioMarker:     firstNonNullCell[0].mirna,
+                            probeId:       firstNonNullCell[0].probeId,
+                            mirnaId:       firstNonNullCell[0].mirna,
                             assayIndexMap: assayIndexes,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

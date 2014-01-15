@@ -5,8 +5,23 @@ import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 class MirnaProbeRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
-    String label
+    String probeId
 
-    String bioMarker /* the miR id */
+    String mirnaId /* the miR id */
+
+    @Override
+    String getLabel() {
+        probeId
+    }
+
+    @Override
+    String getBioMarker() {
+        mirnaId
+    }
+
+    @Override
+    Map<String, Object> getAssociatedData() {
+        [probeId: probeId, mirnaId: mirnaId]
+    }
 
 }

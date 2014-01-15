@@ -1,7 +1,9 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
+import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 
+import org.apache.commons.lang.NotImplementedException
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,6 +29,12 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     final List<String> platformMarkerTypes = ['Chromosomal']
 
     final String name = 'acgh'
+
+    final ImmutableSet<String> dataProperties = ImmutableSet.copyOf('trialName chipCopyNumberValue ' +
+            'segmentCopyNumberValue flag probabilityOfLoss probabilityOfNormal probabilityOfGain ' +
+            'probabilityOfAmplification'.split())
+
+    final Set<String> rowProperties = ImmutableSet.of('probe', 'bioMarker')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

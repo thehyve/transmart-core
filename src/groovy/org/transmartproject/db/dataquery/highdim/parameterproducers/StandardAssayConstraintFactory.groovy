@@ -21,6 +21,7 @@ import org.transmartproject.db.dataquery.highdim.dataconstraints.NoopDataConstra
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processLongList
+import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.processStringList
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.validateParameterNames
 
 /**

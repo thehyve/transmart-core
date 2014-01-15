@@ -149,7 +149,7 @@ abstract class CollectingTabularResult<C, R extends DataRow>
         }
 
         results.next()
-        R row = nextRow
+        R row = getNextRow()
 
         [
                 hasNext: { row != null },

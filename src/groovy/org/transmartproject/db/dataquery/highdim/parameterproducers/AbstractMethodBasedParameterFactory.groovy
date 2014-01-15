@@ -47,7 +47,7 @@ class AbstractMethodBasedParameterFactory implements DataRetrievalParameterFacto
             } else if (producerMethod.parameterTypes.length == 2) {
                 producerMethod.invoke this, params, createProducer
             } else {
-                throw new RuntimeException('The producer method should take eithe ' +
+                throw new RuntimeException('The producer method should take either ' +
                         "one or two parameters; not the case for $producerMethod")
             }
         } catch (InvocationTargetException ite) {

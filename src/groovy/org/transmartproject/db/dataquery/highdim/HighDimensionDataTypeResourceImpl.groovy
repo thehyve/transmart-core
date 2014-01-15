@@ -30,6 +30,16 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         module.name
     }
 
+    @Override
+    Set<String> getRowProperties() {
+        module.rowProperties
+    }
+
+    @Override
+    Set<String> getDataProperties() {
+        module.dataProperties
+    }
+
     protected SessionImplementor openSession() {
         module.sessionFactory.openStatelessSession()
     }
@@ -107,6 +117,12 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     Projection createProjection(Map<String, Object> params, String name)
             throws UnsupportedByDataTypeException {
         module.createProjection name, params
+    }
+
+    @Override
+    Projection createProjection(String name)
+            throws UnsupportedByDataTypeException{
+        createProjection([:], name)
     }
 
     @Override

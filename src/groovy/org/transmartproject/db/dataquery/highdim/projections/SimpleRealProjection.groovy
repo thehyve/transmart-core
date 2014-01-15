@@ -7,14 +7,13 @@ import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 
-@Immutable
 class SimpleRealProjection implements CriteriaProjection<Double> {
 
     static Log LOG = LogFactory.getLog(this)
 
     String property
 
-    private Boolean addedProjection = false
+    private boolean addedProjection = false
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
@@ -35,6 +34,7 @@ class SimpleRealProjection implements CriteriaProjection<Double> {
                 Projections.alias(
                         Projections.property(this.property),
                         this.property))
+
         addedProjection = true
     }
 
@@ -44,18 +44,12 @@ class SimpleRealProjection implements CriteriaProjection<Double> {
             return null /* missing data for an assay */
         }
 
-        if (addedProjection) {
-            if (obj.getClass().isArray()) {
-                /* projection with default ResultTransformer results in
-                 * an Object[]. Take the last element */
-                return obj[obj.length - 1]
-            } else if (obj instanceof Map) {
-                // Using the ALIAS_TO_ENTITY_MAP transformer we get a nifty map
-                return obj[property]
-            }
-
-        } else {
-            return obj."$property"
+        if (addedProjection && obj.getClass().isArray()) {
+            /* projection with default ResultTransformer results in
+             * an Object[]. Take the last element */
+            return obj[-1]
         }
+        // If the ALIAS_TO_ENTITY_MAP transformer was used, obj is a map, else we just take the corresponding property.
+        return obj."$property"
     }
 }
