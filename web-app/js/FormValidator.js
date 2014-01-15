@@ -96,7 +96,7 @@ FormValidator.prototype.validateInputForm = function () {
                 _isValid = _isValid && _isRequired;
             }
 
-            if (_isValid) {
+            if (_isValid && _el.value !== null && _el.value !== '') {
                 switch (_validations[j].type)
                 {
                     case 'INTEGER' :
