@@ -83,7 +83,7 @@ class H2Views {
             SELECT DISTINCT
                 c.bio_data_id AS bio_marker_id,
                 c.asso_bio_data_id AS asso_bio_marker_id,
-                'PATHWAY_GENE' AS correl_type,
+                'PATHWAY GENE' AS correl_type,
                 2 AS mv_id
             FROM
                 biomart.bio_marker b,
