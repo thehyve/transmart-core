@@ -5,7 +5,6 @@ import groovy.util.logging.Log4j
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.exceptions.UnexpectedResultException
 
 @Log4j
 class HighDimensionSingleRowResultColumn extends AbstractColumn {
@@ -40,12 +39,12 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
     }
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         if (!row) return ImmutableMap.of()
 
         ImmutableMap.Builder builder = ImmutableMap.builder()
         assays.each {
-            builder.put(it.patientInTrialId, (row[it] ?: '') as String)
+            builder.put(it.patientInTrialId, row[it] ?: '')
         }
         row = null
         builder.build()

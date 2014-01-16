@@ -1,8 +1,8 @@
 package jobs.table.columns.binning
 
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Lists
-import com.google.common.collect.Maps
+import com.google.common.collect.Table
+import com.google.common.collect.TreeBasedTable
 import jobs.table.Column
 import jobs.table.columns.ColumnDecorator
 
@@ -17,36 +17,62 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
     boolean isGlobalComputation() { true }
 
-    private List<Map.Entry> allResults = Lists.newArrayList()
+    /* pk, context (e.g. probe name), value */
+    private Table<String, String, Number> allResults = TreeBasedTable.create()
 
-    private Object min = Double.POSITIVE_INFINITY,
-                   max = Double.NEGATIVE_INFINITY
+    private Map<String, Number> min = [:].withDefault { Double.POSITIVE_INFINITY },
+                                max = [:].withDefault { Double.NEGATIVE_INFINITY }
 
-    private @Lazy List binNames = {
-        (1..numberOfBins).collect {
-            def lowerBound = min + ((max - min) / numberOfBins) * (it - 1)
-            def upperBound = min + ((max - min) / numberOfBins) * it
-            def op2 = it == numberOfBins ? '≤' : '<'
-            "$lowerBound ≤ $header $op2 $upperBound" as String
+    private Map<String, List> binNames = {
+        def ret = [:]
+        ret.withDefault { ctx ->
+            ret[ctx] = (1..numberOfBins).collect {
+                def lowerBound = min[ctx] + ((max[ctx] - min[ctx]) / numberOfBins) * (it - 1)
+                def upperBound = min[ctx] + ((max[ctx] - min[ctx]) / numberOfBins) * it
+                def op2 = it == numberOfBins ? '≤' : '<'
+                "$lowerBound ≤ $header $op2 $upperBound" as String
+            }
+        }
+    }()
+
+    private Map<String, BigDecimal> inverseBinInterval = {
+        def ret = [:]
+        ret.withDefault { ctx ->
+            ret[ctx] = numberOfBins / (max[ctx] - min[ctx])
         }
     }()
 
 
-    Map<String, String> consumeResultingTableRows() {
-        if (allResults == null) {
+    private void consumeEntry(String pk, String ctx, Number value) {
+        if (value < min[ctx]) {
+            min[ctx] = value
+        }
+        if (value > max[ctx]) {
+            max[ctx] = value
+        }
+        allResults.put pk, ctx, value
+    }
+
+    private void consumeEntry(String pk, String ctx, Object value) {
+        consumeEntry(pk, ctx, value as BigDecimal)
+    }
+
+    private void consumeEntry(String pk, String ctx, Map value) {
+        /* otherwise found map inside map inside consumeResultingTableRows()'s map? */
+        assert ctx == ''
+        for (entry in value) {
+            consumeEntry pk, entry.key, entry.value
+        }
+    }
+
+    Map<String, Object> consumeResultingTableRows() {
+        if (allResults == null) { /* results already given */
             return ImmutableMap.of()
         }
 
         for (entry in inner.consumeResultingTableRows()) {
-            def valueAsBigDecimal = entry.value as BigDecimal
-            if (valueAsBigDecimal < min) {
-                min = valueAsBigDecimal
-            }
-            if (valueAsBigDecimal > max) {
-                max = valueAsBigDecimal
-            }
-            //store as bigdecimal because we'll need another comparison later on
-            allResults << Maps.immutableEntry(entry.key, valueAsBigDecimal)
+            assert entry.value != null /* otherwise violates contract of consumeRTR() */
+            consumeEntry entry.key, '', entry.value
         }
 
         if (numSubscribedDataSources > 0) {
@@ -55,24 +81,48 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
         def res = ImmutableMap.builder()
 
-        def c = numberOfBins / (max - min)
-        for (entry in allResults) {
-            /* normalize to interval [0, numberOfBins] */
-            def norm = (entry.value - min) * c
-            def bin = (norm as int)
-            assert bin >= 0
-            if (bin == numberOfBins) { //happens for max
-                bin--
+        if (max.keySet() == [''] as Set) {
+            for (pk in allResults.rowKeySet() /* pks */) {
+                res.put pk, doResultForPrimaryKeySimple(pk)
             }
-            res.put(entry.key, binNames[bin])
+        } else {
+            for (pk in allResults.rowKeySet() /* pks */) {
+                res.put pk, doResultForPrimaryKey(pk)
+            }
         }
 
         allResults = null
         res.build()
     }
 
+    private String transform(String ctx, Number value) {
+        /* normalize to interval [0, numberOfBins] */
+        def norm = (value - min[ctx]) * inverseBinInterval[ctx]
+        def bin = (norm as int)
+        assert bin >= 0
+        if (bin == numberOfBins) { //happens for max
+            bin--
+        }
+
+        binNames[ctx][bin]
+    }
+
+    private Map doResultForPrimaryKey(String pk) {
+        ImmutableMap.Builder<String, String> res = ImmutableMap.builder()
+        for (Map.Entry<String, Object> entry in allResults.row(pk)) {
+            res.put(entry.key /* ctx */, transform(entry.key, entry.value))
+        }
+        res.build()
+    }
+
+    private String doResultForPrimaryKeySimple(String pk) {
+        transform '', allResults.get(pk, '')
+    }
+
+
     void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
         --numSubscribedDataSources
+        inner.onDataSourceDepleted dataSourceName, dataSource
     }
 
 }

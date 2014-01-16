@@ -43,9 +43,11 @@ interface Column {
      * Unless the object needs the returned data to generate further rows, it
      * can discard the returned data.
      *
+     * Do not return null values! Omit the entry instead.
+     *
      * @return row key (e.g. patient id, or patient_id + sth else) -> column value
      */
-    Map<String, String> consumeResultingTableRows()
+    Map<String, Object> consumeResultingTableRows()
 
     /**
      * Method called whenever a data source has been completely read.

@@ -6,7 +6,6 @@ import jobs.steps.helpers.CategoricalOrBinnedColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.MissingValueAction
 import jobs.table.Table
-import jobs.table.columns.ConstantValueColumn
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,7 +51,7 @@ class TableWithFisher extends AbstractAnalysisJob implements InitializingBean {
                                 independentVariableConfigurator,
                                 dependentVariableConfigurator,])
 
-        steps << new DumpTableResultStep(
+        steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
                 temporaryDirectory: temporaryDirectory)
 
@@ -77,6 +76,8 @@ class TableWithFisher extends AbstractAnalysisJob implements InitializingBean {
         configurator.keyForConceptPaths    = "${longKeyPart}Variable"
         configurator.keyForDataType        = "div${longKeyPart.capitalize()}VariableType"
         configurator.keyForSearchKeywordId = "div${longKeyPart.capitalize()}VariablePathway"
+
+        configurator.multiRow              = true
 
         BinningColumnConfigurator binningColumnConfigurator =
                 configurator.binningConfigurator

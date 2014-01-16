@@ -102,13 +102,13 @@ class Table implements AutoCloseable {
         }
     }
 
-    Iterable<List<String>> getResult() {
+    Iterable<List<Object>> getResult() {
         if (backingMap == null) {
             throw new IllegalStateException('buildTable() has not been called')
         }
 
         def transformed = Iterables.transform(backingMap.rowIterable,
-                { Fun.Tuple2<String, List<String>> from -> /* (pk, list of values) */
+                { Fun.Tuple2<String, List<Object>> from -> /* (pk, list of values) */
                     for (int i = 0; i < from.b.size(); i++) {
                         if (from.b[i] == null) {
                             def replacement =
@@ -184,11 +184,11 @@ class Table implements AutoCloseable {
         }.collectEntries { Column it ->
             [columns.indexOf(it),
                     it.consumeResultingTableRows()]
-        }.each { int columnNumber, Map<String, String> values ->
+        }.each { int columnNumber, Map<String, Object> values ->
             if (values == null) {
-                throw new RuntimeException("Column $columnNumber returned a null map")
+                throw new NullPointerException("Column $columnNumber returned a null map")
             }
-            values.each { String primaryKey, String cellValue ->
+            values.each { String primaryKey, Object cellValue ->
                 backingMap.putCell primaryKey, columnNumber, cellValue
             }
         }
@@ -201,7 +201,7 @@ class Table implements AutoCloseable {
                 return
             }
             col.consumeResultingTableRows().each { String pk,
-                                                   String value ->
+                                                   Object value ->
                 backingMap.putCell pk, columnsToIndex[col], value
             }
         }

@@ -7,8 +7,6 @@ import jobs.UserParameters
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.AbstractColumn
-import jobs.table.columns.ConstantValueColumn
-import jobs.table.columns.SimpleConceptVariableColumn
 import org.gmock.GMockController
 import org.junit.After
 import org.junit.Test
@@ -108,6 +106,7 @@ class CategoricalOrBinnedColumnConfiguratorTests {
 
     @After
     void after() {
+        table.backingMap.db.commit() //to check for non-serializable stuff
         table.close()
     }
 
@@ -388,11 +387,192 @@ class CategoricalOrBinnedColumnConfiguratorTests {
             table.backingMap
 
             List res = Lists.newArrayList table.result
-            println res
             assertThat res, containsInAnyOrder(
                     contains(equalTo("0 ≤ $COLUMN_HEADER ≤ 45" as String), equalTo('')),
                     contains(equalTo("45 < $COLUMN_HEADER ≤ 65" as String), equalTo('')),
                     contains(equalTo('foo'), equalTo('bar')))
+        }
+    }
+
+    @Test
+    void testHighDimensionMultiRow() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_HIGH_DIMENSION,
+                divVariableType    : DATA_TYPE_NAME_HIGH_DIMENSION,
+                divVariablePathway : SEARCH_KEYWORD_ID,
+
+                binning            : 'FALSE',
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        /* interactions with tabular result */
+        TabularResult<Double, AssayColumn> highDimResult = mock(TabularResult)
+        def sampleAssays = createSampleAssays(2)
+        highDimResult.indicesList.returns(sampleAssays)
+        highDimResult.iterator().returns([
+                createRowForAssays(sampleAssays, [10.0, 50.0], 'row label 1'),
+                createRowForAssays(sampleAssays, [20.0, 100.0], 'row label 2')].
+                iterator())
+
+        /* interactions with high dimension data type resource */
+        createDataTypeResourceMock(highDimResult)
+
+        play {
+            testee.multiRow = true
+            testee.addColumn()
+
+            table.buildTable()
+
+            def res = table.result
+            assertThat res, containsInAnyOrder(
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is(10.0 as BigDecimal)),
+                            hasEntry(is('row label 2'), is(20.0 as BigDecimal)))),
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is(50.0 as BigDecimal)),
+                            hasEntry(is('row label 2'), is(100.0 as BigDecimal)))))
+        }
+    }
+
+    @Test
+    void testHighDimensionMultiRowManualBinning() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_HIGH_DIMENSION,
+                divVariableType    : DATA_TYPE_NAME_HIGH_DIMENSION,
+                divVariablePathway : SEARCH_KEYWORD_ID,
+
+                binning            : 'TRUE',
+                manualBinning      : 'TRUE',
+                numberOfBins       : '2',
+                binRanges          : 'bin1,0,45|bin2,45,65',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        /* interactions with tabular result */
+        TabularResult<Double, AssayColumn> highDimResult = mock(TabularResult)
+        def sampleAssays = createSampleAssays(2)
+        highDimResult.indicesList.returns(sampleAssays)
+        highDimResult.iterator().returns([
+                createRowForAssays(sampleAssays, [10.0, 50.0], 'row label 1'),
+                createRowForAssays(sampleAssays, [45.0, 70.0 /* out of bounds */], 'row label 2')].
+                iterator())
+
+        /* interactions with high dimension data type resource */
+        createDataTypeResourceMock(highDimResult)
+
+        play {
+            testee.multiRow = true
+            testee.addColumn()
+
+            table.buildTable()
+
+            def res = table.result
+            assertThat res, containsInAnyOrder(
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("0 ≤ $COLUMN_HEADER ≤ 45" as String)),
+                            hasEntry(is('row label 2'), is("0 ≤ $COLUMN_HEADER ≤ 45" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("45 < $COLUMN_HEADER ≤ 65" as String)))))
+        }
+    }
+
+    @Test
+    void testHighDimensionMultiRowEvenSpacedBinning() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_HIGH_DIMENSION,
+                divVariableType    : DATA_TYPE_NAME_HIGH_DIMENSION,
+                divVariablePathway : SEARCH_KEYWORD_ID,
+
+                binning            : 'TRUE',
+                manualBinning      : 'FALSE',
+                numberOfBins       : '2',
+                binDistribution    : 'ESB',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        /* interactions with tabular result */
+        TabularResult<Double, AssayColumn> highDimResult = mock(TabularResult)
+        def sampleAssays = createSampleAssays(3)
+        highDimResult.indicesList.returns(sampleAssays)
+        highDimResult.iterator().returns([
+                createRowForAssays(sampleAssays, [10.0, null, 60.0], 'row label 1'),
+                createRowForAssays(sampleAssays, [0.0, 50.0, 100.0], 'row label 2')].
+                iterator())
+
+        /* interactions with high dimension data type resource */
+        createDataTypeResourceMock(highDimResult)
+
+        play {
+            testee.multiRow = true
+            testee.addColumn()
+
+            table.buildTable()
+
+            def res = table.result
+            assertThat res, containsInAnyOrder(
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("10.0 ≤ $COLUMN_HEADER < 35.0" as String)),
+                            hasEntry(is('row label 2'), is("0.0 ≤ $COLUMN_HEADER < 50.0" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 2'), is("50.0 ≤ $COLUMN_HEADER ≤ 100.0" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("35.0 ≤ $COLUMN_HEADER ≤ 60.0" as String)),
+                            hasEntry(is('row label 2'), is("50.0 ≤ $COLUMN_HEADER ≤ 100.0" as String)))))
+        }
+    }
+
+    @Test
+    void testHighDimensionMultiRowEvenDistributionBinning() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_HIGH_DIMENSION,
+                divVariableType    : DATA_TYPE_NAME_HIGH_DIMENSION,
+                divVariablePathway : SEARCH_KEYWORD_ID,
+
+                binning            : 'TRUE',
+                manualBinning      : 'FALSE',
+                numberOfBins       : '2',
+                binDistribution    : 'EDP',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        /* interactions with tabular result */
+        TabularResult<Double, AssayColumn> highDimResult = mock(TabularResult)
+        def sampleAssays = createSampleAssays(4)
+        highDimResult.indicesList.returns(sampleAssays)
+        highDimResult.iterator().returns([
+                createRowForAssays(sampleAssays, [10.0, null, 60.0, 61.0], 'row label 1'),
+                createRowForAssays(sampleAssays, [0.0, 10.0, 10.0, 20.0], 'row label 2')].
+                iterator())
+
+        /* interactions with high dimension data type resource */
+        createDataTypeResourceMock(highDimResult)
+
+        play {
+            testee.multiRow = true
+            testee.addColumn()
+
+            table.buildTable()
+
+            def res = table.result
+            assertThat res, containsInAnyOrder(
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("10.0 ≤ $COLUMN_HEADER ≤ 10.0" as String)),
+                            hasEntry(is('row label 2'), is("0.0 ≤ $COLUMN_HEADER ≤ 10.0" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 2'), is("0.0 ≤ $COLUMN_HEADER ≤ 10.0" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("10.0 < $COLUMN_HEADER ≤ 61.0" as String)),
+                            hasEntry(is('row label 2'), is("0.0 ≤ $COLUMN_HEADER ≤ 10.0" as String)))),
+                    contains(allOf(
+                            hasEntry(is('row label 1'), is("10.0 < $COLUMN_HEADER ≤ 61.0" as String)),
+                            hasEntry(is('row label 2'), is("10.0 < $COLUMN_HEADER ≤ 20.0" as String)))))
         }
     }
 
@@ -528,14 +708,14 @@ class CategoricalOrBinnedColumnConfiguratorTests {
 
     private AssayColumn createMockAssay(String patientInTrialId, String label) {
         AssayColumn assayColumn = mock(AssayColumn)
-        assayColumn.patientInTrialId.returns(patientInTrialId)
+        assayColumn.patientInTrialId.returns(patientInTrialId).atLeastOnce()
         assayColumn.label.returns(label).stub()
         assayColumn
     }
 
     private DataRow<AssayColumn, Double> createMockRow(Map<AssayColumn, Double> values, String label) {
         DataRow row = mock(DataRow)
-        row.label.returns('label for row 1').stub()
+        row.label.returns(label).stub()
         values.keySet().each { column ->
             row.getAt(column).returns(values[column])
         }
