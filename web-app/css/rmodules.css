@@ -45,20 +45,18 @@
 #analysisForm .inputFields #divManualBinContinuousIndep input,
 #analysisForm .inputFields #divManualBinContinuousDep input,
 #analysisForm .inputFields #divManualBinContinuous input
-{width: 150px; height: 15px; padding:0; margin: 0;}
+{width: 140px; height: 15px; padding:0; margin: 0;}
 
 .chkpair {padding: 5px 0 10px 0;}
 .minifont {font-size: 10px;}
 .container {width: 810px;}
-.left {
-    max-width: 50%;
-    max-width: 50%;
-    overflow:auto;
-    float: left;
-    padding: 1px;
-}
-.right {
-    max-width: 50%;
-    overflow:auto;
-    padding: 1px;
-}
+.left {max-width: 50%;overflow:auto;float: left;padding: 1px;}
+.right {max-width: 50%;overflow:auto;padding: 1px;}
+
+.three-layout-container {width: 1000px;}
+.three-layout-left {max-width: 31%;overflow:auto;float: left;padding-left: 5px;}
+.three-layout-middle {max-width: 38%;overflow:auto;float: left;padding-left: 5px;}
+.three-layout-right {max-width: 31%;overflow:auto;padding-left: 5px;}
+
+.divInputLabel {height: 60px;}
+.divInputBox {margin: 10px 0 10px 0; width: 95% !important; height:75px!important;}
