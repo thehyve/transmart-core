@@ -23,6 +23,8 @@ class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
            keyForDataType,        /* CLINICAL for clinical data */
            keyForSearchKeywordId  /* only applicable for high dim data */
 
+    boolean multiRow = false
+
     private ColumnConfigurator innerConfigurator
 
     @Autowired
@@ -49,6 +51,7 @@ class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
             innerConfigurator.keyForConceptPath     = keyForConceptPaths
             innerConfigurator.keyForDataType        = keyForDataType
             innerConfigurator.keyForSearchKeywordId = keyForSearchKeywordId
+            innerConfigurator.multiRow              = multiRow
         }
 
         binningConfigurator.innerConfigurator = innerConfigurator

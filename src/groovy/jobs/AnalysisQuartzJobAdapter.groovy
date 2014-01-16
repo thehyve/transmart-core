@@ -8,7 +8,6 @@ import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 import org.springframework.context.ApplicationContext
 import org.springframework.core.NamedThreadLocal
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 @Log4j
 class AnalysisQuartzJobAdapter implements Job {

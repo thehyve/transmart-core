@@ -1,7 +1,7 @@
 package jobs.table.columns.binning
 
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Lists
+import com.google.common.base.Function
+import com.google.common.collect.*
 import jobs.table.Column
 import jobs.table.columns.ColumnDecorator
 
@@ -28,18 +28,26 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
         true
     }
 
-    private List<Map.Entry> allResults = Lists.newArrayList()
+    private Map<String, List<Map.Entry>> allResults = {
+        def res = [:]
+        res.withDefault { ctx ->
+            res[ctx] = Lists.newArrayList()
+        }
+    }()
 
-    private List quantileRanks
+    private Map<String, List> quantileRanks = Maps.newHashMap()
 
-    private @Lazy List binNames = {
-        (0..(numberOfBins - 1)).collect {
-            def lowerBound = it == 0 ? allResults[0].value :
-                                       allResults[quantileRanks[it - 1]].value
-            def upperBound = it == (numberOfBins - 1) ? allResults[-1].value :
-                                                        allResults[quantileRanks[it]].value
-            def op1 = it == 0 ? '≤' : '<'
-            "$lowerBound $op1 $header ≤ $upperBound" as String
+    private Map<String, List> binNames = {
+        def res = [:]
+        res.withDefault { ctx ->
+            (0..(numberOfBins - 1)).collect {
+                def lowerBound = it == 0 ? allResults[ctx][0].value :
+                                           allResults[ctx][quantileRanks[ctx][it - 1]].value
+                def upperBound = it == (numberOfBins - 1) ? allResults[ctx][-1].value :
+                                                            allResults[ctx][quantileRanks[ctx][it]].value
+                def op1 = it == 0 ? '≤' : '<'
+                "$lowerBound $op1 $header ≤ $upperBound" as String
+            }
         }
     }()
 
@@ -50,14 +58,30 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
         }
     }
 
-    Map<String, String> consumeResultingTableRows() {
+    private void consumeEntry(String pk, String ctx, Number value) {
+        allResults[ctx] << Maps.immutableEntry(pk, value)
+    }
+
+    private void consumeEntry(String pk, String ctx, Object value) {
+        consumeEntry(pk, ctx, value as BigDecimal)
+    }
+
+    private void consumeEntry(String pk, String ctx, Map value) {
+        /* otherwise found map inside map inside consumeResultingTableRows()'s map? */
+        assert ctx == ''
+        for (entry in value) {
+            consumeEntry pk, entry.key, entry.value
+        }
+    }
+
+    Map<String, Object> consumeResultingTableRows() {
         if (allResults == null) {
             /* already gave back its data */
             return ImmutableMap.of()
         }
 
         for (entry in inner.consumeResultingTableRows()) {
-            allResults << entry
+            consumeEntry entry.key, '', entry.value
         }
 
         if (numSubscribedDataSources > 0) {
@@ -65,42 +89,79 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
         }
 
         calculateQuantiles()
-        def res = ImmutableMap.builder()
 
-        def k = 1 /* number of quantile */
-        def nextTransition = quantileRanks[k - 1]
-
-        for (i in 0..(allResults.size() - 1)) {
-            while (i > nextTransition) {
-                k++
-                nextTransition = quantileRanks[k - 1]
-            }
-            res.put(allResults[i].key, binNames[k - 1])
+        /* use of ImmutableTable is not possible yet (not serializable) */
+        /* pk -> context, value */
+        Map<String, ImmutableMap.Builder<String, Object>> builders = [:]
+        builders = builders.withDefault { key ->
+            builders[key] = ImmutableMap.builder()
         }
 
+        def contextSet = allResults.keySet()
+        contextSet.each { ctx ->
+            transformContext ctx, builders
+        }
         allResults = null
-        res.build()
+
+        def provisionalResult = Maps.transformValues(builders,
+                { ImmutableMap.Builder builder ->
+                    builder.build()
+                } as Function)
+
+        if (contextSet == [''] as Set) {
+            Maps.transformValues(provisionalResult, {
+                it['']
+            } as Function)
+        } else {
+            provisionalResult
+        }
+    }
+
+    void transformContext(String ctx,
+                          Map<String, ImmutableMap.Builder<String, Object>> builders) {
+        List<Map.Entry> ctxResults = allResults[ctx]
+        List ranks = quantileRanks[ctx]
+
+
+        def k = 1 /* number of quantile */
+        def nextTransition = ranks[k - 1]
+
+        for (i in 0..(ctxResults.size() - 1)) {
+            while (i > nextTransition) {
+                k++
+                nextTransition = ranks[k - 1]
+            }
+            builders[ctxResults[i].key].put ctx, binNames[ctx][k - 1]
+        }
     }
 
     void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
         --numSubscribedDataSources
+        inner.onDataSourceDepleted(dataSourceName, dataSource)
     }
 
     void calculateQuantiles() {
-        Collections.sort(allResults, { Map.Entry a, Map.Entry b ->
-            (a.value as BigDecimal) <=> (b.value as BigDecimal)
-        } as Comparator)
-
-        quantileRanks = []
-        for (i in 1..numberOfBins) {
-            /* maybe use nearest rank instead? */
-            def rank = (((allResults.size() * i) / numberOfBins) as int) - 1 //rounds down
-            while (rank < allResults.size() - 2 &&
-                    (allResults[rank].value as BigDecimal) == (allResults[rank + 1].value as BigDecimal)) {
-                rank++
-            }
-            quantileRanks << rank
+        allResults.values().each { List<Map.Entry> entryList ->
+            Collections.sort(entryList, { Map.Entry a, Map.Entry b ->
+                a.value <=> b.value
+            } as Comparator)
         }
-        quantileRanks << allResults.size() // to ease impl of consumeResultingTableRows()
+
+        for (ctxEntry in allResults) {
+            String ctx = ctxEntry.key
+            List<Map.Entry> ctxResults = ctxEntry.value
+
+            quantileRanks[ctx] = []
+            for (i in 1..numberOfBins) {
+                /* maybe use nearest rank instead? */
+                def rank = (((ctxResults.size() * i) / numberOfBins) as int) - 1 //rounds down
+                while (rank < ctxResults.size() - 2 &&
+                        ctxResults[rank].value == ctxResults[rank + 1].value) {
+                    rank++
+                }
+                quantileRanks[ctx] << rank
+            }
+            quantileRanks[ctx] << ctxResults.size() // to ease impl of consumeResultingTableRows()
+        }
     }
 }

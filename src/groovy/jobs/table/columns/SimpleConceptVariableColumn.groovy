@@ -16,20 +16,21 @@ class SimpleConceptVariableColumn extends AbstractColumn {
 
     @Override
     void onReadRow(String dataSourceName, Object row) {
+        /* if we only subscribe one source, as we should, there calls to
+         * onReadRow() are guaranteed to be called interleaved with
+         * consumeResultingTableRow */
+        assert lastRow == null
         assert row instanceof PatientRow
 
         lastRow = (PatientRow) row
     }
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         if (!lastRow) return ImmutableMap.of()
 
-        /* if we only subscribe one source, as we should, there calls to
-         * onReadRow() are guaranteed to be called interleaved with
-         * consumeResultingTableRow */
         def res = ImmutableMap.of(getPrimaryKey(lastRow),
-                (String) lastRow.getAt(column))
+                lastRow.getAt(column))
         lastRow = null
         res
     }
