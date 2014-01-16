@@ -40,7 +40,7 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
     private Map<String, List> binNames = {
         def res = [:]
         res.withDefault { ctx ->
-            (0..(numberOfBins - 1)).collect {
+            res[ctx] = (0..(numberOfBins - 1)).collect {
                 def lowerBound = it == 0 ? allResults[ctx][0].value :
                                            allResults[ctx][quantileRanks[ctx][it - 1]].value
                 def upperBound = it == (numberOfBins - 1) ? allResults[ctx][-1].value :
