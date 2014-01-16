@@ -63,7 +63,7 @@ class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
              * In the future we may want to provide a MissingValueAction
              * to this class in order to customize this behavior */
             if (value != null) {
-                results[it.patientInTrialId].put  rowLabel, value
+                results[it.patientInTrialId].put rowLabel, value
             }
         }
     }

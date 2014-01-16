@@ -42,7 +42,7 @@ class ExpandingMapIterator extends AbstractIterator<String[]> {
     private void setTransformedColumnsIndexes(List<Integer> indexes) {
         int count = 0
         indexes.each { Integer it ->
-            transformedColumnsIndexes[it] = it  + count++
+            transformedColumnsIndexes[it] = it + count++
         }
     }
 
@@ -93,7 +93,6 @@ class ExpandingMapIterator extends AbstractIterator<String[]> {
                 returnArray[writingIndex++] = value as String
             }
         }
-
     }
 
     private boolean resetIterables() { // false if any iterable is empty
@@ -126,7 +125,6 @@ class ExpandingMapIterator extends AbstractIterator<String[]> {
         r.next()
         r
     }
-
 
     private String[] nextGeneratedRow() {
         int i = 0

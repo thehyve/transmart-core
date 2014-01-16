@@ -74,5 +74,4 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
             new ExpandingMapIterator(preResults, transformedColumnsIndexes)
         }
     }
-
 }
