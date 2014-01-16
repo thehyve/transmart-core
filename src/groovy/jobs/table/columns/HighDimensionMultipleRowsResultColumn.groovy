@@ -74,13 +74,11 @@ class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
             return ImmutableMap.of()
         }
 
-        try {
-            Maps.transformValues(results, { ImmutableMap.Builder builder ->
-                    builder.build()
-            } as Function)
-        } finally {
-            results = null
-        }
+        def resultsLocal = results
+        results = null
+        Maps.transformValues(resultsLocal, { ImmutableMap.Builder builder ->
+                builder.build()
+        } as Function)
     }
 
 
