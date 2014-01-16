@@ -59,16 +59,11 @@ class ExpandingMapIterator extends AbstractIterator<String[]> {
     }
 
     private boolean readOriginalRow() { // false if nothing else to read
-        while (true) {
-            if (!preResults.hasNext()) {
-                endOfData()
-                return false
-            }
-
+        while (preResults.hasNext()) {
             originalRow = preResults.next()
-            prefillUnchangedColumns()
 
             if (resetIterables()) {
+                prefillUnchangedColumns()
                 return true
             } else {
                 // one or more iterables are empty; no rows will be generated
@@ -76,6 +71,10 @@ class ExpandingMapIterator extends AbstractIterator<String[]> {
                 //continue
             }
         }
+
+        // no more results
+        endOfData()
+        return false
     }
 
     private void prefillUnchangedColumns() {
