@@ -29,8 +29,15 @@ class SimpleConceptVariableColumn extends AbstractColumn {
     Map<String, Object> consumeResultingTableRows() {
         if (!lastRow) return ImmutableMap.of()
 
-        def res = ImmutableMap.of(getPrimaryKey(lastRow),
-                lastRow.getAt(column))
+        def cellValue = lastRow.getAt(column)
+        def res
+
+        if (cellValue != null) {
+            res = ImmutableMap.of(getPrimaryKey(lastRow), cellValue)
+        } else {
+            res = ImmutableMap.of()
+        }
+
         lastRow = null
         res
     }
