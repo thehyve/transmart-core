@@ -13,7 +13,7 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
-import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRow
+import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
@@ -122,7 +122,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRow(Arrays.asList(list[0]))
+                    def regionRow = new RegionRowImpl(Arrays.asList(list[0]))
                     regionRow.assayIndexMap = assayIndexMap
                     regionRow.data = list.collect {
                         projection.doWithResult(Arrays.asList(it))

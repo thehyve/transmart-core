@@ -13,10 +13,10 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
-import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRow
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -208,6 +208,18 @@ class AcghEndToEndRetrievalTests {
 
         assertThat dataQueryResult, hasProperty('indicesList', is(not(empty())))
         assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
+    }
+
+    @Test
+    void testResultRowsAreCoreApiRegionRows() {
+        def assayConstraints = [
+                acghResource.createAssayConstraint(
+                        AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME) ]
+
+        dataQueryResult = acghResource.retrieveData assayConstraints, [], projection
+
+        assertThat Lists.newArrayList(dataQueryResult), everyItem(
+                isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
     }
 
 }

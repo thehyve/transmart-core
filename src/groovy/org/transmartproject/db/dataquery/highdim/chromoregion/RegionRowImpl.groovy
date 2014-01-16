@@ -2,13 +2,14 @@ package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
+import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-final class RegionRow extends AbstractDataRow implements Region {
+final class RegionRowImpl extends AbstractDataRow implements RegionRow {
 
     final List rowList
 
-    RegionRow(final List rowList) {
+    RegionRowImpl(final List rowList) {
         this.rowList = rowList
     }
 
