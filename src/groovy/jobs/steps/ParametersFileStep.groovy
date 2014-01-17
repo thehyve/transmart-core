@@ -1,6 +1,5 @@
 package jobs.steps
 
-import groovy.json.JsonBuilder
 import jobs.UserParameters
 
 class ParametersFileStep implements Step{
