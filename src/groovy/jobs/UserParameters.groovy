@@ -1,6 +1,7 @@
 package jobs
 
 import com.google.common.collect.Maps
+import groovy.json.JsonBuilder
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -24,6 +25,12 @@ class UserParameters {
 
     String toString() {
         "UserParameters$map"
+    }
+
+    String toJSON() {
+        JsonBuilder builder = new JsonBuilder()
+        builder(map)
+        return builder.toString()
     }
 
     void each(Closure c) {
