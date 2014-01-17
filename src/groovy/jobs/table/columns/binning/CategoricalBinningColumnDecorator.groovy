@@ -15,7 +15,7 @@ class CategoricalBinningColumnDecorator implements ColumnDecorator {
     Map<String, String> transformationMap
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         CategoricalVariableColumn castInner = inner
         if (!castInner.lastRow) return ImmutableMap.of()
 

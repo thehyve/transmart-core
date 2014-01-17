@@ -84,7 +84,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
         long i = 0
         tabularResult.each { DataRow row ->
             assayList.each { AssayColumn assay ->
-                if (!row[assay]) {
+                if (row[assay] == null) {
                     return
                 }
 

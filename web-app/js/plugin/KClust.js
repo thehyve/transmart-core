@@ -101,7 +101,7 @@ KMeansClusteringView.prototype.get_inputs = function (form_params) {
         {
             "label" : "Max Row to Display",
             "el" : document.getElementById("txtMaxDrawNumber"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
+            "validations" : [{type:"INTEGER", min:1}]
         },
         {
             "label" : "Image Width",

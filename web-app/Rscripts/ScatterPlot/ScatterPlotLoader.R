@@ -100,11 +100,6 @@ ScatterPlot.loader <- function(
 	{
 		yAxisLabel <- sub(pattern="^\\\\(.*?\\\\){3}",replacement="",x=concept.dependent,perl=TRUE)	
 	}
-	else if(concept.dependent.type == "MRNA")
-	{
-		yAxisDataTypeUnit <- "Gene Expression (normalized intensity)";
-		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")
-	}
 	else if(concept.dependent.type == "SNP")
 	{
 		if(snptype.dependent == "CNV")
@@ -118,15 +113,14 @@ ScatterPlot.loader <- function(
 		
 		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")		
 	}
+	else {
+		yAxisDataTypeUnit <- "High Dimensional Data (raw values)";
+		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")
+	}
 	
 	if(concept.independent.type == "CLINICAL")
 	{
 		xAxisLabel <- sub(pattern="^\\\\(.*?\\\\){3}",replacement="",x=concept.independent,perl=TRUE)
-	}
-	else if(concept.independent.type == "MRNA")
-	{
-		xAxisDataTypeUnit <- "Gene Expression (normalized intensity)"
-		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
 	}
 	else if(concept.independent.type == "SNP")
 	{
@@ -140,7 +134,11 @@ ScatterPlot.loader <- function(
 		}
 		
 		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
-	}	
+	} else
+	{
+		xAxisDataTypeUnit <- "High Dimensional Data (raw values)"
+		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
+	}
 	
 	#If there is a group column, make sure we set the graph up to use it to change the color of the points, as well as the shape.
 	#If there is a GROUP.1 that means we have more than one group column so we need to break it out into different graphs.
