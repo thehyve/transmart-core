@@ -58,7 +58,8 @@ grails.project.dependency.resolution = {
         compile 'org.rosuda:Rserve:1.7.3'
         compile 'org.mapdb:mapdb:0.9.7'
 
-        compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+        /* serializable ImmutableMap only on guava 16 */
+        compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
 
         /* compile instead of test due to technical limitations

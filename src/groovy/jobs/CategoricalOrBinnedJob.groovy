@@ -69,6 +69,8 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
         configurator.keyForDataType        = "div${longKeyPart.capitalize()}VariableType"
         configurator.keyForSearchKeywordId = "div${longKeyPart.capitalize()}VariablePathway"
 
+        configurator.multiRow              = true
+
         BinningColumnConfigurator binningColumnConfigurator =
                 configurator.binningConfigurator
         binningColumnConfigurator.keyForDoBinning       = "binning${keyPart.capitalize()}"

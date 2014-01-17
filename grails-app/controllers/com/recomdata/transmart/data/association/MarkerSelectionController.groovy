@@ -97,8 +97,8 @@ class MarkerSelectionController {
 			//Every line but the first in the file gets written to the table.
 			if(!firstLine)
 			{
-				//Split the current line.
-				String[] resultArray = it.split();
+				//Split the current line (tabs) and trim the entries
+				String[] resultArray = it.split("\t").collect { it.trim() }
 				
 				String tableRow = """\
 						<tr>

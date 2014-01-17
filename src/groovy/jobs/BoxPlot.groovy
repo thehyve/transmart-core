@@ -57,11 +57,18 @@ class BoxPlot extends CategoricalOrBinnedJob {
     protected List<String> getRStatements() {
         [
            '''source('$pluginDirectory/ANOVA/BoxPlotLoader.R')''',
-           '''BoxPlot.loader(input.filename='outputfile',concept.dependent='$dependentVariable',
-              concept.independent='$independentVariable',flipimage=as.logical('$flipImage'),
-              concept.dependent.type='$divDependentVariableType',concept.independent.type='$divIndependentVariableType',
-              genes.dependent='$divDependentPathwayName',genes.independent='$divIndependentPathwayName',
-              binning.enabled='$binning',binning.variable='$binVariable')'''
+           '''
+            BoxPlot.loader(
+                    input.filename           = 'outputfile',
+                    concept.dependent        = '$dependentVariable',
+                    concept.independent      = '$independentVariable',
+                    flipimage                = as.logical('$flipImage'),
+                    concept.dependent.type   = '$divDependentVariableType',
+                    concept.independent.type = '$divIndependentVariableType',
+                    genes.dependent          = '$divDependentPathwayName',
+                    genes.independent        = '$divIndependentPathwayName',
+                    binning.enabled          = '$binning',
+                    binning.variable         = '$binVariable')'''
         ]
     }
 

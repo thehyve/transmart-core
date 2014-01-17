@@ -6,7 +6,7 @@
 
     <h2>
         Variable Selection
-        <a href='JavaScript:D2H_ShowHelp(1505,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+        <a href='JavaScript:D2H_ShowHelp(1506,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
             <img src="${resource(dir: 'images', file: 'help/helpicon_white.jpg')}" alt="Help"/>
         </a>
     </h2>
@@ -28,7 +28,7 @@
             <div id="displaydivIndependentVariable" class="independentVars"></div>
 
             <label for="txtMaxDrawNumber">Max rows to display:</label>
-            <input type="text" id="txtMaxDrawNumber" value="50"/>
+            <input type="text" id="txtMaxDrawNumber"/>
 
             <label for="txtImageWidth">Image Width (pixels):</label>
             <input type="text" id="txtImageWidth" value="800"/>
