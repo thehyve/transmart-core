@@ -118,7 +118,7 @@
                         </div>
                         <input type="hidden" id="dependentVarDataType">
                         <input type="hidden" id="dependentPathway">
-                </div>
+                    </div>
 
                     %{--Display dependent variable--}%
                     <div id="displaydivDependentVariable" class="dependentVars"></div>
