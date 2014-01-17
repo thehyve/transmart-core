@@ -18,6 +18,7 @@ package com.recomdata.transmart.data.association
 
 import grails.util.Holders
 import jobs.AnalysisQuartzJobAdapter
+import jobs.BoxPlot
 import jobs.Heatmap
 import jobs.KMeansClustering
 import jobs.HierarchicalClustering
@@ -101,6 +102,9 @@ class RModulesController {
                 break
             case 'tableWithFisher':
                 jsonResult = createJob(params, TableWithFisher, false)
+                break
+            case 'boxPlot':
+                jsonResult = createJob(params, BoxPlot, false)
                 break
             case 'scatterPlot':
                 jsonResult = createJob(params, ScatterPlot, false)
