@@ -16,8 +16,8 @@ class BoxPlot extends CategoricalOrBinnedJob {
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
         //both configurators use the same generics parameters...
-        configureConfigurator independentVariableConfigurator, '', '', 'X'
-        configureConfigurator dependentVariableConfigurator, '', '', 'Y'
+        configureConfigurator independentVariableConfigurator, '', ''
+        configureConfigurator dependentVariableConfigurator, '', ''
 
         //... but at most one of them is enabled at any moment
         String binVariable = params['binVariable'] as String
@@ -29,6 +29,28 @@ class BoxPlot extends CategoricalOrBinnedJob {
         dependentVariableConfigurator.keyForConceptPaths = 'dependentVariable'
         independentVariableConfigurator.keyForDataType = 'divIndependentVariableType'
         dependentVariableConfigurator.keyForDataType = 'divDependentVariableType'
+        independentVariableConfigurator.keyForSearchKeywordId = 'divIndependentVariablePathway'
+        dependentVariableConfigurator.keyForSearchKeywordId = 'divDependentVariablePathway'
+
+        configureLabels()
+    }
+
+    private void configureLabels() {
+        // the variable named x must be the categorical variable (or a binned
+        // continuous variable)
+        if (independentCategorical) {
+            independentVariableConfigurator.columnHeader = 'X'
+            dependentVariableConfigurator.columnHeader   = 'Y'
+        } else {
+            independentVariableConfigurator.columnHeader = 'Y'
+            dependentVariableConfigurator.columnHeader   = 'X'
+        }
+
+    }
+
+    boolean isIndependentCategorical() {
+        params['independentVariable']?.contains('|') ||
+                (params['binning'] == 'TRUE' && params['binVariable'] == 'IND')
     }
 
     @Override

@@ -39,7 +39,7 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
                         independentVariableConfigurator,
                         dependentVariableConfigurator,])
 
-        steps << new DumpTableResultStep(
+        steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
                 temporaryDirectory: temporaryDirectory)
 
@@ -56,10 +56,14 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
     private void configureConfigurator(CategoricalOrBinnedColumnConfigurator configurator,
                                        String keyPart,
                                        String longKeyPart,
-                                       String header) {
-        configurator.columnHeader          = header
+                                       String header = null) {
+        if (header != null) {
+            configurator.columnHeader = header
+        }
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
         configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
+
+        configurator.multiRow              = true
 
         configurator.keyForConceptPaths    = "${longKeyPart}Variable"
         configurator.keyForDataType        = "div${longKeyPart.capitalize()}VariableType"
