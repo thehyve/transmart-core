@@ -97,23 +97,24 @@ FormValidator.prototype.validateInputForm = function () {
             }
 
             if (_isValid) {
-                var noValue = !el || _el.value == null || _el.value == '';
                 switch (_validations[j].type)
                 {
                     case 'INTEGER' :
-                        _isInteger = noValue || this.valid_integer(_el, _label, _validations[j]);
-                        _isValid = _isValid && _isInteger;
+                        if (_el.value !== null && _el.value !== '') {
+                            _isInteger = this.valid_integer(_el, _label, _validations[j]);
+                            _isValid = _isValid && _isInteger;
+                        }
                         break;
                     case 'HIGH_DIMENSIONAL' :
-                        _isHighDimensional =  noValue || this.valid_high_dimensional(_el, _label, _validations[j]);
+                        _isHighDimensional =  this.valid_high_dimensional(_el, _label, _validations[j]);
                         _isValid = _isValid && _isHighDimensional;
                         break;
                     case 'HIGH_DIMENSIONAL_ACGH' :
-                        _isHighDimensional =  noValue || this.valid_high_dimensional_acgh(_el, _label, _validations[j]);
+                        _isHighDimensional =  this.valid_high_dimensional_acgh(_el, _label, _validations[j]);
                         _isValid = _isValid && _isHighDimensional;
                         break;
                     case 'GROUP_VARIABLE' :
-                        _isHighDimensional =  noValue || this.valid_group_variable(_el, _label);
+                        _isHighDimensional =  this.valid_group_variable(_el, _label);
                         _isValid = _isValid && _isHighDimensional;
                         break;
                     case 'MIN_TWO_SUBSETS' :
