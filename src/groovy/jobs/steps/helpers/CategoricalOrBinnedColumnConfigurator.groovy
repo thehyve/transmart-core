@@ -30,15 +30,14 @@ class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
     @Autowired
     ApplicationContext appCtx
 
-    @Override
-    protected void doAddColumn(Closure<Column> decorateColumn) {
+    private void setupInnerConfigurator() {
         if (getStringParam(keyForConceptPaths).contains('|')) {
             log.debug("Found pipe character in $keyForConceptPaths, " +
                     "assuming categorical data")
 
             innerConfigurator = appCtx.getBean CategoricalColumnConfigurator
 
-            innerConfigurator.columnHeader       = columnHeader
+            innerConfigurator.columnHeader       = getColumnHeader()
             innerConfigurator.keyForConceptPaths = keyForConceptPaths
         } else {
             log.debug("Did not find pipe character in $keyForConceptPaths, " +
@@ -46,7 +45,7 @@ class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
 
             innerConfigurator = appCtx.getBean NumericColumnConfigurator
 
-            innerConfigurator.columnHeader          = columnHeader
+            innerConfigurator.columnHeader          = getColumnHeader()
             innerConfigurator.projection            = projection
             innerConfigurator.keyForConceptPath     = keyForConceptPaths
             innerConfigurator.keyForDataType        = keyForDataType
@@ -55,6 +54,12 @@ class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
         }
 
         binningConfigurator.innerConfigurator = innerConfigurator
+    }
+
+
+    @Override
+    protected void doAddColumn(Closure<Column> decorateColumn) {
+        setupInnerConfigurator()
 
         binningConfigurator.addColumn decorateColumn
     }
