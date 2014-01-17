@@ -162,7 +162,7 @@ abstract class CollectingTabularResult<C, R extends DataRow>
     @Override
     void close() throws IOException {
         closeCalled = true
-        results.close()
+        results?.close()
         if (closeSession) {
             results.session.close()
         }
