@@ -100,8 +100,10 @@ FormValidator.prototype.validateInputForm = function () {
                 switch (_validations[j].type)
                 {
                     case 'INTEGER' :
-                        _isInteger =  this.valid_integer(_el, _label, _validations[j]);
-                        _isValid = _isValid && _isInteger;
+                        if (_el.value !== null && _el.value !== '') {
+                            _isInteger = this.valid_integer(_el, _label, _validations[j]);
+                            _isValid = _isValid && _isInteger;
+                        }
                         break;
                     case 'HIGH_DIMENSIONAL' :
                         _isHighDimensional =  this.valid_high_dimensional(_el, _label, _validations[j]);

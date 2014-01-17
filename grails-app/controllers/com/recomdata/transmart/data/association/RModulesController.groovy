@@ -24,6 +24,7 @@ import jobs.KMeansClustering
 import jobs.HierarchicalClustering
 import jobs.MarkerSelection
 import jobs.PCA
+import jobs.ScatterPlot
 import jobs.TableWithFisher
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
@@ -104,6 +105,9 @@ class RModulesController {
                 break
             case 'boxPlot':
                 jsonResult = createJob(params, BoxPlot, false)
+                break
+            case 'scatterPlot':
+                jsonResult = createJob(params, ScatterPlot, false)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(

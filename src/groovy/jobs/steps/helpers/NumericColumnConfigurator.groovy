@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
 import jobs.table.Column
+import jobs.table.columns.HighDimensionMultipleRowsResultColumn
 import jobs.table.columns.HighDimensionSingleRowResultColumn
 import jobs.table.columns.SimpleConceptVariableColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,6 +29,8 @@ class NumericColumnConfigurator extends ColumnConfigurator {
     String keyForConceptPath,
            keyForDataType,        /* CLINICAL for clinical data */
            keyForSearchKeywordId  /* only applicable for high dim data */
+
+    boolean multiRow = false
 
     @Autowired
     private HighDimensionResource highDimensionResource
@@ -80,10 +83,17 @@ class NumericColumnConfigurator extends ColumnConfigurator {
         String dataSourceName = columnHeader + '_highdim'
 
         table.addDataSource dataSourceName, tabularResult
+
+        def highDimColumn
+        if (!multiRow) {
+            highDimColumn = new HighDimensionSingleRowResultColumn(
+                    header: columnHeader)
+        } else {
+            highDimColumn = new HighDimensionMultipleRowsResultColumn(
+                    header: columnHeader)
+        }
         table.addColumn(
-                decorateColumn.call(
-                    new HighDimensionSingleRowResultColumn(
-                            header: columnHeader)),
+                decorateColumn.call(highDimColumn),
                 [dataSourceName] as Set)
     }
 

@@ -13,7 +13,7 @@ class PrimaryKeyColumn extends AbstractColumn {
     }
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         ImmutableMap.of()
     }
 

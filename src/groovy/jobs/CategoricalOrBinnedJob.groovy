@@ -39,7 +39,7 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
                         independentVariableConfigurator,
                         dependentVariableConfigurator,])
 
-        steps << new DumpTableResultStep(
+        steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
                 temporaryDirectory: temporaryDirectory)
 
@@ -64,6 +64,8 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
         configurator.keyForConceptPaths    = "${longKeyPart}Variable"
         configurator.keyForDataType        = "div${longKeyPart.capitalize()}VariableType"
         configurator.keyForSearchKeywordId = "div${longKeyPart.capitalize()}VariablePathway"
+
+        configurator.multiRow              = true
 
         BinningColumnConfigurator binningColumnConfigurator =
                 configurator.binningConfigurator

@@ -3,7 +3,7 @@ package jobs.steps
 import au.com.bytecode.opencsv.CSVWriter
 import jobs.table.Table
 
-class DumpTableResultStep implements Step {
+class SimpleDumpTableResultStep implements Step {
 
     Table table
 
@@ -24,12 +24,21 @@ class DumpTableResultStep implements Step {
         }
     }
 
-    void writeHeader(CSVWriter writer) {
-        writer.writeNext(table.headers as String[])
+    protected List<String> getHeaders() {
+        table.headers
     }
 
+    protected Iterator getMainRows() {
+        table.result.iterator()
+    }
+
+    void writeHeader(CSVWriter writer) {
+        writer.writeNext(headers as String[])
+    }
+
+
     void writeMeat(CSVWriter writer) {
-        table.result.each {
+        mainRows.each {
             writer.writeNext(it as String[])
         }
     }

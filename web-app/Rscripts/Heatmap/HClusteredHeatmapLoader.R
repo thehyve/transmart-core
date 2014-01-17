@@ -25,7 +25,7 @@ meltData = TRUE,
 imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
-maxDrawNumber = 50
+maxDrawNumber = Inf
 )
 {
 
