@@ -7,7 +7,7 @@ class RnaSeqCogDataRow extends AbstractDataRow implements BioMarkerDataRow<Objec
 
     String annotationId
 
-    String gene
+    String geneSymbol
 
     @Override
     String getLabel() {
@@ -16,6 +16,6 @@ class RnaSeqCogDataRow extends AbstractDataRow implements BioMarkerDataRow<Objec
 
     @Override
     String getBioMarker() {
-        gene
+        geneSymbol
     }
 }
