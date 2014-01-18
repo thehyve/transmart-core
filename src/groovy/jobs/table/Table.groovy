@@ -4,6 +4,7 @@ import com.google.common.base.Function
 import com.google.common.base.Predicate
 import com.google.common.collect.*
 import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import org.mapdb.Fun
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -189,7 +190,7 @@ class Table implements AutoCloseable {
                 throw new NullPointerException("Column $columnNumber returned a null map")
             }
             values.each { String primaryKey, Object cellValue ->
-                backingMap.putCell primaryKey, columnNumber, cellValue
+                putCellToBackingMap primaryKey, columnNumber, cellValue
             }
         }
     }
@@ -202,9 +203,15 @@ class Table implements AutoCloseable {
             }
             col.consumeResultingTableRows().each { String pk,
                                                    Object value ->
-                backingMap.putCell pk, columnsToIndex[col], value
+                putCellToBackingMap pk, columnsToIndex[col], value
             }
         }
+    }
+
+    @CompileStatic(TypeCheckingMode.SKIP)
+    // disable @CompileStatic to have multi-dispatch
+    private void putCellToBackingMap(String pk, Integer column, Object value) {
+        backingMap.putCell pk, column, value
     }
 
     private void beforeIteration() {

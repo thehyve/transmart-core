@@ -1,20 +1,23 @@
 package jobs.table
 
+import com.google.common.collect.AbstractIterator
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Sets
-import org.mapdb.BTreeMap
-import org.mapdb.DB
-import org.mapdb.DBMaker
-import org.mapdb.Fun
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
+import org.mapdb.*
 
+@CompileStatic
 class BackingMap implements AutoCloseable {
 
-    private static final String MAPDB_TABLE_NAME = 'Rmodules_jobs_table'
-    private static final int NODE_SIZE = 16
+    private static final String  MAPDB_TABLE_NAME     = 'Rmodules_jobs_table'
+    private static final int     NODE_SIZE            = 16
     private static final boolean VALUES_OUTSIDE_NODES = false
+    private static final String  EMPTY_CONTEXT        = ''
 
     private DB db
 
-    private BTreeMap<Fun.Tuple2<String, Integer>, Object> map
+    private BTreeMap<Fun.Tuple3<String, Integer, String>, Object> map
 
     int numColumns
 
@@ -22,30 +25,35 @@ class BackingMap implements AutoCloseable {
         db = DBMaker.newTempFileDB().transactionDisable().make()
         map = db.createTreeMap(MAPDB_TABLE_NAME).
                 nodeSize(NODE_SIZE).
-                comparator(Fun.TUPLE2_COMPARATOR).
-                //keySerializer(BTreeKeySerializer.TUPLE2).
+                keySerializer(BTreeKeySerializer.TUPLE3).
                 valuesStoredOutsideNodes(VALUES_OUTSIDE_NODES).
                 make()
         this.numColumns = numColumns
     }
 
-    void putCell(String primaryKey, int columnNumber, Object value) {
-        assert value != null
-        assert value instanceof Serializable
-        if (columnNumber < 0 || columnNumber >= numColumns) {
-            throw new IllegalArgumentException("Bad column number, expected " +
-                    "number between - and ${numColumns - 1}, got $columnNumber")
+    void putCell(String primaryKey, int columnNumber, Map mapValue) {
+        mapValue.each { String k, Object v ->
+            putCell primaryKey, columnNumber, k, v
         }
-
-        map[Fun.t2(primaryKey, columnNumber)] = value
     }
 
+    void putCell(String primaryKey, int columnNumber, Object value) {
+        putCell primaryKey, columnNumber, EMPTY_CONTEXT, value
+    }
+
+    void putCell(String primaryKey, int columnNumber, String context, Object value) {
+        map[Fun.t3(primaryKey, columnNumber, context)] = value
+    }
+
+    @CompileStatic(TypeCheckingMode.SKIP)
     public Set<String> getPrimaryKeys() {
+        Fun.Tuple3 prevKey = Fun.t3(null, null, null) // null represents negative inf
+
         Set<String> ret = Sets.newHashSet()
 
-        // not very efficient
-        map.keySet().each { Fun.Tuple2<String, Integer> pair ->
-            ret << pair.a
+        while (prevKey = map.higherKey(prevKey)) {
+            ret << prevKey.a
+            prevKey = Fun.t3(prevKey.a, Fun.HI, Fun.HI)
         }
 
         ret
@@ -53,39 +61,77 @@ class BackingMap implements AutoCloseable {
 
     public Iterable<Fun.Tuple2<String, List<Object>>> getRowIterable() {
         { ->
-            Iterator<Map.Entry<Fun.Tuple2<String, Integer>, Object>> entrySet =
+            Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet =
                     map.entrySet().iterator();
 
-            Map.Entry<Fun.Tuple2<String, Integer>, Object> entry = null
+            new BackingMapResultIterator(entrySet, numColumns)
+        } as Iterable
+    }
+
+    @CompileStatic
+    static class BackingMapResultIterator extends AbstractIterator<Fun.Tuple2<String, List<Object>>> {
+
+        private Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet
+
+        private Map.Entry<Fun.Tuple3<String, Integer, String>, Object> entry
+
+        private int numColumns
+
+        BackingMapResultIterator(Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet,
+                                 int numColumns) {
+            this.entrySet   = entrySet
+            this.numColumns = numColumns
+
             if (entrySet.hasNext()) {
                 entry = entrySet.next()
             }
+        }
 
-            [
-                next: { ->
-                    if (entry == null) {
-                        throw new NoSuchElementException()
-                    }
+        @Override
+        protected Fun.Tuple2<String, List<Object>> computeNext() {
+            if (entry == null) {
+                endOfData()
+                return
+            }
 
-                    def pk = entry.key.a
+            def pk = entry.key.a
 
-                    //def result = [null] * numColumns
-                    //more efficient:
-                    def result = Arrays.asList(new Object[numColumns])
+            def result = Arrays.asList(new Object[numColumns])
 
-                    while (entry && pk == entry.key.a) {
-                        result.set entry.key.b, entry.value
+            // this would be clearer maybe more efficient
+            // using submaps of the BTreeMap
+            while (entry && pk == entry.key.a) {
+                Integer columnNumber = entry.key.b
+
+                if (entry.key.c /* ctx */ == '') {
+                    /* empty context, return the value as is */
+                    result.set columnNumber, entry.value
+
+                    entry = entrySet.hasNext() ? entrySet.next() : null
+                } else { /* context is not empty */
+                    ImmutableMap.Builder<String, Object> valueBuilder =
+                            ImmutableMap.builder()
+
+                    while (entry && entry.key.a == pk && entry &&
+                            entry.key.b == columnNumber) {
+                        valueBuilder.put entry.key.c, entry.value
+
                         entry = entrySet.hasNext() ? entrySet.next() : null
                     }
 
-                    Fun.t2 pk, result
-                },
-                hasNext: { ->
-                    entry != null
+                    def previous = result.set columnNumber, valueBuilder.build()
+                    if (previous != null) {
+                        throw new IllegalStateException("For $pk, " +
+                                "replaced $previous with $entry.value " +
+                                "(mixed empty and non-empty contexts?)")
+                    }
                 }
-            ] as Iterator
-        } as Iterable
+            }
+
+            Fun.t2 pk, result
+        }
     }
+
 
     @Override
     void close() throws Exception {
