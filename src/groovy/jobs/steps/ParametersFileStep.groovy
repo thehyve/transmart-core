@@ -1,5 +1,6 @@
 package jobs.steps
 
+import groovy.json.JsonOutput
 import jobs.UserParameters
 
 class ParametersFileStep implements Step{
@@ -20,6 +21,6 @@ class ParametersFileStep implements Step{
             }
         }
         File paramsFile = new File(temporaryDirectory, 'request.json')
-        paramsFile << params.toJSON()
+        paramsFile << JsonOutput.prettyPrint(params.toJSON())
     }
 }
