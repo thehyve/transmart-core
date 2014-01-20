@@ -104,19 +104,19 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     @Override
     AssayConstraint createAssayConstraint(Map<String, Object> params, String name)
             throws UnsupportedByDataTypeException {
-        module.createAssayConstraint name, params
+        module.createAssayConstraint params, name
     }
 
     @Override
     DataConstraint createDataConstraint(Map<String, Object> params, String name)
             throws UnsupportedByDataTypeException {
-        module.createDataConstraint name, params
+        module.createDataConstraint params, name
     }
 
     @Override
     Projection createProjection(Map<String, Object> params, String name)
             throws UnsupportedByDataTypeException {
-        module.createProjection name, params
+        module.createProjection params, name
     }
 
     @Override

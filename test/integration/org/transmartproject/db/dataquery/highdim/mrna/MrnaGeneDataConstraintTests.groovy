@@ -39,10 +39,10 @@ class MrnaGeneDataConstraintTests {
     void basicTestGene() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: testData.searchKeywords.
-                        findAll({ it.keyword == 'BOGUSRQCD1' })*.id ])
+        def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.
+                findAll({ it.keyword == 'BOGUSRQCD1' })*.id],
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -67,11 +67,11 @@ class MrnaGeneDataConstraintTests {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* keywords ids for genes BOGUSCPO, BOGUSRQCD1 */
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: testData.searchKeywords.findAll {
-                    [ 'BOGUSCPO', 'BOGUSRQCD1' ].contains(it.keyword)
-                }*.id])
+        def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.findAll {
+            ['BOGUSCPO', 'BOGUSRQCD1'].contains(it.keyword)
+        }*.id],
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+        )
 
 
         testee.doWithCriteriaBuilder(builder)
@@ -108,10 +108,10 @@ class MrnaGeneDataConstraintTests {
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: testData.searchKeywords.
-                        findAll({ it.keyword == 'bogus_gene_sig_-602' })*.id ])
+        def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.
+                findAll({ it.keyword == 'bogus_gene_sig_-602' })*.id],
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -133,13 +133,13 @@ class MrnaGeneDataConstraintTests {
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                [ keyword_ids: testData.searchKeywords.
-                        findAll({
-                            it.keyword == 'bogus_gene_sig_-602' ||
-                                    it.keyword == 'BOGUSCPO'
-                        })*.id ])
+        def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.
+                findAll({
+                    it.keyword == 'bogus_gene_sig_-602' ||
+                            it.keyword == 'BOGUSCPO'
+                })*.id],
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+        )
 
         assertThat testee, is(instanceOf(DisjunctionDataConstraint))
 
@@ -166,10 +166,10 @@ class MrnaGeneDataConstraintTests {
         /* there's a correlation between the
          * protein BOGUSCBPO_HUMAN and the gene BOGUSCPO */
 
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.PROTEINS_CONSTRAINT,
-                [ ids: testData.bioMarkerTestData.proteinBioMarkers.
-                        find { it.name == 'BOGUSCBPO_HUMAN' }*.primaryExternalId ])
+        def testee = mrnaModule.createDataConstraint([ids: testData.bioMarkerTestData.proteinBioMarkers.
+                find { it.name == 'BOGUSCBPO_HUMAN' }*.primaryExternalId],
+                DataConstraint.PROTEINS_CONSTRAINT
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -184,9 +184,9 @@ class MrnaGeneDataConstraintTests {
     void testProteinConstraintByName() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.PROTEINS_CONSTRAINT,
-                [ names: [ 'BOGUSCBPO_HUMAN' ] ])
+        def testee = mrnaModule.createDataConstraint([names: ['BOGUSCBPO_HUMAN']],
+                DataConstraint.PROTEINS_CONSTRAINT
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -203,9 +203,9 @@ class MrnaGeneDataConstraintTests {
     void testGeneSignatureConstraintByName() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        def testee = mrnaModule.createDataConstraint(
-                DataConstraint.GENE_SIGNATURES_CONSTRAINT,
-                [ names: [ 'bogus_gene_sig_-602' ] ])
+        def testee = mrnaModule.createDataConstraint([names: ['bogus_gene_sig_-602']],
+                DataConstraint.GENE_SIGNATURES_CONSTRAINT
+        )
 
         testee.doWithCriteriaBuilder(builder)
 
@@ -221,9 +221,9 @@ class MrnaGeneDataConstraintTests {
     @Test
     void testEmptyConstraint() {
         try {
-            mrnaModule.createDataConstraint(
-                    DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                    [ keyword_ids: [] ])
+            mrnaModule.createDataConstraint([keyword_ids: []],
+                    DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+            )
             fail 'Expected exception'
         } catch (e) {
             assertThat e, isA(InvalidArgumentsException)

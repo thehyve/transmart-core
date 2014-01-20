@@ -84,7 +84,7 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     abstract protected List<DataRetrievalParameterFactory> createProjectionFactories()
 
     @Override
-    AssayConstraint createAssayConstraint(String name, Map<String, Object> params) {
+    AssayConstraint createAssayConstraint(Map<String, Object> params, String name) {
         initializeFactories()
         for (factory in assayConstraintFactories) {
             if (factory.supports(name)) {
@@ -98,7 +98,7 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     }
 
     @Override
-    DataConstraint createDataConstraint(String name, Map<String, Object> params) {
+    DataConstraint createDataConstraint(Map<String, Object> params, String name) {
         initializeFactories()
         for (factory in dataConstraintFactories) {
             if (factory.supports(name)) {
@@ -112,7 +112,7 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     }
 
     @Override
-    Projection createProjection(String name, Map<String, Object> params) {
+    Projection createProjection(Map<String, Object> params, String name) {
         initializeFactories()
         for (factory in projectionFactories) {
             if (factory.supports(name)) {

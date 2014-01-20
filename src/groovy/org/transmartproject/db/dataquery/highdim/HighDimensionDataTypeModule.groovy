@@ -60,7 +60,7 @@ public interface HighDimensionDataTypeModule {
      * @param params
      * @return
      */
-    AssayConstraint createAssayConstraint(String name, Map<String, Object> params)
+    AssayConstraint createAssayConstraint(Map<String, Object> params, String name)
 
     /**
      * Creates a data constraint from a name a set of parameters.
@@ -68,7 +68,7 @@ public interface HighDimensionDataTypeModule {
      * @param params
      * @return
      */
-    DataConstraint createDataConstraint(String name, Map<String, Object> params)
+    DataConstraint createDataConstraint(Map<String, Object> params, String name)
 
     /**
      * Creates a projection from a name a set of parameters.
@@ -76,7 +76,7 @@ public interface HighDimensionDataTypeModule {
      * @param params
      * @return
      */
-    Projection createProjection(String name, Map<String, Object> params)
+    Projection createProjection(Map<String, Object> params, String name)
 
     /**
      * Prepares the Criteria-based query to be issued. The data constraints will

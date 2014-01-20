@@ -41,11 +41,11 @@ class DisjunctionConstraintFactory extends AbstractMethodBasedParameterFactory {
 
                     checkValue value
                     if (value instanceof Map) {
-                        constraints << createConstraint(key, value)
+                        constraints << createConstraint(value, key)
                     } else { /* value is List of maps instead */
                         value.each { def innerValue ->
                             checkIsMap innerValue
-                            constraints << createConstraint(key, innerValue)
+                            constraints << createConstraint(innerValue, key)
                         }
                     }
             }
