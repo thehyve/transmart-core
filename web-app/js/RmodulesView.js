@@ -1,6 +1,9 @@
 
 var RmodulesView = function () {
-    this.variablesTypes = ["divDependentVariable", "divIndependentVariable"];
+    this.droppable_divs = {
+        "categorical" : ["divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable"],
+        "numerical" : ["divTimeVariable"]
+    };
 }
 
 RmodulesView.prototype.clear_high_dimensional_input = function (div) {
@@ -19,21 +22,30 @@ RmodulesView.prototype.register_drag_drop = function () {
 
     /**
      * Register div as drop zone
-     * @param divId
+     * @param divs
      * @private
      */
-    var _register_drop_zone = function (divId) {
-        var _el, _dtgI;
+    var _register_drop_zone = function (divs) {
+        for (var i=0, maxLength = divs.length; i<maxLength; i++ ) {
+            var _el, _dtgI;
 
-        if (_el = Ext.get(divId)) {
-            _dtgI = new Ext.dd.DropTarget(_el, {ddGroup : 'makeQuery'});
-            _dtgI.notifyDrop =  dropOntoCategorySelection;
-        } else {
+            if (_el = Ext.get(divs[i])) {
+                _dtgI = new Ext.dd.DropTarget(_el, {ddGroup : 'makeQuery'});
+                if (key == 'categorical') {
+                    _dtgI.notifyDrop =  dropOntoCategorySelection;
+                } else if (key == 'numerical') {
+                    _dtgI.notifyDrop =  dropNumericOntoCategorySelection;
+                }
+            } else {
+                console.log ("Cannot find element ", divs[i]);
+            }
         }
     }
 
-    for (var i=0; i<this.variablesTypes.length; i++) { // register all as drop zone ..
-        _register_drop_zone(this.variablesTypes[i]);
+    for (var key in this.droppable_divs) {
+        if (this.droppable_divs.hasOwnProperty(key)) {
+           _register_drop_zone (this.droppable_divs[key]);
+        }
     }
 }
 
@@ -89,9 +101,10 @@ RmodulesView.prototype.read_concept_variables = function () {
     }
 
     // register all as drop zone ..
-    for (var i=0; i<this.variablesTypes.length; i++) {
-        if (_el = Ext.get(this.variablesTypes[i])) {
-            _add_ontology_terms(_el, this.variablesTypes[i]);
+
+    for (var i=0; i<this.droppable_divs['categorical'].length; i++) {
+        if (_el = Ext.get(this.droppable_divs['categorical'][i])) {
+            _add_ontology_terms(_el, this.droppable_divs['categorical'][i]);
         }
     }
 
