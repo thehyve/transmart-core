@@ -169,7 +169,6 @@ BoxPlotView.prototype.toggle_binning = function () {
         GLOBAL.Binning = false;
         $j(".binningDiv").hide();
     }
-    console.log(" GLOBAL.Binning", GLOBAL.Binning)
 }
 
 /**
@@ -316,7 +315,6 @@ BoxPlotView.prototype.submit_job = function (form) {
 
     // get formParams
     var formParams = this.get_form_params(form);
-    console.log("formParams ....",formParams)
 
     if (formParams) { // if formParams is not null
         submitJob(formParams);
