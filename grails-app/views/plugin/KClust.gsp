@@ -31,7 +31,7 @@
             <input type="text" id="txtClusters" value="2"/>
 
             <label for="txtMaxDrawNumber">Max rows to display:</label>
-            <input type="text" id="txtMaxDrawNumber" value="50"/>
+            <input type="text" id="txtMaxDrawNumber"/>
 
             <label for="txtImageWidth">Image Width (pixels):</label>
             <input type="text" id="txtImageWidth" value="800"/>

@@ -3,7 +3,7 @@ package jobs.table
 interface MissingValueAction {
 
     /* null means delete row. Return an empty string to leave the cell empty */
-    String getReplacement(String primaryKey)
+    Object getReplacement(String primaryKey)
 
     static class ThrowExceptionMissingValueAction implements MissingValueAction {
 
@@ -11,17 +11,17 @@ interface MissingValueAction {
         String message
 
         @Override
-        String getReplacement(String primaryKey) {
+        Object getReplacement(String primaryKey) {
             throw exceptionClass.newInstance(message)
         }
     }
 
     static class ConstantReplacementMissingValueAction implements MissingValueAction {
 
-        String replacement
+        Object replacement
 
         @Override
-        String getReplacement(String primaryKey) {
+        Object getReplacement(String primaryKey) {
             replacement
         }
     }
@@ -29,7 +29,7 @@ interface MissingValueAction {
     static class DropRowMissingValueAction implements MissingValueAction {
 
         @Override
-        String getReplacement(String primaryKey) {
+        Object getReplacement(String primaryKey) {
             null
         }
     }

@@ -2,8 +2,8 @@ package jobs.table.columns
 
 import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
+import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 
 /**
@@ -27,13 +27,13 @@ class CategoricalVariableColumn extends AbstractColumn {
     }
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         if (!lastRow) return ImmutableMap.of()
 
         for (clinicalVariable in leafNodes) {
             if (lastRow.getAt(clinicalVariable)) {
                 return ImmutableMap.of(getPrimaryKey(lastRow),
-                                       lastRow.getAt(clinicalVariable) as String)
+                                       lastRow.getAt(clinicalVariable))
             }
         }
 

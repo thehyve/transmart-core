@@ -14,7 +14,7 @@ class BackingMap implements AutoCloseable {
 
     private DB db
 
-    private BTreeMap<String, List<String>> map
+    private BTreeMap<Fun.Tuple2<String, Integer>, Object> map
 
     int numColumns
 
@@ -29,7 +29,9 @@ class BackingMap implements AutoCloseable {
         this.numColumns = numColumns
     }
 
-    void putCell(String primaryKey, int columnNumber, String value) {
+    void putCell(String primaryKey, int columnNumber, Object value) {
+        assert value != null
+        assert value instanceof Serializable
         if (columnNumber < 0 || columnNumber >= numColumns) {
             throw new IllegalArgumentException("Bad column number, expected " +
                     "number between - and ${numColumns - 1}, got $columnNumber")
@@ -49,12 +51,12 @@ class BackingMap implements AutoCloseable {
         ret
     }
 
-    public Iterable<Fun.Tuple2<String, List<String>>> getRowIterable() {
+    public Iterable<Fun.Tuple2<String, List<Object>>> getRowIterable() {
         { ->
-            Iterator<Map.Entry<Fun.Tuple2<String, Integer>, String>> entrySet =
+            Iterator<Map.Entry<Fun.Tuple2<String, Integer>, Object>> entrySet =
                     map.entrySet().iterator();
 
-            Map.Entry<Fun.Tuple2<String, Integer>, String> entry = null
+            Map.Entry<Fun.Tuple2<String, Integer>, Object> entry = null
             if (entrySet.hasNext()) {
                 entry = entrySet.next()
             }
@@ -69,7 +71,7 @@ class BackingMap implements AutoCloseable {
 
                     //def result = [null] * numColumns
                     //more efficient:
-                    def result = Arrays.asList(new String[numColumns])
+                    def result = Arrays.asList(new Object[numColumns])
 
                     while (entry && pk == entry.key.a) {
                         result.set entry.key.b, entry.value

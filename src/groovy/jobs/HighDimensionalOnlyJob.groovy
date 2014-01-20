@@ -1,13 +1,10 @@
 package jobs
 
-import grails.util.Holders
 import jobs.steps.OpenHighDimensionalDataStep
 import jobs.steps.ParametersFileStep
 import jobs.steps.RCommandsStep
 import jobs.steps.Step
-import jobs.steps.helpers.ClinicalDataRetriever
 import jobs.steps.helpers.NumericColumnConfigurator
-import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource

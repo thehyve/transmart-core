@@ -28,6 +28,8 @@ class BinningColumnConfigurator extends ColumnConfigurator {
 
     ColumnConfigurator innerConfigurator
 
+    boolean enabled = true;
+
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
         innerConfigurator.addColumn(
@@ -35,14 +37,14 @@ class BinningColumnConfigurator extends ColumnConfigurator {
     }
 
     private Closure<Column> createDecoratorClosure() {
-        if (!getStringParam(keyForDoBinning).equalsIgnoreCase('true')) {
-            Closure.IDENTITY
-        } else {
+        if (enabled && getStringParam(keyForDoBinning).equalsIgnoreCase('true')) {
             def decorator = createBinningDecorator()
             return { Column originalColumn ->
                 decorator.inner = originalColumn
                 decorator
             }
+        } else {
+            Closure.IDENTITY
         }
     }
 

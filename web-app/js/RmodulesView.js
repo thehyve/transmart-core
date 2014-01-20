@@ -170,3 +170,9 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     return _returnVal;
 
 }
+
+RmodulesView.prototype.drop_onto_bin = function (source, e, data) {
+    console.log("Dropping onto bin ..", data)
+    this.el.appendChild(data.ddel);
+    return true;
+}

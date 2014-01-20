@@ -2,163 +2,146 @@
 <r:require modules="box_plot"/>
 <r:layoutResources disposition="defer"/>
 
-<form>
-	
-		<table class="subsettable" style="margin: 10px;width:300px; border: 0px none; border-collapse: collapse;">
-			<tr>
-				<td colspan="4">
-					<span class='AnalysisHeader'>Variable Selection</span>
-					<a href='JavaScript:D2H_ShowHelp(1310,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-						<img src="${resource(dir:'images', file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;"/>
-					</a>					
-				</td>			
-			</tr>	
-			<tr>
-				<td colspan="4">
-					<hr />
-				</td>
-			</tr>	
-			<tr>
-				<td align="center">
-					<span class='AnalysisHeader'>Independent Variable</span>
-					<br />
-					<br />
-					Select a variable  from the Data Set Explorer Tree and drag it into the box.  At least one of the variables selected should be a continuous variable (ex. Age) and one should be a categorical variable (ex. Tumor Stage).  A continuous variable can be categorized using the binning option below.
-				</td>
-				<td id="subsetdivider" rowspan="21" valign="center" align="center" height="100%">
-					<div style="margin: 15px; border: 1px solid black; background: black; width: 1px; height: 150px"></div>
-				</td>
-				<td align="center">
-					<span class='AnalysisHeader'>Dependent Variable</span>
-					<br />
-					<br />
-					Select a variable  from the Data Set Explorer Tree and drag it into the box.  At least one of the variables selected should be a continuous variable (ex. Age) and one should be a categorical variable (ex. Tumor Stage).  A continuous variable can be categorized using the binning option below.					
-				</td>					
-			</tr>
-	
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupBox('divIndependentVariable')" value="X"> <br />
-					<div id='divIndependentVariable' class="queryGroupIncludeLong"></div>
-				</td>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupBox('divDependentVariable')" value="X"> <br />
-					<div id='divDependentVariable' class="queryGroupIncludeLong"></div>
-				</td>			
-			</tr>
-			<tr>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">
-				</td>
-				<td align="right">
-					<input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divDependentVariable')" value="High Dimensional Data">
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-			<tr>
-				<td>
-					<div id="displaydivIndependentVariable"></div>
-				</td>
-				<td>
-					<div id = "displaydivDependentVariable"></div>
-				</td>
-			</tr>
-			<tr><td><br/></td></tr>
-		</table>
-		
-		<table class="subsettable" style="margin: 10px; width: 90%; border: 0px none; border-collapse: collapse;">
-			<tr>
-				<td>
-					<span class='AnalysisHeader'>Binning&nbsp;&nbsp;&nbsp;<input id="BinningToggle" type="button"
-							value="Enable" onClick="toggleBinning();" /></span></td>
-			</tr>
-			<tr>
-				<td>
-					<hr />
-				</td>
-			</tr>
-		</table>
+<div id="analysisWidget">
 
-		<div id="divBinning" style="display: none;">
+    %{--help and title--}%
+    <h2>
+        Variable Selection
+        <a href='JavaScript:D2H_ShowHelp(1505,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+            <img src="${resource(dir: 'images', file: 'help/helpicon_white.jpg')}" alt="Help"/>
+        </a>
+    </h2>
 
-			<table id="tblBinningTable" class="subsettable"
-				style="margin: 10px; width: 90%; border: 0px none; border-collapse: collapse;">
-				<tr>
-					<td align="left"><b>Variable</b> : <select id="selBinVariableSelection">
-							<option value="IND">Independent</option>
-							<option value="DEP">Dependent</option>
-					</select></td>
-				</tr>
-				<tr>
-					<td><b>Variable Type</b> <select id="variableType"
-						onChange="updateManualBinning();">
-							<option value="Continuous">Continuous</option>
-							<option value="Categorical">Categorical</option>
-					</select></td>
-				</tr>
-				<tr>
-					<td align="left"><b>Number of Bins</b> : <input type="text"
-						id="txtNumberOfBins" onChange="manageBins(this.value);" value="4" />
-					</td>
-				</tr>
-				<tr>
-					<td align="left"><b>Bin Assignments (Continuous variables
-							only)</b> : <select id="selBinDistribution">
-							<option value="EDP">Evenly Distribute Population</option>
-							<option value="ESB">Evenly Spaced Bins</option>
-					</select></td>
-				</tr>
-				<tr>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td align="left"><b>Manual Binning</b> : <input
-						type="checkbox" id="chkManualBin" onClick="manageBins(document.getElementById('txtNumberOfBins').value);" />
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-				</tr>
-				<tr>
-					<td>
-						<div id="divManualBinContinuous" style="display: none;">
-							<table style="border-style: solid; border-width: thin; border-collapse: collapse;"
-								id="tblBinContinuous">
-								<tr>
-									<td>Bin Name</td>
-									<td colspan="2" align="center">Range</td>
-								</tr>
-																														
-							</table>
-						</div>
-						<div id="divManualBinCategorical" style="display: none;">
-							<table style="border: 0px none; border-collapse: collapse;">
-								<tr>
-									<td style="vertical-align: top;">
-										<b>Categories</b>
-										<div id='divCategoricalItems' class="queryGroupIncludeLong"></div>
-									</td>
-									<td style="vertical-align: top;"><br />
-									<br /><-Drag To Bin-></td>
-									<td>
-										<table id="tblBinCategorical" style=" border: 0px none; border-collapse: collapse;">
-																																
-										</table>
-									</td>
-								</tr>
-							</table>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-		
-		<table class="subsettable" style="margin: 10px;width:530px; border: 0px none; border-collapse: collapse;">
-			<tr>
-				<td align="center">
-					<input type="button" value="Run" onClick="submitBoxPlotJob(this.form);">
-				</td>
-			</tr>
-		</table>		
-		
-	</form>
+
+    <form id="analysisForm">
+        <div class="container">
+
+            %{-- ************************************************************************************************* --}%
+            %{-- Left inputs --}%
+            %{-- ************************************************************************************************* --}%
+            <div class="left">
+                <fieldset class="inputFields">
+
+                    %{--Independent variable--}%
+                    <div class="highDimContainer">
+                        <h3>Independent Variable</h3>
+                        <span class="hd-notes">Select a variable  from the Data Set Explorer Tree and drag it into the box.
+                        At least one of the variables selected should be a continuous variable (ex. Age) and one should be a
+                        categorical variable (ex. Tumor Stage).  A continuous variable can be categorized using the binning
+                        option below.</span>
+                        <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                        <div class="highDimBtns">
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="boxPlotView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
+                        </div>
+                        <input type="hidden" id="independentVarDataType">
+                        <input type="hidden" id="independentPathway">
+                    </div>
+
+                    %{--Display independent variable--}%
+                    <div id="displaydivIndependentVariable" class="independentVars"></div>
+
+                    %{--Binning options--}%
+
+                    <fieldset class="binningDiv">
+
+                        <label for="selBinVariableSelection">Variable:</label>
+                        <select id="selBinVariableSelection">
+                            <option value="IND">Independent</option>
+                            <option value="DEP">Dependent</option>
+                        </select>
+
+                        <label for="variableType">Variable Type</label>
+                        <select id="variableType" onChange="boxPlotView.update_manual_binning();">
+                            <option value="Continuous">Continuous</option>
+                            <option value="Categorical">Categorical</option>
+                        </select>
+
+                        <label for="txtNumberOfBins">Number of Bins:</label>
+                        <input type="text" id="txtNumberOfBins" onChange="boxPlotView.manage_bins(this.value);" value="4" />
+
+                        <label for="selBinDistribution">Bin Assignments</label>
+                        <select id="selBinDistribution">
+                            <option value="EDP">Evenly Distribute Population</option>
+                            <option value="ESB">Evenly Spaced Bins</option>
+                        </select>
+
+                        <div class="chkpair">
+                            <input type="checkbox" id="chkManualBin" onClick="boxPlotView.manage_bins(document.getElementById('txtNumberOfBins').value);"> Manual Binning
+                        </div>
+
+                        %{-- Manual binning continuous variable --}%
+                        <div id="divManualBinContinuous" style="display: none;">
+                            <table id="tblBinContinuous">
+                                <tr>
+                                    <td>Bin Name</td>
+                                    <td colspan="2">Range</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        %{-- Manual binning categorical variable --}%
+                        <div id="divManualBinCategorical" style="display: none;">
+                            <table>
+                                <tr>
+                                    <td style="vertical-align: top;">Categories
+                                        <div id='divCategoricalItems' class="manualBinningCategories"></div>
+                                    </td>
+                                    <td style="vertical-align: top;"><br />
+                                        <br><span class="minifont">&laquo;Drag To Bin&raquo</span></td>
+                                    <td>
+                                        <table id="tblBinCategorical">
+
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </fieldset>
+                </fieldset>
+            </div>
+
+            %{-- ************************************************************************************************* --}%
+            %{-- Right inputs --}%
+            %{-- ************************************************************************************************* --}%
+
+            <div class="right">
+
+                <fieldset class="inputFields">
+                    %{--Dependent variable--}%
+                    <div class="highDimContainer">
+                        <h3>Dependent Variable</h3>
+                        <span class="hd-notes">Select a variable  from the Data Set Explorer Tree and drag it into the
+                        box.  At least one of the variables selected should be a continuous variable (ex. Age) and one
+                        should be a categorical variable (ex. Tumor Stage).  A continuous variable can be categorized
+                        using the binning option below.</span>
+                        <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                        <div class="highDimBtns">
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="boxPlotView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
+                        </div>
+                        <input type="hidden" id="dependentVarDataType">
+                        <input type="hidden" id="dependentPathway">
+                    </div>
+
+                    %{--Display dependent variable--}%
+                    <div id="displaydivDependentVariable" class="dependentVars"></div>
+                </fieldset>
+
+            </div>
+
+        </div>  %{--end container--}%
+
+         %{-- ************************************************************************************************* --}%
+         %{-- Tool Bar --}%
+         %{-- ************************************************************************************************* --}%
+            <fieldset class="toolFields">
+                <div class="chkpair">
+                    <g:checkBox name="isBinning" onclick="boxPlotView.toggle_binning();"/> Enable binning
+                </div>
+                <input type="button" value="Run" onClick="boxPlotView.submit_job(this.form);" class="runAnalysisBtn">
+            </fieldset>
+    </form>
+
+</div>

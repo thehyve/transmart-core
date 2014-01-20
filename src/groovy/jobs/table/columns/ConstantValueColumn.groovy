@@ -5,7 +5,7 @@ import jobs.table.MissingValueAction
 
 class ConstantValueColumn extends AbstractColumn {
 
-    void setValue(String value) {
+    void setValue(Object value) {
         missingValueAction =
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: value)
     }
@@ -21,7 +21,7 @@ class ConstantValueColumn extends AbstractColumn {
     }
 
     @Override
-    Map<String, String> consumeResultingTableRows() {
+    Map<String, Object> consumeResultingTableRows() {
         ImmutableMap.of()
     }
 }

@@ -8,7 +8,6 @@ import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 import org.springframework.context.ApplicationContext
 import org.springframework.core.NamedThreadLocal
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 @Log4j
 class AnalysisQuartzJobAdapter implements Job {
@@ -56,15 +55,15 @@ class AnalysisQuartzJobAdapter implements Job {
                 log.error 'Exception while creating the analysis job', e
                 jobResultsService[jobName]['Exception'] = e.message
                 asyncJobService.updateStatus jobName, 'Error'
+                return
             }
+
             try {
                 job.run()
             } catch (Exception e) {
                 log.error 'Some exception occurred in the processing pipe', e
                 jobResultsService[jobName]['Exception'] = e.message
                 job.updateStatus 'Error'
-
-                cleanJobBeans()
             }
         } finally {
             cleanJobBeans()
