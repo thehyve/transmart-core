@@ -1,0 +1,4 @@
+PLATFORM=GPL6480
+TITLE="Agilent-014850 Whole Human Genome Microarray 4x44K G4112F (Probe Name version)"
+ORGANISM="Homo Sapiens"
+ANNOTATIONS_FILE=GPL6480-platform.txt
