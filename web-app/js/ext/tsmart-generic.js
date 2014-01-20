@@ -34,6 +34,8 @@ Ext.EventManager.onWindowResize(function() {
     if(typeof survivalAnalysisACGHView !== 'undefined') redrawView(survivalAnalysisACGHView);
     // redraw group test view
     if(typeof groupTestView !== 'undefined') redrawView(groupTestView);
+    // redraw rnaseq group test view
+    if(typeof RNASseqgroupTestView !== 'undefined') redrawView(RNASeqgroupTestView);
 
 });
 
