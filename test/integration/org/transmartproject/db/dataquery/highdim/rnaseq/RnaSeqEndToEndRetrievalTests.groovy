@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import com.google.common.collect.Lists
 
@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
+import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
@@ -22,33 +22,33 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegio
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
-import static org.transmartproject.db.dataquery.highdim.acgh.AcghTestData.TRIAL_NAME
+import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNASEQ_VALUES_PROJECTION
+import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData.TRIAL_NAME
 import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
 
-class AcghEndToEndRetrievalTests {
+class RnaSeqEndToEndRetrievalTests {
 
     HighDimensionResource highDimensionResourceService
 
-    HighDimensionDataTypeResource<RegionRow> acghResource
+    HighDimensionDataTypeResource<RegionRow> rnaseqResource
 
     TabularResult<AssayColumn, RegionRow> dataQueryResult
 
-    Projection<AcghValues> projection
+    Projection<RnaSeqValues> projection
 
     SessionFactory sessionFactory
 
-    AcghTestData testData = new AcghTestData()
+    RnaSeqTestData testData = new RnaSeqTestData()
 
     @Before
     void setUp() {
         testData.saveAll()
         sessionFactory.currentSession.flush()
 
-        acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
+        rnaseqResource = highDimensionResourceService.getSubResourceForType 'rnaseq'
 
         /* projection never varies in our tests */
-        projection = acghResource.createProjection([:], ACGH_VALUES_PROJECTION)
+        projection = rnaseqResource.createProjection([:], RNASEQ_VALUES_PROJECTION)
     }
 
     @After
@@ -59,15 +59,15 @@ class AcghEndToEndRetrievalTests {
     @Test
     void basicTest() {
         def assayConstraints = [
-                acghResource.createAssayConstraint(
+                rnaseqResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
-                acghResource.createAssayConstraint(
+                rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
                         result_instance_id: testData.allPatientsQueryResult.id),
         ]
         def dataConstraints = []
 
-        dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
+        dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
 
         assertThat dataQueryResult, allOf(
                 is(notNullValue()),
@@ -95,31 +95,31 @@ class AcghEndToEndRetrievalTests {
                 hasProperty('label', equalTo(testData.regions[0].cytoband)))
 
         assertThat regionRows[1][assayColumns[1]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[0])
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
         assertThat regionRows[1][assayColumns[0]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[1])
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
         assertThat regionRows[0][assayColumns[1]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[2])
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
         assertThat regionRows[0][assayColumns[0]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[3])
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
     }
 
     @Test
     void testSegments_meetOne() {
         def assayConstraints = [
-                acghResource.createAssayConstraint(
+                rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
                         result_instance_id: testData.allPatientsQueryResult.id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
-                acghResource.createDataConstraint(
+                rnaseqResource.createDataConstraint(
                         DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT,
                         chromosome: '1', start: 33, end: 44
                 )
         ]
 
-        dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
+        dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
 
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
@@ -131,13 +131,13 @@ class AcghEndToEndRetrievalTests {
     @Test
     void testSegments_meetBoth() {
         def assayConstraints = [
-                acghResource.createAssayConstraint(
+                rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
                         result_instance_id: testData.allPatientsQueryResult.id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
-                acghResource.createDataConstraint(
+                rnaseqResource.createDataConstraint(
                         DataConstraint.DISJUNCTION_CONSTRAINT,
                         subconstraints: [
                                 (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [
@@ -170,10 +170,10 @@ class AcghEndToEndRetrievalTests {
                 numberOfProbes: 42,
                 name:           'region 1:1-10'
         )
-        anotherRegion.id = -2000L
+        anotherRegion.id = -2010L
         anotherRegion.save failOnError: true, flush: true
 
-        dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
+        dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
 
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
@@ -188,13 +188,13 @@ class AcghEndToEndRetrievalTests {
     @Test
     void testSegments_meetNone() {
         def assayConstraints = [
-                acghResource.createAssayConstraint(
+                rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
                         result_instance_id: testData.allPatientsQueryResult.id),
         ]
         def dataConstraints = [
                 // start matches start of regions[0]
-                acghResource.createDataConstraint(
+                rnaseqResource.createDataConstraint(
                         DataConstraint.DISJUNCTION_CONSTRAINT,
                         subconstraints: [
                                 (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [
@@ -206,22 +206,10 @@ class AcghEndToEndRetrievalTests {
                 )
         ]
 
-        dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
+        dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
 
         assertThat dataQueryResult, hasProperty('indicesList', is(not(empty())))
         assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
-    }
-
-    @Test
-    void testResultRowsAreCoreApiRegionRows() {
-        def assayConstraints = [
-                acghResource.createAssayConstraint(
-                        AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME) ]
-
-        dataQueryResult = acghResource.retrieveData assayConstraints, [], projection
-
-        assertThat Lists.newArrayList(dataQueryResult), everyItem(
-                isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
     }
 
 }

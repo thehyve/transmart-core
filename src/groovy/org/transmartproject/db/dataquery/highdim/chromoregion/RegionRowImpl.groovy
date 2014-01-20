@@ -13,21 +13,23 @@ final class RegionRowImpl extends AbstractDataRow implements RegionRow {
         this.rowList = rowList
     }
 
-    Long getId() { rowList[8] as Long }
+    Long getId() { rowList[0] as Long }
 
-    String getCytoband() { rowList[9] as String }
+    String getName() { rowList[1] as String }
+
+    String getCytoband() { rowList[2] as String }
 
     Platform getPlatform() {
         throw new UnsupportedOperationException('Getter for get platform is not implemented')
     }
 
-    String getChromosome() { rowList[10] as String }
+    String getChromosome() { rowList[3] as String }
 
-    Long getStart() { rowList[11] as Long }
+    Long getStart() { rowList[4] as Long }
 
-    Long getEnd() { rowList[12] as Long }
+    Long getEnd() { rowList[5] as Long }
 
-    Integer getNumberOfProbes() { rowList[13] as Integer }
+    Integer getNumberOfProbes() { rowList[6] as Integer }
 
     @Override
     String getLabel() {

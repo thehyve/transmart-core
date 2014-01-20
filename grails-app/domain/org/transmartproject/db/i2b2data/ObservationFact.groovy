@@ -16,6 +16,7 @@ class ObservationFact implements Serializable {
     String     textValue
     BigDecimal numberValue
     String     valueFlag
+    String     sourcesystemCd
 
 
     // these are not used, but we need them because they're not nullable
@@ -35,7 +36,6 @@ class ObservationFact implements Serializable {
     //Date       updateDate
     //Date       downloadDate
     //Date       importDate
-    //String     sourcesystemCd
     //BigDecimal uploadId
 
     static belongsTo = [
@@ -66,6 +66,7 @@ class ObservationFact implements Serializable {
         textValue         nullable:   true
         numberValue       nullable:   true,   scale:     5
         valueFlag         nullable:   true,   maxSize:   50
+        sourcesystemCd    nullable:   true,   maxSize:   50
 
 
         // unused for now
@@ -78,7 +79,6 @@ class ObservationFact implements Serializable {
         //updateDate        nullable:   true
         //downloadDate      nullable:   true
         //importDate        nullable:   true
-        //sourcesystemCd    nullable:   true,   maxSize:   50
         //uploadId          nullable:   true
     }
 }

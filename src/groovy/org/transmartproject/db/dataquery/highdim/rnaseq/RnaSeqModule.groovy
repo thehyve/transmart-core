@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery.highdim.acgh
+package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import grails.orm.HibernateCriteriaBuilder
 
@@ -17,16 +17,20 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.dataquery.highdim.acgh.AcghDataTypeResource
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
-class AcghModule extends AbstractHighDimensionDataTypeModule {
+/**
+ * Module for RNA-seq, as implemented for Postgres by TraIT.
+ */
+class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
-    static final String ACGH_VALUES_PROJECTION = 'acgh_values'
+    static final String RNASEQ_VALUES_PROJECTION = 'rnaseq_values'
 
     final List<String> platformMarkerTypes = ['Chromosomal']
 
-    final String name = 'acgh'
+    final String name = 'rnaseq'
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -61,11 +65,11 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [
                 new MapBasedParameterFactory(
-                        (ACGH_VALUES_PROJECTION): { Map<String, Object> params ->
+                        (RNASEQ_VALUES_PROJECTION): { Map<String, Object> params ->
                             if (!params.isEmpty()) {
                                 throw new InvalidArgumentsException('Expected no parameters here')
                             }
-                            new AcghValuesProjection()
+                            new RnaSeqValuesProjection()
                         }
                 )
         ]
@@ -74,20 +78,14 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
-            createCriteriaBuilder(DeSubjectAcghData, 'acgh', session)
+            createCriteriaBuilder(DeSubjectRnaseqData, 'rnaseq', session)
 
         criteriaBuilder.with {
             createAlias 'jRegion', 'region', INNER_JOIN
 
             projections {
-                property 'acgh.assay.id'
-                property 'acgh.chipCopyNumberValue'
-                property 'acgh.segmentCopyNumberValue'
-                property 'acgh.flag'
-                property 'acgh.probabilityOfLoss'
-                property 'acgh.probabilityOfNormal'
-                property 'acgh.probabilityOfGain'
-                property 'acgh.probabilityOfAmplification'
+                property 'rnaseq.assay.id'
+                property 'rnaseq.readCount'
 
                 property 'region.id'
                 property 'region.name'
@@ -118,16 +116,16 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                inSameGroup:           { a, b -> a[8] == b[8] /* region.id */ },
-                finalizeGroup:         { List list -> /* list of arrays with 15 elements (1/projection) */
+                inSameGroup:           { a, b -> a[2] == b[2] /* region.id */ },
+                finalizeGroup:         { List list -> /* list of arrays with 9 elements (1/projection) */
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..14])
+                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[2..8])
                     regionRow.assayIndexMap = assayIndexMap
                     regionRow.data = list.collect {
-                        projection.doWithResult(Arrays.asList(it)[0..7])
+                        projection.doWithResult(Arrays.asList(it)[0..1])
                     }
                     regionRow
                 }
