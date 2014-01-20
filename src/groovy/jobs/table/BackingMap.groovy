@@ -1,8 +1,7 @@
 package jobs.table
 
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Sets
+import com.google.common.base.Function
+import com.google.common.collect.*
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.mapdb.*
@@ -19,16 +18,36 @@ class BackingMap implements AutoCloseable {
 
     private BTreeMap<Fun.Tuple3<String, Integer, String>, Object> map
 
-    int numColumns
+    /* (col number, ctx) -> set of primary keys */
+    private TreeMultimap<Fun.Tuple2<Integer, String>, String> contextsIndex
 
-    BackingMap(int numColumns) {
+    private int numColumns
+
+    private List<Closure<Object>> valueTransformers
+
+    BackingMap(int numColumns, List<Closure<Object>> valueTransformers) {
         db = DBMaker.newTempFileDB().transactionDisable().make()
         map = db.createTreeMap(MAPDB_TABLE_NAME).
                 nodeSize(NODE_SIZE).
                 keySerializer(BTreeKeySerializer.TUPLE3).
                 valuesStoredOutsideNodes(VALUES_OUTSIDE_NODES).
                 make()
-        this.numColumns = numColumns
+
+        // necessary to synchronize? official examples suggest not
+        contextsIndex = TreeMultimap.create(Fun.TUPLE2_COMPARATOR, Ordering.natural())
+
+        map.addModificationListener({ Fun.Tuple3<String, Integer, String> key,
+                                      Object oldValue,
+                                      Object newValue ->
+            if (newValue != null) { // insert/update
+                contextsIndex.put(Fun.t2(key.b, key.c), key.a)
+            } else { // removal
+                contextsIndex.remove(Fun.t2(key.b, key.c), key.a)
+            }
+        } as Bind.MapListener)
+
+        this.numColumns        = numColumns
+        this.valueTransformers = valueTransformers
     }
 
     void putCell(String primaryKey, int columnNumber, Map mapValue) {
@@ -43,6 +62,20 @@ class BackingMap implements AutoCloseable {
 
     void putCell(String primaryKey, int columnNumber, String context, Object value) {
         map[Fun.t3(primaryKey, columnNumber, context)] = value
+    }
+
+    Object getCell(String primaryKey, int columnNumber, String context) {
+        map[Fun.t3(primaryKey, columnNumber, context)]
+    }
+
+    @CompileStatic(TypeCheckingMode.SKIP)
+    public Map<String, Set<String>> getContextPrimaryKeysMap(Integer column) {
+        Set<Fun.Tuple2<Integer, String>> set = contextsIndex.keySet().
+                subSet(Fun.t2(column, null), Fun.t2(column, Fun.HI))
+
+        set.collectEntries { Fun.Tuple2<Integer, String> tuple ->
+            [tuple.b /* ctx */, contextsIndex.get(tuple)]
+        }
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
@@ -60,27 +93,19 @@ class BackingMap implements AutoCloseable {
     }
 
     public Iterable<Fun.Tuple2<String, List<Object>>> getRowIterable() {
-        { ->
-            Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet =
-                    map.entrySet().iterator();
-
-            new BackingMapResultIterator(entrySet, numColumns)
-        } as Iterable
+        { -> new BackingMapResultIterator() } as Iterable
     }
 
     @CompileStatic
-    static class BackingMapResultIterator extends AbstractIterator<Fun.Tuple2<String, List<Object>>> {
+    class BackingMapResultIterator extends AbstractIterator<Fun.Tuple2<String, List<Object>>> {
 
         private Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet
 
         private Map.Entry<Fun.Tuple3<String, Integer, String>, Object> entry
 
-        private int numColumns
 
-        BackingMapResultIterator(Iterator<Map.Entry<Fun.Tuple3<String, Integer, String>, Object>> entrySet,
-                                 int numColumns) {
-            this.entrySet   = entrySet
-            this.numColumns = numColumns
+        BackingMapResultIterator() {
+            this.entrySet = map.entrySet().iterator()
 
             if (entrySet.hasNext()) {
                 entry = entrySet.next()
@@ -104,8 +129,13 @@ class BackingMap implements AutoCloseable {
                 Integer columnNumber = entry.key.b
 
                 if (entry.key.c /* ctx */ == '') {
-                    /* empty context, return the value as is */
-                    result.set columnNumber, entry.value
+                    /* empty context */
+                    if (valueTransformers[columnNumber] == null) {
+                        result.set columnNumber, entry.value
+                    } else {
+                        result.set columnNumber,
+                                valueTransformers[columnNumber](entry.key, entry.value)
+                    }
 
                     entry = entrySet.hasNext() ? entrySet.next() : null
                 } else { /* context is not empty */
@@ -114,7 +144,12 @@ class BackingMap implements AutoCloseable {
 
                     while (entry && entry.key.a == pk && entry &&
                             entry.key.b == columnNumber) {
-                        valueBuilder.put entry.key.c, entry.value
+                        if (valueTransformers[columnNumber] == null) {
+                            valueBuilder.put entry.key.c, entry.value
+                        } else {
+                            valueBuilder.put(entry.key.c,
+                                    valueTransformers[columnNumber](entry.key, entry.value))
+                        }
 
                         entry = entrySet.hasNext() ? entrySet.next() : null
                     }

@@ -78,12 +78,10 @@ class Table implements AutoCloseable {
     }
 
     void buildTable() {
-        backingMap = new BackingMap(columns.size())
+        backingMap = new BackingMap(columns.size(),
+                columns.collect { Column it -> it.valueTransformer })
 
-        boolean simpleCase = dataSources.size() == 1 &&
-                !columns.any { Column it ->
-                    it.globalComputation
-                } //tentative
+        boolean simpleCase = dataSources.size() == 1
 
         if (simpleCase) {
             Iterable dataSource =
@@ -128,8 +126,7 @@ class Table implements AutoCloseable {
     }
 
     /**
-     * Build table in the simple case where there's only one data source and
-     * none of the columns are global computation columns.
+     * Build table in the simple case where there's only one data source.
      */
     private void buildTableSimpleCase() {
         String dataSourceName = Iterables.getFirst dataSources.keySet(), null
@@ -176,12 +173,10 @@ class Table implements AutoCloseable {
     }
 
     private Map quasiFinalProcessing() {
-        /* consume rows for GlobalComputationColumn columns
-         * and columns without subscriptions */
+        /* consume rows for columns without subscriptions */
 
         columns.findAll { Column it ->
-            it.globalComputation ||
-                    !dataSourceSubscriptions.values().contains(it)
+            !dataSourceSubscriptions.values().contains(it)
         }.collectEntries { Column it ->
             [columns.indexOf(it),
                     it.consumeResultingTableRows()]
@@ -198,9 +193,6 @@ class Table implements AutoCloseable {
     private void processSourceRow(Object row, String dataSourceName, Iterable dataSource) {
         dataSourceSubscriptions.get(dataSource).each { Column col ->
             col.onReadRow dataSourceName, row
-            if (col.globalComputation) {
-                return
-            }
             col.consumeResultingTableRows().each { String pk,
                                                    Object value ->
                 putCellToBackingMap pk, columnsToIndex[col], value

@@ -11,25 +11,9 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 
 class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
 
-    final boolean globalComputation = true
-
-    /* pk (patient in trial id) -> row label, value
-     * Unfortunately, we can't use an ImmutableTable and then call
-     * rowMap() on onReadRow() because the ImmutableMap there returned,
-     * while theoretically serializable (ImmutableMap implements Serializable)
-     * fails when serializing due to a reference to the owning DenseImmutableTable,
-     * which is not serializable.
-     */
-    private Map<String, ImmutableMap.Builder> results = {
-        def ret = [:]
-        ret.withDefault { key ->
-            ret[key] = ImmutableMap.builder()
-        }
-    }()
-
     private List<AssayColumn> assays
 
-    private boolean depleted = false
+    private DataRow<AssayColumn, ?> lastRow
 
     private Set<String> seenRowLabels = Sets.newHashSet()
 
@@ -41,15 +25,10 @@ class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
     }
 
     @Override
-    void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
-        depleted = true
-    }
-
-    @Override
     void onReadRow(String dataSourceName, Object row) {
-        /* non global computation, so calls to onReadRow()
-         * and consumeResultingTableRows should be interleaved */
+        /* calls to onReadRow() and consumeResultingTableRows should be interleaved */
         assert row instanceof DataRow
+        assert lastRow == null
 
         String rowLabel = row.label
         if (!seenRowLabels.add(rowLabel)) {
@@ -57,28 +36,17 @@ class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
                     "Got more than one row with label $rowLabel")
         }
 
-        assays.each {
-            def value = row[it]
-            /* empty cells are dropped!
-             * In the future we may want to provide a MissingValueAction
-             * to this class in order to customize this behavior */
-            if (value != null) {
-                results[it.patientInTrialId].put rowLabel, value
-            }
-        }
+        lastRow = row
     }
 
     @Override
     Map<String, Object> consumeResultingTableRows() {
-        if (results == null || !depleted) {
-            return ImmutableMap.of()
-        }
+        assert lastRow != null
 
-        def resultsLocal = results
-        results = null
-        Maps.transformValues(resultsLocal, { ImmutableMap.Builder builder ->
-                builder.build()
-        } as Function)
+        def row = lastRow
+        lastRow = null
+        /* empty cells are dropped; see HighDimensionalDataRowMapAdapter */
+        new HighDimensionalDataRowMapAdapter(assays, row)
     }
 
 

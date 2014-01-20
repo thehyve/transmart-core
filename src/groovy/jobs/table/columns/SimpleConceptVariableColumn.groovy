@@ -8,8 +8,6 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
 @CompileStatic
 class SimpleConceptVariableColumn extends AbstractColumn {
 
-    final boolean globalComputation = false
-
     ClinicalVariableColumn column
 
     private PatientRow lastRow
