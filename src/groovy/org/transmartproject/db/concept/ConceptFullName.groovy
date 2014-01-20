@@ -1,5 +1,7 @@
 package org.transmartproject.db.concept
 
+import com.google.common.base.Splitter
+import com.google.common.collect.Lists
 import groovy.transform.EqualsAndHashCode
 
 /**
@@ -10,28 +12,23 @@ final class ConceptFullName {
     private final String fullPath
     final List<String> parts;
 
-    ConceptFullName(String fullPath) {
-        if (fullPath.size() == 0 || fullPath[0] != '\\')
+    ConceptFullName(String path) {
+        if (path.size() == 0 || path[0] != '\\')
             throw new IllegalArgumentException('Path should start with \\')
-        if (fullPath.size() < 2)
+        if (path.size() < 2)
             throw new IllegalArgumentException('Path is too short')
-        if (fullPath[-1] != '\\')
-            fullPath += '\\'
+        if (path[-1] != '\\')
+            path += '\\'
 
-        /* split cannot be used because it removes trailing empty elements */
-        parts = new ArrayList()
-        def matcher = (fullPath =~ '\\\\')
-        for (int i = 1; matcher.find(i); ) {
-            int location = matcher.start()
-            parts.add(fullPath.substring(i, location))
-            i = location + 1
-        }
+        this.fullPath = path
 
-        if (parts.size() == 0 || parts.any({ it.empty })) {
+        // trim the first leading and trailing backslash for split
+        path = path.replaceFirst('^\\\\', '').replaceFirst('\\\\$', '')
+        parts = Lists.newArrayList(Splitter.on('\\').split(path))
+
+        if (parts.size() == 0 || '' in parts) {
             throw new IllegalArgumentException('Path cannot have empty parts')
         }
-
-        this.fullPath = fullPath
     }
 
     def getAt(int index) {
