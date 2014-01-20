@@ -167,6 +167,23 @@ HighDimensionalData.prototype.generate_view = function () {
     var _view = this.view;
 
     /**
+     * to satisfy load high dim function
+     * @private
+     */
+    var _store_high_dim_params_as_global = function () {
+
+        window[_this.divId+'pathway'] = GLOBAL.CurrentPathway;
+        window[_this.divId+'pathwayName'] = GLOBAL.CurrentPathwayName;
+        window[_this.divId+'markerType'] = GLOBAL.HighDimDataType;
+
+        window[_this.divId+'samples1'] = Ext.get('sample1').dom.value;
+        window[_this.divId+'platforms1'] = Ext.get('platforms1').dom.value;
+        window[_this.divId+'gpls1'] = Ext.get('gpl1').dom.value;
+        window[_this.divId+'tissues1'] = Ext.get('tissue1').dom.value;
+
+    };
+
+    /**
      *  Inner function to display node details summary
      * @private
      */
@@ -195,6 +212,11 @@ HighDimensionalData.prototype.generate_view = function () {
         var innerHtml = summaryString +
             '<br> <b>Pathway:</b> ' + selectedSearchPathway +
             '<br> <b>Marker Type:</b> ' + GLOBAL.HighDimDataType;
+
+        // ** start stub **
+        // TODO : to be removed when load high dim params is no longer used.
+        _store_high_dim_params_as_global();
+        // ** end stub **
 
         // display it
         var domObj = document.getElementById("display" + GLOBAL.CurrentAnalysisDivId);
@@ -358,47 +380,47 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     var snpData = false
 
     //Gene expression filters.
-    var fullGEXSampleType 	= "";
-    var fullGEXTissueType 	= "";
-    var fullGEXTime 		= "";
-    var fullGEXGeneList 	= "";
-    var fullGEXGPL 			= "";
+    var fullGEXSampleType     = "";
+    var fullGEXTissueType     = "";
+    var fullGEXTime         = "";
+    var fullGEXGeneList     = "";
+    var fullGEXGPL             = "";
 
     //SNP Filters.
-    var fullSNPSampleType 	= "";
-    var fullSNPTissueType 	= "";
-    var fullSNPTime 		= "";
-    var fullSNPGeneList 	= "";
-    var fullSNPGPL 			= "";
+    var fullSNPSampleType     = "";
+    var fullSNPTissueType     = "";
+    var fullSNPTime         = "";
+    var fullSNPGeneList     = "";
+    var fullSNPGPL             = "";
 
     //Pull the individual filters from the window object.
 //    var independentGeneList = window['divIndependentVariablepathway'];
-//    var dependentGeneList 	= window['divDependentVariablepathway'];
+//    var dependentGeneList     = window['divDependentVariablepathway'];
 
     var independentGeneList = document.getElementById('independentPathway').value
-    var dependentGeneList 	= document.getElementById('dependentPathway').value
+    var dependentGeneList     = document.getElementById('dependentPathway').value
 
     console.log("independentGeneList", independentGeneList);
     console.log("dependentGeneList", dependentGeneList);
 
 
-    var dependentPlatform 	= window['divDependentVariableplatforms1'];
+    var dependentPlatform     = window['divDependentVariableplatforms1'];
     var independentPlatform = window['divIndependentVariableplatforms1'];
 
-    var dependentType 		= window['divDependentVariablemarkerType'];
-    var independentType		= window['divIndependentVariablemarkerType'];
+    var dependentType         = window['divDependentVariablemarkerType'];
+    var independentType        = window['divIndependentVariablemarkerType'];
 
-    var dependentTime		= window['divDependentVariabletimepointsValues'];
-    var independentTime		= window['divIndependentVariabletimepointsValues'];
+    var dependentTime        = window['divDependentVariabletimepointsValues'];
+    var independentTime        = window['divIndependentVariabletimepointsValues'];
 
-    var dependentSample		= window['divDependentVariablesamplesValues'];
-    var independentSample	= window['divIndependentVariablesamplesValues'];
+    var dependentSample        = window['divDependentVariablesamplesValues'];
+    var independentSample    = window['divIndependentVariablesamplesValues'];
 
-    var dependentTissue		= window['divDependentVariabletissuesValues'];
-    var independentTissue	= window['divIndependentVariabletissuesValues'];
+    var dependentTissue        = window['divDependentVariabletissuesValues'];
+    var independentTissue    = window['divIndependentVariabletissuesValues'];
 
-    var dependentGPL		= window['divDependentVariablegplValues'];
-    var independentGPL		= window['divIndependentVariablegplValues'];
+    var dependentGPL        = window['divDependentVariablegplValues'];
+    var independentGPL        = window['divIndependentVariablegplValues'];
 
     if(dependentGPL) dependentGPL = dependentGPL[0];
     if(independentGPL) independentGPL = independentGPL[0];
@@ -408,11 +430,11 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     if(independentType == "Gene Expression")
     {
         //Put the independent filters in the GEX variables.
-        fullGEXGeneList 	= String(independentGeneList);
-        fullGEXSampleType 	= String(independentSample);
-        fullGEXTissueType 	= String(independentTissue);
-        fullGEXTime			= String(independentTime);
-        fullGEXGPL 			= String(independentGPL);
+        fullGEXGeneList     = String(independentGeneList);
+        fullGEXSampleType     = String(independentSample);
+        fullGEXTissueType     = String(independentTissue);
+        fullGEXTime            = String(independentTime);
+        fullGEXGPL             = String(independentGPL);
 
         //This flag will tell us to write the GEX text file.
         mrnaData = true;
@@ -424,18 +446,18 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     if(dependentType == "Gene Expression")
     {
         //If the gene list already has items, add a comma.
-        if(fullGEXGeneList != "") 	fullGEXGeneList 	+= ","
-        if(fullGEXSampleType != "") fullGEXSampleType 	+= ","
-        if(fullGEXTissueType != "") fullGEXTissueType 	+= ","
-        if(fullGEXTime != "") 		fullGEXTime 		+= ","
-        if(fullGEXGPL != "") 		fullGEXGPL 			+= ","
+        if(fullGEXGeneList != "")     fullGEXGeneList     += ","
+        if(fullGEXSampleType != "") fullGEXSampleType     += ","
+        if(fullGEXTissueType != "") fullGEXTissueType     += ","
+        if(fullGEXTime != "")         fullGEXTime         += ","
+        if(fullGEXGPL != "")         fullGEXGPL             += ","
 
         //Add the genes in the list to the full list of GEX genes.
-        fullGEXGeneList 	+= String(dependentGeneList);
-        fullGEXSampleType 	+= String(dependentSample);
-        fullGEXTissueType 	+= String(dependentTissue);
-        fullGEXTime			+= String(dependentTime);
-        fullGEXGPL 			+= String(dependentGPL);
+        fullGEXGeneList     += String(dependentGeneList);
+        fullGEXSampleType     += String(dependentSample);
+        fullGEXTissueType     += String(dependentTissue);
+        fullGEXTime            += String(dependentTime);
+        fullGEXGPL             += String(dependentGPL);
 
         //This flag will tell us to write the GEX text file.
         mrnaData = true;
@@ -448,11 +470,11 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     if(independentType == "SNP")
     {
         //The genes entered into the search box were SNP genes.
-        fullSNPGeneList 	= String(independentGeneList);
-        fullSNPSampleType 	= String(independentSample);
-        fullSNPTissueType 	= String(independentTissue);
-        fullSNPTime 		= String(independentTime);
-        fullSNPGPL 			= String(independentGPL);
+        fullSNPGeneList     = String(independentGeneList);
+        fullSNPSampleType     = String(independentSample);
+        fullSNPTissueType     = String(independentTissue);
+        fullSNPTime         = String(independentTime);
+        fullSNPGPL             = String(independentGPL);
 
         //This flag will tell us to write the SNP text file.
         snpData = true;
@@ -461,18 +483,18 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     if(dependentType == "SNP")
     {
         //If the gene list already has items, add a comma.
-        if(fullSNPGeneList != "") 	fullSNPGeneList 	+= ","
-        if(fullSNPSampleType != "") fullSNPSampleType 	+= ","
-        if(fullSNPTissueType != "") fullSNPTissueType 	+= ","
-        if(fullSNPTime != "") 		fullSNPTime 		+= ","
-        if(fullSNPGPL != "") 		fullSNPGPL 			+= ","
+        if(fullSNPGeneList != "")     fullSNPGeneList     += ","
+        if(fullSNPSampleType != "") fullSNPSampleType     += ","
+        if(fullSNPTissueType != "") fullSNPTissueType     += ","
+        if(fullSNPTime != "")         fullSNPTime         += ","
+        if(fullSNPGPL != "")         fullSNPGPL             += ","
 
         //Add the genes in the list to the full list of SNP genes.
-        fullSNPGeneList 	+= String(dependentGeneList)
-        fullSNPSampleType 	+= String(dependentSample);
-        fullSNPTissueType 	+= String(dependentTissue);
-        fullSNPTime 		+= String(dependentTime);
-        fullSNPGPL 			+= dependentGPL;
+        fullSNPGeneList     += String(dependentGeneList)
+        fullSNPSampleType     += String(dependentSample);
+        fullSNPTissueType     += String(dependentTissue);
+        fullSNPTime         += String(dependentTime);
+        fullSNPGPL             += dependentGPL;
 
         //This flag will tell us to write the SNP text file.
         snpData = true;
@@ -493,41 +515,43 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     var _dependentDataType = document.getElementById('dependentVarDataType').value ? document.getElementById('dependentVarDataType').value : 'CLINICAL';
     var _independentDataType = document.getElementById('independentVarDataType').value ? document.getElementById('independentVarDataType').value : 'CLINICAL';
 
-    formParams["divDependentVariabletimepoints"] 			= window['divDependentVariabletimepoints1'];
-    formParams["divDependentVariablesamples"] 				= window['divDependentVariablesamples1'];
-    formParams["divDependentVariablerbmPanels"]				= window['divDependentVariablerbmPanels1'];
-    formParams["divDependentVariableplatforms"]				= dependentPlatform
-    formParams["divDependentVariablegpls"]					= window['divDependentVariablegplsValue1'];
-    formParams["divDependentVariabletissues"]				= window['divDependentVariabletissues1'];
-    formParams["divDependentVariableprobesAggregation"]	 	= window['divDependentVariableprobesAggregation'];
-    formParams["divDependentVariableSNPType"]				= window['divDependentVariableSNPType'];
-    formParams["divDependentVariableType"]					= _dependentDataType;
-    formParams["divDependentVariablePathway"]				= dependentGeneList;
-    formParams["divIndependentVariabletimepoints"]			= window['divIndependentVariabletimepoints1'];
-    formParams["divIndependentVariablesamples"]				= window['divIndependentVariablesamples1'];
-    formParams["divIndependentVariablerbmPanels"]			= window['divIndependentVariablerbmPanels1'];
-    formParams["divIndependentVariableplatforms"]			= independentPlatform;
-    formParams["divIndependentVariablegpls"]				= window['divIndependentVariablegplsValue1'];
-    formParams["divIndependentVariabletissues"]				= window['divIndependentVariabletissues1'];
-    formParams["divIndependentVariableprobesAggregation"]	= window['divIndependentVariableprobesAggregation'];
-    formParams["divIndependentVariableSNPType"]				= window['divIndependentVariableSNPType'];
-    formParams["divIndependentVariableType"]				= _independentDataType;
-    formParams["divIndependentVariablePathway"]				= independentGeneList;
-    formParams["gexpathway"]								= fullGEXGeneList;
-    //formParams["gextime"]									= fullGEXTime;
-    //formParams["gextissue"]									= fullGEXTissueType;
-    //formParams["gexsample"]									= fullGEXSampleType;
-    formParams["snppathway"]								= fullSNPGeneList;
-    //formParams["snptime"]									= fullSNPTime;
-    //formParams["snptissue"]									= fullSNPTissueType;
-    //formParams["snpsample"]									= fullSNPSampleType;
-    formParams["divIndependentPathwayName"]					= window['divIndependentVariablepathwayName'];
-    formParams["divDependentPathwayName"]					= window['divDependentVariablepathwayName'];
-    formParams["mrnaData"]									= mrnaData;
-    formParams["snpData"]									= snpData;
-    formParams["gexgpl"]									= fullGEXGPL;
-    formParams["snpgpl"]									= fullSNPGPL;
+    formParams["divDependentVariabletimepoints"]             = window['divDependentVariabletimepoints1'];
+    formParams["divDependentVariablesamples"]                 = window['divDependentVariablesamples1'];
+    formParams["divDependentVariablerbmPanels"]                = window['divDependentVariablerbmPanels1'];
+    formParams["divDependentVariableplatforms"]                = dependentPlatform
+    formParams["divDependentVariablegpls"]                    = window['divDependentVariablegplsValue1'];
+    formParams["divDependentVariabletissues"]                = window['divDependentVariabletissues1'];
+    formParams["divDependentVariableprobesAggregation"]         = window['divDependentVariableprobesAggregation'];
+    formParams["divDependentVariableSNPType"]                = window['divDependentVariableSNPType'];
+    formParams["divDependentVariableType"]                    = _dependentDataType;
+    formParams["divDependentVariablePathway"]                = dependentGeneList;
+    formParams["divIndependentVariabletimepoints"]            = window['divIndependentVariabletimepoints1'];
+    formParams["divIndependentVariablesamples"]                = window['divIndependentVariablesamples1'];
+    formParams["divIndependentVariablerbmPanels"]            = window['divIndependentVariablerbmPanels1'];
+    formParams["divIndependentVariableplatforms"]            = independentPlatform;
+    formParams["divIndependentVariablegpls"]                = window['divIndependentVariablegplsValue1'];
+    formParams["divIndependentVariabletissues"]                = window['divIndependentVariabletissues1'];
+    formParams["divIndependentVariableprobesAggregation"]    = window['divIndependentVariableprobesAggregation'];
+    formParams["divIndependentVariableSNPType"]                = window['divIndependentVariableSNPType'];
+    formParams["divIndependentVariableType"]                = _independentDataType;
+    formParams["divIndependentVariablePathway"]                = independentGeneList;
+    formParams["gexpathway"]                                = fullGEXGeneList;
+    //formParams["gextime"]                                    = fullGEXTime;
+    //formParams["gextissue"]                                    = fullGEXTissueType;
+    //formParams["gexsample"]                                    = fullGEXSampleType;
+    formParams["snppathway"]                                = fullSNPGeneList;
+    //formParams["snptime"]                                    = fullSNPTime;
+    //formParams["snptissue"]                                    = fullSNPTissueType;
+    //formParams["snpsample"]                                    = fullSNPSampleType;
+    formParams["divIndependentPathwayName"]                    = window['divIndependentVariablepathwayName'];
+    formParams["divDependentPathwayName"]                    = window['divDependentVariablepathwayName'];
+    formParams["mrnaData"]                                    = mrnaData;
+    formParams["snpData"]                                    = snpData;
+    formParams["gexgpl"]                                    = fullGEXGPL;
+    formParams["snpgpl"]                                    = fullSNPGPL;
 
+
+    console.log("about to return form parameters from hd load params")
     return true;
 }
 
