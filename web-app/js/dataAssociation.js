@@ -598,10 +598,16 @@ function loadModuleOutput()
 	}
 }
 
-function setupCategoricalItemsList(strDivSource,strDivTarget) {
+// TODO : To be moved as HighDimensional function
+function setupCategoricalItemsList(strDivSource, strDivTarget) {
 	// copy from the category div at top of page first and add drag handlers
 	var categoricalSourceDiv = Ext.get(strDivSource);
 	var categoricalTargetDiv = Ext.get(strDivTarget);
+
+    var _dropOntoBin = function  (source, e, data) {
+        this.el.appendChild(data.ddel);
+        return true;
+    }
 
 	// clear it out first
 	while (categoricalTargetDiv.dom.hasChildNodes())
@@ -638,8 +644,11 @@ function setupCategoricalItemsList(strDivSource,strDivTarget) {
 		    return ret;
 		}
 	});
-	dropZone.notifyDrop = dropOntoBin;
+	dropZone.notifyDrop = _dropOntoBin;
 }
+
+
+
 
 function clearDataAssociation()
 {
