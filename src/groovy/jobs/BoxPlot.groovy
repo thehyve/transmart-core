@@ -1,56 +1,48 @@
 package jobs
 
-import jobs.steps.helpers.BinningColumnConfigurator
-import jobs.steps.helpers.ColumnConfigurator
+import jobs.steps.helpers.BoxPlotVariableColumnConfigurator
 import jobs.table.columns.PrimaryKeyColumn
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 @Component
 @Scope('job')
 class BoxPlot extends CategoricalOrBinnedJob {
+
+    @Autowired
+    BoxPlotVariableColumnConfigurator independentVariableConfigurator
+
+    @Autowired
+    BoxPlotVariableColumnConfigurator dependentVariableConfigurator
 
     @Override
     void afterPropertiesSet() throws Exception {
         primaryKeyColumnConfigurator.column =
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        //both configurators use the same generics parameters...
-        configureConfigurator independentVariableConfigurator, '', ''
-        configureConfigurator dependentVariableConfigurator, '', ''
+        configureConfigurator independentVariableConfigurator, '', '', 'independent'
+        configureConfigurator dependentVariableConfigurator,   '', '', 'dependent'
 
-        //... but at most one of them is enabled at any moment
-        String binVariable = params['binVariable'] as String
-        independentVariableConfigurator.binningConfigurator.enabled = ('IND' == binVariable)
-        dependentVariableConfigurator.binningConfigurator.enabled = ('DEP' == binVariable)
+        independentVariableConfigurator.valueForThisColumnBeingBinned = 'IND'
+        dependentVariableConfigurator.valueForThisColumnBeingBinned   = 'DEP'
 
-        //adjusting some props
-        independentVariableConfigurator.keyForConceptPaths = 'independentVariable'
-        dependentVariableConfigurator.keyForConceptPaths = 'dependentVariable'
-        independentVariableConfigurator.keyForDataType = 'divIndependentVariableType'
-        dependentVariableConfigurator.keyForDataType = 'divDependentVariableType'
-        independentVariableConfigurator.keyForSearchKeywordId = 'divIndependentVariablePathway'
-        dependentVariableConfigurator.keyForSearchKeywordId = 'divDependentVariablePathway'
-
-        configureLabels()
+        validateDataTypes()
     }
 
-    private void configureLabels() {
-        // the variable named x must be the categorical variable (or a binned
-        // continuous variable)
-        if (independentCategorical) {
-            independentVariableConfigurator.columnHeader = 'X'
-            dependentVariableConfigurator.columnHeader   = 'Y'
-        } else {
-            independentVariableConfigurator.columnHeader = 'Y'
-            dependentVariableConfigurator.columnHeader   = 'X'
+    void validateDataTypes() {
+        // we don't usually validate these things, but the frontend is not
+        // validating this right now and it's causing confusion
+        if (independentVariableConfigurator.categorical &&
+                dependentVariableConfigurator.categorical) {
+            throw new InvalidArgumentsException(
+                    'Both variables are categorical or binned continuous')
         }
-
-    }
-
-    boolean isIndependentCategorical() {
-        params['independentVariable']?.contains('|') ||
-                (params['binning'] == 'TRUE' && params['binVariable'] == 'IND')
+        if (!independentVariableConfigurator.categorical &&
+                !dependentVariableConfigurator.categorical) {
+            throw new InvalidArgumentsException('Both variables are continuous')
+        }
     }
 
     @Override

@@ -26,9 +26,9 @@ class BinningColumnConfigurator extends ColumnConfigurator {
                                   //{bin name 1}<>{concept path 1}<>{concept path 2}<>...|...
            keyForVariableType     //only if manual
 
-    ColumnConfigurator innerConfigurator
+    Closure<Boolean> additionalEnablingCheck
 
-    boolean enabled = true;
+    ColumnConfigurator innerConfigurator
 
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
@@ -36,8 +36,13 @@ class BinningColumnConfigurator extends ColumnConfigurator {
                 compose(decorateColumn, createDecoratorClosure()))
     }
 
+    boolean isBinningEnabled() {
+        getStringParam(keyForDoBinning).equalsIgnoreCase('true') &&
+                (!additionalEnablingCheck || additionalEnablingCheck(params))
+    }
+
     private Closure<Column> createDecoratorClosure() {
-        if (enabled && getStringParam(keyForDoBinning).equalsIgnoreCase('true')) {
+        if (binningEnabled) {
             def decorator = createBinningDecorator()
             return { Column originalColumn ->
                 decorator.inner = originalColumn

@@ -1,21 +1,30 @@
 package jobs
 
+import jobs.steps.helpers.CategoricalOrBinnedColumnConfigurator
 import jobs.table.columns.PrimaryKeyColumn
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 @Component
 @Scope('job')
 class TableWithFisher extends CategoricalOrBinnedJob {
+
+    @Autowired
+    CategoricalOrBinnedColumnConfigurator independentVariableConfigurator
+
+    @Autowired
+    CategoricalOrBinnedColumnConfigurator dependentVariableConfigurator
 
     @Override
     void afterPropertiesSet() throws Exception {
         primaryKeyColumnConfigurator.column =
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        configureConfigurator independentVariableConfigurator, 'indep', 'independent', 'X'
-        configureConfigurator dependentVariableConfigurator,   'dep',   'dependent',   'Y'
+        configureConfigurator independentVariableConfigurator,
+                'indep', 'independent', 'independent', 'X'
+        configureConfigurator dependentVariableConfigurator,
+                'dep',   'dependent',   'dependent',   'Y'
     }
 
     @Override
