@@ -161,7 +161,7 @@ class SampleBioMarkerTestData {
                     deletedFlag: false,
                     name: 'bogus_gene_sig_' + id,
                     uploadFile: 'bogus_upload_file',
-                    speciesConceptId: '0',
+                    speciesConceptId: 0,
                     creator: users[0],
                     createDate: new Date(),
                     bioAssayPlatformId: 0,
