@@ -28,9 +28,9 @@ class DisjunctionDataConstraintFactoryTests {
 
         Closure createConstraint = mock(Closure)
 
-        createConstraint.call(nameOfSubconstraint1, paramsOfSubconstraint).
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint1).
                 returns(fakeConstraint1)
-        createConstraint.call(nameOfSubconstraint2, paramsOfSubconstraint).
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint2).
                 returns(fakeConstraint2)
 
         play {
@@ -57,7 +57,7 @@ class DisjunctionDataConstraintFactoryTests {
 
         Closure createConstraint = mock(Closure)
 
-        createConstraint.call(nameOfSubconstraint, paramsOfSubconstraint).
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint).
                 returns(fakeConstraint)
 
         play {
@@ -89,9 +89,9 @@ class DisjunctionDataConstraintFactoryTests {
 
         Closure createConstraint = mock(Closure)
 
-        createConstraint.call(nameOfSubConstraints, paramsOfSubConstraints[0]).
+        createConstraint.call(paramsOfSubConstraints[0], nameOfSubConstraints).
                 returns(fakeConstraint1)
-        createConstraint.call(nameOfSubConstraints, paramsOfSubConstraints[1]).
+        createConstraint.call(paramsOfSubConstraints[1], nameOfSubConstraints).
                 returns(fakeConstraint2)
 
         play {
@@ -125,7 +125,7 @@ class DisjunctionDataConstraintFactoryTests {
         Map     paramsOfSubconstraint = [ param1: 'param1 value' ]
         Closure createConstraint = mock(Closure)
 
-        createConstraint.call(is(nameOfSubconstraint), is(paramsOfSubconstraint)).
+        createConstraint.call(is(paramsOfSubconstraint), is(nameOfSubconstraint)).
                 raises(InvalidArgumentsException, 'foobar')
 
         play {

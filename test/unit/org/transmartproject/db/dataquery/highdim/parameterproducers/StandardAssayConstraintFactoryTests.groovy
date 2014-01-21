@@ -208,7 +208,7 @@ class StandardAssayConstraintFactoryTests {
         def trialName = 'foobar'
 
         AssayConstraint constraint = testee.createDisjunctionConstraint(
-                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                { values, key -> testee.createFromParameters(key, values, null) },
                 subconstraints: [
                         (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
                                 name: trialName
@@ -236,7 +236,7 @@ class StandardAssayConstraintFactoryTests {
         def trialNames = ['t1', 't2']
 
         AssayConstraint constraint = testee.createDisjunctionConstraint(
-                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                { map, key -> testee.createFromParameters(key, map, null) },
                 subconstraints: [
                         (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
                                 [name: trialNames[0]],
@@ -257,7 +257,7 @@ class StandardAssayConstraintFactoryTests {
     void testCreateNestedDisjunctionConstraint() {
         def trialNames = ['t1', 't2', 't3', 't4']
         def createFromParameters
-        createFromParameters = { a1, a2 -> testee.createFromParameters(a1, a2, createFromParameters) }
+        createFromParameters = { map, key -> testee.createFromParameters(key, map, createFromParameters) }
 
         AssayConstraint constraint = testee.createDisjunctionConstraint(
                 createFromParameters,
@@ -292,7 +292,7 @@ class StandardAssayConstraintFactoryTests {
         def trialName = 'foobar'
 
         AssayConstraint constraint = testee.createDisjunctionConstraint(
-                { a1, a2 -> testee.createFromParameters(a1, a2, null) },
+                { map, key -> testee.createFromParameters(key, map, null) },
                 subconstraints: [
                         (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
                                 name: trialName]])
