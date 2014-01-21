@@ -37,7 +37,7 @@ class MetaboliteEndToEndRetrievalTest {
     }
 
     @Test
-    void dataPersistenceTest() {
+    void fetchAllDataTest() {
         def trialConstraint = metaboliteResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: MetaboliteTestData.TRIAL_NAME)
