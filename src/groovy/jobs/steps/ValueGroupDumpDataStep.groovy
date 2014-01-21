@@ -2,6 +2,7 @@ package jobs.steps
 
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 
 class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
 
@@ -15,7 +16,8 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
         [
                 getRowKey(subsetName, seriesName, column.patientInTrialId),
                 row[column],
-                row.label
+                (row instanceof BioMarkerDataRow) ?
+                    [row.label, row.bioMarker].join("_") : row.label
         ]
     }
 
