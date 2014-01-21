@@ -28,15 +28,14 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenLocal()
         mavenCentral()
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenRepo "http://repo.etriks.org/content/groups/public/"
+
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        // runtime 'mysql:mysql-connector-java:5.1.24'
+        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
     }
 
     plugins {
@@ -44,5 +43,9 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.3") {
             export = false
         }
+        runtime ":transmart-core:1.0.1-SNAPSHOT"
     }
+
+
+
 }
