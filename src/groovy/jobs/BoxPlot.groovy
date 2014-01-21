@@ -26,7 +26,9 @@ class BoxPlot extends CategoricalOrBinnedJob {
         configureConfigurator dependentVariableConfigurator,   '', '', 'dependent'
 
         independentVariableConfigurator.valueForThisColumnBeingBinned = 'IND'
+        independentVariableConfigurator.keyForIsCategorical           = 'independentVariableCategorical'
         dependentVariableConfigurator.valueForThisColumnBeingBinned   = 'DEP'
+        dependentVariableConfigurator.keyForIsCategorical             = 'dependentVariableCategorical'
 
         validateDataTypes()
     }

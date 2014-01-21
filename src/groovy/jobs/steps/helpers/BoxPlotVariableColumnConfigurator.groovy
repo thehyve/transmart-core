@@ -21,6 +21,7 @@ class BoxPlotVariableColumnConfigurator extends CategoricalOrBinnedColumnConfigu
     String categoricalColumnHeader       = 'X'
     String numericColumnHeader           = 'Y'
     String keyForBinnedVariable          = 'binVariable'
+    String keyForIsCategorical
     String valueForThisColumnBeingBinned
 
     @PostConstruct
@@ -42,7 +43,6 @@ class BoxPlotVariableColumnConfigurator extends CategoricalOrBinnedColumnConfigu
     }
 
     boolean isCategorical() {
-        getStringParam(keyForConceptPaths).contains('|') || /* is categorical */
-                binningConfigurator.binningEnabled
+        getStringParam(keyForIsCategorical).equalsIgnoreCase('true')
     }
 }
