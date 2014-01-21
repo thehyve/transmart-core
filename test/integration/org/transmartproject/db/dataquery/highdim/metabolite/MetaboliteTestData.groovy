@@ -31,9 +31,9 @@ class MetaboliteTestData {
     List<DeMetaboliteAnnotation> annotations = {
         def createAnnotation = { id, metaboliteName, metabolite ->
             def res = new DeMetaboliteAnnotation(
-                    metabolite:   metabolite,
-                    //uniprotId: biomarkerTestData.metaboliteBioMarkers.find { it.name == metaboliteName }.primaryExternalId,
-                    platform:  platform
+                    biochemicalName: metaboliteName,
+                    hmdbId:          "some id",
+                    platform:        platform
             )
             res.id = id
             res
