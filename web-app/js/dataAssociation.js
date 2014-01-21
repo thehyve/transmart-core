@@ -599,12 +599,12 @@ function loadModuleOutput()
 }
 
 // TODO : To be moved as HighDimensional function
-function setupCategoricalItemsList(strDivSource, strDivTarget) {
+function setupCategoricalItemsList (strDivSource, strDivTarget) {
 	// copy from the category div at top of page first and add drag handlers
 	var categoricalSourceDiv = Ext.get(strDivSource);
 	var categoricalTargetDiv = Ext.get(strDivTarget);
 
-    var _dropOntoBin = function  (source, e, data) {
+    var _dropOntoBin = function (source, e, data) {
         this.el.appendChild(data.ddel);
         return true;
     }
@@ -646,9 +646,6 @@ function setupCategoricalItemsList(strDivSource, strDivTarget) {
 	});
 	dropZone.notifyDrop = _dropOntoBin;
 }
-
-
-
 
 function clearDataAssociation()
 {
