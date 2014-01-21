@@ -105,7 +105,6 @@ class BackingMap implements AutoCloseable {
 
         private Map.Entry<Fun.Tuple3<String, Integer, String>, Object> entry
 
-
         BackingMapResultIterator() {
             this.entrySet = map.entrySet().iterator()
 
@@ -168,7 +167,6 @@ class BackingMap implements AutoCloseable {
             Fun.t2 pk, result
         }
     }
-
 
     @Override
     void close() throws Exception {
