@@ -11,11 +11,6 @@ class ConstantValueColumn extends AbstractColumn {
     }
 
     @Override
-    boolean isGlobalComputation() {
-        false
-    }
-
-    @Override
     void onReadRow(String dataSourceName, Object row) {
         /* purposefully left empty */
     }

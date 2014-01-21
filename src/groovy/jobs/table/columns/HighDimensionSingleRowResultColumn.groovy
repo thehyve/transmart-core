@@ -9,8 +9,6 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 @Log4j
 class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
-    final boolean globalComputation = false
-
     private DataRow row
 
     private boolean sawRow = false
@@ -43,9 +41,14 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
         if (!row) return ImmutableMap.of()
 
         ImmutableMap.Builder builder = ImmutableMap.builder()
-        assays.each {
-            builder.put(it.patientInTrialId, row[it] ?: '')
+        for (int i = 0; i < assays.size(); i++) {
+            def value = row[i]
+            /* empty values are dropped */
+            if (value != null) {
+                builder.put assays[i].patientInTrialId,value
+            }
         }
+
         row = null
         builder.build()
     }

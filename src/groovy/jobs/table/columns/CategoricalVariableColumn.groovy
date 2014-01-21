@@ -15,8 +15,6 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
 @CompileStatic
 class CategoricalVariableColumn extends AbstractColumn {
 
-    final boolean globalComputation = false
-
     Set<ClinicalVariableColumn> leafNodes
 
     PatientRow lastRow

@@ -54,11 +54,8 @@ class NumericManualBinningColumnDecorator implements ColumnDecorator {
                 originalValue,
                 this.&transformValue as Function)
 
-        def filtered = Maps.filterValues transformed,
+        Maps.filterValues transformed,
                 { it != null } as Predicate
-
-        /* we have to return a serializable Map */
-        ImmutableMap.copyOf filtered
     }
 
     private String transformValue(Number originalValue) {

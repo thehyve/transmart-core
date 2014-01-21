@@ -27,4 +27,9 @@ abstract class AbstractColumn implements Column {
     void onAllDataSourcesDepleted(int columnNumber, BackingMap backingMap) {
         /* override to do something here */
     }
+
+    @Override
+    Closure<Object> getValueTransformer() {
+        null
+    }
 }

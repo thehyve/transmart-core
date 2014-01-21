@@ -578,8 +578,6 @@ class CategoricalOrBinnedColumnConfiguratorTests {
 
     static class StubColumn extends AbstractColumn {
 
-        final boolean globalComputation = true
-
         Map<String, String> data
 
         @Override
@@ -716,9 +714,14 @@ class CategoricalOrBinnedColumnConfiguratorTests {
     private DataRow<AssayColumn, Double> createMockRow(Map<AssayColumn, Double> values, String label) {
         DataRow row = mock(DataRow)
         row.label.returns(label).stub()
-        values.keySet().each { column ->
-            row.getAt(column).returns(values[column])
+
+        values.eachWithIndex { entry, i ->
+            row.getAt(i).returns(entry.value).atLeastOnce()
         }
+        // we now call end up calling getAt(Integer)
+        /*values.keySet().each { column ->
+            row.getAt(column).returns(values[column])
+        }*/
         row
     }
 }
