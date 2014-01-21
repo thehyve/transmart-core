@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
+import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 
 import org.hibernate.ScrollableResults
@@ -31,6 +32,10 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
     final List<String> platformMarkerTypes = ['Chromosomal']
 
     final String name = 'rnaseq'
+
+    final Set<String> dataProperties = ImmutableSet.of('trialName', 'readCount')
+
+    final Set<String> rowProperties = ImmutableSet.of()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

@@ -204,7 +204,7 @@ class StandardAssayConstraintFactoryTests {
     }
 
     @Test
-    void testCreatDisjunctionConstraintTwoDifferentTypes() {
+    void testCreateDisjunctionConstraintTwoDifferentTypes() {
         def trialName = 'foobar'
 
         AssayConstraint constraint = testee.createDisjunctionConstraint(
