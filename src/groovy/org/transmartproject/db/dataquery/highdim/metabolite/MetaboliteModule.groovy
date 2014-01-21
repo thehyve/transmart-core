@@ -13,6 +13,8 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
+import static org.hibernate.sql.JoinFragment.INNER_JOIN
+
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     final String name = 'metabolite'
 
