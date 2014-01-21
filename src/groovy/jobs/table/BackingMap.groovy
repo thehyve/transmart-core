@@ -1,6 +1,5 @@
 package jobs.table
 
-import com.google.common.base.Function
 import com.google.common.collect.*
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
@@ -131,31 +130,14 @@ class BackingMap implements AutoCloseable {
 
                 if (entry.key.c /* ctx */ == '') {
                     /* empty context */
-                    if (valueTransformers[columnNumber] == null) {
-                        result.set columnNumber, entry.value
-                    } else {
-                        result.set columnNumber,
-                                valueTransformers[columnNumber](entry.key, entry.value)
-                    }
+                    result.set columnNumber, maybeTransformedEntryValue(columnNumber)
 
                     entry = entrySet.hasNext() ? entrySet.next() : null
                 } else { /* context is not empty */
-                    ImmutableMap.Builder<String, Object> valueBuilder =
-                            ImmutableMap.builder()
+                    Map<String, Object> value =
+                            doNonEmptyContextCase pk, columnNumber
 
-                    while (entry && entry.key.a == pk && entry &&
-                            entry.key.b == columnNumber) {
-                        if (valueTransformers[columnNumber] == null) {
-                            valueBuilder.put entry.key.c, entry.value
-                        } else {
-                            valueBuilder.put(entry.key.c,
-                                    valueTransformers[columnNumber](entry.key, entry.value))
-                        }
-
-                        entry = entrySet.hasNext() ? entrySet.next() : null
-                    }
-
-                    def previous = result.set columnNumber, valueBuilder.build()
+                    def previous = result.set columnNumber, value
                     if (previous != null) {
                         throw new IllegalStateException("For $pk, " +
                                 "replaced $previous with $entry.value " +
@@ -165,6 +147,30 @@ class BackingMap implements AutoCloseable {
             }
 
             Fun.t2 pk, result
+        }
+
+        private Map<String, Object> doNonEmptyContextCase(String pk,
+                                                          Integer columnNumber) {
+            /* in this case, we collect all entries for this (pk, column)
+             * under a map */
+            ImmutableMap.Builder<String, Object> valueBuilder =
+                    ImmutableMap.builder()
+
+            while (entry && entry.key.a == pk && entry &&
+                    entry.key.b == columnNumber) {
+                valueBuilder.put(entry.key.c,
+                        maybeTransformedEntryValue(columnNumber))
+
+                entry = entrySet.hasNext() ? entrySet.next() : null
+            }
+
+            valueBuilder.build()
+        }
+
+        private Object maybeTransformedEntryValue(Integer columnNumber) {
+            valueTransformers[columnNumber] == null ?
+                    entry.value :
+                    valueTransformers[columnNumber](entry.key, entry.value)
         }
     }
 
