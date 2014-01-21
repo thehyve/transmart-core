@@ -50,7 +50,6 @@ HighDimensionalData.prototype.populate_data = function () {
                 GLOBAL.HighDimDataType = _tmp_data.platforms[0].markerType;
             } else {
                 GLOBAL.HighDimDataType = "";
-                console.log ("Warning: This high dimensional data has no marker type.");
             }
 
             if (document.getElementById("highDimContainer")) {
@@ -63,9 +62,9 @@ HighDimensionalData.prototype.populate_data = function () {
                 var _strTissueTypes = "";
 
                 if (_tmp_data.tissueTypes) {
-                    for (var i= 0, max=_tmp_data.tissueTypes.length; i<max; i++) {
+                    for (var i = 0, max = _tmp_data.tissueTypes.length; i < max; i++) {
                         if (_tmp_data.tissueTypes[i].label) {
-                            _strTissueTypes += _tmp_data.tissueTypes[i].label.concat( (i<max-1) ? ", " : "");
+                            _strTissueTypes += _tmp_data.tissueTypes[i].label.concat((i < max - 1) ? ", " : "");
                         } else {
                             _strTissueTypes += "";
                         }
@@ -78,7 +77,6 @@ HighDimensionalData.prototype.populate_data = function () {
 
         } else {
             Ext.Msg.alert("Error", "Returned object is unknown.");
-            console.error("Object does not have key");
         }
     }
 }
@@ -99,7 +97,7 @@ HighDimensionalData.prototype.create_pathway_search_box = function (searchInputE
 
     ajaxurl = pageInfo.basePath + '/search/loadSearchPathways';
     ds = new Ext.data.Store({
-        proxy: new Ext.data.ScriptTagProxy ({
+        proxy: new Ext.data.ScriptTagProxy({
             url: ajaxurl
         }),
         reader: new Ext.data.JsonReader(
@@ -167,26 +165,43 @@ HighDimensionalData.prototype.generate_view = function () {
     var _view = this.view;
 
     /**
+     * to satisfy load high dim function
+     * @private
+     */
+    var _store_high_dim_params_as_global = function () {
+
+        window[_this.divId + 'pathway'] = GLOBAL.CurrentPathway;
+        window[_this.divId + 'pathwayName'] = GLOBAL.CurrentPathwayName;
+        window[_this.divId + 'markerType'] = GLOBAL.HighDimDataType;
+
+        window[_this.divId + 'samples1'] = Ext.get('sample1').dom.value;
+        window[_this.divId + 'platforms1'] = Ext.get('platforms1').dom.value;
+        window[_this.divId + 'gpls1'] = Ext.get('gpl1').dom.value;
+        window[_this.divId + 'tissues1'] = Ext.get('tissue1').dom.value;
+
+    };
+
+    /**
      *  Inner function to display node details summary
      * @private
      */
     var _display_high_dim_selection_summary = function () {
 
         // set high dimensional data type
-        if (_this.divId == 'divIndependentVariable' &&  document.getElementById("independentVarDataType")) {
-            document.getElementById("independentVarDataType").value =  Ext.get('highDimensionType').dom.value;
-            document.getElementById("independentPathway").value =  GLOBAL.CurrentPathway ;
+        if (_this.divId == 'divIndependentVariable' && document.getElementById("independentVarDataType")) {
+            document.getElementById("independentVarDataType").value = Ext.get('highDimensionType').dom.value;
+            document.getElementById("independentPathway").value = GLOBAL.CurrentPathway;
         }
         if (_this.divId == 'divDependentVariable' && document.getElementById("dependentVarDataType")) {
-            document.getElementById("dependentVarDataType").value =  Ext.get('highDimensionType').dom.value;
-            document.getElementById("dependentPathway").value =  GLOBAL.CurrentPathway ;
+            document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
+            document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
         }
 
         // init summary string
         var summaryString = '<br> <b>GPL Platform:</b> ' + Ext.get('gpl1').dom.value +
-                            '<br> <b>Sample:</b> ' + Ext.get('sample1').dom.value +
-                            '<br> <b>Tissue:</b> ' + Ext.get('tissue1').dom.value +
-                            '<br>';
+            '<br> <b>Sample:</b> ' + Ext.get('sample1').dom.value +
+            '<br> <b>Tissue:</b> ' + Ext.get('tissue1').dom.value +
+            '<br>';
 
         // get search gene/pathway
         var selectedSearchPathway = Ext.get('searchPathway').dom.value;
@@ -195,6 +210,11 @@ HighDimensionalData.prototype.generate_view = function () {
         var innerHtml = summaryString +
             '<br> <b>Pathway:</b> ' + selectedSearchPathway +
             '<br> <b>Marker Type:</b> ' + GLOBAL.HighDimDataType;
+
+        // ** start stub **
+        // TODO : to be removed when load high dim params is no longer used.
+        _store_high_dim_params_as_global();
+        // ** end stub **
 
         // display it
         var domObj = document.getElementById("display" + GLOBAL.CurrentAnalysisDivId);
@@ -266,14 +286,16 @@ HighDimensionalData.prototype.generate_view = function () {
 }
 
 HighDimensionalData.prototype.get_inputs = function (divId) {
-    return [{
-        "label" : "High Dimensional Data",
-        "el" : Ext.get(divId),
-        "validations" : [
-            {type:"REQUIRED"},
-            {type:"HIGH_DIMENSIONAL"}
-        ]
-    }]
+    return [
+        {
+            "label": "High Dimensional Data",
+            "el": Ext.get(divId),
+            "validations": [
+                {type: "REQUIRED"},
+                {type: "HIGH_DIMENSIONAL"}
+            ]
+        }
+    ]
 }
 
 HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
@@ -323,7 +345,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
 
         var _conceptPaths = new Array();
 
-        for (var i= 0; i<_nodes.length; i++) {
+        for (var i = 0; i < _nodes.length; i++) {
             var _str_key = _nodes[i].concept.key;
             _conceptPaths.push(_str_key);
         }
@@ -351,68 +373,60 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
 }
 
 
-HighDimensionalData.prototype.load_parameters = function (formParams)
-{
+HighDimensionalData.prototype.load_parameters = function (formParams) {
     //These will tell tranSMART what data types we need to retrieve.
     var mrnaData = false
     var snpData = false
 
     //Gene expression filters.
-    var fullGEXSampleType 	= "";
-    var fullGEXTissueType 	= "";
-    var fullGEXTime 		= "";
-    var fullGEXGeneList 	= "";
-    var fullGEXGPL 			= "";
+    var fullGEXSampleType = "";
+    var fullGEXTissueType = "";
+    var fullGEXTime = "";
+    var fullGEXGeneList = "";
+    var fullGEXGPL = "";
 
     //SNP Filters.
-    var fullSNPSampleType 	= "";
-    var fullSNPTissueType 	= "";
-    var fullSNPTime 		= "";
-    var fullSNPGeneList 	= "";
-    var fullSNPGPL 			= "";
+    var fullSNPSampleType = "";
+    var fullSNPTissueType = "";
+    var fullSNPTime = "";
+    var fullSNPGeneList = "";
+    var fullSNPGPL = "";
 
     //Pull the individual filters from the window object.
-//    var independentGeneList = window['divIndependentVariablepathway'];
-//    var dependentGeneList 	= window['divDependentVariablepathway'];
-
     var independentGeneList = document.getElementById('independentPathway').value
-    var dependentGeneList 	= document.getElementById('dependentPathway').value
+    var dependentGeneList = document.getElementById('dependentPathway').value
 
-    console.log("independentGeneList", independentGeneList);
-    console.log("dependentGeneList", dependentGeneList);
-
-
-    var dependentPlatform 	= window['divDependentVariableplatforms1'];
+    var dependentPlatform = window['divDependentVariableplatforms1'];
     var independentPlatform = window['divIndependentVariableplatforms1'];
 
-    var dependentType 		= window['divDependentVariablemarkerType'];
-    var independentType		= window['divIndependentVariablemarkerType'];
+    var dependentType = window['divDependentVariablemarkerType'];
+    var independentType = window['divIndependentVariablemarkerType'];
 
-    var dependentTime		= window['divDependentVariabletimepointsValues'];
-    var independentTime		= window['divIndependentVariabletimepointsValues'];
+    var dependentTime = window['divDependentVariabletimepointsValues'];
+    var independentTime = window['divIndependentVariabletimepointsValues'];
 
-    var dependentSample		= window['divDependentVariablesamplesValues'];
-    var independentSample	= window['divIndependentVariablesamplesValues'];
+    var dependentSample = window['divDependentVariablesamplesValues'];
+    var independentSample = window['divIndependentVariablesamplesValues'];
 
-    var dependentTissue		= window['divDependentVariabletissuesValues'];
-    var independentTissue	= window['divIndependentVariabletissuesValues'];
+    var dependentTissue = window['divDependentVariabletissuesValues'];
+    var independentTissue = window['divIndependentVariabletissuesValues'];
 
-    var dependentGPL		= window['divDependentVariablegplValues'];
-    var independentGPL		= window['divIndependentVariablegplValues'];
+    var dependentGPL = window['divDependentVariablegplValues'];
+    var independentGPL = window['divIndependentVariablegplValues'];
 
-    if(dependentGPL) dependentGPL = dependentGPL[0];
-    if(independentGPL) independentGPL = independentGPL[0];
+    if (dependentGPL) dependentGPL = dependentGPL[0];
+    if (independentGPL) independentGPL = independentGPL[0];
 
-    //If we are using High Dimensional data we need to create variables that represent genes from both independent and dependent selections (In the event they are both of a single high dimensional type).
-    //Check to see if the user selected GEX in the independent input.
-    if(independentType == "Gene Expression")
-    {
+    // If we are using High Dimensional data we need to create variables that represent genes from both independent and
+    // dependent selections (In the event they are both of a single high dimensional type).
+    // Check to see if the user selected GEX in the independent input.
+    if (independentType == "Gene Expression") {
         //Put the independent filters in the GEX variables.
-        fullGEXGeneList 	= String(independentGeneList);
-        fullGEXSampleType 	= String(independentSample);
-        fullGEXTissueType 	= String(independentTissue);
-        fullGEXTime			= String(independentTime);
-        fullGEXGPL 			= String(independentGPL);
+        fullGEXGeneList = String(independentGeneList);
+        fullGEXSampleType = String(independentSample);
+        fullGEXTissueType = String(independentTissue);
+        fullGEXTime = String(independentTime);
+        fullGEXGPL = String(independentGPL);
 
         //This flag will tell us to write the GEX text file.
         mrnaData = true;
@@ -421,21 +435,20 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
         independentType = "MRNA";
     }
 
-    if(dependentType == "Gene Expression")
-    {
+    if (dependentType == "Gene Expression") {
         //If the gene list already has items, add a comma.
-        if(fullGEXGeneList != "") 	fullGEXGeneList 	+= ","
-        if(fullGEXSampleType != "") fullGEXSampleType 	+= ","
-        if(fullGEXTissueType != "") fullGEXTissueType 	+= ","
-        if(fullGEXTime != "") 		fullGEXTime 		+= ","
-        if(fullGEXGPL != "") 		fullGEXGPL 			+= ","
+        if (fullGEXGeneList != "") fullGEXGeneList += ","
+        if (fullGEXSampleType != "") fullGEXSampleType += ","
+        if (fullGEXTissueType != "") fullGEXTissueType += ","
+        if (fullGEXTime != "") fullGEXTime += ","
+        if (fullGEXGPL != "") fullGEXGPL += ","
 
         //Add the genes in the list to the full list of GEX genes.
-        fullGEXGeneList 	+= String(dependentGeneList);
-        fullGEXSampleType 	+= String(dependentSample);
-        fullGEXTissueType 	+= String(dependentTissue);
-        fullGEXTime			+= String(dependentTime);
-        fullGEXGPL 			+= String(dependentGPL);
+        fullGEXGeneList += String(dependentGeneList);
+        fullGEXSampleType += String(dependentSample);
+        fullGEXTissueType += String(dependentTissue);
+        fullGEXTime += String(dependentTime);
+        fullGEXGPL += String(dependentGPL);
 
         //This flag will tell us to write the GEX text file.
         mrnaData = true;
@@ -445,47 +458,43 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     }
 
     //Check to see if the user selected SNP in the independent input.
-    if(independentType == "SNP")
-    {
+    if (independentType == "SNP") {
         //The genes entered into the search box were SNP genes.
-        fullSNPGeneList 	= String(independentGeneList);
-        fullSNPSampleType 	= String(independentSample);
-        fullSNPTissueType 	= String(independentTissue);
-        fullSNPTime 		= String(independentTime);
-        fullSNPGPL 			= String(independentGPL);
+        fullSNPGeneList = String(independentGeneList);
+        fullSNPSampleType = String(independentSample);
+        fullSNPTissueType = String(independentTissue);
+        fullSNPTime = String(independentTime);
+        fullSNPGPL = String(independentGPL);
 
         //This flag will tell us to write the SNP text file.
         snpData = true;
     }
 
-    if(dependentType == "SNP")
-    {
+    if (dependentType == "SNP") {
         //If the gene list already has items, add a comma.
-        if(fullSNPGeneList != "") 	fullSNPGeneList 	+= ","
-        if(fullSNPSampleType != "") fullSNPSampleType 	+= ","
-        if(fullSNPTissueType != "") fullSNPTissueType 	+= ","
-        if(fullSNPTime != "") 		fullSNPTime 		+= ","
-        if(fullSNPGPL != "") 		fullSNPGPL 			+= ","
+        if (fullSNPGeneList != "") fullSNPGeneList += ","
+        if (fullSNPSampleType != "") fullSNPSampleType += ","
+        if (fullSNPTissueType != "") fullSNPTissueType += ","
+        if (fullSNPTime != "") fullSNPTime += ","
+        if (fullSNPGPL != "") fullSNPGPL += ","
 
         //Add the genes in the list to the full list of SNP genes.
-        fullSNPGeneList 	+= String(dependentGeneList)
-        fullSNPSampleType 	+= String(dependentSample);
-        fullSNPTissueType 	+= String(dependentTissue);
-        fullSNPTime 		+= String(dependentTime);
-        fullSNPGPL 			+= dependentGPL;
+        fullSNPGeneList += String(dependentGeneList)
+        fullSNPSampleType += String(dependentSample);
+        fullSNPTissueType += String(dependentTissue);
+        fullSNPTime += String(dependentTime);
+        fullSNPGPL += dependentGPL;
 
         //This flag will tell us to write the SNP text file.
         snpData = true;
     }
 
-    if((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA"))
-    {
+    if ((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA")) {
         Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
         return false;
     }
 
-    if((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP"))
-    {
+    if ((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP")) {
         Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
         return false;
     }
@@ -493,40 +502,34 @@ HighDimensionalData.prototype.load_parameters = function (formParams)
     var _dependentDataType = document.getElementById('dependentVarDataType').value ? document.getElementById('dependentVarDataType').value : 'CLINICAL';
     var _independentDataType = document.getElementById('independentVarDataType').value ? document.getElementById('independentVarDataType').value : 'CLINICAL';
 
-    formParams["divDependentVariabletimepoints"] 			= window['divDependentVariabletimepoints1'];
-    formParams["divDependentVariablesamples"] 				= window['divDependentVariablesamples1'];
-    formParams["divDependentVariablerbmPanels"]				= window['divDependentVariablerbmPanels1'];
-    formParams["divDependentVariableplatforms"]				= dependentPlatform
-    formParams["divDependentVariablegpls"]					= window['divDependentVariablegplsValue1'];
-    formParams["divDependentVariabletissues"]				= window['divDependentVariabletissues1'];
-    formParams["divDependentVariableprobesAggregation"]	 	= window['divDependentVariableprobesAggregation'];
-    formParams["divDependentVariableSNPType"]				= window['divDependentVariableSNPType'];
-    formParams["divDependentVariableType"]					= _dependentDataType;
-    formParams["divDependentVariablePathway"]				= dependentGeneList;
-    formParams["divIndependentVariabletimepoints"]			= window['divIndependentVariabletimepoints1'];
-    formParams["divIndependentVariablesamples"]				= window['divIndependentVariablesamples1'];
-    formParams["divIndependentVariablerbmPanels"]			= window['divIndependentVariablerbmPanels1'];
-    formParams["divIndependentVariableplatforms"]			= independentPlatform;
-    formParams["divIndependentVariablegpls"]				= window['divIndependentVariablegplsValue1'];
-    formParams["divIndependentVariabletissues"]				= window['divIndependentVariabletissues1'];
-    formParams["divIndependentVariableprobesAggregation"]	= window['divIndependentVariableprobesAggregation'];
-    formParams["divIndependentVariableSNPType"]				= window['divIndependentVariableSNPType'];
-    formParams["divIndependentVariableType"]				= _independentDataType;
-    formParams["divIndependentVariablePathway"]				= independentGeneList;
-    formParams["gexpathway"]								= fullGEXGeneList;
-    //formParams["gextime"]									= fullGEXTime;
-    //formParams["gextissue"]									= fullGEXTissueType;
-    //formParams["gexsample"]									= fullGEXSampleType;
-    formParams["snppathway"]								= fullSNPGeneList;
-    //formParams["snptime"]									= fullSNPTime;
-    //formParams["snptissue"]									= fullSNPTissueType;
-    //formParams["snpsample"]									= fullSNPSampleType;
-    formParams["divIndependentPathwayName"]					= window['divIndependentVariablepathwayName'];
-    formParams["divDependentPathwayName"]					= window['divDependentVariablepathwayName'];
-    formParams["mrnaData"]									= mrnaData;
-    formParams["snpData"]									= snpData;
-    formParams["gexgpl"]									= fullGEXGPL;
-    formParams["snpgpl"]									= fullSNPGPL;
+    formParams["divDependentVariabletimepoints"] = window['divDependentVariabletimepoints1'];
+    formParams["divDependentVariablesamples"] = window['divDependentVariablesamples1'];
+    formParams["divDependentVariablerbmPanels"] = window['divDependentVariablerbmPanels1'];
+    formParams["divDependentVariableplatforms"] = dependentPlatform
+    formParams["divDependentVariablegpls"] = window['divDependentVariablegplsValue1'];
+    formParams["divDependentVariabletissues"] = window['divDependentVariabletissues1'];
+    formParams["divDependentVariableprobesAggregation"] = window['divDependentVariableprobesAggregation'];
+    formParams["divDependentVariableSNPType"] = window['divDependentVariableSNPType'];
+    formParams["divDependentVariableType"] = _dependentDataType;
+    formParams["divDependentVariablePathway"] = dependentGeneList;
+    formParams["divIndependentVariabletimepoints"] = window['divIndependentVariabletimepoints1'];
+    formParams["divIndependentVariablesamples"] = window['divIndependentVariablesamples1'];
+    formParams["divIndependentVariablerbmPanels"] = window['divIndependentVariablerbmPanels1'];
+    formParams["divIndependentVariableplatforms"] = independentPlatform;
+    formParams["divIndependentVariablegpls"] = window['divIndependentVariablegplsValue1'];
+    formParams["divIndependentVariabletissues"] = window['divIndependentVariabletissues1'];
+    formParams["divIndependentVariableprobesAggregation"] = window['divIndependentVariableprobesAggregation'];
+    formParams["divIndependentVariableSNPType"] = window['divIndependentVariableSNPType'];
+    formParams["divIndependentVariableType"] = _independentDataType;
+    formParams["divIndependentVariablePathway"] = independentGeneList;
+    formParams["gexpathway"] = fullGEXGeneList;
+    formParams["snppathway"] = fullSNPGeneList;
+    formParams["divIndependentPathwayName"] = window['divIndependentVariablepathwayName'];
+    formParams["divDependentPathwayName"] = window['divDependentVariablepathwayName'];
+    formParams["mrnaData"] = mrnaData;
+    formParams["snpData"] = snpData;
+    formParams["gexgpl"] = fullGEXGPL;
+    formParams["snpgpl"] = fullSNPGPL;
 
     return true;
 }

@@ -1,6 +1,8 @@
-
 var RmodulesView = function () {
-    this.variablesTypes = ["divDependentVariable", "divIndependentVariable"];
+    this.droppable_divs = {
+        "categorical": ["divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable"],
+        "numerical": ["divTimeVariable"]
+    };
 }
 
 RmodulesView.prototype.clear_high_dimensional_input = function (div) {
@@ -19,21 +21,28 @@ RmodulesView.prototype.register_drag_drop = function () {
 
     /**
      * Register div as drop zone
-     * @param divId
+     * @param divs
      * @private
      */
-    var _register_drop_zone = function (divId) {
-        var _el, _dtgI;
+    var _register_drop_zone = function (divs) {
+        for (var i = 0, maxLength = divs.length; i < maxLength; i++) {
+            var _el, _dtgI;
 
-        if (_el = Ext.get(divId)) {
-            _dtgI = new Ext.dd.DropTarget(_el, {ddGroup : 'makeQuery'});
-            _dtgI.notifyDrop =  dropOntoCategorySelection;
-        } else {
+            if (_el = Ext.get(divs[i])) {
+                _dtgI = new Ext.dd.DropTarget(_el, {ddGroup: 'makeQuery'});
+                if (key == 'categorical') {
+                    _dtgI.notifyDrop = dropOntoCategorySelection;
+                } else if (key == 'numerical') {
+                    _dtgI.notifyDrop = dropNumericOntoCategorySelection;
+                }
+            }
         }
     }
 
-    for (var i=0; i<this.variablesTypes.length; i++) { // register all as drop zone ..
-        _register_drop_zone(this.variablesTypes[i]);
+    for (var key in this.droppable_divs) {
+        if (this.droppable_divs.hasOwnProperty(key)) {
+            _register_drop_zone(this.droppable_divs[key]);
+        }
     }
 }
 
@@ -64,7 +73,7 @@ RmodulesView.prototype.read_concept_variables = function () {
     var _add_ontology_terms = function (el, type) {
         var _type;
 
-        for (var i=0; i < el.dom.childNodes.length; i++) {
+        for (var i = 0; i < el.dom.childNodes.length; i++) {
 
             var _term = getQuerySummaryItem(el.dom.childNodes[i]).trim();
 
@@ -82,22 +91,22 @@ RmodulesView.prototype.read_concept_variables = function () {
             }
 
             _ontology_terms.push({
-                'term' : _term,
-                'options' : {'type' : _type}
+                'term': _term,
+                'options': {'type': _type}
             });
         }
     }
 
     // register all as drop zone ..
-    for (var i=0; i<this.variablesTypes.length; i++) {
-        if (_el = Ext.get(this.variablesTypes[i])) {
-            _add_ontology_terms(_el, this.variablesTypes[i]);
+
+    for (var i = 0; i < this.droppable_divs['categorical'].length; i++) {
+        if (_el = Ext.get(this.droppable_divs['categorical'][i])) {
+            _add_ontology_terms(_el, this.droppable_divs['categorical'][i]);
         }
     }
 
     return _ontology_terms;
 }
-
 
 
 RmodulesView.prototype.get_parameters_for_mirna = function (constraints) {
@@ -132,7 +141,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
         var _ontology_terms = _this.read_concept_variables();
 
         return  {
-            "job_type" : jobType,
+            "job_type": jobType,
             "data_type": _data_type,
             "assayConstraints": {
                 "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
@@ -146,7 +155,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
             "projections": ["default_real_projection"]
         }
     }
-    _returnVal =  _get_constraints_obj();
+    _returnVal = _get_constraints_obj();
 
     // do not create search_keyword_ids param if  pathway / gene is not selected
     // when gene / pathway is not selected, analysis will take up all pathways/genes.
@@ -154,17 +163,17 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
         _returnVal['dataConstraints']['search_keyword_ids'] = [GLOBAL.CurrentPathway];
     }
 
-    var cases =  {
-        'Gene Expression':this.get_parameters_for_mrna,
-        'MIRNA_QPCR':this.get_parameters_for_mirna,
-        'MIRNA_SEQ':this.get_parameters_for_mirna,
-        'RBM':this.get_parameters_for_rbm,
-        'PROTEOMICS':this.get_parameters_for_rbm,
-        'RNASEQ':this.get_parameters_for_mrna
+    var cases = {
+        'Gene Expression': this.get_parameters_for_mrna,
+        'MIRNA_QPCR': this.get_parameters_for_mirna,
+        'MIRNA_SEQ': this.get_parameters_for_mirna,
+        'RBM': this.get_parameters_for_rbm,
+        'PROTEOMICS': this.get_parameters_for_rbm,
+        'RNASEQ': this.get_parameters_for_mrna
     }
 
     if (cases[_data_type]) {
-       _returnVal =  cases[_data_type](_returnVal);
+        _returnVal = cases[_data_type](_returnVal);
     }
 
     return _returnVal;
@@ -172,7 +181,6 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 }
 
 RmodulesView.prototype.drop_onto_bin = function (source, e, data) {
-    console.log("Dropping onto bin ..", data)
     this.el.appendChild(data.ddel);
     return true;
 }
