@@ -36,18 +36,20 @@ class BackingMap implements AutoCloseable {
         // necessary to synchronize? official examples suggest not
         contextsIndex = TreeMultimap.create(Fun.TUPLE2_COMPARATOR, Ordering.natural())
 
-        map.addModificationListener({ Fun.Tuple3<String, Integer, String> key,
-                                      Object oldValue,
-                                      Object newValue ->
-            if (newValue != null) { // insert/update
-                contextsIndex.put(Fun.t2(key.b, key.c), key.a)
-            } else { // removal
-                contextsIndex.remove(Fun.t2(key.b, key.c), key.a)
-            }
-        } as Bind.MapListener)
+        map.addModificationListener(this.&updateContextIndex as Bind.MapListener)
 
         this.numColumns        = numColumns
         this.valueTransformers = valueTransformers
+    }
+
+    private void updateContextIndex(Fun.Tuple3<String, Integer, String> key,
+                                    Object oldValue,
+                                    Object newValue) {
+        if (newValue != null) { // insert/update
+            contextsIndex.put(Fun.t2(key.b, key.c), key.a)
+        } else { // removal
+            contextsIndex.remove(Fun.t2(key.b, key.c), key.a)
+        }
     }
 
     void putCell(String primaryKey, int columnNumber, Map mapValue) {
