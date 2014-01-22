@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
 import jobs.UserParameters
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -16,7 +17,8 @@ import javax.annotation.PostConstruct
  */
 @Component
 @Scope('prototype')
-class BoxPlotVariableColumnConfigurator extends CategoricalOrBinnedColumnConfigurator {
+@Qualifier('boxPlot')
+class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurator {
 
     String categoricalColumnHeader       = 'X'
     String numericColumnHeader           = 'Y'

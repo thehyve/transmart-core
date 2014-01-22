@@ -3,6 +3,7 @@ package jobs.steps.helpers
 import groovy.util.logging.Log4j
 import jobs.table.Column
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Component
 @Log4j
 @Component
 @Scope('prototype')
-class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
+@Qualifier('general')
+class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
     @Autowired
     BinningColumnConfigurator binningConfigurator

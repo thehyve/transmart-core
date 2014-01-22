@@ -1,8 +1,9 @@
 package jobs
 
-import jobs.steps.helpers.CategoricalOrBinnedColumnConfigurator
+import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -11,10 +12,12 @@ import org.springframework.stereotype.Component
 class TableWithFisher extends CategoricalOrBinnedJob {
 
     @Autowired
-    CategoricalOrBinnedColumnConfigurator independentVariableConfigurator
+    @Qualifier('general')
+    OptionalBinningColumnConfigurator independentVariableConfigurator
 
     @Autowired
-    CategoricalOrBinnedColumnConfigurator dependentVariableConfigurator
+    @Qualifier('general')
+    OptionalBinningColumnConfigurator dependentVariableConfigurator
 
     @Override
     void afterPropertiesSet() throws Exception {
