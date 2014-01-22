@@ -17,6 +17,7 @@
 package com.recomdata.transmart.data.association.asynchronous
 
 import com.recomdata.transmart.util.RUtil
+import groovy.json.JsonBuilder
 import groovy.util.ConfigObject;
 
 import java.io.File;
@@ -102,6 +103,13 @@ class RModulesJobService implements Job {
 			jobDataMap.getKeys().each {_key ->
 				jobInfoFile.append("\t${_key} -> ${jobDataMap[_key]}" + System.getProperty("line.separator"))
 			}
+
+            File requestJsonFile = new File(jobTmpWorkingDirectory, 'request.json')
+            //def requestParams = jobDataMap['requestParams']
+            JsonBuilder jb = new JsonBuilder()
+            jb(jobDataMap['requestParams'])
+            requestJsonFile << jb.toPrettyString()
+
 		} catch (Exception e) {
 			throw new Exception('Failed to create Temporary Directories and Job Info File, maybe there is not enough space on disk. Please contact an administrator.', e);
 		}

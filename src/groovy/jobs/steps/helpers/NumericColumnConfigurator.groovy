@@ -32,6 +32,8 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     boolean multiRow = false
 
+    boolean alwaysClinical = false
+
     @Autowired
     private HighDimensionResource highDimensionResource
 
@@ -43,11 +45,15 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     @Override
     protected void doAddColumn(Closure<Column> columnDecorator) {
-        if (getStringParam(keyForDataType) == CLINICAL_DATA_TYPE_VALUE) {
+        if (isClinical()) {
             addColumnClinical columnDecorator
         } else {
             addColumnHighDim columnDecorator
         }
+    }
+
+    boolean isClinical() {
+        return alwaysClinical || getStringParam(keyForDataType) == CLINICAL_DATA_TYPE_VALUE
     }
 
     private void addColumnHighDim(Closure<Column> decorateColumn) {
@@ -99,7 +105,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     private void addColumnClinical(Closure<Column> decorateColumn) {
         ClinicalVariable variable = clinicalDataRetriever.
-                createVariableFromConceptPath getStringParam(keyForConceptPath)
+                createVariableFromConceptPath getStringParam(keyForConceptPath).trim()
         clinicalDataRetriever << variable
 
         clinicalDataRetriever.attachToTable table
@@ -110,6 +116,16 @@ class NumericColumnConfigurator extends ColumnConfigurator {
                                 column: variable,
                                 header: columnHeader)),
                 [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
+    }
+
+    /**
+     * Sets parameter keys based on optional base key part
+     * @param keyPart
+     */
+    void setKeys(String keyPart = '') {
+        keyForConceptPath     = "${keyPart}Variable"
+        keyForDataType        = "div${keyPart.capitalize()}VariableType"
+        keyForSearchKeywordId = "div${keyPart.capitalize()}VariablePathway"
     }
 
 }
