@@ -49,7 +49,14 @@ class MetaboliteEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assert rows.size() == testData.data.size()
+        /* A MetaboliteDataRow (the type of rows[i]) is a construct which aggregates an annotation and data */
+        assert rows.size() == testData.annotations.size()
+
+        def row = rows[0]
+
+        assert row.hmdbId == "some id"
+        assert row.biochemicalName == "Urea transporter 2"
+        assert row.data.size() == 2
     }
 
     @Test
