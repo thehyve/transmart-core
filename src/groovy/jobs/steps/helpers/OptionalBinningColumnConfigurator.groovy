@@ -5,6 +5,7 @@ import jobs.table.Column
 import jobs.table.MissingValueAction
 import jobs.table.columns.ConstantValueColumn
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -13,7 +14,8 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 @Log4j
 @Component
 @Scope('prototype')
-class CategoricalOrBinnedColumnConfigurator extends ColumnConfigurator {
+@Qualifier('general')
+class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
     @Autowired
     BinningColumnConfigurator binningConfigurator

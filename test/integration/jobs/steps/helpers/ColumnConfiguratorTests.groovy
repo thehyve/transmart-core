@@ -11,6 +11,7 @@ import org.gmock.GMockController
 import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -34,7 +35,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @TestMixin(JobsIntegrationTestMixin)
-class CategoricalOrBinnedColumnConfiguratorTests {
+class ColumnConfiguratorTests {
 
     public static final String COLUMN_HEADER = 'TEST COLUMN HEADER'
 
@@ -60,7 +61,8 @@ class CategoricalOrBinnedColumnConfiguratorTests {
     String jobName /* The job instance name */
 
     @Autowired
-    CategoricalOrBinnedColumnConfigurator testee
+    @Qualifier('general')
+    OptionalBinningColumnConfigurator testee
 
     @Autowired
     Table table

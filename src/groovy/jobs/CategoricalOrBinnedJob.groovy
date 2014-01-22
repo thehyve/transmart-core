@@ -2,7 +2,7 @@ package jobs
 
 import jobs.steps.*
 import jobs.steps.helpers.BinningColumnConfigurator
-import jobs.steps.helpers.CategoricalOrBinnedColumnConfigurator
+import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.steps.helpers.ColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.MissingValueAction
@@ -50,7 +50,7 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
         steps
     }
 
-    protected void configureConfigurator(CategoricalOrBinnedColumnConfigurator configurator,
+    protected void configureConfigurator(ColumnConfigurator configurator,
                                          String keyBinPart,
                                          String longKeyBinPart,
                                          String keyVariablePart,

@@ -44,13 +44,10 @@ function
 	if(!file.exists(input.acghFile)) stop("||FRIENDLY||No aCGH data file found. Please check your region variable selection and run again.")
 	if(!file.exists(input.dataFile)) stop("||FRIENDLY||No clinical data file found. Please check your time variable selection and run again.")
 
-	# Copy the aCGH file
-	file.copy(input.acghFile, output.acghFile, overwrite=TRUE)
-
 	# Extract patient list from aCGH data column names for which calls (flag) have been observed
 	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
-	pids <- sub("flag.", "" , headernames[grep('flag.', headernames)] )
-	if(!length(pids)>0) stop("||FRIENDLY||No subjects with call data found in aCGH data file.")
+	aCGHpids <- sub("flag.", "" , headernames[grep('flag.', headernames)] )
+	if(!length(aCGHpids)>0) stop("||FRIENDLY||No subjects with call data found in aCGH data file.")
 
 	#Read the clinical data file.
 	dataFile <- read.table(input.dataFile, header=TRUE, sep='\t', quote='"', strip.white=TRUE, as.is=TRUE, check.names=FALSE)
@@ -59,10 +56,10 @@ function
 	colnames(dataFile) <- c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH")
 
 	#Filter on patients for which aCGH data is available
-	filteredData <- matrix(pids)
+	filteredData <- matrix(aCGHpids)
 	colnames(filteredData) <- c("PATIENT_NUM")
 	filteredData <- merge(filteredData, dataFile, all.x=TRUE)
-		
+	
 	#List of available CONCEPT_PATH values to check availability of concepts specified as arguments
 	allConcepts <- unique(filteredData$CONCEPT_PATH)
 
@@ -76,9 +73,30 @@ function
 		
 	#Name the column.
 	colnames(finalData) <- c("PATIENT_NUM")
+
+	#Add the value for time observation to the final data.
+	#Merge is inner join (default option value is all=FALSE): subject lines for which no time observation exists are removed
+	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM")
+
+	# aCGH Survival analysis only makes sense if both aCGH data and survival time data is available for a subject.
+	# The finalData variable contains only subjects which have both (aCGH and time) observations.
+	# In case no time value is available for an aCGH subject, the aCGH data for this subject should be removed
+	# from the aCGH file to prevent errors in the analysis algorithm.
+	bothpids <- as.character(unique(finalData[,"PATIENT_NUM"]))
 	
-	#Add the value for the time to the final data.
-	finalData<-merge(finalData,splitData[[concept.time]][c('PATIENT_NUM','VALUE')],by="PATIENT_NUM", all.x=TRUE)
+	# Check if list of subjects which have both observations is not empty
+	if(length(bothpids)==0) stop("||FRIENDLY||None of the subjects has both aCGH and survival time observations. Please check your region and time variable selection and run again.")
+	
+	# Create output acgh file with flag data only (no chip, probabilitiyof*) of subjects that have also a survival time observation.
+	allData <- read.table(input.acghFile, header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
+	# Search first data column
+	col.first.data <- min(grep('^chip\\.', colnames(allData)), grep('^flag\\.', colnames(allData)))
+	# Compose flag column names for subjects that have both observations
+	col.flags <- paste('flag.', bothpids, sep='')
+	flagData <- cbind(allData[,c(1:(col.first.data-1))],allData[,col.flags])
+	write.table(flagData, output.acghFile, sep = "\t", quote=TRUE, row.names=TRUE, col.names=TRUE)
+	# Update list of aCGHpids
+	aCGHpids <- bothpids
 
 	#If eventNo was not specified, we consider everyone to have had the event.
 	if(concept.eventNo=="")
@@ -109,7 +127,7 @@ function
 
 		censorData<-unique(boundData[c('PATIENT_NUM','CENSOR')])
 
-		finalData<-merge(finalData,censorData,by="PATIENT_NUM",all.x=TRUE)	
+		finalData<-merge(finalData,censorData,by="PATIENT_NUM",all.x=TRUE)
 	}
 
 	# This is the list of columns for the final data object.
@@ -126,8 +144,7 @@ function
 	# Make row names equal to the patient_num column value
 	rownames(finalData) <- finalData[,"PATIENT_NUM"]
 	# Reorder finalData rows to match the order in the aCGH data columns
-	finalData <- finalData[pids,,drop=FALSE]
-
+	finalData <- finalData[aCGHpids,,drop=FALSE]
 	###################################	
 	
 	#We need MASS to dump the matrix to a file.
