@@ -110,9 +110,9 @@ class RModulesController {
             case 'scatterPlot':
                 jsonResult = createJob(params, ScatterPlot, false)
                 break
-            case 'survivalAnalysis':
-                jsonResult = createJob(params, SurvivalAnalysis, false)
-                break
+            //case 'survivalAnalysis':
+            //    jsonResult = createJob(params, SurvivalAnalysis, false)
+            //    break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
