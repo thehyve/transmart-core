@@ -21,13 +21,13 @@ class TerminalConceptVariable implements ClinicalVariableColumn {
     String conceptCode,
            conceptPath
 
-    String getVariableValue(Object[] row) {
+    Object getVariableValue(Object[] row) {
         String valueType = row[VALUE_TYPE_COLUMN_INDEX]
 
         if (valueType == TEXT_VALUE_TYPE) {
             row[TEXT_VALUE_COLUMN_INDEX]
         } else {
-            row[NUMBER_VALUE_COLUMN_INDEX] as String
+            row[NUMBER_VALUE_COLUMN_INDEX]
         }
     }
 
