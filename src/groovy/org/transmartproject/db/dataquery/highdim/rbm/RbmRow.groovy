@@ -7,11 +7,15 @@ import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 @ToString(excludes = [ 'assayIndexMap' ])
 class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
+    Integer annotationId
+
     String uniprotId
+
+    String antigenName
 
     @Override
     String getLabel() {
-        uniprotId
+        antigenName
     }
 
     @Override
