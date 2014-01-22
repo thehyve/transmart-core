@@ -32,7 +32,7 @@ class MetaboliteEndToEndRetrievalTest {
     }
 
     @After
-    void teardown() {
+    void tearDown() {
         result?.close()
     }
 
@@ -49,6 +49,21 @@ class MetaboliteEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        println(rows)
+        assert rows.size() == testData.data.size()
+    }
+
+    @Test
+    void searchWithHmdbId() {
+
+    }
+
+    @Test
+    void searchWithSubPathway() {
+        //BIOMARKER_ID -> subpathway
+    }
+
+    @Test
+    void searchWithSuperPathway() {
+
     }
 }
