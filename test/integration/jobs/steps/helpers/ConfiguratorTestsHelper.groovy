@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
+import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -34,6 +36,9 @@ class ConfiguratorTestsHelper {
 
     @Autowired
     HighDimensionResource highDimensionResourceMock
+
+    @Autowired
+    ClinicalDataResource clinicalDataResourceMock
 
     @Delegate(interfaces = false)
     @Autowired
@@ -170,4 +175,23 @@ class ConfiguratorTestsHelper {
         }*/
         row
     }
+
+    List<ClinicalVariableColumn> createClinicalVariableColumns(List<String> conceptPaths,
+                                                               boolean needsLabel = false) {
+        List<ClinicalVariableColumn> columns = conceptPaths.collect {
+            mock(ClinicalVariableColumn)
+        }
+        dot(columns, conceptPaths) { ClinicalVariableColumn col, String path ->
+            if (needsLabel) {
+                col.label.returns(path).atLeastOnce()
+            }
+
+            clinicalDataResourceMock.createClinicalVariable(
+                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
+                    concept_path: path).returns(col)
+        }
+
+        columns
+    }
+
 }

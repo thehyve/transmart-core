@@ -53,9 +53,6 @@ class OptionalBinningColumnConfiguratorTests {
     @Autowired
     Table table
 
-    @Autowired
-    ClinicalDataResource clinicalDataResourceMock
-
     @Delegate(interfaces = false)
     ConfiguratorTestsHelper configuratorTestsHelper = new ConfiguratorTestsHelper()
 
@@ -231,10 +228,8 @@ class OptionalBinningColumnConfiguratorTests {
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
 
-        ClinicalVariableColumn column = mock(ClinicalVariableColumn)
-        clinicalDataResourceMock.createClinicalVariable(
-                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                concept_path: CONCEPT_PATH_CLINICAL).returns(column)
+        ClinicalVariableColumn column =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])[0]
 
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
                 mock(TabularResult)
@@ -277,25 +272,18 @@ class OptionalBinningColumnConfiguratorTests {
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
 
-        List<ClinicalVariableColumn> columns = [mock(ClinicalVariableColumn),
-                mock(ClinicalVariableColumn), mock(ClinicalVariableColumn)]
-        dot(columns, BUNDLE_OF_CLINICAL_CONCEPT_PATH) { ClinicalVariableColumn col, String path ->
-            col.label.returns(path).atLeastOnce()
-
-            clinicalDataResourceMock.createClinicalVariable(
-                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                    concept_path: path).returns(col)
-        }
+        List<ClinicalVariableColumn> columns =
+                createClinicalVariableColumns BUNDLE_OF_CLINICAL_CONCEPT_PATH, true
 
         List<String> valuesForColumns = (1..3).collect { "value for col$it".toString() }
 
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
                 mock(TabularResult)
         clinicalResult.iterator().returns(createPatientRows(4, columns,
-                ['', '', valuesForColumns[2],
-                 '', valuesForColumns[1], '',
-                valuesForColumns[0], '', '',
-                '', valuesForColumns[1], '',],
+                ['',                 '',                  valuesForColumns[2],
+                 '',                 valuesForColumns[1], '',
+                valuesForColumns[0], '',                  '',
+                '',                  valuesForColumns[1], '',],
                 true /* relaxed */).iterator())
         clinicalResult.close().stub()
 
@@ -336,10 +324,8 @@ class OptionalBinningColumnConfiguratorTests {
         ])
 
         /* clinical variables */
-        ClinicalVariableColumn clinicalVariable = mock(ClinicalVariableColumn)
-        clinicalDataResourceMock.createClinicalVariable(
-                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                concept_path: CONCEPT_PATH_CLINICAL).returns(clinicalVariable)
+        ClinicalVariableColumn clinicalVariable =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])[0]
 
         /* result set */
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
