@@ -10,6 +10,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 
 class MetaboliteEndToEndRetrievalTest {
 
@@ -61,7 +62,14 @@ class MetaboliteEndToEndRetrievalTest {
 
     @Test
     void searchWithHmdbId() {
+        def dataConstraint = metaboliteResource.createDataConstraint(
+                DataConstraint.METABOLITES_CONSTRAINT,
+                names: [ 'Urea transporter 2' ])
 
+        result = metaboliteResource.retrieveData(
+                [ trialConstraint ], [ dataConstraint ], projection)
+
+        println(result)
     }
 
     @Test
