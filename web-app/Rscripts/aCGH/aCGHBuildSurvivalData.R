@@ -85,7 +85,7 @@ function
 	bothpids <- as.character(unique(finalData[,"PATIENT_NUM"]))
 	
 	# Check if list of subjects which have both observations is not empty
-	if(length(bothpids)==0) stop("||FRIENDLY||None of the subjects has both aCGH and survival time observations. Please check your region and time variable selection and run again.")
+	if(length(bothpids) < 2) stop("||FRIENDLY||For at least two subjects both aCGH and survival time observations need to be available! Please check your region and time variable selection and run again.")
 	
 	# Create output acgh file with flag data only (no chip, probabilitiyof*) of subjects that have also a survival time observation.
 	allData <- read.table(input.acghFile, header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
@@ -93,7 +93,8 @@ function
 	col.first.data <- min(grep('^chip\\.', colnames(allData)), grep('^flag\\.', colnames(allData)))
 	# Compose flag column names for subjects that have both observations
 	col.flags <- paste('flag.', bothpids, sep='')
-	flagData <- cbind(allData[,c(1:(col.first.data-1))],allData[,col.flags])
+	flagData <- cbind(allData[,c(1:(col.first.data-1))],allData[,col.flags,drop=FALSE])
+	
 	write.table(flagData, output.acghFile, sep = "\t", quote=TRUE, row.names=TRUE, col.names=TRUE)
 	# Update list of aCGHpids
 	aCGHpids <- bothpids
