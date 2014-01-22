@@ -11,8 +11,6 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
-import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -29,16 +27,6 @@ import static org.hamcrest.Matchers.*
 class OptionalBinningColumnConfiguratorTests {
 
     public static final String COLUMN_HEADER = 'TEST COLUMN HEADER'
-
-    public static final String DATA_TYPE_NAME_CLINICAL = 'CLINICAL'
-
-    public static final String CONCEPT_PATH_CLINICAL = '\\bogus\\clinical\\variable\\'
-
-    public static final List<String> BUNDLE_OF_CLINICAL_CONCEPT_PATH = [
-            '\\bogus\\clinical\\variable\\1',
-            '\\bogus\\clinical\\variable\\2',
-            '\\bogus\\clinical\\variable\\3',
-    ]
 
     @Autowired
     UserParameters params
@@ -386,6 +374,7 @@ class OptionalBinningColumnConfiguratorTests {
 
         play {
             testee.multiRow = true
+            testee.forceNumericBinning = false
             testee.addColumn()
 
             table.buildTable()

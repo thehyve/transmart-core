@@ -31,6 +31,14 @@ class ConfiguratorTestsHelper {
     public static final String DATA_TYPE_NAME_HIGH_DIMENSION = 'mrna'
     public static final String CONCEPT_PATH_HIGH_DIMENSION = '\\bogus\\highdim\\variable\\'
 
+    public static final String DATA_TYPE_NAME_CLINICAL = 'CLINICAL'
+    public static final String CONCEPT_PATH_CLINICAL = '\\bogus\\clinical\\variable\\'
+    public static final List<String> BUNDLE_OF_CLINICAL_CONCEPT_PATH = [
+            '\\bogus\\clinical\\variable\\var 1',
+            '\\bogus\\clinical\\variable\\var 2',
+            '\\bogus\\clinical\\variable\\var 3',
+    ]
+
     @Autowired
     QueriesResource queriesResourceMock
 
@@ -115,6 +123,8 @@ class ConfiguratorTestsHelper {
         }
     }
 
+    private static Object NULL_PLACEHOLDER = new Object()
+
     List<PatientRow> createPatientRows(int n,
                                        List<ClinicalVariableColumn> columns,
                                        List<String> values,
@@ -127,7 +137,9 @@ class ConfiguratorTestsHelper {
             columns.each { columnVariable ->
                 //println "$patient $columnVariable, ${values[i]}"
                 if (values[i] != null) {
-                    builder.put(patient, columnVariable, values[i] as String)
+                    builder.put(patient, columnVariable, values[i])
+                } else {
+                    builder.put(patient, columnVariable, NULL_PLACEHOLDER)
                 }
                 i++
             }
@@ -138,17 +150,18 @@ class ConfiguratorTestsHelper {
 
     List<PatientRow> createPatientRows(List<Patient> patients,
                                        List<String> labels,
-                                       com.google.common.collect.Table<Patient, ClinicalVariableColumn, String> data,
+                                       com.google.common.collect.Table<Patient, ClinicalVariableColumn, Object> data,
                                        boolean relaxed) {
         dot(patients, labels) { Patient patient, String label ->
             PatientRow row = mock(PatientRow)
             row.label.returns(label).stub()
             row.patient.returns(patient).atLeastOnce()
             data.row(patient).each { column, cell ->
+                def value = cell.is(NULL_PLACEHOLDER) ? null : cell
                 if (!relaxed) {
-                    row.getAt(column).returns(cell).atLeastOnce()
+                    row.getAt(column).returns(value).atLeastOnce()
                 } else {
-                    row.getAt(column).returns(cell).stub()
+                    row.getAt(column).returns(value).stub()
                 }
             }
             row
