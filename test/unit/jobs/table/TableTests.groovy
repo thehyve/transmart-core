@@ -6,6 +6,7 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import jobs.table.columns.PrimaryKeyColumn
 import org.gmock.WithGMock
 import org.junit.Test
+import org.mapdb.Fun
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -26,7 +27,7 @@ class TableTests {
         List         sampleValues     = ['sample value 1', 'sample value 2']
         Column       column
 
-        column = mockNonGlobalColumn(DATA_SOURCE_NAME,
+        column = mockColumn(DATA_SOURCE_NAME,
                                      twoRowDataSource,
                                      twoRows,
                                      combinePKsAndValues(twoPKs, sampleValues))
@@ -35,12 +36,10 @@ class TableTests {
             testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
             testee.addColumn(column, [DATA_SOURCE_NAME] as Set)
             testee.buildTable()
+            Iterable<List<String>> result = testee.result
+            assertThat result, contains(
+                    sampleValues.collect { is([it]) })
         }
-
-        Iterable<List<String>> result = testee.result
-
-        assertThat result, contains(
-                sampleValues.collect { is([it]) })
     }
 
     @Test
@@ -52,7 +51,7 @@ class TableTests {
                 ['sample value 2-1', 'sample value 2-2']] //for column 2
 
         List<Column> columns = sampleValues.collect { values ->
-            mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+            mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
                     combinePKsAndValues(twoPKs, values))
         }
 
@@ -63,27 +62,9 @@ class TableTests {
             }
 
             testee.buildTable()
+            assertThat testee.result, contains(
+                    sampleValues.transpose().collect { is it })
         }
-
-        assertThat testee.result, contains(
-                sampleValues.transpose().collect { is it })
-    }
-
-    @Test
-    void testOneGlobalColumn() {
-        Map          data             = ImmutableMap.of('2', 'value 2', '1', 'value 1')
-        Column       column
-
-        column = mockGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows, data)
-
-        play {
-            testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
-            testee.addColumn(column, [DATA_SOURCE_NAME] as Set)
-
-            testee.buildTable()
-        }
-
-        assertThat testee.result, contains(['value 1'], ['value 2'])
     }
 
     @Test
@@ -95,7 +76,7 @@ class TableTests {
                 ['sample value 2-1', null]] //for column 2
 
         List<Column> columns = sampleValues.collect { columnValues ->
-            mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+            mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
                     combinePKsAndValues(twoPKs, columnValues))
         }
 
@@ -119,68 +100,23 @@ class TableTests {
     }
 
     @Test
-    void testUnsubscribedNonGlobalColumn() {
-        testUnsubscribedColumn(false)
-    }
-
-    /* unsubscribed global calculation columns are a strange concept, but let's
-     * allow this */
-    @Test
-    void testUnsubscribedGlobalColumn() {
-        testUnsubscribedColumn(true)
-    }
-
-    private void testUnsubscribedColumn(boolean globalComputation) {
+    void testUnsubscribedColumn() {
         Iterable sampleDataSource = mockDataSource([mock(Object)])
         Column column  = mock(Column)
-
-        column.globalComputation.returns(globalComputation).atLeast(1)
 
         column.consumeResultingTableRows().returns(ImmutableMap.of('foo', 'bar'))
 
         column.onAllDataSourcesDepleted(0, isA(BackingMap))
+
+        column.valueTransformer.returns(null).atLeastOnce()
 
         play {
             testee.addDataSource DATA_SOURCE_NAME, sampleDataSource
             testee.addColumn(column, [] as Set)
 
             testee.buildTable()
+            assertThat testee.result, contains(is(['bar']))
         }
-
-        assertThat testee.result, contains(is(['bar']))
-    }
-
-    @Test
-    void testMixedGlobalNonGlobalColumns() {
-        List<Column> columns          = []
-        List         sampleValues1
-        Map          sampleValues2
-
-        sampleValues1 = ['sample non global 1', 'sample non global 2']
-        sampleValues2 = ImmutableMap.of(twoPKs[1], 'global')
-
-        columns << mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
-                [ ImmutableMap.of(twoPKs[0], sampleValues1[0]),
-                        ImmutableMap.of(twoPKs[1], sampleValues1[1]) ])
-        columns << mockGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource,
-                twoRows, sampleValues2)
-
-        columns.last().missingValueAction.returns(
-                new MissingValueAction.ConstantReplacementMissingValueAction(
-                        replacement: 'foo'))
-
-        play {
-            testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
-            columns.each { testee.addColumn(it, [DATA_SOURCE_NAME] as Set) }
-
-            testee.buildTable()
-
-            assertThat testee.result, contains(
-                    is(['sample non global 1', 'foo']),
-                    is(['sample non global 2', 'global']),
-            )
-        }
-
     }
 
     @Test
@@ -191,9 +127,9 @@ class TableTests {
         List rowPKs = ['rowPK1']
         List<Column> columns = []
 
-        columns << mockGlobalColumn(dataSourceNames[0], dataSources[0], rows[0],
-                ImmutableMap.of(rowPKs[0], 'datasource 1'))
-        columns << mockNonGlobalColumn(dataSourceNames[1], dataSources[1], rows[1],
+        columns << mockColumn(dataSourceNames[0], dataSources[0], rows[0],
+                [ ImmutableMap.of(rowPKs[0], 'datasource 1') ])
+        columns << mockColumn(dataSourceNames[1], dataSources[1], rows[1],
                 [ ImmutableMap.of(rowPKs[0], 'datasource 2'), ImmutableMap.of() ])
 
         play {
@@ -203,10 +139,9 @@ class TableTests {
             }
 
             testee.buildTable()
+            assertThat testee.result, contains(
+                    is(['datasource 1', 'datasource 2']))
         }
-
-        assertThat testee.result, contains(
-                is(['datasource 1', 'datasource 2']))
     }
 
     @Test
@@ -218,7 +153,6 @@ class TableTests {
         Iterable dataSources = rows.collect { mockDataSource it }
 
         Column column  = mock(Column)
-        column.globalComputation.returns(false).atLeast(1)
 
         ordered {
             /* Overspecified. Implementations should not rely on interleaving */
@@ -241,6 +175,8 @@ class TableTests {
             column.onAllDataSourcesDepleted(0, isA(BackingMap))
         }
 
+        column.valueTransformer.returns(null).atLeastOnce()
+
         play {
             (0..1).each {
                 testee.addDataSource(dataSourceNames[it], dataSources[it])
@@ -248,9 +184,8 @@ class TableTests {
             testee.addColumn(column, dataSourceNames as Set)
 
             testee.buildTable()
+            assertThat testee.result, contains(is(['1']), is(['2']))
         }
-
-        assertThat testee.result, contains(is(['1']), is(['2']))
     }
 
     @Test
@@ -264,7 +199,7 @@ class TableTests {
         ]
 
         columns = data.collect { values ->
-            mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+            mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
                     combinePKsAndValues(twoPKs, values))
         }
 
@@ -290,7 +225,7 @@ class TableTests {
         values = [ 'row1', 'row2' ]
 
         columns << new PrimaryKeyColumn()
-        columns << mockNonGlobalColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+        columns << mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
                 combinePKsAndValues(twoPKs, values))
 
         play {
@@ -305,23 +240,54 @@ class TableTests {
         }
     }
 
+    @Test
+    void testValueTransformer() {
+        List sampleValues
+
+        sampleValues = [
+                ['a', [ o: 'aa' ]], //for column 1
+                ['b', 'bb']] //for column 2
+
+        Iterator<Closure<Object>> transformersIterator =
+                [
+                        { k, v -> k },
+                        { k, v -> v.length() }
+                ].iterator()
+
+        List<Column> columns = sampleValues.collect { values ->
+            mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
+                    combinePKsAndValues(twoPKs, values), transformersIterator.next())
+        }
+
+        play {
+            testee.addDataSource DATA_SOURCE_NAME, twoRowDataSource
+            columns.each {
+                testee.addColumn(it, [DATA_SOURCE_NAME] as Set)
+            }
+
+            testee.buildTable()
+            assertThat testee.result, containsInAnyOrder(
+                    [Fun.t3(twoPKs[0], 0, ''), 'b'.length()],
+                    [[o: Fun.t3(twoPKs[1], 0, 'o')], 'bb'.length()])
+        }
+    }
+
     private @Lazy List<Object> twoRows = [ mock(Object), mock(Object) ]
 
     private @Lazy List<String> twoPKs = ['rowPK1', 'rowPK2']
 
     private @Lazy Iterable twoRowDataSource = mockDataSource(twoRows)
 
-    private Column mockNonGlobalColumn(String dataSourceName,
+    private Column mockColumn(String dataSourceName,
                                        Iterable dataSource,
                                        List<Object> rows,
-                                       List<Map> returnValues) {
+                                       List<Map> returnValues,
+                                       Closure<Object> valueTransformer = null) {
         if (returnValues.size() != rows.size()) {
             throw new RuntimeException('Expected returnValues.size() == rows.size()')
         }
 
         Column column  = mock(Column)
-
-        column.globalComputation.returns(false).atLeast(1)
 
         ordered {
             column.beforeDataSourceIteration(dataSourceName, dataSource)
@@ -340,31 +306,7 @@ class TableTests {
             column.onAllDataSourcesDepleted(isA(Integer), isA(BackingMap))
         }
 
-        column
-    }
-
-    private Column mockGlobalColumn(String dataSourceName,
-                                    Iterable dataSource,
-                                    List<Object> rows,
-                                    Map returnValue) {
-        Column column = mock(Column)
-
-        column.globalComputation.returns(true).atLeast(1)
-
-        ordered {
-            column.beforeDataSourceIteration(dataSourceName, dataSource)
-
-            for (r in rows) {
-                column.onReadRow dataSourceName, r
-            }
-
-            //depletion comes before here!
-            column.onDataSourceDepleted(dataSourceName, dataSource)
-
-            column.consumeResultingTableRows().returns(returnValue)
-
-            column.onAllDataSourcesDepleted(isA(Integer), isA(BackingMap))
-        }
+        column.valueTransformer.returns(valueTransformer).atLeastOnce()
 
         column
     }

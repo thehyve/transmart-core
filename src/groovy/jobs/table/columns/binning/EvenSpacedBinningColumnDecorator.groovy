@@ -1,11 +1,12 @@
 package jobs.table.columns.binning
 
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Table
-import com.google.common.collect.TreeBasedTable
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import jobs.table.Column
 import jobs.table.columns.ColumnDecorator
+import org.mapdb.Fun
 
+@CompileStatic
 class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
     @Delegate
@@ -13,20 +14,13 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
     int numberOfBins
 
-    int numSubscribedDataSources = 1
-
-    boolean isGlobalComputation() { true }
-
-    /* pk, context (e.g. probe name), value */
-    private Table<String, String, Number> allResults = TreeBasedTable.create()
-
     private Map<String, Number> min = [:].withDefault { Double.POSITIVE_INFINITY },
                                 max = [:].withDefault { Double.NEGATIVE_INFINITY }
 
-    private Map<String, List> binNames = {
-        def ret = [:]
-        ret.withDefault { ctx ->
-            ret[ctx] = (1..numberOfBins).collect {
+    private Map<String, List> binNames = { ->
+        Map<String, List> ret = [:]
+        ret.withDefault { String ctx ->
+            ret[ctx] = (1..numberOfBins).collect { Integer it ->
                 def lowerBound = min[ctx] + ((max[ctx] - min[ctx]) / numberOfBins) * (it - 1)
                 def upperBound = min[ctx] + ((max[ctx] - min[ctx]) / numberOfBins) * it
                 def op2 = it == numberOfBins ? '≤' : '<'
@@ -37,62 +31,43 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
     private Map<String, BigDecimal> inverseBinInterval = {
         def ret = [:]
-        ret.withDefault { ctx ->
+        ret.withDefault { String ctx ->
             ret[ctx] = numberOfBins / (max[ctx] - min[ctx])
         }
     }()
 
-
-    private void consumeEntry(String pk, String ctx, Number value) {
+    private void considerValue(String ctx, Number value) {
         if (value < min[ctx]) {
             min[ctx] = value
         }
         if (value > max[ctx]) {
             max[ctx] = value
         }
-        allResults.put pk, ctx, value
     }
 
-    private void consumeEntry(String pk, String ctx, Object value) {
-        consumeEntry(pk, ctx, value as BigDecimal)
+    private void considerValue(String ctx, Object value) {
+        considerValue(ctx, value as BigDecimal)
     }
 
-    private void consumeEntry(String pk, String ctx, Map value) {
+    @CompileStatic(TypeCheckingMode.SKIP) // multi-dispatch
+    private void considerValue(String ctx, Map<String, Object> value) {
         /* otherwise found map inside map inside consumeResultingTableRows()'s map? */
         assert ctx == ''
         for (entry in value) {
-            consumeEntry pk, entry.key, entry.value
+            considerValue entry.key, entry.value
         }
     }
 
+    @CompileStatic(TypeCheckingMode.SKIP) // multi-dispatch
     Map<String, Object> consumeResultingTableRows() {
-        if (allResults == null) { /* results already given */
-            return ImmutableMap.of()
-        }
+        Map<String, Object> innerResult = inner.consumeResultingTableRows()
 
-        for (entry in inner.consumeResultingTableRows()) {
+        for (entry in innerResult) {
             assert entry.value != null /* otherwise violates contract of consumeRTR() */
-            consumeEntry entry.key, '', entry.value
+            considerValue '', entry.value
         }
 
-        if (numSubscribedDataSources > 0) {
-            return ImmutableMap.of()
-        }
-
-        def res = ImmutableMap.builder()
-
-        if (max.keySet() == [''] as Set) {
-            for (pk in allResults.rowKeySet() /* pks */) {
-                res.put pk, doResultForPrimaryKeySimple(pk)
-            }
-        } else {
-            for (pk in allResults.rowKeySet() /* pks */) {
-                res.put pk, doResultForPrimaryKey(pk)
-            }
-        }
-
-        allResults = null
-        res.build()
+        innerResult
     }
 
     private String transform(String ctx, Number value) {
@@ -107,22 +82,12 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
         binNames[ctx][bin]
     }
 
-    private Map doResultForPrimaryKey(String pk) {
-        ImmutableMap.Builder<String, String> res = ImmutableMap.builder()
-        for (Map.Entry<String, Object> entry in allResults.row(pk)) {
-            res.put(entry.key /* ctx */, transform(entry.key, entry.value))
+    // NOTE: assumes there's no transformer in inner
+    Closure<Object> getValueTransformer() {
+        { Fun.Tuple3<String, Integer, String> key, Object value ->
+            println "k: $key, v: $value"
+            (Object) transform(key.c,
+                    (Number) ((value instanceof Number) ? value : (value as BigDecimal)))
         }
-        res.build()
     }
-
-    private String doResultForPrimaryKeySimple(String pk) {
-        transform '', allResults.get(pk, '')
-    }
-
-
-    void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
-        --numSubscribedDataSources
-        inner.onDataSourceDepleted dataSourceName, dataSource
-    }
-
 }

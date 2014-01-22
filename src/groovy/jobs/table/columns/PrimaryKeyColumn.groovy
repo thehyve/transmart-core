@@ -5,8 +5,6 @@ import jobs.table.BackingMap
 
 class PrimaryKeyColumn extends AbstractColumn {
 
-    final boolean globalComputation = false
-
     @Override
     void onReadRow(String dataSourceName, Object row) {
         /* don't care */

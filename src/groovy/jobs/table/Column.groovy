@@ -17,14 +17,6 @@ interface Column {
     MissingValueAction getMissingValueAction()
 
     /**
-     * Whether this column requires looking at the entire result set before it
-     * can produce any data.
-     *
-     * @return whether this is a global computation column
-     */
-    boolean isGlobalComputation()
-
-    /**
      * Method called whenever a new row is read.
      *
      * This method will probably need to store some data to then be retrieved
@@ -72,5 +64,14 @@ interface Column {
      * @param dataSource the data source object
      */
     void beforeDataSourceIteration(String dataSourceName, Iterable dataSource)
+
+    /**
+     * A transformation to apply to the values returned by
+     * {@link Table#getResult()} or null.
+     *
+     * @return a closure taking a {@link org.mapdb.Fun.Tuple3}&lt;String, Integer,String>
+     *         and the original value and returning an arbitrary object
+     */
+    Closure<Object> getValueTransformer()
 
 }
