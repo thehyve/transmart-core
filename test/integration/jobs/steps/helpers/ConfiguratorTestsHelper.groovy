@@ -209,7 +209,7 @@ class ConfiguratorTestsHelper {
 
     void setupClinicalResult(int nPatients,
                              List<ClinicalVariableColumn> columns,
-                             List<BigDecimal> valuesForColumns) {
+                             List<Object> valuesForColumns) {
         assert nPatients * columns.size() == valuesForColumns.size()
 
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
