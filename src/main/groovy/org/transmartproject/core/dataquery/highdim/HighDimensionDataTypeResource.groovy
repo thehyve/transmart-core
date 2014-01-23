@@ -24,13 +24,18 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
     String getDataTypeName()
 
     /**
-     * The set of properties that probes of this datatype have.
+     * A human-readable description of this data type
+     */
+    String getDataTypeDescription()
+
+    /**
+     * The set of properties that probes of this data type have.
      * @return
      */
     Set<String> getRowProperties()
 
     /**
-     * The set of properties that data of this datatype has.
+     * The set of properties that data of this type has.
      * @return
      */
     Set<String> getDataProperties()
