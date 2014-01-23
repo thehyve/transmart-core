@@ -180,21 +180,4 @@ class BoxPlotVariableColumnConfiguratorTests {
             assertThat table.headers, contains('PK', 'X')
         }
     }
-
-    private void setupClinicalResult(int nPatients,
-                                     List<ClinicalVariableColumn> columns,
-                                     List<BigDecimal> valuesForColumns) {
-        assert nPatients * columns.size() == valuesForColumns.size()
-
-        TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
-                configuratorTestsHelper.mock(TabularResult)
-        clinicalResult.iterator().returns(createPatientRows(nPatients, columns,
-                valuesForColumns, true /* relaxed */).iterator())
-        clinicalResult.close().stub()
-
-        clinicalDataResourceMock.retrieveData(
-                mockQueryResults(),
-                containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
-    }
-
 }
