@@ -14,8 +14,7 @@ class SimpleConceptVariableColumn extends AbstractColumn {
 
     @Override
     void onReadRow(String dataSourceName, Object row) {
-        /* if we only subscribe one source, as we should, there calls to
-         * onReadRow() are guaranteed to be called interleaved with
+        /* calls to onReadRow() are guaranteed to be called interleaved with
          * consumeResultingTableRow */
         assert lastRow == null
         assert row instanceof PatientRow
