@@ -48,6 +48,8 @@
                             <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divCategoryVariable')">High Dimensional Data</button>
                             <button type="button" onclick="survivalAnalysisView.clear_high_dimensional_input('divCategoryVariable')">Clear</button>
                         </div>
+                        <input type="hidden" id="dependentVarDataType">
+                        <input type="hidden" id="dependentPathway">
                     </div>
 
                     %{--Display independent variable--}%
