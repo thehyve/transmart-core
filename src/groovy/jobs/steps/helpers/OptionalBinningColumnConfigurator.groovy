@@ -88,9 +88,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
 
-        //if required will fail on empty conceptPaths
-        def conceptPaths = getStringParam(keyForConceptPaths, required)
-
+        def conceptPaths = getConceptPaths()
         setupInnerConfigurator(conceptPaths)
 
         if (conceptPaths != '') {
@@ -107,5 +105,10 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
         keyForConceptPaths    = "${keyPart}Variable"
         keyForDataType        = "div${keyPart.capitalize()}VariableType"
         keyForSearchKeywordId = "div${keyPart.capitalize()}VariablePathway"
+    }
+
+    String getConceptPaths() {
+        //if required this will fail on empty conceptPaths
+        getStringParam(keyForConceptPaths, required)
     }
 }

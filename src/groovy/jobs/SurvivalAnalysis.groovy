@@ -59,7 +59,6 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     void configureTimeVariableConfigurator() {
         timeVariableConfigurator.columnHeader           = 'TIME'
         timeVariableConfigurator.projection             = Projection.DEFAULT_REAL_PROJECTION
-        //timeVariableConfigurator.multiRow               = true
         timeVariableConfigurator.setKeys('time')
         timeVariableConfigurator.alwaysClinical = true
     }
@@ -68,13 +67,19 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         categoryVariableConfigurator.required = false
         categoryVariableConfigurator.columnHeader       = 'CATEGORY'
         categoryVariableConfigurator.projection         = Projection.DEFAULT_REAL_PROJECTION
-        categoryVariableConfigurator.missingValueAction =
-                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: 'STUDY')
-        //categoryVariableConfigurator.multiRow           = true
+        categoryVariableConfigurator.multiRow           = true
 
         categoryVariableConfigurator.setKeys('dependent')
-        categoryVariableConfigurator.keyForConceptPaths = 'categoryVariable'
         categoryVariableConfigurator.binningConfigurator.setKeys('')
+        categoryVariableConfigurator.keyForConceptPaths = 'categoryVariable'
+
+        def isVariableDefined = StringUtils.isNotBlank(categoryVariableConfigurator.getConceptPaths())
+        def missingValueAction = isVariableDefined ?
+                new MissingValueAction.DropRowMissingValueAction() :
+                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: 'STUDY')
+
+        categoryVariableConfigurator.missingValueAction = missingValueAction
+        categoryVariableConfigurator.binningConfigurator.missingValueAction = missingValueAction
     }
 
     void configureCensoringVariableConfigurator() {
