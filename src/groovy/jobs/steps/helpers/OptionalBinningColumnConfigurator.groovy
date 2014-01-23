@@ -2,14 +2,13 @@ package jobs.steps.helpers
 
 import groovy.util.logging.Log4j
 import jobs.table.Column
-import jobs.table.MissingValueAction
 import jobs.table.columns.ConstantValueColumn
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 @Log4j
 @Component
@@ -29,6 +28,11 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
            keyForSearchKeywordId  /* only applicable for high dim data */
 
     boolean multiRow = false
+
+    boolean forceNumericBinning = true
+
+    protected Class<? extends ColumnConfigurator> numericColumnConfigurationClass =
+            NumericColumnConfigurator
 
     private ColumnConfigurator innerConfigurator
 
@@ -50,40 +54,31 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
             //table.addColumn(new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction), Collections.emptySet())
             innerConfigurator.addColumn()
 
-        } else if (conceptPaths.contains('|')) {
+        } else if (categorical) {
             log.debug("Found pipe character in $keyForConceptPaths, " +
                     "assuming categorical data")
 
-            setupCategorical()
+            innerConfigurator = appCtx.getBean CategoricalColumnConfigurator
+
+            innerConfigurator.columnHeader       = getColumnHeader()
+            innerConfigurator.keyForConceptPaths = keyForConceptPaths
         } else {
             log.debug("Did not find pipe character in $keyForConceptPaths, " +
                     "assuming continuous data")
 
-            setupContinuous()
+            innerConfigurator = appCtx.getBean numericColumnConfigurationClass
+
+            innerConfigurator.columnHeader          = getColumnHeader()
+            innerConfigurator.projection            = projection
+            innerConfigurator.keyForConceptPath     = keyForConceptPaths
+            innerConfigurator.keyForDataType        = keyForDataType
+            innerConfigurator.keyForSearchKeywordId = keyForSearchKeywordId
+            innerConfigurator.multiRow              = multiRow
         }
 
-        if (!emptyConcept) {
-            binningConfigurator.innerConfigurator = innerConfigurator
-        }
+        binningConfigurator.innerConfigurator = innerConfigurator
     }
 
-    private void setupCategorical() {
-        innerConfigurator = appCtx.getBean CategoricalColumnConfigurator
-
-        innerConfigurator.columnHeader       = getColumnHeader()
-        innerConfigurator.keyForConceptPaths = keyForConceptPaths
-    }
-
-    private void setupContinuous() {
-        innerConfigurator = appCtx.getBean NumericColumnConfigurator
-
-        innerConfigurator.columnHeader          = getColumnHeader()
-        innerConfigurator.projection            = projection
-        innerConfigurator.keyForConceptPath     = keyForConceptPaths
-        innerConfigurator.keyForDataType        = keyForDataType
-        innerConfigurator.keyForSearchKeywordId = keyForSearchKeywordId
-        innerConfigurator.multiRow              = multiRow
-    }
 
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
@@ -92,6 +87,14 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
         setupInnerConfigurator(conceptPaths)
 
         if (conceptPaths != '') {
+
+            if (!binningConfigurator.binningEnabled &&
+                    !(innerConfigurator instanceof CategoricalColumnConfigurator) &&
+                    forceNumericBinning) {
+                throw new InvalidArgumentsException("Numeric variables must be " +
+                        "binned for column $columnHeader")
+            }
+            
             //configure binning only if has variable
             binningConfigurator.addColumn decorateColumn
         }
@@ -110,5 +113,5 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     String getConceptPaths() {
         //if required this will fail on empty conceptPaths
         getStringParam(keyForConceptPaths, required)
-    }
+    }    
 }

@@ -22,11 +22,13 @@ class BoxPlot extends CategoricalOrBinnedJob {
         primaryKeyColumnConfigurator.column =
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        configureConfigurator independentVariableConfigurator, '', '', 'independent'
-        configureConfigurator dependentVariableConfigurator,   '', '', 'dependent'
+        configureConfigurator independentVariableConfigurator, '', 'independent'
+        configureConfigurator dependentVariableConfigurator,   '', 'dependent'
 
         independentVariableConfigurator.valueForThisColumnBeingBinned = 'IND'
+        independentVariableConfigurator.keyForIsCategorical           = 'independentVariableCategorical'
         dependentVariableConfigurator.valueForThisColumnBeingBinned   = 'DEP'
+        dependentVariableConfigurator.keyForIsCategorical             = 'dependentVariableCategorical'
 
         validateDataTypes()
     }
@@ -34,14 +36,14 @@ class BoxPlot extends CategoricalOrBinnedJob {
     void validateDataTypes() {
         // we don't usually validate these things, but the frontend is not
         // validating this right now and it's causing confusion
-        if (independentVariableConfigurator.categorical &&
+        if (independentVariableConfigurator.categoricalOrBinned &&
                 dependentVariableConfigurator.categorical) {
             throw new InvalidArgumentsException(
                     'Both variables are categorical or binned continuous')
         }
-        if (!independentVariableConfigurator.categorical &&
-                !dependentVariableConfigurator.categorical) {
-            throw new InvalidArgumentsException('Both variables are continuous')
+        if (!independentVariableConfigurator.categoricalOrBinned &&
+                !dependentVariableConfigurator.categoricalOrBinned) {
+            throw new InvalidArgumentsException('Both variables are unbinned continuous')
         }
     }
 

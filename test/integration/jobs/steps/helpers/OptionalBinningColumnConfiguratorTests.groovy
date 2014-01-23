@@ -1,58 +1,34 @@
 package jobs.steps.helpers
 
-import com.google.common.collect.ImmutableTable
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import jobs.UserParameters
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.AbstractColumn
-import org.gmock.GMockController
 import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
-import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.querytool.QueriesResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 
 import javax.annotation.Resource
 
-import static jobs.steps.OpenHighDimensionalDataStep.createConceptKeyFrom
+import static groovy.util.GroovyAssert.shouldFail
+import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @TestMixin(JobsIntegrationTestMixin)
-class ColumnConfiguratorTests {
+class OptionalBinningColumnConfiguratorTests {
 
     public static final String COLUMN_HEADER = 'TEST COLUMN HEADER'
-
-    public static final String SEARCH_KEYWORD_ID = '88888'
-    public static final String DATA_TYPE_NAME_HIGH_DIMENSION = 'mrna'
-    public static final String DATA_TYPE_NAME_CLINICAL = 'CLINICAL'
-    public static final String RESULT_INSTANCE_ID1 = '77'
-    public static final String RESULT_INSTANCE_ID2 = '78'
-    public static final String CONCEPT_PATH_HIGH_DIMENSION = '\\bogus\\highdim\\variable\\'
-
-    public static final String CONCEPT_PATH_CLINICAL = '\\bogus\\clinical\\variable\\'
-
-    public static final List<String> BUNDLE_OF_CLINICAL_CONCEPT_PATH = [
-            '\\bogus\\clinical\\variable\\1',
-            '\\bogus\\clinical\\variable\\2',
-            '\\bogus\\clinical\\variable\\3',
-    ]
 
     @Autowired
     UserParameters params
@@ -67,23 +43,12 @@ class ColumnConfiguratorTests {
     @Autowired
     Table table
 
-
-    /* mocked core-db services */
-    @Autowired
-    HighDimensionResource highDimensionResourceMock
-
-    @Autowired
-    ClinicalDataResource clinicalDataResourceMock
-
-    @Autowired
-    QueriesResource queriesResourceMock
-
-
-    @Autowired
     @Delegate(interfaces = false)
-    GMockController gMockController
+    ConfiguratorTestsHelper configuratorTestsHelper = new ConfiguratorTestsHelper()
 
     void before() {
+        initializeAsBean configuratorTestsHelper
+        
         [testee, params, jobName, table].each {
             assertThat it, is(notNullValue())
         }
@@ -253,10 +218,8 @@ class ColumnConfiguratorTests {
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
 
-        ClinicalVariableColumn column = mock(ClinicalVariableColumn)
-        clinicalDataResourceMock.createClinicalVariable(
-                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                concept_path: CONCEPT_PATH_CLINICAL).returns(column)
+        ClinicalVariableColumn column =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])[0]
 
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
                 mock(TabularResult)
@@ -299,25 +262,18 @@ class ColumnConfiguratorTests {
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
 
-        List<ClinicalVariableColumn> columns = [mock(ClinicalVariableColumn),
-                mock(ClinicalVariableColumn), mock(ClinicalVariableColumn)]
-        dot(columns, BUNDLE_OF_CLINICAL_CONCEPT_PATH) { ClinicalVariableColumn col, String path ->
-            col.label.returns(path).atLeastOnce()
-
-            clinicalDataResourceMock.createClinicalVariable(
-                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                    concept_path: path).returns(col)
-        }
+        List<ClinicalVariableColumn> columns =
+                createClinicalVariableColumns BUNDLE_OF_CLINICAL_CONCEPT_PATH, true
 
         List<String> valuesForColumns = (1..3).collect { "value for col$it".toString() }
 
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
                 mock(TabularResult)
         clinicalResult.iterator().returns(createPatientRows(4, columns,
-                ['', '', valuesForColumns[2],
-                 '', valuesForColumns[1], '',
-                valuesForColumns[0], '', '',
-                '', valuesForColumns[1], '',],
+                ['',                 '',                  valuesForColumns[2],
+                 '',                 valuesForColumns[1], '',
+                valuesForColumns[0], '',                  '',
+                '',                  valuesForColumns[1], '',],
                 true /* relaxed */).iterator())
         clinicalResult.close().stub()
 
@@ -358,10 +314,8 @@ class ColumnConfiguratorTests {
         ])
 
         /* clinical variables */
-        ClinicalVariableColumn clinicalVariable = mock(ClinicalVariableColumn)
-        clinicalDataResourceMock.createClinicalVariable(
-                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
-                concept_path: CONCEPT_PATH_CLINICAL).returns(clinicalVariable)
+        ClinicalVariableColumn clinicalVariable =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])[0]
 
         /* result set */
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
@@ -422,6 +376,7 @@ class ColumnConfiguratorTests {
 
         play {
             testee.multiRow = true
+            testee.forceNumericBinning = false
             testee.addColumn()
 
             table.buildTable()
@@ -578,6 +533,37 @@ class ColumnConfiguratorTests {
         }
     }
 
+    @Test
+    void testCategoricalVariableUsedAsNumeric() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_CLINICAL,
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+
+                binning            : 'FALSE',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+
+        /* clinical variables */
+        List<ClinicalVariableColumn> clinicalVariables =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])
+        setupClinicalResult(3, clinicalVariables, [null, 'foobar', null])
+
+        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
+        testee.forceNumericBinning = false
+
+        assertThat shouldFail(InvalidArgumentsException, {
+            play {
+                testee.addColumn()
+
+                table.buildTable()
+                Lists.newArrayList table.result
+            }
+        }), hasProperty('message', containsString('Got non-numerical value'))
+    }
+
     static class StubColumn extends AbstractColumn {
 
         Map<String, String> data
@@ -595,135 +581,4 @@ class ColumnConfiguratorTests {
         }
     }
 
-    private ArrayList<QueryResult> mockQueryResults() {
-        def queryResults = [mock(QueryResult), mock(QueryResult)]
-        queriesResourceMock.getQueryResultFromId(RESULT_INSTANCE_ID1 as int).returns(queryResults[0])
-        queriesResourceMock.getQueryResultFromId(RESULT_INSTANCE_ID2 as int).returns(queryResults[1])
-        queryResults
-    }
-
-    private void createDataTypeResourceMock(TabularResult<Double, AssayColumn> highDimResult) {
-        HighDimensionDataTypeResource dataTypeResourceMock =
-                mock(HighDimensionDataTypeResource)
-        ordered {
-            highDimensionResourceMock.getSubResourceForType(DATA_TYPE_NAME_HIGH_DIMENSION).
-                    returns(dataTypeResourceMock)
-            unordered {
-                dataTypeResourceMock.createProjection(
-                        [:], Projection.DEFAULT_REAL_PROJECTION).returns(mock(Projection))
-                dataTypeResourceMock.createAssayConstraint(AssayConstraint.DISJUNCTION_CONSTRAINT,
-                        subconstraints: [
-                                (AssayConstraint.PATIENT_SET_CONSTRAINT): [
-                                        [result_instance_id: RESULT_INSTANCE_ID1 as Long],
-                                        [result_instance_id: RESULT_INSTANCE_ID2 as Long],
-                                ]]).returns(mock(AssayConstraint))
-                dataTypeResourceMock.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
-                        concept_key: createConceptKeyFrom(CONCEPT_PATH_HIGH_DIMENSION)).returns(mock(AssayConstraint))
-                dataTypeResourceMock.createDataConstraint(DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                        keyword_ids: [SEARCH_KEYWORD_ID]).returns(mock(DataConstraint))
-            }
-            dataTypeResourceMock.retrieveData(
-                    allOf(hasSize(2), everyItem(isA(AssayConstraint))),
-                    everyItem(isA(DataConstraint)), isA(Projection)).returns(highDimResult)
-        }
-    }
-
-    private List<AssayColumn> createSampleAssays(int n) {
-        (1..n).collect {
-            createMockAssay("patient_${it}_subject_id",
-                    "sample_code_${it}")
-        }
-    }
-
-    private DataRow createRowForAssays(List<AssayColumn> assays,
-                                              List<Double> data,
-                                              String label) {
-        createMockRow(
-                dot(assays, data, {a, b -> [ a, b ]})
-                        .collectEntries(Closure.IDENTITY),
-                label)
-    }
-
-    private static List dot(List list1, List list2, function) {
-        def res = []
-        for (int i = 0; i < list1.size(); i++) {
-            res << function(list1[i], list2[i])
-        }
-        res
-    }
-
-    private List<Patient> createPatients(int n) {
-        (1..n).collect {
-            Patient p = mock(Patient)
-            p.inTrialId.returns("subject id #$it".toString()).atLeastOnce()
-            p
-        }
-    }
-
-    private List<String> createPatientRowLabels(int n) {
-        (1..n).collect {
-            "patient #$it" as String
-        }
-    }
-
-    private List<PatientRow> createPatientRows(int n,
-                                   List<ClinicalVariableColumn> columns,
-                                   List<String> values,
-                                   boolean relaxed = false) {
-        def builder = ImmutableTable.builder()
-        int i = 0
-
-        def patients = createPatients n
-        patients.each { patient ->
-            columns.each { columnVariable ->
-                //println "$patient $columnVariable, ${values[i]}"
-                if (values[i] != null) {
-                    builder.put(patient, columnVariable, values[i] as String)
-                }
-                i++
-            }
-        }
-
-        createPatientRows(patients, createPatientRowLabels(n), builder.build(), relaxed)
-    }
-
-    private List<PatientRow> createPatientRows(List<Patient> patients,
-                                               List<String> labels,
-                                               com.google.common.collect.Table<Patient, ClinicalVariableColumn, String> data,
-                                               boolean relaxed) {
-        dot(patients, labels) { Patient patient, String label ->
-            PatientRow row = mock(PatientRow)
-            row.label.returns(label).stub()
-            row.patient.returns(patient).atLeastOnce()
-            data.row(patient).each { column, cell ->
-                if (!relaxed) {
-                    row.getAt(column).returns(cell).atLeastOnce()
-                } else {
-                    row.getAt(column).returns(cell).stub()
-                }
-            }
-            row
-        }
-    }
-
-    private AssayColumn createMockAssay(String patientInTrialId, String label) {
-        AssayColumn assayColumn = mock(AssayColumn)
-        assayColumn.patientInTrialId.returns(patientInTrialId).atLeastOnce()
-        assayColumn.label.returns(label).stub()
-        assayColumn
-    }
-
-    private DataRow<AssayColumn, Double> createMockRow(Map<AssayColumn, Double> values, String label) {
-        DataRow row = mock(DataRow)
-        row.label.returns(label).stub()
-
-        values.eachWithIndex { entry, i ->
-            row.getAt(i).returns(entry.value).atLeastOnce()
-        }
-        // we now call end up calling getAt(Integer)
-        /*values.keySet().each { column ->
-            row.getAt(column).returns(values[column])
-        }*/
-        row
-    }
 }

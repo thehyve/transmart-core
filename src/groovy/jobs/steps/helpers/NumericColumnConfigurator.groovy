@@ -113,8 +113,9 @@ class NumericColumnConfigurator extends ColumnConfigurator {
         table.addColumn(
                 decorateColumn.call(
                         new SimpleConceptVariableColumn(
-                                column: variable,
-                                header: columnHeader)),
+                                column:      variable,
+                                numbersOnly: true,
+                                header:      columnHeader)),
                 [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
     }
 
