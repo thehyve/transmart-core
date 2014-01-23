@@ -19,9 +19,4 @@ class MirnaProbeRow extends AbstractDataRow implements BioMarkerDataRow<Object> 
         mirnaId
     }
 
-    @Override
-    Map<String, Object> getAssociatedData() {
-        [probeId: probeId, mirnaId: mirnaId]
-    }
-
 }

@@ -24,8 +24,4 @@ abstract class AbstractDataRow implements DataRow<AssayColumn, Object> {
         data.iterator()
     }
 
-    Map<String, Object> getAssociatedData() {
-        [label: label]
-    }
-
 }

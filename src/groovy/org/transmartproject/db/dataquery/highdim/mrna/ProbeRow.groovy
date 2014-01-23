@@ -23,8 +23,4 @@ class ProbeRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
         geneSymbol
     }
 
-    @Override
-    Map<String, Object> getAssociatedData() {
-        [probe: probe, geneSymbol: geneSymbol, geneId: geneId]
-    }
 }

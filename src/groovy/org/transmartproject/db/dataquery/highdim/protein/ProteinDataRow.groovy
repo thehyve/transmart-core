@@ -19,8 +19,4 @@ class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object>
         unitProtId
     }
 
-    @Override
-    Map<String, Object> getAssociatedData() {
-        [unitProtId: unitProtId, peptide: peptide]
-    }
 }

@@ -21,8 +21,4 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
         uniprotId
     }
 
-    @Override
-    Map<String, Object> getAssociatedData() {
-        [uniprotId: uniprotId, antigenName: antigenName]
-    }
 }
