@@ -34,6 +34,11 @@ class RbmDataRetrievalTests {
     void testRetrievalByTrialNameAssayConstraint() {
         result = rbmResource.retrieveData([trialNameConstraint], [], projection)
 
+        assertThat result, allOf(
+                hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
+                hasProperty('rowsDimensionLabel', equalTo('Antigenes')),
+        )
+
         def resultList = Lists.newArrayList result
 
         assertThat resultList, allOf(
@@ -174,6 +179,29 @@ class RbmDataRetrievalTests {
                                         closeTo(testData.rbmData[-3].zscore as Double, delta),
                                         closeTo(testData.rbmData[-4].zscore as Double, delta)))),
                 contains(hasProperty('label', equalTo('Antigene2'))))
+    }
+
+    @Test
+    void testRetrieDataRowThatMapsToMultipleProteins() {
+
+        def proteinDataConstraint = rbmResource.createDataConstraint(
+                [ids: ['Q15847', 'Q15850']],
+                DataConstraint.PROTEINS_CONSTRAINT
+        )
+
+        result = rbmResource.retrieveData([trialNameConstraint], [proteinDataConstraint], projection)
+
+        def resultList = Lists.newArrayList result
+
+        assertThat resultList, allOf(
+                hasSize(1),
+                hasItem(
+                        allOf(
+                                hasProperty('bioMarker', equalTo('Q15850/Q15847')),
+                                hasProperty('label', equalTo('Antigene3'))
+                        )
+                )
+        )
     }
 
     @Test
