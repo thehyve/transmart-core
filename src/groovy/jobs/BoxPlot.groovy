@@ -22,11 +22,13 @@ class BoxPlot extends CategoricalOrBinnedJob {
         primaryKeyColumnConfigurator.column =
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        configureConfigurator independentVariableConfigurator, '', '', 'independent'
-        configureConfigurator dependentVariableConfigurator,   '', '', 'dependent'
+        configureConfigurator independentVariableConfigurator, '', 'independent'
+        configureConfigurator dependentVariableConfigurator,   '', 'dependent'
 
         independentVariableConfigurator.valueForThisColumnBeingBinned = 'IND'
+        independentVariableConfigurator.keyForIsCategorical           = 'independentVariableCategorical'
         dependentVariableConfigurator.valueForThisColumnBeingBinned   = 'DEP'
+        dependentVariableConfigurator.keyForIsCategorical             = 'dependentVariableCategorical'
 
         validateDataTypes()
     }

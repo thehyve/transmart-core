@@ -7,7 +7,17 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
+/**
+ * A configurator supporting:
+ *
+ * - categorical variables, binned or not
+ * - low dimensional data, binned or not
+ *   (no binning allowed only if !forceNumericBinning)
+ * - high dimensional data, multirow or not (depending on multiRow),
+ *   binning or not (no binning allowed only if !forceNumericBinning)
+ */
 @Log4j
 @Component
 @Scope('prototype')
@@ -27,13 +37,18 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
     boolean multiRow = false
 
+    boolean forceNumericBinning = true
+
+    protected Class<? extends ColumnConfigurator> numericColumnConfigurationClass =
+            NumericColumnConfigurator
+
     private ColumnConfigurator innerConfigurator
 
     @Autowired
     ApplicationContext appCtx
 
     private void setupInnerConfigurator() {
-        if (getStringParam(keyForConceptPaths).contains('|')) {
+        if (categorical) {
             log.debug("Found pipe character in $keyForConceptPaths, " +
                     "assuming categorical data")
 
@@ -45,7 +60,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
             log.debug("Did not find pipe character in $keyForConceptPaths, " +
                     "assuming continuous data")
 
-            innerConfigurator = appCtx.getBean NumericColumnConfigurator
+            innerConfigurator = appCtx.getBean numericColumnConfigurationClass
 
             innerConfigurator.columnHeader          = getColumnHeader()
             innerConfigurator.projection            = projection
@@ -58,11 +73,21 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
         binningConfigurator.innerConfigurator = innerConfigurator
     }
 
-
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
         setupInnerConfigurator()
 
+        if (!binningConfigurator.binningEnabled &&
+                !(innerConfigurator instanceof CategoricalColumnConfigurator) &&
+                forceNumericBinning) {
+            throw new InvalidArgumentsException("Numeric variables must be " +
+                    "binned for column $columnHeader")
+        }
+
         binningConfigurator.addColumn decorateColumn
+    }
+
+    boolean isCategorical() {
+        getStringParam(keyForConceptPaths).contains('|')
     }
 }

@@ -50,9 +50,8 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
         steps
     }
 
-    protected void configureConfigurator(ColumnConfigurator configurator,
+    protected void configureConfigurator(OptionalBinningColumnConfigurator configurator,
                                          String keyBinPart,
-                                         String longKeyBinPart,
                                          String keyVariablePart,
                                          String header = null) {
         if (header != null) {

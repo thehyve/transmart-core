@@ -87,6 +87,10 @@ class JobsIntegrationTestMixin implements TestMixinTargetAware {
     }
 
     private void initializeTargetAsBean() {
+        initializeAsBean target
+    }
+
+    void initializeAsBean(Object object) {
         /*
          * The autowiring in GrailsTestInterceptor is too limited.
          * It only manually creates an AutowiredAnnotationBeanPostProcessor and
@@ -96,11 +100,11 @@ class JobsIntegrationTestMixin implements TestMixinTargetAware {
          */
         BeanFactory factory = currentApplicationContext.beanFactory
         /* "traditional" autowiring, also called in GrailsTestAutowirer#autowire */
-        factory.autowireBeanProperties(target,
+        factory.autowireBeanProperties(object,
                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false)
         /* apply bean post processors' postProcessPropertyValues(), which will
          * do annotation injection courtesy of AutowiredAnnotationBeanPostProcessor
          * and CommonAnnotationBeanPostProcessor */
-        factory.autowireBean target
+        factory.autowireBean object
     }
 }
