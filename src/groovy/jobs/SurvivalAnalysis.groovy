@@ -136,7 +136,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
     @Override
     protected getForwardPath() {
-        "/survivalAnalysis/survivalAnalysisOut?jobName=$name"
+        "/survivalAnalysis/survivalAnalysisOutput?jobName=$name"
     }
 
     class CensoringColumnConfigurator extends ColumnConfigurator {
