@@ -90,4 +90,8 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     boolean isCategorical() {
         getStringParam(keyForConceptPaths).contains('|')
     }
+
+    boolean isCategoricalOrBinned() {
+        isCategorical() || binningConfigurator.binningEnabled
+    }
 }
