@@ -22,6 +22,12 @@ public interface HighDimensionDataTypeModule {
     String getName()
 
     /**
+     * A human-readable description of this datatype
+     * @return
+     */
+    String getDescription()
+
+    /**
      * The session factory used by this module.
      * @return
      */

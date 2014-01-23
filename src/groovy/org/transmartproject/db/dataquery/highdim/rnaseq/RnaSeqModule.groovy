@@ -33,6 +33,8 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'rnaseq'
 
+    final String description = "RNA Sequence data"
+
     final Set<String> dataProperties = ImmutableSet.of('trialName', 'readCount')
 
     final Set<String> rowProperties = ImmutableSet.of()

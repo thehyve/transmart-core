@@ -30,6 +30,8 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'acgh'
 
+    final String description = "ACGH data"
+
     final ImmutableSet<String> dataProperties = ImmutableSet.copyOf('trialName chipCopyNumberValue ' +
             'segmentCopyNumberValue flag probabilityOfLoss probabilityOfNormal probabilityOfGain ' +
             'probabilityOfAmplification'.split())

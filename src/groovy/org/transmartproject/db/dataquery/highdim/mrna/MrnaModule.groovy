@@ -27,6 +27,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mrna'
 
+    final String description = "Messenger RNA data"
+
     final List<String> platformMarkerTypes = ['Gene Expression']
 
     final Set<String> dataProperties = ImmutableSet.of('trialName', 'rawIntensity', 'logIntensity', 'zscore')

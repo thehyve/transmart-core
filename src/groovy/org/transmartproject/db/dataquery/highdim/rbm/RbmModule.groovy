@@ -22,6 +22,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'rbm'
 
+    final String description = "RBM data"
+
     final List<String> platformMarkerTypes = ['RBM']
 
     final Set<String> dataProperties = ImmutableSet.of('value', 'zscore')

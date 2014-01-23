@@ -28,6 +28,8 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mirna'
 
+    final String description = "Messenger Interference RNA data"
+
     final List<String> platformMarkerTypes = ['MIRNA_QPCR', 'MIRNA_SEQ']
 
     final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')

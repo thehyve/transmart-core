@@ -31,6 +31,11 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     @Override
+    String getDataTypeDescription() {
+        module.description
+    }
+
+    @Override
     Set<String> getRowProperties() {
         module.rowProperties
     }

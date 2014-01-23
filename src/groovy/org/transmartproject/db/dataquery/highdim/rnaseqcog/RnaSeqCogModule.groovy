@@ -32,6 +32,8 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'rnaseq_cog'
 
+    final String description = "RNA Sequence data"
+
     final List<String> platformMarkerTypes = ['RNASEQ']
 
     final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'zscore')
