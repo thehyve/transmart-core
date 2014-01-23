@@ -22,8 +22,7 @@ class CategoricalColumnConfigurator extends ColumnConfigurator {
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
 
-        //if required this will fail on empty conceptPaths
-        String conceptPaths = getStringParam(keyForConceptPaths, required)
+        String conceptPaths = getConceptPaths()
 
         if (conceptPaths != '') {
             Set<ClinicalVariable> variables =
@@ -47,5 +46,10 @@ class CategoricalColumnConfigurator extends ColumnConfigurator {
             //optional, empty value column
             table.addColumn(new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction), Collections.emptySet())
         }
+    }
+
+    String getConceptPaths() {
+        //if required this will fail on empty conceptPaths
+        getStringParam(keyForConceptPaths, required)
     }
 }

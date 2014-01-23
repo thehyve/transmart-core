@@ -1,20 +1,17 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
-import jobs.steps.helpers.BinningColumnConfigurator
-import jobs.steps.helpers.CategoricalColumnConfigurator
-import jobs.steps.helpers.CategoricalOrBinnedColumnConfigurator
-import jobs.steps.helpers.NumericColumnConfigurator
-import jobs.steps.helpers.SimpleAddColumnConfigurator
+import jobs.steps.*
+import jobs.steps.helpers.*
+import jobs.table.Column
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
+import jobs.table.columns.TransformColumnDecorator
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -26,6 +23,12 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 @Scope('job')
 class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
+    private static def CENSORING_TRUE = '1'
+    private static def CENSORING_FALSE = '0'
+
+    @Autowired
+    ApplicationContext appCtx
+
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
@@ -33,10 +36,13 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     NumericColumnConfigurator timeVariableConfigurator
 
     @Autowired
-    CategoricalOrBinnedColumnConfigurator categoryVariableConfigurator
+    @Qualifier('general')
+    OptionalBinningColumnConfigurator categoryVariableConfigurator
 
     @Autowired
-    CategoricalColumnConfigurator censoringVariableConfigurator
+    CategoricalColumnConfigurator censoringInnerConfigurator
+
+    CensoringColumnConfigurator censoringVariableConfigurator
 
     @Autowired
     Table table
@@ -66,18 +72,24 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: 'STUDY')
         //categoryVariableConfigurator.multiRow           = true
 
-        categoryVariableConfigurator.setKeys('category')
+        categoryVariableConfigurator.setKeys('dependent')
+        categoryVariableConfigurator.keyForConceptPaths = 'categoryVariable'
         categoryVariableConfigurator.binningConfigurator.setKeys('')
     }
 
     void configureCensoringVariableConfigurator() {
-        censoringVariableConfigurator.required = false
-        censoringVariableConfigurator.columnHeader       = 'CENSOR'
-        censoringVariableConfigurator.missingValueAction =
-                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '1')
-        //censoringVariableConfigurator.multiRow           = true
-        censoringVariableConfigurator.keyForConceptPaths = 'censoringVariable'
 
+        censoringInnerConfigurator.required             = false
+        censoringInnerConfigurator.columnHeader         = 'CENSOR'
+        censoringInnerConfigurator.keyForConceptPaths   = 'censoringVariable'
+
+        def isVariableDefined = StringUtils.isNotBlank(censoringInnerConfigurator.getConceptPaths())
+        def noValueDefault = isVariableDefined ? CENSORING_FALSE : CENSORING_TRUE
+
+        censoringInnerConfigurator.missingValueAction  =
+                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: noValueDefault)
+
+        censoringVariableConfigurator = new CensoringColumnConfigurator(innerConfigurator: censoringInnerConfigurator)
     }
 
     protected List<Step> prepareSteps() {
@@ -92,7 +104,8 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
                 configurators: [primaryKeyColumnConfigurator,
                         timeVariableConfigurator,
                         censoringVariableConfigurator,
-                        categoryVariableConfigurator,])
+                        categoryVariableConfigurator,
+                ])
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
@@ -124,5 +137,28 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     @Override
     protected getForwardPath() {
         "/survivalAnalysis/survivalAnalysisOut?jobName=$name"
+    }
+
+    class CensoringColumnConfigurator extends ColumnConfigurator {
+
+        ColumnConfigurator innerConfigurator
+
+        public CensoringColumnConfigurator() { }
+
+        @Override
+        protected void doAddColumn(Closure<Column> decorateColumn) {
+            innerConfigurator.addColumn(compose(decorateColumn, createDecoratorClosure()))
+        }
+
+        private Closure<Column> createDecoratorClosure() {
+            Closure<Object> function = { value ->
+                CENSORING_TRUE
+            }
+            def decorator = new TransformColumnDecorator(valueFunction: function)
+            return { Column originalColumn ->
+                decorator.inner = originalColumn
+                decorator
+            }
+        }
     }
 }
