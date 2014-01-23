@@ -31,7 +31,7 @@ class RbmTestData {
     List<DeSubjectSampleMapping> assays =
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
-    List<DeRbmAnnotation> deRbmAnnotations = {
+    List<DeRbmAnnotation> annotations = {
         def createAnnotation = { id, antigene, uniprotId, geneSymbol, geneId ->
             def res = new DeRbmAnnotation(
                     gplId: platform.id,
@@ -50,15 +50,17 @@ class RbmTestData {
                 createAnnotation(-502, 'Antigene2', 'Q15849', 'SLC14A2', -602),
                 //Adipogenesis regulatory factor
                 createAnnotation(-503, 'Antigene3', 'Q15847', 'ADIRF', -603),
+
+                createAnnotation(-504, 'Antigene3', 'Q15850', 'EMBL', -604),
         ]
     }()
 
     List<DeSubjectRbmData> rbmData = {
         def createRbmEntry = { DeSubjectSampleMapping assay,
-                               DeRbmAnnotation deRbmAnnotation,
+                               List<DeRbmAnnotation> annotations,
                                double value ->
             new DeSubjectRbmData(
-                    annotation: deRbmAnnotation,
+                    annotations: annotations,
                     assay:      assay,
                     value:      value,
                     zscore:     (value - 0.35) / 0.1871,
@@ -67,9 +69,9 @@ class RbmTestData {
 
         def res = []
         Double value = 0
-        deRbmAnnotations.each { deRbmAnnotation ->
+        annotations.groupBy { it.antigenName }.each { annotationsEntry ->
             assays.each { assay ->
-                res += createRbmEntry assay, deRbmAnnotation, (value += 0.1)
+                res += createRbmEntry assay, annotationsEntry.value, (value += 0.1)
             }
         }
 
@@ -92,7 +94,7 @@ class RbmTestData {
         save([ platform ])
         save patients
         save assays
-        save deRbmAnnotations
+        save annotations
         save rbmData
     }
 
