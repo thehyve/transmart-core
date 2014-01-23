@@ -32,7 +32,7 @@ class MetaboliteTestData {
         def createAnnotation = { id, metaboliteName, metabolite ->
             def res = new DeMetaboliteAnnotation(
                     biochemicalName: metaboliteName,
-                    hmdbId:          "some id",
+                    hmdbId:          metabolite,
                     platform:        platform
             )
             res.id = id
@@ -40,9 +40,9 @@ class MetaboliteTestData {
         }
         [
                 // not the actual full sequences here...
-                createAnnotation(-501, 'Adipogenesis regulatory factor', 'MASKGLQDLK'),
-                createAnnotation(-502, 'Adiponectin',                    'MLLLGAVLLL'),
-                createAnnotation(-503, 'Urea transporter 2',             'MSDPHSSPLL'),
+                createAnnotation(-501, 'Adipogenesis regulatory factor', 'foo'),
+                createAnnotation(-502, 'Adiponectin',                    'bar'),
+                createAnnotation(-503, 'Urea transporter 2',             "HMDB00107"),
         ]
     }()
 

@@ -148,7 +148,17 @@ class H2Views {
                 INNER JOIN bio_data_correl_descr d1 ON c1.bio_data_correl_descr_id = d1.bio_data_correl_descr_id
                 INNER JOIN bio_data_correl_descr d2 ON c2.bio_data_correl_descr_id = d2.bio_data_correl_descr_id
                 WHERE d1.correlation = 'PATHWAY GENE'
-                AND d2.correlation = 'GENE TO PROTEIN';'''
+                AND d2.correlation = 'GENE TO PROTEIN'
+            UNION
+            SELECT DISTINCT
+                b.bio_marker_id,
+                b.bio_marker_id AS asso_bio_marker_id,
+                'METABOLITE' AS correl_type,
+                9 AS mv_id
+            FROM
+                biomart.bio_marker b
+            WHERE
+               b.bio_marker_type = 'METABOLITE';'''
     }
 
     void createSearchBioMkrCorrelView() {

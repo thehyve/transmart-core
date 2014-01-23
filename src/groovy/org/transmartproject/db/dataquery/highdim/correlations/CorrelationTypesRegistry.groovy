@@ -34,6 +34,8 @@ class CorrelationTypesRegistry {
          * will be sorted out in the DB */
         registryTable << new CorrelationType(name: 'PROTEIN',         sourceType: 'PROTEIN',    targetType: 'PROTEIN')
 
+        registryTable << new CorrelationType(name: 'METABOLITE',      sourceType: 'METABOLITE', targetType: 'METABOLITE')
+
         /* no example data for these; not sure the sourceType is correct */
         registryTable << new CorrelationType(name: 'PATHWAY GENE',    sourceType: 'PATHWAY',    targetType: 'GENE')
         registryTable << new CorrelationType(name: 'HOMOLOGENE_GENE', sourceType: 'HOMOLOGENE', targetType: 'GENE')
@@ -58,6 +60,7 @@ class CorrelationTypesRegistry {
         constraintMap.PATHWAY = DataConstraint.PATHWAYS_CONSTRAINT
         constraintMap.HOMOLOGENE = 'homologenes'
         constraintMap.GENESIG = DataConstraint.GENE_SIGNATURES_CONSTRAINT
+        constraintMap.METABOLITE = 'metabolites'
     }
 
 

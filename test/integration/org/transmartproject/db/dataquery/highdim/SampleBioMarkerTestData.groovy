@@ -76,6 +76,14 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'foo')
 
+    List<BioMarkerCoreDb> metaboliteBioMarkers = createBioMarkers(-1600L, [
+            [ name: 'HMDB00107',
+                    description: 'Galactitol',
+                    primaryExternalId: 'HMDB00107']],
+            'METABOLITE',
+            'HOMO SAPIENS',
+            'HMDB')
+
     List<SearchKeywordCoreDb> geneSearchKeywords =
         createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
 

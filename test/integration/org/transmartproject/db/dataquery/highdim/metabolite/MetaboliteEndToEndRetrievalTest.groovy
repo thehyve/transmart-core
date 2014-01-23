@@ -11,6 +11,12 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
+
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.hasProperty
+import static org.hamcrest.Matchers.is
 
 class MetaboliteEndToEndRetrievalTest {
 
@@ -55,16 +61,16 @@ class MetaboliteEndToEndRetrievalTest {
 
         def row = rows[0]
 
-        assert row.hmdbId == "some id"
-        assert row.biochemicalName == "Urea transporter 2"
+        assert row.hmdbId == "HMDB00107"
+        assert row.biochemicalName == "Galactitol"
         assert row.data.size() == 2
     }
 
     @Test
     void searchWithHmdbId() {
         def dataConstraint = metaboliteResource.createDataConstraint(
-                DataConstraint.METABOLITES_CONSTRAINT,
-                names: [ 'Urea transporter 2' ])
+                'metabolites',
+                names: [ 'HMDB00107' ])
 
         result = metaboliteResource.retrieveData(
                 [ trialConstraint ], [ dataConstraint ], projection)
@@ -74,7 +80,16 @@ class MetaboliteEndToEndRetrievalTest {
 
     @Test
     void searchWithSubPathway() {
+        SampleBioMarkerTestData biomarkerTestData = new SampleBioMarkerTestData()
+
         //BIOMARKER_ID -> subpathway
+        def dataConstraint = metaboliteResource.createDataConstraint(
+                DataConstraint.PATHWAYS_CONSTRAINT,
+                names: [ "To godliness (Harm wrote this)" ])
+
+        result = metaboliteResource.retrieveData(
+                [ trialConstraint ], [ dataConstraint ], projection)
+        println(result)
     }
 
     @Test
