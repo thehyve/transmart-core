@@ -198,7 +198,10 @@ class RbmDataRetrievalTests {
                 hasItem(
                         allOf(
                                 hasProperty('bioMarker', equalTo('Q15850/Q15847')),
-                                hasProperty('label', equalTo('Antigene3'))
+                                hasProperty('label', equalTo('Antigene3')),
+                                contains(
+                                        closeTo(testData.rbmData[-1].zscore as Double, delta),
+                                        closeTo(testData.rbmData[-2].zscore as Double, delta))
                         )
                 )
         )
