@@ -54,7 +54,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     if (categoryVariableEle.dom.childNodes[0]) {
         // Loop through the category variables and add them to a comma seperated
         // list.
-        for (nodeIndex = 0; nodeIndex < categoryVariableEle.dom.childNodes.length; nodeIndex++) {
+        for (var nodeIndex = 0; nodeIndex < categoryVariableEle.dom.childNodes.length; nodeIndex++) {
             // If we already have a value, add the seperator.
             if (categoryVariableConceptCode != '')
                 categoryVariableConceptCode += '|'
@@ -198,7 +198,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     //------------------------------------
 
     //Create a string of all the concepts we need for the i2b2 data.
-    variablesConceptCode = timeVariableConceptCode;
+    var variablesConceptCode = timeVariableConceptCode;
     if(categoryVariableConceptCode != "") variablesConceptCode += "|" + categoryVariableConceptCode
     if(censoringVariableConceptCode != "") variablesConceptCode += "|" + censoringVariableConceptCode
 
@@ -349,7 +349,6 @@ SurvivalAnalysisView.prototype.submit_job = function (form) {
 
     // get formParams
     var formParams = this.get_form_params(form);
-    console.log("formParams ....",formParams);
 
     if (formParams) { // if formParams is not null
         submitJob(formParams);
@@ -377,7 +376,7 @@ SurvivalAnalysisView.prototype.load_high_dimensional_parameters = function (form
     var fullSNPGeneList = "";
     var fullSNPGPL = "";
 
-    var categoryGeneList     = window['divCategoryVariablepathway'];
+    var categoryGeneList     = document.getElementById('dependentPathway').value;
     var categoryPlatform     = window['divCategoryVariableplatforms1'];
     var categoryType        = window['divCategoryVariablemarkerType'];
     var categorySampleType    = window['divCategoryVariablesamplesValues'];
@@ -427,17 +426,21 @@ SurvivalAnalysisView.prototype.load_high_dimensional_parameters = function (form
         snpData = true;
     }
 
-    if((fullGEXGeneList == "") && (categoryType == "MRNA"))
-    {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-        return false;
-    }
+    // TODO : check if no gene / pathway selected
+//    if((fullGEXGeneList == "") && (categoryType == "mrna"))
+//    {
+//        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
+//        return false;
+//    }
+//
+//    if((fullSNPGeneList == "") && (categoryType == "SNP"))
+//    {
+//        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
+//        return false;
+//    }
 
-    if((fullSNPGeneList == "") && (categoryType == "SNP"))
-    {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-        return false;
-    }
+    var _dependentDataType = document.getElementById('dependentVarDataType').value ? document.getElementById('dependentVarDataType').value : 'CLINICAL';
+
     // console.log("categoryType", categoryType)
     //If we don't have a platform, fill in Clinical.
     if(categoryPlatform == null || categoryPlatform == "") categoryType = "CLINICAL"
@@ -445,12 +448,12 @@ SurvivalAnalysisView.prototype.load_high_dimensional_parameters = function (form
     formParams["divDependentVariabletimepoints"]             = window['divCategoryVariabletimepoints1'];
     formParams["divDependentVariablesamples"]                = window['divCategoryVariablesamples1'];
     formParams["divDependentVariablerbmPanels"]              = window['divCategoryVariablerbmPanels1'];
-    formParams["divDependentVariableplatforms"]              = categoryPlatform
+    formParams["divDependentVariableplatforms"]              = categoryType
     formParams["divDependentVariablegpls"]                   = window['divCategoryVariablegplsValue1'];
     formParams["divDependentVariabletissues"]                = window['divCategoryVariabletissues1'];
     formParams["divDependentVariableprobesAggregation"]      = window['divCategoryVariableprobesAggregation'];
     formParams["divDependentVariableSNPType"]                = window['divCategoryVariableSNPType'];
-    formParams["divDependentVariableType"]                   = categoryType;
+    formParams["divDependentVariableType"]                   = _dependentDataType;
     formParams["divDependentVariablePathway"]                = categoryGeneList;
     formParams["divDependentPathwayName"]                    = window['divCategoryVariablepathwayName'];
     formParams["gexpathway"]                                 = fullGEXGeneList;
