@@ -35,7 +35,7 @@ public interface Projection<CELL> {
      * see the dataProperties property of the datatype specific
      * HighDimensionResource subresource.
      */
-    public static final GENERIC_PROJECTION = 'generic'
+    public static final ALL_DATA_PROJECTION = 'all_data'
 
     /**
      * This method takes an implementation-defined object and returns the final
