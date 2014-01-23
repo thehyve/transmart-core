@@ -2,7 +2,6 @@ package org.transmartproject.db.dataquery.highdim.parameterproducers
 
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.dataquery.highdim.projections.GenericProjection
 
 /**
@@ -18,12 +17,12 @@ class GenericProjectionsFactory implements DataRetrievalParameterFactory {
 
     @Override
     Set<String> getSupportedNames() {
-        [Projection.GENERIC_PROJECTION] as Set
+        [Projection.ALL_DATA_PROJECTION] as Set
     }
 
     @Override
     boolean supports(String name) {
-        Projection.GENERIC_PROJECTION == name
+        Projection.ALL_DATA_PROJECTION == name
     }
 
     @Override

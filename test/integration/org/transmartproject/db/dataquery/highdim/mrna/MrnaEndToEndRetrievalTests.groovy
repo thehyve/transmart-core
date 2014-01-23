@@ -148,7 +148,7 @@ class MrnaEndToEndRetrievalTests {
         assertThat mrnaResource.supportedProjections, containsInAnyOrder(
                 Projection.DEFAULT_REAL_PROJECTION,
                 Projection.ZSCORE_PROJECTION,
-                Projection.GENERIC_PROJECTION)
+                Projection.ALL_DATA_PROJECTION)
     }
 
 
