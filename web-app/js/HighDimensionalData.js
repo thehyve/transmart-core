@@ -196,6 +196,10 @@ HighDimensionalData.prototype.generate_view = function () {
             document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
             document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
         }
+        if (_this.divId == 'divCategoryVariable' && document.getElementById("dependentVarDataType")) {
+            document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
+            document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
+        }
 
         // init summary string
         var summaryString = '<br> <b>GPL Platform:</b> ' + Ext.get('gpl1').dom.value +

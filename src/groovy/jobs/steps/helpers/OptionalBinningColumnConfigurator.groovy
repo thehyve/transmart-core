@@ -2,6 +2,7 @@ package jobs.steps.helpers
 
 import groovy.util.logging.Log4j
 import jobs.table.Column
+import jobs.table.columns.ConstantValueColumn
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
@@ -47,8 +48,22 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     @Autowired
     ApplicationContext appCtx
 
-    private void setupInnerConfigurator() {
-        if (categorical) {
+    private void setupInnerConfigurator(String conceptPaths) {
+
+        boolean emptyConcept = (conceptPaths == '')
+
+        if (emptyConcept) {
+            //when required we will never reach here
+            log.debug("Not required and no value for $keyForConceptPaths, " +
+                    "assuming constant value column")
+
+            innerConfigurator = appCtx.getBean SimpleAddColumnConfigurator
+            innerConfigurator.column = new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction)
+            //innerConfigurator.missingValueAction = missingValueAction
+            //table.addColumn(new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction), Collections.emptySet())
+            innerConfigurator.addColumn()
+
+        } else if (categorical) {
             log.debug("Found pipe character in $keyForConceptPaths, " +
                     "assuming categorical data")
 
@@ -73,18 +88,25 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
         binningConfigurator.innerConfigurator = innerConfigurator
     }
 
+
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
-        setupInnerConfigurator()
 
-        if (!binningConfigurator.binningEnabled &&
-                !(innerConfigurator instanceof CategoricalColumnConfigurator) &&
-                forceNumericBinning) {
-            throw new InvalidArgumentsException("Numeric variables must be " +
-                    "binned for column $columnHeader")
+        def conceptPaths = getConceptPaths()
+        setupInnerConfigurator(conceptPaths)
+
+        if (conceptPaths != '') {
+
+            if (!binningConfigurator.binningEnabled &&
+                    !(innerConfigurator instanceof CategoricalColumnConfigurator) &&
+                    forceNumericBinning) {
+                throw new InvalidArgumentsException("Numeric variables must be " +
+                        "binned for column $columnHeader")
+            }
+            
+            //configure binning only if has variable
+            binningConfigurator.addColumn decorateColumn
         }
-
-        binningConfigurator.addColumn decorateColumn
     }
 
     boolean isCategorical() {
@@ -94,4 +116,18 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     boolean isCategoricalOrBinned() {
         isCategorical() || binningConfigurator.binningEnabled
     }
+    /**
+     * Sets parameter keys based on optional base key part
+     * @param keyPart
+     */
+    void setKeys(String keyPart = '') {
+        keyForConceptPaths    = "${keyPart}Variable"
+        keyForDataType        = "div${keyPart.capitalize()}VariableType"
+        keyForSearchKeywordId = "div${keyPart.capitalize()}VariablePathway"
+    }
+
+    String getConceptPaths() {
+        //if required this will fail on empty conceptPaths
+        getStringParam(keyForConceptPaths, required)
+    }    
 }
