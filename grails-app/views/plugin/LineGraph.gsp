@@ -61,7 +61,6 @@
                         </span>
                         <div id='divGroupByVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divGroupByVariable')">High Dimensional Data</button>
                             <button type="button" onclick="boxPlotView.clear_high_dimensional_input('divGroupByVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="dependentVarDataType">
@@ -81,7 +80,7 @@
               <option value="MEDER">Median with error bar</option>
             </select><br>
             <label for="plotIndividuals">Plot individuals</label><input id="plotIndividuals" type="checkbox" name="plotIndividuals"></input><br>
-            <input type="button" value="Run" onClick="submitLineGraphJob(this.form);">
+            <input type="button" value="Run" onClick="lineGraphView.submit_job(this.form);">
 
         </div>  %{--end container--}%
     </form>

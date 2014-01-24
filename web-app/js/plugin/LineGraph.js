@@ -44,12 +44,12 @@ LineGraphView.prototype.get_form_params = function (form) {
 
     //If the user dragged in multiple node types, throw an error.
     if (dependentNodeList.length > 1) {
-        Ext.Msg.alert('Error', 'Dependent variable must have same type');
+        Ext.Msg.alert('Error', 'Time/Measurements variable must have same type');
         return;
     }
 
     if (groupByNodeList.length > 1) {
-        Ext.Msg.alert('Error', 'Independent variable must have same type');
+        Ext.Msg.alert('Error', 'Group concepts variable must have same type');
         return;
     }
 
@@ -100,12 +100,12 @@ LineGraphView.prototype.get_form_params = function (form) {
 
     //Make sure the user entered some items into the variable selection boxes.
     if (dependentVariableConceptCode == '') {
-        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the dependent variable box.');
+        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the time/measurements variable box.');
         return;
     }
 
     if (groupByVariableConceptcode == '') {
-        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
+        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the group variable box.');
         return;
     }
 
@@ -117,7 +117,10 @@ LineGraphView.prototype.get_form_params = function (form) {
         independentVariable: groupByVariableConceptcode,
         independentVariableCategorical: _isCategorical(groupByNodeList),
         jobType: 'LineGraph',
-        variablesConceptPaths: variablesConceptCode
+        plotIndividuals: Ext.get("plotIndividuals").dom.checked,
+        projections: [ "rawIntensity" ],
+        graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
+        groupByVariable: groupByVariableConceptcode
     };
 
     if (!highDimensionalData.load_parameters(formParams)) return false;
@@ -143,5 +146,5 @@ LineGraphView.prototype.submit_job = function (form) {
 
 }
 
-// instantiate table fisher instance
+// instantiate line graph instance
 var lineGraphView = new LineGraphView();
