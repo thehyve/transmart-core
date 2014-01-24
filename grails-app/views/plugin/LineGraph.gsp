@@ -37,7 +37,7 @@
                         <input type="hidden" id="independentPathway">
                     </div>
 
-                    %{--Display independent variable--}%
+                    %{--Display dependent variable--}%
                     <div id="displaydivDependentVariable" class="dependentVars"></div>
 
                 </fieldset>
@@ -68,23 +68,13 @@
                         <input type="hidden" id="dependentPathway">
                     </div>
 
-                    %{--Display dependent variable--}%
-                    <div id="displaydivGroupByVariable" class="dependentVars"></div>
+                    %{--Display group variable--}%
+                    <div id="displaydivGroupByVariable" class="groupByVariable"></div>
                 </fieldset>
 
             </div>
 
         </div>  %{--end container--}%
-
-    %{-- ************************************************************************************************* --}%
-    %{-- Tool Bar --}%
-    %{-- ************************************************************************************************* --}%
-        <fieldset class="toolFields">
-            <div class="chkpair">
-                <g:checkBox name="isBinning" onclick="boxPlotView.toggle_binning();"/> Enable binning
-            </div>
-            <input type="button" value="Run" onClick="boxPlotView.submit_job(this.form);" class="runAnalysisBtn">
-        </fieldset>
     </form>
 
 </div>
