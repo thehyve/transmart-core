@@ -38,4 +38,8 @@ modules = {
     survival_analysis {
         resource url:"/js/plugin/SurvivalAnalysis.js"
     }
+
+    line_graph {
+        resource url:"/js/plugin/LineGraph.js"
+    }
 }
