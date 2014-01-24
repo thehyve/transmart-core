@@ -150,6 +150,8 @@ aggregate.probes = TRUE
 
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+	library(WGCNA)
+	
     meltedData <- melt(mRNAData, id=c("GROUP","GENE_SYMBOL","PATIENT_NUM"))
 
     #Cast the data into a format that puts the PATIENT_NUM in a column.

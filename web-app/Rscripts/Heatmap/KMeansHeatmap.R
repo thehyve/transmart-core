@@ -36,7 +36,6 @@ aggregate.probes = TRUE
 
 	library(Cairo)
 	library(reshape2)
-	library(WGCNA)
 	library(gplots)
 	
 	#Validate the number of clusters after converting to a numeric.
@@ -175,6 +174,8 @@ ClusteredHeatmap.loader.single <- function(heatmapdata)
 }
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+	library(WGCNA)
+
     meltedData <- melt(mRNAData, id=c("GROUP","GENE_SYMBOL","PATIENT_NUM"))
 
     #Cast the data into a format that puts the PATIENT_NUM in a column.
