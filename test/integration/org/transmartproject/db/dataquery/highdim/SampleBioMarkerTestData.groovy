@@ -79,6 +79,21 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'foo')
 
+    /* keep in sync with MetaboliteTestData::annotations */
+    List<BioMarkerCoreDb> metaboliteBioMarkers = createBioMarkers(-1600L, [
+            [ name: 'HMDB30536',
+                    description: 'Majoroside F4',
+                    primaryExternalId: 'HMDB30536'],
+            [ name: 'HMDB30537',
+                    description: 'Cryptoxanthin 5,6:5\',8\'-diepoxide',
+                    primaryExternalId: 'HMDB30537'],
+            [ name: 'HMDB30538',
+                    description: 'Cryptoxanthin epoxide',
+                    primaryExternalId: 'HMDB30538']],
+            'METABOLITE',
+            'HOMO SAPIENS',
+            'HMDB')
+
     List<SearchKeywordCoreDb> geneSearchKeywords =
         createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
 
@@ -90,6 +105,9 @@ class SampleBioMarkerTestData {
 
     List<SearchKeywordCoreDb> pathwaySearchKeywords =
         createSearchKeywordsForBioMarkers(pathwayBioMarkers, -2500L)
+
+    List<SearchKeywordCoreDb> metaboliteSearchKeywords =
+        createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
     List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
@@ -164,7 +182,7 @@ class SampleBioMarkerTestData {
                     deletedFlag: false,
                     name: 'bogus_gene_sig_' + id,
                     uploadFile: 'bogus_upload_file',
-                    speciesConceptId: '0',
+                    speciesConceptId: 0,
                     creator: users[0],
                     createDate: new Date(),
                     bioAssayPlatformId: 0,
@@ -266,4 +284,10 @@ class SampleBioMarkerTestData {
         save mirnaBioMarkers
         save mirnaSearchKeywords
     }
+
+    void saveMetabolomicsData() {
+        save metaboliteBioMarkers
+        save metaboliteSearchKeywords
+    }
+
 }
