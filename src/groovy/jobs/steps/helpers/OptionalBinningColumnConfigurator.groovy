@@ -10,6 +10,15 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
+/**
+ * A configurator supporting:
+ *
+ * - categorical variables, binned or not
+ * - low dimensional data, binned or not
+ *   (no binning allowed only if !forceNumericBinning)
+ * - high dimensional data, multirow or not (depending on multiRow),
+ *   binning or not (no binning allowed only if !forceNumericBinning)
+ */
 @Log4j
 @Component
 @Scope('prototype')
@@ -100,6 +109,13 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
         }
     }
 
+    boolean isCategorical() {
+        getStringParam(keyForConceptPaths).contains('|')
+    }
+
+    boolean isCategoricalOrBinned() {
+        isCategorical() || binningConfigurator.binningEnabled
+    }
     /**
      * Sets parameter keys based on optional base key part
      * @param keyPart

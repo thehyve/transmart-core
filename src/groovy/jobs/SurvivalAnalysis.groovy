@@ -7,11 +7,9 @@ import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import jobs.table.columns.TransformColumnDecorator
-import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -25,9 +23,6 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
     private static def CENSORING_TRUE = '1'
     private static def CENSORING_FALSE = '0'
-
-    @Autowired
-    ApplicationContext appCtx
 
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
@@ -58,7 +53,6 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
     void configureTimeVariableConfigurator() {
         timeVariableConfigurator.columnHeader           = 'TIME'
-        timeVariableConfigurator.projection             = Projection.DEFAULT_REAL_PROJECTION
         timeVariableConfigurator.setKeys('time')
         timeVariableConfigurator.alwaysClinical = true
     }
@@ -73,8 +67,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         categoryVariableConfigurator.binningConfigurator.setKeys('')
         categoryVariableConfigurator.keyForConceptPaths = 'categoryVariable'
 
-        def isVariableDefined = StringUtils.isNotBlank(categoryVariableConfigurator.getConceptPaths())
-        def missingValueAction = isVariableDefined ?
+        def missingValueAction = categoryVariableConfigurator.getConceptPaths() ?
                 new MissingValueAction.DropRowMissingValueAction() :
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: 'STUDY')
 
@@ -88,8 +81,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         censoringInnerConfigurator.columnHeader         = 'CENSOR'
         censoringInnerConfigurator.keyForConceptPaths   = 'censoringVariable'
 
-        def isVariableDefined = StringUtils.isNotBlank(censoringInnerConfigurator.getConceptPaths())
-        def noValueDefault = isVariableDefined ? CENSORING_FALSE : CENSORING_TRUE
+        def noValueDefault = censoringInnerConfigurator.getConceptPaths() ? CENSORING_FALSE : CENSORING_TRUE
 
         censoringInnerConfigurator.missingValueAction  =
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: noValueDefault)
@@ -144,11 +136,9 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         "/survivalAnalysis/survivalAnalysisOutput?jobName=$name"
     }
 
-    class CensoringColumnConfigurator extends ColumnConfigurator {
+    static class CensoringColumnConfigurator extends ColumnConfigurator {
 
         ColumnConfigurator innerConfigurator
-
-        public CensoringColumnConfigurator() { }
 
         @Override
         protected void doAddColumn(Closure<Column> decorateColumn) {
