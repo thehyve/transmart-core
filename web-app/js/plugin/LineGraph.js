@@ -1,7 +1,7 @@
 /**
  * Where everything starts
  */
-function loadLineGraphView(){
+function loadLineGraphView() {
     lineGraphView.register_drag_drop();
     lineGraphView.clear_high_dimensional_input('divGroupByVariable');
     lineGraphView.clear_high_dimensional_input('divDependentVariable');
@@ -37,10 +37,10 @@ LineGraphView.prototype.constructor = LineGraphView;
 LineGraphView.prototype.get_form_params = function (form) {
 
     var dependentVariableEle = Ext.get("divDependentVariable");
-    var independentVariableEle = Ext.get("divGroupByVariable");
+    var groupByVariableEle = Ext.get("divGroupByVariable");
 
     var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
-    var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
+    var groupByNodeList = createNodeTypeArrayFromDiv(groupByVariableEle,"setnodetype")
 
     //If the user dragged in multiple node types, throw an error.
     if (dependentNodeList.length > 1) {
@@ -48,7 +48,7 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-    if (independentNodeList.length > 1) {
+    if (groupByNodeList.length > 1) {
         Ext.Msg.alert('Error', 'Independent variable must have same type');
         return;
     }
@@ -65,24 +65,24 @@ LineGraphView.prototype.get_form_params = function (form) {
 
 
     var dependentVariableConceptCode = "";
-    var independentVariableConceptCode = "";
+    var groupByVariableConceptcode = "";
 
     //If we have multiple items in the Dependent variable box, then we have to flip the graph image.
     var flipImage = false;
 
-    if ((dependentVariableEle.dom.childNodes.length > 1) {
+    if (dependentVariableEle.dom.childNodes.length > 1) {
         flipImage = true;
     }
 
     //If the category variable element has children, we need to parse them and concatenate their values.
-    if (independentVariableEle.dom.childNodes[0]) {
+    if (groupByVariableEle.dom.childNodes[0]) {
         //Loop through the category variables and add them to a comma seperated list.
-        for (nodeIndex = 0; nodeIndex < independentVariableEle.dom.childNodes.length; nodeIndex++) {
+        for (nodeIndex = 0; nodeIndex < groupByVariableEle.dom.childNodes.length; nodeIndex++) {
             //If we already have a value, add the seperator.
-            if (independentVariableConceptCode != '') independentVariableConceptCode += '|'
+            if (groupByVariableConceptcode != '') groupByVariableConceptcode += '|'
 
             //Add the concept path to the string.
-            independentVariableConceptCode += getQuerySummaryItem(independentVariableEle.dom.childNodes[nodeIndex]).trim()
+            groupByVariableConceptcode += getQuerySummaryItem(groupByVariableEle.dom.childNodes[nodeIndex]).trim()
         }
     }
 
@@ -104,18 +104,18 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-    if (independentVariableConceptCode == '') {
+    if (groupByVariableConceptcode == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
         return;
     }
 
-    var variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode;
+    var variablesConceptCode = dependentVariableConceptCode + "|" + groupByVariableConceptcode;
 
     var formParams = {
         dependentVariable: dependentVariableConceptCode,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
-        independentVariable: independentVariableConceptCode,
-        independentVariableCategorical: _isCategorical(independentNodeList),
+        independentVariable: groupByVariableConceptcode,
+        independentVariableCategorical: _isCategorical(groupByNodeList),
         jobType: 'LineGraph',
         variablesConceptPaths: variablesConceptCode
     };
