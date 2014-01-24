@@ -49,7 +49,10 @@ class SampleBioMarkerTestData {
                     primaryExternalId: 'Q15848' ],
             [ name: 'Urea transporter 2',
                     description: 'Solute carrier family 14 member 2',
-                    primaryExternalId: 'Q15849' ]],
+                    primaryExternalId: 'Q15849' ],
+            [ name: 'EMBL CAA39792.1',
+                    description: 'EMBL CAA39792.1',
+                    primaryExternalId: 'Q15850' ]],
             'PROTEIN',
             'HOMO SAPIENS',
             'UniProt')

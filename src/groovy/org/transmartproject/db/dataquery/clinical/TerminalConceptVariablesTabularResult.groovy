@@ -81,7 +81,7 @@ class TerminalConceptVariablesTabularResult extends
     private PatientIdAnnotatedDataRow finalizePatientGroup(List<Object[]> list) {
         Map<Integer, TerminalConceptVariable> indexToColumn = localIndexMap.inverse()
 
-        String[] transformedData = new String[localIndexMap.size()]
+        Object[] transformedData = new Object[localIndexMap.size()]
 
         /* don't take Object[] otherwise would be vararg func and
          * further unwrapping needed */

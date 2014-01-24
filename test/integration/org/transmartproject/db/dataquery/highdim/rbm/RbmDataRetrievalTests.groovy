@@ -83,8 +83,10 @@ class RbmDataRetrievalTests {
         result = rbmResource.retrieveData([trialNameConstraint], [],
             rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
-        assertThat result, hasItem(allOf(
-                hasProperty('label', is('Q15848')),
+        def resultList = Lists.newArrayList result
+
+        assertThat resultList, hasItem(allOf(
+                hasProperty('label', is('Antigene1')),
                 contains(
                         closeTo(testData.rbmData[1].value as Double, delta),
                         closeTo(testData.rbmData[0].value as Double, delta))))
@@ -110,7 +112,7 @@ class RbmDataRetrievalTests {
                 contains(
                         allOf(
                                 hasProperty('bioMarker', equalTo('Q15848')),
-                                hasProperty('label', equalTo('Q15848')))))
+                                hasProperty('label', equalTo('Antigene1')))))
     }
 
     @Test
@@ -135,7 +137,7 @@ class RbmDataRetrievalTests {
                                 ))
                         )
                 ),
-                contains(hasProperty('label', equalTo('Q15848')))
+                contains(hasProperty('label', equalTo('Antigene1')))
         )
     }
 
@@ -152,7 +154,7 @@ class RbmDataRetrievalTests {
 
         assertThat resultList, contains(
                 allOf(
-                        hasProperty('label', equalTo('Q15849')),
+                        hasProperty('label', equalTo('Antigene2')),
                         contains(
                                 closeTo(testData.rbmData[-3].zscore as Double, delta),
                                 closeTo(testData.rbmData[-4].zscore as Double, delta))))
@@ -176,7 +178,33 @@ class RbmDataRetrievalTests {
                                 contains(
                                         closeTo(testData.rbmData[-3].zscore as Double, delta),
                                         closeTo(testData.rbmData[-4].zscore as Double, delta)))),
-                contains(hasProperty('label', equalTo('Q15849'))))
+                contains(hasProperty('label', equalTo('Antigene2'))))
+    }
+
+    @Test
+    void testRetrieDataRowThatMapsToMultipleProteins() {
+
+        def proteinDataConstraint = rbmResource.createDataConstraint(
+                [ids: ['Q15847', 'Q15850']],
+                DataConstraint.PROTEINS_CONSTRAINT
+        )
+
+        result = rbmResource.retrieveData([trialNameConstraint], [proteinDataConstraint], projection)
+
+        def resultList = Lists.newArrayList result
+
+        assertThat resultList, allOf(
+                hasSize(1),
+                hasItem(
+                        allOf(
+                                hasProperty('bioMarker', equalTo('Q15850/Q15847')),
+                                hasProperty('label', equalTo('Antigene3')),
+                                contains(
+                                        closeTo(testData.rbmData[-1].zscore as Double, delta),
+                                        closeTo(testData.rbmData[-2].zscore as Double, delta))
+                        )
+                )
+        )
     }
 
     @Test

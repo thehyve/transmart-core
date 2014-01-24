@@ -8,8 +8,6 @@ class DeRbmAnnotation {
     String geneSymbol
     String geneId
 
-    static hasMany = [deSubjectRbmDatas: DeSubjectRbmData]
-
     static mapping = {
         table   schema:    'deapp',   name: 'de_rbm_annotation'
         id      generator: 'assigned'
