@@ -1,19 +1,16 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.Iterators
-import com.google.common.collect.PeekingIterator
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
@@ -103,49 +100,22 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                     )
                 }
         )
-        
-        new TabularResult<DataColumn, RbmRow>() {
-            @Delegate
-            TabularResult<DataColumn, RbmRow> delegate = preliminaryResult
 
-            Iterator<RbmRow> getRows() {
-                new RepeatedAntigenesCollectingIterator(delegate.iterator())
-            }
-
-            Iterator<RbmRow> iterator() {
-                getRows()
-            }
-        }
+        new RepeatedEntriesCollectingTabularResult(
+                tabularResult: preliminaryResult,
+                collectBy: { it.antigenName },
+                resultItem: {collectedList ->
+                    if (collectedList) {
+                        new RbmRow(
+                                annotationId: collectedList[0].annotationId,
+                                antigenName: collectedList[0].antigenName,
+                                uniprotId: collectedList*.uniprotId.join('/'),
+                                assayIndexMap: collectedList[0].assayIndexMap,
+                                data: collectedList[0].data
+                        )
+                    }
+                }
+        )
     }
 
-    public static class RepeatedAntigenesCollectingIterator extends AbstractIterator<RbmRow> {
-
-        PeekingIterator<RbmRow> sourceIterator
-
-        RepeatedAntigenesCollectingIterator(Iterator<RbmRow> sourceIterator) {
-            this.sourceIterator = Iterators.peekingIterator sourceIterator
-        }
-
-        @Override
-        protected RbmRow computeNext() {
-            List<RbmRow> collected = []
-            if (!sourceIterator.hasNext()) {
-                endOfData()
-                return
-            }
-
-            collected << sourceIterator.next()
-            while (sourceIterator.hasNext() &&
-                    sourceIterator.peek().antigenName != null &&
-                    sourceIterator.peek().antigenName == collected[0].antigenName) {
-                collected << sourceIterator.next()
-            }
-
-            if (collected.size() > 1) {
-                /* modify 1st element with info from subsequents */
-                collected[0].uniprotId = collected*.uniprotId.join('/')
-            }
-            collected[0]
-        }
-    }
 }

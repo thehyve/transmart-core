@@ -1,19 +1,16 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.Iterators
-import com.google.common.collect.PeekingIterator
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
@@ -91,49 +88,20 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
                 }
         )
 
-        new TabularResult<DataColumn, RnaSeqCogDataRow>() {
-            @Delegate
-            TabularResult<DataColumn, RnaSeqCogDataRow> delegate = preliminaryResult
-
-            Iterator<RnaSeqCogDataRow> getRows() {
-                new RepeatedAnnotationsCollectingIterator(delegate.iterator())
-            }
-
-            Iterator<RnaSeqCogDataRow> iterator() {
-                getRows()
-            }
-        }
-    }
-
-    public static class RepeatedAnnotationsCollectingIterator
-    extends AbstractIterator<RnaSeqCogDataRow> {
-
-        PeekingIterator<RnaSeqCogDataRow> sourceIterator
-
-        RepeatedAnnotationsCollectingIterator(Iterator<RnaSeqCogDataRow> sourceIterator) {
-            this.sourceIterator = Iterators.peekingIterator sourceIterator
-        }
-
-        @Override
-        protected RnaSeqCogDataRow computeNext() {
-            List<RnaSeqCogDataRow> collected = []
-            if (!sourceIterator.hasNext()) {
-                endOfData()
-                return
-            }
-
-            collected << sourceIterator.next()
-            while (sourceIterator.hasNext() &&
-                    sourceIterator.peek().annotationId != null &&
-                    sourceIterator.peek().annotationId == collected[0].annotationId) {
-                collected << sourceIterator.next()
-            }
-
-            if (collected.size() > 1) {
-                collected[0].geneSymbol = collected*.geneSymbol.join('/')
-            }
-            collected[0]
-        }
+        new RepeatedEntriesCollectingTabularResult(
+                tabularResult: preliminaryResult,
+                collectBy: { it.annotationId },
+                resultItem: { collectedList ->
+                    if (collectedList) {
+                        new RnaSeqCogDataRow(
+                                annotationId:  collectedList[0].annotationId,
+                                geneSymbol:    collectedList*.geneSymbol.join('/'),
+                                assayIndexMap: collectedList[0].assayIndexMap,
+                                data:          collectedList[0].data
+                        )
+                    }
+                }
+        )
     }
 
     @Override
