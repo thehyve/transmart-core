@@ -49,17 +49,15 @@ class CorrelationTypesRegistry {
                 targetType:       'GENE',
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
-
     }
 
     private void registerKnownConstraints() {
-        constraintMap.GENE = DataConstraint.GENES_CONSTRAINT
-        constraintMap.PROTEIN = DataConstraint.PROTEINS_CONSTRAINT
-        constraintMap.PATHWAY = DataConstraint.PATHWAYS_CONSTRAINT
+        constraintMap.GENE       = DataConstraint.GENES_CONSTRAINT
+        constraintMap.PROTEIN    = DataConstraint.PROTEINS_CONSTRAINT
+        constraintMap.PATHWAY    = DataConstraint.PATHWAYS_CONSTRAINT
         constraintMap.HOMOLOGENE = 'homologenes'
-        constraintMap.GENESIG = DataConstraint.GENE_SIGNATURES_CONSTRAINT
+        constraintMap.GENESIG    = DataConstraint.GENE_SIGNATURES_CONSTRAINT
     }
-
 
     void registerCorrelation(CorrelationType correlationType) {
         registryTable << correlationType

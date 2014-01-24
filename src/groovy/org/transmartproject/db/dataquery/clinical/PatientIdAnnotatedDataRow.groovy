@@ -1,8 +1,10 @@
 package org.transmartproject.db.dataquery.clinical
 
+import groovy.transform.ToString
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 
+@ToString(includes = ['patientId', 'data'])
 class PatientIdAnnotatedDataRow implements DataRow<ClinicalVariableColumn, Object> {
 
     Long patientId
@@ -17,17 +19,17 @@ class PatientIdAnnotatedDataRow implements DataRow<ClinicalVariableColumn, Objec
     }
 
     @Override
-    String getAt(int index) {
+    Object getAt(int index) {
         data[index]
     }
 
     @Override
-    String getAt(ClinicalVariableColumn column) {
+    Object getAt(ClinicalVariableColumn column) {
         data[columnToIndex[column]]
     }
 
     @Override
-    Iterator<String> iterator() {
+    Iterator<Object> iterator() {
         data.iterator()
     }
 }

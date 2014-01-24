@@ -34,6 +34,8 @@ class H2Views {
 
             createSearchBioMkrCorrelView()
             createBioMarkerCorrelMv()
+            createSubPathwayCorrelView()
+            createSuperPathwayCorrelView()
         } finally {
             this.sql.close()
         }
@@ -148,7 +150,17 @@ class H2Views {
                 INNER JOIN bio_data_correl_descr d1 ON c1.bio_data_correl_descr_id = d1.bio_data_correl_descr_id
                 INNER JOIN bio_data_correl_descr d2 ON c2.bio_data_correl_descr_id = d2.bio_data_correl_descr_id
                 WHERE d1.correlation = 'PATHWAY GENE'
-                AND d2.correlation = 'GENE TO PROTEIN';'''
+                AND d2.correlation = 'GENE TO PROTEIN'
+            UNION
+            SELECT DISTINCT
+                b.bio_marker_id,
+                b.bio_marker_id AS asso_bio_marker_id,
+                'METABOLITE' AS correl_type,
+                9 AS mv_id
+            FROM
+                biomart.bio_marker b
+            WHERE
+               b.bio_marker_type = 'METABOLITE';'''
     }
 
     void createSearchBioMkrCorrelView() {
@@ -206,6 +218,53 @@ class H2Views {
                         AND gs.DELETED_FLAG IS FALSE
                         AND bada.bio_assay_feature_group_id = i.bio_assay_feature_group_id
                         AND i.bio_assay_feature_group_id IS NOT NULL ) A; '''
+    }
+
+    void createSubPathwayCorrelView() {
+        if (handleCurrentState('BIOMART', 'BIO_METAB_SUBPATHWAY_VIEW')) {
+            return
+        }
+
+        sql.execute '''
+            CREATE VIEW BIOMART.BIO_METAB_SUBPATHWAY_VIEW(
+                SUBPATHWAY_ID,
+                ASSO_BIO_MARKER_ID,
+                CORREL_TYPE) AS
+            SELECT
+                SP.id,
+                B.bio_marker_id,
+                'SUBPATHWAY TO METABOLITE'
+            FROM
+                deapp.de_metabolite_sub_pathways SP
+                INNER JOIN deapp.de_metabolite_sub_pway_metab J ON (SP.id = J.sub_pathway_id)
+                INNER JOIN deapp.de_metabolite_annotation M ON (M.id = J.metabolite_id)
+                INNER JOIN biomart.bio_marker B ON (
+                    B.bio_marker_type = 'METABOLITE' AND
+                    B.primary_external_id = M.hmdb_id);'''
+    }
+
+    void createSuperPathwayCorrelView() {
+        if (handleCurrentState('BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')) {
+            return
+        }
+
+        sql.execute '''
+            CREATE VIEW BIOMART.BIO_METAB_SUPERPATHWAY_VIEW(
+                SUPERPATHWAY_ID,
+                ASSO_BIO_MARKER_ID,
+                CORREL_TYPE) AS
+            SELECT
+                SUPP.id,
+                B.bio_marker_id,
+                'SUPERPATHWAY TO METABOLITE\'
+            FROM
+                deapp.de_metabolite_super_pathways SUPP
+                INNER JOIN deapp.de_metabolite_sub_pathways SUBP ON (SUPP.id = SUBP.super_pathway_id)
+                INNER JOIN deapp.de_metabolite_sub_pway_metab J ON (SUBP.id = J.sub_pathway_id)
+                INNER JOIN deapp.de_metabolite_annotation M ON (M.id = J.metabolite_id)
+                INNER JOIN biomart.bio_marker B ON (
+                    B.bio_marker_type = 'METABOLITE' AND
+                    B.primary_external_id = M.hmdb_id);'''
     }
 
     enum ObjectStatus {

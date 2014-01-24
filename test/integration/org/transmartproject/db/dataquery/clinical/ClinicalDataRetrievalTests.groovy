@@ -167,14 +167,25 @@ class ClinicalDataRetrievalTests {
 
         assertThat rows, contains(
                 /* see test data */
-                contains(allOf(
-                        isA(String),
-                        startsWith('-45.42') /* may have more zeros */
-                )),
+                contains(isA(Number) /* -45.42 */),
                 contains(equalTo('')),
                 contains(nullValue()))
     }
 
+    @Test
+    void testNumericDataIsInNumericForm() {
+        results = clinicalDataResourceService.retrieveData(testData.queryResult,
+                [ new TerminalConceptVariable(conceptCode: 'c3') ])
+        List<PatientRow> rows = Lists.newArrayList results
+
+        assertThat rows, hasItem(allOf(
+                /* see test data */
+                hasProperty('patient',
+                        hasSameInterfaceProperties(Patient,
+                                testData.patients[2] /* -103 */, ['assays'])),
+                /* numberValue prop in ObservationFact has scale 5 */
+                contains(equalTo(-45.42000 /* big decimal */))))
+    }
 
 
     @Test

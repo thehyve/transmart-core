@@ -11,6 +11,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
@@ -48,7 +49,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'deRbmAnnotation', 'uniprotId'),
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'annotations', 'uniprotId'),
         ]
     }
 
@@ -65,17 +66,17 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
             createCriteriaBuilder(DeSubjectRbmData, 'rbmdata', session)
 
         criteriaBuilder.with {
-            createAlias 'deRbmAnnotation', 'p', INNER_JOIN
+            createAlias 'annotations', 'p', INNER_JOIN
 
             projections {
                 property 'assay', 'assay'
-
-                property 'p.id', 'rbmAnnotationId'
-                property 'p.uniprotId',     'uniprotId'
-                property 'p.antigenName',   'antigenName'
+                property 'p.id', 'annotationId'
+                property 'p.antigenName', 'antigenName'
+                property 'p.uniprotId', 'uniprotId'
             }
 
             order 'p.id', 'asc'
+            order 'p.uniprotId', 'asc'
             order 'assay.id', 'asc'
             instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         }
@@ -86,7 +87,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         Map assayIndexes = createAssayIndexMap assays
 
-        new DefaultHighDimensionTabularResult(
+        def preliminaryResult = new DefaultHighDimensionTabularResult(
                 rowsDimensionLabel: 'Antigenes',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
@@ -94,16 +95,34 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
                 assayIdFromRow: { it[0].assay.id },
-                inSameGroup: {a, b -> a.rbmAnnotationId == b.rbmAnnotationId},
+                inSameGroup: {a, b -> a.annotationId == b.annotationId && a.uniprotId == b.uniprotId },
                 finalizeGroup: {List list ->
                     def firstNonNullCell = list.find()
                     new RbmRow(
-                            uniprotId:      firstNonNullCell[0].uniprotId,
-                            antigenName:    firstNonNullCell[0].antigenName,
+                            annotationId: firstNonNullCell[0].annotationId,
+                            antigenName: firstNonNullCell[0].antigenName,
+                            uniprotId: firstNonNullCell[0].uniprotId,
                             assayIndexMap: assayIndexes,
                             data: list.collect { projection.doWithResult it?.getAt(0) }
                     )
                 }
         )
+
+        new RepeatedEntriesCollectingTabularResult(
+                tabularResult: preliminaryResult,
+                collectBy: { it.antigenName },
+                resultItem: {collectedList ->
+                    if (collectedList) {
+                        new RbmRow(
+                                annotationId: collectedList[0].annotationId,
+                                antigenName: collectedList[0].antigenName,
+                                uniprotId: collectedList*.uniprotId.join('/'),
+                                assayIndexMap: collectedList[0].assayIndexMap,
+                                data: collectedList[0].data
+                        )
     }
+}
+        )
+    }
+
 }
