@@ -9,9 +9,9 @@ class DeMetaboliteAnnotation {
 
     static belongsTo = [ platform: DeGplInfo ]
 
-    static hasMany = [ dataRows: DeSubjectMetabolomicsData ]
+    static hasMany =   [ dataRows: DeSubjectMetabolomicsData ]
 
-    static mappedBy = [ dataRows: 'annotation' ]
+    static mappedBy =  [ dataRows: 'annotation' ]
 
     static mapping = {
         table    schema:    'deapp'

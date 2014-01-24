@@ -5,6 +5,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -29,7 +30,7 @@ class MetaboliteTestData {
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeMetaboliteSuperPathway> superPathways = {
-        def ret = [
+        def ret = [ /* keep in sync with SampleBioMarkerTestData */
                 new DeMetaboliteSuperPathway(
                         name: 'Carboxylic Acid',
                         gplId: platform),
@@ -42,8 +43,8 @@ class MetaboliteTestData {
         ret
     }()
 
-    List<DeMetaboliteSubPathway> subpathways = {
-        def id = -600
+    List<DeMetaboliteSubPathway> subPathways = {
+        def id = -700
         def createSubPathway = { String name,
                                  DeMetaboliteSuperPathway superPathway ->
             def ret = new DeMetaboliteSubPathway(
@@ -54,12 +55,40 @@ class MetaboliteTestData {
             ret
         }
 
-        [
+        [ /* keep in sync with SampleBioMarkerTestData */
                 createSubPathway('No superpathway subpathway', null),
                 createSubPathway('Cholesterol biosynthesis', superPathways[0]),
                 createSubPathway('Squalene synthesis', superPathways[0]),
                 createSubPathway('Pentose Metabolism', superPathways[1]),
         ]
+    }()
+
+    List<SearchKeywordCoreDb> searchKeywordsForSubPathways = {
+        def baseId = -800
+        subPathways.collect {
+            def res = new SearchKeywordCoreDb(
+                    keyword: it.name,
+                    bioDataId: it.id,
+                    uniqueId: "METABOLITE_SUBPATHWAY:$it.id", /* no actual external pk */
+                    dataCategory: 'METABOLITE_SUBPATHWAY',
+            )
+            res.id = --baseId
+            res
+        }
+    }()
+
+    List<SearchKeywordCoreDb> searchKeywordsForSuperPathways = {
+        def baseId = -900
+        superPathways.collect {
+            def res = new SearchKeywordCoreDb(
+                    keyword: it.name,
+                    bioDataId: it.id,
+                    uniqueId: "METABOLITE_SUPERPATHWAY:$it.id", /* no actual external pk */
+                    dataCategory: 'METABOLITE_SUPERPATHWAY',
+            )
+            res.id = --baseId
+            res
+        }
     }()
 
     List<DeMetaboliteAnnotation> annotations = {
@@ -78,10 +107,10 @@ class MetaboliteTestData {
             res.id = id
             res
         }
-        [
+        [ /* keep in sync with SampleBioMarkerTestData */
                 createAnnotation(-501, 'Cryptoxanthin epoxide', 'HMDB30538', []),
-                createAnnotation(-502, 'Cryptoxanthin 5,6:5\',8\'-diepoxide', 'HMDB30537', subpathways[0..1]),
-                createAnnotation(-503, 'Majoroside F4', 'HMDB30536', subpathways[1..3]),
+                createAnnotation(-502, 'Cryptoxanthin 5,6:5\',8\'-diepoxide', 'HMDB30537', subPathways[0..1]),
+                createAnnotation(-503, 'Majoroside F4', 'HMDB30536', subPathways[1..3]),
         ]
     }()
 
@@ -113,7 +142,9 @@ class MetaboliteTestData {
         save patients
         save assays
         save superPathways
-        save subpathways
+        save searchKeywordsForSuperPathways
+        save subPathways
+        save searchKeywordsForSubPathways
         save annotations
         save data
     }

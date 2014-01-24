@@ -1,7 +1,5 @@
 package org.transmartproject.db.dataquery.highdim
 
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
 import org.transmartproject.db.biomarker.BioDataCorrelDescr
 import org.transmartproject.db.biomarker.BioDataCorrelationCoreDb
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
@@ -15,10 +13,6 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 class HighDimTestData {
-
-    /* Generic stuff below. The rest is to be moved out once acgh is refactored */
-
-    private static Log LOG = LogFactory.getLog(this)
 
     static List<DeSubjectSampleMapping> createTestAssays(List<PatientDimension> patients,
                                                          long baseId,

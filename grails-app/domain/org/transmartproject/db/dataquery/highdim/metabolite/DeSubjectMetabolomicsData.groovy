@@ -13,11 +13,11 @@ class DeSubjectMetabolomicsData implements Serializable {
     ]
 
     static mapping = {
-        table schema:    'deapp'
-        id    composite: ['assay', 'annotation']
+        table      schema:    'deapp'
+        id         composite: ['assay', 'annotation']
 
-        assay      column: 'assay_id'
-        annotation column: 'metabolite_annotation_id'
+        assay      column:    'assay_id'
+        annotation column:    'metabolite_annotation_id'
 
         // this is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372

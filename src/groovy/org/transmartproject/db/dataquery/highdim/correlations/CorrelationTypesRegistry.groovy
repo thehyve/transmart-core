@@ -52,6 +52,19 @@ class CorrelationTypesRegistry {
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
 
+        registryTable << new CorrelationType(
+                name:             'SUPERPATHWAY TO METABOLITE',
+                sourceType:       'METABOLITE_SUPERPATHWAY',
+                targetType:       'METABOLITE',
+                correlationTable: 'BIOMART.BIO_METAB_SUPERPATHWAY_VIEW',
+                leftSideColumn:   'SUPERPATHWAY_ID')
+
+        registryTable << new CorrelationType(
+                name:             'SUBPATHWAY TO METABOLITE',
+                sourceType:       'METABOLITE_SUBPATHWAY',
+                targetType:       'METABOLITE',
+                correlationTable: 'BIOMART.BIO_METAB_SUBPATHWAY_VIEW',
+                leftSideColumn:   'SUBPATHWAY_ID')
     }
 
     private void registerKnownConstraints() {
@@ -61,6 +74,8 @@ class CorrelationTypesRegistry {
         constraintMap.HOMOLOGENE = 'homologenes'
         constraintMap.GENESIG = DataConstraint.GENE_SIGNATURES_CONSTRAINT
         constraintMap.METABOLITE = 'metabolites'
+        constraintMap.METABOLITE_SUBPATHWAY = 'metabolite_subpathways'
+        constraintMap.METABOLITE_SUPERPATHWAY = 'metabolite_superpathways'
     }
 
 

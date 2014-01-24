@@ -79,6 +79,7 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'foo')
 
+    /* keep in sync with MetaboliteTestData::annotations */
     List<BioMarkerCoreDb> metaboliteBioMarkers = createBioMarkers(-1600L, [
             [ name: 'HMDB30536',
                     description: 'Majoroside F4',
