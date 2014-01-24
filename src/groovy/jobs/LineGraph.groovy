@@ -86,6 +86,7 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename           = 'outputfile',
                     graphType                = '$graphType',
+                    HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}'
         )''' ]
     }
 
