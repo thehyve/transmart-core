@@ -40,63 +40,6 @@
                     %{--Display independent variable--}%
                     <div id="displaydivDependentVariable" class="dependentVars"></div>
 
-                    %{--Binning options--}%
-                    <fieldset class="binningDiv">
-
-                        <label for="selBinVariableSelection">Variable:</label>
-                        <select id="selBinVariableSelection">
-                            <option value="IND">Independent</option>
-                            <option value="DEP">Dependent</option>
-                        </select>
-
-                        <label for="variableType">Variable Type</label>
-                        <select id="variableType" onChange="boxPlotView.update_manual_binning();">
-                            <option value="Continuous">Continuous</option>
-                            <option value="Categorical">Categorical</option>
-                        </select>
-
-                        <label for="txtNumberOfBins">Number of Bins:</label>
-                        <input type="text" id="txtNumberOfBins" onChange="boxPlotView.manage_bins(this.value);" value="4" />
-
-                        <label for="selBinDistribution">Bin Assignments</label>
-                        <select id="selBinDistribution">
-                            <option value="EDP">Evenly Distribute Population</option>
-                            <option value="ESB">Evenly Spaced Bins</option>
-                        </select>
-
-                        <div class="chkpair">
-                            <input type="checkbox" id="chkManualBin" onClick="boxPlotView.manage_bins(document.getElementById('txtNumberOfBins').value);"> Manual Binning
-                        </div>
-
-                        %{-- Manual binning continuous variable --}%
-                        <div id="divManualBinContinuous" style="display: none;">
-                            <table id="tblBinContinuous">
-                                <tr>
-                                    <td>Bin Name</td>
-                                    <td colspan="2">Range</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        %{-- Manual binning categorical variable --}%
-                        <div id="divManualBinCategorical" style="display: none;">
-                            <table>
-                                <tr>
-                                    <td style="vertical-align: top;">Categories
-                                        <div id='divCategoricalItems' class="manualBinningCategories"></div>
-                                    </td>
-                                    <td style="vertical-align: top;"><br />
-                                        <br><span class="minifont">&laquo;Drag To Bin&raquo</span></td>
-                                    <td>
-                                        <table id="tblBinCategorical">
-
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                    </fieldset>
                 </fieldset>
             </div>
 
