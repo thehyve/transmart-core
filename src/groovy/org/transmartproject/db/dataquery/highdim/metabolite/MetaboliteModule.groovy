@@ -10,10 +10,13 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
+
+import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -30,6 +33,32 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     @Autowired
     CorrelationTypesRegistry correlationTypesRegistry
+
+    @PostConstruct
+    void registerCorrelations() {
+        correlationTypesRegistry.registerConstraint 'METABOLITE',              'metabolites'
+        correlationTypesRegistry.registerConstraint 'METABOLITE_SUBPATHWAY',   'metabolite_subpathways'
+        correlationTypesRegistry.registerConstraint 'METABOLITE_SUPERPATHWAY', 'metabolite_superpathways'
+
+        correlationTypesRegistry.registerCorrelation new CorrelationType(
+                name:       'METABOLITE',
+                sourceType: 'METABOLITE',
+                targetType: 'METABOLITE')
+
+        correlationTypesRegistry.registerCorrelation new CorrelationType(
+                name:             'SUPERPATHWAY TO METABOLITE',
+                sourceType:       'METABOLITE_SUPERPATHWAY',
+                targetType:       'METABOLITE',
+                correlationTable: 'BIOMART.BIO_METAB_SUPERPATHWAY_VIEW',
+                leftSideColumn:   'SUPERPATHWAY_ID')
+
+        correlationTypesRegistry.registerCorrelation new CorrelationType(
+                name:             'SUBPATHWAY TO METABOLITE',
+                sourceType:       'METABOLITE_SUBPATHWAY',
+                targetType:       'METABOLITE',
+                correlationTable: 'BIOMART.BIO_METAB_SUBPATHWAY_VIEW',
+                leftSideColumn:   'SUBPATHWAY_ID')
+    }
 
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {

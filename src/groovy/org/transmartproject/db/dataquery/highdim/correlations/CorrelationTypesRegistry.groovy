@@ -34,8 +34,6 @@ class CorrelationTypesRegistry {
          * will be sorted out in the DB */
         registryTable << new CorrelationType(name: 'PROTEIN',         sourceType: 'PROTEIN',    targetType: 'PROTEIN')
 
-        registryTable << new CorrelationType(name: 'METABOLITE',      sourceType: 'METABOLITE', targetType: 'METABOLITE')
-
         /* no example data for these; not sure the sourceType is correct */
         registryTable << new CorrelationType(name: 'PATHWAY GENE',    sourceType: 'PATHWAY',    targetType: 'GENE')
         registryTable << new CorrelationType(name: 'HOMOLOGENE_GENE', sourceType: 'HOMOLOGENE', targetType: 'GENE')
@@ -51,33 +49,15 @@ class CorrelationTypesRegistry {
                 targetType:       'GENE',
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
-
-        registryTable << new CorrelationType(
-                name:             'SUPERPATHWAY TO METABOLITE',
-                sourceType:       'METABOLITE_SUPERPATHWAY',
-                targetType:       'METABOLITE',
-                correlationTable: 'BIOMART.BIO_METAB_SUPERPATHWAY_VIEW',
-                leftSideColumn:   'SUPERPATHWAY_ID')
-
-        registryTable << new CorrelationType(
-                name:             'SUBPATHWAY TO METABOLITE',
-                sourceType:       'METABOLITE_SUBPATHWAY',
-                targetType:       'METABOLITE',
-                correlationTable: 'BIOMART.BIO_METAB_SUBPATHWAY_VIEW',
-                leftSideColumn:   'SUBPATHWAY_ID')
     }
 
     private void registerKnownConstraints() {
-        constraintMap.GENE = DataConstraint.GENES_CONSTRAINT
-        constraintMap.PROTEIN = DataConstraint.PROTEINS_CONSTRAINT
-        constraintMap.PATHWAY = DataConstraint.PATHWAYS_CONSTRAINT
+        constraintMap.GENE       = DataConstraint.GENES_CONSTRAINT
+        constraintMap.PROTEIN    = DataConstraint.PROTEINS_CONSTRAINT
+        constraintMap.PATHWAY    = DataConstraint.PATHWAYS_CONSTRAINT
         constraintMap.HOMOLOGENE = 'homologenes'
-        constraintMap.GENESIG = DataConstraint.GENE_SIGNATURES_CONSTRAINT
-        constraintMap.METABOLITE = 'metabolites'
-        constraintMap.METABOLITE_SUBPATHWAY = 'metabolite_subpathways'
-        constraintMap.METABOLITE_SUPERPATHWAY = 'metabolite_superpathways'
+        constraintMap.GENESIG    = DataConstraint.GENE_SIGNATURES_CONSTRAINT
     }
-
 
     void registerCorrelation(CorrelationType correlationType) {
         registryTable << correlationType
