@@ -206,9 +206,13 @@ HighDimensionalData.prototype.generate_view = function () {
         // get search gene/pathway
         var selectedSearchPathway = Ext.get('searchPathway').dom.value;
 
+        // get flag for probe aggregation
+        var probeAggregationFlag = Ext.get('probesAggregation').dom.value;
+
         // create final string
         var innerHtml = summaryString +
             '<br> <b>Pathway:</b> ' + selectedSearchPathway +
+            '<br> <b>Probe aggregation:</b> ' + probeAggregationFlag +
             '<br> <b>Marker Type:</b> ' + GLOBAL.HighDimDataType;
 
         // ** start stub **
