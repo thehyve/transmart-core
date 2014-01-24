@@ -77,9 +77,15 @@ class SampleBioMarkerTestData {
             'foo')
 
     List<BioMarkerCoreDb> metaboliteBioMarkers = createBioMarkers(-1600L, [
-            [ name: 'HMDB00107',
-                    description: 'Galactitol',
-                    primaryExternalId: 'HMDB00107']],
+            [ name: 'HMDB30536',
+                    description: 'Majoroside F4',
+                    primaryExternalId: 'HMDB30536'],
+            [ name: 'HMDB30537',
+                    description: 'Cryptoxanthin 5,6:5\',8\'-diepoxide',
+                    primaryExternalId: 'HMDB30537'],
+            [ name: 'HMDB30538',
+                    description: 'Cryptoxanthin epoxide',
+                    primaryExternalId: 'HMDB30538']],
             'METABOLITE',
             'HOMO SAPIENS',
             'HMDB')
@@ -95,6 +101,9 @@ class SampleBioMarkerTestData {
 
     List<SearchKeywordCoreDb> pathwaySearchKeywords =
         createSearchKeywordsForBioMarkers(pathwayBioMarkers, -2500L)
+
+    List<SearchKeywordCoreDb> metaboliteSearchKeywords =
+        createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
     List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
@@ -271,4 +280,10 @@ class SampleBioMarkerTestData {
         save mirnaBioMarkers
         save mirnaSearchKeywords
     }
+
+    void saveMetabolomicsData() {
+        save metaboliteBioMarkers
+        save metaboliteSearchKeywords
+    }
+
 }

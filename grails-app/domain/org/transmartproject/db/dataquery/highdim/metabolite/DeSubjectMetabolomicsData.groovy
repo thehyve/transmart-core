@@ -1,7 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
-import org.apache.commons.lang.builder.EqualsBuilder
-import org.apache.commons.lang.builder.HashCodeBuilder
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class DeSubjectMetabolomicsData implements Serializable {
@@ -25,5 +23,9 @@ class DeSubjectMetabolomicsData implements Serializable {
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
         jAnnotation column: 'metabolite_annotation_id', updateable: false, insertable: false
         version false
+    }
+
+    static constraints = {
+        zscore scale: 5
     }
 }

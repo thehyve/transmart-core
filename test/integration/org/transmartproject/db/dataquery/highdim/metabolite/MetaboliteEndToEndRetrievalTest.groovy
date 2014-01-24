@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
-import org.hibernate.criterion.Projection
 import org.junit.Before
 import org.junit.After
 import org.junit.Test
@@ -11,22 +10,31 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.allOf
+import static org.hamcrest.Matchers.closeTo
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.hasProperty
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.isA
 
 class MetaboliteEndToEndRetrievalTest {
+
+    private static Double DELTA = 0.000005
 
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource metaboliteResource
 
-    AssayConstraint trialConstraint
+    @Lazy AssayConstraint trialConstraint = metaboliteResource.createAssayConstraint(
+            AssayConstraint.TRIAL_NAME_CONSTRAINT,
+            name: MetaboliteTestData.TRIAL_NAME)
 
-    Projection projection
+    @Lazy Projection projection = metaboliteResource.createProjection([:],
+            org.transmartproject.core.dataquery.highdim.projections.Projection.ZSCORE_PROJECTION)
 
     TabularResult<AssayColumn, MetaboliteDataRow> result
 
@@ -45,37 +53,45 @@ class MetaboliteEndToEndRetrievalTest {
 
     @Test
     void fetchAllDataTest() {
-        def trialConstraint = metaboliteResource.createAssayConstraint(
-                AssayConstraint.TRIAL_NAME_CONSTRAINT,
-                name: MetaboliteTestData.TRIAL_NAME)
-
-        def projection = metaboliteResource.createProjection([:],
-                org.transmartproject.core.dataquery.highdim.projections.Projection.ZSCORE_PROJECTION)
-
         result = metaboliteResource.retrieveData([trialConstraint], [], projection)
 
         List rows = Lists.newArrayList result.rows
 
-        /* A MetaboliteDataRow (the type of rows[i]) is a construct which aggregates an annotation and data */
-        assert rows.size() == testData.annotations.size()
-
-        def row = rows[0]
-
-        assert row.hmdbId == "HMDB00107"
-        assert row.biochemicalName == "Galactitol"
-        assert row.data.size() == 2
+        assertThat rows, contains(
+                testData.annotations.sort { it.id }.
+                collect { annotation ->
+                    allOf(
+                            isA(MetaboliteDataRow),
+                            hasProperty('label', is(annotation.biochemicalName)),
+                            hasProperty('bioMarker', is(annotation.hmdbId)),
+                            contains(
+                                    testData.data.findAll { it.annotation == annotation}.
+                                    sort { it.assay.id }.
+                                    collect { closeTo(it.zscore as Double, DELTA) }
+                    ))
+                }
+        )
     }
 
     @Test
     void searchWithHmdbId() {
+        def hmdbid = 'HMDB30537'
         def dataConstraint = metaboliteResource.createDataConstraint(
                 'metabolites',
-                names: [ 'HMDB00107' ])
+                names: [hmdbid])
 
         result = metaboliteResource.retrieveData(
                 [ trialConstraint ], [ dataConstraint ], projection)
 
-        println(result)
+        assertThat Lists.newArrayList(result), contains(allOf(
+                isA(MetaboliteDataRow),
+                hasProperty('bioMarker', is(hmdbid)),
+                contains(
+                        testData.data.findAll { it.annotation.hmdbId == hmdbid }.
+                        sort { it.assay.id }.
+                        collect { closeTo(it.zscore as Double, DELTA) }
+                )
+        ))
     }
 
     @Test

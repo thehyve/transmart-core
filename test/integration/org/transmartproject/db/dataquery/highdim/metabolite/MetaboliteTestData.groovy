@@ -11,7 +11,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 class MetaboliteTestData {
     public static final String TRIAL_NAME = 'METABOLITE_EXAMPLE_TRIAL'
 
-    //SampleBioMarkerTestData biomarkerTestData = new SampleBioMarkerTestData()
+    SampleBioMarkerTestData biomarkerTestData = new SampleBioMarkerTestData()
 
     DeGplInfo platform = {
         def res = new DeGplInfo(
@@ -28,21 +28,60 @@ class MetaboliteTestData {
     List<DeSubjectSampleMapping> assays =
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
+    List<DeMetaboliteSuperPathway> superPathways = {
+        def ret = [
+                new DeMetaboliteSuperPathway(
+                        name: 'Carboxylic Acid',
+                        gplId: platform),
+                new DeMetaboliteSuperPathway(
+                        name: 'Phosphoric Acid',
+                        gplId: platform),
+        ]
+        ret[0].id = -601
+        ret[1].id = -602
+        ret
+    }()
+
+    List<DeMetaboliteSubPathway> subpathways = {
+        def id = -600
+        def createSubPathway = { String name,
+                                 DeMetaboliteSuperPathway superPathway ->
+            def ret = new DeMetaboliteSubPathway(
+                    name: name,
+                    superPathway: superPathway,
+                    gplId: platform)
+            ret.id = --id
+            ret
+        }
+
+        [
+                createSubPathway('No superpathway subpathway', null),
+                createSubPathway('Cholesterol biosynthesis', superPathways[0]),
+                createSubPathway('Squalene synthesis', superPathways[0]),
+                createSubPathway('Pentose Metabolism', superPathways[1]),
+        ]
+    }()
+
     List<DeMetaboliteAnnotation> annotations = {
-        def createAnnotation = { id, metaboliteName, metabolite ->
+        def createAnnotation = { id,
+                                 metaboliteName,
+                                 metabolite,
+                                 List<DeMetaboliteSubPathway> subpathways ->
             def res = new DeMetaboliteAnnotation(
                     biochemicalName: metaboliteName,
                     hmdbId:          metabolite,
                     platform:        platform
             )
+            subpathways.each {
+                it.addToAnnotations(res)
+            }
             res.id = id
             res
         }
         [
-                // not the actual full sequences here...
-                createAnnotation(-501, 'Adipogenesis regulatory factor', 'foo'),
-                createAnnotation(-502, 'Adiponectin',                    'bar'),
-                createAnnotation(-503, 'Urea transporter 2',             "HMDB00107"),
+                createAnnotation(-501, 'Cryptoxanthin epoxide', 'HMDB30538', []),
+                createAnnotation(-502, 'Cryptoxanthin 5,6:5\',8\'-diepoxide', 'HMDB30537', subpathways[0..1]),
+                createAnnotation(-503, 'Majoroside F4', 'HMDB30536', subpathways[1..3]),
         ]
     }()
 
@@ -68,12 +107,14 @@ class MetaboliteTestData {
     }()
 
     void saveAll() {
-        //biomarkerTestData.saveMetaboliteData()
+        biomarkerTestData.saveMetabolomicsData()
 
         save([platform])
-        save(patients)
-        save(assays)
-        save(annotations)
-        save(data)
+        save patients
+        save assays
+        save superPathways
+        save subpathways
+        save annotations
+        save data
     }
 }

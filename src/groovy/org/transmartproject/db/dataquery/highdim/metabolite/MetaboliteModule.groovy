@@ -10,6 +10,8 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
@@ -26,6 +28,9 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     DataRetrievalParameterFactory standardDataConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
         [ standardAssayConstraintFactory ]
@@ -33,7 +38,9 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        [ standardDataConstraintFactory ]
+        [ standardDataConstraintFactory,
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'METABOLITE', 'jAnnotation', 'hmdbId')]
     }
 
     @Override
