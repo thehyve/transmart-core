@@ -27,6 +27,7 @@ import jobs.PCA
 import jobs.ScatterPlot
 import jobs.SurvivalAnalysis
 import jobs.TableWithFisher
+import jobs.LineGraph
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
@@ -112,6 +113,9 @@ class RModulesController {
                 break
             case 'survivalAnalysis':
                 jsonResult = createJob(params, SurvivalAnalysis, false)
+                break
+            case 'lineGraph':
+                jsonResult = createJob(params, LineGraph, false)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(
