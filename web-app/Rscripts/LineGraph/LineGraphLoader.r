@@ -27,11 +27,11 @@ LineGraph.loader <- function(
 
 	if (plot.individuals) {
 	  #Change column order to match internal standard and adjust the column names.
-	  dataOutput <- line.data[,c("PATIENT_NUM","CONCEPT_PATH","TIME_VALUE","GROUP_VAR","VALUE")]
-	  colnames(dataOutput) <- c('PATIENT_NUM','TIMEPOINT','TIME_VALUE','GROUP','VALUE')
+	  dataOutput <- line.data[,c("PATIENT_NUM","CONCEPT_PATH","GROUP_VAR","VALUE")]
+	  colnames(dataOutput) <- c('PATIENT_NUM','TIMEPOINT','GROUP','VALUE')
 	} else {
 	  #Aggregate the data to get rid of patient numbers. We add a standard error column so we can use it in the error bars.
-	  dataOutput <- ddply(line.data, .(CONCEPT_PATH,TIME_VALUE,GROUP_VAR), 
+	  dataOutput <- ddply(line.data, .(CONCEPT_PATH,GROUP_VAR),
 	                      summarise,
 	                      MEAN   	= mean(VALUE),
 	                      SD 		= sd(VALUE),
@@ -39,7 +39,7 @@ LineGraph.loader <- function(
 	                      MEDIAN 	= median(VALUE)
 	  )
 	  #Adjust the column names.
-	  colnames(dataOutput) <- c('TIMEPOINT','TIME_VALUE','GROUP','MEAN','SD','SE','MEDIAN')
+	  colnames(dataOutput) <- c('TIMEPOINT','GROUP','MEAN','SD','SE','MEDIAN')
 	}
 
 	#Use a regular expression trim out the timepoint from the concept.
@@ -59,16 +59,16 @@ LineGraph.loader <- function(
 	#Depending on whether we wish to plot individual data, and otherwise the specific graph type, we create different graphs.
 	if (plot.individuals) {
 	  limits <- aes(ymax = VALUE, ymin = VALUE);
-	  layerData <- aes(x=TIME_VALUE, y=VALUE, group=PATIENT_NUM, colour=GROUP)
+	  layerData <- aes(x=TIMEPOINT, y=VALUE, group=PATIENT_NUM, colour=GROUP)
 	} else if (graphType=="MERR") {
 	  limits <- aes(ymax = MEAN + SE, ymin = MEAN - SE)
-	  layerData <- aes(x=TIME_VALUE, y=MEAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
 	} else if (graphType=="MSTD") {
 	  limits <- aes(ymax = MEAN + SD, ymin = MEAN - SD)
-	  layerData <- aes(x=TIME_VALUE, y=MEAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
 	} else if (graphType=="MEDER") {
 	  limits <- aes(ymax = MEDIAN + SE, ymin = MEDIAN - SE)
-	  layerData <- aes(x=TIME_VALUE, y=MEDIAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIMEPOINT, y=MEDIAN, group=GROUP, colour=GROUP)
 	}
 	p <- ggplot(data=dataOutput,layerData)
 	
@@ -76,7 +76,7 @@ LineGraph.loader <- function(
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
-	p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)  
+	#p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
   
 	#This sets the color theme of the background/grid.
 	p <- p + theme_bw();
