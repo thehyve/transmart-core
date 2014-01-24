@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class DeSubjectMetabolomicsData implements Serializable {
