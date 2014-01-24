@@ -39,26 +39,20 @@ class LineGraph extends AbstractAnalysisJob {
     void init() {
         primaryKeyColumnConfigurator.column = new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        configureConfigurator dependentVariableConfigurator,   'dependent', 'VALUE'
+        dependentVariableConfigurator.columnHeader          = 'VALUE'
+        dependentVariableConfigurator.projection            = Projection.DEFAULT_REAL_PROJECTION
+        dependentVariableConfigurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
+        dependentVariableConfigurator.multiRow              = true
+        dependentVariableConfigurator.keyForIsCategorical = 'dependentVariableCategorical'
+        // we do not want group name pruning for LineGraph
+        dependentVariableConfigurator.isGroupNamePruningNecessary = false
+
+        dependentVariableConfigurator.keyForConceptPath     = "dependentVariable"
+        dependentVariableConfigurator.keyForDataType        = "divDependentVariableType"
+        dependentVariableConfigurator.keyForSearchKeywordId = "divDependentSearchKeyword"
 
         groupByColumnConfigurator.columnHeader = 'GROUP_VAR'
         groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'
-    }
-
-    private void configureConfigurator(SingleOrMultiNumericVariableColumnConfigurator configurator,
-                                       String key,
-                                       String header) {
-        configurator.columnHeader          = header
-        configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
-        configurator.multiRow              = true
-        configurator.keyForIsCategorical = 'dependentVariableCategorical'
-        // we do not want group name pruning for LineGraph
-        configurator.isGroupNamePruningNecessary = false
-
-        configurator.keyForConceptPath     = "dependentVariable"
-        configurator.keyForDataType        = "div${key.capitalize()}VariableType"
-        configurator.keyForSearchKeywordId = "div${key.capitalize()}VariablePathway"
     }
 
     @Override
@@ -76,7 +70,6 @@ class LineGraph extends AbstractAnalysisJob {
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
-
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
@@ -92,6 +85,7 @@ class LineGraph extends AbstractAnalysisJob {
         [ '''source('$pluginDirectory/LineGraph/LineGraphLoader.r')''',
                 '''LineGraph.loader(
                     input.filename           = 'outputfile',
+                    graphType                = '$graphType',
         )''' ]
     }
 

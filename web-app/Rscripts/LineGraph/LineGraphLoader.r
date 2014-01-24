@@ -6,7 +6,7 @@
 LineGraph.loader <- function(
 	input.filename,
 	output.file="LineGraph",
-	graphType=""
+	graphType="MERR"
 )
 {
  	######################################################
@@ -25,7 +25,7 @@ LineGraph.loader <- function(
 	#finalData$VALUE <- as.numeric(levels(finalData$VALUE))[as.integer(finalData$VALUE)]
 
 	#Aggregate the data to get rid of patient numbers. We add a standard error column so we can use it in the error bars.
-	dataOutput <- ddply(line.data, .(CONCEPT_PATH,GROUP_VAR), 
+	dataOutput <- ddply(line.data, .(GROUP,GROUP_VAR),
 	  summarise,
 	  MEAN 		= mean(VALUE),
 	  SD 		= sd(VALUE),
