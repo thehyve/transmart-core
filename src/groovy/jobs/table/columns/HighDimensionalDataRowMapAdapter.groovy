@@ -2,6 +2,7 @@ package jobs.table.columns
 
 import com.google.common.base.Function
 import com.google.common.base.Predicate
+import com.google.common.collect.ForwardingMap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
 import groovy.transform.CompileStatic
@@ -14,9 +15,8 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
  * a single entry: row label -> value
  */
 @CompileStatic
-class HighDimensionalDataRowMapAdapter implements Map<String, Map<String, Object>> {
+class HighDimensionalDataRowMapAdapter extends ForwardingMap<String, Map<String, Object>> {
 
-    @Delegate
     Map<String, Map<String, Object>> innerMap
 
     HighDimensionalDataRowMapAdapter(List<AssayColumn> assays /* in correct order! */,
@@ -48,4 +48,8 @@ class HighDimensionalDataRowMapAdapter implements Map<String, Map<String, Object
                 { Object value -> value != null } as Predicate
     }
 
+    @Override
+    protected Map<String, Map<String, Object>> delegate() {
+        innerMap
+    }
 }

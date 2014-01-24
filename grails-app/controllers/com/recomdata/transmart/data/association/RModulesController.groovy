@@ -41,12 +41,13 @@ import static jobs.AnalysisQuartzJobAdapter.*
 
 class RModulesController {
     final static Map<String, String> lookup = [
-            "Gene Expression": "mrna",
-            "MIRNA_QPCR": "mirna",
-            "MIRNA_SEQ": "mirna",
-            "RBM": "rbm",
-            "PROTEOMICS": "protein",
-            "RNASEQ": "rnaseq_cog"
+            "Gene Expression":  "mrna",
+            "MIRNA_QPCR":       "mirna",
+            "MIRNA_SEQ":        "mirna",
+            "RBM":              "rbm",
+            "PROTEOMICS":       "protein",
+            "RNASEQ":           "rnaseq_cog",
+            "METABOLOMICS":     "metabolite"
     ]
 
     def springSecurityService
