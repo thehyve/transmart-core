@@ -4,19 +4,19 @@ import org.transmartproject.db.dataquery.highdim.DeGplInfo
 
 class DeMetaboliteSuperPathway {
 
-	DeGplInfo gplId
-	String name
+    DeGplInfo gplId
+    String name
 
-	static hasMany = [subPathways: DeMetaboliteSubPathway]
+    static hasMany = [subPathways: DeMetaboliteSubPathway]
 
-	static mapping = {
+    static mapping = {
         table schema: 'deapp', name: 'de_metabolite_super_pathways'
-		id generator: 'assigned'
+        id generator: 'assigned'
         name column: 'super_pathway_name'
-		version false
-	}
+        version false
+    }
 
-	static constraints = {
-		name nullable: true, maxSize: 200
-	}
+    static constraints = {
+        name nullable: true, maxSize: 200
+    }
 }
