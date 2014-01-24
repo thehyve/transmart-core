@@ -19,7 +19,7 @@ var HighDimensionalData = function () {
             "proteomics"    : {"platform": "PROTEIN",           "type": "PROTEOMICS"},
             "snp"           : {"platform": "SNP",               "type": "SNP"},
             "rnaseq"        : {"platform": "RNA_AFFYMETRIX",    "type": "RNASEQ"},
-            "metabolite"    : {"platform": "METABOLOMICS",     "type": "METABOLOMICS"}
+            "metabolite"    : {"platform": "METABOLOMICS",      "type": "METABOLOMICS"}
         };
     }
 
