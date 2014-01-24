@@ -1,19 +1,16 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.Iterators
-import com.google.common.collect.PeekingIterator
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
@@ -98,50 +95,20 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
          * the annotations table and several rows will be returned for the same
          * probeset_id, just with different genes.
          * Hence the order by clause and the definition of inSameGroup above */
-        new TabularResult<DataColumn, ProbeRow>() {
-            @Delegate
-            TabularResult<DataColumn, ProbeRow> delegate = preliminaryResult
-
-            Iterator<ProbeRow> getRows() {
-                new RepeatedProbesCollectingIterator(delegate.iterator())
-            }
-
-            Iterator<ProbeRow> iterator() {
-                getRows()
-            }
-        }
-    }
-
-    public static class RepeatedProbesCollectingIterator
-            extends AbstractIterator<ProbeRow> {
-
-        PeekingIterator<ProbeRow> sourceIterator
-
-        RepeatedProbesCollectingIterator(Iterator<ProbeRow> sourceIterator) {
-            this.sourceIterator = Iterators.peekingIterator sourceIterator
-        }
-
-        @Override
-        protected ProbeRow computeNext() {
-            List<ProbeRow> collected = []
-            if (!sourceIterator.hasNext()) {
-                endOfData()
-                return
-            }
-
-            collected << sourceIterator.next()
-            while (sourceIterator.hasNext() &&
-                    sourceIterator.peek().probe != null &&
-                    sourceIterator.peek().probe == collected[0].probe) {
-                collected << sourceIterator.next()
-            }
-
-            if (collected.size() > 1) {
-                /* modify 1st element with info from subsequents */
-                collected[0].geneSymbol = collected*.geneSymbol.join('/')
-            }
-            collected[0]
-        }
+        new RepeatedEntriesCollectingTabularResult(
+                tabularResult: preliminaryResult,
+                collectBy: { it.probe },
+                resultItem: {collectedList ->
+                    if (collectedList) {
+                        new ProbeRow(
+                                probe:         collectedList[0].probe,
+                                geneSymbol:    collectedList*.geneSymbol.join('/'),
+                                assayIndexMap: collectedList[0].assayIndexMap,
+                                data:          collectedList[0].data
+                        )
+                    }
+                }
+        )
     }
 
     @Override
