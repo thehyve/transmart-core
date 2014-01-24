@@ -6,7 +6,7 @@
 LineGraph.loader <- function(
 	input.filename,
 	output.file="LineGraph",
-	graphType="",
+	graphType="MERR",
 	plot.individuals=FALSE
 )
 {
