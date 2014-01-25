@@ -981,15 +981,15 @@ class GwasSearchController {
         def analysisArr = []
         analysisArr.push(analysisId)
         def query
-        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
+        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS" || analysis.assayDataType == "GWAS Fail") {
             query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,transcriptGeneNames,false)
         } else {
             query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,transcriptGeneNames,false)
         }
         def dataset = query.results
-
-
-        dataWriter.write "Probe ID\tp-value\t-log10 p-value\tRS Gene\tChromosome\tPosition\n"
+		System.out.println("I am here")
+		log.info("I am here")
+        dataWriter.write "Probes ID\tp-value\t-log10 p-value\tRS Gene\tChromosome\tPosition\tInteronExon\tRecombination Rate\tRegulome Score\n"
         for (row in dataset) {
             def rowData = []
             for (data in row) {
@@ -1063,7 +1063,8 @@ class GwasSearchController {
             def timestamp = new Date().format("yyyyMMddhhmmss")
             def rootFolder = "Export_" + timestamp
             String location = grailsApplication.config.grails.mail.attachments.dir
-            String rootDir = location + rootFolder + "/"
+			String lineSeparator = System.getProperty('line.separator')
+            String rootDir = location + rootFolder + lineSeparator
             if (analysisIds.size() > 0) {
 
                 for (analysisId in analysisIds) {
@@ -1071,15 +1072,17 @@ class GwasSearchController {
                     def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
                     def accession = analysis.etlId
                     def analysisName= analysis.name
+					log.debug("Before: "+analysisName)
                     Pattern pt = Pattern.compile("[^a-zA-Z0-9 ]")
                     Matcher match= pt.matcher(analysisName)
                     while(match.find()){
                         String s= match.group();
                         analysisName=analysisName.replaceAll("\\"+s, "");
+						log.debug("After: "+analysisName)
                     }
 
-                    def dirStudy = rootDir + accession + "/"
-                    def dirAnalysis = dirStudy + analysisName + "/"
+                    def dirStudy = rootDir + accession + lineSeparator
+                    def dirAnalysis = dirStudy + analysisName + lineSeparator
                     def dir = new File(dirAnalysis)
                     dir.mkdirs()
 
@@ -1174,7 +1177,7 @@ class GwasSearchController {
                         def dispName = it.displayName
                         if (analysis.assayDataType == 'EQTL' && it.column == 'phenotypes') {
                             dataWriterMeta.write "\nDiseases:"
-                        } else if ((analysis.assayDataType == "EQTL" || analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") && (it.column == 'pValueCutoff' || it.column == 'foldChangeCutoff')) {
+                        } else if ((analysis.assayDataType == "EQTL" || analysis.assayDataType == "GWAS" || analysis.assayDataType == "GWAS Fail" || analysis.assayDataType == "Metabolic GWAS") && (it.column == 'pValueCutoff' || it.column == 'foldChangeCutoff')) {
                             //do nothing
                         } else {
                             dataWriterMeta.write "\n" + dispName + ":"
