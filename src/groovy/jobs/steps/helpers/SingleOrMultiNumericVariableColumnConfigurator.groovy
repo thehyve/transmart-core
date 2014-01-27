@@ -32,7 +32,7 @@ class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator 
      */
 
     @Autowired
-    private MultiNumericVariableColumnConfigurator multiConfigurator
+    private MultiNumericClinicalVariableColumnConfigurator multiConfigurator
 
     @Autowired
     private NumericColumnConfigurator singleConfigurator

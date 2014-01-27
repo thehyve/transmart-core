@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 
 @Component
 @Scope('prototype')
-class MultiNumericVariableColumnConfigurator extends ColumnConfigurator {
+class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator {
 
     String columnHeader
 
