@@ -1,76 +1,150 @@
-/*************************************************************************
-  * tranSMART - translational medicine data mart
- * 
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- * 
- * This product includes software developed at Janssen Research & Development, LLC.
- * 
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- *
- ******************************************************************/
-function submitLineGraphJob(form){
-	var dependentVariableConceptCode = readConceptVariables("divDependentVariable");
-	var independentVariableConceptCode = readConceptVariables("divIndependentVariable");
-	var groupByVariableConceptCode = readConceptVariables("divGroupByVariable");
-	var variablesConceptCode = dependentVariableConceptCode+"|"+groupByVariableConceptCode;
-	
-	var formParams = {variablesConceptPaths:variablesConceptCode, 
-			dependentVariable:dependentVariableConceptCode,
-			independentVariable:independentVariableConceptCode,
-			groupByVariable:groupByVariableConceptCode,
-			graphType:form.graphType.value};
-
-	//Make sure user entered a group and a concept.
-	if(groupByVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the Group Concepts variable box.');
-		return;
-	}
-	
-	if(dependentVariableConceptCode == '')
-	{
-		Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the Time/Measurement variable box.');
-		return;
-	}	
-
-	submitJob(formParams);
+/**
+ * Where everything starts
+ */
+function loadLineGraphView() {
+    lineGraphView.register_drag_drop();
+    lineGraphView.clear_high_dimensional_input('divGroupByVariable');
+    lineGraphView.clear_high_dimensional_input('divDependentVariable');
 }
 
-function loadLineGraphView(){
-	registerLineGraphDragAndDrop();
+/**
+ * Constructor
+ * @constructor
+ */
+var LineGraphView = function () {
+    RmodulesView.call(this);
 }
 
-function clearGroupLine(divName)
-{
-	//Clear the drag and drop div.
-	var qc = Ext.get(divName);
-	
-	for(var i=qc.dom.childNodes.length-1;i>=0;i--)
-	{
-		var child=qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}	
+/**
+ * Inherit RModulesView
+ * @type {RmodulesView}
+ */
+LineGraphView.prototype = new RmodulesView();
+
+/**
+ * Correct pointer
+ * @type {LineGraphView}
+ */
+LineGraphView.prototype.constructor = LineGraphView;
+
+
+/**
+ * Get form parameters
+ * TODO: Refactor the validation to define validation in FormValidator.js instead here
+ * @param form
+ * @returns {*}
+ */
+LineGraphView.prototype.get_form_params = function (form) {
+
+    var dependentVariableEle = Ext.get("divDependentVariable");
+    var groupByVariableEle = Ext.get("divGroupByVariable");
+
+    var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
+    var groupByNodeList = createNodeTypeArrayFromDiv(groupByVariableEle,"setnodetype")
+
+    //If the user dragged in multiple node types, throw an error.
+    if (dependentNodeList.length > 1) {
+        Ext.Msg.alert('Error', 'Time/Measurements variable must have same type');
+        return;
+    }
+
+    if (groupByNodeList.length > 1) {
+        Ext.Msg.alert('Error', 'Group concepts variable must have same type');
+        return;
+    }
+
+    /**
+     * To check if node is categorical or not
+     * @param nodeTypes
+     * @returns {boolean}
+     * @private
+     */
+    var _isCategorical = function (nodeTypes) {
+        return (nodeTypes[0] == "null") ? true : false;
+    } //
+
+
+    var dependentVariableConceptCode = "";
+    var groupByVariableConceptcode = "";
+
+    //If we have multiple items in the Dependent variable box, then we have to flip the graph image.
+    var flipImage = false;
+
+    if (dependentVariableEle.dom.childNodes.length > 1) {
+        flipImage = true;
+    }
+
+    //If the category variable element has children, we need to parse them and concatenate their values.
+    if (groupByVariableEle.dom.childNodes[0]) {
+        //Loop through the category variables and add them to a comma seperated list.
+        for (nodeIndex = 0; nodeIndex < groupByVariableEle.dom.childNodes.length; nodeIndex++) {
+            //If we already have a value, add the seperator.
+            if (groupByVariableConceptcode != '') groupByVariableConceptcode += '|'
+
+            //Add the concept path to the string.
+            groupByVariableConceptcode += getQuerySummaryItem(groupByVariableEle.dom.childNodes[nodeIndex]).trim()
+        }
+    }
+
+    //If the category variable element has children, we need to parse them and concatenate their values.
+    if (dependentVariableEle.dom.childNodes[0]) {
+        //Loop through the category variables and add them to a comma seperated list.
+        for (nodeIndex = 0; nodeIndex < dependentVariableEle.dom.childNodes.length; nodeIndex++) {
+            //If we already have a value, add the seperator.
+            if (dependentVariableConceptCode != '') dependentVariableConceptCode += '|'
+
+            //Add the concept path to the string.
+            dependentVariableConceptCode += getQuerySummaryItem(dependentVariableEle.dom.childNodes[nodeIndex]).trim()
+        }
+    }
+
+    //Make sure the user entered some items into the variable selection boxes.
+    if (dependentVariableConceptCode == '') {
+        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the time/measurements variable box.');
+        return;
+    }
+
+    if (groupByVariableConceptcode == '') {
+        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the group variable box.');
+        return;
+    }
+
+    var variablesConceptCode = dependentVariableConceptCode + "|" + groupByVariableConceptcode;
+
+    var formParams = {
+        dependentVariable: dependentVariableConceptCode,
+        dependentVariableCategorical: _isCategorical(dependentNodeList),
+        independentVariable: groupByVariableConceptcode,
+        independentVariableCategorical: _isCategorical(groupByNodeList),
+        jobType: 'LineGraph',
+        plotIndividuals: Ext.get("plotIndividuals").dom.checked,
+        projections: [ "rawIntensity" ],
+        graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
+        groupByVariable: groupByVariableConceptcode
+    };
+
+    if (!highDimensionalData.load_parameters(formParams)) return false;
+
+    //Pass in our flag that tells us whether to flip or not.
+    formParams["flipImage"] = (flipImage) ? 'TRUE' : 'FALSE';
+
+    return formParams;
+}
+
+/**
+ * Submit the job
+ * @param form
+ */
+LineGraphView.prototype.submit_job = function (form) {
+
+    // get formParams
+    var formParams = this.get_form_params(form);
+
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
 
 }
-function registerLineGraphDragAndDrop()
-{
-	//Set up drag and drop for Dependent and Independent variables on the data association tab.
 
-	//Get the Dependent DIV.
-	var dependentDiv = Ext.get("divDependentVariable");
-	dtgD = new Ext.dd.DropTarget(dependentDiv,{ddGroup : 'makeQuery'});
-	dtgD.notifyDrop =  dropNumericOntoCategorySelection;
-	
-	//Get the group by div
-	var groupByDiv = Ext.get("divGroupByVariable");
-	dtgG = new Ext.dd.DropTarget(groupByDiv, {ddGroup: 'makeQuery'});
-	dtgG.notifyDrop = dropOntoCategorySelection;
-}
+// instantiate line graph instance
+var lineGraphView = new LineGraphView();
