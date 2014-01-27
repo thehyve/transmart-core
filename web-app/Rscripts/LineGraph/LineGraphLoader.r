@@ -45,7 +45,9 @@ LineGraph.loader <- function(
 
 	#Use a regular expression trim out the timepoint from the concept.
 	#dataOutput$TIMEPOINT <- str_extract(dataOutput$TIMEPOINT,"Week [0-9]+")
-	dataOutput$TIMEPOINT <- str_extract(dataOutput$TIMEPOINT,"(\\\\.+\\\\.+\\\\)+?$")
+	TIMEPOINT_reducedConceptPath <- str_extract(dataOutput$TIMEPOINT,"(\\\\.+\\\\.+\\\\)+?$")
+    validReplacements <- which(!is.na(TIMEPOINT_reducedConceptPath))
+    dataOutput$TIMEPOINT[validReplacements] <- TIMEPOINT_reducedConceptPath[validReplacements]
 	
 	#Convert the timepoint field to a factor.
 	dataOutput$TIMEPOINT <- factor(dataOutput$TIMEPOINT)
