@@ -179,7 +179,7 @@ HighDimensionalData.prototype.generate_view = function () {
         window[_this.divId + 'gpls1'] = Ext.get('gpl1').dom.value;
         window[_this.divId + 'tissues1'] = Ext.get('tissue1').dom.value;
 
-        window[_this.divId + 'probesAggregation'] = Ext.get('probesAggregation').dom.value;
+        window[_this.divId + 'probesAggregation'] = Ext.get('probesAggregation').dom.checked;
 
     };
 
