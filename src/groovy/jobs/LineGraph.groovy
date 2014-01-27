@@ -40,7 +40,7 @@ class LineGraph extends AbstractAnalysisJob {
         dependentVariableConfigurator.multiRow              = true
         dependentVariableConfigurator.keyForIsCategorical   = 'dependentVariableCategorical'
         // we do not want group name pruning for LineGraph
-        dependentVariableConfigurator.isGroupNamePruningNecessary = false
+        dependentVariableConfigurator.pruneConceptPath      = false
 
         dependentVariableConfigurator.keyForConceptPath     = "dependentVariable"
         dependentVariableConfigurator.keyForDataType        = "divDependentVariableType"
