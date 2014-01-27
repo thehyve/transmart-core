@@ -1,6 +1,6 @@
 array (
-  'id' => 'aCGHgroupTest',
-  'name' => 'aCGH Group Test',
+  'id' => 'acghFrequencyPlot',
+  'name' => 'Frequency Plot for aCGH',
   'dataTypes' => 
   array (
     'subset1' => 
@@ -40,17 +40,14 @@ array (
   array (
     'R' => 
     array (
-      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-group-test.R\')',
-      1 => 'acgh.group.test(
-	column                 = \'group\',
-	test.statistic         = \'||STATISTICSTYPE||\',
-	number.of.permutations = 10000,
-	test.aberrations       = \'||ABERRATIONTYPE||\')',
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-frequency-plot.R\')',
+      1 => 'acgh.frequency.plot(
+	column                 = \'group\')',
     ),
   ),
   'renderer' => 
   array (
-    'GSP' => '/aCGHgroupTest/aCGHgroupTestOutput',
+    'GSP' => '/AcghFrequencyPlot/acghFrequencyPlotOutput',
   ),
-  'view' => 'aCGHGroupTest',
+  'view' => 'AcghFrequencyPlot',
 )
