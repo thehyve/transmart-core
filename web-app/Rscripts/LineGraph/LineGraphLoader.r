@@ -40,7 +40,7 @@ LineGraph.loader <- function(
 	                      MEDIAN 	= median(VALUE)
 	  )
 	  #Adjust the column names.
-	  dataOutput <- ddply(line.data, .(GROUP,TIME_VALUE,GROUP_VAR),
+	  colnames(dataOutput) <- c('TIMEPOINT','TIME_VALUE','GROUP','MEAN','SD','SE','MEDIAN')
 	}
 
 	#Use a regular expression trim out the timepoint from the concept.
