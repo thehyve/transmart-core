@@ -7,7 +7,8 @@ LineGraph.loader <- function(
 	input.filename,
 	output.file="LineGraph",
 	graphType="MERR",
-	plot.individuals=FALSE
+	plot.individuals=FALSE,
+	HDD.data.type = NULL
 )
 {
  	######################################################
@@ -58,6 +59,9 @@ LineGraph.loader <- function(
 	######################################################
 	#Plotting the line.
 
+	#Determine Y-axis label.
+    if (is.null(HDD.data.type)) yLabel <- dataOutput$TIMEPOINT[1] else yLabel <- HDD.data.type
+
 	#Depending on whether we wish to plot individual data, and otherwise the specific graph type, we create different graphs.
 	if (plot.individuals) {
 	  limits <- aes(ymax = VALUE, ymin = VALUE);
@@ -65,14 +69,17 @@ LineGraph.loader <- function(
 	} else if (graphType=="MERR") {
 	  limits <- aes(ymax = MEAN + SE, ymin = MEAN - SE)
 	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(mean + se)")
 	} else if (graphType=="MSTD") {
 	  limits <- aes(ymax = MEAN + SD, ymin = MEAN - SD)
 	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(mean + sd)")
 	} else if (graphType=="MEDER") {
 	  limits <- aes(ymax = MEDIAN + SE, ymin = MEDIAN - SE)
 	  layerData <- aes(x=TIMEPOINT, y=MEDIAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(median + se)")
 	}
-	p <- ggplot(data=dataOutput,layerData)
+	p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
 	p <- p + geom_line(size=1.5) + scale_colour_brewer() 
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
