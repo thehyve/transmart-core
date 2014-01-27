@@ -14,6 +14,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
@@ -33,9 +34,9 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
-    final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'zscore')
 
-    final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
+    private final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
@@ -130,6 +131,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore') ]
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
+        new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 }

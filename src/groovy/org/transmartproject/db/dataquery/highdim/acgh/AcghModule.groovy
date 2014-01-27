@@ -32,12 +32,6 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "ACGH data"
 
-    final ImmutableSet<String> dataProperties = ImmutableSet.copyOf('trialName chipCopyNumberValue ' +
-            'segmentCopyNumberValue flag probabilityOfLoss probabilityOfNormal probabilityOfGain ' +
-            'probabilityOfAmplification'.split())
-
-    final Set<String> rowProperties = ImmutableSet.of('probe', 'bioMarker')
-
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 

@@ -1,11 +1,11 @@
 package org.transmartproject.db.dataquery.highdim.projections
 
 import grails.orm.HibernateCriteriaBuilder
-import groovy.transform.Immutable
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
+import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 
 /**
  * Created by jan on 12/17/13.
@@ -14,14 +14,16 @@ import org.hibernate.criterion.Projections
 /**
  * This projection collects all the fields specified in the constructor as a map from field name to value
  */
-class AllDataProjection implements CriteriaProjection<Map<String, Object>>{
+class AllDataProjectionImpl implements CriteriaProjection<Map<String, Object>>, AllDataProjection {
 
     static Log LOG = LogFactory.getLog(this)
 
-    Collection<String> fields
+    Collection<String> dataProperties
+    Collection<String> rowProperties
 
-    AllDataProjection(Collection<String> fields) {
-        this.fields = fields
+    AllDataProjectionImpl(Collection<String> dataProperties, Collection<String> rowProperties) {
+        this.dataProperties = dataProperties
+        this.rowProperties = rowProperties
     }
 
     @Override
@@ -38,7 +40,7 @@ class AllDataProjection implements CriteriaProjection<Map<String, Object>>{
             return
         }
 
-        for (String field : fields) {
+        for (String field : dataProperties) {
             // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
             projection.add(
                     Projections.alias(

@@ -13,6 +13,7 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
@@ -26,9 +27,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['PROTEOMICS']
 
-    final Set<String> dataProperties = ImmutableSet.of('intensity', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('intensity', 'zscore')
 
-    final Set<String> rowProperties = ImmutableSet.of('unitProtId', 'peptide')
+    private final Set<String> rowProperties = ImmutableSet.of('unitProtId', 'peptide')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -58,7 +59,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'intensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore') ]
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
+        new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
@@ -32,9 +33,9 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['MIRNA_QPCR', 'MIRNA_SEQ']
 
-    final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
 
-    final Set<String> rowProperties = ImmutableSet.of('probeId', 'mirnaId')
+    private final Set<String> rowProperties = ImmutableSet.of('probeId', 'mirnaId')
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
@@ -73,7 +74,8 @@ class MirnaModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore') ]
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
+        new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 
     @Override

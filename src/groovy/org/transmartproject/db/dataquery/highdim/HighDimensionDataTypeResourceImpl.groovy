@@ -35,16 +35,6 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         module.description
     }
 
-    @Override
-    Set<String> getRowProperties() {
-        module.rowProperties
-    }
-
-    @Override
-    Set<String> getDataProperties() {
-        module.dataProperties
-    }
-
     protected SessionImplementor openSession() {
         module.sessionFactory.openStatelessSession()
     }

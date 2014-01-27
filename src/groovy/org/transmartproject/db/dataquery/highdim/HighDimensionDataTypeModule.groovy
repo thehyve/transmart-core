@@ -34,18 +34,6 @@ public interface HighDimensionDataTypeModule {
     SessionFactory getSessionFactory()
 
     /**
-     * A set of property names that returned row objects support.
-     * @return
-     */
-    Set<String> getRowProperties()
-
-    /**
-     * A set of property names that are returned by the generic projection for this data type
-     * @return
-     */
-    Set<String> getDataProperties()
-
-    /**
      * A set of assay constraints supported by this data type/
      */
     Set<String> getSupportedAssayConstraints()

@@ -14,6 +14,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
@@ -27,9 +28,9 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RBM']
 
-    final Set<String> dataProperties = ImmutableSet.of('value', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('value', 'zscore')
 
-    final Set<String> rowProperties = ImmutableSet.of('antigenName', 'uniprotId')
+    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'uniprotId')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -57,7 +58,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'value',
-                (Projection.ZSCORE_PROJECTION):       'zscore') ]
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
+        new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 
     @Override

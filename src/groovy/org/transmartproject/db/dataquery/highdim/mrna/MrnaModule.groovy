@@ -139,6 +139,6 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
         [ new SimpleRealProjectionsFactory(
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
-          new AllDataProjectionFactory(dataProperties)]
+        new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 }

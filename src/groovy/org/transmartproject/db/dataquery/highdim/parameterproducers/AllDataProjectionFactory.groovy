@@ -2,17 +2,19 @@ package org.transmartproject.db.dataquery.highdim.parameterproducers
 
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.dataquery.highdim.projections.AllDataProjection
+import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionImpl
 
 /**
  * Created by jan on 1/7/14.
  */
 class AllDataProjectionFactory implements DataRetrievalParameterFactory {
 
-    Collection<String> fields
+    private Collection<String> dataProperties
+    private Collection<String> rowProperties
 
-    AllDataProjectionFactory(Collection<String> fields) {
-        this.fields = fields
+    AllDataProjectionFactory(Collection<String> dataProperties, Collection<String> rowProperties) {
+        this.dataProperties = dataProperties
+        this.rowProperties = rowProperties
     }
 
     @Override
@@ -38,6 +40,6 @@ class AllDataProjectionFactory implements DataRetrievalParameterFactory {
                     'This projection takes no parameters')
         }
 
-        new AllDataProjection(fields)
+        new AllDataProjectionImpl(dataProperties, rowProperties)
     }
 }
