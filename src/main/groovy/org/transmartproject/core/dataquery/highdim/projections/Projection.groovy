@@ -31,9 +31,11 @@ public interface Projection<CELL> {
 
     /**
      * This generic projection returns a map with the values of all fields of
-     * the datatype it is applied to. To find out which fields are available,
-     * see the dataProperties property of the datatype specific
-     * HighDimensionResource subresource.
+     * the datatype it is applied to.
+     *
+     * The object returned from HighDimensionResource.createProjection is of
+     * type AllDataProjection. The properties on this object describe what keys
+     * the map has.
      */
     public static final ALL_DATA_PROJECTION = 'all_data'
 
