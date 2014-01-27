@@ -62,6 +62,7 @@ class BoxPlot extends CategoricalOrBinnedJob {
                     genes.dependent          = '$divDependentPathwayName',
                     genes.independent        = '$divIndependentPathwayName',
                     binning.enabled          = '$binning',
+                    aggregate.probes         = '$divIndependentVariableprobesAggregation' == 'true',
                     binning.variable         = '$binVariable')'''
         ]
     }
