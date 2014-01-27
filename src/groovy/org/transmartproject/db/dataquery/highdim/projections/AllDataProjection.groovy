@@ -14,13 +14,13 @@ import org.hibernate.criterion.Projections
 /**
  * This projection collects all the fields specified in the constructor as a map from field name to value
  */
-class GenericProjection implements CriteriaProjection<Map<String, Object>>{
+class AllDataProjection implements CriteriaProjection<Map<String, Object>>{
 
     static Log LOG = LogFactory.getLog(this)
 
     Collection<String> fields
 
-    GenericProjection(Collection<String> fields) {
+    AllDataProjection(Collection<String> fields) {
         this.fields = fields
     }
 
