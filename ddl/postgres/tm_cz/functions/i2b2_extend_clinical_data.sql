@@ -1,7 +1,7 @@
 --
--- Name: i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_extend_clinical_data(character varying, character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+CREATE FUNCTION i2b2_extend_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 /*************************************************************************
@@ -19,6 +19,13 @@ CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node cha
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************/
+-- This function is very simular to "i2b2_load_clinical_data()" except that this
+-- function doesnot delete existing clinical data in the tables.
+-- With this function you can "extend" the already existing clinical data for a study.
+-- Note: You can not modify already existing data in de database with this function
+--       It probably a good idea to combine this function with "i2b2_load_clinical_data()"
+--       and do some refactoring on the way.
+
 Declare
  
 	--Audit variables
@@ -97,7 +104,7 @@ BEGIN
     	
 	stepCt := 0;
 	stepCt := stepCt + 1;
-	tText := 'Start i2b2_load_clinical_data for ' || TrialId;
+	tText := 'Start i2b2_extend_clinical_data for ' || TrialId;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,tText,0,stepCt,'Done') into rtnCd;
 	
 	if (secureStudy not in ('Y','N') ) then
@@ -791,53 +798,47 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert subject information into temp table',rowCt,stepCt,'Done') into rtnCd;
 
-	--	Delete dropped subjects from patient_dimension if they do not exist in de_subject_sample_mapping
+
+        --  check if there are observation in the upload which already exist in database
+        --         (is there already an observation for given patient and concept)
+
+
+with maps as (select leaf_node, usubjid from tm_wz.wrk_clinical_data cd, tm_wz.wt_trial_nodes td where cd.data_label = td.data_label)
+select count(*) into pExists from i2b2demodata.observation_fact of where (of.patient_num, of.concept_cd) IN
+                           (select pd.patient_num, cd.concept_cd from i2b2demodata.patient_dimension pd 
+                                                                      INNER JOIN maps on pd.sourcesystem_cd = maps.usubjid
+                                                                      INNER JOIN i2b2demodata.concept_dimension cd on cd.concept_path = maps.leaf_node);
+
+        if pExists > 0 then
+                  stepCt := stepCt + 1;
+                  select tm_cz.cz_write_audit(jobId,databaseName, procedureName,
+				'You cannot overwrite existing observations when adding.', pExists, stepCt, 'Done') into rtnCd;    
+                  select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
+                  select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+                  return -16;     
+        end if; 
+
+	--  check if data to be added is of the same data-type (numeric/text) as possible already existing
+        --  observations of the concept
 	
 	begin
-	delete from i2b2demodata.patient_dimension
-	where sourcesystem_cd in
-		 (select distinct pd.sourcesystem_cd from i2b2demodata.patient_dimension pd
-		  where pd.sourcesystem_cd like TrialId || ':%'
-		  except 
-		  select distinct cd.usubjid from tm_wz.wrk_clinical_data cd)
-	  and patient_num not in
-		  (select distinct sm.patient_id from deapp.de_subject_sample_mapping sm);
-	get diagnostics rowCt := ROW_COUNT;		 
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;	
+		with exist_cc as (select distinct concept_cd, valtype_cd from i2b2demodata.observation_fact of
+                  where of.concept_cd IN
+                     (select cd.concept_cd from i2b2demodata.concept_dimension cd, tm_wz.wt_trial_nodes td
+			where cd.concept_path = td.leaf_node))
+                select count(*) into pCount from exist_cc, i2b2demodata.observation_fact of 
+			where exist_cc.concept_cd = of.concept_cd 
+				and exist_cc.valtype_cd != of.valtype_cd;
+		if pCount > 0 then
+                  stepCt := stepCt + 1;
+                  select tm_cz.cz_write_audit(jobId,databaseName, procedureName,
+				'You cannot upload different datatype for concept then already in database.', pCount, stepCt, 'Done') into rtnCd;    
+                  select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
+                  select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+                  return -16;     
+ 		end if;
 	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete dropped subjects from patient_dimension',rowCt,stepCt,'Done') into rtnCd;
 
-	--	update patients with changed information
-	begin
-	with nsi as (select t.usubjid, t.sex_cd, t.age_in_years_num, t.race_cd from tm_wz.wt_subject_info t) 
-	update i2b2demodata.patient_dimension
-	set sex_cd=nsi.sex_cd
-	   ,age_in_years_num=nsi.age_in_years_num
-	   ,race_cd=nsi.race_cd
-	   from nsi
-	where sourcesystem_cd = nsi.usubjid;
-	get diagnostics rowCt := ROW_COUNT;	
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Update subjects with changed demographics in patient_dimension',rowCt,stepCt,'Done') into rtnCd;
 
 	--	insert new subjects into patient_dimension
 	
@@ -880,17 +881,6 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert new subjects into patient_dimension',rowCt,stepCt,'Done') into rtnCd;
 		
-	--	delete leaf nodes that will not be reused, if any
-	
-	 FOR r_delUnusedLeaf in delUnusedLeaf Loop
-
-    --	deletes unused leaf nodes for a trial one at a time
-
-		select tm_cz.i2b2_delete_1_node(r_delUnusedLeaf.c_fullname) into rtnCd;
-		stepCt := stepCt + 1;	
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Deleted unused leaf node: ' || r_delUnusedLeaf.c_fullname,1,stepCt,'Done') into rtnCd;
-
-	END LOOP;	
 	
 	--	bulk insert leaf nodes
 	begin
@@ -951,31 +941,6 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted new leaf nodes into I2B2DEMODATA concept_dimension',rowCt,stepCt,'Done') into rtnCd;
 	
-	--	update i2b2 with name, data_type and xml for leaf nodes
-	begin
-	with ncd as (select t.leaf_node, t.node_name, t.data_type from tm_wz.wt_trial_nodes t)
-	update i2b2metadata.i2b2
-	set c_name=ncd.node_name
-	   ,c_columndatatype='T'
-	   ,c_metadataxml=case when ncd.data_type = 'T'
-					  then null
-					  else '<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue><HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue><LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits></UnitValues><Analysis><Enums /><Counts /><New /></Analysis></ValueMetadata>'
-					  end
-	from ncd
-	where c_fullname = ncd.leaf_node;
-	get diagnostics rowCt := ROW_COUNT;	
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated name and data type in i2b2 if changed',rowCt,stepCt,'Done') into rtnCd;
 			   
 	begin
 	insert into i2b2metadata.i2b2
@@ -1042,48 +1007,6 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted leaf nodes into I2B2METADATA i2b2',rowCt,stepCt,'Done') into rtnCd;
 
-	--	delete from observation_fact all concept_cds for trial that are clinical data, exclude concept_cds from biomarker data
-	
-	begin
-	delete from i2b2demodata.observation_fact f
-	where f.sourcesystem_cd = TrialId
-	  and f.concept_cd not in
-		 (select distinct concept_code as concept_cd from deapp.de_subject_sample_mapping
-		  where trial_name = TrialId
-		    and concept_code is not null
-		  union
-		  select distinct platform_cd as concept_cd from deapp.de_subject_sample_mapping
-		  where trial_name = TrialId
-		    and platform_cd is not null
-		  union
-		  select distinct sample_type_cd as concept_cd from deapp.de_subject_sample_mapping
-		  where trial_name = TrialId
-		    and sample_type_cd is not null
-		  union
-		  select distinct tissue_type_cd as concept_cd from deapp.de_subject_sample_mapping
-		  where trial_name = TrialId
-		    and tissue_type_cd is not null
-		  union
-		  select distinct timepoint_cd as concept_cd from deapp.de_subject_sample_mapping
-		  where trial_name = TrialId
-		    and timepoint_cd is not null
-		  union
-		  select distinct concept_cd as concept_cd from deapp.de_subject_snp_dataset
-		  where trial_name = TrialId
-		    and concept_cd is not null);
-	get diagnostics rowCt := ROW_COUNT;	
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete clinical data for study from observation_fact',rowCt,stepCt,'Done') into rtnCd;	  
 	
     --Insert into observation_fact
 	
@@ -1152,41 +1075,6 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert trial into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done') into rtnCd;
 
-	--	update c_visualattributes for all nodes in study, done to pick up node that changed c_columndatatype
-	
-	begin
-	with upd as (select p.c_fullname, count(*) as nbr_children 
-				 from i2b2metadata.i2b2 p
-					 ,i2b2metadata.i2b2 c
-				 where p.c_fullname like topNode || '%' escape '`'
-				   and c.c_fullname like p.c_fullname || '%' escape '`'
-				 group by p.c_fullname)
-	update i2b2metadata.i2b2 b
-	set c_visualattributes=case when upd.nbr_children = 1 
-								then 'L' || substr(b.c_visualattributes,2,2)
-								else 'F' || substr(b.c_visualattributes,2,1) ||
-									case when upd.c_fullname = topNode and highlight_study = 'Y'
-										 then 'J' else substr(b.c_visualattributes,3,1) end
-								end
-		,c_columndatatype=case when upd.nbr_children > 1 then 'T' else b.c_columndatatype end
-	from upd
-	where b.c_fullname = upd.c_fullname
-	  and b.c_fullname in
-		 (select x.c_fullname from i2b2 x
-		  where x.c_fullname like topNode || '%' escape '`');
-  	get diagnostics rowCt := ROW_COUNT;
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Set c_visualattributes in i2b2',rowCt,stepCt,'Done') into rtnCd;
 
 	-- final procs
   
@@ -1194,24 +1082,6 @@ BEGIN
 	
 	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
 		
-	begin
-	update i2b2metadata.i2b2 b
-	set sourcesystem_cd=null,c_comment=null
-	where b.sourcesystem_cd = TrialId
-	  and length(b.c_fullname) < length(topNode);
-	get diagnostics rowCt := ROW_COUNT;	  
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper-level nodes',rowCt,stepCt,'Done') into rtnCd;
 
 	select tm_cz.i2b2_create_concept_counts(topNode, jobID) into rtnCd;
 	
@@ -1232,7 +1102,7 @@ BEGIN
 	select tm_cz.i2b2_load_security_data(jobID) into rtnCd;
 	
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_clinical_data',0,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_extend_clinical_data',0,stepCt,'Done') into rtnCd;
 	
 	---Cleanup OVERALL JOB if this proc is being run standalone
 	IF newJobFlag = 1

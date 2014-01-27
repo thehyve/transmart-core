@@ -43,9 +43,10 @@ log4j = {
                 info 'stdout'
             }
 
-            // for a less verbose startup
+            // for a less verbose startup & shutdown
             warn  'org.codehaus.groovy.grails.commons.spring'
             warn  'org.codehaus.groovy.grails.orm.hibernate.cfg'
+            warn  'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
 
             debug 'org.transmartproject'
             debug 'com.recomdata'

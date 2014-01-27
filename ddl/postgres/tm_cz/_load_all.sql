@@ -14,6 +14,7 @@
 \i tm_cz/functions/i2b2_create_security_for_trial.sql
 \i tm_cz/functions/i2b2_delete_1_node.sql
 \i tm_cz/functions/i2b2_delete_all_nodes.sql
+\i tm_cz/functions/i2b2_extend_clinical_data.sql
 \i tm_cz/functions/i2b2_fill_in_tree.sql
 \i tm_cz/functions/i2b2_load_annotation_deapp.sql
 \i tm_cz/functions/i2b2_load_chrom_region.sql

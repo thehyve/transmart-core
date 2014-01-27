@@ -23,13 +23,19 @@ CREATE TABLE de_variant_subject_summary (
     variant_type character varying(100),
     reference boolean,
     allele1 integer,
-    allele2 integer
+    allele2 integer,
+    assay_id bigint
 );
 
 --
 -- Name: COLUMN de_variant_subject_summary.reference; Type: COMMENT; Schema: deapp; Owner: -
 --
 COMMENT ON COLUMN de_variant_subject_summary.reference IS 'This column contains a flag whether this subject has a reference value on this variant, or not.';
+
+--
+-- Name: COLUMN de_variant_subject_summary.assay_id; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_variant_subject_summary.assay_id IS 'Reference to de_subject_sample_mapping';
 
 --
 -- Name: variant_subject_summary_id; Type: CONSTRAINT; Schema: deapp; Owner: -

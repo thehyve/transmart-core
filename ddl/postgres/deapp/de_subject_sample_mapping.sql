@@ -20,7 +20,7 @@ CREATE TABLE de_subject_sample_mapping (
     platform_cd character varying(50),
     tissue_type character varying(100),
     data_uid character varying(100),
-    gpl_id character varying(20),
+    gpl_id character varying(50),
     rbm_panel character varying(50),
     sample_id bigint,
     sample_cd character varying(200),

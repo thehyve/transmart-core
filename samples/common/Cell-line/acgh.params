@@ -1,0 +1,4 @@
+DATA_FILE_PREFIX=Cell-line_samples.txt
+MAP_FILENAME=Cell-line_subjectmapping.txt
+REGION_PLATFORM_FILE=224k-gene_gene_platform.txt
+SECURITY_REQUIRED=Y

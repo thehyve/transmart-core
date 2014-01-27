@@ -22,6 +22,8 @@ ALTER FUNCTION i2b2_delete_1_node(character varying) SET search_path TO tm_cz, i
 
 ALTER FUNCTION i2b2_delete_all_nodes(character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
 
+ALTER FUNCTION i2b2_extend_clinical_data(character varying, character varying, character varying, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+
 ALTER FUNCTION i2b2_fill_in_tree(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2demodata, i2b2metadata, pg_temp;
 
 ALTER FUNCTION i2b2_load_annotation_deapp(numeric) SET search_path TO tm_cz, deapp, biomart, pg_temp;

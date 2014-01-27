@@ -1,0 +1,6 @@
+DATA_FILE_PREFIX=normalized.tsv
+DATA_TYPE=L
+LOG_BASE=2
+MAP_FILENAME=subject_sample_mapping_chip.txt
+NODE_NAME=
+SECURITY_REQUIRED=Y
