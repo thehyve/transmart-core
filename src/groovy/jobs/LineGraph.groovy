@@ -1,13 +1,9 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
-import jobs.steps.helpers.SingleOrMultiNumericVariableColumnConfigurator
-import jobs.steps.helpers.SimpleAddColumnConfigurator
+import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
+import jobs.steps.helpers.SimpleAddColumnConfigurator
+import jobs.steps.helpers.SingleOrMultiNumericVariableColumnConfigurator
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
@@ -17,7 +13,6 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import javax.annotation.PostConstruct
-import java.security.InvalidParameterException
 
 @Component
 @Scope('job')
@@ -43,7 +38,7 @@ class LineGraph extends AbstractAnalysisJob {
         dependentVariableConfigurator.projection            = Projection.DEFAULT_REAL_PROJECTION
         dependentVariableConfigurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
         dependentVariableConfigurator.multiRow              = true
-        dependentVariableConfigurator.keyForIsCategorical = 'dependentVariableCategorical'
+        dependentVariableConfigurator.keyForIsCategorical   = 'dependentVariableCategorical'
         // we do not want group name pruning for LineGraph
         dependentVariableConfigurator.isGroupNamePruningNecessary = false
 
@@ -51,8 +46,8 @@ class LineGraph extends AbstractAnalysisJob {
         dependentVariableConfigurator.keyForDataType        = "divDependentVariableType"
         dependentVariableConfigurator.keyForSearchKeywordId = "gexpathway"
 
-        groupByColumnConfigurator.columnHeader = 'GROUP_VAR'
-        groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'
+        groupByColumnConfigurator.columnHeader              = 'GROUP_VAR'
+        groupByColumnConfigurator.keyForConceptPaths        = 'groupByVariable'
     }
 
     @Override
@@ -70,6 +65,7 @@ class LineGraph extends AbstractAnalysisJob {
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
+
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
@@ -86,10 +82,8 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename           = 'outputfile',
                     graphType                = '$graphType',
-                    plot.individuals            = ${(plotIndividuals=="true")?1:0}
-        )''' ]
+                    plot.individuals         = ${(plotIndividuals=="true")?1:0})''']
     }
-                    // HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}',
 
     @Override
     protected getForwardPath() {
