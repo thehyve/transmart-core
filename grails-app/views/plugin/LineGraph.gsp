@@ -72,17 +72,23 @@
                 </fieldset>
 
             </div>
-
+        </div>  %{--end container--}%
+        <fieldset class="lineGraph">
+          <p>
             <label for="graphType">Graph type</label>
             <select id="graphType">
               <option value="MERR">Mean with error bar</option>
               <option value="MSTD">Mean with standard deviation</option>
               <option value="MEDER">Median with error bar</option>
-            </select><br>
-            <label for="plotIndividuals">Plot individuals</label><input id="plotIndividuals" type="checkbox" name="plotIndividuals"></input><br>
+            </select>
+          </p>
+          <p>
+            <label for="plotIndividuals">Plot individuals</label>
+            <input id="plotIndividuals" type="checkbox" name="plotIndividuals"></input><br>
+          </p>
+          <p>
             <input type="button" value="Run" onClick="lineGraphView.submit_job(this.form);">
-
-        </div>  %{--end container--}%
+          </p>
+        </fieldset>
     </form>
-
 </div>
