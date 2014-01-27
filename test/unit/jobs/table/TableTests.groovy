@@ -214,6 +214,7 @@ class TableTests {
 
             assertThat testee.result, contains(
                     is(['col 1, row 2', 'col 2, row 2']))
+            assertThat testee.droppedRows, is(1)
         }
     }
 
