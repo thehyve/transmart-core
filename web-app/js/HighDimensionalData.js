@@ -209,7 +209,7 @@ HighDimensionalData.prototype.generate_view = function () {
         var selectedSearchPathway = Ext.get('searchPathway').dom.value;
 
         // get flag for probe aggregation
-        var probeAggregationFlag = Ext.get('probesAggregation').dom.value;
+        var probeAggregationFlag = Ext.get('probesAggregation').dom.checked;
 
         // create final string
         var innerHtml = summaryString +
