@@ -5,6 +5,7 @@
 
 LineGraph.loader <- function(
 	input.filename,
+	scaling.filename = NULL,
 	output.file="LineGraph",
 	graphType="MERR",
 	plot.individuals=FALSE,
@@ -21,7 +22,15 @@ LineGraph.loader <- function(
 	
 	######################################################
 	#Read the line graph data.
-	line.data<-read.delim(input.filename,header=T)
+	line.data <- read.delim(input.filename,header=T)
+	#Read the scaling data (location of each group (concept path) on X-axis)
+	if (!is.null(scaling.filename)) {
+	  scaling.data <- read.delim(scaling.filename,header=T)
+	} else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
+	  scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
+	}
+	# assign the X-axis position to each row
+	line.data$TIME_VALUE <- sapply(line.data$GROUP,FUN = function(groupValue) { scaling.data$VALUE[which(groupValue==scaling.data$GROUP)] })
 	
 	#We need to convert the value column from a factor to a numeric.
 	#finalData$VALUE <- as.numeric(levels(finalData$VALUE))[as.integer(finalData$VALUE)]
