@@ -1,5 +1,6 @@
 package jobs
 
+import jobs.steps.BuildConceptTimeValuesStep
 import jobs.steps.BuildTableResultStep
 import jobs.steps.MultiRowAsGroupDumpTableResultsStep
 import jobs.steps.ParametersFileStep
@@ -8,6 +9,7 @@ import jobs.steps.Step
 import jobs.steps.helpers.SingleOrMultiNumericVariableColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.steps.helpers.CategoricalColumnConfigurator
+import jobs.table.ConceptTimeValuesTable
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.ontology.ConceptsResource
 
 import javax.annotation.PostConstruct
 import java.security.InvalidParameterException
@@ -31,6 +34,9 @@ class LineGraph extends AbstractAnalysisJob {
 
     @Autowired
     SingleOrMultiNumericVariableColumnConfigurator dependentVariableConfigurator
+
+    @Autowired
+    ConceptTimeValuesTable conceptTimeValues
 
     @Autowired
     Table table
@@ -53,6 +59,8 @@ class LineGraph extends AbstractAnalysisJob {
 
         groupByColumnConfigurator.columnHeader = 'GROUP_VAR'
         groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'
+
+        conceptTimeValues.conceptPaths = dependentVariableConfigurator.getConceptPaths()
     }
 
     @Override
@@ -70,6 +78,11 @@ class LineGraph extends AbstractAnalysisJob {
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
+
+        conceptTimeValues.outputFile = new File(temporaryDirectory, 'conceptTimeValues')
+
+        steps << new BuildConceptTimeValuesStep(table: conceptTimeValues)
+
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
