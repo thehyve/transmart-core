@@ -114,6 +114,7 @@ class ScatterPlot extends AbstractAnalysisJob {
                     concept.independent.type = '$divIndependentVariableType',
                     genes.dependent          = '$divDependentPathwayName',
                     genes.independent        = '$divIndependentPathwayName',
+                    aggregate.probes         = '$divIndependentVariableprobesAggregation' == 'true',
                     snptype.dependent        = '',
                     snptype.independent      = '',
         )''' ] // last two params should be removed

@@ -33,7 +33,11 @@ class TableWithFisher extends CategoricalOrBinnedJob {
     @Override
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/TableWithFisher/FisherTableLoader.R')''',
-                '''FisherTable.loader(input.filename='outputfile')''' ]
+                '''
+                FisherTable.loader(
+                input.filename = 'outputfile',
+                aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true'
+                )''' ]
     }
 
     @Override
