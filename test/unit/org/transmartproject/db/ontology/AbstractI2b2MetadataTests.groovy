@@ -25,12 +25,16 @@ class AbstractI2b2MetadataTests {
 
         assertThat testee.metadata, allOf(
                 hasEntry('okToUseValues', false),
+
                 hasEntry(equalTo('unitValues'), allOf(
                         hasEntry('normalUnits', 'mg/dl'),
-                        hasEntry('equalUnits', 'mg/dl'),
-                ))
-        )
+                        hasEntry('equalUnits', 'mg/dl'))),
 
+                hasEntry(equalTo('seriesMeta'), allOf(
+                        hasEntry('value', '1'),
+                        hasEntry('unit', 'days'),
+                        hasEntry('label', 'Day 1'))),
+            )
     }
 
     private static final String METADATA_XML = '''<?xml version="1.0"?>
@@ -111,6 +115,11 @@ class AbstractI2b2MetadataTests {
     <Counts/>
     <New/>
   </Analysis>
+  <SeriesMeta>
+      <Value>1</Value>
+      <Unit>days</Unit>
+      <DisplayName>Day 1</DisplayName>
+   </SeriesMeta>
 </ValueMetadata>
 '''
 }
