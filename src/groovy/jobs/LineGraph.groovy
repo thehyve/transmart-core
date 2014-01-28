@@ -99,7 +99,6 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename    = 'outputfile',
                     graphType         = '$graphType',
-                    plot.evenlySpaced = ${(plotEvenlySpaced == "true") ? 1 : 0 },
                     plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }
         )''' ]
     }

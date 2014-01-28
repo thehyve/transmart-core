@@ -8,7 +8,6 @@ LineGraph.loader <- function(
 	scaling.filename = NULL,
 	output.file="LineGraph",
 	graphType="MERR",
-	plot.evenlySpaced=FALSE,
 	plot.individuals=FALSE,
 	HDD.data.type = NULL
 )
