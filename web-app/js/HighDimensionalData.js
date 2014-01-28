@@ -209,7 +209,7 @@ HighDimensionalData.prototype.generate_view = function () {
             '<br>';
 
         // get search gene/pathway
-        var selectedSearchPathway = Ext.get('searchPathway').dom.value;
+        var selectedSearchPathway = GLOBAL.CurrentPathwayName;
 
         // create final string
         var innerHtml = summaryString +
