@@ -60,28 +60,54 @@ class ConfiguratorTestsHelper {
     }
 
     void createDataTypeResourceMock(TabularResult<Double, AssayColumn> highDimResult) {
+        createDataTypeResourceMock([(CONCEPT_PATH_HIGH_DIMENSION): highDimResult])
+    }
+
+    void createDataTypeResourceMock(Map<String, TabularResult<Double, AssayColumn>> highDimResults) {
+
         HighDimensionDataTypeResource dataTypeResourceMock =
                 mock(HighDimensionDataTypeResource)
-        ordered {
-            highDimensionResourceMock.getSubResourceForType(DATA_TYPE_NAME_HIGH_DIMENSION).
-                    returns(dataTypeResourceMock)
-            unordered {
-                dataTypeResourceMock.createProjection(
-                        [:], Projection.DEFAULT_REAL_PROJECTION).returns(mock(Projection))
-                dataTypeResourceMock.createAssayConstraint(AssayConstraint.DISJUNCTION_CONSTRAINT,
-                        subconstraints: [
-                                (AssayConstraint.PATIENT_SET_CONSTRAINT): [
-                                        [result_instance_id: RESULT_INSTANCE_ID1 as Long],
-                                        [result_instance_id: RESULT_INSTANCE_ID2 as Long],
-                                ]]).returns(mock(AssayConstraint))
-                dataTypeResourceMock.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
-                        concept_key: createConceptKeyFrom(CONCEPT_PATH_HIGH_DIMENSION)).returns(mock(AssayConstraint))
-                dataTypeResourceMock.createDataConstraint(DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                        keyword_ids: [SEARCH_KEYWORD_ID]).returns(mock(DataConstraint))
-            }
+
+        def termConstraintToResult = [:]
+
+        highDimensionResourceMock.getSubResourceForType(DATA_TYPE_NAME_HIGH_DIMENSION).
+                returns(dataTypeResourceMock)
+
+        def projection = mock(Projection)
+        dataTypeResourceMock.createProjection(
+                [:], Projection.DEFAULT_REAL_PROJECTION).returns(projection)
+
+        def disjunctionConstraint = mock(AssayConstraint)
+        dataTypeResourceMock.createAssayConstraint(AssayConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (AssayConstraint.PATIENT_SET_CONSTRAINT): [
+                                [result_instance_id: RESULT_INSTANCE_ID1 as Long],
+                                [result_instance_id: RESULT_INSTANCE_ID2 as Long],
+                        ]]).returns(disjunctionConstraint)
+
+        /* a bit overconstrained here, no reason we can't create
+         * separate constraints/projections for each concept */
+
+        highDimResults.each { String conceptPath, TabularResult result ->
+            def mockConstraint = mock(AssayConstraint)
+            termConstraintToResult[mockConstraint] = result
+
+            dataTypeResourceMock.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                    concept_key: createConceptKeyFrom(conceptPath)).returns(mockConstraint)
+        }
+
+        def searchKeywordConstraint = mock(DataConstraint)
+        dataTypeResourceMock.createDataConstraint(DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
+                keyword_ids: [SEARCH_KEYWORD_ID]).returns(searchKeywordConstraint)
+
+        termConstraintToResult.each { AssayConstraint ontologyTermConstraint,
+                                      TabularResult result ->
             dataTypeResourceMock.retrieveData(
-                    allOf(hasSize(2), everyItem(isA(AssayConstraint))),
-                    everyItem(isA(DataConstraint)), isA(Projection)).returns(highDimResult)
+                    containsInAnyOrder(
+                            is(disjunctionConstraint),
+                            is(ontologyTermConstraint)),
+                    contains(searchKeywordConstraint),
+                    is(projection)).returns(result)
         }
     }
 
