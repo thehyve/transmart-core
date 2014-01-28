@@ -151,7 +151,7 @@ calculateANOVA <- function(splitData,splitColumn,fileNameQualifier)
 	
 	#We need to get the p-value for this ANOVA.
 	#Run the ANOVA
-	if (levels(splitData$X) <=1 ) stop("||FRIENDLY||Dependent variables must contain at least 2 levels (must contain multiple groups).")
+	if (length(levels(splitData$X)) <=1 ) stop("Dependent variables must contain at least 2 levels (must contain multiple groups).")
 	dataChunk.aov <- aov(Y~X,data=splitData)
 
 	#Get a summary of the ANOVA
