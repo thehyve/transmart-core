@@ -30,5 +30,7 @@ class DeSubjectMetabolomicsData implements Serializable {
 
     static constraints = {
         zscore scale: 5
+        rawIntensity nullable: true, scale: 5
+        logIntensity nullable: true, scale: 5
     }
 }
