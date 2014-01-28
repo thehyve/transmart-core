@@ -6,6 +6,8 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 class DeSubjectMetabolomicsData implements Serializable {
 
     BigDecimal zscore
+    BigDecimal rawIntensity
+    BigDecimal logIntensity
     DeMetaboliteAnnotation jAnnotation
 
     static belongsTo = [

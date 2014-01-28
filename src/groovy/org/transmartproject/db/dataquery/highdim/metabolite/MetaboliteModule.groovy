@@ -83,7 +83,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
-                (Projection.DEFAULT_REAL_PROJECTION): 'raw_intensity',
+                (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
