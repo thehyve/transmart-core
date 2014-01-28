@@ -153,8 +153,15 @@ abstract class CollectingTabularResult<C, R extends DataRow>
 
         [
                 hasNext: { row != null },
-                next: { def r = row; row = getNextRow(); r },
-                remove: { throw new UnsupportedOperationException() }
+                remove:  { throw new UnsupportedOperationException() },
+                next:    {
+                    def r = row;
+                    if (r == null) {
+                        throw new NoSuchElementException('No elements left')
+                    }
+                    row = getNextRow();
+                    r
+                },
         ] as Iterator
     }
 
