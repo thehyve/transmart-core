@@ -23,7 +23,7 @@ input.filename,
 output.file ="CMS.TXT",
 numberOfPermutations = 5000,
 numberOfMarkers = 100,
-aggregate.probes = TRUE
+aggregate.probes = FALSE
 )
 {
 	##########################################

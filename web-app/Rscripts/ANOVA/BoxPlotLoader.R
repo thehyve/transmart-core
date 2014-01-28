@@ -29,7 +29,7 @@ BoxPlot.loader <- function(
   concept.independent.type = "",
   genes.dependent = "",
   genes.independent = "",
-  aggregate.probes = TRUE,
+  aggregate.probes = FALSE,
   binning.enabled = FALSE,
   binning.variable = "IND",
   binning.manual = FALSE,

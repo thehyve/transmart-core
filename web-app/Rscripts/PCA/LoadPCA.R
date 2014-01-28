@@ -21,7 +21,7 @@
 PCA.loader <- function(
 input.filename,
 output.file ="PCA",
-aggregate.probes = TRUE
+aggregate.probes = FALSE
 )
 {
 

@@ -6,7 +6,8 @@
 LineGraph.loader <- function(
 	input.filename,
 	output.file="LineGraph",
-	graphType=""
+	graphType="",
+    aggregate.probes = FALSE
 )
 {
  	######################################################

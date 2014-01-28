@@ -26,7 +26,7 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
-aggregate.probes = TRUE
+aggregate.probes = FALSE
 )
 {
 
