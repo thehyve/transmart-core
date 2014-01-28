@@ -56,6 +56,10 @@ class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator 
         multiConfigurator.keyForConceptPaths // could be fetch from single too
     }
 
+    public List<String> getConceptPaths() {
+        multiConfigurator.getConceptPaths()
+    }
+
     void setProperty(String name, Object value) {
         if (name == 'keyForConceptPath' || name == 'keyForConceptPaths') {
             multiConfigurator.keyForConceptPaths = value
