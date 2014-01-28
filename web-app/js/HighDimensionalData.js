@@ -494,13 +494,8 @@ HighDimensionalData.prototype.load_parameters = function (formParams) {
         snpData = true;
     }
 
-    if ((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-        return false;
-    }
-
-    if ((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
+    if (!independentGeneList && independentType || !dependentGeneList && dependentType) {
+        Ext.Msg.alert("No Filter Selected", "Please specify Gene/Pathway/mirID/UniProtID in High Dimensional Data pop-up.")
         return false;
     }
 
