@@ -21,7 +21,8 @@
 
 FisherTable.loader <- function(
   input.filename,
-  aggregate.probes = TRUE,
+  aggregate.probes.independent = TRUE,
+  aggregate.probes.dependent = TRUE,
   output.file						="FisherTable"
   )
  {
