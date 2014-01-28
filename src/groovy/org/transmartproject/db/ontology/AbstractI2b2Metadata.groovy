@@ -115,6 +115,14 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                 equalUnits: slurper.UnitValues?.EqualUnits?.toString(),
         ]
 
+        def seriesMeta = slurper.SeriesMeta
+        if (seriesMeta) {
+            ret.seriesMeta = [
+                    "unit": seriesMeta.Unit?.toString(),
+                    "value": seriesMeta.Value?.toString(),
+                    "label": seriesMeta.DisplayName?.toString(),
+            ]
+        }
         ret
     }
 
