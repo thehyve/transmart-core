@@ -63,6 +63,32 @@ class ConfiguratorTestsHelper {
         createDataTypeResourceMock([(CONCEPT_PATH_HIGH_DIMENSION): highDimResult])
     }
 
+    TabularResult createHighDimTabularResult(Map params) {
+        List<AssayColumn> sampleAssays        = params.assays
+        Map<String, List<Number>> labelToData = params.data
+        String columnsDimensionLabel          = params.columnsLabel
+        String rowsDimensionLabel             = params.rowsLabel
+
+        TabularResult highDimResult = mock TabularResult
+        highDimResult.indicesList.returns(sampleAssays).atLeastOnce()
+
+        def rowsIterator = labelToData.collect { String label,
+                                                 List<Number> data ->
+            createRowForAssays(sampleAssays, data, label)
+        }.iterator()
+        highDimResult.getRows().returns(rowsIterator).stub()
+        highDimResult.iterator().returns(rowsIterator).stub()
+
+        if (columnsDimensionLabel) {
+            highDimResult.columnsDimensionLabel.returns columnsDimensionLabel
+        }
+        if (rowsDimensionLabel) {
+            highDimResult.rowsDimensionLabel.returns rowsDimensionLabel
+        }
+
+        highDimResult
+    }
+
     void createDataTypeResourceMock(Map<String, TabularResult<Double, AssayColumn>> highDimResults) {
 
         HighDimensionDataTypeResource dataTypeResourceMock =
@@ -196,7 +222,7 @@ class ConfiguratorTestsHelper {
 
     private AssayColumn createMockAssay(String patientInTrialId, String label) {
         AssayColumn assayColumn = mock(AssayColumn)
-        assayColumn.patientInTrialId.returns(patientInTrialId).atLeastOnce()
+        assayColumn.patientInTrialId.returns(patientInTrialId).stub()
         assayColumn.label.returns(label).stub()
         assayColumn
     }
@@ -206,12 +232,14 @@ class ConfiguratorTestsHelper {
         row.label.returns(label).stub()
 
         values.eachWithIndex { entry, i ->
-            row.getAt(i).returns(entry.value).atLeastOnce()
+            row.getAt(i).returns(entry.value).stub()
         }
-        // we now call end up calling getAt(Integer)
-        /*values.keySet().each { column ->
-            row.getAt(column).returns(values[column])
-        }*/
+
+        values.keySet().each { column ->
+            row.getAt(column).returns(values[column]).stub()
+        }
+
+        row.iterator().returns(values.values.iterator()).stub()
         row
     }
 
