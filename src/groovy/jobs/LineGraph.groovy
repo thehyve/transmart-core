@@ -84,9 +84,10 @@ class LineGraph extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/LineGraph/LineGraphLoader.r')''',
                 '''LineGraph.loader(
-                    input.filename           = 'outputfile',
-                    graphType                = '$graphType',
-                    plot.individuals            = ${(plotIndividuals=="true")?1:0}
+                    input.filename    = 'outputfile',
+                    graphType         = '$graphType',
+                    plot.evenlySpaced = ${(plotEvenlySpaced == "true") ? 1 : 0 },
+                    plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }
         )''' ]
     }
                     // HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}',

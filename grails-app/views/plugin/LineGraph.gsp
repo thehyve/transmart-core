@@ -84,7 +84,11 @@
           </p>
           <p>
             <label for="plotIndividuals">Plot individuals</label>
-            <input id="plotIndividuals" type="checkbox" name="plotIndividuals"></input><br>
+            <input id="plotIndividuals" type="checkbox" name="plotIndividuals"></input>
+          </p>
+          <p>
+            <label for="plotEvenlySpaced">Plot evenly spaced</label>
+            <input id="plotEvenlySpaced" type="checkbox" name="plotEvenlySpaced"></input>
           </p>
           <p>
             <input type="button" value="Run" onClick="lineGraphView.submit_job(this.form);">
