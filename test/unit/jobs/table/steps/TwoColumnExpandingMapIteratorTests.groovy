@@ -27,5 +27,19 @@ class TwoColumnExpandingMapIteratorTests {
         )
     }
 
+    @Test
+    void testNoDataRow() {
+        // the case for clinical data
+        def data = [
+                [1, ['foo': 3, 'bar': 4], 2]
+        ]
+        testee = new TwoColumnExpandingMapIterator(data.iterator(), [1])
+        testee.defaultRowLabel = 'xpto'
+
+        assertThat toList(testee), contains(
+                contains([1, 3, 'foo', 'xpto', 2].collect { is it as String }),
+                contains([1, 4, 'bar', 'xpto', 2].collect { is it as String }),
+        )
+    }
 
 }

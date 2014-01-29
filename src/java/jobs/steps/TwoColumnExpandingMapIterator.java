@@ -15,8 +15,10 @@ import java.util.Map;
  */
 public class TwoColumnExpandingMapIterator extends ExpandingMapIterator {
 
-    private Splitter splitter =
+    private static final Splitter SPLITTER =
             Splitter.on(CompositeResultDataRow.SEPARATOR.charAt(0)).limit(2);
+
+    public String defaultRowLabel = "";
 
     public TwoColumnExpandingMapIterator(Iterator<List<Object>> preResults,
                                          List<Integer> mapIndexes) {
@@ -25,9 +27,10 @@ public class TwoColumnExpandingMapIterator extends ExpandingMapIterator {
     }
 
     protected void writeEntry(Map.Entry<String, Object> entry, int index) {
-        Iterator<String> iterator = splitter.split(entry.getKey()).iterator();
+        Iterator<String> iterator = SPLITTER.split(entry.getKey()).iterator();
         getReturnArray()[index] = entry.getValue().toString();
         getReturnArray()[index + 1] = iterator.next();
-        getReturnArray()[index + 2] = iterator.next();
+        getReturnArray()[index + 2] = iterator.hasNext() ?
+                iterator.next() : defaultRowLabel;
     }
 }
