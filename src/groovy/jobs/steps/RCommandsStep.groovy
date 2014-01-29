@@ -19,6 +19,11 @@ class RCommandsStep implements Step {
     List<String> rStatements
     String studyName /* see comment on AbstractAnalysisJob::studyName */
 
+    /**
+     * This map allows us to pass information that is only available later on
+     */
+    Map<String, Closure<String>> lazyExtraParams
+
     @Override
     void execute() {
         runRCommandList rStatements
@@ -37,6 +42,14 @@ class RCommandsStep implements Step {
              * as otherwise you create a potential security vulnerability
              */
             Map vars = [:]
+
+            //lazy extra params go first, so they can't override user params (last value wins)
+            if (lazyExtraParams) {
+                lazyExtraParams.each {
+                    vars[it.key] = it.value.call()
+                }
+            }
+
             params.each { k,v ->
                 vars[k] = v
             }

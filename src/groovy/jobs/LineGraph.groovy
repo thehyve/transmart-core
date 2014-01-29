@@ -26,6 +26,8 @@ import java.security.InvalidParameterException
 @Scope('job')
 class LineGraph extends AbstractAnalysisJob {
 
+    private static final String SCALING_VALUES_FILENAME = 'conceptScaleValues'
+
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
@@ -61,6 +63,7 @@ class LineGraph extends AbstractAnalysisJob {
         groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'
 
         conceptTimeValues.conceptPaths = dependentVariableConfigurator.getConceptPaths()
+        conceptTimeValues.enabledClosure = { -> !Boolean.parseBoolean(params.getProperty('plotEvenlySpaced')) }
     }
 
     @Override
@@ -79,18 +82,26 @@ class LineGraph extends AbstractAnalysisJob {
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
 
-        conceptTimeValues.outputFile = new File(temporaryDirectory, 'conceptTimeValues')
+        conceptTimeValues.outputFile = new File(temporaryDirectory, SCALING_VALUES_FILENAME)
 
         steps << new BuildConceptTimeValuesStep(table: conceptTimeValues)
+
+        Map<String, Closure<String>> lazyExtraParams = [:]
+        lazyExtraParams['scalingFilename'] = { getScalingFilename() }
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
                 rStatements:        RStatements,
                 studyName:          studyName,
-                params:             params)
+                params:             params,
+                lazyExtraParams:    lazyExtraParams)
 
         steps
+    }
+
+    private String getScalingFilename() {
+        conceptTimeValues.hasScaling() ? SCALING_VALUES_FILENAME : null
     }
 
     @Override
@@ -99,10 +110,11 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename    = 'outputfile',
                     graphType         = '$graphType',
+                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"},
                     plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }
         )''' ]
     }
-                    // HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}',
+    // HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}',
 
     @Override
     protected getForwardPath() {

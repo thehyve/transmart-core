@@ -24,10 +24,17 @@ class ConceptTimeValuesTable {
 
     File outputFile
 
+    Closure<Boolean> enabledClosure
+
     void compute() {
 
         //makes sure the file is not there
         outputFile.delete()
+
+        if (enabledClosure && !enabledClosure.call()) {
+            //we don' want to actually create the file
+            return
+        }
 
         //get all the OntologyTerms for the concepts
         Set<OntologyTerm> terms = conceptPaths.collect { conceptsResource.getByKey(OpenHighDimensionalDataStep.createConceptKeyFrom(it))} as Set
@@ -46,7 +53,6 @@ class ConceptTimeValuesTable {
                 writeFile(nameToSeriesMeta)
             }
         }
-
     }
 
     private String normalize(String path) {
@@ -66,6 +72,13 @@ class ConceptTimeValuesTable {
             }
 
         }
+    }
+
+    /**
+     * @return true if the file with scaling values was produced
+     */
+    boolean hasScaling() {
+        return outputFile.exists()
     }
 
 }
