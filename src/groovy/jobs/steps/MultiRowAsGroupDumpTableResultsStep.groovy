@@ -26,9 +26,9 @@ import com.google.common.collect.PeekingIterator
 
 class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
 
-    private List<Integer> transformedColumnsIndexes = []
+    protected List<Integer> transformedColumnsIndexes = []
 
-    private PeekingIterator<List<Object>> preResults
+    protected PeekingIterator<List<Object>> preResults
 
     protected List<String> headers = []
 
@@ -53,12 +53,12 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
 
             if (it instanceof Map) {
                 transformedColumnsIndexes << index
-                addGroupColumnHeader()
+                addGroupColumnHeaders()
             }
         }
     }
 
-    private void addGroupColumnHeader() {
+    protected void addGroupColumnHeaders() {
         if (transformedColumnsIndexes.size() == 1) {
             headers << 'GROUP'
         } else {
@@ -71,7 +71,11 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
         if (transformedColumnsIndexes.empty) {
             super.getMainRows()
         } else {
-            new ExpandingMapIterator(preResults, transformedColumnsIndexes)
+            createDecoratingIterator()
         }
+    }
+
+    protected createDecoratingIterator() {
+        new ExpandingMapIterator(preResults, transformedColumnsIndexes)
     }
 }
