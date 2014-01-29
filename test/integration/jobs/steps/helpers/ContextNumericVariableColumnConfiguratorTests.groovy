@@ -17,12 +17,12 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @TestMixin(JobsIntegrationTestMixin)
-class SingleOrMultiNumericVariableColumnConfiguratorTests {
+class ContextNumericVariableColumnConfiguratorTests {
 
     public static final String CONCEPT_PATH_HIGH_DIMENSION_EXTRA = '\\bogus\\highdim\\variable\\extra\\'
 
     @Autowired
-    SingleOrMultiNumericVariableColumnConfigurator testee
+    ContextNumericVariableColumnConfigurator testee
 
     @Autowired
     Table table
@@ -162,9 +162,10 @@ class SingleOrMultiNumericVariableColumnConfiguratorTests {
             table.buildTable()
 
             def res = Lists.newArrayList(table.result)
-            println res
-            assertThat res, containsInAnyOrder(
-                    contains([row1: 0.7, row2: 0.8]))
+            assertThat res, contains(
+                    contains([
+                            ("$CONCEPT_PATH_HIGH_DIMENSION|row1".toString()): 0.7,
+                            ("$CONCEPT_PATH_HIGH_DIMENSION|row2".toString()): 0.8]))
         }
     }
 
@@ -188,7 +189,7 @@ class SingleOrMultiNumericVariableColumnConfiguratorTests {
 
             // no maps involved here
             assertThat Lists.newArrayList(table.result), contains(
-                    contains(34.0))
+                    contains([(CONCEPT_PATH_CLINICAL): 34.0]))
         }
     }
 }

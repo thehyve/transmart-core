@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
 import jobs.UserParameters
+import jobs.table.Column
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -33,7 +34,18 @@ class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurato
             getStringParam(keyForBinnedVariable) == valueForThisColumnBeingBinned
         }
         forceNumericBinning             = false
-        numericColumnConfigurationClass = SingleOrMultiNumericVariableColumnConfigurator
+    }
+
+    @Override
+    void doAddColumn(Closure<Column> decorateColumn) {
+        /* if we have only one variable, we don't necessary want maps as values
+         * (namely, we don't want them if we have a clinical variable). */
+        numericColumnConfigurationClass =
+                isMultiVariable() ?
+                        ContextNumericVariableColumnConfigurator :
+                        NumericColumnConfigurator
+
+        super.doAddColumn decorateColumn
     }
 
     @Override

@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 /**
+ * A decorator that configures a column whose values will always be maps.
+ *
  * Delegates to either a
  * - NumericColumnConfigurator (single concept, high dim or clinical)
  * - MultiNumericClinicalVariableColumnConfigurator (multiple clinical concepts)
  * - HighDimensionColumnConfigurator (multiple high dimensional objects)
  *
- * Note that the different cases will likely have to be handled differently
- * downstream. The values returned by the {@link jobs.table.Table} will be
- * substantially different in several cases:
  *
- * - Single clinical concept:    values are numeric
+ * - Clinical concept:           values are map (possibly pruned concept path -> value)
  * - Single high dim concept^:   values are map (row label (probe) -> numeric value)
- * - Multiple clinical concept:  values are map (possibly pruned concept path -> value)
+ *                               OR, if multiConcepts are set,
+ *                               values are map (concept path + '|' + row label (probe) -> value)
  * - Multiple high dim concept+: values are map (concept path + '|' + row label (probe) -> value)
  *
  * ^ if multiRow is set, otherwise values are numeric (first row only)
@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct
 @Component
 @Scope('prototype')
 @Log4j
-class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator {
+class ContextNumericVariableColumnConfigurator extends ColumnConfigurator {
 
     /* properties to be set externally:
      *
@@ -46,10 +46,7 @@ class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator 
      */
 
     @Autowired
-    private MultiNumericClinicalVariableColumnConfigurator multiConfigurator
-
-    @Autowired
-    private NumericColumnConfigurator singleConfigurator
+    private MultiNumericClinicalVariableColumnConfigurator multiClinicalConfigurator
 
     @Autowired
     private HighDimensionColumnConfigurator multiHighDimConfigurator
@@ -61,33 +58,19 @@ class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator 
 
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
-        String conceptPaths = getStringParam keyForConceptPaths
-
-        if (conceptPaths.contains('|')) {
-            if (clinicalData) {
-                log.debug("Found pipe in parameter $keyForConceptPaths, " +
-                        "and $keyForDataType indicates clinical data; " +
-                        "using the MultiNumericVariableColumnConfigurator")
-                multiConfigurator.doAddColumn decorateColumn
-            } else {
-                log.debug("Found pipe in parameter $keyForConceptPaths, " +
-                        "and $keyForDataType indicates high dim data; " +
-                        "using the HighDimensionColumnConfigurator")
-                multiHighDimConfigurator.doAddColumn decorateColumn
-            }
+        if (clinicalData) {
+            log.debug("$keyForDataType indicates clinical data; " +
+                    "using the MultiNumericClinicalVariableColumnConfigurator")
+            multiClinicalConfigurator.doAddColumn decorateColumn
         } else {
-            log.debug("Found no pipe in parameter $keyForConceptPaths, " +
-                    "using the NumericColumnConfigurator")
-            singleConfigurator.doAddColumn decorateColumn
+            log.debug("$keyForDataType indicates high dim data; " +
+                    "using the HighDimensionColumnConfigurator")
+            multiHighDimConfigurator.doAddColumn decorateColumn
         }
     }
 
-    String getKeyForConceptPaths() {
-        multiConfigurator.keyForConceptPaths // could be fetched anywhere else
-    }
-
     String getKeyForDataType() {
-        singleConfigurator.keyForDataType
+        multiHighDimConfigurator.keyForDataType
     }
 
     boolean isClinicalData() {
@@ -97,19 +80,14 @@ class SingleOrMultiNumericVariableColumnConfigurator extends ColumnConfigurator 
 
     void setProperty(String name, Object value) {
         if (name == 'keyForConceptPath' || name == 'keyForConceptPaths') {
-            multiConfigurator.keyForConceptPaths       = value
-            singleConfigurator.keyForConceptPath       = value
-            multiHighDimConfigurator.keyForConceptPath = value
+            multiClinicalConfigurator.keyForConceptPaths = value
+            multiHighDimConfigurator.keyForConceptPath   = value
             return
         }
 
         boolean found = false
-        if (multiConfigurator.hasProperty(name)) {
-            multiConfigurator.setProperty name, value
-            found = true
-        }
-        if (singleConfigurator.hasProperty(name)) {
-            singleConfigurator.setProperty name, value
+        if (multiClinicalConfigurator.hasProperty(name)) {
+            multiClinicalConfigurator.setProperty name, value
             found = true
         }
         if (multiHighDimConfigurator.hasProperty(name)) {

@@ -118,7 +118,7 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
         }
 
         TabularResult<AssayColumn, Number> tabularResult
-        if (conceptPaths.size() == 1) {
+        if (conceptPaths.size() == 1 && !multiConcepts) {
             tabularResult = openResultSet conceptPaths[0]
         } else {
             if (!multiConcepts) {
