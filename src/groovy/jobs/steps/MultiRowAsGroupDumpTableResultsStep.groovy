@@ -2,6 +2,7 @@ package jobs.steps
 
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
+import org.transmartproject.core.exceptions.EmptySetException
 
 /* Behavior on missing data:
  *
@@ -44,6 +45,11 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
         }
 
         preResults = Iterators.peekingIterator(table.result.iterator())
+        if (!preResults.hasNext()) {
+            throw new EmptySetException("The result set is empty. " +
+                    "Number of patients dropped owing to mismatched " +
+                    "data: ${table.droppedRows}")
+        }
 
         def originalHeaders = table.headers
         def firstLine = preResults.peek()

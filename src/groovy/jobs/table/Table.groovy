@@ -24,6 +24,12 @@ class Table implements AutoCloseable {
 
     private BackingMap backingMap
 
+    private int droppedRows = 0
+
+    int getDroppedRows() {
+        droppedRows
+    }
+
     {
         //before adding a subscription, column must be in list
         dataSourceSubscriptions = TreeMultimap.create(
@@ -122,7 +128,14 @@ class Table implements AutoCloseable {
                     from.b //only the list matters to the outside
                 } as Function)
 
-        Iterables.filter(transformed, { it != null } as Predicate)
+        Iterables.filter(transformed, {
+            if (it != null) {
+                true
+            } else {
+                droppedRows++
+                false
+            }
+        } as Predicate)
     }
 
     /**

@@ -29,6 +29,8 @@ BoxPlot.loader <- function(
   concept.independent.type = "",
   genes.dependent = "",
   genes.independent = "",
+  aggregate.probes.independent = FALSE,
+  aggregate.probes.dependent = FALSE,
   binning.enabled = FALSE,
   binning.variable = "IND",
   binning.manual = FALSE,
@@ -151,6 +153,7 @@ calculateANOVA <- function(splitData,splitColumn,fileNameQualifier)
 	
 	#We need to get the p-value for this ANOVA.
 	#Run the ANOVA
+	if (length(levels(splitData$X)) <=1 ) stop("Dependent variables must contain at least 2 levels (must contain multiple groups).")
 	dataChunk.aov <- aov(Y~X,data=splitData)
 
 	#Get a summary of the ANOVA
