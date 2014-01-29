@@ -7,7 +7,8 @@ import org.junit.Test
 
 import static jobs.table.steps.ExpandingMapIteratorTests.toList
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.is
 
 @TestMixin(GrailsUnitTestMixin)
 class TwoColumnExpandingMapIteratorTests {

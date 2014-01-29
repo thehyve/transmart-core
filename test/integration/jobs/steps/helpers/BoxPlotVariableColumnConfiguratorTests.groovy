@@ -3,7 +3,6 @@ package jobs.steps.helpers
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import jobs.UserParameters
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.junit.Before

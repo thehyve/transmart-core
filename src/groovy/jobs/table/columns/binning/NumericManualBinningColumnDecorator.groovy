@@ -2,7 +2,6 @@ package jobs.table.columns.binning
 
 import com.google.common.base.Function
 import com.google.common.base.Predicate
-import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
 import jobs.table.Column
 import jobs.table.columns.ColumnDecorator

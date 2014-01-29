@@ -2,9 +2,8 @@ package jobs
 
 import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
-import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
-import jobs.table.MissingValueAction
+import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
