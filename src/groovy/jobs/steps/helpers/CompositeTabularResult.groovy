@@ -29,8 +29,10 @@ class CompositeTabularResult implements TabularResult<AssayColumn, DataRow<Assay
                         }
 
         Set<AssayColumn> indices = indicesSetList[0]
-        indicesSetList[1..-1].each { Set<AssayColumn> current ->
-            indices = Sets.intersection indices, current
+        if (indicesSetList.size() > 1) {
+            indicesSetList[1..-1].each { Set<AssayColumn> current ->
+                indices = Sets.intersection indices, current
+            }
         }
 
         if (indices.empty) {
@@ -51,8 +53,8 @@ class CompositeTabularResult implements TabularResult<AssayColumn, DataRow<Assay
     Iterator<Number> getRows() {
         // transforms the data row iterators so that they are decorated with
         // CompositeResultDataRow and concatenates the transformed iterators
-        Iterators.concat(*results.collect { String conceptPath,
-                                           TabularResult<AssayColumn, DataRow<AssayColumn, Number>> tr ->
+        List<Iterator> iterators = results.collect { String conceptPath,
+                                                     TabularResult<AssayColumn, DataRow<AssayColumn, Number>> tr ->
 
             Iterators.transform(tr.getRows(), { DataRow<AssayColumn, Number> originalRow ->
                 CompositeResultDataRow ret = (tr instanceof BioMarkerDataRow) ?
@@ -63,7 +65,9 @@ class CompositeTabularResult implements TabularResult<AssayColumn, DataRow<Assay
                 ret.conceptPath  = conceptPath
                 ret
             } as Function)
-        })
+        }
+
+        Iterators.concat(iterators.iterator())
     }
 
     @Override

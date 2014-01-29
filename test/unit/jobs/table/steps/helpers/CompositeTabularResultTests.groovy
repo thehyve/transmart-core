@@ -108,6 +108,26 @@ class CompositeTabularResultTests {
         }
     }
 
+    @Test
+    void testOnlYOneResult() {
+        List<AssayColumn> assays = createSampleAssays(1)
+        TabularResult result = createMockTabularResult(
+                assays: assays,
+                data:   [ row1: [1] ])
+
+        play {
+            testee = new CompositeTabularResult(
+                    results: [ (CONCEPT_PATH_1): result])
+
+            assertThat Lists.newArrayList(testee.getRows()), contains(
+                    allOf(
+                            isA(DataRow),
+                            hasProperty('label', equalTo("$CONCEPT_PATH_1|row1" as String)),
+                            contains([1].collect { is it })
+                    ))
+        }
+    }
+
     private TabularResult<AssayColumn, Number> createMockTabularResult(Map params) {
         List<AssayColumn> sampleAssays        = params.assays
         Map<String, List<Number>> labelToData = params.data
