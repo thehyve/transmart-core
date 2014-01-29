@@ -58,7 +58,6 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
             configurator.columnHeader = header
         }
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
 
         configurator.multiRow              = true
 

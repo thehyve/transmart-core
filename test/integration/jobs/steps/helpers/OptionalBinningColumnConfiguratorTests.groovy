@@ -334,6 +334,8 @@ class OptionalBinningColumnConfiguratorTests {
         def secondColumn = new StubColumn(data: [
                 (createPatientRowLabels(2)[1]): 'bar'
         ])
+        secondColumn.missingValueAction =
+                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '')
 
         play {
             testee.addColumn()
@@ -551,7 +553,6 @@ class OptionalBinningColumnConfiguratorTests {
                 createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])
         setupClinicalResult(3, clinicalVariables, [null, 'foobar', null])
 
-        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
         testee.forceNumericBinning = false
 
         assertThat shouldFail(InvalidArgumentsException, {

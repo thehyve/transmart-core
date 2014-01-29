@@ -67,7 +67,6 @@ class ScatterPlot extends AbstractAnalysisJob {
                                        String header) {
         configurator.columnHeader          = header
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
         configurator.multiRow              = true
 
         configurator.setKeys(key)

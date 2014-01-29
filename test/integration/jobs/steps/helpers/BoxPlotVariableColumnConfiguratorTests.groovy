@@ -205,7 +205,6 @@ class BoxPlotVariableColumnConfiguratorTests {
                 createClinicalVariableColumns BUNDLE_OF_CLINICAL_CONCEPT_PATH
         setupClinicalResult(1, clinicalVariables, values)
 
-        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
         testee.forceNumericBinning = false
 
         assertThat shouldFail(InvalidArgumentsException, {
