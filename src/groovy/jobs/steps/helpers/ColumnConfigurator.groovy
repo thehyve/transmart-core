@@ -18,6 +18,8 @@ abstract class ColumnConfigurator {
 
     MissingValueAction missingValueAction
 
+    boolean required = true
+
     final void addColumn() {
         addColumn Closure.IDENTITY
     }

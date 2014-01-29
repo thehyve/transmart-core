@@ -12,13 +12,14 @@ var HighDimensionalData = function () {
         }
 
         return {
-            "mrna": {"platform": "MRNA_AFFYMETRIX", "type": "Gene Expression"},
-            "mirna_qpcr": {"platform": "MIRNA_QPCR", "type": "MIRNA_QPCR"},
-            "mirna_seq": {"platform": "MIRNA_SEQ", "type": "MIRNA_SEQ"},
-            "rbm": {"platform": "RBM", "type": "RBM"},
-            "proteomics": {"platform": "PROTEIN", "type": "PROTEOMICS"},
-            "snp": {"platform": "SNP", "type": "SNP"},
-            "rnaseq": {"platform": "RNA_AFFYMETRIX", "type": "RNASEQ"}
+            "mrna"          : {"platform": "MRNA_AFFYMETRIX",   "type": "Gene Expression"},
+            "mirna_qpcr"    : {"platform": "MIRNA_QPCR",        "type": "MIRNA_QPCR"},
+            "mirna_seq"     : {"platform": "MIRNA_SEQ",         "type": "MIRNA_SEQ"},
+            "rbm"           : {"platform": "RBM",               "type": "RBM"},
+            "proteomics"    : {"platform": "PROTEIN",           "type": "PROTEOMICS"},
+            "snp"           : {"platform": "SNP",               "type": "SNP"},
+            "rnaseq"        : {"platform": "RNA_AFFYMETRIX",    "type": "RNASEQ"},
+            "metabolite"    : {"platform": "METABOLOMICS",      "type": "METABOLOMICS"}
         };
     }
 
@@ -198,6 +199,10 @@ HighDimensionalData.prototype.generate_view = function () {
             document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
             document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
         }
+        if (_this.divId == 'divCategoryVariable' && document.getElementById("dependentVarDataType")) {
+            document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
+            document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
+        }
 
         // init summary string
         var summaryString = '<br> <b>GPL Platform:</b> ' + Ext.get('gpl1').dom.value +
@@ -206,7 +211,7 @@ HighDimensionalData.prototype.generate_view = function () {
             '<br>';
 
         // get search gene/pathway
-        var selectedSearchPathway = Ext.get('searchPathway').dom.value;
+        var selectedSearchPathway = GLOBAL.CurrentPathwayName;
 
         // get flag for probe aggregation
         var probeAggregationFlag = Ext.get('probesAggregation').dom.checked;
@@ -495,13 +500,8 @@ HighDimensionalData.prototype.load_parameters = function (formParams) {
         snpData = true;
     }
 
-    if ((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-        return false;
-    }
-
-    if ((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
+    if (!independentGeneList && independentType || !dependentGeneList && dependentType) {
+        Ext.Msg.alert("No Filter Selected", "Please specify Gene/Pathway/mirID/UniProtID in High Dimensional Data pop-up.")
         return false;
     }
 

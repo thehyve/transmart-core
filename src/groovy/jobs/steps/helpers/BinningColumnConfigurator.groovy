@@ -115,4 +115,18 @@ class BinningColumnConfigurator extends ColumnConfigurator {
     boolean isManualBinning() {
         getStringParam(keyForManualBinning).equalsIgnoreCase 'TRUE'
     }
+
+    /**
+     * Sets parameter keys based on optional base key part
+     * @param keyPart
+     */
+    void setKeys(String keyPart = '') {
+        keyForDoBinning       = "binning${keyPart.capitalize()}"
+        keyForManualBinning   = "manualBinning${keyPart.capitalize()}"
+        keyForNumberOfBins    = "numberOfBins${keyPart.capitalize()}"
+        keyForBinDistribution = "binDistribution${keyPart.capitalize()}"
+        keyForBinRanges       = "binRanges${keyPart.capitalize()}"
+        keyForVariableType    = "variableType${keyPart.capitalize()}"
+    }
+
 }

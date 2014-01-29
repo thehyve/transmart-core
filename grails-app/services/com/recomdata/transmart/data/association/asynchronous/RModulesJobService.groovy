@@ -17,19 +17,17 @@
 package com.recomdata.transmart.data.association.asynchronous
 
 import com.recomdata.transmart.util.RUtil
-import groovy.util.ConfigObject;
-
-import java.io.File;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.commons.lang.StringUtils;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.Rserve.*;
+import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.quartz.Job
+import org.quartz.JobExecutionContext
+import org.quartz.JobExecutionException
+import org.rosuda.REngine.REXP
+import org.rosuda.REngine.Rserve.RConnection
+import org.rosuda.REngine.Rserve.RserveException
+
+import java.lang.reflect.UndeclaredThrowableException
 
 class RModulesJobService implements Job {
 
@@ -102,6 +100,7 @@ class RModulesJobService implements Job {
 			jobDataMap.getKeys().each {_key ->
 				jobInfoFile.append("\t${_key} -> ${jobDataMap[_key]}" + System.getProperty("line.separator"))
 			}
+
 		} catch (Exception e) {
 			throw new Exception('Failed to create Temporary Directories and Job Info File, maybe there is not enough space on disk. Please contact an administrator.', e);
 		}

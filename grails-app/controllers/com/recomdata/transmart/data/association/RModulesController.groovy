@@ -25,7 +25,9 @@ import jobs.HierarchicalClustering
 import jobs.MarkerSelection
 import jobs.PCA
 import jobs.ScatterPlot
+import jobs.SurvivalAnalysis
 import jobs.TableWithFisher
+import jobs.LineGraph
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
@@ -39,12 +41,13 @@ import static jobs.AnalysisQuartzJobAdapter.*
 
 class RModulesController {
     final static Map<String, String> lookup = [
-            "Gene Expression": "mrna",
-            "MIRNA_QPCR": "mirna",
-            "MIRNA_SEQ": "mirna",
-            "RBM": "rbm",
-            "PROTEOMICS": "protein",
-            "RNASEQ": "rnaseq_cog"
+            "Gene Expression":  "mrna",
+            "MIRNA_QPCR":       "mirna",
+            "MIRNA_SEQ":        "mirna",
+            "RBM":              "rbm",
+            "PROTEOMICS":       "protein",
+            "RNASEQ":           "rnaseq_cog",
+            "METABOLOMICS":     "metabolite"
     ]
 
     def springSecurityService
@@ -108,6 +111,12 @@ class RModulesController {
                 break
             case 'scatterPlot':
                 jsonResult = createJob(params, ScatterPlot, false)
+                break
+            case 'survivalAnalysis':
+                jsonResult = createJob(params, SurvivalAnalysis, false)
+                break
+            case 'lineGraph':
+                jsonResult = createJob(params, LineGraph, false)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(

@@ -17,6 +17,8 @@ class MultiNumericVariableColumnConfigurator extends ColumnConfigurator {
 
     String keyForConceptPaths
 
+    Boolean isGroupNamePruningNecessary = true
+
     @Autowired
     private ClinicalDataRetriever clinicalDataRetriever
 
@@ -53,7 +55,12 @@ class MultiNumericVariableColumnConfigurator extends ColumnConfigurator {
     }
 
     private String generateGroupName(String conceptPath) {
-        /* find last non-empty segment (separated by \) */
-        conceptPath.split('\\\\').findAll()[-1]
+        // Only prune groupname when flag for pruning is set
+        if (isGroupNamePruningNecessary)  {
+            /* find last non-empty segment (separated by \) */
+            conceptPath.split('\\\\').findAll()[-1]
+        } else {
+            conceptPath
+        }
     }
 }

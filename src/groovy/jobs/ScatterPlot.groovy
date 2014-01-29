@@ -70,9 +70,7 @@ class ScatterPlot extends AbstractAnalysisJob {
         configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
         configurator.multiRow              = true
 
-        configurator.keyForConceptPath     = "${key}Variable"
-        configurator.keyForDataType        = "div${key.capitalize()}VariableType"
-        configurator.keyForSearchKeywordId = "div${key.capitalize()}VariablePathway"
+        configurator.setKeys(key)
     }
 
     @Override

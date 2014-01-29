@@ -2,6 +2,7 @@ package jobs.steps
 
 import au.com.bytecode.opencsv.CSVWriter
 import jobs.table.Table
+import org.transmartproject.core.exceptions.EmptySetException
 
 class SimpleDumpTableResultStep implements Step {
 
@@ -38,6 +39,12 @@ class SimpleDumpTableResultStep implements Step {
 
 
     void writeMeat(CSVWriter writer) {
+        def rows = getMainRows()
+        if (!rows.hasNext()) {
+            throw new EmptySetException("The result set is empty. " +
+                    "Number of patients dropped owing to mismatched " +
+                    "data: ${table.droppedRows}")
+        }
         mainRows.each {
             writer.writeNext(it as String[])
         }
