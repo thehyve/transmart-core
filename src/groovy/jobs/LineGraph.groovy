@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.ontology.ConceptsResource
 
 import javax.annotation.PostConstruct
 import java.security.InvalidParameterException
