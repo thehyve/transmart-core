@@ -41,7 +41,7 @@ LineGraph.loader <- function(
 	  colnames(dataOutput) <- c('PATIENT_NUM','TIMEPOINT','TIME_VALUE','GROUP','VALUE')
 	} else {
 	  #Aggregate the data to get rid of patient numbers. We add a standard error column so we can use it in the error bars.
-	  dataOutput <- ddply(line.data, .(GROUP,GROUP_VAR),
+	  dataOutput <- ddply(line.data, .(GROUP,TIME_VALUE,GROUP_VAR),
 	                      summarise,
 	                      MEAN   	= mean(VALUE),
 	                      SD 		= sd(VALUE),
