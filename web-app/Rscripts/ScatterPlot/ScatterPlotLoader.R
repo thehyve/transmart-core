@@ -28,8 +28,8 @@ ScatterPlot.loader <- function(
   concept.independent.type = "",
   genes.dependent = "",
   genes.independent = "",
-  aggregate.probes.independent = TRUE,
-  aggregate.probes.dependent = TRUE,
+  aggregate.probes.independent = FALSE,
+  aggregate.probes.dependent = FALSE,
   snptype.dependent = "",
   snptype.independent = ""  
   )
