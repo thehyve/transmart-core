@@ -21,28 +21,28 @@ HeatMapView.prototype.constructor = HeatMapView;
 
 // submit analysis job
 HeatMapView.prototype.submit_job = function () {
-	var job = this;
-	
-	var actualSubmit = function() {
-	    // get formParams
-	    var formParams = job.get_form_params();
+  var job = this;
 
-	    if (formParams) { // if formParams is not null
-	        submitJob(formParams);
-	    }
-	}
-	
-	// Check whether we have the node details for the HD node already
-	// If not, we should fetch them first
-	if( GLOBAL.HighDimDataType != "" ){
-		actualSubmit();
-	} else {
-    	highDimensionalData.fetchNodeDetails( 'divIndependentVariable', function( result ) {
-    		highDimensionalData_this.data = JSON.parse(result.responseText);
-    		highDimensionalData.populate_data();
-    		actualSubmit();
-    	});		
-	}
+  var actualSubmit = function() {
+      // get formParams
+      var formParams = job.get_form_params();
+
+      if (formParams) { // if formParams is not null
+          submitJob(formParams);
+      }
+  }
+
+  // Check whether we have the node details for the HD node already
+  // If not, we should fetch them first
+  if( GLOBAL.HighDimDataType != "" ){
+    actualSubmit();
+  } else {
+      highDimensionalData.fetchNodeDetails( 'divIndependentVariable', function( result ) {
+        highDimensionalData_this.data = JSON.parse(result.responseText);
+        highDimensionalData.populate_data();
+        actualSubmit();
+      });
+  }
 }
 
 // get form params

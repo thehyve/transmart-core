@@ -344,10 +344,10 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     var formValidator = new FormValidator(inputArray);
 
     if (formValidator.validateInputForm()) {
-    	this.fetchNodeDetails( divId, function( result ) {
-            _this.data = JSON.parse(result.responseText);
-    		_this.display_high_dimensional_popup();
-    	});
+      this.fetchNodeDetails( divId, function( result ) {
+        _this.data = JSON.parse(result.responseText);
+        _this.display_high_dimensional_popup();
+      });
     } else { // something is not correct in the validation
         // display the error message
         formValidator.display_errors();
@@ -377,7 +377,7 @@ HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {
         failure: function () {
             Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
         }
-    });	
+    }); 
 }
 
 HighDimensionalData.prototype.load_parameters = function (formParams) {
