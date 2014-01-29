@@ -20,7 +20,8 @@
 
 PCA.loader <- function(
 input.filename,
-output.file ="PCA"
+output.file ="PCA",
+aggregate.probes = FALSE
 )
 {
 
@@ -33,6 +34,11 @@ output.file ="PCA"
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
+
+	if (aggregate.probes) {
+        # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
+        mRNAData <- PCA.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
+    }
 
 	mRNAData$PROBE.ID 		<- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
 	mRNAData$GENE_SYMBOL 	<- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
@@ -122,4 +128,54 @@ output.file ="PCA"
 	title(xlab = "Component")
 	
 	dev.off()
+}
+
+
+PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+  library(WGCNA)
+
+  # Keeps relevant columns. Throws out SUBSET column, since this is not being used by PCA anyway.
+  mRNAData <- mRNAData[,c("PATIENT.ID","VALUE","PROBE.ID","GENE_SYMBOL")]
+
+  #Cast the data into a format that puts the PATIENT_NUM in a column
+  castedData <- data.frame(dcast(mRNAData, PROBE.ID + GENE_SYMBOL ~ PATIENT.ID, value.var = "VALUE"))
+
+  #Create a unique identifier column.
+  castedData$UNIQUE_ID <- paste(castedData$GENE_SYMBOL,castedData$PROBE.ID,sep="")
+
+  #Set the name of the rows to be the unique ID.
+  rownames(castedData) = castedData$UNIQUE_ID
+
+  #Run the collapse on a subset of the data by removing some columns.
+  finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,PROBE.ID,UNIQUE_ID) ),
+                            rowGroup = castedData$GENE_SYMBOL,
+                            rowID = castedData$UNIQUE_ID,
+                            method = collapseRow.method,
+                            connectivityBasedCollapsing = TRUE,
+                            methodFunction = NULL,
+                            connectivityPower = 1,
+                            selectFewestMissing = collapseRow.selectFewestMissing,
+                            thresholdCombine = NA)
+
+  #Coerce the data into a data frame.
+  finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
+
+  #Rename the columns, the selected row_id is the unique_id.
+  colnames(finalData)[2] <- 'UNIQUE_ID'
+
+  #Merge the probe.id back in.
+  finalData <- merge(finalData,castedData[c('UNIQUE_ID','PROBE.ID')],by=c('UNIQUE_ID'))
+
+  #Remove the unique_id and selected row ID column.
+  finalData <- subset(finalData, select = -c(UNIQUE_ID))
+
+  #Melt the data back.
+  finalData <- melt(finalData)
+
+  #Set the column names again.
+  colnames(finalData) <- c("GENE_SYMBOL","PROBE.ID","PATIENT.ID","VALUE")
+
+  #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+  finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+  finalData
 }

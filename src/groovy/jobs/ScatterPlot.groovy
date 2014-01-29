@@ -105,15 +105,17 @@ class ScatterPlot extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/ScatterPlot/ScatterPlotLoader.R')''',
                 '''ScatterPlot.loader(
-                    input.filename           = 'outputfile',
-                    concept.dependent        = '$dependentVariable',
-                    concept.independent      = '$independentVariable',
-                    concept.dependent.type   = '$divDependentVariableType',
-                    concept.independent.type = '$divIndependentVariableType',
-                    genes.dependent          = '$divDependentPathwayName',
-                    genes.independent        = '$divIndependentPathwayName',
-                    snptype.dependent        = '',
-                    snptype.independent      = '',
+                    input.filename               = 'outputfile',
+                    concept.dependent            = '$dependentVariable',
+                    concept.independent          = '$independentVariable',
+                    concept.dependent.type       = '$divDependentVariableType',
+                    concept.independent.type     = '$divIndependentVariableType',
+                    genes.dependent              = '$divDependentPathwayName',
+                    genes.independent            = '$divIndependentPathwayName',
+                    aggregate.probes.independent = '$divIndependentVariableprobesAggregation' == 'true',
+                    aggregate.probes.dependent   = '$divDependentVariableprobesAggregation'   == 'true',
+                    snptype.dependent            = '',
+                    snptype.independent          = '',
         )''' ] // last two params should be removed
     }
 

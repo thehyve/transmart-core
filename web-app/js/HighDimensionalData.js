@@ -180,6 +180,8 @@ HighDimensionalData.prototype.generate_view = function () {
         window[_this.divId + 'gpls1'] = Ext.get('gpl1').dom.value;
         window[_this.divId + 'tissues1'] = Ext.get('tissue1').dom.value;
 
+        window[_this.divId + 'probesAggregation'] = Ext.get('probesAggregation').dom.checked;
+
     };
 
     /**
@@ -211,9 +213,13 @@ HighDimensionalData.prototype.generate_view = function () {
         // get search gene/pathway
         var selectedSearchPathway = GLOBAL.CurrentPathwayName;
 
+        // get flag for probe aggregation
+        var probeAggregationFlag = Ext.get('probesAggregation').dom.checked;
+
         // create final string
         var innerHtml = summaryString +
             '<br> <b>Pathway:</b> ' + selectedSearchPathway +
+            '<br> <b>Probe aggregation:</b> ' + probeAggregationFlag +
             '<br> <b>Marker Type:</b> ' + GLOBAL.HighDimDataType;
 
         // ** start stub **

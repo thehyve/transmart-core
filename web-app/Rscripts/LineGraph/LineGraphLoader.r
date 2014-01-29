@@ -7,6 +7,7 @@ LineGraph.loader <- function(
 	input.filename,
 	output.file="LineGraph",
 	graphType="MERR",
+    aggregate.probes = FALSE
 	plot.individuals=FALSE,
 	HDD.data.type = NULL
 )

@@ -26,7 +26,8 @@ probes.aggregate = false,
 imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
-maxDrawNumber = Inf
+maxDrawNumber = Inf,
+aggregate.probes = FALSE
 )
 {
 	print("-------------------")
@@ -45,6 +46,11 @@ maxDrawNumber = Inf
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
 
+    if (aggregate.probes) {
+        # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
+        mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
+    }
+
 	#Trim the patient.id field.
 	mRNAData$PATIENT_NUM <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT_NUM)	
 	
@@ -52,7 +58,7 @@ maxDrawNumber = Inf
 	mRNAData$GROUP <- sub("^\\s+|\\s+$", "",mRNAData$GROUP)
 	
 	#Melt the data, leaving 3 columns as the grouping fields.
-	meltedData <- melt(mRNAData, id=c("GROUP","PATIENT_NUM"))
+	meltedData <- melt(mRNAData, id=c("GROUP","PATIENT_NUM","GENE_SYMBOL"))
 
 	#Cast the data into a format that puts the ASSAY.ID in a column.
 	castedData <- data.frame(dcast(meltedData, GROUP ~ PATIENT_NUM))
@@ -167,4 +173,53 @@ ClusteredHeatmap.loader.single <- function(heatmapdata)
 	
 }
 
+Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+	library(WGCNA)
+
+    meltedData <- melt(mRNAData, id=c("GROUP","GENE_SYMBOL","PATIENT_NUM"))
+
+    #Cast the data into a format that puts the PATIENT_NUM in a column.
+    castedData <- data.frame(dcast(meltedData, GROUP + GENE_SYMBOL ~ PATIENT_NUM))
+
+    #Create a unique identifier column.
+    castedData$UNIQUE_ID <- paste(castedData$GENE_SYMBOL,castedData$GROUP,sep="")
+
+    #Set the name of the rows to be the unique ID.
+    rownames(castedData) = castedData$UNIQUE_ID
+
+    #Run the collapse on a subset of the data by removing some columns.
+    finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,GROUP,UNIQUE_ID) ),
+                                  rowGroup = castedData$GENE_SYMBOL,
+                                  rowID = castedData$UNIQUE_ID,
+                                  method = collapseRow.method,
+                                  connectivityBasedCollapsing = TRUE,
+                                  methodFunction = NULL,
+                                  connectivityPower = 1,
+                                  selectFewestMissing = collapseRow.selectFewestMissing,
+                                  thresholdCombine = NA)
+
+    #Coerce the data into a data frame.
+    finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
+
+    #Rename the columns, the selected row_id is the unique_id.
+    colnames(finalData)[2] <- 'UNIQUE_ID'
+
+    #Merge the probe.id back in.
+    finalData <- merge(finalData,castedData[c('UNIQUE_ID','GROUP')],by=c('UNIQUE_ID'))
+
+    #Remove the unique_id and selected row ID column.
+    finalData <- subset(finalData, select = -c(UNIQUE_ID))
+
+    #Melt the data back.
+    finalData <- melt(finalData)
+
+    #Set the column names again.
+    colnames(finalData) <- c("GENE_SYMBOL","GROUP","PATIENT_NUM","VALUE")
+
+    #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+    finalData$PATIENT_NUM <- sub("^X","",finalData$PATIENT_NUM)
+
+    #Return relevant columns
+    finalData[,c("PATIENT_NUM","VALUE","GROUP","GENE_SYMBOL")]
+}
 

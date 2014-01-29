@@ -25,7 +25,8 @@ class Heatmap extends HighDimensionalOnlyJob {
                             input.filename = 'outputfile',
                             imageWidth     = as.integer('$txtImageWidth'),
                             imageHeight    = as.integer('$txtImageHeight'),
-                            pointsize      = as.integer('$txtImagePointsize')
+                            pointsize      = as.integer('$txtImagePointsize'),
+                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                             ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
                             )'''
 

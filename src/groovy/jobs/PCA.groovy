@@ -20,7 +20,10 @@ class PCA extends HighDimensionalOnlyJob {
 
     final List<String> RStatements = [
             '''source('$pluginDirectory/PCA/LoadPCA.R')''',
-                '''PCA.loader(input.filename='outputfile')''' ]
+                '''PCA.loader(
+                input.filename='outputfile',
+                aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
+                )''' ]
 
     @Override
     protected getForwardPath() {

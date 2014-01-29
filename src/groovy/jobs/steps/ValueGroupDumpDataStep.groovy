@@ -17,9 +17,10 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
                 getRowKey(subsetName, seriesName, column.patientInTrialId),
                 row[column],
                 (row instanceof BioMarkerDataRow) ?
-                    [row.label, row.bioMarker].join("_") : row.label
+                    [row.label, row.bioMarker].join("_") : row.label,
+                row.bioMarker
         ]
     }
 
-    final List<String> csvHeader = [ 'PATIENT_NUM', 'VALUE', 'GROUP' ]
+    final List<String> csvHeader = [ 'PATIENT_NUM', 'VALUE', 'GROUP', 'GENE_SYMBOL' ]
 }
