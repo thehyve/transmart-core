@@ -15,10 +15,12 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 
 import javax.annotation.Resource
 
+import static groovy.util.GroovyAssert.shouldFail
 import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -529,6 +531,37 @@ class OptionalBinningColumnConfiguratorTests {
                             hasEntry(is('row label 1'), is("10.0 < $COLUMN_HEADER ≤ 61.0" as String)),
                             hasEntry(is('row label 2'), is("10.0 < $COLUMN_HEADER ≤ 20.0" as String)))))
         }
+    }
+
+    @Test
+    void testCategoricalVariableUsedAsNumeric() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_CLINICAL,
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+
+                binning            : 'FALSE',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+
+        /* clinical variables */
+        List<ClinicalVariableColumn> clinicalVariables =
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL])
+        setupClinicalResult(3, clinicalVariables, [null, 'foobar', null])
+
+        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
+        testee.forceNumericBinning = false
+
+        assertThat shouldFail(InvalidArgumentsException, {
+            play {
+                testee.addColumn()
+
+                table.buildTable()
+                Lists.newArrayList table.result
+            }
+        }), hasProperty('message', containsString('Got non-numerical value'))
     }
 
     static class StubColumn extends AbstractColumn {

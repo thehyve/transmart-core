@@ -44,7 +44,7 @@ class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurato
 
     @Override
     String getColumnHeader() {
-        categorical ?
+        categoricalOrBinned ?
                 categoricalColumnHeader :
                 numericColumnHeader
     }

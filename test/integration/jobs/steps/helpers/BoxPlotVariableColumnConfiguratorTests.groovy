@@ -1,18 +1,20 @@
 package jobs.steps.helpers
 
+import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import jobs.UserParameters
+import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
-import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
+import static groovy.util.GroovyAssert.shouldFail
 import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -20,6 +22,7 @@ import static org.hamcrest.Matchers.*
 @TestMixin(JobsIntegrationTestMixin)
 class BoxPlotVariableColumnConfiguratorTests {
 
+    public static final String VALUE_FOR_COLUMN_BEING_BINNED = 'IND'
     @Autowired
     Table table
 
@@ -55,7 +58,7 @@ class BoxPlotVariableColumnConfiguratorTests {
         // distinct from testee.keyForDataType!
         binningColumnConfigurator.keyForVariableType    = 'variableType'
 
-        testee.valueForThisColumnBeingBinned = 'IND'
+        testee.valueForThisColumnBeingBinned = VALUE_FOR_COLUMN_BEING_BINNED
         testee.keyForIsCategorical           = 'variableCategorical'
     }
 
@@ -181,20 +184,66 @@ class BoxPlotVariableColumnConfiguratorTests {
         }
     }
 
-    private void setupClinicalResult(int nPatients,
-                                     List<ClinicalVariableColumn> columns,
-                                     List<BigDecimal> valuesForColumns) {
-        assert nPatients * columns.size() == valuesForColumns.size()
+    @Test
+    void testCategoricalVariableUsedAsNumeric() {
+        params.@map.putAll([
+                variable           : BUNDLE_OF_CLINICAL_CONCEPT_PATH.join('|'),
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+                variableCategorical: 'false',
 
-        TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
-                configuratorTestsHelper.mock(TabularResult)
-        clinicalResult.iterator().returns(createPatientRows(nPatients, columns,
-                valuesForColumns, true /* relaxed */).iterator())
-        clinicalResult.close().stub()
+                binning            : 'FALSE',
 
-        clinicalDataResourceMock.retrieveData(
-                mockQueryResults(),
-                containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+
+        def values = [null, 'foobar', null]
+
+        /* clinical variables */
+        List<ClinicalVariableColumn> clinicalVariables =
+                createClinicalVariableColumns BUNDLE_OF_CLINICAL_CONCEPT_PATH
+        setupClinicalResult(1, clinicalVariables, values)
+
+        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
+        testee.forceNumericBinning = false
+
+        assertThat shouldFail(InvalidArgumentsException, {
+            configuratorTestsHelper.play {
+                testee.addColumn()
+
+                table.buildTable()
+                Lists.newArrayList table.result
+            }
+        }), hasProperty('message', containsString('Got non-numerical value'))
+    }
+
+    @Test
+    void testBinnedNumericalIsX() {
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_CLINICAL,
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+                variableCategorical: 'false',
+
+                binning            : 'TRUE',
+                manualBinning      : 'FALSE',
+                numberOfBins       : '2',
+                binDistribution    : 'EDP',
+                binVariable        : VALUE_FOR_COLUMN_BEING_BINNED,
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        setupClinicalResult(1,
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL]),
+                [34.0])
+
+        configuratorTestsHelper.play {
+            testee.addColumn()
+            table.buildTable()
+            assertThat table.headers, contains('X')
+        }
     }
 
 }

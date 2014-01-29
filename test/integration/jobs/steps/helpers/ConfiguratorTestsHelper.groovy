@@ -207,4 +207,21 @@ class ConfiguratorTestsHelper {
         columns
     }
 
+    void setupClinicalResult(int nPatients,
+                             List<ClinicalVariableColumn> columns,
+                             List<Object> valuesForColumns) {
+        assert nPatients * columns.size() == valuesForColumns.size()
+
+        TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
+                mock(TabularResult)
+        clinicalResult.iterator().returns(createPatientRows(nPatients, columns,
+                valuesForColumns, true /* relaxed */).iterator())
+        clinicalResult.close().stub()
+
+        clinicalDataResourceMock.retrieveData(
+                mockQueryResults(),
+                containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
+    }
+
+
 }

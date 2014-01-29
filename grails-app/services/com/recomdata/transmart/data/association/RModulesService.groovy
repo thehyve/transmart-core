@@ -16,13 +16,11 @@
 
 package com.recomdata.transmart.data.association
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.SimpleTrigger;
-
-import com.recomdata.transmart.data.association.asynchronous.RModulesJobService;
-
+import com.recomdata.transmart.data.association.asynchronous.RModulesJobService
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.SimpleTrigger
 
 class RModulesService {
 
@@ -162,7 +160,7 @@ class RModulesService {
 		jobDataMap.put("analysis", params.analysis)
 		jobDataMap.put("userName", userName)
 		jobDataMap.put("jobName", params.jobName)
-		
+
 		//Each subset needs a name and a RID. Put this info in a hash.
 		def resultInstanceIdHashMap = [:]
 		resultInstanceIdHashMap["subset1"] = params.result_instance_id1

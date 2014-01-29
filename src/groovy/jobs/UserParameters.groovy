@@ -29,7 +29,7 @@ class UserParameters {
 
     String toJSON() {
         JsonBuilder builder = new JsonBuilder()
-        builder(map)
+        builder(new TreeMap(map)) //sorting the map so its easier to compare visually
         return builder.toString()
     }
 

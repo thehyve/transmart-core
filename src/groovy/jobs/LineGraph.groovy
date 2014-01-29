@@ -55,7 +55,7 @@ class LineGraph extends AbstractAnalysisJob {
 
         dependentVariableConfigurator.keyForConceptPath     = "dependentVariable"
         dependentVariableConfigurator.keyForDataType        = "divDependentVariableType"
-        dependentVariableConfigurator.keyForSearchKeywordId = "gexpathway"
+        dependentVariableConfigurator.keyForSearchKeywordId = "divDependentVariablePathway"
 
         groupByColumnConfigurator.columnHeader = 'GROUP_VAR'
         groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'

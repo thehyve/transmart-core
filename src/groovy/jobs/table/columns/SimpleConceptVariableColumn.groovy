@@ -4,18 +4,21 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 @CompileStatic
 class SimpleConceptVariableColumn extends AbstractColumn {
 
     ClinicalVariableColumn column
 
+    /* only accept numeric values */
+    boolean numbersOnly
+
     private PatientRow lastRow
 
     @Override
     void onReadRow(String dataSourceName, Object row) {
-        /* if we only subscribe one source, as we should, there calls to
-         * onReadRow() are guaranteed to be called interleaved with
+        /* calls to onReadRow() are guaranteed to be called interleaved with
          * consumeResultingTableRow */
         assert lastRow == null
         assert row instanceof PatientRow
@@ -31,6 +34,9 @@ class SimpleConceptVariableColumn extends AbstractColumn {
         def res
 
         if (cellValue != null) {
+            if (numbersOnly) {
+                validateNumber column, cellValue
+            }
             res = ImmutableMap.of(getPrimaryKey(lastRow), cellValue)
         } else {
             res = ImmutableMap.of()
@@ -42,5 +48,12 @@ class SimpleConceptVariableColumn extends AbstractColumn {
 
     protected String getPrimaryKey(PatientRow row) {
         lastRow.patient.inTrialId
+    }
+
+    private void validateNumber(ClinicalVariableColumn col, Object value) {
+        if (!(value instanceof Number)) {
+            throw new InvalidArgumentsException(
+                    "Got non-numerical value for column $col; value was $value")
+        }
     }
 }

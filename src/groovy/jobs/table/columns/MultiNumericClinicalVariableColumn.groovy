@@ -2,10 +2,9 @@ package jobs.table.columns
 
 import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
-import jobs.steps.helpers.ClinicalDataRetriever
-import jobs.table.BackingMap
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 /**
  * Column that supports an arbitrary number of numeric clinical variables
@@ -41,6 +40,7 @@ class MultiNumericClinicalVariableColumn extends AbstractColumn {
                                  String groupName ->
             def value = lastRow.getAt col
             if (value) {
+                validateNumber col, value
                 builder.put groupName, value
             }
         }
@@ -50,5 +50,12 @@ class MultiNumericClinicalVariableColumn extends AbstractColumn {
         ImmutableMap.of(
                 lastRowSaved.patient.inTrialId,
                 builder.build())
+    }
+
+    private void validateNumber(ClinicalVariableColumn col, Object value) {
+        if (!(value instanceof Number)) {
+            throw new InvalidArgumentsException(
+                    "Got non-numerical value for column $col; value was $value")
+        }
     }
 }

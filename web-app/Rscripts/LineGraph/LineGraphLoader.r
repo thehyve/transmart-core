@@ -5,9 +5,11 @@
 
 LineGraph.loader <- function(
 	input.filename,
+	scaling.filename = NULL,
 	output.file="LineGraph",
 	graphType="MERR",
-	plot.individuals=FALSE
+	plot.individuals=FALSE,
+	HDD.data.type = NULL
 )
 {
  	######################################################
@@ -20,18 +22,24 @@ LineGraph.loader <- function(
 	
 	######################################################
 	#Read the line graph data.
-	line.data<-read.delim(input.filename,header=T)
+	line.data <- read.delim(input.filename,header=T)
+	#Read the scaling data (location of each group (concept path) on X-axis)
+	if (!is.null(scaling.filename)) {
+	  scaling.data <- read.delim(scaling.filename,header=T)
+	} else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
+	  scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
+	}
+	# assign the X-axis position to each row
+	line.data$TIME_VALUE <- sapply(line.data$GROUP,FUN = function(groupValue) { scaling.data$VALUE[which(groupValue==scaling.data$GROUP)] })
 	
 	#We need to convert the value column from a factor to a numeric.
 	#finalData$VALUE <- as.numeric(levels(finalData$VALUE))[as.integer(finalData$VALUE)]
 
 	if (plot.individuals) {
-		print("PLOT INDIVIDUALS")
 	  #Change column order to match internal standard and adjust the column names.
-	  dataOutput <- line.data[,c("PATIENT_NUM","GROUP","GROUP_VAR","VALUE")]
-	  colnames(dataOutput) <- c('PATIENT_NUM','TIMEPOINT','GROUP','VALUE')
+	  dataOutput <- line.data[,c("PATIENT_NUM","GROUP","TIME_VALUE","GROUP_VAR","VALUE")]
+	  colnames(dataOutput) <- c('PATIENT_NUM','TIMEPOINT','TIME_VALUE','GROUP','VALUE')
 	} else {
-		print("PLOT NON INDIVIDUALS")
 	  #Aggregate the data to get rid of patient numbers. We add a standard error column so we can use it in the error bars.
 	  dataOutput <- ddply(line.data, .(GROUP,GROUP_VAR),
 	                      summarise,
@@ -41,7 +49,7 @@ LineGraph.loader <- function(
 	                      MEDIAN 	= median(VALUE)
 	  )
 	  #Adjust the column names.
-	  colnames(dataOutput) <- c('TIMEPOINT','GROUP','MEAN','SD','SE','MEDIAN')
+	  colnames(dataOutput) <- c('TIMEPOINT','TIME_VALUE','GROUP','MEAN','SD','SE','MEDIAN')
 	}
 
 	#Use a regular expression trim out the timepoint from the concept.
@@ -58,27 +66,33 @@ LineGraph.loader <- function(
 	######################################################
 	#Plotting the line.
 
+	#Determine Y-axis label.
+    if (is.null(HDD.data.type)) yLabel <- dataOutput$TIMEPOINT[1] else yLabel <- HDD.data.type
+
 	#Depending on whether we wish to plot individual data, and otherwise the specific graph type, we create different graphs.
 	if (plot.individuals) {
 	  limits <- aes(ymax = VALUE, ymin = VALUE);
-	  layerData <- aes(x=TIMEPOINT, y=VALUE, group=PATIENT_NUM, colour=GROUP)
+	  layerData <- aes(x=TIME_VALUE, y=VALUE, group=PATIENT_NUM, colour=GROUP)
 	} else if (graphType=="MERR") {
 	  limits <- aes(ymax = MEAN + SE, ymin = MEAN - SE)
-	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIME_VALUE, y=MEAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(mean + se)")
 	} else if (graphType=="MSTD") {
 	  limits <- aes(ymax = MEAN + SD, ymin = MEAN - SD)
-	  layerData <- aes(x=TIMEPOINT, y=MEAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIME_VALUE, y=MEAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(mean + sd)")
 	} else if (graphType=="MEDER") {
 	  limits <- aes(ymax = MEDIAN + SE, ymin = MEDIAN - SE)
-	  layerData <- aes(x=TIMEPOINT, y=MEDIAN, group=GROUP, colour=GROUP)
+	  layerData <- aes(x=TIME_VALUE, y=MEDIAN, group=GROUP, colour=GROUP)
+	  yLabel <- paste(yLabel,"(median + se)")
 	}
-	p <- ggplot(data=dataOutput,layerData)
+	p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
 	p <- p + geom_line(size=1.5) + scale_colour_brewer() 
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
-	#p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
+	p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
   
 	#This sets the color theme of the background/grid.
 	p <- p + theme_bw();

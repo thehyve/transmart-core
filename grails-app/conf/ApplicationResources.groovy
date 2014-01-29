@@ -35,4 +35,11 @@ modules = {
     box_plot {
         resource url:"/js/plugin/BoxPlot.js"
     }
+    survival_analysis {
+        resource url:"/js/plugin/SurvivalAnalysis.js"
+    }
+
+    line_graph {
+        resource url:"/js/plugin/LineGraph.js"
+    }
 }
