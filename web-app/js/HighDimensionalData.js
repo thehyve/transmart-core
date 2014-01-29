@@ -369,7 +369,7 @@ HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {
     Ext.Ajax.request({
         url: pageInfo.basePath + "/HighDimension/nodeDetails",
         method: 'POST',
-        timeout: '1800000',
+        timeout: '10000',
         params: Ext.urlEncode({
             conceptKeys: _conceptPaths
         }),
