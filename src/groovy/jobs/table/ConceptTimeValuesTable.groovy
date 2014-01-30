@@ -15,29 +15,28 @@ import org.transmartproject.core.ontology.OntologyTerm
 @Scope('job')
 class ConceptTimeValuesTable {
 
-    private static final String[] HEADER = [ "GROUP", "VALUE" ]
-
     @Autowired
     ConceptsResource conceptsResource
 
     List<String> conceptPaths
 
-    File outputFile
-
     Closure<Boolean> enabledClosure
 
-    void compute() {
+    @Lazy Map<String,Map> resultMap = computeMap()
 
-        //makes sure the file is not there
-        outputFile.delete()
+    /**
+     * @return map of concept_fullname -> series_meta map, or null if not enabled
+     * or no common unit was found for all the concepts
+     */
+    private Map<String,Map> computeMap() {
 
         if (enabledClosure && !enabledClosure.call()) {
-            //we don' want to actually create the file
-            return
+            return null
         }
 
         //get all the OntologyTerms for the concepts
-        Set<OntologyTerm> terms = conceptPaths.collect { conceptsResource.getByKey(OpenHighDimensionalDataStep.createConceptKeyFrom(it))} as Set
+        Set<OntologyTerm> terms = conceptPaths.collect {
+            conceptsResource.getByKey(OpenHighDimensionalDataStep.createConceptKeyFrom(it))} as Set
 
         //get all the SeriesMeta mapped by concept name
         Map<String, Map> nameToSeriesMeta = terms.collectEntries {[it.fullName, it.metadata?.seriesMeta as Map]}
@@ -49,36 +48,11 @@ class ConceptTimeValuesTable {
             if (firstUnit != null &&
                     nameToSeriesMeta.values().count {firstUnit == it?.unit?.toString()} == nameToSeriesMeta.size()) {
 
-                //create the file
-                writeFile(nameToSeriesMeta)
+                return nameToSeriesMeta
             }
         }
-    }
 
-    private String normalize(String path) {
-        path.substring(0,1)
-    }
-
-    private void writeFile(Map<String, Map> map) {
-        println map
-
-        outputFile.withWriter { writer ->
-            CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
-            csvWriter.writeNext(HEADER)
-
-            map.each {
-                def line = [it.key, it.value.value] as String[]
-                csvWriter.writeNext(line)
-            }
-
-        }
-    }
-
-    /**
-     * @return true if the file with scaling values was produced
-     */
-    boolean hasScaling() {
-        return outputFile.exists()
+        return null //nothing to return
     }
 
 }

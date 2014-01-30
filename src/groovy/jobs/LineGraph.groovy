@@ -1,5 +1,7 @@
 package jobs
 
+import com.google.common.base.Function
+import com.google.common.collect.Maps
 import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
@@ -73,13 +75,14 @@ class LineGraph extends AbstractAnalysisJob {
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
 
-        //set here and not in @PostConstruct because temporaryDirectory is not initialized at that moment
-        conceptTimeValues.outputFile = new File(temporaryDirectory, SCALING_VALUES_FILENAME)
+        steps << new BuildConceptTimeValuesStep(
+                table: conceptTimeValues,
+                outputFile: new File(temporaryDirectory, SCALING_VALUES_FILENAME),
+                header: [ "GROUP", "VALUE" ]
+        )
 
-        steps << new BuildConceptTimeValuesStep(table: conceptTimeValues)
-
-        Map<String, Closure<String>> lazyExtraParams = [:]
-        lazyExtraParams['scalingFilename'] = { getScalingFilename() }
+        Map<String, Closure<String>> extraParams = [:]
+        extraParams['scalingFilename'] = { getScalingFilename() }
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
@@ -87,7 +90,7 @@ class LineGraph extends AbstractAnalysisJob {
                 rStatements:        RStatements,
                 studyName:          studyName,
                 params:             params,
-                lazyExtraParams:    lazyExtraParams)
+                extraParams:        Maps.transformValues(extraParams, { it() } as Function))
 
         steps
     }
@@ -106,7 +109,7 @@ class LineGraph extends AbstractAnalysisJob {
     }
 
     private String getScalingFilename() {
-        conceptTimeValues.hasScaling() ? SCALING_VALUES_FILENAME : null
+        conceptTimeValues.resultMap ? SCALING_VALUES_FILENAME : null
     }
 
     @Override

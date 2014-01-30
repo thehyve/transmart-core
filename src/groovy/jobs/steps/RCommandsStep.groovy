@@ -22,7 +22,7 @@ class RCommandsStep implements Step {
     /**
      * This map allows us to pass information that is only available later on
      */
-    Map<String, Closure<String>> lazyExtraParams
+    Map<String, String> extraParams
 
     @Override
     void execute() {
@@ -43,15 +43,13 @@ class RCommandsStep implements Step {
              */
             Map vars = [:]
 
-            //lazy extra params go first, so they can't override user params (last value wins)
-            if (lazyExtraParams) {
-                lazyExtraParams.each {
-                    vars[it.key] = it.value.call()
-                }
-            }
-
             params.each { k,v ->
                 vars[k] = v
+            }
+
+            //lazy extra params are added after user params, to make sure there are no security breaches
+            if (extraParams) {
+                vars.putAll(extraParams)
             }
 
             vars.pluginDirectory = scriptsDirectory.absolutePath
