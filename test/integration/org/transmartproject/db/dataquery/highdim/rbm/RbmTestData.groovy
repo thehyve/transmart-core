@@ -32,11 +32,12 @@ class RbmTestData {
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeRbmAnnotation> annotations = {
-        def createAnnotation = { id, antigene, uniprotId, geneSymbol, geneId ->
+        def createAnnotation = { id, antigene, uniprotId, uniprotName, geneSymbol, geneId ->
             def res = new DeRbmAnnotation(
                     gplId: platform.id,
                     antigenName: antigene,
                     uniprotId: uniprotId,
+                    uniprotName: uniprotName,
                     geneSymbol: geneSymbol,
                     geneId: geneId
             )
@@ -45,13 +46,13 @@ class RbmTestData {
         }
         [
                 //Adiponectin
-                createAnnotation(-501, 'Antigene1', 'Q15848', 'AURKA', -601),
+                createAnnotation(-501, 'Antigene1', 'Q15848', 'PVR_HUMAN1', 'AURKA', -601),
                 //Urea transporter 2
-                createAnnotation(-502, 'Antigene2', 'Q15849', 'SLC14A2', -602),
+                createAnnotation(-502, 'Antigene2', 'Q15849', 'PVR_HUMAN2', 'SLC14A2', -602),
                 //Adipogenesis regulatory factor
-                createAnnotation(-503, 'Antigene3', 'Q15847', 'ADIRF', -603),
+                createAnnotation(-503, 'Antigene3', 'Q15847', 'PVR_HUMAN3', 'ADIRF', -603),
 
-                createAnnotation(-504, 'Antigene3', 'Q15850', 'EMBL', -604),
+                createAnnotation(-504, 'Antigene3', 'Q15850', 'PVR_HUMAN4', 'EMBL', -604),
         ]
     }()
 

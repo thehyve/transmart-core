@@ -74,7 +74,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 property 'assay', 'assay'
                 property 'p.id', 'annotationId'
                 property 'p.antigenName', 'antigenName'
-                property 'p.uniprotId', 'uniprotId'
+                property 'p.uniprotName', 'uniprotName'
             }
 
             order 'p.id', 'asc'
@@ -118,7 +118,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                         new RbmRow(
                                 annotationId: collectedList[0].annotationId,
                                 antigenName: collectedList[0].antigenName,
-                                uniprotId: collectedList*.uniprotId.join('/'),
+                                uniprotName: collectedList*.uniprotName.join('/'),
                                 assayIndexMap: collectedList[0].assayIndexMap,
                                 data: collectedList[0].data
                         )
