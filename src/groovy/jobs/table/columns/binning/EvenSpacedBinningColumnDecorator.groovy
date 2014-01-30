@@ -85,7 +85,6 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
     // NOTE: assumes there's no transformer in inner
     Closure<Object> getValueTransformer() {
         { Fun.Tuple3<String, Integer, String> key, Object value ->
-            println "k: $key, v: $value"
             (Object) transform(key.c,
                     (Number) ((value instanceof Number) ? value : (value as BigDecimal)))
         }

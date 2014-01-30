@@ -87,7 +87,6 @@ class ContextNumericVariableColumnConfiguratorTests {
             table.buildTable()
 
             def res = Lists.newArrayList table.result
-            println res
             assertThat res, containsInAnyOrder(
                     contains(
                             is('patient_2_subject_id'),
@@ -130,7 +129,6 @@ class ContextNumericVariableColumnConfiguratorTests {
             table.buildTable()
 
             // no maps involved here
-            println Lists.newArrayList(table.result)
             assertThat Lists.newArrayList(table.result), contains(
                     contains(allOf(
                             dot(BUNDLE_OF_CLINICAL_CONCEPT_PATH, data) { a, b -> hasEntry(a, b) })))
