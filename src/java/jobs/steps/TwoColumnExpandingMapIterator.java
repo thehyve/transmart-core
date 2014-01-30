@@ -22,8 +22,7 @@ public class TwoColumnExpandingMapIterator extends ExpandingMapIterator {
 
     public TwoColumnExpandingMapIterator(Iterator<List<Object>> preResults,
                                          List<Integer> mapIndexes) {
-        super(preResults, mapIndexes);
-        numberOfNewRowsPerMapColumn = 2;
+        super(preResults, mapIndexes, 2);
     }
 
     protected void writeEntry(Map.Entry<String, Object> entry, int index) {

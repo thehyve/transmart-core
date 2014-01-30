@@ -7,6 +7,13 @@ import java.util.*;
 public class ExpandingMapIterator extends AbstractIterator<String[]> {
 
     public ExpandingMapIterator(Iterator<List<Object>> preResults, List<Integer> mapIndexes) {
+        this(preResults, mapIndexes, 1);
+    }
+
+    protected ExpandingMapIterator(Iterator<List<Object>> preResults,
+                                   List<Integer> mapIndexes,
+                                   int numberOfNewRowsPerMapColumn) {
+        this.numberOfNewRowsPerMapColumn = numberOfNewRowsPerMapColumn;
         if (mapIndexes.isEmpty()) {
             throw new IllegalArgumentException("maxIndexes cannot be empty");
         }
@@ -31,7 +38,6 @@ public class ExpandingMapIterator extends AbstractIterator<String[]> {
             int outputSize = originalRow.size() +
                     transformedColumnsMap.size() * numberOfNewRowsPerMapColumn;
             _returnArray = new String[outputSize];
-            System.out.println("foo" + outputSize);
         }
 
         return _returnArray;
@@ -149,7 +155,6 @@ public class ExpandingMapIterator extends AbstractIterator<String[]> {
 
     private String[] nextGeneratedRow() {
         int i = 0;
-        System.out.println(transformedColumnsMap);
         for (Integer newColumnIndex: transformedColumnsMap.values()) {
             Map.Entry<String, Object> entry = mapIterators.get(i++).current;
 
