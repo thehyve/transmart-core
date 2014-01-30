@@ -105,7 +105,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
                     def firstNonNullCell = list.find()
                     new ProteinDataRow(
                             peptide:       firstNonNullCell[0].peptide,
-                            unitProtId:    firstNonNullCell[0].uniProtId,
+                            unitProtName:  firstNonNullCell[0].uniProtName,
                             assayIndexMap: assayIndexes,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

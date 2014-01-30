@@ -103,7 +103,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                     new RbmRow(
                             annotationId: firstNonNullCell[0].annotationId,
                             antigenName: firstNonNullCell[0].antigenName,
-                            uniprotId: firstNonNullCell[0].uniprotId,
+                            uniprotName: firstNonNullCell[0].uniprotName,
                             assayIndexMap: assayIndexes,
                             data: list.collect { projection.doWithResult it?.getAt(0) }
                     )
