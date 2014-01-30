@@ -75,9 +75,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
             projections {
                 property 'assay',       'assay'
 
-                property 'a.id',        'annotationId'
-                property 'a.uniprotName', 'uniProtName'
-                property 'a.peptide',   'peptide'
+                property 'a.id',          'annotationId'
+                property 'a.uniprotName', 'uniprotName'
+                property 'a.peptide',     'peptide'
             }
 
             order 'a.id',     'asc'
