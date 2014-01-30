@@ -5,6 +5,7 @@ class DeRbmAnnotation {
     String gplId
     String antigenName
     String uniprotId
+    String uniprotName
     String geneSymbol
     String geneId
 

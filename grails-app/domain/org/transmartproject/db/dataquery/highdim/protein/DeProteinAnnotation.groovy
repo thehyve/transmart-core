@@ -6,6 +6,7 @@ class DeProteinAnnotation {
 
     String   peptide
     String   uniprotId
+    String   uniprotName
 
     // irrelevant
     //String biomarkerId
