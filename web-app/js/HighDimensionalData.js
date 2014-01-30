@@ -180,6 +180,8 @@ HighDimensionalData.prototype.generate_view = function () {
         window[_this.divId + 'gpls1'] = Ext.get('gpl1').dom.value;
         window[_this.divId + 'tissues1'] = Ext.get('tissue1').dom.value;
 
+        window[_this.divId + 'probesAggregation'] = Ext.get('probesAggregation').dom.checked;
+
     };
 
     /**
@@ -209,11 +211,15 @@ HighDimensionalData.prototype.generate_view = function () {
             '<br>';
 
         // get search gene/pathway
-        var selectedSearchPathway = Ext.get('searchPathway').dom.value;
+        var selectedSearchPathway = GLOBAL.CurrentPathwayName;
+
+        // get flag for probe aggregation
+        var probeAggregationFlag = Ext.get('probesAggregation').dom.checked;
 
         // create final string
         var innerHtml = summaryString +
             '<br> <b>Pathway:</b> ' + selectedSearchPathway +
+            '<br> <b>Probe aggregation:</b> ' + probeAggregationFlag +
             '<br> <b>Marker Type:</b> ' + GLOBAL.HighDimDataType;
 
         // ** start stub **
@@ -344,39 +350,41 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     var formValidator = new FormValidator(inputArray);
 
     if (formValidator.validateInputForm()) {
-
-        // get nodes from the dropzone
-        var _nodes = Ext.get(divId).dom.childNodes;
-
-        var _conceptPaths = new Array();
-
-        for (var i = 0; i < _nodes.length; i++) {
-            var _str_key = _nodes[i].concept.key;
-            _conceptPaths.push(_str_key);
-        }
-
-        Ext.Ajax.request({
-            url: pageInfo.basePath + "/HighDimension/nodeDetails",
-            method: 'POST',
-            timeout: '1800000',
-            params: Ext.urlEncode({
-                conceptKeys: _conceptPaths
-            }),
-            success: function (result) {
-                _this.data = JSON.parse(result.responseText);
-                _this.display_high_dimensional_popup();
-            },
-            failure: function () {
-                Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
-            }
-        });
-
+      this.fetchNodeDetails( divId, function( result ) {
+        _this.data = JSON.parse(result.responseText);
+        _this.display_high_dimensional_popup();
+      });
     } else { // something is not correct in the validation
         // display the error message
         formValidator.display_errors();
     }
 }
 
+HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {
+    // get nodes from the dropzone
+    var _nodes = Ext.get(divId).dom.childNodes;
+
+    var _conceptPaths = new Array();
+
+    for (var i = 0; i < _nodes.length; i++) {
+        var _str_key = _nodes[i].concept.key;
+        _conceptPaths.push(_str_key);
+    }
+
+    // Retrieve node details
+    Ext.Ajax.request({
+        url: pageInfo.basePath + "/HighDimension/nodeDetails",
+        method: 'POST',
+        timeout: '10000',
+        params: Ext.urlEncode({
+            conceptKeys: _conceptPaths
+        }),
+        success: callback,
+        failure: function () {
+            Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
+        }
+    }); 
+}
 
 HighDimensionalData.prototype.load_parameters = function (formParams) {
     //These will tell tranSMART what data types we need to retrieve.
@@ -494,13 +502,8 @@ HighDimensionalData.prototype.load_parameters = function (formParams) {
         snpData = true;
     }
 
-    if ((fullGEXGeneList == "") && (independentType == "MRNA" || dependentType == "MRNA")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-        return false;
-    }
-
-    if ((fullSNPGeneList == "") && (independentType == "SNP" || dependentType == "SNP")) {
-        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
+    if (!independentGeneList && independentType || !dependentGeneList && dependentType) {
+        Ext.Msg.alert("No Filter Selected", "Please specify Gene/Pathway/mirID/UniProtID in High Dimensional Data pop-up.")
         return false;
     }
 

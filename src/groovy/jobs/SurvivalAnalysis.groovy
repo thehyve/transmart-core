@@ -52,7 +52,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     }
 
     void configureTimeVariableConfigurator() {
-        timeVariableConfigurator.columnHeader           = 'TIME'
+        timeVariableConfigurator.columnHeader   = 'TIME'
         timeVariableConfigurator.setKeys('time')
         timeVariableConfigurator.alwaysClinical = true
     }

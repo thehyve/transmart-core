@@ -22,6 +22,7 @@ WaterfallPlot.loader <- function
 (
 	input.filename='outputfile',
 	concept='',
+	aggregate.probes = FALSE,
 	output.file ="Waterfall"
 )
 {

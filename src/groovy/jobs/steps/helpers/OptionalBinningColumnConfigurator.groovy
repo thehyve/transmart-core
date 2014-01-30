@@ -18,6 +18,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
  *   (no binning allowed only if !forceNumericBinning)
  * - high dimensional data, multirow or not (depending on multiRow),
  *   binning or not (no binning allowed only if !forceNumericBinning)
+ *
+ * Does not support multiple numeric variables.
  */
 @Log4j
 @Component
@@ -110,6 +112,10 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     }
 
     boolean isCategorical() {
+        isMultiVariable()
+    }
+
+    protected boolean isMultiVariable() {
         getStringParam(keyForConceptPaths).contains('|')
     }
 

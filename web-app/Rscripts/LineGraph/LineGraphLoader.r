@@ -70,6 +70,7 @@ LineGraph.plotter <- function(
                         MEDIAN 	= median(VALUE)
     )
     #Adjust the column names.
+    print(colnames(dataOutput))
     colnames(dataOutput) <- c('TIMEPOINT','TIME_VALUE','GROUP','MEAN','SD','SE','MEDIAN')
   }
   

@@ -3,7 +3,6 @@ package jobs.steps.helpers
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import jobs.UserParameters
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.junit.Before
@@ -205,7 +204,6 @@ class BoxPlotVariableColumnConfiguratorTests {
                 createClinicalVariableColumns BUNDLE_OF_CLINICAL_CONCEPT_PATH
         setupClinicalResult(1, clinicalVariables, values)
 
-        testee.missingValueAction = new MissingValueAction.DropRowMissingValueAction()
         testee.forceNumericBinning = false
 
         assertThat shouldFail(InvalidArgumentsException, {

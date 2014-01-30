@@ -1,13 +1,8 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.NumericColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,7 +62,6 @@ class ScatterPlot extends AbstractAnalysisJob {
                                        String header) {
         configurator.columnHeader          = header
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
         configurator.multiRow              = true
 
         configurator.setKeys(key)
@@ -105,15 +99,17 @@ class ScatterPlot extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/ScatterPlot/ScatterPlotLoader.R')''',
                 '''ScatterPlot.loader(
-                    input.filename           = 'outputfile',
-                    concept.dependent        = '$dependentVariable',
-                    concept.independent      = '$independentVariable',
-                    concept.dependent.type   = '$divDependentVariableType',
-                    concept.independent.type = '$divIndependentVariableType',
-                    genes.dependent          = '$divDependentPathwayName',
-                    genes.independent        = '$divIndependentPathwayName',
-                    snptype.dependent        = '',
-                    snptype.independent      = '',
+                    input.filename               = 'outputfile',
+                    concept.dependent            = '$dependentVariable',
+                    concept.independent          = '$independentVariable',
+                    concept.dependent.type       = '$divDependentVariableType',
+                    concept.independent.type     = '$divIndependentVariableType',
+                    genes.dependent              = '$divDependentPathwayName',
+                    genes.independent            = '$divIndependentPathwayName',
+                    aggregate.probes.independent = '$divIndependentVariableprobesAggregation' == 'true',
+                    aggregate.probes.dependent   = '$divDependentVariableprobesAggregation'   == 'true',
+                    snptype.dependent            = '',
+                    snptype.independent          = '',
         )''' ] // last two params should be removed
     }
 

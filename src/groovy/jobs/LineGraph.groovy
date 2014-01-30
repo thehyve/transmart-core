@@ -1,16 +1,10 @@
 package jobs
 
-import jobs.steps.BuildConceptTimeValuesStep
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
-import jobs.steps.helpers.SingleOrMultiNumericVariableColumnConfigurator
-import jobs.steps.helpers.SimpleAddColumnConfigurator
+import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
+import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
+import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.ConceptTimeValuesTable
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +13,6 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import javax.annotation.PostConstruct
-import java.security.InvalidParameterException
 
 @Component
 @Scope('job')
@@ -34,7 +27,7 @@ class LineGraph extends AbstractAnalysisJob {
     CategoricalColumnConfigurator groupByColumnConfigurator
 
     @Autowired
-    SingleOrMultiNumericVariableColumnConfigurator dependentVariableConfigurator
+    ContextNumericVariableColumnConfigurator measurementConfigurator
 
     @Autowired
     ConceptTimeValuesTable conceptTimeValues
@@ -46,22 +39,21 @@ class LineGraph extends AbstractAnalysisJob {
     void init() {
         primaryKeyColumnConfigurator.column = new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        dependentVariableConfigurator.columnHeader          = 'VALUE'
-        dependentVariableConfigurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        dependentVariableConfigurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
-        dependentVariableConfigurator.multiRow              = true
-        dependentVariableConfigurator.keyForIsCategorical = 'dependentVariableCategorical'
+        measurementConfigurator.columnHeader          = 'VALUE'
+        measurementConfigurator.projection            = Projection.DEFAULT_REAL_PROJECTION
+        measurementConfigurator.multiRow              = true
+        measurementConfigurator.multiConcepts         = true
         // we do not want group name pruning for LineGraph
-        dependentVariableConfigurator.isGroupNamePruningNecessary = false
+        measurementConfigurator.pruneConceptPath      = false
 
-        dependentVariableConfigurator.keyForConceptPath     = "dependentVariable"
-        dependentVariableConfigurator.keyForDataType        = "divDependentVariableType"
-        dependentVariableConfigurator.keyForSearchKeywordId = "divDependentVariablePathway"
+        measurementConfigurator.keyForConceptPath     = "dependentVariable"
+        measurementConfigurator.keyForDataType        = "divDependentVariableType"
+        measurementConfigurator.keyForSearchKeywordId = "divDependentVariablePathway"
 
-        groupByColumnConfigurator.columnHeader = 'GROUP_VAR'
-        groupByColumnConfigurator.keyForConceptPaths = 'groupByVariable'
-
-        conceptTimeValues.conceptPaths = dependentVariableConfigurator.getConceptPaths()
+        groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
+        groupByColumnConfigurator.keyForConceptPaths  = 'groupByVariable'
+        
+        conceptTimeValues.conceptPaths = measurementConfigurator.getConceptPaths()
         conceptTimeValues.enabledClosure = { -> !Boolean.parseBoolean(params.getProperty('plotEvenlySpaced')) }
     }
 
@@ -75,9 +67,9 @@ class LineGraph extends AbstractAnalysisJob {
 
         steps << new BuildTableResultStep(
                 table:         table,
-                configurators: [primaryKeyColumnConfigurator, dependentVariableConfigurator, groupByColumnConfigurator])
+                configurators: [primaryKeyColumnConfigurator, measurementConfigurator, groupByColumnConfigurator])
 
-        steps << new MultiRowAsGroupDumpTableResultsStep(
+        steps << new LineGraphDumpTableResultsStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
 
@@ -99,6 +91,19 @@ class LineGraph extends AbstractAnalysisJob {
         steps
     }
 
+    static class LineGraphDumpTableResultsStep extends MultiRowAsGroupDumpTableResultsStep {
+
+        protected void addGroupColumnHeaders() {
+            // should be called only once
+            headers << 'GROUP'        // concept path
+            headers << 'PLOT_GROUP'  // row label (e.g. probe)
+        }
+
+        protected createDecoratingIterator() {
+            new TwoColumnExpandingMapIterator(preResults, transformedColumnsIndexes)
+        }
+    }
+
     private String getScalingFilename() {
         conceptTimeValues.hasScaling() ? SCALING_VALUES_FILENAME : null
     }
@@ -113,7 +118,6 @@ class LineGraph extends AbstractAnalysisJob {
                     plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }
         )''' ]
     }
-    // HDD.data.type            = '${divDependentVariableType!="CLINICAL"?projections:null}',
 
     @Override
     protected getForwardPath() {

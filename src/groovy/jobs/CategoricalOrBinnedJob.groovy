@@ -2,10 +2,9 @@ package jobs
 
 import jobs.steps.*
 import jobs.steps.helpers.BinningColumnConfigurator
-import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.steps.helpers.ColumnConfigurator
+import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,15 +57,12 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
             configurator.columnHeader = header
         }
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
 
         configurator.multiRow              = true
 
         configurator.keyForConceptPaths    = "${keyVariablePart}Variable"
         configurator.keyForDataType        = "div${keyVariablePart.capitalize()}VariableType"
         configurator.keyForSearchKeywordId = "div${keyVariablePart.capitalize()}VariablePathway"
-
-        configurator.multiRow              = true
 
         BinningColumnConfigurator binningColumnConfigurator =
                 configurator.binningConfigurator

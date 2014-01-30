@@ -84,7 +84,7 @@ class ExpandingMapIteratorTests {
         }
     }
 
-    private static def toList(Iterator<String[]> iter) {
+    public static def toList(Iterator<String[]> iter) {
         iter.collect { String[] it ->
             //need to copy the array because the same instance is
             //returned on every iteration

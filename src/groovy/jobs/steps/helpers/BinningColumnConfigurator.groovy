@@ -3,11 +3,7 @@ package jobs.steps.helpers
 import com.google.common.collect.Maps
 import jobs.table.Column
 import jobs.table.columns.ColumnDecorator
-import jobs.table.columns.binning.CategoricalBinningColumnDecorator
-import jobs.table.columns.binning.EvenDistributionBinningColumnDecorator
-import jobs.table.columns.binning.EvenSpacedBinningColumnDecorator
-import jobs.table.columns.binning.NumericBinRange
-import jobs.table.columns.binning.NumericManualBinningColumnDecorator
+import jobs.table.columns.binning.*
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidArgumentsException
