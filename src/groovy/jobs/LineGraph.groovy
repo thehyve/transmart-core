@@ -7,6 +7,7 @@ import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -21,6 +22,7 @@ class LineGraph extends AbstractAnalysisJob {
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
     @Autowired
+    @Qualifier('general')
     OptionalBinningColumnConfigurator groupByColumnConfigurator
 
     @Autowired
@@ -46,8 +48,9 @@ class LineGraph extends AbstractAnalysisJob {
 
         groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
         groupByColumnConfigurator.projection          = Projection.DEFAULT_REAL_PROJECTION
+        groupByColumnConfigurator.multiRow            = true
         
-        groupByColumnConfigurator.setKeys 'groupByVariable'
+        groupByColumnConfigurator.setKeys 'groupBy'
 
         def binningConfigurator = groupByColumnConfigurator.binningConfigurator
         binningConfigurator.keyForDoBinning           = 'binningGroupBy'
@@ -68,7 +71,9 @@ class LineGraph extends AbstractAnalysisJob {
 
         steps << new BuildTableResultStep(
                 table:         table,
-                configurators: [primaryKeyColumnConfigurator, measurementConfigurator, groupByColumnConfigurator])
+                configurators: [primaryKeyColumnConfigurator,
+                                measurementConfigurator,
+                                groupByColumnConfigurator])
 
         steps << new LineGraphDumpTableResultsStep(
                 table:              table,

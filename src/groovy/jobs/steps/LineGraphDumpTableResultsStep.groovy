@@ -56,9 +56,10 @@ class LineGraphDumpTableResultsStep extends MultiRowAsGroupDumpTableResultsStep 
                 assert array.length - 2 == transformedArray.length
 
                 if (array[plotGroupColumnIndex]) {
-                    array[plotGroupColumnIndex] +=
-                            '_' + array[plotSecondaryColumnIndex]
+                    array[plotGroupColumnIndex] += '_'
                 }
+                array[plotGroupColumnIndex] += array[plotSecondaryColumnIndex]
+
                 System.arraycopy(array, 0, transformedArray, 0,
                         transformedArray.length)
                 transformedArray
