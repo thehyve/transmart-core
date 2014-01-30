@@ -1,8 +1,8 @@
 package jobs
 
 import jobs.steps.*
-import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
+import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
@@ -21,7 +21,7 @@ class LineGraph extends AbstractAnalysisJob {
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
     @Autowired
-    CategoricalColumnConfigurator groupByColumnConfigurator
+    OptionalBinningColumnConfigurator groupByColumnConfigurator
 
     @Autowired
     ContextNumericVariableColumnConfigurator measurementConfigurator
@@ -40,12 +40,22 @@ class LineGraph extends AbstractAnalysisJob {
         // we do not want group name pruning for LineGraph
         measurementConfigurator.pruneConceptPath      = false
 
-        measurementConfigurator.keyForConceptPath     = "dependentVariable"
-        measurementConfigurator.keyForDataType        = "divDependentVariableType"
-        measurementConfigurator.keyForSearchKeywordId = "divDependentVariablePathway"
+        measurementConfigurator.keyForConceptPath     = 'dependentVariable'
+        measurementConfigurator.keyForDataType        = 'divDependentVariableType'
+        measurementConfigurator.keyForSearchKeywordId = 'divDependentVariablePathway'
 
         groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
-        groupByColumnConfigurator.keyForConceptPaths  = 'groupByVariable'
+        groupByColumnConfigurator.projection          = Projection.DEFAULT_REAL_PROJECTION
+        
+        groupByColumnConfigurator.setKeys 'groupByVariable'
+
+        def binningConfigurator = groupByColumnConfigurator.binningConfigurator
+        binningConfigurator.keyForDoBinning           = 'binningGroupBy'
+        binningConfigurator.keyForManualBinning       = 'manualBinningGroupBy'
+        binningConfigurator.keyForNumberOfBins        = 'numberOfBinsGroupBy'
+        binningConfigurator.keyForBinDistribution     = 'binDistributionGroupBy'
+        binningConfigurator.keyForBinRanges           = 'binRangesGroupBy'
+        binningConfigurator.keyForVariableType        = 'variableTypeGroupBy'
     }
 
     @Override
