@@ -12,9 +12,8 @@ import javax.annotation.PostConstruct
  * A decorator that configures a column whose values will always be maps.
  *
  * Delegates to either a
- * - NumericColumnConfigurator (single concept, high dim or clinical)
- * - MultiNumericClinicalVariableColumnConfigurator (multiple clinical concepts)
- * - HighDimensionColumnConfigurator (multiple high dimensional objects)
+ * - MultiNumericClinicalVariableColumnConfigurator (clinical concepts)
+ * - HighDimensionColumnConfigurator (high dimensional concepts)
  *
  *
  * - Clinical concept:           values are map (possibly pruned concept path -> value)
