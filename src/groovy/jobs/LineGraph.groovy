@@ -74,19 +74,6 @@ class LineGraph extends AbstractAnalysisJob {
         steps
     }
 
-    static class LineGraphDumpTableResultsStep extends MultiRowAsGroupDumpTableResultsStep {
-
-        protected void addGroupColumnHeaders() {
-            // should be called only once
-            headers << 'GROUP'        // concept path
-            headers << 'PLOT_GROUP'  // row label (e.g. probe)
-        }
-
-        protected createDecoratingIterator() {
-            new TwoColumnExpandingMapIterator(preResults, transformedColumnsIndexes)
-        }
-    }
-
     @Override
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/LineGraph/LineGraphLoader.r')''',
