@@ -29,7 +29,7 @@ LineGraph.loader <- function(
   # Either plot a single LineGraph (if there are no plot_group values)
   # or, for each group-value, retrieve rows for that value and plot LineGraph
   plotGroupValues <- unique(line.data$PLOT_GROUP)
-  if (is.null(plotGroupValues)) {
+  if (is.null(plotGroupValues) || is.na(plotGroupValues)) {
     p <- LineGraph.plotter(line.data, graphType, plot.individuals, HDD.data.type)
     imageFileName <- paste(output.file,".png",sep="")
     CairoPNG(file=imageFileName, width=1200, height=600,units = "px")
