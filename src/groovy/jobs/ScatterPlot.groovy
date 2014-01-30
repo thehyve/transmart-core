@@ -1,13 +1,8 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.NumericColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,7 +62,6 @@ class ScatterPlot extends AbstractAnalysisJob {
                                        String header) {
         configurator.columnHeader          = header
         configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.missingValueAction    = new MissingValueAction.DropRowMissingValueAction()
         configurator.multiRow              = true
 
         configurator.setKeys(key)

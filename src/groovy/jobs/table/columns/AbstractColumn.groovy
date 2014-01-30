@@ -11,7 +11,7 @@ abstract class AbstractColumn implements Column {
     String header
 
     MissingValueAction missingValueAction =
-            new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '')
+            new MissingValueAction.DropRowMissingValueAction()
 
     @Override
     void onDataSourceDepleted(String dataSourceName, Iterable dataSource) {
