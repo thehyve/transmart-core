@@ -40,6 +40,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
     boolean multiRow = false
 
+    /* if numeric variables must be binned */
     boolean forceNumericBinning = true
 
     protected Class<? extends ColumnConfigurator> numericColumnConfigurationClass =

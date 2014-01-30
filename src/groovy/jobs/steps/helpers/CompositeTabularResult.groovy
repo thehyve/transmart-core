@@ -12,7 +12,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 /**
  * Combines several TabularResults into one.
- * The assay lists are intercepted and the result exposes only this intersection.
+ * The assay lists are intersected and the result exposes only this intersection.
  * The labels of the rows are transformed so that <conceptPath>| is prefixed
  * to them.
  */
