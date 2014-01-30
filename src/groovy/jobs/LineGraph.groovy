@@ -73,6 +73,7 @@ class LineGraph extends AbstractAnalysisJob {
                 table:              table,
                 temporaryDirectory: temporaryDirectory)
 
+        //set here and not in @PostConstruct because temporaryDirectory is not initialized at that moment
         conceptTimeValues.outputFile = new File(temporaryDirectory, SCALING_VALUES_FILENAME)
 
         steps << new BuildConceptTimeValuesStep(table: conceptTimeValues)
