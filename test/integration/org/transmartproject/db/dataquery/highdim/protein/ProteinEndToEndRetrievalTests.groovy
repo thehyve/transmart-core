@@ -33,9 +33,6 @@ class ProteinEndToEndRetrievalTests {
 
     static final Double DELTA = 0.0001
 
-    String ureaTransporterUniProtId,
-           adiponectinUnitProtId,
-           adipogenesisFactorUniProtId
     String ureaTransporterPeptide,
            adiponectinPeptide,
            adipogenesisFactorPeptide
@@ -53,18 +50,6 @@ class ProteinEndToEndRetrievalTests {
 
         projection = proteinResource.createProjection([:],
                 Projection.ZSCORE_PROJECTION)
-
-        ureaTransporterUniProtId = testData.proteins.find {
-            it.name == 'Urea transporter 2'
-        }.primaryExternalId
-
-        adiponectinUnitProtId = testData.proteins.find {
-            it.name == 'Adiponectin'
-        }.primaryExternalId
-
-        adipogenesisFactorUniProtId = testData.proteins.find {
-            it.name == 'Adipogenesis regulatory factor'
-        }.primaryExternalId
 
         ureaTransporterPeptide = testData.annotations[-1].peptide
         adiponectinPeptide = testData.annotations[-2].peptide
@@ -99,7 +84,7 @@ class ProteinEndToEndRetrievalTests {
                 contains(
                         allOf(
                                 hasProperty('label', is(ureaTransporterPeptide)),
-                                hasProperty('bioMarker', is(ureaTransporterUniProtId)),
+                                hasProperty('bioMarker', is("PVR_HUMAN3")),
                                 hasProperty('peptide', is(testData.annotations[-1].peptide))
                         ),
                         hasProperty('label', is(adiponectinPeptide)),

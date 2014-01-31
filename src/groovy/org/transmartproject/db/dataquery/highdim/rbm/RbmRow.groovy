@@ -9,7 +9,7 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     Integer annotationId
 
-    String uniprotId
+    String uniprotName
 
     String antigenName
 
@@ -20,7 +20,6 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     @Override
     String getBioMarker() {
-        uniprotId
+        uniprotName
     }
-
 }

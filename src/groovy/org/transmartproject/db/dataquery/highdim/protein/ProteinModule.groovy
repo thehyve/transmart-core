@@ -29,7 +29,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     private final Set<String> dataProperties = ImmutableSet.of('intensity', 'zscore')
 
-    private final Set<String> rowProperties = ImmutableSet.of('unitProtId', 'peptide')
+    private final Set<String> rowProperties = ImmutableSet.of('uniprotName', 'peptide')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -75,9 +75,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
             projections {
                 property 'assay',       'assay'
 
-                property 'a.id',        'annotationId'
-                property 'a.uniprotId', 'uniProtId'
-                property 'a.peptide',   'peptide'
+                property 'a.id',          'annotationId'
+                property 'a.uniprotName', 'uniprotName'
+                property 'a.peptide',     'peptide'
             }
 
             order 'a.id',     'asc'
@@ -105,7 +105,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
                     def firstNonNullCell = list.find()
                     new ProteinDataRow(
                             peptide:       firstNonNullCell[0].peptide,
-                            unitProtId:    firstNonNullCell[0].uniProtId,
+                            uniprotName:   firstNonNullCell[0].uniprotName,
                             assayIndexMap: assayIndexes,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
                     )

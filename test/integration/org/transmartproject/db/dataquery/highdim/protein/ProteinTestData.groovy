@@ -31,20 +31,21 @@ class ProteinTestData {
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeProteinAnnotation> annotations = {
-        def createAnnotation = { id, proteinName, peptide ->
+        def createAnnotation = { id, proteinName, uniprotName, peptide ->
             def res = new DeProteinAnnotation(
-                    peptide:   peptide,
-                    uniprotId: biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.primaryExternalId,
-                    platform:  platform
+                    peptide:     peptide,
+                    uniprotId:   biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.primaryExternalId,
+                    uniprotName: uniprotName,
+                    platform:    platform
             )
             res.id = id
             res
         }
         [
                 // not the actual full sequences here...
-                createAnnotation(-501, 'Adipogenesis regulatory factor', 'MASKGLQDLK'),
-                createAnnotation(-502, 'Adiponectin',                    'MLLLGAVLLL'),
-                createAnnotation(-503, 'Urea transporter 2',             'MSDPHSSPLL'),
+                createAnnotation(-501, 'Adipogenesis regulatory factor', 'PVR_HUMAN1', 'MASKGLQDLK'),
+                createAnnotation(-502, 'Adiponectin',                    'PVR_HUMAN2', 'MLLLGAVLLL'),
+                createAnnotation(-503, 'Urea transporter 2',             'PVR_HUMAN3', 'MSDPHSSPLL'),
         ]
     }()
 

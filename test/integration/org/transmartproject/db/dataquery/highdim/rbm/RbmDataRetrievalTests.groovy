@@ -111,7 +111,7 @@ class RbmDataRetrievalTests {
                                         closeTo(testData.rbmData[-6].zscore as Double, delta)))),
                 contains(
                         allOf(
-                                hasProperty('bioMarker', equalTo('Q15848')),
+                                hasProperty('bioMarker', equalTo('PVR_HUMAN1')),
                                 hasProperty('label', equalTo('Antigene1')))))
     }
 
@@ -197,7 +197,7 @@ class RbmDataRetrievalTests {
                 hasSize(1),
                 hasItem(
                         allOf(
-                                hasProperty('bioMarker', equalTo('Q15850/Q15847')),
+                                hasProperty('bioMarker', equalTo('PVR_HUMAN4/PVR_HUMAN3')),
                                 hasProperty('label', equalTo('Antigene3')),
                                 contains(
                                         closeTo(testData.rbmData[-1].zscore as Double, delta),
