@@ -1,6 +1,5 @@
 package jobs.table
 
-import au.com.bytecode.opencsv.CSVWriter
 import jobs.steps.OpenHighDimensionalDataStep
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
@@ -25,8 +24,7 @@ class ConceptTimeValuesTable {
     @Lazy Map<String,Map> resultMap = computeMap()
 
     /**
-     * @return map of concept_fullname -> series_meta map, or null if not enabled
-     * or no common unit was found for all the concepts
+     * @return map of concept_fullname -> series_meta map, or null if not enabled or metadata not applicable
      */
     private Map<String,Map> computeMap() {
 
@@ -40,15 +38,13 @@ class ConceptTimeValuesTable {
 
         //get all the SeriesMeta mapped by concept name
         Map<String, Map> nameToSeriesMeta = terms.collectEntries {[it.fullName, it.metadata?.seriesMeta as Map]}
-        int totalCount = nameToSeriesMeta.size()
 
-        if (totalCount > 0) {
+        if (nameToSeriesMeta.size() > 0) {
             String firstUnit = nameToSeriesMeta.values().first()?.unit?.toString()
 
             //if all the units are the same and not null, and with numerical values
             if (firstUnit != null &&
-                    nameToSeriesMeta.values().count { firstUnit == it?.unit?.toString()} == totalCount &&
-                    nameToSeriesMeta.values().count { it?.value?.isInteger() } == totalCount) {
+                nameToSeriesMeta.values().every { it?.value?.isInteger() && firstUnit == it?.unit?.toString() }) {
 
                 return nameToSeriesMeta
             }
