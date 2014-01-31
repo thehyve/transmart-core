@@ -68,12 +68,14 @@ class ContextNumericVariableColumnConfiguratorTests {
                 result2: [row1: [      0.7, 0.8 ]]
         ]
 
-        def assays = createSampleAssays(3)
+        def assays1 = createSampleAssays(3)
+        //patients ids will be the same as for assays1:
+        def assays2 = createSampleAssays(3)
         TabularResult result1 = createHighDimTabularResult(
-                assays: assays,
+                assays: assays1,
                 data:   data.result1)
         TabularResult result2 = createHighDimTabularResult(
-                assays: assays[1..2],
+                assays: assays2[1..2],
                 data:   data.result2)
 
         createDataTypeResourceMock(

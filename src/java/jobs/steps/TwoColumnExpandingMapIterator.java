@@ -1,7 +1,7 @@
 package jobs.steps;
 
 import com.google.common.base.Splitter;
-import jobs.steps.helpers.CompositeResultDataRow;
+import jobs.table.columns.HighDimensionMultipleRowsResultColumn;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class TwoColumnExpandingMapIterator extends ExpandingMapIterator {
 
     private static final Splitter SPLITTER =
-            Splitter.on(CompositeResultDataRow.SEPARATOR.charAt(0)).limit(2);
+            Splitter.on(HighDimensionMultipleRowsResultColumn.SEPARATOR.charAt(0)).limit(2);
 
     public String defaultRowLabel = "";
 
