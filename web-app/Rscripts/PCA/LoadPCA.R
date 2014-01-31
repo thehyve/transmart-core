@@ -35,6 +35,8 @@ aggregate.probes = FALSE
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
 
+    if (nrow(mRNAData)<1) stop("Input data is empty. Common causes: either the specified subset has no matching data in the selected node, or the gene/pathway is not present.")
+
 	if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
         mRNAData <- PCA.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)

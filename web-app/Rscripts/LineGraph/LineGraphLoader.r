@@ -4,7 +4,7 @@ LineGraph.loader <- function(
   scaling.filename = NULL,
 	output.file="LineGraph",
 	graphType="MERR",
-    aggregate.probes = FALSE
+    aggregate.probes = FALSE,
   plot.individuals=FALSE,
   HDD.data.type = NULL
 ) {
