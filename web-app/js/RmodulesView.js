@@ -3,6 +3,9 @@ var RmodulesView = function () {
         "categorical": ["divGroupByVariable", "divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable"],
         "numerical": ["divTimeVariable"]
     };
+    this.independent_hidden_divs = ["independentVarDataType", "independentPathway"]
+    this.dependent_hidden_divs = ["dependentVarDataType", "dependentPathway"];
+    this.group_hidden_divs =["groupByVarDataType", "groupByPathway"]
 }
 
 RmodulesView.prototype.clear_high_dimensional_input = function (div) {
@@ -15,6 +18,22 @@ RmodulesView.prototype.clear_high_dimensional_input = function (div) {
     }
     clearHighDimDataSelections(div);
     clearSummaryDisplay(div);
+
+    var _cleanHiddenDivs = function (divArr) {
+        for (var i = 0; i < divArr.length; i++) {
+            if ( document.getElementById(divArr[i])) {
+                document.getElementById(divArr[i]).value = "";
+            }
+        }
+    }
+
+    if (div == 'divDependentVariable' || div == 'divCategoryVariable') {
+        _cleanHiddenDivs(this.dependent_hidden_divs);
+    } else if (div == 'divIndependentVariable') {
+        _cleanHiddenDivs(this.independent_hidden_divs);
+    } else if (div == 'divGroupByVariable') {
+        _cleanHiddenDivs(this.group_hidden_divs);
+    }
 }
 
 RmodulesView.prototype.register_drag_drop = function () {
