@@ -43,4 +43,19 @@ class TwoColumnExpandingMapIteratorTests {
         )
     }
 
+    @Test
+    void testTwoTransformedColumns() {
+        def data = [
+                [1, ['foo|bar': 3, 'foo2|bar2': 4], ['foo3|bar3': 5, 'foo4|bar4': 6]]
+        ]
+        testee = new TwoColumnExpandingMapIterator(data.iterator(), [1, 2])
+
+        assertThat toList(testee), contains(
+                contains([1, 3, 'foo',  'bar',  5, 'foo3', 'bar3'].collect { is it as String }),
+                contains([1, 3, 'foo',  'bar',  6, 'foo4', 'bar4'].collect { is it as String }),
+                contains([1, 4, 'foo2', 'bar2', 5, 'foo3', 'bar3'].collect { is it as String }),
+                contains([1, 4, 'foo2', 'bar2', 6, 'foo4', 'bar4'].collect { is it as String }),
+        )
+    }
+
 }

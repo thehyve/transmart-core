@@ -45,7 +45,7 @@ class SimpleDumpTableResultStep implements Step {
                     "Number of patients dropped owing to mismatched " +
                     "data: ${table.droppedRows}")
         }
-        mainRows.each {
+        rows.each {
             writer.writeNext(it as String[])
         }
     }

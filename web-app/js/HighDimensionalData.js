@@ -203,7 +203,10 @@ HighDimensionalData.prototype.generate_view = function () {
             document.getElementById("dependentVarDataType").value = Ext.get('highDimensionType').dom.value;
             document.getElementById("dependentPathway").value = GLOBAL.CurrentPathway;
         }
-
+        if (_this.divId == 'divGroupByVariable' && document.getElementById("groupByVarDataType")) {
+            document.getElementById("groupByVarDataType").value = Ext.get('highDimensionType').dom.value;
+            document.getElementById("groupByPathway").value = GLOBAL.CurrentPathway;
+        }
         // init summary string
         var summaryString = '<br> <b>GPL Platform:</b> ' + Ext.get('gpl1').dom.value +
             '<br> <b>Sample:</b> ' + Ext.get('sample1').dom.value +

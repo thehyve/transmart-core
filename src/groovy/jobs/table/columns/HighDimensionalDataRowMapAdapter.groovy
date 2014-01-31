@@ -19,27 +19,28 @@ class HighDimensionalDataRowMapAdapter extends ForwardingMap<String, Map<String,
 
     Map<String, Map<String, Object>> innerMap
 
-    HighDimensionalDataRowMapAdapter(List<AssayColumn> assays,
-                                     DataRow<AssayColumn, ?> row,
-                                     String contextPrepend = '') {
+    HighDimensionalDataRowMapAdapter(List<AssayColumn> assays /* in correct order! */,
+                                     DataRow<AssayColumn, ?> row) {
 
         /* empty cells are dropped!
          * In the future we may want to provide a MissingValueAction
          * to this class in order to customize this behavior */
-        Map<String, AssayColumn> patientIdtoAssay =
-                Maps.uniqueIndex(assays,
-                        { AssayColumn assay ->
-                            assay.patientInTrialId
+
+
+        Map<String, Integer> patientIdtoAssayIndex =
+                Maps.uniqueIndex((0..(assays.size() - 1)),
+                        { Integer i ->
+                            assays[i].patientInTrialId
                         } as Function)
 
-        Map<String, Map<String, Object> /* one entry */> patientIdToDataValue =
-                Maps.transformValues patientIdtoAssay,
-                        { AssayColumn assay ->
-                            def value = row.getAt(assay)
+        Map<String, Map<String, Object>> patientIdToDataValue =
+                Maps.transformValues patientIdtoAssayIndex,
+                        { Integer i ->
+                            def value = row.getAt(i)
                             if (value == null) {
                                 return null
                             }
-                            ImmutableMap.of(contextPrepend + row.label, value)
+                            ImmutableMap.of(row.label, value)
                         } as Function
 
         // drop nulls

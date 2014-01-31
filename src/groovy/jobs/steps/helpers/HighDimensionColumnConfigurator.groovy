@@ -1,7 +1,5 @@
 package jobs.steps.helpers
 
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Sets
 import jobs.table.Column
 import jobs.table.columns.HighDimensionMultipleRowsResultColumn
 import jobs.table.columns.HighDimensionSingleRowResultColumn
@@ -93,7 +91,7 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
                 keyword_ids: [searchKeyword])]
     }()
 
-    private TabularResult<AssayColumn, Number> openResultSet(String conceptPath) {
+    TabularResult<AssayColumn, Number> openResultSet(String conceptPath) {
         def assayConstraints = [patientSetConstraint]
         assayConstraints << subResource.createAssayConstraint(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
@@ -102,43 +100,14 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
         subResource.retrieveData assayConstraints, dataConstraints, createdProjection
     }
 
-    private Map<String, TabularResult> openMultipleResultSets() {
+    TabularResult<AssayColumn, Number> createCompositeResultSet() {
         assert multiConcepts
 
-         conceptPaths.collectEntries {
+        def tabularResults = conceptPaths.collectEntries {
             [it, openResultSet(it)]
         }
-    }
 
-    private Set<String> findCommonPatients(Map<String, TabularResult> results) {
-        Map<TabularResult, List<AssayColumn>> mapOfAssayLists =
-                results.collectEntries { String conceptPath,
-                                         TabularResult result ->
-                    [result, result.indicesList]
-                }
-
-        List<Set<String>> patientsSets = mapOfAssayLists.values().
-                collect { List<AssayColumn> assays ->
-                    Sets.newHashSet assays*.patientInTrialId
-                }
-
-        Set<String> commonPatients = patientsSets[0]
-        if (patientsSets.size() > 1) {
-            patientsSets[1..-1].each { Set<String> current ->
-                commonPatients = Sets.intersection commonPatients, current
-            }
-        }
-
-        if (commonPatients.empty) {
-            throw new InvalidArgumentsException(
-                    "The intersection of the patients for the assays of the " +
-                            "${commonPatients.size()} result sets is empty. " +
-                            "The patient sets for each result are, in order: " +
-                            patientsSets
-            )
-        }
-
-        commonPatients
+        new CompositeTabularResult(results: tabularResults)
     }
 
     @Override
@@ -148,12 +117,9 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
                     "Found empty concept paths list (key $keyForConceptPath)")
         }
 
-        Map<String, TabularResult> tabularResults
-        Set<String> commonPatients
+        TabularResult<AssayColumn, Number> tabularResult
         if (conceptPaths.size() == 1 && !multiConcepts) {
-            tabularResults = ImmutableMap.of(
-                    columnHeader + '_highdim',
-                    openResultSet(conceptPaths[0]))
+            tabularResult = openResultSet conceptPaths[0]
         } else {
             if (!multiConcepts) {
                 throw new InvalidArgumentsException(
@@ -161,14 +127,12 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
                                 "but multiConcepts is not on")
             }
 
-            tabularResults = openMultipleResultSets()
-            commonPatients = findCommonPatients(tabularResults)
+            tabularResult = createCompositeResultSet()
         }
 
-        tabularResults.each { String dataSourceName,
-                              TabularResult dataSource ->
-            table.addDataSource dataSourceName, dataSource
-        }
+        String dataSourceName = columnHeader + '_highdim'
+
+        table.addDataSource dataSourceName, tabularResult
 
         def highDimColumn
         if (!multiRow) {
@@ -176,11 +140,10 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
                     header: columnHeader)
         } else {
             highDimColumn = new HighDimensionMultipleRowsResultColumn(
-                    header:             columnHeader,
-                    patientsToConsider: commonPatients)
+                    header: columnHeader)
         }
         table.addColumn(
                 decorateColumn.call(highDimColumn),
-                tabularResults.keySet())
+                [dataSourceName] as Set)
     }
 }

@@ -68,14 +68,12 @@ class ContextNumericVariableColumnConfiguratorTests {
                 result2: [row1: [      0.7, 0.8 ]]
         ]
 
-        def assays1 = createSampleAssays(3)
-        //patients ids will be the same as for assays1:
-        def assays2 = createSampleAssays(3)
+        def assays = createSampleAssays(3)
         TabularResult result1 = createHighDimTabularResult(
-                assays: assays1,
+                assays: assays,
                 data:   data.result1)
         TabularResult result2 = createHighDimTabularResult(
-                assays: assays2[1..2],
+                assays: assays[1..2],
                 data:   data.result2)
 
         createDataTypeResourceMock(
@@ -89,7 +87,6 @@ class ContextNumericVariableColumnConfiguratorTests {
             table.buildTable()
 
             def res = Lists.newArrayList table.result
-            println res
             assertThat res, containsInAnyOrder(
                     contains(
                             is('patient_2_subject_id'),
@@ -132,7 +129,6 @@ class ContextNumericVariableColumnConfiguratorTests {
             table.buildTable()
 
             // no maps involved here
-            println Lists.newArrayList(table.result)
             assertThat Lists.newArrayList(table.result), contains(
                     contains(allOf(
                             dot(BUNDLE_OF_CLINICAL_CONCEPT_PATH, data) { a, b -> hasEntry(a, b) })))

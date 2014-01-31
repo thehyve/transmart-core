@@ -31,12 +31,31 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
 
     protected PeekingIterator<List<Object>> preResults
 
-    protected List<String> headers = []
+    /* Groovy has an odd preference to use fields directly in a way
+     * that breaks property overrides:
+     *
+     * class A { String f = 'f'; def getK() { this.f } }
+     * class B extends A { String getF() { 'g' } }
+     * b = new B()
+     * b.f // returns g
+     * b.k // returns f
+     *
+     * So use _headers instead
+     *
+     * And it has to be public:
+     *
+     * class A { private String s = 's'; def f() { { -> s }() } }
+     * class B extends A { }
+     *
+     * new A().f() // returns s
+     * new B().f() // No such property: s for class: B
+     */
+    List<String> _headers = []
 
     @Override
     protected List<String> getHeaders() {
         prepareResult()
-        this.headers
+        _headers
     }
 
     private void prepareResult() {
@@ -55,20 +74,20 @@ class MultiRowAsGroupDumpTableResultsStep extends SimpleDumpTableResultStep {
         def firstLine = preResults.peek()
 
         firstLine.eachWithIndex { it, index ->
-            headers << originalHeaders[index]
+            _headers << originalHeaders[index]
 
             if (it instanceof Map) {
                 transformedColumnsIndexes << index
-                addGroupColumnHeaders()
+                addGroupColumnHeaders(_headers)
             }
         }
     }
 
-    protected void addGroupColumnHeaders() {
+    protected void addGroupColumnHeaders(List<String> headerList) {
         if (transformedColumnsIndexes.size() == 1) {
-            headers << 'GROUP'
+            headerList << 'GROUP'
         } else {
-            headers << "GROUP.${transformedColumnsIndexes.size() - 1}".toString()
+            headerList << "GROUP.${transformedColumnsIndexes.size() - 1}".toString()
         }
     }
 

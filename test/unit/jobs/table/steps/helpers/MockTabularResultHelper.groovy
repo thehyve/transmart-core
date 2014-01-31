@@ -1,9 +1,8 @@
-package jobs.table
+package jobs.table.steps.helpers
 
 import org.gmock.GMockController
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
 class MockTabularResultHelper {
@@ -46,29 +45,6 @@ class MockTabularResultHelper {
         (1..n).collect {
             "patient #$it" as String
         }
-    }
-
-    TabularResult<AssayColumn, Number> createMockTabularResult(Map params) {
-        List<AssayColumn> sampleAssays        = params.assays
-        Map<String, List<Number>> labelToData = params.data
-        String columnsDimensionLabel          = params.columnsLabel
-        String rowsDimensionLabel             = params.rowsLabel
-
-        TabularResult highDimResult = mock TabularResult
-        highDimResult.indicesList.returns(sampleAssays).atLeastOnce()
-        highDimResult.getRows().returns(
-                labelToData.collect { String label, List<Number> data ->
-                    createRowForAssays(sampleAssays, data, label)
-                }.iterator())
-
-        if (columnsDimensionLabel) {
-            highDimResult.columnsDimensionLabel.returns columnsDimensionLabel
-        }
-        if (rowsDimensionLabel) {
-            highDimResult.rowsDimensionLabel.returns rowsDimensionLabel
-        }
-
-        highDimResult
     }
 
 

@@ -98,14 +98,7 @@ FisherTable.loader.single <- function(dataChunk,splitColumn,fileNameQualifier)
 	
 	#Generate count table.
 	countTable <- table(dataChunk)
-
-	#Do not continue with statistical tests if data requirements are not met
-    if (nlevels(dataChunk$X) < 2 || nlevels(dataChunk$Y) < 2) {
-      write(paste("Not enough levels for Fisher or chi-square test."), file=statisticalTestsResultsFile,append=T)
-      write.table(countTable,countsFile,quote=F,sep="\t",row.names=T,col.names=T,append=T)
-      return()
-    }
-
+	
 	#Get fisher test statistics.
 	fisherResults <- fisher.test(countTable,simulate.p.value=TRUE)
 		

@@ -27,8 +27,10 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
 
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
+        List<String> conceptPaths =
+                getStringParam(keyForConceptPaths).split(/\|/) as List
 
-        List<ClinicalVariable> variables = getConceptPaths().collect {
+        List<ClinicalVariable> variables = conceptPaths.collect {
             clinicalDataRetriever.createVariableFromConceptPath it
         }
 
@@ -50,10 +52,6 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
                                 clinicalVariables: variableToGroupName,
                                 header:            columnHeader)),
                 [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
-    }
-
-    public List<String> getConceptPaths() {
-        getStringParam(keyForConceptPaths).split(/\|/) as List
     }
 
     private String generateGroupName(String conceptPath) {

@@ -218,7 +218,7 @@ class RModulesJobService implements Job {
 							}
 						}
 					} catch (Exception e) {
-						println("Failed to FTP PUT the ZIP file");
+						log.error("Failed to FTP PUT the ZIP file", e);
 					}
 					break
 				case "R":
