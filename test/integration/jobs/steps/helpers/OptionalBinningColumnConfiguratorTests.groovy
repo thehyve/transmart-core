@@ -202,6 +202,72 @@ class OptionalBinningColumnConfiguratorTests {
     }
 
     @Test
+    void testEvenDistributionBinsFewData() {
+        // less data points than bins
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_CLINICAL,
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+
+                binning            : 'TRUE',
+                manualBinning      : 'FALSE',
+                numberOfBins       : '3',
+                binDistribution    : 'EDP',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        setupClinicalResult(2,
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL]),
+                [12.0, 20.0])
+
+        play {
+            testee.addColumn()
+            table.buildTable()
+            def res = table.result
+
+            assertThat res, containsInAnyOrder(
+                    is(["12.0 ≤ $COLUMN_HEADER ≤ 12.0" as String]),
+                    is(["12.0 < $COLUMN_HEADER ≤ 20.0" as String]),)
+        }
+    }
+
+    @Test
+    void testEvenDistributionBinsALotOfRepeats() {
+        // less data points than bins
+        params.@map.putAll([
+                variable           : CONCEPT_PATH_CLINICAL,
+                divVariableType    : DATA_TYPE_NAME_CLINICAL,
+
+                binning            : 'TRUE',
+                manualBinning      : 'FALSE',
+                numberOfBins       : '3',
+                binDistribution    : 'EDP',
+
+                result_instance_id1: RESULT_INSTANCE_ID1,
+                result_instance_id2: RESULT_INSTANCE_ID2,
+        ])
+
+        setupClinicalResult(6,
+                createClinicalVariableColumns([CONCEPT_PATH_CLINICAL]),
+                [20.0, 20.0, 20.0, 20.0, 30.0, 31.0])
+
+        play {
+            testee.addColumn()
+            table.buildTable()
+            def res = table.result
+
+            /* There are only two effective bins here.
+             * This is expected behavior.
+             * See comment on calculateQuantileRanks */
+            println res
+            assertThat res, containsInAnyOrder(
+                    (["20.0 ≤ $COLUMN_HEADER ≤ 20.0" as String] * 4 +
+                    ["20.0 < $COLUMN_HEADER ≤ 31.0" as String] * 2).collect { equalTo([it]) })
+        }
+    }
+
+    @Test
     void testClinicalDataContinuousManualBinning() {
         params.@map.putAll([
                 variable           : CONCEPT_PATH_CLINICAL,

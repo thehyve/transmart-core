@@ -42,11 +42,13 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
         NavigableMap<Number, String> res =
                 Maps.newTreeMap(GroovyNumberComparator.INSTANCE)
 
-        (0..(numberOfBins - 1)).each { Integer it ->
+        int effectiveNumberOfBins = quantileRanks.size()
+
+        (0..(effectiveNumberOfBins - 1)).each { Integer it ->
             Number lowerBound = it == 0 ?
                     sortedValues[0] :
                     sortedValues[quantileRanks[it - 1]]
-            Number upperBound = it == (numberOfBins - 1) ?
+            Number upperBound = it == (effectiveNumberOfBins - 1) ?
                     sortedValues[-1] :
                     sortedValues[quantileRanks[it]]
 
@@ -75,12 +77,29 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
     private List<Integer> calculateQuantileRanks(List<Number> sortedValues) {
         List<Integer> res = Lists.newArrayListWithCapacity numberOfBins
 
-        for (i in 1..numberOfBins) {
+        int effectiveNumberOfBins = Math.min numberOfBins, sortedValues.size()
+
+        for (i in 1..effectiveNumberOfBins) {
             /* maybe use nearest rank instead? */
-            int rank = (((sortedValues.size() * i) / numberOfBins) as int) - 1 //rounds down
-            while (rank < sortedValues.size() - 2 &&
-                    sortedValues[rank] == sortedValues[rank + 1]) {
-                rank++
+            int rank = (((sortedValues.size() * i) / effectiveNumberOfBins) as int) - 1 //rounds down
+            while (rank > 0 &&
+                    sortedValues[rank] == sortedValues[rank - 1]) {
+                rank--
+            }
+            // rank will be first element with this value
+            // if this results in the rank being the same as the rank for the
+            // last bin, then this bin will essentially be filled.
+            // we may be able to do better than this*, but ultimately there's no
+            // way to evenly distribute a lot of element with the same value
+            // unless we start putting equal elements in different bins, which
+            // would be confusing given the labels of the bins
+
+            // * for instance, given 2 bins, we could do
+            // 20 20 20 20 | 30 | 31
+            // but given the way we do it now is:
+            // 20 20 20 20 | 30 31
+            if (i > 1 && res.last() == rank) {
+                continue
             }
             res << rank
         }
@@ -117,6 +136,12 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
             NavigableMap<Number, String> binsForCtx = bins[ctx]
 
             Map.Entry<Number, String> entry = binsForCtx.ceilingEntry(numberValue)
+            if (entry == null) {
+                // should not happen
+                throw new IllegalStateException("Could not determine bin for " +
+                        "value $numberValue. Bins available, with key as upper " +
+                        "bound: $binsForCtx")
+            }
 
             (Object) entry.value /* the name of the bin */
         }
