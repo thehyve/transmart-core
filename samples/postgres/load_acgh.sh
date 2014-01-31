@@ -14,6 +14,16 @@ export KETTLE_HOME
 # Should define DATA_FILE_PREFIX, MAP_FILENAME
 source $1
 
+SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
+
+if [ $SECURITY_REQUIRED = 'Y' ]; then
+    TOP_NODE_PREFIX='Private Studies'
+else
+    TOP_NODE_PREFIX='Public Studies'
+fi
+
+TOP_NODE='\'$TOP_NODE_PREFIX'\'$STUDY_ID'\'$NODE_NAME
+
 if [ $REGION_PLATFORM_FILE ]; then
 	AWK_RESULT=`awk -F'\t' 'NR == 2 { print $1"$"$10 }' $DATA_LOCATION/$REGION_PLATFORM_FILE`
 	PLATFORM_ID=`echo $AWK_RESULT | cut -d$ -f1`
@@ -45,10 +55,10 @@ $KITCHEN -norep=Y                                                  \
 -param:SAMPLE_REMAP_FILENAME=NOSAMPLEREMAP                         \
 -param:SAMPLE_SUFFIX=.chip                                         \
 -param:MAP_FILENAME=$MAP_FILENAME                                  \
--param:SECURITY_REQUIRED=N                                         \
+-param:SECURITY_REQUIRED=$SECURITY_REQUIRED                        \
 -param:SORT_DIR=$TEMPDIR                                           \
 -param:SOURCE_CD=STD                                               \
 -param:STUDY_ID=$STUDY_ID                                          \
--param:TOP_NODE='\Public Studies\'$STUDY_ID'\'
+"-param:TOP_NODE=$TOP_NODE"
 
 #-param:SQLLDR_PATH=/spin/pg/master/bin/psql \
