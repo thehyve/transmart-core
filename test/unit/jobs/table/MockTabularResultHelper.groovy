@@ -1,4 +1,4 @@
-package jobs.table.steps.helpers
+package jobs.table
 
 import org.gmock.GMockController
 import org.transmartproject.core.dataquery.DataRow

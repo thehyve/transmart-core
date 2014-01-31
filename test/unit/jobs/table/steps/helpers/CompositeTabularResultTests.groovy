@@ -4,6 +4,7 @@ import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import jobs.steps.helpers.CompositeTabularResult
+import jobs.table.MockTabularResultHelper
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
