@@ -19,6 +19,11 @@ class RCommandsStep implements Step {
     List<String> rStatements
     String studyName /* see comment on AbstractAnalysisJob::studyName */
 
+    /**
+     * This map allows us to pass information that is only available later on
+     */
+    Map<String, String> extraParams
+
     @Override
     void execute() {
         runRCommandList rStatements
@@ -37,8 +42,14 @@ class RCommandsStep implements Step {
              * as otherwise you create a potential security vulnerability
              */
             Map vars = [:]
+
             params.each { k,v ->
                 vars[k] = v
+            }
+
+            //lazy extra params are added after user params, to make sure there are no security breaches
+            if (extraParams) {
+                vars.putAll(extraParams)
             }
 
             vars.pluginDirectory = scriptsDirectory.absolutePath

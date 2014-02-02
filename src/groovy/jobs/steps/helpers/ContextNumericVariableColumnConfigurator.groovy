@@ -72,6 +72,11 @@ class ContextNumericVariableColumnConfigurator extends ColumnConfigurator {
         multiHighDimConfigurator.keyForDataType
     }
 
+
+    List<String> getConceptPaths() {
+        multiHighDimConfigurator.conceptPaths
+    }
+
     boolean isClinicalData() {
         getStringParam(keyForDataType) ==
                 NumericColumnConfigurator.CLINICAL_DATA_TYPE_VALUE
