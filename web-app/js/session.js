@@ -19,6 +19,11 @@ Browser.prototype.nukeStatus = function() {
 }
 
 Browser.prototype.storeStatus = function() {
+    this.storeViewStatus();
+    this.storeTierStatus();
+}
+
+Browser.prototype.storeViewStatus = function() {
     if (!this.cookieKey || this.noPersist) {
         return;
     }
@@ -29,6 +34,13 @@ Browser.prototype.storeStatus = function() {
     if (this.currentSeqMax) {
 	localStorage['dalliance.' + this.cookieKey + '.current-seq-length'] = this.currentSeqMax;
     }
+}
+
+
+Browser.prototype.storeTierStatus = function() {
+    if (!this.cookieKey || this.noPersist) {
+        return;
+    }
 
     var currentSourceList = [];
     for (var t = 0; t < this.tiers.length; ++t) {
@@ -38,6 +50,7 @@ Browser.prototype.storeStatus = function() {
         }
     }
     localStorage['dalliance.' + this.cookieKey + '.sources'] = JSON.stringify(currentSourceList);
+    localStorage['dalliance.' + this.cookieKey + '.hubs'] = JSON.stringify(this.hubs);
     localStorage['dalliance.' + this.cookieKey + '.reverse-scrolling'] = this.reverseScrolling;
     localStorage['dalliance.' + this.cookieKey + '.ruler-location'] = this.rulerLocation;
     
@@ -59,7 +72,7 @@ Browser.prototype.restoreStatus = function() {
     }
 
     var storedConfigHash = localStorage['dalliance.' + this.cookieKey + '.configHash'] || '';
-    var pageConfigHash = hex_sha1(miniJSONify(this.sources));
+    var pageConfigHash = hex_sha1(miniJSONify({sources: this.sources, hubs: this.hubs}));
     if (pageConfigHash != storedConfigHash) {
         localStorage['dalliance.' + this.cookieKey + '.configHash'] = pageConfigHash;
         return;
@@ -105,5 +118,10 @@ Browser.prototype.restoreStatus = function() {
                 }
             }
         }
+    }
+
+    var hubStr = localStorage['dalliance.' + this.cookieKey + '.hubs'];
+    if (hubStr) {
+        this.hubs = JSON.parse(hubStr);
     }
 }

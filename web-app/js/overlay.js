@@ -10,6 +10,50 @@
 function OverlayFeatureSource(sources, opts) {
     this.sources = sources;
     this.opts = opts || {};
+    this.activityListeners = [];
+    this.business = [];
+
+    for (var i = 0; i < this.sources.length; ++i) {
+        this.initN(i);
+    }
+
+    if (opts.merge == 'concat') {
+        this.merge = OverlayFeatureSource_merge_concat;
+    } else {
+        this.merge = OverlayFeatureSource_merge_byKey;
+    }
+}
+
+OverlayFeatureSource.prototype.initN = function(n) {
+    var s = this.sources[n];
+    var thisB = this;
+    this.business[n] = 0;
+
+    if (s.addActivityListener) {
+        s.addActivityListener(function(b) {
+            thisB.business[n] = b;
+            thisB.notifyActivity();
+        });
+    }
+}
+
+OverlayFeatureSource.prototype.addActivityListener = function(l) {
+    this.activityListeners.push(l);
+}
+
+OverlayFeatureSource.prototype.notifyActivity = function() {
+    var busy = 0;
+    for (var i = 0; i < this.business.length; ++i) {
+        busy += this.business[i];
+    }
+
+    for (var li = 0; li < this.activityListeners.length; ++li) {
+        try {
+            this.activityListeners[li](busy);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
 
 OverlayFeatureSource.prototype.getScales = function() {
@@ -28,7 +72,7 @@ OverlayFeatureSource.prototype.capabilities = function() {
 }
 
 OverlayFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
-    var baton = new OverlayBaton(callback, this.sources.length);
+    var baton = new OverlayBaton(this, callback, this.sources.length);
     for (var si = 0; si < this.sources.length; ++si) {
 	this.fetchN(baton, si, chr, min, max, scale, types, pool);
     }
@@ -48,7 +92,8 @@ OverlayFeatureSource.prototype.findNextFeature = function(chr, pos, dir, callbac
     return this.sources[0].findNextFeature(chr, pos, dir, callback);
 }
 
-function OverlayBaton(callback, count) {
+function OverlayBaton(source, callback, count) {
+    this.source = source;
     this.callback = callback;
     this.count = count;
 
@@ -91,16 +136,16 @@ OverlayBaton.prototype.completed = function(index, status, features, scale) {
 	    }
 	    return this.callback(message, null, this.scale);
 	} else {
-	    this.callback(null, this.merge(this.features), this.scale);
+	    this.callback(null, this.source.merge(this.features), this.scale);
 	}
     }
 }
 
-OverlayBaton.prototype.keyForFeature = function(feature) {
+OverlayFeatureSource.prototype.keyForFeature = function(feature) {
     return '' + feature.min + '..' + feature.max;
 }
 
-OverlayBaton.prototype.merge = function(featureSets) {
+function OverlayFeatureSource_merge_byKey(featureSets) {
     var om = {};
     var of = featureSets[1];
     for (var fi = 0; fi < of.length; ++fi) {
@@ -123,3 +168,16 @@ OverlayBaton.prototype.merge = function(featureSets) {
     return mf;
 }
 
+function OverlayFeatureSource_merge_concat(featureSets) {
+    var features = [];
+    for (var fsi = 0; fsi < featureSets.length; ++fsi) {
+        var fs = featureSets[fsi];
+        var name = this.sources[fsi].name;
+        for (var fi = 0; fi < fs.length; ++fi) {
+            var f = fs[fi];
+            f.method = name;
+            features.push(f);
+        }
+    }
+    return features;
+}

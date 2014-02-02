@@ -165,6 +165,7 @@ DasTier.prototype.updateStatus = function(status) {
         this.placard.style.display = 'none';
         this.holder.style.display = 'block';
     }
+    this.updateHeight();
 }
 
 DasTier.prototype.draw = function() {
@@ -265,8 +266,12 @@ DasTier.prototype.updateLabel = function() {
 }
 
 DasTier.prototype.updateHeight = function() {
-    //if (this.row)
-        this.row.style.height = '' + Math.max(this.holder.clientHeight, this.label.clientHeight + 4) + 'px';
+    this.currentHeight = Math.max(this.holder.clientHeight, this.label.clientHeight + 4);
+    if (this.placard.style.display !== 'none') {
+        this.currentHeight = Math.max(this.currentHeight, this.placard.clientHeight + 2);
+    }
+    this.row.style.height = '' + this.currentHeight + 'px';
+    this.browser.updateHeight();
  }
 
 DasTier.prototype.drawOverlay = function() {
@@ -286,7 +291,7 @@ DasTier.prototype.drawOverlay = function() {
         var h = b.highlights[hi];
         if (h.chr == b.chr && h.min < visEnd && h.max > visStart) {
             g.globalAlpha = 0.3;
-            g.fillStyle = 'lightgreen';
+            g.fillStyle = 'red';
             g.fillRect((h.min - origin) * b.scale,
                        0,
                        (h.max - h.min) * b.scale,

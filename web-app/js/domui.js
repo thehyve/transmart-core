@@ -242,7 +242,7 @@ Browser.prototype.popit = function(ev, name, ele, opts)
             window.addEventListener('mousemove', moveHandler, false);
             window.addEventListener('mouseup', upHandler, false);
         }, false);
-
+                              
 
         popup.appendChild(tbar);
     }
@@ -262,6 +262,29 @@ Browser.prototype.popit = function(ev, name, ele, opts)
         }
     }, false);
     return popupHandle;
+}
+
+function makeTreeTableSection(title, content, visible) {
+    var ttButton = makeElement('i');
+    function update() {
+        if (visible) {
+            ttButton.className = 'icon-chevron-down';
+            content.style.display = 'table';
+        } else {
+            ttButton.className = 'icon-chevron-right';
+            content.style.display = 'none';
+        }
+    }
+    update();
+
+    ttButton.addEventListener('click', function(ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        visible = !visible;
+        update();
+    }, false);
+
+    var heading = makeElement('h6', [ttButton, ' ', title], {}, {display: 'block', background: 'gray', color: 'white', width: '100%', padding: '5px 2px', margin: '0px'});
+    return makeElement('div', [heading, content], {});
 }
 
 function dlog(msg) {

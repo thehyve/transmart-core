@@ -7,31 +7,11 @@
 // track-adder.js
 //
 
-function sourceURI(source) {
-    // FIXME
-    return source.uri || source.bwgURI || source.bamURI;
-}
 
 Browser.prototype.currentlyActive = function(source) {
-    var suri = sourceURI(source);
-    for (var i = 0; i < this.tiers.length; ++i) {
-        var ts = this.tiers[i].dasSource;
-        var tsuri = sourceURI(ts);
-        if (tsuri == suri || tsuri == suri + '/') {
-            // Special cases where we might meaningfully want two tiers of the same URI.
-            if (ts.tier_type) {
-                if (!source.tier_type || source.tier_type != ts.tier_type) {
-                    continue;
-                }
-            }
-            if (ts.stylesheet_uri) {
-                if (!source.stylesheet_uri || source.stylesheet_uri != ts.stylesheet_uri) {
-                    continue;
-                }
-            }
-
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        if (sourcesAreEqual(this.tiers[ti].dasSource, source))
             return true;
-        }
     }
     return false;
 }
@@ -47,7 +27,6 @@ Browser.prototype.makeButton = function(name, tooltip) {
 function activateButton(addModeButtons, which) {
     for (var i = 0; i < addModeButtons.length; ++i) {
         var b = addModeButtons[i];
-        // HACK classList needs a polyfill for IE<10.
         if (b === which) {
             b.classList.add('active');
         } else {
@@ -57,13 +36,15 @@ function activateButton(addModeButtons, which) {
 }
 
 Browser.prototype.showTrackAdder = function(ev) {
-    var thisB = this;
-    var mx =  ev.clientX, my = ev.clientY;
-    mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
-    my +=  document.documentElement.scrollTop || document.body.scrollTop;
+    if (this.uiMode === 'add') {
+        this.hideToolPanel();
+        this.setUiMode('none');
+        return;
+    }
 
-    var popup = makeElement('div');
-    popup.appendChild(makeElement('div', null));
+    var thisB = this;
+
+    var popup = makeElement('div', null, {className: 'dalliance'} , {width: '100%', display: 'inline-block', boxSizing: 'border-box', MozBoxSizing: 'border-box', verticalAlign: 'top'});
 
     var addModeButtons = [];
     var makeStab, makeStabObserver;
@@ -85,8 +66,11 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     var makeHubButton = function(hub) {
         if (thisB.coordSystem.ucscName && hub.genomes[thisB.coordSystem.ucscName]) {
-            var hubButton = thisB.makeButton(hub.shortLabel, hub.longLabel);
+            var hubRemove = makeElement('i', null, {className: 'icon-remove'});
+            var hbContent = makeElement('span', [hub.shortLabel, ' ', hubRemove]);
+            var hubButton = thisB.makeButton(hbContent, hub.longLabel);
             addModeButtons.push(hubButton);
+            
             hubButton.addEventListener('click', function(ev) {
                 ev.preventDefault(); ev.stopPropagation();
 
@@ -96,21 +80,36 @@ Browser.prototype.showTrackAdder = function(ev) {
                     }
 
                     activateButton(addModeButtons, hubButton);
-                    var hubTracks = [];
-                    for (var ti = 0; ti < tracks.length; ++ti) {
-                        var t = tracks[ti].toDallianceSource();
-                        if (t)
-                            hubTracks.push(t);
-                    }
-                    makeStab(new Observed(hubTracks));
+                    makeHubStab(tracks);
                 });
             }, false);
+
+            hubRemove.addEventListener('click', function(ev) {
+                ev.preventDefault(); ev.stopPropagation();
+                
+                for (var hi = 0; hi < thisB.hubs.length; ++hi) {
+                    if (thisB.hubs[hi] == hub.url) {
+                        console.log('index ' + hi);
+                        thisB.hubs.splice(hi, 1);
+                        break;
+                    }
+                }
+                for (var hi = 0; hi < thisB.hubObjects.length; ++hi) {
+                    if (thisB.hubObjects[hi].url == hub.url) {
+                        thisB.hubObjects.splice(hi, 1);
+                        break;
+                    }
+                }
+
+                modeButtonHolder.removeChild(hubButton);
+                activateButton(addModeButtons, addHubButton);
+                switchToHubConnectMode();
+            }, false);
+
+            return hubButton;
         }
     }
-    for (var hi = 0; hi < this.hubObjects.length; ++hi) {
-        var hub = this.hubObjects[hi];
-        makeHubButton(hub);
-    }
+ 
 
     var defButton = this.makeButton('Defaults', 'Browse the default set of data for this browser');
     addModeButtons.push(defButton);
@@ -118,26 +117,34 @@ Browser.prototype.showTrackAdder = function(ev) {
     addModeButtons.push(custButton);
     var binButton = this.makeButton('Binary', 'Add data in bigwig or bigbed format');
     addModeButtons.push(binButton);
+
+
+    for (var hi = 0; hi < this.hubObjects.length; ++hi) {
+        var hub = this.hubObjects[hi];
+        makeHubButton(hub);
+    }
+
+    var addHubButton = this.makeButton('+', 'Connect to a new track-hub');
+    addModeButtons.push(addHubButton);
+
     activateButton(addModeButtons, regButton);
-    popup.appendChild(makeElement('ul', addModeButtons, {className: 'nav nav-tabs'}));
+    var modeButtonHolder = makeElement('ul', addModeButtons, {className: 'nav nav-tabs'}, {marginBottom: '0px'});
+    popup.appendChild(modeButtonHolder);
     
-    popup.appendChild(makeElement('div', null, {}, {clear: 'both', height: '10px'})); // HACK only way I've found of adding appropriate spacing in Gecko.
-    
-    var addButtons = [];
     var custURL, custName, custCS, custQuant, custFile, custUser, custPass;
     var customMode = false;
     var dataToFinalize = null;
 
-    var asform = makeElement('form', null, {}, {clear: 'both'});
+    var asform = makeElement('form', null, {}, {display: 'inline-block', width: '100%'});
     asform.addEventListener('submit', function(ev) {
             ev.stopPropagation(); ev.preventDefault();
             doAdd();
             return false;
     }, true); 
-    var stabHolder = document.createElement('div');
+    var stabHolder = makeElement('div');
     stabHolder.style.position = 'relative';
-    stabHolder.style.overflow = 'auto';
-    stabHolder.style.height = '400px';
+    stabHolder.style.overflow = 'scroll';
+    // stabHolder.style.height = '500px';
     asform.appendChild(stabHolder);
 
     var __mapping;
@@ -145,7 +152,9 @@ Browser.prototype.showTrackAdder = function(ev) {
 
 
     makeStab = function(msources, mapping) {
-        refreshButton.style.visibility = 'visible';
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'none';
+        canButton.style.display = 'none';
         if (__sourceHolder) {
             __sourceHolder.removeListener(makeStabObserver);
         }
@@ -156,15 +165,15 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     makeStabObserver = function(msources) {
         customMode = false;
-        addButtons = [];
+        var buttons = [];
         removeChildren(stabHolder);
         if (!msources) {
             stabHolder.appendChild(makeElement('p', 'Dalliance was unable to retrieve data source information from the DAS registry, please try again later'));
             return;
         }
-        var stab = document.createElement('table');
-        stab.className = 'table table-striped table-condensed';
-        stab.style.width='100%';
+        
+        var stabBody = makeElement('tbody', null, {className: 'table table-striped table-condensed'}, {width: '100%'});
+        var stab = makeElement('table', stabBody, {className: 'table table-striped table-condensed'}, {width: '100%', tableLayout: 'fixed'}); 
         var idx = 0;
 
         var sources = [];
@@ -178,39 +187,237 @@ Browser.prototype.showTrackAdder = function(ev) {
 
         for (var i = 0; i < sources.length; ++i) {
             var source = sources[i];
-            var r = document.createElement('tr');
-            r.style.backgroundColor = thisB.tierBackgroundColors[idx % thisB.tierBackgroundColors.length];
+            var r = makeElement('tr');
 
-            var bd = document.createElement('td');
+            var bd = makeElement('td', null, {}, {width: '30px'});
             bd.style.textAlign = 'center';
-            if (thisB.currentlyActive(source)) {
-                bd.appendChild(document.createTextNode('X'));
-                thisB.makeTooltip(bd, "This data source is already active.");
-            } else if (!source.props || source.props.cors) {
-                var b = document.createElement('input');
+            if (!source.props || source.props.cors) {
+                var b = makeElement('input');
                 b.type = 'checkbox';
                 b.dalliance_source = source;
                 if (__mapping) {
                     b.dalliance_mapping = __mapping;
                 }
+                // b.checked = thisB.currentlyActive(source);
                 bd.appendChild(b);
-                addButtons.push(b);
-                thisB.makeTooltip(bd, "Check here then click 'Add' to activate.");
+                buttons.push(b);
+                b.addEventListener('change', function(ev) {
+                    if (ev.target.checked) {
+                        thisB.addTier(ev.target.dalliance_source);
+                    } else {
+                        thisB.removeTier(ev.target.dalliance_source);
+                    }
+                });
             } else {
                 bd.appendChild(document.createTextNode('!'));
                 thisB.makeTooltip(bd, makeElement('span', ["This data source isn't accessible because it doesn't support ", makeElement('a', "CORS", {href: 'http://www.w3.org/TR/cors/'}), "."]));
             }
             r.appendChild(bd);
-            var ld = document.createElement('td');
+            var ld = makeElement('td');
             ld.appendChild(document.createTextNode(source.name));
             if (source.desc && source.desc.length > 0) {
                 thisB.makeTooltip(ld, source.desc);
             }
             r.appendChild(ld);
-            stab.appendChild(r);
+            stabBody.appendChild(r);
             ++idx;
         }
+
+        function setChecks() {
+            for (var bi = 0; bi < buttons.length; ++bi) {
+                var b = buttons[bi];
+                b.checked = thisB.currentlyActive(b.dalliance_source);
+            }
+        }
+        setChecks();
+        thisB.addTierListener(function(l) {
+            setChecks();
+        });
+
         stabHolder.appendChild(stab);
+    };
+
+    function makeHubStab(tracks) {
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'none';
+        canButton.style.display = 'none';
+
+        customMode = false;
+        removeChildren(stabHolder);
+        
+        var ttab = makeElement('div', null, {}, {width: '100%'});
+        var sources = [];
+        for (var i = 0; i < tracks.length; ++i) {
+            sources.push(tracks[i]);
+        }
+        
+        sources.sort(function(a, b) {
+            return a.shortLabel.toLowerCase().trim().localeCompare(b.shortLabel.toLowerCase().trim());
+        });
+
+        var groups = [];
+        var tops = [];
+        
+        for (var ti = 0; ti < sources.length; ++ti) {
+            var track = sources[ti];
+            if (track.children && track.children.length > 0 && track.container != 'multiWig') {
+                groups.push(track);
+            } else {
+                tops.push(track);
+            }
+        }
+        if (tops.length > 0) {
+            groups.push({
+                shortLabel: 'Others',
+                children: tops});
+        }
+        
+        var buttons = [];
+        for (var gi = 0; gi < groups.length; ++gi) {
+            var group = groups[gi];
+            var dg = group;
+            if (!dg.dimensions && dg._parent && dg._parent.dimensions)
+                dg = dg._parent;
+
+            var dprops = {}
+            if (dg.dimensions) {
+                var dtoks = dg.dimensions.split(/(\w+)=(\w+)/);
+                for (var dti = 0; dti < dtoks.length - 2; dti += 3) {
+                    dprops[dtoks[dti + 1]] = dtoks[dti + 2];
+                }
+            }
+
+            if (dprops.dimX && dprops.dimY) {
+                var dimX = dprops.dimX, dimY = dprops.dimY;
+                var sgX = dg.subgroups[dimX];
+                var sgY = dg.subgroups[dimY];
+                
+                var trks = {};
+                for (var ci = 0; ci < group.children.length; ++ci) {
+                    var child = group.children[ci];
+                    var vX = child.sgm[dimX], vY = child.sgm[dimY];
+                    if (!trks[vX])
+                        trks[vX] = {};
+                    trks[vX][vY] = child;
+                }
+
+                var matrix = makeElement('table', null, {className: 'table table-striped table-condensed'}, {tableLayout: 'fixed'});
+                {
+                    var header = makeElement('tr');
+                    header.appendChild(makeElement('th', null, {}, {width: '150px', height: '100px'}));   // blank corner element
+                    for (var si = 0; si < sgX.titles.length; ++si) {
+                        var h = makeElement('th', makeElement('div', sgX.titles[si], {}, {transform: 'rotate(-60deg)', 
+                                                                       transformOrigin: '0% 100%', 
+                                                                       webkitTransform: 'rotate(-60deg) translate(20px,10px)', 
+                                                                       webkitTransformOrigin: '0% 100%',
+                                                                       textAlign: 'left'}), {}, {width: '35px',
+                                                                                                 height: '100px',
+                                                                                                 verticalAlign: 'bottom'})
+                        header.appendChild(h);
+                    }
+                    matrix.appendChild(header);
+                }
+
+                var mbody = makeElement('tbody', null, {className: 'table table-striped table-condensed'})
+                for (var yi = 0; yi < sgY.titles.length; ++yi) {
+                    var vY = sgY.tags[yi];
+                    var row = makeElement('tr');
+                    row.appendChild(makeElement('th', sgY.titles[yi]), {});
+                    
+                    for (var xi = 0; xi < sgX.titles.length; ++xi) {
+                        var vX = sgX.tags[xi];
+                        var cell = makeElement('td');
+                        if (trks[vX] && trks[vX][vY]) {
+                            var track = trks[vX][vY];
+                            var ds = track.toDallianceSource();
+                            if (!ds)
+                                continue;
+                            
+                            var r = makeElement('tr');
+                            var bd = makeElement('td');
+                            bd.style.textAlign = 'center';
+                            
+                            var b = makeElement('input');
+                            b.type = 'checkbox';
+                            b.dalliance_source = ds;
+                            if (__mapping) {
+                                b.dalliance_mapping = __mapping;
+                            }
+                            buttons.push(b);
+                            cell.appendChild(b);
+                            b.addEventListener('change', function(ev) {
+                                if (ev.target.checked) {
+                                    thisB.addTier(ev.target.dalliance_source);
+                                } else {
+                                    thisB.removeTier(ev.target.dalliance_source);
+                                }
+                            });
+
+                        }
+                        row.appendChild(cell);
+                    } 
+                    mbody.appendChild(row);
+                }
+                matrix.appendChild(mbody);
+                ttab.appendChild(makeTreeTableSection(group.shortLabel, matrix, gi==0));                
+            } else {
+                var stabBody = makeElement('tbody', null, {className: 'table table-striped table-condensed'});
+                var stab = makeElement('table', stabBody, {className: 'table table-striped table-condensed'}, {width: '100%', tableLayout: 'fixed'}); 
+                var idx = 0;
+            
+                for (var i = 0; i < group.children.length; ++i) {
+                    var track = group.children[i];
+                    var ds = track.toDallianceSource();
+                    if (!ds)
+                        continue;
+
+                    var r = makeElement('tr');
+                    var bd = makeElement('td', null, {}, {width: '30px'});
+                    bd.style.textAlign = 'center';
+                    
+                    var b = makeElement('input');
+                    b.type = 'checkbox';
+                    b.dalliance_source = ds;
+                    if (__mapping) {
+                        b.dalliance_mapping = __mapping;
+                    }
+                    buttons.push(b);
+                    bd.appendChild(b);
+                    b.addEventListener('change', function(ev) {
+                        if (ev.target.checked) {
+                            thisB.addTier(ev.target.dalliance_source);
+                        } else {
+                            thisB.removeTier(ev.target.dalliance_source);
+                        }
+                    });
+
+                    r.appendChild(bd);
+                    var ld = makeElement('td');
+                    ld.appendChild(document.createTextNode(track.shortLabel));
+                    if (track.longLabel && track.longLabel.length > 0) {
+                        thisB.makeTooltip(ld, track.longLabel);
+                    }
+                    r.appendChild(ld);
+                    stabBody.appendChild(r);
+                    ++idx;
+                }
+                ttab.appendChild(makeTreeTableSection(group.shortLabel, stab, gi==0));
+                
+            }
+        }
+
+        function setChecks() {
+            for (var bi = 0; bi < buttons.length; ++bi) {
+                var b = buttons[bi];
+                b.checked = thisB.currentlyActive(b.dalliance_source);
+            }
+        }
+        setChecks();
+        thisB.addTierListener(function(l) {
+            setChecks();
+        });
+        
+        stabHolder.appendChild(ttab);
     };
     
 
@@ -226,35 +433,45 @@ Browser.prototype.showTrackAdder = function(ev) {
     }, false);
     binButton.addEventListener('click', function(ev) {
         ev.preventDefault(); ev.stopPropagation();
-        activateButton(addModeButtons, binButton);
         switchToBinMode();
+    }, false);
+    addHubButton.addEventListener('click', function(ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        switchToHubConnectMode();
     }, false);
 
 
     function switchToBinMode() {
+        activateButton(addModeButtons, binButton);
         customMode = 'bin';
-        refreshButton.style.visibility = 'hidden';
+
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'none';
 
         removeChildren(stabHolder);
 
         if (thisB.supportsBinary) {
-            stabHolder.appendChild(makeElement('h2', 'Add custom URL-based data'));
-            stabHolder.appendChild(makeElement('p', ['You can add indexed binary data hosted on an web server that supports CORS (', makeElement('a', 'full details', {href: 'http://www.biodalliance.org/bin.html'}), ').  Currently supported formats are bigwig, bigbed, and indexed BAM.']));
+            var pageHolder = makeElement('div', null, {}, {paddingLeft: '10px', paddingRight: '10px'});
+            pageHolder.appendChild(makeElement('h3', 'Add custom URL-based data'));
+            pageHolder.appendChild(makeElement('p', ['You can add indexed binary data hosted on an web server that supports CORS (', makeElement('a', 'full details', {href: 'http://www.biodalliance.org/bin.html'}), ').  Currently supported formats are bigwig, bigbed, and indexed BAM.']));
 
-            stabHolder.appendChild(makeElement('br'));
-            stabHolder.appendChild(document.createTextNode('URL: '));
-            custURL = makeElement('input', '', {size: 80, value: 'http://www.biodalliance.org/datasets/ensGene.bb'});
-            stabHolder.appendChild(custURL);
-            custURL.focus();
-            stabHolder.appendChild(makeElement('br'));
-            stabHolder.appendChild(makeElement('b', '- or -'));
-            stabHolder.appendChild(makeElement('br'));
-            stabHolder.appendChild(document.createTextNode('File: '));
-            custFile = makeElement('input', null, {type: 'file'});
-            stabHolder.appendChild(custFile);
+            pageHolder.appendChild(makeElement('br'));
+            pageHolder.appendChild(document.createTextNode('URL: '));
+            custURL = makeElement('input', '', {size: 80, value: 'http://www.biodalliance.org/datasets/ensGene.bb'}, {width: '100%'});
+            pageHolder.appendChild(custURL);
             
+            pageHolder.appendChild(makeElement('br'));
+            pageHolder.appendChild(makeElement('b', '- or -'));
+            pageHolder.appendChild(makeElement('br'));
+            pageHolder.appendChild(document.createTextNode('File: '));
+            custFile = makeElement('input', null, {type: 'file'});
+            pageHolder.appendChild(custFile);
+            
+            pageHolder.appendChild(makeElement('p', 'Clicking the "Add" button below will initiate a series of test queries.'));
 
-            stabHolder.appendChild(makeElement('p', 'Clicking the "Add" button below will initiate a series of test queries.'));
+            stabHolder.appendChild(pageHolder);
+            custURL.focus();
         } else {
             stabHolder.appendChild(makeElement('h2', 'Your browser does not support binary data'));
             stabHolder.appendChild(makeElement('p', 'Browsers currently known to support this feature include Google Chrome 9 or later and Mozilla Firefox 4 or later.'));
@@ -262,25 +479,51 @@ Browser.prototype.showTrackAdder = function(ev) {
         
     }
 
-    custButton.addEventListener('click', function(ev) {
-        ev.preventDefault(); ev.stopPropagation();
-        activateButton(addModeButtons, custButton);
-        switchToCustomMode();
-    }, false);
+    function switchToHubConnectMode() {
+        activateButton(addModeButtons, addHubButton);
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'none';
 
-    var switchToCustomMode = function() {
-        customMode = 'das';
+        customMode = 'hub-connect';
         refreshButton.style.visibility = 'hidden';
 
         removeChildren(stabHolder);
 
-        var customForm = makeElement('div');
-        customForm.appendChild(makeElement('h2', 'Add custom DAS data'));
+        var pageHolder = makeElement('div', null, {}, {paddingLeft: '10px', paddingRight: '10px'});
+        pageHolder.appendChild(makeElement('h3', 'Connect to a track hub.'));
+        pageHolder.appendChild(makeElement('p', ['Enter the top-level URL (usually points to a file called "hub.txt" of a UCSC-style track hub']));
+        
+        custURL = makeElement('input', '', {size: 120, value: 'http://www.biodalliance.org/datasets/testhub/hub.txt'}, {width: '100%'});
+        pageHolder.appendChild(custURL);
+        
+        stabHolder.appendChild(pageHolder);
+        
+        custURL.focus();
+    }
+
+    custButton.addEventListener('click', function(ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        switchToCustomMode();
+    }, false);
+
+    function switchToCustomMode() {
+        activateButton(addModeButtons, custButton);
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'none';
+
+        customMode = 'das';
+
+        removeChildren(stabHolder);
+
+        var customForm = makeElement('div', null, {},  {paddingLeft: '10px', paddingRight: '10px'});
+        customForm.appendChild(makeElement('h3', 'Add custom DAS data'));
         customForm.appendChild(makeElement('p', 'This interface is intended for adding custom or lab-specific data.  Public data can be added more easily via the registry interface.'));
                 
         customForm.appendChild(document.createTextNode('URL: '));
         customForm.appendChild(makeElement('br'));
-        custURL = makeElement('input', '', {size: 80, value: 'http://www.derkholm.net:8080/das/medipseq_reads/'});
+        custURL = makeElement('input', '', {size: 80, value: 'http://www.derkholm.net:8080/das/medipseq_reads/'}, {width: '100%'});
         customForm.appendChild(custURL);
 
         customForm.appendChild(makeElement('p', 'Clicking the "Add" button below will initiate a series of test queries.  If the source is password-protected, you may be prompted to enter credentials.'));
@@ -325,6 +568,8 @@ Browser.prototype.showTrackAdder = function(ev) {
                 switchToCustomMode();
             } else if (customMode === 'reset-bin') {
                 switchToBinMode(); 
+            } else if (customMode === 'reset-hub') {
+                switchToHubConnectMode();
             } else if (customMode === 'prompt-bai') {
                 var fileList = custFile.files;
                 if (fileList && fileList.length > 0 && fileList[0]) {
@@ -351,21 +596,48 @@ Browser.prototype.showTrackAdder = function(ev) {
                     dataToFinalize.xPass = custPass.value;
                 }
 
-                thisB.sources.push(dataToFinalize);
-                thisB.makeTier(dataToFinalize);
-                //thisB.storeStatus();
-                thisB.removeAllPopups();
+                thisB.addTier(dataToFinalize);
+                switchToCustomMode();
+            } else if (customMode === 'hub-connect') {
+                var curi = custURL.value.trim();
+                if (!/^.+:\/\//.exec(curi)) {
+                    curi = 'http://' + curi;
+                }
+                console.log('hub: ' + curi);
+                connectTrackHub(curi, function(hub, err) {
+                    if (err) {
+                        removeChildren(stabHolder);
+                        stabHolder.appendChild(makeElement('h2', 'Error connecting to track hub'))
+                        stabHolder.appendChild(makeElement('p', err));
+                        customMode = 'reset-hub';
+                        return;
+                    } else {
+                        if (thisB.coordSystem.ucscName && hub.genomes[thisB.coordSystem.ucscName]) {
+                            thisB.hubs.push(curi);
+                            thisB.hubObjects.push(hub);
+                            
+                            var hubButton = makeHubButton(hub);
+                            modeButtonHolder.appendChild(hubButton);
+                            activateButton(addModeButtons, hubButton);
+                            
+                        
+                            // FIXME redundant with hub-tab click handler.
+                        
+                            hub.genomes[thisB.coordSystem.ucscName].getTracks(function(tracks, err) {
+                                makeHubStab(tracks);
+                            });
+                        } else {
+                            removeChildren(stabHolder);
+                            stabHolder.appendChild(makeElement('h2', 'No data for this genome'))
+                            stabHolder.appendChild(makeElement('p', 'This URL appears to be a valid track-hub, but it doesn\'t contain any data for the coordinate system of this browser'));
+                            stabHolder.appendChild(makeElement('p', 'coordSystem.ucscName = ' + thisB.coordSystem.ucscName));
+                            customMode = 'reset-hub';
+                            return;
+                        }
+                    }
+                });
             }
         } else {
-            for (var bi = 0; bi < addButtons.length; ++bi) {
-                var b = addButtons[bi];
-                if (b.checked) {
-                    var nds = b.dalliance_source;
-                    thisB.sources.push(nds);
-                    thisB.makeTier(nds);
-                    // thisB.storeStatus();
-                }
-            }
             thisB.removeAllPopups();
         }
     };
@@ -378,9 +650,7 @@ Browser.prototype.showTrackAdder = function(ev) {
         }
         var tsm = Math.max(knownSpace.min, (knownSpace.min + knownSpace.max - 100) / 2)|0;
         var testSegment = new DASSegment(knownSpace.chr, tsm, Math.min(tsm + 99, knownSpace.max));
-//        dlog('test segment: ' + testSegment);
         nds.features(testSegment, {}, function(features, status) {
-            // dlog('status=' + status);
             if (status) {
                 if (!retry) {
                     dlog('retrying with credentials');
@@ -414,7 +684,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                 uri = match[1] + '/sources';
             }
         }
-//        dlog('sourceQuery: ' + uri);
         function sqfail() {
             if (!retry) {
                 return tryAddDASxSources(nds, true);
@@ -427,7 +696,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                 if (!sources || sources.length == 0) {
                     return sqfail();
                 } 
-//                dlog('got ' + sources.length + ' sources');
 
                 var fs = null;
                 if (sources.length == 1) {
@@ -435,7 +703,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                 } else {
                     for (var i = 0; i < sources.length; ++i) {
                         if (sources[i].uri === nds.uri) {
-//                            dlog('got match!');
                             fs = sources[i];
                             break;
                         }
@@ -537,6 +804,10 @@ Browser.prototype.showTrackAdder = function(ev) {
     }
 
     function promptForBAI(nds) {
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'inline';
+
         removeChildren(stabHolder);
         customMode = 'prompt-bai'
         stabHolder.appendChild(makeElement('h2', 'Select an index file'));
@@ -582,6 +853,10 @@ Browser.prototype.showTrackAdder = function(ev) {
     }
 
     function binFormatErrorPage(message) {
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'inline';
+
         removeChildren(stabHolder);
         message = message || 'Custom data format not recognized';
         stabHolder.appendChild(makeElement('h2', 'Error adding custom data'));
@@ -592,6 +867,10 @@ Browser.prototype.showTrackAdder = function(ev) {
     }
                      
     var addDasCompletionPage = function(nds, coordsDetermined, quantDetermined, quantIrrelevant) {
+        refreshButton.style.display = 'none';
+        addButton.style.display = 'inline';
+        canButton.style.display = 'inline';
+
         removeChildren(stabHolder);
         stabHolder.appendChild(makeElement('h2', 'Add custom data: step 2'));
         stabHolder.appendChild(document.createTextNode('Label: '));
@@ -655,7 +934,7 @@ Browser.prototype.showTrackAdder = function(ev) {
     var canButton = makeElement('button', 'Cancel', {className: 'btn'});
     canButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
-        thisB.removeAllPopups();
+        switchToBinMode();
     }, false);
 
     var refreshButton = makeElement('button', 'Refresh', {className: 'btn'});
@@ -672,5 +951,6 @@ Browser.prototype.showTrackAdder = function(ev) {
     popup.appendChild(asform);
     makeStab(thisB.availableSources);
 
-    return this.popit(ev, 'Add DAS data', popup, {width: 500});
+    this.showToolPanel(popup);
+    this.setUiMode('add');
 }
