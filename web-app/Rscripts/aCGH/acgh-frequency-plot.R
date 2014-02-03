@@ -17,7 +17,7 @@ acgh.frequency.plot <- function
   data.info      <- dat[,1:(first.data.col-1)]
 
   # We only need the flag-columns (posible values: [-1,0,1,2] -> [loss,norm,gain,amp])
-  calls <- as.matrix(dat[,grep('flag', colnames(dat))])
+  calls <- as.matrix(dat[,grep('flag', colnames(dat)), drop=FALSE])
 
   # Determine 'gain' and 'loss' for each group
   for (group in groupnames) 

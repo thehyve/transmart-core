@@ -262,14 +262,18 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                     {type:"HIGH_DIMENSIONAL_ACGH"}
                 ]
             },
-            {
-                "label" : "Group",
-                "el" : this.inputBar.groupPanel.getInputEl(),
-                "validations" : [
-                    {type:"REQUIRED"},
-                    {type:"GROUP_VARIABLE"}
-                ]
-            }
+            /** Group doesn't need to be defined for a frequency plot nor need to consist of at least two elements
+             *   If no group is defined, a single frequency plot of all subjects in the cohort will be created
+             *   If one group is defined, a single frequency plot of that group within the cohort will be created
+             * {
+             *    "label" : "Group",
+             *    "el" : this.inputBar.groupPanel.getInputEl(),
+             *    "validations" : [
+             *       {type:"REQUIRED"},
+             *       {type:"GROUP_VARIABLE"}
+             *    ]
+             * }
+             */
         ];
     }
 

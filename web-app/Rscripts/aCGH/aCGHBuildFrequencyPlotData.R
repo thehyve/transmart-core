@@ -15,11 +15,11 @@
 ###########################################################################
 
 ###########################################################################
-#aCGHBuildGroupTestDataFile
-#Parse the i2b2 output file and create input files for Group Test.
+#aCGHBuildFrequencyPlotDataFile
+#Parse the i2b2 output file and create input files for Frequency Plot.
 ###########################################################################
 
-aCGHGroupTestData.build <- 
+aCGHFrequencyPlotData.build <- 
 function
 (
   input.dataFile='clinical.txt',
@@ -32,11 +32,10 @@ function
 )
 {
 	print("-------------------")
-	print("aCGHBuildGroupTestData.R")
-	print("BUILDING ACGH GROUP TEST DATA")
+	print("aCGHBuildFrequencyPlotData.R")
+	print("BUILDING ACGH FREQUENCY PLOT DATA")
 
 	# Check parameters
-	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0) stop("||FRIENDLY||No grouping specified. Please check your group variable selection and run again.")
 
 	# Check presence of aCGH data file and clinical data file
 	if(!file.exists(input.acghFile)) stop("||FRIENDLY||No aCGH data file found. Please check your region variable selection and run again.")
@@ -44,8 +43,6 @@ function
 
 	# Copy the aCGH file
 	file.copy(input.acghFile,output.acghFile,overwrite = TRUE)
-	#wl#acghTable <- read.table(input.acghFile, header=TRUE, sep='\t', quote='\"', as.is=TRUE, check.names=FALSE)
-	#wl#headernames <- colnames(acghTable)
 	
 	# Extract patient list from aCGH data column names for which calls (flag) have been observed
 	headernames <- gsub("\"", "", strsplit(readLines(input.acghFile,1),' *\t *')[[1]])
@@ -63,31 +60,64 @@ function
 	colnames(filteredData) <- c("PATIENT_NUM")
 	filteredData <- merge(filteredData, dataFile) # natural (inner) join
 
+	#List of available cohort values
+	allAvailableCohorts <- unique(filteredData$SUBSET)
+
 	#List of available CONCEPT_PATH_FULL values to check availability of concepts specified as arguments
 	allAvailableFullConcepts <- unique(filteredData$CONCEPT_PATH_FULL)
-	#Parse the concepts specifying the groups
-	specifiedGroupConcepts <- strsplit(concept.group," *[|] *")[[1]]
 
-	# Check if at least one of the group concepts is observed
-	if (! any(specifiedGroupConcepts %in% allAvailableFullConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
+	if( missing(concept.group) || is.null(concept.group) || nchar(concept.group) == 0)
+	{
+		specifiedGroupConcepts = c()
+	} else {
+		#Parse the concepts specifying the groups
+		specifiedGroupConcepts <- strsplit(concept.group," *[|] *")[[1]]
+	}
 
-	#Further filter data on specified full concept paths only
-	filteredData <- subset(filteredData, CONCEPT_PATH_FULL %in% specifiedGroupConcepts)
+	allAvailableShortConcepts = c()
+  if( length(specifiedGroupConcepts) > 0)
+  {
+		# Check if at least one of the specified group concepts is observed
+		if (! any(specifiedGroupConcepts %in% allAvailableFullConcepts)) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
+
+		#Further filter data on specified full concept paths only
+		filteredData <- subset(filteredData, CONCEPT_PATH_FULL %in% specifiedGroupConcepts)
+
+		allAvailableShortConcepts <- unique(filteredData$CONCEPT_PATH_SHORT)
+		if(length(allAvailableShortConcepts) > 0)
+		{
+			#Split the data by the CONCEPT_PATH_SHORT.
+			splitDataOnConcept <- split(filteredData,filteredData$CONCEPT_PATH_SHORT)
+
+			grpdata1 <- splitDataOnConcept[allAvailableShortConcepts[1]] [[1]] [,c("PATIENT_NUM","VALUE")]
+			colnames(grpdata1) <- c("PATIENT_NUM",allAvailableShortConcepts[1])
+		}
+	}
+
+	allAvailableShortConceptsOrCohort <- allAvailableShortConcepts
 	
-	allAvailableShortConcepts <- unique(filteredData$CONCEPT_PATH_SHORT)
-	if(length(allAvailableShortConcepts)==0) stop(paste("||FRIENDLY||No observations found for group variable:",specifiedGroupConcepts))
-	
-	#Split the data by the CONCEPT_PATH_SHORT.
-	splitData <- split(filteredData,filteredData$CONCEPT_PATH_SHORT)
-	
-	groupData <- splitData[allAvailableShortConcepts[1]] [[1]] [,c("PATIENT_NUM","VALUE")]
-	colnames(groupData) <- c("PATIENT_NUM",allAvailableShortConcepts[1])
+	#Include the grouping by cohorts
+	if(length(allAvailableCohorts)> 1 || length(specifiedGroupConcepts) == 0)
+	{
+		groupData <- filteredData[,c("PATIENT_NUM","SUBSET")]
+		groupData <- groupData[!duplicated(groupData),]
+		colnames(groupData) <- c("PATIENT_NUM","COHORT")
+
+		allAvailableShortConceptsOrCohort <- c("COHORT",allAvailableShortConcepts)
+
+		if(length(allAvailableShortConcepts)>0) {
+			groupData <- merge(groupData ,grpdata1, by="PATIENT_NUM", all=TRUE)
+		}
+	}
+	else {
+		groupData <- grpdata1
+	}
   
-	if(length(allAvailableShortConcepts)>1) {
+	if( length(allAvailableShortConcepts) > 1) {
 		#Multiple categorical variables
 		for (i in 2:length(allAvailableShortConcepts) )
 		{
-			grpdata <- splitData[allAvailableShortConcepts[i]] [[1]] [,c("PATIENT_NUM","VALUE")]
+			grpdata <- splitDataOnConcept[allAvailableShortConcepts[i]] [[1]] [,c("PATIENT_NUM","VALUE")]
 			colnames(grpdata) <- c("PATIENT_NUM",allAvailableShortConcepts[i])
 		 	groupData <- merge(groupData ,grpdata, by="PATIENT_NUM", all=TRUE)
 		}
@@ -97,19 +127,17 @@ function
 	groupData <- groupData[apply(!is.na(groupData), 1, all), ]
 
 	# Check if still patients are left that match the criteria
-	if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
+	# WL # if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
 
 	# Merge the observations of multiple variables into a combined observation of a single variable (cross table)
-	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConcepts], sep = "_"))
+	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConceptsOrCohort], sep = "_"))
 
 	groupData <- groupData[c('PATIENT_NUM','combinedConcepts')]
 	
-	# Check if at least two groups have been specified
-	if ( length(unique(groupData$combinedConcepts)) < 2 ) stop(paste("||FRIENDLY||All patient belong to the same group. Please specifiy at least 2 distinct groups"))
 	# Check if patient are uniquely divided over the groups
 	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
-	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
+	# WL # if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames
