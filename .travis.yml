@@ -23,3 +23,4 @@ script:
     - grails clean
     - grails upgrade --non-interactive
     - grails test-app --non-interactive --stacktrace
+
