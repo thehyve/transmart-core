@@ -412,26 +412,26 @@ function dropOntoCategorySelection2(source, e, data, targetdiv)
 } 
 
 //This function will create an array of all the node types from a box that i2b2 nodes were dragged into.
-function createNodeTypeArrayFromDiv(divElement,attributeToPull)
-{
-	var nodeTypeList = [];	
-	
-	//If the category variable element has children, we need to parse them and add their values to an array.
-	if(divElement.dom.childNodes[0])
-	{
-		//Loop through the category variables and add them to a comma seperated list.
-		for(nodeIndex = 0; nodeIndex < divElement.dom.childNodes.length; nodeIndex++)
-		{
-			var currentNode = divElement.dom.childNodes[nodeIndex]
-			var currentNodeType = currentNode.attributes.getNamedItem(attributeToPull).value
-			
-			//If we find an item, add it to the array.
-			if(currentNodeType) nodeTypeList.push(currentNodeType.toString());
-		}
-	}
-	
-	//Make the elements in the array unique.
-	return nodeTypeList.unique();
+function createNodeTypeArrayFromDiv(divElement, attributeToPull) {
+  var nodeTypeList = [];
+
+  //If the category variable element has children, we need to parse them and add their values to an array.
+  if(divElement.dom.childNodes[0]) {
+
+    //Loop through the category variables and add them to a comma seperated list.
+    for(nodeIndex = 0; nodeIndex < divElement.dom.childNodes.length; nodeIndex++) {
+      var currentNode = divElement.dom.childNodes[nodeIndex];
+      var currentNodeType = currentNode.attributes.getNamedItem(attributeToPull).value;
+
+      //If we find an item, add it to the array.
+      if(currentNodeType) {
+        nodeTypeList.push(currentNodeType.toString());
+      }
+    }
+  }
+
+  //Make the elements in the array unique.
+  return nodeTypeList.unique();
 }
 
 //This might be inefficient. 
