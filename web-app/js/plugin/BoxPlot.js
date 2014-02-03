@@ -28,6 +28,13 @@ BoxPlotView.prototype = new RmodulesView();
  */
 BoxPlotView.prototype.constructor = BoxPlotView;
 
+BoxPlotView.prototype.illegalBinning = function(independentVariables) {
+  if (GLOBAL.Binning && independentVariables.length > 1) {
+    Ext.Msg.alert('Illegal binning', 'More that 1 independent variable selected');
+    return true;
+  }
+  return false;
+}
 
 /**
  * Get form parameters
@@ -63,7 +70,6 @@ BoxPlotView.prototype.get_form_params = function (form) {
     var _isCategorical = function (nodeTypes) {
         return (nodeTypes[0] == "null") ? true : false;
     } //
-
 
     var dependentVariableConceptCode = "";
     var independentVariableConceptCode = "";
@@ -108,6 +114,10 @@ BoxPlotView.prototype.get_form_params = function (form) {
     if (independentVariableConceptCode == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
         return;
+    }
+
+    if (this.illegalBinning(independentVariableEle.dom.childNodes)) {
+      return
     }
 
     var variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode;
