@@ -11,16 +11,16 @@ before_install:
     - cd ~/.grails
     - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_cache.tar.gz  | tar xzf -; } || true'
     - cd -
-    - rm -rf ~/.gvm
-    - curl -s get.gvmtool.net > ~/install_gvm.sh
-    - chmod 775 ~/install_gvm.sh
-    - ~/install_gvm.sh
-    - echo "gvm_auto_answer=true" > ~/.gvm/etc/config
-    - source ~/.gvm/bin/gvm-init.sh
-    - gvm install grails $GRAILS_VERSION || true
+
+install:
+    - cd ~/.grails
+    - curl -O http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-${GRAILS_VERSION}.zip
+    - unzip grails-${GRAILS_VERSION}.zip
+    - export GRAILS_HOME=~/.grails/grails-${GRAILS_VERSION}
+    - cd -
 
 script:
-    - grails clean
-    - grails upgrade --non-interactive
-    - grails test-app --non-interactive --stacktrace
+    - ${GRAILS_HOME}/bin/grails clean
+    - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
+    - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
 
