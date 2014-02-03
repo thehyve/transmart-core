@@ -25,8 +25,8 @@ array (
   array (
     'R' => 
     array (
-      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildData.R\')',
-      1 => 'aCGHGroupTestData.build(
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildFrequencyPlotData.R\')',
+      1 => 'aCGHFrequencyPlotData.build(
 	input.dataFile      = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
 	input.acghFile      = \'||TEMPFOLDERDIRECTORY||aCGH/regions.txt\',
 	concept.region      = \'||REGION||\',

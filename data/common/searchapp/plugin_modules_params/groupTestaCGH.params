@@ -25,7 +25,7 @@ array (
   array (
     'R' => 
     array (
-      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildData.R\')',
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildGroupTestData.R\')',
       1 => 'aCGHGroupTestData.build(
 	input.dataFile      = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
 	input.acghFile      = \'||TEMPFOLDERDIRECTORY||aCGH/regions.txt\',
