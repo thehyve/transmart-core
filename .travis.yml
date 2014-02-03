@@ -1,0 +1,21 @@
+language: groovy
+
+jdk:
+    - oraclejdk7
+
+env:
+    - GRAILS_VERSION=2.3.3
+
+install:
+    - mkdir ~/.grails
+    - cd ~/.grails
+    - curl -O http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-${GRAILS_VERSION}.zip
+    - unzip grails-${GRAILS_VERSION}.zip
+    - export GRAILS_HOME=~/.grails/grails-${GRAILS_VERSION}
+    - cd -
+
+script:
+    - ${GRAILS_HOME}/bin/grails clean
+    - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
+    - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
+
