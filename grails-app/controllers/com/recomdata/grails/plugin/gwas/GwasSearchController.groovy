@@ -986,10 +986,10 @@ class GwasSearchController {
         } else {
             query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,transcriptGeneNames,false)
         }
+		log.debug("Before the result")
         def dataset = query.results
-		System.out.println("I am here")
-		log.info("I am here")
-        dataWriter.write "Probes ID\tp-value\t-log10 p-value\tRS Gene\tChromosome\tPosition\tInteronExon\tRecombination Rate\tRegulome Score\n"
+		log.debug("Should be using probes")
+        dataWriter.write "Probe ID\tp-value\t-log10 p-value\tRS Gene\tChromosome\tPosition\tInteronExon\tRecombination Rate\tRegulome Score\n"
         for (row in dataset) {
             def rowData = []
             for (data in row) {
@@ -1064,7 +1064,8 @@ class GwasSearchController {
             def rootFolder = "Export_" + timestamp
             String location = grailsApplication.config.grails.mail.attachments.dir
 			String lineSeparator = System.getProperty('line.separator')
-            String rootDir = location + rootFolder + lineSeparator
+            String rootDir = location + File.separator+rootFolder 
+			log.debug(rootDir +"is root directory");
             if (analysisIds.size() > 0) {
 
                 for (analysisId in analysisIds) {
@@ -1072,7 +1073,6 @@ class GwasSearchController {
                     def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
                     def accession = analysis.etlId
                     def analysisName= analysis.name
-					log.debug("Before: "+analysisName)
                     Pattern pt = Pattern.compile("[^a-zA-Z0-9 ]")
                     Matcher match= pt.matcher(analysisName)
                     while(match.find()){
@@ -1081,17 +1081,19 @@ class GwasSearchController {
 						log.debug("After: "+analysisName)
                     }
 
-                    def dirStudy = rootDir + accession + lineSeparator
-                    def dirAnalysis = dirStudy + analysisName + lineSeparator
+                    def dirStudy = rootDir +File.separator+ accession + File.separator
+					log.debug("Study "+dirStudy)
+                    def dirAnalysis = dirStudy +analysisName + File.separator
+					log.debug("Analysis "+ dirAnalysis)
                     def dir = new File(dirAnalysis)
                     dir.mkdirs()
 
                     //Creating Analysis Data file
-                    def fileName = dirAnalysis + analysisId + "_ANALYSIS_DATA.txt"
+                    def fileName = dirAnalysis+ analysisId + "_ANALYSIS_DATA.txt"
                     File file = new File(fileName);
                     BufferedWriter dataWriter = new BufferedWriter(new FileWriter(file));
                     exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,transcriptGeneNames,200)
-
+File.separator
                     //This is to generate a file with Study Metadata
                     def FileStudyMeta = dirStudy + accession + "_STUDY_METADATA.txt"
                     File FileStudy = new File(FileStudyMeta)
@@ -1346,7 +1348,7 @@ class GwasSearchController {
 
             File topDir = new File(rootDir)
 
-            def zipFile = location + rootFolder + ".zip"
+            def zipFile = location +File.separator+ rootFolder + ".zip"
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(zipFile));
 
             int topDirLength = topDir.absolutePath.length()

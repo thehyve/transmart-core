@@ -119,7 +119,9 @@ function applyPopupFiltersRegions()
             var geneName = selected.text;
             range = jQuery('#filterGeneRange').val();
             basePairs = jQuery('#filterGeneBasePairs').val();
-            if (basePairs == null || basePairs == "") {
+            basePairs=basePairs.replace(",","");
+		alert(basePairs);
+		if (basePairs == null || basePairs == "") {
                 basePairs = 0;
             }
 
@@ -148,6 +150,9 @@ function applyPopupFiltersRegions()
         if (basePairs == null || basePairs == "") {
             basePairs = 0;
         }
+	basePairs=basePairs.replace(",","");
+	        var whitespace =" ";
+                if ((basePairs.match(/^[0-9]+\.[0-9]+$/) ||basePairs.match(/^[0-9]$/) || basePairs.match(/^\.[0-9]+$/)) && (basePairs.indexOf(whitespace) < 0)) {
 
         use = jQuery('#filterChromosomeUse').val();
         var chromNum = jQuery('#filterChromosomeNumber').val();
@@ -177,7 +182,11 @@ function applyPopupFiltersRegions()
 
         //This destroys our popup window.
         jQuery(this).dialog("destroy");
-    }
+    }}
+else
+{
+alert("Please enter numeric basepair value");
+}
 	var whitespace =" "
 	if (pValue!="") {
 		if ((pValue.match(/^[0-9]+\.[0-9]+$/) ||pValue.match(/^[0-9]$/) || pValue.match(/^\.[0-9]+$/)) && (pValue.indexOf(whitespace) < 0)) {
