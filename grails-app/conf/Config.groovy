@@ -3,10 +3,9 @@
 def dataSourceConfig = new File("${userHome}/" +
         ".grails/transmartConfig/DataSource-coredb.groovy")
 
-if (!dataSourceConfig.exists())
-    throw new RuntimeException("Coult not find ${dataSourceConfig}")
-
-grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
+if (dataSourceConfig.exists()) {
+    grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
+}
 
 /* Keep pre-2.3.0 behavior */
 grails.databinding.convertEmptyStringsToNull = false
