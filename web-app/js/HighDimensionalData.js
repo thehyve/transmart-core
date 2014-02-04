@@ -355,12 +355,47 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     if (formValidator.validateInputForm()) {
       this.fetchNodeDetails( divId, function( result ) {
         _this.data = JSON.parse(result.responseText);
-        _this.display_high_dimensional_popup();
+
+        platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
+        var formValidator = new FormValidator(platforms);
+
+        if (formValidator.validateInputForm()) {
+          _this.display_high_dimensional_popup();
+        } else {
+          formValidator.display_errors();
+        }
+
       });
     } else { // something is not correct in the validation
         // display the error message
         formValidator.display_errors();
     }
+}
+
+HighDimensionalData.prototype.getPlatformValidator = function(platforms) {
+    return [
+        {
+            "label": "Platforms",
+            "el": platforms,
+            "validations": [
+                {type: "IDENTICAL_ITEMS"}
+            ]
+        }
+    ]
+}
+
+HighDimensionalData.prototype.getPlatforms = function(data) {
+    var keys = Object.keys(data);
+    var platformTitles = [];
+
+    for (var i = 0; i < keys.length; i++) {
+        var dataTypeSpecificTitles = data[keys[i]].platforms.map( function(platform) {
+            return platform.title;
+        });
+        platformTitles = platformTitles.concat(dataTypeSpecificTitles);
+    }
+
+    return platformTitles;
 }
 
 HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {

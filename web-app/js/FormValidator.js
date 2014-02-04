@@ -40,7 +40,8 @@ var defaults = {
             'in field {0}.',
         min_two_nodes: 'The {0} must be more than one nodes.',
         min_two_subsets: 'Marker Selection requires two subsets of cohorts to be selected. Please use the Comparison ' +
-            'Tab and select the cohorts'
+            'Tab and select the cohorts',
+        identical_elements: 'The {0} are not all the same'
     },
     callback: function(errors) {
 
@@ -121,6 +122,10 @@ FormValidator.prototype.validateInputForm = function () {
                         _isTwoSubsets = this.min_two_subsets(_value, _label);
                         _isValid = _isValid && _isTwoSubsets;
                         break;
+                    case 'IDENTICAL_ITEMS' :
+                        _areIdentical = this.identical_elements(_el, _label);
+                        _isValid = _isValid && _areIdentical;
+                        break;
                 }
             }
         } // end validation loop
@@ -178,6 +183,22 @@ FormValidator.prototype.valid_integer = function (el, label, validator) {
 
 // Custom validations
 // -------------------------------------------------
+
+FormValidator.prototype.identical_elements = function (el, label) {
+
+  var returnValue = true;
+
+  var onlyUnique = function(value, index) {
+    return this.indexOf(value) === index;
+  }
+
+  if (el.filter(onlyUnique, el).length != 1) {
+    this.push_error(defaults.messages.identical_elements, [label]);
+    returnValue = false;
+  }
+
+  return returnValue;
+}
 
 FormValidator.prototype.valid_high_dimensional_acgh = function (el, label, validator) {
 

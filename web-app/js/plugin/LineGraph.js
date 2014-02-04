@@ -40,8 +40,8 @@ LineGraphView.prototype.get_form_params = function (form) {
     var dependentVariableEle = Ext.get("divDependentVariable");
     var groupByVariableEle = Ext.get("divGroupByVariable");
 
-    var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
-    var groupByNodeList = createNodeTypeArrayFromDiv(groupByVariableEle,"setnodetype")
+    var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle, "setnodetype");
+    var groupByNodeList = createNodeTypeArrayFromDiv(groupByVariableEle, "setnodetype");
 
     //If the user dragged in multiple node types, throw an error.
     if (dependentNodeList.length > 1) {
