@@ -34,7 +34,7 @@ class ConceptTimeValuesTable {
 
         //get all the OntologyTerms for the concepts
         Set<OntologyTerm> terms = conceptPaths.collect {
-            conceptsResource.getByKey(OpenHighDimensionalDataStep.createConceptKeyFrom(it))} as Set
+            conceptsResource.getByKey(getConceptKey(it))} as Set
 
         //get all the SeriesMeta mapped by concept name
         Map<String, Map> nameToSeriesMeta = terms.collectEntries {[it.fullName, it.metadata?.seriesMeta as Map]}
@@ -51,6 +51,10 @@ class ConceptTimeValuesTable {
         }
 
         return null //nothing to return
+    }
+
+    public static String getConceptKey(String path) {
+        OpenHighDimensionalDataStep.createConceptKeyFrom(path)
     }
 
 }
