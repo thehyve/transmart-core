@@ -48,11 +48,11 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
 
     @Test
     void testDisabled() {
+
         table.conceptPaths << path1
         table.conceptPaths << path2
         table.enabledClosure = { false }
-
-        assertNull table.resultMap
+        assertNoResult()
     }
 
     @Test
@@ -60,32 +60,26 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
 
         OntologyTerm ot1 = setConceptResourceKeyExpect(path1, 'days', '1')
         OntologyTerm ot2 = setConceptResourceKeyExpect(path2, 'weeks', '2')
-
-        play {
-            Map<String,Map> result = table.resultMap
-            assertNull result
-        }
+        assertNoResult()
     }
 
     @Test
     void testFailWithNonNumericValue() {
 
         OntologyTerm ot = setConceptResourceKeyExpect(path1, 'unit', 'string')
-
-        play {
-            Map<String,Map> result = table.resultMap
-            assertNull result
-        }
+        assertNoResult()
     }
 
     @Test
     void testFailWithoutMetadata() {
 
         OntologyTerm ot1 = setConceptResourceKeyExpect(path1, null)
+        assertNoResult()
+    }
 
+    private void assertNoResult() {
         play {
-            Map<String,Map> result = table.resultMap
-            assertNull result
+            assertNull table.resultMap
         }
     }
 
@@ -97,7 +91,7 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
      * @return
      */
     private OntologyTerm setConceptResourceKeyExpect(String path, String unit, String value) {
-        setConceptResourceKeyExpect(path, createMetadata(unit, value));
+        setConceptResourceKeyExpect(path, createMetadata(unit, value))
     }
 
     private void assertHasScalingEntry(Map map, OntologyTerm ot) {
