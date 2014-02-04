@@ -385,17 +385,17 @@ HighDimensionalData.prototype.getPlatformValidator = function(platforms) {
 }
 
 HighDimensionalData.prototype.getPlatforms = function(data) {
-  var keys = Object.keys(data);
-  var platformTitles = [];
+    var keys = Object.keys(data);
+    var platformTitles = [];
 
-  for (var i = 0; i < keys.length; i++) {
-    var dataTypeSpecificTitles = data[keys[i]].platforms.map( function(platform) {
-      return platform.title;
-    });
-    platformTitles = platformTitles.concat(dataTypeSpecificTitles);
-  }
+    for (var i = 0; i < keys.length; i++) {
+        var dataTypeSpecificTitles = data[keys[i]].platforms.map( function(platform) {
+            return platform.title;
+        });
+        platformTitles = platformTitles.concat(dataTypeSpecificTitles);
+    }
 
-  return platformTitles;
+    return platformTitles;
 }
 
 HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {
