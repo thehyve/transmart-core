@@ -6,6 +6,8 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.plugin.location.'transmart-core' = '../transmart-core-db'
+grails.plugin.location.'transmart-user-management' = '../transmart-user-management'
 
 grails.project.fork = [
     // configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
@@ -60,7 +62,7 @@ grails.project.dependency.resolution = {
         // You usually only need one of these, but this project uses both
         test "org.gebish:geb-spock:$gebVersion"
         test "org.codehaus.groovy.modules.http-builder:http-builder:0.6"
-
+        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
     }
 
     plugins {
@@ -85,5 +87,8 @@ grails.project.dependency.resolution = {
         test ":geb:$gebVersion"
         // oauth library for testing oauth
         compile ":oauth:2.1.0"
+        runtime ':transmart-core:1.0-SNAPSHOT'
+        compile ':transmart-user-management:1.0-SNAPSHOT'
+
     }
 }

@@ -115,8 +115,10 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
     info 'org.transmartproject'
-    debug 'org.springframework.security'
-    debug 'grails.plugin.springsecurity'
+    trace 'org.springframework.security'
+    trace 'grails.plugin.springsecurity'
+    trace 'org.hibernate.type'
+    debug 'org.hibernate.SQL'
     root {
         info('stdout')
     }
@@ -132,12 +134,15 @@ grails.plugin.springsecurity.oauthProvider.clients = [
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/oauth/authorize.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
         '/oauth/token.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
+        '/concepts/getCategories':['permitAll'],
+        '/concepts/getChildren':['permitAll'],
+        '/concepts/getAllStudies':['permitAll'],
 ]
 
 // Added by the Spring Security Core plugin:
-grails.plugin.springsecurity.userLookup.userDomainClassName = 'test.oauth.User'
-grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'test.oauth.UserRole'
-grails.plugin.springsecurity.authority.className = 'test.oauth.Role'
+grails.plugin.springsecurity.userLookup.userDomainClassName = 'auth.AuthUser'
+// grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'auth.UserRole'
+grails.plugin.springsecurity.authority.className = 'auth.Role'
 
 grails.plugin.springsecurity.providerNames = [
         'daoAuthenticationProvider',
@@ -157,3 +162,11 @@ oauth {
     }
     debug = true
 }
+
+grails.plugin.springsecurity.oauthProvider.active = true // Set oauth provider active for test as well
+
+// use the old way to hash passwords
+grails.plugin.springsecurity.password.algorithm = 'bcrypt'
+grails.plugin.springsecurity.password.bcrypt.logrounds = 14
+// grails.plugin.springsecurity.dao.reflectionSaltSourceProperty = 'username'
+grails.plugin.springsecurity.password.hash.iterations = 1
