@@ -5,29 +5,26 @@ import org.scribe.model.Verifier
 import uk.co.desirableobjects.oauth.scribe.OauthService
 import grails.plugin.springsecurity.annotation.Secured
 import grails.converters.JSON
-import org.transmartproject.webservices.Study
 import org.transmartproject.webservices.Observation
+import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.ConceptDimension
 
 class TestController {
     OauthService oauthService
+    ConceptsResource conceptsResourceService
+    grails.plugin.springsecurity.SpringSecurityService springSecurityService
+
     private static final Token EMPTY_TOKEN = new Token('', '')
 
     @Secured('permitAll')
-	def test() {
-        // Study study1 = new Study(name:"yeah")
-        // Study study2 = new Study(name:"ohno")
-        // Study study3 = new Study(name:"ole!")
-        // List list = [study1,study2,study3]
-        Observation obs1 = new Observation(name:"yeah", id:1)
-        Observation obs2 = new Observation(name:"yeah 2", id:2)
-        Observation obs3 = new Observation(name:"yeah 3", id:3)
-        List list = [obs1,obs2,obs3]
-        render list as JSON
+    def studies() {
+        render conceptsResourceService.getAllStudies() as JSON
 	}
 
     @Secured('permitAll')
     def index() {
-
+        render "hash:${springSecurityService.encodePassword('admin')}"
     }
 
     @Secured('permitAll')
@@ -36,8 +33,27 @@ class TestController {
         Token accessToken = oauthService.getMineAccessToken(EMPTY_TOKEN, verifier)
         render text:oauthService.getMineResource(accessToken, 'http://localhost:8080/transmart-rest-api/studies/').body, contentType:"application/json"
     }
+
     @Secured('permitAll')
     def verify2() {
-        render params.code
+        def returnObject = [:]
+        returnObject.code = params.code
+        render returnObject as JSON
+    }
+
+    @Secured('permitAll')
+    def testje() {
+        def conceptcodes = ConceptDimension.withCriteria {
+            like 'conceptPath', params.path + '%'
+        }.collect { it -> it.conceptCode }
+        log.info "conceptcodes:$conceptcodes"
+        def output =
+        PatientDimension.withCriteria {
+            assays {
+                'in' 'conceptCode', conceptcodes
+            }
+        }
+        log.info "output =$output"
+        render output as JSON
     }
 }

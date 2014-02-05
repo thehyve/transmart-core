@@ -14,6 +14,9 @@ class UrlMappings {
         '/studies'(resources: 'study',  method:'GET') {
             '/observations'(controller:'observation', resources:'observation', includes:['index', 'show'])
         }
+        '/studies'(resources: 'study',  method:'GET') {
+            '/subjects'(controller:'subject', resources:'subject', includes:['index', 'show'])
+        }
 
 	}
 }

@@ -1,24 +1,32 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.transmartproject.webservices.Observation
 import grails.plugin.springsecurity.annotation.Secured
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.db.ontology.ConceptsResourceService
+import org.transmartproject.db.ontology.I2b2
 
-// @Secured(['ROLE_ADMIN'])
+// @Secured(['ROLE_USER'])
 @Secured(['permitAll'])
-class StudyController {
+class SubjectController {
 
-    ConceptsResource conceptsResourceService
+    ConceptsResourceService conceptsResourceService
 
-    /** GET request on /studies/
+    /** GET request on /studies/XXX/subjects/
      *  This will return the list of studies, where each study will be rendered in its short format
      *
      * @param max The maximum amount of items of the list to be returned.
     */
     def index(Integer max) {
-        // TODO Implement max?
-        render conceptsResourceService.getAllStudies() as JSON
+    	log.info "params:$params"
+        I2b2 study = conceptsResourceService.getStudy(params.studyId)
+        log.info "study: ${study.name}"
+        if (!study) {
+            def error = ['error':'study not found']
+            render error as JSON
+            return
+        }
+        def results = conceptsResourceService.getSubjectsForStudy(study)
+        render results as JSON
     }
 
     /** GET request on /studies/${id}
@@ -31,13 +39,4 @@ class StudyController {
         render "todo" as JSON
     }
 
-    /*
-     *    GET /studies  index
-     *    GET /studies/create   create
-     *    POST    /studies  save
-     *    GET /studies/${id}    show
-     *    GET /studies/${id}/edit   edit
-     *    PUT /studies/${id}    update
-     *    DELETE  /studies/${id}    delete
-     */
 }

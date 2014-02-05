@@ -1,11 +1,15 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.transmartproject.webservices.Study
 import grails.plugin.springsecurity.annotation.Secured
+import org.transmartproject.db.clinical.ClinicalDataResourceService
+import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
-@Secured(['ROLE_USER'])
+// @Secured(['ROLE_USER'])
+@Secured(['permitAll'])
 class ObservationController {
+
+    ClinicalDataResourceService clinicalDataResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of studies, where each study will be rendered in its short format
@@ -14,12 +18,9 @@ class ObservationController {
     */
     def index(Integer max) {
     	log.info "params:$params"
-        Study study1 = new Study(name:"obs1")
-        Study study2 = new Study(name:"obs2")
-        Study study3 = new Study(name:"obs3")
-        List list = [study1,study2,study3]
-        log.info "json:${study1 as JSON}"
-        render list as JSON
+        def results = clinicalDataResourceService.retrieveData([], []/*,
+                [ new TerminalConceptVariable(conceptCode: 'mirnastudy') ]*/)
+        render results as JSON
     }
 
     /** GET request on /studies/${id}
@@ -29,8 +30,7 @@ class ObservationController {
      */
     def show(Integer id) {
         log.info "in show method for study with id:$id"
-        Study study = new Study(name:"yeah", id:2)
-        render study as JSON
+        render "todo" as JSON
     }
 
 }

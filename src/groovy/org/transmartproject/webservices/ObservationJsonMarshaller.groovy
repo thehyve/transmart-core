@@ -6,7 +6,6 @@ class ObservationJsonMarshaller {
 
   	void register() {
   		JSON.registerObjectMarshaller( Observation ) { Observation observation ->
-            log.error "MARSHALLING OBSERVATION!!!!!"
             return [
                 name: observation.name,
                 id: observation.id

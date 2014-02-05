@@ -1,14 +1,17 @@
 package org.transmartproject.webservices
 
 import grails.converters.JSON
+import org.transmartproject.db.ontology.I2b2
 
 class StudyJsonMarshaller {
 
   	void register() {
-  		JSON.registerObjectMarshaller( Study ) { Study study ->
-            log.error "MARSHALLING STUDY!!!!!"
+  		JSON.registerObjectMarshaller( I2b2 ) { I2b2 study ->
             return [
-                name: study.name
+                name: study.name,
+                key: study.key,
+                fullName: study.fullName,
+                dimensionCode: study.dimensionCode
             ]
   		}
   	}
