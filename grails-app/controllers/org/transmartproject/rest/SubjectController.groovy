@@ -18,6 +18,7 @@ class SubjectController {
     */
     def index(Integer max) {
     	log.info "params:$params"
+        // TODO The service call actually uses the name that is not guaranteed unique. This sucks, improve.
         I2b2 study = conceptsResourceService.getStudy(params.studyId)
         log.info "study: ${study.name}"
         if (!study) {
