@@ -1,5 +1,6 @@
-<plugin name='transmart-legacy-db' version='0.1.0-SNAPSHOT' grailsVersion='2.2 &gt; *'>
-  <author>Your name</author>
+<plugin name='transmart-legacy-db' version='0.2.hackathon-SNAPSHOT' grailsVersion='2.2 &gt; *'>
+  <author>Florian Guitton</author>
+  <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
   <title>Transmart Legacy Db Plugin</title>
   <description>Brief summary/description of the plugin.
 </description>
@@ -102,12 +103,4 @@
     <resource>org.transmart.searchapp.SecureObjectPath</resource>
     <resource>org.transmart.searchapp.UserGroup</resource>
   </resources>
-  <repositories>
-    <repository name='grailsCentral' url='http://grails.org/plugins' />
-    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
-  </repositories>
-  <dependencies />
-  <plugins />
-  <runtimePluginRequirements />
-  <behavior />
 </plugin>
