@@ -33,11 +33,14 @@
     <resource>i2b2.SnpProbeSortedDef</resource>
     <resource>i2b2.StringLineReader</resource>
     <resource>i2b2.SubjectSnpDataset</resource>
+    <resource>org.transmart.biomart.BioAnalysisAttribute</resource>
+    <resource>org.transmart.biomart.BioAnalysisAttributeLineage</resource>
     <resource>org.transmart.biomart.BioAssay</resource>
     <resource>org.transmart.biomart.BioAssayAnalysis</resource>
     <resource>org.transmart.biomart.BioAssayAnalysisData</resource>
     <resource>org.transmart.biomart.BioAssayAnalysisDataTea</resource>
     <resource>org.transmart.biomart.BioAssayAnalysisPlatform</resource>
+    <resource>org.transmart.biomart.BioAssayCohort</resource>
     <resource>org.transmart.biomart.BioAssayData</resource>
     <resource>org.transmart.biomart.BioAssayDataAnnotation</resource>
     <resource>org.transmart.biomart.BioAssayDataStatistics</resource>
@@ -55,6 +58,7 @@
     <resource>org.transmart.biomart.BioMarkerCorrelationMV</resource>
     <resource>org.transmart.biomart.BioMarkerExpAnalysisMV</resource>
     <resource>org.transmart.biomart.BioSample</resource>
+    <resource>org.transmart.biomart.BioSpeciesOrganism</resource>
     <resource>org.transmart.biomart.BioSubject</resource>
     <resource>org.transmart.biomart.CellLine</resource>
     <resource>org.transmart.biomart.CgdcpData</resource>
@@ -94,9 +98,12 @@
     <resource>org.transmart.searchapp.Principal</resource>
     <resource>org.transmart.searchapp.Requestmap</resource>
     <resource>org.transmart.searchapp.Role</resource>
+    <resource>org.transmart.searchapp.SavedFacetedSearch</resource>
     <resource>org.transmart.searchapp.SearchBioMarkerCorrelFastMV</resource>
     <resource>org.transmart.searchapp.SearchKeyword</resource>
     <resource>org.transmart.searchapp.SearchKeywordTerm</resource>
+    <resource>org.transmart.searchapp.SearchTaxonomy</resource>
+    <resource>org.transmart.searchapp.SearchTaxonomyRels</resource>
     <resource>org.transmart.searchapp.SecureAccessLevel</resource>
     <resource>org.transmart.searchapp.SecureObject</resource>
     <resource>org.transmart.searchapp.SecureObjectAccess</resource>
