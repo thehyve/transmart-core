@@ -34,7 +34,7 @@ HeatMapView.prototype.submit_job = function () {
 
     // Check whether we have the node details for the HD node already
     // If not, we should fetch them first
-    if( GLOBAL.HighDimDataType != "" ){
+    if (typeof GLOBAL.HighDimDataType !== "undefined" && GLOBAL.HighDimDataType) {
         actualSubmit();
     } else {
         highDimensionalData.fetchNodeDetails( 'divIndependentVariable', function( result ) {
