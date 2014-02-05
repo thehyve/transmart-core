@@ -24,6 +24,11 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
     String getDataTypeName()
 
     /**
+     * A human-readable description of this data type
+     */
+    String getDataTypeDescription()
+
+    /**
      * Retrieves high dimensional data from the database.
      *
      * The result is a matrix-like structure where the columns represent
@@ -117,6 +122,12 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * @throws InvalidArgumentsException      if the parameters are inappropriate for the constraint
      */
     Projection createProjection(Map<String, Object> params, String name) throws UnsupportedByDataTypeException
+
+    /**
+     * Overload for an empty params map
+     * @throws UnsupportedByDataTypeException
+     */
+    Projection createProjection(String name) throws UnsupportedByDataTypeException
 
     /**
      * Whether the platform passed in refers to data of the type implemented by
