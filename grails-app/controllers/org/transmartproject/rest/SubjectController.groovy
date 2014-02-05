@@ -30,14 +30,15 @@ class SubjectController {
         render results as JSON
     }
 
-    /** GET request on /studies/${id}
+    /** GET request on /studies/XXX/subjects/${id}
      *  This returns the single requested entity.
      *
      *  @param id The is for which to return study information.
      */
     def show(Integer id) {
-        log.info "in show method for study with id:$id"
-        render "todo" as JSON
+        log.info "in show method for with id:$id"
+        def subject = conceptsResourceService.getSubjectForStudy(id)
+        render subject as JSON
     }
 
 }
