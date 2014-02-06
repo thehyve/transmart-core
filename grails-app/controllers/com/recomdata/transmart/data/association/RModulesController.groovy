@@ -139,7 +139,6 @@ class RModulesController {
 
     private AnalysisConstraints createAnalysisConstraints(Map params) {
         Map map = validateParamAnalysisConstraints(params) as Map
-        println map.getClass()
         map["data_type"] = lookup[map["data_type"]]
         map = massageConstraints map
         new AnalysisConstraints(map: map)

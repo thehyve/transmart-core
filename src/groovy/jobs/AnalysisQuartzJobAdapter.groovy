@@ -73,16 +73,8 @@ class AnalysisQuartzJobAdapter implements Job {
 
     void setupDefaultScopeBeans() {
         BEANS_STORAGE['jobName'] = CURRENT_JOB_NAME
-
-//        Map userParams = new HashMap(jobDataMap)
-//        userParams.remove PARAM_JOB_CLASS
-//        userParams.remove PARAM_GRAILS_APPLICATION
-//        userParams.remove PARAM_ANALYSIS_TYPE /* doesn't matter at this point */
-//        userParams.remove PARAM_JOB_NAME /* saved in jobName bean */
-
         BEANS_STORAGE[PARAM_USER_PARAMETERS] = jobDataMap[PARAM_USER_PARAMETERS]
         BEANS_STORAGE[PARAM_ANALYSIS_CONSTRAINTS] = jobDataMap[PARAM_ANALYSIS_CONSTRAINTS]
-                //new UserParameters(map: userParams)
     }
 
     static void cleanJobBeans() {
