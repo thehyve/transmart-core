@@ -461,6 +461,26 @@ function readConceptVariables(divIds){
     }
     return variableConceptCode;
 }
+function readConceptVariables2(divIds){
+    var variableConceptCode = ""
+    var variableCode = ""
+    var variableEle = Ext.get(divIds);
+    //If the variable element has children, we need to parse them and concatenate their values.
+    if(variableEle && variableEle.dom.childNodes[0])
+    {
+        //Loop through the variables and add them to a comma seperated list.
+        for(nodeIndex = 0; nodeIndex < variableEle.dom.childNodes.length; nodeIndex++)
+        {
+            //If we already have a value, add the seperator.
+            if(variableConceptCode != '') 		variableConceptCode += '|'
+            if(variableCode != '') 				variableCode += '|'
+            //Add the concept path to the string.
+            variableConceptCode 			+= getQuerySummaryItem(variableEle.dom.childNodes[nodeIndex]).trim()
+            variableCode 					+= getQueryCdItem(variableEle.dom.childNodes[nodeIndex]).trim();
+        }
+    }
+    return [variableConceptCode,variableCode];
+}
 
 function submitJob(formParams)
 {
@@ -503,6 +523,8 @@ function runJob(result, formParams) {
     formParams.result_instance_id2=GLOBAL.CurrentSubsetIDs[2];
     formParams.analysis=document.getElementById("analysis").value;
     formParams.jobName=jobName;
+
+    console.log("formParams", formParams);
 
     Ext.Ajax.request(
             {
