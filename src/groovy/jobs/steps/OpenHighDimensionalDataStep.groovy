@@ -1,13 +1,12 @@
 package jobs.steps
 
+import jobs.AnalysisConstraints
 import jobs.UserParameters
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-
-import static jobs.AbstractAnalysisJob.PARAM_ANALYSIS_CONSTRAINTS
 
 class OpenHighDimensionalDataStep implements Step {
 
@@ -16,6 +15,7 @@ class OpenHighDimensionalDataStep implements Step {
     /* in */
     UserParameters params
     HighDimensionDataTypeResource dataTypeResource
+    AnalysisConstraints analysisConstraints
 
     /* out */
     Map<List<String>, TabularResult> results = [:]
@@ -38,25 +38,25 @@ class OpenHighDimensionalDataStep implements Step {
     }
 
     private List<String> extractOntologyTerms() {
-        params.analysisConstraints.assayConstraints.remove('ontology_term').collect {
+        analysisConstraints.assayConstraints.remove('ontology_term').collect {
             createConceptKeyFrom(it.term)
         }
     }
 
     private List<Integer> extractPatientSets() {
-        params.analysisConstraints.assayConstraints.remove("patient_set").grep()
+        analysisConstraints.assayConstraints.remove("patient_set").grep()
     }
 
     private TabularResult fetchSubset(Integer patientSetId, String ontologyTerm) {
 
-        List<DataConstraint> dataConstraints = params[PARAM_ANALYSIS_CONSTRAINTS]['dataConstraints'].
+        List<DataConstraint> dataConstraints = analysisConstraints['dataConstraints'].
                 collect { String constraintType, values ->
                     if (values) {
                         dataTypeResource.createDataConstraint(values, constraintType)
                     }
                 }.grep()
 
-        List<AssayConstraint> assayConstraints = params[PARAM_ANALYSIS_CONSTRAINTS]['assayConstraints'].
+        List<AssayConstraint> assayConstraints = analysisConstraints['assayConstraints'].
                 collect { String constraintType, values ->
                     if (values) {
                         dataTypeResource.createAssayConstraint(values, constraintType)
@@ -74,7 +74,7 @@ class OpenHighDimensionalDataStep implements Step {
                         concept_key: ontologyTerm))
 
         Projection projection = dataTypeResource.createProjection([:],
-                params[PARAM_ANALYSIS_CONSTRAINTS]['projections'][0])
+                analysisConstraints['projections'][0])
 
         dataTypeResource.retrieveData(assayConstraints, dataConstraints, projection)
     }

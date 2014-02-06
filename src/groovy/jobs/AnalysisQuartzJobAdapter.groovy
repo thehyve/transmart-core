@@ -16,6 +16,7 @@ class AnalysisQuartzJobAdapter implements Job {
     public static final String PARAM_GRAILS_APPLICATION = 'grailsApplication'
     public static final String PARAM_ANALYSIS_TYPE = 'analysis'
     public static final String PARAM_JOB_NAME = 'jobName'
+    public static final String PARAM_USER_PARAMETERS = 'userParameters'
     public static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
 
     JobDataMap jobDataMap
@@ -73,13 +74,15 @@ class AnalysisQuartzJobAdapter implements Job {
     void setupDefaultScopeBeans() {
         BEANS_STORAGE['jobName'] = CURRENT_JOB_NAME
 
-        Map userParams = new HashMap(jobDataMap)
-        userParams.remove PARAM_JOB_CLASS
-        userParams.remove PARAM_GRAILS_APPLICATION
-        userParams.remove PARAM_ANALYSIS_TYPE /* doesn't matter at this point */
-        userParams.remove PARAM_JOB_NAME /* saved in jobName bean */
+//        Map userParams = new HashMap(jobDataMap)
+//        userParams.remove PARAM_JOB_CLASS
+//        userParams.remove PARAM_GRAILS_APPLICATION
+//        userParams.remove PARAM_ANALYSIS_TYPE /* doesn't matter at this point */
+//        userParams.remove PARAM_JOB_NAME /* saved in jobName bean */
 
-        BEANS_STORAGE['userParameters'] = new UserParameters(map: userParams)
+        BEANS_STORAGE[PARAM_USER_PARAMETERS] = jobDataMap[PARAM_USER_PARAMETERS]
+        BEANS_STORAGE[PARAM_ANALYSIS_CONSTRAINTS] = jobDataMap[PARAM_ANALYSIS_CONSTRAINTS]
+                //new UserParameters(map: userParams)
     }
 
     static void cleanJobBeans() {
