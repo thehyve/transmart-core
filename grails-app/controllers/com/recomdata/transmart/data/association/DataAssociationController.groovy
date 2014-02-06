@@ -40,6 +40,8 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/plugin/CorrelationAnalysis.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/LineGraph.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
+                // TODO: use resource plugin
+                servletContext.contextPath + pluginContextPath + '/js/plugin/LogisticRegression.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js']
 
         // list of required css
