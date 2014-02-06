@@ -14,7 +14,43 @@
 * limitations under the License.
 ******************************************************************/
 
-function submitTableWithForestJob(form){
+
+
+/**
+ * Register drag and drop.
+ * Clear out all global variables and reset them to blank.
+ */
+function loadForestPlotView(){
+    forestPlotView.clear_high_dimensional_input('divIndependentVariable');
+    forestPlotView.clear_high_dimensional_input('divDependentVariable');
+    forestPlotView.clear_high_dimensional_input('divReferenceVariable');
+    forestPlotView.clear_high_dimensional_input('divStratificationVariable');
+    forestPlotView.register_drag_drop();
+}
+
+// constructor
+var ForestPlotView = function () {
+    RmodulesView.call(this);
+}
+
+// inherit RmodulesView
+ForestPlotView.prototype = new RmodulesView();
+
+// correct the pointer
+ForestPlotView.prototype.constructor = ForestPlotView;
+
+// submit analysis job
+ForestPlotView.prototype.submit_job = function (form) {
+
+    // get formParams
+    var formParams = this.get_form_params(form);
+
+    if (formParams) { // if formParams is not null
+        submitJob(formParams);
+    }
+}
+
+ForestPlotView.prototype.get_form_params = function (form) {
 	//Gather an ExtJS object for each of the input elements.
 	var dependentVariableEle = Ext.get("divDependentVariable");
 	var referenceVariableEle = Ext.get("divReferenceVariable");
@@ -237,10 +273,15 @@ function submitTableWithForestJob(form){
 			statisticType:statisticType,
 			nonEventCheckbox:nonEventCheckbox};
 	
-	if(!loadHighDimensionalParameters(formParams)) return false;
-	if(!loadHighDimensionalParametersGeneral(formParams, 'Reference')) return false;
-	if(!loadHighDimensionalParametersGeneral(formParams, 'Stratification')) return false;
-	
+	//if(!highDimensionalData.load_parameters(formParams)) return false;
+	//if(!highDimensionalData.load_parameters(formParams, 'Reference')) return false;
+	//if(!highDimensionalData.load_parameters(formParams, 'Stratification')) return false;
+
+    formParams.divDependentVariableType = "CLINICAL";
+    formParams.divIndependentVariableType = "CLINICAL";
+    formParams.divReferenceVariableType = "CLINICAL";
+    formParams.divStratificationVariableType = "CLINICAL";
+
 	loadBinningParametersForest(formParams);
 	
 	//After we load the binning parameters, check to see if categorical binning is enabled for the Independent or Control boxes. If it is we lump the inputs together as if the user dragged them all into one box. 
@@ -276,29 +317,9 @@ function submitTableWithForestJob(form){
 	}	
 	//------------------------------------	
 	
-	submitJob(formParams);
+	return formParams;
 }
 
-function loadForestPlotView(){
-	registerForestDragAndDrop();
-	clearGroupForest('divIndependentVariable');
-	clearGroupForest('divReferenceVariable');
-	clearGroupForest('divDependentVariable');
-	clearGroupForest('divstratificationVariable');
-}
-
-function clearGroupForest(divName) {
-	// Clear the drag and drop div.
-	var qc = Ext.get(divName);
-
-	for ( var i = qc.dom.childNodes.length - 1; i >= 0; i--) {
-		var child = qc.dom.childNodes[i];
-		qc.dom.removeChild(child);
-	}
-
-	clearHighDimDataSelections(divName);
-	clearSummaryDisplay(divName);
-}
 
 function toggleBinningForest() {
 	// Change the Binning flag.
@@ -603,3 +624,4 @@ function loadBinningParametersForest(formParams)
 
 }
 
+var forestPlotView = new ForestPlotView();

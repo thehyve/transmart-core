@@ -206,18 +206,18 @@ snptype.Reference = ''
 	#These are the columns we'll merge on. The level of the concept dictates what we merge.
 	mergeColumns <- c('PATIENT_NUM')
 
+	#This was causing problems with our code merge. These columns aren't implemented in tranSMART App yet.
+	#if(TRUE && unique(yValueMatrix$LINK_TYPE) == 'E' && length(zValueMatrix)>0 && unique(zValueMatrix$LINK_TYPE) == 'E')
+	#{
+	#xMatrixColumns 			<- c('PATIENT_NUM','VALUE','CONCEPT_PATH')
+	#referenceMatrixColumns 	<- c('PATIENT_NUM','VALUE','CONCEPT_PATH')
+	#yMatrixColumns 			<- c('PATIENT_NUM','ENCOUNTER_NUM','VALUE','CONCEPT_PATH')
+	#zMatrixColumns 			<- c('PATIENT_NUM','ENCOUNTER_NUM','VALUE','CONCEPT_PATH')
 	
-	if(TRUE && unique(yValueMatrix$LINK_TYPE) == 'E' && length(zValueMatrix)>0 && unique(zValueMatrix$LINK_TYPE) == 'E')
-	{
-	xMatrixColumns 			<- c('PATIENT_NUM','VALUE','CONCEPT_PATH')
-	referenceMatrixColumns 	<- c('PATIENT_NUM','VALUE','CONCEPT_PATH')
-	yMatrixColumns 			<- c('PATIENT_NUM','ENCOUNTER_NUM','VALUE','CONCEPT_PATH')
-	zMatrixColumns 			<- c('PATIENT_NUM','ENCOUNTER_NUM','VALUE','CONCEPT_PATH')
-	
-  mergeColumns <- c('PATIENT_NUM','ENCOUNTER_NUM')
+  #mergeColumns <- c('PATIENT_NUM','ENCOUNTER_NUM')
 		
-	initialFinalColumnNames <- c('PATIENT_NUM','ENCOUNTER_NUM')
-	}		
+	#initialFinalColumnNames <- c('PATIENT_NUM','ENCOUNTER_NUM')
+	#}
 
 	#Create a matrix with unique patient_nums.
 	finalData <- data.frame(unique(dataFile[initialFinalColumnNames]));

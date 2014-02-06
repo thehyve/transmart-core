@@ -51,7 +51,7 @@
 						<tr>
 							<td>
 								<g:each var="location" in="${imageLocations}">
-				    				<img src='${location}'  width="800" height="600" alt="Forest Plot" /> 
+                                    <g:img file="${location}" width="800" height="600"></g:img> <br />
 								</g:each>
 							</td>
 							<td>

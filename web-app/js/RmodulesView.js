@@ -1,6 +1,6 @@
 var RmodulesView = function () {
     this.droppable_divs = {
-        "categorical": ["divGroupByVariable", "divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable"],
+        "categorical": ["divGroupByVariable", "divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable", "divReferenceVariable", "divStratificationVariable"],
         "numerical": ["divTimeVariable"]
     };
     this.independent_hidden_divs = ["independentVarDataType", "independentPathway"]

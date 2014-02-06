@@ -29,6 +29,9 @@ modules = {
     scatter_plot {
         resource url:"/js/plugin/ScatterPlot.js"
     }
+    forest_plot {
+        resource url:"/js/plugin/ForestPlot.js"
+    }
     table_fisher {
         resource url:"/js/plugin/TableWithFisher.js"
     }

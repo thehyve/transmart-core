@@ -1,34 +1,8 @@
-<!--
- Copyright 2008-2012 Janssen Research & Development, LLC.
+%{--include js lib for box plot dynamically--}%
+<r:require modules="forest_plot"/>
+<r:layoutResources disposition="defer"/>
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>subsetPanel.html</title>
-
-<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
-<meta http-equiv="description" content="this is my page">
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
-
-</head>
-
-<body>
 	<form>
-	
 		<table class="subsettable" style="margin: 10px;width:600px; border: 0px none; border-collapse: collapse;">
 			<tr>
 				<td colspan="4">
@@ -74,7 +48,7 @@
 	
 			<tr>
 				<td align="center">
-					<input style="font: 9pt tahoma;float:right;" type="button" onclick="clearGroupForest('divIndependentVariable')" value="X" /> <br />
+					<input style="font: 9pt tahoma;float:right;" type="button" onclick="forestPlotView.clear_high_dimensional_input('divIndependentVariable')" value="X" /> <br />
 					<div id='divIndependentVariable' class="queryGroupIncludeSmall  excludeValuePopup leafNodesOnly"></div>
 					<!--  <input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divIndependentVariable')" value="High Dimensional Data">-->
 					<br />
@@ -85,14 +59,14 @@
 					Select <b>one</b> categorical variable from the Data Set Explorer Tree and drag it into the box. (ex. Placebo Arm). A continuous variable may be categorized by enabling "Binning" below. 
 					<br />		
 					<br />								
-					<input style="font: 9pt tahoma;float:right;" type="button" onclick="clearGroupForest('divReferenceVariable')" value="X" /> <br />
+					<input style="font: 9pt tahoma;float:right;" type="button" onclick="forestPlotView.clear_high_dimensional_input('divReferenceVariable')" value="X" /> <br />
 					<div id='divReferenceVariable' class="queryGroupIncludeSmall  excludeValuePopup leafNodesOnly"></div>
 					<!--  <input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divReferenceVariable')" value="High Dimensional Data">-->					
 					
 					
 				</td>									
 				<td align="right" style="vertical-align:top;">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupForest('divDependentVariable')" value="X" /> <br />
+					<input style="font: 9pt tahoma;" type="button" onclick="forestPlotView.clear_high_dimensional_input('divDependentVariable')" value="X" /> <br />
 					<div id='divDependentVariable' class="queryGroupIncludeLong  excludeValuePopup leafNodesOnly"></div>
 					<br />
 					<br />
@@ -100,7 +74,7 @@
 					<!--  <input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divDependentVariable')" value="High Dimensional Data">-->
 				</td>
 				<td align="right" style="vertical-align:top;">
-					<input style="font: 9pt tahoma;" type="button" onclick="clearGroupForest('divStratificationVariable')" value="X" /> <br />
+					<input style="font: 9pt tahoma;" type="button" onclick="forestPlotView.clear_high_dimensional_input('divStratificationVariable')" value="X" /> <br />
 					<div id='divStratificationVariable' class="queryGroupIncludeLong  excludeValuePopup leafNodesOnly"></div>
 					<!--  <input style="font: 9pt tahoma;" type="button" onclick="gatherHighDimensionalData('divStratificationVariable')" value="High Dimensional Data">-->
 				</td>
@@ -370,13 +344,10 @@
 			</tr>		
 			<tr>
 				<td align="center">
-					<input type="button" value="Run" onClick="submitTableWithForestJob();" style="float:center;"></input>
+					<input type="button" value="Run" onClick="forestPlotView.submit_job(this.form);" class="runAnalysisBtn"></input>
 				</td>
 			</tr>
 		</table>		
 		
 		
 	</form>
-</body>
-
-</html>
