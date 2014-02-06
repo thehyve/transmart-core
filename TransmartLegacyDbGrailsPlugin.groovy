@@ -9,7 +9,7 @@ class TransmartLegacyDbGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def title = "Transmart Legacy Db Plugin" // Headline display name of the plugin
+    def title = "Transmart Legacy DB Plugin" // Headline display name of the plugin
     def author = "Florian Guitton"
     def authorEmail = "f.guitton@imperial.ac.uk"
     def description = '''\
