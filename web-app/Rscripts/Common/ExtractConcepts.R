@@ -25,13 +25,15 @@ extractConcepts <- function
 	splitData,
 	conceptList,
 	fullConcept = FALSE,
-	conceptColumn = FALSE
+	conceptColumn = FALSE,
+	encounterColumn = FALSE
 )
 {
 
 	print("         -------------------")
 	print("         ExtractConcepts.R")
 	print("         Extracting DATA")
+	print(paste("         Concept List - ", conceptList, sep=""))
 
 	##########################################
 	#Get a table of Concept value/Patient
@@ -44,24 +46,39 @@ extractConcepts <- function
 	#These are the final column names we return.
 	finalColumnNames <- c('PATIENT_NUM','VALUE')
 	
+	#Start a list of columns to pull from the temporary matrix.
+	columnListToPull <- c('PATIENT_NUM')
+
+		#If we are doing manual categorical binning, we need to keep the concept path, otherwise we can just use the short value.
+	if(fullConcept && conceptColumn)		
+		{
+		columnListToPull <- c(columnListToPull,'CONCEPT_PATH', 'CONCEPT_PATH')
+		finalColumnNames <- c('PATIENT_NUM','CONCEPT_PATH', 'VALUE')
+				
+		}
+	else if(!fullConcept && conceptColumn)
+		{
+		columnListToPull <- c(columnListToPull,'CONCEPT_PATH', 'VALUE')
+			finalColumnNames <- c('PATIENT_NUM','CONCEPT_PATH','VALUE')
+		}
+	else if(fullConcept && !conceptColumn)
+	{
+		columnListToPull <- c(columnListToPull, 'CONCEPT_PATH')
+		finalColumnNames <- c('PATIENT_NUM', 'VALUE')	
+	}
+		else
+		{
+		columnListToPull <- c(columnListToPull, 'VALUE')
+	}
+	if(encounterColumn)
+	{
+		columnListToPull <- c(columnListToPull, 'ENCOUNTER_NUM', 'LINK_TYPE')
+		finalColumnNames <- c(finalColumnNames, 'ENCOUNTER_NUM', 'LINK_TYPE')		
+		}
 	#For each of the passed in concepts, append the rows onto the end of our temp matrix.
 	for(entry in splitConcept)
 	{
-		#If we are doing manual categorical binning, we need to keep the concept path, otherwise we can just use the short value.
-		if(fullConcept)		
-		{
-			tempConceptMatrix <- rbind(tempConceptMatrix,splitData[[entry]][c('PATIENT_NUM','CONCEPT_PATH')])
-				
-		}
-		else if(conceptColumn)
-		{
-			tempConceptMatrix <- rbind(tempConceptMatrix,splitData[[entry]][c('PATIENT_NUM','CONCEPT_PATH','VALUE')])
-			finalColumnNames <- c('PATIENT_NUM','CONCEPT_PATH','VALUE')
-		}
-		else
-		{
-			tempConceptMatrix <- rbind(tempConceptMatrix,splitData[[entry]][c('PATIENT_NUM','VALUE')])
-		}
+		tempConceptMatrix <- rbind(tempConceptMatrix,splitData[[entry]][columnListToPull])
 	}
 
 	#Make sure we actually have data after the binding.
