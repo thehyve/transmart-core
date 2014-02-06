@@ -10,8 +10,6 @@ import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import static jobs.AbstractAnalysisJob.PARAM_ANALYSIS_CONSTRAINTS
-
 abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
 
     @Autowired
@@ -48,11 +46,10 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
                 temporaryDirectory: temporaryDirectory,
                 params: params)
 
-        steps
         def openResultSetStep = new OpenHighDimensionalDataStep(
                 params: params,
-                dataTypeResource: highDimensionResource.getSubResourceForType(
-                        params[PARAM_ANALYSIS_CONSTRAINTS]['data_type']))
+                dataTypeResource: highDimensionResource.getSubResourceForType(analysisConstraints['data_type']),
+                analysisConstraints: analysisConstraints)
 
         steps << openResultSetStep
 
