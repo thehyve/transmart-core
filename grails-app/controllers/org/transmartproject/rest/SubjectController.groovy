@@ -12,7 +12,7 @@ class SubjectController {
     ConceptsResourceService conceptsResourceService
 
     /** GET request on /studies/XXX/subjects/
-     *  This will return the list of studies, where each study will be rendered in its short format
+     *  This will return the list of subjects, where each subject will be rendered in its short format
      *
      * @param max The maximum amount of items of the list to be returned.
     */
@@ -33,7 +33,7 @@ class SubjectController {
     /** GET request on /studies/XXX/subjects/${id}
      *  This returns the single requested entity.
      *
-     *  @param id The is for which to return study information.
+     *  @param id The is for which to return concept information.
      */
     def show(Integer id) {
         log.info "in show method for with id:$id"

@@ -27,17 +27,16 @@ class StudyController {
      *  @param id The is for which to return study information.
      */
     def show(Integer id) {
-        log.info "in show method for study with id:$id"
-        render "todo" as JSON
+        render conceptsResourceService.getStudy(params.id) as JSON
     }
 
     /*
-     *    GET /studies  index
-     *    GET /studies/create   create
-     *    POST    /studies  save
-     *    GET /studies/${id}    show
-     *    GET /studies/${id}/edit   edit
-     *    PUT /studies/${id}    update
-     *    DELETE  /studies/${id}    delete
+     *    GET /studies            index
+     *    GET /studies/create     create
+     *    POST    /studies        save
+     *    GET /studies/${id}      show
+     *    GET /studies/${id}/edit edit
+     *    PUT /studies/${id}      update
+     *    DELETE  /studies/${id}  delete
      */
 }
