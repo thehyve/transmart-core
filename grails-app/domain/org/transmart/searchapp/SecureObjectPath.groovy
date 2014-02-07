@@ -33,4 +33,7 @@ class SecureObjectPath {
             conceptPath column: 'I2B2_CONCEPT_PATH'
         }
     }
+
+ static constraints = {
+    }
 }
