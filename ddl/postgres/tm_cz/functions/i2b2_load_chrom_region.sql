@@ -1,8 +1,8 @@
 --
--- Name: i2b2_load_chrom_region(numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_chrom_region(character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(currentjobid numeric DEFAULT (-1))
+CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1))
   RETURNS numeric 
   LANGUAGE plpgsql
   AS $BODY$
@@ -76,7 +76,7 @@ BEGIN
 	end;
 
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_chromosomal_region for plaform: ' || gplId,rowCt,stepCt,'Done') into rtnCd;
 
 	begin
 	delete from deapp.de_gpl_info
@@ -94,10 +94,15 @@ BEGIN
 	end;
 
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_gpl_info',rowCt,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_gpl_info for platform: ' || gplID,rowCt,stepCt,'Done') into rtnCd;
 
 
         -- Insert platform into deapp.de_gpl_info
+	if (length(platform_title) = 0)
+	then
+		platform_title = gplId;
+        end if;
+
 	select distinct organism INTO organismId FROM tm_lz.lt_chromosomal_region;
 	begin
 	insert into deapp.de_gpl_info 
@@ -108,7 +113,7 @@ BEGIN
 		, annotation_date
 		, marker_type
 	)
-	values (gplId, 'Agilent Probe', organismId, current_timestamp, 'Chromosomal');
+	values (gplId, platform_title, organismId, current_timestamp, 'Chromosomal');
 	get diagnostics rowCt := ROW_COUNT;	
 	exception
 	when others then
@@ -122,7 +127,7 @@ BEGIN
 	end;
 
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load platform info into deapp.de_gpl_info',rowCt,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load platform info into deapp.de_gpl_info for platform: ' || gplID,rowCt,stepCt,'Done') into rtnCd;
 
 
 	-- Next insert the new definitions
@@ -163,7 +168,7 @@ BEGIN
 	end;
 
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load chromosomal region data into deapp.de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load chromosomal region data into deapp.de_chromosomal_region for platform: ' || gplId,rowCt,stepCt,'Done') into rtnCd;
 
 
 -- wrapping up
