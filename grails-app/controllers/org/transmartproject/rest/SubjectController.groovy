@@ -5,8 +5,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.db.ontology.I2b2
 
-// @Secured(['permitAll'])
-@Secured(['ROLE_USER'])
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class SubjectController {
 
     ConceptsResourceService conceptsResourceService

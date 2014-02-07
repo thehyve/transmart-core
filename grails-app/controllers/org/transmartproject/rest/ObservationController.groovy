@@ -5,8 +5,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import org.transmartproject.db.clinical.ClinicalDataResourceService
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
-// @Secured(['ROLE_USER'])
-@Secured(['permitAll'])
+@Secured(['IS_AUTHENTICATED_REMEMBERED'])
 class ObservationController {
 
     ClinicalDataResourceService clinicalDataResourceService
