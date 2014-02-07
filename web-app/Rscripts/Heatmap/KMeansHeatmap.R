@@ -45,6 +45,7 @@ aggregate.probes = FALSE
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
+	if (nrow(mRNAData) == 0) stop("Your selection yielded an empty dataset, please check your subset and biomarker selection.")
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
@@ -74,8 +75,8 @@ aggregate.probes = FALSE
 	matrixData <- data.matrix(subset(castedData, select = -c(GROUP)))
 
 # by Serge and Wei to filter a sub set and reorder markers
-
         matrixData <- matrixData[!apply(is.na(matrixData),1,any), ]				# remove rows with NA
+        if (nrow(matrixData) == 0) stop("The selected cohort has incomplete data for each of your biomarkers. No data is left to plot a heatmap with.")
 
         num_markers<-dim(matrixData)[1]                                                         # number of markers in the dataset
         if (num_markers > maxDrawNumber) {                                                      # if more markers in the dataset, apply filter
