@@ -29,6 +29,7 @@ class KMeansClustering extends HighDimensionalOnlyJob {
                             imageHeight      = as.integer('$txtImageHeight'),
                             pointsize        = as.integer('$txtImagePointsize'),
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
+                            clusters.number  = as.integer('$txtClusters'),
                             ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
                             )'''
 
