@@ -29,7 +29,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = 'Metabolomics data'
 
-    private final Set<String> dataProperties = ImmutableSet.of('zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
 
     private final Set<String> rowProperties = ImmutableSet.of('hmdbId', 'biochemicalName')
 
