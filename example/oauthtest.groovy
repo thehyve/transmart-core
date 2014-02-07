@@ -11,12 +11,12 @@ import org.scribe.utils.*;
 class GrailsOAuth20Api extends DefaultApi20 {
 	@Override
 	public String getAccessTokenEndpoint() {
-		return "http://localhost:8080/transmart-rest-api/oauth/token?grant_type=authorization_code&redirect_uri=http://localhost:8080/transmart-rest-api/test/verify2";
+		return "http://localhost:8080/transmart-rest-api/oauth/token?grant_type=authorization_code&redirect_uri=http://localhost:8080/transmart-rest-api/oauth/verify";
 	}
 
 	@Override
 	public String getAuthorizationUrl(OAuthConfig oAuthConfig) {
-		return "http://localhost:8080/transmart-rest-api/oauth/authorize?response_type=code&client_id=myId&client_secret=mySecret&redirect_uri=http://localhost:8080/transmart-rest-api/test/verify2";
+		return "http://localhost:8080/transmart-rest-api/oauth/authorize?response_type=code&client_id=myId&client_secret=mySecret&redirect_uri=http://localhost:8080/transmart-rest-api/oauth/verify";
 	}
 
 	@Override

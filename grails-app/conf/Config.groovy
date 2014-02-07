@@ -134,14 +134,11 @@ grails.plugin.springsecurity.oauthProvider.clients = [
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/oauth/authorize.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
         '/oauth/token.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
-        '/concepts/getCategories':['permitAll'],
-        '/concepts/getChildren':['permitAll'],
-        '/concepts/getAllStudies':['permitAll'],
 ]
 
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'auth.AuthUser'
-// grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'auth.UserRole'
+grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'auth.UserUser'
 grails.plugin.springsecurity.authority.className = 'auth.Role'
 
 grails.plugin.springsecurity.providerNames = [

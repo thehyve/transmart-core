@@ -5,8 +5,8 @@ import org.transmartproject.webservices.Observation
 import grails.plugin.springsecurity.annotation.Secured
 import org.transmartproject.core.ontology.ConceptsResource
 
-// @Secured(['ROLE_ADMIN'])
-@Secured(['permitAll'])
+// @Secured(['permitAll'])
+@Secured(['ROLE_ADMIN'])
 class StudyController {
 
     ConceptsResource conceptsResourceService

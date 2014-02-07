@@ -14,4 +14,5 @@ beans = {
 			new ConceptDimensionJsonMarshaller(),
 		]
 	}
+	userDetailsService(com.recomdata.security.AuthUserDetailsService)
 }
