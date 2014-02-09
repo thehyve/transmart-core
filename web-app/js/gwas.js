@@ -120,7 +120,7 @@ function applyPopupFiltersRegions()
             range = jQuery('#filterGeneRange').val();
             basePairs = jQuery('#filterGeneBasePairs').val();
             basePairs=basePairs.replace(",","");
-		alert(basePairs);
+
 		if (basePairs == null || basePairs == "") {
                 basePairs = 0;
             }
