@@ -137,6 +137,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]

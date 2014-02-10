@@ -6,14 +6,13 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 @EqualsAndHashCode(includes = [ 'assay', 'annotation' ])
 class DeSubjectRnaData implements Serializable {
 
-
     BigDecimal rawIntensity
+    BigDecimal logIntensity
     BigDecimal zscore
 
     DeRnaseqAnnotation jAnnotation //due to criteria bug
 
     // irrelevant
-    //BigDecimal logIntensity
     //String     trialSource
     //String     trialName
     //Long       patientId
@@ -42,12 +41,12 @@ class DeSubjectRnaData implements Serializable {
         annotation   nullable: true
         assay        nullable: true
         rawIntensity nullable: true, scale: 4
+        logIntensity nullable: true, scale: 4
         zscore       nullable: true, scale: 4
 
         // irrelevant
         //trialSource  nullable: true, maxSize: 200
         //trialName    nullable: true, maxSize: 50
         //patientId    nullable: true
-        //logIntensity nullable: true, scale: 4
     }
 }
