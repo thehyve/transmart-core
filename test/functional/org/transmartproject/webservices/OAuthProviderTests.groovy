@@ -17,16 +17,13 @@ class OAuthProviderTests extends GebReportingSpec {
     private def restClient = new RESTClient(restUrl)
     @Shared
     private def httpClient = new HTTPBuilder(restUrl)
+    @Shared
+    private def httpClient2 = new HTTPBuilder(restUrl)
 
     void "test get request without token"() {
         given:
         def resp = restClient.get(uri: restUrl, path: "studies")
-        // resp.headers.each { h ->
-        //     println " ${h.name} : ${h.value}"
-        // }
         expect:
-        // assert resp.status == 401
-        // TODO DvM: Hmm, somehow spring does not respond with a 401, but instead with a 302 pointing to the login page
         resp.status == 200
         resp.data.toString().indexOf('Please Login') >= 0
     }
@@ -37,13 +34,12 @@ class OAuthProviderTests extends GebReportingSpec {
         then:
         def e = thrown(groovyx.net.http.HttpResponseException)
         e.message == "Unauthorized"
-        // resp.data.toString().indexOf('error: "invalid_token"') >= 0
     }
 
     void "test fetch authorization token"() {
         when: // we reuqest an authorization code
         def respCode = null
-        def html = httpClient.get(path: "oauth/authorize", query: [response_type:"code", client_id:"myId", client_secret:"mySecret", redirect_uri:"http://localhost:8080/transmart-rest-api/test/verify2"]) { resp, html ->
+        def html = httpClient.get(path: "oauth/authorize", query: [response_type:"code", client_id:"myId", client_secret:"mySecret", redirect_uri:"http://localhost:8080/transmart-rest-api/oauth/verify"]) { resp, html ->
                 respCode = resp.statusLine
                 return html
         }
@@ -55,9 +51,6 @@ class OAuthProviderTests extends GebReportingSpec {
         // html.body.toString().indexOf('j_spring_security_check') >= 0
 
         when: // we log in with the test account
-        // loginForm.j_username = 'bob'
-        // loginForm.j_password = 'pass'
-        // loginButton.click()
         httpClient.client.setRedirectStrategy(new org.apache.http.impl.client.DefaultRedirectStrategy() {
               @Override
               boolean isRedirected(org.apache.http.HttpRequest request, org.apache.http.HttpResponse response, org.apache.http.protocol.HttpContext context) {
@@ -65,40 +58,48 @@ class OAuthProviderTests extends GebReportingSpec {
                 return redirected || response.getStatusLine().getStatusCode() == 302
               }
             })
-        html = httpClient.post(path:'j_spring_security_check', query: [j_username:'bob', j_password:'pass'])
+        html = httpClient.post(path:'j_spring_security_check', query: [j_username:'admin', j_password:'admin'])
         then: // we end up at the page with the authorize message
         html.text().indexOf("You hereby authorize myId") >= 0
 
         when: // we authorize the client
-        html = httpClient.get(path: "oauth/authorize", query: [response_type:"code", client_id:"myId", client_secret:"mySecret", redirect_uri:"http://localhost:8080/transmart-rest-api/test/verify2", authorize:"Authorize", user_oauth_approval:true]) { resp, htmlt ->
+        def html2 = httpClient.post(path: "oauth/authorize", query: [response_type:"code", client_id:"myId", client_secret:"mySecret", redirect_uri:"http://localhost:8080/transmart-rest-api/oauth/verify"], body: [authorize:"Authorize", user_oauth_approval:true]) { resp, htmlt ->
                 respCode = resp.statusLine
+                println "htmlT:${htmlt}"
                 return htmlt
         }
         then: // we receive the code that was generated
-        println "data:${html}"
         respCode?.statusCode == 200
-        html.body.text().indexOf('code:') >= 0
-        println "code:${html.body.code}"
-        html.body.code.size() > 4
+        html2.text().length() >= 5
+        def codeShort = html2.text()
+        println "code:${html2.text()}."
 
         when:
-        resp = restClient.get(path: "oauth/authorize", query: ["response_type":"code"])
+        def html3 = httpClient2.post(path: "oauth/token", query: [grant_type:"authorization_code", client_id:"myId", client_secret:"mySecret", redirect_uri:"http://localhost:8080/transmart-rest-api/oauth/verify", code:codeShort], body:[code:codeShort]) { resp, htmlr ->
+                respCode = resp.statusLine
+                println "htmlR:${htmlr}"
+                return htmlr
+        }
         then:
-        println resp.data
-        resp.status == 200
-        resp.data.size() > 0
+        println "token result:${html3}"
+        respCode?.statusCode == 200
+        html3.size() > 0
+        html3.access_token != null
+        def accessToken = html3.access_token
+        accessToken != null
+        accessToken.size() >= 16
     }
 
-    void "test fetch token"() {
-        given:
-        def resp = restClient.get(uri: restUrl, path: "oauth/token", query: ["grant_type":"client_credentials", "client_id":"myId", "client_secret":"mySecret"])
-        expect:
-        resp.status == 200
-        resp.data.expires_in > 40000
-        resp.data.token_type == "bearer"
-        resp.data.access_token.size() > 16
+    // void "test fetch token"() {
+    //     given:
+    //     def resp = restClient.get(uri: restUrl, path: "oauth/token", query: ["grant_type":"client_credentials", "client_id":"myId", "client_secret":"mySecret"])
+    //     expect:
+    //     resp.status == 200
+    //     resp.data.expires_in > 40000
+    //     resp.data.token_type == "bearer"
+    //     resp.data.access_token.size() > 16
 
-    }
+    // }
 
     // void "test unauthorized authorize call"() {
     //     when:
@@ -107,26 +108,7 @@ class OAuthProviderTests extends GebReportingSpec {
     //     thrown(groovyx.net.http.HttpResponseException)
     // }
 
-    void "test fetch token and authorize"() {
-        when:
-        def resp = restClient.get(uri: restUrl, path: 'oauth/token', query: ['grant_type':'client_credentials', 'client_id':'myId', 'client_secret':'mySecret'])
 
-        then:
-        assert resp.status == 200
-        assert resp.data.expires_in > 40000
-        assert resp.data.token_type == "bearer"
-        assert resp.data.access_token.size() > 16
-        def accessToken = resp.data.access_token
-        println "access token:$accessToken"
-        when:
-        resp = restClient.get(uri: restUrl, path: 'oAuth/authorize', query:['response_type':'code', 'client_id':'myId', 'redirect_uri':restUrl, 'access_token':accessToken])
-        then:
-        println resp.data
-        assert resp.status == 200
-        assert resp.data.expires_in > 40000
-        assert resp.data.token_type == "bearer"
-        assert resp.data.access_token.size() > 16
-    }
     // test mapping of rest calls
     // test with and without end slash
     // test with .json, etc
