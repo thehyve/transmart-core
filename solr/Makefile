@@ -1,14 +1,16 @@
 include ../makefile.inc
 
+include ../lib/makefile.inc
+
 SOLR_DL=http://files.thehyve.net/solr
 SOLR_VERSION=4.5.0
 ifdef ORACLE
-  JDBC_DRIVER=ojdbc6-12.1.0.1.0.jar
-  JDBC_DL=http://files.thehyve.net
+  JDBC_DRIVER=$(JDBC_DRIVER_ORA)
+  JDBC_DRIVER_PATH=$(JDBC_DRIVER_ORA_PATH)
   DBSUBDIR=oracle
 else
-  JDBC_DRIVER=postgresql-9.2-1003.jdbc4.jar
-  JDBC_DL=http://jdbc.postgresql.org/download
+  JDBC_DRIVER=$(JDBC_DRIVER_PSQL)
+  JDBC_DRIVER_PATH=$(JDBC_DRIVER_PSQL_PATH)
   DBSUBDIR=postgres
 endif
 
@@ -26,9 +28,9 @@ $(EXAMPLE_FILES): solr-$(SOLR_VERSION).tgz
 	tar xzf $< --touch --strip-components=2 solr-$(SOLR_VERSION)/example/$@
 
 DRIVER=contrib/dataimporthandler/lib/$(JDBC_DRIVER)
-$(DRIVER):
+$(DRIVER): $(JDBC_DRIVER_PATH)
 	test -d contrib || $(MAKE) contrib
-	curl -f '$(JDBC_DL)/$(JDBC_DRIVER)' -o $@
+	cp "$<" "$@"
 
 solr: solr-$(SOLR_VERSION).tgz
 	tar xzf $< --touch --strip-components=2 \
