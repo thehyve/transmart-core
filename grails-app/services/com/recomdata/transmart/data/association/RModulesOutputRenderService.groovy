@@ -131,7 +131,7 @@ class RModulesOutputRenderService {
 	
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
             File oldImage = new File(currentImageFile.path),
-                 newImage = new File(outputDirectory, currentImageFile.name);
+                 newImage = new File(outputDirectory, currentImageFile.name.replaceAll(" ", "_"));
             log.debug("Move or copy $oldImage to $newImage")
             if (transferImageFile) {
                 newImage = new File(outputDirectory, currentImageFile.name);
