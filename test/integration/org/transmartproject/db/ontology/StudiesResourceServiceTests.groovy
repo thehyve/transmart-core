@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.isA
 @Mixin(ConceptTestData)
 class StudiesResourceServiceTests {
 
-    I2b2Data i2b2Data = new I2b2Data('study1')
+    StudyTestData studyTestData = new StudyTestData()
 
     StudiesResource studiesResourceService
 
@@ -27,16 +27,7 @@ class StudiesResourceServiceTests {
 
     @Before
     void setUp() {
-        i2b2Data.saveAll()
-
-        addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
-                tableCode: 'i2b2 main', tableName: 'i2b2')
-
-        addI2b2(level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cVisualattributes: 'FAS')
-        addI2b2(level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cVisualattributes: 'LA')
-
-        addI2b2(level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cVisualattributes: 'FAS')
-        addI2b2(level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cVisualattributes: 'LA')
+        studyTestData.saveAll()
     }
 
     @Test
@@ -84,13 +75,6 @@ class StudiesResourceServiceTests {
         shouldFail NoSuchResourceException, {
             studiesResourceService.getStudyByOntologyTerm(concept)
         }
-    }
-
-    @Test
-    void testStudyGetAllPatients() {
-        Study study = studiesResourceService.getStudyByName('study1')
-
-        assertThat study.patients, containsInAnyOrder(i2b2Data.patients.collect { is it })
     }
 
 }

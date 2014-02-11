@@ -10,6 +10,11 @@ class StudyImpl implements Study {
     OntologyTerm ontologyTerm
 
     @Override
+    String getName() {
+        ontologyTerm.name
+    }
+
+    @Override
     Set<Patient> getPatients() {
         /* another implementation option would be to use ObservationFact,
          * but this is more straightforward */
