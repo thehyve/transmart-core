@@ -59,8 +59,8 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
                 (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
-                (Projection.DEFAULT_REAL_PROJECTION): 'intensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore'),
+                (Projection.DEFAULT_REAL_PROJECTION):  'intensity',
+                (Projection.ZSCORE_PROJECTION):        'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 

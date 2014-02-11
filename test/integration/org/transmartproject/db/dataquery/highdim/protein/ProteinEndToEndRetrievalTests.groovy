@@ -31,7 +31,7 @@ class ProteinEndToEndRetrievalTests {
 
     ProteinTestData testData = new ProteinTestData()
 
-    static final Double DELTA = 0.0001
+    static final Double DELTA = 0.01
 
     String ureaTransporterPeptide,
            adiponectinPeptide,
@@ -106,6 +106,34 @@ class ProteinEndToEndRetrievalTests {
                 contains( /* the rows are iterable */
                         closeTo(testData.data[5].zscore as Double, DELTA),
                         closeTo(testData.data[4].zscore as Double, DELTA))))
+    }
+
+    @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = proteinResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        result = proteinResource.retrieveData(
+                [ trialConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList result
+        def rows = resultList.collect {
+            it.data
+        }.flatten().sort()
+
+        def originalLogIntensities = testData.data.collect { (it.logIntensity as Double) }.sort()
+
+        rows.eachWithIndex { it, i ->
+            assertThat(it, closeTo(originalLogIntensities[i], DELTA))
+        }
+
+        //assertThat(rows, hasItems(testData.data.collect { (it.logIntensity as Double).round(2) }))
+
+        //assertThat result, hasItem(allOf(
+                //hasProperty('label', is(ureaTransporterPeptide)),
+                //contains(
+                        //closeTo(testData.data[5].logIntensity as Double, DELTA),
+                        //closeTo(testData.data[4].logIntensity as Double, DELTA))))
     }
 
     @Test
