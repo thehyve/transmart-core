@@ -30,24 +30,24 @@ maxDrawNumber = Inf,
 aggregate.probes = FALSE
 )
 {
-	print("-------------------")
-	print("KMeansHeatmap.R")
-	print("CREATING K-MEANS HEATMAP")
+    print("-------------------")
+    print("KMeansHeatmap.R")
+    print("CREATING K-MEANS HEATMAP")
 
-	library(Cairo)
-	library(reshape2)
-	library(gplots)
+    library(Cairo)
+    library(reshape2)
+    library(gplots)
 
-		#Prepare the package to capture the image file.
-    	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+    #Prepare the package to capture the image file.
+    CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
 
-	#Validate the number of clusters after converting to a numeric.
-	clusters.number <- as.numeric(clusters.number)	
-	
-	if(is.na(clusters.number)) stop("||FRIENDLY||The number of clusters supplied was invalid.")
-	
-	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename))
+    #Validate the number of clusters after converting to a numeric.
+    clusters.number <- as.numeric(clusters.number)
+
+    if(is.na(clusters.number)) stop("||FRIENDLY||The number of clusters supplied was invalid.")
+
+    #Pull the GEX data from the file.
+    mRNAData <- data.frame(read.delim(input.filename))
     if (nrow(mRNAData) == 0) {
         Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
     }
@@ -57,126 +57,125 @@ aggregate.probes = FALSE
         mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
     }
 
-	#Trim the patient.id field.
-	mRNAData$PATIENT_NUM <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT_NUM)	
-	
-	#Trim the Gene/Probe field.
-	mRNAData$GROUP <- sub("^\\s+|\\s+$", "",mRNAData$GROUP)
-	
-	#Melt the data, leaving 3 columns as the grouping fields.
-	meltedData <- melt(mRNAData, id=c("GROUP","PATIENT_NUM","GENE_SYMBOL"))
+    #Trim the patient.id field.
+    mRNAData$PATIENT_NUM <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT_NUM)
 
-	#Cast the data into a format that puts the ASSAY.ID in a column.
-	castedData <- data.frame(dcast(meltedData, GROUP ~ PATIENT_NUM))
+    #Trim the Gene/Probe field.
+    mRNAData$GROUP <- sub("^\\s+|\\s+$", "",mRNAData$GROUP)
 
-	#Set the name of the rows to be the names of the probes.
-	rownames(castedData) = castedData$GROUP
-	
-	#When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
-	colnames(castedData) <- sub("^X","",colnames(castedData))	
-	
-	#Convert data to an integer matrix.
-	print("Convert data to an integer matrix")
-	matrixData <- data.matrix(subset(castedData, select = -c(GROUP)))
+    #Melt the data, leaving 3 columns as the grouping fields.
+    meltedData <- melt(mRNAData, id=c("GROUP","PATIENT_NUM","GENE_SYMBOL"))
 
-# by Serge and Wei to filter a sub set and reorder markers
-        matrixData <- matrixData[!apply(is.na(matrixData),1,any), ]				# remove rows with NA
-        if (nrow(matrixData) == 0) {
-            Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a heatmap with."); return()
-        }
+    #Cast the data into a format that puts the ASSAY.ID in a column.
+    castedData <- data.frame(dcast(meltedData, GROUP ~ PATIENT_NUM))
 
-        num_markers<-dim(matrixData)[1]                                                         # number of markers in the dataset
-        if (num_markers > maxDrawNumber) {                                                      # if more markers in the dataset, apply filter
-                sd_rows_matrix<-apply (matrixData,1,sd,na.rm=T)
-                matrixData<-matrixData[!is.na(sd_rows_matrix),]                                 # remove markers where sd is NA
-                sd_rows_matrix<-sd_rows_matrix[!is.na(sd_rows_matrix)]
-                cutoff_sd<- sd_rows_matrix[order(sd_rows_matrix,decreasing = T)][maxDrawNumber+1] # filter by SD, draw only the top maxDrawNumber
-                matrixData<-matrixData[sd_rows_matrix>cutoff_sd,]
-        }
+    #Set the name of the rows to be the names of the probes.
+    rownames(castedData) = castedData$GROUP
 
-	#Transpose the matrix to put the sample column into a row.
-	print("Transpose the matrix to put the sample column into a row")
-	transposedMatrixData <- t(matrixData)
-	
-	#Make sure the number of clusters is applicable.
-	if(clusters.number >= nrow(transposedMatrixData)) stop(paste("||FRIENDLY||The number of clusters must fall between 1 and the number of subjects in your data. Your data only has ",as.character(nrow(transposedMatrixData))," subjects"))
-	
-	#Create the kmeans object. We cluster by columns.
-	print("Create the kmeans object. We cluster by columns")
-	kMeansObject <- kmeans(transposedMatrixData,centers=clusters.number)
-	
-	#We want to merge the cluster names back into our data set.
-	print("Merge the cluster names back into our data set")
-	dataWithCluster <- data.frame(transposedMatrixData,cluster=kMeansObject$cluster)
-	
-	#Order the data on the cluster column.
-	print("Order the data on the cluster column")
-	dataWithCluster <- dataWithCluster[order(dataWithCluster$cluster),]
-	
-	#Create a function that will help us decide which color to draw above the heatmap.
-	print("Create a function that will help us decide which color to draw above the heatmap")
-	color.map <- function(clusterNumber) { if (clusterNumber %% 2 == 0 ) "#8B8989" else "#5C3317" }
-	
-	#Use the function to create a list with a color for each patient.
-	print("Use the function to create a list with a color for each patient")
-	patientcolors <- unlist(lapply(dataWithCluster$cluster, color.map))
-	
-	#Remove the cluster column.
-	print("Remove the cluster column")
-	dataWithCluster <- subset(dataWithCluster, select = -c(cluster))	
-	
-	#Transpose the data back.
-	print("Transpose the data back")
-	dataWithCluster <- t(dataWithCluster)
-	
-	#If we didn't aggregate the probes the rownames are probe IDs, which are usually numeric. Strip the X from them here.
-	rownames(dataWithCluster) <- sub("^X","",rownames(dataWithCluster))	
-	
-	#Push the data back to a matrix so we can plot it.
-	print("Push the data back to a matrix so we can plot it")
-	matrixData <- data.matrix(dataWithCluster)
-	
-	#We can't draw a heatmap for a matrix with only 1 row.
-	if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
-	if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
+    #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+    colnames(castedData) <- sub("^X","",colnames(castedData))
 
-	
- 	colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
+    #Convert data to an integer matrix.
+    print("Convert data to an integer matrix")
+    matrixData <- data.matrix(subset(castedData, select = -c(GROUP)))
 
-	#Store the heatmap in a temp variable.
-	print("Create the heatmap")
-	tmp <- heatmap(	matrixData,
-					Rowv=NA,
-					Colv=NA,col=colorPanelList,
-					ColSideColors=patientcolors,
-					margins=c(25,25),			
-					cexRow=1.5,
-					cexCol=1.5)		
-	
-	#Print the heatmap to an image
-	print("Print the heatmap to an image")
-	print (tmp)		
-	
-	dev.off()
+    # by Serge and Wei to filter a sub set and reorder markers
+    matrixData <- matrixData[!apply(is.na(matrixData),1,any), ]				# remove rows with NA
+    if (nrow(matrixData) == 0) {
+        Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a heatmap with."); return()
+    }
+
+    num_markers<-dim(matrixData)[1]                                                         # number of markers in the dataset
+    if (num_markers > maxDrawNumber) {                                                      # if more markers in the dataset, apply filter
+            sd_rows_matrix<-apply (matrixData,1,sd,na.rm=T)
+            matrixData<-matrixData[!is.na(sd_rows_matrix),]                                 # remove markers where sd is NA
+            sd_rows_matrix<-sd_rows_matrix[!is.na(sd_rows_matrix)]
+            cutoff_sd<- sd_rows_matrix[order(sd_rows_matrix,decreasing = T)][maxDrawNumber+1] # filter by SD, draw only the top maxDrawNumber
+            matrixData<-matrixData[sd_rows_matrix>cutoff_sd,]
+    }
+
+    #Transpose the matrix to put the sample column into a row.
+    print("Transpose the matrix to put the sample column into a row")
+    transposedMatrixData <- t(matrixData)
+
+    #Make sure the number of clusters is applicable.
+    if(clusters.number >= nrow(transposedMatrixData)) stop(paste("||FRIENDLY||The number of clusters must fall between 1 and the number of subjects in your data. Your data only has ",as.character(nrow(transposedMatrixData))," subjects"))
+
+    #Create the kmeans object. We cluster by columns.
+    print("Create the kmeans object. We cluster by columns")
+    kMeansObject <- kmeans(transposedMatrixData,centers=clusters.number)
+
+    #We want to merge the cluster names back into our data set.
+    print("Merge the cluster names back into our data set")
+    dataWithCluster <- data.frame(transposedMatrixData,cluster=kMeansObject$cluster)
+
+    #Order the data on the cluster column.
+    print("Order the data on the cluster column")
+    dataWithCluster <- dataWithCluster[order(dataWithCluster$cluster),]
+
+    #Create a function that will help us decide which color to draw above the heatmap.
+    print("Create a function that will help us decide which color to draw above the heatmap")
+    color.map <- function(clusterNumber) { if (clusterNumber %% 2 == 0 ) "#8B8989" else "#5C3317" }
+
+    #Use the function to create a list with a color for each patient.
+    print("Use the function to create a list with a color for each patient")
+    patientcolors <- unlist(lapply(dataWithCluster$cluster, color.map))
+
+    #Remove the cluster column.
+    print("Remove the cluster column")
+    dataWithCluster <- subset(dataWithCluster, select = -c(cluster))
+
+    #Transpose the data back.
+    print("Transpose the data back")
+    dataWithCluster <- t(dataWithCluster)
+
+    #If we didn't aggregate the probes the rownames are probe IDs, which are usually numeric. Strip the X from them here.
+    rownames(dataWithCluster) <- sub("^X","",rownames(dataWithCluster))
+
+    #Push the data back to a matrix so we can plot it.
+    print("Push the data back to a matrix so we can plot it")
+    matrixData <- data.matrix(dataWithCluster)
+
+    #We can't draw a heatmap for a matrix with only 1 row.
+    if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
+    if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
+
+
+    colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
+
+    #Store the heatmap in a temp variable.
+    print("Create the heatmap")
+    tmp <- heatmap(	matrixData,
+            Rowv=NA,
+            Colv=NA,col=colorPanelList,
+            ColSideColors=patientcolors,
+            margins=c(25,25),
+            cexRow=1.5,
+            cexCol=1.5)
+
+    #Print the heatmap to an image
+    print("Print the heatmap to an image")
+    print (tmp)
+
+    dev.off()
 }
 
 ClusteredHeatmap.loader.single <- function(heatmapdata)
 {
-	#Convert data to an integer matrix.
-	matrixData <- data.matrix(subset(heatmapdata, select = -c(GROUP,kMeansObject.cluster)))
+    #Convert data to an integer matrix.
+    matrixData <- data.matrix(subset(heatmapdata, select = -c(GROUP,kMeansObject.cluster)))
 
-	#Store the heatmap in a temp variable.
-	tmp <- heatmap(matrixData,Rowv=NA,Colv=NA,col=redgreen(100))		
-	
-	#Print the heatmap to an image
-	print (tmp)	
-	
-	#Set up a matrix of plots, 1 column, as long as the number of clusters.
-	par(mfrow=c(1,clusters.number))
-	
-	#For each of the clusters we draw a heatmap.
-	lapply(split(dataWithCluster, dataWithCluster$kMeansObject.cluster), ClusteredHeatmap.loader.single)
-	
+    #Store the heatmap in a temp variable.
+    tmp <- heatmap(matrixData,Rowv=NA,Colv=NA,col=redgreen(100))
+
+    #Print the heatmap to an image
+    print (tmp)
+
+    #Set up a matrix of plots, 1 column, as long as the number of clusters.
+    par(mfrow=c(1,clusters.number))
+
+    #For each of the clusters we draw a heatmap.
+    lapply(split(dataWithCluster, dataWithCluster$kMeansObject.cluster), ClusteredHeatmap.loader.single)
 }
 
 Plot.error.message <- function(errorMessage) {
@@ -192,7 +191,7 @@ Plot.error.message <- function(errorMessage) {
 }
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
-	library(WGCNA)
+    library(WGCNA)
 
     meltedData <- melt(mRNAData, id=c("GROUP","GENE_SYMBOL","PATIENT_NUM"))
 
@@ -207,14 +206,14 @@ Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.
 
     #Run the collapse on a subset of the data by removing some columns.
     finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,GROUP,UNIQUE_ID) ),
-                                  rowGroup = castedData$GENE_SYMBOL,
-                                  rowID = castedData$UNIQUE_ID,
-                                  method = collapseRow.method,
-                                  connectivityBasedCollapsing = TRUE,
-                                  methodFunction = NULL,
-                                  connectivityPower = 1,
-                                  selectFewestMissing = collapseRow.selectFewestMissing,
-                                  thresholdCombine = NA)
+            rowGroup = castedData$GENE_SYMBOL,
+            rowID = castedData$UNIQUE_ID,
+            method = collapseRow.method,
+            connectivityBasedCollapsing = TRUE,
+            methodFunction = NULL,
+            connectivityPower = 1,
+            selectFewestMissing = collapseRow.selectFewestMissing,
+            thresholdCombine = NA)
 
     #Coerce the data into a data frame.
     finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
