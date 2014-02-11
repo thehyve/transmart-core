@@ -15,7 +15,7 @@
 )
 AS
 /*************************************************************************
-* Copyright 2008-2012 Janssen Research and Development, LLC.
+* Copyright 2008-2012 Janssen Research BIOMART_USER, LLC.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -95,13 +95,15 @@ AS
   where c_fullname like topNode || '%'
     and substr(c_visualattributes,2,1) = 'H';
     --and c_visualattributes like '_H_';
+    
+    cursor uploadI2b2 is 
+    select category_cd,display_value,display_label,display_unit from
+    tm_lz.lt_src_display_mapping group by category_cd,display_value,display_label,display_unit;
 
 
 BEGIN
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
-  
-   EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"'; 
 	
 	if (secureStudy not in ('Y','N') ) then
 		secureStudy := 'Y';
@@ -137,7 +139,7 @@ BEGIN
     newJobFlag := 1; -- True
     cz_start_audit (procedureName, databaseName, jobID);
   END IF;
-    	
+    
 	stepCt := 0;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_process_mrna_data',0,stepCt,'Done');
@@ -272,7 +274,7 @@ BEGIN
 			   where x.sourcesystem_cd = 
 				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':'))
 		) x;
-	
+
 	pCount := SQL%ROWCOUNT;
 	
 	stepCt := stepCt + 1;
@@ -315,20 +317,20 @@ BEGIN
 			into pExists
 			from all_tab_partitions
 			where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
-			  and partition_name = TrialId;
+			  and partition_name = TrialId || ':' || sourceCd;
 			
 		if pExists = 0 then
 					
 			--	needed to add partition to de_subject_microarray_data
 
-			sqlText := 'alter table deapp.de_subject_microarray_data add PARTITION "' || TrialID || '"  VALUES (' || '''' || TrialID || '''' || ') ' ||
+			sqlText := 'alter table deapp.de_subject_microarray_data add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
 						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to de_subject_microarray_data',0,stepCt,'Done');
 				
 		else
-			sqlText := 'alter table deapp.de_subject_microarray_data truncate partition "' || TrialID || '"';
+			sqlText := 'alter table deapp.de_subject_microarray_data truncate partition "' || TrialID || ':' || sourceCd || '"';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in de_subject_microarray_data',0,stepCt,'Done');
@@ -378,6 +380,7 @@ BEGIN
 	  and a.source_cd = sourceCD
 	  and a.platform = g.platform
 	  and upper(g.marker_type) = 'GENE EXPRESSION'
+	  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
 	--  and decode(dataType,'R',sign(a.intensity_value),1) = 1;	--	take all values when dataType T, only >0 for dataType R
@@ -734,6 +737,8 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+        ,sample_cd
+        ,instance_num
     )
     select distinct m.patient_id
 		  ,m.concept_code
@@ -747,6 +752,8 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                  ,m.sample_cd
+                  ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
@@ -758,7 +765,7 @@ BEGIN
     commit;
     
 	--	Insert sample facts 
-	
+
 	insert into observation_fact
     (patient_num
 	,concept_cd
@@ -772,6 +779,8 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+  ,sample_cd
+  ,instance_num
     )
     select distinct m.sample_id
 		  ,m.concept_code
@@ -785,6 +794,8 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+      ,m.sample_cd
+      ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
@@ -795,6 +806,10 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
 
     commit;
+    ---INSERT sample_dimension
+      INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
+         SELECT DISTINCT SAMPLE_CD FROM 
+           DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
     
 	--Update I2b2 for correct data type
 	
@@ -806,17 +821,23 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
-	update i2b2
-	SET c_columndatatype = 'N',
+        for ul in uploadI2b2
+        loop
+	 update i2b2 n
+	SET n.c_columndatatype = 'N',
       --Static XML String
-		c_metadataxml = '<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue><HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue><LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits></UnitValues><Analysis><Enums /><Counts /><New /></Analysis></ValueMetadata>'
-	where c_basecode IN (
-		  select xd.concept_cd
-		  from wt_mrna_nodes xd
-			  ,observation_fact xf
-		  where xf.concept_cd = xd.concept_cd
-		  group by xd.concept_Cd
-		  having Max(xf.valtype_cd) = 'N');
+		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+                <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
+                <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
+                <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
+                <UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits>
+                <ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor>
+                </ConvertingUnits></UnitValues><Analysis><Enums /><Counts />
+                <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
+      from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
+                '</ValueMetadata>') where n.c_fullname=ul.category_cd;
+                
+                end loop;
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
@@ -911,7 +932,7 @@ BEGIN
 	  and decode(dataType,'R',sign(md.intensity_value),1) = 1  --	take only >0 for dataType R
 	group by gs.probeset_id
 		--  ,sd.sample_cd
-		  ,sd.patient_id
+		  ,sd.patient_id 
 		--  ,sd.sample_cd
 		--  ,sd.subject_id
 		  ,sd.assay_id;
@@ -994,33 +1015,35 @@ BEGIN
 		cz_write_audit(jobId,databasename,procedurename,'Platform data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
 		cz_error_handler(jobid,procedurename);
 		cz_end_audit (jobId,'FAIL');
-		select 16 into rtn_code from dual;
+		select 161 into rtn_code from dual;
 	when missing_tissue then
 		cz_write_audit(jobId,databasename,procedurename,'Tissue Type data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
 		cz_error_handler(jobid,procedurename);
 		CZ_END_AUDIT (JOBID,'FAIL');
-		select 16 into rtn_code from dual;
+		select 162 into rtn_code from dual;
 	when unmapped_platform then
 		cz_write_audit(jobId,databasename,procedurename,'Platform not found in de_mrna_annotation',1,stepCt,'ERROR');
 		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
 		cz_end_audit (jobId,'FAIL');
-		select 16 into rtn_code from dual;
+		select 169 into rtn_code from dual;
 	when multiple_platform then
 		cz_write_audit(jobId,databasename,procedurename,'Multiple platforms for sample_cd in lt_src_mrna_subj_samp_map',1,stepCt,'ERROR');
 		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
 		cz_end_audit (jobId,'FAIL');
-		select 16 into rtn_code from dual;
+		select 163 into rtn_code from dual;
 	when no_probeset_recs then
 		cz_write_audit(jobId,databasename,procedurename,'Unable to match probesets to platform in probeset_deapp',1,stepCt,'ERROR');
 		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
 		cz_end_audit (jobId,'FAIL');
-		select 16 into rtn_code from dual;
+		select 165 into rtn_code from dual;
 	WHEN OTHERS THEN
 		--Handle errors.
 		cz_error_handler (jobID, procedureName);
 		--End Proc
 		cz_end_audit (jobID, 'FAIL');
-		select 16 into rtn_code from dual;
-END;
+		select 166 into rtn_code from dual;
+END; 
+
+	
 /
  

@@ -17,9 +17,23 @@
  PRIMARY KEY ("FILE_ID")
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
-  ) SEGMENT CREATION DEFERRED
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" ;
 
+--
+-- Type: TRIGGER; Owner: FMAPP; Name: TRG_FM_FILE_ID
+--
+  CREATE OR REPLACE TRIGGER "FMAPP"."TRG_FM_FILE_ID" before insert on fmapp."FM_FILE"    
+for each row begin    
+if inserting then      
+  if :NEW."FILE_ID" is null then          
+    select SEQ_FM_ID.nextval into :NEW."FILE_ID" from dual;       
+  end if;    
+end if; 
+end;
+/
+ALTER TRIGGER "FMAPP"."TRG_FM_FILE_ID" ENABLE;
+ 
 --
 -- Type: TRIGGER; Owner: FMAPP; Name: TRG_FM_FILE_UID
 --
@@ -37,21 +51,6 @@ BEGIN
     values (:NEW."FILE_ID", FM_FILE_UID(:NEW."FILE_ID"), 'FM_FILE');
   end if;
 end;
-
-ALTER TRIGGER "FMAPP"."TRG_FM_FILE_UID" ENABLE;
- 
-
-  CREATE OR REPLACE TRIGGER "FMAPP"."TRG_FM_FILE_ID" before insert on fmapp."FM_FILE"    
-for each row begin    
-if inserting then      
-  if :NEW."FILE_ID" is null then          
-    select SEQ_FM_ID.nextval into :NEW."FILE_ID" from dual;       
-  end if;    
-end if; 
-end;
-
-ALTER TRIGGER "FMAPP"."TRG_FM_FILE_ID" ENABLE;
-commit;
 /
 ALTER TRIGGER "FMAPP"."TRG_FM_FILE_UID" ENABLE;
  

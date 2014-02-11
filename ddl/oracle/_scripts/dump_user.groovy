@@ -103,7 +103,7 @@ def writeToFileHierarchy = { Set seenFiles, Item item, ItemRepository repos ->
         targetFile = new File(topDir, '_cross.sql')
     } else if (item.type == 'TABLE') {
         targetFile = new File(topDir, "${item.nameLower}.sql")
-    } else if (item.type == 'VIEW' || item.type == 'MATERIALIZED VIEW') {
+    } else if (item.type == 'VIEW' || item.type == 'MATERIALIZED_VIEW') {
         File viewsDir = new File(topDir, 'views')
         if (!viewsDir.exists()) {
             viewsDir.mkdir()
@@ -253,6 +253,10 @@ class ItemFactory {
                 break
             case null:
                 throw new RuntimeException("No name")
+            case 'MATERIALIZED VIEW':
+                // the type is actually without underscore, but the fetch DDL
+                // functions expect an underscore
+                map.type = 'MATERIALIZED_VIEW'
             default:
                 obj = new GenericDdlItem()
         }
@@ -281,6 +285,7 @@ class DDLFetcher {
     private static SQL_LOGGER = Logger.getLogger(Sql.class.name)
 
     String getNamedObjectDDL(Item item) {
+	if(item.type == 'NON-EXISTENT') return ''
         def res = sql.firstRow "SELECT DBMS_METADATA.GET_DDL($item.type, $item.name, $item.owner) FROM DUAL"
         Clob clob = res[0]
         clob.characterStream.text
@@ -383,7 +388,7 @@ class ObjectFinder {
                 dbms_metadata.get_ddl(object_type, object_name, $owner) as ddl
                 FROM dba_objects
                 WHERE owner = $owner AND object_type IN (
-                'SEQUENCE', 'TRIGGER', 'MATERIALIZED VIEW', 'FUNCTION',
+                'SEQUENCE', 'TRIGGER', 'MATERIALIZED_VIEW', 'FUNCTION',
                 'TABLE', 'VIEW', 'PROCEDURE', 'TYPE')""", {
             def item = factory.createItem owner: owner,
                                           type:  it['OBJECT_TYPE'],

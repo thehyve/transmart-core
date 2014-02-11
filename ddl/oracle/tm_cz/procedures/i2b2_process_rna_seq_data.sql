@@ -144,20 +144,13 @@ BEGIN
 		raise missing_platform;
 	end if;
   
-  	--	check if platform exists in de_MRNA_annotation .  If not, abort run.
+  	
+	
 	
 	/*select count(*) into pCount
-	from DE_MRNA_ANNOTATION
-	where GPL_ID in (select distinct m.platform from lt_src_RNA_SEQ_subj_samp_map m);
-	
-	if PCOUNT = 0 then
-		RAISE UNMAPPED_platform;
-	end if;*/
-	
-	select count(*) into pCount
 	from DE_gpl_info
 	where platform in (select distinct m.platform from lt_src_RNA_SEQ_subj_samp_map m);
-	
+	*/
 	/*if PCOUNT = 0 then
 		RAISE UNMAPPED_platform;
 	end if;*/
@@ -248,12 +241,12 @@ BEGIN
 				 null as race_cd,
 				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':') as sourcesystem_cd
 		 from lt_src_RNA_SEQ_subj_samp_map s
-		     ,de_gpl_info g
+		    -- ,de_gpl_info g
 		 where s.subject_id is not null
 		   and s.trial_name = TrialID
 		   and s.source_cd = sourceCD
-		   and s.platform = g.platform
-		   and upper(g.marker_type) = 'GENE EXPRESSION'
+		 --  and s.platform = g.platform
+		   --and upper(g.marker_type) = 'GENE EXPRESSION'
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
@@ -276,7 +269,7 @@ BEGIN
 		  from de_subject_sample_mapping x
 		  where x.trial_name = TrialId
 		    and nvl(x.source_cd,'STD') = sourceCD
-		    and x.platform = 'MRNA_AFFYMETRIX');
+		    and x.platform = 'RNA_AFFYMETRIX');
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',SQL%ROWCOUNT,stepCt,'Done');
@@ -328,7 +321,7 @@ BEGIN
 	delete from DE_SUBJECT_SAMPLE_MAPPING 
 	where trial_name = TrialID 
 	  and nvl(source_cd,'STD') = sourceCd
-	  and platform = 'MRNA_AFFYMETRIX'; --Making sure only RNA_sequencing data is deleted
+	  and platform = 'RNA_AFFYMETRIX'; --Making sure only RNA_sequencing data is deleted
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
@@ -357,15 +350,15 @@ BEGIN
 				   ,nvl(a.tissue_type,'Unspecified Tissue Type')
 	               ,a.attribute_1
 				   ,a.attribute_2
-				   ,g.title
+				   ,''--g.title
     from lt_src_RNA_SEQ_subj_samp_map a
-	    ,de_gpl_info g 
+	  --  ,de_gpl_info g 
 	where a.trial_name = TrialID
-	  and nvl(a.platform,'GPL570') = g.platform
+	--  and nvl(a.platform,'GPL570') = g.platform
 	  and a.source_cd = sourceCD
-	  and a.platform = g.platform
-	  and upper(g.marker_type) = 'GENE EXPRESSION'
-	  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
+	 -- and a.platform = g.platform
+	--  and upper(g.marker_type) = 'GENE EXPRESSION'
+	--  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
 	--  and decode(dataType,'R',sign(a.intensity_value),1) = 1;	--	take all values when dataType T, only >0 for dataType R
@@ -479,7 +472,7 @@ BEGIN
 	commit;
 	
 	--	insert for tissue_type node so sample_type_cd can be populated 
-	
+
 	insert into wt_RNA_SEQ_nodes
 	(leaf_node
 	,category_cd
@@ -550,7 +543,7 @@ BEGIN
 	                where x.concept_path = t.leaf_node
 				   )
 	  and t.concept_cd is null;
-	  dbms_output.put_line('E1');
+	
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update wt_RNA_SEQ_nodes with newly created concept_cds',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
@@ -640,13 +633,13 @@ BEGIN
 			  ,a2.concept_cd as timepoint_cd
 			  ,a.attribute_1 as tissue_type
 			  ,a1.concept_cd as tissue_type_cd
-			  ,'MRNA_AFFYMETRIX' as platform
+			  ,'RNA_AFFYMETRIX' as platform
 			  ,pn.concept_cd as platform_cd
 			  ,ln.concept_cd || '-' || to_char(b.patient_num) as data_uid
 			  ,a.platform as gpl_id
 			  ,coalesce(sid.patient_num,b.patient_num) as sample_id
 			  ,a.sample_cd
-			  ,nvl(a.category_cd,'Biomarker_Data+Gene_Expression+PLATFORM+TISSUETYPE+ATTR1+ATTR2') as category_cd
+			  ,nvl(a.category_cd,'Biomarker_Data+RNA_SEQ+PLATFORM+TISSUETYPE+ATTR1+ATTR2') as category_cd
 			  ,a.source_cd
 			  ,TrialId as omic_source_study
 			  ,b.patient_num as omic_patient_id
@@ -690,7 +683,7 @@ BEGIN
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD
 		  and  ln.concept_cd is not null) t;
-dbms_output.put_line('E2');
+
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert trial into DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
 
@@ -738,13 +731,13 @@ dbms_output.put_line('E2');
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
-      and m.platform = 'MRNA_AFFYMETRIX';
+      and m.platform = 'RNA_AFFYMETRIX';
 	  
     stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
 
     commit;
-    dbms_output.put_line('E4');
+  
 	--	Insert sample facts 
 	
 	insert into observation_fact
@@ -778,7 +771,7 @@ dbms_output.put_line('E2');
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
-      and m.platform = 'MRNA_AFFYMETRIX'
+      and m.platform = 'RNA_AFFYMETRIX'
 	  and m.patient_id != m.sample_id;
 	  
     stepCt := stepCt + 1;
@@ -828,7 +821,7 @@ dbms_output.put_line('E2');
     set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
-						     and x.platform = 'MRNA_AFFYMETRIX'
+						     and x.platform = 'RNA_AFFYMETRIX'
 							 and x.concept_code is not null);
 	  
 	stepCt := stepCt + 1;
@@ -836,7 +829,25 @@ dbms_output.put_line('E2');
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
 	COMMIT;
-    
+   insert into probeset_deapp
+   (
+   probeset,
+   platform 
+   )select distinct s.probeset
+               ,m.platform               
+            from lt_src_rna_seq_data s,
+                 lt_src_RNA_SEQ_subj_samp_map m  
+                 where s.trial_name=m.trial_name  
+                   and not exists
+		 (select 1 from probeset_deapp x
+		  where m.platform = x.platform
+		    and s.probeset = x.probeset);
+                    
+                    stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert new probesets into probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
+        
+        
+
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
   -- a unique top-level node for RNA_sequencing data
@@ -867,23 +878,23 @@ dbms_output.put_line('E2');
 
 --	tag data with probeset_id from reference.probeset_deapp
   
-	execute immediate ('truncate table tm_wz.wt_subject_mrna_probeset');
+	execute immediate ('truncate table tm_wz.wt_subject_rna_probeset');
 	
 	--	note: assay_id represents a unique subject/site/sample
-dbms_output.put_line('E5');
-	
-	insert into wt_subject_mrna_probeset
-	(--probeset_id
+
+
+	insert into wt_subject_rna_probeset
+	(probeset_id
 --	,expr_id
-	intensity_value
+	,intensity_value
 	,patient_id
 --	,sample_cd
 --	,subject_id
 	,trial_name
 	,assay_id
-	) select --md.probeset
+	) select md.probeset
 --		  ,sd.sample_cd
-		  avg(md.intensity_value) as intensity_value
+		 , avg(md.intensity_value) as intensity_value
 		  ,sd.patient_id
 --		  ,sd.sample_cd
 --		  ,sd.subject_id
@@ -891,18 +902,18 @@ dbms_output.put_line('E5');
 		  ,sd.assay_id
 	from de_subject_sample_mapping sd
 		,lt_src_RNA_SEQ_data md   
-		--,probeset_deapp gs
+		,probeset_deapp gs
 	where sd.sample_cd = md.expr_id
-	  and sd.platform = 'MRNA_AFFYMETRIX'
+	  and sd.platform = 'RNA_AFFYMETRIX'
 	  and sd.trial_name = TrialId
 	  and sd.source_cd = sourceCd
 	--  and sd.gpl_id = gs.platform
-	--  and md.probeset = gs.probeset
+	and md.probeset = gs.probeset
 	  and decode(dataType,'R',sign(md.intensity_value),1) = 1  --	take only >0 for dataType R
-          and rownum = 1
-	group by --md.probeset
+          --and rownum = 1
+	group by md.probeset
 		--  ,sd.sample_cd
-		  sd.patient_id
+		  ,sd.patient_id
 		--  ,sd.sample_cd
 		--  ,sd.subject_id
 		  ,sd.assay_id;
@@ -910,8 +921,8 @@ dbms_output.put_line('E5');
 	pExists := SQL%ROWCOUNT;
 	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_mrna_probeset',SQL%ROWCOUNT,stepCt,'Done');
-	dbms_output.put_line('E5.1');
+	cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_rna_probeset',SQL%ROWCOUNT,stepCt,'Done');
+
 	commit;		
 	
 	/*if pExists = 0 then
@@ -944,7 +955,7 @@ dbms_output.put_line('E5');
 					then 2.5
 					else intensity_value
 			   end as zscore
-		from wt_subject_mrna_probeset
+		from wt_subject_rna_probeset 
 		where trial_name = TrialID;
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP de_subject_rna_data',SQL%ROWCOUNT,stepCt,'Done');
@@ -963,7 +974,7 @@ dbms_output.put_line('E5');
 		end if;
 	
 	end if;
-	dbms_output.put_line('E6');
+	
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;
@@ -992,7 +1003,7 @@ dbms_output.put_line('E5');
 		CZ_END_AUDIT (JOBID,'FAIL');
 		select 162 into rtn_code from dual;
 	/*when unmapped_platform then
-		cz_write_audit(jobId,databasename,procedurename,'Platform not found in de_MRNA_annotation',1,stepCt,'ERROR');
+		cz_write_audit(jobId,databasename,procedurename,'Platform not found in de_RNA_annotation',1,stepCt,'ERROR');
 		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
 		cz_end_audit (jobId,'FAIL');
 		select 163 into rtn_code from dual;*/

@@ -22,7 +22,28 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_METABOLOMIC_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_PROTEIN_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_RNASEQ_ANNOTATION"
     },
     "parents" : [ ]
   }, {
@@ -51,6 +72,27 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_DEAPP_ANNOT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_METABOLOMIC_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_METABOLOMIC_MAP"
     },
     "parents" : [ ]
   }, {
@@ -120,7 +162,42 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEOMICS_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEOMICS_SUB_SAM_MAP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_QPCR_MIRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_SUBJ_SAMP_MAP"
     },
     "parents" : [ ]
   }, {
@@ -233,9 +310,30 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_METABOLOMIC_ANNOTATION"
+    },
+    "file" : "tm_lz/lt_metabolomic_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_PROTEIN_ANNOTATION"
+    },
+    "file" : "tm_lz/lt_protein_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_QPCR_MIRNA_ANNOTATION"
     },
     "file" : "tm_lz/lt_qpcr_mirna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_RNASEQ_ANNOTATION"
+    },
+    "file" : "tm_lz/lt_rnaseq_annotation.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -264,6 +362,27 @@
       "name" : "LT_SRC_DEAPP_ANNOT"
     },
     "file" : "tm_lz/lt_src_deapp_annot.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    },
+    "file" : "tm_lz/lt_src_display_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_METABOLOMIC_DATA"
+    },
+    "file" : "tm_lz/lt_src_metabolomic_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_METABOLOMIC_MAP"
+    },
+    "file" : "tm_lz/lt_src_metabolomic_map.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -331,9 +450,44 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEOMICS_DATA"
+    },
+    "file" : "tm_lz/lt_src_proteomics_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEOMICS_SUB_SAM_MAP"
+    },
+    "file" : "tm_lz/lt_src_proteomics_sub_sam_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_QPCR_MIRNA_DATA"
     },
     "file" : "tm_lz/lt_src_qpcr_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_ANNOTATION"
+    },
+    "file" : "tm_lz/lt_src_rbm_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_DATA"
+    },
+    "file" : "tm_lz/lt_src_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_SUBJ_SAMP_MAP"
+    },
+    "file" : "tm_lz/lt_src_rbm_subj_samp_map.sql"
   }, {
     "item" : {
       "type" : "TABLE",

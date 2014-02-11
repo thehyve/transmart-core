@@ -3,6 +3,28 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
+      "name" : "AM_DATA_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
       "name" : "AM_TAG_DISPLAY_VW"
     },
     "parents" : [ {
@@ -42,6 +64,17 @@
       "type" : "TABLE",
       "owner" : "AMAPP",
       "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_VALUE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
     } ]
   }, {
     "child" : {
@@ -1891,6 +1924,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
+      "name" : "FM_FILE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
       "name" : "FM_FOLDER"
     },
     "parents" : [ {
@@ -1942,6 +1986,20 @@
       "owner" : "BIOMART",
       "name" : "GENE_INFO_TEST"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -2126,6 +2184,13 @@
       "owner" : "I2B2METADATA",
       "name" : "I2B2_ID_SEQ"
     } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_METABOLOMICS_ZSCORE_CALC"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -3477,11 +3542,32 @@
     "file" : "biomart_user/_misc.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "file" : "biomart_user/gene_ontology.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "BIOMART_USER",
       "name" : "I2B2_BULK_ADD_SEARCH_TERM"
     },
     "file" : "biomart_user/procedures/i2b2_bulk_add_search_term.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_METABOLOMICS_ZSCORE_CALC"
+    },
+    "file" : "biomart_user/procedures/i2b2_metabolomics_zscore_calc.sql"
   }, {
     "item" : {
       "type" : "TABLE",

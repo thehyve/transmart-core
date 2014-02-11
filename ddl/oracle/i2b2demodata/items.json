@@ -514,6 +514,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "PATIENT_DIMENSION"
@@ -1507,6 +1518,13 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "file" : "i2b2demodata/observation_fact_bk.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
       "type" : "TABLE",

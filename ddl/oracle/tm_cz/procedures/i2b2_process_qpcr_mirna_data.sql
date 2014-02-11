@@ -11,13 +11,14 @@
  ,log_base		number := 2			--	log base value for conversion back to raw
  ,secure_study	varchar2			--	security setting if new patients added to patient_dimension
  ,currentJobID 	NUMBER := null
- ,rtn_code		OUT	NUMBER
+ ,mirna_type varchar2
+ ,rtn_code		OUT	NUMBER 
 )
 AS
 /*************************************************************************
 
-* This store procedure is for ETL for Sanofi to load  qPCR miRNA data
-* Date: 10/23/2013
+* This store procedure is for ETL for Sanofi to load  qpcr or seq miRNA data
+* Date: 12/05/2013
 
 ******************************************************************/
 
@@ -61,6 +62,8 @@ AS
   sCount		integer;
   tablespaceName	varchar2(200);
   v_bio_experiment_id	number(18,0);
+  mirnaType varchar2(15);
+ -- mirnaPlatform varchar2(20);
   
     --Audit variables
   newJobFlag INTEGER(1);
@@ -75,6 +78,7 @@ AS
   unmapped_platform exception;
   multiple_platform	exception;
   no_probeset_recs	exception;
+ -- missing_mirna_type	EXCEPTION;
   
 
   
@@ -100,6 +104,7 @@ AS
 BEGIN
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
+	mirnaType:=upper(mirna_type);
 	
 	if (secureStudy not in ('Y','N') ) then
 		secureStudy := 'Y';
@@ -117,7 +122,12 @@ BEGIN
 			dataType := 'R';
 		end if;
 	end if;
-	
+
+	---check for mirna_type is not null if it is null raise an exception 
+	/*if mirna_type is null then
+	raise missing_mirna_type;
+	end if;
+	*/
 	logBase := log_base;
 	sourceCd := upper(nvl(source_cd,'STD'));
 
@@ -264,7 +274,7 @@ BEGIN
 		   and s.trial_name = TrialID
 		   and s.source_cd = sourceCD
 		   and s.platform = g.platform
-		   and upper(g.marker_type) = 'QPCR MIRNA'
+		   and upper(g.marker_type) = mirnaType
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
@@ -287,7 +297,7 @@ BEGIN
 		  from de_subject_sample_mapping x
 		  where x.trial_name = TrialId
 		    and nvl(x.source_cd,'STD') = sourceCD
-		    and x.platform = 'MIRNA_AFFYMETRIX');
+		    and x.platform = mirna_type);
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',SQL%ROWCOUNT,stepCt,'Done');
@@ -339,7 +349,7 @@ BEGIN
 	delete from DE_SUBJECT_SAMPLE_MAPPING 
 	where trial_name = TrialID 
 	  and nvl(source_cd,'STD') = sourceCd
-	  and platform = 'MIRNA_AFFYMETRIX'; --Making sure only miRNA data is deleted
+	  and platform = mirna_type; --Making sure only miRNA data is deleted
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
@@ -375,7 +385,7 @@ BEGIN
 	  and nvl(a.platform,'GPL570') = g.platform
 	  and a.source_cd = sourceCD
 	  and a.platform = g.platform
-	  and upper(g.marker_type) = 'QPCR MIRNA'
+	  and upper(g.marker_type) = mirnaType
 	  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
@@ -653,7 +663,7 @@ BEGIN
 			  ,a2.concept_cd as timepoint_cd
 			  ,a.attribute_1 as tissue_type
 			  ,a1.concept_cd as tissue_type_cd
-			  ,'MIRNA_AFFYMETRIX' as platform
+			  ,mirna_type as platform
 			  ,pn.concept_cd as platform_cd
 			  ,ln.concept_cd || '-' || to_char(b.patient_num) as data_uid
 			  ,a.platform as gpl_id
@@ -753,7 +763,7 @@ BEGIN
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
-      and m.platform = 'MIRNA_AFFYMETRIX';
+      and m.platform = mirna_type;
 	  
     stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
@@ -791,7 +801,7 @@ BEGIN
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
-      and m.platform = 'MIRNA_AFFYMETRIX'
+      and m.platform = mirna_type
 	 and m.patient_id != m.sample_id;
 	  
     stepCt := stepCt + 1;
@@ -841,7 +851,7 @@ BEGIN
     set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
-						     and x.platform = 'MIRNA_AFFYMETRIX'
+						     and x.platform = mirna_type
 							 and x.concept_code is not null);
 	  
 	stepCt := stepCt + 1;
@@ -884,6 +894,9 @@ BEGIN
 	
 	--	note: assay_id represents a unique subject/site/sample
 	
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'TrialId:'||TrialID,0,stepCt,'test');
+  
 	insert into WT_SUBJECT_MIRNA_PROBESET  --mod
 	(probeset_id
 --	,expr_id
@@ -894,24 +907,22 @@ BEGIN
 	,trial_name
 	,assay_id
 	)
-	select gs.id_ref 
+	select    p.probeset_id 
 		  ,avg(md.intensity_value)
                   ,sd.patient_id
 		  ,TrialId
 		  ,sd.assay_id
 	from deapp.de_subject_sample_mapping sd
 		,LT_SRC_QPCR_MIRNA_DATA md   
-		,(select distinct id_ref
-                    ,coalesce(organism,'Homo sapiens')
-                     from tm_lz.LT_QPCR_MIRNA_ANNOTATION ) gs
+                ,mirna_probeset_deapp p
 	where sd.sample_cd = md.expr_id
 	  and sd.platform = 'MIRNA_AFFYMETRIX'
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
-	  and md.probeset =( select distinct mirna_id from tm_lz.LT_QPCR_MIRNA_ANNOTATION where mirna_id=md.probeset )-- gs.mirna_id
+	  and md.probeset =p.probeset-- gs.mirna_id
 	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
-	group by gs.id_ref
+	group by  p.probeset_id 
 		  ,sd.patient_id,sd.assay_id;
 		  
 	pExists := SQL%ROWCOUNT;

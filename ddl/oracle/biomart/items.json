@@ -1,6 +1,24 @@
 {
   "dependencies" : [ {
     "child" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "A"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "A"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "A"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART",
       "name" : "AM_TAG_DISPLAY_VW"
@@ -1351,16 +1369,9 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "TABLE",
+      "type" : "MATERIALIZED_VIEW",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_CORREL_MV"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "VIEW",
-      "owner" : "BIOMART",
-      "name" : "BIO_MARKER_CORREL_MV_VIEW"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -1374,7 +1385,18 @@
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "VIEW",
@@ -1408,6 +1430,56 @@
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_DATA_CORRELATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_METAB_SUBPATHWAY_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_METAB_SUPERPATHWAY_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
     } ]
   }, {
     "child" : {
@@ -4599,6 +4671,20 @@
   } ],
   "fileAssignments" : [ {
     "item" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "A"
+    },
+    "file" : "biomart/views/a.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "A"
+    },
+    "file" : "biomart/a.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "ANNOTATION"
@@ -5523,18 +5609,18 @@
     "file" : "biomart/bio_marker.sql"
   }, {
     "item" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "file" : "biomart/views/bio_marker_correl_mv.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_CORREL_MV"
     },
     "file" : "biomart/bio_marker_correl_mv.sql"
-  }, {
-    "item" : {
-      "type" : "VIEW",
-      "owner" : "BIOMART",
-      "name" : "BIO_MARKER_CORREL_MV_VIEW"
-    },
-    "file" : "biomart/views/bio_marker_correl_mv_view.sql"
   }, {
     "item" : {
       "type" : "VIEW",
@@ -5549,6 +5635,20 @@
       "name" : "BIO_MARKER_LINK_BIO_MARKER_REL"
     },
     "file" : "biomart/bio_data_correlation.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_METAB_SUBPATHWAY_VIEW"
+    },
+    "file" : "biomart/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_METAB_SUPERPATHWAY_VIEW"
+    },
+    "file" : "biomart/_cross.sql"
   }, {
     "item" : {
       "type" : "INDEX",

@@ -7,7 +7,7 @@ currentJobID NUMBER := null
  )
 AS
 /*************************************************************************
-*This stored procedure is for ETL to load mirna annotation
+*This stored procedure is for ETL to load QPCR MIRNA ANNOTATION 
 * Date:10/29/2013
 ******************************************************************/
 
@@ -15,13 +15,13 @@ AS
 	newJobFlag INTEGER(1);
 	databaseName VARCHAR(100);
 	procedureName VARCHAR(100);
-	jobID number(18,0);
-	stepCt number(18,0);
+	jobID number(18,0); 
+	stepCt number(18,0); 
 	idREF	varchar2(100);
 
 BEGIN
 
-	stepCt := 0;
+	stepCt := 0; 
 
 	--Set Audit Parameters
 	newJobFlag := 0; -- False (Default)
@@ -63,6 +63,19 @@ BEGIN
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from mirna_annotation_deapp',SQL%ROWCOUNT,stepCt,'Done');
+        
+        delete from mirna_probeset_deapp
+	where probeset in ( select distinct id_ref from lt_qpcr_mirna_annotation);
+
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from mirna_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
+        
+        
+        delete from deapp.de_qpcr_mirna_annotation
+	where id_ref in (select distinct id_ref from lt_qpcr_mirna_annotation);
+
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
 
 	--	delete any existing data from deapp.de_qpcr_mirna_annotation
 
@@ -99,8 +112,8 @@ BEGIN
 	from lt_qpcr_mirna_annotation t
 	where not exists
 		 (select 1 from mirna_probeset_deapp x
-		  where x.platform = null
-		    and t.id_ref = x.probeset
+		  where 
+                         t.id_ref = x.probeset
 			and coalesce(t.organism,'Homo sapiens') = coalesce(x.organism,'Homo sapiens'))
 	;
         commit;
@@ -148,9 +161,9 @@ BEGIN
 	,probeset_id
 	,organism)
 	select distinct d.id_ref
-	,d.id_ref
+	,null
 	,null --d.mirna_symbol
-	,d.mirna_id as mirna_id
+	,lower(d.mirna_id) as mirna_id
 	,p.probeset_id
 	,coalesce(d.organism,'Homo sapiens')
 	from lt_qpcr_mirna_annotation d
@@ -173,7 +186,7 @@ BEGIN
 				   and upper(b.organism) = upper(t.organism)
 				   and upper(b.bio_marker_type) = 'MIRNA')
 	where t.id_ref = idREF
-	  and t.mirna_id is null
+	  and t.mirna_id is null 
 	  and t.mirna_symbol is not null
 	  and exists
 		 (select 1 from biomart.mirna_bio_marker x

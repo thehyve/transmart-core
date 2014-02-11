@@ -122,12 +122,35 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "FMAPP",
-      "name" : "TRG_FM_FILE_UID"
+      "name" : "TRG_FM_FILE_ID"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "FMAPP",
       "name" : "FM_FILE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE_UID"
     } ]
   }, {
     "child" : {
@@ -258,7 +281,14 @@
       "owner" : "FMAPP",
       "name" : "SEQ_FM_ID"
     },
-    "file" : "fmapp/fm_folder.sql"
+    "file" : "fmapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_ID"
+    },
+    "file" : "fmapp/fm_file.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

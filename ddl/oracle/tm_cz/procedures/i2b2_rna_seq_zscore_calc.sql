@@ -76,13 +76,16 @@ BEGIN
 --	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_RNA_sequencing_data
 --	If not, raise exception
 
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'were here!',0,stepCt,'test-trace');
+
 	if runType = 'L' then
 		select distinct trial_name into stgTrial
-		from wt_subject_mrna_probeset;
+		from wt_subject_rna_probeset;
 		
 		if stgTrial != TrialId then
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in wt_subject_mrna_probeset - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
+			cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in wt_subject_rna_probeset - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
 			raise trial_mismatch;
 		end if;
 	end if;
@@ -111,27 +114,28 @@ BEGIN
 	execute immediate('truncate table tm_wz.wt_subject_rna_med');
 	
 	select count(*) 
-	into idxExists
+	into idxExists 
 	from all_indexes
 	where table_name = 'WT_SUBJECT_RNA_LOGS'
-	  and index_name = 'WT_SUBJECT_MRNA_LOGS_I1'
+	  and index_name = 'WT_SUBJECT_RNA_LOGS_I1'
 	  and owner = 'TM_WZ';
 		
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.wt_subject_mrna_logs_i1');		
+		execute immediate('drop index tm_wz.WT_SUBJECT_RNA_LOGS_I1');		
 	end if;
 	
 	select count(*) 
 	into idxExists
 	from all_indexes
 	where table_name = 'WT_SUBJECT_RNA_CALCS'
-	  and index_name = 'WT_SUBJECT_MRNA_CALCS_I1'
+	  and index_name = 'WT_SUBJECT_RNA_CALCS_I1'
 	  and owner = 'TM_WZ';
 		
 	if idxExists = 1 then
-		execute immediate('drop index tm_wz.WT_SUBJECT_MRNA_CALCS_I1');
+		execute immediate('drop index tm_wz.WT_SUBJECT_RNA_CALCS_I1');
 	end if;
-	
+
+
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
 	
@@ -178,7 +182,7 @@ BEGIN
 				  ,patient_id
 			--	  ,sample_cd
 			--	  ,subject_id
-			from wt_subject_mrna_probeset
+			from wt_subject_rna_probeset
 			where trial_name = TrialId;
 		--end if;
 	else
@@ -220,7 +224,7 @@ BEGIN
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
-			from wt_subject_mrna_probeset
+			from wt_subject_rna_probeset
 			where trial_name = TrialId;
 --		end if;
 	end if;
@@ -230,9 +234,9 @@ BEGIN
 
 	commit;
     
-	execute immediate('create index tm_wz.wt_subject_mrna_logs_i1 on tm_wz.wt_subject_rna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
+	execute immediate('create index tm_wz.WT_SUBJECT_RNA_LOGS_I1 on tm_wz.wt_subject_rna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mrna_logs',0,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_RNA_LOGS_I1',0,stepCt,'Done');
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
 
@@ -256,9 +260,9 @@ BEGIN
 
 	commit;
 
-	execute immediate('create index tm_wz.wt_subject_mrna_calcs_i1 on tm_wz.wt_subject_rna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
+	execute immediate('create index tm_wz.WT_SUBJECT_RNA_CALCS_I1 on tm_wz.wt_subject_rna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mrna_calcs',0,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_RNA_CALCS_I1',0,stepCt,'Done');
 		
 -- calculate zscore
 
@@ -309,7 +313,7 @@ BEGIN
 */	
 
 
-	insert into de_subject_rna_data
+	insert into deapp.de_subject_rna_data
 	(trial_source
 	,trial_name
 	,assay_id
@@ -396,7 +400,7 @@ select probeset_id
        from de_subject_rna_data
 	   where 1=2;
 	   
-create index tmp_rna_logs_i1 on wt_subject_rna_logs (trial_name, probeset_id);
+--create index tmp_rna_logs_i1 on wt_subject_rna_logs (trial_name, probeset_id);
 
 create table wt_subject_rna_calcs parallel nologging compress as
 select d.trial_name 
