@@ -28,7 +28,7 @@ class RbmDataRetrievalTests {
 
     TabularResult result
 
-    double delta = 0.0001
+    double DELTA = 0.0001
 
     @Test
     void testRetrievalByTrialNameAssayConstraint() {
@@ -53,14 +53,14 @@ class RbmDataRetrievalTests {
                 ),
                 contains(
                         contains(
-                                closeTo(testData.rbmData[-1].zscore as Double, delta),
-                                closeTo(testData.rbmData[-2].zscore as Double, delta)),
+                                closeTo(testData.data[-1].zscore as Double, DELTA),
+                                closeTo(testData.data[-2].zscore as Double, DELTA)),
                         contains(
-                                closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                closeTo(testData.rbmData[-4].zscore as Double, delta)),
+                                closeTo(testData.data[-3].zscore as Double, DELTA),
+                                closeTo(testData.data[-4].zscore as Double, DELTA)),
                         contains(
-                                closeTo(testData.rbmData[-5].zscore as Double, delta),
-                                closeTo(testData.rbmData[-6].zscore as Double, delta)),
+                                closeTo(testData.data[-5].zscore as Double, DELTA),
+                                closeTo(testData.data[-6].zscore as Double, DELTA)),
                 ),
                 everyItem(
                         hasProperty('assayIndexMap', allOf(
@@ -88,8 +88,8 @@ class RbmDataRetrievalTests {
         assertThat resultList, hasItem(allOf(
                 hasProperty('label', is('Antigene1')),
                 contains(
-                        closeTo(testData.rbmData[1].value as Double, delta),
-                        closeTo(testData.rbmData[0].value as Double, delta))))
+                        closeTo(testData.data[1].value as Double, DELTA),
+                        closeTo(testData.data[0].value as Double, DELTA))))
     }
 
     @Test
@@ -107,8 +107,8 @@ class RbmDataRetrievalTests {
                 everyItem(
                         allOf(
                                 contains(
-                                        closeTo(testData.rbmData[-5].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-6].zscore as Double, delta)))),
+                                        closeTo(testData.data[-5].zscore as Double, DELTA),
+                                        closeTo(testData.data[-6].zscore as Double, DELTA)))),
                 contains(
                         allOf(
                                 hasProperty('bioMarker', equalTo('PVR_HUMAN1')),
@@ -132,8 +132,8 @@ class RbmDataRetrievalTests {
                         hasProperty('data', allOf(
                                 hasSize(2),
                                 contains(
-                                        closeTo(testData.rbmData[-5].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-6].zscore as Double, delta),
+                                        closeTo(testData.data[-5].zscore as Double, DELTA),
+                                        closeTo(testData.data[-6].zscore as Double, DELTA),
                                 ))
                         )
                 ),
@@ -156,8 +156,8 @@ class RbmDataRetrievalTests {
                 allOf(
                         hasProperty('label', equalTo('Antigene2')),
                         contains(
-                                closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                closeTo(testData.rbmData[-4].zscore as Double, delta))))
+                                closeTo(testData.data[-3].zscore as Double, DELTA),
+                                closeTo(testData.data[-4].zscore as Double, DELTA))))
     }
 
     @Test
@@ -176,8 +176,8 @@ class RbmDataRetrievalTests {
                 everyItem(
                         hasProperty('data',
                                 contains(
-                                        closeTo(testData.rbmData[-3].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-4].zscore as Double, delta)))),
+                                        closeTo(testData.data[-3].zscore as Double, DELTA),
+                                        closeTo(testData.data[-4].zscore as Double, DELTA)))),
                 contains(hasProperty('label', equalTo('Antigene2'))))
     }
 
@@ -200,8 +200,8 @@ class RbmDataRetrievalTests {
                                 hasProperty('bioMarker', equalTo('PVR_HUMAN4/PVR_HUMAN3')),
                                 hasProperty('label', equalTo('Antigene3')),
                                 contains(
-                                        closeTo(testData.rbmData[-1].zscore as Double, delta),
-                                        closeTo(testData.rbmData[-2].zscore as Double, delta))
+                                        closeTo(testData.data[-1].zscore as Double, DELTA),
+                                        closeTo(testData.data[-2].zscore as Double, DELTA))
                         )
                 )
         )
@@ -244,5 +244,4 @@ class RbmDataRetrievalTests {
     void tearDown() {
         result?.close()
     }
-
 }
