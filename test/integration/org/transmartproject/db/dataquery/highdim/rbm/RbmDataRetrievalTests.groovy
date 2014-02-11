@@ -79,6 +79,22 @@ class RbmDataRetrievalTests {
     }
 
     @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = rbmResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        result = rbmResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat(
+                resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.data.collect { closeTo(it.logIntensity as Double, DELTA) })
+        )
+    }
+
+    @Test
     void testDefaultRealProjection() {
         result = rbmResource.retrieveData([trialNameConstraint], [],
             rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
