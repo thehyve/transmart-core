@@ -126,14 +126,6 @@ class ProteinEndToEndRetrievalTests {
         rows.eachWithIndex { it, i ->
             assertThat(it, closeTo(originalLogIntensities[i], DELTA))
         }
-
-        //assertThat(rows, hasItems(testData.data.collect { (it.logIntensity as Double).round(2) }))
-
-        //assertThat result, hasItem(allOf(
-                //hasProperty('label', is(ureaTransporterPeptide)),
-                //contains(
-                        //closeTo(testData.data[5].logIntensity as Double, DELTA),
-                        //closeTo(testData.data[4].logIntensity as Double, DELTA))))
     }
 
     @Test
