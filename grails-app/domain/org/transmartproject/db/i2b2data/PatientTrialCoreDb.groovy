@@ -3,7 +3,7 @@ package org.transmartproject.db.i2b2data
 import groovy.transform.EqualsAndHashCode
 
 @EqualsAndHashCode(includes = 'patient,study')
-class PatientTrial implements Serializable {
+class PatientTrialCoreDb implements Serializable {
 
     PatientDimension patient
     String study

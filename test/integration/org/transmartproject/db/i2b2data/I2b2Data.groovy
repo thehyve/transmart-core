@@ -12,7 +12,7 @@ class I2b2Data {
 
     List<PatientDimension> patients = createTestPatients(3, -100, trialName)
 
-    List<PatientTrial> patientTrials = createPatientTrialLinks(patients, trialName)
+    List<PatientTrialCoreDb> patientTrials = createPatientTrialLinks(patients, trialName)
 
     static List<PatientDimension> createTestPatients(int n, long baseId, String trialName) {
         (1..n).collect { int i ->
@@ -22,10 +22,10 @@ class I2b2Data {
         }
     }
 
-    static List<PatientTrial> createPatientTrialLinks(Collection<PatientDimension> patients,
-                                                      String trialName) {
+    static List<PatientTrialCoreDb> createPatientTrialLinks(Collection<PatientDimension> patients,
+                                                            String trialName) {
         patients.collect {
-            new PatientTrial(patient: it, study: trialName)
+            new PatientTrialCoreDb(patient: it, study: trialName)
         }
     }
 
