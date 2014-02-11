@@ -31,7 +31,7 @@ class ProteinEndToEndRetrievalTests {
 
     ProteinTestData testData = new ProteinTestData()
 
-    static final Double DELTA = 0.01
+    static final Double DELTA = 0.00005
 
     String ureaTransporterPeptide,
            adiponectinPeptide,
@@ -108,6 +108,14 @@ class ProteinEndToEndRetrievalTests {
                         closeTo(testData.data[4].zscore as Double, DELTA))))
     }
 
+    def getDataMatcherForAnnotation(DeProteinAnnotation annotation,
+                                       String property) {
+        contains testData.data.
+                findAll { it.annotation == annotation }.
+                sort    { it.assay.id }. // data is sorted by assay id
+                collect { closeTo it."$property" as Double, DELTA }
+    }
+
     @Test
     void testLogIntensityProjection() {
         def logIntensityProjection = proteinResource.createProjection(
@@ -117,15 +125,12 @@ class ProteinEndToEndRetrievalTests {
                 [ trialConstraint ], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList result
-        def rows = resultList.collect {
-            it.data
-        }.flatten().sort()
 
-        def originalLogIntensities = testData.data.collect { (it.logIntensity as Double) }.sort()
-
-        rows.eachWithIndex { it, i ->
-            assertThat(it, closeTo(originalLogIntensities[i], DELTA))
-        }
+        println resultList
+        assertThat resultList, containsInAnyOrder(
+                testData.annotations.collect {
+                    getDataMatcherForAnnotation it, 'logIntensity'
+                })
     }
 
     @Test
