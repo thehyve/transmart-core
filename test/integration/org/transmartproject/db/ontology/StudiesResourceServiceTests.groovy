@@ -5,6 +5,7 @@ import org.junit.Test
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.i2b2data.I2b2Data
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.*
@@ -18,12 +19,16 @@ import static org.hamcrest.Matchers.isA
 @Mixin(ConceptTestData)
 class StudiesResourceServiceTests {
 
+    I2b2Data i2b2Data = new I2b2Data('study1')
+
     StudiesResource studiesResourceService
 
     ConceptsResourceService conceptsResourceService
 
     @Before
     void setUp() {
+        i2b2Data.saveAll()
+
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 main', tableName: 'i2b2')
 
@@ -79,6 +84,13 @@ class StudiesResourceServiceTests {
         shouldFail NoSuchResourceException, {
             studiesResourceService.getStudyByOntologyTerm(concept)
         }
+    }
+
+    @Test
+    void testStudyGetAllPatients() {
+        Study study = studiesResourceService.getStudyByName('study1')
+
+        assertThat study.patients, containsInAnyOrder(i2b2Data.patients.collect { is it })
     }
 
 }
