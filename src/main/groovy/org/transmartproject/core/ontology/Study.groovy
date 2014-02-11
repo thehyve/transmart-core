@@ -8,7 +8,16 @@ import org.transmartproject.core.dataquery.Patient
 public interface Study {
 
     /**
-     * The ontology term object associated with this object
+     * The (hopefully unique) name of the study.
+     *
+     * A shortcut for <code>{@link #getOntologyTerm()}.name</code>
+     *
+     * @return the name of the study
+     */
+    String getName()
+
+    /**
+     * The ontology term object associated with this object.
      * @return the ontology term
      */
     OntologyTerm getOntologyTerm()
