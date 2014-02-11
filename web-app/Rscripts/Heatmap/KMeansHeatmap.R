@@ -37,7 +37,10 @@ aggregate.probes = FALSE
 	library(Cairo)
 	library(reshape2)
 	library(gplots)
-	
+
+		#Prepare the package to capture the image file.
+    	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+
 	#Validate the number of clusters after converting to a numeric.
 	clusters.number <- as.numeric(clusters.number)	
 	
@@ -45,7 +48,9 @@ aggregate.probes = FALSE
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
-	if (nrow(mRNAData) == 0) stop("Your selection yielded an empty dataset, please check your subset and biomarker selection.")
+    if (nrow(mRNAData) == 0) {
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
@@ -76,7 +81,9 @@ aggregate.probes = FALSE
 
 # by Serge and Wei to filter a sub set and reorder markers
         matrixData <- matrixData[!apply(is.na(matrixData),1,any), ]				# remove rows with NA
-        if (nrow(matrixData) == 0) stop("The selected cohort has incomplete data for each of your biomarkers. No data is left to plot a heatmap with.")
+        if (nrow(matrixData) == 0) {
+            Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a heatmap with."); return()
+        }
 
         num_markers<-dim(matrixData)[1]                                                         # number of markers in the dataset
         if (num_markers > maxDrawNumber) {                                                      # if more markers in the dataset, apply filter
@@ -133,8 +140,6 @@ aggregate.probes = FALSE
 	if(nrow(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
 	if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 
-	#Prepare the package to capture the image file.
-	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))	
 	
  	colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
 
@@ -172,6 +177,18 @@ ClusteredHeatmap.loader.single <- function(heatmapdata)
 	#For each of the clusters we draw a heatmap.
 	lapply(split(dataWithCluster, dataWithCluster$kMeansObject.cluster), ClusteredHeatmap.loader.single)
 	
+}
+
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
 }
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {

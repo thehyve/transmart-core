@@ -39,8 +39,14 @@ aggregate.probes = FALSE
 	library(reshape2)
 	library(gplots)
 
+	#Prepare the package to capture the image file.
+	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
+    if (nrow(mRNAData) == 0) {
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
@@ -81,12 +87,12 @@ aggregate.probes = FALSE
 	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
 	if(ncol(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 	
-	#Prepare the package to capture the image file.
-	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
-	
 # by Serge and Wei to filter a sub set and reorder markers
 
         mRNAData <- mRNAData[!apply(is.na(mRNAData),1,any), ]					# remove rows with NA
+    if (nrow(mRNAData) == 0) {
+        Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a heatmap with."); return()
+    }
 
         num_markers<-dim(mRNAData)[1]                                                           # number of markers in the dataset
         if (num_markers > maxDrawNumber) {                                                      # if more markers in the dataset, apply filter
@@ -141,16 +147,24 @@ aggregate.probes = FALSE
 	       print (tmp_legend)
 
         } else {
-	       tmp<-frame()
-	       tmp2<-mtext ("not enough marker/samples to draw heatmap",cex=2)
-	       print (tmp)
-	       print (tmp2)
+	       Plot.error.message("Not enough marker/samples to draw heatmap"); return()
         }
 
 	dev.off()
 	print("-------------------")
 }
 
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
+}
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
 	library(WGCNA)

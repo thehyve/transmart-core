@@ -31,9 +31,15 @@ aggregate.probes = FALSE
 
 	library(reshape2)
 	library(Cairo)
-	
+
+    #Prepare the package to capture the image file.
+	CairoPNG(file=paste("PCA.png",sep=""),width=800,height=800)
+
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
+    if (nrow(mRNAData) == 0) {
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     if (nrow(mRNAData)<1) stop("Input data is empty. Common causes: either the specified subset has no matching data in the selected node, or the gene/pathway is not present.")
 
@@ -70,6 +76,9 @@ aggregate.probes = FALSE
 	mRNAData <- subset(mRNAData, select = colSums(is.na(mRNAData))<1)
 
 	print(sprintf("rows %d cols %d NA columns dropped", nrow(mRNAData), ncol(mRNAData)))
+	if (ncol(mRNAData) == 0) {
+        Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a PCA with."); return()
+    }
 
 	###print(mRNAData)
 
@@ -124,7 +133,6 @@ aggregate.probes = FALSE
 	sapply(1:ncol(rotationFrame), f, GENELISTLENGTH)
 	
 	#Finally create the Scree plot.
-	CairoPNG(file=paste("PCA.png",sep=""),width=800,height=800)
 	
 	plot(pca.results,type="lines", main="Scree Plot")
 	title(xlab = "Component")
@@ -132,6 +140,17 @@ aggregate.probes = FALSE
 	dev.off()
 }
 
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
+}
 
 PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
   library(WGCNA)
