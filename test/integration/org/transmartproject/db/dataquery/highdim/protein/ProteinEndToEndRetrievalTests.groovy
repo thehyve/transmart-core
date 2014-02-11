@@ -126,7 +126,6 @@ class ProteinEndToEndRetrievalTests {
 
         def resultList = Lists.newArrayList result
 
-        println resultList
         assertThat resultList, containsInAnyOrder(
                 testData.annotations.collect {
                     getDataMatcherForAnnotation it, 'logIntensity'
