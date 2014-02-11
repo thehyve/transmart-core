@@ -6,13 +6,13 @@ import org.transmartproject.webservices.ConceptDimensionJsonMarshaller
 
 // Place your Spring DSL code here
 beans = {
-	transmartMarshallerRegistrar(TransmartMarshallerRegistrar) {
-		marshallers = [
-			new StudyJsonMarshaller(),
-			new ObservationJsonMarshaller(),
-			new SubjectJsonMarshaller(),
-			new ConceptDimensionJsonMarshaller(),
-		]
-	}
-	userDetailsService(com.recomdata.security.AuthUserDetailsService)
+    transmartMarshallerRegistrar(TransmartMarshallerRegistrar) {
+        marshallers = [
+                new StudyJsonMarshaller(),
+                new ObservationJsonMarshaller(),
+                new SubjectJsonMarshaller(),
+                new ConceptDimensionJsonMarshaller(),
+        ]
+    }
+    userDetailsService(com.recomdata.security.AuthUserDetailsService)
 }
