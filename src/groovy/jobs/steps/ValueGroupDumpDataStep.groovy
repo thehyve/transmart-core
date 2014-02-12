@@ -18,7 +18,8 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
                 row[column],
                 (row instanceof BioMarkerDataRow) ?
                     [row.label, row.bioMarker].join("_") : row.label,
-                row.bioMarker
+                (row instanceof BioMarkerDataRow) ?
+                    row.bioMarker : ""
         ]
     }
 
