@@ -1,7 +1,9 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
+@EqualsAndHashCode(includes = 'assay,annotation')
 class DeSubjectProteinData implements Serializable {
 
     BigDecimal intensity
