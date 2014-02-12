@@ -31,7 +31,7 @@ class StudyImplTests {
     void testStudyGetName() {
         Study study = studiesResourceService.getStudyByName('study1')
 
-        assertThat study.name, is('study1')
+        assertThat study.name, is('STUDY1' /* term name in uppercase */)
     }
 
 }

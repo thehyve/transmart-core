@@ -37,16 +37,28 @@ class StudiesResourceServiceTests {
         assertThat result, allOf(
                 everyItem(isA(Study)),
                 containsInAnyOrder(
-                        hasProperty('ontologyTerm',
-                                hasProperty('fullName', is('\\foo\\study1\\'))),
-                        hasProperty('ontologyTerm',
-                                hasProperty('fullName', is('\\foo\\study2\\')))))
+                        allOf(
+                                hasProperty('name', is('STUDY1')),
+                                hasProperty('ontologyTerm',
+                                    hasProperty('fullName', is('\\foo\\study1\\')))),
+                        allOf(
+                                hasProperty('name', is('STUDY2')),
+                                hasProperty('ontologyTerm',
+                                        hasProperty('fullName', is('\\foo\\study2\\'))))))
     }
 
     @Test
     void testGetStudyByName() {
         // shouldn't get confused with \foo\study2\study1
         def result = studiesResourceService.getStudyByName('study1')
+
+        assertThat result, hasProperty('ontologyTerm',
+                hasProperty('fullName', is('\\foo\\study1\\')))
+    }
+
+    @Test
+    void testGetStudyByNameDifferentCase() {
+        def result = studiesResourceService.getStudyByName('stuDY1')
 
         assertThat result, hasProperty('ontologyTerm',
                 hasProperty('fullName', is('\\foo\\study1\\')))

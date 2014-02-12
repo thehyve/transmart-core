@@ -11,7 +11,7 @@ class StudyImpl implements Study {
 
     @Override
     String getName() {
-        ontologyTerm.name
+        ontologyTerm.name.toUpperCase(Locale.ENGLISH)
     }
 
     @Override
@@ -23,7 +23,7 @@ class StudyImpl implements Study {
                 property 'patient'
             }
 
-            eq 'study', ontologyTerm.name
+            eq 'study', name
         }
     }
 }
