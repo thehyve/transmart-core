@@ -18,5 +18,7 @@ class PatientTrialCoreDb implements Serializable {
 
         patient column: 'patient_num'
         study   column: 'trial',      index: 'trial_idx', unique: false
+
+        version false
     }
 }
