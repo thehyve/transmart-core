@@ -130,18 +130,21 @@ class RModulesOutputRenderService {
         }
 
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
+            // Replace spaces with underscores, as Tomcat 6 is unable
+            // to find files with spaces in their name
+            String newFileName = currentImageFile.name.replaceAll(" ", "_")
             File oldImage = new File(currentImageFile.path),
-                 newImage = new File(outputDirectory, currentImageFile.name.replaceAll(" ", "_"));
+                 newImage = new File(outputDirectory, newFileName);
             log.debug("Move or copy $oldImage to $newImage")
             if (transferImageFile) {
-                newImage = new File(outputDirectory, currentImageFile.name);
+                newImage = new File(outputDirectory, newFileName);
                 //TODO move FileUtils to Core
                 FileUtils.copyFile(oldImage, newImage)
             } else {
                 oldImage.renameTo(newImage)
             }
 
-            String currentLink = "${imageURL}$jobName/${currentImageFile.name}"
+            String currentLink = "${imageURL}$jobName/${newFileName}"
             log.debug("New image link: " + currentLink)
             linksArray.add(currentLink)
         };
