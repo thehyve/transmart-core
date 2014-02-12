@@ -18,12 +18,8 @@ class StudyImpl implements Study {
     Set<Patient> getPatients() {
         /* another implementation option would be to use ObservationFact,
          * but this is more straightforward */
-        PatientTrialCoreDb.withCriteria {
-            projections {
-                property 'patient'
-            }
-
-            eq 'study', name
-        }
+        PatientTrialCoreDb.executeQuery '''
+            SELECT pt.patient FROM PatientTrialCoreDb pt WHERE pt.study = :study''',
+            [study: name]
     }
 }
