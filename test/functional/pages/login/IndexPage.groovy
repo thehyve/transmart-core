@@ -1,6 +1,5 @@
 package pages.login
 
-import geb.Module
 import geb.Page
 
 class IndexPage extends Page {

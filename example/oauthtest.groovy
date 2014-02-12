@@ -1,10 +1,11 @@
-import org.scribe.builder.*;
-import org.scribe.builder.api.*;
-import org.scribe.model.*;
-import org.scribe.oauth.*;
-import org.scribe.extractors.*;
-import org.scribe.exceptions.*;
-import org.scribe.utils.*;
+import org.scribe.builder.ServiceBuilder
+import org.scribe.builder.api.DefaultApi20
+import org.scribe.exceptions.OAuthException
+import org.scribe.extractors.AccessTokenExtractor
+import org.scribe.model.*
+import org.scribe.oauth.OAuthService
+import org.scribe.utils.OAuthEncoder
+import org.scribe.utils.Preconditions;
 
 @Grab(group='org.scribe', module='scribe', version='1.3.5')
 

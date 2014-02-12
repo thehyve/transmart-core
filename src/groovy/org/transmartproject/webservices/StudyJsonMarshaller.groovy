@@ -1,19 +1,16 @@
 package org.transmartproject.webservices
 
 import grails.converters.JSON
-import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.core.ontology.Study
 
 class StudyJsonMarshaller {
 
-  	void register() {
-  		JSON.registerObjectMarshaller( I2b2 ) { I2b2 study ->
+    void register() {
+        JSON.registerObjectMarshaller(Study) { Study study ->
             return [
-                id: study.name,  // TODO using name as an id is INCORRECT and incomplete and just plain stupid
-                name: study.name,
-                key: study.key,
-                fullName: study.fullName,
-                dimensionCode: study.dimensionCode
+                    name:         study.name,
+                    ontologyTerm: study.ontologyTerm
             ]
-  		}
-  	}
+        }
+    }
 }

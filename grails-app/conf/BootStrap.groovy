@@ -1,7 +1,4 @@
 import org.springframework.web.context.support.WebApplicationContextUtils
-import org.springframework.security.crypto.bcrypt.BCrypt
-import auth.AuthUser
-import auth.Role
 
 class BootStrap {
 

@@ -1,22 +1,8 @@
 import test.SpringSecurityOAuth2Api
 
-// locations to search for config files that get merged into the main config;
-// config files can be ConfigSlurper scripts, Java properties files, or classes
-// in the classpath in ConfigSlurper format
 
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
+grails.project.groupId = appName
 
-// if (System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
-
-grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
-
-// The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
-grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
 grails.mime.types = [
     all:           '*/*',
     atom:          'application/atom+xml',
@@ -42,9 +28,7 @@ grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
 // Legacy setting for codec used to encode data with ${}
 grails.views.default.codec = "html"
 
-// The default scope for controllers. May be prototype, session or singleton.
-// If unspecified, controllers are prototype scoped.
-grails.controllers.defaultScope = 'singleton'
+grails.controllers.defaultScope = 'singleton' //default is prototype
 
 // GSP settings
 grails {
@@ -91,19 +75,12 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        // TODO: grails.serverURL = "http://www.changeme.com"
     }
 }
 
-// log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
 
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
+    warn   'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP
            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
@@ -111,59 +88,72 @@ log4j = {
            'org.codehaus.groovy.grails.commons',            // core / classloading
            'org.codehaus.groovy.grails.plugins',            // plugins
            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+           'org.codehaus.groovy.grails.domain',            // domain classes
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
-    info 'org.transmartproject'
-    trace 'org.springframework.security'
-    trace 'grails.plugin.springsecurity'
-    trace 'org.hibernate.type'
-    debug 'org.hibernate.SQL'
+    info   'org.transmartproject'
+    debug  'org.hibernate.SQL'
+    trace  'org.springframework.security',
+           'grails.plugin.springsecurity'
+
     root {
         info('stdout')
     }
 }
 
-grails.plugin.springsecurity.oauthProvider.clients = [
-        [
-                clientId:"myId",
-                clientSecret:"mySecret"
+grails { plugin { springsecurity {
+
+    /* the oauth should be moved away to transmartApp */
+    oauthProvider {
+        clients = [
+                [clientId: "myId", clientSecret: "mySecret"]
         ]
-]
-// Secure the oauth endpoints
-grails.plugin.springsecurity.controllerAnnotations.staticRules = [
-        '/oauth/authorize.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
-        '/oauth/token.dispatch':['IS_AUTHENTICATED_REMEMBERED'],
-]
+    }
 
-// Added by the Spring Security Core plugin:
-grails.plugin.springsecurity.userLookup.userDomainClassName = 'auth.AuthUser'
-grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'auth.UserUser'
-grails.plugin.springsecurity.authority.className = 'auth.Role'
+    securityConfigType = 'InterceptUrlMap' // no need for controller annotations method
+    interceptUrlMap  = [
+            '/login/**':                 ['permitAll'],
+            '/logout/**':                ['permitAll'],
+            '/oauth/authorize.dispatch': ['IS_AUTHENTICATED_REMEMBERED'],
+            '/oauth/token.dispatch':     ['IS_AUTHENTICATED_REMEMBERED'],
+            '/js/**':                    ['permitAll'],
+            '/css/**':                   ['permitAll'],
+            '/images/**':                ['permitAll'],
+            '/static/**':                ['permitAll'],
+            '/favicon.ico':              ['permitAll'],
+            '/**':                       ['IS_AUTHENTICATED_REMEMBERED']
+    ]
 
-grails.plugin.springsecurity.providerNames = [
-        'daoAuthenticationProvider',
-        'anonymousAuthenticationProvider',
-        'rememberMeAuthenticationProvider',
-        'clientCredentialsAuthenticationProvider'
-]
+    oauthProvider.active = true // Set oauth provider active for test as well
+
+    /* this should removed when authentication is moved to transmartApp */
+    userLookup.userDomainClassName    = 'auth.AuthUser'
+    userLookup.authorityJoinClassName = 'auth.UserUser'
+    authority.className               = 'auth.Role'
+
+    password.algorithm        = 'bcrypt'
+    password.bcrypt.logrounds = 14
+    password.hash.iterations  = 1
+
+    providerNames = [
+            'daoAuthenticationProvider',
+            'anonymousAuthenticationProvider',
+            'rememberMeAuthenticationProvider',
+            'clientCredentialsAuthenticationProvider' //oauth
+    ]
+
+} } }
 
 oauth {
     providers {
+        // should be transmartApp instead
         mine {
-            api = SpringSecurityOAuth2Api
-            key = 'myId'
-            secret = 'mySecret'
+            api      = SpringSecurityOAuth2Api
+            key      = 'myId'
+            secret   = 'mySecret'
             callback = 'http://localhost:8080/transmart-rest-api/studies/'
         }
     }
     debug = true
 }
-
-grails.plugin.springsecurity.oauthProvider.active = true // Set oauth provider active for test as well
-
-// use the old way to hash passwords
-grails.plugin.springsecurity.password.algorithm = 'bcrypt'
-grails.plugin.springsecurity.password.bcrypt.logrounds = 14
-// grails.plugin.springsecurity.dao.reflectionSaltSourceProperty = 'username'
-grails.plugin.springsecurity.password.hash.iterations = 1

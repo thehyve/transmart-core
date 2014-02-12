@@ -1,17 +1,20 @@
-import org.transmartproject.webservices.TransmartMarshallerRegistrar
-import org.transmartproject.webservices.StudyJsonMarshaller
-import org.transmartproject.webservices.ObservationJsonMarshaller
-import org.transmartproject.webservices.SubjectJsonMarshaller
-import org.transmartproject.webservices.ConceptDimensionJsonMarshaller
+import org.springframework.aop.scope.ScopedProxyFactoryBean
+import org.transmartproject.webservices.*
 
-// Place your Spring DSL code here
 beans = {
+    xmlns context: 'http://www.springframework.org/schema/context'
+
+    studyLoadingServiceProxy(ScopedProxyFactoryBean) {
+        targetBeanName = 'studyLoadingService'
+    }
+
     transmartMarshallerRegistrar(TransmartMarshallerRegistrar) {
         marshallers = [
-                new StudyJsonMarshaller(),
+                new OntologyTermJsonMarshaller(),
                 new ObservationJsonMarshaller(),
                 new SubjectJsonMarshaller(),
                 new ConceptDimensionJsonMarshaller(),
+                new StudyJsonMarshaller(),
         ]
     }
     userDetailsService(com.recomdata.security.AuthUserDetailsService)

@@ -1,15 +1,5 @@
 package test
 
-import org.scribe.model.Token
-import org.scribe.model.Verifier
-import uk.co.desirableobjects.oauth.scribe.OauthService
-import grails.plugin.springsecurity.annotation.Secured
-import grails.converters.JSON
-import org.transmartproject.webservices.Observation
-import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.i2b2data.ConceptDimension
-
 class TestController {
  //    OauthService oauthService
  //    ConceptsResource conceptsResourceService

@@ -1,7 +1,5 @@
 package pages
 
-import geb.Module
-
 class StudyListPage {
         static url = "study"
 

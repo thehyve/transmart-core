@@ -1,6 +1,6 @@
 package org.transmartproject.webservices
 
-import grails.test.mixin.*
+import grails.test.mixin.TestFor
 import org.transmartproject.rest.StudyController
 
 @TestFor(StudyController)

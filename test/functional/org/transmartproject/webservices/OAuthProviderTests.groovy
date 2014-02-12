@@ -1,12 +1,10 @@
 package org.transmartproject.webservices
 
-import spock.lang.*
-import pages.*
 import geb.spock.GebReportingSpec
-import groovyx.net.http.RESTClient
 import groovyx.net.http.HTTPBuilder
-import pages.login.LoginPage
-import pages.login.DeniedPage
+import groovyx.net.http.RESTClient
+import spock.lang.Shared
+import spock.lang.Stepwise
 
 @Stepwise
 class OAuthProviderTests extends GebReportingSpec {
