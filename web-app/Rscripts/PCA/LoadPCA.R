@@ -25,159 +25,175 @@ aggregate.probes = FALSE
 )
 {
 
-	print("-------------------")
-	print("LoadPCA.R")
-	print("CREATING PCA PLOT")
+    print("-------------------")
+    print("LoadPCA.R")
+    print("CREATING PCA PLOT")
 
-	library(reshape2)
-	library(Cairo)
-	
-	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename))
+    library(reshape2)
+    library(Cairo)
+
+    #Prepare the package to capture the image file.
+    CairoPNG(file=paste("PCA.png",sep=""),width=800,height=800)
+
+    #Pull the GEX data from the file.
+    mRNAData <- data.frame(read.delim(input.filename))
+    if (nrow(mRNAData) == 0) {
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     if (nrow(mRNAData)<1) stop("Input data is empty. Common causes: either the specified subset has no matching data in the selected node, or the gene/pathway is not present.")
 
-	if (aggregate.probes) {
+    if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
         mRNAData <- PCA.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
     }
 
-	mRNAData$PROBE.ID 		<- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
-	mRNAData$GENE_SYMBOL 	<- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
-	mRNAData$PATIENT.ID   	<- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
+    mRNAData$PROBE.ID       <- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
+    mRNAData$GENE_SYMBOL    <- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
+    mRNAData$PATIENT.ID     <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
 
-	#Grab only the columns we need for doing the melt/cast.
-	mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL')]
+    #Grab only the columns we need for doing the melt/cast.
+    mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL')]
 
-	#Melt the data, leaving 2 columns as the grouping fields.
-	meltedData <- melt(mRNAData, id=c("PROBE.ID","GENE_SYMBOL","PATIENT.ID"))
-	
-	#Cast the data into a format that puts the PATIENT.ID in a column.
-	mRNAData <- data.frame(dcast(meltedData, PATIENT.ID ~ PROBE.ID + GENE_SYMBOL))
-  
-	#Make the rownames be the patient nums so we can drop the patient_num column.
-	rownames(mRNAData) <- mRNAData$PATIENT.ID
-  
-	print(sprintf("rows %d cols %d", nrow(mRNAData), ncol(mRNAData)))
+    #Melt the data, leaving 2 columns as the grouping fields.
+    meltedData <- melt(mRNAData, id=c("PROBE.ID","GENE_SYMBOL","PATIENT.ID"))
 
-	#Drop patient_num column.
-	mRNAData <- subset(mRNAData, select = -c(PATIENT.ID))
+    #Cast the data into a format that puts the PATIENT.ID in a column.
+    mRNAData <- data.frame(dcast(meltedData, PATIENT.ID ~ PROBE.ID + GENE_SYMBOL))
 
-	print(sprintf("rows %d cols %d PATIENT.ID dropped", nrow(mRNAData), ncol(mRNAData)))
+    #Make the rownames be the patient nums so we can drop the patient_num column.
+    rownames(mRNAData) <- mRNAData$PATIENT.ID
 
-	### for poorly curated data, drop columns where there are one or more missing values
-	### print(colSums(is.na(mRNAData)))   # print numbers os NA values for each column
-	mRNAData <- subset(mRNAData, select = colSums(is.na(mRNAData))<1)
+    print(sprintf("rows %d cols %d", nrow(mRNAData), ncol(mRNAData)))
 
-	print(sprintf("rows %d cols %d NA columns dropped", nrow(mRNAData), ncol(mRNAData)))
+    #Drop patient_num column.
+    mRNAData <- subset(mRNAData, select = -c(PATIENT.ID))
 
-	###print(mRNAData)
+    print(sprintf("rows %d cols %d PATIENT.ID dropped", nrow(mRNAData), ncol(mRNAData)))
 
-	print("Run the PCA Analysis")
-	#Run the PCA Analysis
-	pca.results <- prcomp(mRNAData)
-	#print("Completed PCA Analysis")
-	
-	#Get the number of components.
-	numberOfComponents <- length(pca.results$sdev)
-	
-	print(sprintf("Number of components %d", numberOfComponents))
-	
-	GENELISTLENGTH <- length(pca.results$center)
-	if(GENELISTLENGTH > 20) GENELISTLENGTH <- 20
+    ### for poorly curated data, drop columns where there are one or more missing values
+    ### print(colSums(is.na(mRNAData)))   # print numbers os NA values for each column
+    mRNAData <- subset(mRNAData, select = colSums(is.na(mRNAData))<1)
 
-	#Create a data frame with 1 row per component.
-	component.summary <- data.frame(paste("PC",1:numberOfComponents,sep=""))
-		
-	#Create a table with Eigen Value and %Variation.
-	component.summary$EIGENVALUE <- round(pca.results$sdev[1:numberOfComponents]**2,5)
-	component.summary$PERCENTVARIANCE <- round(pca.results$sdev[1:numberOfComponents]**2 / sum(pca.results$sdev**2) * 100,5)
+    print(sprintf("rows %d cols %d NA columns dropped", nrow(mRNAData), ncol(mRNAData)))
+    if (ncol(mRNAData) == 0) {
+        Plot.error.message("The selected cohort has incomplete data for each of your biomarkers.\nNo data is left to plot a PCA with."); return()
+    }
 
-	colnames(component.summary) <- c('PC','EIGENVALUE','PERCENTVARIANCE')
-	
-	write.table(component.summary,"COMPONENTS_SUMMARY.TXT",quote=F,sep="\t",row.names=F,col.names=T)
-	
-	rotationFrame <- data.frame(pca.results$rotation)
+    ###print(mRNAData)
 
-	f <- function(i,GENELISTLENGTH) 
-	  {
-	  
-		#Form the file name.
-		currentFile <- paste('GENELIST',i,'.TXT',sep="")
-		
-		#Create the current data frame from the gene names and value columns.
-		currentData <- data.frame(rownames(rotationFrame),round(rotationFrame[,i],3))
-		
-		colnames(currentData) <- c('GENE_SYMBOL','VALUE')
-		
-		#Reorder the genes based on decreasing absolute value of the value column.
-		currentData <- currentData[order(abs(currentData$VALUE),decreasing = TRUE),]
-		
-		#Pull only the records we are interested in.
-		currentData <- currentData[1:GENELISTLENGTH,]
-		
-		#Write the list to a file.
-		write.table(currentData,currentFile,quote=F,sep="\t",row.names=F,col.names=F)
+    print("Run the PCA Analysis")
+    #Run the PCA Analysis
+    pca.results <- prcomp(mRNAData)
+    #print("Completed PCA Analysis")
 
-	  }
+    #Get the number of components.
+    numberOfComponents <- length(pca.results$sdev)
 
-	sapply(1:ncol(rotationFrame), f, GENELISTLENGTH)
-	
-	#Finally create the Scree plot.
-	CairoPNG(file=paste("PCA.png",sep=""),width=800,height=800)
-	
-	plot(pca.results,type="lines", main="Scree Plot")
-	title(xlab = "Component")
-	
-	dev.off()
+    print(sprintf("Number of components %d", numberOfComponents))
+
+    GENELISTLENGTH <- length(pca.results$center)
+    if(GENELISTLENGTH > 20) GENELISTLENGTH <- 20
+
+    #Create a data frame with 1 row per component.
+    component.summary <- data.frame(paste("PC",1:numberOfComponents,sep=""))
+
+    #Create a table with Eigen Value and %Variation.
+    component.summary$EIGENVALUE <- round(pca.results$sdev[1:numberOfComponents]**2,5)
+    component.summary$PERCENTVARIANCE <- round(pca.results$sdev[1:numberOfComponents]**2 / sum(pca.results$sdev**2) * 100,5)
+
+    colnames(component.summary) <- c('PC','EIGENVALUE','PERCENTVARIANCE')
+
+    write.table(component.summary,"COMPONENTS_SUMMARY.TXT",quote=F,sep="\t",row.names=F,col.names=T)
+
+    rotationFrame <- data.frame(pca.results$rotation)
+
+    f <- function(i,GENELISTLENGTH) {
+        #Form the file name.
+        currentFile <- paste('GENELIST',i,'.TXT',sep="")
+
+        #Create the current data frame from the gene names and value columns.
+        currentData <- data.frame(rownames(rotationFrame),round(rotationFrame[,i],3))
+
+        colnames(currentData) <- c('GENE_SYMBOL','VALUE')
+
+        #Reorder the genes based on decreasing absolute value of the value column.
+        currentData <- currentData[order(abs(currentData$VALUE),decreasing = TRUE),]
+
+        #Pull only the records we are interested in.
+        currentData <- currentData[1:GENELISTLENGTH,]
+
+        #Write the list to a file.
+        write.table(currentData,currentFile,quote=F,sep="\t",row.names=F,col.names=F)
+    }
+
+    sapply(1:ncol(rotationFrame), f, GENELISTLENGTH)
+
+    #Finally create the Scree plot.
+
+    plot(pca.results,type="lines", main="Scree Plot")
+    title(xlab = "Component")
+
+    dev.off()
 }
 
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
+}
 
 PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
-  library(WGCNA)
+    library(WGCNA)
 
-  # Keeps relevant columns. Throws out SUBSET column, since this is not being used by PCA anyway.
-  mRNAData <- mRNAData[,c("PATIENT.ID","VALUE","PROBE.ID","GENE_SYMBOL")]
+    # Keeps relevant columns. Throws out SUBSET column, since this is not being used by PCA anyway.
+    mRNAData <- mRNAData[,c("PATIENT.ID","VALUE","PROBE.ID","GENE_SYMBOL")]
 
-  #Cast the data into a format that puts the PATIENT_NUM in a column
-  castedData <- data.frame(dcast(mRNAData, PROBE.ID + GENE_SYMBOL ~ PATIENT.ID, value.var = "VALUE"))
+    #Cast the data into a format that puts the PATIENT_NUM in a column
+    castedData <- data.frame(dcast(mRNAData, PROBE.ID + GENE_SYMBOL ~ PATIENT.ID, value.var = "VALUE"))
 
-  #Create a unique identifier column.
-  castedData$UNIQUE_ID <- paste(castedData$GENE_SYMBOL,castedData$PROBE.ID,sep="")
+    #Create a unique identifier column.
+    castedData$UNIQUE_ID <- paste(castedData$GENE_SYMBOL,castedData$PROBE.ID,sep="")
 
-  #Set the name of the rows to be the unique ID.
-  rownames(castedData) = castedData$UNIQUE_ID
+    #Set the name of the rows to be the unique ID.
+    rownames(castedData) = castedData$UNIQUE_ID
 
-  #Run the collapse on a subset of the data by removing some columns.
-  finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,PROBE.ID,UNIQUE_ID) ),
-                            rowGroup = castedData$GENE_SYMBOL,
-                            rowID = castedData$UNIQUE_ID,
-                            method = collapseRow.method,
-                            connectivityBasedCollapsing = TRUE,
-                            methodFunction = NULL,
-                            connectivityPower = 1,
-                            selectFewestMissing = collapseRow.selectFewestMissing,
-                            thresholdCombine = NA)
+    #Run the collapse on a subset of the data by removing some columns.
+    finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,PROBE.ID,UNIQUE_ID) ),
+            rowGroup = castedData$GENE_SYMBOL,
+            rowID = castedData$UNIQUE_ID,
+            method = collapseRow.method,
+            connectivityBasedCollapsing = TRUE,
+            methodFunction = NULL,
+            connectivityPower = 1,
+            selectFewestMissing = collapseRow.selectFewestMissing,
+            thresholdCombine = NA)
 
-  #Coerce the data into a data frame.
-  finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
+    #Coerce the data into a data frame.
+    finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
 
-  #Rename the columns, the selected row_id is the unique_id.
-  colnames(finalData)[2] <- 'UNIQUE_ID'
+    #Rename the columns, the selected row_id is the unique_id.
+    colnames(finalData)[2] <- 'UNIQUE_ID'
 
-  #Merge the probe.id back in.
-  finalData <- merge(finalData,castedData[c('UNIQUE_ID','PROBE.ID')],by=c('UNIQUE_ID'))
+    #Merge the probe.id back in.
+    finalData <- merge(finalData,castedData[c('UNIQUE_ID','PROBE.ID')],by=c('UNIQUE_ID'))
 
-  #Remove the unique_id and selected row ID column.
-  finalData <- subset(finalData, select = -c(UNIQUE_ID))
+    #Remove the unique_id and selected row ID column.
+    finalData <- subset(finalData, select = -c(UNIQUE_ID))
 
-  #Melt the data back.
-  finalData <- melt(finalData)
+    #Melt the data back.
+    finalData <- melt(finalData)
 
-  #Set the column names again.
-  colnames(finalData) <- c("GENE_SYMBOL","PROBE.ID","PATIENT.ID","VALUE")
+    #Set the column names again.
+    colnames(finalData) <- c("GENE_SYMBOL","PROBE.ID","PATIENT.ID","VALUE")
 
-  #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
-  finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
-  finalData
+    #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+    finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+    finalData
 }
