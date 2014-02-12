@@ -142,7 +142,7 @@ FormValidator.prototype.required = function (el, label) {
     var retVal = true;
 
     if (el instanceof Ext.Element) {  // if input element is instance of Ext JS
-        retVal = el.dom.childElementCount > 0 ? true : false;
+        retVal = el.dom.children.length > 0 ? true : false;
     } else {
         var value = el.value;
         retVal = (value !== null && value !== '');
