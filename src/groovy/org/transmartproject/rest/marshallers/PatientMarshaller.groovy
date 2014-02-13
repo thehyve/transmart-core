@@ -2,6 +2,7 @@ package org.transmartproject.rest.marshallers
 
 import org.transmartproject.core.dataquery.Patient
 
+@JsonMarshaller
 @Mixin(MarshallerSupportMixin)
 class PatientMarshaller {
 

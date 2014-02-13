@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner
 import org.springframework.core.type.classreading.MetadataReader
 import org.springframework.core.type.classreading.MetadataReaderFactory
+import org.springframework.core.type.filter.AnnotationTypeFilter
 import org.springframework.core.type.filter.TypeFilter
 
 public class MarshallersRegistrar implements FactoryBean {
@@ -35,12 +36,7 @@ public class MarshallersRegistrar implements FactoryBean {
                 superValue
             }
         }
-        scanner.setResourcePattern '**/*Marshaller.class'
-        scanner.addIncludeFilter ({
-            MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory ->
-                metadataReader.classMetadata.className.matches(".+Marshaller")
-        } as TypeFilter)
-
+        scanner.addIncludeFilter(new AnnotationTypeFilter(JsonMarshaller))
         scanner.scan packageName
     }
 

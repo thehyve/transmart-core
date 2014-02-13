@@ -2,6 +2,7 @@ package org.transmartproject.rest.marshallers
 
 import org.transmartproject.core.ontology.OntologyTerm
 
+@JsonMarshaller
 class OntologyTermJsonMarshaller {
 
     static targetType = OntologyTerm
