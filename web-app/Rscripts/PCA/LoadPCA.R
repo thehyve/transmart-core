@@ -131,7 +131,7 @@ aggregate.probes = FALSE
 
     #Finally create the Scree plot.
 
-    plot(pca.results,type="lines", main="Scree Plot")
+    plot(pca.results,type="lines", main="Scree Plot", npcs = ncol(pca.results$x))
     title(xlab = "Component")
 
     dev.off()
