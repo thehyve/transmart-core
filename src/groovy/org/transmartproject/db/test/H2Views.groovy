@@ -36,6 +36,7 @@ class H2Views {
             createBioMarkerCorrelMv()
             createSubPathwayCorrelView()
             createSuperPathwayCorrelView()
+            createI2b2TrialNodes()
         } finally {
             this.sql.close()
         }
@@ -265,6 +266,29 @@ class H2Views {
                 INNER JOIN biomart.bio_marker B ON (
                     B.bio_marker_type = 'METABOLITE' AND
                     B.primary_external_id = M.hmdb_id);'''
+    }
+
+    void createI2b2TrialNodes() {
+        if (handleCurrentState('I2B2METADATA', 'I2B2_TRIAL_NODES')) {
+            return
+        }
+
+        sql.execute '''
+            CREATE VIEW I2B2METADATA.I2B2_TRIAL_NODES(C_FULLNAME, TRIAL) AS
+            SELECT
+                A.c_fullname,
+                substr (A.c_comment, 7) -- remove 'trial:' prefix
+            FROM
+                i2b2metadata.i2b2 AS A
+                JOIN (
+                    SELECT
+                        c_comment,
+                        MIN(length(c_fullname)) AS min_length
+                    FROM
+                        i2b2metadata.i2b2
+                    GROUP BY c_comment) B ON (
+                        A.c_comment = B.c_comment
+                        AND length (A.c_fullname) = B.min_length);'''
     }
 
     enum ObjectStatus {
