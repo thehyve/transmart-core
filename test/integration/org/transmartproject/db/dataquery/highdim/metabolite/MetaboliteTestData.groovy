@@ -120,6 +120,7 @@ class MetaboliteTestData {
                     assay: assay,
                     annotation: annotation,
                     intensity: intensity,
+                    logIntensity: Math.log(intensity),
                     zscore:    (intensity - 0.35) / 0.1871
             )
         }
