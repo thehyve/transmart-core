@@ -67,6 +67,22 @@ class MetaboliteEndToEndRetrievalTest {
         )
     }
 
+    @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = metaboliteResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        result = metaboliteResource.retrieveData(
+                [ trialConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat(
+                resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.data.collect { closeTo(it.logIntensity as Double, DELTA) })
+        )
+    }
+
     private List<Matcher> matchersForDataPoints(List<DeMetaboliteAnnotation> annotations) {
         testData.data.findAll { it.annotation.id in annotations*.id }.
                 sort { a, b ->

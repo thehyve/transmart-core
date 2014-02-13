@@ -28,7 +28,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RBM']
 
-    private final Set<String> dataProperties = ImmutableSet.of('value', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('value', 'logIntensity', 'zscore')
 
     private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'uniprotName')
 
@@ -57,6 +57,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
                 (Projection.DEFAULT_REAL_PROJECTION): 'value',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]

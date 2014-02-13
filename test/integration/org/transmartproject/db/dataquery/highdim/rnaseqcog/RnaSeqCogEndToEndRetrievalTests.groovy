@@ -91,6 +91,22 @@ class RnaSeqCogEndToEndRetrievalTests {
     }
 
     @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = rnaSeqCogResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        result = rnaSeqCogResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat resultList, containsInAnyOrder(
+                testData.annotations.collect {
+                    getDataMatcherForAnnotation(it, 'logIntensity')
+                })
+    }
+
+    @Test
     void testDefaultRealProjection() {
         result = rnaSeqCogResource.retrieveData([ trialNameConstraint ], [],
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
@@ -139,4 +155,13 @@ class RnaSeqCogEndToEndRetrievalTests {
         result =
             rnaSeqCogResource.retrieveData assayConstraints, [], projection
     }
+
+    def getDataMatcherForAnnotation(DeRnaseqAnnotation annotation,
+                                    String property) {
+        contains testData.data.
+                findAll { it.annotation == annotation }.
+                sort    { it.assay.id }. // data is sorted by assay id
+                collect { closeTo it."$property" as Double, DELTA }
+    }
+
 }

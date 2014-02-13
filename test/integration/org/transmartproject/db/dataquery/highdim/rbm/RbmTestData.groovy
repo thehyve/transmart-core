@@ -56,15 +56,16 @@ class RbmTestData {
         ]
     }()
 
-    List<DeSubjectRbmData> rbmData = {
+    List<DeSubjectRbmData> data = {
         def createRbmEntry = { DeSubjectSampleMapping assay,
                                List<DeRbmAnnotation> annotations,
                                double value ->
             new DeSubjectRbmData(
-                    annotations: annotations,
-                    assay:      assay,
-                    value:      value,
-                    zscore:     (value - 0.35) / 0.1871,
+                    annotations:  annotations,
+                    assay:        assay,
+                    value:        value,
+                    logIntensity: Math.log(value),
+                    zscore:       (value - 0.35) / 0.1871,
             )
         }
 
@@ -96,7 +97,7 @@ class RbmTestData {
         save patients
         save assays
         save annotations
-        save rbmData
+        save data
     }
 
 }

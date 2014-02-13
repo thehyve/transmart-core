@@ -92,6 +92,22 @@ class MirnaEndToEndRetrievalTests {
     }
 
     @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = mirnaResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        result = mirnaResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat(
+                resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.mirnaData.collect { closeTo(it.logIntensity as Double, DELTA) })
+        )
+    }
+
+    @Test
     void testDefaultRealProjection() {
         def defaultRealProjection = mirnaResource.createProjection(
                 [:], Projection.DEFAULT_REAL_PROJECTION)

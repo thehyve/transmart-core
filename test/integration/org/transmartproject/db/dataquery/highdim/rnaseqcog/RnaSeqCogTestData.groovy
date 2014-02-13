@@ -54,6 +54,7 @@ class RnaSeqCogTestData {
                     assay: assay,
                     annotation:   annotation,
                     rawIntensity: intensity,
+                    logIntensity: Math.log(intensity),
                     zscore:       (intensity - 0.35) / 0.1871
             )
         }

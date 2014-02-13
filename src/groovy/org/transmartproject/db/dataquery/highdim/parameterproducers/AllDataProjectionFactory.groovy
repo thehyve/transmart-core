@@ -4,9 +4,6 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionImpl
 
-/**
- * Created by jan on 1/7/14.
- */
 class AllDataProjectionFactory implements DataRetrievalParameterFactory {
 
     private Collection<String> dataProperties

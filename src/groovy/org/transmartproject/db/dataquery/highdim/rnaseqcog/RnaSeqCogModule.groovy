@@ -34,7 +34,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
 
     private final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
 
@@ -130,6 +130,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]

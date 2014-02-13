@@ -4,6 +4,7 @@ import com.google.common.collect.Lists
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -107,6 +108,22 @@ class MrnaEndToEndRetrievalTests {
     }
 
     @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = mrnaResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        TabularResult result = mrnaResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat(
+                resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.microarrayData.collect { closeTo(it.logIntensity as Double, DELTA) })
+        )
+    }
+
+    @Test
     void testWithDefaultRealProjection() {
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
@@ -147,6 +164,7 @@ class MrnaEndToEndRetrievalTests {
         )
         assertThat mrnaResource.supportedProjections, containsInAnyOrder(
                 Projection.DEFAULT_REAL_PROJECTION,
+                Projection.LOG_INTENSITY_PROJECTION,
                 Projection.ZSCORE_PROJECTION,
                 Projection.ALL_DATA_PROJECTION)
     }
