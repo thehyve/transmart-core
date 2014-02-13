@@ -1,5 +1,5 @@
 import org.springframework.aop.scope.ScopedProxyFactoryBean
-import org.transmartproject.webservices.*
+import org.transmartproject.rest.marshallers.MarshallersRegistrar
 
 beans = {
     xmlns context: 'http://www.springframework.org/schema/context'
@@ -8,14 +8,9 @@ beans = {
         targetBeanName = 'studyLoadingService'
     }
 
-    transmartMarshallerRegistrar(TransmartMarshallerRegistrar) {
-        marshallers = [
-                new OntologyTermJsonMarshaller(),
-                new ObservationJsonMarshaller(),
-                new SubjectJsonMarshaller(),
-                new ConceptDimensionJsonMarshaller(),
-                new StudyJsonMarshaller(),
-        ]
+    marshallersRegistrar(MarshallersRegistrar) {
+        packageName = 'org.transmartproject.rest.marshallers'
     }
+
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
 }

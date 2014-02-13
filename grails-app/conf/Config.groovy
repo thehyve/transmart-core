@@ -157,3 +157,9 @@ oauth {
     }
     debug = true
 }
+
+grails.converters.json.pretty.print = true
+
+environments { production {
+    grails.converters.json.pretty.print = false
+} }
