@@ -4,6 +4,7 @@ import com.google.common.collect.Lists
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -103,6 +104,22 @@ class MrnaEndToEndRetrievalTests {
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
+        )
+    }
+
+    @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = mrnaResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        TabularResult result = mrnaResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(result)
+
+        assertThat(
+                resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.microarrayData.collect { closeTo(it.logIntensity as Double, DELTA) })
         )
     }
 
