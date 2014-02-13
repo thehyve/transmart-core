@@ -26,7 +26,7 @@ class PCAController {
             def ArrayList<String> imageLinks = new ArrayList<String>()
 
             //This will be the array of text file locations.
-            def ArrayList<String> txtFiles = new ArrayList<String>()
+            List<File> txtFiles = []
 
             //Grab the job ID from the query string.
             String jobName = params.jobName
@@ -39,56 +39,26 @@ class PCAController {
             //Traverse the temporary directory for the LinearRegression files.
             def tempDirectoryFile = new File(tempDirectory)
 
-            String summaryTable = ""
-            String geneListTable = "<table><tr>"
-            Integer componentCount = 0
+            String summaryTable = RModulesOutputRenderService.fileParseLoop(tempDirectoryFile, /.*COMPONENTS_SUMMARY.*\.TXT/, /.*COMPONENTS_SUMMARY(.*)\.TXT/, parseComponentsSummaryStr)
 
-            summaryTable = RModulesOutputRenderService.fileParseLoop(tempDirectoryFile, /.*COMPONENTS_SUMMARY.*\.TXT/, /.*COMPONENTS_SUMMARY(.*)\.TXT/, parseComponentsSummaryStr)
+            def fileNamePattern = ~/^GENELIST(?<component>[0-9]+)\.TXT$/
 
-            //Parse the gene list files.
-            def fileNamePattern = /.*GENELIST.\.TXT*/
-            def fileNameExtractionPattern = /.*GENELIST(.*)\.TXT/
+            Map<Integer, File> componentsFileMap =
+                tempDirectoryFile.listFiles().toList().collectEntries {file ->
+                    def fileNameMatcher = file.name =~ fileNamePattern
+                    fileNameMatcher ?
+                        [(fileNameMatcher.group('component').toInteger()): file]
+                    : [:]
+                }.sort()
 
-            //Loop through the directory create an array of txt files to be parsed.
-            tempDirectoryFile.traverse(nameFilter: ~fileNamePattern)
-                    {
-                        currentTextFile ->
-
-                            txtFiles.add(currentTextFile.path)
-                    }
-
-            //Sort the text files by name so that we write them to the screen in the correct order.
-            txtFiles = txtFiles.sort()
-
-            //Loop through the file path array and parse each of the files.
-            txtFiles.each
-                    {
-
-                        if (componentCount.mod(4) == 0) {
-                            geneListTable += "</tr><tr><td>&nbsp;</td></tr><tr>"
-                        }
-
-                        componentCount += 1
-
-                        String currentComponent = ""
-                        //Parse out the name of the group from the name of the text file.
-                        def matcher = (it =~ fileNameExtractionPattern)
-
-                        if (matcher.matches() && txtFiles.size > 1) {
-                            //Add the HTML that will separate the different files.
-                            currentComponent = matcher[0][1]
-                        }
-
-                        //Create objects for the output file.
-                        File parsableFile = new File(it);
-
-                        //Parse the output files.
-                        geneListTable += parseGeneList.call(parsableFile.getText(), currentComponent)
-
-                    }
-
-            //Close the table for the gene list.
-            geneListTable += "</tr></table><br /><br />"
+            String geneListTable = '<table><tr>'
+            componentsFileMap.eachWithIndex {int component, File file, int ord ->
+                if (ord.mod(4) == 0) {
+                    geneListTable += '</tr><tr><td>&nbsp;</td></tr><tr>'
+                }
+                geneListTable += parseGeneList(file.text, componentsFileMap.size() > 1 ? "$component" : '')
+            }
+            geneListTable += '</tr></table><br /><br />'
 
             render(template: "/plugin/pca_out", model: [imageLocations: imageLinks, zipLink: RModulesOutputRenderService.zipLink, summaryTable: summaryTable, geneListTable: geneListTable], contextPath: pluginContextPath)
 
