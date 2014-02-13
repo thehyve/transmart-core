@@ -52,14 +52,21 @@ aggregate.probes = FALSE
     mRNAData$GENE_SYMBOL    <- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
     mRNAData$PATIENT.ID     <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
 
+    # The PROBE.ID column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+    mRNAData$PROBE.ID <- as.character(mRNAData$PROBE.ID)
+    rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
+    mRNAData$PROBE.ID[rowsToConcatenate] <- paste(mRNAData$PROBE.ID[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+    mRNAData$PROBE.ID <- as.factor(mRNAData$PROBE.ID)
+
     #Grab only the columns we need for doing the melt/cast.
-    mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID','GENE_SYMBOL')]
+    mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID')]
 
     #Melt the data, leaving 2 columns as the grouping fields.
-    meltedData <- melt(mRNAData, id=c("PROBE.ID","GENE_SYMBOL","PATIENT.ID"))
+    meltedData <- melt(mRNAData, id=c("PROBE.ID","PATIENT.ID"))
 
     #Cast the data into a format that puts the PATIENT.ID in a column.
-    mRNAData <- data.frame(dcast(meltedData, PATIENT.ID ~ PROBE.ID + GENE_SYMBOL))
+    mRNAData <- data.frame(dcast(meltedData, PATIENT.ID ~ PROBE.ID))
 
     #Make the rownames be the patient nums so we can drop the patient_num column.
     rownames(mRNAData) <- mRNAData$PATIENT.ID
