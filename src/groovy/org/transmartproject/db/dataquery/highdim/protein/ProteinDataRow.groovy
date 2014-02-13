@@ -20,7 +20,6 @@ class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object>
         uniprotName
     }
 
-
     @Override
     public String toString() {
         com.google.common.base.Objects.toStringHelper(this)
