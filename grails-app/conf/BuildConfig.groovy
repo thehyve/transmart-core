@@ -1,5 +1,5 @@
 grails.servlet.version = '3.0'
-grails.plugin.location.'transmart-core' = '../core-db'
+grails.plugin.location.'transmart-core' = '../transmart-core-db'
 grails.plugin.location.'transmart-user-management' = '../transmart-user-management'
 
 def defaultVMSettings = [

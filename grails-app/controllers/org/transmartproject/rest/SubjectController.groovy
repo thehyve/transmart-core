@@ -11,8 +11,6 @@ class SubjectController {
 
     /** GET request on /studies/XXX/subjects/
      *  This will return the list of subjects, where each subject will be rendered in its short format
-     *
-     * @param max The maximum amount of items of the list to be returned.
     */
     def index() {
         render studyLoadingServiceProxy.study.patients as JSON
@@ -33,6 +31,14 @@ class SubjectController {
         }
 
         render patient as JSON
+    }
+
+    /** GET request on /studies/XXX/concepts/YYY/subjects
+     *
+     * @return list of subjects for study XXX and concept YYY
+     */
+    def indexByConcept() {
+        render "todo" as JSON
     }
 
 }

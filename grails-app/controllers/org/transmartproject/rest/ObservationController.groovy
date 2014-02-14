@@ -8,24 +8,28 @@ class ObservationController {
     ClinicalDataResource clinicalDataResourceService
 
     /** GET request on /studies/XXX/observations/
-     *  This will return the list of studies, where each study will be rendered in its short format
-     *
-     * @param max The maximum amount of items of the list to be returned.
+     *  This will return the list of observations for study XXX
      */
-    def index(Integer max) {
+    def index() {
         log.info "params:$params"
         def results = clinicalDataResourceService.retrieveData([], []/*,
                 [ new TerminalConceptVariable(conceptCode: 'mirnastudy') ]*/)
         render results as JSON
     }
 
-    /** GET request on /studies/${id}
-     *  This returns the single requested entity.
-     *
-     *  @param id The is for which to return study information.
+    /** GET request on /studies/XXX/concepts/YYY/observations/
+     *  This will return the list of observations for study XXX and concept YYY
      */
-    def show(Integer id) {
-        log.info "in show method for study with id:$id"
+    def indexByConcept() {
+        //TODO
+        render "todo" as JSON
+    }
+
+    /** GET request on /studies/XXX/subjects/YYY/observations/
+     *  This will return the list of observations for study XXX and subject YYY
+     */
+    def indexBySubject() {
+        //TODO
         render "todo" as JSON
     }
 
