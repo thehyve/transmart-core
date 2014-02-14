@@ -1,11 +1,11 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.transmartproject.db.clinical.ClinicalDataResourceService
+import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 
 class ObservationController {
 
-    ClinicalDataResourceService clinicalDataResourceService
+    ClinicalDataResource clinicalDataResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of studies, where each study will be rendered in its short format

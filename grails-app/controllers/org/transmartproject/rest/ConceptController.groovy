@@ -1,11 +1,11 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.transmartproject.db.ontology.ConceptsResourceService
+import org.transmartproject.core.ontology.ConceptsResource
 
 class ConceptController {
 
-    ConceptsResourceService conceptsResourceService
+    ConceptsResource conceptsResourceService
 
     /** GET request on /studies/XXX/concepts/
      *  This will return the list of concepts, where each concept will be rendered in its short format
