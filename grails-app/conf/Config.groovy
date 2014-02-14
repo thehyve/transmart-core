@@ -1,7 +1,18 @@
 import test.SpringSecurityOAuth2Api
 
-
-grails.project.groupId = appName
+grails.config.locations = []
+def defaultConfigFiles = [
+        "${userHome}/.grails/transmartConfig/DataSource.groovy"
+]
+defaultConfigFiles.each { filePath ->
+    def f = new File(filePath)
+    if (f.exists()) {
+        println "[INFO] Including configuration file "$f" in configuration building."
+        grails.config.locations << "file:${filePath}"
+    } else {
+        println "[INFO] Configuration file '$f' not found."
+    }
+}
 
 grails.mime.types = [
     all:           '*/*',
@@ -18,12 +29,6 @@ grails.mime.types = [
     hal:           ['application/hal+json','application/hal+xml'],
     xml:           ['text/xml', 'application/xml']
 ]
-
-// URL Mapping Cache Max Size, defaults to 5000
-//grails.urlmapping.cache.maxsize = 1000
-
-// What URL patterns should be processed by the resources plugin
-grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
 
 // Legacy setting for codec used to encode data with ${}
 grails.views.default.codec = "html"
@@ -61,7 +66,7 @@ grails.enable.native2ascii = true
 // packages to include in Spring bean scanning
 grails.spring.bean.packages = []
 // whether to disable processing of multi part requests
-grails.web.disable.multipart=false
+grails.web.disable.multipart = true
 
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
