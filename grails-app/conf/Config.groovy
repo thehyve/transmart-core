@@ -7,7 +7,7 @@ def defaultConfigFiles = [
 defaultConfigFiles.each { filePath ->
     def f = new File(filePath)
     if (f.exists()) {
-        println "[INFO] Including configuration file "$f" in configuration building."
+        println "[INFO] Including configuration file '$f' in configuration building."
         grails.config.locations << "file:${filePath}"
     } else {
         println "[INFO] Configuration file '$f' not found."
