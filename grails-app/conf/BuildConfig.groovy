@@ -25,7 +25,8 @@ grails.project.dependency.resolution = {
     log 'warn'
 
     repositories {
-        inherits true // inherit repository definitions from plugins (default true)
+        mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
+        inherits false // inherit repository definitions from plugins (default true)
     }
 
     dependencies {
