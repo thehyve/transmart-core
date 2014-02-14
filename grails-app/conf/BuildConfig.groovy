@@ -1,6 +1,6 @@
+import grails.util.Environment
+
 grails.servlet.version = '3.0'
-grails.plugin.location.'transmart-core' = '../transmart-core-db'
-grails.plugin.location.'transmart-user-management' = '../transmart-user-management'
 
 def defaultVMSettings = [
         maxMemory: 768,
@@ -60,5 +60,35 @@ grails.project.dependency.resolution = {
         runtime ':jquery:1.10.2.2'
 
         runtime ':transmart-core:1.0-SNAPSHOT'
+    }
+}
+
+def buildConfigFile = new File(
+        "${userHome}/.grails/transmartConfig/BuildConfig-rest.groovy")
+if (buildConfigFile.exists()) {
+    println "[INFO] Processing external build config at $buildConfigFile"
+
+    def slurpedBuildConfig = new ConfigSlurper(Environment.current.name).
+            parse(buildConfigFile.toURL())
+
+    slurpedBuildConfig.grails.plugin.location.each { String k, v ->
+        if (!new File(v).exists()) {
+            println "[WARNING] Cannot load in-place plugin from ${v} as that " +
+                    "directory does not exist."
+        } else {
+            println "[INFO] Loading in-place plugin $k from $v"
+            grails.plugin.location."$k" = v
+        }
+        if (grailsSettings.projectPluginsDir?.exists()) {
+            grailsSettings.projectPluginsDir.eachDir { dir ->
+                // remove optional version from inline definition
+                def dirPrefix = k.replaceFirst(/:.+/, '') + '-'
+                if (dir.name.startsWith(dirPrefix)) {
+                    println "[WARNING] Found a plugin directory at $dir that is a " +
+                            "possible conflict and may prevent grails from using " +
+                            "the in-place $k plugin."
+                }
+            }
+        }
     }
 }
