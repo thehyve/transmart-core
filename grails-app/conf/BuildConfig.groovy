@@ -5,8 +5,8 @@ grails.plugin.location.'transmart-user-management' = '../transmart-user-manageme
 def defaultVMSettings = [
         maxMemory: 768,
         minMemory: 64,
-        debug: false,
-        maxPerm: 256
+        debug:     false,
+        maxPerm:   256
 ]
 
 grails.project.fork = [
