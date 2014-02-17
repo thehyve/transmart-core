@@ -121,7 +121,8 @@ aggregate.probes = FALSE
                 ColSideColors=colcolor,
 #               col=cm.colors(800),
                 col=greenred(800),
-                margins=c(5,5)
+                margins=c(5,5),
+                scale = "none"
         )
 
         # add a legend to heatmap.
