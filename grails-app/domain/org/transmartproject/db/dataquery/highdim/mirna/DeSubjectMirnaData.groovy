@@ -1,7 +1,9 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
+@EqualsAndHashCode(includes = 'assay,probe')
 class DeSubjectMirnaData implements Serializable {
 
     BigDecimal rawIntensity

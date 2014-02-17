@@ -5,6 +5,7 @@ import org.transmartproject.db.biomarker.BioDataCorrelationCoreDb
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchKeywordCoreDb
@@ -46,11 +47,7 @@ class HighDimTestData {
     }
 
     static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {
-        (1..n).collect { int i ->
-            def p = new PatientDimension(sourcesystemCd: "$trialName:SUBJ_ID_$i")
-            p.id = baseId - i
-            p
-        }
+        I2b2Data.createTestPatients(n, baseId, trialName)
     }
 
     /* returns list with two elements: the biomarkers, and the search keywords */
