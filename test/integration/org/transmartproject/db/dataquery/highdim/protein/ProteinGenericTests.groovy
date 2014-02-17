@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class ProteinGenericTests extends HighDimensionGenericTests {
 
     ProteinGenericTests() {
-        super('protein', ProteinTestData)
+        super('protein',
+                ['intensity', 'zscore'],
+                ['uniprotName', 'peptide'],
+                ProteinTestData)
     }
 }

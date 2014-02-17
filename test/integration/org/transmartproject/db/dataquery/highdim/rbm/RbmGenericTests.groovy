@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class RbmGenericTests extends HighDimensionGenericTests {
 
     RbmGenericTests() {
-        super('rbm', RbmTestData)
+        super('rbm',
+                ['value', 'zscore'],
+                ['antigenName', 'uniprotName'],
+                RbmTestData)
     }
 }

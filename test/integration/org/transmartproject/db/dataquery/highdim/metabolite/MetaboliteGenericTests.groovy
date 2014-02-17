@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class MetaboliteGenericTests extends HighDimensionGenericTests {
 
     MetaboliteGenericTests() {
-        super('metabolite', MetaboliteTestData)
+        super('metabolite',
+                ['rawIntensity', 'logIntensity', 'zscore'],
+                ['hmdbId', 'biochemicalName'],
+                MetaboliteTestData)
     }
 }

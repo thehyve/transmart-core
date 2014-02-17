@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class MirnaGenericTests extends HighDimensionGenericTests {
 
     MirnaGenericTests() {
-        super('mirna', MirnaTestData)
+        super('mirna',
+                ['rawIntensity', 'logIntensity', 'zscore'],
+                ['probeId', 'mirnaId'],
+                MirnaTestData)
     }
 }

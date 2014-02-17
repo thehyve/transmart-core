@@ -35,19 +35,25 @@ import static org.hamcrest.Matchers.*
 abstract class HighDimensionGenericTests {
 
     HighDimensionDataTypeResource type
+    List<String> dataProperties
+    List<String> rowProperties
     def testData
 
-    HighDimensionGenericTests(HighDimensionDataTypeResource type, Class testData) {
+    HighDimensionGenericTests(HighDimensionDataTypeResource type, List<String> dataProperties, List<String> rowProperties, Class testData) {
         this.type = type
+        this.dataProperties = dataProperties
+        this.rowProperties = rowProperties
         this.testData = testData.newInstance()
     }
 
     /**
      * A convenience constructor for the workaround for parameterized tests
      */
-    HighDimensionGenericTests(String typeName, Class testData) {
+    HighDimensionGenericTests(String typeName, List<String> dataProperties, List<String> rowProperties, Class testData) {
         HighDimensionResource hdrs = Holders.grailsApplication.mainContext.getBean('highDimensionResourceService')
         this.type = hdrs.getSubResourceForType(typeName)
+        this.dataProperties = dataProperties
+        this.rowProperties = rowProperties
         this.testData = testData.newInstance()
     }
 
@@ -64,7 +70,7 @@ abstract class HighDimensionGenericTests {
     }
 
     @Test
-    void testGenericProjection() {
+    void testAllDataProjection() {
         AllDataProjection genericProjection = type.createProjection(Projection.ALL_DATA_PROJECTION)
 
         def result = type.retrieveData([], [], genericProjection)
@@ -72,6 +78,9 @@ abstract class HighDimensionGenericTests {
         def firstrow = result.iterator().next()
 
         assertThat firstrow, is(notNullValue())
+        rowProperties.each {
+            assertThat genericProjection.rowProperties, hasItem(it)
+        }
         genericProjection.rowProperties.each {
             assertThat firstrow, hasProperty(it)
         }
@@ -80,6 +89,9 @@ abstract class HighDimensionGenericTests {
 
         assertThat data, is(notNullValue())
         assertThat data, is(instanceOf(Map))
+        dataProperties.each {
+            assertThat genericProjection.dataProperties, hasItem(it)
+        }
         genericProjection.dataProperties.each {
             assertThat data, hasKey(it)
         }

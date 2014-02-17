@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class MrnaGenericTests extends HighDimensionGenericTests {
 
     MrnaGenericTests() {
-        super('mrna', MrnaTestData)
+        super('mrna',
+                ['trialName', 'rawIntensity', 'logIntensity', 'zscore'],
+                ['probe', 'geneId', 'geneSymbol'],
+                MrnaTestData)
     }
 }

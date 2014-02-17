@@ -8,6 +8,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionGenericTests
 class RnaSeqCogGenericTests extends HighDimensionGenericTests {
 
     RnaSeqCogGenericTests() {
-        super('rnaseq_cog', RnaSeqCogTestData)
+        super('rnaseq_cog',
+                ['rawIntensity', 'zscore'],
+                ['annotationId', 'geneSymbol', 'geneId'],
+                RnaSeqCogTestData)
     }
 }
