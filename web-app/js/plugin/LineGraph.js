@@ -105,11 +105,6 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-    if (groupByVariableConceptcode == '') {
-        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the group variable box.');
-        return;
-    }
-
 //    var variablesConceptCode = dependentVariableConceptCode + "|" + groupByVariableConceptcode;
 
     var formParams = {
@@ -122,7 +117,8 @@ LineGraphView.prototype.get_form_params = function (form) {
         plotEvenlySpaced: Ext.get("plotEvenlySpaced").dom.checked,
         projections: [ "rawIntensity" ],
         graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
-        groupByVariable: groupByVariableConceptcode
+        groupByVariable: groupByVariableConceptcode,
+        groupByVariableCategorical: _isCategorical(groupByNodeList)
     };
 
     if (!this.load_high_dimensional_parameters(formParams)) return false;
