@@ -105,8 +105,6 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-//    var variablesConceptCode = dependentVariableConceptCode + "|" + groupByVariableConceptcode;
-
     var formParams = {
         dependentVariable: dependentVariableConceptCode,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
@@ -205,7 +203,6 @@ LineGraphView.prototype.manage_bins = function (newNumberOfBins) {
     // This is the table we add continuous variables to.
     var continuousBinningTable = Ext.get('tblBinContinuous');
     var categoricalBinningTable = Ext.get('tblBinCategorical');
-    // Clear all old rows out of the table.
 
     // For each bin, we add a row to the binning table.
     for (var i = 1; i <= newNumberOfBins; i++) {
