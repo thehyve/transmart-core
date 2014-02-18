@@ -10,14 +10,15 @@ class SubjectController {
     PatientsResource    patientsResourceService
 
     /** GET request on /studies/XXX/subjects/
-     *  This will return the list of subjects, where each subject will be rendered in its short format
+     *  This will return the list of subjects for certain study,
+     *  where each subject will be rendered in its short format
     */
     def index() {
         render studyLoadingServiceProxy.study.patients as JSON
     }
 
     /** GET request on /studies/XXX/subjects/${id}
-     *  This returns the single requested entity.
+     *  This returns the single subject for certain study.
      *
      *  @param id The is for which to return concept information.
      */
