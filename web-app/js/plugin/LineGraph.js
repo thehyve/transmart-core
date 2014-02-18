@@ -110,8 +110,6 @@ LineGraphView.prototype.get_form_params = function (form) {
     var formParams = {
         dependentVariable: dependentVariableConceptCode,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
-//        independentVariable: groupByVariableConceptcode,
-//        independentVariableCategorical: _isCategorical(groupByNodeList),
         jobType: 'LineGraph',
         plotIndividuals: Ext.get("plotIndividuals").dom.checked,
         plotEvenlySpaced: Ext.get("plotEvenlySpaced").dom.checked,
@@ -193,8 +191,6 @@ LineGraphView.prototype.update_manual_binning = function () {
 }
 
 LineGraphView.prototype.manage_bins = function (newNumberOfBins) {
-
-    // console.log("SurvivalAnalysisView.prototype.manage_bins ");
 
     // This is the row template for a continuous BinningRow.
     var tpl = new Ext.Template(
