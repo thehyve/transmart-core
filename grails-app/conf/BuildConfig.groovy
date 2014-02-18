@@ -30,24 +30,8 @@ grails.project.dependency.resolution = {
             export     = false
         }
 
-        /* for unknown reason, test scope is not enough */
-        compile('junit:junit:4.11') {
-            transitive = false /* don't bring hamcrest */
-            export     = false
-        }
-
         compile('com.h2database:h2:1.3.174') {
             export = false
-        }
-
-        test('org.hamcrest:hamcrest-library:1.3',
-             'org.hamcrest:hamcrest-core:1.3') {
-            export     = false
-        }
-
-        test('org.gmock:gmock:0.8.3') {
-            transitive = false /* don't bring groovy-all */
-            export     = false
         }
 
         /* for reasons I don't want to guess (we'll move away from ivy soon

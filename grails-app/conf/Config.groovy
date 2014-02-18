@@ -1,18 +1,8 @@
 // configuration for plugin testing - will not be included in the plugin zip
 
-def dataSourceConfig = new File("${userHome}/" +
-        ".grails/transmartConfig/DataSource-coredb.groovy")
-
-if (dataSourceConfig.exists()) {
-    grails.config.locations = ["file:${dataSourceConfig.getAbsolutePath()}"]
-}
-
 /* Keep pre-2.3.0 behavior */
 grails.databinding.convertEmptyStringsToNull = false
 grails.databinding.trimStrings = false
-
-org.transmartproject.i2b2.user_id = 'i2b2'
-org.transmartproject.i2b2.group_id = 'Demo'
 
 ///*
 //Example configuration for using the reveng plugin
