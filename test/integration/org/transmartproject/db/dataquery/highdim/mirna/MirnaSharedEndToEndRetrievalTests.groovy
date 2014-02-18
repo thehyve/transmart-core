@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 
-class MirnaEndToEndRetrievalTests {
+abstract class MirnaSharedEndToEndRetrievalTests {
 
     private static final double DELTA = 0.0001
 
@@ -36,10 +36,12 @@ class MirnaEndToEndRetrievalTests {
 
     TabularResult result
 
+    abstract String getTypeName()
+
     @Before
     void setUp() {
         testData.saveAll()
-        mirnaResource = highDimensionResourceService.getSubResourceForType 'mirna'
+        mirnaResource = highDimensionResourceService.getSubResourceForType typeName
 
         trialNameConstraint = mirnaResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
