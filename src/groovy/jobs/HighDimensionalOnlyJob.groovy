@@ -10,8 +10,6 @@ import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import static jobs.AbstractAnalysisJob.PARAM_ANALYSIS_CONSTRAINTS
-
 abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
 
     @Autowired
@@ -26,13 +24,13 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
 
         dependentConfigurator = new NumericColumnConfigurator(
                 columnHeader: 'X',
-                projection: Projection.DEFAULT_REAL_PROJECTION,
+                projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'dependentVariable',
                 keyForDataType: 'divDependentVariableType',
                 keyForSearchKeywordId: 'divDependentVariablePathway')
         independentConfigurator = new NumericColumnConfigurator(
                 columnHeader: 'Y',
-                projection: Projection.DEFAULT_REAL_PROJECTION,
+                projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'independentVariable',
                 keyForDataType: 'divIndependentVariableType',
                 keyForSearchKeywordId: 'divIndependentVariablePathway')
@@ -48,11 +46,10 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
                 temporaryDirectory: temporaryDirectory,
                 params: params)
 
-        steps
         def openResultSetStep = new OpenHighDimensionalDataStep(
                 params: params,
-                dataTypeResource: highDimensionResource.getSubResourceForType(
-                        params[PARAM_ANALYSIS_CONSTRAINTS]['data_type']))
+                dataTypeResource: highDimensionResource.getSubResourceForType(analysisConstraints['data_type']),
+                analysisConstraints: analysisConstraints)
 
         steps << openResultSetStep
 

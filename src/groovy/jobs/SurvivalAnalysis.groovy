@@ -60,7 +60,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     void configureCategoryVariableConfigurator() {
         categoryVariableConfigurator.required = false
         categoryVariableConfigurator.columnHeader       = 'CATEGORY'
-        categoryVariableConfigurator.projection         = Projection.DEFAULT_REAL_PROJECTION
+        categoryVariableConfigurator.projection         = Projection.LOG_INTENSITY_PROJECTION
         categoryVariableConfigurator.multiRow           = true
 
         categoryVariableConfigurator.setKeys('dependent')
