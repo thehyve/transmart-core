@@ -52,6 +52,13 @@ aggregate.probes = FALSE
         Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
     }
 
+    # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+    mRNAData$GROUP <- as.character(mRNAData$GROUP)
+    rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
+    mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+    mRNAData$GROUP <- as.factor(mRNAData$GROUP)
+
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
         mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
