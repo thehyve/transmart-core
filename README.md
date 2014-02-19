@@ -57,7 +57,13 @@ Start with copying the `vars.sample` file, editing it and sourcing it in:
 
     cp vars.sample vars
 	vim vars
+    # edit file and save...
 	. ./vars
+
+If you ran `make -C env ubuntu_deps_regular`, you will have a `vars-ubuntu` file
+created for you. You can skip the previous step and do only:
+
+    . ./vars-ubuntu
 
 The several options are fairly self-explanatory. The configured PostgreSQL user
 must be a database superuser. You can connect to PostgreSQL with UNIX sockets by
