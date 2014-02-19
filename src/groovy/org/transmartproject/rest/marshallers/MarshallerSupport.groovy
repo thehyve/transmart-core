@@ -1,10 +1,10 @@
 package org.transmartproject.rest.marshallers
 
-class MarshallerSupportMixin {
+class MarshallerSupport {
 
-    Map<String, Object> getPropertySubsetForSuperType(Object o,
-                                                      Class superType,
-                                                      Set<String> excludes = [] as Set) {
+    static Map<String, Object> getPropertySubsetForSuperType(Object o,
+                                                             Class superType,
+                                                             Set<String> excludes = [] as Set) {
         if (!superType.isAssignableFrom(o.getClass())) {
             throw new IllegalArgumentException("Object '$o' is not of type " +
                     "$superType")

@@ -35,8 +35,14 @@ grails.project.dependency.resolution = {
 
         compile 'junit:junit:4.11'
 
+        // includes fix for GRAILS-11126
+        compile 'org.grails:grails-plugin-rest:2.3.5-hyve3'
+
         runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
         runtime 'com.oracle:ojdbc6:11.2.0.3.0'
+
+        // strangely needed...
+        runtime 'org.springframework:spring-test:3.2.6.RELEASE'
 
         test 'org.gmock:gmock:0.8.3', {
             transitive = false /* don't bring groovy-all */
