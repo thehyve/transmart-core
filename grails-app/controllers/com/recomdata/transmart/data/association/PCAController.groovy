@@ -1,69 +1,73 @@
-/*************************************************************************   
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************/
-
 package com.recomdata.transmart.data.association
 
 class PCAController {
 
     def RModulesOutputRenderService
 
-    def pcaOut =
-        {
-            //This will be the array of image links.
-            def ArrayList<String> imageLinks = new ArrayList<String>()
+    def pcaOut = {
+        //This will be the array of image links.
+        def ArrayList<String> imageLinks = new ArrayList<String>()
 
-            //This will be the array of text file locations.
-            List<File> txtFiles = []
+        //This will be the array of text file locations.
+        List<File> txtFiles = []
 
-            //Grab the job ID from the query string.
-            String jobName = params.jobName
+        //Grab the job ID from the query string.
+        String jobName = params.jobName
 
-            //Gather the image links.
-            RModulesOutputRenderService.initializeAttributes(jobName, "PCA", imageLinks)
+        //Gather the image links.
+        RModulesOutputRenderService.initializeAttributes(jobName, "PCA", imageLinks)
 
-            String tempDirectory = RModulesOutputRenderService.tempDirectory
+        String tempDirectory = RModulesOutputRenderService.tempDirectory
 
-            //Traverse the temporary directory for the LinearRegression files.
-            def tempDirectoryFile = new File(tempDirectory)
+        //Traverse the temporary directory for the LinearRegression files.
+        def tempDirectoryFile = new File(tempDirectory)
 
-            String summaryTable = RModulesOutputRenderService.fileParseLoop(tempDirectoryFile, /.*COMPONENTS_SUMMARY.*\.TXT/, /.*COMPONENTS_SUMMARY(.*)\.TXT/, parseComponentsSummaryStr)
+        Map<Integer, File> componentsFileMap = constructComponentFileMap(tempDirectoryFile)
 
-            def fileNamePattern = ~/^GENELIST(?<component>[0-9]+)\.TXT$/
+        String geneListTable = createGeneListTable(componentsFileMap)
 
-            Map<Integer, File> componentsFileMap =
-                tempDirectoryFile.listFiles().toList().collectEntries {file ->
-                    def fileNameMatcher = file.name =~ fileNamePattern
-                    fileNameMatcher ?
-                        [(fileNameMatcher.group('component').toInteger()): file]
+        String summaryTable = RModulesOutputRenderService
+                .fileParseLoop(tempDirectoryFile, /.*COMPONENTS_SUMMARY.*\.TXT/, /.*COMPONENTS_SUMMARY(.*)\.TXT/, parseComponentsSummaryStr)
+
+        render(template: "/plugin/pca_out",
+                model: [imageLocations: imageLinks, zipLink: RModulesOutputRenderService.zipLink, summaryTable: summaryTable, geneListTable: geneListTable],
+                contextPath: pluginContextPath)
+
+    }
+
+    /**
+     *
+     * @param tempDirectoryFile - directory which contains components text files
+     * @return map with component number as key and file as value
+     */
+    private Map<Integer, File> constructComponentFileMap(File tempDirectoryFile) {
+        def fileNamePattern = ~/^GENELIST(?<component>[0-9]+)\.TXT$/
+
+        tempDirectoryFile.listFiles().toList().collectEntries {file ->
+            def fileNameMatcher = file.name =~ fileNamePattern
+            fileNameMatcher ?
+                    [(fileNameMatcher.group('component').toInteger()): file]
                     : [:]
-                }.sort()
+        }.sort()
+    }
 
-            String geneListTable = '<table><tr>'
-            componentsFileMap.eachWithIndex {int component, File file, int ord ->
-                if (ord.mod(4) == 0) {
-                    geneListTable += '</tr><tr><td>&nbsp;</td></tr><tr>'
-                }
-                geneListTable += parseGeneList(file.text, componentsFileMap.size() > 1 ? "$component" : '')
+    /**
+     *
+     * @param componentsFileMap - components map to render
+     * @return String with html representation of components
+     */
+    private String createGeneListTable(Map<Integer, File> componentsFileMap) {
+        def geneListTableHtml = new StringBuffer()
+        geneListTableHtml.append '<table><tr>'
+        componentsFileMap.eachWithIndex {int component, File file, int ord ->
+            if (ord.mod(4) == 0) {
+                geneListTableHtml.append '</tr><tr><td>&nbsp;</td></tr><tr>'
             }
-            geneListTable += '</tr></table><br /><br />'
-
-            render(template: "/plugin/pca_out", model: [imageLocations: imageLinks, zipLink: RModulesOutputRenderService.zipLink, summaryTable: summaryTable, geneListTable: geneListTable], contextPath: pluginContextPath)
-
+            geneListTableHtml.append parseGeneList(file.text, componentsFileMap.size() > 1 ? "$component" : '')
         }
-
+        geneListTableHtml.append '</tr></table><br /><br />'
+        geneListTableHtml.toString()
+    }
 
     def parseComponentsSummaryStr = {
 
