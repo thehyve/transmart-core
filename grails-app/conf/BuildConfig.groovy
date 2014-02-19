@@ -35,6 +35,9 @@ grails.project.dependency.resolution = {
 
         compile 'junit:junit:4.11'
 
+        runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
+        runtime 'com.oracle:ojdbc6:11.2.0.3.0'
+
         test 'org.gmock:gmock:0.8.3', {
             transitive = false /* don't bring groovy-all */
         }
