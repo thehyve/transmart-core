@@ -24,13 +24,13 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
 
         dependentConfigurator = new NumericColumnConfigurator(
                 columnHeader: 'X',
-                projection: Projection.DEFAULT_REAL_PROJECTION,
+                projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'dependentVariable',
                 keyForDataType: 'divDependentVariableType',
                 keyForSearchKeywordId: 'divDependentVariablePathway')
         independentConfigurator = new NumericColumnConfigurator(
                 columnHeader: 'Y',
-                projection: Projection.DEFAULT_REAL_PROJECTION,
+                projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'independentVariable',
                 keyForDataType: 'divIndependentVariableType',
                 keyForSearchKeywordId: 'divIndependentVariablePathway')

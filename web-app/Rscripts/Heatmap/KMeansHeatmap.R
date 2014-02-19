@@ -158,7 +158,8 @@ aggregate.probes = FALSE
             ColSideColors=patientcolors,
             margins=c(25,25),
             cexRow=1.5,
-            cexCol=1.5)
+            cexCol=1.5),
+            scale = "none"
 
     #Print the heatmap to an image
     print("Print the heatmap to an image")
