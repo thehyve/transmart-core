@@ -30,7 +30,7 @@ class RNASeqgroupTestController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${config.imageURL}${params.jobName}/rnaseq-groups-test.png"
+		def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/rnaseq-groups-test.png"
 		render imagePath
 	}
 
