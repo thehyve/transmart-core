@@ -1,4 +1,5 @@
 import org.springframework.aop.scope.ScopedProxyFactoryBean
+import org.transmartproject.db.test.H2Views
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 
 beans = {
@@ -13,4 +14,7 @@ beans = {
     }
 
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
+
+    h2Views(H2Views)
+
 }

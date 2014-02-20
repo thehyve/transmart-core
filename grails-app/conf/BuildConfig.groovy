@@ -16,6 +16,9 @@ grails.project.fork = [
     console: defaultVMSettings
 ]
 
+grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
+grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
+
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
     inherits('global') {
@@ -26,13 +29,14 @@ grails.project.dependency.resolution = {
 
     repositories {
         mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
+        mavenRepo "http://repository.codehaus.org/"
+        mavenRepo "http://repository.jboss.org/maven2/"
         inherits false // inherit repository definitions from plugins (default true)
     }
 
     dependencies {
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
         compile 'org.javassist:javassist:3.16.1-GA'
-
         compile 'junit:junit:4.11'
 
         test 'org.gmock:gmock:0.8.3', {
@@ -48,23 +52,18 @@ grails.project.dependency.resolution = {
         build   ':tomcat:7.0.47'
 
         compile ':cache:1.1.1'
-
-        compile ':spring-security-core:2.0-RC2'
-        compile ':spring-security-oauth2-provider:1.0.5.1'
-
-        compile ':oauth:2.1.0'
-
         compile ':transmart-user-management:1.0-SNAPSHOT'
+        compile ":functional-test:2.0.RC1"
 
         runtime ':hibernate:3.6.10.6'
         runtime ':jquery:1.10.2.2'
 
-        runtime ':transmart-core:1.0-SNAPSHOT'
+        //runtime ':transmart-core:1.0-SNAPSHOT'
     }
 }
 
 def buildConfigFile = new File(
-        "${userHome}/.grails/transmartConfig/BuildConfig-rest.groovy")
+        "${userHome}/.grails/transmartConfig/BuildConfig-rest-api.groovy")
 if (buildConfigFile.exists()) {
     println "[INFO] Processing external build config at $buildConfigFile"
 
