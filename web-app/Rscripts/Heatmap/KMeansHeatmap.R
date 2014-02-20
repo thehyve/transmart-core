@@ -27,6 +27,7 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
+color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE
 )
 {
@@ -141,18 +142,20 @@ aggregate.probes = FALSE
     if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 
 
-    colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
+    if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
 
     #Store the heatmap in a temp variable.
     print("Create the heatmap")
     tmp <- heatmap(	matrixData,
             Rowv=NA,
-            Colv=NA,col=colorPanelList,
+            Colv=NA,
             ColSideColors=patientcolors,
             margins=c(25,25),
             cexRow=1.5,
-            cexCol=1.5),
-            scale = "none"
+            cexCol=1.5,
+            col = greenred(800),
+            breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+            scale = "none")
 
     #Print the heatmap to an image
     print("Print the heatmap to an image")
