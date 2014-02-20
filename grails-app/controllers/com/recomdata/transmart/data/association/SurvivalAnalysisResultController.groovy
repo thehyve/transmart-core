@@ -19,17 +19,13 @@ package com.recomdata.transmart.data.association
  *
  ******************************************************************/
 import grails.converters.JSON
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.transmartproject.utils.FileUtils
 
 class SurvivalAnalysisResultController {
 
-    def config = ConfigurationHolder.config;
     def grailsApplication
 
-    private getConfig() {
-        grailsApplication.config.RModules
-    }
+    def RModulesOutputRenderService
 
     final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
@@ -66,7 +62,8 @@ class SurvivalAnalysisResultController {
      * This function will return the image path
      */
     def imagePath = {
-        def imagePath = "${config.imageURL}${params.jobName}/${params.jobType}_${params.chromosome}_${params.start}_${params.end}.png"
+        def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/" +
+                "${params.jobType}_${params.chromosome}_${params.start}_${params.end}.png"
         render imagePath
     }
 
