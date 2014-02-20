@@ -1,17 +1,18 @@
 package org.transmartproject.rest
 
+import com.grailsrocks.functionaltest.APITestCase
 import org.hamcrest.Matchers
 import org.junit.Ignore
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class SubjectsResourceTests extends ApiResourceTests {
+class SubjectsResourceTests extends APITestCase {
 
     def study = 'STUDY1'
     //TODO Assert more subjects fields
     void testListAllSubjectsForStudy() {
-        get("${baseUrl}studies/${study}/subjects")
+        get("${baseURL}studies/${study}/subjects")
         assertStatus 200
 
         assertThat JSON, containsInAnyOrder(
@@ -38,7 +39,7 @@ class SubjectsResourceTests extends ApiResourceTests {
 
     void testGetSubjectForStudy() {
         int patientNum = -101
-        get("${baseUrl}studies/${study}/subjects/${patientNum}")
+        get("${baseURL}studies/${study}/subjects/${patientNum}")
         assertStatus 200
         assertThat JSON, allOf(
                 hasEntry('id',            patientNum),
@@ -51,7 +52,7 @@ class SubjectsResourceTests extends ApiResourceTests {
     /*//FIXME response contains null
         void testGetNonExistentStudy() {
             def studyName = 'STUDY_NOT_EXIST'
-            get("${baseUrl}studies/${studyName}/subjects")
+            get("${baseURL}studies/${studyName}/subjects")
             assertStatus 404
 
             assertThat JSON, allOf(
@@ -64,7 +65,7 @@ class SubjectsResourceTests extends ApiResourceTests {
                 //FIXME response contains null
         void testGetNonExistentSubjectForStudy() {
             def patientNum = -9999
-            get("${baseUrl}studies/${study}/subjects/${patientNum}")
+            get("${baseURL}studies/${study}/subjects/${patientNum}")
             assertStatus 404
 
             assertThat JSON, allOf(

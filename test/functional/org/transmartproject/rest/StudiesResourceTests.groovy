@@ -1,12 +1,14 @@
 package org.transmartproject.rest
 
+import com.grailsrocks.functionaltest.APITestCase
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class StudiesResourceTests extends ApiResourceTests {
+class StudiesResourceTests extends APITestCase {
 
     void testListAllStudies() {
-        get("${baseUrl}studies")
+        get("${baseURL}studies")
         assertStatus 200
 
         assertThat JSON, contains(
@@ -31,7 +33,7 @@ class StudiesResourceTests extends ApiResourceTests {
 
     void testGetStudy() {
         def studyName = 'STUDY1'
-        get("${baseUrl}studies/${studyName}")
+        get("${baseURL}studies/${studyName}")
         assertStatus 200
 
         assertThat JSON, allOf(
@@ -47,7 +49,7 @@ class StudiesResourceTests extends ApiResourceTests {
     /*FIXME Response contains null as content
     void testGetNonExistentStudy() {
         def studyName = 'STUDY_NOT_EXIST'
-        get("${baseUrl}studies/${studyName}")
+        get("${baseURL}studies/${studyName}")
         assertStatus 404
 
         assertThat JSON, allOf(
