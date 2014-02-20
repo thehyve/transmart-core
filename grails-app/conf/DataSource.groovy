@@ -1,9 +1,8 @@
 // usually overridden in ~/.grails/transmartConfig/DataSource.groovy
 dataSource {
-    driverClassName = 'org.postgresql.Driver'
-    url             = 'jdbc:postgresql://localhost:5432/transmart'
-    dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
-
+    driverClassName = "org.h2.Driver"
+    url             = 'jdbc:h2:mem:devDb'
+    dialect         = 'org.hibernate.dialect.H2Dialect'
     username        = 'biomart_user'
     password        = 'biomart_user'
     dbCreate        = 'none'
@@ -33,12 +32,10 @@ environments {
     test {
         dataSource {
             driverClassName = 'org.h2.Driver'
-            url             = 'jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000'
-
+            url             = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM './h2_init.sql'"
             username        = 'sa'
             password        = ''
             dbCreate        = 'update'
-
             logSql          = true
             formatSql       = true
         }
