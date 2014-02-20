@@ -142,7 +142,7 @@ aggregate.probes = FALSE
     if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 
 
-    if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
+    if (is.null(color.range.clamps)) color.range.clamps = c(min(matrixData), max(matrixData))
 
     #Store the heatmap in a temp variable.
     print("Create the heatmap")
