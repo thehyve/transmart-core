@@ -26,6 +26,7 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
+color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE
 )
 {
@@ -115,19 +116,17 @@ aggregate.probes = FALSE
 # check whether there is enough data to draw heatmap
         n_remaining_marker<-nrow(mRNAData)
         n_remaining_sample<-ncol(mRNAData)
+        if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
         if (n_remaining_marker>1 & n_remaining_sample >1) {
 		#Store the heatmap in a temp variable.
-		tmp <- heatmap(
-                            mRNAData,
-                    	    Rowv=NA,
-                            Colv=NA,
-		# by Serge and Wei to make the map more informative
-                            ColSideColors=colcolor,
-#                           col=cm.colors(800),
-                       	    col=greenred(800),
-                            margins=c(15, 15),
-                            scale = "none"
-                            )
+        tmp <- heatmap(mRNAData,
+                Rowv=NA,
+                Colv=NA,
+                ColSideColors=colcolor,
+                col = greenred(800),
+                breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+                margins=c(15, 15),
+                scale = "none")
 
 		# add a legend to heatmap.
 		tmp_legend <- legend("topleft",
