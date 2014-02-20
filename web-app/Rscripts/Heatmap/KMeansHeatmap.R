@@ -146,13 +146,13 @@ aggregate.probes = FALSE
 
     #Store the heatmap in a temp variable.
     print("Create the heatmap")
-    tmp <- heatmap(	matrixData,
-            Rowv=NA,
-            Colv=NA,
-            ColSideColors=patientcolors,
-            margins=c(25,25),
-            cexRow=1.5,
-            cexCol=1.5,
+    tmp <- heatmap(matrixData,
+            Rowv = NA,
+            Colv = NA,
+            ColSideColors = patientcolors,
+            margins = c(25,25),
+            cexRow = 1.5,
+            cexCol = 1.5,
             col = greenred(800),
             breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
             scale = "none")
