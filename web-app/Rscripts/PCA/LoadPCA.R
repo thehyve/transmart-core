@@ -21,7 +21,8 @@
 PCA.loader <- function(
 input.filename,
 output.file ="PCA",
-aggregate.probes = FALSE
+aggregate.probes = FALSE,
+max.pcs.to.show = 10
 )
 {
 
@@ -96,6 +97,7 @@ aggregate.probes = FALSE
 
     #Get the number of components.
     numberOfComponents <- length(pca.results$sdev)
+    max.pcs.to.show <- min(max.pcs.to.show, numberOfComponents)
 
     print(sprintf("Number of components %d", numberOfComponents))
 
@@ -134,11 +136,11 @@ aggregate.probes = FALSE
         write.table(currentData,currentFile,quote=F,sep="\t",row.names=F,col.names=F)
     }
 
-    sapply(1:ncol(rotationFrame), f, GENELISTLENGTH)
+    sapply(1:max.pcs.to.show, f, GENELISTLENGTH)
 
     #Finally create the Scree plot.
 
-    plot(pca.results,type="lines", main="Scree Plot")
+    plot(pca.results,type="lines", main="Scree Plot", npcs = max.pcs.to.show)
     title(xlab = "Component")
 
     dev.off()
