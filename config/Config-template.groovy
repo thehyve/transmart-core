@@ -17,7 +17,8 @@ def explodedWarDir    = catalinaBase + '/webapps/transmart'
 def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
-// in tomcat or apache for serving the images here from <context path>/images/<RModules.imageURL>
+// old versions of transmart also require an alias in tomcat or apache from
+// to expose this directory as <context path>/images/<RModules.imageURL>
 // (usually transmart/images/tempImages)
 def jobsDirectory     = "/var/tmp/jobs/"
 
@@ -152,6 +153,7 @@ com.recomdata.plugins.resultSize = 5000
 
 /* {{{ RModules & Data Export Configuration */
 environments {
+    // This is not used in recent versions; the URL is always /analysisFiles/
     RModules.imageURL = "/tempImages/" //must end and start with /
 
     production {
@@ -162,8 +164,8 @@ environments {
         // Whether to copy the images from the jobs directory to another
         // directory from which they can be served. Should be false for
         // performance reasons. Files will be served from the
-        // tempFolderDirectory instead, which should be served under
-        // <context path>/tempImages
+        // tempFolderDirectory instead, which should be exposed as
+        // <context path>/analysisFiles (formerly: <context path>/tempImages)
         RModules.transferImageFile = false
 
         // Copy inside the exploded WAR. In actual production, we don't want this
