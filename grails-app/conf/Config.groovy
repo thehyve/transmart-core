@@ -30,6 +30,8 @@ grails.mime.types = [
     xml:           ['text/xml', 'application/xml']
 ]
 
+grails.mime.use.accept.header = true
+
 // Legacy setting for codec used to encode data with ${}
 grails.views.default.codec = "html"
 

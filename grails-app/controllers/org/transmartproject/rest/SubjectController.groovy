@@ -6,6 +6,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 
 class SubjectController {
 
+    static responseFormats = ['json', 'hal']
+
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource    patientsResourceService
 
@@ -13,7 +15,7 @@ class SubjectController {
      *  This will return the list of subjects, where each subject will be rendered in its short format
     */
     def index() {
-        render studyLoadingServiceProxy.study.patients as JSON
+        respond studyLoadingServiceProxy.study.patients
     }
 
     /** GET request on /studies/XXX/subjects/${id}
@@ -30,7 +32,7 @@ class SubjectController {
                     "does not belong to the study '$studyName'")
         }
 
-        render patient as JSON
+        respond patient
     }
 
     /** GET request on /studies/XXX/concepts/YYY/subjects
