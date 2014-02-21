@@ -1,5 +1,5 @@
 class TransmartCoreDbTestsGrailsPlugin {
-    def version = "0.1"
+    def version = "1.0-SNAPSHOT"
     def grailsVersion = "2.2 > *"
 
     def title = "Transmart Core Db Tests Plugin"
