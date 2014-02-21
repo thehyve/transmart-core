@@ -16,8 +16,8 @@ grails.project.fork = [
     console: defaultVMSettings
 ]
 
-grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
-grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
+//grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
+//grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
 
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
@@ -58,7 +58,8 @@ grails.project.dependency.resolution = {
         runtime ':hibernate:3.6.10.6'
         runtime ':jquery:1.10.2.2'
 
-        //runtime ':transmart-core:1.0-SNAPSHOT'
+        runtime ':transmart-core:1.0-SNAPSHOT'
+        runtime ':transmart-core-db-tests:1.0-SNAPSHOT'
     }
 }
 
