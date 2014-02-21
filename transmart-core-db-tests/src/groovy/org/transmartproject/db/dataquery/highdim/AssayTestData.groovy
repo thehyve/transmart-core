@@ -56,10 +56,10 @@ class AssayTestData {
     }()
 
     void saveAll() {
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save i2b2TopConcepts
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save i2b2GenericConcepts
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save dimensionConcepts
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
+        save patients
+        save i2b2TopConcepts
+        save i2b2GenericConcepts
+        save dimensionConcepts
+        save assays
     }
 }

@@ -139,14 +139,14 @@ class MetaboliteTestData {
     void saveAll() {
         biomarkerTestData.saveMetabolomicsData()
 
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([platform])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save superPathways
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save searchKeywordsForSuperPathways
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save subPathways
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save searchKeywordsForSubPathways
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save annotations
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save data
+        save([platform])
+        save patients
+        save assays
+        save superPathways
+        save searchKeywordsForSuperPathways
+        save subPathways
+        save searchKeywordsForSubPathways
+        save annotations
+        save data
     }
 }

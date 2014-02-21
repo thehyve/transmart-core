@@ -77,10 +77,10 @@ class RnaSeqCogTestData {
     void saveAll() {
         biomarkerTestData.saveGeneData()
 
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([platform])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save annotations
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save data
+        save([platform])
+        save patients
+        save assays
+        save annotations
+        save data
     }
 }

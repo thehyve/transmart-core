@@ -30,8 +30,8 @@ class I2b2Data {
     }
 
     void saveAll() {
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patientTrials
+        save patients
+        save patientTrials
     }
 
 }

@@ -76,11 +76,11 @@ class MirnaTestData {
     void saveAll() {
         bioMarkerTestData.saveMirnaData()
 
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([ platform ])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save probes
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save mirnaData
+        save([ platform ])
+        save patients
+        save assays
+        save probes
+        save mirnaData
     }
 
 }

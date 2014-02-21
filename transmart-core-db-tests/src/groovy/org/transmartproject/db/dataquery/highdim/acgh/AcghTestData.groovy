@@ -61,11 +61,11 @@ class AcghTestData {
         r
     }()
 
-    List<PatientDimension> patients = org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients(2, -2000, 'REGION_SAMP_TRIAL')
+    List<PatientDimension> patients = createTestPatients(2, -2000, 'REGION_SAMP_TRIAL')
 
     QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
 
-    List<DeSubjectSampleMapping> assays = org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays(patients,
+    List<DeSubjectSampleMapping> assays = createTestAssays(patients,
                                                            -3000L,
                                                            regionPlatform,
                                                            TRIAL_NAME)
@@ -97,12 +97,12 @@ class AcghTestData {
     }()
 
     void saveAll() {
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([ regionPlatform, bogusTypePlatform ])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save regions
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([ allPatientsQueryResult ])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save acghData
+        save([ regionPlatform, bogusTypePlatform ])
+        save regions
+        save patients
+        save([ allPatientsQueryResult ])
+        save assays
+        save acghData
     }
 
 }

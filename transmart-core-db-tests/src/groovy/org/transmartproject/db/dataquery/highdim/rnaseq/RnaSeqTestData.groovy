@@ -61,11 +61,11 @@ class RnaSeqTestData {
         r
     }()
 
-    List<PatientDimension> patients = org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients(2, -2010, 'REGION_SAMP_TRIAL_RNASEQ')
+    List<PatientDimension> patients = createTestPatients(2, -2010, 'REGION_SAMP_TRIAL_RNASEQ')
 
     QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
 
-    List<DeSubjectSampleMapping> assays = org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays(patients,
+    List<DeSubjectSampleMapping> assays = createTestAssays(patients,
                                                            -3010L,
                                                            regionPlatform,
                                                            TRIAL_NAME)
@@ -91,12 +91,12 @@ class RnaSeqTestData {
     }()
 
     void saveAll() {
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([ regionPlatform, bogusTypePlatform ])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save regions
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([ allPatientsQueryResult ])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save rnaseqData
+        save([ regionPlatform, bogusTypePlatform ])
+        save regions
+        save patients
+        save([ allPatientsQueryResult ])
+        save assays
+        save rnaseqData
     }
 
 }

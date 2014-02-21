@@ -98,9 +98,9 @@ class MrnaTestData {
         bioMarkerTestData.saveGeneData()
 
         assertThat platform.save(), is(notNullValue(DeGplInfo))
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save annotations
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save assays
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save microarrayData
+        save annotations
+        save patients
+        save assays
+        save microarrayData
     }
 }

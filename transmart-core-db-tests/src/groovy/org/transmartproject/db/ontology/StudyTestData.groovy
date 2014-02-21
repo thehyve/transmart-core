@@ -27,8 +27,8 @@ class StudyTestData {
     void saveAll() {
         i2b2Data.saveAll()
 
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([tableAccess])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save i2b2List
+        save([tableAccess])
+        save i2b2List
     }
 
 }

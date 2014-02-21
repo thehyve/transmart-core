@@ -89,12 +89,12 @@ class ClinicalTestData {
     }()
 
     void saveAll() {
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([tableAccess])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save i2b2Concepts
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save concepts
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save patients
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save([patientsQueryMaster])
-        org.transmartproject.db.dataquery.highdim.HighDimTestData.save facts
+        save([tableAccess])
+        save i2b2Concepts
+        save concepts
+        save patients
+        save([patientsQueryMaster])
+        save facts
     }
 
 }
