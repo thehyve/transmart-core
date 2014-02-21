@@ -10,9 +10,6 @@ if (dataSourceConfig.exists()) {
 grails.databinding.convertEmptyStringsToNull = false
 grails.databinding.trimStrings = false
 
-org.transmartproject.i2b2.user_id = 'i2b2'
-org.transmartproject.i2b2.group_id = 'Demo'
-
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
