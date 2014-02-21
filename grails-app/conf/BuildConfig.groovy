@@ -24,6 +24,18 @@ grails.project.dependency.resolution = {
             transitive = false
             export     = false
         }
+
+        test('junit:junit:4.11') {
+            transitive = false /* don't bring hamcrest */
+            export     = false
+        }
+
+        test 'org.hamcrest:hamcrest-core:1.3',
+             'org.hamcrest:hamcrest-library:1.3'
+
+        test 'org.gmock:gmock:0.8.3', {
+            transitive = false /* don't bring groovy-all */
+        }
     }
 
     plugins {

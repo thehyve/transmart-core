@@ -13,14 +13,13 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        /* for unknown reason, test scope is not enough */
-        compile('junit:junit:4.11') {
+        compile('org.hamcrest:hamcrest-library:1.3',
+                'org.hamcrest:hamcrest-core:1.3')
+
+        test('junit:junit:4.11') {
             transitive = false /* don't bring hamcrest */
             export     = false
         }
-
-        compile('org.hamcrest:hamcrest-library:1.3',
-                'org.hamcrest:hamcrest-core:1.3')
 
         test('org.gmock:gmock:0.8.3') {
             transitive = false /* don't bring groovy-all */
@@ -32,8 +31,8 @@ grails.project.dependency.resolution = {
          * when running test-app in Travis even though the hibernate plugin
          * depends on it */
         test('org.javassist:javassist:3.16.1-GA') {
-			export = false
-		}
+            export = false
+        }
     }
 
     plugins {
