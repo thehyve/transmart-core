@@ -1,10 +1,6 @@
 class TransmartCoreDbTestsGrailsPlugin {
     def version = "0.1"
     def grailsVersion = "2.2 > *"
-    // resources that are excluded from plugin packaging
-    def pluginExcludes = [
-        "grails-app/views/error.gsp"
-    ]
 
     def title = "Transmart Core Db Tests Plugin"
     def author = "Transmart Foundation"
