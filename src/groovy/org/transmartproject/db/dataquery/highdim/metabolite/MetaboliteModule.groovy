@@ -27,7 +27,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['METABOLOMICS']
 
-    final String description = 'Metabolomics data'
+    final String description = 'Metabolomics data (Mass Spec)'
 
     private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
 

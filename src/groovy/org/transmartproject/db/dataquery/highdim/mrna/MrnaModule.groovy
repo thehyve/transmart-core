@@ -24,7 +24,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'mrna'
 
-    final String description = "Messenger RNA data"
+    final String description = "Messenger RNA data (Microarray)"
 
     final List<String> platformMarkerTypes = ['Gene Expression']
 
