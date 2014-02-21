@@ -1,11 +1,12 @@
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import org.transmartproject.core.ontology.StudiesResource
 
 import javax.annotation.Resource
 
 class StudyController {
+
+    static responseFormats = ['json', 'hal']
 
     @Resource
     StudiesResource studiesResourceService
@@ -14,7 +15,7 @@ class StudyController {
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        render studiesResourceService.studySet as JSON
+        respond studiesResourceService.studySet
     }
 
     /** GET request on /studies/${id}
@@ -23,6 +24,6 @@ class StudyController {
      *  @param name the name of the study
      */
     def show(String id) {
-        render studiesResourceService.getStudyByName(id) as JSON
+        respond studiesResourceService.getStudyByName(id)
     }
 }

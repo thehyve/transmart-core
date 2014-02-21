@@ -33,4 +33,8 @@ class StudyLoadingService {
 
         studiesResourceService.getStudyByName(studyId)
     }
+
+    String getStudyLowercase() {
+        study.name.toLowerCase(Locale.ENGLISH)
+    }
 }
