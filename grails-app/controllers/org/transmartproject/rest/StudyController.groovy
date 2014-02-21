@@ -19,7 +19,7 @@ class StudyController {
     }
 
     /** GET request on /studies/${id}
-     *  This returns the single requested entity.
+     *  This returns the single study by name.
      *
      *  @param name the name of the study
      */
