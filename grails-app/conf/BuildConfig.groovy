@@ -6,22 +6,15 @@ grails.project.repos.default = 'repo.thehyve.nl-snapshots'
 grails.project.repos."${grails.project.repos.default}".url = 'https://repo.thehyve.nl/content/repositories/snapshots/'
 
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
+    log "warn"
+    legacyResolve false
+
     repositories {
-        grailsCentral()
         mavenLocal()
-        mavenCentral()
         mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
     }
-    dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
+    dependencies {
         compile('org.transmartproject:transmart-core-api:1.0-SNAPSHOT')
         compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 
@@ -29,16 +22,6 @@ grails.project.dependency.resolution = {
             transitive = false
             export     = false
         }
-
-        compile('com.h2database:h2:1.3.174') {
-            export = false
-        }
-
-        /* for reasons I don't want to guess (we'll move away from ivy soon
-         * anyway), javassist is not being included in the test classpath
-         * when running test-app in Travis even though the hibernate plugin
-         * depends on it */
-        test('org.javassist:javassist:3.16.1-GA')
     }
 
     plugins {
