@@ -24,3 +24,9 @@ script:
     - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
     - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
 
+notifications:
+  hipchat:
+    rooms:
+      secure: xcYrNzgEMcURuFoD7M2IB4jra+520rt/lDwSbLATSRs/NmyXoJ/cqJH/XcsIcsnF/WfWGQRPDOffMRFMTwurb2FKZC+f25V/Gvcb93tqT2XUx7Z63DJ7dJVgVHgTcs36T/GrNYwytqn01fPZonM8skcWdbJy97K3x3VyjvyCk5A=
+    on_success: change
+    on_failure: always
