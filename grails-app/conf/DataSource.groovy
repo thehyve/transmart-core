@@ -6,19 +6,17 @@ hibernate {
 
 // environment specific settings
 environments {
-    /*development {
-        dataSource {
-            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
-        }
-    }*/
-    test {
-        dataSource {
-            dbCreate  = "update"
-            logSql    = true
-            formatSql = true
-            url       = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=" +
-                        "RUNSCRIPT FROM './h2_init.sql'"
-        }
-    }
+    //development {
+    //    driverClassName = 'org.postgresql.Driver'
+    //    url             = 'jdbc:postgresql://localhost:5432/transmart'
+    //    dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
+
+    //    driverClassName = 'oracle.jdbc.driver.OracleDriver'
+    //    url             = 'jdbc:oracle:thin:@localhost:11521:CI'
+    //    dialect         = 'org.hibernate.dialect.Oracle10gDialect'
+
+    //    username        = 'biomart_user'
+    //    password        = 'biomart_user'
+    //    dbCreate        = 'none'
+    //}
 }
