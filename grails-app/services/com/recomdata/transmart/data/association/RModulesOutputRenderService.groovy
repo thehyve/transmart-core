@@ -89,19 +89,14 @@ class RModulesOutputRenderService {
 			
     /**
      * The logical path from which the images will be served.
+     * This used to be configurable via <code>RModules.imageURL</code>, but
+     * it's now fixed.
      *
      * @return URL path from which images will be served
      */
     private String getImageURL() {
-        String url = grailsApplication.config.RModules.imageURL
-        if (!url) {
-            return url;
-        }
-        if (!url.endsWith('/') && !url.toLowerCase().endsWith("%2f")) {
-            url += "/"
-        }
-        url
-			}
+        '/analysisFiles/'
+    }
     //</editor-fold>
 
     def initializeAttributes(jobName, jobTypeName, linksArray) {
@@ -150,7 +145,7 @@ class RModulesOutputRenderService {
         };
 
         zipLocation = "${outputDirectory}" + File.separator + "zippedData.zip"
-        this.zipLink = "images/${imageURL}${jobName}/zippedData.zip"
+        this.zipLink = "${imageURL}${jobName}/zippedData.zip"
 
         if (!new File(zipLocation).isFile()) {
             zipService.zipFolder(tempDirectory, zipLocation)
