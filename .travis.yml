@@ -20,6 +20,7 @@ install:
     - cd -
 
 script:
+    - cd transmart-core-db-tests
     - ${GRAILS_HOME}/bin/grails clean
     - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
     - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
