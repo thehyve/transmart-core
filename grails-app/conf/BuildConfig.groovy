@@ -29,8 +29,6 @@ grails.project.dependency.resolution = {
 
     repositories {
         mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
-        mavenRepo "http://repository.codehaus.org/"
-        mavenRepo "http://repository.jboss.org/maven2/"
         inherits false // inherit repository definitions from plugins (default true)
     }
 
