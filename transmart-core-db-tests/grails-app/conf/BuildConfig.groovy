@@ -4,10 +4,14 @@ grails.plugin.location.'transmart-core-db' = '../.'
 
 grails.project.dependency.resolution = {
     log "warn"
+
+    inherits('global') {}
+
     repositories {
         mavenLocal()
         mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
     }
+
     dependencies {
         /* for unknown reason, test scope is not enough */
         compile('junit:junit:4.11') {

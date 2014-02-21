@@ -9,6 +9,8 @@ grails.project.dependency.resolution = {
     log "warn"
     legacyResolve false
 
+    inherits('global') {}
+
     repositories {
         mavenLocal()
         mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
