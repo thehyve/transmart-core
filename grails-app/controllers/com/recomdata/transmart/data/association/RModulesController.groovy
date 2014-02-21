@@ -110,6 +110,9 @@ class RModulesController {
             case 'lineGraph':
                 jsonResult = createJob(params, LineGraph, false)
                 break
+            case 'logisticRegression':
+                jsonResult = createJob(params, LogisticRegression, false)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
