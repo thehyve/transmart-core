@@ -1,4 +1,4 @@
-package org.transmartproject.test
+package org.transmartproject.db.test
 
 import org.codehaus.groovy.grails.commons.DomainClassArtefactHandler
 import org.hamcrest.BaseMatcher
