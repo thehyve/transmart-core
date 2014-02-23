@@ -8,8 +8,7 @@ import org.transmartproject.db.dataquery.highdim.AssayTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.hamcrest.Matchers.is
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 class AssayIdListConstraintTests {
 

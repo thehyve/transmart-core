@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim
 
-import com.google.common.collect.Iterables
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.assay.Assay
@@ -8,7 +7,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
@@ -20,7 +18,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTe
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 class HighDimensionResourceServiceIntegrationTests {
 

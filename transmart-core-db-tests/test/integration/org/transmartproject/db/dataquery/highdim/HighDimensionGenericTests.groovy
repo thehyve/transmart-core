@@ -1,10 +1,12 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.util.Holders
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
@@ -74,26 +76,30 @@ abstract class HighDimensionGenericTests {
         AllDataProjection genericProjection = type.createProjection(Projection.ALL_DATA_PROJECTION)
 
         def result = type.retrieveData([], [], genericProjection)
-        def indicesList = result.indicesList
-        def firstrow = result.iterator().next()
+        try {
+            def indicesList = result.indicesList
+            def firstrow = result.iterator().next()
 
-        assertThat firstrow, is(notNullValue())
-        rowProperties.each {
-            assertThat genericProjection.rowProperties, hasItem(it)
-        }
-        genericProjection.rowProperties.each {
-            assertThat firstrow, hasProperty(it)
-        }
+            assertThat firstrow, is(notNullValue())
+            rowProperties.each {
+                assertThat genericProjection.rowProperties, hasItem(it)
+            }
+            genericProjection.rowProperties.each {
+                assertThat firstrow, hasProperty(it)
+            }
 
-        def data = firstrow[indicesList[0]]
+            def data = firstrow[indicesList[0]]
 
-        assertThat data, is(notNullValue())
-        assertThat data, is(instanceOf(Map))
-        dataProperties.each {
-            assertThat genericProjection.dataProperties, hasItem(it)
-        }
-        genericProjection.dataProperties.each {
-            assertThat data, hasKey(it)
+            assertThat data, is(notNullValue())
+            assertThat data, is(instanceOf(Map))
+            dataProperties.each {
+                assertThat genericProjection.dataProperties, hasItem(it)
+            }
+            genericProjection.dataProperties.each {
+                assertThat data, hasKey(it)
+            }
+        } finally {
+            result?.close()
         }
     }
 

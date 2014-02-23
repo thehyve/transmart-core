@@ -7,7 +7,7 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNa
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 /**
  * Created by glopes on 11/23/13.

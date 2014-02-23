@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -14,12 +15,14 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.mirna.MirnaTestData
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class RnaSeqCogEndToEndRetrievalTests {
 
     private static final double DELTA = 0.0001

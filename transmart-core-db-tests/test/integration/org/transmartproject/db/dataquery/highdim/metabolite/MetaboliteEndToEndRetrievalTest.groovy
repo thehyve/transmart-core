@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
@@ -13,11 +14,13 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class MetaboliteEndToEndRetrievalTest {
 
     /* scale of the zscore column is 5, so this is the max rounding error */

@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import groovy.sql.Sql
 import org.hibernate.Session
 import org.junit.After
@@ -25,14 +26,16 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import javax.sql.DataSource
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class MrnaDataRetrievalTests {
 
     private static final double DELTA = 0.0001

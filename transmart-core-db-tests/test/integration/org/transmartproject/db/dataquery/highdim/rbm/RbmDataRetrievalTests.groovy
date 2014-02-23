@@ -1,6 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
 import com.google.common.collect.Lists
+import grails.test.mixin.TestMixin
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -10,10 +11,12 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class RbmDataRetrievalTests {
 
     RbmTestData testData = new RbmTestData()

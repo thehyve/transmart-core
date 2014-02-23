@@ -1,7 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import com.google.common.collect.Lists
-
+import grails.test.mixin.TestMixin
 import org.hibernate.SessionFactory
 import org.junit.After
 import org.junit.Before
@@ -19,13 +19,15 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghTestData.TRIAL_NAME
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class AcghEndToEndRetrievalTests {
 
     HighDimensionResource highDimensionResourceService
