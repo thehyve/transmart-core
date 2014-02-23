@@ -1,15 +1,18 @@
 package org.transmartproject.db.dataquery.clinical
 
+import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.i2b2data.I2b2Data
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class PatientsResourceServiceTests {
 
     public static final String TRIAL_NAME = 'SAMPLE TRIAL'

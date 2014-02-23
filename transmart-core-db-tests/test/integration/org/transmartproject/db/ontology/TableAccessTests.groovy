@@ -7,8 +7,9 @@ import org.transmartproject.core.ontology.OntologyTerm
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.fail
+import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
+import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@Mixin(ConceptTestData)
 class TableAccessTests {
 
     @Before

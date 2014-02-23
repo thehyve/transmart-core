@@ -14,14 +14,16 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
-import static org.transmartproject.test.Matchers.hasSameInterfaceProperties
+import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class ClinicalDataRetrievalTests {
 
     ClinicalTestData testData = new ClinicalTestData()

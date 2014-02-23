@@ -1,14 +1,18 @@
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
+import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@Mixin(ConceptTestData)
+@TestMixin(RuleBasedIntegrationTestMixin)
 class I2b2Tests {
 
     @Before

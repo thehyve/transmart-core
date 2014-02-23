@@ -1,5 +1,6 @@
 package org.transmartproject.db.querytool
 
+import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
@@ -8,16 +9,18 @@ import org.transmartproject.core.querytool.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.ontology.ConceptTestData
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
+import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
+import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@Mixin(ConceptTestData)
-class QueriesResourceServiceTests extends GroovyTestCase {
+@TestMixin(RuleBasedIntegrationTestMixin)
+class QueriesResourceServiceTests {
 
     def queriesResourceService
     def sessionFactory

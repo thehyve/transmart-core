@@ -1,13 +1,16 @@
 package org.transmartproject.db.i2b2data
 
+import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.highdim.SampleHighDimTestData
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@TestMixin(RuleBasedIntegrationTestMixin)
 class PatientDimensionTests {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()

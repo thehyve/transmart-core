@@ -1,11 +1,13 @@
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.i2b2data.I2b2Data
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.*
@@ -16,7 +18,7 @@ import static org.hamcrest.Matchers.hasProperty
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.isA
 
-@Mixin(ConceptTestData)
+@TestMixin(RuleBasedIntegrationTestMixin)
 class StudiesResourceServiceTests {
 
     StudyTestData studyTestData = new StudyTestData()

@@ -1,6 +1,8 @@
 package org.transmartproject.db.http
 
+import grails.test.mixin.TestMixin
 import groovy.json.JsonSlurper
+import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
 import org.springframework.web.context.request.RequestContextHolder
@@ -10,10 +12,13 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.ontology.http.QueryToolController
 import org.transmartproject.db.querytool.QueriesResourceService
 import org.transmartproject.db.querytool.QueryDefinitionXmlService
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@TestMixin(RuleBasedIntegrationTestMixin)
+@WithGMock
 class QueryToolControllerTests {
 
     QueryToolController testee
@@ -31,23 +36,21 @@ class QueryToolControllerTests {
             Long setSize = 10
             QueryStatus status = QueryStatus.FINISHED
             String errorMessage = null
-        };
+        }
 
-        def xmlService = [
-                fromXml: { queryDefinition }
-        ] as QueryDefinitionXmlService
-        def queriesService = [
-                runQuery: {
-                    assertThat it, sameInstance(queryDefinition)
+        QueryDefinitionXmlService xmlService = mock(QueryDefinitionXmlService)
+        xmlService.fromXml(anyOf(any(Reader), nullValue())).
+                returns queryDefinition
 
-                    resultInstance
-                }
-        ] as QueriesResourceService
+        QueriesResourceService queriesService = mock(QueriesResourceService)
+        queriesService.runQuery(is(queryDefinition)).returns resultInstance
 
         testee.queryDefinitionXmlService = xmlService
         testee.queriesResourceService = queriesService
 
-        testee.runQueryFromDefinition()
+        play {
+            testee.runQueryFromDefinition()
+        }
 
         def response = RequestContextHolder.requestAttributes.currentResponse
         assertThat response.contentType, startsWith('application/json')
