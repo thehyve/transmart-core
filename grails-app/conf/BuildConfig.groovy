@@ -39,16 +39,18 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile(':db-reverse-engineer:0.5') {
-            export = false
-        }
-
         build(':tomcat:2.2.4',
               ":release:2.2.1",
               ":rest-client-builder:1.0.3",
               ) {
             export = false
         }
+
+        compile(':db-reverse-engineer:0.5') {
+            export = false
+        }
+
+        runtime ':hibernate:3.6.10.4'
 
         test ":code-coverage:1.2.6", {
             export = false
