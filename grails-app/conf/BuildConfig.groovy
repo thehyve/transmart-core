@@ -5,6 +5,7 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.repos.default = 'repo.thehyve.nl-snapshots'
 grails.project.repos."${grails.project.repos.default}".url = 'https://repo.thehyve.nl/content/repositories/snapshots/'
 
+grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
     log "warn"
     legacyResolve false
