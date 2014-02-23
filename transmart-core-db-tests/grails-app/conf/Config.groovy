@@ -11,6 +11,10 @@ grails.databinding.convertEmptyStringsToNull = false
 grails.databinding.trimStrings = false
 
 log4j = {
+
+    warn 'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
+    warn 'org.codehaus.groovy.grails.commons.spring.ReloadAwareAutowireCapableBeanFactory'
+
     root {
         info('stdout')
     }
