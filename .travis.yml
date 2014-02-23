@@ -4,12 +4,12 @@ jdk:
     - oraclejdk7
 
 env:
-    - GRAILS_VERSION=2.2.4
+    - GRAILS_VERSION=2.3.3
 
 before_install:
-    - mkdir ~/.grails
-    - cd ~/.grails
-    - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_cache.tar.gz  | tar xzf -; } || true'
+    - mkdir -p ~/.m2 ~/.grails
+    - cd ~/.m2
+    - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_mvncache.tar.gz  | tar xzf -; } || true'
     - cd -
 
 install:
