@@ -56,5 +56,7 @@ grails.project.dependency.resolution = {
         build ':release:3.0.1', ':rest-client-builder:2.0.1', {
             export = false
         }
+
+        compile ':transmart-core:1.0-SNAPSHOT'
     }
 }
