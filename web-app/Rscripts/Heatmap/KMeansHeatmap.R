@@ -27,6 +27,7 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
+color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE
 )
 {
@@ -51,6 +52,13 @@ aggregate.probes = FALSE
     if (nrow(mRNAData) == 0) {
         Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
     }
+
+    # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+    mRNAData$GROUP <- as.character(mRNAData$GROUP)
+    rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
+    mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+    mRNAData$GROUP <- as.factor(mRNAData$GROUP)
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
@@ -141,18 +149,20 @@ aggregate.probes = FALSE
     if(ncol(matrixData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
 
 
-    colorPanelList <- colorpanel(100,low="green",mid="black",high="red")
+    if (is.null(color.range.clamps)) color.range.clamps = c(min(matrixData), max(matrixData))
 
     #Store the heatmap in a temp variable.
     print("Create the heatmap")
-    tmp <- heatmap(	matrixData,
-            Rowv=NA,
-            Colv=NA,col=colorPanelList,
-            ColSideColors=patientcolors,
-            margins=c(25,25),
-            cexRow=1.5,
-            cexCol=1.5),
-            scale = "none"
+    tmp <- heatmap(matrixData,
+            Rowv = NA,
+            Colv = NA,
+            ColSideColors = patientcolors,
+            margins = c(25,25),
+            cexRow = 1.5,
+            cexCol = 1.5,
+            col = greenred(800),
+            breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+            scale = "none")
 
     #Print the heatmap to an image
     print("Print the heatmap to an image")
