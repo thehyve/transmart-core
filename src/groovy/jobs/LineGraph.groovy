@@ -7,6 +7,7 @@ import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
 import jobs.steps.helpers.OptionalBinningColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.ConceptTimeValuesTable
+import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,7 +58,12 @@ class LineGraph extends AbstractAnalysisJob {
         groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
         groupByColumnConfigurator.projection          = Projection.LOG_INTENSITY_PROJECTION
         groupByColumnConfigurator.multiRow            = true
+        groupByColumnConfigurator.keyForIsCategorical = 'groupByVariableCategorical'
         groupByColumnConfigurator.setKeys 'groupBy'
+
+        groupByColumnConfigurator.required            = false
+        groupByColumnConfigurator.missingValueAction  =
+                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: 'SINGLE_GROUP')
 
         def binningConfigurator = groupByColumnConfigurator.binningConfigurator
         binningConfigurator.keyForDoBinning           = 'binningGroupBy'
