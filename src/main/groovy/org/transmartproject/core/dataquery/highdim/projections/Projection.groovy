@@ -20,6 +20,12 @@ public interface Projection<CELL> {
     public static final DEFAULT_REAL_PROJECTION = 'default_real_projection'
 
     /**
+     * Projection for getting the log transformation of original data points.
+     *
+     */
+    public static final LOG_INTENSITY_PROJECTION = 'log_intensity'
+
+    /**
      * Projection for getting transformed data points representing the standard
      * score of each original data point.
      *
