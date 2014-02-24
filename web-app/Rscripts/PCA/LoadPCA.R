@@ -197,7 +197,7 @@ PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.sele
     finalData <- subset(finalData, select = -c(UNIQUE_ID))
 
     #Melt the data back.
-    finalData <- melt(finalData)
+    finalData <- melt(finalData, id.vars = c("group", "PROBE.ID"))
 
     #Set the column names again.
     colnames(finalData) <- c("GENE_SYMBOL","PROBE.ID","PATIENT.ID","VALUE")
