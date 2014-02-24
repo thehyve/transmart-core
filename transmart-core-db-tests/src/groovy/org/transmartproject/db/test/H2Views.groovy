@@ -1,6 +1,7 @@
 package org.transmartproject.db.test
 
 import groovy.sql.Sql
+import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -15,6 +16,7 @@ import static org.transmartproject.db.test.H2Views.ObjectStatus.*
  * the script's classloader nor the context classloader know anything about
  * the test classpath.
  */
+@Log4j
 class H2Views {
 
     @Autowired
@@ -31,6 +33,8 @@ class H2Views {
             if (!isH2()) {
                 return
             }
+
+            log.info 'Executing H2Views init actions'
 
             createSearchBioMkrCorrelView()
             createBioMarkerCorrelMv()
@@ -169,6 +173,8 @@ class H2Views {
             return
         }
 
+        log.info 'Creating SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW'
+
         sql.execute '''
             CREATE VIEW SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW (
                 DOMAIN_OBJECT_ID,
@@ -226,6 +232,8 @@ class H2Views {
             return
         }
 
+        log.info 'Creating BIOMART.BIO_METAB_SUBPATHWAY_VIEW'
+
         sql.execute '''
             CREATE VIEW BIOMART.BIO_METAB_SUBPATHWAY_VIEW(
                 SUBPATHWAY_ID,
@@ -248,6 +256,8 @@ class H2Views {
         if (handleCurrentState('BIOMART', 'BIO_METAB_SUPERPATHWAY_VIEW')) {
             return
         }
+
+        log.info 'Creating BIOMART.BIO_METAB_SUPERPATHWAY_VIEW'
 
         sql.execute '''
             CREATE VIEW BIOMART.BIO_METAB_SUPERPATHWAY_VIEW(
@@ -272,6 +282,8 @@ class H2Views {
         if (handleCurrentState('I2B2METADATA', 'I2B2_TRIAL_NODES')) {
             return
         }
+
+        log.info 'Creating I2B2METADATA.I2B2_TRIAL_NODES'
 
         sql.execute '''
             CREATE VIEW I2B2METADATA.I2B2_TRIAL_NODES(C_FULLNAME, TRIAL) AS
@@ -306,6 +318,7 @@ class H2Views {
                 FROM INFORMATION_SCHEMA.VIEWS
                 WHERE TABLE_SCHEMA = $schema AND TABLE_NAME = $viewName)"""
         if (res[0]) {
+            log.debug "Object $schema.$viewName is a already view"
             return IS_VIEW
         }
 
@@ -315,9 +328,11 @@ class H2Views {
                 FROM INFORMATION_SCHEMA.TABLES
                 WHERE TABLE_SCHEMA = $schema AND TABLE_NAME = $viewName)"""
         if (res[0]) {
+            log.debug "Object $schema.$viewName is a table"
             return IS_TABLE
         }
 
+        log.debug "Object $schema.$viewName does not exist"
         DOES_NOT_EXIST
     }
 
@@ -326,6 +341,8 @@ class H2Views {
             case DOES_NOT_EXIST:
                 return false
             case IS_TABLE:
+                log.info "Dropping table $schema.$viewName because we are " +
+                        "creating a view with that name"
                 sql.execute("DROP TABLE $schema.$viewName" as String)
                 return false
             case IS_VIEW:
