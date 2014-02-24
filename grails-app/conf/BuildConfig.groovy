@@ -16,6 +16,8 @@ grails.project.fork = [
     console: defaultVMSettings
 ]
 
+// prefer to add this to ~/.grails/transmartConfig/BuildConfig-rest-api.groovy
+// to avoid committing changes here by accident
 //grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
 //grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
 
@@ -28,6 +30,7 @@ grails.project.dependency.resolution = {
     log 'warn'
 
     repositories {
+        mavenLocal()
         mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
         inherits false // inherit repository definitions from plugins (default true)
     }
@@ -35,13 +38,16 @@ grails.project.dependency.resolution = {
     dependencies {
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
         compile 'org.javassist:javassist:3.16.1-GA'
-        compile 'junit:junit:4.11'
 
         // includes fix for GRAILS-11126
         compile 'org.grails:grails-plugin-rest:2.3.5-hyve3'
 
-        runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
-        runtime 'com.oracle:ojdbc6:11.2.0.3.0'
+        runtime 'org.postgresql:postgresql:9.3-1100-jdbc41', {
+            exported = false
+        }
+        runtime 'com.oracle:ojdbc6:11.2.0.3.0', {
+            exported = false
+        }
 
         // strangely needed...
         runtime 'org.springframework:spring-test:3.2.6.RELEASE'
@@ -49,24 +55,26 @@ grails.project.dependency.resolution = {
         test 'org.gmock:gmock:0.8.3', {
             transitive = false /* don't bring groovy-all */
         }
+        test 'junit:junit:4.11', {
+            transitive = false /* don't bring hamcrest */
+        }
         test 'org.hamcrest:hamcrest-library:1.3'
         test 'org.hamcrest:hamcrest-core:1.3'
-
         test 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
     }
 
     plugins {
-        build   ':tomcat:7.0.47'
+        build ':tomcat:7.0.47'
 
-        compile ':cache:1.1.1'
+        // to be removed when functionality is in core-api
         compile ':transmart-user-management:1.0-SNAPSHOT'
-        compile ":functional-test:2.0.RC1"
-
-        runtime ':hibernate:3.6.10.6'
-        runtime ':jquery:1.10.2.2'
 
         runtime ':transmart-core:1.0-SNAPSHOT'
-        runtime ':transmart-core-db-tests:1.0-SNAPSHOT'
+        // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
+        runtime ':hibernate:3.6.10.6'
+
+        test ':functional-test:2.0.RC1'
+        test ':transmart-core-db-tests:1.0-SNAPSHOT'
     }
 }
 

@@ -1,5 +1,5 @@
+import grails.util.Environment
 import org.springframework.aop.scope.ScopedProxyFactoryBean
-import org.transmartproject.db.test.H2Views
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 
 beans = {
@@ -15,6 +15,7 @@ beans = {
 
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
 
-    h2Views(H2Views)
-
+    if (Environment.currentEnvironment == Environment.TEST) {
+        h2Views(Class.forName('org.transmartproject.db.test.H2Views'))
+    }
 }
