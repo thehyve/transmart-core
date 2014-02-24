@@ -1,18 +1,18 @@
-// usually overridden in ~/.grails/transmartConfig/DataSource.groovy
-dataSource {
-    driverClassName = 'org.postgresql.Driver'
-    url             = 'jdbc:postgresql://localhost:5432/transmart'
-    dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
+// these settings can be overriden in ~/.grails/transmartConfig/DataSource-rest-api.groovy
+environments {
+    development {
+        driverClassName = 'org.postgresql.Driver'
+        url             = 'jdbc:postgresql://localhost:5432/transmart'
+        dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
 
-    username        = 'biomart_user'
-    password        = 'biomart_user'
-    dbCreate        = 'none'
-}
+    //    driverClassName = 'oracle.jdbc.driver.OracleDriver'
+    //    url             = 'jdbc:oracle:thin:@localhost:11521:CI'
+    //    dialect         = 'org.hibernate.dialect.Oracle10gDialect'
 
-hibernate {
-    cache.use_second_level_cache = true
-    cache.use_query_cache        = true
-    cache.provider_class         = 'org.hibernate.cache.EhCacheProvider'
+        username        = 'biomart_user'
+        password        = 'biomart_user'
+        dbCreate        = 'none'
+    }
 }
 
 environments {
@@ -33,12 +33,10 @@ environments {
     test {
         dataSource {
             driverClassName = 'org.h2.Driver'
-            url             = 'jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000'
-
+            url             = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM './h2_init.sql'"
             username        = 'sa'
             password        = ''
             dbCreate        = 'update'
-
             logSql          = true
             formatSql       = true
         }

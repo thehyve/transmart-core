@@ -15,7 +15,6 @@ install:
     - cd -
 
 script:
-    - ${GRAILS_HOME}/bin/grails clean
-    - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
+    - ${GRAILS_HOME}/bin/grails refresh-dependencies --non-interactive
     - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
 
