@@ -52,7 +52,7 @@ class DeSubjectMicroarrayDataCoreDb implements Serializable {
         assay        nullable: true
         patient      nullable: true
         rawIntensity nullable: true
-        logIntensity nullable: true
+        logIntensity nullable: true, scale: 4
         zscore       nullable: true
         //trialSource  nullable: true, maxSize: 200
         //sampleId     nullable: true

@@ -27,9 +27,9 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['METABOLOMICS']
 
-    final String description = 'Metabolomics data'
+    final String description = 'Metabolomics data (Mass Spec)'
 
-    private final Set<String> dataProperties = ImmutableSet.of('zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
 
     private final Set<String> rowProperties = ImmutableSet.of('hmdbId', 'biochemicalName')
 
@@ -83,6 +83,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
                 (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
                 (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]

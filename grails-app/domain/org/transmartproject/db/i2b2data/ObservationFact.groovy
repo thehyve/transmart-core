@@ -45,7 +45,7 @@ class ObservationFact implements Serializable {
     static mapping = {
         table        name: 'observation_fact', schema: 'I2B2DEMODATA'
 
-        id           composite: ['encounterNum', 'conceptCode', 'providerId', 'startDate', 'modifierCd', 'instanceNum']
+        id           composite: ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd']
 
         conceptCode  column: 'concept_cd'
         patient      column: 'patient_num'
