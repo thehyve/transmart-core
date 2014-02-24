@@ -105,24 +105,16 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-    if (groupByVariableConceptcode == '') {
-        Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the group variable box.');
-        return;
-    }
-
-//    var variablesConceptCode = dependentVariableConceptCode + "|" + groupByVariableConceptcode;
-
     var formParams = {
         dependentVariable: dependentVariableConceptCode,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
-//        independentVariable: groupByVariableConceptcode,
-//        independentVariableCategorical: _isCategorical(groupByNodeList),
         jobType: 'LineGraph',
         plotIndividuals: Ext.get("plotIndividuals").dom.checked,
         plotEvenlySpaced: Ext.get("plotEvenlySpaced").dom.checked,
         projections: [ "rawIntensity" ],
         graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
-        groupByVariable: groupByVariableConceptcode
+        groupByVariable: groupByVariableConceptcode,
+        groupByVariableCategorical: _isCategorical(groupByNodeList)
     };
 
     if (!this.load_high_dimensional_parameters(formParams)) return false;
@@ -198,8 +190,6 @@ LineGraphView.prototype.update_manual_binning = function () {
 
 LineGraphView.prototype.manage_bins = function (newNumberOfBins) {
 
-    // console.log("SurvivalAnalysisView.prototype.manage_bins ");
-
     // This is the row template for a continuous BinningRow.
     var tpl = new Ext.Template(
         '<tr id="binningContinousRow{0}">',
@@ -213,7 +203,6 @@ LineGraphView.prototype.manage_bins = function (newNumberOfBins) {
     // This is the table we add continuous variables to.
     var continuousBinningTable = Ext.get('tblBinContinuous');
     var categoricalBinningTable = Ext.get('tblBinCategorical');
-    // Clear all old rows out of the table.
 
     // For each bin, we add a row to the binning table.
     for (var i = 1; i <= newNumberOfBins; i++) {

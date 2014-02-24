@@ -36,7 +36,8 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
     String keyForConceptPaths,
            keyForDataType,        /* CLINICAL for clinical data */
-           keyForSearchKeywordId  /* only applicable for high dim data */
+           keyForSearchKeywordId, /* only applicable for high dim data */
+           keyForIsCategorical    /* optional; see isCategorical() */
 
     boolean multiRow = false
 
@@ -113,7 +114,8 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     }
 
     boolean isCategorical() {
-        isMultiVariable()
+        keyForIsCategorical ? getStringParam(keyForIsCategorical).equalsIgnoreCase('true')
+                            : isMultiVariable()
     }
 
     protected boolean isMultiVariable() {

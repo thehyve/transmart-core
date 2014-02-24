@@ -9,10 +9,8 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 /*
- * BoxPlot has three particularities:
+ * BoxPlot has two particularities:
  *
- * - Whether the binning should be made on any specific column depends on the
- *   value of the 'binVariable'
  * - The column with header 'X' should always be the categorical (or binned
  *   numerical) variable
  * - We allow multiple numeric clinical variables.
@@ -25,7 +23,6 @@ class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurato
     String categoricalColumnHeader       = 'X'
     String numericColumnHeader           = 'Y'
     String keyForBinnedVariable          = 'binVariable'
-    String keyForIsCategorical
     String valueForThisColumnBeingBinned
 
     @PostConstruct
@@ -59,10 +56,5 @@ class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurato
         categoricalOrBinned ?
                 categoricalColumnHeader :
                 numericColumnHeader
-    }
-
-    @Override
-    boolean isCategorical() {
-        getStringParam(keyForIsCategorical).equalsIgnoreCase('true')
     }
 }
