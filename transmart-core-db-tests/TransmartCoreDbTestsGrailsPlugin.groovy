@@ -1,3 +1,5 @@
+import org.transmartproject.db.test.H2Views
+
 class TransmartCoreDbTestsGrailsPlugin {
     def version = "1.0-SNAPSHOT"
     def grailsVersion = "2.2 > *"
@@ -20,4 +22,7 @@ class TransmartCoreDbTestsGrailsPlugin {
             [ name: "Peter Kok", email: "peter@thehyve.nl" ]
     ]
 
+    def doWithSpring = {
+        h2Views(H2Views)
+    }
 }
