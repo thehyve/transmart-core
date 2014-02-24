@@ -241,6 +241,7 @@ grails { plugins { springsecurity {
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/js/**'                      : ['IS_AUTHENTICATED_ANONYMOUSLY'],
+            '/images/analysisFiles/**'    : ['IS_AUTHENTICATED_REMEMBERED'],
             '/images/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/static/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/search/loadAJAX**'          : ['IS_AUTHENTICATED_ANONYMOUSLY'],
