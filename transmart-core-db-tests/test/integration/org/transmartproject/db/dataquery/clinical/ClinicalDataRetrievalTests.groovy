@@ -45,6 +45,12 @@ class ClinicalDataRetrievalTests {
         results?.close()
     }
 
+    private String getConceptCodeFor(String conceptPath) {
+        testData.concepts.find {
+            it.conceptCode == conceptPath
+        }.conceptPath
+    }
+
     @Test
     void testColumnsLabel() {
         results = clinicalDataResourceService.retrieveData(testData.queryResult,
@@ -54,9 +60,7 @@ class ClinicalDataRetrievalTests {
         assertThat results, hasProperty('indicesList',
                 contains(allOf(
                         hasProperty('label', equalTo(
-                                testData.concepts.find {
-                                    it.conceptCode == 'c2'
-                                }.conceptPath
+                                getConceptCodeFor('c2')
                         ))
                 )))
     }
@@ -71,9 +75,7 @@ class ClinicalDataRetrievalTests {
                         isA(TerminalConceptVariable),
                         hasProperty('conceptCode', is('c2')),
                         hasProperty('conceptPath', is(
-                                testData.concepts.find {
-                                    it.conceptCode == 'c2'
-                                }.conceptPath)))))
+                                getConceptCodeFor('c2'))))))
     }
 
     @Test
@@ -278,6 +280,35 @@ class ClinicalDataRetrievalTests {
         }), hasProperty('message', allOf(
                 containsString('Concept code'),
                 containsString('did not yield any results')))
+    }
+
+    @Test
+    void testRepeatedConceptCode() {
+        assertThat shouldFail(InvalidArgumentsException, {
+            clinicalDataResourceService.retrieveData(testData.queryResult,
+                    [ new TerminalConceptVariable(conceptCode: 'c2'),
+                            new TerminalConceptVariable(conceptCode: 'c4'),
+                            new TerminalConceptVariable(conceptCode: 'c2') ])
+        }), hasProperty('message', containsString('same concept code'))
+    }
+
+    @Test
+    void testRepeatedConceptPath() {
+        assertThat shouldFail(InvalidArgumentsException, {
+            clinicalDataResourceService.retrieveData(testData.queryResult,
+                    [ new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2')),
+                            new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
+        }), hasProperty('message', containsString('same concept path'))
+    }
+
+
+    @Test
+    void testMixedRepetition() {
+        assertThat shouldFail(InvalidArgumentsException, {
+            clinicalDataResourceService.retrieveData(testData.queryResult,
+                    [ new TerminalConceptVariable(conceptCode: 'c2'),
+                            new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
+        }), hasProperty('message', containsString('Repeated variables in the query'))
     }
 
 
