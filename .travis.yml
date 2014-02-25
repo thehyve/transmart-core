@@ -6,8 +6,12 @@ jdk:
 env:
     - GRAILS_VERSION=2.3.5
 
+before_install:
+    - mkdir -p ~/.m2
+    - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
+
 install:
-    - mkdir ~/.grails
+    - mkdir -p ~/.grails
     - cd ~/.grails
     - curl -O http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-${GRAILS_VERSION}.zip
     - unzip grails-${GRAILS_VERSION}.zip
