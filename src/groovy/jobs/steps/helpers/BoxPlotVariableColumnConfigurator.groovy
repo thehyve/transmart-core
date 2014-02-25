@@ -46,13 +46,13 @@ class BoxPlotVariableColumnConfigurator extends OptionalBinningColumnConfigurato
     }
 
     @Override
-    void setColumnHeader(String header) {
+    void setHeader(String header) {
         throw new UnsupportedOperationException(
                 'Column header is automatically assigned')
     }
 
     @Override
-    String getColumnHeader() {
+    String getHeader() {
         categoricalOrBinned ?
                 categoricalColumnHeader :
                 numericColumnHeader

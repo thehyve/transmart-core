@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.*
 class ContextNumericVariableColumnConfiguratorTests {
 
     public static final String CONCEPT_PATH_HIGH_DIMENSION_EXTRA = '\\bogus\\highdim\\variable\\extra\\'
+    public static final String COLUMN_HEADER = 'SAMPLE_HEADER'
 
     @Autowired
     ContextNumericVariableColumnConfigurator testee
@@ -41,6 +42,7 @@ class ContextNumericVariableColumnConfiguratorTests {
     void init() {
         initializeAsBean configuratorTestsHelper
 
+        testee.header                = COLUMN_HEADER
         testee.projection            = Projection.DEFAULT_REAL_PROJECTION
         testee.keyForConceptPaths    = 'conceptPaths'
         testee.keyForDataType        = 'dataType'
@@ -83,7 +85,7 @@ class ContextNumericVariableColumnConfiguratorTests {
                 (CONCEPT_PATH_HIGH_DIMENSION_EXTRA): result2)
 
         play {
-            table.addColumn(new PrimaryKeyColumn(), [] as Set)
+            table.addColumn(new PrimaryKeyColumn(header: 'PK'), [] as Set)
             testee.addColumn()
 
             table.buildTable()

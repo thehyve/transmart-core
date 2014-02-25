@@ -44,7 +44,7 @@ class LineGraph extends AbstractAnalysisJob {
     void init() {
         primaryKeyColumnConfigurator.column = new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        measurementConfigurator.columnHeader          = 'VALUE'
+        measurementConfigurator.header                = 'VALUE'
         measurementConfigurator.projection            = Projection.LOG_INTENSITY_PROJECTION
         measurementConfigurator.multiRow              = true
         measurementConfigurator.multiConcepts         = true
@@ -55,7 +55,7 @@ class LineGraph extends AbstractAnalysisJob {
         measurementConfigurator.keyForDataType        = 'divDependentVariableType'
         measurementConfigurator.keyForSearchKeywordId = 'divDependentVariablePathway'
 
-        groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
+        groupByColumnConfigurator.header              = 'GROUP_VAR'
         groupByColumnConfigurator.projection          = Projection.LOG_INTENSITY_PROJECTION
         groupByColumnConfigurator.multiRow            = true
         groupByColumnConfigurator.keyForIsCategorical = 'groupByVariableCategorical'

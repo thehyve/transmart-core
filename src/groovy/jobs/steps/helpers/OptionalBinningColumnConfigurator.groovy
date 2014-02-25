@@ -30,8 +30,6 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
     @Autowired
     BinningColumnConfigurator binningConfigurator
 
-    String columnHeader
-
     String projection
 
     String keyForConceptPaths,
@@ -62,9 +60,9 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
                     "assuming constant value column")
 
             innerConfigurator = appCtx.getBean SimpleAddColumnConfigurator
-            innerConfigurator.column = new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction)
-            //innerConfigurator.missingValueAction = missingValueAction
-            //table.addColumn(new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction), Collections.emptySet())
+            innerConfigurator.column = new ConstantValueColumn(
+                    header:             getHeader(),
+                    missingValueAction: missingValueAction)
             innerConfigurator.addColumn()
 
         } else if (categorical) {
@@ -73,7 +71,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
             innerConfigurator = appCtx.getBean CategoricalColumnConfigurator
 
-            innerConfigurator.columnHeader       = getColumnHeader()
+            innerConfigurator.header             = getHeader()
             innerConfigurator.keyForConceptPaths = keyForConceptPaths
         } else {
             log.debug("Did not find pipe character in $keyForConceptPaths, " +
@@ -81,7 +79,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
 
             innerConfigurator = appCtx.getBean numericColumnConfigurationClass
 
-            innerConfigurator.columnHeader          = getColumnHeader()
+            innerConfigurator.header                = getHeader()
             innerConfigurator.projection            = projection
             innerConfigurator.keyForConceptPath     = keyForConceptPaths
             innerConfigurator.keyForDataType        = keyForDataType
@@ -105,7 +103,7 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
                     !(innerConfigurator instanceof CategoricalColumnConfigurator) &&
                     forceNumericBinning) {
                 throw new InvalidArgumentsException("Numeric variables must be " +
-                        "binned for column $columnHeader")
+                        "binned for column ${getHeader()}")
             }
             
             //configure binning only if has variable
