@@ -89,4 +89,13 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
                     (Number) ((value instanceof Number) ? value : (value as BigDecimal)))
         }
     }
+
+    void beforeDataSourceIteration(String dataSourceName, Iterable dataSource) {
+        // just for validation
+        if (!header) {
+            throw new IllegalStateException('Bug: header not set here')
+        }
+
+        inner.beforeDataSourceIteration dataSourceName, dataSource
+    }
 }

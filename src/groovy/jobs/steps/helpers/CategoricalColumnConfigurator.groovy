@@ -12,8 +12,6 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 @Scope('prototype')
 class CategoricalColumnConfigurator extends ColumnConfigurator {
 
-    String columnHeader
-
     String keyForConceptPaths
 
     @Autowired
@@ -39,12 +37,15 @@ class CategoricalColumnConfigurator extends ColumnConfigurator {
             table.addColumn(
                     decorateColumn.call(
                             new CategoricalVariableColumn(
-                                    header: columnHeader,
+                                    header:    header,
                                     leafNodes: variables)),
                     [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
         } else {
             //optional, empty value column
-            table.addColumn(new ConstantValueColumn(header: columnHeader, missingValueAction: missingValueAction), Collections.emptySet())
+            table.addColumn(new ConstantValueColumn(
+                            header: header,
+                            missingValueAction: missingValueAction),
+                    Collections.emptySet())
         }
     }
 

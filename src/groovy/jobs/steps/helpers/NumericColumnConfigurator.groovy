@@ -13,8 +13,6 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     public static final String CLINICAL_DATA_TYPE_VALUE = 'CLINICAL'
 
-    String columnHeader
-
     String projection             /* only applicable for high dim data */
 
     String keyForConceptPath,
@@ -48,7 +46,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
     }
 
     private void addColumnHighDim(Closure<Column> decorateColumn) {
-        ['columnHeader', 'projection', 'keyForConceptPath', 'keyForDataType',
+        ['header', 'projection', 'keyForConceptPath', 'keyForDataType',
                 'keyForSearchKeywordId', 'multiRow'].each { prop ->
             highDimensionColumnConfigurator."$prop" = this."$prop"
         }
@@ -67,7 +65,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
                         new SimpleConceptVariableColumn(
                                 column:      variable,
                                 numbersOnly: true,
-                                header:      columnHeader)),
+                                header:      header)),
                 [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
     }
 

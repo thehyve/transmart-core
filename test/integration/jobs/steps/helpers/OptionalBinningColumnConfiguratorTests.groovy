@@ -54,7 +54,7 @@ class OptionalBinningColumnConfiguratorTests {
         }
         assertThat params.@map, is(notNullValue())
 
-        testee.columnHeader          = COLUMN_HEADER
+        testee.header                = COLUMN_HEADER
         testee.projection            = Projection.DEFAULT_REAL_PROJECTION
         testee.keyForConceptPaths    = 'variable'
         testee.keyForDataType        = 'divVariableType'
@@ -397,9 +397,9 @@ class OptionalBinningColumnConfiguratorTests {
 
         // second column to force the skipped primary key to be in the result
         // otherise the row with 66 would be just skipped
-        def secondColumn = new StubColumn(data: [
-                (createPatientRowLabels(2)[1]): 'bar'
-        ])
+        def secondColumn = new StubColumn(
+                header: 'STUB',
+                data: [(createPatientRowLabels(2)[1]): 'bar'])
         secondColumn.missingValueAction =
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '')
 
