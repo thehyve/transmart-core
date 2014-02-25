@@ -14,8 +14,4 @@ beans = {
     }
 
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
-
-    if (Environment.currentEnvironment == Environment.TEST) {
-        h2Views(Class.forName('org.transmartproject.db.test.H2Views'))
-    }
 }
