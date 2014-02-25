@@ -129,19 +129,6 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     @Override
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {
-
-        getDescendants(false, showHidden, showSynonyms)
-    }
-
-    //@Override
-    List<OntologyTerm> getAllDescendants(boolean showHidden = false,
-                                         boolean showSynonyms = false) {
-        getDescendants(true, showHidden, showSynonyms)
-    }
-
-    private List<OntologyTerm> getDescendants(boolean allDescendants,
-                                              boolean showHidden = false,
-                                              boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
         def fullNameSearch = this.conceptKey.conceptFullName.toString()
                 .asLikeLiteral() + '%'
@@ -150,12 +137,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         def ret = c.list {
             and {
                 like 'fullName', fullNameSearch
-                if (allDescendants) {
-                    gt 'level', level
-                } else {
-                    eq 'level', level + 1
-                }
-
+                eq 'level', level + 1
                 if (!showHidden) {
                     not { like 'cVisualattributes', '_H%' }
                 }

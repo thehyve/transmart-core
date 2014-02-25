@@ -127,20 +127,6 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     @Override
     List<OntologyTerm> getChildren(boolean showHidden = false,
                                    boolean showSynonyms = false) {
-
-        getDescendants(false, showHidden, showSynonyms)
-    }
-
-    //@Override
-    List<OntologyTerm> getAllDescendants(boolean showHidden = false,
-                                         boolean showSynonyms = false) {
-        getDescendants(true, showHidden, showSynonyms)
-    }
-
-    private List<OntologyTerm> getDescendants(boolean allDescendants,
-                                              boolean showHidden = false,
-                                              boolean showSynonyms = false) {
-
         HibernateCriteriaBuilder c
 
         /* extract table code from concept key and resolve it to a table name */
@@ -183,12 +169,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         c.list {
             and {
                 like 'fullName', fullNameSearch
-                if (allDescendants) {
-                    gt 'level', parentLevel
-                } else {
-                    eq 'level', parentLevel + 1
-                }
-
+                eq 'level', parentLevel + 1
                 if (!showHidden) {
                     not { like 'cVisualattributes', '_H%' }
                 }

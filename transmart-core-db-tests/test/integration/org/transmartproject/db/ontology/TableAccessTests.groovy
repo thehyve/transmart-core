@@ -19,8 +19,6 @@ class TableAccessTests {
                         cVisualattributes: 'FH')
         addI2b2(level: 1, fullName: '\\foo\\baz\\', name: 'baz',
                 cSynonymCd: 'Y')
-        addI2b2(level: 2, fullName: '\\foo\\xpto\\barn\\', name: 'barn', cVisualattributes: 'FH')
-        addI2b2(level: 2, fullName: '\\foo\\xpto\\bart\\', name: 'bart')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo')
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                         tableCode: 'i2b2 main', tableName: 'i2b2')
@@ -75,9 +73,7 @@ class TableAccessTests {
 
         assertThat catFoo.children, allOf(
                 hasSize(1),
-                contains(hasProperty('name', equalTo('xpto')))
-        )
-
+                contains(hasProperty('name', equalTo('xpto'))))
 
         /* show hidden as well */
         assertThat catFoo.getChildren(true), allOf(
@@ -96,29 +92,4 @@ class TableAccessTests {
                         hasProperty('name', equalTo('xpto')),
                 ))
     }
-
-    @Test
-    void testGetAllDescendants() {
-
-        TableAccess ta = TableAccess.findByName('foo')
-
-        assertThat(ta.allDescendants,  allOf(
-                hasSize(2),
-                contains(
-                        hasProperty('name', equalTo('bart')),
-                        hasProperty('name', equalTo('xpto')),
-                )
-        ))
-        assertThat(ta.getAllDescendants(true, true),  allOf(
-                hasSize(5),
-                contains(
-                        hasProperty('name', equalTo('barn')),
-                        hasProperty('name', equalTo('bart')),
-                        hasProperty('name', equalTo('baz')),
-                        hasProperty('name', equalTo('var')),
-                        hasProperty('name', equalTo('xpto')),
-                )
-        ))
-    }
-
 }
