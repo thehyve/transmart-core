@@ -42,10 +42,6 @@ class TransmartRestApiGrailsPlugin {
         marshallersRegistrar(MarshallersRegistrar) {
             packageName = 'org.transmartproject.rest.marshallers'
         }
-
-        if (Environment.currentEnvironment == Environment.TEST) {
-            h2Views(Class.forName('org.transmartproject.db.test.H2Views'))
-        }
     }
 
     def doWithApplicationContext = { ctx ->  }
