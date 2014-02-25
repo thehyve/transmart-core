@@ -1,6 +1,8 @@
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.HashMultiset
 import com.google.common.collect.Maps
+import com.google.common.collect.Multiset
 import org.hibernate.Query
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
@@ -110,8 +112,18 @@ class TerminalConceptVariablesDataQuery {
             }
 
             if (it.conceptCode) {
+                if (conceptCodes.containsKey(it.conceptCode)) {
+                    throw new InvalidArgumentsException("Specified multiple " +
+                            "variables with the same concept code: " +
+                            it.conceptCode)
+                }
                 conceptCodes[it.conceptCode] = it
             } else if (it.conceptPath) {
+                if (conceptPaths.containsKey(it.conceptPath)) {
+                    throw new InvalidArgumentsException("Specified multiple " +
+                            "variables with the same concept path: " +
+                            it.conceptPath)
+                }
                 conceptPaths[it.conceptPath] = it
             }
         }
@@ -140,10 +152,14 @@ class TerminalConceptVariablesDataQuery {
             if (conceptPaths[conceptPath]) {
                 TerminalConceptVariable variable = conceptPaths[conceptPath]
                 variable.conceptCode = conceptCode
-            } else { // if (conceptCodes[conceptCode])
+            }
+            if (conceptCodes[conceptCode]) {
                 TerminalConceptVariable variable = conceptCodes[conceptCode]
                 variable.conceptPath = conceptPath
             }
+            // if both ifs manage we have the variable repeated (specified once
+            // with concept code and once with concept path), and we'll catch
+            // that further down
         }
 
         // check we found all the concepts
@@ -156,8 +172,18 @@ class TerminalConceptVariablesDataQuery {
         for (var in conceptCodes.values()) {
             if (var.conceptPath == null) {
                 throw new InvalidArgumentsException("Concept code " +
-                        "'${var.conceptCode} did not yield any results")
+                        "'${var.conceptCode}' did not yield any results")
             }
+        }
+
+        Multiset multiset = HashMultiset.create clinicalVariables
+        if (multiset.elementSet().size() < clinicalVariables.size()) {
+            throw new InvalidArgumentsException("Repeated variables in the " +
+                    "query (though once their concept path was specified and " +
+                    "on the second time their concept code was specified): " +
+                    multiset.elementSet().findAll {
+                            multiset.count(it) > 1
+                    })
         }
 
     }
