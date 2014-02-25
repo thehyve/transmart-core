@@ -5,7 +5,6 @@ import grails.test.mixin.TestMixin
 import jobs.UserParameters
 import jobs.table.MissingValueAction
 import jobs.table.Table
-import jobs.table.columns.AbstractColumn
 import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -630,22 +629,4 @@ class OptionalBinningColumnConfiguratorTests {
             }
         }), hasProperty('message', containsString('Got non-numerical value'))
     }
-
-    static class StubColumn extends AbstractColumn {
-
-        Map<String, String> data
-
-        @Override
-        void onReadRow(String dataSourceName, Object row) {}
-
-        @Override
-        Map<String, String> consumeResultingTableRows() {
-            try {
-                return data
-            } finally {
-                data = null
-            }
-        }
-    }
-
 }
