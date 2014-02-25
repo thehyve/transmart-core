@@ -88,7 +88,7 @@ abstract class ColumnConfigurator {
                     "been provided by the client")
         }
 
-        if (!(v instanceof String)) {
+        if (v && !(v instanceof String)) {
             throw new InvalidArgumentsException("Expected the parameter '$key' " +
                     "to be a String, got a ${v.getClass()}")
         }
