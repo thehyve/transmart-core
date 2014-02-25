@@ -28,7 +28,7 @@ class CategoricalColumnConfigurator extends ColumnConfigurator {
                         clinicalDataRetriever.createVariableFromConceptPath it.trim()
                     }
 
-            variables.each {
+            variables = variables.collect {
                 clinicalDataRetriever << it
             }
 

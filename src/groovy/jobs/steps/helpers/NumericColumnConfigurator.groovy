@@ -56,7 +56,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
     private void addColumnClinical(Closure<Column> decorateColumn) {
         ClinicalVariable variable = clinicalDataRetriever.
                 createVariableFromConceptPath getStringParam(keyForConceptPath).trim()
-        clinicalDataRetriever << variable
+        variable = clinicalDataRetriever << variable
 
         clinicalDataRetriever.attachToTable table
 
