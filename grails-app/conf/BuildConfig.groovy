@@ -66,9 +66,6 @@ grails.project.dependency.resolution = {
     plugins {
         build ':tomcat:7.0.47'
 
-        // to be removed when functionality is in core-api
-        compile ':transmart-user-management:1.0-SNAPSHOT'
-
         runtime ':transmart-core:1.0-SNAPSHOT'
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
         runtime ':hibernate:3.6.10.6'
