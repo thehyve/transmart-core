@@ -1,20 +1,32 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
+import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
+import org.transmartproject.core.dataquery.clinical.PatientsResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.i2b2data.ObservationFact
 
 class ObservationController {
 
+    static responseFormats = ['json', 'hal']
+
     ClinicalDataResource clinicalDataResourceService
+    StudyLoadingService studyLoadingServiceProxy
+    PatientsResource    patientsResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of observations for study XXX
      */
     def index() {
-        log.info "params:$params"
-        def results = clinicalDataResourceService.retrieveData([], []/*,
-                [ new TerminalConceptVariable(conceptCode: 'mirnastudy') ]*/)
-        render results as JSON
+        def study = studyLoadingServiceProxy.study
+        def observations = ObservationFact.withCriteria {
+            if(study) {
+                like 'sourcesystemCd', "${study.name}%"
+            }
+        }
+        respond observations
     }
 
     /** GET request on /studies/XXX/concepts/YYY/observations/
@@ -29,8 +41,23 @@ class ObservationController {
      *  This will return the list of observations for study XXX and subject YYY
      */
     def indexBySubject() {
-        //TODO
-        render "todo" as JSON
+        // Retrieve study
+        def study = studyLoadingServiceProxy.study
+
+        // Retrieve subject
+        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
+        Long subjectId = Long.parseLong(webRequest.params.get('subjectId'))
+        if (!subjectId) {
+            throw new InvalidArgumentsException('Could not find a study id')
+        }
+        def subject = patientsResourceService.getPatientById(subjectId)
+
+        // Retrieve observations
+        def observations = ObservationFact.withCriteria {
+            like 'sourcesystemCd', "${study.name}%"
+            eq 'patient', subject
+        }
+        respond observations
     }
 
 }

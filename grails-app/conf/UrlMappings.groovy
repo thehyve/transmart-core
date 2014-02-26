@@ -33,13 +33,13 @@ class UrlMappings {
 
         '/studies'(resources: 'study',  method:'GET') {
             '/concepts'(resources:'concept', method:'GET') {
-                '/observations'(controller:'observation', resources:'observation', includes:['indexByConcept'])
+                '/observations'(controller:'observation', action: 'indexByConcept')
             }
         }
 
         '/studies'(resources: 'study',  method:'GET') {
             '/subjects'(resources:'subject', method:'GET') {
-                '/observations'(controller:'observation', resources:'observation', includes:['indexByConcept'])
+                '/observations'(controller:'observation', action:'indexBySubject')
             }
         }
 
