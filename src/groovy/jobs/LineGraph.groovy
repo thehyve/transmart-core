@@ -5,6 +5,7 @@ import com.google.common.collect.Maps
 import jobs.steps.*
 import jobs.steps.helpers.ContextNumericVariableColumnConfigurator
 import jobs.steps.helpers.OptionalBinningColumnConfigurator
+import jobs.steps.helpers.OptionalColumnConfiguratorDecorator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.ConceptTimeValuesTable
 import jobs.table.Table
@@ -26,9 +27,13 @@ class LineGraph extends AbstractAnalysisJob {
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
+
     @Autowired
     @Qualifier('general')
-    OptionalBinningColumnConfigurator groupByColumnConfigurator
+    OptionalBinningColumnConfigurator innerGroupByConfigurator
+
+    @Autowired
+    OptionalColumnConfiguratorDecorator groupByConfigurator
 
     @Autowired
     ContextNumericVariableColumnConfigurator measurementConfigurator
@@ -43,7 +48,7 @@ class LineGraph extends AbstractAnalysisJob {
     void init() {
         primaryKeyColumnConfigurator.column = new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        measurementConfigurator.columnHeader          = 'VALUE'
+        measurementConfigurator.header                = 'VALUE'
         measurementConfigurator.projection            = Projection.LOG_INTENSITY_PROJECTION
         measurementConfigurator.multiRow              = true
         measurementConfigurator.multiConcepts         = true
@@ -54,18 +59,23 @@ class LineGraph extends AbstractAnalysisJob {
         measurementConfigurator.keyForDataType        = 'divDependentVariableType'
         measurementConfigurator.keyForSearchKeywordId = 'divDependentVariablePathway'
 
-        groupByColumnConfigurator.columnHeader        = 'GROUP_VAR'
-        groupByColumnConfigurator.projection          = Projection.LOG_INTENSITY_PROJECTION
-        groupByColumnConfigurator.multiRow            = true
-        groupByColumnConfigurator.setKeys 'groupBy'
+        innerGroupByConfigurator.projection           = Projection.LOG_INTENSITY_PROJECTION
+        innerGroupByConfigurator.multiRow             = true
+        innerGroupByConfigurator.keyForIsCategorical  = 'groupByVariableCategorical'
+        innerGroupByConfigurator.setKeys 'groupBy'
 
-        def binningConfigurator = groupByColumnConfigurator.binningConfigurator
+        def binningConfigurator = innerGroupByConfigurator.binningConfigurator
         binningConfigurator.keyForDoBinning           = 'binningGroupBy'
         binningConfigurator.keyForManualBinning       = 'manualBinningGroupBy'
         binningConfigurator.keyForNumberOfBins        = 'numberOfBinsGroupBy'
         binningConfigurator.keyForBinDistribution     = 'binDistributionGroupBy'
         binningConfigurator.keyForBinRanges           = 'binRangesGroupBy'
         binningConfigurator.keyForVariableType        = 'variableTypeGroupBy'
+
+        groupByConfigurator.header                    = 'GROUP_VAR'
+        groupByConfigurator.generalCase               = innerGroupByConfigurator
+        groupByConfigurator.keyForEnabled             = 'groupByVariable'
+        groupByConfigurator.setConstantColumnFallback 'SINGLE_GROUP'
 
         conceptTimeValues.conceptPaths = measurementConfigurator.getConceptPaths()
         conceptTimeValues.enabledClosure = { -> !Boolean.parseBoolean(params.getProperty('plotEvenlySpaced')) }
@@ -83,7 +93,7 @@ class LineGraph extends AbstractAnalysisJob {
                 table:         table,
                 configurators: [primaryKeyColumnConfigurator,
                                 measurementConfigurator,
-                                groupByColumnConfigurator])
+                                groupByConfigurator])
 
         steps << new LineGraphDumpTableResultsStep(
                 table:              table,

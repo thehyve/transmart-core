@@ -13,8 +13,6 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 @Scope('prototype')
 class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator {
 
-    String columnHeader
-
     String keyForConceptPaths
 
     boolean pruneConceptPath = true
@@ -48,7 +46,7 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
                 decorateColumn.call(
                         new MultiNumericClinicalVariableColumn(
                                 clinicalVariables: variableToGroupName,
-                                header:            columnHeader)),
+                                header:            header)),
                 [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
     }
 

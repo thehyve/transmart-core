@@ -66,4 +66,13 @@ class NumericManualBinningColumnDecorator implements ColumnDecorator {
         }
     }
 
+    void beforeDataSourceIteration(String dataSourceName, Iterable dataSource) {
+        // just for validation
+        if (!header) {
+            throw new IllegalStateException('Bug: header not set here')
+        }
+
+        inner.beforeDataSourceIteration dataSourceName, dataSource
+    }
+
 }

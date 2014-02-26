@@ -146,5 +146,14 @@ class EvenDistributionBinningColumnDecorator implements ColumnDecorator {
             (Object) entry.value /* the name of the bin */
         }
     }
+
+    void beforeDataSourceIteration(String dataSourceName, Iterable dataSource) {
+        // just for validation
+        if (!header) {
+            throw new IllegalStateException('Bug: header not set here')
+        }
+
+        inner.beforeDataSourceIteration dataSourceName, dataSource
+    }
 }
 

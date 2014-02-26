@@ -114,7 +114,7 @@ LineGraph.plotter <- function(
 	}
   p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
-	p <- p + geom_line(size=1.5) + scale_colour_brewer() 
+	p <- p + geom_line(size=1.5) + scale_colour_brewer("GROUP", palette="Set1")
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name

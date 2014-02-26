@@ -170,6 +170,7 @@ ScatterPlot.loader <- function(
 			tmp <- tmp + aes(colour = GROUP.1) 
 			tmp <- tmp + aes(shape = GROUP.1) 
 			tmp <- tmp + scale_shape_manual(values=rep_len(1:25,length.out = length(unique(line.data$GROUP.1))))
+			tmp <- tmp + scale_colour_brewer("GROUP.1", palette="Set1")
 			tmp <- tmp + scale_colour_brewer("GROUP.1")
 			tmp <- tmp + scale_x_continuous(modifiedXAxisLabel) 
 			tmp <- tmp + scale_y_continuous(yAxisLabel)
@@ -193,6 +194,7 @@ ScatterPlot.loader <- function(
 		tmp <- tmp + aes(colour = GROUP) 
 		tmp <- tmp + aes(shape = GROUP) 
 		tmp <- tmp + scale_shape_manual(values=rep_len(1:25,length.out = length(unique(line.data$GROUP))))
+		tmp <- tmp + scale_colour_brewer("GROUP", palette="Set1")
 		tmp <- tmp + scale_x_continuous(xAxisLabel) 
 		tmp <- tmp + scale_y_continuous(yAxisLabel)
 		

@@ -75,11 +75,23 @@ class Table implements AutoCloseable {
                     "data sources: $difference")
         }
 
+        validateColumn col
+
         columns << col
         columnsToIndex[col] = columns.size() - 1
 
         for (dataSourceName in subscribedDataSources) {
             dataSourceSubscriptions.put(dataSources[dataSourceName], col)
+        }
+    }
+
+    private validateColumn(Column column) {
+        if (!column.header) {
+            throw new IllegalStateException("Header not set on column $column")
+        }
+        if (!column.missingValueAction) {
+            throw new IllegalStateException(
+                    "Missing value action not set on column $column")
         }
     }
 

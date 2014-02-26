@@ -54,7 +54,7 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
                                          String keyVariablePart,
                                          String header = null) {
         if (header != null) {
-            configurator.columnHeader = header
+            configurator.header = header
         }
         configurator.projection            = Projection.LOG_INTENSITY_PROJECTION
 

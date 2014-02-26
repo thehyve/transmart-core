@@ -23,13 +23,13 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
         def independentConfigurator = appCtx.getBean NumericColumnConfigurator
 
         dependentConfigurator = new NumericColumnConfigurator(
-                columnHeader: 'X',
+                header: 'X',
                 projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'dependentVariable',
                 keyForDataType: 'divDependentVariableType',
                 keyForSearchKeywordId: 'divDependentVariablePathway')
         independentConfigurator = new NumericColumnConfigurator(
-                columnHeader: 'Y',
+                header: 'Y',
                 projection: Projection.ZSCORE_PROJECTION,
                 keyForConceptPath: 'independentVariable',
                 keyForDataType: 'divIndependentVariableType',

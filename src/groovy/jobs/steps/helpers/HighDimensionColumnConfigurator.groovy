@@ -29,8 +29,6 @@ import static jobs.steps.OpenHighDimensionalDataStep.createConceptKeyFrom
 @Scope('prototype')
 class HighDimensionColumnConfigurator extends ColumnConfigurator {
 
-    String columnHeader
-
     String projection
 
     String keyForConceptPath,
@@ -148,11 +146,15 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
                     "Found empty concept paths list (key $keyForConceptPath)")
         }
 
+        if (!header) {
+            throw new IllegalStateException('header property must be set')
+        }
+
         Map<String, TabularResult> tabularResults
         Set<String> commonPatients
         if (conceptPaths.size() == 1 && !multiConcepts) {
             tabularResults = ImmutableMap.of(
-                    columnHeader + '_highdim',
+                    header + '_highdim',
                     openResultSet(conceptPaths[0]))
         } else {
             if (!multiConcepts) {
@@ -173,10 +175,10 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
         def highDimColumn
         if (!multiRow) {
             highDimColumn = new HighDimensionSingleRowResultColumn(
-                    header: columnHeader)
+                    header: header)
         } else {
             highDimColumn = new HighDimensionMultipleRowsResultColumn(
-                    header:             columnHeader,
+                    header:             header,
                     patientsToConsider: commonPatients)
         }
         table.addColumn(

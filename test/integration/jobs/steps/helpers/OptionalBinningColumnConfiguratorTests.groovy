@@ -5,7 +5,6 @@ import grails.test.mixin.TestMixin
 import jobs.UserParameters
 import jobs.table.MissingValueAction
 import jobs.table.Table
-import jobs.table.columns.AbstractColumn
 import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,7 +53,7 @@ class OptionalBinningColumnConfiguratorTests {
         }
         assertThat params.@map, is(notNullValue())
 
-        testee.columnHeader          = COLUMN_HEADER
+        testee.header                = COLUMN_HEADER
         testee.projection            = Projection.DEFAULT_REAL_PROJECTION
         testee.keyForConceptPaths    = 'variable'
         testee.keyForDataType        = 'divVariableType'
@@ -397,9 +396,9 @@ class OptionalBinningColumnConfiguratorTests {
 
         // second column to force the skipped primary key to be in the result
         // otherise the row with 66 would be just skipped
-        def secondColumn = new StubColumn(data: [
-                (createPatientRowLabels(2)[1]): 'bar'
-        ])
+        def secondColumn = new StubColumn(
+                header: 'STUB',
+                data: [(createPatientRowLabels(2)[1]): 'bar'])
         secondColumn.missingValueAction =
                 new MissingValueAction.ConstantReplacementMissingValueAction(replacement: '')
 
@@ -630,22 +629,4 @@ class OptionalBinningColumnConfiguratorTests {
             }
         }), hasProperty('message', containsString('Got non-numerical value'))
     }
-
-    static class StubColumn extends AbstractColumn {
-
-        Map<String, String> data
-
-        @Override
-        void onReadRow(String dataSourceName, Object row) {}
-
-        @Override
-        Map<String, String> consumeResultingTableRows() {
-            try {
-                return data
-            } finally {
-                data = null
-            }
-        }
-    }
-
 }

@@ -126,5 +126,9 @@ MarkerSelectionView.prototype.get_inputs = function (form_params) {
     ];
 }
 
+function loadMarkerSelectionOutput() {
+  $j("#markerSelectionTable").tablesorter();
+}
+
 // init heat map view instance
 var markerSelectionView = new MarkerSelectionView();
