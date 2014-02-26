@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
         compile 'org.javassist:javassist:3.16.1-GA'
 
         // includes fix for GRAILS-11126
-        compile 'org.grails:grails-plugin-rest:2.3.5-hyve3'
+        compile 'org.grails:grails-plugin-rest:2.3.5-hyve4'
 
         runtime 'org.postgresql:postgresql:9.3-1100-jdbc41', {
             exported = false
