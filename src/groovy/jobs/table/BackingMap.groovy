@@ -10,7 +10,6 @@ class BackingMap implements AutoCloseable {
 
     private static final String  MAPDB_TABLE_NAME     = 'Rmodules_jobs_table'
     private static final int     NODE_SIZE            = 16
-    private static final boolean VALUES_OUTSIDE_NODES = false
     private static final String  EMPTY_CONTEXT        = ''
 
     private DB db
@@ -29,13 +28,13 @@ class BackingMap implements AutoCloseable {
         map = db.createTreeMap(MAPDB_TABLE_NAME).
                 nodeSize(NODE_SIZE).
                 keySerializer(BTreeKeySerializer.TUPLE3).
-                valuesStoredOutsideNodes(VALUES_OUTSIDE_NODES).
                 make()
 
         // necessary to synchronize? official examples suggest not
         contextsIndex = TreeMultimap.create(Fun.TUPLE2_COMPARATOR, Ordering.natural())
 
-        map.addModificationListener(this.&updateContextIndex as Bind.MapListener)
+        // pending https://github.com/jankotek/MapDB/issues/297
+        //map.addModificationListener(this.&updateContextIndex as Bind.MapListener)
 
         this.numColumns        = numColumns
         this.valueTransformers = valueTransformers
@@ -62,7 +61,10 @@ class BackingMap implements AutoCloseable {
     }
 
     void putCell(String primaryKey, int columnNumber, String context, Object value) {
-        map[Fun.t3(primaryKey, columnNumber, context)] = value
+        def key = Fun.t3(primaryKey, columnNumber, context)
+        map[key] = value
+        // pending https://github.com/jankotek/MapDB/issues/297
+        updateContextIndex key, null, value
     }
 
     Object getCell(String primaryKey, int columnNumber, String context) {
@@ -83,7 +85,7 @@ class BackingMap implements AutoCloseable {
     public Set<String> getPrimaryKeys() {
         Fun.Tuple3 prevKey = Fun.t3(null, null, null) // null represents negative inf
 
-        Set<String> ret = Sets.newHashSet()
+        Set<String> ret = Sets.newTreeSet()
 
         while (prevKey = map.higherKey(prevKey)) {
             ret << prevKey.a

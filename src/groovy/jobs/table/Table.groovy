@@ -218,8 +218,8 @@ class Table implements AutoCloseable {
     private void processSourceRow(Object row, String dataSourceName, Iterable dataSource) {
         dataSourceSubscriptions.get(dataSource).each { Column col ->
             col.onReadRow dataSourceName, row
-            col.consumeResultingTableRows().each { String pk,
-                                                   Object value ->
+            def consumedRows = col.consumeResultingTableRows()
+            consumedRows.each { String pk, Object value ->
                 putCellToBackingMap pk, columnsToIndex[col], value
             }
         }
