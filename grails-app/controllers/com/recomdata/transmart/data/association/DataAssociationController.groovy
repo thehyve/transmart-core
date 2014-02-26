@@ -38,7 +38,6 @@ class DataAssociationController {
                 servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-overrides.js',
                 servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-generic.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/CorrelationAnalysis.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/LineGraph.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/Waterfall.js',
                 servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js']
 
