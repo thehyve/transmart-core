@@ -44,13 +44,13 @@ class LogisticRegression extends AbstractAnalysisJob {
     }
 
     private void configureIndependentVariableConfigurator() {
-        independentVariableConfigurator.columnHeader = 'Y'
+        independentVariableConfigurator.header = 'Y'
         independentVariableConfigurator.alwaysClinical = true
         independentVariableConfigurator.setKeys('independent')
     }
 
     private void configureOutcomeVariableConfigurator() {
-        outcomeVariableConfigurator.columnHeader = 'X'
+        outcomeVariableConfigurator.header = 'X'
         outcomeVariableConfigurator.setKeys('groupBy')
         outcomeVariableConfigurator.projection          = Projection.DEFAULT_REAL_PROJECTION
         outcomeVariableConfigurator.multiRow            = true
