@@ -64,6 +64,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        build ":release:3.0.1"
         build ':tomcat:7.0.47'
 
         runtime ':transmart-core:1.0-SNAPSHOT'
