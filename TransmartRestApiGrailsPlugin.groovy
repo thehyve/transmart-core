@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 
 class TransmartRestApiGrailsPlugin {
-    def version = "0.1"
+    def version = "0.1-SNAPSHOT"
     def grailsVersion = "2.3 > *"
     def title = "Transmart Rest Api Plugin"
     def author = "Transmart Foundation"
