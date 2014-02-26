@@ -30,7 +30,7 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
             clinicalDataRetriever.createVariableFromConceptPath it
         }
 
-        variables.each {
+        variables = variables.collect {
             clinicalDataRetriever << it
         }
 

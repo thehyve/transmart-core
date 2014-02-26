@@ -56,7 +56,7 @@ grails.project.dependency.resolution = {
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
         compile 'org.rosuda:Rserve:1.7.3'
-        compile 'org.mapdb:mapdb:0.9.7'
+        compile 'org.mapdb:mapdb:0.9.10'
 
         /* serializable ImmutableMap only on guava 16 */
         compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'

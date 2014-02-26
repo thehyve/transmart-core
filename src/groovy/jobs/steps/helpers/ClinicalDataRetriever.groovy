@@ -31,15 +31,28 @@ class ClinicalDataRetriever {
     private ResultInstanceIdsHolder resultInstanceIdsHolder
 
 
-    void leftShift(ClinicalVariable var) {
+    /* this method sort of handles the case of the same variable being added
+     * twice. In some variable was submitted earlier, it returns the original
+     * variable. The client should then use this return value instead of the
+     * value it passed.
+     *
+     * No duplicates can be detected if the same variable is submitted via
+     * concept path and then via concept code. */
+    ClinicalVariable leftShift(ClinicalVariable var) {
         if (resultsGiven) {
             throw new IllegalStateException(
                     'Cannot add column, results already opened')
         }
-        variables << var
+        int i = variables.indexOf var
+        if (i != -1) {
+            variables[i]
+        } else {
+            variables.add(var)
+            var
+        }
     }
 
-    void leftShift(String conceptPath) {
+    ClinicalVariable leftShift(String conceptPath) {
         this << createVariableFromConceptPath(conceptPath)
     }
 
