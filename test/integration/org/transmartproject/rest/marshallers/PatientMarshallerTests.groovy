@@ -79,7 +79,7 @@ class PatientMarshallerTests {
     void replaceStudyLoadingService() {
         // studyLoadingServiceProxy will start proxying to this bean
         currentApplicationContext.registerBeanDefinition(
-                'studyLoadingService',
+                'transmartRestApiStudyLoadingService',
                 new GenericBeanDefinition(
                         beanClass:     StubStudyLoadingService,
                         propertyValues: new MutablePropertyValues(storedStudy: createStudy(TRIAL, ONTOLOGY_KEY))))
