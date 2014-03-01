@@ -1,0 +1,17 @@
+<plugin name='transmart-java' version='1.0-SNAPSHOT' grailsVersion='1.3.7 &gt; *'>
+  <author>David Newton</author>
+  <authorEmail>davinewton@deloitte.com</authorEmail>
+  <title>tranSMART Java Backend</title>
+  <description>\
+Java backend for tranSMART
+</description>
+  <documentation>http://grails.org/plugin/transmart-java</documentation>
+  <resources>
+    <resource>BuildConfig</resource>
+    <resource>Config</resource>
+    <resource>DataSource</resource>
+    <resource>UrlMappings</resource>
+  </resources>
+  <dependencies />
+  <behavior />
+</plugin>
