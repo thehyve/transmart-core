@@ -8,10 +8,6 @@ class aCGHgroupTestController {
 	def RModulesOutputRenderService;
     def grailsApplication
 
-    private getConfig() {
-        grailsApplication.config.RModules
-    }
-
     final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
 
@@ -30,7 +26,7 @@ class aCGHgroupTestController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${config.imageURL}${params.jobName}/groups-test.png"
+		def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/groups-test.png"
 		render imagePath
 	}
 

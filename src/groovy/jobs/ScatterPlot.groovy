@@ -60,9 +60,9 @@ class ScatterPlot extends AbstractAnalysisJob {
     private void configureConfigurator(NumericColumnConfigurator configurator,
                                        String key,
                                        String header) {
-        configurator.columnHeader          = header
-        configurator.projection            = Projection.DEFAULT_REAL_PROJECTION
-        configurator.multiRow              = true
+        configurator.header     = header
+        configurator.projection = Projection.LOG_INTENSITY_PROJECTION
+        configurator.multiRow   = true
 
         configurator.setKeys(key)
     }

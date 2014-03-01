@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.*
 class TableTests {
 
     public static final String DATA_SOURCE_NAME = 'test_name'
+    public static final String SAMPLE_HEADER = 'SAMPLE_HEADER'
 
     private Table testee = new Table()
 
@@ -102,12 +103,10 @@ class TableTests {
     @Test
     void testUnsubscribedColumn() {
         Iterable sampleDataSource = mockDataSource([mock(Object)])
-        Column column  = mock(Column)
+        Column column  = minimalColumnMock()
 
         column.consumeResultingTableRows().returns(ImmutableMap.of('foo', 'bar'))
-
         column.onAllDataSourcesDepleted(0, isA(BackingMap))
-
         column.valueTransformer.returns(null).atLeastOnce()
 
         play {
@@ -152,7 +151,7 @@ class TableTests {
         List dataSourceNames = [ DATA_SOURCE_NAME, DATA_SOURCE_NAME + '2' ]
         Iterable dataSources = rows.collect { mockDataSource it }
 
-        Column column  = mock(Column)
+        Column column  = minimalColumnMock()
 
         ordered {
             /* Overspecified. Implementations should not rely on interleaving */
@@ -225,7 +224,7 @@ class TableTests {
 
         values = [ 'row1', 'row2' ]
 
-        columns << new PrimaryKeyColumn()
+        columns << new PrimaryKeyColumn(header: 'PK')
         columns << mockColumn(DATA_SOURCE_NAME, twoRowDataSource, twoRows,
                 combinePKsAndValues(twoPKs, values))
 
@@ -273,6 +272,44 @@ class TableTests {
         }
     }
 
+    @Test
+    void testRejectColumnWithoutHeader() {
+        Column col = mock Column
+        col.missingValueAction.returns(mock(MissingValueAction)).stub()
+        col.header.returns(null)
+
+        play {
+            def message = shouldFail(IllegalStateException, {
+                testee.addColumn(col, Collections.emptySet())
+            })
+
+            assertThat message, containsString('Header not set')
+        }
+    }
+
+    @Test
+    void testRejectColumnWithoutMissingValueAction() {
+        Column col = mock Column
+        col.missingValueAction.returns null
+        col.header.returns(SAMPLE_HEADER)
+
+        play {
+            def message = shouldFail(IllegalStateException, {
+                testee.addColumn(col, Collections.emptySet())
+            })
+
+            assertThat message, containsString('Missing value action not set')
+        }
+    }
+
+    private Column minimalColumnMock() {
+        def column = mock Column
+        column.header.returns(SAMPLE_HEADER).atLeastOnce()
+        column.missingValueAction.returns mock(MissingValueAction)
+
+        column
+    }
+
     private @Lazy List<Object> twoRows = [ mock(Object), mock(Object) ]
 
     private @Lazy List<String> twoPKs = ['rowPK1', 'rowPK2']
@@ -288,7 +325,7 @@ class TableTests {
             throw new RuntimeException('Expected returnValues.size() == rows.size()')
         }
 
-        Column column  = mock(Column)
+        Column column  = minimalColumnMock()
 
         ordered {
             column.beforeDataSourceIteration(dataSourceName, dataSource)

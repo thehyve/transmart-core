@@ -26,6 +26,7 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
+color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE
 )
 {
@@ -41,6 +42,13 @@ aggregate.probes = FALSE
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
+
+    # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+    mRNAData$GROUP <- as.character(mRNAData$GROUP)
+    rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
+    mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+    mRNAData$GROUP <- as.factor(mRNAData$GROUP)
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
@@ -108,18 +116,17 @@ aggregate.probes = FALSE
 # check whether there is enough data to draw heatmap
         n_remaining_marker<-nrow(mRNAData)
         n_remaining_sample<-ncol(mRNAData)
+        if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
         if (n_remaining_marker>1 & n_remaining_sample >1) {
 		#Store the heatmap in a temp variable.
-		tmp <- heatmap(
-                            mRNAData,
-                    	    Rowv=NA,
-                            Colv=NA,
-		# by Serge and Wei to make the map more informative
-                            ColSideColors=colcolor,
-#                           col=cm.colors(800),
-                       	    col=greenred(800),
-                            margins=c(15, 15),
-                            )
+        tmp <- heatmap(mRNAData,
+                Rowv=NA,
+                Colv=NA,
+                ColSideColors=colcolor,
+                col = greenred(800),
+                breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+                margins=c(15, 15),
+                scale = "none")
 
 		# add a legend to heatmap.
 		tmp_legend <- legend("topleft",

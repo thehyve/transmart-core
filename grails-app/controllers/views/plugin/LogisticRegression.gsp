@@ -26,9 +26,9 @@
                         Drag a <b>numerical</b> concept from the tree into the box below. The concept must come from a
                         data node (Biomarker Data or Clinical Data).  <br><br><br><br><br><br><br>
                     </span>
-                    <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                    <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                     <div class="highDimBtns">
-                        <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
+                        <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                     </div>
 
 

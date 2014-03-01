@@ -52,15 +52,15 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
     }
 
     void configureTimeVariableConfigurator() {
-        timeVariableConfigurator.columnHeader   = 'TIME'
+        timeVariableConfigurator.header = 'TIME'
         timeVariableConfigurator.setKeys('time')
         timeVariableConfigurator.alwaysClinical = true
     }
 
     void configureCategoryVariableConfigurator() {
         categoryVariableConfigurator.required = false
-        categoryVariableConfigurator.columnHeader       = 'CATEGORY'
-        categoryVariableConfigurator.projection         = Projection.DEFAULT_REAL_PROJECTION
+        categoryVariableConfigurator.header             = 'CATEGORY'
+        categoryVariableConfigurator.projection         = Projection.LOG_INTENSITY_PROJECTION
         categoryVariableConfigurator.multiRow           = true
 
         categoryVariableConfigurator.setKeys('dependent')
@@ -77,9 +77,9 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
     void configureCensoringVariableConfigurator() {
 
-        censoringInnerConfigurator.required             = false
-        censoringInnerConfigurator.columnHeader         = 'CENSOR'
-        censoringInnerConfigurator.keyForConceptPaths   = 'censoringVariable'
+        censoringInnerConfigurator.required           = false
+        censoringInnerConfigurator.header             = 'CENSOR'
+        censoringInnerConfigurator.keyForConceptPaths = 'censoringVariable'
 
         def noValueDefault = censoringInnerConfigurator.getConceptPaths() ? CENSORING_FALSE : CENSORING_TRUE
 

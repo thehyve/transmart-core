@@ -2,9 +2,8 @@
  * Where everything starts
  */
 function loadLogisticRegressionView(){
-    //registerLogisticRegressionDragAndDrop();
     lineGraphView.register_drag_drop();
-    lineGraphView.clear_high_dimensional_input('divDependentVariable');
+    lineGraphView.clear_high_dimensional_input('divIndependentVariable');
     lineGraphView.clear_high_dimensional_input('divGroupByVariable');
     lineGraphView.toggle_binning();
 }
@@ -50,7 +49,7 @@ LogisticRegressionView.prototype.toggle_binning = function () {
  */
 LogisticRegressionView.prototype.get_form_params = function (form) {
 
-    var dependentVariableConceptCode = readConceptVariables2("divDependentVariable")[0];
+    var dependentVariableConceptCode = readConceptVariables2("divIndependentVariable")[0];
     var independentVariableConceptCode = readConceptVariables2("divIndependentVariable")[0];
     var groupByVariableConceptCode = readConceptVariables2("divGroupByVariable")[0];
     var variablesConceptCode = dependentVariableConceptCode+"|"+groupByVariableConceptCode;
@@ -72,19 +71,19 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
     }
 
     var variableEle = Ext.get("divGroupByVariable");
-    var numricVariableEle = Ext.get("divDependentVariable");
+    var numericalVariableEle = Ext.get("divIndependentVariable");
 
 
 
     //This will tell us the type of nodes drag into Probability box
     var categoryNodeList = createNodeTypeArrayFromDiv(variableEle,"setnodetype")
-    var numericNodeList = createNodeTypeArrayFromDiv(numricVariableEle,"setnodetype")
+    var numericNodeList = createNodeTypeArrayFromDiv(numericalVariableEle,"setnodetype")
 
     //Across Trial/Navigate by study validation.
     //This will tell us which table the nodes came from. This is important because it tells us if they are modifier
     //nodes or regular concept codes. We use this information for validation and for passing to the jobs functions.
     var categoryNodeType = createNodeTypeArrayFromDiv(variableEle,"concepttablename")
-    var numericNodeType = createNodeTypeArrayFromDiv(numricVariableEle,"concepttablename")
+    var numericNodeType = createNodeTypeArrayFromDiv(numericalVariableEle,"concepttablename")
 
     if (categoryNodeType.length > 1) {
         Ext.Msg.alert('Wrong input', 'The Category input box has nodes from both the \'Navigate By Study\' tree ' +
@@ -198,7 +197,7 @@ LogisticRegressionView.prototype.update_manual_binning = function () {
         } else {
             divContinuous.hide();
             divCategorical.show();
-            setupCategoricalItemsList("divGroupByVariable","divCategoricalItems");
+            setupCategoricalItemsList("divGroupByVariable", "divCategoricalItems");
         }
     }
 }

@@ -229,10 +229,14 @@ aggregate.probes = FALSE
 
 	#Put all the data together.
 	finalHeatmapData <- rbind(negativeHeatmapData,positiveHeatmapData)
-	
+
+    # The PROBE.ID column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+    rowsToConcatenate <- grep("^PRIVATE:", finalHeatmapData$GENE_SYMBOL, invert = TRUE)
+    finalHeatmapData$PROBE.ID[rowsToConcatenate] <- paste(finalHeatmapData$PROBE.ID[rowsToConcatenate], finalHeatmapData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+
 	#Remove the t score and positive columns.
-	finalHeatmapData$GENE_SYMBOL <- paste(finalHeatmapData$GENE_SYMBOL, finalHeatmapData$PROBE.ID, sep='/')
-	finalHeatmapData <- subset(finalHeatmapData, select = -c(PROBE.ID,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
+	finalHeatmapData <- subset(finalHeatmapData, select = -c(GENE_SYMBOL,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
 	
 	#Rename the first column to be "GROUP".
 	colnames(finalHeatmapData)[1] <- 'GROUP'

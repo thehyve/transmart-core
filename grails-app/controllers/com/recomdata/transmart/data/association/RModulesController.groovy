@@ -16,25 +16,15 @@
 
 package com.recomdata.transmart.data.association
 
+import com.google.common.collect.Maps
+import grails.converters.JSON
 import grails.util.Holders
-import jobs.AnalysisQuartzJobAdapter
-import jobs.BoxPlot
-import jobs.Heatmap
-import jobs.KMeansClustering
-import jobs.HierarchicalClustering
-import jobs.MarkerSelection
-import jobs.PCA
-import jobs.ScatterPlot
-import jobs.SurvivalAnalysis
-import jobs.TableWithFisher
-import jobs.LineGraph
+import jobs.*
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
-import grails.converters.JSON
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import static jobs.AnalysisQuartzJobAdapter.*
@@ -49,6 +39,8 @@ class RModulesController {
             "RNASEQ":           "rnaseq_cog",
             "METABOLOMICS":     "metabolite"
     ]
+
+    private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
 
     def springSecurityService
     def asyncJobService
@@ -118,6 +110,9 @@ class RModulesController {
             case 'lineGraph':
                 jsonResult = createJob(params, LineGraph, false)
                 break
+            case 'logisticRegression':
+                jsonResult = createJob(params, LogisticRegression, false)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
@@ -128,20 +123,28 @@ class RModulesController {
     }
 
     private void createJob(Map params, Class clazz, boolean useAnalysisContrants = true) {
+
+        UserParameters userParams = new UserParameters(map: Maps.newHashMap(params))
+
         params[PARAM_GRAILS_APPLICATION] = grailsApplication
         params[PARAM_JOB_CLASS] = clazz
         if (useAnalysisContrants) {
-            params[PARAM_ANALYSIS_CONSTRAINTS] = validateParamAnalysisConstraints params
-            params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"] =
-                    lookup[params[PARAM_ANALYSIS_CONSTRAINTS]["data_type"]]
-
-            params.analysisConstraints = massageConstraints params[PARAM_ANALYSIS_CONSTRAINTS]
+            params.put(PARAM_ANALYSIS_CONSTRAINTS, createAnalysisConstraints(params))
         }
+
+        params.put(PARAM_USER_PARAMETERS, userParams)
 
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
         jobDetail.jobDataMap  = new JobDataMap(params)
         SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
         quartzScheduler.scheduleJob(jobDetail, trigger)
+    }
+
+    private AnalysisConstraints createAnalysisConstraints(Map params) {
+        Map map = validateParamAnalysisConstraints(params) as Map
+        map["data_type"] = lookup[map["data_type"]]
+        map = massageConstraints map
+        new AnalysisConstraints(map: map)
     }
 
     private Map massageConstraints(Map analysisConstraints) {

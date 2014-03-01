@@ -16,6 +16,9 @@ abstract class AbstractAnalysisJob {
     @Autowired
     UserParameters params
 
+    @Autowired
+    AnalysisConstraints analysisConstraints
+
     @Resource(name = 'jobName')
     String name /* The job instance name */
 

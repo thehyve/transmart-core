@@ -34,7 +34,7 @@ class ContextNumericVariableColumnConfigurator extends ColumnConfigurator {
 
     /* properties to be set externally:
      *
-     * - columnHeader
+     * - header
      * - projection
      * - keyForConceptPaths/keyForConceptPath (indifferent which)
      * - keyForDataType

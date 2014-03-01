@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.*
 class BoxPlotVariableColumnConfiguratorTests {
 
     public static final String VALUE_FOR_COLUMN_BEING_BINNED = 'IND'
+    public static final String TEST_HEADER = 'TEST_HEADER'
     @Autowired
     Table table
 

@@ -32,4 +32,12 @@ abstract class AbstractColumn implements Column {
     Closure<Object> getValueTransformer() {
         null
     }
+
+
+    @Override
+    public String toString() {
+        com.google.common.base.Objects.toStringHelper(this).
+                add("header", header).
+                toString();
+    }
 }

@@ -42,7 +42,7 @@ Brief description of the plugin.
     def documentation = "http://grails.org/plugin/rmodules"
 
     def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before 
+        // TODO Implement additions to web.xml (optional), this event occurs before
     }
 
     def doWithSpring = {
@@ -63,6 +63,15 @@ Brief description of the plugin.
              * in the storage for the job scope */
             bean.scope = 'job'
         }
+
+        /*
+         * Prevent the resource plugin from handling the resources in this
+         * so that it can be served directly.
+         */
+        def curExcludes = application.config.grails.resources.adhoc.excludes
+        application.config.grails.resources.adhoc.excludes =
+                ['/analysisFiles/**', '/images/analysisFiles/**'] +
+                        (curExcludes ?: [])
     }
 
     def doWithDynamicMethods = { ctx ->

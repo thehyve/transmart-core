@@ -524,8 +524,6 @@ function runJob(result, formParams) {
     formParams.analysis=document.getElementById("analysis").value;
     formParams.jobName=jobName;
 
-    console.log("formParams", formParams);
-
     Ext.Ajax.request(
             {
                 url: pageInfo.basePath+"/RModules/scheduleJob",
