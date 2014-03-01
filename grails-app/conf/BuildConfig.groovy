@@ -29,6 +29,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        compile ':hibernate:3.6.10.7'
         build(":tomcat:7.0.47",
                 ":release:2.2.1",
                 ":rest-client-builder:1.0.3") {
