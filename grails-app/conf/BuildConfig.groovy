@@ -49,7 +49,7 @@ grails.project.dependency.resolution = {
 
     repositories {
         grailsCentral()
-
+		grailsHome()
         mavenCentral()
         mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
     }
