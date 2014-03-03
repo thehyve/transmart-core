@@ -41,7 +41,7 @@ aggregate.probes = FALSE
 	library(gplots)
 	
 	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename))
+	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
 
     # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
     # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
