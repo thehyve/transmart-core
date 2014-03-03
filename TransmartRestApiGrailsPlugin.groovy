@@ -44,5 +44,8 @@ class TransmartRestApiGrailsPlugin {
         }
     }
 
-    def doWithApplicationContext = { ctx ->  }
+    def doWithApplicationContext = { ctx ->
+        // Force the bean being initialized
+        ctx.getBean 'marshallersRegistrar'
+    }
 }
