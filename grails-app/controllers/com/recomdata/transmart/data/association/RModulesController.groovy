@@ -32,8 +32,8 @@ import static jobs.AnalysisQuartzJobAdapter.*
 class RModulesController {
     final static Map<String, String> lookup = [
             "Gene Expression":  "mrna",
-            "MIRNA_QPCR":       "mirna",
-            "MIRNA_SEQ":        "mirna",
+            "MIRNA_QPCR":       "mirnaqpcr",
+            "MIRNA_SEQ":        "mirnaseq",
             "RBM":              "rbm",
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
