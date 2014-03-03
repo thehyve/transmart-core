@@ -11,7 +11,7 @@ class DallianceController {
 
     def loadScripts = {
         def scripts = [
-
+                servletContext.contextPath+pluginContextPath+'/js/tsmart-utils.js',
                 servletContext.contextPath+pluginContextPath+'/js/bam.js',
                 servletContext.contextPath+pluginContextPath+'/js/bigwig.js',
                 servletContext.contextPath+pluginContextPath+'/js/das.js',
@@ -48,6 +48,7 @@ class DallianceController {
                 servletContext.contextPath+pluginContextPath+'/polyfills/html5slider.js',
                 servletContext.contextPath+pluginContextPath+'/js/ensembljson.js',
                 servletContext.contextPath+pluginContextPath+'/js/overlay.js',
+                servletContext.contextPath+pluginContextPath+'/js/tier-actions.js',
                 servletContext.contextPath+pluginContextPath+'/dalliance.js'
         ]
 
