@@ -1,10 +1,14 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import grails.rest.Link
 import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.ontology.ConceptsResourceService
+import org.transmartproject.rest.marshallers.CollectionResponseWrapper
+import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
 
 class ConceptController {
 
@@ -17,7 +21,7 @@ class ConceptController {
      *  This will return the list of concepts, where each concept will be rendered in its short format
     */
     def index() {
-        respond studyLoadingServiceProxy.study.ontologyTerm.allDescendants
+        respond wrapConcepts(studyLoadingServiceProxy.study.ontologyTerm.allDescendants)
     }
 
     /** GET request on /studies/XXX/concepts/${id}
@@ -27,14 +31,25 @@ class ConceptController {
      */
     def show(String id) {
         String studyKey = studyLoadingServiceProxy.study.ontologyTerm.key
-        String key = studyKey + getConceptPath(id)
+        String key = studyKey + OntologyTermSerializationHelper.idToPath(id)
 
         respond conceptsResourceService.getByKey(key)
     }
 
-
-    private static String getConceptPath(String id) {
-        id.replace("/", "\\")
+    /**
+     * @param source
+     * @return CollectionResponseWrapper so we can provide a proper HAL response
+     */
+    def wrapConcepts(Object source) {
+        new CollectionResponseWrapper(
+                collection: source,
+                componentType: OntologyTerm,
+                links: [
+                        new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
+                                "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts"
+                        )
+                ]
+        )
     }
 
 }

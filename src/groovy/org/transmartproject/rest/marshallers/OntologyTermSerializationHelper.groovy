@@ -38,7 +38,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
         studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
         def pathPart = term.key - studyTerm.key ?: 'ROOT'
-        pathPart = pathPart.encodeAsURL()
+        pathPart = pathToId(pathPart).encodeAsURL()
 
         // TODO add other relationships (children, parent, ...)
         [new Link(RELATIONSHIP_SELF, "/studies/$studyName/concepts/$pathPart")]
@@ -57,4 +57,26 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     Set<String> getEmbeddedEntities(OntologyTerm object) {
         [] as Set
     }
+
+    /**
+     * @param path
+     * @return converts a path to a concept id, where '\' is replaced with '/', removing the terminating '/' (if exists)
+     */
+    static String pathToId(String path) {
+        String result = path.replace('\\', '/')
+        int lastIdx = result.size() - 1
+        if (result.charAt(lastIdx)) {
+            result = result.substring(0, lastIdx)
+        }
+        result
+    }
+
+    /**
+     * @param id
+     * @return converts a concept id to a path, where '/' is replaced with '\'
+     */
+    static String idToPath(String id) {
+        id.replace("/", "\\")
+    }
+
 }
