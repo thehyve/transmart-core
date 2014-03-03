@@ -87,6 +87,23 @@ public interface OntologyTerm {
      */
     List<OntologyTerm> getChildren(boolean showHidden, boolean showSynonyms)
 
+    /**
+     * Returns all the terms below that have this term as a parent.
+     *
+     * @param showHidden whether to return items with the hidden visual
+     * attribute
+     * @para showSynonyms whether to show synonyms
+     * @return (all) children of this term, ordered by name
+     */
+    List<OntologyTerm> getAllDescendants(boolean showHidden, boolean showSynonyms)
+
+    /**
+     * Returns all the terms below that have this term as a parent.
+     *
+     * @return (all) children of this term, ordered by name
+     */
+    List<OntologyTerm> getAllDescendants()
+
     enum VisualAttributes {
 
         /**
