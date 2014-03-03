@@ -10,7 +10,7 @@ public interface Study {
     /**
      * The (hopefully unique) name of the study.
      *
-     * A shortcut for <code>{@link #getOntologyTerm()}.name</code>
+     * This is the <code>{@link #getOntologyTerm()}.name</code> in uppercase.
      *
      * @return the name of the study
      */

@@ -14,7 +14,9 @@ interface StudiesResource {
     Set<Study> getStudySet()
 
     /**
-     * Fetches a study by name. Study names are unique.
+     * Fetches a study by name. Study names are unique. This method is
+     * case insensitive. Therefore, the value of the parameter <code>name</code>
+     * may not match exactly the value of {@link Study#getName()}.
      *
      * @param name the name of the study
      * @return the study
