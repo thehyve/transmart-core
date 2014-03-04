@@ -65,7 +65,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     static String pathToId(String path) {
         String result = path.replace('\\', '/')
         int lastIdx = result.size() - 1
-        if (result.charAt(lastIdx)) {
+        if (result.charAt(lastIdx) == '/') {
             result = result.substring(0, lastIdx)
         }
         result
