@@ -47,9 +47,9 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     @Override
     Map<String, Object> convertToMap(OntologyTerm term) {
         [
-                name:     term.name,
-                key:      term.key,
-                fullName: term.fullName,
+            name:     term.name,
+            key:      term.key,
+            fullName: term.fullName,
         ]
     }
 
