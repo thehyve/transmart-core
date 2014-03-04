@@ -24,6 +24,9 @@ class I2b2Tests {
                 cVisualattributes: 'FH')
         addI2b2(level: 1, fullName: '\\foo\\xpto', name: 'xpto')
         addI2b2(level: 2, fullName: '\\foo\\xpto\\bar', name: 'bar')
+
+        addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\jar', name: 'jar')
+        addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\binks', name: 'binks')
     }
 
     @Test
@@ -69,4 +72,22 @@ class I2b2Tests {
                         ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar')))
                 ))))
     }
+
+    @Test
+    void testGetAllDescendants() {
+
+        I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto') }
+        assertThat xpto, is(notNullValue())
+
+        def children = xpto.allDescendants
+        assertThat(children,  allOf (
+                hasSize(3),
+                contains(
+                        hasProperty('name', equalTo('bar')),
+                        hasProperty('name', equalTo('binks')),
+                        hasProperty('name', equalTo('jar')),
+                )
+        ))
+    }
+
 }
