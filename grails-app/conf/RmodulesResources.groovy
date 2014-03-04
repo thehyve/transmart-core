@@ -41,4 +41,7 @@ modules = {
     line_graph {
         resource url:"/js/plugin/LineGraph.js"
     }
+    correlation_analysis {
+        resource url:"/js/plugin/CorrelationAnalysis.js"
+    }
 }
