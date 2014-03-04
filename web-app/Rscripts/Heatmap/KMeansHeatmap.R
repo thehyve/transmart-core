@@ -215,6 +215,11 @@ Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.
     #Set the name of the rows to be the unique ID.
     rownames(castedData) = castedData$UNIQUE_ID
 
+    if (nrow(castedData) <= 1) {
+        warning("Only one probe.id present in the data. Probe aggregation not possible.")
+        return (mRNAData)
+    }
+
     #Run the collapse on a subset of the data by removing some columns.
     finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,GROUP,UNIQUE_ID) ),
             rowGroup = castedData$GENE_SYMBOL,
