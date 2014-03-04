@@ -1,10 +1,6 @@
 class TransmartLegacyDbGrailsPlugin {
     // the plugin version
-<<<<<<< HEAD
     def version = "0.3-SNAPSHOT"
-=======
-    def version = "0.2-SNAPSHOT"
->>>>>>> 2292694f842ecf80e8fcb698a232b28f3203326b
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.3 > *"
     // resources that are excluded from plugin packaging
