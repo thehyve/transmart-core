@@ -1,6 +1,6 @@
 #analysisWidget h2, #analysisOutput h2 {margin: 0 20px 20px 0; font-size: 1.1em;}
 #analysisWidget {width : 405px; padding: 10px; font-size: 12px; font-family: Tahoma, Arial, Verdana, sans-serif;}
-#analysisOutput {padding: 5px;}
+#analysisOutput {padding: 5px; font-size: 12px; font-family: Tahoma, Arial, Verdana, sans-serif;}
 
 #analysisForm fieldset {border: 0;}
 #analysisForm label {float: left; clear: left; margin: 11px 10px 0 0; width: 150px; text-align: right;}
