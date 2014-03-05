@@ -19,7 +19,9 @@
 /stacktrace.log
 /test/reports
 /logs
-/*/*.log
+/biomart-domain/*.log
+/search-domain/*.log
+/transmart-java/*.log
 
 # project release file
 /*.war
@@ -34,8 +36,12 @@
 /web-app/WEB-INF/classes
 
 # "temporary" build files
-/*/eclipse-target
-/*/target
+/transmart-java/eclipse-target
+/transmart-java/target
+/search-domain/eclipse-target
+/search-domain/target
+/biomart-domain/eclipse-target
+/biomart-domain/target
 
 # other
 *.iws
