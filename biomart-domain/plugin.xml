@@ -7,66 +7,6 @@ Domain objects for the tranSMART Biomart schema
 </description>
   <type>BiomartDomainGrailsPlugin</type>
   <resources>
-    <resource>BioBankSample</resource>
-    <resource>bio.AdHocProperty</resource>
-    <resource>bio.AnalysisMetadata</resource>
-    <resource>bio.BioAnalysisAttribute</resource>
-    <resource>bio.BioAnalysisAttributeLineage</resource>
-    <resource>bio.BioAssay</resource>
-    <resource>bio.BioAssayAnalysis</resource>
-    <resource>bio.BioAssayAnalysisData</resource>
-    <resource>bio.BioAssayAnalysisDataIdx</resource>
-    <resource>bio.BioAssayAnalysisDataTea</resource>
-    <resource>bio.BioAssayAnalysisExt</resource>
-    <resource>bio.BioAssayAnalysisPlatform</resource>
-    <resource>bio.BioAssayCohort</resource>
-    <resource>bio.BioAssayData</resource>
-    <resource>bio.BioAssayDataAnnotation</resource>
-    <resource>bio.BioAssayDataStatistics</resource>
-    <resource>bio.BioAssayDataset</resource>
-    <resource>bio.BioAssayFeatureGroup</resource>
-    <resource>bio.BioAssayPlatform</resource>
-    <resource>bio.BioAssaySample</resource>
-    <resource>bio.BioAssayStatsExpMarker</resource>
-    <resource>bio.BioData</resource>
-    <resource>bio.BioDataAttribute</resource>
-    <resource>bio.BioDataCorrelation</resource>
-    <resource>bio.BioDataCorrelationDescr</resource>
-    <resource>bio.BioDataExternalCode</resource>
-    <resource>bio.BioMarker</resource>
-    <resource>bio.BioMarkerCorrelationMV</resource>
-    <resource>bio.BioMarkerExpAnalysisMV</resource>
-    <resource>bio.BioMesh</resource>
-    <resource>bio.BioSample</resource>
-    <resource>bio.BioSubject</resource>
-    <resource>bio.CellLine</resource>
-    <resource>bio.CgdcpData</resource>
-    <resource>bio.ClinicalTrial</resource>
-    <resource>bio.ClinicalTrialPatientGroup</resource>
-    <resource>bio.ClinicalTrialTimePoint</resource>
-    <resource>bio.Compound</resource>
-    <resource>bio.ConceptCode</resource>
-    <resource>bio.Content</resource>
-    <resource>bio.ContentReference</resource>
-    <resource>bio.ContentRepository</resource>
-    <resource>bio.CurationDataset</resource>
-    <resource>bio.Disease</resource>
-    <resource>bio.Experiment</resource>
-    <resource>bio.Literature</resource>
-    <resource>bio.LiteratureAlterationData</resource>
-    <resource>bio.LiteratureAssocMoleculeDetailsData</resource>
-    <resource>bio.LiteratureInhibitorData</resource>
-    <resource>bio.LiteratureInteractionData</resource>
-    <resource>bio.LiteratureInteractionModelMV</resource>
-    <resource>bio.LiteratureModelData</resource>
-    <resource>bio.LiteratureProteinEffectData</resource>
-    <resource>bio.LiteratureReferenceData</resource>
-    <resource>bio.LiteratureSummaryData</resource>
-    <resource>bio.Observation</resource>
-    <resource>bio.Patient</resource>
-    <resource>bio.PatientEvent</resource>
-    <resource>bio.PatientEventAttribute</resource>
-    <resource>bio.Taxonomy</resource>
     <resource>org.transmart.biomart.AdHocProperty</resource>
     <resource>org.transmart.biomart.AnalysisMetadata</resource>
     <resource>org.transmart.biomart.BioAnalysisAttribute</resource>
@@ -124,6 +64,5 @@ Domain objects for the tranSMART Biomart schema
     <resource>org.transmart.biomart.PatientEvent</resource>
     <resource>org.transmart.biomart.PatientEventAttribute</resource>
     <resource>org.transmart.biomart.Taxonomy</resource>
-    <resource>search.SearchTaxonomy</resource>
   </resources>
 </plugin>
