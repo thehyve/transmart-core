@@ -3,9 +3,12 @@ package org.transmartproject.rest
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
+import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ObservationFact
 
 class ObservationController {
@@ -21,11 +24,9 @@ class ObservationController {
      */
     def index() {
         def study = studyLoadingServiceProxy.study
-        def observations = ObservationFact.withCriteria {
-            if(study) {
-                like 'sourcesystemCd', "${study.name}%"
-            }
-        }
+
+        TabularResult<TerminalConceptVariable, PatientRow> observations =
+            clinicalDataResourceService.retrieveData() //TODO
         respond observations
     }
 
@@ -51,6 +52,8 @@ class ObservationController {
             throw new InvalidArgumentsException('Could not find a study id')
         }
         def subject = patientsResourceService.getPatientById(subjectId)
+
+        //TODO: check whether subject actually belongs to the study
 
         // Retrieve observations
         def observations = ObservationFact.withCriteria {
