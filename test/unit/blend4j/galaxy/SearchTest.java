@@ -1,21 +1,18 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
+import com.github.jmchilton.blend4j.galaxy.LibrariesClient;
+import com.github.jmchilton.blend4j.galaxy.SearchClient;
 import com.github.jmchilton.blend4j.galaxy.SearchClient.SearchResponse;
-import com.github.jmchilton.blend4j.galaxy.beans.FileLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryDataset;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDataset.Source;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.Library;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent;
-import com.google.common.collect.Iterables;
 import com.sun.jersey.api.client.ClientResponse;
+import org.testng.annotations.BeforeMethod;
+
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 public class SearchTest {
   private GalaxyInstance instance;

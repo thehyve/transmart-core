@@ -1,12 +1,16 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
+import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryContentsProvenance;
 import com.sun.jersey.api.client.ClientResponse;
-import java.io.File;
-import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.util.List;
 
 public class HistoriesTest {
   private GalaxyInstance instance;

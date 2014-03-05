@@ -1,4 +1,4 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
 import java.io.IOException;
 

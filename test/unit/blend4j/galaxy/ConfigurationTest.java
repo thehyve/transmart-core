@@ -1,7 +1,10 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
+
+import com.github.jmchilton.blend4j.galaxy.ConfigurationClient;
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import org.testng.annotations.Test;
 
 import java.util.Map;
-import org.testng.annotations.Test;
 
 public class ConfigurationTest {
 

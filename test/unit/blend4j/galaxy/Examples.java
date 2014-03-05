@@ -1,33 +1,17 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-
-import org.testng.annotations.Test;
-
-import com.github.jmchilton.blend4j.galaxy.beans.FilesystemPathsLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.History;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
-import com.github.jmchilton.blend4j.galaxy.beans.Library;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryPermissions;
-import com.github.jmchilton.blend4j.galaxy.beans.Role;
-import com.github.jmchilton.blend4j.galaxy.beans.User;
-import com.github.jmchilton.blend4j.galaxy.beans.Workflow;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
+import com.github.jmchilton.blend4j.galaxy.*;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import java.util.Map;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Map;
 
 public class Examples {
   public static void main(final String[] args) throws Exception {

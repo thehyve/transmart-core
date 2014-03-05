@@ -1,26 +1,15 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.github.jmchilton.blend4j.galaxy.beans.DirectoryLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.FilesystemPathsLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.History;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.InstallableRepositoryRevision;
-import com.github.jmchilton.blend4j.galaxy.beans.Library;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryPermissions;
-import com.github.jmchilton.blend4j.galaxy.beans.RepositoryInstall;
-import com.github.jmchilton.blend4j.galaxy.beans.Role;
-import com.github.jmchilton.blend4j.galaxy.beans.User;
+import com.github.jmchilton.blend4j.galaxy.*;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.github.jmchilton.blend4j.toolshed.ToolShedUtils;
 import com.github.jmchilton.blend4j.toolshed.beans.Repository;
 import com.sun.jersey.api.client.ClientResponse;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.UUID;
 
 public class IntegrationTest {
 

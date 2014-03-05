@@ -1,15 +1,12 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
-import com.github.jmchilton.blend4j.galaxy.beans.FileLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.FilesystemPathsLibraryUpload;
-import com.github.jmchilton.blend4j.galaxy.beans.Library;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryFolder;
-import com.github.jmchilton.blend4j.galaxy.beans.LibraryUpload;
+import com.github.jmchilton.blend4j.galaxy.LibrariesClient;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.sun.jersey.api.client.ClientResponse;
+import org.testng.annotations.Test;
+
 import java.io.File;
 import java.util.UUID;
-import org.testng.annotations.Test;
 
 public class LibrariesTest {
   @Test

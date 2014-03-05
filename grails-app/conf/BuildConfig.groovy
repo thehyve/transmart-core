@@ -43,7 +43,7 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.3") {
             export = false
         }
-        runtime ":transmart-core:1.0.1-SNAPSHOT"
+        runtime ":transmart-core:1.0.ic-SNAPSHOT"
     }
 
 

@@ -1,15 +1,17 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
 import com.github.jmchilton.blend4j.Config;
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory;
 import com.github.jmchilton.galaxybootstrap.BootStrapper;
 import com.github.jmchilton.galaxybootstrap.BootStrapper.GalaxyDaemon;
 import com.github.jmchilton.galaxybootstrap.DownloadProperties;
 import com.github.jmchilton.galaxybootstrap.GalaxyData;
 import com.github.jmchilton.galaxybootstrap.GalaxyProperties;
-
-import java.util.Properties;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
+
+import java.util.Properties;
 
 public class TestGalaxyInstance {
   private static Properties properties = Config.loadBlendProperties();

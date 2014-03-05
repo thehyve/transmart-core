@@ -1,27 +1,19 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
-import com.github.jmchilton.blend4j.galaxy.beans.History;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryContents;
-import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.Workflow;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowDetails;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputDefinition;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs;
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.WorkflowsClient;
+import com.github.jmchilton.blend4j.galaxy.beans.*;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.ExistingHistory;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.InputSourceType;
 import com.github.jmchilton.blend4j.galaxy.beans.WorkflowInputs.WorkflowInput;
-import com.github.jmchilton.blend4j.galaxy.beans.WorkflowOutputs;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import com.sun.jersey.api.client.ClientResponse;
-import java.io.File;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 public class WorkflowsTest {
   private static final String TEST_WORKFLOW_NAME = "TestWorkflow1";

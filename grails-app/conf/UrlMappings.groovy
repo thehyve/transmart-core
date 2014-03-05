@@ -9,5 +9,8 @@ class UrlMappings {
 
         "/"(view:"/index")
         "500"(view:'/error')
+        "/Testtoto/getHistory"(controller:"Testtoto", action:"getHistory")
+        "/RetrieveData/createDataLibrary"(controller:"RetrieveData", action:"createDataLibrary")
+        "/RetrieveData/seeDataContainedInLibrary"(controller:"RetrieveData", action:"seeDataContainedInLibrary")
 	}
 }

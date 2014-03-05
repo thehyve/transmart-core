@@ -1,10 +1,13 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.UsersClient;
 import com.github.jmchilton.blend4j.galaxy.beans.User;
 import com.github.jmchilton.blend4j.galaxy.beans.UserCreate;
-import java.util.UUID;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class UserTest {
   private GalaxyInstance instance;

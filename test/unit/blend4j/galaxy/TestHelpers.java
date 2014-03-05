@@ -1,11 +1,14 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.HistoriesClient;
+import com.github.jmchilton.blend4j.galaxy.ToolsClient;
 import com.github.jmchilton.blend4j.galaxy.beans.History;
 import com.github.jmchilton.blend4j.galaxy.beans.HistoryDetails;
 import com.github.jmchilton.blend4j.galaxy.beans.OutputDataset;
 import com.github.jmchilton.blend4j.galaxy.beans.ToolExecution;
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.client.ClientResponse;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

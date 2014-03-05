@@ -1,13 +1,16 @@
-package com.github.jmchilton.blend4j.galaxy;
+package blend4j.galaxy;
 
+import com.github.jmchilton.blend4j.galaxy.GalaxyInstance;
+import com.github.jmchilton.blend4j.galaxy.ToolShedRepositoriesClient;
 import com.github.jmchilton.blend4j.galaxy.beans.InstalledRepository;
 import com.github.jmchilton.blend4j.galaxy.beans.InstalledRepository.InstallationStatus;
 import com.github.jmchilton.blend4j.galaxy.beans.RepositoryInstall;
 import com.github.jmchilton.blend4j.galaxy.beans.RepositoryWorkflow;
 import com.github.jmchilton.blend4j.galaxy.beans.Workflow;
-import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 public class ToolShedRepositoriesTest {
   private GalaxyInstance instance;
