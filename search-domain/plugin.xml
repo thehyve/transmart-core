@@ -1,0 +1,38 @@
+<plugin name='search-domain' version='1.0-SNAPSHOT' grailsVersion='1.3.7 &gt; *'>
+  <author>David Newton</author>
+  <authorEmail>davinewton@deloitte.com</authorEmail>
+  <title>tranSMART SearchApp Domain Objects</title>
+  <description>\
+Domain objects for the tranSMART SearchApp schema
+</description>
+  <type>SearchDomainGrailsPlugin</type>
+  <resources>
+    <resource>com.recomdata.transmart.domain.searchapp.FormLayout</resource>
+    <resource>com.recomdata.transmart.domain.searchapp.Report</resource>
+    <resource>com.recomdata.transmart.domain.searchapp.ReportItem</resource>
+    <resource>com.recomdata.transmart.domain.searchapp.Subset</resource>
+    <resource>org.transmart.searchapp.AccessLog</resource>
+    <resource>org.transmart.searchapp.AuthUser</resource>
+    <resource>org.transmart.searchapp.AuthUserSecureAccess</resource>
+    <resource>org.transmart.searchapp.BioAnalysisAttributeLineage</resource>
+    <resource>org.transmart.searchapp.CustomFilter</resource>
+    <resource>org.transmart.searchapp.CustomFilterItem</resource>
+    <resource>org.transmart.searchapp.GeneSignature</resource>
+    <resource>org.transmart.searchapp.GeneSignatureFileSchema</resource>
+    <resource>org.transmart.searchapp.GeneSignatureItem</resource>
+    <resource>org.transmart.searchapp.Principal</resource>
+    <resource>org.transmart.searchapp.Requestmap</resource>
+    <resource>org.transmart.searchapp.Role</resource>
+    <resource>org.transmart.searchapp.SavedFacetedSearch</resource>
+    <resource>org.transmart.searchapp.SearchBioMarkerCorrelFastMV</resource>
+    <resource>org.transmart.searchapp.SearchKeyword</resource>
+    <resource>org.transmart.searchapp.SearchKeywordTerm</resource>
+    <resource>org.transmart.searchapp.SearchTaxonomy</resource>
+    <resource>org.transmart.searchapp.SearchTaxonomyRels</resource>
+    <resource>org.transmart.searchapp.SecureAccessLevel</resource>
+    <resource>org.transmart.searchapp.SecureObject</resource>
+    <resource>org.transmart.searchapp.SecureObjectAccess</resource>
+    <resource>org.transmart.searchapp.SecureObjectPath</resource>
+    <resource>org.transmart.searchapp.UserGroup</resource>
+  </resources>
+</plugin>

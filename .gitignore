@@ -19,13 +19,14 @@
 /stacktrace.log
 /test/reports
 /logs
-/*.log
+/*/*.log
 
 # project release file
 /*.war
 
 # plugin release file
 /*.zip
+/*.zip.sha1
 
 # older plugin install locations
 /plugins
@@ -33,8 +34,8 @@
 /web-app/WEB-INF/classes
 
 # "temporary" build files
-/eclipse-target
-/target
+/*/eclipse-target
+/*/target
 
 # other
 *.iws
