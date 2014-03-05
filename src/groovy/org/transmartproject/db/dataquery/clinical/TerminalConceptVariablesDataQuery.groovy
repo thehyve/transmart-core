@@ -8,11 +8,15 @@ import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.I2b2
 
 class TerminalConceptVariablesDataQuery {
 
@@ -184,6 +188,12 @@ class TerminalConceptVariablesDataQuery {
                     multiset.elementSet().findAll {
                             multiset.count(it) > 1
                     })
+        }
+
+        for (OntologyTerm ot in I2b2.findAllByDimensionCodeInList(clinicalVariables*.conceptCode)) {
+            clinicalVariables.find { cv ->
+                cv.conceptPath == ot.fullName
+            }.ontologyTerm = ot
         }
 
     }
