@@ -188,7 +188,7 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
 
         def additionalInfo = [:]
         additionalInfo['AC'] = altAlleleDistribution.values().join(',')
-        additionalInfo['AF'] = altAlleleFrequencies.values().collect { String.format('%.2f', it) }.join(',')
+        additionalInfo['AF'] = summary.additionalInfo['AF']
         additionalInfo['AN'] = total.toString()
         additionalInfo['VC'] = summary.additionalInfo['VC']
 
