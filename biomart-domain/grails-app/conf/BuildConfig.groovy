@@ -9,32 +9,22 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+	legacyResolve false
     repositories {
-        grailsPlugins()
-        grailsHome()
-        grailsCentral()
+             grailsCentral()
+        mavenCentral()
 
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-<<<<<<< HEAD
-
-        // runtime 'mysql:mysql-connector-java:5.1.13'
-    }
-=======
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
         compile(':transmart-java:1.0-SNAPSHOT')
+		build(":release:2.2.1",
+			":rest-client-builder:1.0.3") {
+		export = false
+	}
     }
 
->>>>>>> hackathon1/master
 }

@@ -6,12 +6,6 @@
 Java backend for tranSMART
 </description>
   <documentation>http://grails.org/plugin/transmart-java</documentation>
-  <resources>
-    <resource>BuildConfig</resource>
-    <resource>Config</resource>
-    <resource>DataSource</resource>
-    <resource>UrlMappings</resource>
-  </resources>
-  <dependencies />
-  <behavior />
+  <type>TransmartJavaGrailsPlugin</type>
+  <resources />
 </plugin>
