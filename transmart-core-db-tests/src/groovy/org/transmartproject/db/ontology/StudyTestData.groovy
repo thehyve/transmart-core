@@ -19,18 +19,18 @@ class StudyTestData {
 
     List<I2b2> i2b2List = {
         [
-                createI2b2(level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1'),
-                createI2b2(level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1'),
+                createI2b2(code: 1, level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1', cVisualattributes: 'FA'),
+                createI2b2(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1', cVisualattributes: 'LA'),
 
-                createI2b2(level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2'),
-                createI2b2(level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2'),
+                createI2b2(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2', cVisualattributes: 'FA'),
+                createI2b2(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA'),
         ]
     }()
 
     List<ConceptDimension> concepts = i2b2List.collect { I2b2 i2b2 ->
         new ConceptDimension(
                 conceptPath: i2b2.fullName,
-                conceptCode: i2b2.name /* this is arbitrary, doesn't have to the i2b2.name */
+                conceptCode: i2b2.code
         )
     }
 
@@ -86,6 +86,7 @@ class StudyTestData {
 
         save([tableAccess])
         save i2b2List
+        save concepts
         save facts
     }
 
