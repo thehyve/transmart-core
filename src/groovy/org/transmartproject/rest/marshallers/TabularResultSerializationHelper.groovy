@@ -7,7 +7,7 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 
 class TabularResultSerializationHelper implements HalOrJsonSerializationHelper<TabularResult<TerminalConceptVariable, PatientRow>> {
 
-    final Class targetType = ObservationFact
+    final Class targetType = TabularResult
 
     final String collectionName = 'observations'
 
@@ -18,12 +18,20 @@ class TabularResultSerializationHelper implements HalOrJsonSerializationHelper<T
 
     @Override
     Map<String, Object> convertToMap(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
-        [conceptCode: observationFact.conceptCode,
-                valueType: observationFact.valueType,
-                numberValue: observationFact.numberValue,
-                textValue: observationFact.textValue,
-                valueFlag: observationFact.valueFlag,
-                sourcesystemCd: observationFact.sourcesystemCd]
+        def observations = []
+
+        def concepts = tabularResult.getIndicesList()
+        tabularResult.getRows().each { row ->
+            concepts.each {concept ->
+                def value = row.getAt(concept)
+                observations << new ObservationWrapper(
+                        patientId: row.patient.id,
+                        conceptCode: concept.conceptCode,
+                        value: value
+                )
+            }
+        }
+        [observations: observations]
     }
 
     @Override

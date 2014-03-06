@@ -1,15 +1,17 @@
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.ontology.ConceptsResourceService
 
 class ObservationController {
 
@@ -17,16 +19,16 @@ class ObservationController {
 
     ClinicalDataResource clinicalDataResourceService
     StudyLoadingService studyLoadingServiceProxy
-    PatientsResource    patientsResourceService
+    PatientsResource patientsResourceService
+    ConceptsResourceService conceptsResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of observations for study XXX
      */
     def index() {
         def study = studyLoadingServiceProxy.study
-
         TabularResult<TerminalConceptVariable, PatientRow> observations =
-            clinicalDataResourceService.retrieveData() //TODO
+                clinicalDataResourceService.retrieveData(study, null, null)
         respond observations
     }
 
@@ -34,33 +36,37 @@ class ObservationController {
      *  This will return the list of observations for study XXX and concept YYY
      */
     def indexByConcept() {
-        //TODO
-        render "todo" as JSON
+        TabularResult<TerminalConceptVariable, PatientRow> observations =
+                clinicalDataResourceService.retrieveData(study, null, [concept])
+        respond observations
     }
 
     /** GET request on /studies/XXX/subjects/YYY/observations/
      *  This will return the list of observations for study XXX and subject YYY
      */
     def indexBySubject() {
-        // Retrieve study
-        def study = studyLoadingServiceProxy.study
+        TabularResult<TerminalConceptVariable, PatientRow> observations =
+                clinicalDataResourceService.retrieveData(study, [patient], null)
+        respond observations
+    }
 
-        // Retrieve subject
+    Study getStudy() { studyLoadingServiceProxy.study }
+
+    OntologyTerm getConcept() {
+        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
+        Long conceptId = Long.parseLong(webRequest.params.get('conceptId'))
+        if (!conceptId) {
+            throw new InvalidArgumentsException('Could not find a concept id')
+        }
+        conceptsResourceService.getByKey(conceptId)
+    }
+
+    Patient getPatient() {
         GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
         Long subjectId = Long.parseLong(webRequest.params.get('subjectId'))
         if (!subjectId) {
             throw new InvalidArgumentsException('Could not find a study id')
         }
-        def subject = patientsResourceService.getPatientById(subjectId)
-
-        //TODO: check whether subject actually belongs to the study
-
-        // Retrieve observations
-        def observations = ObservationFact.withCriteria {
-            like 'sourcesystemCd', "${study.name}%"
-            eq 'patient', subject
-        }
-        respond observations
+        patientsResourceService.getPatientById(subjectId)
     }
-
 }
