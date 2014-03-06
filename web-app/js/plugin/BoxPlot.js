@@ -60,8 +60,8 @@ BoxPlotView.prototype.get_form_params = function (form) {
     var dependentVariableEle = Ext.get("divDependentVariable");
     var independentVariableEle = Ext.get("divIndependentVariable");
 
-    var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype")
-    var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
+    var dependentNodeList = createNodeTypeArrayFromDiv(dependentVariableEle,"setnodetype");
+    var independentNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype");
 
     //If the user dragged in multiple node types, throw an error.
     if (dependentNodeList.length > 1) {
@@ -87,10 +87,11 @@ BoxPlotView.prototype.get_form_params = function (form) {
     var dependentVariableConceptCode = "";
     var independentVariableConceptCode = "";
 
-    //If we have multiple items in the Dependent variable box, or if we are binning on it, then we have to flip the graph image.
     var flipImage = false;
 
-    if ((dependentVariableEle.dom.childNodes.length > 1) || (GLOBAL.Binning && document.getElementById("selBinVariableSelection").value == "DEP")) {
+    // Flip if dependent variable is categorical
+    if (_isCategorical(dependentNodeList) ||
+        (GLOBAL.Binning && document.getElementById("selBinVariableSelection").value == "DEP")) {
         flipImage = true;
     }
 
