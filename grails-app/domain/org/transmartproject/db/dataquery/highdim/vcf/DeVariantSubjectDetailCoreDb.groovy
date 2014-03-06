@@ -95,7 +95,7 @@ class DeVariantSubjectDetailCoreDb implements VcfValues, Serializable {
     @Override
     Double getQualityOfDepth() {
         if (!getAdditionalInfo()['QD'] || !additionalInfo['QD'].isNumber()) {
-            return null
+            return  quality as double;
         }
         Double.valueOf(additionalInfo['QD'])
     }
