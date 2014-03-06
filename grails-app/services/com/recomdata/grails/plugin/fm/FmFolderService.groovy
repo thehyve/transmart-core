@@ -20,7 +20,7 @@
 package com.recomdata.grails.plugin.fm
 
 //import annotation.*
-import bio.BioData
+import org.transmart.biomart.BioData
 import com.recomdata.util.FolderType
 import grails.validation.ValidationException
 import org.apache.commons.io.FileUtils

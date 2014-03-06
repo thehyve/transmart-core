@@ -23,11 +23,11 @@ package com.recomdata.grails.plugin.fm
 //import annotation.AmTagTemplate
 //import annotation.AmTagTemplateAssociation
 
-import bio.BioAssayAnalysis
-import bio.BioAssayAnalysisData
-import bio.BioDataExternalCode
-import bio.ConceptCode
-import bio.Experiment
+import org.transmart.biomart.BioAssayAnalysis
+import org.transmart.biomart.BioAssayAnalysisData
+import org.transmart.biomart.BioDataExternalCode
+import org.transmart.biomart.ConceptCode
+import org.transmart.biomart.Experiment
 import com.recomdata.export.ExportColumn
 import com.recomdata.export.ExportRowNew
 import com.recomdata.export.ExportTableNew
@@ -37,8 +37,8 @@ import grails.converters.XML
 import grails.validation.ValidationException
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.lang.StringUtils
-import search.SearchKeyword
-import search.AuthUser
+import org.transmart.searchapp.SearchKeyword
+import org.transmart.searchapp.AuthUser
 
 class FmFolderController {
 
@@ -547,22 +547,22 @@ class FmFolderController {
 
     def addProgram = {
         def p = new FmFolder(params['fmFolder'])
-        addFolder(FolderType.PROGRAM.name(), p, null)
+        addFolderExec(FolderType.PROGRAM.name(), p, null)
     }
 
     def addStudy = {
         def p = new FmFolder(params['fmFolder'])
-        addFolder(FolderType.STUDY.name(), p, params['parentId'])
+        addFolderExec(FolderType.STUDY.name(), p, params['parentId'])
     }
 
     def addFolder = {
         def p = new FmFolder(params['fmFolder'])
-        addFolder(FolderType.STUDY.name(), p, params['parentId'])
+        addFolderExec(FolderType.STUDY.name(), p, params['parentId'])
     }
 
     def addAnalysis = {
         def p = new FmFolder(params['fmFolder'])
-        addFolder(FolderType.ANALYSIS.name(), p, params['parentId'])
+        addFolderExec(FolderType.ANALYSIS.name(), p, params['parentId'])
     }
 
     def addFile = {
@@ -588,7 +588,7 @@ class FmFolderController {
         }
 
 
-        addFolder(FolderType.STUDY.name(), p, params['parentId'])
+        addFolderExec(FolderType.STUDY.name(), p, params['parentId'])
     }
 
     def getFolderContents = {
@@ -627,8 +627,7 @@ class FmFolderController {
         }
 
     }
-
-    private void addFolder(String folderType, FmFolder folder, long parentId)
+    private void addFolderExec(String folderType, FmFolder folder, long parentId)
     {
         folder.folderType = folderType
 

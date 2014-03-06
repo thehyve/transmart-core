@@ -20,7 +20,7 @@
 
 package com.recomdata.grails.plugin.fm
 
-import bio.Experiment
+import org.transmart.biomart.Experiment
 import com.recomdata.grails.plugin.fm.FmFile
 
 import java.util.zip.ZipEntry;

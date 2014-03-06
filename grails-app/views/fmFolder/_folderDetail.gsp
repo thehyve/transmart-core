@@ -32,8 +32,8 @@
 
 <g:set var="overlayDiv" value="metaData_div" />
 <%! import annotation.* %> 
-<%! import bio.BioData %> 
-<%! import bio.ConceptCode %> 
+<%! import org.transmart.biomart.BioData %> 
+<%! import org.transmart.biomart.ConceptCode %> 
 <%! import com.recomdata.util.* %>
 <%! import org.apache.commons.lang.StringUtils %> 
 
