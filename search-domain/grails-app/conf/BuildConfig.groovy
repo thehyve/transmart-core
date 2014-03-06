@@ -2,6 +2,12 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+
+grails.plugin.location.'transmart-java' = '/Users/weymouth/home/working/TranSmart/github/Transmart/transmart-extensions/transmart-java'
+
+grails.plugin.location.'biomart-domain' = '/Users/weymouth/home/working/TranSmart/github/Transmart/transmart-extensions/biomart-domain'
+
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
