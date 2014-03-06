@@ -15,6 +15,9 @@
 *Db.properties
 *Db.script
 
+# grails generate files
+*/plugin.xml
+
 # logs
 */stacktrace.log
 */test/reports
@@ -44,4 +47,5 @@
 /biomart-domain/target
 
 # other
+*/System.out
 */*.iws
