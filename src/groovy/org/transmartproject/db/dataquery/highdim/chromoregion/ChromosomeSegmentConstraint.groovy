@@ -24,7 +24,7 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
         criteria.with {
             and {
                 if (chromosome) {
-                    eq regionPrefix+regionChromosomeColumn, chromosome
+                    eq regionPrefix + regionChromosomeColumn, chromosome
                 }
 
                 if (start  != null && end != null) {
@@ -32,8 +32,8 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
                         between regionPrefix+regionStartColumn, start, end
                         between regionPrefix+regionEndColumn,   start, end
                         and {
-                            le regionPrefix+regionStartColumn, start
-                            ge regionPrefix+regionEndColumn,   end
+                            le regionPrefix + regionStartColumn, start
+                            ge regionPrefix + regionEndColumn,   end
                         }
                     }
                 }
