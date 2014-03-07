@@ -1,12 +1,12 @@
 var RmodulesView = function () {
     this.droppable_divs = {
         "categorical": ["divGroupByVariable", "divDependentVariable", "divIndependentVariable", "divCategoryVariable", "divCensoringVariable"],
-        "numerical": ["divTimeVariable", "divVariables"]
+        "numerical": ["divTimeVariable", "divVariables", "divDataNode"]
     };
     this.independent_hidden_divs = ["independentVarDataType", "independentPathway"]
     this.dependent_hidden_divs = ["dependentVarDataType", "dependentPathway"];
     this.group_hidden_divs =["groupByVarDataType", "groupByPathway"]
-}
+};
 
 RmodulesView.prototype.clear_high_dimensional_input = function (div) {
     //Clear the drag and drop div.
@@ -25,7 +25,7 @@ RmodulesView.prototype.clear_high_dimensional_input = function (div) {
                 document.getElementById(divArr[i]).value = "";
             }
         }
-    }
+    };
 
     if (div == 'divDependentVariable' || div == 'divCategoryVariable') {
         _cleanHiddenDivs(this.dependent_hidden_divs);
@@ -56,14 +56,14 @@ RmodulesView.prototype.register_drag_drop = function () {
                 }
             }
         }
-    }
+    };
 
     for (var key in this.droppable_divs) {
         if (this.droppable_divs.hasOwnProperty(key)) {
             _register_drop_zone(this.droppable_divs[key]);
         }
     }
-}
+};
 
 RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
 
@@ -76,7 +76,7 @@ RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
     constraints['dataConstraints']['homologenes'] = null;
 
     return constraints;
-}
+};
 
 RmodulesView.prototype.read_concept_variables = function () {
 
@@ -125,7 +125,7 @@ RmodulesView.prototype.read_concept_variables = function () {
     }
 
     return _ontology_terms;
-}
+};
 
 
 RmodulesView.prototype.get_parameters_for_mirna = function (constraints) {
@@ -135,7 +135,7 @@ RmodulesView.prototype.get_parameters_for_mirna = function (constraints) {
     constraints['dataConstraints']['mirna'] = null;
 
     return constraints;
-}
+};
 
 RmodulesView.prototype.get_parameters_for_rbm = function (constraints) {
 
@@ -145,7 +145,7 @@ RmodulesView.prototype.get_parameters_for_rbm = function (constraints) {
     constraints['dataConstraints']['proteins'] = null;
 
     return constraints;
-}
+};
 
 RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 
@@ -173,7 +173,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
             },
             "projections": ["zscore_projection"]
         }
-    }
+    };
     _returnVal = _get_constraints_obj();
 
     // do not create search_keyword_ids param if  pathway / gene is not selected
@@ -189,7 +189,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
         'RBM': this.get_parameters_for_rbm,
         'PROTEOMICS': this.get_parameters_for_rbm,
         'RNASEQ': this.get_parameters_for_mrna
-    }
+    };
 
     if (cases[_data_type]) {
         _returnVal = cases[_data_type](_returnVal);
@@ -197,9 +197,9 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
 
     return _returnVal;
 
-}
+};
 
 RmodulesView.prototype.drop_onto_bin = function (source, e, data) {
     this.el.appendChild(data.ddel);
     return true;
-}
+};
