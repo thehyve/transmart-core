@@ -29,7 +29,12 @@ class ObservationController {
         def study = studyLoadingServiceProxy.study
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, null, null)
-        respond observations
+        try {
+            respond observations
+        } finally {
+            observations.close()
+        }
+
     }
 
     /** GET request on /studies/XXX/concepts/YYY/observations/
