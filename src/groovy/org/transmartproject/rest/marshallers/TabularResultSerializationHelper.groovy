@@ -25,8 +25,8 @@ class TabularResultSerializationHelper implements HalOrJsonSerializationHelper<T
             concepts.each {concept ->
                 def value = row.getAt(concept)
                 observations << new ObservationWrapper(
-                        patientId: row.patient.id,
-                        conceptCode: concept.conceptCode,
+                        subject: row.patient,
+                        concept: concept,
                         value: value
                 )
             }

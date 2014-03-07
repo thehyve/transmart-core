@@ -1,8 +1,11 @@
 package org.transmartproject.rest.marshallers
 
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
+
 class ObservationWrapper {
     def value
-    Long patientId
-    String conceptCode
+    Patient subject
+    TerminalConceptVariable concept
 }
 

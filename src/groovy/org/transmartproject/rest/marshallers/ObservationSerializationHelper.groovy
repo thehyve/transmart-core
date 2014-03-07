@@ -11,20 +11,15 @@ class ObservationSerializationHelper implements HalOrJsonSerializationHelper<Obs
     @Override
     Map<String, Object> convertToMap(ObservationWrapper observation) {
         [
-                patientId: observation.patientId,
-                conceptCode: observation.conceptCode,
+                subject: observation.subject,
+                concept: observation.concept,
                 value: observation.value,
         ]
     }
 
     @Override
     Set<String> getEmbeddedEntities(ObservationWrapper observation) {
-        return null
-    }
-
-    @Override
-    String getCollectionName() {
-        return null
+        [] as Set
     }
 
     @Override
