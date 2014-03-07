@@ -41,13 +41,9 @@ class DeVariantSubjectSummaryCoreDb {
                 column name: 'pos'
             }
         }
-
-
-
     }
 
     static foreigners = [
-            jDetail : [chr : "chr",
-                    pos: "pos" ]
+            jDetail : [chr : "chr", pos: "pos" ]
     ]
 }
