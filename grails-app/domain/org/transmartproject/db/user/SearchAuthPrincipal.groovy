@@ -7,13 +7,12 @@ class SearchAuthPrincipal {
     String  name
     String  uniqueId
     Boolean enabled
-    Date    dateCreated
-    Date    lastUpdated
 
     static mapping = {
         table   schema:    'searchapp'
 		id      generator: 'assigned'
 
+        autoTimestamp true
 		version false
 	}
 
