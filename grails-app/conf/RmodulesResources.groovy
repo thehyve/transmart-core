@@ -44,4 +44,7 @@ modules = {
     correlation_analysis {
         resource url:"/js/plugin/CorrelationAnalysis.js"
     }
+    waterfall {
+        resource url:"/js/plugin/Waterfall.js"
+    }
 }
