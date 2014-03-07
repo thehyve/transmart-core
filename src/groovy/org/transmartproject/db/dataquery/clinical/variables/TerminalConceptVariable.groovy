@@ -19,8 +19,7 @@ class TerminalConceptVariable implements ClinicalVariableColumn {
     /* when created, only one needs to be filled, but then a postprocessing
      * step must fill the other */
     String conceptCode,
-           conceptPath,
-           ontologyTerm
+           conceptPath
 
     Object getVariableValue(Object[] row) {
         String valueType = row[VALUE_TYPE_COLUMN_INDEX]
