@@ -26,9 +26,10 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        retrieveData(fetchPatients(queryResults), variables)
+        retrieveDataForPatients(fetchPatients(queryResults), variables)
     }
 
+    @Override
     ClinicalDataTabularResult retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms) {
         def ontologyTermsToUse = ontologyTerms ?: [ study.ontologyTerm ]
         def descendants = (ontologyTermsToUse*.allDescendants).flatten()
@@ -40,10 +41,10 @@ class ClinicalDataResourceService implements ClinicalDataResource {
                             ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
                 }
 
-        retrieveDataNew(patients ?: study.getPatients(), clinicalVariables)
+        retrieveDataForPatients(patients ?: study.getPatients(), clinicalVariables)
     }
 
-    ClinicalDataTabularResult retrieveDataNew(Collection<Patient> patientCollection, List<ClinicalVariable> variables) {
+    ClinicalDataTabularResult retrieveDataForPatients(Collection<Patient> patientCollection, List<ClinicalVariable> variables) {
 
         def session = sessionFactory.openStatelessSession()
 
