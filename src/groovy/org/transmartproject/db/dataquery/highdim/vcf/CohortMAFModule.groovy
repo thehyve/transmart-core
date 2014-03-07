@@ -42,15 +42,6 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
     VcfPositionConstraintFactory vcfPositionConstraintFactory
 
     @Override
-    HighDimensionDataTypeResource createHighDimensionResource(Map params) {
-
-
-        /* return instead subclass of HighDimensionDataTypeResourceImpl,
-         * because we add a method, retrieveChromosomalSegments() */
-        new HighDimensionDataTypeResourceImpl(this)
-    }
-
-    @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
         [ standardAssayConstraintFactory ]
     }
