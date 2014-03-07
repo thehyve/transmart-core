@@ -21,6 +21,8 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
 
 class ClinicalDataResourceService implements ClinicalDataResource {
 
+    static transactional = false
+
     def sessionFactory
 
     @Override
