@@ -75,6 +75,7 @@ class RModulesController {
      */
     def scheduleJob = {
         def jsonResult
+
         if (jobResultsService[params.jobName] == null) {
             throw new IllegalStateException('Cannot schedule job; it has not been created')
         }
@@ -109,6 +110,9 @@ class RModulesController {
                 break
             case 'lineGraph':
                 jsonResult = createJob(params, LineGraph, false)
+                break
+            case 'correlationAnalysis':
+                jsonResult = createJob(params, CorrelationAnalysis, false)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(
