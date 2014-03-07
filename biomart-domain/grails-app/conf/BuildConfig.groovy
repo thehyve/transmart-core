@@ -11,9 +11,9 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
 	legacyResolve false
     repositories {
-             grailsCentral()
+        grailsCentral()
         mavenCentral()
-
+        mavenLocal() // Note: use 'grails maven-install' to install required plugins locally
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.

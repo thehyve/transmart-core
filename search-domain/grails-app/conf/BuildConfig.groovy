@@ -14,6 +14,7 @@ grails.project.dependency.resolution = {
     repositories {
          grailsCentral()
         mavenCentral()
+        mavenLocal() // Note: use 'grails maven-install' to install required plugins locally
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
