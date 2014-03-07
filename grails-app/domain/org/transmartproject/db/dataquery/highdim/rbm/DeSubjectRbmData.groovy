@@ -5,6 +5,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 class DeSubjectRbmData {
 
     BigDecimal value
+    BigDecimal logIntensity
     BigDecimal zscore
 
     static hasMany = [annotations: DeRbmAnnotation]
@@ -29,5 +30,6 @@ class DeSubjectRbmData {
         assay nullable: true
         value nullable: true, scale: 17
         zscore nullable: true, scale: 17
+        logIntensity nullable: true, scale: 17
     }
 }

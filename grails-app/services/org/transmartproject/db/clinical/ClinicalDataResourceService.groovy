@@ -1,5 +1,7 @@
 package org.transmartproject.db.clinical
 
+import com.google.common.collect.HashMultiset
+import com.google.common.collect.Multiset
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable

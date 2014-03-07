@@ -23,11 +23,11 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'protein'
 
-    final String description = "Protein data"
+    final String description = "Proteomics data (Mass Spec)"
 
     final List<String> platformMarkerTypes = ['PROTEOMICS']
 
-    private final Set<String> dataProperties = ImmutableSet.of('intensity', 'zscore')
+    private final Set<String> dataProperties = ImmutableSet.of('intensity', 'logIntensity', 'zscore')
 
     private final Set<String> rowProperties = ImmutableSet.of('uniprotName', 'peptide')
 
@@ -58,8 +58,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
         [ new SimpleRealProjectionsFactory(
-                (Projection.DEFAULT_REAL_PROJECTION): 'intensity',
-                (Projection.ZSCORE_PROJECTION):       'zscore'),
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
+                (Projection.DEFAULT_REAL_PROJECTION):  'intensity',
+                (Projection.ZSCORE_PROJECTION):        'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]
     }
 

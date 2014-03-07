@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
+import java.sql.Connection
 import java.sql.DatabaseMetaData
 
 /**
@@ -148,7 +149,13 @@ class DatabasePortabilityService {
 
     @PostConstruct
     void init() {
-        DatabaseMetaData metaData = dataSource.connection.metaData
+        Connection connection = dataSource.getConnection()
+        DatabaseMetaData metaData
+        try {
+            metaData = connection.metaData
+        } finally {
+            connection.close()
+        }
         def databaseName = metaData.databaseProductName.toLowerCase()
 
         switch (databaseName) {

@@ -12,6 +12,8 @@ abstract class SuperTypePropertiesMarshallerSupport {
                     "$superType")
         }
 
-        o.properties.subMap(superType.metaClass.properties*.name)
+        superType.metaClass.properties.collectEntries { MetaBeanProperty prop ->
+            [prop.name, prop.getProperty(o)]
+        }
     }
 }

@@ -16,7 +16,7 @@ class BioAssayFeatureGroupCoreDb implements Serializable {
         name column: 'feature_group_name'
         type column: 'feature_group_type'
 
-        markers joinTable: [ name: 'biomart.bio_assay_data_annotation', key: 'bio_assay_feature_group_id' ]
+        markers joinTable: [ name: 'bio_assay_data_annotation', key: 'bio_assay_feature_group_id' ]
 
         version false
     }

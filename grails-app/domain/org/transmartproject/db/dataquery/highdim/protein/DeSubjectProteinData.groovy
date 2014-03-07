@@ -1,11 +1,14 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
+@EqualsAndHashCode(includes = 'assay,annotation')
 class DeSubjectProteinData implements Serializable {
 
     BigDecimal intensity
     BigDecimal zscore
+    BigDecimal logIntensity
 
     // irrelevant...
     //String     trialName
@@ -42,8 +45,9 @@ class DeSubjectProteinData implements Serializable {
     }
 
     static constraints = {
-        intensity nullable: true, scale: 4
-        zscore    nullable: true, scale: 4
+        intensity    nullable: true, scale: 4
+        zscore       nullable: true, scale: 4
+        logIntensity nullable: true, scale: 4
 
         // irrelevant:
         //trialName       nullable: true, maxSize: 15
@@ -57,6 +61,5 @@ class DeSubjectProteinData implements Serializable {
         //meanIntensity   nullable: true
         //stddevIntensity nullable: true
         //medianIntensity nullable: true
-        //logIntensity    nullable: true
     }
 }

@@ -61,6 +61,15 @@ A runtime dependency for tranSMART that implements the Core API
                     type:       'annotation',
                     expression: Component.canonicalName)
         }
+
+        // Config
+        def config = application.config
+        if (!config.org.transmartproject.i2b2.user_id) {
+            config.org.transmartproject.i2b2.user_id = 'i2b2'
+        }
+        if (!config.org.transmartproject.i2b2.group_id) {
+            config.org.transmartproject.i2b2.group_id = 'Demo'
+        }
     }
 
     def doWithDynamicMethods = { ctx ->
