@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.StudiesResource
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.StudyLoadingService
 
 import javax.annotation.Resource
@@ -23,6 +24,8 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
 
     final String collectionName = 'ontology_terms'
 
+    static final String ROOT = 'ROOT'
+
     @Override
     Collection<Link> getLinks(OntologyTerm term) {
         /* this gets tricky. We may be rendering this as part of the /studies response */
@@ -37,7 +40,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
         }
         studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
-        def pathPart = term.key - studyTerm.key ?: 'ROOT'
+        def pathPart = term.key - studyTerm.key ?: ROOT
         pathPart = pathToId(pathPart).encodeAsURL()
 
         // TODO add other relationships (children, parent, ...)
@@ -47,9 +50,9 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     @Override
     Map<String, Object> convertToMap(OntologyTerm term) {
         [
-            name:     term.name,
-            key:      term.key,
-            fullName: term.fullName,
+                name:     term.name,
+                key:      term.key,
+                fullName: term.fullName,
         ]
     }
 
@@ -76,7 +79,11 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
      * @return converts a concept id to a path, where '/' is replaced with '\'
      */
     static String idToPath(String id) {
-        id.replace("/", "\\")
+        if (id == ROOT) {
+            return ''
+        } else {
+            return id.replace("/", "\\")
+        }
     }
 
 }

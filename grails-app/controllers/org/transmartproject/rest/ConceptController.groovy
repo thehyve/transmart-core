@@ -30,9 +30,7 @@ class ConceptController {
      *  @param id The id for which to return study information.
      */
     def show(String id) {
-        String studyKey = studyLoadingServiceProxy.study.ontologyTerm.key
-        String key = studyKey + OntologyTermSerializationHelper.idToPath(id)
-
+        String key = studyLoadingServiceProxy.study.ontologyTerm.key + OntologyTermSerializationHelper.idToPath(id)
         respond conceptsResourceService.getByKey(key)
     }
 

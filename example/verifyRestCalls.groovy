@@ -66,6 +66,26 @@ testCall(conceptBarUrl, jsonType, fooConceptJsonVerifier)
 
 testCall(conceptBarUrl, halType, fooConceptHalVerifier)
 
+def studyRootConceptUrl = '/studies/study1/concepts/ROOT'
+testCall(studyRootConceptUrl, jsonType,
+        { json ->
+            assert json.size() == 3
+            assert json.name == 'study1'
+            assert json.fullName == '\\foo\\study1\\'
+            assert json.key == '\\\\i2b2 main\\foo\\study1\\'
+
+        }
+)
+
+testCall(studyRootConceptUrl, halType,
+        { json ->
+            assert json.size() == 4
+            assert json.name == 'study1'
+            assert json._links?.self?.href == studyRootConceptUrl
+            assert json.fullName == '\\foo\\study1\\'
+            assert json.key == '\\\\i2b2 main\\foo\\study1\\'
+        }
+)
 
 //does the rest call and calls the verifier
 def testCall(String path, String contentType, Closure verifier) {

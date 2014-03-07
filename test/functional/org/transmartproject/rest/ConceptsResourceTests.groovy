@@ -21,6 +21,10 @@ class ConceptsResourceTests extends ResourceTestCase {
         "${baseURL}studies/${studyId}/concepts/${conceptId}"
     }
 
+    def getRootConceptUrl() {
+        "${baseURL}studies/${studyId}/concepts/ROOT"
+    }
+
     void testIndexAsJson() {
         def result = getAsJson getConceptListUrl()
         assertStatus 200
@@ -67,24 +71,44 @@ class ConceptsResourceTests extends ResourceTestCase {
         assertThat result, conceptHalMatcher()
     }
 
-    def conceptJsonMatcher() {
+    void testShowRootConceptAsJson() {
+        def result = getAsJson getRootConceptUrl()
+        assertStatus 200
+        assertThat result, conceptJsonMatcher('\\\\i2b2 main\\foo\\study1\\', 'study1', '\\foo\\study1\\')
+    }
+
+    void testShowRootConceptAsHal() {
+        def result = getAsHal getRootConceptUrl()
+        assertStatus 200
+        assertThat result, conceptJsonMatcher('\\\\i2b2 main\\foo\\study1\\', 'study1', '\\foo\\study1\\')
+    }
+
+    def conceptJsonMatcher(String key, String name, String fullName) {
         allOf(
-                hasEntry('name', conceptName),
-                hasEntry('fullName', conceptFullname),
-                hasEntry('key', conceptKey),
+                hasEntry('name', name),
+                hasEntry('fullName', fullName),
+                hasEntry('key', key),
         )
     }
 
+    def conceptJsonMatcher() {
+        conceptJsonMatcher(conceptKey, conceptName, conceptFullname)
+    }
+
     def conceptHalMatcher() {
+        conceptHalMatcher(conceptKey, conceptName, conceptFullname, '/studies/study1/concepts/bar')
+    }
+
+    def conceptHalMatcher(String key, String name, String fullName, String selfLink) {
         allOf(
-                hasEntry('name', conceptName),
-                hasEntry('fullName', conceptFullname),
-                hasEntry('key', conceptKey),
+                hasEntry('name', name),
+                hasEntry('fullName', fullName),
+                hasEntry('key', key),
                 hasEntry(
                         is('_links'),
                         hasEntry(
                                 is('self'),
-                                hasEntry('href', '/studies/study1/concepts/bar')
+                                hasEntry('href', selfLink)
                         )
                 )
         )
