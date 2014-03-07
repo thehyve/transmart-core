@@ -53,11 +53,13 @@ class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFac
                     'makes the end parameter be required and vice-versa')
         }
 
-        def chr = new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end)
-        chr.regionPrefix = regionPrefix
-        chr.regionChromosomeColumn = segmentChromosomeColumn
-        chr.regionStartColumn = segmentStartColumn
-        chr.regionEndColumn = segmentEndColumn
+        def chr = new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end).with({
+            regionPrefix = regionPrefix
+            regionChromosomeColumn = segmentChromosomeColumn
+            regionStartColumn = segmentStartColumn
+            regionEndColumn = segmentEndColumn
+            it
+        })
         return chr
     }
 

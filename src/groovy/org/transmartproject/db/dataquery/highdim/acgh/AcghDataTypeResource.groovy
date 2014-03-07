@@ -16,18 +16,6 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
  */
 @InheritConstructors
 class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
-    @Override
-    DataConstraint createDataConstraint(Map<String, Object> params, String name) throws UnsupportedByDataTypeException {
-        def ret = super.createDataConstraint(params, name)
-        if (ret instanceof ChromosomeSegmentConstraint) {
-            (ret as ChromosomeSegmentConstraint).regionPrefix='region.'
-            (ret as ChromosomeSegmentConstraint).regionStartColumn='start'
-            (ret as ChromosomeSegmentConstraint).regionEndColumn='end'
-            (ret as ChromosomeSegmentConstraint).regionChromosomeColumn='chromosome'
-        }
-        return ret;
-    }
-
     List<ChromosomalSegment> retrieveChromosomalSegments(
             List<AssayConstraint> assayConstraints) {
 
