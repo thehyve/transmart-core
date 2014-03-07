@@ -27,7 +27,7 @@ class DeVariantSubjectDetailCoreDb implements VcfValues, Serializable {
     static belongsTo = [dataset: DeVariantDatasetCoreDb,
             assay:  DeSubjectSampleMapping]          //TODO: implement constraint on dataset
 
-    static transients = ['additionalInfo', 'alternativeAlleles']
+    static transients = ['additionalInfo', 'alternativeAlleles', 'chromosome', 'position', 'mafAllele', 'maf', 'referenceAllele', 'qualityOfDepth', 'genomicVariantTypes', ]
 
     static constraints = {
         alt(nullable: true)
