@@ -9,19 +9,17 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+	legacyResolve false
     repositories {
-        grailsPlugins()
-        grailsHome()
+      //  grailsPlugins()
+       // grailsHome()
         grailsCentral()
+		mavenCentral()
+		mavenRepo([
+			name: 'repo.transmartfoundation.org-public',
+			root: 'https://repo.transmartfoundation.org/content/repositories/public/'
+	])
 
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -29,11 +27,19 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        compile(':biomart-domain:1.0-SNAPSHOT')
-        compile(':transmart-java:1.0-SNAPSHOT')
-        compile(':search-domain:1.0-SNAPSHOT')
-        compile(':spring-security-core:1.1.2')
-        compile(':quartz:0.4.2')
+		compile ":resources:1.2.RC2"
+		compile(':transmart-java:1.0-SNAPSHOT')
+		compile(':biomart-domain:1.0-SNAPSHOT')
+		compile(':search-domain:1.0-SNAPSHOT')
+		compile (':transmart-legacy-db:0.3-SNAPSHOT')
+		compile (':spring-security-core:2.0-RC2')
+		compile (':quartz:1.0-RC2')
         compile(':mail:1.0')
+		build(":release:2.2.1",
+			":rest-client-builder:1.0.3"
+			) {
+		  export = false
+	  }
+
     }
 }
