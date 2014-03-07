@@ -59,11 +59,18 @@ class ObservationController {
 
     OntologyTerm getConcept() {
         GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
-        Long conceptId = Long.parseLong(webRequest.params.get('conceptId'))
+        String conceptId = webRequest.params.get('conceptId')
         if (!conceptId) {
             throw new InvalidArgumentsException('Could not find a concept id')
         }
-        conceptsResourceService.getByKey(conceptId)
+        String studyKey = studyLoadingServiceProxy.study.ontologyTerm.key
+
+        conceptsResourceService.getByKey(studyKey + getConceptPath(conceptId))
+    }
+
+    //TODO Move this method to some other place
+    private static String getConceptPath(String id) {
+        id.replace("/", "\\")
     }
 
     Patient getPatient() {

@@ -30,11 +30,6 @@ class RestApiUrlMappings {
             '/concepts'(controller: 'concept', resources: 'concept', includes: ['index', 'show'])
         }
 
-        '/studies'(resources: 'study', method: 'GET') {
-            '/concepts'(resources: 'concept', method: 'GET') {
-                '/observations'(controller: 'observation', action: 'indexByConcept')
-            }
-        }
         */
 
         '/studies'(resources: 'study', method: 'GET') {
@@ -44,6 +39,12 @@ class RestApiUrlMappings {
         '/studies'(resources: 'study', method: 'GET') {
             '/subjects'(resources: 'subject', method: 'GET') {
                 '/observations'(controller: 'observation', action:'indexBySubject')
+            }
+        }
+
+        '/studies'(resources: 'study', method: 'GET') {
+            '/concepts'(resources: 'concept', method: 'GET') {
+                '/observations'(controller: 'observation', action: 'indexByConcept')
             }
         }
 
