@@ -42,8 +42,4 @@ class DeVariantSubjectSummaryCoreDb {
             }
         }
     }
-
-    static foreigners = [
-            jDetail : [chr : "chr", pos: "pos" ]
-    ]
 }
