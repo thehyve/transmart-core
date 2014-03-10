@@ -1,5 +1,6 @@
 package org.transmartproject.core.ontology
 
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 
 /**
@@ -103,6 +104,13 @@ public interface OntologyTerm {
      * @return (all) children of this term, ordered by name
      */
     List<OntologyTerm> getAllDescendants()
+
+    /**
+     * Fetches all the patients that have at least one observation for this OntologyTerm.
+     *
+     * @return list of patients
+     */
+    List<Patient> getPatients();
 
     enum VisualAttributes {
 
