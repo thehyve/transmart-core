@@ -34,9 +34,10 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     ClinicalDataTabularResult retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms) {
         def ontologyTermsToUse = ontologyTerms ?: [ study.ontologyTerm ]
-        def descendants = (ontologyTermsToUse*.allDescendants).flatten()
+        def allOntologyTerms = (ontologyTermsToUse*.allDescendants).flatten()
+        allOntologyTerms.addAll(ontologyTermsToUse)
         def clinicalVariables =
-                descendants.findAll {
+                allOntologyTerms.findAll {
                     OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
                 }.collect {
                     createClinicalVariable(['concept_path': it.fullName],
