@@ -12,6 +12,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.ontology.ConceptsResourceService
+import org.transmartproject.rest.marshallers.ObservationWrapper
 
 class ObservationController {
 
@@ -30,7 +31,7 @@ class ObservationController {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, null, null)
         try {
-            respond observations
+            respond wrapObservations(observations)
         } finally {
             observations.close()
         }
@@ -43,7 +44,7 @@ class ObservationController {
     def indexByConcept() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, null, [concept])
-        respond observations
+        respond wrapObservations(observations)
     }
 
     /** GET request on /studies/XXX/subjects/YYY/observations/
@@ -52,7 +53,7 @@ class ObservationController {
     def indexBySubject() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, [patient], null)
-        respond observations
+        respond wrapObservations(observations)
     }
 
     Study getStudy() { studyLoadingServiceProxy.study }
@@ -80,5 +81,21 @@ class ObservationController {
             throw new InvalidArgumentsException('Could not find a study id')
         }
         patientsResourceService.getPatientById(subjectId)
+    }
+
+    List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
+        List<ObservationWrapper> observations = []
+        def concepts = tabularResult.getIndicesList()
+        tabularResult.getRows().each { row ->
+            concepts.each {concept ->
+                def value = row.getAt(concept)
+                observations << new ObservationWrapper(
+                        subject: row.patient,
+                        concept: concept,
+                        value: value
+                )
+            }
+        }
+        observations
     }
 }

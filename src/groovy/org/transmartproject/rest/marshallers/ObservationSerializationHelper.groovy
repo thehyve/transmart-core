@@ -19,7 +19,7 @@ class ObservationSerializationHelper implements HalOrJsonSerializationHelper<Obs
 
     @Override
     Set<String> getEmbeddedEntities(ObservationWrapper observation) {
-        [] as Set
+        ['subject', 'concept'] as Set
     }
 
     @Override
