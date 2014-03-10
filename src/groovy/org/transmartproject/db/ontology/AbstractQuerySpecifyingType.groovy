@@ -1,5 +1,12 @@
 package org.transmartproject.db.ontology
 
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.Item
+import org.transmartproject.core.querytool.Panel
+import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.db.i2b2data.PatientDimension
+
 /**
  * Properties that specify queries to be made in other tables. Used by
  * TableAccess and i2b2 metadata tables
@@ -12,6 +19,10 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       columnDataType
     String       operator
     String       dimensionCode
+
+    def patientSetQueryBuilderService
+
+    def sessionFactory
 
     /* implements (hopefully improved) transformations described here:
      * https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology
@@ -55,5 +66,27 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         columnDataType       nullable:   false,   maxSize:   50
         operator             nullable:   false,   maxSize:   10
         dimensionCode        nullable:   false,   maxSize:   700
+    }
+
+    protected List<Patient> getPatients(OntologyTerm term) {
+
+        def definition = new QueryDefinition([
+                new Panel(
+                        invert: false,
+                        items:  [
+                                new Item(conceptKey: term.key)
+                        ]
+                )
+        ])
+
+        def patientsSql = patientSetQueryBuilderService.buildPatientIdListQuery(definition)
+        def patientsQuery = sessionFactory.currentSession.createSQLQuery patientsSql
+        def patientIdList = patientsQuery.list()
+
+        //this is a hack so integration tests work. for some reason the h2 schema doesn't have the right column type
+        if (patientIdList.size() > 0 && patientIdList[0].getClass() != Long) {
+            patientIdList = patientIdList.collect( {it as Long} )
+        }
+        PatientDimension.findAllByIdInList(patientIdList)
     }
 }
