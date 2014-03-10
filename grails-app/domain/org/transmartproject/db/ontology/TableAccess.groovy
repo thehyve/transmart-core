@@ -3,6 +3,7 @@ package org.transmartproject.db.ontology
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.concept.ConceptKey
@@ -198,6 +199,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
             }
             order('name')
         }
+    }
+
+    @Override
+    List<Patient> getPatients() {
+        return super.getPatients(this)
     }
 
     @Override

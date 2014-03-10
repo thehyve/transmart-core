@@ -51,12 +51,19 @@ class ClinicalTestData {
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value) {
+        createObservationFact(concept.conceptCode, patient, encounterId, value)
+    }
+
+    static ObservationFact createObservationFact(String conceptCode,
+                                                 PatientDimension patient,
+                                                 Long encounterId,
+                                                 Object value) {
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId:   'fakeProviderId',
                 modifierCd:   'fakeModifierCd',
                 patient:      patient,
-                conceptCode:  concept.conceptCode,
+                conceptCode:  conceptCode,
                 startDate:    new Date(),
                 instanceNum:  0)
 

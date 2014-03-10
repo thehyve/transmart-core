@@ -3,8 +3,12 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -67,7 +71,7 @@ class I2b2Tests {
                 hasSize(1),
                 contains(allOf(
                         hasProperty('fullName', equalTo('\\foo\\xpto\\bar')),
-                        /* table code is copied from parent: */
+                        //table code is copied from parent:
                         hasProperty('conceptKey', equalTo(new ConceptKey
                         ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar')))
                 ))))
@@ -88,6 +92,53 @@ class I2b2Tests {
                         hasProperty('name', equalTo('jar')),
                 )
         ))
+    }
+
+    @Test
+    void testGetPatients() {
+
+        ConceptTestData.addTableAccess(level: 0, fullName: '\\test\\', name: 'test',
+                tableCode: 'i2b2 main', tableName: 'i2b2')
+
+        def concepts = ConceptTestData.createMultipleI2B2(3)
+        def patients = I2b2Data.createTestPatients(5, -100, 'SAMPLE TRIAL')
+        def observations = createObservations(concepts, patients)
+
+        HighDimTestData.save concepts
+        HighDimTestData.save patients
+        HighDimTestData.save observations
+        HighDimTestData.save ConceptTestData.createConceptDimensions(concepts)
+
+        def result = concepts[0].getPatients()
+        assertThat result, containsInAnyOrder(
+                patients[0],
+                patients[1],
+                patients[2]
+        )
+
+        def result2 = concepts[1].getPatients()
+        assertThat result2, containsInAnyOrder(
+                patients[2],
+                patients[3]
+        )
+
+        def result3 = concepts[2].getPatients()
+        assertThat result3, containsInAnyOrder(
+            //empty
+        )
+
+    }
+
+    def createObservations(List<I2b2> concepts, List<Patient> patients) {
+        List result = []
+        //concept 0 with patients 0, 1 and 2
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[0], 1, 2)
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[1], 1, 2)
+        result << ClinicalTestData.createObservationFact(concepts[0].code, patients[2], 1, 2)
+        //concept 1 with patients 2 and 3
+        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[2], 1, 2)
+        result << ClinicalTestData.createObservationFact(concepts[1].code, patients[3], 1, 2)
+        result
     }
 
 }
