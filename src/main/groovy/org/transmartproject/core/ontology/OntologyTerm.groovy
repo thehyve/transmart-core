@@ -110,7 +110,7 @@ public interface OntologyTerm {
      *
      * @return list of patients
      */
-    List<Patient> getPatients();
+    List<Patient> getPatients()
 
     enum VisualAttributes {
 
