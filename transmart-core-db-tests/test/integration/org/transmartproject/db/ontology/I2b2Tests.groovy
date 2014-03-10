@@ -96,7 +96,6 @@ class I2b2Tests {
 
     @Test
     void testGetPatients() {
-        return
 
         ConceptTestData.addTableAccess(level: 0, fullName: '\\test\\', name: 'test',
                 tableCode: 'i2b2 main', tableName: 'i2b2')
@@ -110,24 +109,24 @@ class I2b2Tests {
         HighDimTestData.save observations
         HighDimTestData.save ConceptTestData.createConceptDimensions(concepts)
 
-
         def result = concepts[0].getPatients()
-        def expected = new HashSet()
-        expected.add(patients[0])
-        expected.add(patients[1])
-        expected.add(patients[2])
-
-        assertThat new HashSet(result), is(expected)
+        assertThat result, containsInAnyOrder(
+                patients[0],
+                patients[1],
+                patients[2]
+        )
 
         def result2 = concepts[1].getPatients()
-        def expected2 = new HashSet()
-        expected2.add(patients[2])
-        expected2.add(patients[3])
-
-        assertThat new HashSet(result2), is(expected2)
+        assertThat result2, containsInAnyOrder(
+                patients[2],
+                patients[3]
+        )
 
         def result3 = concepts[2].getPatients()
-        assertThat result3.size(), is(0)
+        assertThat result3, containsInAnyOrder(
+            //empty
+        )
+
     }
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {

@@ -34,7 +34,7 @@ class TestDataHelper {
 
     private static List<MetaProperty> getMandatoryProps(Class clazz) {
         def mandatory = clazz.constraints?.findAll { it.value.nullable == false } //get all not nullable properties
-        clazz.metaClass.properties.collect { mandatory.contains(it.name) }
+        clazz.metaClass.properties.findAll { mandatory.containsKey(it.name) }
     }
 
 }
