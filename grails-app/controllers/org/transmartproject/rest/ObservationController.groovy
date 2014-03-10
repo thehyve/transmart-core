@@ -35,7 +35,6 @@ class ObservationController {
         } finally {
             observations.close()
         }
-
     }
 
     /** GET request on /studies/XXX/concepts/YYY/observations/
@@ -44,7 +43,11 @@ class ObservationController {
     def indexByConcept() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, null, [concept])
-        respond wrapObservations(observations)
+        try {
+            respond wrapObservations(observations)
+        } finally {
+            observations.close()
+        }
     }
 
     /** GET request on /studies/XXX/subjects/YYY/observations/
@@ -53,7 +56,11 @@ class ObservationController {
     def indexBySubject() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(study, [patient], null)
-        respond wrapObservations(observations)
+        try {
+            respond wrapObservations(observations)
+        } finally {
+            observations.close()
+        }
     }
 
     Study getStudy() { studyLoadingServiceProxy.study }
