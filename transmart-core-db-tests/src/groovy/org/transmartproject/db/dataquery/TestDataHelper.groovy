@@ -10,7 +10,7 @@ class TestDataHelper {
      * @param obj
      */
     static <T> void completeObject(Class<T> clazz, T obj) {
-        List<MetaProperty> fields = getMandatoryFields(clazz).findAll { it.getProperty(obj) == null } //all without value
+        List<MetaProperty> fields = getMandatoryProps(clazz).findAll { it.getProperty(obj) == null } //all without value
         for (MetaProperty f: fields) {
             f.setProperty(obj, getDummyObject(f.type)) //set a dummy value
         }
