@@ -114,6 +114,9 @@ class RModulesController {
             case 'correlationAnalysis':
                 jsonResult = createJob(params, CorrelationAnalysis, false)
                 break
+            case 'waterfall':
+                jsonResult = createJob(params, Waterfall, false)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
@@ -123,13 +126,13 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    private void createJob(Map params, Class clazz, boolean useAnalysisContrants = true) {
+    private void createJob(Map params, Class clazz, boolean useAnalysisConstraints = true) {
 
         UserParameters userParams = new UserParameters(map: Maps.newHashMap(params))
 
         params[PARAM_GRAILS_APPLICATION] = grailsApplication
         params[PARAM_JOB_CLASS] = clazz
-        if (useAnalysisContrants) {
+        if (useAnalysisConstraints) {
             params.put(PARAM_ANALYSIS_CONSTRAINTS, createAnalysisConstraints(params))
         }
 
