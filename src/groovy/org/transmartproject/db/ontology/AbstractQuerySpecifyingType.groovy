@@ -83,7 +83,16 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         def patientsQuery = sessionFactory.currentSession.createSQLQuery patientsSql
         def patientIdList = patientsQuery.list()
 
-        //this is a hack so integration tests work. for some reason the h2 schema doesn't have the right column type
+        /*
+         This is a hack so integration tests work on the h2 schema.
+         There is an hibernate issue affecting BIGINT columns that are also identities. see
+         http://stackoverflow.com/questions/18758347/hibernate-returns-bigintegers-instead-of-longs
+         http://jadimeo.wordpress.com/2009/09/05/sql-bigint-identity-columns-with-hibernate-annotations/
+         There are 2 proposed solutions:
+         -use Integer instead of Long
+         -implement our own IdentityGenerator and use it in this column
+         I don't like either, and until we decide on it i will leave it as it is
+         */
         if (patientIdList.size() > 0 && patientIdList[0].getClass() != Long) {
             patientIdList = patientIdList.collect( {it as Long} )
         }

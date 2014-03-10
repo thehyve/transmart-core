@@ -1,6 +1,5 @@
 package org.transmartproject.db.querytool
 
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.ConstraintByValue
@@ -93,7 +92,7 @@ class PatientSetQueryBuilderService {
 
     String buildPatientSetQuery(QtQueryResultInstance resultInstance,
                                 QueryDefinition definition)
-            throws InvalidArgumentsException {
+            throws InvalidRequestException {
 
         if (!resultInstance.id) {
             throw new RuntimeException('QtQueryResultInstance has not been persisted')

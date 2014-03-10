@@ -65,7 +65,9 @@ class ConceptTestData {
      * @return ConceptDimension list for the given I2b2 list
      */
     static List<ConceptDimension> createConceptDimensions(List<I2b2> list) {
-        list.collect( { new ConceptDimension(conceptPath: it.fullName, conceptCode: it.code)} )
+        list.collect {
+            new ConceptDimension(conceptPath: it.fullName, conceptCode: it.code)
+        }
     }
 
     /**
