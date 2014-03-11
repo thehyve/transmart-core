@@ -12,7 +12,7 @@ class VcfValuesProjection implements CriteriaProjection<VcfValues> {
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
-        // VcfModule.prepareDataQuery already projects all the columns
+
     }
 
     @Override
