@@ -18,6 +18,7 @@ install:
     - unzip grails-${GRAILS_VERSION}.zip
     - export GRAILS_HOME=~/.grails/grails-${GRAILS_VERSION}
     - cd -
+    - ./install_branch_coreapi
 
 # uncomment the lines if you add test matrix with more than 1 grails version/jdk
 script:
