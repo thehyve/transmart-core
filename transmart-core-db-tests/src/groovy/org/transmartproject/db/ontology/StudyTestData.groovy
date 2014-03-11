@@ -1,11 +1,13 @@
 package org.transmartproject.db.ontology
 
-import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.db.dataquery.clinical.ClinicalTestData
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.I2b2Data
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
-import static org.transmartproject.db.ontology.ConceptTestData.createConcept
+import static org.transmartproject.db.ontology.ConceptTestData.createI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.createTableAccess
 
 class StudyTestData {
@@ -17,39 +19,75 @@ class StudyTestData {
 
     List<I2b2> i2b2List = {
         [
-                createConcept(level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1'),
-                createConcept(level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1'),
+                createI2b2(code: 1, level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1', cVisualattributes: 'FA'),
+                createI2b2(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1', cVisualattributes: 'LA'),
 
-                createConcept(level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2'),
-                createConcept(level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2'),
+                createI2b2(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2', cVisualattributes: 'FA'),
+                createI2b2(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA'),
         ]
     }()
+
+    List<ConceptDimension> concepts = i2b2List.collect { I2b2 i2b2 ->
+        new ConceptDimension(
+                conceptPath: i2b2.fullName,
+                conceptCode: i2b2.code
+        )
+    }
+
+    // XXX: createTestPatients should be moved elsewhere
+    List<PatientDimension> patients =  HighDimTestData.createTestPatients(3, -100)
+
+
+    static ObservationFact createObservationFact(ConceptDimension concept,
+                                                 PatientDimension patient,
+                                                 Long encounterId,
+                                                 Object value) {
+        def of = new ObservationFact(
+                encounterNum: encounterId as BigDecimal,
+                providerId:   'fakeProviderId',
+                modifierCd:   'fakeModifierCd',
+                patient:      patient,
+                conceptCode:  concept.conceptCode,
+                startDate:    new Date(),
+                instanceNum:  0,
+                sourcesystemCd: 'STUDY1')
+
+        if (value instanceof Number) {
+            of.valueType = ObservationFact.TYPE_NUMBER
+            of.textValue = 'E' //equal to
+            of.numberValue = value as BigDecimal
+        } else if (value != null) {
+            of.valueType = ObservationFact.TYPE_TEXT
+            of.textValue = value as String
+        }
+
+        of
+    }
+
+    List<ObservationFact> facts = {
+        long encounterNum = -200
+        def list1 = concepts[0..1].collect { ConceptDimension concept ->
+            patients.collect { PatientDimension patient ->
+                createObservationFact(concept, patient, --encounterNum,
+                        "value for $concept.conceptCode/$patient.id")
+            }
+        }.inject([], { accum, factList -> accum + factList })
+
+        list1 + [
+                // missing fact for patients[0]
+                createObservationFact(concepts[2], patients[1], --encounterNum, ''), //empty value
+                createObservationFact(concepts[2], patients[2], --encounterNum, -45.42) //numeric value
+        ]
+    }()
+
 
     void saveAll() {
         i2b2Data.saveAll()
 
         save([tableAccess])
         save i2b2List
-
-        saveExtraData()
-    }
-
-    /**
-     * Saves extra data outside the I2B2/TableAccess tables, but required for some tests
-     */
-    void saveExtraData() {
-        //concept dimensions
-        save ConceptTestData.createConceptDimensions(i2b2List)
-
-        //patients
-        List<Patient> patients = I2b2Data.createTestPatients(3, -1000, 'SAMPLE_TRIAL')
-        save patients
-
-        //observations
-        def observations = []
-        observations << ClinicalTestData.createObservationFact(i2b2List[1].code, patients[0], 2, 3)
-        observations << ClinicalTestData.createObservationFact(i2b2List[1].code, patients[1], 4, 5)
-        save observations
+        save concepts
+        save facts
     }
 
 }

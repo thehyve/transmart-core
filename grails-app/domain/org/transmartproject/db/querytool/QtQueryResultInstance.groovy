@@ -2,6 +2,7 @@ package org.transmartproject.db.querytool
 
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.i2b2data.PatientDimension
 
 class QtQueryResultInstance implements QueryResult {
 
@@ -19,7 +20,8 @@ class QtQueryResultInstance implements QueryResult {
 
 	static belongsTo = QtQueryInstance
 
-    static hasMany = [patientSet: QtPatientSetCollection]
+    static hasMany = [patientSet: QtPatientSetCollection,
+                      patients:   PatientDimension]
 
 	static mapping = {
         table          schema: 'I2B2DEMODATA'
@@ -30,6 +32,10 @@ class QtQueryResultInstance implements QueryResult {
                        params: [sequence: 'qt_sq_qri_qriid']
         errorMessage   column: 'message'
         queryInstance  column: 'query_instance_id'
+
+        patients       joinTable: [name:   'qt_patient_set_collection',
+                                   key:    'result_instance_id',
+                                   column: 'patient_num']
 
 		version false
 	}
