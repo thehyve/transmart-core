@@ -5,19 +5,23 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 
 class ConceptTestData {
 
-    static I2b2 createI2b2(Map properties) {
-        def base = [
-                factTableColumn      :   '',
-                dimensionTableName   :   '',
-                columnName           :   '',
-                columnDataType       :   '',
-                operator             :   '',
-                dimensionCode        :   '',
-                mAppliedPath         :   '',
-                updateDate           :   new Date()
-        ]
+    private static Map i2b2xBase = [
+            factTableColumn      :   '',
+            dimensionTableName   :   '',
+            columnName           :   '',
+            columnDataType       :   '',
+            operator             :   '',
+            dimensionCode        :   '',
+            mAppliedPath         :   '',
+            updateDate           :   new Date()
+    ]
 
-        new I2b2([*:base, *:properties])
+    static I2b2 createI2b2(Map properties) {
+        new I2b2([*:i2b2xBase, *:properties])
+    }
+
+    static I2b2Secure createI2b2Secure(Map properties) {
+        new I2b2Secure([*:i2b2xBase, *:properties])
     }
 
     static addI2b2(Map properties) {

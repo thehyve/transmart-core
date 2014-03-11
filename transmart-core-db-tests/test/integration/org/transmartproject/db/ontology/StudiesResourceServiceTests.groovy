@@ -14,6 +14,7 @@ import static org.hamcrest.MatcherAssert.*
 import static org.hamcrest.Matchers.allOf
 import static org.hamcrest.Matchers.containsInAnyOrder
 import static org.hamcrest.Matchers.everyItem
+import static org.hamcrest.Matchers.hasItems
 import static org.hamcrest.Matchers.hasProperty
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.isA
@@ -46,7 +47,11 @@ class StudiesResourceServiceTests {
                         allOf(
                                 hasProperty('name', is('STUDY2')),
                                 hasProperty('ontologyTerm',
-                                        hasProperty('fullName', is('\\foo\\study2\\'))))))
+                                    hasProperty('fullName', is('\\foo\\study2\\')))),
+                        allOf(
+                                hasProperty('name', is('STUDY3')),
+                                hasProperty('ontologyTerm',
+                                        hasProperty('fullName', is('\\foo\\study3\\'))))))
     }
 
     @Test
