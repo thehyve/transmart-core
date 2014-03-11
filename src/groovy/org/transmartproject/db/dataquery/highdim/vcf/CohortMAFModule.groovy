@@ -106,8 +106,9 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
                 property 'assay.id'                ,'assayId'
 
             }
-
-            order 'assay.id',  'asc' // important
+            order 'chr',  'asc'
+            order 'pos',  'asc'
+            order 'assayId',  'asc' // important
 
             // because we're using this transformer, every column has to have an alias
             instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
@@ -131,7 +132,7 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 assayIdFromRow:        { it[0].assayId } ,
-                inSameGroup:           { a, b -> a.chr == b.chr && a.pos == b.pos  },
+                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos  },
                 finalizeGroup:         { List collectedEntries -> /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
