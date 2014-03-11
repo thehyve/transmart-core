@@ -12,7 +12,7 @@ import static org.transmartproject.db.dataquery.highdim.parameterproducers.Bindi
 @Component
 class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFactory {
 
-    String regionPrefix = 'region.'
+    String segmentPrefix = 'region.'
     String segmentChromosomeColumn = 'chromosome'
     String segmentStartColumn      = 'start'
     String segmentEndColumn        = 'end'
@@ -54,7 +54,7 @@ class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFac
         }
 
         def chr = new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end).with({
-            regionPrefix = regionPrefix
+            regionPrefix = segmentPrefix
             regionChromosomeColumn = segmentChromosomeColumn
             regionStartColumn = segmentStartColumn
             regionEndColumn = segmentEndColumn
