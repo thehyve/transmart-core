@@ -15,7 +15,7 @@ before_install:
 install:
     - cd ~/.grails
     - curl -O http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-${GRAILS_VERSION}.zip
-    - unzip grails-${GRAILS_VERSION}.zip
+    - unzip -q grails-${GRAILS_VERSION}.zip
     - export GRAILS_HOME=~/.grails/grails-${GRAILS_VERSION}
     - cd -
     - ./install_branch_coreapi
