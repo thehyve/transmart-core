@@ -4,6 +4,8 @@ package org.transmartproject.db.dataquery
  */
 class TestDataHelper {
 
+    private static Map<Class, Long> maxIdMap = new HashMap<>()
+
     /**
      * Fills the object with dummy values for all the fields that are mandatory (nullable = false) and have no value
      * @param clazz
@@ -35,6 +37,23 @@ class TestDataHelper {
     private static List<MetaProperty> getMandatoryProps(Class clazz) {
         def mandatory = clazz.constraints?.findAll { it.value.nullable == false } //get all not nullable properties
         clazz.metaClass.properties.findAll { mandatory.containsKey(it.name) }
+    }
+
+    static List<String> getMissingValueFields(Object obj, Collection<String> fields) {
+        def props = obj.class.metaClass.properties.findAll { fields.contains(it.name) }
+        props.findAll({ !it.getProperty(obj) }).collect({ it.name })
+    }
+
+    static Long getNextId(Class clazz) {
+        synchronized(maxIdMap) {
+            Long id = maxIdMap.get(clazz)
+            if (id == null) {
+                id = 0
+            }
+            id = id + 1
+            maxIdMap.put(clazz, id)
+            id
+        }
     }
 
 }
