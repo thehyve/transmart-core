@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import org.hibernate.ScrollableResults
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
@@ -78,30 +79,34 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
         criteriaBuilder.with {
             createAlias 'jDetail', 'p', INNER_JOIN
             projections {
-                property 'summary.subjectId'
-                property 'summary.rsId'
-                property 'summary.variant'
-                property 'summary.variantFormat'
-                property 'summary.variantType'
-                property 'summary.reference'
-                property 'summary.allele1'
-                property 'summary.allele2'
+                property 'summary.subjectId'       ,'subjectId'
+                property 'summary.rsId'            ,'rsId'
+                property 'summary.variant'         ,'variant'
+                property 'summary.variantFormat'   ,'variantFormat'
+                property 'summary.variantType'     ,'variantType'
+                property 'summary.reference'       ,'reference'
+                property 'summary.allele1'         ,'allele1'
+                property 'summary.allele2'         ,'allele2'
 
-                property 'p.chr'
-                property 'p.pos'
-                property 'p.rsId'
-                property 'p.ref'
-                property 'p.alt'
-                property 'p.quality'
-                property 'p.filter'
-                property 'p.info'
-                property 'p.format'
-                property 'p.variant'
+                property 'p.chr'                   ,'chr'
+                property 'p.pos'                   ,'pos'
+                property 'p.rsId'                  ,'rsId'
+                property 'p.ref'                   ,'ref'
+                property 'p.alt'                   ,'alt'
+                property 'p.quality'               ,'quality'
+                property 'p.filter'                ,'filter'
+                property 'p.info'                  ,'info'
+                property 'p.format'                ,'format'
+                property 'p.variant'               ,'variant'
 
-                property 'assay.id'
+                property 'assay.id'                ,'assayId'
+
             }
 
             order 'assay.id',  'asc' // important
+
+            // because we're using this transformer, every column has to have an alias
+            instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         }
 
         criteriaBuilder
@@ -121,87 +126,14 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
                 allowMissingAssays:    true,
                 indicesList:           assays,
                 results:               results,
-                assayIdFromRow:        { it[18] } , //18th column is the assay.id
-                inSameGroup:           { a, b -> a[10] == b[10] && a[9] == b[9] /* chr, pos*/ },
+                assayIdFromRow:        { it[0].assayId } ,
+                inSameGroup:           { a, b -> a.chr == b.chr && a.pos == b.pos  },
                 finalizeGroup:         { List collectedEntries -> /* list of all the results belonging to a group defined by inSameGroup */
-                    collectedEntries = collectedEntries - null
-                    DeVariantSubjectDetailCoreDb summary = initSubjectDetail(collectedEntries)
-                    Map alleleDistribution = getAlleleDistribution(collectedEntries)
-                    return calculateVcfValues(alleleDistribution, summary, collectedEntries)
+                    /* list of arrays with one element: a map */
+                    /* we may have nulls if allowMissingAssays is true,
+                     *, but we're guaranteed to have at least one non-null */
+                    return new VcfValuesImpl(collectedEntries)
                 }
         )
     }
-
-    private Map getAlleleDistribution(List collectedEntries) {
-        def alleleDistribution = [:].withDefault { 0 }
-        for (row in collectedEntries) {
-            if (row == null)
-                continue;
-            def allele1 = row[6]
-            def allele2 = row[7]
-            alleleDistribution[allele1]++
-            alleleDistribution[allele2]++
-        }
-        alleleDistribution
-    }
-
-    private DeVariantSubjectDetailCoreDb initSubjectDetail(List collectedEntries) {
-        def summary = new DeVariantSubjectDetailCoreDb([
-                'chr': collectedEntries[0][8],
-                'pos': collectedEntries[0][9],
-                'rsId': collectedEntries[0][10],
-                'ref': collectedEntries[0][11],
-                'alt': collectedEntries[0][12],
-                'quality': collectedEntries[0][13],
-                'filter': collectedEntries[0][14],
-                'info': collectedEntries[0][15],
-                'format': collectedEntries[0][16],
-                'variant': collectedEntries[0][17]])
-        summary
-    }
-
-    private VcfValuesImpl calculateVcfValues(Map alleleDistribution, DeVariantSubjectDetailCoreDb summary, List collectedEntries) {
-        Map assayIndexMap
-        if (!alleleDistribution) return null
-
-        int total = alleleDistribution.values().sum()
-        def altAlleleNums = alleleDistribution.keySet() - [DeVariantSubjectSummaryCoreDb.REF_ALLELE]
-
-        if (!altAlleleNums) return null
-
-        def altAlleleDistribution = alleleDistribution.subMap(altAlleleNums)
-        def altAlleleFrequencies = altAlleleDistribution.collectEntries { [(it.key): it.value / (double) total] }
-        def mafEntry = altAlleleFrequencies.max { it.value }
-
-        def additionalInfo = [:]
-        additionalInfo['AC'] = altAlleleDistribution.values().join(',')
-        additionalInfo['AF'] = summary.additionalInfo['AF']
-        additionalInfo['AN'] = total.toString()
-        additionalInfo['VC'] = summary.additionalInfo['VC']
-
-        def altAlleles = summary.getAltAllelesByPositions(altAlleleNums)
-        def mafAllele = altAlleles[altAlleleNums.asList().indexOf(mafEntry.key)]
-        def genomicVariantTypes = summary.getGenomicVariantTypes(altAlleles)
-
-        VcfValuesImpl ret = new VcfValuesImpl([
-                chromosome: summary.chromosome,
-                position: summary.position,
-                rsId: summary.rsId,
-                mafAllele: mafAllele,
-                maf: mafEntry.value,
-                qualityOfDepth: summary.qualityOfDepth,
-                referenceAllele: summary.referenceAllele,
-                alternativeAlleles: altAlleles,
-                additionalInfo: additionalInfo,
-                genomicVariantTypes: genomicVariantTypes,
-                assayIndexMap: assayIndexMap,
-                data: collectedEntries,
-                details: [summary]
-        ]
-        )
-
-
-        return ret;
-    }
-
 }
