@@ -2,6 +2,7 @@ package org.transmartproject.db.ontology
 
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.EqualsAndHashCode
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.db.concept.ConceptKey
@@ -167,6 +168,11 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         }
         ret.each { it.setTableCode(getTableCode()) }
         ret
+    }
+
+    @Override
+    List<Patient> getPatients() {
+        super.getPatients(this)
     }
 
     @Override
