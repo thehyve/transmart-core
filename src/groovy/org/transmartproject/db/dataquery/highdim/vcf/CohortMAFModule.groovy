@@ -136,7 +136,7 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
                      *, but we're guaranteed to have at least one non-null */
-                    return new VcfValuesImpl(collectedEntries)
+                    projection.doWithResult(collectedEntries)
                 }
         )
     }
