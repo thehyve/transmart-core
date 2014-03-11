@@ -40,7 +40,7 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
     DataRetrievalParameterFactory standardDataConstraintFactory
 
     @Autowired
-    VcfPositionConstraintFactory vcfPositionConstraintFactory
+    ChromosomeSegmentConstraintFactory chromosomeSegmentConstraintFactory
 
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
@@ -49,10 +49,14 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
+        chromosomeSegmentConstraintFactory.segmentPrefix = 'jDetail.'
+        chromosomeSegmentConstraintFactory.segmentChromosomeColumn = 'chr'
+        chromosomeSegmentConstraintFactory.segmentStartColumn      = 'pos'
+        chromosomeSegmentConstraintFactory.segmentEndColumn        = 'pos'
         //customize the segment constraint factory to produce constraints targeting the right DeVariantSubjectSummaryCoreDb columns
         [
                 standardDataConstraintFactory,
-                vcfPositionConstraintFactory
+                chromosomeSegmentConstraintFactory
                 //TODO: implement constraint on dataset
         ]
     }

@@ -6,10 +6,13 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
 
+import org.springframework.context.annotation.Scope
+
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
 
 @Component
+@Scope("prototype")
 class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFactory {
 
     String segmentPrefix = 'region.'
