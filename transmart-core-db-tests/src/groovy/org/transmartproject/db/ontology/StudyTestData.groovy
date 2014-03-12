@@ -24,6 +24,9 @@ class StudyTestData {
 
                 createI2b2(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2', cVisualattributes: 'FA'),
                 createI2b2(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA'),
+
+                // used only in AccessLevelTestData
+                createI2b2(code: 5, level: 1, fullName: '\\foo\\study3\\',         name: 'study3', cComment: 'trial:STUDY3', cVisualAttributes: 'FA'),
         ]
     }()
 

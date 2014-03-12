@@ -7,8 +7,8 @@ import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchGeneSignatureItem
 import org.transmartproject.db.search.SearchKeywordCoreDb
-import org.transmartproject.db.user.SearchAuthPrincipal
-import org.transmartproject.db.user.SearchAuthUser
+import org.transmartproject.db.user.Principal
+import org.transmartproject.db.user.User
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 
@@ -158,19 +158,12 @@ class SampleBioMarkerTestData {
      *   item -903 -> bioMarker -1103 (BOGUSVNN3)
      *   item -903 -> probeSet -701 -> annotation #0 -> bioMarker -1102 (BOGUSRQCD1)
      */
-    List<SearchAuthPrincipal> principals = {
+    List<User> users = {
         def res = [
-                new SearchAuthPrincipal(enabled: true)
+                new User(username: 'foobar')
         ]
-        res[0].id = -1001
-        res
-    }()
-
-    List<SearchAuthUser> users = {
-        def res = [
-                new SearchAuthUser(username: 'foobar')
-        ]
-        res[0].id = principals[0].id
+        res[0].id = -1001L
+        res[0].enabled = true
         res
     }()
 
@@ -257,7 +250,6 @@ class SampleBioMarkerTestData {
 
         save proteinGeneCorrelations
 
-        save principals
         save users
         save geneSignatures
         save assayFeatureGroups
