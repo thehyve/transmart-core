@@ -6,22 +6,22 @@ import org.transmartproject.db.ontology.ConceptTestData
 
 class TestData {
 
-    ConceptTestData concept
-    I2b2Data i2b2
-    ClinicalTestData clinical
+    ConceptTestData conceptData
+    I2b2Data i2b2Data
+    ClinicalTestData clinicalData
 
     static TestData createDefault() {
         def concept = ConceptTestData.createDefault()
         def i2b2 = I2b2Data.createDefault()
         def clinical = ClinicalTestData.createDefault(concept, i2b2)
 
-        new TestData(concept: concept, i2b2: i2b2, clinical: clinical)
+        new TestData(conceptData: concept, i2b2Data: i2b2, clinicalData: clinical)
     }
 
     void saveAll() {
-        concept?.saveAll()
-        i2b2?.saveAll()
-        clinical?.saveAll()
+        conceptData?.saveAll()
+        i2b2Data?.saveAll()
+        clinicalData?.saveAll()
     }
 
 }
