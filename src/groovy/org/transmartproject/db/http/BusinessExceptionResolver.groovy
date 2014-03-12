@@ -10,6 +10,7 @@ import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -58,6 +59,7 @@ class BusinessExceptionResolver implements ServletContextAware,
             (EmptySetException):              HttpServletResponse.SC_NOT_FOUND,
             (UnsupportedByDataTypeException): HttpServletResponse.SC_BAD_REQUEST,
             (UnexpectedResultException):      HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            (AccessDeniedException):          HttpServletResponse.SC_FORBIDDEN,
     ]
 
     private Throwable resolveCause(Throwable t) {
