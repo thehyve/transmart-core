@@ -31,9 +31,12 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     @Override
     ClinicalDataTabularResult retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms) {
-        def ontologyTermsToUse = ontologyTerms ?: [ study.ontologyTerm ]
-        def allOntologyTerms = (ontologyTermsToUse*.allDescendants).flatten()
-        allOntologyTerms.addAll(ontologyTermsToUse)
+        null
+    }
+
+    ClinicalDataTabularResult retrieveData(Set<Patient> patients, Set<OntologyTerm> ontologyTerms) {
+        def allOntologyTerms = (ontologyTerms*.allDescendants).flatten()
+        allOntologyTerms.addAll(ontologyTerms)
         def clinicalVariables =
                 allOntologyTerms.findAll {
                     OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
@@ -42,7 +45,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
                             ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
                 }
 
-        retrieveDataForPatients(patients ?: study.getPatients(), clinicalVariables)
+        retrieveDataForPatients(patients, clinicalVariables)
     }
 
     ClinicalDataTabularResult retrieveDataForPatients(Collection<Patient> patientCollection, List<ClinicalVariable> variables) {
