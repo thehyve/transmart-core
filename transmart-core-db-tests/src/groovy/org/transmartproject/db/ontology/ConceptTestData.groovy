@@ -5,21 +5,23 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 
 class ConceptTestData {
 
-    private static Set<String> ontologyQueryRequiredFields = computeOntologyQueryRequiredFields()
+    private static Map i2b2xBase = [
+            factTableColumn      :   '',
+            dimensionTableName   :   '',
+            columnName           :   '',
+            columnDataType       :   '',
+            operator             :   '',
+            dimensionCode        :   '',
+            mAppliedPath         :   '',
+            updateDate           :   new Date()
+    ]
 
     static I2b2 createI2b2(Map properties) {
-        def base = [
-                factTableColumn      :   '',
-                dimensionTableName   :   '',
-                columnName           :   '',
-                columnDataType       :   '',
-                operator             :   '',
-                dimensionCode        :   '',
-                mAppliedPath         :   '',
-                updateDate           :   new Date()
-        ]
+        new I2b2([*:i2b2xBase, *:properties])
+    }
 
-        new I2b2([*:base, *:properties])
+    static I2b2Secure createI2b2Secure(Map properties) {
+        new I2b2Secure([*:i2b2xBase, *:properties])
     }
 
     static addI2b2(Map properties) {
@@ -56,7 +58,9 @@ class ConceptTestData {
                 dimensionCode: fullName
             ]
 
-            createConcept(props)
+            I2b2 o = new I2b2([*: getConceptDefaultValues(), *:props])
+            TestDataHelper.completeObject(I2b2, o) //completes the object with any missing values for mandatory fields
+            o
         }
     }
 
@@ -71,7 +75,7 @@ class ConceptTestData {
     }
 
     /**
-     * @return map with common default values for creating an i2b2 concept
+     * @return map with common default values for creating a concept
      */
     static Map getConceptDefaultValues() {
         Map result = [
@@ -83,47 +87,6 @@ class ConceptTestData {
         ]
 
         result
-    }
-
-    /**
-     * Creates an I2b2 concept with extra fields set so some observation/patient related queries can work
-     * @param properties
-     * @return
-     */
-    static I2b2 createConcept(Map properties) {
-        def extraProps = [
-                code:           getNextConceptCode(),
-                dimensionCode : properties.get('fullName') //needed for ontology queries
-        ]
-        //field values are set in layers:
-        //1 - getConceptDefaultValues(): typical values for concepts
-        //2 - extraProps: derived or unique per object
-        //3 - properties: values given by the client (these will override all others)
-        //4 - completes any remaining mandatory fields with a dummy value
-        def o = new I2b2([*:getConceptDefaultValues(), *:extraProps, *:properties])
-        TestDataHelper.completeObject(I2b2, o)
-        //we need to make sure the i2b2 instance is valid for the ontology queries
-        checkValidForOntologyQueries(o)
-        o
-    }
-
-    static String getNextConceptCode() {
-        def id = TestDataHelper.getNextId(I2b2)
-        "dummy$id"
-    }
-
-    static Set<String> computeOntologyQueryRequiredFields() {
-        def result = []
-        result.add 'dimensionCode'
-        result.addAll getConceptDefaultValues().keySet()
-        result
-    }
-
-    static def checkValidForOntologyQueries(I2b2 input) {
-        def missing = TestDataHelper.getMissingValueFields(input, ontologyQueryRequiredFields)
-        if (missing.size() > 0) {
-            throw new IllegalArgumentException("Some I2b2 instances miss fields required for ontology queries: $missing")
-        }
     }
 
 }

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+function get_branch {
+	local branch_name=$(git symbolic-ref -q HEAD)
+	branch_name=${branch_name##refs/heads/}
+	branch_name=${branch_name:-HEAD}
+
+	#travis works with a detached HEAD, but we can easily
+	#figure out the branch by looking at the available local branches
+	if [[ $TRAVIS = true && $branch_name = 'HEAD' ]]; then
+		branch_name=$(ls .git/refs/heads)
+	fi
+	echo $branch_name
+}
+
+BRANCH=$(get_branch)
+
+if [[ $BRANCH = master || $BRANCH = HEAD ]]; then
+	echo "Not in any branch"
+	exit 0
+fi
+
+if ! git ls-remote \
+		--exit-code git://github.com/thehyve/transmart-core-api.git "$BRANCH" \
+		> /dev/null; then
+	echo "No branch $BRANCH in thehyve/transmart-core-api"
+	exit 0
+fi
+
+git clone --depth=50 --branch=access_api \
+		git://github.com/thehyve/transmart-core-api.git core-api
+
+cd core-api
+mvn install
