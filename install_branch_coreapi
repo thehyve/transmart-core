@@ -7,6 +7,8 @@ function get_branch {
 	branch_name=${branch_name##refs/heads/}
 	branch_name=${branch_name:-HEAD}
 
+	env | grep TRAVIS
+
 	#travis works with a detached HEAD, and we have too look at its env vars
 	if [[ $TRAVIS = true && $branch_name = 'HEAD' ]]; then
 		if [[ -n "$TRAVIS_BRANCH" ]]; then
@@ -36,7 +38,7 @@ if ! git ls-remote \
 	exit 0
 fi
 
-git clone --depth=50 --branch=access_api \
+git clone --depth=50 --branch="$BRANCH" \
 		git://github.com/thehyve/transmart-core-api.git core-api
 
 cd core-api
