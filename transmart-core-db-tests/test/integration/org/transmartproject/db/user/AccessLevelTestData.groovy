@@ -8,7 +8,7 @@ import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.StudyTestData
 
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
+import static org.transmartproject.db.TestDataHelper.save
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 class AccessLevelTestData {

@@ -1,4 +1,9 @@
-package org.transmartproject.db.dataquery
+package org.transmartproject.db
+
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.everyItem
+import static org.hamcrest.Matchers.isA
+
 /**
  * Helper class for dealing with test data.
  */
@@ -54,6 +59,21 @@ class TestDataHelper {
             maxIdMap.put(clazz, id)
             id
         }
+    }
+
+    static void save(List objects) {
+        if (objects == null) {
+            return //shortcut for no objects to save
+        }
+
+        List result = objects*.save()
+        result.eachWithIndex { def entry, int i ->
+            if (entry == null) {
+                throw new RuntimeException("Could not save ${objects[i]}. Errors: ${objects[i].errors}")
+            }
+        }
+
+        assertThat result, everyItem(isA(objects[0].getClass()))
     }
 
 }

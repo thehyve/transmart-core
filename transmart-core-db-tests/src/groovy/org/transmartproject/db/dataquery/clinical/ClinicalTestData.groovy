@@ -1,47 +1,30 @@
 package org.transmartproject.db.dataquery.clinical
 
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.ConceptTestData
-import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.ontology.TableAccess
 import org.transmartproject.db.querytool.QtQueryMaster
 
-import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
-import static org.transmartproject.db.ontology.ConceptTestData.createI2b2
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 
 class ClinicalTestData {
 
-    TableAccess tableAccess = ConceptTestData.createTableAccess(
-            level:     0,
-            fullName:  '\\foo\\',
-            name:      'foo',
-            tableCode: 'i2b2 main',
-            tableName: 'i2b2')
+    I2b2Data i2b2Data
+    ConceptTestData conceptData
+    List<ObservationFact> facts
 
-    List<I2b2> i2b2Concepts = [
-            createI2b2(level: 1, fullName: '\\foo\\concept 1\\', name: 'd1'), //not c, to test ordering
-            createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2'),
-            createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
-            createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
-    ]
+    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult i2b2Data.patients
 
-    List<ConceptDimension> concepts = i2b2Concepts.collect { I2b2 i2b2 ->
-        new ConceptDimension(
-                conceptPath: i2b2.fullName,
-                conceptCode: i2b2.name /* this is arbitrary, doesn't have to the i2b2.name */
-        )
+    static ClinicalTestData createDefault(ConceptTestData conceptData, I2b2Data i2b2Data) {
+        def facts = createFacts(conceptData.conceptDimensions, i2b2Data.patients)
+        new ClinicalTestData(i2b2Data: i2b2Data, conceptData: conceptData, facts: facts)
     }
-
-    // XXX: createTestPatients should be moved elsewhere
-    List<PatientDimension> patients =  HighDimTestData.createTestPatients(3, -100)
-
-    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -79,7 +62,7 @@ class ClinicalTestData {
         of
     }
 
-    List<ObservationFact> facts = {
+    static List<ObservationFact> createFacts(List<ConceptDimension> concepts, List<Patient> patients)  {
         long encounterNum = -200
         def list1 = concepts[0..1].collect { ConceptDimension concept ->
             patients.collect { PatientDimension patient ->
@@ -93,15 +76,12 @@ class ClinicalTestData {
                 createObservationFact(concepts[2], patients[1], --encounterNum, ''), //empty value
                 createObservationFact(concepts[2], patients[2], --encounterNum, -45.42) //numeric value
         ]
-    }()
+    }
 
     void saveAll() {
-        save([tableAccess])
-        save i2b2Concepts
-        save concepts
-        save patients
-        save([patientsQueryMaster])
-        save facts
+
+        TestDataHelper.save([patientsQueryMaster])
+        TestDataHelper.save facts
     }
 
 }
