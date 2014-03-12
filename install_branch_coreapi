@@ -2,29 +2,31 @@
 
 set -e
 
+env | grep TRAVIS
+
 function get_branch {
 	local branch_name=$(git symbolic-ref -q HEAD)
 	branch_name=${branch_name##refs/heads/}
 	branch_name=${branch_name:-HEAD}
 
-	env | grep TRAVIS
-
 	#travis works with a detached HEAD, and we have too look at its env vars
 	if [[ $TRAVIS = true && $branch_name = 'HEAD' ]]; then
-		if [[ -n "$TRAVIS_BRANCH" ]]; then
-			branch_name=$(ls .git/refs/heads)
-		elif [[ $TRAVIS_PULL_REQUEST != false ]]; then
+		if [[ $TRAVIS_PULL_REQUEST != false ]]; then
 			# find the remote branch that points to the second parent commit
 			local t=$(git ls-remote --heads origin | grep $(git rev-parse HEAD^2))
 			if [[ -n $t ]]; then
 				branch_name=${t##*/}
 			fi
+		elif [[ -n "$TRAVIS_BRANCH" ]]; then
+			branch_name="$TRAVIS_BRANCH"
 		fi
 	fi
 	echo $branch_name
 }
 
 BRANCH=$(get_branch)
+
+echo "Value of BRANCH is $BRANCH"
 
 if [[ $BRANCH = master || $BRANCH = HEAD ]]; then
 	echo "Not in any branch"
