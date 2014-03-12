@@ -7,10 +7,17 @@ function get_branch {
 	branch_name=${branch_name##refs/heads/}
 	branch_name=${branch_name:-HEAD}
 
-	#travis works with a detached HEAD, but we can easily
-	#figure out the branch by looking at the available local branches
+	#travis works with a detached HEAD, and we have too look at its env vars
 	if [[ $TRAVIS = true && $branch_name = 'HEAD' ]]; then
-		branch_name=$(ls .git/refs/heads)
+		if [[ -n "$TRAVIS_BRANCH" ]]; then
+			branch_name=$(ls .git/refs/heads)
+		elif [[ $TRAVIS_PULL_REQUEST != false ]]; then
+			# find the remote branch that points to the second parent commit
+			local t=$(git ls-remote --heads origin | grep $(git rev-parse HEAD^2))
+			if [[ -n $t ]]; then
+				branch_name=${t##*/}
+			fi
+		fi
 	fi
 	echo $branch_name
 }
