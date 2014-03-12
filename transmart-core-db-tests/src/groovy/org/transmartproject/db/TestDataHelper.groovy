@@ -49,18 +49,6 @@ class TestDataHelper {
         props.findAll({ !it.getProperty(obj) }).collect({ it.name })
     }
 
-    static Long getNextId(Class clazz) {
-        synchronized(maxIdMap) {
-            Long id = maxIdMap.get(clazz)
-            if (id == null) {
-                id = 0
-            }
-            id = id + 1
-            maxIdMap.put(clazz, id)
-            id
-        }
-    }
-
     static void save(List objects) {
         if (objects == null) {
             return //shortcut for no objects to save
