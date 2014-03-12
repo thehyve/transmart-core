@@ -1,6 +1,6 @@
 package org.transmartproject.db.user
 
-class Principal {
+class PrincipalCoreDb {
 
     String  principalType
     String  description

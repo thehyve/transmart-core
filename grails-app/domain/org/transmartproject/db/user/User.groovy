@@ -9,7 +9,7 @@ import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessLevel
 import org.transmartproject.db.ontology.I2b2Secure
 
-class User extends Principal implements org.transmartproject.core.users.User {
+class User extends PrincipalCoreDb implements org.transmartproject.core.users.User {
 
     String  email
     Boolean emailShow

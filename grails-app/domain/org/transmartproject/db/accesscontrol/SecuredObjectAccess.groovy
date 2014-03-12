@@ -1,11 +1,11 @@
 package org.transmartproject.db.accesscontrol
 
-import org.transmartproject.db.user.Principal
+import org.transmartproject.db.user.PrincipalCoreDb
 
 class SecuredObjectAccess {
 
     static belongsTo = [
-            principal:     Principal,
+            principal:     PrincipalCoreDb,
             securedObject: SecuredObject,
             accessLevel:   AccessLevel]
 

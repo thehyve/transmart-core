@@ -7,7 +7,6 @@ import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchGeneSignatureItem
 import org.transmartproject.db.search.SearchKeywordCoreDb
-import org.transmartproject.db.user.Principal
 import org.transmartproject.db.user.User
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*

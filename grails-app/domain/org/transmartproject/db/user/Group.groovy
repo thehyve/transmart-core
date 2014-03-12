@@ -1,8 +1,8 @@
 package org.transmartproject.db.user
 
-class Group extends Principal {
+class Group extends PrincipalCoreDb {
 
-    String category // difference to name or uniqueId in Principal?
+    String category // difference to name or uniqueId in PrincipalCoreDb?
 
     static mapping = {
         //table schema: 'searchapp', name: 'search_auth_group'
