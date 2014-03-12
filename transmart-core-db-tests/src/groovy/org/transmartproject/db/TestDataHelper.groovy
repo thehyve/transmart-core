@@ -9,8 +9,6 @@ import static org.hamcrest.Matchers.isA
  */
 class TestDataHelper {
 
-    private static Map<Class, Long> maxIdMap = new HashMap<>()
-
     /**
      * Fills the object with dummy values for all the fields that are mandatory (nullable = false) and have no value
      * @param clazz
