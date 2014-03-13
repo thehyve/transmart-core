@@ -1,5 +1,5 @@
 {
-    "url": "http://localhost:8080/transmart-rest-api//studies/STUDY1/concepts/bar",
+    "url": "http://localhost:8080/transmart-rest-api/studies/STUDY1/concepts/bar",
     "output": {
         "name": "bar",
         "_links": {

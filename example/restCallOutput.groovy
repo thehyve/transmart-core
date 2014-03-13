@@ -38,9 +38,12 @@ formats.put(jsonType, 'json')
 formats.put(halType, 'hal')
 
 def urls = [:]
-urls.put('/studies/STUDY1/concepts',        'all_concepts')
-urls.put('/studies/STUDY1/concepts/bar',    'single_concept')
-urls.put('/studies/study1/concepts/ROOT',   'root_concept')
+urls.put('/studies/STUDY1/concepts',                'concepts_per_study')
+urls.put('/studies/STUDY1/concepts/bar',            'single_concept')
+urls.put('/studies/study1/concepts/ROOT',           'root_concept')
+urls.put('/studies/study1/subjects',                'subjects_per_study')
+//urls.put('/studies/study1/concepts/bar/subjects',   'subjects_per_concept')
+urls.put('/studies/study1/subjects/-101',           'single_subject')
 
 def messages = []
 
@@ -80,7 +83,7 @@ def testCall(String path, String contentType, File output, File expected, List<S
     def tsServer = 'http://localhost:8080/'
     def ctx = 'transmart-rest-api'
     def http = new HTTPBuilder(tsServer)
-    def uriPath = "$ctx/$path"
+    def uriPath = "$ctx$path"
 
     http.request(Method.GET, ContentType.JSON) {
         uri.path = "$uriPath"

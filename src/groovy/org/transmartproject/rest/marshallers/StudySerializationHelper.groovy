@@ -19,8 +19,9 @@ class StudySerializationHelper implements HalOrJsonSerializationHelper<Study> {
 
     @Override
     Map<String, Object> convertToMap(Study study) {
+        def term = new OntologyTermWrapper(study.ontologyTerm)
             [name: study.name,
-                ontologyTerm: study.ontologyTerm]
+                ontologyTerm: term]
     }
 
     @Override

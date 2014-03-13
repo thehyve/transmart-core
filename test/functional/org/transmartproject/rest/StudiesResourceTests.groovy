@@ -27,6 +27,14 @@ class StudiesResourceTests extends APITestCase {
                                 hasEntry('fullName', '\\foo\\study2\\'),
                                 hasEntry('key', '\\\\i2b2 main\\foo\\study2\\'),
                         ))
+                ),
+                allOf(
+                        hasEntry('name', 'STUDY3'),
+                        hasEntry(is('ontologyTerm'), allOf(
+                                hasEntry('name', 'study3'),
+                                hasEntry('fullName', '\\foo\\study3\\'),
+                                hasEntry('key', '\\\\i2b2 main\\foo\\study3\\'),
+                        ))
                 )
         )
     }
