@@ -1,14 +1,13 @@
 package org.transmartproject.db.user
 
-import grails.util.Holders
 import org.transmartproject.db.accesscontrol.AccessLevel
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccess
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.ontology.StudyTestData
 
-import static org.transmartproject.db.TestDataHelper.save
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 class AccessLevelTestData {
@@ -33,10 +32,10 @@ class AccessLevelTestData {
     public static final String STUDY2_SECURE_TOKEN = 'EXP:STUDY2'
     public static final String STUDY3_SECURE_TOKEN = 'EXP:STUDY3'
 
-    StudyTestData studyTestData = new StudyTestData()
+    ConceptTestData conceptTestData = ConceptTestData.createDefault()
 
     List<I2b2Secure> i2b2Secures = {
-        studyTestData.i2b2List.collect { I2b2 i2b2 ->
+        conceptTestData.i2b2List.collect { I2b2 i2b2 ->
             def i2b2sec = createI2b2Secure(
                     i2b2.metaClass.properties.findAll {
                         it.name in ['level', 'fullName', 'name', 'cComment']
@@ -185,7 +184,7 @@ class AccessLevelTestData {
 
 
     void saveAll() {
-        studyTestData.saveAll()
+        conceptTestData.saveAll()
 
         save i2b2Secures
         save securedObjects
