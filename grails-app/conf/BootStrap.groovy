@@ -2,10 +2,10 @@ import grails.util.Environment
 import groovy.util.logging.Log4j
 import org.springframework.web.context.support.WebApplicationContextUtils
 
+import org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer
+
 @Log4j
 class BootStrap {
-
-    def grailsApplication
 
     def init = {servletContext ->
         // Get spring
@@ -15,6 +15,11 @@ class BootStrap {
         springContext.getBean 'marshallersRegistrar'
 
         Environment.executeForEnvironment(Environment.TEST, {
+            if (IntegrationTestPhaseConfigurer.currentApplicationContext) {
+                /* don't load the test data bundle for integration tests */
+                return
+            }
+
             def testData = Class.
                     forName('org.transmartproject.db.ontology.StudyTestData').newInstance()
             log.info 'About to save test data'
