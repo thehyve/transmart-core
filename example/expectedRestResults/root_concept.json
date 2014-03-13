@@ -1,5 +1,5 @@
 {
-    "url": "http://localhost:8080/transmart-rest-api//studies/study1/concepts/ROOT",
+    "url": "http://localhost:8080/transmart-rest-api/studies/study1/concepts/ROOT",
     "output": {
         "name": "study1",
         "fullName": "\\foo\\study1\\",
