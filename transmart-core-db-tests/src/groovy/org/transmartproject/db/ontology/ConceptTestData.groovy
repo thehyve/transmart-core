@@ -1,9 +1,45 @@
 package org.transmartproject.db.ontology
 
-import org.transmartproject.db.dataquery.TestDataHelper
+import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
 
+import static org.transmartproject.db.TestDataHelper.save
+
 class ConceptTestData {
+
+    List<TableAccess> tableAccesses
+    List<I2b2> i2b2List
+    List<ConceptDimension> conceptDimensions
+
+    static ConceptTestData createDefault() {
+        def tableAccesses = []
+        tableAccesses << createTableAccess(level: 0, fullName: '\\foo\\', name: 'foo', tableCode: 'i2b2 main', tableName: 'i2b2')
+
+        def i2b2List = []
+        i2b2List << createI2b2(code: 1, level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1', cVisualattributes: 'FA')
+        i2b2List << createI2b2(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1', cVisualattributes: 'LA')
+        i2b2List << createI2b2(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2', cVisualattributes: 'FA')
+        i2b2List << createI2b2(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA')
+        // used only in AccessLevelTestData
+        i2b2List << createI2b2(code: 5, level: 1, fullName: '\\foo\\study3\\',         name: 'study3', cComment: 'trial:STUDY3', cVisualAttributes: 'FA')
+
+        def conceptDimensions = createConceptDimensions(i2b2List)
+
+        new ConceptTestData(tableAccesses: tableAccesses, i2b2List: i2b2List, conceptDimensions: conceptDimensions)
+    }
+
+    private static Set<String> getOntologyQueryRequiredFields() {
+        def result = []
+        result.add 'dimensionCode'
+        result.addAll getConceptDefaultValues().keySet().asList()
+        result
+    }
+
+    void saveAll() {
+        save tableAccesses
+        save i2b2List
+        save conceptDimensions
+    }
 
     private static Map i2b2xBase = [
             factTableColumn      :   '',
@@ -70,6 +106,7 @@ class ConceptTestData {
      */
     static List<ConceptDimension> createConceptDimensions(List<I2b2> list) {
         list.collect {
+            assert it.code != null
             new ConceptDimension(conceptPath: it.fullName, conceptCode: it.code)
         }
     }
