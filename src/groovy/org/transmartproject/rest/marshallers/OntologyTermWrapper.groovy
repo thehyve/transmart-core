@@ -8,8 +8,9 @@ import org.transmartproject.core.ontology.OntologyTerm
  * has its own serializer for OntologyTerm, so we use this class to wrap the OntologyTerm and pick the right Serializer
  * for REST API
  */
-class OntologyTermWrapper {
+class OntologyTermWrapper implements OntologyTerm {
 
+    @Delegate
     OntologyTerm delegate
 
     OntologyTermWrapper(OntologyTerm term) {

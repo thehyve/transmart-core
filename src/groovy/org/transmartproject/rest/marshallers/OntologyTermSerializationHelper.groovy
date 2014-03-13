@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.StudyLoadingService
 
 import javax.annotation.Resource
@@ -27,8 +26,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     static final String ROOT = 'ROOT'
 
     @Override
-    Collection<Link> getLinks(OntologyTermWrapper object) {
-        OntologyTerm term = getTerm(object)
+    Collection<Link> getLinks(OntologyTermWrapper term) {
         /* this gets tricky. We may be rendering this as part of the /studies response */
         OntologyTerm studyTerm
         String studyName
@@ -49,8 +47,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Map<String, Object> convertToMap(OntologyTermWrapper object) {
-        OntologyTerm term = getTerm(object)
+    Map<String, Object> convertToMap(OntologyTermWrapper term) {
         [
                 name:     term.name,
                 key:      term.key,
@@ -86,10 +83,6 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
         } else {
             return id.replace("/", "\\")
         }
-    }
-
-    OntologyTerm getTerm(OntologyTermWrapper wrapper) {
-        wrapper.delegate
     }
 
 }
