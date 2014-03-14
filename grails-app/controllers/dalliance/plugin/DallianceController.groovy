@@ -26,7 +26,6 @@ class DallianceController {
                 servletContext.contextPath+pluginContextPath+'/js/sequence-draw.js',
                 servletContext.contextPath+pluginContextPath+'/js/domui.js',
                 servletContext.contextPath+pluginContextPath+'/js/karyoscape.js',
-                servletContext.contextPath+pluginContextPath+'/js/quant-config.js',
                 servletContext.contextPath+pluginContextPath+'/js/track-adder.js',
                 servletContext.contextPath+pluginContextPath+'/js/track-adder-custom.js',
                 servletContext.contextPath+pluginContextPath+'/js/chainset.js',
@@ -49,6 +48,11 @@ class DallianceController {
                 servletContext.contextPath+pluginContextPath+'/js/ensembljson.js',
                 servletContext.contextPath+pluginContextPath+'/js/overlay.js',
                 servletContext.contextPath+pluginContextPath+'/js/tier-actions.js',
+                servletContext.contextPath+pluginContextPath+'/js/tier-edit.js',
+                servletContext.contextPath+pluginContextPath+'/js/search.js',
+                servletContext.contextPath+pluginContextPath+'/js/trix.js',
+                servletContext.contextPath+pluginContextPath+'/js/tabix.js',
+                servletContext.contextPath+pluginContextPath+'/js/tabix-source.js',                
                 servletContext.contextPath+pluginContextPath+'/dalliance.js'
         ]
 
