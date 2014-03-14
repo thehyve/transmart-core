@@ -42,7 +42,7 @@ urls.put('/studies/STUDY1/concepts',                'concepts_per_study')
 urls.put('/studies/STUDY1/concepts/bar',            'single_concept')
 urls.put('/studies/study1/concepts/ROOT',           'root_concept')
 urls.put('/studies/study1/subjects',                'subjects_per_study')
-//urls.put('/studies/study1/concepts/bar/subjects',   'subjects_per_concept')
+urls.put('/studies/study1/concepts/bar/subjects',   'subjects_per_concept')
 urls.put('/studies/study1/subjects/-101',           'single_subject')
 
 def messages = []
