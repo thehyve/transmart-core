@@ -41,7 +41,7 @@ aggregate.probes = FALSE
 	library(gplots)
 	
 	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename))
+	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
 
     # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
     # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
@@ -168,6 +168,11 @@ Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.
 
     #Set the name of the rows to be the unique ID.
     rownames(castedData) = castedData$UNIQUE_ID
+
+    if (nrow(castedData) <= 1) {
+        warning("Only one probe.id present in the data. Probe aggregation not possible.")
+        return (mRNAData)
+    }
 
     #Run the collapse on a subset of the data by removing some columns.
     finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,GROUP,UNIQUE_ID) ),

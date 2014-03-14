@@ -32,8 +32,8 @@ import static jobs.AnalysisQuartzJobAdapter.*
 class RModulesController {
     final static Map<String, String> lookup = [
             "Gene Expression":  "mrna",
-            "MIRNA_QPCR":       "mirna",
-            "MIRNA_SEQ":        "mirna",
+            "MIRNA_QPCR":       "mirnaqpcr",
+            "MIRNA_SEQ":        "mirnaseq",
             "RBM":              "rbm",
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
@@ -110,6 +110,12 @@ class RModulesController {
             case 'lineGraph':
                 jsonResult = createJob(params, LineGraph, false)
                 break
+            case 'correlationAnalysis':
+                jsonResult = createJob(params, CorrelationAnalysis, false)
+                break
+            case 'waterfall':
+                jsonResult = createJob(params, Waterfall, false)
+                break
             case 'logisticRegression':
                 jsonResult = createJob(params, LogisticRegression, false)
                 break
@@ -122,13 +128,13 @@ class RModulesController {
         response.outputStream << jsonResult.toString()
     }
 
-    private void createJob(Map params, Class clazz, boolean useAnalysisContrants = true) {
+    private void createJob(Map params, Class clazz, boolean useAnalysisConstraints = true) {
 
         UserParameters userParams = new UserParameters(map: Maps.newHashMap(params))
 
         params[PARAM_GRAILS_APPLICATION] = grailsApplication
         params[PARAM_JOB_CLASS] = clazz
-        if (useAnalysisContrants) {
+        if (useAnalysisConstraints) {
             params.put(PARAM_ANALYSIS_CONSTRAINTS, createAnalysisConstraints(params))
         }
 

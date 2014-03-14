@@ -116,7 +116,7 @@ ScatterPlot.loader <- function(
 		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")		
 	}
 	else {
-		yAxisDataTypeUnit <- "High Dimensional Data (raw values)";
+		yAxisDataTypeUnit <- "High Dimensional Data";
 		yAxisLabel <- paste(genes.dependent,yAxisDataTypeUnit,sep=" ")
 	}
 	
@@ -138,7 +138,7 @@ ScatterPlot.loader <- function(
 		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
 	} else
 	{
-		xAxisDataTypeUnit <- "High Dimensional Data (raw values)"
+		xAxisDataTypeUnit <- "High Dimensional Data"
 		xAxisLabel <- paste(genes.independent,xAxisDataTypeUnit,sep=" ")
 	}
 	

@@ -17,6 +17,8 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
 
     boolean pruneConceptPath = true
 
+    GroupNamesHolder groupNamesHolder
+
     @Autowired
     private ClinicalDataRetriever clinicalDataRetriever
 
@@ -41,6 +43,10 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
                         conceptPaths.collect { generateGroupName it },
                         { a, b -> [a,b]}).
                         collectEntries()
+
+        if (groupNamesHolder) {
+            groupNamesHolder.groupNames = variableToGroupName.values() as List
+        }
 
         table.addColumn(
                 decorateColumn.call(

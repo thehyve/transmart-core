@@ -87,13 +87,13 @@ function
 	colnames(finalData) <- c('PATIENT_NUM',barFinalColumns)
 
 	#We need to add a column that indicate if the group should be colored or not.
-	finalData$FILL_COLUMN <- NA
+	finalData$GROUP <- NA
 	
 	if(lowRangeValue != '') finalData <- addWaterfallRange(finalData,lowRangeOperator,lowRangeValue,'LOW')
 	if(highRangeValue != '') finalData <- addWaterfallRange(finalData,highRangeOperator,highRangeValue,'HIGH')
 
 	#All the remaining fill values should be 0.
-	finalData$FILL_COLUMN[is.na(finalData$FILL_COLUMN)] <- 'BASE'
+	finalData$GROUP[is.na(finalData$GROUP)] <- 'BASE'
 	
 	#We need MASS to dump the matrix to a file.
 	require(MASS)
@@ -104,7 +104,7 @@ function
 	##########################################
 }
 
-#This will fill in the FILL_COLUMN variable based on the range operator and ranged passed in.
+#This will fill in the GROUP variable based on the range operator and ranged passed in.
 addWaterfallRange <- 
 function
 (
@@ -117,23 +117,23 @@ fillValue
 	#Find out which operator we are using.
 	if(rangeOperator == '<')
 	{
-		dataToRange$FILL_COLUMN[dataToRange$X < as.numeric(rangeValue)] <- fillValue
+		dataToRange$GROUP[dataToRange$X < as.numeric(rangeValue)] <- fillValue
 	}
 	else if(rangeOperator == '<=')
 	{
-		dataToRange$FILL_COLUMN[dataToRange$X <= as.numeric(rangeValue)] <- fillValue
+		dataToRange$GROUP[dataToRange$X <= as.numeric(rangeValue)] <- fillValue
 	}
 	else if(rangeOperator == '=')
 	{
-		dataToRange$FILL_COLUMN[dataToRange$X == as.numeric(rangeValue)] <- fillValue
+		dataToRange$GROUP[dataToRange$X == as.numeric(rangeValue)] <- fillValue
 	}
 	else if(rangeOperator == '>')
 	{
-		dataToRange$FILL_COLUMN[dataToRange$X > as.numeric(rangeValue)] <- fillValue
+		dataToRange$GROUP[dataToRange$X > as.numeric(rangeValue)] <- fillValue
 	}
 	else if(rangeOperator == '>=')
 	{
-		dataToRange$FILL_COLUMN[dataToRange$X >= as.numeric(rangeValue)] <- fillValue
+		dataToRange$GROUP[dataToRange$X >= as.numeric(rangeValue)] <- fillValue
 	}
 
 	return(dataToRange)
