@@ -15,6 +15,7 @@ import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
+import org.transmartproject.db.querytool.QueriesResourceService
 
 class ClinicalDataResourceService implements ClinicalDataResource {
 
@@ -22,11 +23,13 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     def sessionFactory
 
+    QueriesResourceService queriesResourceService;
+
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        queryResults.each( { sessionFactory.currentSession.refresh(it) } )
-        retrieveDataForPatients((queryResults*.patients).flatten(), variables)
+        Set<Patient> patients = queriesResourceService.getPatients(queryResults)
+        retrieveDataForPatients(patients, variables)
     }
 
     @Override
