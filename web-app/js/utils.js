@@ -144,7 +144,12 @@ function makeElement(tag, children, attribs, styles)
     
     if (attribs) {
         for (var l in attribs) {
-            ele[l] = attribs[l];
+            try {
+                ele[l] = attribs[l];
+            } catch (e) {
+                console.log('error setting ' + l);
+                throw(e);
+            }
         }
     }
     if (styles) {
@@ -310,6 +315,7 @@ Awaited.prototype.provide = function(x) {
     for (var i = 0; i < this.queue.length; ++i) {
         this.queue[i](x);
     }
+    this.queue = null;   // avoid leaking closures.
 }
 
 Awaited.prototype.await = function(f) {
@@ -321,20 +327,33 @@ Awaited.prototype.await = function(f) {
     }
 }
 
-function textXHR(url, callback) {
+__dalliance_saltSeed = 0;
+
+function saltURL(url) {
+    return url + '?salt=' + b64_sha1('' + Date.now() + ',' + (++__dalliance_saltSeed));
+}
+
+function textXHR(url, callback, opts) {
+    if (opts.salt) 
+        url = saltURL(url);
+
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
-	if (req.readyState == 4) {
-	    if (req.status >= 300) {
-		callback(null, 'Error code ' + req.status);
-	    } else {
-		callback(req.responseText);
-	    }
-	}
+    	if (req.readyState == 4) {
+    	    if (req.status >= 300) {
+    		    callback(null, 'Error code ' + req.status);
+    	    } else {
+    		    callback(req.responseText);
+    	    }
+    	}
     };
     
     req.open('GET', url, true);
     req.responseType = 'text';
+
+    if (opts && opts.credentials) {
+        req.withCredentials = true;
+    }
     req.send('');
 }
 

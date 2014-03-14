@@ -8,10 +8,10 @@
 //
 
 var VERSION = {
-    CONFIG: 3,
+    CONFIG: 5,
     MAJOR:  0,
-    MINOR:  10,
-    MICRO:  5,
+    MINOR:  11,
+    MICRO:  10,
     PATCH:  '',
     BRANCH: ''
 }

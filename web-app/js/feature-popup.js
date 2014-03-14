@@ -47,6 +47,7 @@ Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
     var group = --hi >= 0 ? hit[hi] : {};
 
     var featureInfo = new FeatureInfo(hit, feature, group);
+    featureInfo.tier = tier;
     var fips = this.featureInfoPlugins || [];
     for (fipi = 0; fipi < fips.length; ++fipi) {
         try {
@@ -142,5 +143,5 @@ Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
             makeElement('td', section.info)]));
     }        
 
-    this.popit(ev, featureInfo.title, table, {width: 400});
+    this.popit(ev, featureInfo.title || 'Feature', table, {width: 400});
 }

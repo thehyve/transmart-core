@@ -27,8 +27,7 @@ Browser.prototype.makeTooltip = function(ele, text)
         ele.removeEventListener('mouseout', outlistener, false);
     };
 
-    var setup;
-    setup = function(ev) {
+    var setup = function(ev) {
         // [rnugraha] fix tooltip elements
         // -- start customization --
 
@@ -40,9 +39,16 @@ Browser.prototype.makeTooltip = function(ele, text)
 
         if (!timer) {
             timer = setTimeout(function() {
+                var ttt;
+                if (typeof(text) === 'function') {
+                    ttt = text();
+                } else {
+                    ttt = text;
+                }
+
                 var popup = makeElement('div',
                     [makeElement('div', null, {className: 'tooltip-arrow'}),
-                        makeElement('div', text, {className: 'tooltip-inner'})],
+                        makeElement('div', ttt, {className: 'tooltip-inner'})],
                     // {className: 'tooltip bottom in'}, {
                     {className: 'tooltip in'}, {
                         display: 'block',
@@ -178,6 +184,9 @@ Browser.prototype.popit = function(ev, name, ele, opts)
 
     var mouseClick = myHandleEvent(ev);
 
+//    var top = my;
+//    var left = Math.min(mx - (width/2) - 4, (winWidth - width - 30));
+
     var top = mouseClick.y;
     var left = mouseClick.x - (width/2);
 
@@ -268,10 +277,10 @@ function makeTreeTableSection(title, content, visible) {
     var ttButton = makeElement('i');
     function update() {
         if (visible) {
-            ttButton.className = 'icon-chevron-down';
+            ttButton.className = 'fa fa-caret-down';
             content.style.display = 'table';
         } else {
-            ttButton.className = 'icon-chevron-right';
+            ttButton.className = 'fa fa-caret-right';
             content.style.display = 'none';
         }
     }

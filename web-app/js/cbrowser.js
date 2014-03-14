@@ -22,7 +22,7 @@ function Browser(opts) {
         opts = {};
     }
 
-    this.uiPrefix = 'http://www.biodalliance.org/release-0.10/';
+    this.uiPrefix = '//www.biodalliance.org/release-0.11/';
 
     this.sources = [];
     this.tiers = [];
@@ -32,6 +32,7 @@ function Browser(opts) {
     this.viewListeners = [];
     this.regionSelectListeners = [];
     this.tierListeners = [];
+    this.tierSelectionListeners = [];
     this.tierSelectionWrapListeners = [];
 
     this.cookieKey = 'browser';
@@ -62,12 +63,6 @@ function Browser(opts) {
     this.currentSeqMax = -1; // init once EPs are fetched.
 
     this.highlights = [];
-
-    this.autoSizeTiers = false;
-    this.guidelineStyle = 'foreground';
-    this.guidelineSpacing = 75;
-    this.fgGuide = null;
-    this.positionFeedback = false;
     
     this.selectedTiers = [1];
 
@@ -76,20 +71,19 @@ function Browser(opts) {
     this.maxViewWidth = 500000;
 
     // Options.
-
+    
     this.reverseScrolling = false;
     this.rulerLocation = 'center';
+    this.defaultHighlightFill = 'red';
+    this.defaultHighlightAlpha = 0.3;
+    this.exportHighlights = true;
+    this.exportRuler = true;
 
     // Visual config.
 
     // this.tierBackgroundColors = ["rgb(245,245,245)", "rgb(230,230,250)" /* 'white' */];
     this.tierBackgroundColors = ["rgb(245,245,245)", 'white'];
     this.minTierHeight = 30;
-
-    this.browserLinks = {
-        Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
-        UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr${chr}:${start}-${end}'
-    }
 
     // Registry
 
@@ -101,11 +95,15 @@ function Browser(opts) {
     this.hubObjects = [];
 
     this.sourceCache = new SourceCache();
+    
+    this.retina = true;
 
 
     for (var k in opts) {
         this[k] = opts[k];
     }
+
+    // this.uiPrefix = 'http://www.biodalliance.org/dev/'
 
     var thisB = this;
 
@@ -119,8 +117,6 @@ function Browser(opts) {
 }
 
 Browser.prototype.realInit = function() {
-    this.supportsBinary = true; /* (typeof Int8Array === 'function');*/ 
-    
     this.defaultChr = this.chr;
     this.defaultStart = this.viewStart;
     this.defaultEnd = this.viewEnd;
@@ -130,7 +126,7 @@ Browser.prototype.realInit = function() {
     }
 
     if (this.restoreStatus) {
-        this.restoreStatus();
+        this.statusRestored = this.restoreStatus();
     }
 
     var helpPopup;
@@ -143,7 +139,7 @@ Browser.prototype.realInit = function() {
 
     this.initUI(this.browserHolder, this.svgHolder);
 
-    this.tierHolder = makeElement('div', null, {className: 'tier-holder'});
+    this.tierHolder = makeElement('div', makeElement('img', null, {src: this.uiPrefix + 'img/loader.gif'}), {className: 'tier-holder'});
     this.svgHolder.appendChild(this.tierHolder);
 
     this.bhtmlRoot = makeElement('div');
@@ -156,19 +152,32 @@ Browser.prototype.realInit = function() {
         thisB.resizeViewer();
     }, false);
 
-    this.ruler = makeElement('div', null, {className: 'guideline'});
+    this.ruler = makeElement('div', null, {className: 'guideline'})
+    this.ruler2 = makeElement('div', null, {className: 'guideline'}, {backgroundColor: 'gray', opacity: '0.5', zIndex: 899});
     this.svgHolder.appendChild(this.ruler);
+    this.svgHolder.appendChild(this.ruler2);
 
-    setTimeout(function() {thisB.realInit2()}, 1);
+    if (window.getComputedStyle(this.browserHolderHolder).display != 'none') {
+        setTimeout(function() {thisB.realInit2()}, 1);
+    } else {
+        var pollInterval = setInterval(function() {
+            if (window.getComputedStyle(thisB.browserHolderHolder).display != 'none') {
+                clearInterval(pollInterval);
+                thisB.realInit2();
+            } 
+        }, 300);
+    }
 }
 
 Browser.prototype.realInit2 = function() {
     var thisB = this;
+
+    removeChildren(this.tierHolder);
     this.featurePanelWidth = this.tierHolder.getBoundingClientRect().width | 0;
     this.scale = this.featurePanelWidth / (this.viewEnd - this.viewStart);
-    // this.zoomExpt = 250 / Math.log(/* MAX_VIEW_SIZE */ 500000.0 / this.zoomBase);
     if (!this.zoomMax) {
         this.zoomMax = this.zoomExpt * Math.log(this.maxViewWidth / this.zoomBase);
+        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / 10 / this.zoomBase);
     }
     this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
 
@@ -218,14 +227,14 @@ Browser.prototype.realInit2 = function() {
         } else if (ev.keyCode == 32 || ev.charCode == 32) { // space
             if (!thisB.isSnapZooming) {
                 thisB.isSnapZooming = true;
-                var newZoom = thisB.savedZoom || 1.0;
-                thisB.savedZoom = thisB.zoomSliderValue;
+                var newZoom = (thisB.savedZoom || 0.0) + thisB.zoomMin;
+                thisB.savedZoom = thisB.zoomSliderValue - thisB.zoomMin;
                 thisB.zoomSliderValue = newZoom;
                 thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
             } else {
                 thisB.isSnapZooming = false;
-                var newZoom = thisB.savedZoom || 10.0;
-                thisB.savedZoom = thisB.zoomSliderValue;
+                var newZoom = (thisB.savedZoom || 20.0) + thisB.zoomMin;
+                thisB.savedZoom = thisB.zoomSliderValue - thisB.zoomMin;
                 thisB.zoomSliderValue = newZoom;
                 thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
             }
@@ -233,85 +242,10 @@ Browser.prototype.realInit2 = function() {
             ev.stopPropagation(); ev.preventDefault();      
         } else if (ev.keyCode == 39) { // right arrow
             ev.stopPropagation(); ev.preventDefault();
-            if (ev.ctrlKey) {
-                var fedge = 0;
-                if(ev.shiftKey){
-                    fedge = 1;
-                }
-                var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
-
-                var st = thisB.getSelectedTier();
-                if (st < 0) return;
-                thisB.tiers[st].findNextFeature(
-                      thisB.chr,
-                      pos,
-                      -1,
-                      fedge,
-                      function(nxt) {
-                          if (nxt) {
-                              var nmin = nxt.min;
-                              var nmax = nxt.max;
-                              if (fedge) {
-                                  if (nmax<pos-1) {
-                                      nmax++;
-                                      nmin=nmax;
-                                  } else {
-                                      nmax=nmin;
-                                  }
-                              }
-                              var wid = thisB.viewEnd - thisB.viewStart + 1;
-                              if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
-                              var newStart = (nmin + nmax - wid)/2 + 1;
-                              var newEnd = newStart + wid - 1;
-                              var pos2=pos;
-                              thisB.setLocation(nxt.segment, newStart, newEnd);
-                          } else {
-                              alert('no next feature');
-                          }
-                      });
-            } else {
-                thisB.move(ev.shiftKey ? 100 : 25);
-            }
+            thisB.scrollArrowKey(ev, -1);
         } else if (ev.keyCode == 37) { // left arrow
             ev.stopPropagation(); ev.preventDefault();
-            if (ev.ctrlKey) {
-                var fedge = 0;
-                if(ev.shiftKey){
-                    fedge = 1;
-                }
-                var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
-                var st = thisB.getSelectedTier();
-                if (st < 0) return;
-                thisB.tiers[st].findNextFeature(
-                      thisB.chr,
-                      pos,
-                      1,
-                      fedge,
-                      function(nxt) {
-                          if (nxt) {
-                              var nmin = nxt.min;
-                              var nmax = nxt.max;
-                              if (fedge) { 
-                                  if (nmin>pos+1) {
-                                      nmax=nmin;
-                                  } else {
-                                      nmax++;
-                                      nmin=nmax
-                                  }
-                              }
-                              var wid = thisB.viewEnd - thisB.viewStart + 1;
-                              if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
-                              var newStart = (nmin + nmax - wid)/2 + 1;
-                              var newEnd = newStart + wid - 1;
-                              var pos2=pos;
-                              thisB.setLocation(nxt.segment, newStart, newEnd);
-                          } else {
-                              alert('no next feature'); // FIXME better reporting would be nice!
-                          }
-                      });
-            } else {
-                thisB.move(ev.shiftKey ? -100 : -25);
-            }
+            thisB.scrollArrowKey(ev, 1);
         } else if (ev.keyCode == 38 || ev.keyCode == 87) { // up arrow | w
             ev.stopPropagation(); ev.preventDefault();
 
@@ -321,10 +255,9 @@ Browser.prototype.realInit2 = function() {
                 var tt = thisB.tiers[st];
                 var ch = tt.forceHeight || tt.subtiers[0].height;
                 if (ch >= 40) {
-                    tt.forceHeight = ch - 10;
-                    tt.draw();
+                    tt.mergeConfig({height: ch-10});
                 }
-            } else if (ev.ctrlKey) {
+            } else if (ev.ctrlKey || ev.metaKey) {
                 var st = thisB.getSelectedTier();
                 if (st < 0) return;
                 var tt = thisB.tiers[st];
@@ -339,13 +272,51 @@ Browser.prototype.realInit2 = function() {
                     var qmax = 1.0 * tq.max;
 
                     var qscale = (qmax - qmin) / th;
-                    tt.quantLeapThreshold = qmin + ((Math.round((tt.quantLeapThreshold - qmin)/qscale)|0)+1)*qscale;
-                    tt.draw();
+                    tt.mergeConfig({quantLeapThreshold: qmin + ((Math.round((tt.quantLeapThreshold - qmin)/qscale)|0)+1)*qscale});
+
+                    tt.notify('Threshold: ' + formatQuantLabel(tt.quantLeapThreshold));
                 }                
+            } else if (ev.altKey) {
+                var cnt = thisB.selectedTiers.length;
+                if (cnt == 0)
+                    return;
+
+                var st = thisB.selectedTiers[0];
+                var contiguous = true;
+                var mt = [];
+                for (var si = 0; si < thisB.selectedTiers.length; ++si) {
+                    mt.push(thisB.tiers[thisB.selectedTiers[si]]);
+                    if (si > 0 && thisB.selectedTiers[si] - thisB.selectedTiers[si - 1] != 1)
+                        contiguous = false;
+                }
+
+                if (contiguous && st <= 0)
+                    return;
+
+                for (var si = thisB.selectedTiers.length - 1; si >= 0; --si)
+                    thisB.tiers.splice(thisB.selectedTiers[si], 1);
+
+                thisB.selectedTiers.splice(0, cnt);
+
+                var ip = contiguous ? st - 1 : st;
+                for (var si = 0; si < mt.length; ++si) {
+                    thisB.tiers.splice(ip+si, 0, mt[si]);
+                    thisB.selectedTiers.push(ip + si);
+                }
+
+                thisB.markSelectedTiers();
+                thisB.notifyTierSelection();
+                thisB.reorderTiers();
+                thisB.notifyTier();
             } else {
                 var st = thisB.getSelectedTier();
                 if (st > 0) {
                     thisB.setSelectedTier(st - 1);
+                    var nst = thisB.tiers[thisB.getSelectedTier()];
+                    var rect = nst.holder.getBoundingClientRect();
+                    if (rect.bottom - rect.height < 0 || rect.botton > window.innerHeight) {
+                        nst.holder.scrollIntoView(true);
+                    }
                 } else {
                     thisB.notifyTierSelectionWrap(-1);
                 }
@@ -358,9 +329,8 @@ Browser.prototype.realInit2 = function() {
                 if (st < 0) return;
                 var tt = thisB.tiers[st];
                 var ch = tt.forceHeight || tt.subtiers[0].height;
-                tt.forceHeight = ch + 10;
-                tt.draw();
-            } else if (ev.ctrlKey) {
+                tt.mergeConfig({height: ch+10});
+            } else if (ev.ctrlKey || ev.metaKey) {
                 var st = thisB.getSelectedTier();
                 if (st < 0) return;
                 var tt = thisB.tiers[st];
@@ -377,14 +347,52 @@ Browser.prototype.realInit2 = function() {
 
                     var it = Math.round((tt.quantLeapThreshold - qmin)/qscale)|0;
                     if (it > 1) {
-                        tt.quantLeapThreshold = qmin + (it-1)*qscale;
-                        tt.draw();
+                        tt.mergeConfig({quantLeapThreshold: qmin + (it-1)*qscale});
+                        tt.notify('Threshold: ' + formatQuantLabel(tt.quantLeapThreshold));
                     }
                 }
+            } else if (ev.altKey) {
+                var cnt = thisB.selectedTiers.length;
+                if (cnt == 0)
+                    return;
+
+                var st = thisB.selectedTiers[0];
+                var discontig = 0;
+                var mt = [];
+                for (var si = 0; si < thisB.selectedTiers.length; ++si) {
+                    mt.push(thisB.tiers[thisB.selectedTiers[si]]);
+                    if (si > 0)
+                        discontig += (thisB.selectedTiers[si] - thisB.selectedTiers[si - 1] - 1);
+                }
+                contiguous = discontig == 0;
+
+                if (contiguous && st + cnt >= thisB.tiers.length)
+                    return;
+
+                for (var si = thisB.selectedTiers.length - 1; si >= 0; --si)
+                    thisB.tiers.splice(thisB.selectedTiers[si], 1);
+
+                thisB.selectedTiers.splice(0, cnt);
+
+                var ip = contiguous ? st + 1 : st + discontig;
+                for (var si = 0; si < mt.length; ++si) {
+                    thisB.tiers.splice(ip+si, 0, mt[si]);
+                    thisB.selectedTiers.push(ip + si);
+                }
+
+                thisB.markSelectedTiers();
+                thisB.notifyTierSelection();
+                thisB.reorderTiers();
+                thisB.notifyTier();
             } else {
                 var st = thisB.getSelectedTier();
                 if (st < thisB.tiers.length -1) {
                     thisB.setSelectedTier(st + 1);
+                    var nst = thisB.tiers[thisB.getSelectedTier()];
+                    var rect = nst.holder.getBoundingClientRect();
+                    if (rect.bottom - rect.height < 0 || rect.bottom > window.innerHeight) {
+                        nst.holder.scrollIntoView(rect.height > window.innerHeight);
+                    }
                 }
             }
         } else if (ev.keyCode == 187 || ev.keyCode == 61) { // +
@@ -440,8 +448,15 @@ Browser.prototype.realInit2 = function() {
             }
         } else if (ev.keyCode == 77 || ev.keyCode == 109) { // m
             ev.stopPropagation(); ev.preventDefault();
-            if (thisB.selectedTiers.length > 1) {
+            if ((ev.ctrlKey || ev.metaKey) && thisB.selectedTiers.length > 1) {
                 thisB.mergeSelectedTiers();
+            }
+        } else if (ev.keyCode == 68 || ev.keyCode == 100) { // d
+            ev.stopPropagation(); ev.preventDefault();
+            if (ev.ctrlKey || ev.metaKey) {
+                var st = thisB.getSelectedTier();
+                if (st < 0) return;
+                thisB.addTier(thisB.tiers[st].dasSource);
             }
         } else {
             // console.log('key: ' + ev.keyCode + '; char: ' + ev.charCode);
@@ -465,17 +480,21 @@ Browser.prototype.realInit2 = function() {
     this.hPopupHolder.classList.add('dalliance');
     document.body.appendChild(this.hPopupHolder);
 
+    var actualSources = [];
     for (var t = 0; t < this.sources.length; ++t) {
         var source = this.sources[t];
-        if (source.bwgURI && !this.supportsBinary) {
-            if (!this.binaryWarningGiven) {
-                this.popit({clientX: 300, clientY: 100}, 'Warning', makeElement('p', 'your browser does not support binary data formats, some track(s) not loaded.  We currently recommend Google Chrome 9 or later, or Firefox 4 or later.'));
-                this.binaryWarningGiven = true;
-            }
-            continue;
+        var config = {};
+        if (this.restoredConfigs) {
+            config = this.restoredConfigs[t];
         }
-        this.makeTier(source);
+
+        if (!source.disabled) {
+            actualSources.push(source);
+            this.makeTier(source, config);
+        }
     }
+    this.sources = actualSources;
+
     thisB.arrangeTiers();
     thisB.refresh();
     thisB.setSelectedTier(1);
@@ -503,14 +522,35 @@ Browser.prototype.realInit2 = function() {
 
     if (this.hubs) {
         for (var hi = 0; hi < this.hubs.length; ++hi) {
-            connectTrackHub(this.hubs[hi], function(hub, err) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    thisB.hubObjects.push(hub);
-                }
-            });
+            var hc = this.hubs[hi];
+            if (typeof hc == 'string') {
+                hc = {url: hc};
+            };
+
+            (function(hc) {
+                connectTrackHub(hc.url, function(hub, err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        var tdb;
+                        if (hc.genome)
+                            tdb = hub.genomes[hc.genome];
+                        else 
+                            tdb = hub.genomes[thisB.coordSystem.ucscName];
+
+                        if (tdb) {
+                            if (hc.mapping) 
+                                tdb.mapping = hc.mapping;
+                            thisB.hubObjects.push(tdb);
+                        }
+                    }
+                }, hc);
+            })(hc);
         }
+    }
+
+    if (!this.statusRestored && this.storeStatus) {
+        this.storeStatus();
     }
 }
 
@@ -566,32 +606,46 @@ Browser.prototype.touchCancelHandler = function(ev) {
 }
 
 
-Browser.prototype.makeTier = function(source) {
+Browser.prototype.makeTier = function(source, config) {
     try {
-        this.realMakeTier(source);
+        this.realMakeTier(source, config);
     } catch (e) {
-        console.log(e.stack);
+        console.log(e.stack || e);
     }
 }
 
-Browser.prototype.realMakeTier = function(source) {
+Browser.prototype.realMakeTier = function(source, config) {
     var thisB = this;
     var background = this.tierBackgroundColors[this.tiers.length % this.tierBackgroundColors.length];
 
     var viewport = makeElement('canvas', null, 
                                {width: '' + ((this.featurePanelWidth|0) + 2000), 
-                                height: "50",
+                                height: "30",
                                 className: 'viewport'});
                                
 
     var viewportOverlay = makeElement('canvas', null,
          {width: + ((this.featurePanelWidth|0) + 2000), 
-          height: "50",
+          height: "30",
           className: 'viewport-overlay'});
 
     var placardContent = makeElement('span', '');
-    var placard = makeElement('div', [makeElement('i', null, {className: 'icon-warning-sign'}), ' ', placardContent], {className: 'placard'});
+    var placard = makeElement('div', [makeElement('i', null, {className: 'fa fa-warning'}), ' ', placardContent], {className: 'placard'}, {display: 'none'});
     
+    var notifier = makeElement('div', 'Exciting message', {},
+        {backgroundColor: 'black',
+         color: 'white', 
+         zIndex: 5000,
+         position: 'relative',
+         top: '-25px',
+         opacity: 0.0,
+         padding: '6px',
+         borderRadius: '4px',
+         display: 'inline-block',
+         transition: 'opacity 0.6s ease-in-out',
+         pointerEvents: 'none'
+         });
+
     var vph = makeElement('div', [viewport, viewportOverlay], {className: 'view-holder'});
     // vph.className = 'tier-viewport-background';
     vph.style.background = background;
@@ -601,7 +655,7 @@ Browser.prototype.realMakeTier = function(source) {
     vph.addEventListener('touchend', function(ev) {return thisB.touchEndHandler(ev)}, false);
     vph.addEventListener('touchcancel', function(ev) {return thisB.touchCancelHandler(ev)}, false); 
 
-    var tier = new DasTier(this, source, viewport, vph, viewportOverlay, placard, placardContent);
+    var tier = new DasTier(this, source, viewport, vph, viewportOverlay, placard, placardContent, notifier, config);
     tier.oorigin = this.viewStart;
     tier.background = background;
 
@@ -636,7 +690,7 @@ Browser.prototype.realMakeTier = function(source) {
         var offset = (tier.glyphCacheOrigin - thisB.viewStart)*thisB.scale;
         rx -= offset;
        
-        return glyphLookup(glyphs, rx);
+        return glyphLookup(glyphs, rx, ry);
     }
 
     var dragMoveHandler = function(ev) {
@@ -731,18 +785,17 @@ Browser.prototype.realMakeTier = function(source) {
         isDragging = false;
     });
 
-
-
-    tier.removeButton = makeElement('i', null, {className: 'icon-remove'});
-    tier.bumpButton = makeElement('i', null, {className: 'icon-plus-sign'});
+    tier.removeButton = makeElement('i', null, {className: 'fa fa-times'});
+    tier.bumpButton = makeElement('i', null, {className: 'fa fa-plus-circle'});
     tier.loaderButton = makeElement('img', null, {src: this.uiPrefix + 'img/loader.gif'}, {display: 'none'});
     tier.infoElement = makeElement('div', tier.dasSource.desc, {}, {display: 'none', maxWidth: '200px', whiteSpace: 'normal', color: 'rgb(100,100,100)'});
-    tier.nameButton = makeElement('a', [], {className: 'tier-tab'});
+    tier.nameButton = makeElement('div', [], {className: 'tier-tab'});
     tier.nameButton.appendChild(tier.removeButton);
     if (source.pennant) {
         tier.nameButton.appendChild(makeElement('img', null, {src: source.pennant, width: '16', height: '16'}))
     }
-    tier.nameButton.appendChild(makeElement('span', [source.name, tier.infoElement], {}, {display: 'inline-block', marginLeft: '5px', marginRight: '5px'}));
+    tier.nameElement = makeElement('span', source.name);
+    tier.nameButton.appendChild(makeElement('span', [tier.nameElement, tier.infoElement], {}, {display: 'inline-block', marginLeft: '5px', marginRight: '5px'}));
     tier.nameButton.appendChild(tier.bumpButton);
     tier.nameButton.appendChild(tier.loaderButton);
     
@@ -750,13 +803,19 @@ Browser.prototype.realMakeTier = function(source) {
        [tier.nameButton],
        {className: 'btn-group'},
        {zIndex: 1001, position: 'absolute', left: '2px', top: '2px', opacity: 0.8, display: 'inline-block'});
-    var row = makeElement('div', [vph, placard , tier.label ], {}, {position: 'relative', display: 'block' /*, transition: 'height 0.5s' */});
+
+    var row = makeElement('div', [vph, placard , tier.label, notifier], {}, {position: 'relative', display: 'block', textAlign: 'center' /*, transition: 'height 0.5s' */});
     tier.row = row;
 
 
     tier.removeButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
-        thisB.removeTier(source);
+        for (var ti = 0; ti < thisB.tiers.length; ++ti) {
+            if (thisB.tiers[ti] === tier) {
+                thisB.removeTier({index: ti});
+                break;
+            }
+        }
     }, false);
     tier.nameButton.addEventListener('click', function(ev) {
         ev.stopPropagation(); ev.preventDefault();
@@ -778,6 +837,7 @@ Browser.prototype.realMakeTier = function(source) {
                     thisB.selectedTiers.sort();
                 }
                 thisB.markSelectedTiers();
+                thisB.notifyTierSelection();
 
                 if (thisB.selectedTiers.length > 0) {
                     thisB.browserHolder.focus();
@@ -853,7 +913,7 @@ Browser.prototype.realMakeTier = function(source) {
         var holderBCR = thisB.svgHolder.getBoundingClientRect();
         dragLabel.style.left = (label.getBoundingClientRect().left - holderBCR.left) + 'px'; 
         dragLabel.style.top = (ev.clientY - holderBCR.top - 10) + 'px';
-        
+
         var pty = ev.clientY - thisB.tierHolder.getBoundingClientRect().top;
         for (var ti = 0; ti < thisB.tiers.length; ++ti) {
             var tt = thisB.tiers[ti];
@@ -868,9 +928,6 @@ Browser.prototype.realMakeTier = function(source) {
 
                     thisB.tiers.splice(tierOrdinal, 1);
                     thisB.tiers.splice(ti, 0, tier);
-                    var ts = thisB.sources[tierOrdinal];
-                    thisB.sources.splice(tierOrdinal, 1);
-                    thisB.sources.splice(ti, 0, ts);
 
                     thisB.selectedTiers = [];
                     for (var sti = 0; sti < thisB.tiers.length; ++sti) {
@@ -880,16 +937,18 @@ Browser.prototype.realMakeTier = function(source) {
 
                     tierOrdinal = ti;
                     yAtLastReorder = ev.clientY;
-                    removeChildren(thisB.tierHolder);
-                    for (var i = 0; i < thisB.tiers.length; ++i) {
-                        thisB.tierHolder.appendChild(thisB.tiers[i].row);
-                    }
-                    thisB.tierHolder.appendChild(thisB.ruler);
+                    thisB.reorderTiers();
                     tiersWereReordered = true;
-                    thisB.arrangeTiers();
                 }
                 break;
             }
+        }
+
+        var labelBCR = dragLabel.getBoundingClientRect();
+        if (labelBCR.bottom - labelBCR.height < 0) {
+            dragLabel.scrollIntoView(true);
+        } else if (labelBCR.bottom > window.innerHeight) {
+            dragLabel.scrollIntoView(false);
         }
     };
 
@@ -940,6 +999,18 @@ Browser.prototype.realMakeTier = function(source) {
             }
         });
     }
+
+    tier._updateFromConfig();
+}
+
+Browser.prototype.reorderTiers = function() {
+    removeChildren(this.tierHolder);
+    for (var i = 0; i < this.tiers.length; ++i) {
+        this.tierHolder.appendChild(this.tiers[i].row);
+    }
+    this.tierHolder.appendChild(this.ruler);
+    this.tierHolder.appendChild(this.ruler2);
+    this.arrangeTiers();
 }
 
 Browser.prototype.refreshTier = function(tier) {
@@ -961,8 +1032,6 @@ Browser.prototype.arrangeTiers = function() {
 Browser.prototype.refresh = function() {
     this.notifyLocation();
     var width = (this.viewEnd - this.viewStart) + 1;
-    /* var minExtraW = (width * this.minExtra) | 0;
-    var maxExtraW = (width * this.maxExtra) | 0;*/
     var minExtraW = (100.0/this.scale)|0;
     var maxExtraW = (1000.0/this.scale)|0;
 
@@ -1039,10 +1108,7 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
                 setSources(msh, JSON.parse(localStorage['dalliance.registry.' + cacheHash + '.sources']), maybeMapping);
                 var cacheAge = (Date.now()|0) - (cacheTime|0);
                 if (cacheAge < (12 * 60 * 60 * 1000)) {
-                    // alert('Using cached registry data');
                     return;
-                } else {
-                    // alert('Registry data is stale, refetching');
                 }
             } catch (rex) {
                 console.log('Bad registry cache: ' + rex);
@@ -1165,6 +1231,10 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
     this.featurePanelWidth = width|0;
 
     if (oldFPW != this.featurePanelWidth) {
+        this.zoomMax = this.zoomExpt * Math.log(this.maxViewWidth / this.zoomBase);
+        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / 10 / this.zoomBase);
+        this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
+
         var viewWidth = this.viewEnd - this.viewStart;
         var nve = this.viewStart + (viewWidth * this.featurePanelWidth) / oldFPW;
 
@@ -1190,8 +1260,11 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 }
 
 Browser.prototype.addTier = function(conf) {
-    this.sources.push(conf);
+    conf = new DASSource(conf);
+    conf.disabled = false;
+    
     this.makeTier(conf);
+    this.markSelectedTiers();
     this.positionRuler();
     this.notifyTier();
 }
@@ -1199,6 +1272,8 @@ Browser.prototype.addTier = function(conf) {
 function sourceDataURI(conf) {
     if (conf.uri) {
         return conf.uri;
+    } else if (conf.blob) {
+        return 'file:' + conf.blob.name;
     } else if (conf.bwgBlob) {
         return 'file:' + conf.bwgBlob.name;
     } else if (conf.bamBlob) {
@@ -1222,6 +1297,12 @@ function sourcesAreEqual(a, b) {
         sourceStyleURI(a) != sourceStyleURI(b))
         return false;
 
+    if (a.mapping != b.mapping)
+        return false;
+
+    if (a.tier_type != b.tier_type)
+        return false;
+
     if (a.overlay) {
         if (!b.overlay || b.overlay.length != a.overlay.length)
             return false;
@@ -1237,11 +1318,8 @@ function sourcesAreEqual(a, b) {
     return true;
 }
 
-Browser.prototype.removeTier = function(conf) {
+Browser.prototype.removeTier = function(conf, force) {
     var target = -1;
-
-    // FIXME can this be done in a way that doesn't need changing every time we add
-    // new datasource types.
 
     if (typeof conf.index !== 'undefined' && conf.index >=0 && conf.index < this.tiers.length) {
         target = conf.index;
@@ -1260,9 +1338,12 @@ Browser.prototype.removeTier = function(conf) {
     }
 
     var victim = this.tiers[target];
+    if (victim.sequenceSource && !force) {
+        throw "Can't remove sequence source tier";
+    }
+
     this.tierHolder.removeChild(victim.row);
     this.tiers.splice(target, 1);
-    this.sources.splice(target, 1);
 
     var nst = [];
     for (var sti = 0; sti < this.selectedTiers.length; ++sti) {
@@ -1280,6 +1361,13 @@ Browser.prototype.removeTier = function(conf) {
     this.notifyTier();
 }
 
+Browser.prototype.getSequenceSource = function() {
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        if (this.tiers[ti].sequenceSource) {
+            return this.tiers[ti].sequenceSource;
+        }
+    }
+}
 
 Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
     if (!callback) {
@@ -1294,13 +1382,7 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
     if (!newChr || newChr == this.chr) {
         return this._setLocation(null, newMin, newMax, null, callback);
     } else {
-        var ss;
-        for (var ti = 0; ti < this.tiers.length; ++ti) {
-            if (this.tiers[ti].sequenceSource) {
-                ss = this.tiers[ti].sequenceSource;
-                break;
-            }
-        }
+        var ss = this.getSequenceSource();
         if (!ss) {
             return callback('Need a sequence source');
         }
@@ -1350,15 +1432,30 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
     this.viewStart = newMin;
     this.viewEnd = newMax;
     var newScale = this.featurePanelWidth / (this.viewEnd - this.viewStart);
-    var scaleChanged = (Math.abs(newScale - this.scale)) > 0.0001;
+    var oldScale = this.scale;
+    var scaleChanged = (Math.abs(newScale - oldScale)) > 0.0001;
     this.scale = newScale;
-    this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
-    this.isSnapZooming = false;
-    this.savedZoom = null;
-    this.notifyLocation();
 
+    var newZS, oldZS;
+    oldZS = this.zoomSliderValue;
+    this.zoomSliderValue = newZS = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
+    
     if (scaleChanged) {
         this.refresh();
+
+        if (this.savedZoom) {
+            newZS -= this.zoomMin;
+            oldZS -= this.zoomMin;
+            var difToActive = newZS - oldZS;
+            var difToSaved = newZS - this.savedZoom;
+            if (Math.abs(difToActive) > Math.abs(difToSaved)) {
+                this.isSnapZooming = !this.isSnapZooming;
+                this.savedZoom = oldZS;
+            }
+        } else {
+            this.isSnapZooming = false;
+            this.savedZoom = null;
+        }
     } else {
         var viewCenter = (this.viewStart + this.viewEnd)/2;
     
@@ -1369,6 +1466,7 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
             this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
         }
     }
+    this.notifyLocation();
 
     this.spaceCheck();
     return callback();
@@ -1382,7 +1480,8 @@ Browser.prototype.addFeatureListener = function(handler, opts) {
 Browser.prototype.notifyFeature = function(ev, feature, hit, tier) {
   for (var fli = 0; fli < this.featureListeners.length; ++fli) {
       try {
-          this.featureListeners[fli](ev, feature, hit, tier);
+          if (this.featureListeners[fli](ev, feature, hit, tier))
+            return;
       } catch (ex) {
           console.log(ex.stack);
       }
@@ -1449,12 +1548,59 @@ Browser.prototype.notifyRegionSelect = function(chr, min, max) {
 
 
 Browser.prototype.highlightRegion = function(chr, min, max) {
+    var thisB = this;
+    
+    if (chr == this.chr) {
+        return this._highlightRegion(chr, min, max);
+    }
+
+    var ss = this.getSequenceSource();
+    if (!ss) {
+        throw 'Need a sequence source';
+    }
+
+    ss.getSeqInfo(chr, function(si) {
+        if (!si) {
+            var altChr;
+            if (chr.indexOf('chr') == 0) {
+                altChr = chr.substr(3);
+            } else {
+                altChr = 'chr' + chr;
+            }
+            ss.getSeqInfo(altChr, function(si2) {
+                if (!si2) {
+                    // Fail silently.
+                } else {
+                    return thisB._highlightRegion(altChr, min, max);
+                }
+            });
+        } else {
+            return thisB._highlightRegion(chr, min, max);
+        }
+    });
+}
+
+Browser.prototype._highlightRegion = function(chr, min, max) {
+    for (var hi = 0; hi < this.highlights.length; ++hi) {
+        var h = this.highlights[hi];
+        if (h.chr == chr && h.min == min && h.max == max)
+            return;
+    }
+
     this.highlights.push(new Region(chr, min, max));
     var visStart = this.viewStart - (1000/this.scale);
     var visEnd = this.viewEnd + (1000/this.scale);
-    if (chr == this.chr && min < visEnd && max > visStart) {
+    if ((chr == this.chr || chr == ('chr'+this.chr)) && min < visEnd && max > visStart) {
         this.drawOverlays();
     }
+
+    this.notifyLocation();
+}
+
+Browser.prototype.clearHighlights = function() {
+    this.highlights = [];
+    this.drawOverlays();
+    this.notifyLocation();
 }
 
 Browser.prototype.drawOverlays = function() {
@@ -1490,8 +1636,13 @@ Browser.prototype.getSelectedTier = function() {
 }
 
 Browser.prototype.setSelectedTier = function(t) {
-    this.selectedTiers = [t];
+    if (t == null) {
+        this.selectedTiers = [];
+    } else {
+        this.selectedTiers = [t];
+    }
     this.markSelectedTiers();
+    this.notifyTierSelection();
 }
 
 Browser.prototype.markSelectedTiers = function() {
@@ -1500,13 +1651,26 @@ Browser.prototype.markSelectedTiers = function() {
 
         if (this.selectedTiers.indexOf(ti) >= 0) {
             button.classList.add('active');
-            // this.tiers[ti].label.focus();
         } else {
             button.classList.remove('active');
         }
     }
     if (this.selectedTiers.length > 0) {
         this.browserHolder.focus();
+    }
+}
+
+Browser.prototype.addTierSelectionListener = function(f) {
+    this.tierSelectionListeners.push(f);
+}
+
+Browser.prototype.notifyTierSelection = function() {
+    for (var fli = 0; fli < this.tierSelectionListeners.length; ++fli) {
+        try {
+            this.tierSelectionListeners[fli](this.selectedTiers);
+        } catch (ex) {
+            console.log(ex.stack);
+        }
     }
 }
 
@@ -1546,10 +1710,19 @@ Browser.prototype.positionRuler = function() {
     this.ruler.style.left = left;
     this.ruler.style.right = right;
 
+    this.ruler2.style.display = this.rulerLocation == 'center' ? 'none' : 'block';
+    this.ruler2.style.left = '' + ((this.featurePanelWidth/2)|0) + 'px';
+
     for (var ti = 0; ti < this.tiers.length; ++ti) {
-        var q = this.tiers[ti].quantOverlay;
+        var tier = this.tiers[ti];
+        var q = tier.quantOverlay;
+
+        var quant;
+        if (tier.subtiers && tier.subtiers.length > 0)
+            quant = tier.subtiers[0].quant;
+
         if (q) {
-            q.style.display = display;
+            q.style.display = quant ? display : 'none';
             q.style.left = left;
             q.style.right = right;
         }
@@ -1590,12 +1763,84 @@ Browser.prototype.updateHeight = function() {
     this.svgHolder.style.maxHeight = '' + Math.max(tierTotal, 500) + 'px';
 }
 
-function glyphLookup(glyphs, rx, matches) {
+Browser.prototype.scrollArrowKey = function(ev, dir) {
+    if (this.reverseKeyScrolling)
+        dir = -dir;
+    
+    if (ev.ctrlKey || ev.metaKey) {
+        var fedge = false;
+        if(ev.shiftKey){
+            fedge = true;
+        }
+
+        this.leap(dir, fedge);
+    } else {
+        this.move(ev.shiftKey ? 100*dir : 25*dir);
+    }
+}
+
+Browser.prototype.leap = function(dir, fedge) {
+    var thisB = this;
+    var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
+
+    var st = thisB.getSelectedTier();
+    if (st < 0) return;
+    var tier = thisB.tiers[st];
+
+    if (tier && ((tier.featureSource && sourceAdapterIsCapable(tier.featureSource, 'quantLeap') && typeof(tier.quantLeapThreshold) == 'number')
+                 || (tier.featureSource && sourceAdapterIsCapable(tier.featureSource, 'leap')))) {
+        tier.findNextFeature(
+              thisB.chr,
+              pos,
+              -dir,
+              fedge,
+              function(nxt) {
+                  if (nxt) {
+                      var nmin = nxt.min;
+                      var nmax = nxt.max;
+                      if (fedge) { 
+                        if (dir > 0) {
+                          if (nmin>pos+1) {
+                              nmax=nmin;
+                          } else {
+                              nmax++;
+                              nmin=nmax
+                          }
+                        } else {
+                            if (nmax<pos-1) {
+                                nmax++;
+                                nmin=nmax;
+                            } else {
+                                nmax=nmin;
+                            }
+                        } 
+                      }
+                      var wid = thisB.viewEnd - thisB.viewStart + 1;
+                      if(parseFloat(wid/2) == parseInt(wid/2)){wid--;}
+                      var newStart = (nmin + nmax - wid)/2 + 1;
+                      var newEnd = newStart + wid - 1;
+                      var pos2=pos;
+                      thisB.setLocation(nxt.segment, newStart, newEnd);
+                  } else {
+                      alert('no next feature'); // FIXME better reporting would be nice!
+                  }
+              });
+    } else {
+        this.move(100*dir);
+    }
+}
+
+function glyphLookup(glyphs, rx, ry, matches) {
     matches = matches || [];
 
-    for (var gi = 0; gi < glyphs.length; ++gi) {
+    for (var gi = glyphs.length - 1; gi >= 0; --gi) {
         var g = glyphs[gi];
         if (!g.notSelectable && g.min() <= rx && g.max() >= rx) {
+            if (g.minY) {
+                if (ry < g.minY() || ry > g.maxY())
+                    continue;
+            }
+
             if (g.feature) {
                 matches.push(g.feature);
             } else if (g.group) {
@@ -1603,9 +1848,9 @@ function glyphLookup(glyphs, rx, matches) {
             }
     
             if (g.glyphs) {
-                return glyphLookup(g.glyphs, rx, matches);
+                return glyphLookup(g.glyphs, rx, ry, matches);
             } else if (g.glyph) {
-                return glyphLookup([g.glyph], rx, matches);
+                return glyphLookup([g.glyph], rx, ry, matches);
             } else {
                 return matches;
             }

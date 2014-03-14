@@ -1,3 +1,18 @@
+*.dalliance span {
+  text-align: left;
+  width: auto;
+}
+
+*.dalliance form {
+  padding: 0px;
+}
+
+*.dalliance .nav-tabs > li {
+  float: left;
+  list-style: none;
+  margin: 0px;
+}
+
 *.dalliance * {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -19,7 +34,7 @@
 *.dalliance .tier-tab {
   display: inline-block;
   *display: inline;
-  padding: 2px 6px;
+  padding: 0px 2px;
   margin-bottom: 0;
   *margin-left: .3em;
   font-size: 14px;
@@ -62,7 +77,7 @@
   border: 3px solid rgb(150, 150, 230);
 }
 *.dalliance .loc-field {
-  width: 300px;
+  width: 240px;
   margin-bottom: 0px;
 }
 *.dalliance .loc-status {
@@ -132,7 +147,7 @@
 
 *.dalliance .guideline {
   width: 1px;
-  height: 2000px;     /* Can this be handled better...? */
+  height: 100%;
   background-color: blue;
   position: absolute;
   z-index: 900;
@@ -162,7 +177,7 @@
 }
 
 *.dalliance .zoom-slider {
-  width: 180px;
+  width: 150px;
 }
 
 *.dalliance .loc-group {
@@ -219,4 +234,15 @@
   position: relative;
   width: 100%;
   overflow: hidden;
+}
+
+*.dalliance .tier-edit input {
+  margin-bottom: 0px;
+}
+
+*.dalliance .tier-edit th {
+  width: 150px;
+  text-align: right;
+  padding-right: 10px;
+  vertical-align: middle;
 }
