@@ -2,10 +2,10 @@
  * Where everything starts
  */
 function loadLogisticRegressionView(){
-    lineGraphView.register_drag_drop();
-    lineGraphView.clear_high_dimensional_input('divIndependentVariable');
-    lineGraphView.clear_high_dimensional_input('divGroupByVariable');
-    lineGraphView.toggle_binning();
+    logisticRegressionView.register_drag_drop();
+    logisticRegressionView.clear_high_dimensional_input('divIndependentVariable');
+    logisticRegressionView.clear_high_dimensional_input('divGroupByVariable');
+    logisticRegressionView.toggle_binning();
 }
 
 /**
