@@ -13,7 +13,7 @@ class TestData {
     static TestData createDefault() {
         def concept = ConceptTestData.createDefault()
         def i2b2 = I2b2Data.createDefault()
-        def clinical = ClinicalTestData.createDefault(concept, i2b2)
+        def clinical = ClinicalTestData.createDefault(concept.i2b2List, i2b2.patients)
 
         new TestData(conceptData: concept, i2b2Data: i2b2, clinicalData: clinical)
     }

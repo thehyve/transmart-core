@@ -68,7 +68,7 @@ class ClinicalDataRetrievalTests {
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(i2b2Data: i2b2Data, conceptData: conceptData, facts: facts)
+        def clinicalData = new ClinicalTestData(patients: patients, facts: facts)
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }

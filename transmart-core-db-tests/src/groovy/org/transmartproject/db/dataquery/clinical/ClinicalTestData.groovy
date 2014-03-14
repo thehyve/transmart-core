@@ -1,13 +1,13 @@
 package org.transmartproject.db.dataquery.clinical
 
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.ontology.ConceptTestData
+import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -15,19 +15,41 @@ import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFr
 
 class ClinicalTestData {
 
-    I2b2Data i2b2Data
-    ConceptTestData conceptData
+    List<Patient> patients
     List<ObservationFact> facts
 
-    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult i2b2Data.patients
-
-    static ClinicalTestData createDefault(ConceptTestData conceptData, I2b2Data i2b2Data) {
-        def facts = createFacts(conceptData.conceptDimensions, i2b2Data.patients)
-        new ClinicalTestData(i2b2Data: i2b2Data, conceptData: conceptData, facts: facts)
-    }
+    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
+    }
+
+    static ClinicalTestData createDefault(List<I2b2> concepts, List<Patient> patients) {
+        def facts = createFacts(2, concepts, patients)
+        new ClinicalTestData(patients: patients, facts: facts)
+    }
+
+    /**
+     * @param count number of facts to be created and expected minimum amount of patients and leaf concepts
+     * @param concepts
+     * @param patients
+     * @return facts for leaf_concept[0] / patients[0], leaf_concept[1] / patients[1], etc...
+     */
+    static List<ObservationFact> createFacts(int count, List<I2b2> concepts, List<Patient> patients) {
+
+        assert patients.size() >= count
+
+        def leafConceptsCodes = concepts.findAll {
+            it.getVisualAttributes().contains(OntologyTerm.VisualAttributes.LEAF)
+        } collect { it.code }
+
+        assert leafConceptsCodes.size() >= count
+
+        def facts = []
+        for (int i=0; i<count; i++) {
+            facts << ClinicalTestData.createObservationFact(leafConceptsCodes[i], patients[i], -300, Math.pow(10, i+1))
+        }
+        facts
     }
 
     static ObservationFact createObservationFact(ConceptDimension concept,
@@ -79,7 +101,6 @@ class ClinicalTestData {
     }
 
     void saveAll() {
-
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save facts
     }
