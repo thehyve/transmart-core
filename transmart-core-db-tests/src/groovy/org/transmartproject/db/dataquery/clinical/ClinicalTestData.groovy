@@ -40,14 +40,14 @@ class ClinicalTestData {
         assert patients.size() >= count
 
         def leafConceptsCodes = concepts.findAll {
-            it.getVisualAttributes().contains(OntologyTerm.VisualAttributes.LEAF)
+            OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
         } collect { it.code }
 
         assert leafConceptsCodes.size() >= count
 
         def facts = []
-        for (int i=0; i<count; i++) {
-            facts << ClinicalTestData.createObservationFact(leafConceptsCodes[i], patients[i], -300, Math.pow(10, i+1))
+        for (int i = 0; i < count; i++) {
+            facts << createObservationFact(leafConceptsCodes[i], patients[i], -300, Math.pow(10, i+1))
         }
         facts
     }
