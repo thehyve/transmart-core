@@ -47,7 +47,8 @@ class ClinicalTestData {
 
         def facts = []
         for (int i = 0; i < count; i++) {
-            facts << createObservationFact(leafConceptsCodes[i], patients[i], -300, Math.pow(10, i+1))
+            facts << createObservationFact(leafConceptsCodes[i], patients[i],
+                    -300L, Math.pow(10, i + 1))
         }
         facts
     }
