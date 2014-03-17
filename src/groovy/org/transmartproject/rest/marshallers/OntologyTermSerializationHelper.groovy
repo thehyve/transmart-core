@@ -26,8 +26,9 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     static final String ROOT = 'ROOT'
 
     @Override
-    Collection<Link> getLinks(OntologyTermWrapper term) {
+    Collection<Link> getLinks(OntologyTermWrapper obj) {
         /* this gets tricky. We may be rendering this as part of the /studies response */
+        OntologyTerm term = obj.delegate
         OntologyTerm studyTerm
         String studyName
         try {
@@ -47,7 +48,8 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Map<String, Object> convertToMap(OntologyTermWrapper term) {
+    Map<String, Object> convertToMap(OntologyTermWrapper obj) {
+        OntologyTerm term = obj.delegate
         [
                 name:     term.name,
                 key:      term.key,

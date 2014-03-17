@@ -1,11 +1,6 @@
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import grails.rest.Link
-import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
