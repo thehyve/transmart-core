@@ -1,13 +1,13 @@
 package org.transmartproject.db.dataquery.clinical
 
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.ontology.ConceptTestData
+import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -15,19 +15,53 @@ import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFr
 
 class ClinicalTestData {
 
-    I2b2Data i2b2Data
-    ConceptTestData conceptData
+    List<Patient> patients
     List<ObservationFact> facts
 
-    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult i2b2Data.patients
-
-    static ClinicalTestData createDefault(ConceptTestData conceptData, I2b2Data i2b2Data) {
-        def facts = createFacts(conceptData.conceptDimensions, i2b2Data.patients)
-        new ClinicalTestData(i2b2Data: i2b2Data, conceptData: conceptData, facts: facts)
-    }
+    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
+    }
+
+    static ClinicalTestData createDefault(List<I2b2> concepts, List<Patient> patients) {
+        def facts = createDiagonalFacts(2, concepts, patients)
+        new ClinicalTestData(patients: patients, facts: facts)
+    }
+
+    /**
+     * Creates <code>count<code> facts from <code>count</code> leaf concepts
+     * and <code>count</code> patients. Non-leaf concepts are ignored.
+     *
+     * All <code>count</code> patients and concepts will have exactly one
+     * observation. The patients and concepts will be paired according to the
+     * order they appear in their lists. The first patient will be paired with
+     * the first concept, the second with the second, and so on.
+     *
+     * All the observations created will be numeric, with value
+     * <code>10^i+1</code>, where <code>i = 0, 1, ... count - 1</code>.
+     *
+     * @param count number of facts to be created and expected minimum amount of patients and leaf concepts
+     * @param concepts
+     * @param patients
+     * @return facts for leaf_concept[0] / patients[0], leaf_concept[1] / patients[1], etc...
+     */
+    static List<ObservationFact> createDiagonalFacts(int count, List<I2b2> concepts, List<Patient> patients) {
+
+        assert patients.size() >= count
+
+        def leafConceptsCodes = concepts.findAll {
+            OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
+        } collect { it.code }
+
+        assert leafConceptsCodes.size() >= count
+
+        def facts = []
+        for (int i = 0; i < count; i++) {
+            facts << createObservationFact(leafConceptsCodes[i], patients[i],
+                    -300L, Math.pow(10, i + 1))
+        }
+        facts
     }
 
     static ObservationFact createObservationFact(ConceptDimension concept,
@@ -79,7 +113,6 @@ class ClinicalTestData {
     }
 
     void saveAll() {
-
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save facts
     }
