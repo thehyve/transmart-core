@@ -205,6 +205,8 @@ var genomeBrowserPanel = new Ext.Panel(
                     Sequence: 'http://www.derkholm.net:8080/das/hg18comp/sequence?segment=${chr}:${start},${end}'
                 }
             });
+            var that = this;
+            setTimeout(function() { that.genomeBrowser.realInit()}, 0);
         }
     }
 );
