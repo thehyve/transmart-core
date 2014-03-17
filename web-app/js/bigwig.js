@@ -7,6 +7,8 @@
 // bigwig.js: indexed binary WIG (and BED) files
 //
 
+"use strict";
+
 var BIG_WIG_MAGIC = -2003829722;
 var BIG_BED_MAGIC = -2021002517;
 
@@ -18,6 +20,8 @@ var M1 = 256;
 var M2 = 256*256;
 var M3 = 256*256*256;
 var M4 = 256*256*256*256;
+
+var BED_COLOR_REGEXP = new RegExp("^[0-9]+,[0-9]+,[0-9]+");
 
 function bwg_readOffset(ba, o) {
     var offset = ba[o] + ba[o+1]*M1 + ba[o+2]*M2 + ba[o+3]*M3 + ba[o+4]*M4;
@@ -93,7 +97,7 @@ function BigWigView(bwg, cirTreeOffset, cirTreeLength, isSummary) {
     this.isSummary = isSummary;
 }
 
-BED_COLOR_REGEXP = new RegExp("^[0-9]+,[0-9]+,[0-9]+");
+
 
 BigWigView.prototype.readWigData = function(chrName, min, max, callback) {
     var chr = this.bwg.chromsToIDs[chrName];
@@ -130,7 +134,19 @@ BigWigView.prototype.readWigDataById = function(chr, min, max, callback) {
     }
 
     var cirFobRecur = function(offset, level) {
+        if (thisB.bwg.instrument)
+            console.log('level=' + level + '; offset=' + offset + '; time=' + (Date.now()|0));
+
         outstanding += offset.length;
+
+        if (offset.length == 1 && offset[0] - thisB.cirTreeOffset == 48 && thisB.cachedCirRoot) {
+            cirFobRecur2(thisB.cachedCirRoot, 0, level);
+            --outstanding;
+            if (outstanding == 0) {
+                thisB.fetchFeatures(filter, blocksToFetch, callback);
+            }
+            return;
+        }
 
         var maxCirBlockSpan = 4 +  (thisB.cirBlockSize * 32);   // Upper bound on size, based on a completely full leaf node.
         var spans;
@@ -152,6 +168,10 @@ BigWigView.prototype.readWigDataById = function(chr, min, max, callback) {
             for (var i = 0; i < offset.length; ++i) {
                 if (fr.contains(offset[i])) {
                     cirFobRecur2(resultBuffer, offset[i] - fr.min(), level);
+
+                    if (offset[i] - thisB.cirTreeOffset == 48 && offset[i] - fr.min() == 0)
+                        thisB.cachedCirRoot = resultBuffer;
+
                     --outstanding;
                     if (outstanding == 0) {
                         thisB.fetchFeatures(filter, blocksToFetch, callback);
@@ -235,7 +255,7 @@ BigWigView.prototype.fetchFeatures = function(filter, blocksToFetch, callback) {
             f.max = fmax;
             f.type = 'bigwig';
             
-            for (k in opts) {
+            for (var k in opts) {
                 f[k] = opts[k];
             }
             
@@ -445,17 +465,14 @@ BigWigView.prototype.parseFeatures = function(data, createFeature, filter) {
                         featureOpts.groups.push(gg);
                     }
 
-                    var spans = null;
+                    var spanList = [];
                     for (var b = 0; b < blockCount; ++b) {
                         var bmin = (blockStarts[b]|0) + start;
                         var bmax = bmin + (blockSizes[b]|0);
                         var span = new Range(bmin, bmax);
-                        if (spans) {
-                            spans = union(spans, span);
-                        } else {
-                            spans = span;
-                        }
+                        spanList.push(span);
                     }
+                    var spans = union(spanList);
                     
                     var tsList = spans.ranges();
                     for (var s = 0; s < tsList.length; ++s) {

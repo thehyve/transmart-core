@@ -7,6 +7,8 @@
 // tier-edit.js
 //
 
+"use strict";
+
 var __dalliance_smallGlyphs = {DOT: true, EX: true, STAR: true, SQUARE: true, CROSS: true, TRIANGLE: true, PLIMSOLL: true}
 
 Browser.prototype.openTierPanel = function(tier) {
@@ -39,14 +41,24 @@ Browser.prototype.openTierPanel = function(tier) {
             style._gradient = null;
         }
 
-        var changeColor = function(ev) {
+        var mutateStylesheet = function(visitor) {
             var nss = copyStylesheet(tier.stylesheet);
+            var ssScale = tier.browser.zoomForCurrentScale();
 
             for (var i = 0; i < nss.styles.length; ++i) {
-                var style = nss.styles[i].style;
-                setStyleColors(style);
+                var sh = nss.styles[i];
+                if (sh.zoom && sh.zoom != ssScale) {
+                    continue;
+                }
+
+                visitor(sh.style);
             }
-            tier.mergeConfig({stylesheet: nss});
+
+            return nss;
+        }
+
+        var changeColor = function(ev) {
+            tier.mergeConfig({stylesheet: mutateStylesheet(setStyleColors)});
         }
         
         this.manipulatingTier = tier;
@@ -57,14 +69,18 @@ Browser.prototype.openTierPanel = function(tier) {
             tierForm.appendChild(makeElement('div', 'Mapped from ' + coords.auth + coords.version , null, 
                 {background: 'gray', paddingBottom: '5px', marginBottom: '5px', textAlign: 'center'}));
         }
+        var semanticBanner = makeElement('div', 'Editing styles for current zoom level', null,
+                {background: 'gray', paddingBottom: '5px', marginBottom: '5px', textAlign: 'center', display: 'none'});
+        tierForm.appendChild(semanticBanner);
 
         var tierNameField = makeElement('input', null, {type: 'text'});
+        var tierPinnedToggle = makeElement('input', null, {type: 'checkbox'});
+
         var glyphField = makeElement('select');
         glyphField.appendChild(makeElement('option', 'Histogram', {value: 'HISTOGRAM'}));
         glyphField.appendChild(makeElement('option', 'Line Plot', {value: 'LINEPLOT'}));
         glyphField.appendChild(makeElement('option', 'Ribbon', {value: 'GRADIENT'}));
         glyphField.appendChild(makeElement('option', 'Scatter', {value: 'SCATTER'}));
-
 
         var tierColorField = makeElement('input', null, {type: 'text', value: '#dd00dd'});
         var tierColorField2 = makeElement('input', null, {type: 'text', value: '#dd00dd'});
@@ -80,7 +96,7 @@ Browser.prototype.openTierPanel = function(tier) {
         var colorListMinus = makeElement('i', null, {className: 'fa fa-minus-circle'});
         var numColors = 1;
         var colorListElement = makeElement('td', tierColorFields);
-        function setNumColors(n) {
+        var setNumColors = function(n) {
             numColors = n;
             for (var i = 0; i < n; ++i) 
                 tierColorFields[i].style.display = 'block';
@@ -110,18 +126,21 @@ Browser.prototype.openTierPanel = function(tier) {
 
         var tierHeightField = makeElement('input', null, {type: 'text', value: '50'});
 
+        var bumpToggle = makeElement('input', null, {type: 'checkbox'});
+        var labelToggle = makeElement('input', null, {type: 'checkbox'});
+
         var mainStyle = null;
         if (tier.stylesheet.styles.length > 0) {
             var s = mainStyle = tier.stylesheet.styles[0].style;
         }
 
-        
-
-        function refresh() {
+        var refresh = function() {
             if (typeof tier.config.name === 'string')
                 tierNameField.value = tier.config.name;
             else 
                 tierNameField.value = tier.dasSource.name;
+
+            tierPinnedToggle.checked = tier.pinned;
 
             if (tier.forceHeight) {
                 tierHeightField.value = '' + tier.forceHeight;
@@ -142,10 +161,16 @@ Browser.prototype.openTierPanel = function(tier) {
             if (tier.stylesheet.styles.length > 0) {
                 var s = mainStyle = tier.stylesheet.styles[0].style;
                 var isQuantitative=false, isSimpleQuantitative = false;
-
-                var isGradient = s.COLOR2 || s.BGGRAD;
+                var ssScale = tier.browser.zoomForCurrentScale();
+                var activeStyleCount = 0;
 
                 for (var si = 0; si < tier.stylesheet.styles.length; ++si) {
+                    var sh = tier.stylesheet.styles[si];  
+                    if (sh.zoom && sh.zoom != ssScale) {
+                        continue;
+                    }
+                    ++activeStyleCount;
+
                     var ss = tier.stylesheet.styles[si].style;
                     if (ss.glyph == 'LINEPLOT' || ss.glyph == 'HISTOGRAM' || ss.glyph == 'GRADIENT' || isDasBooleanTrue(ss.SCATTER)) {
                         if (!isQuantitative)
@@ -154,14 +179,23 @@ Browser.prototype.openTierPanel = function(tier) {
                     }
                 }
 
-                isSimpleQuantitative = isQuantitative && tier.stylesheet.styles.length == 1;
+                semanticBanner.style.display = (activeStyleCount == tier.stylesheet.styles.length) ? 'none' : 'block';
+
+                isSimpleQuantitative = isQuantitative && activeStyleCount == 1;
+                var isGradient = s.COLOR2 || s.BGGRAD;
 
                 if (isQuantitative) {
                     minRow.style.display = 'table-row';
                     maxRow.style.display = 'table-row';
+                    bumpRow.style.display = 'none';
+                    labelRow.style.display = 'none';
                 } else {
                     minRow.style.display = 'none';
                     maxRow.style.display = 'none';
+                    bumpRow.style.display = 'table-row';
+                    bumpToggle.checked = isDasBooleanTrue(mainStyle.BUMP);
+                    labelRow.style.display = 'table-row';
+                    labelToggle.checked = isDasBooleanTrue(mainStyle.LABEL);
                 }
 
                 if (isSimpleQuantitative) {
@@ -296,11 +330,22 @@ Browser.prototype.openTierPanel = function(tier) {
              makeElement('tr',
                 [makeElement('th', 'Threshold leap:'),
                  makeElement('td', [quantLeapToggle, ' ', quantLeapThreshField])]);
+        var bumpRow = makeElement('tr',
+                [makeElement('th', 'Bump overlaps'),
+                 makeElement('td', bumpToggle)]);
+        var labelRow = makeElement('tr',
+                [makeElement('th', 'Label features'),
+                 makeElement('td', labelToggle)]);
+
 
         var tierTable = makeElement('table',
             [makeElement('tr',
                 [makeElement('th', 'Name', {}, {width: '150px', textAlign: 'right'}),
                  tierNameField]),
+
+             makeElement('tr',
+                [makeElement('th', 'Pin to top'),
+                 tierPinnedToggle]),
 
              makeElement('tr',
                 [makeElement('th', 'Height'),
@@ -311,7 +356,8 @@ Browser.prototype.openTierPanel = function(tier) {
             minRow,
             maxRow,
             quantLeapRow,
-
+            bumpRow,
+            labelRow,
             seqMismatchRow,
             seqInsertRow
              ]);
@@ -331,16 +377,16 @@ Browser.prototype.openTierPanel = function(tier) {
             tier.mergeConfig({name: tierNameField.value});
         }, false);
 
+        tierPinnedToggle.addEventListener('change', function(ev) {
+            tier.mergeConfig({pinned: tierPinnedToggle.checked});
+        }, false);
 
         for (var ci = 0; ci < tierColorFields.length; ++ci) {
             tierColorFields[ci].addEventListener('change', changeColor, false);
         }
 
         glyphField.addEventListener('change', function(ev) {
-            var nss = copyStylesheet(tier.stylesheet);
-            for (var i = 0; i < nss.styles.length; ++i) {
-                var ts = nss.styles[i].style;
-
+            var nss = mutateStylesheet(function(ts) {
                 if (glyphField.value === 'SCATTER') {
                     ts.SCATTER = true;
                     ts.glyph = 'DOT';
@@ -350,7 +396,7 @@ Browser.prototype.openTierPanel = function(tier) {
                     ts.SCATTER = undefined;
                 }
                 setStyleColors(ts);
-            }
+            });
             tier.mergeConfig({stylesheet: nss});
         }, false);
 
@@ -388,7 +434,7 @@ Browser.prototype.openTierPanel = function(tier) {
                 tier.mergeConfig({height: Math.min(500, x|0)});
         }, false);
 
-        function updateQuant() {
+        var updateQuant = function() {
             quantLeapThreshField.disabled = !quantLeapToggle.checked;
             if (quantLeapToggle.checked) {
                 var x = parseFloat(quantLeapThreshField.value);
@@ -406,11 +452,32 @@ Browser.prototype.openTierPanel = function(tier) {
             updateQuant();
         }, false);
 
+        labelToggle.addEventListener('change', function(ev) {
+            var nss = mutateStylesheet(function(style) {
+                style.LABEL = labelToggle.checked ? 'yes' : 'no';
+            });
+            tier.mergeConfig({stylesheet: nss});
+        }, false);
+        bumpToggle.addEventListener('change', function(ev) {
+            var nss = mutateStylesheet(function(style) {
+                style.BUMP = bumpToggle.checked ? 'yes' : 'no';
+            });
+            tier.mergeConfig({stylesheet: nss});
+        }, false);
+
 
         this.showToolPanel(tierForm);
         this.setUiMode('tier');
 
         tier.addTierListener(refresh);
+
+        var currentScale = tier.browser.scale;
+        tier.browser.addViewListener(function() {
+            if (tier.browser.scale != currentScale) {
+                currentScale = tier.browser.scale;
+                refresh();
+            }
+        });
     }
 }
 
@@ -428,9 +495,9 @@ function copyStylesheet(ss) {
     nss.styles = [];
     for (var si = 0; si < ss.styles.length; ++si) {
         var sh = nss.styles[si] = shallowCopy(ss.styles[si]);
-        sh._methodRE = sh._labelRE = sh._typeRE = null;
+        sh._methodRE = sh._labelRE = sh._typeRE = undefined;
         sh.style = shallowCopy(sh.style);
-        // sh.style.id = 'style' + (++this.styleIdSeed);
+        sh.style.id = undefined;
     }
     return nss;
 }

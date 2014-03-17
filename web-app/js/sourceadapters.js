@@ -7,11 +7,30 @@
 // sourceadapters.js
 //
 
-var __dalliance_sourceAdapterFactories = {}
+"use strict";
+
+var __dalliance_sourceAdapterFactories = {};
 
 function dalliance_registerSourceAdapterFactory(type, factory) {
     __dalliance_sourceAdapterFactories[type] = factory;
-}
+};
+
+
+(function(global) {
+    var __dalliance_parserFactories = {};
+
+    global.dalliance_registerParserFactory = function(type, factory) {
+        __dalliance_parserFactories[type] = factory;
+    };
+
+    global.dalliance_makeParser = function(type) {
+        if (__dalliance_parserFactories[type]) {
+            return __dalliance_parserFactories[type](type);
+        }
+    };
+}(this));
+
+
 
 DasTier.prototype.initSources = function() {
     var thisTier = this;
@@ -48,9 +67,17 @@ Browser.prototype.createFeatureSource = function(config) {
         var saf = __dalliance_sourceAdapterFactories[config.tier_type];
         fs = saf(config).features;
     } else if (config.bwgURI || config.bwgBlob) {
-        fs =  new BWGFeatureSource(config);
+        var worker = this.getWorker();
+        if (worker)
+            fs = new RemoteBWGFeatureSource(config, worker);
+        else
+            fs = new BWGFeatureSource(config);
     } else if (config.bamURI || config.bamBlob) {
-        fs = new BAMFeatureSource(config);
+        var worker = this.getWorker();
+        if (worker)
+            fs = new RemoteBAMFeatureSource(config, worker);
+        else
+            fs = new BAMFeatureSource(config);
     } else if (config.bamblrURI) {
         fs = new BamblrFeatureSource(config);
     } else if (config.jbURI) {
@@ -189,14 +216,14 @@ CachingFeatureSource.prototype.fetch = function(chr, min, max, scale, types, poo
     if (!awaitedFeatures) {
         var awaitedFeatures = new Awaited();
         pool.awaitedFeatures[this.cfsid] = awaitedFeatures;
-        this.source.fetch(chr, min, max, scale, types, pool, function(status, features, scale) {
+        this.source.fetch(chr, min, max, scale, types, pool, function(status, features, scale, coverage) {
             if (!awaitedFeatures.res)
-                awaitedFeatures.provide({status: status, features: features, scale: scale});
+                awaitedFeatures.provide({status: status, features: features, scale: scale, coverage: coverage});
         });
     } 
 
     awaitedFeatures.await(function(af) {
-        callback(af.status, af.features, af.scale);
+        callback(af.status, af.features, af.scale, af.coverage);
     });
 }
     
@@ -257,7 +284,7 @@ FeatureSourceBase.prototype.getStyleSheet = function(callback) {
 
 
 function DASFeatureSource(dasSource) {
-    this.dasSource = dasSource;
+    this.dasSource = new DASSource(dasSource);
     this.busy = 0;
     this.activityListeners = [];
 }
@@ -357,7 +384,7 @@ DASFeatureSource.prototype.findNextFeature = this.sourceFindNextFeature = functi
 };
 
 function DASSequenceSource(dasSource) {
-    this.dasSource = dasSource;
+    this.dasSource = new DASSource(dasSource);
     this.awaitedEntryPoints = new Awaited();
 
     var thisB = this;
@@ -721,6 +748,259 @@ BWGFeatureSource.prototype.getStyleSheet = function(callback) {
     });
 }
 
+function RemoteBWGFeatureSource(bwgSource, worker) {
+    FeatureSourceBase.call(this);
+
+    this.worker = worker;
+    this.readiness = 'Connecting';
+    this.bwgSource = this.opts = bwgSource;
+    this.keyHolder = new Awaited();
+    this.init();
+}
+
+RemoteBWGFeatureSource.prototype = Object.create(FeatureSourceBase.prototype);
+
+RemoteBWGFeatureSource.prototype.init = function() {
+    var thisB = this;
+    var uri = this.bwgSource.uri || this.bwgSource.bwgURI;
+    var blob = this.bwgSource.blob || this.bwgSource.bwgBlob;
+
+    var cnt = function(key, err) {
+        thisB.readiness = null;
+        thisB.notifyReadiness();
+
+        if (key) {
+            thisB.worker.postCommand({command: 'meta', connection: key}, function(meta, err) {
+                if (err) {
+                    thisB.error = err;
+                    thisB.keyHolder.provide(null);
+                } else {
+                    thisB.meta = meta;
+                    thisB.keyHolder.provide(key);
+                }
+            });
+        } else {
+            thisB.error = err;
+            thisB.keyHolder.provide(null);
+        }
+    };
+
+    if (blob) {
+        this.worker.postCommand({command: 'connectBBI', blob: blob}, cnt);
+    } else {
+        this.worker.postCommand({command: 'connectBBI', uri: uri}, cnt); 
+    }
+}
+
+RemoteBWGFeatureSource.prototype.capabilities = function() {
+    var caps = {leap: true};
+
+    if (this.meta && this.meta.type == 'bigwig')
+        caps.quantLeap = true;
+    if (this.meta && this.meta.extraIndices && this.meta.extraIndices.length > 0) {
+        caps.search = [];
+        for (var eii = 0; eii < this.meta.extraIndices.length; ++eii) {
+            caps.search.push(this.meta.extraIndices[eii].field);
+        }
+    }
+    return caps;
+}
+
+RemoteBWGFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
+    var thisB = this;
+
+    thisB.busy++;
+    thisB.notifyActivity();
+
+    this.keyHolder.await(function(key) {
+        if (!key) {
+            thisB.busy--;
+            thisB.notifyActivity();
+            return callback(thisB.error || "Can't access binary file", null, null);
+        }
+
+        var zoom = -1;
+        var wantDensity = !types || types.length == 0 || arrayIndexOf(types, 'density') >= 0;
+        if (thisB.opts.clientBin) {
+            wantDensity = false;
+        }
+        if (thisB.meta.type == 'bigwig' || wantDensity || (typeof thisB.opts.forceReduction !== 'undefined')) {
+            for (var z = 1; z < thisB.meta.zoomLevels.length; ++z) {
+                if (thisB.meta.zoomLevels[z] <= scale) {
+                    zoom = z - 1; // Scales returned in metadata start at 1, unlike "real" zoom levels.
+                } else {
+                    break;
+                }
+            }
+            if (typeof thisB.opts.forceReduction !== 'undefined') {
+                zoom = thisB.opts.forceReduction;
+            }
+        }
+        
+        thisB.worker.postCommand({command: 'fetch', connection: key, chr: chr, min: min, max: max, zoom: zoom}, function(features, error) {
+            thisB.busy--;
+            thisB.notifyActivity();
+
+            var fs = 1000000000;
+            if (thisB.meta.type === 'bigwig') {
+                var is = (max - min) / features.length / 2;
+                if (is < fs) {
+                    fs = is;
+                }
+            } 
+            if (thisB.opts.link) {
+                for (var fi = 0; fi < features.length; ++fi) {
+                    var f = features[fi];
+                    if (f.label) {
+                        f.links = [new DASLink('Link', thisB.opts.link.replace(/\$\$/, f.label))];
+                    }
+                }
+            } 
+            callback(error, features, fs);
+        });
+    });
+}
+
+
+RemoteBWGFeatureSource.prototype.quantFindNextFeature = function(chr, pos, dir, threshold, callback) {
+    var thisB = this;
+    this.busy++;
+    this.notifyActivity();
+    this.worker.postCommand({command: 'quantLeap', connection: this.keyHolder.res, chr: chr, pos: pos, dir: dir, threshold: threshold, under: false}, function(result, err) {
+        console.log(result, err);
+        thisB.busy--;
+        thisB.notifyActivity();
+        return callback(result, err);
+    });
+}
+
+RemoteBWGFeatureSource.prototype.findNextFeature = function(chr, pos, dir, callback) {
+    var thisB = this;
+    this.busy++;
+    this.notifyActivity();
+    this.worker.postCommand({command: 'leap', connection: this.keyHolder.res, chr: chr, pos: pos, dir: dir}, function(result, err) {
+        thisB.busy--;
+        thisB.notifyActivity();
+        if (result.length > 0 && result[0] != null) {
+            callback(result[0]);
+        }
+    });
+}
+
+RemoteBWGFeatureSource.prototype.getScales = function() {
+    var meta = this.meta;
+    if (meta) {
+        return meta.zoomLevels;
+    } else {
+        return null;
+    }
+}
+
+RemoteBWGFeatureSource.prototype.search = function(query, callback) {
+    if (!this.meta.extraIndices || this.meta.extraIndices.length == 0) {
+        return callback(null, 'No indices available');
+    }
+
+    var thisB = this;
+    this.busy++;
+    this.notifyActivity();
+    var index = this.meta.extraIndices[0];
+    this.worker.postCommand({command: 'search', connection: this.keyHolder.res, query: query, index: index}, function(result, err) {
+        thisB.busy--;
+        thisB.notifyActivity();
+
+        callback(result, err);
+    });
+}
+
+RemoteBWGFeatureSource.prototype.getDefaultFIPs = function(callback) {
+    if (this.opts.noExtraFeatureInfo)
+        return true;
+
+    var thisB = this;
+    this.keyHolder.await(function(key) {
+        var bwg = thisB.meta;
+        if (!bwg) return;
+
+        if (bwg.schema && bwg.definedFieldCount < bwg.schema.fields.length) {
+            var fip = function(feature, featureInfo) {
+                for (var fi = bwg.definedFieldCount; fi < bwg.schema.fields.length; ++fi) {
+                    var f = bwg.schema.fields[fi];
+                    featureInfo.add(f.comment, feature[f.name]);
+                }
+            };
+
+            callback(fip);
+        } else {
+            // No need to do anything.
+        }
+    });
+} 
+
+RemoteBWGFeatureSource.prototype.getStyleSheet = function(callback) {
+    var thisB = this;
+
+    this.keyHolder.await(function(key) {
+        var bwg = thisB.meta;
+        if (!bwg) {
+            return callback(null, 'bbi error');
+        } 
+
+        var stylesheet = new DASStylesheet();
+        if (bwg.type == 'bigbed') {
+            var wigStyle = new DASStyle();
+            wigStyle.glyph = 'BOX';
+            wigStyle.FGCOLOR = 'black';
+            wigStyle.BGCOLOR = 'blue'
+            wigStyle.HEIGHT = 8;
+            wigStyle.BUMP = true;
+            wigStyle.LABEL = true;
+            wigStyle.ZINDEX = 20;
+            stylesheet.pushStyle({type: 'bigwig'}, null, wigStyle);
+        
+            wigStyle.glyph = 'BOX';
+            wigStyle.FGCOLOR = 'black';
+            wigStyle.BGCOLOR = 'red'
+            wigStyle.HEIGHT = 10;
+            wigStyle.BUMP = true;
+            wigStyle.ZINDEX = 20;
+            stylesheet.pushStyle({type: 'bb-translation'}, null, wigStyle);
+                    
+            var tsStyle = new DASStyle();
+            tsStyle.glyph = 'BOX';
+            tsStyle.FGCOLOR = 'black';
+            tsStyle.BGCOLOR = 'white';
+            tsStyle.HEIGHT = 10;
+            tsStyle.ZINDEX = 10;
+            tsStyle.BUMP = true;
+            tsStyle.LABEL = true;
+            stylesheet.pushStyle({type: 'bb-transcript'}, null, tsStyle);
+
+            var densStyle = new DASStyle();
+            densStyle.glyph = 'HISTOGRAM';
+            densStyle.COLOR1 = 'white';
+            densStyle.COLOR2 = 'black';
+            densStyle.HEIGHT=30;
+            stylesheet.pushStyle({type: 'density'}, null, densStyle);
+        } else {
+            var wigStyle = new DASStyle();
+            wigStyle.glyph = 'HISTOGRAM';
+            wigStyle.COLOR1 = 'white';
+            wigStyle.COLOR2 = 'black';
+            wigStyle.HEIGHT=30;
+            stylesheet.pushStyle({type: 'default'}, null, wigStyle);
+        }
+
+
+        if (bwg.definedFieldCount == 12 && bwg.fieldCount >= 14) {
+            stylesheet.geneHint = true;
+        } 
+
+        return callback(stylesheet);
+    });
+}
+
+
 function BamblrFeatureSource(bamblrSource) {
     this.bamblr = bamblrSource.bamblrURI;
 }
@@ -768,6 +1048,40 @@ BamblrFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool
             return;
         }
     });
+}
+
+function bamRecordToFeature(r) {
+    if (r.flag & 0x4)
+        return; 
+    
+    var len;
+    if (r.seq)
+        len = r.seq.length;
+    else 
+        len = r.seqLength;
+    
+    if (r.cigar) {
+        len = 0;
+        var ops = parseCigar(r.cigar);
+        for (var ci = 0; ci < ops.length; ++ci) {
+            var co = ops[ci];
+            if (co.op == 'M' || co.op == 'D')
+                len += co.cnt;
+        }
+    }
+
+    var f = new DASFeature();
+    f.min = r.pos + 1;
+    f.max = r.pos + len;
+    f.segment = r.segment;
+    f.type = 'bam';
+    f.id = r.readName;
+    f.notes = [/* 'Sequence=' + r.seq, 'CIGAR=' + r.cigar, */ 'MQ=' + r.mq];
+    f.cigar = r.cigar;
+    f.seq = r.seq;
+    f.quals = r.quals;
+
+    return f;
 }
 
 function BAMFeatureSource(bamSource) {
@@ -823,20 +1137,34 @@ BAMFeatureSource.prototype.init = function() {
         bamF = new URLFetchable(this.bamSource.bamURI, {credentials: this.opts.credentials});
         baiF = new URLFetchable(this.bamSource.baiURI || (this.bamSource.bamURI + '.bai'), {credentials: this.opts.credentials});
     }
-    makeBam(bamF, baiF, function(bam) {
+    makeBam(bamF, baiF, function(bam, err) {
         thisB.readiness = null;
         thisB.notifyReadiness();
-        thisB.bamHolder.provide(bam);
+
+        if (bam) {
+            thisB.bamHolder.provide(bam);
+        } else {
+            thisB.error = err;
+            thisB.bamHolder.provide(null);
+        }
     });
 }
 
 BAMFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
+    var light = types && (types.length == 1) && (types[0] == 'density');
+
     var thisB = this;
     
     thisB.busy++;
     thisB.notifyActivity();
     
     this.bamHolder.await(function(bam) {
+        if (!bam) {
+            thisB.busy--;
+            thisB.notifyActivity();
+            return callback(thisB.error || "Couldn't fetch BAM");
+        }
+
         bam.fetch(chr, min, max, function(bamRecords, error) {
             thisB.busy--;
             thisB.notifyActivity();
@@ -848,35 +1176,13 @@ BAMFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, c
                 for (var ri = 0; ri < bamRecords.length; ++ri) {
                     var r = bamRecords[ri];
 
-                    if (r.flag & 0x4)
-                        continue; 
-                    
-                    var len = r.seq.length;
-                    if (r.cigar) {
-                        len = 0;
-                        var ops = parseCigar(r.cigar);
-                        for (var ci = 0; ci < ops.length; ++ci) {
-                            var co = ops[ci];
-                            if (co.op == 'M' || co.op == 'D')
-                                len += co.cnt;
-                        }
-                    }
-
-                    var f = new DASFeature();
-                    f.min = r.pos + 1;
-                    f.max = r.pos + len;
-                    f.segment = r.segment;
-                    f.type = 'bam';
-                    f.id = r.readName;
-                    f.notes = ['Sequence=' + r.seq, 'CIGAR=' + r.cigar, 'MQ=' + r.mq];
-                    f.cigar = r.cigar;
-                    f.seq = r.seq;
-                    f.quals = r.quals;
-                    features.push(f);
+                    var f = bamRecordToFeature(r);
+                    if (f)
+                        features.push(f);
                 }
                 callback(null, features, 1000000000);
             }
-        });
+        }, {light: light});
     });
 }
 
@@ -886,7 +1192,7 @@ BAMFeatureSource.prototype.getScales = function() {
 
 BAMFeatureSource.prototype.getStyleSheet = function(callback) {
     this.bamHolder.await(function(bam) {
-	var stylesheet = new DASStylesheet();
+	    var stylesheet = new DASStylesheet();
                 
         var densStyle = new DASStyle();
         densStyle.glyph = 'HISTOGRAM';
@@ -905,11 +1211,117 @@ BAMFeatureSource.prototype.getStyleSheet = function(callback) {
         wigStyle.LABEL = false;
         wigStyle.ZINDEX = 20;
         stylesheet.pushStyle({type: 'bam'}, 'high', wigStyle);
-	//                thisTier.stylesheet.pushStyle({type: 'bam'}, 'medium', wigStyle);
 
-	return callback(stylesheet);
+	    return callback(stylesheet);
     });
 }
+
+
+function RemoteBAMFeatureSource(bamSource, worker) {
+    FeatureSourceBase.call(this);
+
+    var thisB = this;
+    this.bamSource = bamSource;
+    this.worker = worker;
+    this.opts = {credentials: bamSource.credentials, preflight: bamSource.preflight};
+    this.keyHolder = new Awaited();
+    
+    this.init();
+}
+
+RemoteBAMFeatureSource.prototype = Object.create(FeatureSourceBase.prototype);
+
+RemoteBAMFeatureSource.prototype.init = function() {    var thisB = this;
+    var uri = this.bamSource.uri || this.bamSource.bamURI;
+    var indexUri = this.bamSource.indexUri || this.bamSource.baiURI || uri + '.bai';
+
+    var blob = this.bamSource.bamBlob || this.bamSource.blob;
+    var indexBlob = this.bamSource.baiBlob || this.bamSource.indexBlob;
+
+    var cnt = function(result, err) {
+        thisB.readiness = null;
+        thisB.notifyReadiness();
+
+        if (result) {
+            thisB.keyHolder.provide(result);
+        } else {
+            thisB.error = err;
+            thisB.keyHolder.provide(null);
+        }
+    };
+
+    if (blob) {
+        this.worker.postCommand({command: 'connectBAM', blob: blob, indexBlob: indexBlob}, cnt /* , [blob, indexBlob] */);
+    } else {
+        this.worker.postCommand({command: 'connectBAM', uri: uri, indexUri: indexUri}, cnt); 
+    }
+}
+
+RemoteBAMFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
+    var light = types && (types.length == 1) && (types[0] == 'density');
+    var thisB = this;
+    
+    thisB.busy++;
+    thisB.notifyActivity();
+    
+    this.keyHolder.await(function(key) {
+        if (!key) {
+            thisB.busy--;
+            thisB.notifyActivity();
+            return callback(thisB.error || "Couldn't fetch BAM");
+        }
+
+        thisB.worker.postCommand({command: 'fetch', connection: key, chr: chr, min: min, max: max, opts: {light: light}}, function(bamRecords, error) {
+            // console.log('retrieved ' + bamRecords.length + ' via worker.');
+
+            thisB.busy--;
+            thisB.notifyActivity();
+
+            if (error) {
+                callback(error, null, null);
+            } else {
+                var features = [];
+                for (var ri = 0; ri < bamRecords.length; ++ri) {
+                    var r = bamRecords[ri];
+                    var f = bamRecordToFeature(r);
+                    if (f)
+                        features.push(f);
+                }
+                callback(null, features, 1000000000);
+            }
+        });
+    });
+}
+
+RemoteBAMFeatureSource.prototype.getScales = function() {
+    return 1000000000;
+}
+
+RemoteBAMFeatureSource.prototype.getStyleSheet = function(callback) {
+    this.keyHolder.await(function(bam) {
+        var stylesheet = new DASStylesheet();
+                
+        var densStyle = new DASStyle();
+        densStyle.glyph = 'HISTOGRAM';
+        densStyle.COLOR1 = 'black';
+        densStyle.COLOR2 = 'red';
+        densStyle.HEIGHT=30;
+        stylesheet.pushStyle({type: 'density'}, 'low', densStyle);
+        stylesheet.pushStyle({type: 'density'}, 'medium', densStyle);
+
+        var wigStyle = new DASStyle();
+        wigStyle.glyph = '__SEQUENCE';
+        wigStyle.FGCOLOR = 'black';
+        wigStyle.BGCOLOR = 'blue'
+        wigStyle.HEIGHT = 8;
+        wigStyle.BUMP = true;
+        wigStyle.LABEL = false;
+        wigStyle.ZINDEX = 20;
+        stylesheet.pushStyle({type: 'bam'}, 'high', wigStyle);
+        return callback(stylesheet);
+    });
+}
+
 
 function MappedFeatureSource(source, mapping) {
     this.source = source;
@@ -933,7 +1345,6 @@ MappedFeatureSource.prototype.notifyActivity = function() {
     }
 }
 
-
 MappedFeatureSource.prototype.getStyleSheet = function(callback) {
     return this.source.getStyleSheet(callback);
 }
@@ -942,8 +1353,39 @@ MappedFeatureSource.prototype.getScales = function() {
     return this.source.getScales();
 }
 
+MappedFeatureSource.prototype.simplifySegments = function(segs, minGap) {
+    if (segs.length == 0) return segs;
+
+    segs.sort(function(s1, s2) {
+        var d = s1.name - s2.name;
+        if (d)
+            return d;
+        d = s1.start - s2.start;
+        if (d)
+            return d;
+        return s1.end - s2.end;   // Should never come to this...?
+    });
+
+    var ssegs = [];
+    var currentSeg = segs[0];
+    for (var si = 0; si < segs.length; ++si) {
+        var ns = segs[si];
+
+        // console.log(ns.name + ' ' + ns.start + ' ' + ns.end);
+        if (ns.name != currentSeg.name || ns.start > (currentSeg.end + minGap)) {
+            ssegs.push(currentSeg);
+            currentSeg = ns;
+        } else {
+            currentSeg = new DASSegment(currentSeg.name, Math.min(currentSeg.start, ns.start), Math.max(currentSeg.end, ns.end));
+        }
+    }
+    ssegs.push(currentSeg);
+    return ssegs;
+}
+
 MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
     var thisB = this;
+    var fetchLength = max - min + 1;
 
     thisB.busy++;
     thisB.notifyActivity();
@@ -955,49 +1397,67 @@ MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool
 
             callback("No mapping available for this regions", [], scale);
         } else {
-            var seg = mseg[0];
-            thisB.source.fetch(seg.name, seg.start, seg.end, scale, types, pool, function(status, features, fscale) {
-                thisB.busy--;
-                thisB.notifyActivity();
+            mseg = thisB.simplifySegments(mseg, Math.max(100, 0.05 * fetchLength));
 
-                var mappedFeatures = [];
-                if (features) {
-                    for (var fi = 0; fi < features.length; ++fi) {
-                        var f = features[fi];
-                        var sn = f.segment;
-                        if (sn.indexOf('chr') == 0) {
-                            sn = sn.substr(3);
-                        }
-                        var mmin = thisB.mapping.mapPoint(sn, f.min);
-                        var mmax = thisB.mapping.mapPoint(sn, f.max);
-                        if (!mmin || !mmax || mmin.seq != mmax.seq || mmin.seq != chr) {
-                            // Discard feature.
-                            // dlog('discarding ' + miniJSONify(f));
-                            if (f.parts && f.parts.length > 0) {    // FIXME: Ugly hack to make ASTD source map properly.
-                                 mappedFeatures.push(f);
+            var mappedFeatures = [];
+            var mappedLoc = null;
+            var count = mseg.length;
+            var finalStatus;
+
+            mseg.map(function(seg) {
+                thisB.source.fetch(seg.name, seg.start, seg.end, scale, types, pool, function(status, features, fscale) {
+                    if (status && !finalStatus)
+                        finalStatus = status;
+
+                    if (features) {
+                        for (var fi = 0; fi < features.length; ++fi) {
+                            var f = features[fi];
+                            var sn = f.segment;
+                            if (sn.indexOf('chr') == 0) {
+                                sn = sn.substr(3);
                             }
-                        } else {
-                            f.segment = mmin.seq;
-                            f.min = mmin.pos;
-                            f.max = mmax.pos;
-                            if (f.min > f.max) {
-                                var tmp = f.max;
-                                f.max = f.min;
-                                f.min = tmp;
-                            }
-                            if (mmin.flipped) {
-                                if (f.orientation == '-') {
-                                    f.orientation = '+';
-                                } else if (f.orientation == '+') {
-                                    f.orientation = '-';
+                            var mmin = thisB.mapping.mapPoint(sn, f.min);
+                            var mmax = thisB.mapping.mapPoint(sn, f.max);
+                            if (!mmin || !mmax || mmin.seq != mmax.seq || mmin.seq != chr) {
+                                // Discard feature.
+                                // dlog('discarding ' + miniJSONify(f));
+                                if (f.parts && f.parts.length > 0) {    // FIXME: Ugly hack to make ASTD source map properly.
+                                     mappedFeatures.push(f);
                                 }
+                            } else {
+                                f.segment = mmin.seq;
+                                f.min = mmin.pos;
+                                f.max = mmax.pos;
+                                if (f.min > f.max) {
+                                    var tmp = f.max;
+                                    f.max = f.min;
+                                    f.min = tmp;
+                                }
+                                if (mmin.flipped) {
+                                    if (f.orientation == '-') {
+                                        f.orientation = '+';
+                                    } else if (f.orientation == '+') {
+                                        f.orientation = '-';
+                                    }
+                                }
+                                mappedFeatures.push(f);
                             }
-                            mappedFeatures.push(f);
                         }
                     }
-                }
 
-                callback(status, mappedFeatures, fscale);
+                    var segDestCoverage = new Range(thisB.mapping.mapPoint(seg.name, seg.start).pos, thisB.mapping.mapPoint(seg.name, seg.end).pos);
+                    if (mappedLoc)
+                        mappedLoc = union(mappedLoc, segDestCoverage);
+                    else
+                        mappedLoc = segDestCoverage;
+                    --count;
+
+                    if (count == 0) {
+                        thisB.busy--;
+                        thisB.notifyActivity();
+                        callback(finalStatus, mappedFeatures, fscale, mappedLoc);
+                    }
+                });
             });
         }
     });

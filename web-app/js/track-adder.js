@@ -7,6 +7,7 @@
 // track-adder.js
 //
 
+"use strict";
 
 Browser.prototype.currentlyActive = function(source) {
     for (var ti = 0; ti < this.tiers.length; ++ti) {
@@ -81,11 +82,11 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     var makeHubButton = function(tdb) {
         var hub = tdb.hub;
-        var hubRemove = makeElement('i', null, {className: 'fa fa-times'});
+        var hubMenuButton = makeElement('i', null, {className: 'fa fa-list-alt'});
         var label = hub.shortLabel || 'Unknown';
         if (tdb.mapping)
             label = label + ' (' + tdb.genome + ')';
-        var hbContent = makeElement('span', [label, ' ', hubRemove]);
+        var hbContent = makeElement('span', [label, ' ', hubMenuButton]);
         var hubButton = thisB.makeButton(hbContent, hub.longLabel);
         addModeButtons.push(hubButton);
         
@@ -93,7 +94,11 @@ Browser.prototype.showTrackAdder = function(ev) {
             ev.preventDefault(); ev.stopPropagation();
             activateButton(addModeButtons, hubButton);
             removeChildren(stabHolder);
-            stabHolder.appendChild(makeElement('div', makeElement('img', null, {src: thisB.uiPrefix + 'img/loader.gif'}, {marginLeft: 'auto', marginRight: 'auto', marginTop: '100px'}), null, {textAlign: 'center'}));
+            var loader = thisB.makeLoader(24);
+            loader.style.marginLeft = 'auto';
+            loader.style.marginRight = 'auto';
+            loader.style.marginTop = '100px';
+            stabHolder.appendChild(makeElement('div', loader, null, {textAlign: 'center'}));
 
             refreshButton.style.display = 'none';
             addButton.style.display = 'none';
@@ -108,37 +113,89 @@ Browser.prototype.showTrackAdder = function(ev) {
             });
         }, false);
 
-        hubRemove.addEventListener('click', function(ev) {
+        hubMenuButton.addEventListener('click', function(ev) {
             ev.preventDefault(); ev.stopPropagation();
             
-            for (var hi = 0; hi < thisB.hubObjects.length; ++hi) {
-                if (thisB.hubObjects[hi].absURL == tdb.absURL) {
-                    thisB.hubObjects.splice(hi, 1);
-                    break;
+            var removeHubItem = makeElement('li', makeElement('a', 'Remove hub'));
+            var allOnItem = makeElement('li',  makeElement('a', 'Enable all'));
+            var allOffItem = makeElement('li',  makeElement('a', 'Disable all'));
+            var hubMenu = makeElement('ul', [removeHubItem, allOnItem, allOffItem], {className: 'dropdown-menu'}, {display: 'block'});
+
+            var mx =  ev.clientX, my = ev.clientY;
+            mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
+            my +=  document.documentElement.scrollTop || document.body.scrollTop;
+
+            hubMenu.style.position = 'absolute';
+            hubMenu.style.top = '' + (my+10) + 'px';
+            hubMenu.style.left = '' + (mx-30) + 'px';
+            thisB.hPopupHolder.appendChild(hubMenu);
+
+            var clickCatcher = function(ev) {
+                console.log('cc');
+                document.body.removeEventListener('click', clickCatcher, true);
+                thisB.hPopupHolder.removeChild(hubMenu);
+            };
+            document.body.addEventListener('click', clickCatcher, true);
+
+            removeHubItem.addEventListener('click', function(ev) {
+                for (var hi = 0; hi < thisB.hubObjects.length; ++hi) {
+                    if (thisB.hubObjects[hi].absURL == tdb.absURL) {
+                        thisB.hubObjects.splice(hi, 1);
+                        break;
+                    }
                 }
-            }
-            for (var hi = 0; hi < thisB.hubs.length; ++hi) {
-                var hc = thisB.hubs[hi];
-                if (typeof hc === 'string')
-                    hc = {url: hc};
-                if (hc.url == tdb.hub.url && !hc.genome || hc.genome == tdb.genome) {
-                    thisB.hubs.splice(hi, 1);
-                    break;
+                for (var hi = 0; hi < thisB.hubs.length; ++hi) {
+                    var hc = thisB.hubs[hi];
+                    if (typeof hc === 'string')
+                        hc = {url: hc};
+                    if (hc.url == tdb.hub.url && !hc.genome || hc.genome == tdb.genome) {
+                        thisB.hubs.splice(hi, 1);
+                        break;
+                    }
+
                 }
 
-            }
+                thisB.notifyTier();
+
+                modeButtonHolder.removeChild(hubButton);
+                activateButton(addModeButtons, addHubButton);
+                switchToHubConnectMode();
+            }, false);
 
 
-            thisB.notifyTier();
+            allOnItem.addEventListener('click', function(ev) {
+                tdb.getTracks(function(tracks, err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    
+                    for (var ti = 0; ti < tracks.length; ++ti) {
+                        var ds = tracks[ti].toDallianceSource();
+                        if (!thisB.currentlyActive(ds)) {
+                            thisB.addTier(ds);
+                        }
+                    }
+                });
+            }, false);
 
-            modeButtonHolder.removeChild(hubButton);
-            activateButton(addModeButtons, addHubButton);
-            switchToHubConnectMode();
+            allOffItem.addEventListener('click', function(ev) {
+                tdb.getTracks(function(tracks, err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    
+                    for (var ti = 0; ti < tracks.length; ++ti) {
+                        var ds = tracks[ti].toDallianceSource();
+                        if (thisB.currentlyActive(ds)) {
+                            thisB.removeTier(ds);
+                        }
+                    }
+                });
+            }, false);
         }, false);
 
         return hubButton;
     }
-
 
     var firstDefButton = null;
     var firstDefSources = null;
@@ -274,7 +331,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                 var t = thisB.currentlyActive(b.dalliance_source);
                 if (t) {
                     b.checked = true;
-                    b.disabled = t.sequenceSource != null;
                 } else {
                     b.checked = false;
                 }
@@ -287,9 +343,6 @@ Browser.prototype.showTrackAdder = function(ev) {
 
         stabHolder.appendChild(stab);
     };
-
-
-
 
     function makeHubStab(tracks) {
         refreshButton.style.display = 'none';
@@ -529,7 +582,7 @@ Browser.prototype.showTrackAdder = function(ev) {
         pageHolder.appendChild(makeElement('b', '- or -'));
         pageHolder.appendChild(makeElement('br'));
         pageHolder.appendChild(document.createTextNode('File: '));
-        custFile = makeElement('input', null, {type: 'file'});
+        custFile = makeElement('input', null, {type: 'file', multiple: 'multiple'});
         pageHolder.appendChild(custFile);
         
         pageHolder.appendChild(makeElement('p', 'Clicking the "Add" button below will initiate a series of test queries.'));
@@ -551,7 +604,7 @@ Browser.prototype.showTrackAdder = function(ev) {
 
         var pageHolder = makeElement('div', null, {}, {paddingLeft: '10px', paddingRight: '10px'});
         pageHolder.appendChild(makeElement('h3', 'Connect to a track hub.'));
-        pageHolder.appendChild(makeElement('p', ['Enter the top-level URL (usually points to a file called "hub.txt" of a UCSC-style track hub']));
+        pageHolder.appendChild(makeElement('p', ['Enter the top-level URL (usually points to a file called "hub.txt") of a UCSC-style track hub']));
         
         custURL = makeElement('input', '', {size: 120, value: 'http://www.biodalliance.org/datasets/testhub/hub.txt'}, {width: '100%'});
         pageHolder.appendChild(custURL);
@@ -609,20 +662,17 @@ Browser.prototype.showTrackAdder = function(ev) {
                 var nds = new DASSource({name: 'temporary', uri: curi});
                 tryAddDAS(nds);
             } else if (customMode === 'bin') {
-                var opts = {name: 'temporary'};
                 var fileList = custFile.files;
-                if (fileList && fileList.length > 0 && fileList[0]) {
-                    opts.bwgBlob = fileList[0];
-                    opts.noPersist = true;
+
+                if (fileList && fileList.length > 0) {
+                    tryAddMultiple(fileList);
                 } else {
                     var curi = custURL.value.trim();
                     if (!/^.+:\/\//.exec(curi)) {
                         curi = 'http://' + curi;
                     }
-                    opts.bwgURI = curi;
+                    tryAddBin({uri: curi});
                 }
-                var nds = new DASSource(opts);
-                tryAddBin(nds);
             } else if (customMode === 'reset') {
                 switchToCustomMode();
             } else if (customMode === 'reset-bin') {
@@ -676,7 +726,24 @@ Browser.prototype.showTrackAdder = function(ev) {
                 }
                 
                 tryAddHub(curi);
-                
+            } else if (customMode === 'multiple') {
+                for (var mi = 0; mi < multipleSet.length; ++mi) {
+                    var s = multipleSet[mi];
+
+
+                    if (s.tier_type == 'bam' && !s.indexBlob && !s.indexUri)
+                        continue;
+                    if (s.tier_type == 'tabix' && !s.indexBlob && !s.indexUri)
+                        continue;
+
+                    var nds = makeSourceConfig(s);
+                    if (nds) {
+                        nds.noPersist = true;
+                        thisB.addTier(nds);
+                    }
+                }
+
+                switchToBinMode();
             }
         } else {
             thisB.removeAllPopups();
@@ -716,7 +783,7 @@ Browser.prototype.showTrackAdder = function(ev) {
                     }
 
                     if (okay) {
-                        hc = {url: curi, genome: genome};
+                        var hc = {url: curi, genome: genome};
                         if (opts.credentials)
                             hc.credentials = true;
                         if (mapping) {
@@ -858,71 +925,63 @@ Browser.prototype.showTrackAdder = function(ev) {
         );
     }
 
-    var tryAddBin = function(nds, retry) {
-        var fetchable;
-        if (nds.bwgURI) {
-            fetchable = new URLFetchable(nds.bwgURI, null, null, {credentials: nds.credentials});
-        } else {
-            fetchable = new BlobFetchable(nds.bwgBlob);
-        }
+    var makeSourceConfig = function(s) {
+        var nds = {name: s.name};
+        if (s.mapping && s.mapping != '__default__')
+            nds.mapping = s.mapping;
 
-        fetchable.slice(0, 1<<16).salted().fetch(function(result, error) {
-            if (!result) {
-                if (!retry) {
-                    nds.credentials = true;
-                    tryAddBin(nds, true);
-                }
-
-                removeChildren(stabHolder);
-                stabHolder.appendChild(makeElement('h2', 'Custom data not found'));
-                if (nds.bwgURI) {
-                    stabHolder.appendChild(makeElement('p', 'Data URI: ' + nds.bwgURI + ' is not accessible.'));
-                } else {
-                    stabHolder.appendChild(makeElement('p', 'File access failed, are you using an up-to-date browser?'));
-                }
-
-                if (error) {
-                    stabHolder.appendChild(makeElement('p', '' + error));
-                }
-                stabHolder.appendChild(makeElement('p', 'If in doubt, please check that the server where the file is hosted supports CORS.'));
-                customMode = 'reset-bin';
-                return;
-            }
-
-            var ba = new Uint8Array(result);
-            var magic = readInt(ba, 0);
-            if (magic == BIG_WIG_MAGIC || magic == BIG_BED_MAGIC) {
-                var nameExtractPattern = new RegExp('/?([^/]+?)(.bw|.bb|.bigWig|.bigBed)?$');
-                var match = nameExtractPattern.exec(nds.bwgURI || nds.bwgBlob.name);
-                if (match) {
-                    nds.name = match[1];
-                }
-
-                return addDasCompletionPage(nds, false, false, true);
+        if (s.tier_type == 'bwg') {
+            if (s.blob)
+                nds.bwgBlob = s.blob;
+            else if (s.uri)
+                nds.bwgURI = s.uri;
+            return nds;
+        } else if (s.tier_type == 'bam') {
+            if (s.blob) {
+                nds.bamBlob = s.blob;
+                nds.baiBlob = s.indexBlob;
             } else {
-                if (ba[0] != 31 || ba[1] != 139) {
-                    return binFormatErrorPage();
-                }
-                var unc = unbgzf(result);
-                var uncba = new Uint8Array(unc);
-                magic = readInt(uncba, 0);
-                if (magic == BAM_MAGIC) {
-                    if (nds.bwgBlob) {
-                        return promptForBAI(nds);
-                    } else {
-                        return completeBAM(nds);
-                    }
-                } else if (magic == 0x69662323) {
-                    // FIXME should check whole of first line
-                    if (nds.bwgBlob) {
-                        return promptForTabix(nds);
-                    } else {
-                        return completeTabixVCF(nds);
-                    }
+                nds.bamURI = s.uri;
+                nds.baiURI = s.indexUri;
+            }
+            return nds;
+        } else if (s.tier_type == 'tabix') {
+            nds.tier_type = 'tabix';
+            nds.payload = s.payload;
+            if (s.blob) {
+                nds.blob = s.blob;
+                nds.indexBlob = s.indexBlob;
+            } else {
+                nds.uri = s.uri;
+                nds.indexUri = s.indexUri;
+            }
+            return nds;
+        } else if (s.tier_type == 'memstore') {
+            nds.tier_type = 'memstore';
+            nds.payload = s.payload;
+            if (s.blob)
+                nds.blob = s.blob;
+            else
+                nds.uri = s.uri;
+            return nds;
+        }
+    }
+
+    var tryAddBin = function(source) {
+        probeResource(source, function(source, err) {
+            if (err) {
+                removeChildren(stabHolder);
+                stabHolder.appendChild(makeElement('h2', "Couldn't access custom data"));
+                stabHolder.appendChild(makeElement('p', '' + err));
+                customMode = 'reset-bin';
+            } else {
+                var nds = makeSourceConfig(source);
+                if (source.tier_type == 'bam') {
+                    return completeBAM(nds);
+                } else if (source.tier_type == 'tabix') {
+                    return completeTabixVCF(nds);
                 } else {
-                    console.log('magic = ' + magic.toString(16));
-                    // maybe Tabix?
-                   return binFormatErrorPage();
+                    return addDasCompletionPage(nds, false, false, true);
                 }
             }
         });
@@ -965,7 +1024,7 @@ Browser.prototype.showTrackAdder = function(ev) {
         if (nds.baiBlob) {
             indexF = new BlobFetchable(nds.baiBlob);
         } else {
-            indexF = new URLFetchable(nds.bwgURI + '.bai');
+            indexF = new URLFetchable(nds.bamURI + '.bai');
         }
         indexF.slice(0, 256).fetch(function(r) {
                 var hasBAI = false;
@@ -975,17 +1034,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                     hasBAI = (magic2 == BAI_MAGIC);
                 }
                 if (hasBAI) {
-                    var nameExtractPattern = new RegExp('/?([^/]+?)(.bam)?$');
-                    var match = nameExtractPattern.exec(nds.bwgURI || nds.bwgBlob.name);
-                    if (match) {
-                        nds.name = match[1];
-                    }
-
-                    nds.bamURI = nds.bwgURI;
-                    nds.bamBlob = nds.bwgBlob;
-                    nds.bwgURI = undefined;
-                    nds.bwgBlob = undefined;
-                            
                     return addDasCompletionPage(nds, false, false, true);
                 } else {
                     return binFormatErrorPage('You have selected a valid BAM file, but a corresponding index (.bai) file was not found.  Please index your BAM (samtools index) and place the BAI file in the same directory');
@@ -998,7 +1046,7 @@ Browser.prototype.showTrackAdder = function(ev) {
         if (nds.indexBlob) {
             indexF = new BlobFetchable(nds.indexBlob);
         } else {
-            indexF = new URLFetchable(nds.bwgURI + '.tbi');
+            indexF = new URLFetchable(nds.uri + '.tbi');
         }
         indexF.slice(0, 1<<16).fetch(function(r) {
             var hasTabix = false;
@@ -1012,26 +1060,12 @@ Browser.prototype.showTrackAdder = function(ev) {
                 }
             }
             if (hasTabix) {
-                var nameExtractPattern = new RegExp('/?([^/]+?)(.vcf)?(.gz)?$');
-                var match = nameExtractPattern.exec(nds.bwgURI || nds.bwgBlob.name);
-                if (match) {
-                    nds.name = match[1];
-                }
-
-                nds.uri = nds.bwgURI;
-                nds.blob = nds.bwgBlob;
-                nds.bwgURI = undefined;
-                nds.bwgBlob = undefined;
-                nds.tier_type = 'tabix';
-                nds.payload = 'vcf';
-                        
                 return addDasCompletionPage(nds, false, false, true);
             } else {
                 return binFormatErrorPage('You have selected a valid VCF file, but a corresponding index (.tbi) file was not found.  Please index your VCF ("tabix -p vcf -f myfile.vcf.gz") and place the .tbi file in the same directory');
             }
         });
     }
-
 
     function binFormatErrorPage(message) {
         refreshButton.style.display = 'none';
@@ -1071,11 +1105,11 @@ Browser.prototype.showTrackAdder = function(ev) {
         stabHolder.appendChild(makeElement('br'));
         stabHolder.appendChild(makeElement('h4', 'Coordinate system: '));
         custCS = makeElement('select', null);
-        custCS.appendChild(makeElement('option', thisB.coordSystem.auth + thisB.coordSystem.version, {value: '__default__'}));
+        custCS.appendChild(makeElement('option', thisB.nameForCoordSystem(thisB.coordSystem), {value: '__default__'}));
         if (thisB.chains) {
             for (var csk in thisB.chains) {
                 var cs = thisB.chains[csk].coords;
-                custCS.appendChild(makeElement('option', cs.auth + cs.version, {value: csk}));
+                custCS.appendChild(makeElement('option', thisB.nameForCoordSystem(cs), {value: csk}));
             }
         }
         custCS.value = nds.mapping || '__default__';
@@ -1115,6 +1149,103 @@ Browser.prototype.showTrackAdder = function(ev) {
         dataToFinalize = nds;
     }
 
+    var multipleSet = null;
+    var tryAddMultiple = function(fileList) {
+        var newSources = multipleSet = [];
+        customMode = 'multiple';
+        for (var fi = 0; fi < fileList.length; ++fi) {
+            var f = fileList[fi];
+            if (f) {
+                newSources.push({blob: f});
+            }
+        }
+
+        for (var fi = 0; fi < newSources.length; ++fi) {
+            probeResource(newSources[fi], function(source, err) {
+                if (err) {
+                    source.error = err;
+                }
+
+                var usedIndices = [];
+                var bams = {}, tabixes = {};
+                for (var si = 0; si < multipleSet.length; ++si) {
+                    var s = multipleSet[si];
+                    if (s.tier_type == 'bam' && !s.indexBlob) {
+                        bams[s.blob.name] = s;
+                    }
+                    if (s.tier_type == 'tabix' && !s.indexBlob) {
+                        tabixes[s.blob.name] = s;
+                    }
+                }
+
+                for (var si = 0; si < multipleSet.length; ++si) {
+                    var s = multipleSet[si];
+                    if (s.tier_type === 'bai') {
+                        var baiPattern = new RegExp('(.+)\\.bai$');
+                        var match = baiPattern.exec(s.blob.name);
+                        if (match && bams[match[1]]) {
+                            bams[match[1]].indexBlob = s.blob;
+                            usedIndices.push(si);
+                        }
+                    } else if (s.tier_type === 'tabix-index') {
+                        var tbiPattern = new RegExp('(.+)\\.tbi$');
+                        var match = tbiPattern.exec(s.blob.name);
+                        if (match && tabixes[match[1]]) {
+                            tabixes[match[1]].indexBlob = s.blob;
+                            usedIndices.push(si);
+                        }
+                    }
+                }
+
+                for (var bi = usedIndices.length - 1; bi >= 0; --bi) {
+                    multipleSet.splice(usedIndices[bi], 1);
+                }
+
+                updateMultipleStatus();
+            });
+        }
+        updateMultipleStatus();
+    }
+
+    var updateMultipleStatus = function() {
+        removeChildren(stabHolder);
+        var multTable = makeElement('table', multipleSet.map(function(s) {
+            var row = makeElement('tr');
+            row.appendChild(makeElement('td', s.name || s.blob.name));
+            var typeContent;
+            if (s.error) {
+                typeContent = makeElement('span', 'Error', null, {color: 'red'});
+            } else if (s.tier_type) {
+                typeContent = s.payload || s.tier_type;
+            } else {
+                typeContent = thisB.makeLoader(16);
+            }
+
+            var ccs;
+            if (s.tier_type == 'bwg' || (s.tier_type == 'bam' && s.indexBlob) || (s.tier_type == 'tabix' && s.indexBlob) || s.tier_type == 'memstore') {
+                ccs = makeElement('select', null, null, {width: '100px'});
+                ccs.appendChild(makeElement('option', thisB.nameForCoordSystem(thisB.coordSystem), {value: '__default__'}));
+                if (thisB.chains) {
+                    for (var csk in thisB.chains) {
+                        var cs = thisB.chains[csk].coords;
+                        ccs.appendChild(makeElement('option', thisB.nameForCoordSystem(cs), {value: csk}));
+                    }
+                }
+                ccs.value = s.mapping || '__default__';
+
+                ccs.addEventListener('change', function(ev) {
+                    s.mapping = ccs.value;
+                    console.log(s);
+                }, false);
+            }
+
+            return makeElement('tr', [makeElement('td', s.name || s.blob.name),
+                                      makeElement('td', typeContent),
+                                      makeElement('td', ccs)]);
+
+        }), {className: 'table table-striped table-condensed'});
+        stabHolder.appendChild(multTable);
+    }
 
     var canButton = makeElement('button', 'Cancel', {className: 'btn'});
     canButton.addEventListener('click', function(ev) {

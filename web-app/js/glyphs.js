@@ -5,6 +5,8 @@
 // glyphs.js: components which know how to draw themselves
 //
 
+"use strict";
+
 function SVGPath() {
     this.ops = [];
 }
@@ -74,9 +76,8 @@ function BoxGlyph(x, y, width, height, fill, stroke, alpha, radius) {
 BoxGlyph.prototype.draw = function(g) {
     var r = this._radius;
 
-    g.beginPath();
-
     if (r > 0) {
+        g.beginPath();
         g.moveTo(this.x + r, this.y);
         g.lineTo(this.x + this._width - r, this.y);
         g.arcTo(this.x + this._width, this.y, this.x + this._width, this.y + r, r);
@@ -86,35 +87,46 @@ BoxGlyph.prototype.draw = function(g) {
         g.arcTo(this.x, this.y + this._height, this.x, this.y + this._height - r, r);
         g.lineTo(this.x, this.y + r);
         g.arcTo(this.x, this.y, this.x + r, this.y, r);
+        g.closePath();
+
+        if (this._alpha != null) {
+            g.save();
+            g.globalAlpha = this._alpha;
+        }
+        
+        if (this.fill) {
+            g.fillStyle = this.fill;
+            g.fill();
+        }
+        if (this.stroke) {
+            g.strokeStyle = this.stroke;
+            g.lineWidth = 0.5;
+            g.stroke();
+        }
+
+        if (this._alpha != null) {
+            g.restore();
+        }
     } else {
-        g.lineJoin = 'miter';
-        g.lineCap = 'square';
-        g.moveTo(this.x, this.y);
-        g.lineTo(this.x + this._width, this.y);
-        g.lineTo(this.x + this._width, this.y + this._height);
-        g.lineTo(this.x, this.y + this._height);
-        g.lineTo(this.x, this.y);
-    }
+        if (this._alpha != null) {
+            g.save();
+            g.globalAlpha = this._alpha;
+        }
 
-    g.closePath();
+        if (this.fill) {
+            g.fillStyle = this.fill;
+            g.fillRect(this.x, this.y, this._width, this._height);
+        }
 
-    if (this._alpha != null) {
-        g.save();
-        g.globalAlpha = this._alpha;
-    }
-    
-    if (this.fill) {
-        g.fillStyle = this.fill;
-        g.fill();
-    }
-    if (this.stroke) {
-        g.strokeStyle = this.stroke;
-        g.lineWidth = 0.5;
-        g.stroke();
-    }
+        if (this.stroke) {
+            g.strokeStyle = this.stroke;
+            g.lineWidth = 0.5;
+            g.strokeRect(this.x, this.y, this._width, this._height)
+        }
 
-    if (this._alpha != null) {
-        g.restore();
+        if (this._alpha != null) {
+            g.restore();
+        }
     }
 }
 
@@ -152,13 +164,13 @@ function GroupGlyph(glyphs, connector) {
     this.connector = connector;
     this.h = glyphs[0].height();
 
-    var cov = new Range(glyphs[0].min(), glyphs[0].max());
-    for (g = 1; g < glyphs.length; ++g) {
+    var covList = [];
+    for (var g = 0; g < glyphs.length; ++g) {
         var gg = glyphs[g];
-        cov = union(cov, new Range(gg.min(), gg.max()));
+        covList.push(new Range(gg.min(), gg.max()));
         this.h = Math.max(this.h, gg.height());
     }
-    this.coverage = cov;
+    this.coverage = union(covList);
 }
 
 GroupGlyph.prototype.drawConnectors = function(g) {
@@ -225,14 +237,17 @@ GroupGlyph.prototype.toSVG = function() {
     var p = new SVGPath();
     this.drawConnectors(p);
 
-    var path = makeElementNS(
-        NS_SVG, 'path',
-        null,
-        {d: p.toPathData(),
-         fill: 'none',
-         stroke: 'black',
-         strokeWidth: 0.5});
-    g.appendChild(path);
+    var pathData = p.toPathData();
+    if (pathData.length > 0) {
+        var path = makeElementNS(
+            NS_SVG, 'path',
+            null,
+            {d: p.toPathData(),
+             fill: 'none',
+             stroke: 'black',
+             strokeWidth: 0.5});
+        g.appendChild(path);
+    }
 
     return g;
 }
@@ -991,9 +1006,12 @@ TextGlyph.prototype.draw = function(g) {
 
 TextGlyph.prototype.toSVG = function() {
     return makeElementNS(NS_SVG, 'text', this._string, {x: this._min, y: this._height - 4});
-}
+};
 
+(function(scope) {
 
+var isRetina = window.devicePixelRatio > 1;
+var __dalliance_SequenceGlyphCache = {};
 
 function SequenceGlyph(min, max, height, seq, ref, scheme, quals) {
     this._min = min;
@@ -1016,7 +1034,10 @@ SequenceGlyph.prototype.alphaForQual = function(qual) {
 
 SequenceGlyph.prototype.draw = function(gc) {
     var seq = this._seq;
-    var scale = (this._max - this._min + 1) / this._seq.length;
+    if (!seq)
+        seq = 'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN';    // FIXME       
+
+    var scale = (this._max - this._min + 1) / seq.length;
 
     for (var p = 0; p < seq.length; ++p) {
         var base = seq.substr(p, 1).toUpperCase();
@@ -1035,23 +1056,44 @@ SequenceGlyph.prototype.draw = function(gc) {
                 color = 'red';
             }
         }
-
-        gc.fillStyle = color;
-
+        
         if (this._quals) {
             var qc = this._quals.charCodeAt(p) - 33;
-            gc.save();
+            var oldAlpha = gc.globalAlpha;            // NB hoisted!
             gc.globalAlpha = this.alphaForQual(qc);
         }
 
         if (scale >= 8) {
-            gc.fillText(base, this._min + p*scale, 8);
+            var key = color + '_' + base
+            var img = __dalliance_SequenceGlyphCache[key];
+            if (!img) {
+                img = document.createElement('canvas');
+                if (isRetina) {
+                    img.width = 16;
+                    img.height = 20;
+                } else {
+                    img.width = 8;
+                    img.height = 10;
+                }
+                var imgGc = img.getContext('2d');
+                if (isRetina) {
+                    imgGc.scale(2, 2);
+                }
+                imgGc.fillStyle = color;
+                imgGc.fillText(base, 0, 8);
+                __dalliance_SequenceGlyphCache[key] = img;
+            }
+            if (isRetina)
+                gc.drawImage(img, this._min + p*scale, 0, 8, 10);
+            else
+                gc.drawImage(img, this._min + p*scale, 0);
         } else {
+            gc.fillStyle = color;
             gc.fillRect(this._min + p*scale, 0, scale, this._height);
         }
 
         if (this._quals) {
-            gc.restore();
+            gc.globalAlpha = oldAlpha;
         }
     }
 }
@@ -1108,6 +1150,9 @@ SequenceGlyph.prototype.toSVG = function() {
     return g;
 }
 
+scope.SequenceGlyph = SequenceGlyph;
+
+}(this));
 
 function TranslatedGlyph(glyph, x, y, height) {
     this.glyph = glyph;

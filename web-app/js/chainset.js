@@ -7,6 +7,8 @@
 // chainset.js: liftover support
 //
 
+"use strict";
+
 function Chainset(uri, srcTag, destTag, coords) {
     this.uri = uri;
     this.srcTag = srcTag;
@@ -15,12 +17,15 @@ function Chainset(uri, srcTag, destTag, coords) {
     this.chainsBySrc = {};
     this.chainsByDest = {};
     this.postFetchQueues = {};
-}
+};
+
+(function(scope) {
+
+var CIGAR_REGEXP = new RegExp('([0-9]*)([MIDS])', 'g');
 
 function parseCigar(cigar)
 {
     var cigops = [];
-    var CIGAR_REGEXP = new RegExp('([0-9]*)([MIDS])', 'g');
     var match;
     while ((match = CIGAR_REGEXP.exec(cigar)) != null) {
         var count = match[1];
@@ -31,6 +36,10 @@ function parseCigar(cigar)
     }
     return cigops;
 }
+
+scope.parseCigar = parseCigar;
+
+}(this));
 
 Chainset.prototype.fetchChainsTo = function(chr) {
     var thisCS = this;
@@ -192,12 +201,40 @@ Chainset.prototype.sourceBlocksForRange = function(chr, min, max, callback) {
             this.fetchChainsTo(chr);
         }
     } else {
-        var mmin = this.unmapPoint(chr, min);
-        var mmax = this.unmapPoint(chr, max);
-        if (!mmin || !mmax || mmin.seq != mmax.seq) {
-            callback([]);
-        } else {
-            callback([new DASSegment(mmin.seq, mmin.pos, mmax.pos)]);
+        var srcBlocks = [];
+        var chains = this.chainsByDest[chr] || [];
+        for (var ci = 0; ci < chains.length; ++ci) {
+            var c = chains[ci];
+            if (min <= c.destMax && max >= c.destMin) {
+                var cmin, cmax;
+                if (c.srcOri == '-') {
+                    cmin = c.destMax - max;
+                    cmax = c.destMax - min;
+                } else {
+                    cmin = min - c.destMin;
+                    cmax = max - c.destMin;
+                }
+
+                var blocks = c.blocks;
+                for (var bi = 0; bi < blocks.length; ++bi) {
+                    var b = blocks[bi];
+                    var bSrc = b[0];
+                    var bDest = b[1];
+                    var bSize = b[2];
+
+                    if (cmax >= bDest && cmin <= (bDest + bSize)) {
+                        var amin = Math.max(cmin, bDest) - bDest;
+                        var amax = Math.min(cmax, bDest + bSize) - bDest;
+
+                        if (c.destOri == '-') {
+                            srcBlocks.push(new DASSegment(c.srcChr, c.srcMax - bSrc - amax, c.srcMax - bSrc - amin));
+                        } else {
+                            srcBlocks.push(new DASSegment(c.srcChr, c.srcMin + amin + bSrc, c.srcMin + amax + bSrc));
+                        }
+                    }
+                }
+            }
         }
+        callback(srcBlocks);
     }
 }

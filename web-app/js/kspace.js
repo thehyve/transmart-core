@@ -1,4 +1,13 @@
+/* -*- mode: javascript; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 
+// 
+// Dalliance Genome Explorer
+// (c) Thomas Down 2006-2013
+//
+// kspace.js
+//
+
+"use strict";
 
 function FetchPool() {
     this.reqs = [];
@@ -15,10 +24,11 @@ FetchPool.prototype.abortAll = function() {
     }
 }
 
-function KSCacheBaton(chr, min, max, scale, features, status) {
+function KSCacheBaton(chr, min, max, scale, features, status, coverage) {
     this.chr = chr;
     this.min = min;
     this.max = max;
+    this.coverage = coverage;
     this.scale = scale;
     this.features = features || [];
     this.status = status;
@@ -80,7 +90,7 @@ KnownSpace.prototype.viewFeatures = function(chr, min, max, scale) {
     
 function filterFeatures(features, min, max) {
     var ff = [];
-    featuresByGroup = {};
+    var featuresByGroup = {};
 
     for (var fi = 0; fi < features.length; ++fi) {
         var f = features[fi];
@@ -187,6 +197,9 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
     var needsSeq = tier.needsSequence(this.scale);
     var baton = thisB.featureCache[tier];
     var wantedTypes = tier.getDesiredTypes(this.scale);
+    var chr = this.chr, min = this.min, max = this.max;
+
+
     if (wantedTypes === undefined) {
 //         dlog('skipping because wantedTypes is undef');
         return false;
@@ -194,20 +207,20 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
     if (baton) {
 //      dlog('considering cached features: ' + baton);
     }
-    if (baton && baton.chr === this.chr && baton.min <= this.min && baton.max >= this.max) {
+    if (baton && baton.chr === this.chr && baton.min <= min && baton.max >= max) {
         var cachedFeatures = baton.features;
-        if (baton.min < this.min || baton.max > this.max) {
-            cachedFeatures = filterFeatures(cachedFeatures, this.min, this.max);
+        if (baton.min < min || baton.max > max) {
+            cachedFeatures = filterFeatures(cachedFeatures, min, max);
         }
         
         // dlog('cached scale=' + baton.scale + '; wanted scale=' + thisB.scale);
 //      if ((baton.scale < (thisB.scale/2) && cachedFeatures.length > 200) || (wantedTypes && wantedTypes.length == 1 && wantedTypes.indexOf('density') >= 0) ) {
 //          cachedFeatures = downsample(cachedFeatures, thisB.scale);
 //      }
-        // dlog('Provisioning ' + tier.toString() + ' with ' + cachedFeatures.length + ' features from cache');
+//      console.log('Provisioning ' + tier.toString() + ' with ' + cachedFeatures.length + ' features from cache (' + baton.min + ', ' + baton.max + ')');
 //      tier.viewFeatures(baton.chr, Math.max(baton.min, this.min), Math.min(baton.max, this.max), baton.scale, cachedFeatures);   // FIXME change scale if downsampling
 
-        thisB.provision(tier, baton.chr, Math.max(baton.min, this.min), Math.min(baton.max, this.max), baton.scale, wantedTypes, cachedFeatures, baton.status, needsSeq ? awaitedSeq : null);
+        thisB.provision(tier, baton.chr, intersection(baton.coverage, new Range(min, max)), baton.scale, wantedTypes, cachedFeatures, baton.status, needsSeq ? awaitedSeq : null);
 
         var availableScales = source.getScales();
         if (baton.scale <= this.scale || !availableScales) {
@@ -219,48 +232,44 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
     }
 
     if (source.instrument)
-        console.log('Starting  fetch ' + viewID + ' (' + this.min + ', ' + this.max + ')');
-    source.fetch(this.chr, this.min, this.max, this.scale, wantedTypes, this.pool, function(status, features, scale) {
-	if (source.instrument)
-	    console.log('Finishing fetch ' + viewID);
+        console.log('Starting  fetch ' + viewID + ' (' + min + ', ' + max + ')');
+    source.fetch(chr, min, max, this.scale, wantedTypes, this.pool, function(status, features, scale, coverage) {
+    	if (source.instrument)
+    	    console.log('Finishing fetch ' + viewID);
 
-	var latestViewID = thisB.latestViews[tier] || -1;
-	if (latestViewID > viewID) {
-	    // console.log('Ignoring out of date view');
-	    return;
-	}
+    	var latestViewID = thisB.latestViews[tier] || -1;
+    	if (latestViewID > viewID) {
+    	    return;
+    	}
 
-        if (!baton || (thisB.min < baton.min) || (thisB.max > baton.max)) {         // FIXME should be merging in some cases?
-            thisB.featureCache[tier] = new KSCacheBaton(thisB.chr, thisB.min, thisB.max, scale, features, status);
+        if (!coverage) {
+            coverage = new Range(min, max);
         }
 
-        //if ((scale < (thisB.scale/2) && features.length > 200) || (wantedTypes && wantedTypes.length == 1 && wantedTypes.indexOf('density') >= 0) ) {
-        //    features = downsample(features, thisB.scale);
-        //}
-        // dlog('Provisioning ' + tier.toString() + ' with fresh features');
-        //tier.viewFeatures(thisB.chr, thisB.min, thisB.max, this.scale, features);
+        if (!baton || (min < baton.min) || (max > baton.max)) {         // FIXME should be merging in some cases?
+            thisB.featureCache[tier] = new KSCacheBaton(chr, min, max, scale, features, status, coverage);
+        }
 
-
-	thisB.latestViews[tier] = viewID;
-        thisB.provision(tier, thisB.chr, thisB.min, thisB.max, scale, wantedTypes, features, status, needsSeq ? awaitedSeq : null);
+	    thisB.latestViews[tier] = viewID;
+        thisB.provision(tier, chr, coverage, scale, wantedTypes, features, status, needsSeq ? awaitedSeq : null);
     });
     return needsSeq;
 }
 
-KnownSpace.prototype.provision = function(tier, chr, min, max, actualScale, wantedTypes, features, status, awaitedSeq) {
+KnownSpace.prototype.provision = function(tier, chr, coverage, actualScale, wantedTypes, features, status, awaitedSeq) {
     tier.updateStatus(status);
    
-   if (!status) {
+    if (!status) {
         var mayDownsample = false;
         var src = tier.getSource();
         while (MappedFeatureSource.prototype.isPrototypeOf(src) || CachingFeatureSource.prototype.isPrototypeOf(src) || OverlayFeatureSource.prototype.isPrototypeOf(src)) {
-	       if (OverlayFeatureSource.prototype.isPrototypeOf(src)) {
-		       src = src.sources[0];
-	       } else {
-		      src = src.source;
-	       }
+	        if (OverlayFeatureSource.prototype.isPrototypeOf(src)) {
+		        src = src.sources[0];
+	        } else {
+		        src = src.source;
+	        }
         }
-        if (BWGFeatureSource.prototype.isPrototypeOf(src) || BAMFeatureSource.prototype.isPrototypeOf(src)) {
+        if (BWGFeatureSource.prototype.isPrototypeOf(src) || RemoteBWGFeatureSource.prototype.isPrototypeOf(src) || BAMFeatureSource.prototype.isPrototypeOf(src) || RemoteBAMFeatureSource.prototype.isPrototypeOf(src)) {
             mayDownsample = true;
         }
 
@@ -274,10 +283,10 @@ KnownSpace.prototype.provision = function(tier, chr, min, max, actualScale, want
 
         if (awaitedSeq) {
             awaitedSeq.await(function(seq) {
-                tier.viewFeatures(chr, min, max, actualScale, features, seq);
+                tier.viewFeatures(chr, coverage, actualScale, features, seq);
             });
         } else {
-            tier.viewFeatures(chr, min, max, actualScale, features);
+            tier.viewFeatures(chr, coverage, actualScale, features);
         }
     }
 }
