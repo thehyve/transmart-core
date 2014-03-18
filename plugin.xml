@@ -8,6 +8,7 @@
   <type>Blend4jPluginGrailsPlugin</type>
   <resources>
     <resource>blend4j.plugin.RetrieveDataController</resource>
+    <resource>blend4j.plugin.StatusOfExport</resource>
     <resource>blend4j.plugin.UserDetails</resource>
   </resources>
 </plugin>
