@@ -1,4 +1,4 @@
-<plugin name='blend4j-plugin' version='0.1-SNAPSHOT' grailsVersion='2.3 &gt; *'>
+<plugin name='blend4j-plugin' version='0.2-SNAPSHOT' grailsVersion='2.3.5 &gt; *'>
   <author>Transmart Foundation</author>
   <authorEmail>admin@transmartproject.org</authorEmail>
   <title>Blend4j Plugin</title>
@@ -6,5 +6,8 @@
 </description>
   <documentation>http://grails.org/plugin/blend4j-plugin</documentation>
   <type>Blend4jPluginGrailsPlugin</type>
-  <resources />
+  <resources>
+    <resource>blend4j.plugin.RetrieveDataController</resource>
+    <resource>blend4j.plugin.UserDetails</resource>
+  </resources>
 </plugin>

@@ -21,7 +21,7 @@ public class FilesystemPathsLibraryUpload extends LibraryUpload {
 
   public FilesystemPathsLibraryUpload(final boolean multifile) {
     super(String.format("upload_paths%s", multifile ? "_multifile" : ""));
-  }
+   }
 
   @JsonProperty("filesystem_paths")
   public String getFilesystemPaths() {
