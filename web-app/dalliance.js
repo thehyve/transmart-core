@@ -90,8 +90,9 @@ var genomeBrowserPanel = new Ext.Panel(
                         })
                 },
 
-                sources:          [{name:                 'Genome',
-                    twoBitURI:            'http://www.biodalliance.org/datasets/hg19.2bit',
+                sources: [
+                    {name: 'Genome',
+                    twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
                     tier_type: 'sequence'},
                     {name: 'Genes',
                         desc: 'Gene structures from GENCODE 19',
@@ -102,12 +103,12 @@ var genomeBrowserPanel = new Ext.Panel(
                     {name: 'Repeats',
                         desc: 'Repeat annotation from Ensembl 59',
                         bwgURI: 'http://www.biodalliance.org/datasets/repeats.bb',
-                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats.xml'}
-                    ,{name: 'Conservation',
+                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats.xml'},
+                    {name: 'Conservation',
                         desc: 'Conservation',
                         bwgURI: 'http://www.biodalliance.org/datasets/phastCons46way.bw',
-                        noDownsample: true}
-                    ,{name: 'GM12878 ChromHMM', desc: 'GM12878 ChromHMM Genome Segmentation',
+                        noDownsample: true},
+                    {name: 'GM12878 ChromHMM', desc: 'GM12878 ChromHMM Genome Segmentation',
                         pennant: 'http://genome.ucsc.edu/images/encodeThumbnail.jpg',
                         bwgURI: 'http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/byDataType/segmentations/jan2011/hub/gm12878.ChromHMM.bb',
                         style: [{type: 'bigwig', style: {glyph: 'BOX', FGCOLOR: 'black', BGCOLOR: 'blue', HEIGHT: 8, BUMP: false, LABEL: false, ZINDEX: 20, BGITEM: true, id: 'style1'}},
@@ -123,7 +124,7 @@ var genomeBrowserPanel = new Ext.Panel(
                     Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
                 },
 
-                hubs: ['http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'],
+                hubs: ['http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt']
             });
 
             var that = this;
