@@ -29,8 +29,14 @@ var genomeBrowserPanel = new Ext.Panel(
         listeners: {
             activate: function (p) {
                 // create genome browser instance
-                // when this panel is activated
-                this.createGenomeBrowser();
+                // when this panel is activated,
+                // or reset if it already exists
+                if (this.genomeBrowser == null) {
+                    this.createGenomeBrowser();
+                }
+                else {
+                    this.genomeBrowser.reset();
+                }
             },
             afterLayout: function () {
                 // make this panel as droppable area
