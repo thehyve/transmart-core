@@ -21,6 +21,7 @@ var genomeBrowserPanel = new Ext.Panel(
         split: true,
         height: 90,
         layout: 'fit',
+        bodyStyle: 'display:flex;display:-webkit-flex;',
         autoLoad: {
             url: pageInfo.basePath + "/Dalliance/index"
         },

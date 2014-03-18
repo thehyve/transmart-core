@@ -119,6 +119,13 @@ Browser.prototype.resolveURL = function(url) {
 }
 
 Browser.prototype.realInit = function() {
+    if (this.wasInitialized) {
+        console.log('Attemping to call realInit on an already-initialized Dalliance instance');
+        return;
+    }
+
+    this.wasInitialized = true;
+
     this.defaultChr = this.chr;
     this.defaultStart = this.viewStart;
     this.defaultEnd = this.viewEnd;
@@ -134,6 +141,7 @@ Browser.prototype.realInit = function() {
     var helpPopup;
     var thisB = this;
     this.browserHolderHolder = document.getElementById(this.pageName);
+    this.browserHolderHolder.classList.add('dalliance-injection-point');
     this.browserHolder = makeElement('div', null, {className: 'dalliance dalliance-root', tabIndex: -1});
     removeChildren(this.browserHolderHolder);
     this.browserHolderHolder.appendChild(this.browserHolder);
@@ -1260,8 +1268,11 @@ Browser.prototype.spaceCheck = function(dontRefresh) {
 
 Browser.prototype.resizeViewer = function(skipRefresh) {
     var width = this.tierHolder.getBoundingClientRect().width | 0;
+    if (width == 0)
+        return;
 
-    var oldFPW = this.featurePanelWidth;
+    var oldFPW = Math.max(this.featurePanelWidth, 300); // Can get silly values stored
+                                                        // when the browser is hidden.
     this.featurePanelWidth = width|0;
 
     if (oldFPW != this.featurePanelWidth) {
@@ -1487,7 +1498,7 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
 
     this.viewStart = newMin;
     this.viewEnd = newMax;
-    var newScale = this.featurePanelWidth / (this.viewEnd - this.viewStart);
+    var newScale = Math.max(this.featurePanelWidth, 50) / (this.viewEnd - this.viewStart);
     var oldScale = this.scale;
     var scaleChanged = (Math.abs(newScale - oldScale)) > 0.0001;
     this.scale = newScale;
