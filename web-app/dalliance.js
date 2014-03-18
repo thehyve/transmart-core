@@ -128,7 +128,40 @@ var genomeBrowserPanel = new Ext.Panel(
             });
 
             var that = this;
-            setTimeout(function() { that.genomeBrowser.realInit()}, 0);
+            setTimeout(function() {
+                that.genomeBrowser.realInit();
+                //if we get rid of max-height, dalliance browser is able to fill the screen
+                jQuery('.dalliance-root').css('max-height', 'none');
+
+                //get the Add track button
+                var dalBtns = jQuery('.pull-right.btn-group').children();
+                jQuery(dalBtns[0]).click(function() {
+                    //add a button to add custom INFO tracks for VCF
+                    var btn = that.genomeBrowser.makeButton('Add VCF INFO', 'Add a custom track with a particular field from the INFO column in a VCF file');
+                    btn.addEventListener('click', function(ev) {
+                        ev.preventDefault(); ev.stopPropagation();
+                        //only add the track if there is a query result instance
+                        if (GLOBAL.CurrentSubsetIDs[1]) {
+                            var infoField = prompt(
+                                'You can add custom track from the INFO column. If you know the VCF file\'s INFO column contains for example: \n\nDP=89;AF1=1;AC1=2;DP4=0,0,81,0;MQ=60;FQ=-271,\n\n you can add a track for DP to see the values of DP plotted. \n'+
+                                'Please, first drop a VCF node from the concept tree on the genome browser. \n'+
+                                'Note: please remember to remove the track and add it again if you change the patient subset selection criteria',
+                                'DP');
+                            if (infoField != null) {
+                                var result_instance_id = GLOBAL.CurrentSubsetIDs[1];
+                                that.genomeBrowser.addTier(new DASSource({
+                                    name: 'VCF-'+infoField.trim(),
+                                    uri: pageInfo.basePath + "/das/vcfInfo-"+infoField.trim()+'-'+ result_instance_id + "/"
+                                }))
+                            }
+                        }
+                        else {
+                            alert('Please, first drop a VCF node from the concept tree on the genome browser.');
+                        }
+                    });
+                    jQuery('.nav').prepend(btn);
+                })
+            }, 0);
         }
     }
 );
