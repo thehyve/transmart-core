@@ -32,7 +32,7 @@ class RetrieveDataController  {
         final String email = UserDetails.findById(idOfTheUser).getMailAddress();
         final String url = grailsApplication.config.com.galaxy.blend4j.galaxyURL;
         final GalaxyInstance galaxyInstance = GalaxyInstanceFactory.get(url, apiKey);
-        String tempDir = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory.toString();
+        String tempDir = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory.toString()+"/"+nameOfTheExportJob;
 
         final Library library = new Library(nameOfTheLibrary+ " - " + email);
         final LibrariesClient client = galaxyInstance.getLibrariesClient();
@@ -55,13 +55,10 @@ class RetrieveDataController  {
     def createFoldersAndFiles(File[] listOfFiles, LibraryFolder rootFolder, LibrariesClient client, String persistedLibraryId ){
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                System.err.println("File " + listOfFiles[i].getName());
                 try {
                      File testFile = listOfFiles[i];
                      FileLibraryUpload upload = new FileLibraryUpload();
-
                      upload.setFolderId(rootFolder.getId());
-
                      upload.setName(testFile.getName().toString());
                      upload.setFileType("tabular");
                      upload.setFile(testFile);

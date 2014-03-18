@@ -1,7 +1,9 @@
 package com.github.jmchilton.blend4j.galaxy.beans;
 
+import grails.validation.Validateable;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+@Validateable
 public class LibraryFolder extends GalaxyObject {
   private String folderId;
   private String name;
