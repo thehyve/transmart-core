@@ -79,7 +79,7 @@ clean_all: clean
 LOAD_TARGETS = $(foreach schema, $(SCHEMAS), load_$(schema))
 
 load_global:
-	test $$skip_ddl_global = "1" || $(MAKE) -C GLOBAL load
+	test -n "$$skip_ddl_global" || $(MAKE) -C GLOBAL load
 
 load_cross: $(wildcard */_cross.sql)
 	#before executing _cross.sql, execute SET statements from prelude
