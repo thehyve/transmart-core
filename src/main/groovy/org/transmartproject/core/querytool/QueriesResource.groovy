@@ -1,5 +1,6 @@
 package org.transmartproject.core.querytool
 
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
@@ -35,4 +36,5 @@ interface QueriesResource {
      */
     QueryDefinition getQueryDefinitionForResult(QueryResult result) throws NoSuchResourceException
 
+    Set<Patient> getPatients(List<QueryResult> queryResults) throws NoSuchResourceException
 }
