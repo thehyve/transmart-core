@@ -153,6 +153,7 @@ class QueriesResourceService implements QueriesResource {
         queryDefinitionXmlService.fromXml(new StringReader(answer[0]))
     }
 
+    @Override
     Set<Patient> getPatients(List<QueryResult> queryResults) {
         queryResults.each( { sessionFactory.currentSession.refresh(it) } )
         (queryResults*.patients).flatten() as Set<Patient>
