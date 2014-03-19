@@ -9,7 +9,6 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
@@ -33,10 +32,6 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     }
 
     @Override
-    ClinicalDataTabularResult retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms) {
-        null
-    }
-
     ClinicalDataTabularResult retrieveData(Set<Patient> patients, Set<OntologyTerm> ontologyTerms) {
         def allOntologyTerms = (ontologyTerms*.allDescendants).flatten()
         allOntologyTerms.addAll(ontologyTerms)
