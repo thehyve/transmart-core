@@ -5,7 +5,7 @@
  * @param result_instance_id
  * @returns {Array}
  */
-function retrieveTransmartDASSources (node, result_instance_id, callback) {
+function retrieveTransmartDASSources (node, result_instance_id, nameSuffix, callback) {
 
     if (isHighDimensionalNode(node)) {
         var arrNds = new Array();
@@ -14,13 +14,13 @@ function retrieveTransmartDASSources (node, result_instance_id, callback) {
         // TODO : Check the local Das features and then collect them in arrNDS
 
         arrNds[0] = new DASSource({name: 'acgh', uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
-//        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
-//        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
+        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
+        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
 //        arrNds[3] = new DASSource({name: 'maf', uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
-//        arrNds[4] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
-//        arrNds[5] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+        arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
+        arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
 
-        callback(arrNds);
+        callback(arrNds, nameSuffix);
 
     } else {
         displayError('Error', 'Cannot display non-High Dimensional node');
@@ -65,34 +65,42 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         /** Code below contains callback hell .. TODO: refactor please! **/
         /** ----------------------------------------------------------- **/
 
-        // define features
-        var arrNds = retrieveTransmartDASSources(node, res_inst_id_1, function(arr) {
+        function addDasSource(arr, nameSuffix) {
 
             arr.forEach(function(nds) {
 
                 nds.features(testSegment, {}, function(features) {
 
-                    var nameExtractPattern = new RegExp('/([^/]+)/?$');
-                    var match = nameExtractPattern.exec(nds.uri);
-                    if (match) {
-                        nds.name = match[1];
+                    if (!nds.name)  {
+                        var nameExtractPattern = new RegExp('/([^/]+)/?$');
+                        var match = nameExtractPattern.exec(nds.uri);
+                        if (match) {
+                            nds.name = match[1];
+                        }
                     }
 
-                    tryAddDASxSources(nds);
+                    tryAddDASxSources(nds, nameSuffix);
 
                     return;
                 });
             });
 
-        });
+        }
+
+
+        // define features
+        retrieveTransmartDASSources(node, res_inst_id_1, res_inst_id_2 ? '-subset 1' : '', addDasSource);
+        if (res_inst_id_2)
+            retrieveTransmartDASSources(node, res_inst_id_2, '-subset 2', addDasSource);
 
 
         /**
          * Add DAS x Sources
          * @param nds
+         * @param nameSuffix for distinguishing multiple subsets
          * @param retry
          */
-        function tryAddDASxSources(nds, retry) {
+        function tryAddDASxSources(nds, nameSuffix, retry) {
 
             var uri = nds.uri;
             if (retry) {
@@ -103,7 +111,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
             function sqfail() {
                 if (!retry) {
-                    return tryAddDASxSources(nds, true);
+                    return tryAddDASxSources(nds, nameSuffix, true);
                 } else {
                     return drawTrack(nds);
                 }
@@ -130,7 +138,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                     var coordsDetermined = false, quantDetermined = false;
 
                     if (fs) {
-                        nds.name = fs.name;
+                        nds.name = fs.name+nameSuffix;
                         nds.desc = fs.desc;
                         if (fs.maxbins) {
                             nds.maxbins = true;
