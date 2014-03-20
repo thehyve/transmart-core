@@ -11,7 +11,7 @@ import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
-class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<OntologyTerm> {
+class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<OntologyTermWrapper> {
 
     @Resource
     StudyLoadingService studyLoadingServiceProxy
@@ -19,13 +19,16 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     @Autowired
     StudiesResource studiesResourceService
 
-    final Class targetType = OntologyTerm
+    final Class targetType = OntologyTermWrapper
 
     final String collectionName = 'ontology_terms'
 
+    static final String ROOT = 'ROOT'
+
     @Override
-    Collection<Link> getLinks(OntologyTerm term) {
+    Collection<Link> getLinks(OntologyTermWrapper obj) {
         /* this gets tricky. We may be rendering this as part of the /studies response */
+        OntologyTerm term = obj.delegate
         OntologyTerm studyTerm
         String studyName
         try {
@@ -37,15 +40,16 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
         }
         studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
-        def pathPart = term.key - studyTerm.key ?: 'ROOT'
-        pathPart = pathPart.encodeAsURL()
+        def pathPart = term.key - studyTerm.key ?: ROOT
+        pathPart = pathToId(pathPart).encodeAsURL()
 
         // TODO add other relationships (children, parent, ...)
         [new Link(RELATIONSHIP_SELF, "/studies/$studyName/concepts/$pathPart")]
     }
 
     @Override
-    Map<String, Object> convertToMap(OntologyTerm term) {
+    Map<String, Object> convertToMap(OntologyTermWrapper obj) {
+        OntologyTerm term = obj.delegate
         [
                 name:     term.name,
                 key:      term.key,
@@ -54,7 +58,33 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Set<String> getEmbeddedEntities(OntologyTerm object) {
+    Set<String> getEmbeddedEntities(OntologyTermWrapper object) {
         [] as Set
     }
+
+    /**
+     * @param path
+     * @return converts a path to a concept id, where '\' is replaced with '/', removing the terminating '/' (if exists)
+     */
+    static String pathToId(String path) {
+        String result = path.replace('\\', '/')
+        int lastIdx = result.size() - 1
+        if (result.charAt(lastIdx) == '/') {
+            result = result.substring(0, lastIdx)
+        }
+        result
+    }
+
+    /**
+     * @param id
+     * @return converts a concept id to a path, where '/' is replaced with '\'
+     */
+    static String idToPath(String id) {
+        if (id == ROOT) {
+            return ''
+        } else {
+            return id.replace("/", "\\")
+        }
+    }
+
 }

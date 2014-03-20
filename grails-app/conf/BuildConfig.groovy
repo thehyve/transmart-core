@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
         compile 'org.javassist:javassist:3.16.1-GA'
 
         // includes fix for GRAILS-11126
-        compile 'org.grails:grails-plugin-rest:2.3.5-hyve3'
+        compile 'org.grails:grails-plugin-rest:2.3.5-hyve4'
 
         runtime 'org.postgresql:postgresql:9.3-1100-jdbc41', {
             exported = false
@@ -64,10 +64,10 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        build ":release:3.0.1"
         build ':tomcat:7.0.47'
-
-        // to be removed when functionality is in core-api
-        compile ':transmart-user-management:1.0-SNAPSHOT'
+        
+        compile ':spring-security-core:2.0-RC2'
 
         runtime ':transmart-core:1.0-SNAPSHOT'
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4

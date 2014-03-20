@@ -25,19 +25,23 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     @Autowired
     RendererRegistry rendererRegistry
 
-    class HalOrJsonCollectionRenderer extends AbstractRenderer<Collection> implements ContainerRenderer<Collection, T> {
+    static class HalOrJsonCollectionRenderer<T> extends AbstractRenderer<Collection> implements ContainerRenderer<Collection, T> {
 
-        final Class<T> componentType = HalOrJsonRenderer.this.getTargetType()
+        final Class<T> componentType
 
         final Class<Collection> targetType = Collection
 
-        HalOrJsonCollectionRenderer() {
-            super(Collection, HalOrJsonRenderer.this.mimeTypes)
+        final AbstractIncludeExcludeRenderer<T> renderer
+
+        HalOrJsonCollectionRenderer(AbstractIncludeExcludeRenderer<T> renderer) {
+            super(Collection, renderer.mimeTypes)
+            componentType = renderer.getTargetType()
+            this.renderer = renderer
         }
 
         @Override
         void render(Collection object, RenderContext context) {
-            def mimeType = getAcceptMimeType(context)
+            def mimeType = context.acceptMimeType ?: mimeTypes[0]
             def newObject = object
 
             if (mimeType.name == MimeType.HAL_JSON.name) {
@@ -46,7 +50,7 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
                         collection: object)
             }
 
-            HalOrJsonRenderer.this.render newObject, context
+            renderer.render newObject, context
         }
 
     }
@@ -54,7 +58,7 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     @Override
     void afterPropertiesSet() throws Exception {
         rendererRegistry.addRenderer this
-        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer()
+        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this)
     }
 
     @Override
