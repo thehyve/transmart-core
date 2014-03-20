@@ -7,27 +7,27 @@ import com.github.jmchilton.blend4j.galaxy.beans.Library
 import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent
 import com.github.jmchilton.blend4j.galaxy.beans.LibraryFolder
 import com.sun.jersey.api.client.ClientResponse
-import org.springframework.security.core.context.SecurityContextHolder
-import org.transmart.searchapp.AuthUser
 
 class RetrieveDataController  {
 
-    def QuartzJobExportToGalaxy = {
+    def springSecurityService
+    def RetrieveDataService
 
-        System.err.println(params.nameOfTheLibrary + " " + params.nameOfTheExportJob)
-       // response.setContentType("text/json");
-        //JSONObject result = new JSONObject()
-        //result.put("fileStatus", true)
-        //def trigger = new SimpleTrigger("triggerNow"+Math.random(), params.analysis)
-       // quartzScheduler.scheduleJob(jobDetail, trigger)
-        //noinspection GroovyAssignabilityCheck
-        uploadExportFolderToGalaxy(params.nameOfTheExportJob, params.nameOfTheLibrary );
-        //response.outputStream << result.toString()
+    def JobExportToGalaxy = {
+        def statusOK = RetrieveDataService.saveStatusOfExport(params.nameOfTheExportJob,lastExportName: params.nameOfTheLibrary);
+        if(statusOK){
+            uploadExportFolderToGalaxy(params.nameOfTheExportJob, params.nameOfTheLibrary );
+            RetrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Done")
+        }else{
+            RetrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Error")
+        }
     }
 
     def uploadExportFolderToGalaxy(String nameOfTheExportJob, String nameOfTheLibrary){
 
-        final idOfTheUser = AuthUser.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getId() ;
+        //final idOfTheUser = AuthUser.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getId() ;
+        final idOfTheUser = springSecurityService.getPrincipal().id;
+        System.err.println(idOfTheUser);
         def apiKey = UserDetails.findById(idOfTheUser).getGalaxyKey();
         final String email = UserDetails.findById(idOfTheUser).getMailAddress();
         final String url = grailsApplication.config.com.galaxy.blend4j.galaxyURL;

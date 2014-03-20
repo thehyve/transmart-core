@@ -55,7 +55,7 @@ function galaxyjobsstoreLoaded()
                             var nameOfTheLibrary = text;
                             var nameOfTheExportJob = grid.getStore().getAt(rowIndex).get('name');
                             Ext.Ajax.request({
-                                url: pageInfo.basePath+'/RetrieveData/QuartzJobExportToGalaxy',
+                                url: pageInfo.basePath+'/RetrieveData/JobExportToGalaxy',
                                 method: 'POST',
 //                                postBody: $H({param1: nameOfTheLibrary,
  //                                           param2: nameOfTheExportJob}).toQueryString(),

@@ -35,7 +35,10 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
+        runtime('org.postgresql:postgresql:9.3-1100-jdbc41') {
+            transitive = false
+            export = false
+        }
     }
 
     plugins {
@@ -43,6 +46,8 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.3") {
             export = false
         }
+        runtime ':resources:1.2.1'
+        runtime ':hibernate:3.6.10.7'
     }
 
 
