@@ -37,6 +37,7 @@ class H2Views {
             log.info 'Executing H2Views init actions'
 
             createSearchBioMkrCorrelView()
+            createSearchAuthUserSecAccessV()
             createBioMarkerCorrelMv()
             createSubPathwayCorrelView()
             createSuperPathwayCorrelView()
@@ -166,6 +167,55 @@ class H2Views {
                 biomart.bio_marker b
             WHERE
                b.bio_marker_type = 'METABOLITE';'''
+    }
+
+    void createSearchAuthUserSecAccessV() {
+        if (handleCurrentState('SEARCHAPP', 'SEARCH_AUTH_USER_SEC_ACCESS_V')) {
+            return
+        }
+
+        log.info 'Creating SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V'
+
+        sql.execute '''
+            CREATE VIEW SEARCHAPP.SEARCH_AUTH_USER_SEC_ACCESS_V(
+                search_auth_user_sec_access_id,
+                search_auth_user_id,
+                search_secure_object_id,
+                search_sec_access_level_id
+            ) AS
+            SELECT
+                sasoa.auth_sec_obj_access_id,
+                sasoa.auth_principal_id,
+                sasoa.secure_object_id,
+                sasoa.secure_access_level_id
+            FROM
+                searchapp.search_auth_user sau
+                INNER JOIN searchapp.search_auth_sec_object_access sasoa ON
+                    sau.id = sasoa.auth_principal_id
+            UNION
+            SELECT
+                sasoa.auth_sec_obj_access_id,
+                sagm.auth_user_id,
+                sasoa.secure_object_id,
+                sasoa.secure_access_level_id
+            FROM
+                searchapp.search_auth_sec_object_access sasoa
+                INNER JOIN searchapp.search_auth_group_member sagm
+                    ON sagm.auth_group_id = sasoa.auth_principal_id
+                INNER JOIN searchapp.search_auth_group sag
+                    ON sag.id = sagm.auth_group_id
+            UNION
+            SELECT
+                sasoa.auth_sec_obj_access_id,
+                CAST(NULL AS BIGINT),
+                sasoa.secure_object_id,
+                sasoa.secure_access_level_id
+            FROM
+                searchapp.search_auth_group sag
+                INNER JOIN searchapp.search_auth_sec_object_access sasoa
+                    ON sag.id = sasoa.auth_principal_id
+            WHERE
+                sag.group_category = 'EVERYONE_GROUP';'''
     }
 
     void createSearchBioMkrCorrelView() {
