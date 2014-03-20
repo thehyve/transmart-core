@@ -92,6 +92,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                 sources.concat(getTransmartDASSources(res_inst_id_2));
                 addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
             }
+            thisB.createAddInfoButton()
         } else {
             displayError('Error', 'Cannot display non-High Dimensional node');
         }
@@ -205,8 +206,11 @@ Browser.prototype.createAddInfoButton= function() {
     //get the Add track button
     var dalBtns = jQuery('.pull-right.btn-group').children();
     jQuery(dalBtns[0]).click(function() {
+        if (jQuery('#btnAddVCFINFO').length > 0)
+            return; //it's already there
         //add a button to add custom INFO tracks for VCF
         var btn = that.makeButton('Add VCF INFO', 'Add a custom track with a particular field from the INFO column in a VCF file');
+        btn.id = 'btnAddVCFINFO';
         btn.addEventListener('click', function(ev) {
             ev.preventDefault(); ev.stopPropagation();
             var vcfs = that.scanCurrentTracksForVCF();
