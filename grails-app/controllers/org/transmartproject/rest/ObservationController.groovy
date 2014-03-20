@@ -90,7 +90,7 @@ class ObservationController {
         patientsResourceService.getPatientById(subjectId)
     }
 
-    List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
+    private static List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
         List<ObservationWrapper> observations = []
         def concepts = tabularResult.getIndicesList()
         tabularResult.getRows().each { row ->
