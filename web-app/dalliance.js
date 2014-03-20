@@ -67,78 +67,6 @@ var genomeBrowserPanel = new Ext.Panel(
             b.addTrackByNode(data.node, result_instance_id_1, result_instance_id_2);
             //this.parent.genomeBrowser.showTrackAdder(e);
         },
-        createAddInfoButton: function(browser) {
-            that = this;
-            //get the Add track button
-            var dalBtns = jQuery('.pull-right.btn-group').children();
-            jQuery(dalBtns[0]).click(function() {
-                //add a button to add custom INFO tracks for VCF
-                var btn = browser.makeButton('Add VCF INFO', 'Add a custom track with a particular field from the INFO column in a VCF file');
-                btn.addEventListener('click', function(ev) {
-                    ev.preventDefault(); ev.stopPropagation();
-                    var vcfs = that.scanCurrentTracksForVCF();
-
-                    //only add the track if there is a query result instance
-                    if (vcfs.length > 0) {
-                        var infoField = prompt(
-                            'You can add custom track from the INFO column. If you know the VCF file\'s INFO column contains for example: \n\nDP=89;AF1=1;AC1=2;DP4=0,0,81,0;MQ=60;FQ=-271,\n\n you can add a track for DP to see the values of DP plotted. \n'+
-                                'Please, first drop a VCF node from the concept tree on the genome browser. \n'+
-                                'Note: please remember to remove the track and add it again if you change the patient subset selection criteria',
-                            'DP');
-                        if (infoField != null) {
-                            that.addVCFInfoTrack(browser, infoField, vcfs[0].id, vcfs.length>1?'-subset 1' : '');
-                            if (vcfs.length>1)
-                                that.addVCFInfoTrack(browser, infoField, vcfs[1].id, '-subset 2');
-                        }
-                    }
-                    else {
-                        alert('Please, first drop a VCF node from the concept tree on the genome browser.');
-                    }
-                });
-                jQuery('.nav').prepend(btn);
-            })
-        },
-
-        addVCFInfoTrack: function(browser, infoField, qri, nameSuffix) {
-            browser.addTier(new DASSource({
-                name: 'VCF-'+infoField.trim()+nameSuffix,
-                uri: pageInfo.basePath + "/das/vcfInfo-"+infoField.trim()+'-'+ qri + "/"
-            }))
-        },
-
-        scanCurrentTracksForVCF: function() {
-            var subset1, subset2; var subset1INFOs=[], subset2INFOs=[];
-            var vcfs = [];
-            for (var i=0;i<this.genomeBrowser.sources.length;i++){
-                var s = this.genomeBrowser.sources[i];
-                if (!s.uri) continue;
-                if (s.uri.indexOf('vcf-') > -1 ||
-                    s.uri.indexOf('vcfInfo-') > -1 ||
-                    s.uri.indexOf('smaf-') > -1 ||
-                    s.uri.indexOf('qd-') > -1 ||
-                    s.uri.indexOf('gv-') > -1) {
-                    //stuff between last / identifies track, numbers after last - identify QRI
-                    var match = /([^\-]+)-(([^\-]+)-)?([^\/]+)\/$/.exec(s.uri)
-                    if (match) {
-                        var qri = match[4]; //QRI is fourth group
-                        var info = match[3];
-                        var subset = null;
-                        for (var j=0;j<vcfs.length;j++)
-                            if (vcfs[j].id == qri)
-                                subset = vcfs[j];
-                        if (subset == null)
-                            vcfs.push(subset = {id: qri, infos:[info], sources: [s]});
-                        else {
-                            subset.infos.push(info);
-                            subset.sources.push(s);
-                        }
-
-                    }
-                }
-            }
-            return vcfs;
-        },
-
         // create new instance of dalliance browser
         createGenomeBrowser: function () {
 
@@ -209,11 +137,12 @@ var genomeBrowserPanel = new Ext.Panel(
                 that.genomeBrowser.realInit();
                 //if we get rid of max-height, dalliance browser is able to fill the screen
                 jQuery('.dalliance-root').css('max-height', 'none');
+                setTimeout(function() {that.genomeBrowser.resizeViewer();},0);
 
-                var vcfs = that.scanCurrentTracksForVCF();
+                var vcfs = that.genomeBrowser.scanCurrentTracksForVCF();
 
                 if (vcfs.length>0) {
-                    that.createAddInfoButton(that.genomeBrowser);
+                    that.genomeBrowser.createAddInfoButton();
                 }
 
             }, 0);
