@@ -14,6 +14,7 @@ log4j = {
 
     warn 'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
     warn 'org.codehaus.groovy.grails.commons.spring.ReloadAwareAutowireCapableBeanFactory'
+    warn 'org.codehaus.groovy.grails.commons.spring.GrailsWebApplicationContext'
 
     root {
         info('stdout')
