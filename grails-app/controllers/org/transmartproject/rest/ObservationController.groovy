@@ -63,9 +63,9 @@ class ObservationController {
         }
     }
 
-    Study getStudy() { studyLoadingServiceProxy.study }
+    private Study getStudy() { studyLoadingServiceProxy.study }
 
-    OntologyTerm getConcept() {
+    private OntologyTerm getConcept() {
         GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
         String conceptId = webRequest.params.get('conceptId')
         if (!conceptId) {
@@ -81,7 +81,7 @@ class ObservationController {
         id.replace("/", "\\")
     }
 
-    Patient getPatient() {
+    private Patient getPatient() {
         GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
         Long subjectId = Long.parseLong(webRequest.params.get('subjectId'))
         if (!subjectId) {
@@ -90,7 +90,7 @@ class ObservationController {
         patientsResourceService.getPatientById(subjectId)
     }
 
-    List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
+    private List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
         List<ObservationWrapper> observations = []
         def concepts = tabularResult.getIndicesList()
         tabularResult.getRows().each { row ->

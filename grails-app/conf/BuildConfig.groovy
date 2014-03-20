@@ -66,7 +66,7 @@ grails.project.dependency.resolution = {
     plugins {
         build ":release:3.0.1"
         build ':tomcat:7.0.47'
-        
+
         compile ':spring-security-core:2.0-RC2'
 
         runtime ':transmart-core:1.0-SNAPSHOT'
