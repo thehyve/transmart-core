@@ -11,15 +11,15 @@ import com.sun.jersey.api.client.ClientResponse
 class RetrieveDataController  {
 
     def springSecurityService
-    def RetrieveDataService
+    def retrieveDataService
 
     def JobExportToGalaxy = {
-        def statusOK = RetrieveDataService.saveStatusOfExport(params.nameOfTheExportJob,lastExportName: params.nameOfTheLibrary);
+        def statusOK = retrieveDataService.saveStatusOfExport(params.nameOfTheExportJob,params.nameOfTheLibrary);
         if(statusOK){
             uploadExportFolderToGalaxy(params.nameOfTheExportJob, params.nameOfTheLibrary );
-            RetrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Done")
+            retrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Done")
         }else{
-            RetrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Error")
+            retrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Error")
         }
     }
 
@@ -27,7 +27,6 @@ class RetrieveDataController  {
 
         //final idOfTheUser = AuthUser.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getId() ;
         final idOfTheUser = springSecurityService.getPrincipal().id;
-        System.err.println(idOfTheUser);
         def apiKey = UserDetails.findById(idOfTheUser).getGalaxyKey();
         final String email = UserDetails.findById(idOfTheUser).getMailAddress();
         final String url = grailsApplication.config.com.galaxy.blend4j.galaxyURL;

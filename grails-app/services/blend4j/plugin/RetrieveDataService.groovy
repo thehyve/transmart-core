@@ -7,7 +7,11 @@ class RetrieveDataService {
 
     def saveStatusOfExport(String nameOfTheExportJob, String nameOfTheLibrary) {
         try{
-            def newJob = new StatusOfExport(id:nameOfTheExportJob,jobStatus:"Started",lastExportName: nameOfTheLibrary, lastExportTime:new Date());
+            def newJob = new StatusOfExport();
+            newJob.jobName = nameOfTheExportJob;
+            newJob.jobStatus = "Started";
+            newJob.lastExportName = nameOfTheLibrary;
+            newJob.lastExportTime = new Date();
             newJob.save();
         }catch(e){
             log.error("The export job for galaxy couldn't be saved")
@@ -18,6 +22,7 @@ class RetrieveDataService {
 
     def updateStatusOfExport(String nameOfTheExportJob, String newState) {
         try{
+            System.err.println("I am in the Update")
             def newJob = StatusOfExport.get(nameOfTheExportJob);
             newJob.jobStatus = newState;
             newJob.save();
