@@ -45,9 +45,9 @@ class TerminalConceptVariablesDataQuery {
                     numberValue
                 FROM ObservationFact fact
                 WHERE
-                    ${patientIds ? 'patient.id IN (:patientIds)' : ''}
-                    ${patientIds && conceptCodes ? ' AND ' : ''}
-                    ${conceptCodes ? 'fact.conceptCode IN (:conceptCodes)' : ''}
+                    patient.id IN (:patientIds)
+                AND
+                    fact.conceptCode IN (:conceptCodes)
                 ORDER BY
                     patient ASC,
                     conceptCode ASC"""
@@ -56,8 +56,8 @@ class TerminalConceptVariablesDataQuery {
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        if(patientIds) query.setParameterList 'patientIds', patientIds
-        if(conceptCodes) query.setParameterList 'conceptCodes', conceptCodes
+        query.setParameterList 'patientIds', patientIds
+        query.setParameterList 'conceptCodes', conceptCodes
 
         query.scroll ScrollMode.FORWARD_ONLY
     }
