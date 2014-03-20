@@ -35,7 +35,7 @@ var genomeBrowserPanel = new Ext.Panel(
                     this.createGenomeBrowser();
                 }
                 else {
-                    this.genomeBrowser.reset();
+                    this.genomeBrowser.resizeViewer();
                 }
             },
             afterLayout: function () {
