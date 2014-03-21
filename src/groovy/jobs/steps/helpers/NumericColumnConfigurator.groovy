@@ -2,6 +2,7 @@ package jobs.steps.helpers
 
 import jobs.table.Column
 import jobs.table.columns.SimpleConceptVariableColumn
+import jobs.table.columns.TransformColumnDecorator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -23,6 +24,8 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     boolean alwaysClinical = false
 
+    boolean log10 = false
+
     @Autowired
     private ClinicalDataRetriever clinicalDataRetriever
 
@@ -34,10 +37,23 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     @Override
     protected void doAddColumn(Closure<Column> columnDecorator) {
+        def resultColumnDecoretor = log10 ?
+                compose(columnDecorator, createLog10ColumnDecorator())
+                : columnDecorator
         if (isClinical()) {
-            addColumnClinical columnDecorator
+            addColumnClinical resultColumnDecoretor
         } else {
-            addColumnHighDim columnDecorator
+            addColumnHighDim resultColumnDecoretor
+        }
+    }
+
+    private Closure<Column> createLog10ColumnDecorator() {
+        { Column originalColumn ->
+            new TransformColumnDecorator(
+                    inner: originalColumn,
+                    valueFunction: { value ->
+                        Math.log10(value)
+                    })
         }
     }
 
