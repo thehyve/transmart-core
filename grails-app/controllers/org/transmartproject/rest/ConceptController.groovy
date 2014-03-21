@@ -5,6 +5,7 @@ import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
+import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class ConceptController {
 
@@ -28,9 +29,11 @@ class ConceptController {
      *  @param id The id for which to return study information.
      */
     def show(String id) {
-        String key = studyLoadingServiceProxy.study.ontologyTerm.key + OntologyTermSerializationHelper.idToPath(id)
-        def concept = conceptsResourceService.getByKey(key)
-        respond new OntologyTermWrapper(concept)
+        use (OntologyTermCategory) {
+            String key = id.keyFromURLPart studyLoadingServiceProxy.study
+            def concept = conceptsResourceService.getByKey(key)
+            respond new OntologyTermWrapper(concept)
+        }
     }
 
     /**

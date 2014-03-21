@@ -8,11 +8,13 @@ import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.ObservationWrapper
+import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class ObservationController {
 
@@ -66,28 +68,31 @@ class ObservationController {
     private Study getStudy() { studyLoadingServiceProxy.study }
 
     private OntologyTerm getConcept() {
-        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
-        String conceptId = webRequest.params.get('conceptId')
-        if (!conceptId) {
+        String conceptId = params.conceptId
+        if (conceptId == null) {
+            // should not happen
             throw new InvalidArgumentsException('Could not find a concept id')
         }
-        String studyKey = studyLoadingServiceProxy.study.ontologyTerm.key
 
-        conceptsResourceService.getByKey(studyKey + getConceptPath(conceptId))
-    }
-
-    //TODO Move this method to some other place
-    private static String getConceptPath(String id) {
-        id.replace("/", "\\")
+        use (OntologyTermCategory) {
+            conceptsResourceService.getByKey(
+                    conceptId.keyFromURLPart(study))
+        }
     }
 
     private Patient getPatient() {
-        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
-        Long subjectId = Long.parseLong(webRequest.params.get('subjectId'))
+        Long subjectId = Long.parseLong(params.get('subjectId'))
         if (!subjectId) {
+            // should not happen
             throw new InvalidArgumentsException('Could not find a study id')
         }
-        patientsResourceService.getPatientById(subjectId)
+
+        def patient = patientsResourceService.getPatientById(subjectId)
+        if (patient.trial != study.name) {
+            throw new NoSuchResourceException("Subject $subjectId does not " +
+                    "belong to study ${study.name}")
+        }
+        patient
     }
 
     private List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {

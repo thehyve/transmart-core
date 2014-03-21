@@ -56,7 +56,7 @@ abstract class ResourceTestCase extends APITestCase {
      * @param embeddedMatcherMap map of key to matcher elements to be expected inside '_embedded'
      * @return
      */
-    def hasHalIndex(String selfLink, Map<String, Matcher> embeddedMatcherMap) {
+    def halIndexResponse(String selfLink, Map<String, Matcher> embeddedMatcherMap) {
 
         allOf(
                 hasSelfLink(selfLink),

@@ -12,6 +12,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
+import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class SubjectController {
 
@@ -51,37 +52,30 @@ class SubjectController {
      * @return list of subjects for study XXX and Data YYY
      */
     def indexByConcept() {
-        def conceptId = getConceptId()
-        def patients = getPatients(conceptId)
-        def selfLink = selfLinkForConcept(conceptId)
-        respond wrapSubjects(patients, selfLink)
+        use (OntologyTermCategory) {
+            def ontologyTermKey = params.conceptId.keyFromURLPart(
+                    studyLoadingServiceProxy.study)
+            def ontologyTerm = conceptsResourceService.getByKey(ontologyTermKey)
+            def patients = ontologyTerm.patients
+            def selfLink = selfLinkForConcept ontologyTerm
+
+            respond wrapSubjects(patients, selfLink)
+        }
     }
 
-    def selfLinkForStudy() {
+    private def selfLinkForStudy() {
         "/studies/${studyLoadingServiceProxy.studyLowercase}/subjects"
     }
 
-    def selfLinkForConcept(String conceptId) {
-        "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts/$conceptId/subjects"
-    }
-
-    private List<Patient> getPatients(String conceptId) {
-        def conceptKey = studyLoadingServiceProxy.study.ontologyTerm.key +
-                OntologyTermSerializationHelper.idToPath(conceptId)
-
-        conceptsResourceService.getByKey(conceptKey).patients
-    }
-
-    private String getConceptId() {
-        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
-        def conceptId = webRequest.params.get 'conceptId'
-        if (!conceptId) {
-            throw new InvalidArgumentsException('Could not find a Data id')
+    private def selfLinkForConcept(OntologyTerm term) {
+        use (OntologyTermCategory) {
+            "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts/" +
+                    term.encodeAsURLPart(studyLoadingServiceProxy.study) +
+            '/subjects'
         }
-        conceptId
     }
 
-    def wrapSubjects(Object source, String selfLink) {
+    private def wrapSubjects(Object source, String selfLink) {
 
         new CollectionResponseWrapper(
                 collection: source,
