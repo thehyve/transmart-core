@@ -5,14 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.StudyLoadingService
 
 import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
-class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<OntologyTerm> {
+class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<OntologyTermWrapper> {
 
     @Resource
     StudyLoadingService studyLoadingServiceProxy
@@ -20,15 +19,16 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     @Autowired
     StudiesResource studiesResourceService
 
-    final Class targetType = OntologyTerm
+    final Class targetType = OntologyTermWrapper
 
     final String collectionName = 'ontology_terms'
 
     static final String ROOT = 'ROOT'
 
     @Override
-    Collection<Link> getLinks(OntologyTerm term) {
+    Collection<Link> getLinks(OntologyTermWrapper obj) {
         /* this gets tricky. We may be rendering this as part of the /studies response */
+        OntologyTerm term = obj.delegate
         OntologyTerm studyTerm
         String studyName
         try {
@@ -48,7 +48,8 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Map<String, Object> convertToMap(OntologyTerm term) {
+    Map<String, Object> convertToMap(OntologyTermWrapper obj) {
+        OntologyTerm term = obj.delegate
         [
                 name:     term.name,
                 key:      term.key,
@@ -57,7 +58,7 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Set<String> getEmbeddedEntities(OntologyTerm object) {
+    Set<String> getEmbeddedEntities(OntologyTermWrapper object) {
         [] as Set
     }
 

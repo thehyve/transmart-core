@@ -1,14 +1,10 @@
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import grails.rest.Link
-import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
+import org.transmartproject.rest.marshallers.OntologyTermWrapper
 
 class ConceptController {
 
@@ -21,7 +17,9 @@ class ConceptController {
      *  This will return the list of concepts, where each concept will be rendered in its short format
     */
     def index() {
-        respond wrapConcepts(studyLoadingServiceProxy.study.ontologyTerm.allDescendants)
+        def concepts = studyLoadingServiceProxy.study.ontologyTerm.allDescendants
+        def conceptWrappers = OntologyTermWrapper.wrap(concepts)
+        respond wrapConcepts(conceptWrappers)
     }
 
     /** GET request on /studies/XXX/concepts/${id}
@@ -31,7 +29,8 @@ class ConceptController {
      */
     def show(String id) {
         String key = studyLoadingServiceProxy.study.ontologyTerm.key + OntologyTermSerializationHelper.idToPath(id)
-        respond conceptsResourceService.getByKey(key)
+        def concept = conceptsResourceService.getByKey(key)
+        respond new OntologyTermWrapper(concept)
     }
 
     /**
@@ -41,7 +40,7 @@ class ConceptController {
     def wrapConcepts(Object source) {
         new CollectionResponseWrapper(
                 collection: source,
-                componentType: OntologyTerm,
+                componentType: OntologyTermWrapper,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
                                 "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts"
