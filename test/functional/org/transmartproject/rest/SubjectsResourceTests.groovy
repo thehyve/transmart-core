@@ -1,16 +1,5 @@
 package org.transmartproject.rest
 
-import com.grailsrocks.functionaltest.APITestCase
-import org.hamcrest.Matchers
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Ignore
-import org.transmartproject.db.ontology.ConceptTestData
-import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.ontology.StudyTestData
-import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
-
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
@@ -20,7 +9,7 @@ class SubjectsResourceTests extends ResourceTestCase {
     def defaultTrial = study.toUpperCase()
     def subjectId = -101
     def UNKNOWN = 'UNKOWN' // funny typo here
-    def concept = OntologyTermSerializationHelper.pathToId('bar')
+    def concept = 'bar'
 
     def subjectsPerConceptUrl = "/studies/${study}/concepts/${concept}/subjects"
     def subjectsPerStudyUrl = "/studies/${study}/subjects"
@@ -60,7 +49,7 @@ class SubjectsResourceTests extends ResourceTestCase {
         def result = getAsHal subjectsPerStudyUrl
         assertStatus 200
         assertThat result,
-                hasHalIndex(
+                halIndexResponse(
                         subjectsPerStudyUrl,
                         ['subjects': containsInAnyOrder(
                                 hasHalSubject(),
@@ -76,7 +65,7 @@ class SubjectsResourceTests extends ResourceTestCase {
         assertStatus 200
 
         assertThat result, hasEntry(is('subjects'),
-                containsInAnyOrder(
+                contains(
                         hasJsonSubject(),
                 )
         )
@@ -87,12 +76,24 @@ class SubjectsResourceTests extends ResourceTestCase {
         assertStatus 200
 
         assertThat result,
-                hasHalIndex(
+                halIndexResponse(
                         subjectsPerConceptUrl,
-                        ['subjects': containsInAnyOrder(
+                        ['subjects': contains(
                             hasHalSubject()
                         )]
                 )
+    }
+
+    def subjectsPerLongConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_/subjects'
+
+    void testSubjectsIndexOnLongConcept() {
+        def result = getAsHal subjectsPerLongConceptUrl
+        assertStatus 200
+
+        assertThat result, is(halIndexResponse(
+                subjectsPerLongConceptUrl,
+                [subjects: any(List)]
+        ))
     }
 
     def hasJsonSubject2() {

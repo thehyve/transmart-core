@@ -1,6 +1,6 @@
 package org.transmartproject.rest
 
-import org.transmartproject.rest.marshallers.OntologyTermSerializationHelper
+import org.hamcrest.Matcher
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -8,27 +8,26 @@ import static org.hamcrest.Matchers.*
 class ConceptsResourceTests extends ResourceTestCase {
 
     def studyId = 'study1'
-    def conceptName = 'bar'
+    def partialConceptName = 'bar'
 
     def rootConceptPath = '\\foo\\study1\\'
     def rootConceptKey = "\\\\i2b2 main$rootConceptPath"
 
-    def conceptPath = "${rootConceptPath}${conceptName}\\"
-    def conceptKey = "${rootConceptKey}${conceptName}\\"
+    def conceptPath = "${rootConceptPath}${partialConceptName}\\"
+    def conceptKey = "${rootConceptKey}${partialConceptName}\\"
     //The full concept path, starting after the studyId
-    def conceptId = OntologyTermSerializationHelper.pathToId(conceptName)
+    def conceptId = partialConceptName
 
     def conceptListUrl = "/studies/${studyId}/concepts"
     def conceptUrl = "/studies/${studyId}/concepts/${conceptId}"
     def rootConceptUrl = "/studies/${studyId}/concepts/ROOT"
-
 
     void testIndexAsJson() {
         def result = getAsJson conceptListUrl
         assertStatus 200
 
         assertThat result, hasEntry(is('ontology_terms'),
-            contains(hasJsonConcept())
+            contains(jsonConceptResponse())
         )
     }
 
@@ -37,10 +36,10 @@ class ConceptsResourceTests extends ResourceTestCase {
         assertStatus 200
 
         assertThat result,
-                hasHalIndex(
+                halIndexResponse(
                         conceptListUrl,
                         ['ontology_terms': contains(
-                                hasHalConcept()
+                                halConceptResponse()
                         )]
 
         )
@@ -49,32 +48,60 @@ class ConceptsResourceTests extends ResourceTestCase {
     void testShowAsJson() {
         def result = getAsJson conceptUrl
         assertStatus 200
-        assertThat result, hasJsonConcept()
+        assertThat result, jsonConceptResponse()
     }
 
     void testShowAsHal() {
         def result = getAsHal conceptUrl
         assertStatus 200
 
-        assertThat result, hasHalConcept()
+        assertThat result, halConceptResponse()
     }
 
     void testShowRootConceptAsJson() {
         def result = getAsJson rootConceptUrl
         assertStatus 200
-        assertThat result, hasJsonConcept(rootConceptKey, studyId, rootConceptPath)
+        assertThat result, jsonConceptResponse(rootConceptKey, studyId, rootConceptPath)
     }
 
     void testShowRootConceptAsHal() {
         def result = getAsHal rootConceptUrl
         assertStatus 200
 
-       assertThat result, hasHalConcept(rootConceptKey, studyId, rootConceptPath, rootConceptUrl)
+       assertThat result, halConceptResponse(rootConceptKey, studyId, rootConceptPath, rootConceptUrl)
     }
 
-    def hasJsonConcept(String key = conceptKey,
-                       String name = conceptName,
-                       String fullName = conceptPath) {
+    def longConceptName = 'with%some$characters_'
+    def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
+    def longConceptKey  = "\\\\i2b2 main$longConceptPath"
+    def longConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_'
+
+    def study2ConceptListUrl = '/studies/study2/concepts'
+
+    void testPathOfLongConcept() {
+        def result = getAsHal study2ConceptListUrl
+
+        assertStatus 200
+        assertThat result, is(halIndexResponse(
+                study2ConceptListUrl,
+                ['ontology_terms': hasItem(
+                        hasSelfLink(longConceptUrl))]))
+    }
+
+    void testCanHitLongConcept() {
+        def result = getAsHal longConceptUrl
+
+        assertStatus 200
+        assertThat result, is(halConceptResponse(
+                                longConceptKey,
+                                longConceptName,
+                                longConceptPath,
+                                longConceptUrl))
+    }
+
+    private Matcher jsonConceptResponse(String key = conceptKey,
+                                        String name = partialConceptName,
+                                        String fullName = conceptPath) {
         allOf(
                 hasEntry('name', name),
                 hasEntry('fullName', fullName),
@@ -82,12 +109,12 @@ class ConceptsResourceTests extends ResourceTestCase {
         )
     }
 
-    def hasHalConcept(String key = conceptKey,
-                      String name = conceptName,
-                      String fullName = conceptPath,
-                      String selfLink = conceptUrl) {
+    private Matcher halConceptResponse(String key = conceptKey,
+                                       String name = partialConceptName,
+                                       String fullName = conceptPath,
+                                       String selfLink = conceptUrl) {
         allOf(
-                hasJsonConcept(key, name, fullName),
+                jsonConceptResponse(key, name, fullName),
                 hasSelfLink(selfLink),
         )
     }
