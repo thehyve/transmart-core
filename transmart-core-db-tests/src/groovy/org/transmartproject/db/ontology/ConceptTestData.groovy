@@ -22,6 +22,11 @@ class ConceptTestData {
         i2b2List << createI2b2Concept(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA')
         // used only in AccessLevelTestData
         i2b2List << createI2b2Concept(code: 5, level: 1, fullName: '\\foo\\study3\\',         name: 'study3', cComment: 'trial:STUDY3', cVisualAttributes: 'FA')
+        // useful to test rest-api
+        i2b2List << createI2b2Concept(code: 6, level: 2, fullName: '\\foo\\study2\\long path\\',
+                                      name: 'study2', cComment: 'trial:STUDY2', cVisualAttributes: 'FA')
+        i2b2List << createI2b2Concept(code: 7, level: 3, fullName: '\\foo\\study2\\long path\\with%some$characters_\\',
+                                      name: 'study2', cComment: 'trial:STUDY2', cVisualAttributes: 'LA')
 
         def conceptDimensions = createConceptDimensions(i2b2List)
 
