@@ -1,5 +1,4 @@
 package blend4j.plugin
-
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory
 import com.github.jmchilton.blend4j.galaxy.LibrariesClient
@@ -7,8 +6,12 @@ import com.github.jmchilton.blend4j.galaxy.beans.FileLibraryUpload
 import com.github.jmchilton.blend4j.galaxy.beans.Library
 import com.github.jmchilton.blend4j.galaxy.beans.LibraryContent
 import com.github.jmchilton.blend4j.galaxy.beans.LibraryFolder
+import com.recomdata.transmart.domain.i2b2.AsyncJob
 import com.sun.jersey.api.client.ClientResponse
 import grails.transaction.Transactional
+import org.apache.commons.lang.StringUtils
+import org.json.JSONArray
+import org.json.JSONObject
 
 @Transactional
 class RetrieveDataService {
@@ -94,5 +97,65 @@ class RetrieveDataService {
                 createFoldersAndFiles(listOfChildrenFiles, resultFolder, client, persistedLibraryId);
             }
         }
+    }
+
+    /**
+     * Method that will get the list of jobs to show in the galaxy jobs tab
+     */
+    def getjobs(String userName, jobType = null) {
+        JSONObject result = new JSONObject()
+        JSONArray rows = new JSONArray()
+
+        def jobResults = null
+        def c = AsyncJob.createCriteria()
+        if (StringUtils.isNotEmpty(jobType)) {
+            jobResults = c {
+                like("jobName", "${userName}%")
+                eq("jobType", "${jobType}")
+                ge("lastRunOn", new Date()-7)
+                order("lastRunOn", "desc")
+            }
+        } else {
+            jobResults = c {
+                like("jobName", "${userName}%")
+                or {
+                    ne("jobType", "DataExport")
+                    isNull("jobType")
+                }
+                ge("lastRunOn", new Date()-7)
+                order("lastRunOn", "desc")
+            }
+        }
+
+        def m = [:]
+        def d
+        for (jobResult in jobResults)	{
+            m = [:]
+            m["name"] = jobResult.jobName
+            m["status"] = jobResult.jobStatus
+            m["runTime"] = jobResult.runTime
+            m["startDate"] = jobResult.lastRunOn
+            m["viewerURL"] = jobResult.viewerURL
+            m["altViewerURL"] = jobResult.altViewerURL
+            m["jobInputsJson"] = new JSONObject(jobResult.jobInputsJson ?: "{}")
+            d = StatusOfExport.findByJobName(jobResult.jobName);
+            if(d.jobStatus.equals("Started") ) {
+                m["lastExportName"] = d.lastExportName;
+                m["lastExportTime"] = d.lastExportTime.toString();
+                m["exportStatus"] = d.jobStatus;
+            }else{
+                m["lastExportName"] = "Never Exported";
+                def currentDate = new Date();
+                m["lastExportTime"] = currentDate.toString();
+                m["exportStatus"] = " ";
+            }
+            rows.put(m)
+        }
+
+        result.put("success", true)
+        result.put("totalCount", jobResults.size())
+        result.put("jobs", rows)
+
+        return result
     }
 }
