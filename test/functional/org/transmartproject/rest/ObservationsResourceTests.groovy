@@ -1,39 +1,110 @@
 package org.transmartproject.rest
 
-import com.grailsrocks.functionaltest.APITestCase
-import org.hamcrest.Matchers
-
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class ObservationsResourceTests extends APITestCase {
+class ObservationsResourceTests extends ResourceTestCase {
 
-    def study = 'STUDY1'
+    def studyId = 'STUDY1'
+
     void testListAllObservationsForStudy() {
-        get("${baseURL}studies/${study}/observations")
+        get("${baseURL}studies/${studyId}/observations")
         assertStatus 200
 
-        //TODO test output
-        //assertThat JSON, hasKey('observations')
+        assertThat JSON, contains(
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -103)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', null)
+                ),
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -102)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', null)
+                ),
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -101)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', 10.0 as Double)
+                )
+        )
     }
 
     void testListAllObservationsForSubject() {
-        def subjectId = -102
-        get("${baseURL}studies/${study}/subjects/${subjectId}/observations")
+        def subjectId = -101
+        get("${baseURL}studies/${studyId}/subjects/${subjectId}/observations")
         assertStatus 200
 
-        //TODO test output
-        //assertThat JSON, hasKey('observations')
+        assertThat JSON, contains(
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', subjectId),
+                                hasEntry('sex', 'UNKOWN'),
+                                hasEntry('trial', studyId),
+                                hasEntry('inTrialId', 'SUBJ_ID_1'),
+                                hasEntry('religion', null),
+                                hasEntry('age', null),
+                                hasEntry('birthDate', null),
+                                hasEntry('maritalStatus', null),
+                                hasEntry('deathDate', null),
+                                hasEntry('race', null),
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2'),
+                                hasEntry('conceptPath', '\\foo\\study1\\bar\\'),
+                                hasEntry('label', '\\foo\\study1\\bar\\')
+                        )),
+                        hasEntry('value', 10.0 as Double)
+                )
+        )
     }
 
-    /*FIXME
     void testListAllObservationsForConcept() {
         def conceptId = 'bar'
-        get("${baseURL}studies/${study}/concepts/${conceptId}/observations")
+        get("${baseURL}studies/${studyId}/concepts/${conceptId}/observations")
         assertStatus 200
 
-        //TODO test output
-        assertThat JSON, hasKey('observations')
-    }*/
+        assertThat JSON, contains(
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -103)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', null)
+                ),
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -102)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', null)
+                ),
+                allOf(
+                        hasEntry(is('subject'), allOf(
+                                hasEntry('id', -101)
+                        )),
+                        hasEntry(is('concept'), allOf(
+                                hasEntry('conceptCode', '2')
+                        )),
+                        hasEntry('value', 10.0 as Double)
+                )
+        )
+    }
 
 }
