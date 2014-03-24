@@ -158,7 +158,7 @@ Plot.error.message <- function(errorMessage) {
     dev.off()
 }
 
-PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.file = "aggregated_data.txt") {
     library(WGCNA)
 
     # Keeps relevant columns. Throws out SUBSET column, since this is not being used by PCA anyway.
@@ -209,5 +209,8 @@ PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.sele
 
     #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
     finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+
+    write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
+
     finalData
 }
