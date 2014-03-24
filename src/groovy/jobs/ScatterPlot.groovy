@@ -63,7 +63,6 @@ class ScatterPlot extends AbstractAnalysisJob {
         configurator.header     = header
         configurator.projection = Projection.LOG_INTENSITY_PROJECTION
         configurator.multiRow   = true
-
         configurator.setKeys(key)
     }
 

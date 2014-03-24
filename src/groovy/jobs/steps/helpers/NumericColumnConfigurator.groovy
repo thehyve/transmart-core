@@ -2,6 +2,7 @@ package jobs.steps.helpers
 
 import jobs.table.Column
 import jobs.table.columns.SimpleConceptVariableColumn
+import jobs.table.columns.TransformColumnDecorator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -17,7 +18,8 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     String keyForConceptPath,
            keyForDataType,        /* CLINICAL for clinical data */
-           keyForSearchKeywordId  /* only applicable for high dim data */
+           keyForSearchKeywordId, /* only applicable for high dim data */
+           keyForLog10
 
     boolean multiRow = false      /* only applicable for high dim data */
 
@@ -34,11 +36,28 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     @Override
     protected void doAddColumn(Closure<Column> columnDecorator) {
+        def resultColumnDecoretor = log10 ?
+                compose(columnDecorator, createLog10ColumnDecorator())
+                : columnDecorator
         if (isClinical()) {
-            addColumnClinical columnDecorator
+            addColumnClinical resultColumnDecoretor
         } else {
-            addColumnHighDim columnDecorator
+            addColumnHighDim resultColumnDecoretor
         }
+    }
+
+    private Closure<Column> createLog10ColumnDecorator() {
+        { Column originalColumn ->
+            new TransformColumnDecorator(
+                    inner: originalColumn,
+                    valueFunction: { value ->
+                        Math.log10(value)
+                    })
+        }
+    }
+
+    boolean isLog10() {
+        getStringParam(keyForLog10, false)?.toBoolean()
     }
 
     boolean isClinical() {
@@ -77,6 +96,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
         keyForConceptPath     = "${keyPart}Variable"
         keyForDataType        = "div${keyPart.capitalize()}VariableType"
         keyForSearchKeywordId = "div${keyPart.capitalize()}VariablePathway"
+        keyForLog10           = "div${keyPart.capitalize()}VariableLog10"
     }
 
 }
