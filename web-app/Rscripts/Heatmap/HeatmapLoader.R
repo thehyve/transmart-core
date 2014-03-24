@@ -155,7 +155,7 @@ aggregate.probes = FALSE
 }
 
 
-Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.file = "aggregated_data.txt") {
 	library(WGCNA)
 
     meltedData <- melt(mRNAData, id=c("GROUP","GENE_SYMBOL","PATIENT_NUM"))
@@ -207,5 +207,9 @@ Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.
     finalData$PATIENT_NUM <- sub("^X","",finalData$PATIENT_NUM)
 
     #Return relevant columns
-    finalData[,c("PATIENT_NUM","VALUE","GROUP","GENE_SYMBOL")]
+    finalData <- finalData[,c("PATIENT_NUM","VALUE","GROUP","GENE_SYMBOL")]
+
+    write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
+
+    finalData
 }
