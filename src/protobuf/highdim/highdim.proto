@@ -3,6 +3,8 @@ package highdim;
 option java_package = "org.transmartproject.rest.protobuf";
 option java_outer_classname = "HighDimProtos";
 
+//command to compile this file, from the transmart-rest-api:
+//protoc --java_out=src/java src/protobuf/highdim/highdim.proto
 message HighDimTable {
     enum RowType { DOUBLE = 1; GENERAL = 2; }
 
@@ -12,19 +14,19 @@ message HighDimTable {
     repeated MapRow mapRow = 4;
 
     message BaseRow {
-        required int64 assayId = 1;
-        required string label = 2;
+        required string bioMarker = 1;
+        optional string label = 2;
         required Map extraProperty = 3;
     }
 
     message DoubleRow {
         required BaseRow base = 1;
-        repeated double value = 2; //use NaN for null
+        repeated double value = 2 [packed=true]; //corresponds to an assay by index. When no value for that assay, use NaN
     }
 
     message MapRow {
         required BaseRow base = 1;
-        repeated Map value = 2;
+        repeated Map value = 2; //corresponds to an assay by index. When no value for that assay, use empty map (0 entries)
     }
 
     message Assay {
