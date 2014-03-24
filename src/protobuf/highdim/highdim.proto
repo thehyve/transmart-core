@@ -14,9 +14,9 @@ message HighDimTable {
     repeated MapRow mapRow = 4;
 
     message BaseRow {
-        required string bioMarker = 1;
-        optional string label = 2;
-        required Map extraProperty = 3;
+        required string label = 1;
+        optional string bioMarker = 2;
+        optional Map extraProperty = 3;
     }
 
     message DoubleRow {
@@ -31,12 +31,12 @@ message HighDimTable {
 
     message Assay {
         required int64 assayId = 1;
-        optional string sampleTypeName = 2;
-        optional string timepointName = 3;
-        optional string tissueTypeName = 4;
-        optional string platform = 5;
-        optional string sampleCode = 6;
-        required string patientId = 7;
+        required string patientId = 2;
+        optional string sampleTypeName = 3;
+        optional string timepointName = 4;
+        optional string tissueTypeName = 5;
+        optional string platform = 6;
+        optional string sampleCode = 7;
     }
 
     message Map {
@@ -45,7 +45,7 @@ message HighDimTable {
 
     message MapEntry {
         required string key = 1;
-        required string value = 2;
+        optional string value = 2;
     }
 }
 

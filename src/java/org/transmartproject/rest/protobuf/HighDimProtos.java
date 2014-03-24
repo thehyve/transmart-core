@@ -98,6 +98,11 @@ public final class HighDimProtos {
   }
   /**
    * Protobuf type {@code highdim.HighDimTable}
+   *
+   * <pre>
+   *command to compile this file, from the transmart-rest-api:
+   *protoc --java_out=src/java src/protobuf/highdim/highdim.proto
+   * </pre>
    */
   public static final class HighDimTable extends
       com.google.protobuf.GeneratedMessage
@@ -315,47 +320,47 @@ public final class HighDimProtos {
     public interface BaseRowOrBuilder
         extends com.google.protobuf.MessageOrBuilder {
 
-      // required string bioMarker = 1;
+      // required string label = 1;
       /**
-       * <code>required string bioMarker = 1;</code>
-       */
-      boolean hasBioMarker();
-      /**
-       * <code>required string bioMarker = 1;</code>
-       */
-      java.lang.String getBioMarker();
-      /**
-       * <code>required string bioMarker = 1;</code>
-       */
-      com.google.protobuf.ByteString
-          getBioMarkerBytes();
-
-      // optional string label = 2;
-      /**
-       * <code>optional string label = 2;</code>
+       * <code>required string label = 1;</code>
        */
       boolean hasLabel();
       /**
-       * <code>optional string label = 2;</code>
+       * <code>required string label = 1;</code>
        */
       java.lang.String getLabel();
       /**
-       * <code>optional string label = 2;</code>
+       * <code>required string label = 1;</code>
        */
       com.google.protobuf.ByteString
           getLabelBytes();
 
-      // required .highdim.HighDimTable.Map extraProperty = 3;
+      // optional string bioMarker = 2;
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional string bioMarker = 2;</code>
+       */
+      boolean hasBioMarker();
+      /**
+       * <code>optional string bioMarker = 2;</code>
+       */
+      java.lang.String getBioMarker();
+      /**
+       * <code>optional string bioMarker = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getBioMarkerBytes();
+
+      // optional .highdim.HighDimTable.Map extraProperty = 3;
+      /**
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       boolean hasExtraProperty();
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map getExtraProperty();
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.MapOrBuilder getExtraPropertyOrBuilder();
     }
@@ -412,12 +417,12 @@ public final class HighDimProtos {
               }
               case 10: {
                 bitField0_ |= 0x00000001;
-                bioMarker_ = input.readBytes();
+                label_ = input.readBytes();
                 break;
               }
               case 18: {
                 bitField0_ |= 0x00000002;
-                label_ = input.readBytes();
+                bioMarker_ = input.readBytes();
                 break;
               }
               case 26: {
@@ -473,60 +478,17 @@ public final class HighDimProtos {
       }
 
       private int bitField0_;
-      // required string bioMarker = 1;
-      public static final int BIOMARKER_FIELD_NUMBER = 1;
-      private java.lang.Object bioMarker_;
+      // required string label = 1;
+      public static final int LABEL_FIELD_NUMBER = 1;
+      private java.lang.Object label_;
       /**
-       * <code>required string bioMarker = 1;</code>
+       * <code>required string label = 1;</code>
        */
-      public boolean hasBioMarker() {
+      public boolean hasLabel() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string bioMarker = 1;</code>
-       */
-      public java.lang.String getBioMarker() {
-        java.lang.Object ref = bioMarker_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            bioMarker_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>required string bioMarker = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getBioMarkerBytes() {
-        java.lang.Object ref = bioMarker_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          bioMarker_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string label = 2;
-      public static final int LABEL_FIELD_NUMBER = 2;
-      private java.lang.Object label_;
-      /**
-       * <code>optional string label = 2;</code>
-       */
-      public boolean hasLabel() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional string label = 2;</code>
+       * <code>required string label = 1;</code>
        */
       public java.lang.String getLabel() {
         java.lang.Object ref = label_;
@@ -543,7 +505,7 @@ public final class HighDimProtos {
         }
       }
       /**
-       * <code>optional string label = 2;</code>
+       * <code>required string label = 1;</code>
        */
       public com.google.protobuf.ByteString
           getLabelBytes() {
@@ -559,31 +521,74 @@ public final class HighDimProtos {
         }
       }
 
-      // required .highdim.HighDimTable.Map extraProperty = 3;
+      // optional string bioMarker = 2;
+      public static final int BIOMARKER_FIELD_NUMBER = 2;
+      private java.lang.Object bioMarker_;
+      /**
+       * <code>optional string bioMarker = 2;</code>
+       */
+      public boolean hasBioMarker() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string bioMarker = 2;</code>
+       */
+      public java.lang.String getBioMarker() {
+        java.lang.Object ref = bioMarker_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            bioMarker_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string bioMarker = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getBioMarkerBytes() {
+        java.lang.Object ref = bioMarker_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          bioMarker_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      // optional .highdim.HighDimTable.Map extraProperty = 3;
       public static final int EXTRAPROPERTY_FIELD_NUMBER = 3;
       private org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map extraProperty_;
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       public boolean hasExtraProperty() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       public org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map getExtraProperty() {
         return extraProperty_;
       }
       /**
-       * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+       * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
        */
       public org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.MapOrBuilder getExtraPropertyOrBuilder() {
         return extraProperty_;
       }
 
       private void initFields() {
-        bioMarker_ = "";
         label_ = "";
+        bioMarker_ = "";
         extraProperty_ = org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.getDefaultInstance();
       }
       private byte memoizedIsInitialized = -1;
@@ -591,17 +596,15 @@ public final class HighDimProtos {
         byte isInitialized = memoizedIsInitialized;
         if (isInitialized != -1) return isInitialized == 1;
 
-        if (!hasBioMarker()) {
+        if (!hasLabel()) {
           memoizedIsInitialized = 0;
           return false;
         }
-        if (!hasExtraProperty()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!getExtraProperty().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
+        if (hasExtraProperty()) {
+          if (!getExtraProperty().isInitialized()) {
+            memoizedIsInitialized = 0;
+            return false;
+          }
         }
         memoizedIsInitialized = 1;
         return true;
@@ -611,10 +614,10 @@ public final class HighDimProtos {
                           throws java.io.IOException {
         getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeBytes(1, getBioMarkerBytes());
+          output.writeBytes(1, getLabelBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getLabelBytes());
+          output.writeBytes(2, getBioMarkerBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeMessage(3, extraProperty_);
@@ -630,11 +633,11 @@ public final class HighDimProtos {
         size = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(1, getBioMarkerBytes());
+            .computeBytesSize(1, getLabelBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getLabelBytes());
+            .computeBytesSize(2, getBioMarkerBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
@@ -757,9 +760,9 @@ public final class HighDimProtos {
 
         public Builder clear() {
           super.clear();
-          bioMarker_ = "";
-          bitField0_ = (bitField0_ & ~0x00000001);
           label_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          bioMarker_ = "";
           bitField0_ = (bitField0_ & ~0x00000002);
           if (extraPropertyBuilder_ == null) {
             extraProperty_ = org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.getDefaultInstance();
@@ -798,11 +801,11 @@ public final class HighDimProtos {
           if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
             to_bitField0_ |= 0x00000001;
           }
-          result.bioMarker_ = bioMarker_;
+          result.label_ = label_;
           if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
             to_bitField0_ |= 0x00000002;
           }
-          result.label_ = label_;
+          result.bioMarker_ = bioMarker_;
           if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
             to_bitField0_ |= 0x00000004;
           }
@@ -827,14 +830,14 @@ public final class HighDimProtos {
 
         public Builder mergeFrom(org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.BaseRow other) {
           if (other == org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.BaseRow.getDefaultInstance()) return this;
-          if (other.hasBioMarker()) {
+          if (other.hasLabel()) {
             bitField0_ |= 0x00000001;
-            bioMarker_ = other.bioMarker_;
+            label_ = other.label_;
             onChanged();
           }
-          if (other.hasLabel()) {
+          if (other.hasBioMarker()) {
             bitField0_ |= 0x00000002;
-            label_ = other.label_;
+            bioMarker_ = other.bioMarker_;
             onChanged();
           }
           if (other.hasExtraProperty()) {
@@ -845,17 +848,15 @@ public final class HighDimProtos {
         }
 
         public final boolean isInitialized() {
-          if (!hasBioMarker()) {
+          if (!hasLabel()) {
             
             return false;
           }
-          if (!hasExtraProperty()) {
-            
-            return false;
-          }
-          if (!getExtraProperty().isInitialized()) {
-            
-            return false;
+          if (hasExtraProperty()) {
+            if (!getExtraProperty().isInitialized()) {
+              
+              return false;
+            }
           }
           return true;
         }
@@ -879,90 +880,16 @@ public final class HighDimProtos {
         }
         private int bitField0_;
 
-        // required string bioMarker = 1;
-        private java.lang.Object bioMarker_ = "";
+        // required string label = 1;
+        private java.lang.Object label_ = "";
         /**
-         * <code>required string bioMarker = 1;</code>
+         * <code>required string label = 1;</code>
          */
-        public boolean hasBioMarker() {
+        public boolean hasLabel() {
           return ((bitField0_ & 0x00000001) == 0x00000001);
         }
         /**
-         * <code>required string bioMarker = 1;</code>
-         */
-        public java.lang.String getBioMarker() {
-          java.lang.Object ref = bioMarker_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            bioMarker_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>required string bioMarker = 1;</code>
-         */
-        public com.google.protobuf.ByteString
-            getBioMarkerBytes() {
-          java.lang.Object ref = bioMarker_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            bioMarker_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>required string bioMarker = 1;</code>
-         */
-        public Builder setBioMarker(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-          bioMarker_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required string bioMarker = 1;</code>
-         */
-        public Builder clearBioMarker() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          bioMarker_ = getDefaultInstance().getBioMarker();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required string bioMarker = 1;</code>
-         */
-        public Builder setBioMarkerBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-          bioMarker_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string label = 2;
-        private java.lang.Object label_ = "";
-        /**
-         * <code>optional string label = 2;</code>
-         */
-        public boolean hasLabel() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        /**
-         * <code>optional string label = 2;</code>
+         * <code>required string label = 1;</code>
          */
         public java.lang.String getLabel() {
           java.lang.Object ref = label_;
@@ -976,7 +903,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>optional string label = 2;</code>
+         * <code>required string label = 1;</code>
          */
         public com.google.protobuf.ByteString
             getLabelBytes() {
@@ -992,53 +919,127 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>optional string label = 2;</code>
+         * <code>required string label = 1;</code>
          */
         public Builder setLabel(
             java.lang.String value) {
           if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000001;
           label_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>optional string label = 2;</code>
+         * <code>required string label = 1;</code>
          */
         public Builder clearLabel() {
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000001);
           label_ = getDefaultInstance().getLabel();
           onChanged();
           return this;
         }
         /**
-         * <code>optional string label = 2;</code>
+         * <code>required string label = 1;</code>
          */
         public Builder setLabelBytes(
             com.google.protobuf.ByteString value) {
           if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000001;
           label_ = value;
           onChanged();
           return this;
         }
 
-        // required .highdim.HighDimTable.Map extraProperty = 3;
+        // optional string bioMarker = 2;
+        private java.lang.Object bioMarker_ = "";
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public boolean hasBioMarker() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public java.lang.String getBioMarker() {
+          java.lang.Object ref = bioMarker_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            bioMarker_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getBioMarkerBytes() {
+          java.lang.Object ref = bioMarker_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            bioMarker_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public Builder setBioMarker(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          bioMarker_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public Builder clearBioMarker() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          bioMarker_ = getDefaultInstance().getBioMarker();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string bioMarker = 2;</code>
+         */
+        public Builder setBioMarkerBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          bioMarker_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional .highdim.HighDimTable.Map extraProperty = 3;
         private org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map extraProperty_ = org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map, org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.Builder, org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.MapOrBuilder> extraPropertyBuilder_;
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public boolean hasExtraProperty() {
           return ((bitField0_ & 0x00000004) == 0x00000004);
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map getExtraProperty() {
           if (extraPropertyBuilder_ == null) {
@@ -1048,7 +1049,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public Builder setExtraProperty(org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map value) {
           if (extraPropertyBuilder_ == null) {
@@ -1064,7 +1065,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public Builder setExtraProperty(
             org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.Builder builderForValue) {
@@ -1078,7 +1079,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public Builder mergeExtraProperty(org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map value) {
           if (extraPropertyBuilder_ == null) {
@@ -1097,7 +1098,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public Builder clearExtraProperty() {
           if (extraPropertyBuilder_ == null) {
@@ -1110,7 +1111,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.Builder getExtraPropertyBuilder() {
           bitField0_ |= 0x00000004;
@@ -1118,7 +1119,7 @@ public final class HighDimProtos {
           return getExtraPropertyFieldBuilder().getBuilder();
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         public org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.MapOrBuilder getExtraPropertyOrBuilder() {
           if (extraPropertyBuilder_ != null) {
@@ -1128,7 +1129,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required .highdim.HighDimTable.Map extraProperty = 3;</code>
+         * <code>optional .highdim.HighDimTable.Map extraProperty = 3;</code>
          */
         private com.google.protobuf.SingleFieldBuilder<
             org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map, org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.Map.Builder, org.transmartproject.rest.protobuf.HighDimProtos.HighDimTable.MapOrBuilder> 
@@ -2916,95 +2917,95 @@ public final class HighDimProtos {
        */
       long getAssayId();
 
-      // optional string sampleTypeName = 2;
+      // required string patientId = 2;
       /**
-       * <code>optional string sampleTypeName = 2;</code>
+       * <code>required string patientId = 2;</code>
+       */
+      boolean hasPatientId();
+      /**
+       * <code>required string patientId = 2;</code>
+       */
+      java.lang.String getPatientId();
+      /**
+       * <code>required string patientId = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getPatientIdBytes();
+
+      // optional string sampleTypeName = 3;
+      /**
+       * <code>optional string sampleTypeName = 3;</code>
        */
       boolean hasSampleTypeName();
       /**
-       * <code>optional string sampleTypeName = 2;</code>
+       * <code>optional string sampleTypeName = 3;</code>
        */
       java.lang.String getSampleTypeName();
       /**
-       * <code>optional string sampleTypeName = 2;</code>
+       * <code>optional string sampleTypeName = 3;</code>
        */
       com.google.protobuf.ByteString
           getSampleTypeNameBytes();
 
-      // optional string timepointName = 3;
+      // optional string timepointName = 4;
       /**
-       * <code>optional string timepointName = 3;</code>
+       * <code>optional string timepointName = 4;</code>
        */
       boolean hasTimepointName();
       /**
-       * <code>optional string timepointName = 3;</code>
+       * <code>optional string timepointName = 4;</code>
        */
       java.lang.String getTimepointName();
       /**
-       * <code>optional string timepointName = 3;</code>
+       * <code>optional string timepointName = 4;</code>
        */
       com.google.protobuf.ByteString
           getTimepointNameBytes();
 
-      // optional string tissueTypeName = 4;
+      // optional string tissueTypeName = 5;
       /**
-       * <code>optional string tissueTypeName = 4;</code>
+       * <code>optional string tissueTypeName = 5;</code>
        */
       boolean hasTissueTypeName();
       /**
-       * <code>optional string tissueTypeName = 4;</code>
+       * <code>optional string tissueTypeName = 5;</code>
        */
       java.lang.String getTissueTypeName();
       /**
-       * <code>optional string tissueTypeName = 4;</code>
+       * <code>optional string tissueTypeName = 5;</code>
        */
       com.google.protobuf.ByteString
           getTissueTypeNameBytes();
 
-      // optional string platform = 5;
+      // optional string platform = 6;
       /**
-       * <code>optional string platform = 5;</code>
+       * <code>optional string platform = 6;</code>
        */
       boolean hasPlatform();
       /**
-       * <code>optional string platform = 5;</code>
+       * <code>optional string platform = 6;</code>
        */
       java.lang.String getPlatform();
       /**
-       * <code>optional string platform = 5;</code>
+       * <code>optional string platform = 6;</code>
        */
       com.google.protobuf.ByteString
           getPlatformBytes();
 
-      // optional string sampleCode = 6;
+      // optional string sampleCode = 7;
       /**
-       * <code>optional string sampleCode = 6;</code>
+       * <code>optional string sampleCode = 7;</code>
        */
       boolean hasSampleCode();
       /**
-       * <code>optional string sampleCode = 6;</code>
+       * <code>optional string sampleCode = 7;</code>
        */
       java.lang.String getSampleCode();
       /**
-       * <code>optional string sampleCode = 6;</code>
+       * <code>optional string sampleCode = 7;</code>
        */
       com.google.protobuf.ByteString
           getSampleCodeBytes();
-
-      // required string patientId = 7;
-      /**
-       * <code>required string patientId = 7;</code>
-       */
-      boolean hasPatientId();
-      /**
-       * <code>required string patientId = 7;</code>
-       */
-      java.lang.String getPatientId();
-      /**
-       * <code>required string patientId = 7;</code>
-       */
-      com.google.protobuf.ByteString
-          getPatientIdBytes();
     }
     /**
      * Protobuf type {@code highdim.HighDimTable.Assay}
@@ -3064,32 +3065,32 @@ public final class HighDimProtos {
               }
               case 18: {
                 bitField0_ |= 0x00000002;
-                sampleTypeName_ = input.readBytes();
+                patientId_ = input.readBytes();
                 break;
               }
               case 26: {
                 bitField0_ |= 0x00000004;
-                timepointName_ = input.readBytes();
+                sampleTypeName_ = input.readBytes();
                 break;
               }
               case 34: {
                 bitField0_ |= 0x00000008;
-                tissueTypeName_ = input.readBytes();
+                timepointName_ = input.readBytes();
                 break;
               }
               case 42: {
                 bitField0_ |= 0x00000010;
-                platform_ = input.readBytes();
+                tissueTypeName_ = input.readBytes();
                 break;
               }
               case 50: {
                 bitField0_ |= 0x00000020;
-                sampleCode_ = input.readBytes();
+                platform_ = input.readBytes();
                 break;
               }
               case 58: {
                 bitField0_ |= 0x00000040;
-                patientId_ = input.readBytes();
+                sampleCode_ = input.readBytes();
                 break;
               }
             }
@@ -3148,232 +3149,17 @@ public final class HighDimProtos {
         return assayId_;
       }
 
-      // optional string sampleTypeName = 2;
-      public static final int SAMPLETYPENAME_FIELD_NUMBER = 2;
-      private java.lang.Object sampleTypeName_;
+      // required string patientId = 2;
+      public static final int PATIENTID_FIELD_NUMBER = 2;
+      private java.lang.Object patientId_;
       /**
-       * <code>optional string sampleTypeName = 2;</code>
+       * <code>required string patientId = 2;</code>
        */
-      public boolean hasSampleTypeName() {
+      public boolean hasPatientId() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional string sampleTypeName = 2;</code>
-       */
-      public java.lang.String getSampleTypeName() {
-        java.lang.Object ref = sampleTypeName_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            sampleTypeName_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string sampleTypeName = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSampleTypeNameBytes() {
-        java.lang.Object ref = sampleTypeName_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          sampleTypeName_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string timepointName = 3;
-      public static final int TIMEPOINTNAME_FIELD_NUMBER = 3;
-      private java.lang.Object timepointName_;
-      /**
-       * <code>optional string timepointName = 3;</code>
-       */
-      public boolean hasTimepointName() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional string timepointName = 3;</code>
-       */
-      public java.lang.String getTimepointName() {
-        java.lang.Object ref = timepointName_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            timepointName_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string timepointName = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-          getTimepointNameBytes() {
-        java.lang.Object ref = timepointName_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          timepointName_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string tissueTypeName = 4;
-      public static final int TISSUETYPENAME_FIELD_NUMBER = 4;
-      private java.lang.Object tissueTypeName_;
-      /**
-       * <code>optional string tissueTypeName = 4;</code>
-       */
-      public boolean hasTissueTypeName() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional string tissueTypeName = 4;</code>
-       */
-      public java.lang.String getTissueTypeName() {
-        java.lang.Object ref = tissueTypeName_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            tissueTypeName_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string tissueTypeName = 4;</code>
-       */
-      public com.google.protobuf.ByteString
-          getTissueTypeNameBytes() {
-        java.lang.Object ref = tissueTypeName_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          tissueTypeName_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string platform = 5;
-      public static final int PLATFORM_FIELD_NUMBER = 5;
-      private java.lang.Object platform_;
-      /**
-       * <code>optional string platform = 5;</code>
-       */
-      public boolean hasPlatform() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional string platform = 5;</code>
-       */
-      public java.lang.String getPlatform() {
-        java.lang.Object ref = platform_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            platform_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string platform = 5;</code>
-       */
-      public com.google.protobuf.ByteString
-          getPlatformBytes() {
-        java.lang.Object ref = platform_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          platform_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string sampleCode = 6;
-      public static final int SAMPLECODE_FIELD_NUMBER = 6;
-      private java.lang.Object sampleCode_;
-      /**
-       * <code>optional string sampleCode = 6;</code>
-       */
-      public boolean hasSampleCode() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional string sampleCode = 6;</code>
-       */
-      public java.lang.String getSampleCode() {
-        java.lang.Object ref = sampleCode_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            sampleCode_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string sampleCode = 6;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSampleCodeBytes() {
-        java.lang.Object ref = sampleCode_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          sampleCode_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // required string patientId = 7;
-      public static final int PATIENTID_FIELD_NUMBER = 7;
-      private java.lang.Object patientId_;
-      /**
-       * <code>required string patientId = 7;</code>
-       */
-      public boolean hasPatientId() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <code>required string patientId = 7;</code>
+       * <code>required string patientId = 2;</code>
        */
       public java.lang.String getPatientId() {
         java.lang.Object ref = patientId_;
@@ -3390,7 +3176,7 @@ public final class HighDimProtos {
         }
       }
       /**
-       * <code>required string patientId = 7;</code>
+       * <code>required string patientId = 2;</code>
        */
       public com.google.protobuf.ByteString
           getPatientIdBytes() {
@@ -3406,14 +3192,229 @@ public final class HighDimProtos {
         }
       }
 
+      // optional string sampleTypeName = 3;
+      public static final int SAMPLETYPENAME_FIELD_NUMBER = 3;
+      private java.lang.Object sampleTypeName_;
+      /**
+       * <code>optional string sampleTypeName = 3;</code>
+       */
+      public boolean hasSampleTypeName() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string sampleTypeName = 3;</code>
+       */
+      public java.lang.String getSampleTypeName() {
+        java.lang.Object ref = sampleTypeName_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            sampleTypeName_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string sampleTypeName = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSampleTypeNameBytes() {
+        java.lang.Object ref = sampleTypeName_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          sampleTypeName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      // optional string timepointName = 4;
+      public static final int TIMEPOINTNAME_FIELD_NUMBER = 4;
+      private java.lang.Object timepointName_;
+      /**
+       * <code>optional string timepointName = 4;</code>
+       */
+      public boolean hasTimepointName() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string timepointName = 4;</code>
+       */
+      public java.lang.String getTimepointName() {
+        java.lang.Object ref = timepointName_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            timepointName_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string timepointName = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTimepointNameBytes() {
+        java.lang.Object ref = timepointName_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          timepointName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      // optional string tissueTypeName = 5;
+      public static final int TISSUETYPENAME_FIELD_NUMBER = 5;
+      private java.lang.Object tissueTypeName_;
+      /**
+       * <code>optional string tissueTypeName = 5;</code>
+       */
+      public boolean hasTissueTypeName() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional string tissueTypeName = 5;</code>
+       */
+      public java.lang.String getTissueTypeName() {
+        java.lang.Object ref = tissueTypeName_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            tissueTypeName_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string tissueTypeName = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTissueTypeNameBytes() {
+        java.lang.Object ref = tissueTypeName_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          tissueTypeName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      // optional string platform = 6;
+      public static final int PLATFORM_FIELD_NUMBER = 6;
+      private java.lang.Object platform_;
+      /**
+       * <code>optional string platform = 6;</code>
+       */
+      public boolean hasPlatform() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional string platform = 6;</code>
+       */
+      public java.lang.String getPlatform() {
+        java.lang.Object ref = platform_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            platform_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string platform = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getPlatformBytes() {
+        java.lang.Object ref = platform_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          platform_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      // optional string sampleCode = 7;
+      public static final int SAMPLECODE_FIELD_NUMBER = 7;
+      private java.lang.Object sampleCode_;
+      /**
+       * <code>optional string sampleCode = 7;</code>
+       */
+      public boolean hasSampleCode() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional string sampleCode = 7;</code>
+       */
+      public java.lang.String getSampleCode() {
+        java.lang.Object ref = sampleCode_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            sampleCode_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string sampleCode = 7;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSampleCodeBytes() {
+        java.lang.Object ref = sampleCode_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          sampleCode_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
       private void initFields() {
         assayId_ = 0L;
+        patientId_ = "";
         sampleTypeName_ = "";
         timepointName_ = "";
         tissueTypeName_ = "";
         platform_ = "";
         sampleCode_ = "";
-        patientId_ = "";
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
@@ -3439,22 +3440,22 @@ public final class HighDimProtos {
           output.writeInt64(1, assayId_);
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getSampleTypeNameBytes());
+          output.writeBytes(2, getPatientIdBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          output.writeBytes(3, getTimepointNameBytes());
+          output.writeBytes(3, getSampleTypeNameBytes());
         }
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          output.writeBytes(4, getTissueTypeNameBytes());
+          output.writeBytes(4, getTimepointNameBytes());
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          output.writeBytes(5, getPlatformBytes());
+          output.writeBytes(5, getTissueTypeNameBytes());
         }
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          output.writeBytes(6, getSampleCodeBytes());
+          output.writeBytes(6, getPlatformBytes());
         }
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
-          output.writeBytes(7, getPatientIdBytes());
+          output.writeBytes(7, getSampleCodeBytes());
         }
         getUnknownFields().writeTo(output);
       }
@@ -3471,27 +3472,27 @@ public final class HighDimProtos {
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getSampleTypeNameBytes());
+            .computeBytesSize(2, getPatientIdBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(3, getTimepointNameBytes());
+            .computeBytesSize(3, getSampleTypeNameBytes());
         }
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(4, getTissueTypeNameBytes());
+            .computeBytesSize(4, getTimepointNameBytes());
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(5, getPlatformBytes());
+            .computeBytesSize(5, getTissueTypeNameBytes());
         }
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(6, getSampleCodeBytes());
+            .computeBytesSize(6, getPlatformBytes());
         }
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(7, getPatientIdBytes());
+            .computeBytesSize(7, getSampleCodeBytes());
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -3611,17 +3612,17 @@ public final class HighDimProtos {
           super.clear();
           assayId_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000001);
-          sampleTypeName_ = "";
-          bitField0_ = (bitField0_ & ~0x00000002);
-          timepointName_ = "";
-          bitField0_ = (bitField0_ & ~0x00000004);
-          tissueTypeName_ = "";
-          bitField0_ = (bitField0_ & ~0x00000008);
-          platform_ = "";
-          bitField0_ = (bitField0_ & ~0x00000010);
-          sampleCode_ = "";
-          bitField0_ = (bitField0_ & ~0x00000020);
           patientId_ = "";
+          bitField0_ = (bitField0_ & ~0x00000002);
+          sampleTypeName_ = "";
+          bitField0_ = (bitField0_ & ~0x00000004);
+          timepointName_ = "";
+          bitField0_ = (bitField0_ & ~0x00000008);
+          tissueTypeName_ = "";
+          bitField0_ = (bitField0_ & ~0x00000010);
+          platform_ = "";
+          bitField0_ = (bitField0_ & ~0x00000020);
+          sampleCode_ = "";
           bitField0_ = (bitField0_ & ~0x00000040);
           return this;
         }
@@ -3658,27 +3659,27 @@ public final class HighDimProtos {
           if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
             to_bitField0_ |= 0x00000002;
           }
-          result.sampleTypeName_ = sampleTypeName_;
+          result.patientId_ = patientId_;
           if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
             to_bitField0_ |= 0x00000004;
           }
-          result.timepointName_ = timepointName_;
+          result.sampleTypeName_ = sampleTypeName_;
           if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
             to_bitField0_ |= 0x00000008;
           }
-          result.tissueTypeName_ = tissueTypeName_;
+          result.timepointName_ = timepointName_;
           if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
             to_bitField0_ |= 0x00000010;
           }
-          result.platform_ = platform_;
+          result.tissueTypeName_ = tissueTypeName_;
           if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
             to_bitField0_ |= 0x00000020;
           }
-          result.sampleCode_ = sampleCode_;
+          result.platform_ = platform_;
           if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
             to_bitField0_ |= 0x00000040;
           }
-          result.patientId_ = patientId_;
+          result.sampleCode_ = sampleCode_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
@@ -3698,34 +3699,34 @@ public final class HighDimProtos {
           if (other.hasAssayId()) {
             setAssayId(other.getAssayId());
           }
-          if (other.hasSampleTypeName()) {
+          if (other.hasPatientId()) {
             bitField0_ |= 0x00000002;
+            patientId_ = other.patientId_;
+            onChanged();
+          }
+          if (other.hasSampleTypeName()) {
+            bitField0_ |= 0x00000004;
             sampleTypeName_ = other.sampleTypeName_;
             onChanged();
           }
           if (other.hasTimepointName()) {
-            bitField0_ |= 0x00000004;
+            bitField0_ |= 0x00000008;
             timepointName_ = other.timepointName_;
             onChanged();
           }
           if (other.hasTissueTypeName()) {
-            bitField0_ |= 0x00000008;
+            bitField0_ |= 0x00000010;
             tissueTypeName_ = other.tissueTypeName_;
             onChanged();
           }
           if (other.hasPlatform()) {
-            bitField0_ |= 0x00000010;
+            bitField0_ |= 0x00000020;
             platform_ = other.platform_;
             onChanged();
           }
           if (other.hasSampleCode()) {
-            bitField0_ |= 0x00000020;
-            sampleCode_ = other.sampleCode_;
-            onChanged();
-          }
-          if (other.hasPatientId()) {
             bitField0_ |= 0x00000040;
-            patientId_ = other.patientId_;
+            sampleCode_ = other.sampleCode_;
             onChanged();
           }
           this.mergeUnknownFields(other.getUnknownFields());
@@ -3796,386 +3797,16 @@ public final class HighDimProtos {
           return this;
         }
 
-        // optional string sampleTypeName = 2;
-        private java.lang.Object sampleTypeName_ = "";
+        // required string patientId = 2;
+        private java.lang.Object patientId_ = "";
         /**
-         * <code>optional string sampleTypeName = 2;</code>
+         * <code>required string patientId = 2;</code>
          */
-        public boolean hasSampleTypeName() {
+        public boolean hasPatientId() {
           return ((bitField0_ & 0x00000002) == 0x00000002);
         }
         /**
-         * <code>optional string sampleTypeName = 2;</code>
-         */
-        public java.lang.String getSampleTypeName() {
-          java.lang.Object ref = sampleTypeName_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            sampleTypeName_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string sampleTypeName = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-            getSampleTypeNameBytes() {
-          java.lang.Object ref = sampleTypeName_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            sampleTypeName_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string sampleTypeName = 2;</code>
-         */
-        public Builder setSampleTypeName(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          sampleTypeName_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string sampleTypeName = 2;</code>
-         */
-        public Builder clearSampleTypeName() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          sampleTypeName_ = getDefaultInstance().getSampleTypeName();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string sampleTypeName = 2;</code>
-         */
-        public Builder setSampleTypeNameBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          sampleTypeName_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string timepointName = 3;
-        private java.lang.Object timepointName_ = "";
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public boolean hasTimepointName() {
-          return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public java.lang.String getTimepointName() {
-          java.lang.Object ref = timepointName_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            timepointName_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public com.google.protobuf.ByteString
-            getTimepointNameBytes() {
-          java.lang.Object ref = timepointName_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            timepointName_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public Builder setTimepointName(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-          timepointName_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public Builder clearTimepointName() {
-          bitField0_ = (bitField0_ & ~0x00000004);
-          timepointName_ = getDefaultInstance().getTimepointName();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string timepointName = 3;</code>
-         */
-        public Builder setTimepointNameBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-          timepointName_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string tissueTypeName = 4;
-        private java.lang.Object tissueTypeName_ = "";
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public boolean hasTissueTypeName() {
-          return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public java.lang.String getTissueTypeName() {
-          java.lang.Object ref = tissueTypeName_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            tissueTypeName_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public com.google.protobuf.ByteString
-            getTissueTypeNameBytes() {
-          java.lang.Object ref = tissueTypeName_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            tissueTypeName_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public Builder setTissueTypeName(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-          tissueTypeName_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public Builder clearTissueTypeName() {
-          bitField0_ = (bitField0_ & ~0x00000008);
-          tissueTypeName_ = getDefaultInstance().getTissueTypeName();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string tissueTypeName = 4;</code>
-         */
-        public Builder setTissueTypeNameBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-          tissueTypeName_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string platform = 5;
-        private java.lang.Object platform_ = "";
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public boolean hasPlatform() {
-          return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public java.lang.String getPlatform() {
-          java.lang.Object ref = platform_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            platform_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public com.google.protobuf.ByteString
-            getPlatformBytes() {
-          java.lang.Object ref = platform_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            platform_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public Builder setPlatform(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000010;
-          platform_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public Builder clearPlatform() {
-          bitField0_ = (bitField0_ & ~0x00000010);
-          platform_ = getDefaultInstance().getPlatform();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string platform = 5;</code>
-         */
-        public Builder setPlatformBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000010;
-          platform_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string sampleCode = 6;
-        private java.lang.Object sampleCode_ = "";
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public boolean hasSampleCode() {
-          return ((bitField0_ & 0x00000020) == 0x00000020);
-        }
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public java.lang.String getSampleCode() {
-          java.lang.Object ref = sampleCode_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            sampleCode_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public com.google.protobuf.ByteString
-            getSampleCodeBytes() {
-          java.lang.Object ref = sampleCode_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            sampleCode_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public Builder setSampleCode(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000020;
-          sampleCode_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public Builder clearSampleCode() {
-          bitField0_ = (bitField0_ & ~0x00000020);
-          sampleCode_ = getDefaultInstance().getSampleCode();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string sampleCode = 6;</code>
-         */
-        public Builder setSampleCodeBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000020;
-          sampleCode_ = value;
-          onChanged();
-          return this;
-        }
-
-        // required string patientId = 7;
-        private java.lang.Object patientId_ = "";
-        /**
-         * <code>required string patientId = 7;</code>
-         */
-        public boolean hasPatientId() {
-          return ((bitField0_ & 0x00000040) == 0x00000040);
-        }
-        /**
-         * <code>required string patientId = 7;</code>
+         * <code>required string patientId = 2;</code>
          */
         public java.lang.String getPatientId() {
           java.lang.Object ref = patientId_;
@@ -4189,7 +3820,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required string patientId = 7;</code>
+         * <code>required string patientId = 2;</code>
          */
         public com.google.protobuf.ByteString
             getPatientIdBytes() {
@@ -4205,37 +3836,407 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required string patientId = 7;</code>
+         * <code>required string patientId = 2;</code>
          */
         public Builder setPatientId(
             java.lang.String value) {
           if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000002;
           patientId_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>required string patientId = 7;</code>
+         * <code>required string patientId = 2;</code>
          */
         public Builder clearPatientId() {
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000002);
           patientId_ = getDefaultInstance().getPatientId();
           onChanged();
           return this;
         }
         /**
-         * <code>required string patientId = 7;</code>
+         * <code>required string patientId = 2;</code>
          */
         public Builder setPatientIdBytes(
             com.google.protobuf.ByteString value) {
           if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000002;
           patientId_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional string sampleTypeName = 3;
+        private java.lang.Object sampleTypeName_ = "";
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public boolean hasSampleTypeName() {
+          return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public java.lang.String getSampleTypeName() {
+          java.lang.Object ref = sampleTypeName_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            sampleTypeName_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getSampleTypeNameBytes() {
+          java.lang.Object ref = sampleTypeName_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            sampleTypeName_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public Builder setSampleTypeName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          sampleTypeName_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public Builder clearSampleTypeName() {
+          bitField0_ = (bitField0_ & ~0x00000004);
+          sampleTypeName_ = getDefaultInstance().getSampleTypeName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string sampleTypeName = 3;</code>
+         */
+        public Builder setSampleTypeNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          sampleTypeName_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional string timepointName = 4;
+        private java.lang.Object timepointName_ = "";
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public boolean hasTimepointName() {
+          return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public java.lang.String getTimepointName() {
+          java.lang.Object ref = timepointName_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            timepointName_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public com.google.protobuf.ByteString
+            getTimepointNameBytes() {
+          java.lang.Object ref = timepointName_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            timepointName_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public Builder setTimepointName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          timepointName_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public Builder clearTimepointName() {
+          bitField0_ = (bitField0_ & ~0x00000008);
+          timepointName_ = getDefaultInstance().getTimepointName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string timepointName = 4;</code>
+         */
+        public Builder setTimepointNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          timepointName_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional string tissueTypeName = 5;
+        private java.lang.Object tissueTypeName_ = "";
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public boolean hasTissueTypeName() {
+          return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public java.lang.String getTissueTypeName() {
+          java.lang.Object ref = tissueTypeName_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            tissueTypeName_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public com.google.protobuf.ByteString
+            getTissueTypeNameBytes() {
+          java.lang.Object ref = tissueTypeName_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            tissueTypeName_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public Builder setTissueTypeName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+          tissueTypeName_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public Builder clearTissueTypeName() {
+          bitField0_ = (bitField0_ & ~0x00000010);
+          tissueTypeName_ = getDefaultInstance().getTissueTypeName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string tissueTypeName = 5;</code>
+         */
+        public Builder setTissueTypeNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+          tissueTypeName_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional string platform = 6;
+        private java.lang.Object platform_ = "";
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public boolean hasPlatform() {
+          return ((bitField0_ & 0x00000020) == 0x00000020);
+        }
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public java.lang.String getPlatform() {
+          java.lang.Object ref = platform_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            platform_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public com.google.protobuf.ByteString
+            getPlatformBytes() {
+          java.lang.Object ref = platform_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            platform_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public Builder setPlatform(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+          platform_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public Builder clearPlatform() {
+          bitField0_ = (bitField0_ & ~0x00000020);
+          platform_ = getDefaultInstance().getPlatform();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string platform = 6;</code>
+         */
+        public Builder setPlatformBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+          platform_ = value;
+          onChanged();
+          return this;
+        }
+
+        // optional string sampleCode = 7;
+        private java.lang.Object sampleCode_ = "";
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public boolean hasSampleCode() {
+          return ((bitField0_ & 0x00000040) == 0x00000040);
+        }
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public java.lang.String getSampleCode() {
+          java.lang.Object ref = sampleCode_;
+          if (!(ref instanceof java.lang.String)) {
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            sampleCode_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public com.google.protobuf.ByteString
+            getSampleCodeBytes() {
+          java.lang.Object ref = sampleCode_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            sampleCode_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public Builder setSampleCode(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+          sampleCode_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public Builder clearSampleCode() {
+          bitField0_ = (bitField0_ & ~0x00000040);
+          sampleCode_ = getDefaultInstance().getSampleCode();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string sampleCode = 7;</code>
+         */
+        public Builder setSampleCodeBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+          sampleCode_ = value;
           onChanged();
           return this;
         }
@@ -4955,17 +4956,17 @@ public final class HighDimProtos {
       com.google.protobuf.ByteString
           getKeyBytes();
 
-      // required string value = 2;
+      // optional string value = 2;
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       boolean hasValue();
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       java.lang.String getValue();
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       com.google.protobuf.ByteString
           getValueBytes();
@@ -5114,17 +5115,17 @@ public final class HighDimProtos {
         }
       }
 
-      // required string value = 2;
+      // optional string value = 2;
       public static final int VALUE_FIELD_NUMBER = 2;
       private java.lang.Object value_;
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       public boolean hasValue() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       public java.lang.String getValue() {
         java.lang.Object ref = value_;
@@ -5141,7 +5142,7 @@ public final class HighDimProtos {
         }
       }
       /**
-       * <code>required string value = 2;</code>
+       * <code>optional string value = 2;</code>
        */
       public com.google.protobuf.ByteString
           getValueBytes() {
@@ -5167,10 +5168,6 @@ public final class HighDimProtos {
         if (isInitialized != -1) return isInitialized == 1;
 
         if (!hasKey()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasValue()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -5395,10 +5392,6 @@ public final class HighDimProtos {
             
             return false;
           }
-          if (!hasValue()) {
-            
-            return false;
-          }
           return true;
         }
 
@@ -5495,16 +5488,16 @@ public final class HighDimProtos {
           return this;
         }
 
-        // required string value = 2;
+        // optional string value = 2;
         private java.lang.Object value_ = "";
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public boolean hasValue() {
           return ((bitField0_ & 0x00000002) == 0x00000002);
         }
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public java.lang.String getValue() {
           java.lang.Object ref = value_;
@@ -5518,7 +5511,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public com.google.protobuf.ByteString
             getValueBytes() {
@@ -5534,7 +5527,7 @@ public final class HighDimProtos {
           }
         }
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public Builder setValue(
             java.lang.String value) {
@@ -5547,7 +5540,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public Builder clearValue() {
           bitField0_ = (bitField0_ & ~0x00000002);
@@ -5556,7 +5549,7 @@ public final class HighDimProtos {
           return this;
         }
         /**
-         * <code>required string value = 2;</code>
+         * <code>optional string value = 2;</code>
          */
         public Builder setValueBytes(
             com.google.protobuf.ByteString value) {
@@ -5862,6 +5855,11 @@ public final class HighDimProtos {
     }
     /**
      * Protobuf type {@code highdim.HighDimTable}
+     *
+     * <pre>
+     *command to compile this file, from the transmart-rest-api:
+     *protoc --java_out=src/java src/protobuf/highdim/highdim.proto
+     * </pre>
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
@@ -6943,20 +6941,20 @@ public final class HighDimProtos {
       "\030\002 \003(\0132\033.highdim.HighDimTable.Assay\0222\n\td" +
       "oubleRow\030\003 \003(\0132\037.highdim.HighDimTable.Do" +
       "ubleRow\022,\n\006mapRow\030\004 \003(\0132\034.highdim.HighDi" +
-      "mTable.MapRow\032]\n\007BaseRow\022\021\n\tbioMarker\030\001 " +
-      "\002(\t\022\r\n\005label\030\002 \001(\t\0220\n\rextraProperty\030\003 \002(" +
+      "mTable.MapRow\032]\n\007BaseRow\022\r\n\005label\030\001 \002(\t\022" +
+      "\021\n\tbioMarker\030\002 \001(\t\0220\n\rextraProperty\030\003 \001(" +
       "\0132\031.highdim.HighDimTable.Map\032K\n\tDoubleRo" +
       "w\022+\n\004base\030\001 \002(\0132\035.highdim.HighDimTable.B",
       "aseRow\022\021\n\005value\030\002 \003(\001B\002\020\001\032_\n\006MapRow\022+\n\004b" +
       "ase\030\001 \002(\0132\035.highdim.HighDimTable.BaseRow" +
       "\022(\n\005value\030\002 \003(\0132\031.highdim.HighDimTable.M" +
-      "ap\032\230\001\n\005Assay\022\017\n\007assayId\030\001 \002(\003\022\026\n\016sampleT" +
-      "ypeName\030\002 \001(\t\022\025\n\rtimepointName\030\003 \001(\t\022\026\n\016" +
-      "tissueTypeName\030\004 \001(\t\022\020\n\010platform\030\005 \001(\t\022\022" +
-      "\n\nsampleCode\030\006 \001(\t\022\021\n\tpatientId\030\007 \002(\t\0324\n" +
+      "ap\032\230\001\n\005Assay\022\017\n\007assayId\030\001 \002(\003\022\021\n\tpatient" +
+      "Id\030\002 \002(\t\022\026\n\016sampleTypeName\030\003 \001(\t\022\025\n\rtime" +
+      "pointName\030\004 \001(\t\022\026\n\016tissueTypeName\030\005 \001(\t\022" +
+      "\020\n\010platform\030\006 \001(\t\022\022\n\nsampleCode\030\007 \001(\t\0324\n" +
       "\003Map\022-\n\005entry\030\001 \003(\0132\036.highdim.HighDimTab" +
       "le.MapEntry\032&\n\010MapEntry\022\013\n\003key\030\001 \002(\t\022\r\n\005" +
-      "value\030\002 \002(\t\"\"\n\007RowType\022\n\n\006DOUBLE\020\001\022\013\n\007GE",
+      "value\030\002 \001(\t\"\"\n\007RowType\022\n\n\006DOUBLE\020\001\022\013\n\007GE",
       "NERAL\020\002B3\n\"org.transmartproject.rest.pro" +
       "tobufB\rHighDimProtos"
     };
@@ -6976,7 +6974,7 @@ public final class HighDimProtos {
           internal_static_highdim_HighDimTable_BaseRow_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_highdim_HighDimTable_BaseRow_descriptor,
-              new java.lang.String[] { "BioMarker", "Label", "ExtraProperty", });
+              new java.lang.String[] { "Label", "BioMarker", "ExtraProperty", });
           internal_static_highdim_HighDimTable_DoubleRow_descriptor =
             internal_static_highdim_HighDimTable_descriptor.getNestedTypes().get(1);
           internal_static_highdim_HighDimTable_DoubleRow_fieldAccessorTable = new
@@ -6994,7 +6992,7 @@ public final class HighDimProtos {
           internal_static_highdim_HighDimTable_Assay_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_highdim_HighDimTable_Assay_descriptor,
-              new java.lang.String[] { "AssayId", "SampleTypeName", "TimepointName", "TissueTypeName", "Platform", "SampleCode", "PatientId", });
+              new java.lang.String[] { "AssayId", "PatientId", "SampleTypeName", "TimepointName", "TissueTypeName", "Platform", "SampleCode", });
           internal_static_highdim_HighDimTable_Map_descriptor =
             internal_static_highdim_HighDimTable_descriptor.getNestedTypes().get(4);
           internal_static_highdim_HighDimTable_Map_fieldAccessorTable = new
