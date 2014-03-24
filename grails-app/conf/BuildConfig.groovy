@@ -42,6 +42,8 @@ grails.project.dependency.resolution = {
         // includes fix for GRAILS-11126
         compile 'org.grails:grails-plugin-rest:2.3.5-hyve4'
 
+        compile 'com.google.protobuf:protobuf-java:2.5.0'
+
         runtime 'org.postgresql:postgresql:9.3-1100-jdbc41', {
             exported = false
         }
