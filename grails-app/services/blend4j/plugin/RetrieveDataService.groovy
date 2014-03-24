@@ -139,14 +139,13 @@ class RetrieveDataService {
             m["altViewerURL"] = jobResult.altViewerURL
             m["jobInputsJson"] = new JSONObject(jobResult.jobInputsJson ?: "{}")
             d = StatusOfExport.findByJobName(jobResult.jobName);
-            if(d.jobStatus.equals("Started") ) {
+            if(!d.equals(null) ) {
                 m["lastExportName"] = d.lastExportName;
                 m["lastExportTime"] = d.lastExportTime.toString();
                 m["exportStatus"] = d.jobStatus;
             }else{
                 m["lastExportName"] = "Never Exported";
-                def currentDate = new Date();
-                m["lastExportTime"] = currentDate.toString();
+                m["lastExportTime"] = " ";
                 m["exportStatus"] = " ";
             }
             rows.put(m)

@@ -2,11 +2,11 @@
 function getJobsDataForGalaxy(tab)
 {
     galaxyjobsstore = new Ext.data.JsonStore({
-            url : pageInfo.basePath+'/asyncJob/getjobs',
-            root : 'jobs',
-            totalProperty : 'totalCount',
-            fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'altViewerURL', 'jobInputsJson']
+        url : pageInfo.basePath+'/RetrieveData/getjobs',
+        root : 'jobs',
+        fields : ['name', 'jobStatus', 'lastExportName', 'lastExportTime', 'exportStatus']
     });
+
     galaxyjobsstore.on('load', galaxyjobsstoreLoaded);
     var myparams = Ext.urlEncode({jobType: 'DataExport',disableCaching: true});
     galaxyjobsstore.load({ params : myparams  });
@@ -36,19 +36,23 @@ function galaxyjobsstoreLoaded()
                 }
             },
             {name:'status', header: "Status", width: 120, sortable: true, dataIndex: 'status'},
-            {name:'runTime', header: "Run Time", width: 120, sortable: true, dataIndex: 'runTime'},
-            {name:'startDate', header: "Started On", width: 120, sortable: true, dataIndex: 'startDate'},
+            {name:'runTime', header: "Run Time", width: 120, sortable: true, dataIndex: 'runTime', hidden: true},
+            {name:'startDate', header: "Started On", width: 120, sortable: true, dataIndex: 'startDate', hidden: true},
             {name:'viewerURL', header: "Viewer URL", width: 120, sortable: false, dataIndex: 'viewerURL', hidden: true},
-            {name:'altViewerURL', header: "Alt Viewer URL", width: 120, sortable: false, dataIndex: 'altViewerURL', hidden: true}
+            {name:'altViewerURL', header: "Alt Viewer URL", width: 120, sortable: false, dataIndex: 'altViewerURL', hidden: true},
+            {name:'lastExportName', header: "lastExportName", width: 120, sortable: false, dataIndex: 'lastExportName'},
+            {name:'lastExportTime', header: "lastExportTime", width: 120, sortable: false, dataIndex: 'lastExportTime' },
+            {name:'exportStatus', header: "exportStatus", width: 120, sortable: false, dataIndex: 'exportStatus' }
+
         ],
         listeners : {cellclick : function (grid, rowIndex, columnIndex, e){
             var colHeader = grid.getColumnModel().getColumnHeader(columnIndex);
             if (colHeader == "Name") {
                 var status = grid.getStore().getAt(rowIndex).get('status');
                 if (status == "Error")	{
-                Ext.Msg.alert("Job Failure", "Unfortunately, an error occurred on this job.");
+                    Ext.Msg.alert("Job Failure", "Unfortunately, an error occurred on this job.");
                 } else if (status == "Cancelled")	{
-                Ext.Msg.alert("Job Cancelled", "The job has been cancelled");}
+                    Ext.Msg.alert("Job Cancelled", "The job has been cancelled");}
                 else if (status == "Completed")	{
                     Ext.Msg.prompt('Name', 'Name of the Library to be exported:', function(btn, text){
                         if (btn == 'ok'){
@@ -57,8 +61,6 @@ function galaxyjobsstoreLoaded()
                             Ext.Ajax.request({
                                 url: pageInfo.basePath+'/RetrieveData/JobExportToGalaxy',
                                 method: 'POST',
-//                                postBody: $H({param1: nameOfTheLibrary,
- //                                           param2: nameOfTheExportJob}).toQueryString(),
                                 params: {
                                     "nameOfTheLibrary" : nameOfTheLibrary,
                                     "nameOfTheExportJob" : nameOfTheExportJob
@@ -79,7 +81,7 @@ function galaxyjobsstoreLoaded()
                             });
                         }
                     })
-                 }
+                }
             }
             else if (status != "Completed") {
                 Ext.Msg.alert("Job Processing", "The job is still processing, please wait");

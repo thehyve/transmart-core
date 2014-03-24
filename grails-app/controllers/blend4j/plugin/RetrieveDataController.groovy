@@ -22,8 +22,6 @@ class RetrieveDataController  {
      * Method that will create the get the list of jobs to show in the galaxy jobs tab
      */
     def getjobs = {
-        System.err.println(params.jobName)
-        System.err.println("I am here")
         def username = springSecurityService.getPrincipal().username
         def result = retrieveDataService.getjobs(username, "DataExport")
 
