@@ -34,8 +34,7 @@ class ScatterPlot extends AbstractAnalysisJob {
         primaryKeyColumnConfigurator.column =
                 new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        boolean log10 = !!params['logX']?.toBoolean()
-        configureConfigurator independentVariableConfigurator, 'independent', 'X', log10
+        configureConfigurator independentVariableConfigurator, 'independent', 'X'
         configureConfigurator dependentVariableConfigurator,   'dependent',   'Y'
 
         /* we also need these two extra variables (see R statements) */
@@ -60,13 +59,10 @@ class ScatterPlot extends AbstractAnalysisJob {
 
     private void configureConfigurator(NumericColumnConfigurator configurator,
                                        String key,
-                                       String header,
-                                       boolean log10 = false) {
+                                       String header) {
         configurator.header     = header
         configurator.projection = Projection.LOG_INTENSITY_PROJECTION
         configurator.multiRow   = true
-        configurator.log10      = log10
-
         configurator.setKeys(key)
     }
 

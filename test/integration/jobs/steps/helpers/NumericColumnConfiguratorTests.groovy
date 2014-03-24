@@ -41,6 +41,7 @@ class NumericColumnConfiguratorTests {
         testee.keyForConceptPath = 'variable'
         testee.keyForDataType = 'divVariableType'
         testee.keyForSearchKeywordId = 'divVariablePathway'
+        testee.keyForLog10 = 'applyLog10'
         testee.header = 'Y'
     }
 
@@ -66,12 +67,12 @@ class NumericColumnConfiguratorTests {
 
     @Test
     void testLog10On() {
-        testee.log10 = true
         params.@map.putAll([
                 variable           : CONCEPT_PATH_CLINICAL,
                 divVariableType    : DATA_TYPE_NAME_CLINICAL,
                 result_instance_id1: RESULT_INSTANCE_ID1,
                 result_instance_id2: RESULT_INSTANCE_ID2,
+                applyLog10         : 'true',
         ])
 
         setupClinicalResult(1,

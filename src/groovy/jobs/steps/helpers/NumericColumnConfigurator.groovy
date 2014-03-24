@@ -18,13 +18,12 @@ class NumericColumnConfigurator extends ColumnConfigurator {
 
     String keyForConceptPath,
            keyForDataType,        /* CLINICAL for clinical data */
-           keyForSearchKeywordId  /* only applicable for high dim data */
+           keyForSearchKeywordId, /* only applicable for high dim data */
+           keyForLog10
 
     boolean multiRow = false      /* only applicable for high dim data */
 
     boolean alwaysClinical = false
-
-    boolean log10 = false
 
     @Autowired
     private ClinicalDataRetriever clinicalDataRetriever
@@ -55,6 +54,10 @@ class NumericColumnConfigurator extends ColumnConfigurator {
                         Math.log10(value)
                     })
         }
+    }
+
+    boolean isLog10() {
+        getStringParam(keyForLog10, false)?.toBoolean()
     }
 
     boolean isClinical() {
@@ -93,6 +96,7 @@ class NumericColumnConfigurator extends ColumnConfigurator {
         keyForConceptPath     = "${keyPart}Variable"
         keyForDataType        = "div${keyPart.capitalize()}VariableType"
         keyForSearchKeywordId = "div${keyPart.capitalize()}VariablePathway"
+        keyForLog10           = "div${keyPart.capitalize()}VariableLog10"
     }
 
 }
