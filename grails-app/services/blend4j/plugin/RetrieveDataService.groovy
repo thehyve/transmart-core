@@ -44,10 +44,10 @@ class RetrieveDataService {
         return true;
     }
 
-    def uploadExportFolderToGalaxy(String galaxyURL, String  tempFolderDirectory, int idOfTheUser,  String nameOfTheExportJob, String nameOfTheLibrary){
+    def uploadExportFolderToGalaxy(String galaxyURL, String  tempFolderDirectory, String idOfTheUser,  String nameOfTheExportJob, String nameOfTheLibrary){
 
-        def apiKey = UserDetails.findById(idOfTheUser).getGalaxyKey();
-        final String email = UserDetails.findById(idOfTheUser).getMailAddress();
+        def apiKey = GalaxyUserDetails.findByUsername(idOfTheUser).getGalaxyKey();
+        final String email = GalaxyUserDetails.findByUsername(idOfTheUser).getMailAddress();
         final GalaxyInstance galaxyInstance = GalaxyInstanceFactory.get(galaxyURL, apiKey);
         String tempDir = tempFolderDirectory.toString() + "/" + nameOfTheExportJob;
 

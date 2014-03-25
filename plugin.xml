@@ -7,9 +7,11 @@
   <documentation>http://grails.org/plugin/blend4j-plugin</documentation>
   <type>Blend4jPluginGrailsPlugin</type>
   <resources>
+    <resource>blend4j.plugin.GalaxyUserDetailsController</resource>
     <resource>blend4j.plugin.RetrieveDataController</resource>
+    <resource>blend4j.plugin.GalaxyUserDetails</resource>
     <resource>blend4j.plugin.StatusOfExport</resource>
-    <resource>blend4j.plugin.UserDetails</resource>
+    <resource>blend4j.plugin.GalaxyUserDetailsService</resource>
     <resource>blend4j.plugin.RetrieveDataService</resource>
   </resources>
 </plugin>

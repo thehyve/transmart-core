@@ -8,7 +8,8 @@ class RetrieveDataController  {
     def JobExportToGalaxy = {
         final  galaxyURL = grailsApplication.config.com.galaxy.blend4j.galaxyURL;
         final tempFolderDirectory  = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory
-        final int idOfTheUser = springSecurityService.getPrincipal().id;
+        final String idOfTheUser = springSecurityService.getPrincipal().username;
+
         def statusOK = retrieveDataService.saveStatusOfExport(params.nameOfTheExportJob,params.nameOfTheLibrary);
         if(statusOK){
             retrieveDataService.uploadExportFolderToGalaxy(galaxyURL, tempFolderDirectory.toString(),idOfTheUser, params.nameOfTheExportJob, params.nameOfTheLibrary );
