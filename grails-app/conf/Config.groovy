@@ -118,13 +118,10 @@ log4j = {
 }
 
 grails.converters.json.pretty.print = true
+grails.plugin.springsecurity.active = false
 
 environments {
     production {
         grails.converters.json.pretty.print = false
-    }
-
-    test {
-        grails.plugin.springsecurity.active = false
     }
 }
