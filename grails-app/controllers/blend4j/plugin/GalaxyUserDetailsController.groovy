@@ -49,6 +49,13 @@ class GalaxyUserDetailsController {
         [person: new GalaxyUserDetails(params)]
     }
 
+    def delete = {
+        flash.message = 'User deleted';
+        System.err.println(params);
+        galaxyUserDetailsService.deleteUser(params.id);
+        render(view: 'list')
+    }
+
     /**
      * Person save action.
      */
@@ -76,9 +83,6 @@ class GalaxyUserDetailsController {
             flash.message = 'Cannot create user'
         }
         render(view: 'create', model: [person: new GalaxyUserDetails()])
-
-
     }
-
 
 }

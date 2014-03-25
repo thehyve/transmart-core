@@ -4,7 +4,7 @@ function getJobsDataForGalaxy(tab)
     galaxyjobsstore = new Ext.data.JsonStore({
         url : pageInfo.basePath+'/RetrieveData/getjobs',
         root : 'jobs',
-        fields : ['name', 'jobStatus', 'lastExportName', 'lastExportTime', 'exportStatus']
+        fields : ['name', 'status', 'lastExportName', 'lastExportTime', 'exportStatus']
     });
 
     galaxyjobsstore.on('load', galaxyjobsstoreLoaded);
@@ -40,9 +40,9 @@ function galaxyjobsstoreLoaded()
             {name:'startDate', header: "Started On", width: 120, sortable: true, dataIndex: 'startDate', hidden: true},
             {name:'viewerURL', header: "Viewer URL", width: 120, sortable: false, dataIndex: 'viewerURL', hidden: true},
             {name:'altViewerURL', header: "Alt Viewer URL", width: 120, sortable: false, dataIndex: 'altViewerURL', hidden: true},
-            {name:'lastExportName', header: "lastExportName", width: 120, sortable: false, dataIndex: 'lastExportName'},
-            {name:'lastExportTime', header: "lastExportTime", width: 120, sortable: false, dataIndex: 'lastExportTime' },
-            {name:'exportStatus', header: "exportStatus", width: 120, sortable: false, dataIndex: 'exportStatus' }
+            {name:'lastExportName', header: "lastExportName", width: 120, sortable: true, dataIndex: 'lastExportName'},
+            {name:'lastExportTime', header: "lastExportTime", width: 120, sortable: true, dataIndex: 'lastExportTime' },
+            {name:'exportStatus', header: "exportStatus", width: 120, sortable: true, dataIndex: 'exportStatus' }
 
         ],
         listeners : {cellclick : function (grid, rowIndex, columnIndex, e){
@@ -82,9 +82,9 @@ function galaxyjobsstoreLoaded()
                         }
                     })
                 }
-            }
-            else if (status != "Completed") {
-                Ext.Msg.alert("Job Processing", "The job is still processing, please wait");
+                else if (status != "Completed") {
+                    Ext.Msg.alert("Job Processing", "The job is still processing, please wait");
+                }
             }
         }
         },

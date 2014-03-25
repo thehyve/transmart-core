@@ -47,6 +47,11 @@
 						<td>${person.username?.encodeAsHTML()}&nbsp&nbsp&nbsp&nbsp&nbsp</td>
 						<td>${person.galaxyKey?.encodeAsHTML()}&nbsp&nbsp&nbsp&nbsp&nbsp</td>
 						<td>${person.mailAddress?.encodeAsHTML()}</td>
+                        <td class="actionButtons">
+                            <span class="actionButton">
+                                <g:link action="delete" id="${person.username}" >Delete</g:link>
+                            </span>
+                        </td>
 					</tr>
 				</g:each>
 				</tbody>
