@@ -5,47 +5,31 @@ option java_outer_classname = "HighDimProtos";
 
 //command to compile this file, from the transmart-rest-api:
 //protoc --java_out=src/java src/protobuf/highdim/highdim.proto
-message HighDimTable {
+message HighDimHeader {
     enum RowType { DOUBLE = 1; GENERAL = 2; }
 
     required RowType rowsType = 1;
     repeated Assay assay = 2;
-    repeated DoubleRow doubleRow = 3;
-    repeated MapRow mapRow = 4;
-
-    message BaseRow {
-        required string label = 1;
-        optional string bioMarker = 2;
-        optional Map extraProperty = 3;
-    }
-
-    message DoubleRow {
-        required BaseRow base = 1;
-        repeated double value = 2 [packed=true]; //corresponds to an assay by index. When no value for that assay, use NaN
-    }
-
-    message MapRow {
-        required BaseRow base = 1;
-        repeated Map value = 2; //corresponds to an assay by index. When no value for that assay, use empty map (0 entries)
-    }
-
-    message Assay {
-        required int64 assayId = 1;
-        required string patientId = 2;
-        optional string sampleTypeName = 3;
-        optional string timepointName = 4;
-        optional string tissueTypeName = 5;
-        optional string platform = 6;
-        optional string sampleCode = 7;
-    }
-
-    message Map {
-        repeated MapEntry entry = 1;
-    }
-
-    message MapEntry {
-        required string key = 1;
-        optional string value = 2;
-    }
+    repeated string mapColumn = 3;
 }
 
+message Assay {
+    required int64 assayId = 1;
+    required string patientId = 2;
+    optional string sampleTypeName = 3;
+    optional string timepointName = 4;
+    optional string tissueTypeName = 5;
+    optional string platform = 6;
+    optional string sampleCode = 7;
+}
+
+message Row {
+    required string label = 1;
+    optional string bioMarker = 2;
+    repeated double doubleValue = 3 [packed=true]; //corresponds to an assay by index. When no value for that assay, use NaN
+    repeated MapValue mapValue = 4;
+}
+
+message MapValue {
+    repeated string value = 1;
+}
