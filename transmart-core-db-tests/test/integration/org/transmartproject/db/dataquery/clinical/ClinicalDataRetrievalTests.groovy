@@ -53,7 +53,7 @@ class ClinicalDataRetrievalTests {
 
         def i2b2List = [
                 createI2b2(level: 1, fullName: '\\foo\\concept 1\\', name: 'd1'), //not c, to test ordering
-                createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2', cVisualattributes: 'LA'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
         ]
@@ -351,5 +351,30 @@ class ClinicalDataRetrievalTests {
         }), hasProperty('message', containsString('Repeated variables in the query'))
     }
 
+    @Test
+    void testRetrieveDataWithPatientAndOntologyTermSets() {
+        def patientIds = [-101L, -102L]
+        def conceptCode = 'c2'
+        Set patients = testData.i2b2Data.patients.findAll {
+            it.id in patientIds
+        }
+        Set concepts = testData.conceptData.i2b2List.findAll {
+            it.code == conceptCode
+        }
+
+        results = clinicalDataResourceService.retrieveData(patients, concepts)
+        List<PatientRow> rows = Lists.newArrayList(results)
+
+        assertThat rows, contains(
+                testData.clinicalData.facts.sort {
+                    it.patientId
+                }.findAll {
+                    it.conceptCode == conceptCode &&
+                            it.patient.id in patientIds
+                }.collect {
+                    contains it.textValue
+                }
+        )
+    }
 
 }
