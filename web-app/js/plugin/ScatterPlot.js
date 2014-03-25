@@ -129,16 +129,16 @@ ScatterPlotView.prototype.get_form_params = function (form) {
 
     //------------------------------------
 
-    var logX = form.logX.checked;
+    var logX = form.divIndependentVariableLog10.checked;
 
     var variablesConceptCode = dependentVariableConceptCode+"|"+independentVariableConceptCode;
 
     var formParams = {
-        dependentVariable:                        dependentVariableConceptCode,
-        independentVariable:                    independentVariableConceptCode,
-        variablesConceptPaths:                    variablesConceptCode,
-        logX:                                    logX,
-        jobType:                                'ScatterPlot'
+        dependentVariable:              dependentVariableConceptCode,
+        independentVariable:            independentVariableConceptCode,
+        variablesConceptPaths:          variablesConceptCode,
+        divIndependentVariableLog10:    logX,
+        jobType:                        'ScatterPlot'
     }
 
     if(!highDimensionalData.load_parameters(formParams)) return false;
