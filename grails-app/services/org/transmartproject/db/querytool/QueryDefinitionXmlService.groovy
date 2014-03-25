@@ -6,13 +6,14 @@ import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
 
 /**
  * Handles conversions of {@link org.transmartproject.core.querytool
  * .QueryDefinition}s to and from XML strings, as they are stored in
  * qt_query_master.
  */
-class QueryDefinitionXmlService {
+class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
 
     QueryDefinition fromXml(Reader reader) throws InvalidRequestException {
         def xml
