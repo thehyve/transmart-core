@@ -199,15 +199,16 @@ aggregate.probes = FALSE
 	geneStatsData <- merge(geneStatsData,S1SD,by=c('GENE_SYMBOL','PROBE.ID'))
 	geneStatsData <- merge(geneStatsData,S2SD,by=c('GENE_SYMBOL','PROBE.ID'))
 	#---------------------		
-	
-	#---------------------
+
 	#FOLD CHANGE
-	
+
 	#The fold change is the S1 Mean divided by the S2 Mean.
-	geneStatsData$FoldChange <- geneStatsData$S1.Mean/geneStatsData$S2.Mean
-	#---------------------	
-	
-	#---------------------
+    if (geneStatsData$S1.Mean >= geneStatsData$S2.Mean) {
+        geneStatsData$FoldChange <- geneStatsData$S1.Mean/geneStatsData$S2.Mean
+    } else {
+        geneStatsData$FoldChange <- -1*(geneStatsData$S2.Mean/geneStatsData$S1.Mean)
+    }
+
 	#HEATMAP
 
 	#Get a copy of the data.
