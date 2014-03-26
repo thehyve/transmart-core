@@ -63,24 +63,20 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     boolean canPerform(ProtectedOperation protectedOperation,
                        ProtectedResource protectedResource) {
 
+        // Since we only support access control on studies, let's implement
+        // everything inline here
+        // Later on, we should move this to some service
+        if (!(protectedResource instanceof Study)) {
+            throw new UnsupportedOperationException('Access control is ' +
+                    'only supported on studies')
+        }
+
         if (roles.find { it.authority == 'ROLE_ADMIN' }) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$protectedResource for user $this because he is an " +
                     "administrator"
             return true
-        }
-
-        // Since we only support access control on studies and for one type of
-        // operation, let's implement everything inline here
-        // Later on, we should move this to some service
-        if (!(protectedResource instanceof Study)) {
-            throw new UnsupportedOperationException('Access control is ' +
-                    'only supported on studies')
-        }
-        if (protectedOperation != ProtectedOperation.WellKnownOperations.API_READ) {
-            throw new UnsupportedOperationException('Only supported ' +
-                    'operation is ${ProtectedOperation.WellKnownOperations.API_READ}')
         }
 
         Study study = protectedResource
@@ -124,16 +120,14 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             return false
         }
 
-        def maxAccessLevel = results.max { AccessLevel it -> it.value }
-
-        if (maxAccessLevel.name == 'OWN'
-                || maxAccessLevel.name == 'EXPORT') {
-            log.info("Access level of user $this for token $token is " +
-                    "$maxAccessLevel; allowing access")
+        if (results.any { protectedOperation in it }) {
+            log.info("Access level of user $this for token $token " +
+                    "granted through permission " +
+                    "${results.find { protectedOperation in it }}")
             true
         } else {
-            log.info("Access level of user $this for token $token is " +
-                    "only $maxAccessLevel; denying access")
+            log.info("Permissions of user $this for token $token are " +
+                    "only ${results as Set}; denying access")
             false
         }
     }
