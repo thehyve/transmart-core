@@ -88,10 +88,7 @@ aggregate.probes = FALSE
 	#We can't draw a heatmap for a matrix with only 1 row.
 	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
 	if(ncol(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
-	
-	#Prepare the package to capture the image file.
-	CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
-	
+
 # by Serge and Wei to filter a sub set and reorder markers
 
         num_markers<-dim(mRNAData)[1]                                                          # number of markers in the dataset
@@ -118,42 +115,94 @@ aggregate.probes = FALSE
         n_remaining_sample<-ncol(mRNAData)
         if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
         if (n_remaining_marker>1 & n_remaining_sample >1) {
-		#Store the heatmap in a temp variable.
-        tmp <- heatmap(mRNAData,
-                Rowv=NA,
-                Colv=NA,
-                ColSideColors=colcolor,
-                col = greenred(800),
-                breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
-                margins=c(15, 15),
-                scale = "none")
-
-		# add a legend to heatmap.
-		tmp_legend <- legend("topleft",
-                	   legend = c("Subset 1","Subset 2"),
-                           fill = c("orange","yellow"),
-                           bg = "white", ncol = 1,
- 			   cex=1.2,
-			   )
-		# end map informative
-
-        	#Print the heatmap to an image
-        	print (tmp)
-
-        	# by Serge and Wei to print out the legend
-        	print (tmp_legend)
-
+            plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "png")
+            plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "svg")
         } else {
-               tmp<-frame()
-               tmp2<-mtext ("not enough marker/samples to draw heatmap", cex=2)
-               print (tmp)
-               print (tmp2)
+        #Prepare the package to capture the image file.
+            CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+            tmp<-frame()
+            tmp2<-mtext ("not enough marker/samples to draw heatmap", cex=2)
+            print (tmp)
+            print (tmp2)
+            dev.off()
         }
 
-	dev.off()
+
 	print("-------------------")
 }
 
+
+plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+    require(Cairo)
+    require(gplots)
+
+    par(mar = c(0, 0, 0, 0))
+
+    pxPerCell <- 15
+    hmPars <- list(pointSize = pxPerCell / 1.4, labelPointSize = pxPerCell / 6)
+    if (nrow(data) < 30 && ncol(data) < 30) {
+        hmPars <- list(pointSize = pxPerCell / 2, labelPointSize = pxPerCell / 4)
+        pxPerCell <- 40
+    }
+    mainHeight <- nrow(data) * pxPerCell
+    mainWidth <- ncol(data) * pxPerCell
+
+    leftMarginSize <- pxPerCell * 1
+    rightMarginSize <- pxPerCell * 0.8 * max(nchar(rownames(data)))
+    topMarginSize <- pxPerCell * 1
+    bottomMarginSize <- pxPerCell * 0.8 * max(nchar(colnames(data)))
+    topSpectrumHeight <- pxPerCell * (min(max(ncol(data)*0.1, 5), 15))
+
+    imageWidth <- leftMarginSize + mainWidth + rightMarginSize
+    imageHeight <- topSpectrumHeight + topMarginSize + mainHeight + bottomMarginSize
+
+    hmCanvasDiv <- list(xLeft = leftMarginSize / imageWidth, xMain = mainWidth / imageWidth, xRight = rightMarginSize / imageWidth,
+                        yTopLarge = topSpectrumHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
+                        yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
+
+
+    if (extension == "svg") {
+        CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
+                 height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
+    } else {
+        CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
+                 height = imageHeight, pointsize = hmPars$pointSize)
+    }
+
+
+
+    heatmap.2(data,
+              Rowv=NA,
+              Colv=NA,
+              ColSideColors = colcolors,
+              col = greenred(800),
+              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+              sepwidth=c(0,0),
+              margins=c(0, 0),
+              cexRow = hmPars$labelPointSize,
+              cexCol = hmPars$labelPointSize,
+              scale = "none",
+              dendrogram = "none",
+              key = TRUE,
+              density.info = "histogram", # density.info=c("histogram","density","none")
+              trace = "none",
+              lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
+                  3, 5, 4,
+                  6, 1, 7,
+                  8, 2, 9,
+                  10, 11, 12)),
+              lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
+              lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
+
+    legend(x = 1 - hmCanvasDiv$xRight*0.9, y = 1,
+           legend = c("Subset 1","Subset 2"),
+           fill = c("orange","yellow"),
+           bg = "white", ncol = 1,
+           cex = topSpectrumHeight * hmPars$pointSize * 0.001,
+    )
+
+    dev.off()
+}
 
 Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.file = "aggregated_data.txt") {
 	library(WGCNA)
