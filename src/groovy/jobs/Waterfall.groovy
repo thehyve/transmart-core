@@ -54,14 +54,16 @@ class Waterfall extends AbstractAnalysisJob {
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: dataFileName)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }
@@ -70,7 +72,7 @@ class Waterfall extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [
                 '''source('$pluginDirectory/Waterfall/WaterfallPlotLoader.R')''',
-                '''WaterfallPlot.loader(input.filename='outputfile',
+                '''WaterfallPlot.loader(input.filename='$inputFileName',
                 concept='$variablesConceptPaths')'''
         ]
     }

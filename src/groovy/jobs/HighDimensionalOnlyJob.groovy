@@ -60,7 +60,8 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }

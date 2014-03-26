@@ -53,7 +53,7 @@ class BoxPlot extends CategoricalOrBinnedJob {
            '''source('$pluginDirectory/ANOVA/BoxPlotLoader.R')''',
            '''
             BoxPlot.loader(
-                    input.filename               = 'outputfile',
+                    input.filename               = '$inputFileName',
                     concept.dependent            = '$dependentVariable',
                     concept.independent          = '$independentVariable',
                     flipimage                    = as.logical('$flipImage'),

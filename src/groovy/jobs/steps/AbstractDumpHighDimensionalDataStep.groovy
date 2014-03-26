@@ -10,6 +10,8 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
 
     final String statusName = null
 
+    String outputFileName = 'outputfile.txt'
+
     File temporaryDirectory
     Closure<Map<List<String>, TabularResult>> resultsHolder
     UserParameters params
@@ -44,7 +46,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     }
 
     private void withDefaultCsvWriter(Closure constructFile) {
-        File output = new File(temporaryDirectory, 'outputfile')
+        File output = new File(temporaryDirectory, outputFileName)
         output.createNewFile()
         output.withWriter { writer ->
             CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)

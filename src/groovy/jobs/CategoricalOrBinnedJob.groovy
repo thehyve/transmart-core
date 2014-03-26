@@ -37,14 +37,16 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: dataFileName)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }

@@ -14,14 +14,15 @@ class PCA extends HighDimensionalOnlyJob {
         new PCADumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params)
+                params: params,
+                outputFileName: dataFileName)
     }
 
 
     final List<String> RStatements = [
             '''source('$pluginDirectory/PCA/LoadPCA.R')''',
                 '''PCA.loader(
-                input.filename='outputfile',
+                input.filename='$inputFileName',
                 aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                 )''' ]
 

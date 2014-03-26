@@ -15,7 +15,8 @@ class KMeansClustering extends HighDimensionalOnlyJob {
         new ValueGroupDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params)
+                params: params,
+                outputFileName: dataFileName)
     }
 
     @Override
@@ -24,7 +25,7 @@ class KMeansClustering extends HighDimensionalOnlyJob {
 
         // TODO What about clusters.number = 2, probes.aggregate = false?
         String createHeatmap = '''KMeansHeatmap.loader(
-                            input.filename   = 'outputfile',
+                            input.filename   = '$inputFileName',
                             imageWidth       = as.integer('$txtImageWidth'),
                             imageHeight      = as.integer('$txtImageHeight'),
                             pointsize        = as.integer('$txtImagePointsize'),

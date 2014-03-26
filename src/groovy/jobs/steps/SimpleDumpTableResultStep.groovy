@@ -10,6 +10,8 @@ class SimpleDumpTableResultStep implements Step {
 
     File temporaryDirectory
 
+    String outputFileName = 'outputfile.txt'
+
     final String statusName = 'Dumping Table Result'
 
     @Override
@@ -51,7 +53,7 @@ class SimpleDumpTableResultStep implements Step {
     }
 
     private void withDefaultCsvWriter(Closure constructFile) {
-        File output = new File(temporaryDirectory, 'outputfile')
+        File output = new File(temporaryDirectory, outputFileName)
         output.withWriter { writer ->
             CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
             constructFile.call(csvWriter)

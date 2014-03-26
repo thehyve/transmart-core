@@ -97,7 +97,8 @@ class LineGraph extends AbstractAnalysisJob {
 
         steps << new LineGraphDumpTableResultsStep(
                 table:              table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: dataFileName)
 
         steps << new BuildConceptTimeValuesStep(
                 table: conceptTimeValues,
@@ -107,6 +108,7 @@ class LineGraph extends AbstractAnalysisJob {
 
         Map<String, Closure<String>> extraParams = [:]
         extraParams['scalingFilename'] = { getScalingFilename() }
+        extraParams['inputFileName'] = dataFileName
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
@@ -127,7 +129,7 @@ class LineGraph extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/LineGraph/LineGraphLoader.r')''',
                 '''LineGraph.loader(
-                    input.filename           = 'outputfile',
+                    input.filename           = '$inputFileName',
                     graphType                = '$graphType',
                     scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"},
                     plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }

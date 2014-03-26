@@ -14,7 +14,8 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         new BioMarkerDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params)
+                params: params,
+                outputFileName: dataFileName)
     }
 
     @Override
@@ -24,7 +25,7 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         // call for analysis for marker selection
         // TODO number of permutations is not set? numberOfPermutations = as.integer(\'$txtNumberOfPermutations\'),
         String markerSelectionLoad = '''MS.loader(
-                            input.filename = \'outputfile\',
+                            input.filename = \'$inputFileName\',
                             numberOfMarkers = as.integer(\'$txtNumberOfMarkers\'))'''
         // set path to heatmap png file generator
         String sourceHeatmap = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'

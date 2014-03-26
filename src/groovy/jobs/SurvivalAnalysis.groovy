@@ -106,14 +106,16 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: dataFileName)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }
@@ -123,10 +125,10 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         [
             '''source('$pluginDirectory/Survival/CoxRegressionLoader.r')''',
             '''CoxRegression.loader(
-                input.filename      = 'outputfile')''',
+                input.filename      = '$inputFileName')''',
             '''source('$pluginDirectory/Survival/SurvivalCurveLoader.r')''',
             '''SurvivalCurve.loader(
-                input.filename      = 'outputfile',
+                input.filename      = '$inputFileName',
                 concept.time        = '$timeVariable')''',
         ]
     }

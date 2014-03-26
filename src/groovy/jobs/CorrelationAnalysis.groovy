@@ -55,14 +55,16 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
         steps << new CorrelationAnalysisDumpDataStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory,
-                groupNamesHolder:   holder)
+                groupNamesHolder:   holder,
+                outputFileName: dataFileName)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }
@@ -71,7 +73,7 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [
             '''source('$pluginDirectory/Correlation/CorrelationLoader.r')''',
-            '''Correlation.loader(input.filename='outputfile',
+            '''Correlation.loader(input.filename='$inputFileName',
                     correlation.by='$correlationBy',
                     correlation.method='$correlationType')'''
         ]

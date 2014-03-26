@@ -82,14 +82,16 @@ class ScatterPlot extends AbstractAnalysisJob {
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: dataFileName)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
                 rStatements:        RStatements,
                 studyName:          studyName,
-                params:             params)
+                params:             params,
+                extraParams: [inputFileName: dataFileName])
 
         steps
     }
@@ -98,7 +100,7 @@ class ScatterPlot extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/ScatterPlot/ScatterPlotLoader.R')''',
                 '''ScatterPlot.loader(
-                    input.filename               = 'outputfile',
+                    input.filename               = '$inputFileName',
                     concept.dependent            = '$dependentVariable',
                     concept.independent          = '$independentVariable',
                     concept.dependent.type       = '$divDependentVariableType',
