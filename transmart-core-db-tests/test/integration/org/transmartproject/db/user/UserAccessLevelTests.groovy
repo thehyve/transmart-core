@@ -1,17 +1,24 @@
 package org.transmartproject.db.user
 
+import org.gmock.WithGMock
 import org.hibernate.SessionFactory
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.ProtectedResource
 
+import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_IN_TABLE
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
+@WithGMock
 class UserAccessLevelTests {
 
     @Autowired
@@ -99,6 +106,40 @@ class UserAccessLevelTests {
             assertThat u.canPerform(API_READ, getStudy(STUDY3)), is(true)
             println "Passed"
         }
+    }
+
+    @Test
+    void testWithUnsupportedProtectedResource() {
+        def adminUser = accessLevelTestData.users[0]
+
+        shouldFail UnsupportedOperationException, {
+            adminUser.canPerform(API_READ, mock(ProtectedResource))
+        }
+    }
+
+    @Test
+    void testViewPermissionAndExportOperation() {
+        // fifth user has only VIEW permissions on study 2
+        def fifthUser = accessLevelTestData.users[4]
+
+        assertThat fifthUser.canPerform(EXPORT, getStudy(STUDY2)), is(false)
+    }
+
+    @Test
+    void testViewPermissionAndShowInTableOperation() {
+        // fifth user has only VIEW permissions on study 2
+        def fifthUser = accessLevelTestData.users[4]
+
+        assertThat fifthUser.canPerform(SHOW_IN_TABLE, getStudy(STUDY2)),
+                   is(false)
+    }
+
+    @Test
+    void testViewPermissionAndShowInSummaryStatisticsOperation() {
+        // fifth user has only VIEW permissions on study 2
+        def fifthUser = accessLevelTestData.users[4]
+
+        assertThat fifthUser.canPerform(SHOW_SUMMARY_STATISTICS, getStudy(STUDY2)), is(true)
     }
 
     private Study getStudy(String name) {
