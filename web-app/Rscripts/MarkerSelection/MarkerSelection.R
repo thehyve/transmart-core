@@ -203,7 +203,7 @@ aggregate.probes = FALSE
 	#FOLD CHANGE
 
 	#The fold change is the S1 Mean divided by the S2 Mean.
-    if (geneStatsData$S1.Mean > geneStatsData$S2.Mean) {
+    if (geneStatsData$S1.Mean >= geneStatsData$S2.Mean) {
         geneStatsData$FoldChange <- geneStatsData$S1.Mean/geneStatsData$S2.Mean
     } else {
         geneStatsData$FoldChange <- -1*(geneStatsData$S2.Mean/geneStatsData$S1.Mean)
