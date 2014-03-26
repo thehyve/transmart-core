@@ -12,10 +12,6 @@ package org.transmartproject.core.users
  *     <li><code>VIEW</code></li>
  * </ul>
  *
- * Because this type is not very useful at this point, and to in order not to
- * constrain future developments, only the {@link Permission#getName()} method
- * is provided.
- *
  */
 public interface Permission {
 
@@ -30,5 +26,17 @@ public interface Permission {
      * @return the name of this permission
      */
     String getName()
+
+    /**
+     * Returns true iif this permission cover the operation described by the
+     * argument.
+     *
+     * This overrides the Groovy <code>in</code> operator
+     *
+     * @param operation the operation one wants to test for inclusion in this
+     * permission
+     * @return true iif this permission includes the passed operation
+     */
+    boolean isCase(ProtectedOperation operation)
 
 }
