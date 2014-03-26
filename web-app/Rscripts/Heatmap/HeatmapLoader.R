@@ -137,19 +137,29 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     require(gplots)
 
     par(mar = c(0, 0, 0, 0))
-    hmCanvasDiv <- list(xLeft = 0.02, xMain = 0.75, xRight = 0.23,
-                        yTopLarge = 0.18, yTopSmall = 0.02, yMain = 0.60, yBottom = 0.20)
 
-    imageWidth <- 800 + (ncol(data)*30)/hmCanvasDiv$xMain
-    imageHeight <- 800 + (nrow(data)*30)/hmCanvasDiv$yMain
-    imageWidth <- min(imageWidth, 10000)
-    imageHeight <- min(imageHeight, 10000)
-    if (imageHeight < 0.6 * imageWidth) imageHeight <- 0.6 * imageWidth
-    if (imageWidth < 0.6 * imageHeight) imageWidth <- 0.6 * imageHeight
-    imageHeight <- round(imageHeight, digits = 0)
-    imageWidth <- round(imageWidth, digits = 0)
+    pxPerCell <- 15
+    hmPars <- list(pointSize = pxPerCell / 1.4, labelPointSize = pxPerCell / 6)
+    if (nrow(data) < 30 && ncol(data) < 30) {
+        hmPars <- list(pointSize = pxPerCell / 2, labelPointSize = pxPerCell / 4)
+        pxPerCell <- 40
+    }
+    mainHeight <- nrow(data) * pxPerCell
+    mainWidth <- ncol(data) * pxPerCell
 
-    hmPars <- list(pointSize = (imageHeight + imageWidth)/275)
+    leftMarginSize <- pxPerCell * 1
+    rightMarginSize <- pxPerCell * 0.8 * max(nchar(rownames(data)))
+    topMarginSize <- pxPerCell * 1
+    bottomMarginSize <- pxPerCell * 0.8 * max(nchar(colnames(data)))
+    topSpectrumHeight <- pxPerCell * (min(max(ncol(data)*0.1, 5), 15))
+
+    imageWidth <- leftMarginSize + mainWidth + rightMarginSize
+    imageHeight <- topSpectrumHeight + topMarginSize + mainHeight + bottomMarginSize
+
+    hmCanvasDiv <- list(xLeft = leftMarginSize / imageWidth, xMain = mainWidth / imageWidth, xRight = rightMarginSize / imageWidth,
+                        yTopLarge = topSpectrumHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
+                        yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
+
 
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
@@ -159,40 +169,37 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
                  height = imageHeight, pointsize = hmPars$pointSize)
     }
 
-    cexColCalc <- (1.8/hmPars$pointSize) * (imageWidth * hmCanvasDiv$xMain) / ncol(data)
-    cexColCalc <- min(cexColCalc, 2)
-    cexRowCalc <- (1.8/hmPars$pointSize) * (imageHeight * hmCanvasDiv$yMain) / nrow(data)
-    cexRowCalc <- min(cexRowCalc, 2)
+
 
     heatmap.2(data,
-            Rowv=NA,
-            Colv=NA,
-            ColSideColors = colcolors,
-            col = greenred(800),
-            breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
-            sepwidth=c(0,0),
-            margins=c(0, 0),
-            cexRow = cexRowCalc,
-            cexCol = cexColCalc,
-            scale = "none",
-            dendrogram = "none",
-            key = TRUE,
-            density.info = "histogram", # density.info=c("histogram","density","none")
-            trace = "none",
-            lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
-                    3, 5, 4,
-                    6, 1, 7,
-                    8, 2, 9,
-                    10, 11, 12)),
-            lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
-            lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
+              Rowv=NA,
+              Colv=NA,
+              ColSideColors = colcolors,
+              col = greenred(800),
+              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+              sepwidth=c(0,0),
+              margins=c(0, 0),
+              cexRow = hmPars$labelPointSize,
+              cexCol = hmPars$labelPointSize,
+              scale = "none",
+              dendrogram = "none",
+              key = TRUE,
+              density.info = "histogram", # density.info=c("histogram","density","none")
+              trace = "none",
+              lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
+                  3, 5, 4,
+                  6, 1, 7,
+                  8, 2, 9,
+                  10, 11, 12)),
+              lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
+              lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
 
-        legend(x = 1 - hmCanvasDiv$xRight*0.9, y = 1,
-               legend = c("Subset 1","Subset 2"),
-               fill = c("orange","yellow"),
-               bg = "white", ncol = 1,
-               cex = 1.25,
-        )
+    legend(x = 1 - hmCanvasDiv$xRight*0.9, y = 1,
+           legend = c("Subset 1","Subset 2"),
+           fill = c("orange","yellow"),
+           bg = "white", ncol = 1,
+           cex = topSpectrumHeight * hmPars$pointSize * 0.001,
+    )
 
     dev.off()
 }
