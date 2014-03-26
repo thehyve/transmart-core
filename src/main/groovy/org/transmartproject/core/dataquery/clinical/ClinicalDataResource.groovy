@@ -5,7 +5,6 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.doc.Experimental
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 
 @Experimental
@@ -20,7 +19,7 @@ public interface ClinicalDataResource {
                                                                    List<ClinicalVariable> variables)
 
     @Experimental
-    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms)
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Set<Patient> patients, Set<OntologyTerm> ontologyTerms)
 
     @Experimental
     ClinicalVariable createClinicalVariable(Map<String, Object> parameters,
