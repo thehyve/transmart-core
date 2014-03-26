@@ -1,9 +1,6 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
-import org.hibernate.Query
-import org.hibernate.ScrollMode
-import org.hibernate.ScrollableResults
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
@@ -12,12 +9,12 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
+import org.transmartproject.db.querytool.QueriesResourceService
 
 class ClinicalDataResourceService implements ClinicalDataResource {
 
@@ -25,17 +22,19 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     def sessionFactory
 
+    QueriesResourceService queriesResourceService;
+
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        retrieveDataForPatients(fetchPatients(queryResults), variables)
+        Set<Patient> patients = queriesResourceService.getPatients(queryResults)
+        retrieveDataForPatients(patients, variables)
     }
 
     @Override
-    ClinicalDataTabularResult retrieveData(Study study, List<Patient> patients, List<OntologyTerm> ontologyTerms) {
-        def ontologyTermsToUse = ontologyTerms ?: [ study.ontologyTerm ]
-        def allOntologyTerms = (ontologyTermsToUse*.allDescendants).flatten()
-        allOntologyTerms.addAll(ontologyTermsToUse)
+    ClinicalDataTabularResult retrieveData(Set<Patient> patients, Set<OntologyTerm> ontologyTerms) {
+        def allOntologyTerms = (ontologyTerms*.allDescendants).flatten()
+        allOntologyTerms.addAll(ontologyTerms)
         def clinicalVariables =
                 allOntologyTerms.findAll {
                     OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
@@ -44,7 +43,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
                             ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
                 }
 
-        retrieveDataForPatients(patients ?: study.getPatients(), clinicalVariables)
+        retrieveDataForPatients(patients, clinicalVariables)
     }
 
     ClinicalDataTabularResult retrieveDataForPatients(Collection<Patient> patientCollection, List<ClinicalVariable> variables) {
@@ -71,38 +70,6 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             session.close()
             throw t
         }
-    }
-
-    List<Patient> fetchPatients(List<QueryResult> resultInstances) {
-        /* This will load all the patients in memory
-         * If this turns out to be a bad strategy, two alternatives are
-         * possible:
-         * 1) run the two queries side by side, both ordered by patient id
-         * 2) join the patient table in the data query and build the patient
-         *   from the data returned there.
-         */
-        def session = sessionFactory.openStatelessSession()
-
-        Query query = session.createQuery '''
-                FROM PatientDimension p
-                WHERE
-                    p.id IN (
-                        SELECT pset.patient.id
-                        FROM QtPatientSetCollection pset
-                        WHERE pset.resultInstance IN (:queryResults))
-                ORDER BY p ASC'''
-
-        query.cacheable = false
-        query.readOnly  = true
-        query.setParameterList 'queryResults', resultInstances
-
-        def result = []
-        ScrollableResults results = query.scroll ScrollMode.FORWARD_ONLY
-        while (results.next()) {
-            result << results.get()[0]
-        }
-
-        result
     }
 
     @Override

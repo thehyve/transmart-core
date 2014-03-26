@@ -1,6 +1,7 @@
 package org.transmartproject.db.querytool
 
 import org.hibernate.jdbc.Work
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
@@ -150,5 +151,11 @@ class QueriesResourceService implements QueriesResource {
         }
 
         queryDefinitionXmlService.fromXml(new StringReader(answer[0]))
+    }
+
+    @Override
+    Set<Patient> getPatients(List<QueryResult> queryResults) {
+        queryResults.each( { sessionFactory.currentSession.refresh(it) } )
+        (queryResults*.patients).flatten() as Set<Patient>
     }
 }
