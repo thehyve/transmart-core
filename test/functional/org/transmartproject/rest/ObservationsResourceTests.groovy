@@ -13,33 +13,18 @@ class ObservationsResourceTests extends ResourceTestCase {
 
         assertThat JSON, contains(
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -103)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
-                        hasEntry('value', null)
-                ),
+                        hasEntry(is('subject'), hasEntry('id', -103)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
+                        hasEntry('value', null)),
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -102)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
-                        hasEntry('value', null)
-                ),
+                        hasEntry(is('subject'), hasEntry('id', -102)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
+                        hasEntry('value', null)),
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -101)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
-                        hasEntry('value', 10.0 as Double)
-                )
-        )
+                        hasEntry(is('subject'), hasEntry('id', -101)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
+                        hasEntry(is('value'),
+                                closeTo(10.0 as Double, 0.00001 as Double))))
     }
 
     void testListAllObservationsForSubject() {
@@ -78,30 +63,18 @@ class ObservationsResourceTests extends ResourceTestCase {
 
         assertThat JSON, contains(
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -103)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
+                        hasEntry(is('subject'), hasEntry('id', -103)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
                         hasEntry('value', null)
                 ),
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -102)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
+                        hasEntry(is('subject'), hasEntry('id', -102)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
                         hasEntry('value', null)
                 ),
                 allOf(
-                        hasEntry(is('subject'), allOf(
-                                hasEntry('id', -101)
-                        )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2')
-                        )),
+                        hasEntry(is('subject'), hasEntry('id', -101)),
+                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
                         hasEntry('value', 10.0 as Double)
                 )
         )
