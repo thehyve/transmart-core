@@ -8,7 +8,7 @@ env:
 
 before_install:
     - mkdir -p ~/.m2
-    - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
+    - bash -c '{ curl http://files.thehyve.net/caches/grails_2.3.5_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
     - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
     - source ~/ts-travis/init.sh
     - source ~/ts-travis/grails_inline.sh
