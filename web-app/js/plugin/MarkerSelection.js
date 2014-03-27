@@ -20,11 +20,30 @@ MarkerSelectionView.prototype.constructor = MarkerSelectionView;
 
 // submit analysis job
 MarkerSelectionView.prototype.submit_job = function () {
-    // get formParams
-    var formParams = this.get_form_params();
+    var job = this;
 
-    if (formParams) { // if formParams is not null
-        submitJob(formParams);
+    var actualSubmit = function() {
+        // get formParams
+        var formParams = job.get_form_params();
+
+        if (formParams) { // if formParams is not null
+            submitJob(formParams);
+        }
+    }
+
+    // Check whether we have the node details for the HD node already
+    // If not, we should fetch them first
+    if (typeof GLOBAL.HighDimDataType !== "undefined" && GLOBAL.HighDimDataType) {
+        actualSubmit();
+    } else {
+        var divId = 'divIndependentVariable';
+        runAllQueriesForSubsetId(function () {
+            highDimensionalData.fetchNodeDetails(divId, function( result ) {
+                highDimensionalData.data = JSON.parse(result.responseText);
+                highDimensionalData.populate_data();
+                actualSubmit();
+            });
+        }, divId);
     }
 }
 
