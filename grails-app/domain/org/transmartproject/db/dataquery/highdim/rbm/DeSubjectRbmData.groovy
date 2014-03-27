@@ -7,6 +7,7 @@ class DeSubjectRbmData {
     BigDecimal value
     BigDecimal logIntensity
     BigDecimal zscore
+    String unit
 
     static hasMany = [annotations: DeRbmAnnotation]
 
@@ -31,5 +32,6 @@ class DeSubjectRbmData {
         value nullable: true, scale: 17
         zscore nullable: true, scale: 17
         logIntensity nullable: true, scale: 17
+        unit nullable: true, maxSize: 150
     }
 }

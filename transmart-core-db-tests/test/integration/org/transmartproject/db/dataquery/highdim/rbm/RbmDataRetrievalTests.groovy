@@ -11,6 +11,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -105,10 +106,25 @@ class RbmDataRetrievalTests {
         def resultList = Lists.newArrayList result
 
         assertThat resultList, hasItem(allOf(
-                hasProperty('label', is('Antigene1')),
+                hasProperty('label', is('Antigene1 (A)')),
                 contains(
                         closeTo(testData.data[1].value as Double, DELTA),
                         closeTo(testData.data[0].value as Double, DELTA))))
+    }
+
+    @Test
+    void testNoUnit() {
+        testData.data.each { it.unit = null}
+        HighDimTestData.save testData.data
+
+        result = rbmResource.retrieveData([trialNameConstraint], [],
+                rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
+
+        def resultList = Lists.newArrayList result
+
+        assertThat resultList, allOf(
+                hasItem(hasProperty('label', is('Antigene1'))),
+                not(hasItem(hasProperty('label', is('Antigene1 (A)')))))
     }
 
     @Test
@@ -131,7 +147,7 @@ class RbmDataRetrievalTests {
                 contains(
                         allOf(
                                 hasProperty('bioMarker', equalTo('PVR_HUMAN1')),
-                                hasProperty('label', equalTo('Antigene1')))))
+                                hasProperty('label', equalTo('Antigene1 (A)')))))
     }
 
     @Test
@@ -156,7 +172,7 @@ class RbmDataRetrievalTests {
                                 ))
                         )
                 ),
-                contains(hasProperty('label', equalTo('Antigene1')))
+                contains(hasProperty('label', equalTo('Antigene1 (A)')))
         )
     }
 
@@ -173,7 +189,7 @@ class RbmDataRetrievalTests {
 
         assertThat resultList, contains(
                 allOf(
-                        hasProperty('label', equalTo('Antigene2')),
+                        hasProperty('label', equalTo('Antigene2 (B)')),
                         contains(
                                 closeTo(testData.data[-3].zscore as Double, DELTA),
                                 closeTo(testData.data[-4].zscore as Double, DELTA))))
@@ -197,7 +213,7 @@ class RbmDataRetrievalTests {
                                 contains(
                                         closeTo(testData.data[-3].zscore as Double, DELTA),
                                         closeTo(testData.data[-4].zscore as Double, DELTA)))),
-                contains(hasProperty('label', equalTo('Antigene2'))))
+                contains(hasProperty('label', equalTo('Antigene2 (B)'))))
     }
 
     @Test
@@ -217,7 +233,7 @@ class RbmDataRetrievalTests {
                 hasItem(
                         allOf(
                                 hasProperty('bioMarker', equalTo('PVR_HUMAN4/PVR_HUMAN3')),
-                                hasProperty('label', equalTo('Antigene3')),
+                                hasProperty('label', equalTo('Antigene3 (C)')),
                                 contains(
                                         closeTo(testData.data[-1].zscore as Double, DELTA),
                                         closeTo(testData.data[-2].zscore as Double, DELTA))
