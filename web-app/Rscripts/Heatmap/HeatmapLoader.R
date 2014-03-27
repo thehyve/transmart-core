@@ -157,7 +157,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
 
     leftMarginSize <- pxPerCell * 1
     rightMarginSize <- pxPerCell * max(nchar(rownames(data)))
-    topMarginSize <- pxPerCell * 1
+    topMarginSize <- pxPerCell * 3
     bottomMarginSize <- pxPerCell * max(nchar(colnames(data)))
     topSpectrumHeight <- rightMarginSize
 
