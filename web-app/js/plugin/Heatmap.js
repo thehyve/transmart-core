@@ -37,11 +37,14 @@ HeatMapView.prototype.submit_job = function () {
     if (typeof GLOBAL.HighDimDataType !== "undefined" && GLOBAL.HighDimDataType) {
         actualSubmit();
     } else {
-        highDimensionalData.fetchNodeDetails( 'divIndependentVariable', function( result ) {
-            highDimensionalData.data = JSON.parse(result.responseText);
-            highDimensionalData.populate_data();
-            actualSubmit();
-        });
+        var divId = 'divIndependentVariable';
+        runAllQueriesForSubsetId(function () {
+            highDimensionalData.fetchNodeDetails(divId, function( result ) {
+                highDimensionalData.data = JSON.parse(result.responseText);
+                highDimensionalData.populate_data();
+                actualSubmit();
+            });
+        }, divId);
     }
 }
 

@@ -22,7 +22,7 @@ class HierarchicalClustering extends HighDimensionalOnlyJob {
         String source = 'source(\'$pluginDirectory/Heatmap/HClusteredHeatmapLoader.R\')'
 
         String createHeatmap = '''HClusteredHeatmap.loader(
-                            input.filename = 'outputfile',
+                            input.filename = '$inputFileName',
                             imageWidth     = as.integer('$txtImageWidth'),
                             imageHeight    = as.integer('$txtImageHeight'),
                             pointsize      = as.integer('$txtImagePointsize'),

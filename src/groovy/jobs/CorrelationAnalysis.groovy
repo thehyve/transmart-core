@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 
 @Component
 @Scope('job')
@@ -55,14 +57,16 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
         steps << new CorrelationAnalysisDumpDataStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory,
-                groupNamesHolder:   holder)
+                groupNamesHolder:   holder,
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }
@@ -71,7 +75,7 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [
             '''source('$pluginDirectory/Correlation/CorrelationLoader.r')''',
-            '''Correlation.loader(input.filename='outputfile',
+            '''Correlation.loader(input.filename='$inputFileName',
                     correlation.by='$correlationBy',
                     correlation.method='$correlationType')'''
         ]

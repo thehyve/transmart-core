@@ -13,6 +13,8 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import javax.annotation.PostConstruct
 import java.security.InvalidParameterException
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 @Component
 @Scope('job')
 class ScatterPlot extends AbstractAnalysisJob {
@@ -82,14 +84,16 @@ class ScatterPlot extends AbstractAnalysisJob {
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
                 rStatements:        RStatements,
                 studyName:          studyName,
-                params:             params)
+                params:             params,
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }
@@ -98,7 +102,7 @@ class ScatterPlot extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [ '''source('$pluginDirectory/ScatterPlot/ScatterPlotLoader.R')''',
                 '''ScatterPlot.loader(
-                    input.filename               = 'outputfile',
+                    input.filename               = '$inputFileName',
                     concept.dependent            = '$dependentVariable',
                     concept.independent          = '$independentVariable',
                     concept.dependent.type       = '$divDependentVariableType',

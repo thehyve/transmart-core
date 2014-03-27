@@ -35,7 +35,7 @@ class TableWithFisher extends CategoricalOrBinnedJob {
         [ '''source('$pluginDirectory/TableWithFisher/FisherTableLoader.R')''',
                 '''
                 FisherTable.loader(
-                input.filename               = 'outputfile',
+                input.filename               = '$inputFileName',
                 aggregate.probes.independent = '$divIndependentVariableprobesAggregation' == 'true',
                 aggregate.probes.dependent   = '$divDependentVariableprobesAggregation'   == 'true'
                 )''' ]

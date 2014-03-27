@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
-abstract class AbstractDumpHighDimensionalDataStep implements Step {
+abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
     final String statusName = null
 
@@ -44,7 +44,7 @@ abstract class AbstractDumpHighDimensionalDataStep implements Step {
     }
 
     private void withDefaultCsvWriter(Closure constructFile) {
-        File output = new File(temporaryDirectory, 'outputfile')
+        File output = new File(temporaryDirectory, outputFileName)
         output.createNewFile()
         output.withWriter { writer ->
             CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)

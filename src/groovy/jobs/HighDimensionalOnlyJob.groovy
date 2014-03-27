@@ -1,5 +1,6 @@
 package jobs
 
+import jobs.steps.AbstractDumpStep
 import jobs.steps.OpenHighDimensionalDataStep
 import jobs.steps.ParametersFileStep
 import jobs.steps.RCommandsStep
@@ -60,7 +61,8 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }

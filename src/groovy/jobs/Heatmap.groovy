@@ -22,7 +22,7 @@ class Heatmap extends HighDimensionalOnlyJob {
         String source = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
 
         String createHeatmap = '''Heatmap.loader(
-                            input.filename = 'outputfile',
+                            input.filename = '$inputFileName',
                             imageWidth     = as.integer('$txtImageWidth'),
                             imageHeight    = as.integer('$txtImageHeight'),
                             pointsize      = as.integer('$txtImagePointsize'),

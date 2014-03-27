@@ -41,7 +41,7 @@ class LineGraphDumpTableResultsStepTests {
     }
 
     List<List<String>> readOutputFile() {
-        def reader = new File(temporaryDirectory, 'outputfile').newReader('UTF-8')
+        def reader = new File(temporaryDirectory, 'outputfile.txt').newReader('UTF-8')
         try {
             def csvReader = new CSVReader(reader, '\t' as char)
             Lists.transform(csvReader.readAll(), { it as List } as Function)

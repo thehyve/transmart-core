@@ -4,7 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter
 import jobs.table.Table
 import org.transmartproject.core.exceptions.EmptySetException
 
-class SimpleDumpTableResultStep implements Step {
+class SimpleDumpTableResultStep extends AbstractDumpStep {
 
     Table table
 
@@ -51,7 +51,7 @@ class SimpleDumpTableResultStep implements Step {
     }
 
     private void withDefaultCsvWriter(Closure constructFile) {
-        File output = new File(temporaryDirectory, 'outputfile')
+        File output = new File(temporaryDirectory, outputFileName)
         output.withWriter { writer ->
             CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
             constructFile.call(csvWriter)
