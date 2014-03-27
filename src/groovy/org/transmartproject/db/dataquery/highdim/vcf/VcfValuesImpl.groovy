@@ -86,7 +86,7 @@ class VcfValuesImpl extends AbstractDataRow implements VcfValues, RegionRow {
         return summary.rsId
     }
     String getReferenceAllele() {
-        return summary.ref    \
+        return summary.ref
     }
 
     @Override
