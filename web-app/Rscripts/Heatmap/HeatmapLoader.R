@@ -131,7 +131,6 @@ aggregate.probes = FALSE
 	print("-------------------")
 }
 
-
 plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
     require(Cairo)
     require(gplots)
@@ -139,19 +138,28 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     par(mar = c(0, 0, 0, 0))
 
     pxPerCell <- 15
-    hmPars <- list(pointSize = pxPerCell / 1.4, labelPointSize = pxPerCell / 6)
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
     if (nrow(data) < 30 && ncol(data) < 30) {
-        hmPars <- list(pointSize = pxPerCell / 2, labelPointSize = pxPerCell / 4)
         pxPerCell <- 40
+        hmPars <- list(pointSize = pxPerCell / 4, labelPointSize = pxPerCell / 8)
+    }
+
+    maxResolution <- 30000
+    if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/nrow(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    } else if (ncol(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/ncol(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
     }
     mainHeight <- nrow(data) * pxPerCell
     mainWidth <- ncol(data) * pxPerCell
 
     leftMarginSize <- pxPerCell * 1
-    rightMarginSize <- pxPerCell * 0.8 * max(nchar(rownames(data)))
+    rightMarginSize <- pxPerCell * max(nchar(rownames(data)))
     topMarginSize <- pxPerCell * 1
-    bottomMarginSize <- pxPerCell * 0.8 * max(nchar(colnames(data)))
-    topSpectrumHeight <- pxPerCell * (min(max(ncol(data)*0.1, 5), 15))
+    bottomMarginSize <- pxPerCell * max(nchar(colnames(data)))
+    topSpectrumHeight <- rightMarginSize
 
     imageWidth <- leftMarginSize + mainWidth + rightMarginSize
     imageHeight <- topSpectrumHeight + topMarginSize + mainHeight + bottomMarginSize
@@ -160,7 +168,6 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
                         yTopLarge = topSpectrumHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
                         yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
 
-
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
                  height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
@@ -168,8 +175,6 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
     }
-
-
 
     heatmap.2(data,
               Rowv=NA,
@@ -184,6 +189,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               scale = "none",
               dendrogram = "none",
               key = TRUE,
+              keysize = 0.001,
               density.info = "histogram", # density.info=c("histogram","density","none")
               trace = "none",
               lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
@@ -194,11 +200,11 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
               lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
 
-    legend(x = 1 - hmCanvasDiv$xRight*0.9, y = 1,
+    legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
            legend = c("Subset 1","Subset 2"),
            fill = c("orange","yellow"),
            bg = "white", ncol = 1,
-           cex = topSpectrumHeight * hmPars$pointSize * 0.001,
+           cex = topSpectrumHeight * 0.006,
     )
 
     dev.off()
