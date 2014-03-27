@@ -141,7 +141,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
     if (nrow(data) < 30 || ncol(data) < 30) {
         pxPerCell <- 40
-        hmPars <- list(pointSize = pxPerCell / 4, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
     }
 
     maxResolution <- 30000
