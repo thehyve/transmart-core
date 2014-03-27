@@ -110,7 +110,7 @@ class LineGraph extends AbstractAnalysisJob {
 
         Map<String, Closure<String>> extraParams = [:]
         extraParams['scalingFilename'] = { getScalingFilename() }
-        extraParams['inputFileName'] = DEFAULT_OUTPUT_FILE_NAME
+        extraParams['inputFileName'] = { DEFAULT_OUTPUT_FILE_NAME }
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
