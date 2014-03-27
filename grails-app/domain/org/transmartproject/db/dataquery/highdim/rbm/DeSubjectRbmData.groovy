@@ -32,6 +32,6 @@ class DeSubjectRbmData {
         value nullable: true, scale: 17
         zscore nullable: true, scale: 17
         logIntensity nullable: true, scale: 17
-        unit nullable: true
+        unit nullable: true, maxSize: 150
     }
 }
