@@ -28,22 +28,32 @@ LineGraph.loader <- function(
   # or, for each group-value, retrieve rows for that value and plot LineGraph
   plotGroupValues <- unique(line.data$PLOT_GROUP)
   if (is.null(plotGroupValues) || is.na(plotGroupValues)) {
-    p <- LineGraph.plotter(line.data, graphType, plot.individuals, HDD.data.type)
     imageFileName <- paste(output.file,".png",sep="")
-    CairoPNG(file=imageFileName, width=1200, height=600,units = "px")
-    print(p)
-    dev.off()
+    CairoPNG(file = imageFileName, width=1200, height=600,units = "px")
+    if (nrow(line.data) == 0) {
+      Plot.error.message("Dataset is empty. Cannot plot LineGraph.");
+    }
+    else {
+      p <- LineGraph.plotter(line.data, graphType, plot.individuals, HDD.data.type)
+      print(p)
+      dev.off()
+    }
   } else {
     fileIter <- 1
     for (plotGroup in plotGroupValues) {
-      groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
-      p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
-      p <- p + labs(title = as.character(plotGroup))
       imageFileName <- paste(output.file,fileIter,".png",sep="")
-      fileIter <- fileIter + 1
       CairoPNG(file=imageFileName, width=1200, height=600,units = "px")
-      print(p)
-      dev.off()
+      if (length(which(line.data$PLOT_GROUP==plotGroup)) == 0) {
+        Plot.error.message("Dataset is empty. Cannot plot LineGraph.");
+      }
+      else {
+        groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
+        p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
+        p <- p + labs(title = as.character(plotGroup))
+        fileIter <- fileIter + 1
+        print(p)
+        dev.off()
+      }
     }
   }
 }
@@ -139,4 +149,17 @@ LineGraph.plotter <- function(
 	p <- p + geom_point(size=4);
 	
   p
+}
+
+
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
 }
