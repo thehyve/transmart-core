@@ -1,38 +1,66 @@
 package org.transmartproject.db.clinical
 
-import com.google.common.collect.HashMultiset
-import com.google.common.collect.Multiset
+import com.google.common.collect.Maps
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
+import org.transmartproject.db.querytool.QueriesResourceService
 
 class ClinicalDataResourceService implements ClinicalDataResource {
 
+    static transactional = false
+
     def sessionFactory
 
+    QueriesResourceService queriesResourceService;
+
     @Override
-    ClinicalDataTabularResult retrieveData(List<QueryResult> patientSets,
+    ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
+        Set<Patient> patients = queriesResourceService.getPatients(queryResults)
+        retrieveDataForPatients(patients, variables)
+    }
+
+    @Override
+    ClinicalDataTabularResult retrieveData(Set<Patient> patients, Set<OntologyTerm> ontologyTerms) {
+        def allOntologyTerms = (ontologyTerms*.allDescendants).flatten()
+        allOntologyTerms.addAll(ontologyTerms)
+        def clinicalVariables =
+                allOntologyTerms.findAll {
+                    OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
+                }.collect {
+                    createClinicalVariable(['concept_path': it.fullName],
+                            ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
+                }
+
+        retrieveDataForPatients(patients, clinicalVariables)
+    }
+
+    ClinicalDataTabularResult retrieveDataForPatients(Collection<Patient> patientCollection, List<ClinicalVariable> variables) {
 
         def session = sessionFactory.openStatelessSession()
 
         try {
+            def patientMap = Maps.newTreeMap()
+
+            patientCollection.each { patientMap[it.id] = it }
+
             TerminalConceptVariablesDataQuery query =
                     new TerminalConceptVariablesDataQuery(
                             session: session,
-                            resultInstances: patientSets,
+                            patientIds: patientMap.keySet(),
                             clinicalVariables: variables)
             query.init()
-
-            def patientMap = query.fetchPatientMap()
 
             new ClinicalDataTabularResult(
                     query.openResultSet(),

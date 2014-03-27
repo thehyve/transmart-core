@@ -17,13 +17,9 @@ class PatientSetQueryBuilderService {
 
     def databasePortabilityService
 
-    String buildPatientSetQuery(QtQueryResultInstance resultInstance,
-                                QueryDefinition definition) throws
-            InvalidRequestException {
+    String buildPatientIdListQuery(QueryDefinition definition)
+            throws InvalidRequestException {
 
-        if (!resultInstance.id) {
-            throw new RuntimeException('QtQueryResultInstance has not been persisted')
-        }
         generalDefinitionValidation(definition)
 
         def panelNum = 1
@@ -59,15 +55,15 @@ class PatientSetQueryBuilderService {
             }
 
             [
-                id: panelNum++,
-                select: "SELECT patient_num " +
-                        "FROM observation_fact WHERE $bigPredicate AND concept_cd != 'SECURITY'",
-                invert: panel.invert,
+                    id: panelNum++,
+                    select: "SELECT patient_num " +
+                            "FROM observation_fact WHERE $bigPredicate AND concept_cd != 'SECURITY'",
+                    invert: panel.invert,
             ]
         }.sort { a, b ->
             (a.invert && !b.invert) ? 1
-            : (!a.invert && b.invert) ? -1
-            : (a.id - b.id)
+                    : (!a.invert && b.invert) ? -1
+                    : (a.id - b.id)
         }
 
         def patientSubQuery
@@ -85,13 +81,24 @@ class PatientSetQueryBuilderService {
             patientSubQuery = panelClauses.inject("") { String acc, panel ->
                 acc +
                         (acc.empty
-                            ? ""
-                            : panel.invert
-                                    ? " $databasePortabilityService.complementOperator "
-                                    : ' INTERSECT ') +
+                                ? ""
+                                : panel.invert
+                                ? " $databasePortabilityService.complementOperator "
+                                : ' INTERSECT ') +
                         "($panel.select)"
             }
         }
+    }
+
+    String buildPatientSetQuery(QtQueryResultInstance resultInstance,
+                                QueryDefinition definition)
+            throws InvalidRequestException {
+
+        if (!resultInstance.id) {
+            throw new RuntimeException('QtQueryResultInstance has not been persisted')
+        }
+
+        def patientSubQuery = buildPatientIdListQuery(definition)
 
         //$patientSubQuery has result set with single column: 'patient_num'
         def windowFunctionOrderBy = ''

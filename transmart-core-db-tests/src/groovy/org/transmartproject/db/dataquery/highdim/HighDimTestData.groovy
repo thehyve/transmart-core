@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim
 
+import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.biomarker.BioDataCorrelDescr
 import org.transmartproject.db.biomarker.BioDataCorrelationCoreDb
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
@@ -46,6 +47,7 @@ class HighDimTestData {
         }
     }
 
+    //to be removed (unnecessary indirection)
     static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {
         I2b2Data.createTestPatients(n, baseId, trialName)
     }
@@ -144,14 +146,9 @@ class HighDimTestData {
         }
     }
 
+    //to be removed (unnecessary indirection)
     static void save(List objects) {
-        List result = objects*.save()
-        result.eachWithIndex { def entry, int i ->
-            if (entry == null) {
-                throw new RuntimeException("Could not save ${objects[i]}. Errors: ${objects[i].errors}")
-            }
-        }
-
-        assertThat result, everyItem(isA(objects[0].getClass()))
+        TestDataHelper.save(objects)
     }
+
 }

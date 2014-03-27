@@ -2,7 +2,6 @@ import org.springframework.stereotype.Component
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.support.DatabasePortabilityService
-import org.transmartproject.db.support.MarshallerRegistrarService
 
 class TransmartCoreGrailsPlugin {
     // the plugin version
@@ -78,12 +77,6 @@ A runtime dependency for tranSMART that implements the Core API
         /* Force this bean to be initialized, as it has some dynamic methods
          * to register during its init() method */
         ctx.getBean DatabasePortabilityService
-    }
-
-    def doWithApplicationContext = { applicationContext ->
-        MarshallerRegistrarService bean =
-            applicationContext.getBean(MarshallerRegistrarService)
-        bean.scanForClasses(applicationContext)
     }
 
     def onChange = { event ->

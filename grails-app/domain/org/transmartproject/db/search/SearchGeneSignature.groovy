@@ -1,6 +1,6 @@
 package org.transmartproject.db.search
 
-import org.transmartproject.db.user.SearchAuthUser
+import org.transmartproject.db.user.User
 
 class SearchGeneSignature {
 
@@ -12,9 +12,9 @@ class SearchGeneSignature {
     String              description
     String              uniqueId
     Date                createDate
-    SearchAuthUser      creator
+    User                creator
     Date                lastModifiedDate
-    SearchAuthUser      modifier
+    User                modifier
     String              versionNumber
     Boolean             publicFlag = false
     Boolean             deletedFlag = false
