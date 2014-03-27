@@ -11,6 +11,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -109,6 +110,21 @@ class RbmDataRetrievalTests {
                 contains(
                         closeTo(testData.data[1].value as Double, DELTA),
                         closeTo(testData.data[0].value as Double, DELTA))))
+    }
+
+    @Test
+    void testNoUnit() {
+        testData.data.each { it.unit = null}
+        HighDimTestData.save testData.data
+
+        result = rbmResource.retrieveData([trialNameConstraint], [],
+                rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
+
+        def resultList = Lists.newArrayList result
+
+        assertThat resultList, allOf(
+                hasItem(hasProperty('label', is('Antigene1'))),
+                not(hasItem(hasProperty('label', is('Antigene1 (A)')))))
     }
 
     @Test

@@ -60,13 +60,13 @@ class RbmTestData {
         def createRbmEntry = { DeSubjectSampleMapping assay,
                                List<DeRbmAnnotation> annotations,
                                double value,
-                               String unit = 'unknown' ->
+                               String unit = null ->
             new DeSubjectRbmData(
                     annotations:  annotations,
                     assay:        assay,
                     value:        value,
                     logIntensity: Math.log(value),
-                    unit:         "(${unit})",
+                    unit:         unit ? "(${unit})" : null,
                     zscore:       (value - 0.35) / 0.1871,
             )
         }
