@@ -5,7 +5,6 @@ LineGraph.loader <- function(
 	output.file="LineGraph",
 	graphType="MERR",
     aggregate.probes = FALSE,
-  plot.individuals=FALSE,
   HDD.data.type = NULL
 ) {
 	library(stringr)
@@ -14,7 +13,12 @@ LineGraph.loader <- function(
 	library(Cairo)
 	
 	line.data<-read.delim(input.filename,header=T)
-	
+	if (graphType=="IND") {
+	 plot.individuals = TRUE
+	} else {
+	 plot.individuals = FALSE
+	}
+
   #Read the scaling data (location of each group (concept path) on X-axis)
   if (!is.null(scaling.filename)) {
     scaling.data <- read.delim(scaling.filename,header=T)

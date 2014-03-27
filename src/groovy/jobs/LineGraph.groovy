@@ -133,8 +133,7 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename           = '$inputFileName',
                     graphType                = '$graphType',
-                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"},
-                    plot.individuals  = ${(plotIndividuals  == "true") ? 1 : 0 }
+                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"}
         )''' ]
     }
 

@@ -142,7 +142,6 @@
             <div class="chkpair">
                 <g:checkBox name="isBinning" onclick="lineGraphView.toggle_binning();"/> Enable binning
             </div>
-            <div class="chkpair"><g:checkBox name="plotIndividuals"/> Plot individuals</div>
             <div class="chkpair"><g:checkBox name="plotEvenlySpaced"/> Plot evenly spaced</div>
 
             <div>
@@ -151,6 +150,7 @@
                     <option value="MERR">Mean with error bar</option>
                     <option value="MSTD">Mean with standard deviation</option>
                     <option value="MEDER">Median with error bar</option>
+                    <option value="IND">Plot individuals</option>
                 </select>
             </div>
 
