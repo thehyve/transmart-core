@@ -3,32 +3,21 @@ language: groovy
 jdk:
     - oraclejdk7
 
-env:
-    - GRAILS_VERSION=2.3.3
-
 before_install:
-    - mkdir -p ~/.m2 ~/.grails
-    - cd ~/.m2
-    - bash -c '{ curl http://files.thehyve.net/caches/grails_${GRAILS_VERSION}_mvncache.tar.gz  | tar xzf -; } || true'
-    - cd -
+    - mkdir -p ~/.m2
+    - bash -c '{ curl http://files.thehyve.net/caches/grails_2.3.3_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
+    - source ~/ts-travis/maven_dep.sh
 
 install:
-    - cd ~/.grails
-    - curl -O http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-${GRAILS_VERSION}.zip
-    - unzip -q grails-${GRAILS_VERSION}.zip
-    - export GRAILS_HOME=~/.grails/grails-${GRAILS_VERSION}
-    - cd -
-    - ./install_branch_coreapi
+    - maybe_build_maven_dep $(travis_get_owner)/transmart-core-api core-api
 
-# uncomment the lines if you add test matrix with more than 1 grails version/jdk
 script:
-#    - ${GRAILS_HOME}/bin/grails clean
-#    - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
-    - "${GRAILS_HOME}/bin/grails test-app unit: --non-interactive --stacktrace"
+    - "grails test-app unit: --non-interactive --stacktrace"
     - cd transmart-core-db-tests
-#    - ${GRAILS_HOME}/bin/grails clean
-#    - ${GRAILS_HOME}/bin/grails upgrade --non-interactive
-    - ${GRAILS_HOME}/bin/grails test-app --non-interactive --stacktrace
+    - grails test-app --non-interactive --stacktrace
+    - cd -
 
 notifications:
   hipchat:
