@@ -21,8 +21,7 @@ class DeVariantSubjectDetailCoreDb implements Serializable {
     String format
     String variant
 
-    static belongsTo = [dataset: DeVariantDatasetCoreDb,
-            assay:  DeSubjectSampleMapping]          //TODO: implement constraint on dataset
+    static belongsTo = [dataset: DeVariantDatasetCoreDb]          //TODO: implement constraint on dataset
 
     static constraints = {
         alt(nullable: true)
