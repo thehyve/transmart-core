@@ -156,9 +156,9 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     mainWidth <- ncol(data) * pxPerCell
 
     leftMarginSize <- pxPerCell * log(nrow(data), base = 2)
-    rightMarginSize <- pxPerCell * max(nchar(rownames(data)))
+    rightMarginSize <- pxPerCell * max(10, max(nchar(rownames(data))))
     topMarginSize <- pxPerCell * 3
-    bottomMarginSize <- pxPerCell * max(nchar(colnames(data)))
+    bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
     topDendrogramHeight <- pxPerCell * log(ncol(data), base = 2)
     topSpectrumHeight <- rightMarginSize
 
