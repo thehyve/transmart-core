@@ -40,9 +40,6 @@ aggregate.probes = FALSE
     library(reshape2)
     library(gplots)
 
-    #Prepare the package to capture the image file.
-    CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
-
     #Pull the GEX data from the file.
     mRNAData <- data.frame(read.delim(input.filename))
     if (nrow(mRNAData) == 0) {
@@ -123,37 +120,96 @@ aggregate.probes = FALSE
     n_remaining_sample<-ncol(mRNAData)
     if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
     if (n_remaining_marker>1 & n_remaining_sample >1) {
-        #Store the heatmap in a temp variable.
-        tmp <- heatmap(mRNAData,
-                ColSideColors=colcolor,
-                col=greenred(800),
-                breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
-                margins=c(5,5),
-                scale = "none")
-
-        # add a legend to heatmap.
-        tmp_legend <- legend("topleft",
-                legend = c("Subset 1","Subset 2"),
-                fill = c("orange","yellow"),
-                bg = "white", ncol = 1,
-                cex=1.2,
-        )
-        # end map informative
-
-        print("Generating heatmap")
-
-        #Print the heatmap to an image
-        print (tmp)
-
-        # by Serge and Wei to print out the legend
-        print (tmp_legend)
+        plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "png")
+        plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "svg")
     } else {
+        #Prepare the package to capture the image file.
+        CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
         Plot.error.message("Not enough marker/samples to draw heatmap"); return()
     }
 
-    dev.off()
     print("-------------------")
 }
+
+plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+    require(Cairo)
+    require(gplots)
+
+    par(mar = c(0, 0, 0, 0))
+
+    pxPerCell <- 15
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    if (nrow(data) < 30 || ncol(data) < 30) {
+        pxPerCell <- 40
+        hmPars <- list(pointSize = pxPerCell / 4, labelPointSize = pxPerCell / 8)
+    }
+
+    maxResolution <- 30000
+    if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/nrow(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    } else if (ncol(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/ncol(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    }
+    mainHeight <- nrow(data) * pxPerCell
+    mainWidth <- ncol(data) * pxPerCell
+
+    leftMarginSize <- pxPerCell * log(nrow(data), base = 2)
+    rightMarginSize <- pxPerCell * max(nchar(rownames(data)))
+    topMarginSize <- pxPerCell * 3
+    bottomMarginSize <- pxPerCell * max(nchar(colnames(data)))
+    topDendrogramHeight <- pxPerCell * log(ncol(data), base = 2)
+    topSpectrumHeight <- rightMarginSize
+
+    imageWidth <- leftMarginSize + mainWidth + rightMarginSize
+    imageHeight <- topSpectrumHeight + topDendrogramHeight + topMarginSize + mainHeight + bottomMarginSize
+
+    hmCanvasDiv <- list(xLeft = leftMarginSize / imageWidth, xMain = mainWidth / imageWidth, xRight = rightMarginSize / imageWidth,
+                        yTopLarge = topSpectrumHeight / imageHeight, yDendrogram = topDendrogramHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
+                        yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
+
+    if (extension == "svg") {
+        CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
+                 height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
+    } else {
+        CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
+                 height = imageHeight, pointsize = hmPars$pointSize)
+    }
+
+    heatmap.2(data,
+              ColSideColors = colcolors,
+              col = greenred(800),
+              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+              sepwidth=c(0,0),
+              margins=c(0, 0),
+              cexRow = hmPars$labelPointSize,
+              cexCol = hmPars$labelPointSize,
+              scale = "none",
+              key = TRUE,
+              keysize = 0.001,
+              density.info = "histogram", # density.info=c("histogram","density","none")
+              trace = "none",
+              # 1 is subset color bar, 2 is heatmap, 3 is row dendrogram, 4 is column dendrogram, 5 is color histogram
+              lmat = matrix(ncol = 3, byrow = TRUE, data = c(
+                  0, 5, 0,
+                  0, 4, 0,
+                  0, 1, 0,
+                  3, 2, 0,
+                  0, 0, 0)),
+              lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
+              lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yDendrogram, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
+
+    legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
+           legend = c("Subset 1","Subset 2"),
+           fill = c("orange","yellow"),
+           bg = "white", ncol = 1,
+           cex = topSpectrumHeight * 0.006,
+    )
+
+    dev.off()
+}
+
 
 Plot.error.message <- function(errorMessage) {
     # TODO: This error handling hack is a temporary permissible quick fix:
