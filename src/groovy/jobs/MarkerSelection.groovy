@@ -14,8 +14,7 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         new BioMarkerDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params,
-                outputFileName: dataFileName)
+                params: params)
     }
 
     @Override

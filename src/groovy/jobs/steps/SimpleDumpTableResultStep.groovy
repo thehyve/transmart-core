@@ -4,13 +4,11 @@ import au.com.bytecode.opencsv.CSVWriter
 import jobs.table.Table
 import org.transmartproject.core.exceptions.EmptySetException
 
-class SimpleDumpTableResultStep implements Step {
+class SimpleDumpTableResultStep extends AbstractDumpStep {
 
     Table table
 
     File temporaryDirectory
-
-    String outputFileName = 'outputfile.txt'
 
     final String statusName = 'Dumping Table Result'
 

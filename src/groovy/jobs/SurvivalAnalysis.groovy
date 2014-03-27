@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 /**
  * Created by carlos on 1/20/14.
  */
@@ -107,7 +109,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: dataFileName)
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
@@ -115,7 +117,7 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
                 rStatements: RStatements,
                 studyName: studyName,
                 params: params,
-                extraParams: [inputFileName: dataFileName])
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }

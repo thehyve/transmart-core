@@ -15,8 +15,7 @@ class KMeansClustering extends HighDimensionalOnlyJob {
         new ValueGroupDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params,
-                outputFileName: dataFileName)
+                params: params)
     }
 
     @Override

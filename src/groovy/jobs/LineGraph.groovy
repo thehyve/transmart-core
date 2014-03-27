@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 import javax.annotation.PostConstruct
 
 @Component
@@ -98,7 +100,7 @@ class LineGraph extends AbstractAnalysisJob {
         steps << new LineGraphDumpTableResultsStep(
                 table:              table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: dataFileName)
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new BuildConceptTimeValuesStep(
                 table: conceptTimeValues,
@@ -108,7 +110,7 @@ class LineGraph extends AbstractAnalysisJob {
 
         Map<String, Closure<String>> extraParams = [:]
         extraParams['scalingFilename'] = { getScalingFilename() }
-        extraParams['inputFileName'] = dataFileName
+        extraParams['inputFileName'] = DEFAULT_OUTPUT_FILE_NAME
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,

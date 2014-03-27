@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 @Component
 @Scope('job')
 class Waterfall extends AbstractAnalysisJob {
@@ -55,7 +57,7 @@ class Waterfall extends AbstractAnalysisJob {
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: dataFileName)
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
@@ -63,7 +65,7 @@ class Waterfall extends AbstractAnalysisJob {
                 rStatements: RStatements,
                 studyName: studyName,
                 params: params,
-                extraParams: [inputFileName: dataFileName])
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }

@@ -14,8 +14,7 @@ class PCA extends HighDimensionalOnlyJob {
         new PCADumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
-                params: params,
-                outputFileName: dataFileName)
+                params: params)
     }
 
 

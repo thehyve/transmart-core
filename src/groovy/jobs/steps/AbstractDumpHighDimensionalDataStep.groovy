@@ -6,11 +6,9 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
-abstract class AbstractDumpHighDimensionalDataStep implements Step {
+abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
     final String statusName = null
-
-    String outputFileName = 'outputfile.txt'
 
     File temporaryDirectory
     Closure<Map<List<String>, TabularResult>> resultsHolder

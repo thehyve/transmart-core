@@ -19,8 +19,6 @@ abstract class AbstractAnalysisJob {
     @Autowired
     AnalysisConstraints analysisConstraints
 
-    String dataFileName = 'outputfile.txt'
-
     @Resource(name = 'jobName')
     String name /* The job instance name */
 

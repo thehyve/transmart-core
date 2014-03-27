@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 
 @Component
 @Scope('job')
@@ -56,7 +58,7 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
                 table:              table,
                 temporaryDirectory: temporaryDirectory,
                 groupNamesHolder:   holder,
-                outputFileName: dataFileName)
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
@@ -64,7 +66,7 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
                 rStatements: RStatements,
                 studyName: studyName,
                 params: params,
-                extraParams: [inputFileName: dataFileName])
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }
