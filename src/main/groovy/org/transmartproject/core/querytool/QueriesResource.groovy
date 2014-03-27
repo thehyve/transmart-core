@@ -35,6 +35,4 @@ interface QueriesResource {
      * @throws NoSuchResourceException if the definition cannot be found
      */
     QueryDefinition getQueryDefinitionForResult(QueryResult result) throws NoSuchResourceException
-
-    Set<Patient> getPatients(List<QueryResult> queryResults) throws NoSuchResourceException
 }
