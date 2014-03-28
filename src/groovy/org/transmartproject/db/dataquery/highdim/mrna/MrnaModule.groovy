@@ -28,15 +28,9 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['Gene Expression']
 
-    static final Set<String> dataProperties = ImmutableSet.of('trialName', 'rawIntensity', 'logIntensity', 'zscore')
+    final Set<String> dataProperties = ImmutableSet.of('trialName', 'rawIntensity', 'logIntensity', 'zscore')
 
-    static final Set<String> rowProperties = ImmutableSet.of('probe', 'geneId', 'geneSymbol')
-
-    private static final Map<String,String> projectionToProperty = [
-            (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
-            (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
-            (Projection.ZSCORE_PROJECTION):       'zscore'
-    ]
+    final Set<String> rowProperties = ImmutableSet.of('probe', 'geneId', 'geneSymbol')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -142,22 +136,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ new SimpleRealProjectionsFactory(projectionToProperty),
+        [ new SimpleRealProjectionsFactory(
+                (Projection.LOG_INTENSITY_PROJECTION): 'logIntensity',
+                (Projection.DEFAULT_REAL_PROJECTION): 'rawIntensity',
+                (Projection.ZSCORE_PROJECTION):       'zscore'),
         new AllDataProjectionFactory(dataProperties, rowProperties)]
-    }
-
-    /**
-     * Returns the list of properties retrieved for a given projection
-     * @param projection the name of the projection
-     * @return properties retrieved for given projection
-     */
-    static List<String> getDataPropertiesForProjection(String projection) {
-        switch (projection) {
-            case Projection.ALL_DATA_PROJECTION:
-                return dataProperties.toList()
-            default:
-                String value = projectionToProperty[projection]
-                return value != null ? [value] : []
-        }
     }
 }
