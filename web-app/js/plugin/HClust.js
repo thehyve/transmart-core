@@ -49,12 +49,16 @@ HierarchicalClusteringView.prototype.get_form_params = function () {
         // get values
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var maxDrawNum = inputArray[1].el.value;
+        var doClusterRows = inputArray[2].el.checked;
+        var doClusterColumns = inputArray[3].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'RHClust';
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['txtMaxDrawNumber'] = maxDrawNum;
+        formParameters['doClusterRows'] = doClusterRows;
+        formParameters['doClusterColumns'] = doClusterColumns;
 
         //get analysis constraints
         var constraints_json = this.get_analysis_constraints('RHClust');
@@ -90,6 +94,16 @@ HierarchicalClusteringView.prototype.get_inputs = function (form_params) {
             "label" : "Max Row to Display",
             "el" : document.getElementById("txtMaxDrawNumber"),
             "validations" : [{type:"INTEGER", min:1}]
+        },
+        {
+            "label" : "Do cluster rows",
+            "el" : document.getElementById("chkClusterRows"),
+            "validations" : []
+        },
+        {
+            "label" : "Do cluster columns",
+            "el" : document.getElementById("chkClusterColumns"),
+            "validations" : []
         }
     ];
 }
