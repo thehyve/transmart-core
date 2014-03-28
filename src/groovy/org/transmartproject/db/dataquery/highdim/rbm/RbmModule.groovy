@@ -30,7 +30,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     private final Set<String> dataProperties = ImmutableSet.of('value', 'logIntensity', 'zscore')
 
-    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'uniprotName')
+    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'unit', 'uniprotName')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
