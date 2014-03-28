@@ -137,8 +137,11 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
 
     par(mar = c(0, 0, 0, 0))
 
+    onlyOneSubset <- length(unique(colcolors))==1
+    if (onlyOneSubset) { colcolors <- "white" }
+
     pxPerCell <- 15
-    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     if (nrow(data) < 30 || ncol(data) < 30) {
         pxPerCell <- 40
         hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
@@ -147,10 +150,10 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     maxResolution <- 30000
     if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/nrow(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     } else if (ncol(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/ncol(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     }
     mainHeight <- nrow(data) * pxPerCell
     mainWidth <- ncol(data) * pxPerCell
@@ -200,12 +203,14 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
               lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
 
-    legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
-           legend = c("Subset 1","Subset 2"),
-           fill = c("orange","yellow"),
-           bg = "white", ncol = 1,
-           cex = topSpectrumHeight * 0.006,
-    )
+    if (!onlyOneSubset) {
+        legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
+               legend = c("Subset 1","Subset 2"),
+               fill = c("orange","yellow"),
+               bg = "white", ncol = 1,
+               cex = topSpectrumHeight * 0.006,
+        )
+    }
 
     dev.off()
 }

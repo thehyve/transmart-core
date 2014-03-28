@@ -164,7 +164,7 @@ plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.f
     par(mar = c(0, 0, 0, 0))
 
     pxPerCell <- 15
-    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     if (nrow(data) < 30 || ncol(data) < 30) {
         pxPerCell <- 40
         hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
@@ -173,10 +173,10 @@ plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.f
     maxResolution <- 30000
     if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/nrow(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     } else if (ncol(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/ncol(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     }
     mainHeight <- nrow(data) * pxPerCell
     mainWidth <- ncol(data) * pxPerCell
