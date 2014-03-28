@@ -32,10 +32,8 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         String createHeatmap = '''Heatmap.loader(
                             input.filename   = \'heatmapdata\',
                             meltData         = FALSE,
-                            imageWidth       = as.integer(\'$txtImageWidth\'),
-                            imageHeight      = as.integer(\'$txtImageHeight\'),
-                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
-                            pointsize        = as.integer(\'$txtImagePointsize\'))'''
+                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true'
+                            )'''
 
         [ sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap ]
     }
