@@ -25,7 +25,7 @@ class HighDimBuilder {
         BIO_MARKER,
         REGION,
 
-        static DataRowType forRow(DataRow row) {
+        static DataRowType forRow(DataRow<?,?> row) {
             //assumes all non biomarker is region
             return (row instanceof BioMarkerDataRow) ? BIO_MARKER : REGION
         }
@@ -47,12 +47,11 @@ class HighDimBuilder {
 
     OutputStream out
 
+    @Lazy private Closure rowFiller = (RowType.DOUBLE == rowType) ? this.&fillDoubleRow : this.&fillMapRow
 
-    private Closure rowFiller = (RowType.DOUBLE == rowType) ? doubleRowFiller : mapRowFiller
+    private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? { null } : this.&getBioMarkerLabel
 
-    private Closure<String> bioMarkerClosure = (DataRowType.REGION == dataRowType) ? notBioMarker : bioMarker
-
-    private List<String> dataColumns = {
+    @Lazy private List<String> dataColumns = {
         if (projection instanceof AllDataProjection) {
             AllDataProjection adp = projection as AllDataProjection
             adp.dataProperties.toList()
@@ -70,7 +69,7 @@ class HighDimBuilder {
 
         PeekingIterator<DataRow<AssayColumn,?>> it = Iterators.peekingIterator(tabularResult.rows)
         if (!it.hasNext()) {
-            throw new IllegalArgumentException("No results") //TODO: csilva: review this
+            throw new IllegalArgumentException("No results") //TODO: improve this
         }
 
         List<AssayColumn> cols = tabularResult.indicesList
@@ -124,7 +123,9 @@ class HighDimBuilder {
 
         if (map != null) {
             for (String col: dataColumns) {
-                values << map.get(col)
+                Object value = map[col]
+                String str = (value != null) ? String.valueOf(value) : "" // as String doesn't work here
+                values << str
             }
         }
 
@@ -144,24 +145,17 @@ class HighDimBuilder {
         builder.build()
     }
 
-    Closure doubleRowFiller = { Object value ->
-        rowBuilder.addDoubleValue(valueAsDouble(value))
+    private void fillDoubleRow(Object value) {
+        double dbl = value == null ? Double.NaN : value as Double
+        rowBuilder.addDoubleValue(dbl)
     }
 
-    Closure mapRowFiller = { Object value ->
+    private void fillMapRow(Object value) {
         rowBuilder.addMapValue(valueAsMapValue(value as Map))
     }
 
-    Closure<String> bioMarker = { BioMarkerDataRow<?> inputRow ->
+    private String getBioMarkerLabel(BioMarkerDataRow<?> inputRow) {
         inputRow.bioMarker
-    }
-
-    Closure<String> notBioMarker = { DataRow<?> inputRow ->
-        null
-    }
-
-    private double valueAsDouble(Object value) {
-        value == null ? Double.NaN : value as Double
     }
 
 }
