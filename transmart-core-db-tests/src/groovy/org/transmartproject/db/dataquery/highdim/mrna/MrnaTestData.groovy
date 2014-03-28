@@ -91,10 +91,9 @@ class MrnaTestData {
         def res = []
         //doubles loose some precision when adding 0.1, so i use BigDecimals instead
         BigDecimal intensity = BigDecimal.ZERO
-        BigDecimal step = BigDecimal.valueOf(0.1)
         annotations.each { probe ->
             assays.each { assay ->
-                intensity = intensity.add(step)
+                intensity = intensity + 0.1
                 res += createMicroarrayEntry assay, probe, intensity
             }
         }
