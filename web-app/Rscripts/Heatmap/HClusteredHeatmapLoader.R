@@ -27,7 +27,9 @@ imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
 color.range.clamps = c(-2.5,2.5),
-aggregate.probes = FALSE
+aggregate.probes = FALSE,
+cluster.by.rows = TRUE,
+cluster.by.columns = TRUE
 )
 {
 
@@ -120,8 +122,8 @@ aggregate.probes = FALSE
     n_remaining_sample<-ncol(mRNAData)
     if (is.null(color.range.clamps)) color.range.clamps = c(min(mRNAData), max(mRNAData))
     if (n_remaining_marker>1 & n_remaining_sample >1) {
-        plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "png")
-        plotHeatmap(mRNAData, colcolor, color.range.clamps, output.file, extension = "svg")
+        plotHeatmap(mRNAData, colcolor, cluster.by.rows, cluster.by.columns, color.range.clamps, output.file, extension = "png")
+        plotHeatmap(mRNAData, colcolor, cluster.by.rows, cluster.by.columns, color.range.clamps, output.file, extension = "svg")
     } else {
         #Prepare the package to capture the image file.
         CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
@@ -131,14 +133,15 @@ aggregate.probes = FALSE
     print("-------------------")
 }
 
-plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+plotHeatmap <- function(data, colcolors, cluster.by.rows, cluster.by.columns, color.range.clamps, output.file = "Heatmap", extension = "png") {
     require(Cairo)
     require(gplots)
 
     par(mar = c(0, 0, 0, 0))
 
-    onlyOneSubset <- length(unique(colcolors))==1
-    if (onlyOneSubset) { colcolors <- "white" }
+    dendrogramOptions <- ifelse(cluster.by.rows,
+            ifelse(cluster.by.columns, "both", "row"),
+            ifelse(cluster.by.columns, "column", "none"))
 
     pxPerCell <- 15
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
@@ -158,10 +161,20 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     mainHeight <- nrow(data) * pxPerCell
     mainWidth <- ncol(data) * pxPerCell
 
-    leftMarginSize <- pxPerCell * log(nrow(data), base = 2)
+    if (cluster.by.rows) {
+        leftMarginSize <- pxPerCell * log(nrow(data), base = 2)
+    } else {
+        leftMarginSize <- pxPerCell * 1
+    }
     rightMarginSize <- pxPerCell * max(10, max(nchar(rownames(data))))
+    topMarginSize <- pxPerCell * 3
     bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
-    topDendrogramHeight <- pxPerCell * log(ncol(data), base = 2)
+    if (cluster.by.columns) {
+        topDendrogramHeight <- pxPerCell * log(ncol(data), base = 2)
+    } else {
+        topDendrogramHeight <- pxPerCell * 1
+    }
+
     topSpectrumHeight <- rightMarginSize
 
     imageWidth <- leftMarginSize + mainWidth + rightMarginSize
@@ -187,6 +200,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               margins=c(0, 0),
               cexRow = hmPars$labelPointSize,
               cexCol = hmPars$labelPointSize,
+              dendrogram = dendrogramOptions,
               scale = "none",
               key = TRUE,
               keysize = 0.001,
@@ -202,14 +216,13 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
               lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yDendrogram, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
 
-    if (!onlyOneSubset) {
-        legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
-               legend = c("Subset 1","Subset 2"),
-               fill = c("orange","yellow"),
-               bg = "white", ncol = 1,
-               cex = topSpectrumHeight * 0.006,
-        )
-    }
+    legend(x = 1 - hmCanvasDiv$xRight*0.93, y = 1,
+           legend = c("Subset 1","Subset 2"),
+           fill = c("orange","yellow"),
+           bg = "white", ncol = 1,
+           cex = topSpectrumHeight * 0.006,
+    )
+
 
     dev.off()
 }
