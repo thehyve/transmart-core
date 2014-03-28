@@ -31,6 +31,15 @@ class AccessLevel implements Permission {
 
     /**
      * This is not in the database for now.
+     *
+     * Note that {@link Permission}s are only used for Studies at this
+     * point. This mapping between permissions and operations are
+     * specific for Studies.
+     *
+     * Access to QueryDefinitions don't need to rely on QueryDefinition
+     * specific permissions because are implemented in function of
+     * Study access and access to QueryResults is implemented in function of
+     * the user that submitted the query. AccessLevels are not involved.
      */
     @Lazy
     static Multimap<String, ProtectedOperation> permissionToOperations = {
@@ -38,8 +47,6 @@ class AccessLevel implements Permission {
 
         [API_READ, BUILD_COHORT, SHOW_SUMMARY_STATISTICS, RUN_ANALYSIS, EXPORT,
                 SHOW_IN_TABLE].each {
-            // don't iterate over WellKnownOperations.values() to avoid bugs in
-            // the future
             mapBuilder.put 'OWN', it
             mapBuilder.put 'EXPORT', it
         }
