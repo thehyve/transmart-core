@@ -10,7 +10,7 @@ class DeGplInfo implements Platform {
     String  organism
     Date    annotationDate
     String  markerType
-    Integer releaseNumber
+    String  releaseNumber
 
     static mapping = {
         table         schema: 'deapp'
