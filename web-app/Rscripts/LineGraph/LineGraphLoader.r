@@ -12,7 +12,7 @@ LineGraph.loader <- function(
 	library(ggplot2)
 	library(Cairo)
 	
-	line.data<-read.delim(input.filename,header=T)
+	line.data<-read.delim(input.filename, header=T, stringsAsFactors = FALSE)
 	if (graphType=="IND") {
 	 plot.individuals = TRUE
 	} else {
@@ -21,7 +21,7 @@ LineGraph.loader <- function(
 
   #Read the scaling data (location of each group (concept path) on X-axis)
   if (!is.null(scaling.filename)) {
-    scaling.data <- read.delim(scaling.filename,header=T)
+    scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
   }
