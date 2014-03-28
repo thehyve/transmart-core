@@ -161,4 +161,40 @@ class ConceptTestData {
         }
     }
 
+    /**
+     * Adds a leaf concept to this data, along with its folder and root concepts.
+     *
+     * @param root name of the root concept to be created
+     * @param study name of the folder concept to be created
+     * @param concept name of the concep to be created
+     * @param code concept code
+     * @return new concept
+     */
+    I2b2 addLeafConcept(String root = 'base',
+                        String study = 'folder',
+                        String concept = 'leaf',
+                        String code = 'mycode') {
+
+        initListsIfNull()
+
+        tableAccesses << createTableAccess(fullName: "\\$root\\", name: root, tableCode: 'i2b2 main', tableName: 'i2b2')
+        i2b2List << createI2b2Concept(level: 1, fullName: "\\$root\\$study\\", name: study,
+                code: study, cVisualattributes: 'FA')
+        I2b2 result = createI2b2Concept(level: 2, fullName: "\\$root\\$study\\$concept\\", name: concept,
+                code: code,  cVisualattributes: 'LA')
+
+        i2b2List << result
+
+        conceptDimensions.addAll(createConceptDimensions([result]))
+
+        result
+    }
+
+    private void initListsIfNull() {
+        this.tableAccesses = this.tableAccesses ?: []
+        this.i2b2List = this.i2b2List ?: []
+        this.conceptDimensions = this.conceptDimensions ?: []
+    }
+
+
 }
