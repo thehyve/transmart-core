@@ -57,6 +57,9 @@ aggregate.probes = FALSE
     mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
     mRNAData$GROUP <- as.factor(mRNAData$GROUP)
 
+    groupValues <- levels(mRNAData$GROUP)
+    mRNAData$GROUP <- paste("X",as.numeric(mRNAData$GROUP),sep="")
+
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
         mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
@@ -148,11 +151,13 @@ aggregate.probes = FALSE
 
     if (is.null(color.range.clamps)) color.range.clamps = c(min(matrixData), max(matrixData))
 
-    plotHeatmap(matrixData, patientcolors, color.range.clamps, output.file, extension = "png")
-    plotHeatmap(matrixData, patientcolors, color.range.clamps, output.file, extension = "svg")
+    rowLabels <- groupValues[as.numeric(rownames(matrixData))]
+
+    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "png")
+    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "svg")
 }
 
-plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
     require(Cairo)
     require(gplots)
 
@@ -177,7 +182,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     mainWidth <- ncol(data) * pxPerCell
 
     leftMarginSize <- pxPerCell * 1
-    rightMarginSize <- pxPerCell * max(10, max(nchar(rownames(data))))
+    rightMarginSize <- pxPerCell * max(10, max(nchar(rowLabels)))
     topMarginSize <- pxPerCell * 3
     bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
     topSpectrumHeight <- rightMarginSize
@@ -207,6 +212,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               margins=c(0, 0),
               cexRow = hmPars$labelPointSize,
               cexCol = hmPars$labelPointSize,
+              labRow = rowLabels,
               scale = "none",
               dendrogram = "none",
               key = TRUE,
