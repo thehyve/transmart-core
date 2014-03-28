@@ -49,18 +49,12 @@ HierarchicalClusteringView.prototype.get_form_params = function () {
         // get values
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var maxDrawNum = inputArray[1].el.value;
-        var imageWidth = inputArray[2].el.value;
-        var imageHeight = inputArray[3].el.value;
-        var imagePointSize = inputArray[4].el.value;
 
         // assign values to form parameters
         formParameters['jobType'] = 'RHClust';
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['txtMaxDrawNumber'] = maxDrawNum;
-        formParameters['txtImageWidth'] = imageWidth;
-        formParameters['txtImageHeight'] = imageHeight;
-        formParameters['txtImagePointsize'] = imagePointSize;
 
         //get analysis constraints
         var constraints_json = this.get_analysis_constraints('RHClust');
@@ -96,21 +90,6 @@ HierarchicalClusteringView.prototype.get_inputs = function (form_params) {
             "label" : "Max Row to Display",
             "el" : document.getElementById("txtMaxDrawNumber"),
             "validations" : [{type:"INTEGER", min:1}]
-        },
-        {
-            "label" : "Image Width",
-            "el" : document.getElementById("txtImageWidth"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Height",
-            "el" : document.getElementById("txtImageHeight"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Point Size",
-            "el" : document.getElementById("txtImagePointsize"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
         }
     ];
 }
