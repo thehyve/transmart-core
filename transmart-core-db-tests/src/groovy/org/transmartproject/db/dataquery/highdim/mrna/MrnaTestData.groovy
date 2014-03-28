@@ -19,6 +19,8 @@ class MrnaTestData {
 
     SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
 
+    private String conceptCode
+
     DeGplInfo platform = {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
@@ -27,6 +29,10 @@ class MrnaTestData {
         res.id = 'BOGUSGPL570'
         res
     }()
+
+    MrnaTestData(String conceptCode = 'concept code #1') {
+        this.conceptCode = conceptCode
+    }
 
     List<BioMarkerCoreDb> getBioMarkers() {
         bioMarkerTestData.geneBioMarkers
@@ -61,7 +67,7 @@ class MrnaTestData {
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
     List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
+        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode)
 
     List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [
@@ -83,16 +89,18 @@ class MrnaTestData {
         }
 
         def res = []
-        Double intensity = 0
+        //doubles loose some precision when adding 0.1, so i use BigDecimals instead
+        BigDecimal intensity = BigDecimal.ZERO
+        BigDecimal step = BigDecimal.valueOf(0.1)
         annotations.each { probe ->
             assays.each { assay ->
-                res += createMicroarrayEntry assay, probe, (intensity += 0.1)
+                intensity = intensity.add(step)
+                res += createMicroarrayEntry assay, probe, intensity
             }
         }
 
         res
     }()
-
 
     void saveAll() {
         bioMarkerTestData.saveGeneData()
