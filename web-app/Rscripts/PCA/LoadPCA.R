@@ -141,7 +141,6 @@ max.pcs.to.show = 10
     sapply(1:max.pcs.to.show, f, GENELISTLENGTH)
 
     #Finally create the Scree plot.
-
     plot(pca.results,type="lines", main="Scree Plot", npcs = max.pcs.to.show)
     title(xlab = "Component")
 
@@ -174,8 +173,7 @@ max.pcs.to.show = 10
 			tmp <- ggplot()
 			tmp <- tmp + geom_path(data=corcir, aes(x=x, y=y), colour="gray65")
 			tmp <- tmp + geom_segment(data=arrows, aes(x=x1, y=y1, xend=x2, yend=y2), colour="gray65")
-			#tmp <- tmp + geom_text(data=correlations, aes_string(x=paste("PC", i, sep=""), y=paste("PC", i, sep="")), label=rownames(correlations))
-			tmp <- tmp + geom_text(data=arrows, aes(x=x2, y=y2, label=genes), size = 5, vjust=1)
+			tmp <- tmp + geom_text(data=arrows, aes(x=x2, y=y2, label=genes), size = 4, vjust=1)
 			tmp <- tmp + geom_hline(yintercept=0, colour="gray65")
 			tmp <- tmp + geom_vline(xintercept=0, colour="gray65")
 			tmp <- tmp + xlim(-1.1,1.1) + ylim(-1.1,1.1)
@@ -257,6 +255,6 @@ circle <- function(center=c(0,0), npoints=100){
 	r=1
 	tt=seq(0, 2*pi, length=npoints)
 	xx=center[1]+r*cos(tt)
-	yy=center[1]+r*sin(tt)
+	yy=center[2]+r*sin(tt)
 	return (data.frame(x=xx, y=yy))
 }
