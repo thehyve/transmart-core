@@ -1,10 +1,12 @@
 package org.transmartproject.db.ontology
 
+import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.i2b2data.PatientTrialCoreDb
 
+@EqualsAndHashCode(includes = 'name')
 class StudyImpl implements Study {
 
     OntologyTerm ontologyTerm
