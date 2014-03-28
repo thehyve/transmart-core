@@ -33,6 +33,14 @@
         </fieldset>
 
         <fieldset class="toolFields">
+            <div>
+                <input type="checkbox" id="chkClusterRows" name="doClusterRows" checked="true">
+                <span>Apply clustering for rows</span>
+            </div>
+            <div>
+                <input type="checkbox" id="chkClusterColumns" name="doClusterColumns" checked="true">
+                <span>Apply clustering for columns</span>
+            </div>
             <input type="button" value="Run" onClick="hierarchicalClusteringView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
     </form>
