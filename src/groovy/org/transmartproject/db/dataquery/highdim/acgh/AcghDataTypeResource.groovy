@@ -4,12 +4,9 @@ import groovy.transform.InheritConstructors
 import org.hibernate.Query
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
-import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraint
 
 /**
  * Created by glopes on 11/22/13.
