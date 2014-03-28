@@ -21,10 +21,13 @@ class QueriesResourceService implements QueriesResource {
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
 
+        def userId = definition.username ?:
+                grailsApplication.config.org.transmartproject.i2b2.user_id
+
         // 1. Populate qt_query_master
         QtQueryMaster queryMaster = new QtQueryMaster(
             name           : definition.name,
-            userId         : grailsApplication.config.org.transmartproject.i2b2.user_id,
+            userId         : userId,
             groupId        : grailsApplication.config.org.transmartproject.i2b2.group_id,
             createDate     : new Date(),
             generatedSql   : null,
@@ -34,7 +37,7 @@ class QueriesResourceService implements QueriesResource {
 
         // 2. Populate qt_query_instance
         QtQueryInstance queryInstance = new QtQueryInstance(
-                userId       : grailsApplication.config.org.transmartproject.i2b2.user_id,
+                userId       : userId,
                 groupId      : grailsApplication.config.org.transmartproject.i2b2.group_id,
                 startDate    : new Date(),
                 statusTypeId : QueryStatus.PROCESSING.id,
