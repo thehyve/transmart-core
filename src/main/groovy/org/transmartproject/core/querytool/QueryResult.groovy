@@ -1,12 +1,14 @@
 package org.transmartproject.core.querytool
 
+import org.transmartproject.core.users.ProtectedResource
+
 /**
  * A query result instance contains information about a specific run of a
  * query.
  *
  * At least for now, all query results are assumed to be of PATIENTSET type.
  */
-interface QueryResult {
+interface QueryResult extends ProtectedResource {
 
     /**
      * The query result instance id.
