@@ -19,7 +19,7 @@ CREATE TABLE patient_dimension (
     update_date timestamp without time zone,
     download_date timestamp without time zone,
     import_date timestamp without time zone,
-    sourcesystem_cd character varying(50),
+    sourcesystem_cd character varying(107),
     upload_id numeric(38,0)
 );
 
