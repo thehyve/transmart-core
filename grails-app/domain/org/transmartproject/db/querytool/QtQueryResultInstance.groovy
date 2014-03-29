@@ -60,6 +60,7 @@ class QtQueryResultInstance implements QueryResult {
         QueryStatus.forId(statusTypeId)
     }
 
+    @Override
     Set<Patient> getPatients() {
         /**
          * The many-to-many mapping in patients_ does not serve us because

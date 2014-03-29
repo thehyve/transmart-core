@@ -1,6 +1,7 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
+import com.google.common.collect.Sets
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
@@ -27,7 +28,17 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        Set<Patient> patients = queriesResourceService.getPatients(queryResults)
+        Set<Patient> patients
+        if (queryResults.size() == 1) {
+            patients = queryResults[0].patients
+        } else {
+            patients = Sets.newTreeSet(
+                    { a, b -> a.id <=> b.id } as Comparator)
+            queryResults.each {
+                patients.addAll it.patients
+            }
+        }
+
         retrieveDataForPatients(patients, variables)
     }
 
