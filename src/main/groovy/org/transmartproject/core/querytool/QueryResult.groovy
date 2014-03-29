@@ -1,10 +1,12 @@
 package org.transmartproject.core.querytool
 
+import org.transmartproject.core.dataquery.Patient
+
 /**
  * A query result instance contains information about a specific run of a
  * query.
  *
- * At least for now, all query results are assumed to be of PATIENTSET type.
+ * All query results are assumed to be of PATIENTSET type.
  */
 interface QueryResult {
 
@@ -36,5 +38,12 @@ interface QueryResult {
      * @return the error message or null if none
      */
     public String getErrorMessage()
+
+    /**
+     * The set of patients included in this result.
+     *
+     * @return the set of patients
+     */
+    public Set<Patient> getPatients()
 
 }
