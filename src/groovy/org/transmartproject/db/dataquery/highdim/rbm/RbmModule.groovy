@@ -30,7 +30,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     private final Set<String> dataProperties = ImmutableSet.of('value', 'logIntensity', 'zscore')
 
-    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'uniprotName')
+    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'unit', 'uniprotName')
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -76,6 +76,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 property 'p.id', 'annotationId'
                 property 'p.antigenName', 'antigenName'
                 property 'p.uniprotName', 'uniprotName'
+                property 'unit', 'unit'
             }
 
             order 'p.id', 'asc'
@@ -104,6 +105,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                     new RbmRow(
                             annotationId:  firstNonNullCell[0].annotationId,
                             antigenName:   firstNonNullCell[0].antigenName,
+                            unit:          firstNonNullCell[0].unit,
                             uniprotName:   firstNonNullCell[0].uniprotName,
                             assayIndexMap: assayIndexes,
                             data:          list.collect { projection.doWithResult it?.getAt(0) }
@@ -117,11 +119,12 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 resultItem: {collectedList ->
                     if (collectedList) {
                         new RbmRow(
-                                annotationId: collectedList[0].annotationId,
-                                antigenName: collectedList[0].antigenName,
-                                uniprotName: collectedList*.uniprotName.join('/'),
-                                assayIndexMap: collectedList[0].assayIndexMap,
-                                data: collectedList[0].data
+                                annotationId:   collectedList[0].annotationId,
+                                antigenName:    collectedList[0].antigenName,
+                                unit:           collectedList[0].unit,
+                                uniprotName:    collectedList*.uniprotName.join('/'),
+                                assayIndexMap:  collectedList[0].assayIndexMap,
+                                data:           collectedList[0].data
                         )
     }
 }

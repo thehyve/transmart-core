@@ -59,21 +59,23 @@ class RbmTestData {
     List<DeSubjectRbmData> data = {
         def createRbmEntry = { DeSubjectSampleMapping assay,
                                List<DeRbmAnnotation> annotations,
-                               double value ->
+                               double value,
+                               String unit = null ->
             new DeSubjectRbmData(
                     annotations:  annotations,
                     assay:        assay,
                     value:        value,
                     logIntensity: Math.log(value),
+                    unit:         unit ? "(${unit})" : null,
                     zscore:       (value - 0.35) / 0.1871,
             )
         }
 
         def res = []
         Double value = 0
-        annotations.groupBy { it.antigenName }.each { annotationsEntry ->
+        annotations.groupBy { it.antigenName }.eachWithIndex { annotationsEntry, index ->
             assays.each { assay ->
-                res += createRbmEntry assay, annotationsEntry.value, (value += 0.1)
+                res += createRbmEntry assay, annotationsEntry.value, (value += 0.1), ('A'..'Z')[index]
             }
         }
 
