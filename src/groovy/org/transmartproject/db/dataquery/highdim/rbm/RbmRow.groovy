@@ -13,9 +13,11 @@ class RbmRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
 
     String antigenName
 
+    String unit
+
     @Override
     String getLabel() {
-        antigenName
+        unit ? "${antigenName} ${unit}" : antigenName
     }
 
     @Override
