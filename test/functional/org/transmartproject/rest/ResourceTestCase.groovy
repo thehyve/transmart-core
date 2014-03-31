@@ -34,6 +34,15 @@ abstract class ResourceTestCase extends APITestCase {
         grails.converters.JSON.parse(text) //parse normally as JSON
     }
 
+    InputStream getAsInputStream(String path) {
+        get(path)
+        assertContentType 'application/octet-stream'
+
+        InputStream result = client.response.data
+        result.reset() //to reset the stream (pointer = 0), as it was partially read before
+        result
+    }
+
     /**
      * Matcher for a map entry containing _links.self[href:selfLink]
      * @param selfLink value of the expected link

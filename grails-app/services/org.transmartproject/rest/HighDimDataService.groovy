@@ -1,14 +1,16 @@
 package org.transmartproject.rest
 
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.rest.protobuf.HighDimBuilder
 
 class HighDimDataService {
 
-    def highDimensionResourceService
+    HighDimensionResourceService highDimensionResourceService
 
     /**
      * Retrieves the highdim data for the given conceptKey/dataType/projectionName
@@ -36,6 +38,14 @@ class HighDimDataService {
         } finally {
             tabularResult.close() //closing the tabular result, no matter what
         }
+    }
+
+    Map<HighDimensionDataTypeResource, Collection<Assay>>  getAvailableHighDimResources(String conceptKey) {
+
+        AssayConstraint assayConstraint = highDimensionResourceService.createAssayConstraint(
+                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
+
+        highDimensionResourceService.getSubResourcesAssayMultiMap([assayConstraint])
     }
 
 }

@@ -23,6 +23,10 @@ class RestApiUrlMappings {
                 controller: 'observation', action: 'indexByConcept'
         )
 
+        "/studies/$studyId/concepts/$conceptId**/highdim"(
+                controller: 'highDim', action: 'show'
+        )
+
         '/studies'(resources: 'study', method: 'GET') {
             '/observations'(controller: 'observation', resources: 'observation', includes: ['index'])
         }

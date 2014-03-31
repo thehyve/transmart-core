@@ -2,7 +2,6 @@ package org.transmartproject.rest
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.IntegrationTestMixin
-import grails.util.Holders
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,19 +30,12 @@ class HighDimDataServiceTests {
     private void setUpMrna() {
         testData.mrnaData = new MrnaTestData(concept.code)
         testData.saveAll()
-
-        //making sure BigDecimals use the scale specified in the db (otherwise toString() will yield different results)
-        Holders.applicationContext.sessionFactory.currentSession.flush()
-        testData.mrnaData.microarrayData.each { it.refresh() }
+        testData.mrnaData.updateDoubleScaledValues()
     }
 
     @Test
     void testMrnaDefaultRealProjection() {
         setUpMrna()
-        /*
-        testData.mrnaData = new MrnaTestData(concept.code)
-        testData.saveAll()
-        */
         String projection = Projection.DEFAULT_REAL_PROJECTION
         HighDimResult result = getProtoBufResult('mrna', projection)
 
@@ -53,14 +45,6 @@ class HighDimDataServiceTests {
     @Test
     void testMrnaAllDataProjection() {
         setUpMrna()
-        /*
-        testData.mrnaData = new MrnaTestData(concept.code)
-        testData.saveAll()
-
-        //making sure BigDecimals use the scale specified in the db (otherwise toString() will yield different results)
-        Holders.applicationContext.sessionFactory.currentSession.flush()
-        testData.mrnaData.microarrayData.each { it.refresh() }
-        */
         String projection = Projection.ALL_DATA_PROJECTION
         HighDimResult result = getProtoBufResult('mrna', projection)
 
