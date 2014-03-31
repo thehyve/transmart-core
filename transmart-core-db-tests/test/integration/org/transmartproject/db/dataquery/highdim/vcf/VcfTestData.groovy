@@ -26,7 +26,7 @@ class VcfTestData  {
         platform = new DeGplInfo(
                     title: 'Test VCF',
                     organism: 'Homo Sapiens',
-                    markerTypeId: 'Variant data')
+                    markerType: 'VCF')
         platform.id = 'BOGUSGPLVCF'
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'

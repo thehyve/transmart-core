@@ -240,10 +240,28 @@ class VcfEndToEndRetrievalTests {
                         ))
                 )
         )
+    }
 
+    void testVcfPlatformIsRecognized() {
+        def constraint = highDimensionResourceService.createAssayConstraint(
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                name: VcfTestData.TRIAL_NAME)
 
+        testData.saveAll()
 
+        def map = highDimensionResourceService.
+                getSubResourcesAssayMultiMap([constraint])
 
+        assertThat map, hasKey(
+                hasProperty('dataTypeName', equalTo('cohortMAF')))
 
+        def entry = map.entrySet().find { it.key.dataTypeName == 'cohortMAF' }
+
+        assertThat entry.value, allOf(
+                hasSize(greaterThan(0)),
+                everyItem(
+                        hasProperty('platform',
+                                hasProperty('markerType',
+                                        equalTo('VCF')))))
     }
 }
