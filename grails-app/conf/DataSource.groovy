@@ -28,7 +28,7 @@ environments {
 environments {
     development {
         dataSource {
-            logSql    = true
+            //logSql    = true
             formatSql = true
 
             properties {
@@ -47,7 +47,7 @@ environments {
             username        = 'sa'
             password        = ''
             dbCreate        = 'update'
-            logSql          = true
+            //logSql          = true
             formatSql       = true
         }
     }
