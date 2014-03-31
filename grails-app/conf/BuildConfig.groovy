@@ -23,6 +23,7 @@ grails.project.dependency.resolution = {
 		
 
         // runtime 'mysql:mysql-connector-java:5.1.13'
+        runtime 'hsqldb:hsqldb:1.8.0.10'
     }
 	
 	plugins {
