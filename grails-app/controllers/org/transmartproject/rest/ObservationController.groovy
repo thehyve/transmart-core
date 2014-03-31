@@ -31,7 +31,7 @@ class ObservationController {
     def index() {
         def study = studyLoadingServiceProxy.study
         TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study, null, null)
+                clinicalDataResourceService.retrieveData(study.patients, [study.ontologyTerm] as Set)
         try {
             respond wrapObservations(observations)
         } finally {
@@ -44,7 +44,7 @@ class ObservationController {
      */
     def indexByConcept() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study, null, [concept])
+                clinicalDataResourceService.retrieveData(study.patients, [concept] as Set)
         try {
             respond wrapObservations(observations)
         } finally {
@@ -57,7 +57,7 @@ class ObservationController {
      */
     def indexBySubject() {
         TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study, [patient], null)
+                clinicalDataResourceService.retrieveData([patient] as Set, [study.ontologyTerm] as Set)
         try {
             respond wrapObservations(observations)
         } finally {
@@ -95,7 +95,7 @@ class ObservationController {
         patient
     }
 
-    private List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
+    private static List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
         List<ObservationWrapper> observations = []
         def concepts = tabularResult.getIndicesList()
         tabularResult.getRows().each { row ->
