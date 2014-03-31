@@ -27,7 +27,7 @@ class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
 
     static final String VALUES_PROJECTION = 'cohortMAF_values'
 
-    final List<String> platformMarkerTypes = ['Chromosomal']
+    final List<String> platformMarkerTypes = ['VCF']
 
     final String name = 'cohortMAF'
 
