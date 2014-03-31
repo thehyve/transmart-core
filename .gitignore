@@ -10,3 +10,6 @@ target/
 *.ipr
 *.iws
 *.log
+System.out
+prodDb.*
+
