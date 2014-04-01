@@ -32,7 +32,9 @@ class PatientSerializationHelper implements HalOrJsonSerializationHelper<Patient
 
     @Override
     Map<String, Object> convertToMap(Patient patient) {
-        getPropertySubsetForSuperType(patient, Patient, ['assays'] as Set)
+        Map<String, Object> result = getPropertySubsetForSuperType(patient, Patient, ['assays', 'sex'] as Set)
+        result.put('sex', patient.sex.name()) //sex has to be manually converted (no support for enums)
+        result
     }
 
     @Override

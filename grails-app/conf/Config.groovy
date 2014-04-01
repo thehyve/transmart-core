@@ -108,7 +108,7 @@ log4j = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
     info 'org.transmartproject'
-    debug 'org.hibernate.SQL'
+    //debug 'org.hibernate.SQL'
     trace 'org.springframework.security',
             'grails.plugin.springsecurity'
 
