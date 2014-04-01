@@ -25,6 +25,8 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             groups: Group
     ]
 
+    static transients = ['accessControlChecks']
+
     static mapping = {
         //table   schema: 'searchapp', name: 'search_auth_user'
         // ^^ Bug! doesn't work
