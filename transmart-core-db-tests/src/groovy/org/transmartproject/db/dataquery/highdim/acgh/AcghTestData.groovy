@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
-import grails.util.Holders
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
