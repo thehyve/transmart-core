@@ -13,6 +13,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.ExternalResource
 import org.junit.rules.TestRule
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 
 /**
  * Grails weaves into every integration test class {@link IntegrationTestMixin},
@@ -66,6 +67,15 @@ class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
         // has to be a method otherwise TestMixinTransformation won't weave this in
         new GrailsInterceptorRule(interceptor: interceptor,
                                   target: target)
+    }
+
+    void autowireByType() {
+        /* "traditional: (i.e. not postprocessor/annotation based)
+         * autowiring by type */
+        IntegrationTestPhaseConfigurer.currentApplicationContext.
+                autowireCapableBeanFactory.autowireBeanProperties(target,
+                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                false)
     }
 
     @Log4j
