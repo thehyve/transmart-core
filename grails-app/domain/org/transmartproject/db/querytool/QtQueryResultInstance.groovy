@@ -36,7 +36,7 @@ class QtQueryResultInstance implements QueryResult {
         id             column: 'result_instance_id', generator: 'sequence',
                        params: [sequence: 'qt_sq_qri_qriid']
         errorMessage   column: 'message'
-        queryInstance  column: 'query_instance_id'
+        queryInstance  column: 'query_instance_id', fetch: 'join'
 
         patientsA      joinTable: [name:   'qt_patient_set_collection',
                                    key:    'result_instance_id',
