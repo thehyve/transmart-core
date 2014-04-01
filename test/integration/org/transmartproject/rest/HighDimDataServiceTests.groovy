@@ -6,7 +6,6 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.acgh.AcghModule
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.DeMrnaAnnotationCoreDb
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
@@ -60,7 +59,7 @@ class HighDimDataServiceTests {
     @Test
     void testAcgh() {
         setUpAcgh()
-        String projection = AcghModule.ACGH_VALUES_PROJECTION
+        String projection = 'acgh_values'
         HighDimResult result = getProtoBufResult('acgh', projection)
 
         testData.assertAcghRows(result, projection)

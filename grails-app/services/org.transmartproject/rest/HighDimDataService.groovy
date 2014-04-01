@@ -3,15 +3,14 @@ package org.transmartproject.rest
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.dataquery.highdim.acgh.AcghModule
 import org.transmartproject.rest.protobuf.HighDimBuilder
 
 class HighDimDataService {
 
-    HighDimensionResourceService highDimensionResourceService
+    HighDimensionResource highDimensionResourceService
 
     /**
      * Retrieves the highdim data for the given conceptKey/dataType/projectionName
@@ -28,7 +27,7 @@ class HighDimDataService {
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
-        String proj = projectionName ?: getDefaultProjectionFor(dataType)
+        String proj = projectionName ?: getDefaultProjectionFor(dataType, typeResource.supportedProjections)
 
         Projection projection = typeResource.createProjection(proj)
 
@@ -52,12 +51,18 @@ class HighDimDataService {
         highDimensionResourceService.getSubResourcesAssayMultiMap([assayConstraint])
     }
 
-    static String getDefaultProjectionFor(String dataType) {
-        switch (dataType) {
-            case 'acgh':
-                return AcghModule.ACGH_VALUES_PROJECTION
-            default:
-                return Projection.DEFAULT_REAL_PROJECTION
+    /**
+     * Returns DEFAULT_REAL_PROJECTION if supported, ot the first projection in the given set if not.
+     *
+     * @param dataType
+     * @param supportedProjections
+     * @return
+     */
+    static String getDefaultProjectionFor(String dataType, Set<String> supportedProjections) {
+        if (Projection.DEFAULT_REAL_PROJECTION in supportedProjections) {
+            return Projection.DEFAULT_REAL_PROJECTION
+        } else {
+            return supportedProjections.first()
         }
     }
 
