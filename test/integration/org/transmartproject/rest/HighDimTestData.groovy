@@ -2,6 +2,9 @@ package org.transmartproject.rest
 
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
+import org.transmartproject.db.dataquery.highdim.acgh.DeSubjectAcghData
+import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.dataquery.highdim.mrna.DeMrnaAnnotationCoreDb
 import org.transmartproject.db.dataquery.highdim.mrna.DeSubjectMicroarrayDataCoreDb
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
@@ -19,29 +22,28 @@ class HighDimTestData {
     static Map projectionPropertiesMap = {
         Map map  = [:]
         map.put(['mrna', Projection.DEFAULT_REAL_PROJECTION], ['rawIntensity'])
+        //acgh: Projection.DEFAULT_REAL_PROJECTION is not supported
+
         map
     }()
 
     ConceptTestData conceptData = new ConceptTestData()
     MrnaTestData mrnaData
+    AcghTestData acghData
 
     void saveAll() {
         conceptData.saveAll()
         mrnaData?.saveAll()
+        acghData?.saveAll()
     }
 
     void assertMrnaRows(HighDimResult input, String projection) {
 
         RowType rowType = input.header.rowsType
+        List<Long> assayIds = input.getAssayIds()
+        List<String> valueProperties = getValueProperties(input, 'mrna', projection)
 
-        List<Long> assayIds = input.header.assayList*.assayId //order of assays in the actual data
-        List<String> valueProperties =
-                (rowType == RowType.GENERAL) ?
-                        input.header.mapColumnList :
-                        projectionPropertiesMap.get(['mrna',projection])
-
-        List<Matcher> matchers = mrnaData.annotations.collect {
-            DeMrnaAnnotationCoreDb probe = it
+        List<Matcher> matchers = mrnaData.annotations.collect { DeMrnaAnnotationCoreDb probe ->
             List expectedValueList = assayIds.collect { getMrnaCell(probe, it) }
             Matcher annotationMatcher = createMrnaRowMatcher(probe)
             Matcher cellMatcher = createRowValuesMatcher(rowType, valueProperties, expectedValueList)
@@ -51,14 +53,46 @@ class HighDimTestData {
         assertThat input.rows, containsInAnyOrder(matchers)
     }
 
+    void assertAcghRows(HighDimResult input, String projection) {
+
+        RowType rowType = input.header.rowsType
+        List<Long> assayIds = input.getAssayIds()
+        List<String> valueProperties = getValueProperties(input, 'acgh', projection)
+
+        List<Matcher> matchers = acghData.regions.collect { DeChromosomalRegion region ->
+            List expectedValueList = assayIds.collect { getAcghCell(region, it) }
+            Matcher annotationMatcher = createAcghRowMatcher(region)
+            Matcher cellMatcher = createRowValuesMatcher(rowType, valueProperties, expectedValueList)
+            allOf(annotationMatcher, cellMatcher)
+        }
+
+        assertThat input.rows, containsInAnyOrder(matchers)
+    }
+
+    private List<String> getValueProperties(HighDimResult input, String dataType, String projection) {
+        (input.header.rowsType == RowType.GENERAL) ?
+                input.header.mapColumnList :
+                projectionPropertiesMap.get([dataType, projection])
+    }
+
     private DeSubjectMicroarrayDataCoreDb getMrnaCell(DeMrnaAnnotationCoreDb probe, long assayId) {
         mrnaData.microarrayData.find { probe == it.probe && assayId == it.assayId}
+    }
+
+    private DeSubjectAcghData getAcghCell(DeChromosomalRegion region, long assayId) {
+        acghData.acghData.find { region == it.region && assayId == it.assayId}
     }
 
     private Matcher createMrnaRowMatcher(DeMrnaAnnotationCoreDb probe) {
         allOf(
                 hasProperty('label', is(probe.probeId)),
                 hasProperty('bioMarker', is(probe.geneSymbol)),
+        )
+    }
+
+    private Matcher createAcghRowMatcher(DeChromosomalRegion region) {
+        allOf(
+                hasProperty('label', is(region.cytoband)),
         )
     }
 
@@ -121,6 +155,10 @@ class HighDimTestData {
     static class HighDimResult {
         HighDimHeader header
         List<Row> rows = []
+
+        List<Long> getAssayIds() {
+            header.assayList*.assayId //order of assays in the actual data
+        }
     }
 
 }

@@ -49,7 +49,8 @@ class HighDimBuilder {
 
     @Lazy private Closure rowFiller = (RowType.DOUBLE == rowType) ? this.&fillDoubleRow : this.&fillMapRow
 
-    private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? { null } : this.&getBioMarkerLabel
+    //no bioMarkerClosure for DataRowType.REGION
+    @Lazy private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? null : this.&getBioMarkerLabel
 
     @Lazy private List<String> dataColumns = {
         if (projection instanceof AllDataProjection) {
@@ -107,7 +108,9 @@ class HighDimBuilder {
     private Row createRow(DataRow<AssayColumn, Object> inputRow) {
         rowBuilder.clear()
         rowBuilder.setLabel(inputRow.label)
-        rowBuilder.setBioMarker(bioMarkerClosure(inputRow))
+        if (bioMarkerClosure) {
+            rowBuilder.setBioMarker(bioMarkerClosure(inputRow))
+        }
 
         for (AssayColumn col: assayColumns) {
             rowFiller(inputRow.getAt(col))

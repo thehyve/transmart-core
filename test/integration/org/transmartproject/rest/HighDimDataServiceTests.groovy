@@ -6,6 +6,8 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.acgh.AcghModule
+import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.DeMrnaAnnotationCoreDb
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
@@ -33,6 +35,10 @@ class HighDimDataServiceTests {
         testData.mrnaData.updateDoubleScaledValues()
     }
 
+    private void setUpAcgh() {
+        testData.acghData = new AcghTestData(concept.code)
+        testData.saveAll()
+    }
     @Test
     void testMrnaDefaultRealProjection() {
         setUpMrna()
@@ -51,13 +57,22 @@ class HighDimDataServiceTests {
         testData.assertMrnaRows(result, projection)
     }
 
+    @Test
+    void testAcgh() {
+        setUpAcgh()
+        String projection = AcghModule.ACGH_VALUES_PROJECTION
+        HighDimResult result = getProtoBufResult('acgh', projection)
+
+        testData.assertAcghRows(result, projection)
+    }
+
     HighDimResult getProtoBufResult(String dataType, String projection) {
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         svc.write(concept.key, dataType, projection, out)
         byte[] contents = out.toByteArray()
         out.close()
 
-        //writeToSampleFile(contents)
+        //writeToSampleFile(dataType, projection, contents)
 
         HighDimResult result = new HighDimResult()
         InputStream is = new ByteArrayInputStream(contents)
@@ -88,8 +103,8 @@ class HighDimDataServiceTests {
         }
     }
 
-    private void writeToSampleFile(byte[] contents) {
-        new File('target/sample.protobuf').withOutputStream { OutputStream os ->
+    private void writeToSampleFile(String dataType, String projection, byte[] contents) {
+        new File("target/sample-${dataType}-${projection}.protobuf").withOutputStream { OutputStream os ->
             os.write(contents)
         }
     }

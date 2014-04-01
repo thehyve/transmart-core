@@ -2,7 +2,6 @@ package org.transmartproject.rest
 
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 import javax.annotation.Resource
@@ -26,14 +25,12 @@ class HighDimController {
     }
 
     private void exportData(String dataType, String projection) {
-        String proj = projection ?: Projection.DEFAULT_REAL_PROJECTION
         String conceptKey = getConceptKey(params.conceptId)
-
         OutputStream out = response.outputStream
         response.contentType =  'application/octet-stream'
 
         try {
-            highDimDataService.write(conceptKey, dataType, proj, out)
+            highDimDataService.write(conceptKey, dataType, projection, out)
             out.flush()
         } finally {
             out.close()

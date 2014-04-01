@@ -8,13 +8,16 @@ import static org.hamcrest.Matchers.*
 
 class HighDimResourceTests extends ResourceTestCase {
 
-    def study = 'STUDY1'
-    def concept = 'bar'
-
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at","1553506_at"]
 
-    def highDimIndexUrl = "/studies/${study}/concepts/${concept}/highdim"
+    def expectedAcghAssays = [-3001, -3002]*.toLong()
+    def expectedAcghRowLabels = ["cytoband1", "cytoband2"]
+
+    Map<String,String> indexUrlMap = [
+            mrna: "/studies/STUDY1/concepts/bar/highdim",
+            acgh: "/studies/STUDY2/concepts/study1/highdim",
+    ]
 
     void testMrna() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
@@ -32,12 +35,18 @@ class HighDimResourceTests extends ResourceTestCase {
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, expectedDataColumns)
     }
 
+    void testAcgh() {
+        HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
+        List<String> expectedDataColumns = []
+        assertResult(result, expectedAcghAssays, expectedAcghRowLabels, expectedDataColumns)
+    }
+
     private String getHighDimUrl(String dataType) {
-        "$highDimIndexUrl?dataType=${dataType}"
+        "${indexUrlMap[dataType]}?dataType=${dataType}"
     }
 
     private String getHighDimUrl(String dataType, String projection) {
-        "$highDimIndexUrl?dataType=${dataType}&projection=${projection}"
+        "${indexUrlMap[dataType]}?dataType=${dataType}&projection=${projection}"
     }
 
     /**

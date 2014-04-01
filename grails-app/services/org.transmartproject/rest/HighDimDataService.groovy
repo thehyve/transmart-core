@@ -6,6 +6,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.dataquery.highdim.acgh.AcghModule
 import org.transmartproject.rest.protobuf.HighDimBuilder
 
 class HighDimDataService {
@@ -15,10 +16,11 @@ class HighDimDataService {
     /**
      * Retrieves the highdim data for the given conceptKey/dataType/projectionName
      * and writes the protobuf result in the given output stream.
+     * If no projection is specified, we will use the default one for the given dataType.
      *
      * @param conceptKey key of the concept to retrieve highdim for
      * @param dataType highdim data type
-     * @param projectionName name of projection
+     * @param projectionName name of projection (or null for the default)
      * @param out output stream to write protobuf to
      */
     void write(String conceptKey, String dataType, String projectionName, OutputStream out) {
@@ -26,7 +28,9 @@ class HighDimDataService {
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
-        Projection projection = typeResource.createProjection(projectionName)
+        String proj = projectionName ?: getDefaultProjectionFor(dataType)
+
+        Projection projection = typeResource.createProjection(proj)
 
         AssayConstraint assayConstraint = 
                 typeResource.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
@@ -46,6 +50,15 @@ class HighDimDataService {
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
 
         highDimensionResourceService.getSubResourcesAssayMultiMap([assayConstraint])
+    }
+
+    static String getDefaultProjectionFor(String dataType) {
+        switch (dataType) {
+            case 'acgh':
+                return AcghModule.ACGH_VALUES_PROJECTION
+            default:
+                return Projection.DEFAULT_REAL_PROJECTION
+        }
     }
 
 }
