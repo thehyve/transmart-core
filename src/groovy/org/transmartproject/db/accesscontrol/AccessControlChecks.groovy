@@ -108,6 +108,13 @@ class AccessControlChecks {
             throw new UnsupportedOperationException("Operation $operation ")
         }
 
+        if (user.username != definition.username) {
+            log.error "Mismatch between query definition's user " +
+                    "(${definition.username}) and user whose access is " +
+                    "being tested (${user.username}); denying access"
+            return false
+        }
+
         // check there is at least one non-inverted panel for which the user
         // has permission in all the terms
         def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
