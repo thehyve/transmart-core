@@ -17,6 +17,12 @@ class AcghTestData {
 
     static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
 
+    private String conceptCode
+
+    AcghTestData(String conceptCode = 'concept code #1') {
+        this.conceptCode = conceptCode
+    }
+
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
                 title: 'Test Region Platform',
@@ -46,6 +52,7 @@ class AcghTestData {
                         end: 9999,
                         numberOfProbes: 42,
                         name: 'region 1:33-9999',
+                        cytoband: 'cytoband1'
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -54,6 +61,7 @@ class AcghTestData {
                         end: 99,
                         numberOfProbes: 2,
                         name: 'region 2:66-99',
+                        cytoband: 'cytoband2'
                 ),
         ]
         r[0].id = -1001L
@@ -68,7 +76,8 @@ class AcghTestData {
     List<DeSubjectSampleMapping> assays = createTestAssays(patients,
                                                            -3000L,
                                                            regionPlatform,
-                                                           TRIAL_NAME)
+                                                           TRIAL_NAME,
+                                                           conceptCode)
 
     DeSubjectAcghData createACGHData(Region region,
                                      Assay assay,
