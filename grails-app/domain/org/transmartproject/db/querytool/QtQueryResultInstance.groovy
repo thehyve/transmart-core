@@ -28,6 +28,8 @@ class QtQueryResultInstance implements QueryResult {
     static hasMany = [patientSet: QtPatientSetCollection,
                       patientsA:  PatientDimension]
 
+    static transients = ['username']
+
 	static mapping = {
         table          schema: 'I2B2DEMODATA'
 
@@ -96,5 +98,10 @@ class QtQueryResultInstance implements QueryResult {
         }
 
         res
+    }
+
+    @Override
+    String getUsername() {
+        queryInstance.userId
     }
 }
