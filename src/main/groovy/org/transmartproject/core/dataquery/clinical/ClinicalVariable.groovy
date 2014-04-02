@@ -19,7 +19,7 @@ public interface ClinicalVariable {
      *                              to a concept (always the case with
      *                              tranSMART)>
      *
-     * Type of data: String
+     * Type of data: {@link String} or {@link BigDecimal}.
      */
     public final static String TERMINAL_CONCEPT_VARIABLE = 'terminal_concept_variable'
 
