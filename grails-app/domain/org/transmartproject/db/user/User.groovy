@@ -14,7 +14,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     String  email
     Boolean emailShow
     String  hash
-    String  realName
+    String userRealName
     String  username
 
     /* not mapped (only on thehyve/master) */
@@ -54,7 +54,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         email        nullable: true, maxSize: 255
         emailShow    nullable: true
         hash         nullable: true, maxSize: 255
-        realName     nullable: true, maxSize: 255
+        userRealName     nullable: true, maxSize: 255
         username     nullable: true, maxSize: 255
         //federatedId nullable: true, unique: true
     }
