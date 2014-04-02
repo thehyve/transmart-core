@@ -14,7 +14,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     String  email
     Boolean emailShow
     String  hash
-    String  realName
+    String realName
     String  username
 
     /* not mapped (only on thehyve/master) */
