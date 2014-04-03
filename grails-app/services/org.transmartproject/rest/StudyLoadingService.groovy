@@ -5,8 +5,10 @@ import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class StudyLoadingService {
 
@@ -82,4 +84,31 @@ class StudyLoadingService {
     String getStudyLowercase() {
         study.name.toLowerCase(Locale.ENGLISH)
     }
+
+    /**
+     * @param term ontology term
+     * @return url for given ontology term and current study
+     */
+    String getOntologyTermUrl(OntologyTerm term) {
+        //this gets tricky. We may be rendering this as part of the /studies response
+        String studyName
+        def pathPart
+
+        try {
+            studyName = study.name
+            use (OntologyTermCategory) {
+                pathPart = term.encodeAsURLPart study
+            }
+        } catch (InvalidArgumentsException iae) {
+            /* studyId not in params; so we are handling a study, which
+             * is mapped to $id (can we rename the param to $studyId
+             * for consistency?)
+             */
+            studyName = term.name
+            pathPart = 'ROOT'
+        }
+        studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
+        "/studies/$studyName/concepts/$pathPart"
+    }
+
 }

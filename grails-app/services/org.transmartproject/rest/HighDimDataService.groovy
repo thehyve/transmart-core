@@ -43,7 +43,7 @@ class HighDimDataService {
         }
     }
 
-    Map<HighDimensionDataTypeResource, Collection<Assay>>  getAvailableHighDimResources(String conceptKey) {
+    Map<HighDimensionDataTypeResource, Collection<Assay>> getAvailableHighDimResources(String conceptKey) {
 
         AssayConstraint assayConstraint = highDimensionResourceService.createAssayConstraint(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
@@ -58,7 +58,7 @@ class HighDimDataService {
      * @param supportedProjections
      * @return
      */
-    static String getDefaultProjectionFor(String dataType, Set<String> supportedProjections) {
+    private static String getDefaultProjectionFor(String dataType, Set<String> supportedProjections) {
         if (Projection.DEFAULT_REAL_PROJECTION in supportedProjections) {
             return Projection.DEFAULT_REAL_PROJECTION
         } else {
