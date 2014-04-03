@@ -134,7 +134,7 @@ class QueriesResourceService implements QueriesResource {
 
     @Override
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        QtQueryResultInstance.load(id)
+        QtQueryResultInstance.get(id)
     }
 
     @Override
