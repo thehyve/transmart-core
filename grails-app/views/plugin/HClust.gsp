@@ -30,18 +30,17 @@
             <label for="txtMaxDrawNumber">Max rows to display:</label>
             <input type="text" id="txtMaxDrawNumber"/>
 
-            <label for="txtImageWidth">Image Width (pixels):</label>
-            <input type="text" id="txtImageWidth" value="800"/>
-
-            <label>Image Height (pixels):</label>
-            <input type="text" id="txtImageHeight" value="800"/>
-
-            <label>Text Size (pointsize):</label>
-            <input type="text" id="txtImagePointsize" value="12"/>
-
         </fieldset>
 
         <fieldset class="toolFields">
+            <div>
+                <input type="checkbox" id="chkClusterRows" name="doClusterRows" checked="true">
+                <span>Apply clustering for rows</span>
+            </div>
+            <div>
+                <input type="checkbox" id="chkClusterColumns" name="doClusterColumns" checked="true">
+                <span>Apply clustering for columns</span>
+            </div>
             <input type="button" value="Run" onClick="hierarchicalClusteringView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
     </form>

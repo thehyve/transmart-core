@@ -39,9 +39,6 @@ aggregate.probes = FALSE
     library(reshape2)
     library(gplots)
 
-    #Prepare the package to capture the image file.
-    CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
-
     #Validate the number of clusters after converting to a numeric.
     clusters.number <- as.numeric(clusters.number)
 
@@ -59,6 +56,9 @@ aggregate.probes = FALSE
     rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
     mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
     mRNAData$GROUP <- as.factor(mRNAData$GROUP)
+
+    groupValues <- levels(mRNAData$GROUP)
+    mRNAData$GROUP <- paste("X",as.numeric(mRNAData$GROUP),sep="")
 
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
@@ -151,22 +151,81 @@ aggregate.probes = FALSE
 
     if (is.null(color.range.clamps)) color.range.clamps = c(min(matrixData), max(matrixData))
 
-    #Store the heatmap in a temp variable.
-    print("Create the heatmap")
-    tmp <- heatmap(matrixData,
-            Rowv = NA,
-            Colv = NA,
-            ColSideColors = patientcolors,
-            margins = c(25,25),
-            cexRow = 1.5,
-            cexCol = 1.5,
-            col = greenred(800),
-            breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
-            scale = "none")
+    rowLabels <- groupValues[as.numeric(rownames(matrixData))]
 
-    #Print the heatmap to an image
-    print("Print the heatmap to an image")
-    print (tmp)
+    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "png")
+    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "svg")
+}
+
+plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+    require(Cairo)
+    require(gplots)
+
+    par(mar = c(0, 0, 0, 0))
+
+    pxPerCell <- 15
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
+    if (nrow(data) < 30 || ncol(data) < 30) {
+        pxPerCell <- 40
+        hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
+    }
+
+    maxResolution <- 30000
+    if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/nrow(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
+    } else if (ncol(data)*pxPerCell > maxResolution) {
+        pxPerCell <- maxResolution/ncol(data)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
+    }
+    mainHeight <- nrow(data) * pxPerCell
+    mainWidth <- ncol(data) * pxPerCell
+
+    leftMarginSize <- pxPerCell * 1
+    rightMarginSize <- pxPerCell * max(10, max(nchar(rowLabels)))
+    topMarginSize <- pxPerCell * 3
+    bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
+    topSpectrumHeight <- rightMarginSize
+
+    imageWidth <- leftMarginSize + mainWidth + rightMarginSize
+    imageHeight <- topSpectrumHeight + topMarginSize + mainHeight + bottomMarginSize
+
+    hmCanvasDiv <- list(xLeft = leftMarginSize / imageWidth, xMain = mainWidth / imageWidth, xRight = rightMarginSize / imageWidth,
+                        yTopLarge = topSpectrumHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
+                        yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
+
+    if (extension == "svg") {
+        CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
+                 height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
+    } else {
+        CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
+                 height = imageHeight, pointsize = hmPars$pointSize)
+    }
+
+    heatmap.2(data,
+              Rowv=NA,
+              Colv=NA,
+              ColSideColors = colcolors,
+              col = greenred(800),
+              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
+              sepwidth=c(0,0),
+              margins=c(0, 0),
+              cexRow = hmPars$labelPointSize,
+              cexCol = hmPars$labelPointSize,
+              labRow = rowLabels,
+              scale = "none",
+              dendrogram = "none",
+              key = TRUE,
+              keysize = 0.001,
+              density.info = "histogram", # density.info=c("histogram","density","none")
+              trace = "none",
+              lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
+                  3, 5, 4,
+                  6, 1, 7,
+                  8, 2, 9,
+                  10, 11, 12)),
+              lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
+              lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
 
     dev.off()
 }

@@ -202,11 +202,10 @@ aggregate.probes = FALSE
 
 	#FOLD CHANGE
 
-	#The fold change is the S1 Mean divided by the S2 Mean.
     if (geneStatsData$S1.Mean >= geneStatsData$S2.Mean) {
-        geneStatsData$FoldChange <- geneStatsData$S1.Mean/geneStatsData$S2.Mean
+        geneStatsData$FoldChange.relative.to.S1 <- -1*(geneStatsData$S1.Mean - geneStatsData$S2.Mean)
     } else {
-        geneStatsData$FoldChange <- -1*(geneStatsData$S2.Mean/geneStatsData$S1.Mean)
+        geneStatsData$FoldChange.relative.to.S1 <- geneStatsData$S2.Mean - geneStatsData$S1.Mean
     }
 
 	#HEATMAP
@@ -237,7 +236,7 @@ aggregate.probes = FALSE
     finalHeatmapData$PROBE.ID[rowsToConcatenate] <- paste(finalHeatmapData$PROBE.ID[rowsToConcatenate], finalHeatmapData$GENE_SYMBOL[rowsToConcatenate],sep="_")
 
 	#Remove the t score and positive columns.
-	finalHeatmapData <- subset(finalHeatmapData, select = -c(GENE_SYMBOL,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
+	finalHeatmapData <- subset(finalHeatmapData, select = -c(GENE_SYMBOL,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange.relative.to.S1,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
 	
 	#Rename the first column to be "GROUP".
 	colnames(finalHeatmapData)[1] <- 'GROUP'
