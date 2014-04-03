@@ -5,12 +5,14 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
+import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
@@ -22,7 +24,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 @TestMixin(RuleBasedIntegrationTestMixin)
 class QueriesResourceServiceTests {
 
-    def queriesResourceService
+    QueriesResource queriesResourceService
     def sessionFactory
 
     private void addObservationFact(Map extra,
@@ -342,6 +344,31 @@ class QueriesResourceServiceTests {
         assertThat result, hasProperty('status', equalTo(QueryStatus.ERROR))
         } finally {
             queriesResourceService.patientSetQueryBuilderService = orig
+        }
+    }
+
+    @Test
+    void testGetQueryResultFromIdBasic() {
+        def queryMaster = QueryResultData.createQueryResult([
+                PatientDimension.load(100) // see setUp()
+        ])
+        queryMaster.save(failOnError: true)
+        QueryResult savedResultInstance =
+                QueryResultData.getQueryResultFromMaster(queryMaster)
+
+        def result = queriesResourceService.getQueryResultFromId(
+                savedResultInstance.id)
+
+        assertThat result, allOf(
+                hasProperty('id', is(savedResultInstance.id)),
+                hasProperty('setSize', is(1L) /* only patient #100 */),
+        )
+    }
+
+    @Test
+    void testQueryResultResultNonExistent() {
+        shouldFail NoSuchResourceException, {
+            queriesResourceService.getQueryResultFromId(-99112 /* bogus id */)
         }
     }
 
