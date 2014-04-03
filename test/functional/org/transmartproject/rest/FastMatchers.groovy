@@ -41,7 +41,7 @@ class FastMatchers {
             return hasEntry(matcherOf(key), listOf(value))
         } else {
             //if both key and value are 'regular' objects, then will match them directly (not wrapping with is())
-            return hasEntry(validate(key), validate(value))
+            return hasEntry(fix(key), fix(value))
         }
     }
 
@@ -82,18 +82,17 @@ class FastMatchers {
         } else if (obj instanceof List) {
             listOf(obj) //promoted to a listOf
         } else {
-            is(validate(obj)) //promoted to a is, with some check
+            is(fix(obj)) //promoted to a is, with some check
         }
     }
 
-    private static Object validate(Object obj) {
-        if (obj instanceof GString) {
-            def msg = "Some GString was passed somehow disguised as a String: $obj. This would not work with hamcrest is(). Adjusting.."
-            //throw new IllegalArgumentException(msg)
-            System.err.println("warning: ${msg}")
-            return obj as String
-        }
-        obj
+    /**
+     * Fixes (if necessary) the value to avoid some groovy/java interoperability pitfalls
+     * @param obj
+     * @return
+     */
+    private static Object fix(Object obj) {
+        obj instanceof GString ? obj.toString() : obj
     }
 
 }
