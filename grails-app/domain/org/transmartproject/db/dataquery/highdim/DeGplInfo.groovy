@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim
 
 import org.hibernate.cfg.NotYetImplementedException
 import org.transmartproject.core.dataquery.highdim.Platform
+import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 
 class DeGplInfo implements Platform {
 
@@ -10,6 +11,8 @@ class DeGplInfo implements Platform {
     String  organism
     Date    annotationDate
     String  markerType
+
+    // private
     String  releaseNumber
 
     static mapping = {
@@ -34,5 +37,10 @@ class DeGplInfo implements Platform {
     @Override
     Iterable<?> getTemplate() {
         throw new NotYetImplementedException()
+    }
+
+    @Override
+    GenomeBuildNumber getGenomeBuildNumber() {
+        GenomeBuildNumber.forId releaseNumber
     }
 }
