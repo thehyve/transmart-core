@@ -17,7 +17,7 @@ class SampleHighDimTestData {
                 organism: 'Homo Sapiens',
                 markerType: 'generic',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
-                releaseNumber: 18,
+                releaseNumber: 'hg18',
         )
         p.id = 'test-generic-platform'
         p

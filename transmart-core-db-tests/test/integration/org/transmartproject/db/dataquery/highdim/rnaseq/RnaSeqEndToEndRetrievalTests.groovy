@@ -158,7 +158,7 @@ class RnaSeqEndToEndRetrievalTests {
                 organism:       'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
                 markerType:     'Chromosomal',
-                releaseNumber:  19,
+                releaseNumber:  'hg19',
         )
         anotherPlatform.id = 'test-another-platform'
         anotherPlatform.save failOnError: true, flush: true

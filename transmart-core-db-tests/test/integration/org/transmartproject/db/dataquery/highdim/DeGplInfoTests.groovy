@@ -5,6 +5,8 @@ import org.junit.Test
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
+
 class DeGplInfoTests {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
@@ -20,10 +22,12 @@ class DeGplInfoTests {
                 hasProperty('markerType', equalTo('generic')),
                 hasProperty('title', equalTo('Test Generic Platform')),
                 hasProperty('organism', equalTo('Homo Sapiens')),
-                hasProperty('releaseNumber', equalTo(18)),
+                hasProperty('releaseNumber', equalTo('hg18')),
                 hasProperty('annotationDate', equalTo(
                         Date.parse('yyyy-MM-dd', '2013-05-03'))),
 
         )
+
+        assertThat GenomeBuildNumber.forId(platform.getReleaseNumber()) , equalTo(GenomeBuildNumber.GRCh36)
     }
 }
