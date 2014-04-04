@@ -37,7 +37,7 @@ public interface Platform {
      *
      * @return the genome build number
      */
-    Integer getReleaseNumber()
+    String getReleaseNumber()
 
     /**
      * The time when this platform was imported to the database. Maybe.
