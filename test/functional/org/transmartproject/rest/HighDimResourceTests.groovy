@@ -26,7 +26,10 @@ class HighDimResourceTests extends ResourceTestCase {
         def result = getAsJson indexUrlMap['mrna']
         assertStatus 200
 
-        Map summary = [dataTypes: [getExpectedMrnaSummary()]]
+        Map summary = [
+                dataTypes: [getExpectedMrnaSummary()]
+        ]
+
         assertThat result, mapWith(summary)
     }
 
@@ -39,8 +42,12 @@ class HighDimResourceTests extends ResourceTestCase {
         summary['_links'] = getExpectedMrnaHalLinks()
 
         Map expected = [
-                '_links': [self: [href: url]],
-                '_embedded': [dataTypes: [summary]]
+                '_links': [
+                        self: [href: url]
+                ],
+                '_embedded': [
+                        dataTypes: [summary]
+                ]
         ]
 
         assertThat result, mapWith(expected)
