@@ -1,20 +1,29 @@
 package org.transmartproject.db.dataquery.unit
 
 import grails.test.mixin.TestFor
+import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.clinical.ClinicalDataResourceService
+import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 @TestFor(ClinicalDataResourceService)
-class ClinicalDataServiceUnitTests {
+class TerminalConceptVariableCreationTests {
 
     public static final String SAMPLE_CONCEPT_CODE = 'my concept code'
     public static final String SAMPLE_CONCEPT_PATH = '\\foo\\bar\\'
+
+    @Before
+    void setup() {
+        defineBeans {
+            clinicalVariableFactory(ClinicalVariableFactory)
+        }
+    }
 
     @Test
     void testCreateTerminalConceptVariableWithConceptCode() {

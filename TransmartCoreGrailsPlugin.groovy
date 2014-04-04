@@ -1,4 +1,5 @@
 import org.springframework.stereotype.Component
+import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.support.DatabasePortabilityService
@@ -48,6 +49,8 @@ A runtime dependency for tranSMART that implements the Core API
         xmlns context:"http://www.springframework.org/schema/context"
 
         businessExceptionResolver(BusinessExceptionResolver)
+
+        clinicalVariableFactory(ClinicalVariableFactory)
 
         context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {
             context.'include-filter'(

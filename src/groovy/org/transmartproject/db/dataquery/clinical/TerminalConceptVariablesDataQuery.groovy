@@ -7,6 +7,7 @@ import org.hibernate.Query
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
+import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ConceptDimension
@@ -15,7 +16,8 @@ class TerminalConceptVariablesDataQuery {
 
     private static final int FETCH_SIZE = 10000
 
-    Collection<TerminalConceptVariable> clinicalVariables
+    List<TerminalConceptVariable> clinicalVariables
+
     Collection<Long> patientIds
 
     SessionImplementor session
@@ -32,11 +34,9 @@ class TerminalConceptVariablesDataQuery {
             throw new IllegalStateException('init() not called successfully yet')
         }
 
-        def conceptCodes = clinicalVariables*.conceptCode
-
         // see TerminalConceptVariable constants
         // see ObservationFact
-        Query query = session.createQuery """
+        Query query = session.createQuery '''
                 SELECT
                     patient.id,
                     conceptCode,
@@ -50,14 +50,14 @@ class TerminalConceptVariablesDataQuery {
                     fact.conceptCode IN (:conceptCodes)
                 ORDER BY
                     patient ASC,
-                    conceptCode ASC"""
+                    conceptCode ASC'''
 
         query.cacheable = false
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        query.setParameterList 'patientIds', patientIds
-        query.setParameterList 'conceptCodes', conceptCodes
+        query.setParameterList 'patientIds',   patientIds
+        query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
 
         query.scroll ScrollMode.FORWARD_ONLY
     }
@@ -66,11 +66,11 @@ class TerminalConceptVariablesDataQuery {
         Map<String, TerminalConceptVariable> conceptPaths = Maps.newHashMap()
         Map<String, TerminalConceptVariable> conceptCodes = Maps.newHashMap()
 
-        if (!clinicalVariables && !patientIds) {
-            throw new InvalidArgumentsException('Either clinical variable or patient set should be specified')
+        if (!clinicalVariables) {
+            throw new InvalidArgumentsException('No clinical variables specified')
         }
 
-        clinicalVariables.each { TerminalConceptVariable it ->
+        clinicalVariables.each { ClinicalVariable it ->
             if (!(it instanceof TerminalConceptVariable)) {
                 throw new InvalidArgumentsException(
                         'Only terminal concept variables are supported')
@@ -150,7 +150,5 @@ class TerminalConceptVariablesDataQuery {
                             multiset.count(it) > 1
                     })
         }
-
     }
-
 }
