@@ -22,8 +22,8 @@ public enum GenomeBuildNumber {
     }
 
     static GenomeBuildNumber forId(String id) {
-        String ucid = id.toUpperCase()
-        ucid = gBuildNumberMap[ucid]?:ucid
+        String ucid = id ? id.toUpperCase() : id
+        ucid = gBuildNumberMap[ucid] ?: ucid
         values().find { it.id == ucid } ?: UNKNOWN
     }
 
