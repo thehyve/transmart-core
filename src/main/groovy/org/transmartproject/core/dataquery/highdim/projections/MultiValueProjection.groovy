@@ -4,9 +4,10 @@ package org.transmartproject.core.dataquery.highdim.projections
 public interface MultiValueProjection {
 
     /**
-     * Returns a set with the names of the datatype specific properties that
-     * are available on the rows belonging to this datatype.
+     * Returns a set with the keys/properties that are available in the object returned by
+     * queries using this projection.
      */
-    public Collection<String> getRowProperties()
+    public Collection<String> getDataProperties()
+
 
 }

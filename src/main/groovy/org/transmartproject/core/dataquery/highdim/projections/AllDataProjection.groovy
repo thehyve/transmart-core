@@ -7,9 +7,9 @@ package org.transmartproject.core.dataquery.highdim.projections
 public interface AllDataProjection extends Projection<Map<String, Object>>, MultiValueProjection {
 
     /**
-     * Returns a set with the keys that are available in the map returned by
-     * queries using this projection.
+     * Returns a set with the names of the datatype specific properties that
+     * are available on the rows belonging to this datatype.
      */
-    public Collection<String> getDataProperties()
+    public Collection<String> getRowProperties()
 
 }
