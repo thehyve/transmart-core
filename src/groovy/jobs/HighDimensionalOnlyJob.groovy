@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
+abstract class HighDimensionalOnlyJob extends AbstractLocalRAnalysisJob {
 
     @Autowired
     HighDimensionResource highDimensionResource

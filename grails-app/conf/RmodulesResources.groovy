@@ -47,4 +47,7 @@ modules = {
     waterfall {
         resource url:"/js/plugin/Waterfall.js"
     }
+    histogram {
+        resource url:"/js/plugin/Histogram.js"
+    }
 }

@@ -96,7 +96,9 @@ class AnalysisQuartzJobAdapter implements Job {
         }
 
         job.topTemporaryDirectory = new File(Holders.config.RModules.tempFolderDirectory)
-        job.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)
+        if(job instanceof AbstractLocalRAnalysisJob) {
+            job.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)
+        }
 
         job.studyName = i2b2ExportHelperService.
                 findStudyAccessions jobDataMap.result_instance_id1

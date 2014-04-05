@@ -29,8 +29,6 @@ abstract class AbstractAnalysisJob {
 
     File topTemporaryDirectory
 
-    File scriptsDirectory
-
     /* TODO: Used to build temporary working directory for R processing phase.
              This is called subset1_<study name>. What about subset 2? Is this
              really needed or an arbitrary directory is enough? Is it required
@@ -61,8 +59,6 @@ abstract class AbstractAnalysisJob {
     }
 
     abstract protected List<Step> prepareSteps()
-
-    abstract protected List<String> getRStatements()
 
     private void validateName() {
         if (!(name ==~ /^[0-9A-Za-z-]+$/)) {

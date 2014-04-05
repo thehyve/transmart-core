@@ -117,6 +117,9 @@ class RModulesController {
             case 'waterfall':
                 jsonResult = createJob(params, Waterfall, false)
                 break
+            case 'histogram':
+                jsonResult = createJob(params, Histogram, false)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
