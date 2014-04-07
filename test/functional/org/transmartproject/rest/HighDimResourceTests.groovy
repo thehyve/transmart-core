@@ -1,10 +1,12 @@
 package org.transmartproject.rest
 
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
 import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.containsInAnyOrder
+import static org.thehyve.commons.test.FastMatchers.mapWith
 
 class HighDimResourceTests extends ResourceTestCase {
 
@@ -14,10 +16,62 @@ class HighDimResourceTests extends ResourceTestCase {
     def expectedAcghAssays = [-3001, -3002]*.toLong()
     def expectedAcghRowLabels = ["cytoband1", "cytoband2"]
 
+    def mrnaSupportedProjections = ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
+
     Map<String,String> indexUrlMap = [
-            mrna: "/studies/STUDY1/concepts/bar/highdim",
-            acgh: "/studies/STUDY2/concepts/study1/highdim",
+            mrna: "/studies/study1/concepts/bar/highdim",
+            acgh: "/studies/study2/concepts/study1/highdim",
     ]
+
+    void testSummaryAsJson() {
+        def result = getAsJson indexUrlMap['mrna']
+        assertStatus 200
+
+        Map summary = [
+                dataTypes: [getExpectedMrnaSummary()]
+        ]
+
+        assertThat result, mapWith(summary)
+    }
+
+    void testSummaryAsHal() {
+        String url = indexUrlMap['mrna']
+        Map result = getAsHal url
+        assertStatus 200
+
+        Map summary = getExpectedMrnaSummary()
+        summary['_links'] = getExpectedMrnaHalLinks()
+
+        Map expected = [
+                '_links': [
+                        self: [href: url]
+                ],
+                '_embedded': [
+                        dataTypes: [summary]
+                ]
+        ]
+
+        assertThat result, mapWith(expected)
+    }
+
+    private Map getExpectedMrnaSummary() {
+        [
+                assayCount: 2,
+                name: 'mrna',
+                supportedProjections: mrnaSupportedProjections,
+        ]
+    }
+
+    Map getExpectedMrnaHalLinks() {
+        String selfDataLink = getHighDimUrl('mrna')
+        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it):("${selfDataLink}&projection=${it}")] }
+        expectedLinks.put('self', selfDataLink)
+
+        expectedLinks.collectEntries {
+            String tempUrl = "${it.value}"
+            [(it.key): ([href: tempUrl])]
+        }
+    }
 
     void testMrna() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
@@ -37,7 +91,7 @@ class HighDimResourceTests extends ResourceTestCase {
 
     void testAcgh() {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
-        List<String> expectedDataColumns = []
+        List<String> expectedDataColumns = new AcghValuesProjection().dataProperties
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, expectedDataColumns)
     }
 
