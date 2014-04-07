@@ -3,9 +3,12 @@ package org.transmartproject.db.dataquery.highdim.acgh
 import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.acgh.CopyNumberState
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
-class AcghValuesProjection implements CriteriaProjection<AcghValues> {
+class AcghValuesProjection implements CriteriaProjection<AcghValues>, MultiValueProjection {
+
+    Collection<String> dataProperties = AcghValues.metaClass.properties*.name - 'class'
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
