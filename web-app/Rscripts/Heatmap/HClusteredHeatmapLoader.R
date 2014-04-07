@@ -201,6 +201,8 @@ plotHeatmap <- function(data, colcolors, cluster.by.rows, cluster.by.columns, co
               cexRow = hmPars$labelPointSize,
               cexCol = hmPars$labelPointSize,
               dendrogram = dendrogramOptions,
+              Rowv = cluster.by.rows,
+              Colv = cluster.by.columns,
               scale = "none",
               key = TRUE,
               keysize = 0.001,
