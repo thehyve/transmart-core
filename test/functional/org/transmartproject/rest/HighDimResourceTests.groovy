@@ -1,11 +1,12 @@
 package org.transmartproject.rest
 
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
 import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.transmartproject.rest.FastMatchers.mapWith
+import static org.thehyve.commons.test.FastMatchers.mapWith
 
 class HighDimResourceTests extends ResourceTestCase {
 
@@ -90,7 +91,7 @@ class HighDimResourceTests extends ResourceTestCase {
 
     void testAcgh() {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
-        List<String> expectedDataColumns = []
+        List<String> expectedDataColumns = new AcghValuesProjection().dataProperties
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, expectedDataColumns)
     }
 

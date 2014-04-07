@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
-import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.rest.protobuf.HighDimProtos.Assay
 import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader
@@ -53,11 +53,14 @@ class HighDimBuilder {
     @Lazy private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? null : this.&getBioMarkerLabel
 
     @Lazy private List<String> dataColumns = {
-        if (projection instanceof AllDataProjection) {
-            AllDataProjection adp = projection as AllDataProjection
-            adp.dataProperties.toList()
+
+        if (rowType == RowType.DOUBLE) {
+            return [] //not needed for double rows
+        } else if (projection instanceof MultiValueProjection) {
+            MultiValueProjection mvp = projection as MultiValueProjection
+            return mvp.dataProperties.toList()
         } else {
-            []
+            throw new IllegalArgumentException("Not supported for $projection")
         }
     }()
 
@@ -119,14 +122,14 @@ class HighDimBuilder {
         rowBuilder.build()
     }
 
-    private MapValue valueAsMapValue(Map<String, String> map) {
+    private MapValue valueAsMapValue(Object obj) {
 
         mapValueBuilder.clear()
         List<String> values = []
 
-        if (map != null) {
+        if (obj != null) {
             for (String col: dataColumns) {
-                Object value = map[col]
+                Object value = obj.getAt(col)
                 String str = (value != null) ? String.valueOf(value) : "" // as String doesn't work here
                 values << str
             }
@@ -154,7 +157,7 @@ class HighDimBuilder {
     }
 
     private void fillMapRow(Object value) {
-        rowBuilder.addMapValue(valueAsMapValue(value as Map))
+        rowBuilder.addMapValue(valueAsMapValue(value))
     }
 
     private String getBioMarkerLabel(BioMarkerDataRow<?> inputRow) {

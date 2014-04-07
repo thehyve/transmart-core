@@ -2,16 +2,28 @@ package org.transmartproject.rest
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.IntegrationTestMixin
+import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.InMemoryTabularResult
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
-import org.transmartproject.db.dataquery.highdim.mrna.DeMrnaAnnotationCoreDb
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.rest.HighDimTestData.HighDimResult
 import org.transmartproject.rest.protobuf.HighDimProtos
+import org.transmartproject.rest.protobuf.HighDimProtos.MapValue
+import org.transmartproject.rest.protobuf.HighDimProtos.Row
+
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.is
+import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
+import static org.thehyve.commons.test.FastMatchers.propsWith
 
 @TestMixin(IntegrationTestMixin)
 class HighDimDataServiceTests {
@@ -20,10 +32,24 @@ class HighDimDataServiceTests {
     HighDimDataService svc
 
     HighDimTestData testData
-    private I2b2 concept
+    I2b2 concept
+
+    TabularResult<AssayColumn, DataRow> collectedTable
+    List<DataRow> expectedRows
+    boolean checkBioMarker
+    boolean isDoubleType
 
     @Before
     void setUp() {
+        svc.resultTransformer = { TabularResult source ->
+            collectedTable = new InMemoryTabularResult(source) //collecting the result
+            expectedRows = collectedTable.rows.collect()
+            DataRow firstRow = expectedRows[0]
+            checkBioMarker = firstRow instanceof BioMarkerDataRow
+            isDoubleType = (firstRow.getAt(0) instanceof Number)
+            collectedTable
+        }
+
         testData = new HighDimTestData()
         concept = testData.conceptData.addLeafConcept()
     }
@@ -38,13 +64,14 @@ class HighDimDataServiceTests {
         testData.acghData = new AcghTestData(concept.code)
         testData.saveAll()
     }
+
     @Test
     void testMrnaDefaultRealProjection() {
         setUpMrna()
         String projection = Projection.DEFAULT_REAL_PROJECTION
         HighDimResult result = getProtoBufResult('mrna', projection)
 
-        testData.assertMrnaRows(result, projection)
+        assertResults(result, 'mrna', projection)
     }
 
     @Test
@@ -53,7 +80,7 @@ class HighDimDataServiceTests {
         String projection = Projection.ALL_DATA_PROJECTION
         HighDimResult result = getProtoBufResult('mrna', projection)
 
-        testData.assertMrnaRows(result, projection)
+        assertResults(result, 'mrna', projection)
     }
 
     @Test
@@ -62,7 +89,68 @@ class HighDimDataServiceTests {
         String projection = 'acgh_values'
         HighDimResult result = getProtoBufResult('acgh', projection)
 
-        testData.assertAcghRows(result, projection)
+        assertResults(result, 'acgh', projection)
+    }
+
+    private assertResults(HighDimResult input, String dataType, String projection) {
+
+        List expectedAssays = collectedTable.indicesList.collect { assayColumnMatcher(it) }
+        assertThat input.header.assayList, listOfWithOrder(expectedAssays)
+
+        List<Row> actualRows = input.rows
+        assertThat actualRows.size(), is (expectedRows.size())
+
+        List<String> mapColumns = input.header.mapColumnList
+
+        actualRows.eachWithIndex { Row actualRow, int i ->
+            DataRow dataRow = expectedRows[i]
+            assertRow(dataRow, actualRow, mapColumns)
+        }
+    }
+
+    private void assertRow(DataRow dataRow, Row actualRow, List<String> mapColumns) {
+        Map map = [
+                label: dataRow.label,
+        ]
+
+        if (checkBioMarker) {
+            map['bioMarker'] = dataRow.bioMarker
+        }
+
+        if (isDoubleType) {
+            map['doubleValueList'] = dataRow.iterator().collect()
+        }
+
+        assertThat actualRow, propsWith(map)
+
+        if (!isDoubleType) {
+            assertMapRow(dataRow, actualRow, mapColumns)
+        }
+    }
+
+    private void assertMapRow(DataRow dataRow, Row actualRow, List<String> mapColumns) {
+        //map values are asserted per cell
+        List<Map> rowValues = dataRow.iterator().collect()
+
+        actualRow.mapValueList.eachWithIndex { MapValue entry, int j ->
+            List expectedValues = mapColumns.collect { rowValues[j].getAt(it).toString() }
+            assertThat entry.valueList, listOfWithOrder(expectedValues)
+        }
+
+    }
+
+    Matcher assayColumnMatcher(AssayColumn col) {
+        Map props = [
+                assayId: col.id,
+                patientId: col.patientInTrialId,
+                sampleTypeName: col.sampleType.label,
+                timepointName: col.timepoint.label,
+                tissueTypeName: col.tissueType.label,
+                platform: col.platform.id,
+                sampleCode: col.sampleCode
+        ]
+
+        propsWith(props)
     }
 
     HighDimResult getProtoBufResult(String dataType, String projection) {
@@ -87,21 +175,6 @@ class HighDimDataServiceTests {
 
         result
     }
-
-    private void debugResults(HighDimResult result) {
-        println "-- header ${result.header.rowsType}|${result.header.assayCount}|${result.header.mapColumnList}"
-
-        result.rows.each {
-            println "-- row ${it.label}|${it.bioMarker}|${it.doubleValueList}|${it.mapValueList}"
-        }
-
-        testData.mrnaData.annotations.each {
-            DeMrnaAnnotationCoreDb probe = it
-            def allValues = testData.mrnaData.microarrayData.findAll { it.probe == probe } collect { it.rawIntensity }
-            println "-- val ${it.probeId}|${it.geneSymbol}|${allValues}"
-        }
-    }
-
     private void writeToSampleFile(String dataType, String projection, byte[] contents) {
         new File("target/sample-${dataType}-${projection}.protobuf").withOutputStream { OutputStream os ->
             os.write(contents)

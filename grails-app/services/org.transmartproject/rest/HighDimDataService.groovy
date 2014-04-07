@@ -11,6 +11,7 @@ import org.transmartproject.rest.protobuf.HighDimBuilder
 class HighDimDataService {
 
     HighDimensionResource highDimensionResourceService
+    Closure<TabularResult> resultTransformer //optional closure to transform/inspect the high dim data results
 
     /**
      * Retrieves the highdim data for the given conceptKey/dataType/projectionName
@@ -31,10 +32,14 @@ class HighDimDataService {
 
         Projection projection = typeResource.createProjection(proj)
 
-        AssayConstraint assayConstraint = 
+        AssayConstraint assayConstraint =
                 typeResource.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
 
         TabularResult tabularResult =  typeResource.retrieveData([assayConstraint], [], projection)
+
+        if (resultTransformer) {
+            tabularResult = resultTransformer(tabularResult)
+        }
 
         try {
             HighDimBuilder.write(projection, tabularResult, out)
@@ -43,7 +48,7 @@ class HighDimDataService {
         }
     }
 
-    Map<HighDimensionDataTypeResource, Collection<Assay>> getAvailableHighDimResources(String conceptKey) {
+    Map<HighDimensionDataTypeResource, Collection<Assay>>  getAvailableHighDimResources(String conceptKey) {
 
         AssayConstraint assayConstraint = highDimensionResourceService.createAssayConstraint(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
