@@ -138,27 +138,27 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     par(mar = c(0, 0, 0, 0))
 
     pxPerCell <- 15
-    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
-    if (nrow(data) < 30 && ncol(data) < 30) {
+    hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
+    if (nrow(data) < 30 || ncol(data) < 30) {
         pxPerCell <- 40
-        hmPars <- list(pointSize = pxPerCell / 4, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
     }
 
     maxResolution <- 30000
     if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/nrow(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     } else if (ncol(data)*pxPerCell > maxResolution) {
         pxPerCell <- maxResolution/ncol(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 8)
+        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     }
     mainHeight <- nrow(data) * pxPerCell
     mainWidth <- ncol(data) * pxPerCell
 
     leftMarginSize <- pxPerCell * 1
-    rightMarginSize <- pxPerCell * max(nchar(rownames(data)))
-    topMarginSize <- pxPerCell * 1
-    bottomMarginSize <- pxPerCell * max(nchar(colnames(data)))
+    rightMarginSize <- pxPerCell * max(10, max(nchar(rownames(data))))
+    topMarginSize <- pxPerCell * 3
+    bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
     topSpectrumHeight <- rightMarginSize
 
     imageWidth <- leftMarginSize + mainWidth + rightMarginSize

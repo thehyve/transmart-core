@@ -11,8 +11,9 @@ LineGraph.loader <- function(
 	library(plyr)
 	library(ggplot2)
 	library(Cairo)
+	require(RColorBrewer)
 	
-	line.data<-read.delim(input.filename,header=T)
+	line.data<-read.delim(input.filename, header=T, stringsAsFactors = FALSE)
 	if (graphType=="IND") {
 	 plot.individuals = TRUE
 	} else {
@@ -21,7 +22,7 @@ LineGraph.loader <- function(
 
   #Read the scaling data (location of each group (concept path) on X-axis)
   if (!is.null(scaling.filename)) {
-    scaling.data <- read.delim(scaling.filename,header=T)
+    scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
   }
@@ -128,14 +129,19 @@ LineGraph.plotter <- function(
 	}
   p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
-	p <- p + geom_line(size=1.5) + scale_colour_brewer("GROUP", palette="Set1")
+	p <- p + geom_line(size=1.5)
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
-  p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
+    p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
   
 	#This sets the color theme of the background/grid.
 	p <- p + theme_bw();
+	noPoints <- nrow(dataOutput)
+	noColors <- 9
+    shapesToUse <- c(15:19, 1:5)
+	p <- p + aes(shape = GROUP) + scale_shape_manual(values = rep_len(shapesToUse, length.out = noPoints))
+	p <- p + aes(colour = GROUP) + scale_colour_manual(values = rep_len(brewer.pal(noColors, "Set1"), length.out = noPoints))
 	
 	#Set the text options for the axis.
 	p <- p + theme(axis.text.x = theme_text(size = 17,face="bold",angle=5));

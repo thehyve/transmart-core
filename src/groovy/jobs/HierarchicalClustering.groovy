@@ -23,10 +23,9 @@ class HierarchicalClustering extends HighDimensionalOnlyJob {
 
         String createHeatmap = '''HClusteredHeatmap.loader(
                             input.filename = '$inputFileName',
-                            imageWidth     = as.integer('$txtImageWidth'),
-                            imageHeight    = as.integer('$txtImageHeight'),
-                            pointsize      = as.integer('$txtImagePointsize'),
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
+                            cluster.by.rows = '$doClusterRows' == 'true',
+                            cluster.by.columns = '$doClusterColumns' == 'true',
                             ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
                             )'''
 

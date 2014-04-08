@@ -33,15 +33,6 @@
             <label for="txtMaxDrawNumber">Max rows to display:</label>
             <input type="text" id="txtMaxDrawNumber"/>
 
-            <label for="txtImageWidth">Image Width (pixels):</label>
-            <input type="text" id="txtImageWidth" value="800"/>
-
-            <label>Image Height (pixels):</label>
-            <input type="text" id="txtImageHeight" value="800"/>
-
-            <label>Text Size (pointsize):</label>
-            <input type="text" id="txtImagePointsize" value="12"/>
-
         </fieldset>
 
         <fieldset class="toolFields">
