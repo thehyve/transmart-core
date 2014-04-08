@@ -81,7 +81,7 @@ class MarkerSelectionController {
 							<th>S2 Mean</th>
 							<th>S1 SD</th>
 							<th>S2 SD</th>
-							<th>Fold Change</th>
+							<th>Fold Change (relative to S1)</th>
 						</tr>
 						</thead>
 						"""
