@@ -201,12 +201,10 @@ aggregate.probes = FALSE
 	#---------------------		
 
 	#FOLD CHANGE
-
-    if (geneStatsData$S1.Mean >= geneStatsData$S2.Mean) {
-        geneStatsData$FoldChange.relative.to.S1 <- -1*(geneStatsData$S1.Mean - geneStatsData$S2.Mean)
-    } else {
-        geneStatsData$FoldChange.relative.to.S1 <- geneStatsData$S2.Mean - geneStatsData$S1.Mean
-    }
+    print("Calculating estimation of fold change relative to S1, using base2 exponentiation as zscore are calculated from log2 values");
+    geneStatsData$FoldChange.relative.to.S1 <- ifelse ((geneStatsData$S1.Mean >= geneStatsData$S2.Mean),
+        -1*2^(geneStatsData$S1.Mean - geneStatsData$S2.Mean),
+        2^(geneStatsData$S2.Mean - geneStatsData$S1.Mean))
 
 	#HEATMAP
 
