@@ -26,8 +26,7 @@ def forkSettingsOther = [
         maxPerm:   384,
         debug:     false,
 ]
-/* We can't enable forked run-app now because of a bug in Grails:
- * http://stackoverflow.com/questions/19371859 */
+
 grails.project.fork = [
         test:    [ *:forkSettingsOther, daemon: true ],
         run:     forkSettingsRun,
