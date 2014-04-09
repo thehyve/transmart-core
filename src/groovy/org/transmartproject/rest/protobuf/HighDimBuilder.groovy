@@ -142,11 +142,21 @@ class HighDimBuilder {
         builder.clear()
         builder.assayId = col.id
         builder.patientId = safeString(col.patientInTrialId)
-        builder.platform = safeString(col.platform?.id)
-        builder.sampleCode = safeString(col.sampleCode)
-        builder.sampleTypeName = safeString(col.sampleType?.label)
-        builder.timepointName = safeString(col.timepoint?.label)
-        builder.tissueTypeName = safeString(col.tissueType?.label)
+        if (col.platform?.id) {
+            builder.platform = col.platform?.id
+        }
+        if (col.sampleCode) {
+            builder.sampleCode = col.sampleCode
+        }
+        if (col.sampleType?.label) {
+            builder.sampleTypeName = col.sampleType?.label
+        }
+        if (col.timepoint?.label) {
+            builder.timepointName = col.timepoint?.label
+        }
+        if (col.tissueType?.label) {
+            builder.tissueTypeName = col.tissueType?.label
+        }
         builder.build()
     }
 
