@@ -95,7 +95,7 @@ class RModulesOutputRenderService {
      * @return URL path from which images will be served
      */
     private String getImageURL() {
-        '/analysisFiles/'
+        'analysisFiles/'
     }
     //</editor-fold>
 

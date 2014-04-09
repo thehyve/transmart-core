@@ -61,6 +61,8 @@ max.pcs.to.show = 10
     rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
     mRNAData$PROBE.ID[rowsToConcatenate] <- paste(mRNAData$PROBE.ID[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
     mRNAData$PROBE.ID <- as.factor(mRNAData$PROBE.ID)
+	 groupValues <- levels(mRNAData$PROBE.ID)
+	 mRNAData$PROBE.ID <- paste("X",as.numeric(mRNAData$PROBE.ID),sep="")
 
     #Grab only the columns we need for doing the melt/cast.
     mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID')]
@@ -133,6 +135,7 @@ max.pcs.to.show = 10
 
         #Pull only the records we are interested in.
         currentData <- currentData[1:GENELISTLENGTH,]
+        currentData$GENE_SYMBOL <- groupValues[as.numeric(sub("^X","",currentData$GENE_SYMBOL))]
 
         #Write the list to a file.
         write.table(currentData,currentFile,quote=F,sep="\t",row.names=F,col.names=F)
@@ -169,6 +172,7 @@ max.pcs.to.show = 10
 			corcir=circle(c(0,0), npoints=100)	
 			correlations=as.data.frame(cor(mRNAData, pca.results$x))
 			arrows=data.frame(genes=rownames(correlations), x1=rep(0, length(pca.results$center)), y1=rep(0,length(pca.results$center)), x2=correlations[,paste("PC", i, sep="")], y2=correlations[,paste("PC", j, sep="")])
+			arrows$genes <- groupValues[as.numeric(sub("^X","",arrows$genes))]
 
 			tmp <- ggplot()
 			tmp <- tmp + geom_path(data=corcir, aes(x=x, y=y), colour="gray65")
