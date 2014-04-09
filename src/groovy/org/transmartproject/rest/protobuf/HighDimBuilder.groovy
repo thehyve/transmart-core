@@ -112,7 +112,7 @@ class HighDimBuilder {
         rowBuilder.clear()
         rowBuilder.setLabel(inputRow.label)
         if (bioMarkerClosure) {
-            rowBuilder.setBioMarker(bioMarkerClosure(inputRow))
+            rowBuilder.setBioMarker(safeString(bioMarkerClosure(inputRow)))
         }
 
         for (AssayColumn col: assayColumns) {
@@ -130,8 +130,7 @@ class HighDimBuilder {
         if (obj != null) {
             for (String col: dataColumns) {
                 Object value = obj.getAt(col)
-                String str = (value != null) ? String.valueOf(value) : "" // as String doesn't work here
-                values << str
+                values << safeString(value)
             }
         }
 
@@ -142,12 +141,12 @@ class HighDimBuilder {
     private Assay createAssay(Assay.Builder builder, AssayColumn col) {
         builder.clear()
         builder.assayId = col.id
-        builder.patientId = col.patientInTrialId
-        builder.platform = col.platform.id
-        builder.sampleCode = col.sampleCode
-        builder.sampleTypeName = col.sampleType.label
-        builder.timepointName = col.timepoint.label
-        builder.tissueTypeName = col.tissueType.label
+        builder.patientId = safeString(col.patientInTrialId)
+        builder.platform = safeString(col.platform?.id)
+        builder.sampleCode = safeString(col.sampleCode)
+        builder.sampleTypeName = safeString(col.sampleType?.label)
+        builder.timepointName = safeString(col.timepoint?.label)
+        builder.tissueTypeName = safeString(col.tissueType?.label)
         builder.build()
     }
 
@@ -162,6 +161,10 @@ class HighDimBuilder {
 
     private String getBioMarkerLabel(BioMarkerDataRow<?> inputRow) {
         inputRow.bioMarker
+    }
+
+    private static String safeString(Object obj) {
+        (obj == null) ? '' : obj.toString()
     }
 
 }
