@@ -3,16 +3,10 @@
 
 $insertionPoints = [
     'I001' => /* post-WAR-variables */ <<<EOD
+oauthEnabled = false
 EOD
 ,
     'I002' => /* end */ <<<'EOD'
-grails { plugins { springsecurity {
-    userLookup.userDomainClassName = 'auth.AuthUser'
-    userLookup.authorityJoinClassName = 'auth.AuthUser'
-    authority.className = 'auth.Role'
-    requestMap.className = 'auth.Requestmap'
-} } }
-
 com.rwg.solr.path   = '/solr/sanofi/select/'
 com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
                              "${new File(com.rwg.solr.path).parent}"

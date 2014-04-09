@@ -22,6 +22,8 @@ def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // (usually transmart/images/tempImages)
 def jobsDirectory     = "/var/tmp/jobs/"
 
+def oauthEnabled = true
+
 // I001 – Insertion point 'post-WAR-variables'
 
 /* Other things you may want to change:
@@ -237,6 +239,10 @@ grails { plugin { springsecurity {
         requestMap.className = 'org.transmart.searchapp.Requestmap'
     } else {
         securityConfigType = 'InterceptUrlMap'
+        def oauthEndpoints = [
+            '/oauth/authorize.dispatch'   : ['IS_AUTHENTICATED_REMEMBERED'],
+            '/oauth/token.dispatch'       : ['IS_AUTHENTICATED_REMEMBERED'],
+        ]
         interceptUrlMap = [
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
@@ -256,8 +262,7 @@ grails { plugin { springsecurity {
             '/secureObjectPath/**'        : ['ROLE_ADMIN'],
             '/userGroup/**'               : ['ROLE_ADMIN'],
             '/secureObjectAccess/**'      : ['ROLE_ADMIN'],
-            '/oauth/authorize.dispatch'   : ['IS_AUTHENTICATED_REMEMBERED'],
-            '/oauth/token.dispatch'       : ['IS_AUTHENTICATED_REMEMBERED'],
+            *                             : (oauthEnabled ?  oauthEndpoints : [:]),
             '/**'                         : ['IS_AUTHENTICATED_REMEMBERED'], // must be last
         ]
         rejectIfNoRule = true
@@ -280,14 +285,18 @@ grails { plugin { springsecurity {
         'daoAuthenticationProvider',
         'anonymousAuthenticationProvider',
         'rememberMeAuthenticationProvider',
-        'clientCredentialsAuthenticationProvider' //oauth
     ]
 
-    oauthProvider {
-        clients = [
-                [clientId: 'api-client', clientSecret: 'api-client']
-        ]
+    if (oauthEnabled) {
+        providerNames << 'clientCredentialsAuthenticationProvider'
+
+        oauthProvider {
+            clients = [
+                    [clientId: 'api-client', clientSecret: 'api-client']
+            ]
+        }
     }
+
 } } }
 
 /* }}} */
