@@ -24,7 +24,7 @@ class AcghFrequencyPlotController {
      * This function will return the image path
      */
     def imagePath = {
-        def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/frequency-plot.png"
+        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/frequency-plot.png"
         render imagePath
     }
 
