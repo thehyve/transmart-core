@@ -142,20 +142,19 @@ class HighDimBuilder {
         builder.clear()
         builder.assayId = col.id
         builder.patientId = safeString(col.patientInTrialId)
-        if (col.platform?.id) {
-            builder.platform = col.platform?.id
-        }
-        if (col.sampleCode) {
-            builder.sampleCode = col.sampleCode
-        }
-        if (col.sampleType?.label) {
-            builder.sampleTypeName = col.sampleType?.label
-        }
-        if (col.timepoint?.label) {
-            builder.timepointName = col.timepoint?.label
-        }
-        if (col.tissueType?.label) {
-            builder.tissueTypeName = col.tissueType?.label
+
+        Map optionalValues = [
+                platform: col.platform?.id,
+                sampleCode: col.sampleCode,
+                sampleTypeName: col.sampleType?.label,
+                timepointName: col.timepoint?.label,
+                tissueTypeName: col.tissueType?.label,
+        ]
+        
+        optionalValues.each { field, value ->
+            if(value != null) {
+                builder."$field" = value
+            }
         }
         builder.build()
     }
