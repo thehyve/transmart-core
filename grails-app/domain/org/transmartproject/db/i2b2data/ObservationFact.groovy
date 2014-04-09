@@ -26,6 +26,8 @@ class ObservationFact implements Serializable {
     String     modifierCd
     Long       instanceNum
 
+    ConceptVisit conceptVisit
+
     // unsed for now
     //BigDecimal quantityNum
     //String     unitsCd
@@ -53,6 +55,8 @@ class ObservationFact implements Serializable {
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'
         valueFlag    column: 'valueflag_cd'
+
+        conceptVisit	column: 'CONCEPT_CD', type: 'string', insertable: false, updateable: false
 
         version false
     }
