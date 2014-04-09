@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 /**
  * Created by carlos on 1/20/14.
  */
@@ -106,14 +108,16 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }
@@ -123,10 +127,10 @@ class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
         [
             '''source('$pluginDirectory/Survival/CoxRegressionLoader.r')''',
             '''CoxRegression.loader(
-                input.filename      = 'outputfile')''',
+                input.filename      = '$inputFileName')''',
             '''source('$pluginDirectory/Survival/SurvivalCurveLoader.r')''',
             '''SurvivalCurve.loader(
-                input.filename      = 'outputfile',
+                input.filename      = '$inputFileName',
                 concept.time        = '$timeVariable')''',
         ]
     }

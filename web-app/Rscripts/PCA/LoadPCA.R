@@ -32,9 +32,10 @@ max.pcs.to.show = 10
 
     library(reshape2)
     library(Cairo)
+	library(ggplot2)
 
     #Prepare the package to capture the image file.
-    CairoPNG(file=paste("PCA.png",sep=""),width=800,height=800)
+    CairoPNG(file=paste("PCA.png",sep=""),width=400,height=400)
 
     #Pull the GEX data from the file.
     mRNAData <- data.frame(read.delim(input.filename))
@@ -52,6 +53,7 @@ max.pcs.to.show = 10
     mRNAData$PROBE.ID       <- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
     mRNAData$GENE_SYMBOL    <- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
     mRNAData$PATIENT.ID     <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
+	mRNAData$SUBSET   	    <- gsub("^\\s+|\\s+$", "",mRNAData$SUBSET)
 
     # The PROBE.ID column needs to have the values from GENE_SYMBOL concatenated as a suffix,
     # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
@@ -59,6 +61,8 @@ max.pcs.to.show = 10
     rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
     mRNAData$PROBE.ID[rowsToConcatenate] <- paste(mRNAData$PROBE.ID[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
     mRNAData$PROBE.ID <- as.factor(mRNAData$PROBE.ID)
+	 groupValues <- levels(mRNAData$PROBE.ID)
+	 mRNAData$PROBE.ID <- paste("X",as.numeric(mRNAData$PROBE.ID),sep="")
 
     #Grab only the columns we need for doing the melt/cast.
     mRNAData <- mRNAData[c('PATIENT.ID','VALUE','PROBE.ID')]
@@ -131,6 +135,7 @@ max.pcs.to.show = 10
 
         #Pull only the records we are interested in.
         currentData <- currentData[1:GENELISTLENGTH,]
+        currentData$GENE_SYMBOL <- groupValues[as.numeric(sub("^X","",currentData$GENE_SYMBOL))]
 
         #Write the list to a file.
         write.table(currentData,currentFile,quote=F,sep="\t",row.names=F,col.names=F)
@@ -139,11 +144,50 @@ max.pcs.to.show = 10
     sapply(1:max.pcs.to.show, f, GENELISTLENGTH)
 
     #Finally create the Scree plot.
-
     plot(pca.results,type="lines", main="Scree Plot", npcs = max.pcs.to.show)
     title(xlab = "Component")
 
     dev.off()
+	
+	#Creates the plot of observations
+	scores <- as.data.frame(pca.results$x)
+	scores[,"subset"] <- sub("S2", "Subset 2", sub("S1", "Subset 1", substr(rownames(scores),0,2)))
+	for (i in 1:2){
+    	for(j in (i+1):3){     
+			tmp <- ggplot(data=scores, aes_string(x=paste("PC", i, sep=""), y=paste("PC", j, sep="")))
+			tmp <- tmp +geom_hline(yintercept=0, colour="gray65")
+			tmp <- tmp +geom_vline(xintercept=0, colour="gray65")
+			tmp <- tmp + geom_point(aes(colour=subset), size=3)
+			tmp <- tmp + opts(title="Plot of observations")
+			tmp <- tmp+ scale_color_manual("Subsets", breaks = c("Subset 1", "Subset 2"), values=c("orange", "yellow"))
+			CairoPNG(file=paste("PCA_observations_", i, "_", j, ".png",sep=""),width=600,height=600)
+			print (tmp)
+			dev.off()
+		}
+	}
+	
+	#Creates the circle of correlations
+	for (i in 1:2){
+    	for(j in (i+1):3){
+			corcir=circle(c(0,0), npoints=100)	
+			correlations=as.data.frame(cor(mRNAData, pca.results$x))
+			arrows=data.frame(genes=rownames(correlations), x1=rep(0, length(pca.results$center)), y1=rep(0,length(pca.results$center)), x2=correlations[,paste("PC", i, sep="")], y2=correlations[,paste("PC", j, sep="")])
+			arrows$genes <- groupValues[as.numeric(sub("^X","",arrows$genes))]
+
+			tmp <- ggplot()
+			tmp <- tmp + geom_path(data=corcir, aes(x=x, y=y), colour="gray65")
+			tmp <- tmp + geom_segment(data=arrows, aes(x=x1, y=y1, xend=x2, yend=y2), colour="gray65")
+			tmp <- tmp + geom_text(data=arrows, aes(x=x2, y=y2, label=genes), size = 4, vjust=1)
+			tmp <- tmp + geom_hline(yintercept=0, colour="gray65")
+			tmp <- tmp + geom_vline(xintercept=0, colour="gray65")
+			tmp <- tmp + xlim(-1.1,1.1) + ylim(-1.1,1.1)
+			tmp <- tmp + labs(x=paste("PC", i, " axis", sep=""), y=paste("PC", j, " axis", sep=""))
+			tmp <- tmp +opts(title="Circle of correlations")
+			CairoPNG(file=paste("PCA_circle_correlations_", i, "_", j, ".png",sep=""),width=600,height=600)
+			print (tmp)
+			dev.off()
+		}
+	}
 }
 
 Plot.error.message <- function(errorMessage) {
@@ -158,11 +202,8 @@ Plot.error.message <- function(errorMessage) {
     dev.off()
 }
 
-PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing) {
+PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.file = "aggregated_data.txt") {
     library(WGCNA)
-
-    # Keeps relevant columns. Throws out SUBSET column, since this is not being used by PCA anyway.
-    mRNAData <- mRNAData[,c("PATIENT.ID","VALUE","PROBE.ID","GENE_SYMBOL")]
 
     #Cast the data into a format that puts the PATIENT_NUM in a column
     castedData <- data.frame(dcast(mRNAData, PROBE.ID + GENE_SYMBOL ~ PATIENT.ID, value.var = "VALUE"))
@@ -209,5 +250,15 @@ PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.sele
 
     #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
     finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+
+    write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
+
     finalData
+}
+circle <- function(center=c(0,0), npoints=100){
+	r=1
+	tt=seq(0, 2*pi, length=npoints)
+	xx=center[1]+r*cos(tt)
+	yy=center[2]+r*sin(tt)
+	return (data.frame(x=xx, y=yy))
 }

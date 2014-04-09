@@ -24,10 +24,7 @@ class KMeansClustering extends HighDimensionalOnlyJob {
 
         // TODO What about clusters.number = 2, probes.aggregate = false?
         String createHeatmap = '''KMeansHeatmap.loader(
-                            input.filename   = 'outputfile',
-                            imageWidth       = as.integer('$txtImageWidth'),
-                            imageHeight      = as.integer('$txtImageHeight'),
-                            pointsize        = as.integer('$txtImagePointsize'),
+                            input.filename   = '$inputFileName',
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                             clusters.number  = as.integer('$txtClusters'),
                             ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}

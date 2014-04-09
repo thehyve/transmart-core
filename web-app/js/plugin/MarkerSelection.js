@@ -20,11 +20,30 @@ MarkerSelectionView.prototype.constructor = MarkerSelectionView;
 
 // submit analysis job
 MarkerSelectionView.prototype.submit_job = function () {
-    // get formParams
-    var formParams = this.get_form_params();
+    var job = this;
 
-    if (formParams) { // if formParams is not null
-        submitJob(formParams);
+    var actualSubmit = function() {
+        // get formParams
+        var formParams = job.get_form_params();
+
+        if (formParams) { // if formParams is not null
+            submitJob(formParams);
+        }
+    }
+
+    // Check whether we have the node details for the HD node already
+    // If not, we should fetch them first
+    if (typeof GLOBAL.HighDimDataType !== "undefined" && GLOBAL.HighDimDataType) {
+        actualSubmit();
+    } else {
+        var divId = 'divIndependentVariable';
+        runAllQueriesForSubsetId(function () {
+            highDimensionalData.fetchNodeDetails(divId, function( result ) {
+                highDimensionalData.data = JSON.parse(result.responseText);
+                highDimensionalData.populate_data();
+                actualSubmit();
+            });
+        }, divId);
     }
 }
 
@@ -47,19 +66,13 @@ MarkerSelectionView.prototype.get_form_params = function () {
         // get values
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var numOfMarkers = inputArray[1].el.value;
-        var imageWidth = inputArray[2].el.value;
-        var imageHeight = inputArray[3].el.value;
-        var imagePointSize = inputArray[4].el.value;
-        var doGroupBySubject = inputArray[6].el.checked;
+        var doGroupBySubject = inputArray[3].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'MarkerSelection';
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['txtNumberOfMarkers'] = numOfMarkers;
-        formParameters['txtImageWidth'] = imageWidth;
-        formParameters['txtImageHeight'] = imageHeight;
-        formParameters['txtImagePointsize'] = imagePointSize;
         formParameters['doGroupBySubject'] = doGroupBySubject;
 
         // get analysis constraints
@@ -96,21 +109,6 @@ MarkerSelectionView.prototype.get_inputs = function (form_params) {
             "label" : "Number of Markers",
             "el" : document.getElementById("txtNumberOfMarkers"),
             "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1}]
-        },
-        {
-            "label" : "Image Width",
-            "el" : document.getElementById("txtImageWidth"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Height",
-            "el" : document.getElementById("txtImageHeight"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:9000}]
-        },
-        {
-            "label" : "Image Point Size",
-            "el" : document.getElementById("txtImagePointsize"),
-            "validations" : [{type:"REQUIRED"}, {type:"INTEGER", min:1, max:100}]
         },
         {
             "label" : "Subsets",

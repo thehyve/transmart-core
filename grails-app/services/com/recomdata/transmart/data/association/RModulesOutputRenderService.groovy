@@ -99,6 +99,15 @@ class RModulesOutputRenderService {
     }
     //</editor-fold>
 
+    /**
+     * The logical path from which the images will be served that is used in
+     * array CGH related analyses.
+     * @return URL path from which images will be served without backslash as prefix
+     */
+    private String getRelativeImageURL() {
+        'analysisFiles/'
+    }
+
     def initializeAttributes(jobName, jobTypeName, linksArray) {
         def zipLocation
 
@@ -127,7 +136,7 @@ class RModulesOutputRenderService {
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
             // Replace spaces with underscores, as Tomcat 6 is unable
             // to find files with spaces in their name
-            String newFileName = currentImageFile.name.replaceAll(/[^a-zA-Z1-9-_]/, "_")
+            String newFileName = currentImageFile.name.replaceAll(/[^.a-zA-Z0-9-_]/, "_")
             File oldImage = new File(currentImageFile.path),
                  newImage = new File(outputDirectory, newFileName);
             log.debug("Move or copy $oldImage to $newImage")

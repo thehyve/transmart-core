@@ -5,19 +5,24 @@ LineGraph.loader <- function(
 	output.file="LineGraph",
 	graphType="MERR",
     aggregate.probes = FALSE,
-  plot.individuals=FALSE,
   HDD.data.type = NULL
 ) {
 	library(stringr)
 	library(plyr)
 	library(ggplot2)
 	library(Cairo)
+	require(RColorBrewer)
 	
-	line.data<-read.delim(input.filename,header=T)
-	
+	line.data<-read.delim(input.filename, header=T, stringsAsFactors = FALSE)
+	if (graphType=="IND") {
+	 plot.individuals = TRUE
+	} else {
+	 plot.individuals = FALSE
+	}
+
   #Read the scaling data (location of each group (concept path) on X-axis)
   if (!is.null(scaling.filename)) {
-    scaling.data <- read.delim(scaling.filename,header=T)
+    scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
   }
@@ -28,22 +33,32 @@ LineGraph.loader <- function(
   # or, for each group-value, retrieve rows for that value and plot LineGraph
   plotGroupValues <- unique(line.data$PLOT_GROUP)
   if (is.null(plotGroupValues) || is.na(plotGroupValues)) {
-    p <- LineGraph.plotter(line.data, graphType, plot.individuals, HDD.data.type)
     imageFileName <- paste(output.file,".png",sep="")
-    CairoPNG(file=imageFileName, width=1200, height=600,units = "px")
-    print(p)
-    dev.off()
+    CairoPNG(file = imageFileName, width=1200, height=600,units = "px")
+    if (nrow(line.data) == 0) {
+      Plot.error.message("Dataset is empty. Cannot plot LineGraph.");
+    }
+    else {
+      p <- LineGraph.plotter(line.data, graphType, plot.individuals, HDD.data.type)
+      print(p)
+      dev.off()
+    }
   } else {
     fileIter <- 1
     for (plotGroup in plotGroupValues) {
-      groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
-      p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
-      p <- p + labs(title = as.character(plotGroup))
       imageFileName <- paste(output.file,fileIter,".png",sep="")
-      fileIter <- fileIter + 1
       CairoPNG(file=imageFileName, width=1200, height=600,units = "px")
-      print(p)
-      dev.off()
+      if (length(which(line.data$PLOT_GROUP==plotGroup)) == 0) {
+        Plot.error.message("Dataset is empty. Cannot plot LineGraph.");
+      }
+      else {
+        groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
+        p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
+        p <- p + labs(title = as.character(plotGroup))
+        fileIter <- fileIter + 1
+        print(p)
+        dev.off()
+      }
     }
   }
 }
@@ -114,14 +129,19 @@ LineGraph.plotter <- function(
 	}
   p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
-	p <- p + geom_line(size=1.5) + scale_colour_brewer("GROUP", palette="Set1")
+	p <- p + geom_line(size=1.5)
 	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
-  p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
+    p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
   
 	#This sets the color theme of the background/grid.
 	p <- p + theme_bw();
+	noPoints <- nrow(dataOutput)
+	noColors <- 9
+    shapesToUse <- c(15:19, 1:5)
+	p <- p + aes(shape = GROUP) + scale_shape_manual(values = rep_len(shapesToUse, length.out = noPoints))
+	p <- p + aes(colour = GROUP) + scale_colour_manual(values = rep_len(brewer.pal(noColors, "Set1"), length.out = noPoints))
 	
 	#Set the text options for the axis.
 	p <- p + theme(axis.text.x = theme_text(size = 17,face="bold",angle=5));
@@ -139,4 +159,17 @@ LineGraph.plotter <- function(
 	p <- p + geom_point(size=4);
 	
   p
+}
+
+
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements InitializingBean {
 
     @Autowired
@@ -37,14 +39,16 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
                 table: table,
-                temporaryDirectory: temporaryDirectory)
+                temporaryDirectory: temporaryDirectory,
+                outputFileName: DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory: scriptsDirectory,
                 rStatements: RStatements,
                 studyName: studyName,
-                params: params)
+                params: params,
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }

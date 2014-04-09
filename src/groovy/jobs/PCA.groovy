@@ -21,7 +21,7 @@ class PCA extends HighDimensionalOnlyJob {
     final List<String> RStatements = [
             '''source('$pluginDirectory/PCA/LoadPCA.R')''',
                 '''PCA.loader(
-                input.filename='outputfile',
+                input.filename='$inputFileName',
                 aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                 )''' ]
 
