@@ -35,7 +35,7 @@ class Report {
 	   static hasMany = [reportItems: ReportItem]
 	   
 static mapping = {
-	table 'REPORT'
+	table 'SEARCHAPP.REPORT'
 	version false
 	id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
 	columns {

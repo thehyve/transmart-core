@@ -28,7 +28,7 @@ class ReportItem {
 	   static belongsTo = [report: Report]
 	   
 static mapping = {
-	table 'REPORT_ITEM'
+	table 'SEARCHAPP.REPORT_ITEM'
 	version false
 	id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
 	columns {
