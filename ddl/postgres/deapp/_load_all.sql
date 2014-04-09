@@ -1,6 +1,7 @@
 \i deapp/prelude.sql
 \i deapp/de_gpl_info.sql
 \i deapp/de_chromosomal_region.sql
+\i deapp/de_encounter_level.sql
 \i deapp/de_mrna_annotation.sql
 \i deapp/de_pathway.sql
 \i deapp/de_pathway_gene.sql

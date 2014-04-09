@@ -25,6 +25,7 @@
 \i i2b2demodata/datamart_report.sql
 \i i2b2demodata/encounter_mapping.sql
 \i i2b2demodata/modifier_dimension.sql
+\i i2b2demodata/modifier_metadata.sql
 \i i2b2demodata/news_updates.sql
 \i i2b2demodata/observation_fact.sql
 \i i2b2demodata/patient_dimension.sql

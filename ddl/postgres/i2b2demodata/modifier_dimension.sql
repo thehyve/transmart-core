@@ -10,7 +10,9 @@ CREATE TABLE modifier_dimension (
     download_date timestamp without time zone,
     import_date timestamp without time zone,
     sourcesystem_cd character varying(50),
-    upload_id numeric(38,0)
+    upload_id numeric(38,0),
+    modifier_level numeric(18,0),
+    modifier_node_type character varying(10)
 );
 
 --

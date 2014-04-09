@@ -24,6 +24,9 @@
 \i searchapp/views/search_bio_mkr_correl_fast_view.sql
 \i searchapp/search_taxonomy.sql
 \i searchapp/search_taxonomy_rels.sql
+\i searchapp/subset.sql
+\i searchapp/report.sql
+\i searchapp/report_item.sql
 \i searchapp/views/search_categories.sql
 \i searchapp/search_custom_filter.sql
 \i searchapp/search_custom_filter_item.sql
