@@ -388,17 +388,32 @@ GenericAnalysisView = Ext.extend(Object, {
         this.jobWindow = null;
 
         //Make sure at least one subset is filled in.
-        if(isSubsetEmpty(1) && isSubsetEmpty(2))
-        {
-            Ext.Msg.alert('Missing input!','Please select a cohort from the \'Comparison\' tab.');
+        if (isSubsetEmpty(1) && isSubsetEmpty(2)) {
+            Ext.Msg.alert('Missing input!', 'Please select a cohort from the \'Comparison\' tab.');
+            return;
+        }
+
+        if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
+            (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
+            _parent.setup_subset_ids(formParams);
             return;
         }
 
         formParams.result_instance_id1 = GLOBAL.CurrentSubsetIDs[1];
         formParams.result_instance_id2 = GLOBAL.CurrentSubsetIDs[2];
+
         _parent.createJob();
 
         return true;
+    },
+
+    /**
+     * To execute runAllQueries to check if result instance ids were already existing or not before submitting a job.
+     * @param formParams
+     */
+    setup_subset_ids: function (formParams) {
+        var _parent = this;
+        runAllQueries(function(){_parent.submitJob(formParams);});
     },
 
     createJob: function () {
