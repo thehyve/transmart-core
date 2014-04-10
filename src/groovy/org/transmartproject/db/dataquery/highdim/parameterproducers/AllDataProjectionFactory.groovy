@@ -6,10 +6,10 @@ import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionIm
 
 class AllDataProjectionFactory implements DataRetrievalParameterFactory {
 
-    private Collection<String> dataProperties
-    private Collection<String> rowProperties
+    private Map<String, Class> dataProperties
+    private Map<String, Class> rowProperties
 
-    AllDataProjectionFactory(Collection<String> dataProperties, Collection<String> rowProperties) {
+    AllDataProjectionFactory(Map<String, Class> dataProperties, Map<String, Class> rowProperties) {
         this.dataProperties = dataProperties
         this.rowProperties = rowProperties
     }

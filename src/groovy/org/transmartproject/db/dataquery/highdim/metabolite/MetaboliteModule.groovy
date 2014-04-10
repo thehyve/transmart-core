@@ -29,9 +29,9 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = 'Metabolomics data (Mass Spec)'
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    private final Map<String, Class> dataProperties = [rawIntensity:Double, logIntensity:Double, zscore:Double].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of('hmdbId', 'biochemicalName')
+    private final Map<String, Class> rowProperties = [hmdbId:String, biochemicalName:String].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

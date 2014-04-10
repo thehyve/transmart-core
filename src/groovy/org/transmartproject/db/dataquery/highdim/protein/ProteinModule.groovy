@@ -27,9 +27,9 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['PROTEOMICS']
 
-    private final Set<String> dataProperties = ImmutableSet.of('intensity', 'logIntensity', 'zscore')
+    private final Map<String, Class> dataProperties = [intensity:Double, logIntensity:Double, zscore:Double].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of('uniprotName', 'peptide')
+    private final Map<String, Class> rowProperties = [uniprotName:String, peptide:String].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

@@ -32,9 +32,10 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeModule {
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    private final Map<String, Class> dataProperties = [rawIntensity:Double, logIntensity:Double, zscore:Double].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of('probeId', 'mirnaId')
+    // probeId is stored as a NUMBER in oracle, a float with 38 (decimal) digits of precision.
+    private final Map<String, Class> rowProperties = [probeId:Object, mirnaId:String]
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
