@@ -13,6 +13,7 @@ import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader
 import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader.RowType
 import org.transmartproject.rest.protobuf.HighDimProtos.MapValue
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
+import org.transmartproject.rest.protobuf.HighDimProtos.RowDescriptor
 
 /**
  * Helper class to build HighDimTable for highdim results
@@ -41,31 +42,25 @@ class HighDimBuilder {
      */
     DataRowType dataRowType
 
-    RowType rowType
-
     List<AssayColumn> assayColumns
 
     OutputStream out
-
-    @Lazy private Closure rowFiller = (RowType.DOUBLE == rowType) ? this.&fillDoubleRow : this.&fillMapRow
 
     //no bioMarkerClosure for DataRowType.REGION
     @Lazy private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? null : this.&getBioMarkerLabel
 
     @Lazy private Map<String, Class> dataColumns = {
-
-        if (rowType == RowType.DOUBLE) {
-            return [:] //not needed for double rows
-        } else if (projection instanceof MultiValueProjection) {
+        if (projection instanceof MultiValueProjection) {
             MultiValueProjection mvp = projection as MultiValueProjection
             return mvp.dataProperties
         } else {
-            throw new IllegalArgumentException("Not supported for $projection")
+            return [(null): Double]
         }
     }()
 
     private Row.Builder rowBuilder = Row.newBuilder()
-    private MapValue.Builder mapValueBuilder = MapValue.newBuilder()
+    private HighDimProtos.ProjectionColumn.Builder columnBuilder =
+            HighDimProtos.ProjectionColumn.newBuilder()
 
     static void write(Projection projection,
                                  TabularResult<AssayColumn, DataRow<AssayColumn,? extends Object>> tabularResult,
@@ -82,12 +77,10 @@ class HighDimBuilder {
         DataRowType dataRowType = DataRowType.forRow(sampleRow)
 
         Object sampleValue = cols.collect { sampleRow[it] } find { it != null } //gets the 1st non null value
-        RowType rowType = (sampleValue instanceof Number) ? RowType.DOUBLE : RowType.GENERAL
 
         HighDimBuilder builder = new HighDimBuilder(
                 projection: projection,
                 dataRowType: dataRowType,
-                rowType: rowType,
                 assayColumns: cols,
                 out: out,
         )
@@ -101,9 +94,10 @@ class HighDimBuilder {
 
     private HighDimHeader createHeader() {
         HighDimHeader.Builder headerBuilder = HighDimHeader.newBuilder()
-        headerBuilder.setRowsType(rowType)
-        headerBuilder.addAllStringColumn(dataColumns.collectMany({col, type -> type == String ? [col] : []}))
-        headerBuilder.addAllDoubleColumn(dataColumns.collectMany({col, type -> type == Double ? [col] : []}))
+        headerBuilder.addAllColumnName(dataColumns.collect { safeString(it.key) })
+        headerBuilder.addAllColumnType(dataColumns.collect {
+            it.value == Double ? HighDimHeader.ColumnType.DOUBLE : HighDimHeader.ColumnType.STRING
+        })
         Assay.Builder assayBuilder = Assay.newBuilder()
         headerBuilder.addAllAssay( assayColumns.collect { createAssay(assayBuilder, it) } )
         headerBuilder.build()
@@ -116,31 +110,40 @@ class HighDimBuilder {
             rowBuilder.setBioMarker(safeString(bioMarkerClosure(inputRow)))
         }
 
-        for (AssayColumn col: assayColumns) {
-            rowFiller(inputRow.getAt(col))
-        }
+        if(dataColumns.keySet() == ([null] as Set)) {
+            // Single column projection
+            columnBuilder.clear()
+            columnBuilder.addAllDoubleValue(assayColumns.collect {(double) inputRow[it]})
+            rowBuilder.addColumn(columnBuilder)
+        } else {
+            // Multi column projection
+            Map<String, List> cols = dataColumns.collectEntries { [(it.key): []] }
 
-        rowBuilder.build()
-    }
-
-    private MapValue valueAsMapValue(Object obj) {
-
-        mapValueBuilder.clear()
-
-        if (obj != null) {
-            dataColumns.each { col, type ->
-                switch(type) {
-                    case Double:
-                        mapValueBuilder.addDoubleValue(obj[col])
-                        break
-                    default:
-                        mapValueBuilder.addStringValue(safeString(obj[col]))
-                        break
+            // transpose the data row
+            for(Assay a : assayColumns) {
+                Map value = inputRow[a]
+                dataColumns.each { col, type ->
+                    if(type == Double) {
+                        cols[col].add(value[col])
+                    } else {
+                        cols[col].add(safeString(value[col]))
+                    }
                 }
+            }
+
+            // add transposed rows to message
+            dataColumns.each {col, type ->
+                columnBuilder.clear()
+                if(type == Double) {
+                    columnBuilder.addAllDoubleValue(cols[col])
+                } else {
+                    columnBuilder.addAllStringValue(cols[col])
+                }
+                rowBuilder.addColumn(columnBuilder)
             }
         }
 
-        mapValueBuilder.build()
+        rowBuilder.build()
     }
 
     private Assay createAssay(Assay.Builder builder, AssayColumn col) {
@@ -162,15 +165,6 @@ class HighDimBuilder {
             }
         }
         builder.build()
-    }
-
-    private void fillDoubleRow(Object value) {
-        double dbl = value == null ? Double.NaN : value as Double
-        rowBuilder.addDoubleValue(dbl)
-    }
-
-    private void fillMapRow(Object value) {
-        rowBuilder.addMapValue(valueAsMapValue(value))
     }
 
     private String getBioMarkerLabel(BioMarkerDataRow<?> inputRow) {
