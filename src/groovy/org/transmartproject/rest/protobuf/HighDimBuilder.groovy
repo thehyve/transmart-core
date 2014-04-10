@@ -52,13 +52,13 @@ class HighDimBuilder {
     //no bioMarkerClosure for DataRowType.REGION
     @Lazy private Closure<String> bioMarkerClosure =  (DataRowType.REGION == dataRowType) ? null : this.&getBioMarkerLabel
 
-    @Lazy private List<String> dataColumns = {
+    @Lazy private Map<String, Class> dataColumns = {
 
         if (rowType == RowType.DOUBLE) {
-            return [] //not needed for double rows
+            return [:] //not needed for double rows
         } else if (projection instanceof MultiValueProjection) {
             MultiValueProjection mvp = projection as MultiValueProjection
-            return mvp.dataProperties.toList()
+            return mvp.dataProperties
         } else {
             throw new IllegalArgumentException("Not supported for $projection")
         }
@@ -102,7 +102,8 @@ class HighDimBuilder {
     private HighDimHeader createHeader() {
         HighDimHeader.Builder headerBuilder = HighDimHeader.newBuilder()
         headerBuilder.setRowsType(rowType)
-        headerBuilder.addAllMapColumn(dataColumns)
+        headerBuilder.addAllStringColumn(dataColumns.collectMany({col, type -> type == String ? [col] : []}))
+        headerBuilder.addAllDoubleColumn(dataColumns.collectMany({col, type -> type == Double ? [col] : []}))
         Assay.Builder assayBuilder = Assay.newBuilder()
         headerBuilder.addAllAssay( assayColumns.collect { createAssay(assayBuilder, it) } )
         headerBuilder.build()
@@ -125,16 +126,20 @@ class HighDimBuilder {
     private MapValue valueAsMapValue(Object obj) {
 
         mapValueBuilder.clear()
-        List<String> values = []
 
         if (obj != null) {
-            for (String col: dataColumns) {
-                Object value = obj.getAt(col)
-                values << safeString(value)
+            dataColumns.each { col, type ->
+                switch(type) {
+                    case Double:
+                        mapValueBuilder.addDoubleValue(obj[col])
+                        break
+                    default:
+                        mapValueBuilder.addStringValue(safeString(obj[col]))
+                        break
+                }
             }
         }
 
-        mapValueBuilder.addAllValue(values)
         mapValueBuilder.build()
     }
 

@@ -10,7 +10,8 @@ message HighDimHeader {
 
     required RowType rowsType = 1;
     repeated Assay assay = 2;
-    repeated string mapColumn = 3;
+    repeated string stringColumn = 3;
+    repeated string doubleColumn = 4;
 }
 
 message Assay {
@@ -31,5 +32,6 @@ message Row {
 }
 
 message MapValue {
-    repeated string value = 1;
+    repeated string stringValue = 1;
+    repeated double doubleValue = 2 [packed=true];
 }

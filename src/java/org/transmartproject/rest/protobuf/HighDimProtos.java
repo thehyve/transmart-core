@@ -46,25 +46,45 @@ public final class HighDimProtos {
     org.transmartproject.rest.protobuf.HighDimProtos.AssayOrBuilder getAssayOrBuilder(
         int index);
 
-    // repeated string mapColumn = 3;
+    // repeated string stringColumn = 3;
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
     java.util.List<java.lang.String>
-    getMapColumnList();
+    getStringColumnList();
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
-    int getMapColumnCount();
+    int getStringColumnCount();
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
-    java.lang.String getMapColumn(int index);
+    java.lang.String getStringColumn(int index);
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
     com.google.protobuf.ByteString
-        getMapColumnBytes(int index);
+        getStringColumnBytes(int index);
+
+    // repeated string doubleColumn = 4;
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    java.util.List<java.lang.String>
+    getDoubleColumnList();
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    int getDoubleColumnCount();
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    java.lang.String getDoubleColumn(int index);
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getDoubleColumnBytes(int index);
   }
   /**
    * Protobuf type {@code highdim.HighDimHeader}
@@ -143,10 +163,18 @@ public final class HighDimProtos {
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                mapColumn_ = new com.google.protobuf.LazyStringArrayList();
+                stringColumn_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000004;
               }
-              mapColumn_.add(input.readBytes());
+              stringColumn_.add(input.readBytes());
+              break;
+            }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                doubleColumn_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              doubleColumn_.add(input.readBytes());
               break;
             }
           }
@@ -161,7 +189,10 @@ public final class HighDimProtos {
           assay_ = java.util.Collections.unmodifiableList(assay_);
         }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          mapColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(mapColumn_);
+          stringColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(stringColumn_);
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          doubleColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(doubleColumn_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -329,40 +360,71 @@ public final class HighDimProtos {
       return assay_.get(index);
     }
 
-    // repeated string mapColumn = 3;
-    public static final int MAPCOLUMN_FIELD_NUMBER = 3;
-    private com.google.protobuf.LazyStringList mapColumn_;
+    // repeated string stringColumn = 3;
+    public static final int STRINGCOLUMN_FIELD_NUMBER = 3;
+    private com.google.protobuf.LazyStringList stringColumn_;
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
     public java.util.List<java.lang.String>
-        getMapColumnList() {
-      return mapColumn_;
+        getStringColumnList() {
+      return stringColumn_;
     }
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
-    public int getMapColumnCount() {
-      return mapColumn_.size();
+    public int getStringColumnCount() {
+      return stringColumn_.size();
     }
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
-    public java.lang.String getMapColumn(int index) {
-      return mapColumn_.get(index);
+    public java.lang.String getStringColumn(int index) {
+      return stringColumn_.get(index);
     }
     /**
-     * <code>repeated string mapColumn = 3;</code>
+     * <code>repeated string stringColumn = 3;</code>
      */
     public com.google.protobuf.ByteString
-        getMapColumnBytes(int index) {
-      return mapColumn_.getByteString(index);
+        getStringColumnBytes(int index) {
+      return stringColumn_.getByteString(index);
+    }
+
+    // repeated string doubleColumn = 4;
+    public static final int DOUBLECOLUMN_FIELD_NUMBER = 4;
+    private com.google.protobuf.LazyStringList doubleColumn_;
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    public java.util.List<java.lang.String>
+        getDoubleColumnList() {
+      return doubleColumn_;
+    }
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    public int getDoubleColumnCount() {
+      return doubleColumn_.size();
+    }
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    public java.lang.String getDoubleColumn(int index) {
+      return doubleColumn_.get(index);
+    }
+    /**
+     * <code>repeated string doubleColumn = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDoubleColumnBytes(int index) {
+      return doubleColumn_.getByteString(index);
     }
 
     private void initFields() {
       rowsType_ = org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader.RowType.DOUBLE;
       assay_ = java.util.Collections.emptyList();
-      mapColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      stringColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      doubleColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -392,8 +454,11 @@ public final class HighDimProtos {
       for (int i = 0; i < assay_.size(); i++) {
         output.writeMessage(2, assay_.get(i));
       }
-      for (int i = 0; i < mapColumn_.size(); i++) {
-        output.writeBytes(3, mapColumn_.getByteString(i));
+      for (int i = 0; i < stringColumn_.size(); i++) {
+        output.writeBytes(3, stringColumn_.getByteString(i));
+      }
+      for (int i = 0; i < doubleColumn_.size(); i++) {
+        output.writeBytes(4, doubleColumn_.getByteString(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -414,12 +479,21 @@ public final class HighDimProtos {
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < mapColumn_.size(); i++) {
+        for (int i = 0; i < stringColumn_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(mapColumn_.getByteString(i));
+            .computeBytesSizeNoTag(stringColumn_.getByteString(i));
         }
         size += dataSize;
-        size += 1 * getMapColumnList().size();
+        size += 1 * getStringColumnList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < doubleColumn_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(doubleColumn_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getDoubleColumnList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -551,8 +625,10 @@ public final class HighDimProtos {
         } else {
           assayBuilder_.clear();
         }
-        mapColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        stringColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
+        doubleColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -595,11 +671,17 @@ public final class HighDimProtos {
           result.assay_ = assayBuilder_.build();
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          mapColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(
-              mapColumn_);
+          stringColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              stringColumn_);
           bitField0_ = (bitField0_ & ~0x00000004);
         }
-        result.mapColumn_ = mapColumn_;
+        result.stringColumn_ = stringColumn_;
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          doubleColumn_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              doubleColumn_);
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.doubleColumn_ = doubleColumn_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -645,13 +727,23 @@ public final class HighDimProtos {
             }
           }
         }
-        if (!other.mapColumn_.isEmpty()) {
-          if (mapColumn_.isEmpty()) {
-            mapColumn_ = other.mapColumn_;
+        if (!other.stringColumn_.isEmpty()) {
+          if (stringColumn_.isEmpty()) {
+            stringColumn_ = other.stringColumn_;
             bitField0_ = (bitField0_ & ~0x00000004);
           } else {
-            ensureMapColumnIsMutable();
-            mapColumn_.addAll(other.mapColumn_);
+            ensureStringColumnIsMutable();
+            stringColumn_.addAll(other.stringColumn_);
+          }
+          onChanged();
+        }
+        if (!other.doubleColumn_.isEmpty()) {
+          if (doubleColumn_.isEmpty()) {
+            doubleColumn_ = other.doubleColumn_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureDoubleColumnIsMutable();
+            doubleColumn_.addAll(other.doubleColumn_);
           }
           onChanged();
         }
@@ -968,95 +1060,188 @@ public final class HighDimProtos {
         return assayBuilder_;
       }
 
-      // repeated string mapColumn = 3;
-      private com.google.protobuf.LazyStringList mapColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureMapColumnIsMutable() {
+      // repeated string stringColumn = 3;
+      private com.google.protobuf.LazyStringList stringColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureStringColumnIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          mapColumn_ = new com.google.protobuf.LazyStringArrayList(mapColumn_);
+          stringColumn_ = new com.google.protobuf.LazyStringArrayList(stringColumn_);
           bitField0_ |= 0x00000004;
          }
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
       public java.util.List<java.lang.String>
-          getMapColumnList() {
-        return java.util.Collections.unmodifiableList(mapColumn_);
+          getStringColumnList() {
+        return java.util.Collections.unmodifiableList(stringColumn_);
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public int getMapColumnCount() {
-        return mapColumn_.size();
+      public int getStringColumnCount() {
+        return stringColumn_.size();
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public java.lang.String getMapColumn(int index) {
-        return mapColumn_.get(index);
+      public java.lang.String getStringColumn(int index) {
+        return stringColumn_.get(index);
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
       public com.google.protobuf.ByteString
-          getMapColumnBytes(int index) {
-        return mapColumn_.getByteString(index);
+          getStringColumnBytes(int index) {
+        return stringColumn_.getByteString(index);
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public Builder setMapColumn(
+      public Builder setStringColumn(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureMapColumnIsMutable();
-        mapColumn_.set(index, value);
+  ensureStringColumnIsMutable();
+        stringColumn_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public Builder addMapColumn(
+      public Builder addStringColumn(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureMapColumnIsMutable();
-        mapColumn_.add(value);
+  ensureStringColumnIsMutable();
+        stringColumn_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public Builder addAllMapColumn(
+      public Builder addAllStringColumn(
           java.lang.Iterable<java.lang.String> values) {
-        ensureMapColumnIsMutable();
-        super.addAll(values, mapColumn_);
+        ensureStringColumnIsMutable();
+        super.addAll(values, stringColumn_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public Builder clearMapColumn() {
-        mapColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearStringColumn() {
+        stringColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string mapColumn = 3;</code>
+       * <code>repeated string stringColumn = 3;</code>
        */
-      public Builder addMapColumnBytes(
+      public Builder addStringColumnBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureMapColumnIsMutable();
-        mapColumn_.add(value);
+  ensureStringColumnIsMutable();
+        stringColumn_.add(value);
+        onChanged();
+        return this;
+      }
+
+      // repeated string doubleColumn = 4;
+      private com.google.protobuf.LazyStringList doubleColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureDoubleColumnIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          doubleColumn_ = new com.google.protobuf.LazyStringArrayList(doubleColumn_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public java.util.List<java.lang.String>
+          getDoubleColumnList() {
+        return java.util.Collections.unmodifiableList(doubleColumn_);
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public int getDoubleColumnCount() {
+        return doubleColumn_.size();
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public java.lang.String getDoubleColumn(int index) {
+        return doubleColumn_.get(index);
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDoubleColumnBytes(int index) {
+        return doubleColumn_.getByteString(index);
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public Builder setDoubleColumn(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDoubleColumnIsMutable();
+        doubleColumn_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public Builder addDoubleColumn(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDoubleColumnIsMutable();
+        doubleColumn_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public Builder addAllDoubleColumn(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureDoubleColumnIsMutable();
+        super.addAll(values, doubleColumn_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public Builder clearDoubleColumn() {
+        doubleColumn_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string doubleColumn = 4;</code>
+       */
+      public Builder addDoubleColumnBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDoubleColumnIsMutable();
+        doubleColumn_.add(value);
         onChanged();
         return this;
       }
@@ -3636,25 +3821,39 @@ public final class HighDimProtos {
   public interface MapValueOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // repeated string value = 1;
+    // repeated string stringValue = 1;
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     java.util.List<java.lang.String>
-    getValueList();
+    getStringValueList();
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    int getValueCount();
+    int getStringValueCount();
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    java.lang.String getValue(int index);
+    java.lang.String getStringValue(int index);
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     com.google.protobuf.ByteString
-        getValueBytes(int index);
+        getStringValueBytes(int index);
+
+    // repeated double doubleValue = 2 [packed = true];
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    java.util.List<java.lang.Double> getDoubleValueList();
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    int getDoubleValueCount();
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    double getDoubleValue(int index);
   }
   /**
    * Protobuf type {@code highdim.MapValue}
@@ -3709,10 +3908,31 @@ public final class HighDimProtos {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                value_ = new com.google.protobuf.LazyStringArrayList();
+                stringValue_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000001;
               }
-              value_.add(input.readBytes());
+              stringValue_.add(input.readBytes());
+              break;
+            }
+            case 17: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                doubleValue_ = new java.util.ArrayList<java.lang.Double>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              doubleValue_.add(input.readDouble());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                doubleValue_ = new java.util.ArrayList<java.lang.Double>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                doubleValue_.add(input.readDouble());
+              }
+              input.popLimit(limit);
               break;
             }
           }
@@ -3724,7 +3944,10 @@ public final class HighDimProtos {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          value_ = new com.google.protobuf.UnmodifiableLazyStringList(value_);
+          stringValue_ = new com.google.protobuf.UnmodifiableLazyStringList(stringValue_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -3757,38 +3980,63 @@ public final class HighDimProtos {
       return PARSER;
     }
 
-    // repeated string value = 1;
-    public static final int VALUE_FIELD_NUMBER = 1;
-    private com.google.protobuf.LazyStringList value_;
+    // repeated string stringValue = 1;
+    public static final int STRINGVALUE_FIELD_NUMBER = 1;
+    private com.google.protobuf.LazyStringList stringValue_;
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     public java.util.List<java.lang.String>
-        getValueList() {
-      return value_;
+        getStringValueList() {
+      return stringValue_;
     }
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    public int getValueCount() {
-      return value_.size();
+    public int getStringValueCount() {
+      return stringValue_.size();
     }
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    public java.lang.String getValue(int index) {
-      return value_.get(index);
+    public java.lang.String getStringValue(int index) {
+      return stringValue_.get(index);
     }
     /**
-     * <code>repeated string value = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getValueBytes(int index) {
-      return value_.getByteString(index);
+        getStringValueBytes(int index) {
+      return stringValue_.getByteString(index);
     }
 
+    // repeated double doubleValue = 2 [packed = true];
+    public static final int DOUBLEVALUE_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Double> doubleValue_;
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    public java.util.List<java.lang.Double>
+        getDoubleValueList() {
+      return doubleValue_;
+    }
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    public int getDoubleValueCount() {
+      return doubleValue_.size();
+    }
+    /**
+     * <code>repeated double doubleValue = 2 [packed = true];</code>
+     */
+    public double getDoubleValue(int index) {
+      return doubleValue_.get(index);
+    }
+    private int doubleValueMemoizedSerializedSize = -1;
+
     private void initFields() {
-      value_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      doubleValue_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3802,8 +4050,15 @@ public final class HighDimProtos {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < value_.size(); i++) {
-        output.writeBytes(1, value_.getByteString(i));
+      for (int i = 0; i < stringValue_.size(); i++) {
+        output.writeBytes(1, stringValue_.getByteString(i));
+      }
+      if (getDoubleValueList().size() > 0) {
+        output.writeRawVarint32(18);
+        output.writeRawVarint32(doubleValueMemoizedSerializedSize);
+      }
+      for (int i = 0; i < doubleValue_.size(); i++) {
+        output.writeDoubleNoTag(doubleValue_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -3816,12 +4071,23 @@ public final class HighDimProtos {
       size = 0;
       {
         int dataSize = 0;
-        for (int i = 0; i < value_.size(); i++) {
+        for (int i = 0; i < stringValue_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(value_.getByteString(i));
+            .computeBytesSizeNoTag(stringValue_.getByteString(i));
         }
         size += dataSize;
-        size += 1 * getValueList().size();
+        size += 1 * getStringValueList().size();
+      }
+      {
+        int dataSize = 0;
+        dataSize = 8 * getDoubleValueList().size();
+        size += dataSize;
+        if (!getDoubleValueList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        doubleValueMemoizedSerializedSize = dataSize;
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -3939,8 +4205,10 @@ public final class HighDimProtos {
 
       public Builder clear() {
         super.clear();
-        value_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
+        doubleValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -3969,11 +4237,16 @@ public final class HighDimProtos {
         org.transmartproject.rest.protobuf.HighDimProtos.MapValue result = new org.transmartproject.rest.protobuf.HighDimProtos.MapValue(this);
         int from_bitField0_ = bitField0_;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          value_ = new com.google.protobuf.UnmodifiableLazyStringList(
-              value_);
+          stringValue_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              stringValue_);
           bitField0_ = (bitField0_ & ~0x00000001);
         }
-        result.value_ = value_;
+        result.stringValue_ = stringValue_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.doubleValue_ = doubleValue_;
         onBuilt();
         return result;
       }
@@ -3989,13 +4262,23 @@ public final class HighDimProtos {
 
       public Builder mergeFrom(org.transmartproject.rest.protobuf.HighDimProtos.MapValue other) {
         if (other == org.transmartproject.rest.protobuf.HighDimProtos.MapValue.getDefaultInstance()) return this;
-        if (!other.value_.isEmpty()) {
-          if (value_.isEmpty()) {
-            value_ = other.value_;
+        if (!other.stringValue_.isEmpty()) {
+          if (stringValue_.isEmpty()) {
+            stringValue_ = other.stringValue_;
             bitField0_ = (bitField0_ & ~0x00000001);
           } else {
-            ensureValueIsMutable();
-            value_.addAll(other.value_);
+            ensureStringValueIsMutable();
+            stringValue_.addAll(other.stringValue_);
+          }
+          onChanged();
+        }
+        if (!other.doubleValue_.isEmpty()) {
+          if (doubleValue_.isEmpty()) {
+            doubleValue_ = other.doubleValue_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureDoubleValueIsMutable();
+            doubleValue_.addAll(other.doubleValue_);
           }
           onChanged();
         }
@@ -4026,95 +4309,161 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // repeated string value = 1;
-      private com.google.protobuf.LazyStringList value_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureValueIsMutable() {
+      // repeated string stringValue = 1;
+      private com.google.protobuf.LazyStringList stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureStringValueIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          value_ = new com.google.protobuf.LazyStringArrayList(value_);
+          stringValue_ = new com.google.protobuf.LazyStringArrayList(stringValue_);
           bitField0_ |= 0x00000001;
          }
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public java.util.List<java.lang.String>
-          getValueList() {
-        return java.util.Collections.unmodifiableList(value_);
+          getStringValueList() {
+        return java.util.Collections.unmodifiableList(stringValue_);
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public int getValueCount() {
-        return value_.size();
+      public int getStringValueCount() {
+        return stringValue_.size();
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public java.lang.String getValue(int index) {
-        return value_.get(index);
+      public java.lang.String getStringValue(int index) {
+        return stringValue_.get(index);
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getValueBytes(int index) {
-        return value_.getByteString(index);
+          getStringValueBytes(int index) {
+        return stringValue_.getByteString(index);
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder setValue(
+      public Builder setStringValue(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureValueIsMutable();
-        value_.set(index, value);
+  ensureStringValueIsMutable();
+        stringValue_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder addValue(
+      public Builder addStringValue(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureValueIsMutable();
-        value_.add(value);
+  ensureStringValueIsMutable();
+        stringValue_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder addAllValue(
+      public Builder addAllStringValue(
           java.lang.Iterable<java.lang.String> values) {
-        ensureValueIsMutable();
-        super.addAll(values, value_);
+        ensureStringValueIsMutable();
+        super.addAll(values, stringValue_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder clearValue() {
-        value_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearStringValue() {
+        stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string value = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder addValueBytes(
+      public Builder addStringValueBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureValueIsMutable();
-        value_.add(value);
+  ensureStringValueIsMutable();
+        stringValue_.add(value);
+        onChanged();
+        return this;
+      }
+
+      // repeated double doubleValue = 2 [packed = true];
+      private java.util.List<java.lang.Double> doubleValue_ = java.util.Collections.emptyList();
+      private void ensureDoubleValueIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          doubleValue_ = new java.util.ArrayList<java.lang.Double>(doubleValue_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public java.util.List<java.lang.Double>
+          getDoubleValueList() {
+        return java.util.Collections.unmodifiableList(doubleValue_);
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public int getDoubleValueCount() {
+        return doubleValue_.size();
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public double getDoubleValue(int index) {
+        return doubleValue_.get(index);
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public Builder setDoubleValue(
+          int index, double value) {
+        ensureDoubleValueIsMutable();
+        doubleValue_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public Builder addDoubleValue(double value) {
+        ensureDoubleValueIsMutable();
+        doubleValue_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public Builder addAllDoubleValue(
+          java.lang.Iterable<? extends java.lang.Double> values) {
+        ensureDoubleValueIsMutable();
+        super.addAll(values, doubleValue_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated double doubleValue = 2 [packed = true];</code>
+       */
+      public Builder clearDoubleValue() {
+        doubleValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
@@ -4160,19 +4509,20 @@ public final class HighDimProtos {
   static {
     java.lang.String[] descriptorData = {
       "\n\"src/protobuf/highdim/highdim.proto\022\007hi" +
-      "ghdim\"\227\001\n\rHighDimHeader\0220\n\010rowsType\030\001 \002(" +
+      "ghdim\"\260\001\n\rHighDimHeader\0220\n\010rowsType\030\001 \002(" +
       "\0162\036.highdim.HighDimHeader.RowType\022\035\n\005ass" +
-      "ay\030\002 \003(\0132\016.highdim.Assay\022\021\n\tmapColumn\030\003 " +
-      "\003(\t\"\"\n\007RowType\022\n\n\006DOUBLE\020\001\022\013\n\007GENERAL\020\002\"" +
-      "\230\001\n\005Assay\022\017\n\007assayId\030\001 \002(\003\022\021\n\tpatientId\030" +
-      "\002 \002(\t\022\026\n\016sampleTypeName\030\003 \001(\t\022\025\n\rtimepoi" +
-      "ntName\030\004 \001(\t\022\026\n\016tissueTypeName\030\005 \001(\t\022\020\n\010" +
-      "platform\030\006 \001(\t\022\022\n\nsampleCode\030\007 \001(\t\"e\n\003Ro" +
-      "w\022\r\n\005label\030\001 \002(\t\022\021\n\tbioMarker\030\002 \001(\t\022\027\n\013d",
-      "oubleValue\030\003 \003(\001B\002\020\001\022#\n\010mapValue\030\004 \003(\0132\021" +
-      ".highdim.MapValue\"\031\n\010MapValue\022\r\n\005value\030\001" +
-      " \003(\tB3\n\"org.transmartproject.rest.protob" +
-      "ufB\rHighDimProtos"
+      "ay\030\002 \003(\0132\016.highdim.Assay\022\024\n\014stringColumn" +
+      "\030\003 \003(\t\022\024\n\014doubleColumn\030\004 \003(\t\"\"\n\007RowType\022" +
+      "\n\n\006DOUBLE\020\001\022\013\n\007GENERAL\020\002\"\230\001\n\005Assay\022\017\n\007as" +
+      "sayId\030\001 \002(\003\022\021\n\tpatientId\030\002 \002(\t\022\026\n\016sample" +
+      "TypeName\030\003 \001(\t\022\025\n\rtimepointName\030\004 \001(\t\022\026\n" +
+      "\016tissueTypeName\030\005 \001(\t\022\020\n\010platform\030\006 \001(\t\022" +
+      "\022\n\nsampleCode\030\007 \001(\t\"e\n\003Row\022\r\n\005label\030\001 \002(",
+      "\t\022\021\n\tbioMarker\030\002 \001(\t\022\027\n\013doubleValue\030\003 \003(" +
+      "\001B\002\020\001\022#\n\010mapValue\030\004 \003(\0132\021.highdim.MapVal" +
+      "ue\"8\n\010MapValue\022\023\n\013stringValue\030\001 \003(\t\022\027\n\013d" +
+      "oubleValue\030\002 \003(\001B\002\020\001B3\n\"org.transmartpro" +
+      "ject.rest.protobufB\rHighDimProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4184,7 +4534,7 @@ public final class HighDimProtos {
           internal_static_highdim_HighDimHeader_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_highdim_HighDimHeader_descriptor,
-              new java.lang.String[] { "RowsType", "Assay", "MapColumn", });
+              new java.lang.String[] { "RowsType", "Assay", "StringColumn", "DoubleColumn", });
           internal_static_highdim_Assay_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_highdim_Assay_fieldAccessorTable = new
@@ -4202,7 +4552,7 @@ public final class HighDimProtos {
           internal_static_highdim_MapValue_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_highdim_MapValue_descriptor,
-              new java.lang.String[] { "Value", });
+              new java.lang.String[] { "StringValue", "DoubleValue", });
           return null;
         }
       };

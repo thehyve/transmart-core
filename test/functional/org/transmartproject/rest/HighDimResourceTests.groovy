@@ -91,7 +91,7 @@ class HighDimResourceTests extends ResourceTestCase {
 
     void testAcgh() {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
-        List<String> expectedDataColumns = new AcghValuesProjection().dataProperties
+        List<String> expectedDataColumns = new AcghValuesProjection().dataProperties.keySet() as List
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, expectedDataColumns)
     }
 
