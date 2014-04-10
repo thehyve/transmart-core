@@ -19,27 +19,6 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
     @Autowired
     ApplicationContext appCtx
 
-    private void configure() {
-        def dependentConfigurator   = appCtx.getBean NumericColumnConfigurator
-        def independentConfigurator = appCtx.getBean NumericColumnConfigurator
-
-        dependentConfigurator = new NumericColumnConfigurator(
-                header: 'X',
-                projection: Projection.ZSCORE_PROJECTION,
-                keyForConceptPath: 'dependentVariable',
-                keyForDataType: 'divDependentVariableType',
-                keyForSearchKeywordId: 'divDependentVariablePathway')
-        independentConfigurator = new NumericColumnConfigurator(
-                header: 'Y',
-                projection: Projection.ZSCORE_PROJECTION,
-                keyForConceptPath: 'independentVariable',
-                keyForDataType: 'divIndependentVariableType',
-                keyForSearchKeywordId: 'divIndependentVariablePathway')
-
-        dependentConfigurator.addColumn()
-        independentConfigurator.addColumn()
-    }
-
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
