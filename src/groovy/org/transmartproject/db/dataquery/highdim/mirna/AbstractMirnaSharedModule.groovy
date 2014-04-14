@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -8,7 +7,6 @@ import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
@@ -32,10 +30,11 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeModule {
 
-    private final Map<String, Class> dataProperties = [rawIntensity:Double, logIntensity:Double, zscore:Double].asImmutable()
+    final Map<String, Class> dataProperties = typesMap(DeSubjectMirnaData,
+            ['rawIntensity', 'logIntensity', 'zscore'])
 
-    // probeId is stored as a NUMBER in oracle, a float with 38 (decimal) digits of precision.
-    private final Map<String, Class> rowProperties = [probeId:Object, mirnaId:String]
+    final Map<String, Class> rowProperties = typesMap(MirnaProbeRow,
+            ['probeId', 'mirnaId'])
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
