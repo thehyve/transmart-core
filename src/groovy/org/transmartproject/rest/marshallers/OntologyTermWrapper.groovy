@@ -19,4 +19,8 @@ class OntologyTermWrapper {
     static List<OntologyTermWrapper> wrap(List<OntologyTerm> source) {
         source.collect { new OntologyTermWrapper(it) }
     }
+
+    boolean isHighDim() {
+        OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL in this.delegate.visualAttributes
+    }
 }

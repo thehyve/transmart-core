@@ -22,6 +22,13 @@ class ConceptsResourceTests extends ResourceTestCase {
     def conceptUrl = "/studies/${studyId}/concepts/${conceptId}"
     def rootConceptUrl = "/studies/${studyId}/concepts/ROOT"
 
+    def longConceptName = 'with%some$characters_'
+    def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
+    def longConceptKey  = "\\\\i2b2 main$longConceptPath"
+    def longConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_'
+
+    def study2ConceptListUrl = '/studies/study2/concepts'
+
     void testIndexAsJson() {
         def result = getAsJson conceptListUrl
         assertStatus 200
@@ -40,6 +47,7 @@ class ConceptsResourceTests extends ResourceTestCase {
                         conceptListUrl,
                         ['ontology_terms': contains(
                                 halConceptResponse()
+                                //halConceptResponse(conceptKey, partialConceptName, conceptPath, conceptUrl, true)
                         )]
 
         )
@@ -68,15 +76,8 @@ class ConceptsResourceTests extends ResourceTestCase {
         def result = getAsHal rootConceptUrl
         assertStatus 200
 
-       assertThat result, halConceptResponse(rootConceptKey, studyId, rootConceptPath, rootConceptUrl)
+       assertThat result, halConceptResponse(rootConceptKey, studyId, rootConceptPath, rootConceptUrl, false)
     }
-
-    def longConceptName = 'with%some$characters_'
-    def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
-    def longConceptKey  = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_'
-
-    def study2ConceptListUrl = '/studies/study2/concepts'
 
     void testPathOfLongConcept() {
         def result = getAsHal study2ConceptListUrl
@@ -96,7 +97,8 @@ class ConceptsResourceTests extends ResourceTestCase {
                                 longConceptKey,
                                 longConceptName,
                                 longConceptPath,
-                                longConceptUrl))
+                                longConceptUrl,
+                                false))
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,
@@ -112,10 +114,19 @@ class ConceptsResourceTests extends ResourceTestCase {
     private Matcher halConceptResponse(String key = conceptKey,
                                        String name = partialConceptName,
                                        String fullName = conceptPath,
-                                       String selfLink = conceptUrl) {
+                                       String selfLink = conceptUrl,
+                                       boolean highDimLink = true) {
+
+        Map links = [self: selfLink]
+        if (highDimLink) {
+            links.put('highdim', "$selfLink/highdim")
+        } else {
+            links.put('observations', "$selfLink/observations")
+        }
+
         allOf(
                 jsonConceptResponse(key, name, fullName),
-                hasSelfLink(selfLink),
+                hasLinks(links),
         )
     }
 

@@ -21,8 +21,19 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     Collection<Link> getLinks(OntologyTermWrapper obj) {
         OntologyTerm term = obj.delegate
         String url = studyLoadingServiceProxy.getOntologyTermUrl(obj.delegate)
-        // TODO add other relationships (children, parent, ...)
-        [new Link(RELATIONSHIP_SELF, url)]
+
+        Link datalink
+        if (obj.isHighDim()) {
+            datalink = new Link('highdim', HighDimSummarySerializationHelper.getHighDimIndexUrl(url))
+        } else {
+            datalink = new Link('observations', ObservationSerializationHelper.getObservationsIndexUrl(url))
+        }
+
+        [
+                // TODO add other relationships (children, parent, ...)
+                new Link(RELATIONSHIP_SELF, url),
+                datalink
+        ]
     }
 
     @Override
