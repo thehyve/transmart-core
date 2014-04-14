@@ -122,7 +122,9 @@ class HighDimBuilder {
 
         if (isMultiValuedProjection()) {
             // Multi column projection
-            Map<String, List> cols = dataColumns.collectEntries { [(it.key): []] }
+            Map<String, HighDimProtos.ColumnValue.Builder> cols = dataColumns.collectEntries {
+                [(it.key): HighDimProtos.ColumnValue.newBuilder()]
+            }
 
             // transpose the data row
             for (AssayColumn a : assayColumns) {
@@ -131,27 +133,20 @@ class HighDimBuilder {
                 dataColumns.each { col, type ->
                     Object value = obj."$col"
                     if (type == Double) {
-                        cols[col].add(value as Double) //we must convert explicitly to Double
+                        cols[col].addDoubleValue(value as Double) //we must convert explicitly to Double
                     } else {
-                        cols[col].add(safeString(value))
+                        cols[col].addStringValue(safeString(value))
                     }
                 }
             }
 
-            // add transposed rows to message
             dataColumns.each { String col, Class type ->
-                columnBuilder.clear()
-                if (type == Double) {
-                    columnBuilder.addAllDoubleValue(cols[col])
-                } else {
-                    columnBuilder.addAllStringValue(cols[col])
-                }
-                rowBuilder.addValue(columnBuilder)
+                rowBuilder.addValue(cols[col])
             }
         } else {
             // Single column projection
             columnBuilder.clear()
-            columnBuilder.addAllDoubleValue(assayColumns.collect { AssayColumn col -> (double) inputRow[col]})
+            columnBuilder.addAllDoubleValue(assayColumns.collect { AssayColumn col -> inputRow[col] as Double})
             rowBuilder.addValue(columnBuilder)
         }
 
