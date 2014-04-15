@@ -71,4 +71,8 @@ class HighDimDataService {
         }
     }
 
+    Projection getProjection(String dataType, String name) {
+        highDimensionResourceService.getSubResourceForType(dataType).createProjection(name)
+    }
+
 }

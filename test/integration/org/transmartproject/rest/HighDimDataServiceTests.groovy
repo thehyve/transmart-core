@@ -10,18 +10,22 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.InMemoryTabularResult
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.rest.HighDimTestData.HighDimResult
+import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
-import org.transmartproject.rest.protobuf.HighDimProtos.MapValue
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
+import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec
+import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
+import static org.thehyve.commons.test.FastMatchers.listOf
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.propsWith
 
@@ -94,49 +98,85 @@ class HighDimDataServiceTests {
 
     private assertResults(HighDimResult input, String dataType, String projection) {
 
+        //asserting header Assays
         List expectedAssays = collectedTable.indicesList.collect { assayColumnMatcher(it) }
         assertThat input.header.assayList, listOfWithOrder(expectedAssays)
 
+        Projection proj = svc.getProjection(dataType, projection)
+        boolean multiValued = proj instanceof MultiValueProjection
+
+        //asserting header ColumnSpecs
+        Map<String,Class> dataProperties = HighDimBuilder.getDataProperties(proj)
+        assertThat input.header.columnSpecList, columnSpecMatcher(dataProperties)
+
+        //asserting row data
+        assertRowData(input, multiValued)
+    }
+
+    private void assertRowData(HighDimResult input, boolean multiValued) {
+        //asserting row count
         List<Row> actualRows = input.rows
         assertThat actualRows.size(), is (expectedRows.size())
 
-        List<String> mapColumns = input.header.mapColumnList
+        List<ColumnSpec> columnSpecs = input.header.columnSpecList
 
-        actualRows.eachWithIndex { Row actualRow, int i ->
+        //asserting row data
+        actualRows.eachWithIndex{ Row actualRow, int i ->
             DataRow dataRow = expectedRows[i]
-            assertRow(dataRow, actualRow, mapColumns)
+            Map rowPropMap = [
+                    label: dataRow.label,
+            ]
+
+            if (checkBioMarker) {
+                rowPropMap['bioMarker'] = dataRow.bioMarker
+            }
+
+            rowPropMap['valueList'] = columnValueMatcher(dataRow, columnSpecs, multiValued)
+
+            assertThat actualRow, propsWith(rowPropMap)
         }
     }
 
-    private void assertRow(DataRow dataRow, Row actualRow, List<String> mapColumns) {
-        Map map = [
-                label: dataRow.label,
-        ]
+    private Matcher columnValueMatcher(DataRow dataRow, List<ColumnSpec> columnSpecs, boolean multiValued) {
+        List<List> list
 
-        if (checkBioMarker) {
-            map['bioMarker'] = dataRow.bioMarker
+        if (multiValued) {
+            list = columnSpecs.collect{ [ ] }
+            dataRow.iterator().each { Object cell ->
+                columnSpecs.eachWithIndex{ ColumnSpec spec, int i ->
+                    String col = spec.name
+                    List values = list[i]
+
+                    if (spec.type == ColumnType.DOUBLE) {
+                        values.add( cell."$col" as Double)
+                    } else {
+                        values.add( HighDimBuilder.safeString(cell."$col"))
+                    }
+                }
+            }
+
+        } else {
+            list = [ dataRow.iterator().collect { it as Double} ]
         }
 
-        if (isDoubleType) {
-            map['doubleValueList'] = dataRow.iterator().collect()
+        List<Matcher> matchers = []
+        list.eachWithIndex { List columnValues, int i ->
+            ColumnType type = columnSpecs[i].type
+            String prop = "${type.name().toLowerCase()}ValueList" //dynamic field name by type
+            matchers.add( propsWith((prop): columnValues) )
         }
 
-        assertThat actualRow, propsWith(map)
-
-        if (!isDoubleType) {
-            assertMapRow(dataRow, actualRow, mapColumns)
-        }
+        listOfWithOrder(matchers)
     }
 
-    private void assertMapRow(DataRow dataRow, Row actualRow, List<String> mapColumns) {
-        //map values are asserted per cell
-        List<Map> rowValues = dataRow.iterator().collect()
+    private Matcher columnSpecMatcher(Map<String, Class> dataProperties) {
 
-        actualRow.mapValueList.eachWithIndex { MapValue entry, int j ->
-            List expectedValues = mapColumns.collect { rowValues[j].getAt(it).toString() }
-            assertThat entry.valueList, listOfWithOrder(expectedValues)
-        }
-
+        listOf(dataProperties.collect {
+            propsWith([
+                name: it.key,
+                type: HighDimBuilder.typeForClass(it.value)
+            ])
+        })
     }
 
     Matcher assayColumnMatcher(AssayColumn col) {

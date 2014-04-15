@@ -76,6 +76,7 @@ grails.project.dependency.resolution = {
         runtime ':hibernate:3.6.10.6'
 
         test ':functional-test:2.0.RC1'
+        test ':transmart-core:1.0-SNAPSHOT'
         test ':transmart-core-db-tests:1.0-SNAPSHOT'
     }
 }
