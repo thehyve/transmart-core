@@ -12,6 +12,7 @@ import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
+import org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue
 
 /**
  * Helper class to build HighDimTable for highdim results
@@ -32,7 +33,7 @@ class HighDimBuilder {
     @Lazy private Map<String, ? extends Class> dataColumns = { getDataProperties(projection) }()
 
     private Row.Builder rowBuilder = Row.newBuilder()
-    private HighDimProtos.ColumnValue.Builder columnBuilder = HighDimProtos.ColumnValue.newBuilder()
+    private ColumnValue.Builder columnBuilder = ColumnValue.newBuilder()
 
     static void write(Projection projection,
                                  TabularResult<AssayColumn, DataRow<AssayColumn,? extends Object>> tabularResult,
@@ -99,8 +100,8 @@ class HighDimBuilder {
         }
 
         if (isMultiValuedProjection()) {
-            Map<String, HighDimProtos.ColumnValue.Builder> cols = (Map) dataColumns.collectEntries { col, type ->
-                [(col): HighDimProtos.ColumnValue.newBuilder()]
+            Map<String, ColumnValue.Builder> cols = (Map) dataColumns.collectEntries { col, type ->
+                [(col): ColumnValue.newBuilder()]
             }
 
             // transpose the data row
@@ -136,6 +137,7 @@ class HighDimBuilder {
         builder.patientId = safeString(col.patientInTrialId)
 
         Map optionalValues = [
+                // Capitalized because we're pasting 'set' in front of the key strings
                 Platform: col.platform?.id,
                 SampleCode: col.sampleCode,
                 SampleTypeName: col.sampleType?.label,
@@ -145,7 +147,8 @@ class HighDimBuilder {
         
         optionalValues.each { field, value ->
             if(value != null) {
-                // The conversion to Object[] is not necessary, but otherwise IntelliJ shows an error
+                // Java reflection because of CompileStatic. The conversion to Object[] is not necessary,
+                // but otherwise IntelliJ shows an error
                 builder.class.getDeclaredMethod('set'+field, String).invoke(builder, [value] as Object[])
             }
         }
