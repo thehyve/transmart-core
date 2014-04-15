@@ -6,6 +6,8 @@ import org.hamcrest.Matcher
 
 import static org.hamcrest.Matchers.*
 
+import static org.thehyve.commons.test.FastMatchers.*
+
 abstract class ResourceTestCase extends APITestCase {
 
     def contentTypeForHAL = 'application/hal+json'
@@ -54,6 +56,18 @@ abstract class ResourceTestCase extends APITestCase {
                 hasEntry(
                         is('self'), hasEntry('href', selfLink)
                 ),
+        )
+    }
+
+    Matcher hasLinks(Map<String,String> linkMap) {
+        Map expectedLinksMap = linkMap.collectEntries {
+            String tempUrl = "${it.value}"
+            [(it.key): ([href: tempUrl])]
+        }
+
+        hasEntry(
+                is('_links'),
+                mapWith(expectedLinksMap),
         )
     }
 
