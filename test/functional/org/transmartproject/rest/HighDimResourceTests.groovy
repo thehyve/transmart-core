@@ -1,12 +1,14 @@
 package org.transmartproject.rest
 
+import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
+import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.thehyve.commons.test.FastMatchers.mapWith
+import static org.thehyve.commons.test.FastMatchers.*
 
 class HighDimResourceTests extends ResourceTestCase {
 
@@ -75,24 +77,29 @@ class HighDimResourceTests extends ResourceTestCase {
 
     void testMrna() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, [])
+        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
     }
 
     void testMrnaDefaultRealProjection() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.DEFAULT_REAL_PROJECTION))
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, [])
+        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
     }
 
     void testMrnaAllDataProjection() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.ALL_DATA_PROJECTION))
-        List<String> expectedDataColumns = ['trialName', 'rawIntensity', 'logIntensity', 'zscore']
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, expectedDataColumns)
+        Map<String, Class> dataColumns = [
+                trialName: String,
+                rawIntensity: Double,
+                logIntensity: Double,
+                zscore: Double
+        ]
+        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, dataColumns)
     }
 
     void testAcgh() {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
-        List<String> expectedDataColumns = new AcghValuesProjection().dataProperties
-        assertResult(result, expectedAcghAssays, expectedAcghRowLabels, expectedDataColumns)
+        Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
+        assertResult(result, expectedAcghAssays, expectedAcghRowLabels, dataColumns)
     }
 
     private String getHighDimUrl(String dataType) {
@@ -109,18 +116,28 @@ class HighDimResourceTests extends ResourceTestCase {
      * @param result actual result to assert
      * @param expectedAssays expected assay Ids
      * @param expectedRowLabels expected row labels
-     * @param mapColumns expected map columns (or [] if projection/dataType determines a cell with single double values)
+     * @param columnsMap expected column names and type
      */
     private assertResult(HighDimResult result,
                          List<Long> expectedAssays,
                          List<String> expectedRowLabels,
-                         List<String> mapColumns) {
+                         Map<String, Class> columnsMap) {
 
         assertThat result.header.assayList*.assayId, containsInAnyOrder(expectedAssays.toArray())
 
-        assertThat result.header.mapColumnList, containsInAnyOrder(mapColumns.toArray())
+        assertThat result.header.columnSpecList, columnSpecMatcher(columnsMap)
 
         assertThat result.rows*.label, containsInAnyOrder(expectedRowLabels.toArray())
+    }
+
+    private Matcher columnSpecMatcher(Map<String, Class> dataProperties) {
+
+        listOf(dataProperties.collect {
+            propsWith([
+                    name: it.key,
+                    type: HighDimBuilder.typeForClass(it.value)
+            ])
+        })
     }
 
     private HighDimResult getAsHighDim(String url) {

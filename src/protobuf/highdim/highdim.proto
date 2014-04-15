@@ -3,14 +3,19 @@ package highdim;
 option java_package = "org.transmartproject.rest.protobuf";
 option java_outer_classname = "HighDimProtos";
 
-//command to compile this file, from the transmart-rest-api:
+//command to compile this file, from the transmart-rest-api base folder:
 //protoc --java_out=src/java src/protobuf/highdim/highdim.proto
 message HighDimHeader {
-    enum RowType { DOUBLE = 1; GENERAL = 2; }
 
-    required RowType rowsType = 1;
-    repeated Assay assay = 2;
-    repeated string mapColumn = 3;
+    repeated Assay assay = 1;
+    repeated ColumnSpec columnSpec = 2;
+}
+
+message ColumnSpec {
+    enum ColumnType { DOUBLE = 1; STRING = 2; }
+
+    required string name = 1;
+    required ColumnType type = 2;
 }
 
 message Assay {
@@ -23,13 +28,20 @@ message Assay {
     optional string sampleCode = 7;
 }
 
+// One Row per bioMarker/label
 message Row {
     required string label = 1;
     optional string bioMarker = 2;
-    repeated double doubleValue = 3 [packed=true]; //corresponds to an assay by index. When no value for that assay, use NaN
-    repeated MapValue mapValue = 4;
+    // A ColumnValue per column (as given by the used projection).
+    // For single-column projections such as zscore/default_real/etc this has only one entry.
+    // Each ColumnValue has a corresponding ColumnSpec entry in the header.
+    repeated ColumnValue value = 3;
 }
 
-message MapValue {
-    repeated string value = 1;
+message ColumnValue {
+    // Only ONE of these should be set!
+    // The type that is set must correspond to that indicated in the corresponding ColumnType for this column in the header.
+    // Every value corresponds to one assay (matching the order in the header), there are as many values as there are assays
+    repeated double doubleValue = 1 [packed=true];
+    repeated string stringValue = 2;
 }
