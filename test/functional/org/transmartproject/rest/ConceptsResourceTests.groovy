@@ -47,7 +47,6 @@ class ConceptsResourceTests extends ResourceTestCase {
                         conceptListUrl,
                         ['ontology_terms': contains(
                                 halConceptResponse()
-                                //halConceptResponse(conceptKey, partialConceptName, conceptPath, conceptUrl, true)
                         )]
 
         )
