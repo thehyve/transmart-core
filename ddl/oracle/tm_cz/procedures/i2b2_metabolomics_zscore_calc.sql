@@ -175,7 +175,7 @@ BEGIN
 			select probeset
 				  ,intensity_value  
 				  ,assay_id 
-				  ,intensity_value
+				  ,round(intensity_value,4)
 				  ,patient_id
 			--	  ,sample_cd
 				  ,subject_id
@@ -197,7 +197,7 @@ BEGIN
 			select probeset
 				  ,intensity_value 
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value + 0.001),4) --UAT changes done on 19/3/2014
 				  ,patient_id
 		--		  ,sample_cd
 				  ,subject_id
@@ -345,7 +345,7 @@ BEGIN
 	,patient_id
 	)
 	select 
-                  TrialId || ':' || mpp.source_cd,
+                  TrialId || ':' || source_cd,
                   TrialId
                  ,d.id
                  --,m.probeset_id 
@@ -356,13 +356,12 @@ BEGIN
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
                   ,m.intensity_value
 		  ,round(m.log_intensity,4)
-                  ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)		  
+                  ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)		  
                    ,m.patient_id
-	from WT_SUBJECT_METABOLOMICS_MED m,
-        (select distinct mp.source_cd,mp.platform From "TM_LZ"."LT_SRC_METABOLOMIC_MAP" mp where rownum = 1 and mp.trial_name =TrialID) mpp                
+	from WT_SUBJECT_METABOLOMICS_MED m           
        , DE_METABOLITE_ANNOTATION d
         where trim(d.biochemical_name) = trim(m.probeset)
-        and d.gpl_id = mpp.platform;
+        and d.gpl_id in (select distinct platform from  LT_SRC_METABOLOMIC_MAP where trial_name=TrialId);
         
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP DE_SUBJECT_METABOLOMICS_DATA',SQL%ROWCOUNT,stepCt,'Done');
@@ -408,4 +407,3 @@ BEGIN
 	
 END;
 /
- 

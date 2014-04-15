@@ -102,6 +102,7 @@ AS
 
 
 BEGIN
+EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -317,20 +318,21 @@ BEGIN
 			into pExists
 			from all_tab_partitions
 			where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
-			  and partition_name = TrialId || ':' || sourceCd;
+			  and partition_name = TrialId;
 			
+		
 		if pExists = 0 then
 					
 			--	needed to add partition to de_subject_microarray_data
 
-			sqlText := 'alter table deapp.de_subject_microarray_data add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
+			sqlText := 'alter table deapp.de_subject_microarray_data add PARTITION "' || TrialID || '"  VALUES (' || '''' || TrialID || '''' || ') ' ||
 						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to de_subject_microarray_data',0,stepCt,'Done');
 				
 		else
-			sqlText := 'alter table deapp.de_subject_microarray_data truncate partition "' || TrialID || ':' || sourceCd || '"';
+			sqlText := 'alter table deapp.de_subject_microarray_data truncate partition "' || TrialID || '"';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in de_subject_microarray_data',0,stepCt,'Done');
@@ -673,33 +675,38 @@ BEGIN
 		inner join wt_mrna_nodes ln
 			on a.platform = ln.platform
 			and a.tissue_type = ln.tissue_type
+                        and a.category_cd=ln.category_cd  --modified
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
 		inner join wt_mrna_nodes pn
 			on a.platform = pn.platform
+                        and pn.category_cd=substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(pn.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(pn.attribute_2,'@')
-			and pn.node_type = 'PLATFORM'	  
+			and pn.node_type = 'PLATFORM'	     
 		left outer join wt_mrna_nodes ttp
 			on a.tissue_type = ttp.tissue_type
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then a.platform else '@' end = nvl(ttp.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(ttp.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(ttp.attribute_2,'@')
-			and ttp.node_type = 'TISSUETYPE'		  
+			and ttp.node_type = 'TISSUETYPE'
+                        and ttp.category_cd=substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10)
 		left outer join wt_mrna_nodes a1
 			on a.attribute_1 = a1.attribute_1
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a1.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a1.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(a1.attribute_2,'@')
-			and a1.node_type = 'ATTR1'		  
+			and a1.node_type = 'ATTR1'	
+                        and a1.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5)
 		left outer join wt_mrna_nodes a2
 			on a.attribute_2 = a1.attribute_2
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a2.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a2.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(a2.attribute_1,'@')
-			and a2.node_type = 'ATTR2'			  
+			and a2.node_type = 'ATTR2'
+                        and a2.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5)
 		left outer join patient_dimension sid
 			on  regexp_replace(TrialId || ':S:' || a.site_id || ':' || a.subject_id || ':' || a.sample_cd,
 							  '(::){1,}', ':') = sid.sourcesystem_cd
@@ -823,8 +830,8 @@ BEGIN
 	
         for ul in uploadI2b2
         loop
-	 update i2b2 n
-	SET n.c_columndatatype = 'N',
+	update i2b2 n
+	SET n.c_columndatatype = 'T',
       --Static XML String
 		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
                 <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
@@ -835,7 +842,7 @@ BEGIN
                 </ConvertingUnits></UnitValues><Analysis><Enums /><Counts />
                 <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
       from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
-                '</ValueMetadata>') where n.c_fullname=ul.category_cd;
+                '</ValueMetadata>') where n.c_fullname=(select leaf_node from wt_mrna_nodes where category_cd=ul.category_cd and leaf_node=n.c_fullname);
                 
                 end loop;
 		  
@@ -866,7 +873,15 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
 	COMMIT;
-    
+        
+        update i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
+  
+    COMMIT;
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
   -- a unique top-level node for mRNA data
@@ -1046,4 +1061,3 @@ END;
 
 	
 /
- 

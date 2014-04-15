@@ -18,15 +18,6 @@ Date:10/28/2013
 
 
 
-
-
-
-
-
-
-
-
-
   TrialID varchar2(50);
   sourceCD	varchar2(50);
   sqlText varchar2(2000);
@@ -151,6 +142,8 @@ BEGIN
 
 
 	if dataType = 'L' then
+        
+        ---for MIRNA_SEQ 
 		insert into wt_subject_mirna_logs 
 			(probeset_id
 			,intensity_value
@@ -161,17 +154,21 @@ BEGIN
 		--	,subject_id
 			)
 			select probeset_id
-				  ,intensity_value  
-				  ,assay_id 
 				  ,intensity_value
-				  ,patient_id
+				  ,assay_id 
+				  ,round((case when intensity_value<=0 then 0
+                                  when intensity_value>0 then log(2,intensity_value)
+                                  else 0 end),5)
+                                  ,patient_id
 			--	  ,sample_cd
 			--	  ,subject_id
 			from wt_subject_mirna_probeset
-			where trial_name = TrialId;
+			where trial_name = TrialId
+                        ;
            
 		--end if;
-	else	
+                	else
+                         --for MIRNA_QPCR
                 	insert into wt_subject_mirna_logs 
 			(probeset_id
 			,intensity_value
@@ -182,9 +179,9 @@ BEGIN
 		--	,subject_id
 			)
 			select probeset_id
-				  ,intensity_value 
+				  ,intensity_value
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,-(intensity_value)
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -216,10 +213,10 @@ BEGIN
 		  ,d.probeset_id
 		  ,avg(log_intensity)
 		  ,median(log_intensity)
-		  ,stddev(log_intensity)
+		  ,STDDEV(log_intensity)
 	from wt_subject_mirna_logs d 
 	group by d.trial_name 
-			,d.probeset_id;
+        ,d.probeset_id;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ wt_subject_mirna_calcs',SQL%ROWCOUNT,stepCt,'Done');
 
@@ -251,7 +248,7 @@ BEGIN
 		  ,c.mean_intensity 
 		  ,c.stddev_intensity 
 		  ,c.median_intensity 
-		  ,(CASE WHEN stddev_intensity=0 THEN 0 ELSE (log_intensity - median_intensity ) / stddev_intensity END)
+		  ,(CASE WHEN stddev_intensity=0 THEN 0 ELSE (d.log_intensity - c.median_intensity ) / c.stddev_intensity END)
 		  ,d.patient_id
 	--	  ,d.sample_cd
 	--	  ,d.subject_id
@@ -295,14 +292,19 @@ BEGIN
 		  ,TrialId
 	      ,m.assay_id
 	      ,m.probeset_id 
-		  ,round(case when dataType = 'R' then m.intensity_value
+		  ,case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
-				then case when logBase = -1 then null else power(logBase, m.log_intensity) end
+				then m.intensity_value
 				else null
-				end,4) as raw_intensity
+				end as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(m.log_intensity,4)
-	      ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)
+		  ,case when dataType = 'R' then (-m.intensity_value)   --UAT 154 changes done on 19/03/2014
+				when dataType = 'L' 
+				then m.log_intensity
+				else null
+				end
+	      ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
+              --,m.zscore
 		  ,m.patient_id
 	--	  ,m.sample_id
 	--	  ,m.subject_id
@@ -322,7 +324,7 @@ BEGIN
 --	cleanup tmp_ files
 
 	execute immediate('truncate table tm_wz.wt_subject_mirna_logs');
-	execute immediate('truncate table tm_wz.wt_subject_mirna_calcs');
+        execute immediate('truncate table tm_wz.wt_subject_mirna_calcs');
 	execute immediate('truncate table tm_wz.wt_subject_mirna_med');
 
    	stepCt := stepCt + 1;
@@ -350,74 +352,4 @@ BEGIN
     cz_end_audit (jobID, 'FAIL');
 	
 END;
-
-
-/*	--	Recreate tmp tables used for calculation of miRNA Zscore if necessary
-
-create table wt_subject_MIRNA_logs parallel nologging compress as 
-select probeset_id 
-	  ,raw_intensity 
-	  ,pvalue 
-	  ,refseq 
-	  ,assay_id 
-	  ,patient_id 
-	  ,subject_id 
-	  ,trial_name 
-	  ,timepoint  
-      ,raw_intensity as log_intensity 
-       from de_subject_MIRNA_data
-	   where 1=2;
-	   
-create index tmp_MIRNA_logs_i1 on wt_subject_MIRNA_logs (trial_name, probeset_id);
-
-create table wt_subject_MIRNA_calcs parallel nologging compress as
-select d.trial_name 
-	  ,d.probeset_id
-	  ,log_intensity as mean_intensity
-	  ,log_intensity as median_intensity 
-	  ,log_intensity as stddev_intensity 
-from wt_subject_MIRNA_logs d 
-where 1=2;
-
-create index tmp_MIRNA_calcs_i1 on wt_subject_MIRNA_calcs (trial_name, probeset_id);	
-
-create table wt_subject_MIRNA_med parallel nologging compress as  
-select d.probeset_id
-	  ,d.raw_intensity  
-	  ,d.log_intensity  
-	  ,d.assay_id  
-	  ,d.patient_id  
-	  ,d.subject_id  
-	  ,d.trial_name  
-	  ,d.timepoint  
-	  ,d.pvalue  
-	  ,d.refseq 
-	  ,c.mean_intensity  
-	  ,c.stddev_intensity  
-	  ,c.median_intensity  
-	  ,d.log_intensity as zscore 
-from wt_subject_MIRNA_logs d  
-	 ,wt_subject_MIRNA_calcs c
-where 1=2;
-            
-create table wt_subject_MIRNA_mcapped parallel nologging compress as 
-select d.probeset_id 
-	  ,d.patient_id 
-	  ,d.trial_name 
-	  ,d.timepoint 
-	  ,d.pvalue 
-	  ,d.refseq 
-	  ,d.subject_id 
-	  ,d.raw_intensity 
-	  ,d.log_intensity 
-	  ,d.assay_id 
-	  ,d.mean_intensity 
-	  ,d.stddev_intensity 
-	  ,d.median_intensity 
-	  ,d.zscore 
- from wt_subject_MIRNA_med d
- where 1=2;
-		   
-*/
 /
- 

@@ -307,5 +307,7 @@ and i.c_fullname like '%BEERLUNG%'
   GROUP BY CONCEPT_PATH;
   COMMIT;
 */
-/
  
+
+ 
+/

@@ -44,7 +44,16 @@ BEGIN
 	--	get  id_ref  from external table
 	
         select distinct gpl_id into gplId from tm_lz.lt_metabolomic_annotation;
-      
+        
+        --	delete any existing data from de_metabolite_sub_pway_metab
+        delete from deapp.de_metabolite_sub_pway_metab where sub_pathway_id in (select id from de_metabolite_sub_pathways where gpl_id = gplId) ;
+        
+      --	delete any existing data from de_metabolite_sub_pathways
+        delete from de_metabolite_sub_pathways where gpl_id = gplId;
+
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pathways',SQL%ROWCOUNT,stepCt,'Done');
+    
       	--	delete any existing data from de_metabolite_super_pathways
 	
 	delete from deapp.de_metabolite_super_pathways
@@ -53,15 +62,11 @@ BEGIN
         stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_super_pathways',SQL%ROWCOUNT,stepCt,'Done');
 
-        --	delete any existing data from de_metabolite_sub_pathways
-        delete from deapp.de_metabolite_sub_pathways where gpl_id = gplId;
-
-        stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pathways',SQL%ROWCOUNT,stepCt,'Done');
-        
-        --	delete any existing data from de_metabolite_sub_pway_metab
-        delete from deapp.de_metabolite_sub_pway_metab where not exists (select id from deapp.de_metabolite_sub_pathways where de_metabolite_sub_pathways.id = de_metabolite_sub_pway_metab.sub_pathway_id) ;
-
+  --quick fix for duplicated rows in keyword_term, as annotation is deleted and added again instead of being uploaded
+  delete from searchapp.search_keyword_term where search_keyword_id in (select search_keyword_id from searchapp.search_keyword sk where data_category='METABOLITE_SUPERPATHWAY' and not exists(select keyword from deapp.de_metabolite_super_pathways msp where sk.keyword=msp.super_pathway_name || '_' || gpl_id and msp.gpl_id=gplId));
+  delete from searchapp.search_keyword sk where data_category='METABOLITE_SUPERPATHWAY' and not exists(select keyword from deapp.de_metabolite_super_pathways msp where sk.keyword=msp.super_pathway_name || '_' || gpl_id and msp.gpl_id=gplId);
+  delete from searchapp.search_keyword_term where search_keyword_id in (select search_keyword_id from searchapp.search_keyword sk where data_category='METABOLITE_SUBPATHWAY' and not exists(select keyword from deapp.de_metabolite_sub_pathways msp where sk.keyword=msp.sub_pathway_name || '_' || gpl_id and msp.gpl_id=gplId));
+  delete from searchapp.search_keyword sk where data_category='METABOLITE_SUBPATHWAY' and not exists(select keyword from deapp.de_metabolite_sub_pathways msp where sk.keyword=msp.sub_pathway_name || '_' || gpl_id and msp.gpl_id=gplId);
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pway_metab',SQL%ROWCOUNT,stepCt,'Done');
 
@@ -191,11 +196,11 @@ BEGIN
         CONNECT BY LEVEL <= MX) 
         WHERE REGEXP_SUBSTR (sub_pathway, '[^;]+', 1, RN) IS NOT NULL 
         ORDER BY 1) d
-	,deapp.de_metabolite_super_pathways sp
+	,de_metabolite_super_pathways sp
 	where 
         trim(d.super_pathway) = trim(sp.super_pathway_name)
         and d.gpl_id = gplId
-        and sp.gpl_id = gplId;
+        and sp.gpl_id = gplId;       
     
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_metabolite_sub_pathways',SQL%ROWCOUNT,stepCt,'Done');
@@ -221,9 +226,8 @@ BEGIN
         WHERE REGEXP_SUBSTR (ss.sub_pathway, '[^;]+', 1, RN) IS NOT NULL 
         ORDER BY 2) b
         where a.gpl_id = gplId
-        and a.sub_pathway_name = b.sub_pathway;
-               
-	
+        and a.sub_pathway_name = b.sub_pathway; 
+        	
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_metabolite_sub_pway_metab',SQL%ROWCOUNT,stepCt,'Done');
 		
@@ -308,7 +312,139 @@ BEGIN
 	stepCt := stepCt + 1; 
 	cz_write_audit(jobId,databaseName,procedureName,'Link feature_group to bio_marker in biomart.mirna_bio_assay_data_annotation',SQL%ROWCOUNT,stepCt,'Done');
 			
-	stepCt := stepCt + 1;
+        -- Inserts subpathways into search_keyword,
+-- subpathways into search_keyword_term,
+-- superpathways into search_keyword,
+-- superpathways into search_keyword_term
+
+          INSERT INTO searchapp.search_keyword (
+            keyword,
+            bio_data_id,
+            unique_id,
+            data_category,
+            display_data_category)
+          SELECT
+            CONCAT(CONCAT(subp.sub_pathway_name, '_'), subp.gpl_id),
+            subp.id,
+            CONCAT('METABOLITE_SUBPATHWAY:', subp.id),
+            'METABOLITE_SUBPATHWAY',
+            'Metabolite subpathway'
+          FROM
+            deapp.de_metabolite_sub_pathways subp 
+            where subp.gpl_id = gplId;
+
+        stepCt := stepCt + 1; 
+	cz_write_audit(jobId,databaseName,procedureName,'Insert subpathways into search_keyword',SQL%ROWCOUNT,stepCt,'Done');
+	
+
+            INSERT INTO searchapp.search_keyword_term (
+              keyword_term,
+              search_keyword_id,
+              rank,
+              term_length)
+            SELECT
+              upper_keyword,
+              search_keyword_id,
+              1,
+              LENGTH(upper_keyword)
+            FROM (
+              SELECT
+                UPPER(skw.keyword) AS upper_keyword,
+                skw.search_keyword_id AS search_keyword_id
+              FROM
+                searchapp.search_keyword skw
+              WHERE
+                data_category = 'METABOLITE_SUBPATHWAY'
+              AND
+                bio_data_id IN (
+                  SELECT
+                    subp.id
+                    FROM deapp.de_metabolite_sub_pathways subp
+                    where subp.gpl_id = gplId
+                )
+            );
+
+            stepCt := stepCt + 1; 
+            cz_write_audit(jobId,databaseName,procedureName,'Insert subpathways into search_keyword_term',SQL%ROWCOUNT,stepCt,'Done');
+            
+            INSERT INTO searchapp.search_keyword (
+              keyword,
+              bio_data_id,
+              unique_id,
+              data_category,
+              display_data_category)
+            SELECT
+              CONCAT(CONCAT(supp.super_pathway_name, '_'), supp.gpl_id),
+              supp.id,
+              CONCAT('METABOLITE_SUPERPATHWAY:', supp.id),
+              'METABOLITE_SUPERPATHWAY',
+              'Metabolite superpathway'
+            FROM
+              deapp.de_metabolite_super_pathways supp
+              where supp.gpl_id = gplId;
+
+            stepCt := stepCt + 1; 
+            cz_write_audit(jobId,databaseName,procedureName,'Insert superpathways into search_keyword',SQL%ROWCOUNT,stepCt,'Done');
+            
+            INSERT INTO searchapp.search_keyword_term (
+              keyword_term,
+              search_keyword_id,
+              rank,
+              term_length)
+            SELECT
+              upper_keyword,
+              search_keyword_id,
+              1,
+              LENGTH(upper_keyword)
+            FROM (
+              SELECT
+                UPPER(skw.keyword) AS upper_keyword,
+                skw.search_keyword_id AS search_keyword_id
+              FROM
+                searchapp.search_keyword skw
+              WHERE
+                data_category = 'METABOLITE_SUPERPATHWAY'
+              AND
+                bio_data_id IN (
+                  SELECT
+                    supp.id
+                  FROM
+                    deapp.de_metabolite_super_pathways supp
+                    where supp.gpl_id = gplId
+                )
+            );
+
+        stepCt := stepCt + 1; 
+        cz_write_audit(jobId,databaseName,procedureName,'Insert superpathways into search_keyword_term',SQL%ROWCOUNT,stepCt,'Done');
+                        
+	INSERT INTO biomart.bio_marker (
+          bio_marker_name,
+          bio_marker_description,
+          primary_external_id,
+          bio_marker_type)
+        SELECT
+          CONCAT('PRIVATE:', annotation.id),
+          CONCAT('PRIVATE:', annotation.id),
+          CONCAT('PRIVATE:', annotation.id),
+          'METABOLITE'
+        FROM
+          deapp.de_metabolite_annotation annotation
+        WHERE
+          annotation.hmdb_id IS NULL
+          and CONCAT('PRIVATE:', annotation.id) not in (
+          select primary_external_id from biomart.bio_marker);
+          
+        stepCt := stepCt + 1; 
+        cz_write_audit(jobId,databaseName,procedureName,'Insert into biomart.bio_marker',SQL%ROWCOUNT,stepCt,'Done');
+                 
+        UPDATE deapp.de_metabolite_annotation annotation
+        SET  annotation.hmdb_id = CONCAT('PRIVATE:', annotation.id)
+        WHERE  annotation.hmdb_id IS NULL;
+                 
+        stepCt := stepCt + 1; 
+        cz_write_audit(jobId,databaseName,procedureName,'Update deapp.de_metabolite_annotation',SQL%ROWCOUNT,stepCt,'Done');                 
+        
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'End I2B2_LOAD_METABOLOMICS_ANNOT',0,stepCt,'Done');
         
        ---Cleanup OVERALL JOB if this proc is being run standalone
@@ -326,4 +462,3 @@ BEGIN
 
 END;
 /
- 

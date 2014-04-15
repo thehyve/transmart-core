@@ -87,8 +87,15 @@ AS
     and substr(c_visualattributes,2,1) = 'H';
     --and c_visualattributes like '_H_';
 
+ cursor uploadI2b2 is 
+    select category_cd,display_value,display_label,display_unit from
+    tm_lz.lt_src_rbm_display_mapping;
+
+
+
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -188,11 +195,11 @@ BEGIN
 	if pCount > 0 then
 		raise multiple_platform;
 	end if;
-		
+	dbms_output.put_line('1');	
 	-- Get root_node from topNode
   
 	select parse_nth_value(topNode, 2, '\') into RootNode from dual;
-	
+	dbms_output.put_line('11');
 	select count(*) into pExists
 	from table_access
 	where c_name = rootNode;
@@ -208,7 +215,7 @@ BEGIN
 	-- Get study name from topNode
   
 	select parse_nth_value(topNode, topLevel, '\') into study_name from dual;
-	
+	dbms_output.put_line('11');
 	--	Add any upper level nodes as needed
 	
 	tPath := REGEXP_REPLACE(replace(top_node,study_name,null),'(\\){2,}', '\');
@@ -222,11 +229,20 @@ BEGIN
 	
 	update LT_SRC_RBM_SUBJ_SAMP_MAP
 	set trial_name=upper(trial_name);
-	
+	dbms_output.put_line('111');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Uppercase trial_name in LT_SRC_RBM_SUBJ_SAMP_MAP',SQL%ROWCOUNT,stepCt,'Done');
 	commit;	
 	
+        ---Data correction
+        update LT_SRC_RBM_DATA m set m.avalue=replace(m.avalue,'<LOW>','0');
+        update LT_SRC_RBM_DATA m set m.avalue=to_char(to_number(substr(m.avalue,instr(m.avalue,'>')+1,length(m.avalue)))+1);
+        update LT_SRC_RBM_DATA m set m.avalue=to_char(to_number(substr(m.avalue,instr(m.avalue,'<')+1,length(m.avalue)))-1);
+      
+        
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Data correction in LT_SRC_RBM_DATA',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	
 	--	create records in patient_dimension for subject_ids if they do not exist
 	--	format of sourcesystem_cd:  trial:[site:]subject_cd
 
@@ -326,14 +342,18 @@ BEGIN
 			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in de_subject_rbm_data',0,stepCt,'Done');
 		end if;
 		
-	end if;
+	end if;		
+	--	Cleanup any existing data in de_subject_sample_mapping.  
+
+	
 		
 	--	Cleanup any existing data in de_subject_sample_mapping.  
 
 	delete from DE_SUBJECT_SAMPLE_MAPPING 
 	where trial_name = TrialID 
 	  and nvl(source_cd,'STD') = sourceCd
-	  and platform = 'RBM'; --Making sure only rbm data is deleted
+	  and platform = 'RBM'
+	   ; --Making sure only rbm data is deleted
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
@@ -663,30 +683,35 @@ BEGIN
 		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':') = b.sourcesystem_cd
 		inner join WT_RBM_NODES ln
 			on a.platform = ln.platform
+			and a.category_cd=ln.category_cd
 			and a.tissue_type = ln.tissue_type
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
 		inner join WT_RBM_NODES pn
 			on a.platform = pn.platform
+			and  pn.category_cd=substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(pn.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(pn.attribute_2,'@')
 			and pn.node_type = 'PLATFORM'	  
 		left outer join WT_RBM_NODES ttp
 			on a.tissue_type = ttp.tissue_type
+			and ttp.category_cd=substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then a.platform else '@' end = nvl(ttp.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(ttp.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(ttp.attribute_2,'@')
 			and ttp.node_type = 'TISSUETYPE'		  
-		left outer join WT_RBM_NODES a1
+		left outer join WT_RBM_NODES a1 
 			on a.attribute_1 = a1.attribute_1
+			and a1.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a1.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a1.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(a1.attribute_2,'@')
 			and a1.node_type = 'ATTR1'		  
 		left outer join WT_RBM_NODES a2
 			on a.attribute_2 = a1.attribute_2
+			and a2.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a2.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a2.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(a2.attribute_1,'@')
@@ -729,6 +754,7 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+        ,sample_cd
         ,INSTANCE_NUM
     )
     select distinct m.patient_id
@@ -743,6 +769,7 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                   ,m.sample_cd
                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
@@ -769,6 +796,8 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+        ,sample_cd
+        ,INSTANCE_NUM
     )
     select distinct m.sample_id
 		  ,m.concept_code
@@ -782,6 +811,8 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                   ,m.sample_cd
+                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
@@ -803,17 +834,35 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
-	update i2b2
-	SET c_columndatatype = 'N',
+	 ---INSERT sample_dimension
+      INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
+         SELECT DISTINCT SAMPLE_CD FROM 
+           DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
+
+	   stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+
+    ---- update c_metedataxml in i2b2
+    
+
+       for ul in uploadI2b2
+        loop
+	 update i2b2 n
+	SET n.c_columndatatype = 'T',
       --Static XML String
-		c_metadataxml = '<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>10/21/2013 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue><HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue><LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits></UnitValues><Analysis><Enums /><Counts /><New /></Analysis></ValueMetadata>'
-	where c_basecode IN (
-		  select xd.concept_cd
-		  from WT_RBM_NODES xd
-			  ,observation_fact xf
-		  where xf.concept_cd = xd.concept_cd
-		  group by xd.concept_Cd
-		  having Max(xf.valtype_cd) = 'N');
+		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+                <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
+                <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
+                <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
+                <UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits>
+                <ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor>
+                </ConvertingUnits></UnitValues><Analysis><Enums /><Counts />
+                <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
+      from tm_lz.lt_src_rbm_display_mapping m where m.category_cd=ul.category_cd)||
+                '</ValueMetadata>') where n.c_fullname=(select leaf_node from wt_rbm_nodes where category_cd=ul.category_cd  and leaf_node=n.c_fullname);
+                
+                end loop;
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
@@ -832,7 +881,7 @@ BEGIN
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
-    set c_visualattributes = 'LAH'
+        set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = 'RBM'
@@ -841,6 +890,13 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
+       update i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
+
 	COMMIT;
   
   --Build concept Counts
@@ -892,8 +948,7 @@ BEGIN
         ,timepoint
         ,sample_type
         ,platform
-        ,tissue_type
-	
+        ,tissue_type	
 	)
 	select md.analyte 
 		  ,avg(md.avalue)
@@ -904,26 +959,26 @@ BEGIN
                   ,TrialId
                   ,sd.timepoint
                   ,sd.sample_type
-                  ,sd.platform
+                  ,sd.gpl_id   --UAT_142 25/feb/14 changes
                   ,sd.tissue_type
 	from deapp.de_subject_sample_mapping sd
 		,LT_SRC_RBM_DATA md   
 		--,LT_SRC_RBM_ANNOTATION  gs
-	where --sd.sample_id = md.sample_id
-	 -- and 
-          sd.platform = 'RBM'
+	where sd.sample_cd = md.sample_id
+	 and sd.platform = 'RBM'
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref   --check
 	--and trim(substr(md.analyte,1,instr(md.analyte,'(')-1)) =trim(gs.antigen_name)
-	and decode(dataType,'R',sign(md.avalue),1) = 1  --check
+	and decode(dataType,'R',sign(md.avalue),1) <> -1  --UAT 154 changes done on 19/03/2014
+	and sd.subject_id in (select subject_id from LT_SRC_RBM_SUBJ_SAMP_MAP) 
 	group by md.analyte 
 		  ,sd.patient_id,sd.assay_id
                   ,md.sample_id
                   ,sd.subject_id
                   ,sd.timepoint
                   ,sd.sample_type
-                  ,sd.platform
+                  ,sd.gpl_id
                   ,sd.tissue_type;
 		  
 	pExists := SQL%ROWCOUNT;
@@ -933,16 +988,16 @@ BEGIN
 	
 	commit;		
 	
-	/*if pExists = 0 then
+	if pExists = 0 then
 		raise no_probeset_recs;
-	end if;*/--mod
+	end if;
 
 	--	insert into de_subject_rbm_data when dataType is T (transformed)
  
-	/*if dataType = 'T' then
+	if dataType = 'T' then
 		insert into de_subject_rbm_data 
 	(trial_name
-        ,rbm_annotation_id
+        --,rbm_annotation_id
 	,antigen_name
 	,patient_id
         ,gene_symbol
@@ -951,40 +1006,59 @@ BEGIN
         ,concept_cd
         ,value
         ,normalized_value
+        ,log_intensity
         ,unit    
 	,zscore
-	)select (TrialId || ':' || sourceCd)
-			  ,probeset_id
-			  ,assay_id
-			  ,patient_id
-			  --,sample_id
-			  --,subject_id
-			  ,trial_name
-			  ,case when intensity_value < -2.5
-			        then -2.5
-					when intensity_value > 2.5
-					then 2.5
-					else intensity_value
-			   end as zscore
-		from WT_SUBJECT_RBM_PROBESET --mod
-		where trial_name = TrialID;
+	)select TrialId
+               --,a.id ---rbm_annotation_id
+              ,trim(substr(m.probeset,1,instr(m.probeset,'(')-1)) --m.probeset_id 
+              ,m.patient_id
+              ,a.gene_symbol  -- gene-symbol 
+              ,a.gene_id  --gene_id
+              ,m.assay_id
+              ,d.concept_code --concept_cd
+              ,round(m.intensity_value,6)
+              ,round(m.intensity_value,6)
+              ,round( m.intensity_value,6)
+              ,trim(substr(m.probeset ,instr(m.probeset ,'(',-1,1),length(m.probeset )))
+              ,(CASE WHEN m.intensity_value < -2.5 THEN -2.5 WHEN m.intensity_value >  2.5 THEN  2.5 ELSE m.intensity_value END)
+          --	  ,m.sample_id
+	--	  ,m.subject_id
+	from
+        wt_subject_rbm_probeset m
+        ,DE_RBM_ANNOTATION a
+        ,de_subject_sample_mapping d
+        where 
+        trim(substr(m.probeset,1,instr(m.probeset,'(')-1)) =trim(a.antigen_name) 
+        --and 
+      and   d.subject_id=m.subject_id
+        and m.platform=a.gpl_id
+      --  and m.assay_id=p.assay_id
+        and d.gpl_id=m.platform
+        and d.patient_id=m.patient_id
+        and d.concept_code in (select concept_cd from  i2b2demodata.concept_dimension where concept_cd=d.concept_code)
+        and d.trial_name=TrialId
+        
+      --  and p.patient_id=m.patient_id
+       -- and p.probeset=m.probeset_id
+        ;
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP de_subject_rbm_data',SQL%ROWCOUNT,stepCt,'Done');
 
 		commit;	
-	else*/
+	else
 		
 	--	Calculate ZScores and insert data into de_subject_rbm_data.  The 'L' parameter indicates that the gene expression data will be selected from
 	--	wt_subject_rbm_probeset as part of a Load.  
 
 		if dataType = 'R' or dataType = 'L' then
-			i2b2_rbm_zscore_calc_new(TrialID,'L',jobId,dataType,logBase,sourceCD);
+			i2b2_rbm_zscore_calc(TrialID,'L',jobId,dataType,logBase,sourceCD);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score',0,stepCt,'Done');
 			commit;
 		end if;
 	
-	--end if;
+	end if;
 
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
@@ -1035,4 +1109,3 @@ BEGIN
 		select 16  into rtn_code from dual;
 END;
 /
- 

@@ -12,4 +12,3 @@ BEGIN
   RETURN nvl(CODE_TYPE_NAME,'ERROR') || ':' || nvl(BIO_CONCEPT_CODE, 'ERROR');
 END bio_concept_code_uid;
 /
- 

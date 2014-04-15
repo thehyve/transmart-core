@@ -221,13 +221,13 @@ BEGIN
 			,assay_id
 			,log_intensity
 			,patient_id
-		--	,sample_cd
+		--	,sample_cd 
 		--	,subject_id
 			)
 			select probeset_id
 				  ,intensity_value 
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value),4)
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -305,19 +305,19 @@ BEGIN
 
     commit;
   
-/*
+
 	select count(*) into nbrRecs
 	from wt_subject_microarray_med;
 	
 	if nbrRecs > 10000000 then
-		i2b2_mrna_index_maint('DROP',,jobId);
+		i2b2_mrna_index_maint('DROP','',jobId);
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_microarray_data',0,stepCt,'Done');
 	else
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Less than 10M records, index drop bypassed',0,stepCt,'Done');
 	end if;
-*/	
+	
 
 
 	insert into de_subject_microarray_data
@@ -343,7 +343,7 @@ BEGIN
 				end,4) as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
 		  ,round(m.log_intensity,4)
-	      ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)
+	      ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
 		  ,m.patient_id
 	--	  ,m.sample_id
 	--	  ,m.subject_id
@@ -354,17 +354,17 @@ BEGIN
   	commit;
 
 --	add indexes, if indexes were not dropped, procedure will not try and recreate
-/*
-	i2b2_mrna_index_maint('ADD',,jobId);
+        --added for UAT 207 on 06/03/2014
+	i2b2_mrna_index_maint('ADD',null,jobId);
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_microarray_data',0,stepCt,'Done');
-*/
+
 	
 --	cleanup tmp_ files
 
-	execute immediate('truncate table tm_wz.wt_subject_microarray_logs');
-	execute immediate('truncate table tm_wz.wt_subject_microarray_calcs');
-	execute immediate('truncate table tm_wz.wt_subject_microarray_med');
+	--execute immediate('truncate table tm_wz.wt_subject_microarray_logs');
+	--execute immediate('truncate table tm_wz.wt_subject_microarray_calcs');
+	--execute immediate('truncate table tm_wz.wt_subject_microarray_med');
 
    	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
@@ -461,4 +461,3 @@ select d.probeset_id
 
  
 /
- 

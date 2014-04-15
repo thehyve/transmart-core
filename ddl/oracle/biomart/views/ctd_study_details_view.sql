@@ -22,4 +22,3 @@ order by REF_ARTICLE_PROTOCOL_ID, COMMON_NAME
  
  
  ;
- 

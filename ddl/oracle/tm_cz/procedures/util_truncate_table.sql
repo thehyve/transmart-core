@@ -62,4 +62,3 @@ BEGIN
    CLOSE v_cmdlist;-- procedure
 END;
 /
- 

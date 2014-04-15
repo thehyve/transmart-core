@@ -14,34 +14,22 @@
  TABLESPACE "DEAPP"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "DEAPP" ;
-
 --
 -- Type: SEQUENCE; Owner: DEAPP; Name: RBM_ANNOTATION_ID
 --
-CREATE SEQUENCE  "DEAPP"."RBM_ANNOTATION_ID"  MINVALUE 1 MAXVALUE 999999999 INCREMENT BY 1 START WITH 12365 NOCACHE  NOORDER  NOCYCLE ;
-
+CREATE SEQUENCE  "DEAPP"."RBM_ANNOTATION_ID"  MINVALUE 1 MAXVALUE 999999999 INCREMENT BY 1 START WITH 105393 NOCACHE  NOORDER  NOCYCLE ;
 --
 -- Type: TRIGGER; Owner: DEAPP; Name: RBM_ID_TRIGGER
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."RBM_ID_TRIGGER" 
-
-  before insert on "DEAPP"."DE_RBM_ANNOTATION" 
-
-  for each row 
-
+   before insert on "DEAPP"."DE_RBM_ANNOTATION" 
+   for each row 
 begin  
-
-  if inserting then 
-
+   if inserting then 
       if :NEW."ID" is null then 
-
-        select RBM_ANNOTATION_ID.nextval into :NEW."ID" from dual; 
-
+         select RBM_ANNOTATION_ID.nextval into :NEW."ID" from dual; 
       end if; 
-
-  end if; 
-
+   end if; 
 end;
 /
 ALTER TRIGGER "DEAPP"."RBM_ID_TRIGGER" ENABLE;
- 

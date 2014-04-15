@@ -39,4 +39,3 @@ BEGIN
    v_things := '''' || v_things || '''' ;
 END;
 /
- 

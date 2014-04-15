@@ -89,13 +89,14 @@ AS
     --and c_visualattributes like '_H_';
 
 
-    /* cursor uploadI2b2 is 
+    cursor uploadI2b2 is 
     select category_cd,display_value,display_label,display_unit from
-    tm_lz.lt_src_METABOLOMICS_display_mapping;
-    */
+    tm_lz.LT_METABOLOMIC_DISPLAY_MAPPING;
+    
 
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -670,30 +671,35 @@ BEGIN
 		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':') = b.sourcesystem_cd
 		inner join WT_METABOLOMIC_NODES ln
 			on a.platform = ln.platform
+                        and a.category_cd=ln.category_cd
 			and a.tissue_type = ln.tissue_type
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
 		inner join WT_METABOLOMIC_NODES pn
 			on a.platform = pn.platform
+                        and pn.category_cd=substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(pn.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(pn.attribute_2,'@')
 			and pn.node_type = 'PLATFORM'	  
 		left outer join WT_METABOLOMIC_NODES ttp
-			on a.tissue_type = ttp.tissue_type
+			on a.tissue_type = ttp.tissue_type 
+                        and  ttp.category_cd=substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then a.platform else '@' end = nvl(ttp.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(ttp.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(ttp.attribute_2,'@')
 			and ttp.node_type = 'TISSUETYPE'		  
 		left outer join WT_METABOLOMIC_NODES a1
 			on a.attribute_1 = a1.attribute_1
+                        and a1.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a1.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a1.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(a1.attribute_2,'@')
 			and a1.node_type = 'ATTR1'		  
 		left outer join WT_METABOLOMIC_NODES a2
 			on a.attribute_2 = a1.attribute_2
+                        and a2.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a2.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a2.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(a2.attribute_1,'@')
@@ -736,6 +742,7 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+        ,sample_cd
         ,INSTANCE_NUM
     )
     select distinct m.patient_id
@@ -750,6 +757,7 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                  ,m.sample_cd
                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
@@ -776,6 +784,8 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
+        ,sample_cd
+        ,INSTANCE_NUM
     )
     select distinct m.sample_id
 		  ,m.concept_code
@@ -789,6 +799,8 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                  ,m.sample_cd
+                  ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
@@ -822,7 +834,7 @@ BEGIN
       and c_fullname like '%' || topNode || '%';
 */
 
-/*
+
  ---INSERT sample_dimension
       INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
          SELECT DISTINCT SAMPLE_CD FROM 
@@ -838,7 +850,7 @@ BEGIN
        for ul in uploadI2b2
         loop
 	 update i2b2 n
-	SET n.c_columndatatype = 'N',
+	SET n.c_columndatatype = 'T',
       --Static XML String
 		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
                 <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
@@ -848,19 +860,18 @@ BEGIN
                 <ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor>
                 </ConvertingUnits></UnitValues><Analysis><Enums /><Counts />
                 <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
-      from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
-                '</ValueMetadata>') where n.c_fullname=ul.category_cd;
+      from tm_lz.LT_METABOLOMIC_DISPLAY_MAPPING m where m.category_cd=ul.category_cd)||
+                '</ValueMetadata>') where n.c_fullname=(select leaf_node from WT_METABOLOMIC_NODES where category_cd=ul.category_cd and leaf_node=n.c_fullname);
                 
                 end loop;
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
-        
-          */
+         
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
-    set c_visualattributes = 'LAH'
+         set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = 'METABOLOMICS'
@@ -868,12 +879,19 @@ BEGIN
 	  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
-  
-	COMMIT;
+        
+        update i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 
+        COMMIT;
+ 
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
-  -- a unique top-level node for metabolomic data
+  -- a unique top-level node for miRNA data
   
     i2b2_create_concept_counts(topNode ,jobID );
 	stepCt := stepCt + 1;
@@ -931,7 +949,7 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
 	--  and md.peptide =p.peptide-- gs.mirna_id
-	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
+	 and decode(dataType,'R',sign(md.intensity_value),1) <> -1 ---UAT 154 changes done on 19/03/2014  
 	group by md.biochemical ,subject_id
 		  ,sd.patient_id,sd.assay_id;
 		  
@@ -970,7 +988,7 @@ BEGIN
 		  ,m.assay_id
                   ,m.subject_id 
                   ,m.intensity_value
-                  ,log(2,m.intensity_value)
+                  ,log(2,m.intensity_value + 0.001) --UAT 154 changes done on 19/03/2014
 			  ,case when m.intensity_value < -2.5
 			        then -2.5
 					when m.intensity_value > 2.5
@@ -1053,4 +1071,3 @@ BEGIN
 		select 16  into rtn_code from dual;
 END;
 /
- 

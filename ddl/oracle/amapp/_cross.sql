@@ -99,4 +99,3 @@ UNION
   ON tass.object_uid = obj_uid.unique_id
   JOIN BIOMART.bio_observation bio_val
   ON obj_uid.bio_data_id = bio_val.bio_observation_id;
- 

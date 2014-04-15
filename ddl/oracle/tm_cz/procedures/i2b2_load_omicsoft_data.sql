@@ -3,6 +3,7 @@
 --
   CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_OMICSOFT_DATA" 
 (analysis_id IN number
+ ,platform_id			in  varchar2
 ,i_job_id		number	:= null
 ,rtn_code		OUT	NUMBER
 )
@@ -32,6 +33,7 @@ AS
 	
 	v_etl_id					varchar2(200);
 	v_bio_assay_analysis_id		number(18,0);
+  v_platform_id		varchar2(20);
   v_bio_experiment_id		number(18,0);
   v_bio_assay_platform_id number(18,0);
   v_folder_full_name       varchar2(500);
@@ -77,6 +79,7 @@ AS
   v_data_cnt := 0;
   v_tea_data_cnt := 0;
   v_bio_assay_analysis_id := analysis_id;
+  v_platform_id := platform_id;
   
   --select etl_id into v_accession from biomart.bio_assay_analysis where bio_assay_analysis_id = v_bio_assay_analysis_id;
   --select bio_experiment_id  into v_bio_experiment_id from biomart.bio_experiment where accession = v_accession;
@@ -97,6 +100,7 @@ AS
   
   stepCt := 1;
   czx_write_audit(jobId,databaseName,procedureName,'Folder type = ' || v_folder_type ,0,stepCt,'Done');
+  czx_write_audit(jobId,databaseName,procedureName,'Platform = ' || v_platform_id ,0,stepCt,'Done');
    
   while v_folder_type != 'STUDY'
   loop
@@ -160,9 +164,10 @@ AS
   , raw_pvalue
   , fold_change_ratio
   , preferred_pvalue
-  , bio_assay_feature_group_id
+  --, bio_assay_feature_group_id
   , tea_normalized_pvalue
-  , etl_id)
+  , etl_id
+  ,probeset_id)
     select distinct
     lz.bio_assay_analysis_id -- analysis
     , v_bio_experiment_id --study
@@ -172,13 +177,15 @@ AS
     , lz.raw_p_value
     , lz.fold_change
     , lz.raw_p_value -- NO PREFERRED PVALUE DATA PROVIDED
-    , fg.bio_assay_feature_group_id
+    --, fg.bio_assay_feature_group_id
     , round(biomart.TEA_NPV_PRECOMPUTE(lz.fold_change, v_mean_fold_change, v_stdev_fold_change),4)
     , etl_id
-    from tm_lz.lt_src_omicsoft_data lz
-    join biomart.bio_assay_feature_group fg on fg.feature_group_name = lz.probe_id
+    , an.probeset_id
+    from tm_lz.lt_src_omicsoft_data lz, deapp.de_mrna_annotation an
     where (fold_change >=1.2 or fold_change <=-1.2)
-    and (lz.raw_p_value is null or to_number(lz.raw_p_value) <= 0.05); --NO PREFERRED PVALUE DATA PROVIDED
+    and (lz.raw_p_value is null or to_number(lz.raw_p_value) <= 0.05) --NO PREFERRED PVALUE DATA PROVIDED
+    and an.gpl_id= v_platform_id
+    and an.probe_id=lz.probe_id;
     
     v_data_cnt := SQL%ROWCOUNT;
  
@@ -231,14 +238,15 @@ AS
   , raw_pvalue
   , fold_change_ratio
   , preferred_pvalue
-  , bio_assay_feature_group_id
-  , tea_normalized_pvalue)
+  --, bio_assay_feature_group_id
+  , tea_normalized_pvalue
+  , probeset_id)
     select distinct
       baad.bio_asy_analysis_data_id
     , baad.bio_assay_analysis_id -- analysis
     , baad.bio_experiment_id --study
     , baad.bio_assay_platform_id
-    , baad.feature_group_name 
+   -- , baad.feature_group_name 
     , baad.etl_id
     , baad.adjusted_pvalue
     , baad.raw_pvalue
@@ -246,6 +254,7 @@ AS
     , baad.preferred_pvalue
     , baad.bio_assay_feature_group_id
     , baad.tea_normalized_pvalue
+    , baad.probeset_id
     from biomart.bio_assay_analysis_data baad
     join tm_lz.lt_src_omicsoft_data lz on lz.etl_id = baad.etl_id
     where --baad.bio_assay_analysis_id = v_bio_assay_analysis_id
@@ -310,4 +319,3 @@ AS
 	
 END;
 /
- 

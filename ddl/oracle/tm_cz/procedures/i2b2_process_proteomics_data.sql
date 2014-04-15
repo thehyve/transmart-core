@@ -87,8 +87,12 @@ AS
     and substr(c_visualattributes,2,1) = 'H';
     --and c_visualattributes like '_H_';
 
+    cursor uploadI2b2 is 
+    select category_cd,display_value,display_label,display_unit from
+    tm_lz.lt_src_protein_display_mapping;
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -229,7 +233,7 @@ BEGIN
 	
 	--	create records in patient_dimension for subject_ids if they do not exist
 	--	format of sourcesystem_cd:  trial:[site:]subject_cd
-	dbms_output.PUT_LINE('1');
+
 	insert into patient_dimension
     ( patient_num,
       sex_cd,
@@ -258,7 +262,7 @@ BEGIN
 		   and s.trial_name = TrialID
 		   and s.source_cd = sourceCD
 		   and s.platform = g.platform
-		   and upper(g.marker_type) = 'PROTEINS'
+		   and upper(g.marker_type) = 'PROTEOMICS'
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
@@ -281,7 +285,7 @@ BEGIN
 		  from de_subject_sample_mapping x
 		  where x.trial_name = TrialId
 		    and nvl(x.source_cd,'STD') = sourceCD
-		    and x.platform = 'PROTIEN');
+		    and x.platform = 'PROTEIN');
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',SQL%ROWCOUNT,stepCt,'Done');
@@ -289,41 +293,41 @@ BEGIN
 
 	select count(*) into pExists
 	from all_tables
-	where table_name = 'DE_SUBJECT_PROTEOMICS_DATA'
+	where table_name = 'DE_SUBJECT_PROTEIN_DATA'
 	  and partitioned = 'YES';
 	
 	if pExists = 0 then
 		--	dataset is not partitioned so must delete
 		
-		delete from DE_SUBJECT_PROTEOMICS_DATA
+		delete from DE_SUBJECT_PROTEIN_DATA
 		where trial_name = TrialId ;
 		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Delete data from DE_SUBJECT_PROTEOMICS_DATA',SQL%ROWCOUNT,stepCt,'Done');
+		cz_write_audit(jobId,databaseName,procedureName,'Delete data from DE_SUBJECT_PROTEIN_DATA',SQL%ROWCOUNT,stepCt,'Done');
 		commit;
 	else
-		--	Create partition in DE_SUBJECT_PROTEOMICS_DATA if it doesn't exist else truncate partition
+		--	Create partition in DE_SUBJECT_PROTEIN_DATA if it doesn't exist else truncate partition
 			
 		select count(*)
 			into pExists
 			from all_tab_partitions
-			where table_name = 'DE_SUBJECT_PROTEOMICS_DATA'
+			where table_name = 'DE_SUBJECT_PROTEIN_DATA'
 			  and partition_name = TrialId || ':' || sourceCd;
 			
 		if pExists = 0 then
 					
-			--	needed to add partition to de_subject_MIRNA_data
+			--	needed to add partition to de_subject_protein_data
 
-			sqlText := 'alter table deapp.DE_SUBJECT_PROTEOMICS_DATA add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
+			sqlText := 'alter table deapp.DE_SUBJECT_PROTEIN_DATA add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
 						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to DE_SUBJECT_PROTEOMICS_DATA',0,stepCt,'Done');
+			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to DE_SUBJECT_PROTEIN_DATA',0,stepCt,'Done');
 				
 		else
-			sqlText := 'alter table deapp.DE_SUBJECT_PROTEOMICS_DATA truncate partition "' || TrialID || ':' || sourceCd || '"';
+			sqlText := 'alter table deapp.DE_SUBJECT_PROTEIN_DATA truncate partition "' || TrialID || ':' || sourceCd || '"';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in DE_SUBJECT_PROTEOMICS_DATA',0,stepCt,'Done');
+			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in DE_SUBJECT_PROTEIN_DATA',0,stepCt,'Done');
 		end if;
 		
 	end if;
@@ -333,7 +337,8 @@ BEGIN
 	delete from DE_SUBJECT_SAMPLE_MAPPING 
 	where trial_name = TrialID 
 	  and nvl(source_cd,'STD') = sourceCd
-	  and platform = 'PROTIEN'; --Making sure only miRNA data is deleted
+	  and platform = 'PROTEIN'
+	; --Making sure only miRNA data is deleted
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
@@ -348,7 +353,7 @@ BEGIN
 --	from wt_subject_mirna_data
 
 	execute immediate('truncate table tm_wz.WT_PROTEOMICS_NODE_VALUES');
-	dbms_output.PUT_LINE('11');
+	
 	insert into WT_PROTEOMICS_NODE_VALUES
 	(category_cd
 	,platform
@@ -369,7 +374,7 @@ BEGIN
 	  and nvl(a.platform,'GPL570') = g.platform
 	  and a.source_cd = sourceCD
 	  and a.platform = g.platform
-	  and upper(g.marker_type) = 'PROTEINS'
+	  and upper(g.marker_type) = 'PROTEOMICS'
 	  and g.title = (select min(x.title) from de_gpl_info x where nvl(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
@@ -457,7 +462,7 @@ BEGIN
 	commit;
 	
 	--	insert for ATTR2 node so ATTR2 concept can be populated in timepoint_cd
-	dbms_output.PUT_LINE('12');
+	
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -519,7 +524,7 @@ BEGIN
 	commit;
 		
 --	add leaf nodes for proteomics data  The cursor will only add nodes that do not already exist.
-dbms_output.PUT_LINE('13');
+
 	 FOR r_addNodes in addNodes Loop
 
     --Add nodes for all types (ALSO DELETES EXISTING NODE)
@@ -586,7 +591,7 @@ dbms_output.PUT_LINE('13');
   --SOURCE_CD		= sourceCd
   
   --ASSAY_ID        = generated by trigger
-dbms_output.PUT_LINE('14');
+
 	insert into de_subject_sample_mapping
 	(patient_id
 	,site_id
@@ -663,30 +668,35 @@ dbms_output.PUT_LINE('14');
 		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':') = b.sourcesystem_cd
 		inner join WT_PROTEOMICS_NODES ln
 			on a.platform = ln.platform
+			and a.category_cd=ln.category_cd
 			and a.tissue_type = ln.tissue_type
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
 		inner join WT_PROTEOMICS_NODES pn
 			on a.platform = pn.platform
+			and  pn.category_cd=substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(pn.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(pn.attribute_2,'@')
 			and pn.node_type = 'PLATFORM'	  
 		left outer join WT_PROTEOMICS_NODES ttp
 			on a.tissue_type = ttp.tissue_type
+			and ttp.category_cd=substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then a.platform else '@' end = nvl(ttp.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(ttp.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(ttp.attribute_2,'@')
 			and ttp.node_type = 'TISSUETYPE'		  
 		left outer join WT_PROTEOMICS_NODES a1
 			on a.attribute_1 = a1.attribute_1
+			and a1.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a1.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a1.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(a1.attribute_2,'@')
 			and a1.node_type = 'ATTR1'		  
 		left outer join WT_PROTEOMICS_NODES a2
 			on a.attribute_2 = a1.attribute_2
+			and a2.category_cd=substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5)
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a2.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a2.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(a2.attribute_1,'@')
@@ -715,7 +725,7 @@ dbms_output.PUT_LINE('14');
 	--cz_write_audit(jobId,databaseName,procedureName,'Recreate indexes on DEAPP de_subject_sample_mapping',0,stepCt,'Done');
 
 --	Insert records for patients and samples into observation_fact
-dbms_output.PUT_LINE('15');
+
 	insert into observation_fact
     (patient_num
 	,concept_cd
@@ -729,7 +739,9 @@ dbms_output.PUT_LINE('15');
 	,provider_id
 	,location_cd
 	,units_cd
+         ,sample_cd
         ,INSTANCE_NUM
+        
     )
     select distinct m.patient_id
 		  ,m.concept_code
@@ -743,7 +755,8 @@ dbms_output.PUT_LINE('15');
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
-                  ,1
+                   ,m.sample_cd
+                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
@@ -769,6 +782,8 @@ dbms_output.PUT_LINE('15');
 	,provider_id
 	,location_cd
 	,units_cd
+         ,sample_cd
+        ,INSTANCE_NUM
     )
     select distinct m.sample_id
 		  ,m.concept_code
@@ -782,6 +797,8 @@ dbms_output.PUT_LINE('15');
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
+                   ,m.sample_cd
+                  ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCd
@@ -794,7 +811,7 @@ dbms_output.PUT_LINE('15');
     commit;
     
 	--Update I2b2 for correct data type
-	dbms_output.PUT_LINE('16');
+
 	update i2b2 t
 	set c_columndatatype = 'T', c_metadataxml = null, c_visualattributes='FA'
 	where t.c_basecode in (select distinct x.concept_cd from WT_PROTEOMICS_NODES x);
@@ -803,22 +820,39 @@ dbms_output.PUT_LINE('15');
 	cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
-	update i2b2
-	SET c_columndatatype = 'N',
+	 ---INSERT sample_dimension
+      INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
+         SELECT DISTINCT SAMPLE_CD FROM 
+       
+	   
+	   DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
+    stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+
+    ---- update c_metedataxml in i2b2
+
+       for ul in uploadI2b2
+        loop
+	 update i2b2 n
+	SET n.c_columndatatype = 'T',
       --Static XML String
-		c_metadataxml = '<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>10/21/2013 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue><HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue><LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits></UnitValues><Analysis><Enums /><Counts /><New /></Analysis></ValueMetadata>'
-	where c_basecode IN (
-		  select xd.concept_cd
-		  from WT_PROTEOMICS_NODES xd
-			  ,observation_fact xf
-		  where xf.concept_cd = xd.concept_cd
-		  group by xd.concept_Cd
-		  having Max(xf.valtype_cd) = 'N');
+		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+                <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
+                <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
+                <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
+                <UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits>
+                <ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor>
+                </ConvertingUnits></UnitValues><Analysis><Enums /><Counts />
+                <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
+      from tm_lz.lt_src_protein_display_mapping m where m.category_cd=ul.category_cd)||
+                '</ValueMetadata>') where n.c_fullname=(select leaf_node from WT_PROTEOMICS_NODES where category_cd=ul.category_cd and leaf_node=n.c_fullname);
+                
+                end loop;
 		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
- 
 /*
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
@@ -832,7 +866,7 @@ dbms_output.PUT_LINE('15');
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
-    set c_visualattributes = 'LAH'
+        set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = 'PROTEIN'
@@ -841,6 +875,14 @@ dbms_output.PUT_LINE('15');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
+        
+	 update i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        
+        stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
+
 	COMMIT;
   
   --Build concept Counts
@@ -877,7 +919,7 @@ dbms_output.PUT_LINE('15');
 	execute immediate ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_PROBESET');
 	
 	--	note: assay_id represents a unique subject/site/sample
-	dbms_output.PUT_LINE('17');
+
 	insert into WT_SUBJECT_PROTEOMICS_PROBESET  --mod
 	(probeset
 --	,expr_id
@@ -903,7 +945,8 @@ dbms_output.PUT_LINE('15');
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
 	--  and md.peptide =p.peptide-- gs.mirna_id
-	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
+	 and decode(dataType,'R',sign(md.intensity_value),1) <> -1   --UAT 154 changes done on 19/03/2014
+	 and sd.subject_id in (select subject_id from lt_src_proteomics_sub_sam_map) 
 	group by md.peptide ,subject_id
 		  ,sd.patient_id,sd.assay_id;
 		  
@@ -914,14 +957,46 @@ dbms_output.PUT_LINE('15');
 	
 	commit;		
 	
-	/*if pExists = 0 then
+	if pExists = 0 then
 		raise no_probeset_recs;
-	end if;*/--mod
+	end if;
 
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
- dbms_output.PUT_LINE('18');
+
 	if dataType = 'T' then
-		insert into DE_SUBJECT_PROTEOMICS_DATA
+
+/*
+
+	  update DE_SUBJECT_PROTEIN_DATA dm set (dm.protein_annotation_id
+						,dm.component
+						,dm.gene_symbol
+						,dm.gene_id
+						,dm.assay_id  
+                                                ,dm.intensity
+                                   		,dm.zscore )=
+						(select        d.id
+							       ,m.probeset
+							  	,d.uniprot_id
+								,d.biomarker_id
+								,m.assay_id
+							     -- ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
+								,round(m.intensity_value,8)
+								,round(CASE WHEN m.intensity_value < -2.5 THEN -2.5 WHEN m.intensity_value >  2.5 THEN  2.5 ELSE round(m.intensity_value,5) END,5)		  
+								from WT_SUBJECT_PROTEOMICS_PROBESET m
+								, DEAPP.DE_PROTEIN_ANNOTATION d
+								--,DE_SUBJECT_PROTEIN_DATA de
+                                                                where d.peptide=m.probeset
+								 and dm.trial_name=TrialID
+								 and m.patient_id=dm.patient_id
+								 and m.trial_name=dm.trial_name) 
+								 ;
+
+	 stepCt := stepCt + 1;
+	 cz_write_audit(jobId,databaseName,procedureName,'Update into DEAPP de_subject_protein_data',SQL%ROWCOUNT,stepCt,'Done');
+
+*/	
+
+		insert into DE_SUBJECT_PROTEIN_DATA
 		(trial_name
 	,protein_annotation_id
 	,component
@@ -931,6 +1006,7 @@ dbms_output.PUT_LINE('15');
 	,subject_id
 	,intensity 
 	,zscore
+        ,log_intensity
 	,patient_id
 		)
 		select TrialId 
@@ -940,23 +1016,26 @@ dbms_output.PUT_LINE('15');
                   ,d.biomarker_id
 		  ,m.assay_id
                   ,m.subject_id 
-                   ,round(m.intensity_value,4)
+                   ,m.intensity_value as intensity ----UAT 154 changes done on 19/03/2014
 			  ,case when m.intensity_value < -2.5
 			        then -2.5
 					when m.intensity_value > 2.5
 					then 2.5
 					else m.intensity_value
 			   end as zscore
-                           ,m.patient_id
+                           /*, case when m.intensity_value > 0 then round(log(2, m.intensity_value),6)
+                            else 0 
+                            end */
+                            ,round(log(2, m.intensity_value + 0.001),6)  ----UAT 154 changes done on 19/03/2014
+                            ,m.patient_id
 		from WT_SUBJECT_PROTEOMICS_PROBESET  m
                 ,DEAPP.DE_PROTEIN_ANNOTATION d
 		where trial_name = TrialID
-                 and d.peptide=m.probeset
-                 ;
+                 and d.peptide=m.probeset;
 		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_PROTEOMICS_DATA',SQL%ROWCOUNT,stepCt,'Done');
+		cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_PROTEIN_DATA',SQL%ROWCOUNT,stepCt,'Done');
 
-		commit;	
+		commit;	 
 	else
 		
 	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
@@ -970,7 +1049,7 @@ dbms_output.PUT_LINE('15');
 		end if;
 	
 	end if;
-dbms_output.PUT_LINE('19');
+
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;
@@ -1021,4 +1100,3 @@ dbms_output.PUT_LINE('19');
 		select 16  into rtn_code from dual;
 END;
 /
- 

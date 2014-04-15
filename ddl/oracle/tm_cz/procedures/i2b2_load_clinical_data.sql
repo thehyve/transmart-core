@@ -97,7 +97,7 @@ AS
 
 -- changes finished		
 BEGIN
-  
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -431,10 +431,9 @@ BEGIN
 	   ,category_cd=replace(replace(category_cd,'%',' Pct'),'&',' and ')
 	   ,category_path=replace(replace(category_path,'%',' Pct'),'&',' and ');
 
-  --Trim trailing and leadling spaces as well as remove any double spaces, remove space from before comma, remove trailing comma
-
 	update wrk_clinical_data
 	set data_label  = trim(trailing ',' from trim(replace(replace(data_label,'  ', ' '),' ,',','))),
+  --Trim trailing and leadling spaces as well as remove any double spaces, remove space from before comma, remove trailing comma
 		data_value  = trim(trailing ',' from trim(replace(replace(data_value,'  ', ' '),' ,',','))),
 --		sample_type = trim(trailing ',' from trim(replace(replace(sample_type,'  ', ' '),' ,',','))),
 		visit_name  = trim(trailing ',' from trim(replace(replace(visit_name,'  ', ' '),' ,',',')));
@@ -569,8 +568,9 @@ BEGIN
 			and nvl(t.data_label,'**NULL**') = nvl(x.data_label,'**NULL**')
 			and nvl(t.visit_name,'**NULL**') = nvl(x.visit_name,'**NULL**')
 		  );
+      
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Updated data_type flag for numeric data_types',SQL%ROWCOUNT,stepCt,'Done');
+  cz_write_audit(jobId,databaseName,procedureName,'Updated data_type flag for numeric data_types',SQL%ROWCOUNT,stepCt,'Done');
 	
 	commit;
 
@@ -678,10 +678,10 @@ BEGIN
 		           when upper(a.data_label) like '%(RACE)' then a.data_value
 				   else null end) as race
 		  --max(decode(upper(a.data_label),'RACE',data_value,null)) as race
+		  
 	from wrk_clinical_data a
 	--where upper(a.data_label) in ('AGE','RACE','SEX','GENDER')
 	group by a.usubjid;
-		  
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert subject information into temp table',SQL%ROWCOUNT,stepCt,'Done');
 	
@@ -826,7 +826,7 @@ BEGIN
 			   else '<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue><HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue><LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues><NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits><ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits></UnitValues><Analysis><Enums /><Counts /><New /></Analysis></ValueMetadata>'
 		  end
 		 from wt_trial_nodes t
-		 where b.c_fullname = t.leaf_node
+      where b.c_fullname = t.leaf_node
 		   and (b.c_name != t.node_name or b.c_columndatatype != 'T'))   --t.data_type))
 	where exists
 		(select 1 from wt_trial_nodes x
@@ -909,21 +909,24 @@ for ul in uploadI2b2
     <ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits>
     </UnitValues><Analysis><Enums /><Counts /><New /></Analysis>   
 '||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
-      from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
-                '</ValueMetadata>') where n.c_fullname=ul.category_cd ;
+      from tm_lz.lt_src_display_mapping m where (m.category_cd||m.display_label)=(ul.category_cd||ul.display_label))||
+                '</ValueMetadata>') where n.c_fullname in  (select leaf_node from wt_trial_nodes where (((category_cd||'+'||replace(data_label,'PCT','%'))||node_name)=(ul.category_cd||ul.display_label) or (category_cd||node_name)=(ul.category_cd||ul.display_label)) and leaf_node=n.c_fullname);
                 
                 end loop;
+                
+  /*             
 for ul in uploadI2b2
 loop
+
 update i2b2 n
 SET  --Static XML String
+      from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
 		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version>
      
 '||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
-      from tm_lz.lt_src_display_mapping m where m.category_cd=ul.category_cd)||
                 '</ValueMetadata>') where n.c_fullname=ul.category_cd and n.c_columndatatype='T' ;
                 
-                end loop;
+                end loop;*/
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Updated I2B2 for metadataXML',SQL%ROWCOUNT,stepCt,'Done');
     COMMIT;
@@ -1029,10 +1032,10 @@ SET  --Static XML String
 		  
 		  )
 	  and a.data_value is not null;  
+	
     
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert trial into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
-	
 	commit;
 	
 	--	calculate days_since_enroll
@@ -1210,4 +1213,3 @@ SET  --Static XML String
 	
 end;
 /
- 

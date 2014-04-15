@@ -76,9 +76,6 @@ BEGIN
 --	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_RNA_sequencing_data
 --	If not, raise exception
 
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'were here!',0,stepCt,'test-trace');
-
 	if runType = 'L' then
 		select distinct trial_name into stgTrial
 		from wt_subject_rna_probeset;
@@ -220,7 +217,8 @@ BEGIN
 			select probeset_id
 				  ,intensity_value 
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  --,CASE WHEN intensity_value<=0 THEN log(2,(intensity_value+0.001)) ELSE log(2,intensity_value) END
+                                  ,log(2,(intensity_value+0.001))    ---UAT 154 changes on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -266,7 +264,7 @@ BEGIN
 		
 -- calculate zscore
 
-	insert into tm_wz.wt_subject_rna_med parallel 
+	insert into wt_subject_rna_med parallel 
 	(probeset_id
 	,intensity_value
 	,log_intensity
@@ -313,7 +311,7 @@ BEGIN
 */	
 
 
-	insert into deapp.de_subject_rna_data
+	insert into de_subject_rna_data
 	(trial_source
 	,trial_name
 	,assay_id
@@ -329,18 +327,18 @@ BEGIN
 		  ,TrialId
 	      ,m.assay_id
 	      ,m.probeset_id 
-		  ,round(case when dataType = 'R' then m.intensity_value
+		  ,case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
 				then case when logBase = -1 then null else power(logBase, m.log_intensity) end
 				else null
-				end,4) as raw_intensity
+				end as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
 		  ,round(m.log_intensity,4)
-	      ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)
+	      ,CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END
 		  ,m.patient_id
 	--	  ,m.sample_id
 	--	  ,m.subject_id
-	from tm_wz.wt_subject_rna_med m;
+	from wt_subject_rna_med m;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP de_subject_rna_data',SQL%ROWCOUNT,stepCt,'Done');
 
@@ -382,74 +380,4 @@ BEGIN
     cz_end_audit (jobID, 'FAIL');
 	
 END;
-
-
-/*	--	Recreate tmp tables used for calculation of RNA_sequencing Zscore if necessary
-
-create table wt_subject_rna_logs parallel nologging compress as 
-select probeset_id 
-	  ,raw_intensity 
-	  ,pvalue 
-	  ,refseq 
-	  ,assay_id 
-	  ,patient_id 
-	  ,subject_id 
-	  ,trial_name 
-	  ,timepoint  
-      ,raw_intensity as log_intensity 
-       from de_subject_rna_data
-	   where 1=2;
-	   
---create index tmp_rna_logs_i1 on wt_subject_rna_logs (trial_name, probeset_id);
-
-create table wt_subject_rna_calcs parallel nologging compress as
-select d.trial_name 
-	  ,d.probeset_id
-	  ,log_intensity as mean_intensity
-	  ,log_intensity as median_intensity 
-	  ,log_intensity as stddev_intensity 
-from wt_subject_rna_logs d 
-where 1=2;
-
-create index tmp_rna_calcs_i1 on wt_subject_rna_calcs (trial_name, probeset_id);	
-
-create table wt_subject_rna_med parallel nologging compress as  
-select d.probeset_id
-	  ,d.raw_intensity  
-	  ,d.log_intensity  
-	  ,d.assay_id  
-	  ,d.patient_id  
-	  ,d.subject_id  
-	  ,d.trial_name  
-	  ,d.timepoint  
-	  ,d.pvalue  
-	  ,d.refseq 
-	  ,c.mean_intensity  
-	  ,c.stddev_intensity  
-	  ,c.median_intensity  
-	  ,d.log_intensity as zscore 
-from wt_subject_rna_logs d 
-	 ,wt_subject_rna_calcs c
-where 1=2;
-            
-create table wt_subject_rna_mcapped parallel nologging compress as 
-select d.probeset_id 
-	  ,d.patient_id 
-	  ,d.trial_name 
-	  ,d.timepoint 
-	  ,d.pvalue 
-	  ,d.refseq 
-	  ,d.subject_id 
-	  ,d.raw_intensity 
-	  ,d.log_intensity 
-	  ,d.assay_id 
-	  ,d.mean_intensity 
-	  ,d.stddev_intensity 
-	  ,d.median_intensity 
-	  ,d.zscore 
- from wt_subject_rna_med d
- where 1=2;
-		   
-*/
 /
- 

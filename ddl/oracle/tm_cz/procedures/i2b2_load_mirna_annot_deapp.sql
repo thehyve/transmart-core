@@ -59,47 +59,37 @@ BEGIN
 	--	delete any existing data from mirna_annotation_deapp
 	
 	delete from mirna_annotation_deapp
-	where id_ref in ( select distinct id_ref from lt_qpcr_mirna_annotation);
+	where id_ref in ( select distinct id_ref from lt_qpcr_mirna_annotation)
+  and gpl_id in ( select distinct gpl_id from lt_qpcr_mirna_annotation);
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from mirna_annotation_deapp',SQL%ROWCOUNT,stepCt,'Done');
         
-        delete from mirna_probeset_deapp
+        delete from deapp.de_qpcr_mirna_annotation
+	where id_ref in (select distinct id_ref from lt_qpcr_mirna_annotation)
+  and gpl_id in(select gpl_id from lt_qpcr_mirna_annotation);
+
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
+        
+        
+      /*  delete from mirna_probeset_deapp
 	where probeset in ( select distinct id_ref from lt_qpcr_mirna_annotation);
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from mirna_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
         
         
-        delete from deapp.de_qpcr_mirna_annotation
-	where id_ref in (select distinct id_ref from lt_qpcr_mirna_annotation);
-
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
-
+        
 	--	delete any existing data from deapp.de_qpcr_mirna_annotation
 
 	delete from deapp.de_qpcr_mirna_annotation
 	where id_ref in (select distinct id_ref from lt_qpcr_mirna_annotation);
-
+   
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
-
-	--	update organism for existing probesets in mirna_probeset_deapp
+      */
 	
-	update mirna_probeset_deapp p
-	set organism=(select distinct t.organism from lt_qpcr_mirna_annotation t
-				  where p.platform = t.id_ref
-				    --and p.probeset = t.probe_id
-                                    )
-	where exists
-		 (select 1 from lt_qpcr_mirna_annotation x
-		  where p.platform = null
-		    and p.probeset = x.id_ref);
-	
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Update organism in mirna_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
-			 
 	--	insert any new probesets into mirna_probeset_deapp
 	
 	insert into mirna_probeset_deapp
@@ -108,13 +98,15 @@ BEGIN
 	,platform)
 	select distinct id_ref
 		  ,coalesce(organism,'Homo sapiens')
-	      ,null
+	      ,gpl_id
 	from lt_qpcr_mirna_annotation t
 	where not exists
 		 (select 1 from mirna_probeset_deapp x
 		  where 
                          t.id_ref = x.probeset
-			and coalesce(t.organism,'Homo sapiens') = coalesce(x.organism,'Homo sapiens'))
+                         and t.gpl_id = x.platform
+			--and coalesce(t.organism,'Homo sapiens') = coalesce(x.organism,'Homo sapiens')
+                        )
 	;
         commit;
       
@@ -124,6 +116,23 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert new probesets into mirna_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
 		
+                --	update organism for existing probesets in mirna_probeset_deapp
+	
+	update mirna_probeset_deapp p
+	set organism=(select distinct t.organism from lt_qpcr_mirna_annotation t
+				  where p.probeset = t.id_ref
+				    --and p.probeset = t.probe_id
+                                    )
+	where exists
+		 (select 1 from lt_qpcr_mirna_annotation x
+		  where p.platform = x.gpl_id
+		    and p.probeset = x.id_ref);
+	
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update organism in mirna_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
+			 
+                
+                
 	--	insert data into mirna_annotation_deapp
 	
 	insert into mirna_annotation_deapp
@@ -132,17 +141,19 @@ BEGIN
 	,mirna_symbol
 	,mirna_id
 	,probeset_id
-	,organism)
+	,organism
+  ,gpl_id)
 	select distinct d.id_ref
 	,null
 	,null
 	,d.mirna_id
 	,p.probeset_id
 	,coalesce(d.organism,'Homo sapiens')
+  ,d.gpl_id
 	from lt_qpcr_mirna_annotation d
 	,mirna_probeset_deapp p
 	where d.id_ref = p.probeset
-	 --- and p.platform = null
+    and p.platform = d.gpl_id
 	  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens')
 	  --and (d.id_ref is not null or d.mirna_symbol is not null)
 	  ;
@@ -159,24 +170,28 @@ BEGIN
 	,mirna_symbol
 	,mirna_id
 	,probeset_id
-	,organism)
+	,organism
+  ,gpl_id)
 	select distinct d.id_ref
 	,null
 	,null --d.mirna_symbol
 	,lower(d.mirna_id) as mirna_id
 	,p.probeset_id
 	,coalesce(d.organism,'Homo sapiens')
+  ,d.gpl_id
 	from lt_qpcr_mirna_annotation d
 	,mirna_probeset_deapp p
 	where d.id_ref = p.probeset
-	 -- and p.platform = null
-	  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens')
+	  and p.platform = d.gpl_id
+	  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens');
+	  --and d.id_ref not in (select distinct id_ref from deapp.de_qpcr_mirna_annotation )
 	  --and (d.id_ref is not null or d.mirna_symbol is not null)
-	  ;
+	  
 	
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
-		
+	
+		/*
 	--	update id_ref if null
 	
 	update deapp.de_qpcr_mirna_annotation t
@@ -216,7 +231,7 @@ BEGIN
 			
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_id in de_qpcr_mirna_annotation',SQL%ROWCOUNT,stepCt,'Done');
-	
+	*/
 	--	insert probesets into biomart.bio_assay_feature_group
 	
 	insert into biomart.mirna_bio_assay_feature_group
@@ -254,7 +269,7 @@ BEGIN
 		 (select 1 from biomart.mirna_bio_assay_data_annot x
 		  where fg.bio_assay_feature_group_id = x.bio_assay_feature_group_id
 		    and coalesce(bgs.bio_marker_id,bgi.bio_marker_id,-1) = x.bio_marker_id);
-			
+			 
 	stepCt := stepCt + 1; 
 	cz_write_audit(jobId,databaseName,procedureName,'Link feature_group to bio_marker in biomart.mirna_bio_assay_data_annotation',SQL%ROWCOUNT,stepCt,'Done');
 			
@@ -276,4 +291,3 @@ BEGIN
 
 END;
 /
- 

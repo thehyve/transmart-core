@@ -85,7 +85,7 @@ BEGIN
 	/*
 	update peptide_deapp p
 	set organism=(select distinct t.organism from lt_protein_annotation t
-				  where p.platform = t.gpl_id
+				  where p.platform = t.gpl_id  
 				    and p.peptide = t.peptide
                                     )
 	where exists
@@ -129,14 +129,14 @@ BEGIN
 	select distinct d.gpl_id
 	,trim(d.peptide)
 	,d.uniprot_id --d.mirna_symbol
-	,d.biomarker_id
+	,p.bio_marker_id
 	,coalesce(d.organism,'Homo sapiens')
 	from lt_protein_annotation d
-	--,peptide_deapp p
+	,biomart.bio_marker p
 	where d.gpl_id = gplId
-     --   and p.platform = 
+        and p.primary_external_id = d.uniprot_id 
 	--  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens')
-	  --and (d.id_ref is not null or d.gene_symbol is not null)
+	 -- and (d.gpl_id is not null or d.gene_symbol is not null)
 	  ;
 	
 	stepCt := stepCt + 1;
@@ -182,6 +182,16 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Updated missing uniprot_id in de_protien_annotation',SQL%ROWCOUNT,stepCt,'Done');
 	
+        update DEAPP.DE_PROTEIN_ANNOTATION set uniprot_name = (select bio_marker_name
+        from BIOMART.BIO_MARKER
+        WHERE biomart.bio_marker.primary_external_id = deapp.de_protein_annotation.uniprot_id)
+        where gpl_id = gplId;  
+        
+        commit;
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update uniprot_name in DEAPP de_protein_annotation',SQL%ROWCOUNT,stepCt,'Done');
+	
+        
 	--	insert probesets into biomart.bio_assay_feature_group
 	
 	insert into biomart.mirna_bio_assay_feature_group
@@ -241,4 +251,3 @@ BEGIN
 
 END;
 /
- 

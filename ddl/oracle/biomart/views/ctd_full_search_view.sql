@@ -16,4 +16,3 @@ FROM BIOMART.CTD_FULL
  
  
  ;
- 

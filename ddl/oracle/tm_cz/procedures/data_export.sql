@@ -39,5 +39,7 @@ BEGIN
   dbms_output.put_line('UNION ALL');
   dbms_output.put_line(dynamicsql2);
 END;
+
+
+
 /
- 

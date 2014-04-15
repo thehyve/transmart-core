@@ -826,6 +826,6 @@ END;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Inserted SNP WORKFLOW in I2B2METADATA i2b2_tags',SQL%ROWCOUNT,stepCt,'Done');
 	commit;		
-*/
-/
+*/	
  
+/

@@ -20,7 +20,7 @@ AS
 	--	JEA@20120209	Remove insert of sample to patient_dimension
 
 	--
-	-- Copyright ? 2011 Recombinant Data Corp.
+	-- Copyright © 2011 Recombinant Data Corp.
 	--
 
 BEGIN
@@ -133,5 +133,6 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 	
 END;
-/
+
  
+/

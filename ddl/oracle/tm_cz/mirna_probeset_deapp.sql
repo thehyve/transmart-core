@@ -8,12 +8,11 @@
 "ORGANISM" VARCHAR2(200 BYTE)
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" ;
-
 --
 -- Type: TRIGGER; Owner: TM_CZ; Name: TRG_MIRNA_PROBESET_DEAPP
 --
   CREATE OR REPLACE TRIGGER "TM_CZ"."TRG_MIRNA_PROBESET_DEAPP" 
-    before insert on "TM_CZ"."MIRNA_PROBESET_DEAPP"    
+    before insert on "MIRNA_PROBESET_DEAPP"    
 	for each row begin     
 		if inserting then       
 			if :NEW."PROBESET_ID" is null then
@@ -21,6 +20,6 @@
 			end if;   
 		end if; 
 	end;
+
 /
 ALTER TRIGGER "TM_CZ"."TRG_MIRNA_PROBESET_DEAPP" ENABLE;
- 

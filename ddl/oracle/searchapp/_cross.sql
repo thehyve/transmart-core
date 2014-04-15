@@ -40,4 +40,3 @@ FROM
   AND bada.bio_assay_feature_group_id = i.bio_assay_feature_group_id
   AND i.bio_assay_feature_group_id   IS NOT NULL
   );
-

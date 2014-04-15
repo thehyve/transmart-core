@@ -132,13 +132,15 @@ BEGIN
 	
 	insert into de_rbm_annotation
 	(gpl_id
-        ,id
+        --,id
 	,antigen_name
         ,uniprot_id
 	,gene_symbol
 	,gene_id
 	) 
-        SELECT d.gpl_id,p.antigen_id,d.antigen_name,trim(d.uniprotid) as uniprotid,d.gene_symbol,decode(d.gene_id,null,null,to_number(d.gene_id)) as gene_id FROM (
+        SELECT d.gpl_id
+        --,p.antigen_id
+        ,d.antigen_name,trim(d.uniprotid) as uniprotid,d.gene_symbol,decode(d.gene_id,null,null,to_number(d.gene_id)) as gene_id FROM (
         SELECT DISTINCT REGEXP_SUBSTR (uniprotid, '[^,]+', 1, RN) AS uniprotid,antigen_name,gene_id,gpl_id,gene_symbol
         FROM TM_LZ.LT_SRC_RBM_ANNOTATION 
         CROSS JOIN (SELECT ROWNUM AS RN 
@@ -149,12 +151,23 @@ BEGIN
         )d
         ,antigen_deapp p 
 	where d.antigen_name = p.antigen_name
-        and d.gpl_id = p.platform;
+        and d.gpl_id = p.platform
+        union       ----Changes made to solve UAT 142 on 27/02/2014 -- populate antigens without uniprot_id 
+        SELECT gpl_id,antigen_name,uniprotid,gene_symbol,decode(gene_id,null,null,to_number(gene_id)) as gene_id  FROM TM_LZ.LT_SRC_RBM_ANNOTATION WHERE UNIPROTID IS NULL;        
         
 	commit;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_rbm_annotation',SQL%ROWCOUNT,stepCt,'Done');
 		
+        update DEAPP.DE_RBM_ANNOTATION set uniprot_name = (select bio_marker_name from BIOMART.BIO_MARKER
+        WHERE biomart.bio_marker.primary_external_id = deapp.de_rbm_annotation.uniprot_id)
+        where gpl_id = gplId;  
+        
+        commit;
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update uniprot_name in DEAPP de_rbm_annotation',SQL%ROWCOUNT,stepCt,'Done');
+		
+                
 	--	update gene_id if null
 	
 	update de_rbm_annotation t
@@ -200,7 +213,7 @@ BEGIN
 	insert into biomart.bio_assay_feature_group
 	(feature_group_name
 	,feature_group_type)
-	select distinct t.uniprotid, 'PROTEIN'
+	select distinct t.uniprotid, 'RBM'
 	from tm_lz.LT_SRC_RBM_ANNOTATION t
 	where not exists
 		 (select 1 from biomart.bio_assay_feature_group x
@@ -254,4 +267,3 @@ BEGIN
 
 END;
 /
- 

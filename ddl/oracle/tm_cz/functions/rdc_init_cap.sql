@@ -35,7 +35,7 @@ BEGIN
    -- the category path are converted to ' \ ' before parsing.
 
    -- JEA@20091001 - First rev.
-   -- Copyright ? 2009 Recombinant Data Corp.
+   -- Copyright ¿ 2009 Recombinant Data Corp.
    -------------------------------------------------------------------------------
 
 	--	Load exclusion text
@@ -104,4 +104,3 @@ BEGIN
 
 END RDC_INIT_CAP;
 /
- 

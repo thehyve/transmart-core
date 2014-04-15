@@ -88,17 +88,17 @@ BEGIN
 	end if;
 
 /*	remove Reload processing
---	For Reload, make sure that the TrialId passed as parameter has data in de_subject_proteomics_data
+--	For Reload, make sure that the TrialId passed as parameter has data in DE_SUBJECT_PROTEIN_DATA
 --	If not, raise exception
 
 	if runType = 'R' then
 		select count(*) into idxExists
-		from de_subject_proteomics_data
+		from DE_SUBJECT_PROTEIN_DATA
 		where trial_name = TrialId;
 		
 		if idxExists = 0 then
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in de_subject_proteomics_data - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
+			cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in DE_SUBJECT_PROTEIN_DATA - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
 			raise trial_missing;
 		end if;
 	end if;
@@ -150,9 +150,9 @@ BEGIN
 			,subject_id
 			)
 			select probeset
-				  ,intensity_value  
+				  ,intensity_value ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,intensity_value
+				  ,round(intensity_value,4)
 				  ,patient_id
 			--	  ,sample_cd
 				  ,subject_id
@@ -171,9 +171,9 @@ BEGIN
 			,subject_id
 			)
 			select probeset
-				  ,intensity_value 
+				  ,intensity_value  ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value  + 0.001),4)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 				  ,subject_id
@@ -260,7 +260,7 @@ BEGIN
 	if nbrRecs > 10000000 then
 		i2b2_mrna_index_maint('DROP',,jobId);
 		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_proteomics_data',0,stepCt,'Done');
+		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP DE_SUBJECT_PROTEIN_DATA',0,stepCt,'Done');
 	else
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Less than 10M records, index drop bypassed',0,stepCt,'Done');
@@ -268,7 +268,7 @@ BEGIN
 */	
 
 
-	insert into DE_SUBJECT_PROTEOMICS_DATA
+	insert into DE_SUBJECT_PROTEIN_DATA
 	(
 	 trial_name
 	,protein_annotation_id
@@ -279,6 +279,7 @@ BEGIN
 	,subject_id
 	,intensity 
 	,zscore
+        ,log_intensity
 	,patient_id
 	)
 	select TrialId
@@ -289,14 +290,15 @@ BEGIN
                  ,m.assay_id
                  ,m.subject_id
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(m.log_intensity,4)
-                  ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)		  
-                   ,m.patient_id
+                ,m.intensity_value as intensity  ---UAT 154 changes done on 19/03/2014
+                ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)	
+                ,round(m.log_intensity,4) as log_intensity
+                ,m.patient_id
 	from WT_SUBJECT_PROTEOMICS_MED m
        , DEAPP.DE_PROTEIN_ANNOTATION d
         where d.peptide=m.probeset_id;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP de_subject_proteomics_data',SQL%ROWCOUNT,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP DE_SUBJECT_PROTEIN_DATA',SQL%ROWCOUNT,stepCt,'Done');
 
   	commit;
 
@@ -304,14 +306,14 @@ BEGIN
 /*
 	i2b2_mrna_index_maint('ADD',,jobId);
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_proteomics_data',0,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP DE_SUBJECT_PROTEIN_DATA',0,stepCt,'Done');
 */
 	
 --	cleanup tmp_ files
 
-	execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
-	execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
-	execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
+	---execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
+	--execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
+	--execute immediate('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
 
    	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
@@ -339,4 +341,3 @@ BEGIN
 	
 END;
 /
- 

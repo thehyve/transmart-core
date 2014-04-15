@@ -4,7 +4,7 @@
   CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_MRNA_INDEX_MAINT" 
 (
   run_type 			VARCHAR2 := 'DROP'
- ,tablespace_name	varchar2	:= 'INDX'
+ ,tablespace_name	varchar2 := 'INDX'
  ,currentJobID 		NUMBER := null
 )
 AS
@@ -38,12 +38,12 @@ AS
   procedureName VARCHAR(100);
   jobID number(18,0);
   stepCt number(18,0);
+  sqltext varchar2(200);
   
 BEGIN
 
 	runType := upper(run_type);
-	tableSpace := upper(tablespace_name);
-	
+	tableSpace := upper(nvl(tablespace_name,'INDX'));	
   --Set Audit Parameters
   newJobFlag := 0; -- False (Default)
   jobID := currentJobID;
@@ -171,9 +171,9 @@ BEGIN
 		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
 		  and index_name = 'DE_MICROARRAY_DATA_IDX1'
 		  and owner = 'DEAPP';
-		  
-		if idxExists = 0 then
-			execute immediate('create index deapp.de_microarray_data_idx1 on deapp.de_subject_microarray_data(trial_name, assay_id, probeset_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"'); 
+                  
+		if idxExists = 0 then                      
+                        execute immediate('create index deapp.de_microarray_data_idx1 on deapp.de_subject_microarray_data(trial_name, assay_id, probeset_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx1',0,stepCt,'Done');
 		end if;
@@ -273,4 +273,3 @@ end;
  
  
 /
- 

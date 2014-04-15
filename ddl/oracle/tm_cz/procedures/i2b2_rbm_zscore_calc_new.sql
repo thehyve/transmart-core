@@ -152,7 +152,7 @@ BEGIN
 			select probeset
 				  ,intensity_value  
 				  ,assay_id 
-				  ,intensity_value
+				  ,round(intensity_value,6)
 				  ,patient_id
 			--	  ,sample_cd
 			--	  ,subject_id
@@ -173,7 +173,7 @@ BEGIN
 			select probeset
 				  ,intensity_value 
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value),6)
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -279,7 +279,8 @@ BEGIN
         ,concept_cd
         ,value
         ,normalized_value
-        ,unit    
+        ,unit   
+        ,log_intensity
 	,zscore
 	)
 	select TrialId
@@ -290,7 +291,7 @@ BEGIN
               ,a.gene_id  --gene_id
               ,m.assay_id
               ,d.concept_code --concept_cd
-              ,m.intensity_value
+              ,round(m.intensity_value,6)
               ,round(case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
 				then case when logBase = -1 then null else power(logBase, m.log_intensity) end
@@ -299,12 +300,13 @@ BEGIN
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
               
               ,trim(substr(m.probeset_id ,instr(m.probeset_id ,'(',-1,1),length(m.probeset_id )))
-              ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE m.zscore END)
+              ,round(m.log_intensity,6)
+              ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
           --	  ,m.sample_id
 	--	  ,m.subject_id
 	from wt_subject_rbm_med m
         ,wt_subject_rbm_probeset p
-        ,DE_RBM_ANNOTATION a
+        ,(select distinct antigen_name, gpl_id,gene_symbol,gene_id from DE_RBM_ANNOTATION ) a
         ,de_subject_sample_mapping d
         where 
         trim(substr(p.probeset,1,instr(p.probeset,'(')-1)) =trim(a.antigen_name) 
@@ -312,7 +314,7 @@ BEGIN
       and   d.subject_id=p.subject_id
         and p.platform=a.gpl_id
         and m.assay_id=p.assay_id
-        and d.platform=p.platform
+        and d.gpl_id=p.platform
         and d.patient_id=p.patient_id
         and d.concept_code in (select concept_cd from  i2b2demodata.concept_dimension where concept_cd=d.concept_code)
         and d.trial_name=TrialId
@@ -320,12 +322,12 @@ BEGIN
         and p.patient_id=m.patient_id
         and p.probeset=m.probeset_id;
         
+        --TODO Find better way to fill in join table
         insert into DEAPP.DE_RBM_DATA_ANNOTATION_JOIN
-select d.id, ann.id from deapp.de_subject_rbm_data d
-inner join deapp.de_rbm_annotation ann on ann.antigen_name = d.antigen_name
-inner join deapp.de_subject_sample_mapping ssm on ssm.assay_id = d.assay_id and ann.gpl_id = ssm.gpl_id
-where not exists( select * from deapp.de_rbm_data_annotation_join j where j.data_id = d.id AND j.annotation_id = ann.id );
-
+        select d.id, ann.id from deapp.de_subject_rbm_data d
+          inner join deapp.de_rbm_annotation ann on ann.antigen_name = d.antigen_name
+          inner join deapp.de_subject_sample_mapping ssm on ssm.assay_id = d.assay_id and ann.gpl_id = ssm.gpl_id
+          where not exists( select * from deapp.de_rbm_data_annotation_join j where j.data_id = d.id AND j.annotation_id = ann.id ); 
         /*
         select distinct TrialId
                ,a.id ---rbm_annotation_id
@@ -400,4 +402,3 @@ where not exists( select * from deapp.de_rbm_data_annotation_join j where j.data
 	
 END;
 /
- 
