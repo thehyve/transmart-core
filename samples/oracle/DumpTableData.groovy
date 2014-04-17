@@ -56,15 +56,18 @@ private String[] getDataLine(GroovyResultSet rs) {
 }
 
 private String convertToString(Object value, String sqlDataType) {
+    String result = null
     if (value) {
         switch (sqlDataType) {
             case 'DATE':
-                new SimpleDateFormat('yyyy-MM-dd HH:mm:ss').format(value)
+                result = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss').format(value)
                 break
             default:
-                value.toString()
+                result = value.toString()
         }
     }
+    //TODO Oracle/ojdbc makes from two slashes one. Bug?
+    result
 }
 
 options = parseOptions()

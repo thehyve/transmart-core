@@ -1,15 +1,25 @@
 include ../../makefile.inc
 
-TABLE_FILES = $(wildcard *_list)
-TABLE_DIRS = $(patsubst %_list,%,$(TABLE_FILES))
-DUMP_TARGETS = $(foreach schema,$(TABLE_DIRS),dump_schema_$(schema))
-LOAD_TARGETS = $(foreach schema,$(TABLE_DIRS),load_schema_$(schema))
+OUTDIR := ../common/$(THIS_SCHEMA)
+DBMS_DATA_FOLDER := $(notdir $(shell pwd))
 
-ifdef SCHEMA
-	SCHEMA_COMP := = '$(SCHEMA)'
+ifdef THIS_SCHEMA
+        SCHEMA_COMP := '$(THIS_SCHEMA)'
 else
-	SCHEMA_COMP := IN ('i2b2demodata', 'i2b2metadata', 'deapp', 'biomart', 'searchapp')
+        SCHEMA_COMP := IN ('i2b2demodata', 'i2b2metadata', 'deapp', 'biomart', 'searchapp')
 endif
+
+dump_%:
+	$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* TO STDOUT \
+			CSV DELIMITER E'\t' FORCE QUOTE *" > $(OUTDIR)/$*.tsv
+
+load_%:
+	@if [ `$(PSQL_COMMAND) -c "SELECT EXISTS (SELECT * FROM $(THIS_SCHEMA).$* LIMIT 1)" -tA` = 't' ]; then \
+		echo 'WARNING: The table $(THIS_SCHEMA).$* already has data; skipped' >&2; \
+	else \
+		$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* FROM STDIN \
+			CSV DELIMITER E'\t'" < $(OUTDIR)/$*.tsv; \
+	fi
 
 row_counts:
 	$(PSQL_COMMAND) -c "SELECT nspname, relname, reltuples \
@@ -22,39 +32,9 @@ row_counts:
 analyze:
 	$(PSQL_COMMAND) -c 'ANALYZE VERBOSE'
 
+%:
+	DBMS_DATA_FOLDER=$(DBMS_DATA_FOLDER) $(MAKE) -C ../common $*
 
-$(TABLE_DIRS):
-	mkdir $@
+.PHONY: row_counts analyze
 
-%/Makefile: %
-	php gen_makefile.php $* > $*/Makefile
-
-../common/%:
-	mkdir -p $@
-
-.PRECIOUS: $(foreach d,$(TABLE_DIRS),../common/$d)
-
-# for autocompletion
-$(DUMP_TARGETS) $(LOAD_TARGETS):
-
-dump_schema_%: %/Makefile ../common/%
-	$(MAKE) -C $* dump
-
-load_schema_%: %/Makefile ../common/%
-	$(MAKE) -C $* load
-
-dump: $(DUMP_TARGETS)
-
-load: $(LOAD_TARGETS)
-
-.PHONY: dump_schema_% load_schema_%
-.PHONY: row_counts analyze dump load
-
-clean:
-	rm -f $(foreach d,$(TABLE_DIRS),$d/Makefile); \
-		$(foreach d,$(TABLE_DIRS),[ -d $d ] && rmdir $d;) \
-		true
-
-#don't include this in clean; dumping everything should only be needed sporadically
-clean_dumps:
-	rm -rf ../common/*/*.tsv
+# vim: set filetype=make:
