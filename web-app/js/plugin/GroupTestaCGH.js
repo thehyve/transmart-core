@@ -547,12 +547,17 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
 			this.alteration = this.translateAlteration(alternationVal);
 
+                        // create a string of all the concepts we need for the i2b2 data.
+                        var variablesConceptCode = regionVal;
+                        variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
+
 			// compose params
 			var formParams = {
 				regionVariable: regionVal,
 				groupVariable: groupVals,
 				statisticsType: statTestVal,
 				aberrationType: alternationVal,
+                                variablesConceptPaths: variablesConceptCode,
 				jobType: GT_JOB_TYPE
 			};
 
