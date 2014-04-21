@@ -4,8 +4,6 @@ import au.com.bytecode.opencsv.CSVWriter
 import groovy.sql.GroovyResultSet
 import groovy.sql.Sql
 
-import java.text.SimpleDateFormat
-
 def parseOptions() {
     def cli = new CliBuilder(usage: "DumpTableData.groovy")
     cli.t 'qualified table name', required: true, longOpt: 'table', args: 1, argName: 'table'
@@ -56,18 +54,8 @@ private String[] getDataLine(GroovyResultSet rs) {
 }
 
 private String convertToString(Object value, String sqlDataType) {
-    String result = null
-    if (value) {
-        switch (sqlDataType) {
-            case 'DATE':
-                result = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss').format(value)
-                break
-            default:
-                result = value.toString()
-        }
-    }
     //TODO Oracle/ojdbc makes from two slashes one. Bug?
-    result
+    value.toString()
 }
 
 options = parseOptions()
@@ -77,7 +65,12 @@ if (!options) {
 }
 
 def sql = DatabaseConnection.setupDatabaseConnection()
-
+if(System.getenv('NLS_DATE_FORMAT')) {
+        sql.execute "ALTER SESSION SET NLS_DATE_FORMAT = '${System.getenv('NLS_DATE_FORMAT')}'"
+}
+if(System.getenv('NLS_TIMESTAMP_FORMAT')) {
+        sql.execute "ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '${System.getenv('NLS_TIMESTAMP_FORMAT')}'"
+}
 sql.withTransaction {
     dumpTableDataToTsvFile(sql,
             options.file ? new FileOutputStream(options.file) : System.out,

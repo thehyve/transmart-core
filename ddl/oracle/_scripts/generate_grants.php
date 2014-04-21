@@ -32,12 +32,20 @@ $rights_table = [
 	'WRITE' => 'SELECT, INSERT, UPDATE, DELETE',
 ];
 
+$sql_options_table = [
+	'GRANT_OPTION' => ' WITH GRANT OPTION',
+];
+
 foreach ($arr as $line) {
-	list($schema, $object_name, $rights) = $line;
+	list($schema, $object_name, $rights, $options) = $line;
 
 	if (key_exists($rights, $rights_table)) {
 		$rights = $rights_table[$rights];
 	}
+
+	if (key_exists($options, $sql_options_table)) {
+                $options = $sql_options_table[$options];
+        }	
 
 	if ($object_name[0] == '*') {
 		$object_type = substr($object_name, 1);
@@ -48,7 +56,7 @@ BEGIN
 		WHERE owner = '$schema' AND object_type = '$object_type')
 	LOOP
 		EXECUTE IMMEDIATE 'GRANT $rights ON "$schema"."' ||
-				rec.object_name || '" TO "$user"';
+				rec.object_name || '" TO "$user"$options';
 	END LOOP;
 END;
 /
@@ -56,7 +64,7 @@ END;
 EOD;
 	} else {
 		echo <<<EOD
-GRANT $rights ON "$schema"."$object_name" TO "$user";
+GRANT $rights ON "$schema"."$object_name" TO "$user"$options;
 
 EOD;
 	}

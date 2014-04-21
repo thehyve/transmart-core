@@ -13,6 +13,7 @@ postgres_drop:
 
 oracle:
 	$(MAKE) -C ddl/oracle load
+	$(MAKE) -C data/oracle load
 
 oracle_drop:
 	$(MAKE) -C ddl/oracle drop

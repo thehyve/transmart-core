@@ -47,6 +47,7 @@ endif
 dump_schema_%: %/Makefile
 	DBMS_DATA_FOLDER=$(DBMS_DATA_FOLDER) $(MAKE) -C $* dump
 load_schema_%: %/Makefile
+	if [ '$*' == 'searchapp' ] ; then $(MAKE) -C searchapp/plugin_modules_params ../plugin_module.tsv ; fi
 	DBMS_DATA_FOLDER=$(DBMS_DATA_FOLDER) $(MAKE) -C $* load
 .PHONY: dump_schema_% load_schema_%
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
@@ -59,16 +60,5 @@ clean:
 #don't include this in clean; dumping everything should only be needed sporadically
 clean_dumps:
 	rm -rf */*.tsv
-
-ifeq ($(THIS_SCHEMA), searchapp)
-	#special case
-	load_plugin_module: load_plugin update_plugin_module
-load: load_plugin_module
-
-update_plugin_module:
-	$(MAKE) -C searchapp/plugin_modules_params searchapp/plugin_module.tsv
-
-.PHONY: update_plugin_module
-endif
 
 # vim: set filetype=make:

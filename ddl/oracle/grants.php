@@ -41,11 +41,9 @@ $spec = [
         ['FMAPP',        '*TABLE',             'FULL'],
         ['AMAPP',        '*TABLE',             'FULL'],
     ],
-    'AMAPP' => [
-        ['BIOMART', '*TABLE', 'READ'],
-    ],
     'SEARCHAPP' => [
-        ['BIOMART', 'BIO_ASSAY_DATA_ANNOTATION', 'READ'],
+        ['BIOMART', 'BIO_ASSAY_DATA_ANNOTATION', 'READ', 'GRANT_OPTION'],
+	['BIOMART', 'BIO_MARKER_CORREL_MV', 'READ', 'GRANT_OPTION']
     ],
 ];
 
