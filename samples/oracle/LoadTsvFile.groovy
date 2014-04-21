@@ -120,10 +120,10 @@ if (!options) {
 
 def sql = DatabaseConnection.setupDatabaseConnection()
 if(System.getenv('NLS_DATE_FORMAT')) {
-	sql.execute "ALTER SESSION SET NLS_DATE_FORMAT = '${ System.getenv('NLS_DATE_FORMAT') }'"
+	sql.execute "ALTER SESSION SET NLS_DATE_FORMAT = '${ System.getenv('NLS_DATE_FORMAT') }'".toString()
 }
 if(System.getenv('NLS_TIMESTAMP_FORMAT')) {
-	sql.execute "ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '${ System.getenv('NLS_TIMESTAMP_FORMAT') }'"
+	sql.execute "ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '${ System.getenv('NLS_TIMESTAMP_FORMAT') }'".toString()
 }
 sql.withTransaction {
     if (options.truncate) {
