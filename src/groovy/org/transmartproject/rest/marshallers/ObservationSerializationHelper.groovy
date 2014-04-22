@@ -26,4 +26,9 @@ class ObservationSerializationHelper implements HalOrJsonSerializationHelper<Obs
     Collection<Link> getLinks(ObservationWrapper observation) {
         [] as Collection
     }
+
+    static String getObservationsIndexUrl(String baseUrl) {
+        "${baseUrl}/observations"
+    }
+
 }

@@ -1,12 +1,8 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
-import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.rest.StudyLoadingService
-import org.transmartproject.rest.ontology.OntologyTermCategory
 
 import javax.annotation.Resource
 
@@ -17,38 +13,27 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     @Resource
     StudyLoadingService studyLoadingServiceProxy
 
-    @Autowired
-    StudiesResource studiesResourceService
-
     final Class targetType = OntologyTermWrapper
 
     final String collectionName = 'ontology_terms'
 
     @Override
     Collection<Link> getLinks(OntologyTermWrapper obj) {
-        /* this gets tricky. We may be rendering this as part of the /studies response */
         OntologyTerm term = obj.delegate
+        String url = studyLoadingServiceProxy.getOntologyTermUrl(obj.delegate)
 
-        String studyName
-        def pathPart
-
-        try {
-            studyName = studyLoadingServiceProxy.study.name
-            use (OntologyTermCategory) {
-                pathPart = term.encodeAsURLPart studyLoadingServiceProxy.study
-            }
-        } catch (InvalidArgumentsException iae) {
-            /* studyId not in params; so we are handling a study, which
-             * is mapped to $id (can we rename the param to $studyId
-             * for consistency?)
-             */
-            studyName = term.name
-            pathPart = 'ROOT'
+        Link datalink
+        if (obj.isHighDim()) {
+            datalink = new Link('highdim', HighDimSummarySerializationHelper.getHighDimIndexUrl(url))
+        } else {
+            datalink = new Link('observations', ObservationSerializationHelper.getObservationsIndexUrl(url))
         }
-        studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
-        // TODO add other relationships (children, parent, ...)
-        [new Link(RELATIONSHIP_SELF, "/studies/$studyName/concepts/$pathPart")]
+        [
+                // TODO add other relationships (children, parent, ...)
+                new Link(RELATIONSHIP_SELF, url),
+                datalink
+        ]
     }
 
     @Override

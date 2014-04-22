@@ -3,6 +3,7 @@ package org.transmartproject.rest.test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.StudyLoadingService
+import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 
 class StubStudyLoadingService extends StudyLoadingService {
 
@@ -20,7 +21,8 @@ class StubStudyLoadingService extends StudyLoadingService {
                     [
                             getName:     { -> getComponents(key, -1) },
                             getFullName: { -> '\\' + getComponents(key, 3, -1) + '\\' },
-                            getKey: { -> key }
+                            getKey: { -> key },
+                            getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)}
                     ] as OntologyTerm
                 }
         ] as Study
