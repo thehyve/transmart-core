@@ -54,7 +54,7 @@ private String[] getDataLine(GroovyResultSet rs) {
 }
 
 private String convertToString(Object value, String sqlDataType) {
-    value.toString()
+    value == null ? null : value.toString()
 }
 
 options = parseOptions()
