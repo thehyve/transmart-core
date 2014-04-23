@@ -30,7 +30,9 @@ class DeVariantSubjectSummaryCoreDb {
         table schema: 'deapp'
         table   name:  'de_variant_subject_summary'
         version false
-        id column:'variant_subject_summary_id', generator: 'sequence', params: [sequence: 'de_variant_subject_summary_seq']
+        id  column:'variant_subject_summary_id',
+            generator: 'sequence',
+            params: [sequence: 'de_variant_subject_summary_seq', schema: 'deapp']
         dataset column: 'dataset_id'
         assay   column: 'assay_id'
         // this is needed due to a Criteria bug.
