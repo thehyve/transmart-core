@@ -20,12 +20,12 @@ def parseOptions() {
     options
 }
 
-private String constructColumnExpression(Map<String, String> columnTypeMap) {
-    columnTypeMap.collect({ entry ->
-        if (entry.key ==~ '".+"') {
-            entry.key
+private String constructColumnExpression(List<String> columns) {
+    columns.collect({ column ->
+        if (column ==~ '".+"') {
+            column
         } else {
-            '"' + entry.key.toUpperCase(Locale.ENGLISH) + '"'
+            '"' + column.toUpperCase(Locale.ENGLISH) + '"'
         }
     }).join(', ')
 }
@@ -46,7 +46,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
 
     def columnsInfo = getColumnTypesMap(sql, table, columns)
 
-    String colGroup = constructColumnExpression(columnsInfo)
+    String colGroup = constructColumnExpression(columnsInfo.keySet() as List)
     String placeHolders = constructPlaceHoldersExpression(columnsInfo)
     def booleanCollumnsPositions = []
     columnsInfo.eachWithIndex { ci, index ->
