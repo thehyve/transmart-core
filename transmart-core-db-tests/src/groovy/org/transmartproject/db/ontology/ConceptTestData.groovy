@@ -17,9 +17,9 @@ class ConceptTestData {
 
         def i2b2List = []
         i2b2List << createI2b2Concept(code: 1, level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY1', cVisualattributes: 'FA')
-        i2b2List << createI2b2Concept(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1', cVisualattributes: 'LA', metadataxml: numericXml)
+        i2b2List << createI2b2Concept(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY1', cVisualattributes: 'LAH', metadataxml: numericXml)
         i2b2List << createI2b2Concept(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY2', cVisualattributes: 'FA')
-        i2b2List << createI2b2Concept(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LA', metadataxml: numericXml)
+        i2b2List << createI2b2Concept(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY2', cVisualattributes: 'LAH', metadataxml: numericXml)
         // used only in AccessLevelTestData
         i2b2List << createI2b2Concept(code: 5, level: 1, fullName: '\\foo\\study3\\',         name: 'study3', cComment: 'trial:STUDY3', cVisualattributes: 'FA')
         // useful to test rest-api
