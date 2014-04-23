@@ -36,7 +36,7 @@ class SurvivalAnalysisResultController {
             render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
             return
         }
-        def file = new File("${config.tempFolderDirectory}", "${params.jobName}/workingDirectory/survival-test.txt")
+        def file = new File("${RModulesOutputRenderService.tempFolderDirectory}", "${params.jobName}/workingDirectory/survival-test.txt")
         if (file.exists()) {
             def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 
@@ -62,7 +62,7 @@ class SurvivalAnalysisResultController {
      * This function will return the image path
      */
     def imagePath = {
-        def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/" +
+        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/" +
                 "${params.jobType}_${params.chromosome}_${params.start}_${params.end}.png"
         render imagePath
     }
@@ -71,7 +71,7 @@ class SurvivalAnalysisResultController {
      * This function returns survival acgh analysis result in zipped file
      */
     def zipFile = {
-        def zipFile = new File("${config.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
+        def zipFile = new File("${RModulesOutputRenderService.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
         if (zipFile.exists()) {
             response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
             response.contentType = 'application/octet-stream'

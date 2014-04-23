@@ -95,9 +95,18 @@ class RModulesOutputRenderService {
      * @return URL path from which images will be served
      */
     private String getImageURL() {
-        'analysisFiles/'
+        '/analysisFiles/'
     }
     //</editor-fold>
+
+    /**
+     * The logical path from which the images will be served that is used in
+     * array CGH related analyses.
+     * @return URL path from which images will be served without backslash as prefix
+     */
+    private String getRelativeImageURL() {
+        'analysisFiles/'
+    }
 
     def initializeAttributes(jobName, jobTypeName, linksArray) {
         def zipLocation

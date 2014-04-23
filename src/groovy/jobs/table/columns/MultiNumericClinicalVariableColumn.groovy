@@ -39,7 +39,7 @@ class MultiNumericClinicalVariableColumn extends AbstractColumn {
         clinicalVariables.each { ClinicalVariableColumn col,
                                  String groupName ->
             def value = lastRow.getAt col
-            if (value) {
+            if (value != null) {
                 validateNumber col, value
                 builder.put groupName, value
             }
