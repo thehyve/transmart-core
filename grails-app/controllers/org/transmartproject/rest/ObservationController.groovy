@@ -1,18 +1,13 @@
 package org.transmartproject.rest
 
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
-import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
-import org.transmartproject.core.dataquery.clinical.PatientRow
-import org.transmartproject.core.dataquery.clinical.PatientsResource
+import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import org.transmartproject.db.ontology.ConceptsResourceService
 import org.transmartproject.rest.marshallers.ObservationWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
@@ -23,15 +18,16 @@ class ObservationController {
     ClinicalDataResource clinicalDataResourceService
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource patientsResourceService
-    ConceptsResourceService conceptsResourceService
+    ConceptsResource conceptsResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of observations for study XXX
      */
     def index() {
         def study = studyLoadingServiceProxy.study
-        TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study.patients, [study.ontologyTerm] as Set)
+        TabularResult<ClinicalVariable, PatientRow> observations =
+                clinicalDataResourceService.retrieveData(study.patients,
+                        [createClinicalVariable(study.ontologyTerm)])
         try {
             respond wrapObservations(observations)
         } finally {
@@ -43,8 +39,9 @@ class ObservationController {
      *  This will return the list of observations for study XXX and concept YYY
      */
     def indexByConcept() {
-        TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study.patients, [concept] as Set)
+        TabularResult<ClinicalVariable, PatientRow> observations =
+                clinicalDataResourceService.retrieveData(study.patients,
+                        [createClinicalVariable(concept)])
         try {
             respond wrapObservations(observations)
         } finally {
@@ -56,13 +53,20 @@ class ObservationController {
      *  This will return the list of observations for study XXX and subject YYY
      */
     def indexBySubject() {
-        TabularResult<TerminalConceptVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData([patient] as Set, [study.ontologyTerm] as Set)
+        TabularResult<ClinicalVariable, PatientRow> observations =
+                clinicalDataResourceService.retrieveData([patient] as Set,
+                        [createClinicalVariable(study.ontologyTerm)])
         try {
             respond wrapObservations(observations)
         } finally {
             observations.close()
         }
+    }
+
+    private ClinicalVariable createClinicalVariable(OntologyTerm term) {
+        clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
+                concept_code: term.code)
     }
 
     private Study getStudy() { studyLoadingServiceProxy.study }
@@ -95,19 +99,30 @@ class ObservationController {
         patient
     }
 
-    private static List<ObservationWrapper> wrapObservations(TabularResult<TerminalConceptVariable, PatientRow> tabularResult) {
+    private static List<ObservationWrapper> wrapObservations(
+            TabularResult<ClinicalVariable, PatientRow> tabularResult) {
         List<ObservationWrapper> observations = []
-        def concepts = tabularResult.getIndicesList()
+        def variableColumns = tabularResult.getIndicesList()
         tabularResult.getRows().each { row ->
-            concepts.each {concept ->
-                def value = row.getAt(concept)
-                observations << new ObservationWrapper(
-                        subject: row.patient,
-                        concept: concept,
-                        value: value
-                )
+            variableColumns.each { ClinicalVariableColumn topVar ->
+                def value = row.getAt(topVar)
+
+                if (value instanceof Map) {
+                    value.each { ClinicalVariableColumn var, Object obj ->
+                        observations << new ObservationWrapper(
+                                subject: row.patient,
+                                label: var.label,
+                                value: obj)
+                    }
+                } else {
+                    observations << new ObservationWrapper(
+                            subject: row.patient,
+                            label: topVar.label,
+                            value: value)
+                    }
             }
         }
+
         observations
     }
 }
