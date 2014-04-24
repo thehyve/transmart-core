@@ -34,7 +34,7 @@ class QtQueryResultInstance implements QueryResult {
         /* use sequence instead of identity because our Oracle schema doesn't
          * have a trigger that fills the column in this case */
         id             column: 'result_instance_id', generator: 'sequence',
-                       params: [sequence: 'qt_sq_qri_qriid']
+                       params: [sequence: 'qt_sq_qri_qriid', schema: 'i2b2demodata']
         errorMessage   column: 'message'
         queryInstance  column: 'query_instance_id'
 
