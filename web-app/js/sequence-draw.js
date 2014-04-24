@@ -5,6 +5,8 @@
 // sequence-draw.js: renderers for sequence-related data
 //
 
+"use strict";
+
 var MIN_TILE = 100;
 var rulerTileColors = ['black', 'white'];
 var baseColors = {A: 'green', C: 'blue', G: 'black', T: 'red'};
@@ -53,17 +55,18 @@ function drawSeqTier(tier, seq)
     tier.viewport.height = canvasHeight;
     tier.viewport.style.height = '' + height + 'px';
     tier.viewport.style.width = retina ? ('' + (fpw/2) + 'px') : ('' + fpw + 'px');
-    tier.holder.style.height = '' + height + 'px'
     tier.layoutHeight = height;
     tier.updateHeight();
 
     var gc = tier.viewport.getContext('2d');
-    gc.clearRect(0, 0, fpw, tier.viewport.height);
+    if (tier.background) {
+        gc.fillStyle = tier.background;
+        gc.fillRect(0, 0, fpw, tier.viewport.height);
+    }
     if (retina) {
         gc.scale(2, 2);
     }
     gc.translate(1000,0);
-
 
     var seqTierMax = knownEnd;
     if (currentSeqMax > 0 && currentSeqMax < knownEnd) {

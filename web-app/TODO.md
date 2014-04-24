@@ -1,43 +1,41 @@
-For 0.11
---------
-
-  - UI for leaping (button to complement ctrl-arrow). [DONE]
-  - Search of bigbed files. [DONE]
-  - Search via Trix indices. [DONE]
-  - Retina display support. [DONE]
-  - Assembly hub support. [DONE]
-  - Rename tracks. [DONE]
-  - Per-track display customization ("Stylesheet editor")? [WIP]
-  - Support for arbitrary columns in bigbeds. [DONE]
-  - Security cleanups + support for credentialed trackhubs [DONE]
-  - Feature centering after quantLeap [DONE]
-  - Sequence-read/BAM support improvements [DONE]
-  - Basic support for Tabix+VCF [DONE]
-
 For 0.12
 --------
 
-  - Replace feature popups with inspector?
-  - Feature selection
-  - Small BED/WIG support
-  - Animate when leaping/toggling.
-  - Apply track-edit operations to multiple tracks at once.
-  - Bulk addition of local files.
-  - Typeahead for search-by-gene-ID
-  - Search-by-name (or description) in track-adder.
-  - Export track configuration for current browser state.
+  - Better support for assembly mapping across fragmented alignments [DONE]
+  - BAM rendering speedups [DONE]
+  - Lightweight mode for BAM parser [DONE]
+  - Use web-workers for fetching [DONE]
+  - Fix cross-origin worker boot.
+  - Small BED/WIG support. [DONE]
+  - Bulk addition of local files. [DONE]
+  - Independent scrolling of tier-holder and tool panels [DONE]
+  - Support for full screen mode [DONE]
+  - Pinning tracks. [DONE]
+  - Keep selected track visible when track heights change (?)
+  - Support for non-positional annotations
+  - Export track configuration for current browser state. [DONE]
 
 For 0.13
 --------
 
+  - Feature selection
+  - Replace feature popups with inspector-like interface
+  - Keep labels of large features on-screen (maybe needs to be optional?)
+  - Apply track-edit operations to multiple tracks at once.
+  - Typeahead for search-by-gene-ID
+  - Animate when leaping/toggling.
+  - Overlay function plugin API
+  - Clean up featureSource creation (make async?)
+  - Search-by-name (or description) in track-adder.
+
+For 1.0
+--------
+
   - Undo/redo.  
   - History of recently-viewed tracks.
-  - RDF/FALDO support?
   - Out-to-chromosome zooming
     + Probably needs a better set of semantic zoom hints in the
       stylesheet language.
-  - Stylesheet language revamp???  
-  - Incremental data fetching
   - Better zoom control
     + Show all toggle levels.
     + Some kind of feedback for toggling.
@@ -45,29 +43,34 @@ For 0.13
   - More Tabix payloads (GFF/GTF)
   - Chromosome overviews.
 
+Workshop
+========
+
+For 1.1
+--------
+
+
+
 Future
 -------------
 
- - Construct as a web-component
-   + (web component polyfills aren't quite ready yet).
+ - New stylesheet language
+ - More incremental data fetching.
+ - Construct as a web-component (polymer?)
  - Better tiling in renderer.
- - Non-positional annotation.
- - Alignment improvements.
+ - Better ways of loading alignments (HAL?)
 
 Nice to have
 ------------
 
- - State persistance between sessions
-     + Add a "make URL" button?
  - Tier groups
      + Should yZoom together.
-     + Other quantitative stuff?  If we support colourway switching then probably.
-     + Do they have any meaning for non-quant tracks?
+     + Other configuration stuff?
      + Drag together when re-ordering????
-     + How are these defined?  DASSTYLE is hopeless.  Extended SOURCES document?
  - Dedicated configuration/persistance language?
  - Distance between a pair of features.
  - Multiple configurations/session switching/etc?
+- RDF/FALDO support?
 
 Blue sky
 --------

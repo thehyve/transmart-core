@@ -1,3 +1,5 @@
+/* -*- mode: javascript; c-basic-offset: 4; indent-tabs-mode: nil -*- */
+
 // 
 // Dalliance Genome Explorer
 // (c) Thomas Down 2006-2013
@@ -5,81 +7,10 @@
 // svg-export.js
 //
 
-Browser.prototype.openExportPanel = function(tier) {
-    var b = this;
-    if (this.uiMode === 'export') {
-        this.hideToolPanel();
-        this.setUiMode('none');
-    } else {
-        var exportForm = makeElement('div', null, {className: 'tier-edit'}, {display: 'flex', justifyContent: 'space-between', paddingTop: '3px', paddingBottom: '3px', borderTop: '1px solid black', borderBottom: '1px solid black'});
-        exportForm.appendChild(makeElement('p', 'Export current view as SVG'));
-
-        var exportHighlightsToggle = makeElement('input', null, {type: 'checkbox', checked: this.exportHighlights});
-        exportHighlightsToggle.addEventListener('change', function(ev) {
-            b.exportHighlights = exportHighlightsToggle.checked;
-            b.storeStatus();
-        }, false);
-        var exportRulerToggle = makeElement('input', null, {type: 'checkbox', checked: this.exportRuler});
-        exportRulerToggle.addEventListener('change', function(ev) {
-            b.exportRuler = exportRulerToggle.checked;
-            b.storeStatus();
-        }, false);
-
-        var exportButton = makeElement('button', 'Export', {className: 'btn btn-primary'});
-        exportButton.addEventListener('click', function(ev) {
-            removeChildren(exportContent);
-
-            var blobURL = URL.createObjectURL(b.makeSVG({highlights: exportHighlightsToggle.checked,
-                                                     ruler: exportRulerToggle.checked ? b.rulerLocation : 'none'}));
-
-            var downloadLink = makeElement('a', '[Download]', {
-                href: blobURL,
-                download: 'dalliance-view.svg',
-                type: 'image/svg+xml'
-            });
-
-            var previewLink = makeElement('a', '[Preview in browser]', {
-                href: blobURL,
-                type: 'image/svg+xml',
-                target: '_new'
-            });
-
-            exportContent.appendChild(makeElement('p', ['SVG created: ', downloadLink, previewLink]));
-        }, false);
-
-        b.addViewListener(function() {
-            removeChildren(exportContent);
-        });
-        b.addTierListener(function() {
-            removeChildren(exportContent);
-        });
-
-        var exportContent = makeElement('p', '');
-
-        var exportOptsTable = makeElement('table',
-            [makeElement('tr',
-                [makeElement('th', 'Include highlights', {}, {width: '200px', textAlign: 'right'}),
-                 makeElement('td', exportHighlightsToggle)]),
-             makeElement('tr',
-                [makeElement('th', 'Include vertical guideline'),
-                 makeElement('td', exportRulerToggle)])
-            ]);
-
-        exportForm.appendChild(exportOptsTable);
-        exportForm.appendChild(exportButton);
-        exportForm.appendChild(exportContent);
-
-        if (this.uiMode !== 'none')
-            this.hideToolPanel();
-        this.browserHolder.insertBefore(exportForm, this.svgHolder);
-        this.activeToolPanel = exportForm;
-
-        this.setUiMode('export');
-    }
-}
-
 Browser.prototype.makeSVG = function(opts) {
     opts = opts || {};
+    var minTierHeight = opts.minTierHeight || 20;
+    var padding = 3;
 
     var b = this;
     var saveDoc = document.implementation.createDocument(NS_SVG, 'svg', null);
@@ -97,7 +28,6 @@ Browser.prototype.makeSVG = function(opts) {
            x: (b.featurePanelWidth + margin + 20)/2,
            y: 30,
            strokeWidth: 0,
-           fill: 'black',
            fontSize: '12pt',
 	       textAnchor: 'middle',
 	       fill: 'blue'
@@ -141,6 +71,7 @@ Browser.prototype.makeSVG = function(opts) {
     	    var offset = ((tier.glyphCacheOrigin - b.viewStart) * b.scale);
             var hasQuant = false;
             for (var sti = 0; sti < tier.subtiers.length; ++sti) {
+                pos += padding;
         		var subtier = tier.subtiers[sti];
                     
         		var glyphElements = [];
@@ -184,9 +115,12 @@ Browser.prototype.makeSVG = function(opts) {
                     }
         		}
 
-    		    pos += subtier.height + 3;
+    		    pos += subtier.height + padding;
             }
-    	    pos += 10;
+
+            if (pos - tierTopPos < minTierHeight) {
+                pos = tierTopPos + minTierHeight;
+            }
     	}
 
         var labelName;
@@ -198,7 +132,7 @@ Browser.prototype.makeSVG = function(opts) {
     	    makeElementNS(
     		NS_SVG, 'text',
     		labelName,
-    		{x: margin - (hasQuant ? 20 : 12), y: (pos+tierTopPos+5)/2, fontSize: '12pt', textAnchor: 'end'}));
+    		{x: margin - (hasQuant ? 20 : 12), y: (pos+tierTopPos+8)/2, fontSize: '10pt', textAnchor: 'end'}));
 
     	
     	tierBackground.setAttribute('height', pos - tierTopPos);
@@ -238,11 +172,4 @@ Browser.prototype.makeSVG = function(opts) {
 
     var svgBlob = new Blob([new XMLSerializer().serializeToString(saveDoc)], {type: 'image/svg+xml'});
     return svgBlob;
-
-    /*
-    var fr = new FileReader();
-    fr.onload = function(fre) {
-        window.open('data:image/svg+xml;' + fre.target.result.substring(6), 'Dalliance graphics', 'width=' + ( b.featurePanelWidth + 20 + margin + 'px'));
-    };
-    fr.readAsDataURL(svgBlob); */
 }

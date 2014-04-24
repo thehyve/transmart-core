@@ -7,23 +7,69 @@
 // tier.js: (try) to encapsulate the functionality of a browser tier.
 //
 
+"use strict";
+
 var __tier_idSeed = 0;
 
-function DasTier(browser, source, viewport, holder, overlay, placard, placardContent, notifier, config)
+function DasTier(browser, source, config, background)
 {
     this.config = config || {};
     this.id = 'tier' + (++__tier_idSeed);
     this.browser = browser;
-    this.dasSource = new DASSource(source);
-    this.viewport = viewport;
-    this.holder = holder;
-    this.overlay = overlay;
-    this.placard = placard;
-    this.placardContent = placardContent;
-    this.req = null;
+    this.dasSource = shallowCopy(source);
+    this.background = background;
+
+    this.viewport = makeElement('canvas', null, 
+                                {width: '' + ((this.browser.featurePanelWidth|0) + 2000), 
+                                 height: "30",
+                                 className: 'viewport'});
+    this.overlay = makeElement('canvas', null,
+         {width: + ((this.browser.featurePanelWidth|0) + 2000), 
+          height: "30",
+          className: 'viewport-overlay'});
+
+    this.notifier = makeElement('div', '', {className: 'notifier'});
+    this.notifierHolder = makeElement('div', this.notifier, {className: 'notifier-holder'});
+    this.quantOverlay = makeElement(
+        'canvas', null, 
+        {width: '50', height: "56",
+         className: 'quant-overlay'});
+
+    this.removeButton = makeElement('i', null, {className: 'fa fa-times'});
+    this.bumpButton = makeElement('i', null, {className: 'fa fa-plus-circle'});
+    this.loaderButton = browser.makeLoader(16);
+    this.loaderButton.style.display = 'none';
+    this.infoElement = makeElement('div', this.dasSource.desc, {className: 'track-label-info'});
+    this.nameButton = makeElement('div', [], {className: 'tier-tab'});
+    this.nameButton.appendChild(this.removeButton);
+    if (source.pennant) {
+        this.nameButton.appendChild(makeElement('img', null, {src: source.pennant, width: '16', height: '16'}))
+    }
+    this.nameElement = makeElement('span', source.name);
+    this.nameButton.appendChild(makeElement('span', [this.nameElement, this.infoElement], {className: 'track-name-holder'}));
+    this.nameButton.appendChild(this.bumpButton);
+    this.nameButton.appendChild(this.loaderButton);
+    
+    this.label = makeElement('span',
+       [this.nameButton],
+       {className: 'btn-group track-label'});
+
+
+    this.row = makeElement('div', [this.viewport,
+                                   this.overlay, 
+                                   this.quantOverlay],
+                            {className: 'tier'});
+
+    if (!background) {
+        this.row.style.background = 'none';
+    }
+
+    if (!browser.noDefaultLabels)
+        this.row.appendChild(this.label);
+    this.row.appendChild(this.notifierHolder);
+    
     this.layoutHeight = 25;
     this.bumped = true;
-    this.notifier = notifier;
     this.styleIdSeed = 0;
     if (source.quantLeapThreshold) {
         this.quantLeapThreshold = source.quantLeapThreshold;
@@ -31,7 +77,6 @@ function DasTier(browser, source, viewport, holder, overlay, placard, placardCon
     if (this.dasSource.collapseSuperGroups) {
         this.bumped = false;
     }
-    this.y = 0;
     this.layoutWasDone = false;
 
     if (source.featureInfoPlugin) {
@@ -83,7 +128,7 @@ DasTier.prototype.init = function() {
         tier.status = 'Fetching stylesheet';
         
         ssSource.getStyleSheet(function(ss, err) {
-            if (err) {
+            if (err || !ss) {
                 tier.error = 'No stylesheet';
                 var ss = new DASStylesheet();
                 var defStyle = new DASStyle();
@@ -124,7 +169,7 @@ DasTier.prototype.getSource = function() {
 DasTier.prototype.getDesiredTypes = function(scale) {
     var fetchTypes = [];
     var inclusive = false;
-    var ssScale = zoomForScale(this.browser.scale);
+    var ssScale = this.browser.zoomForCurrentScale();
 
     if (this.stylesheet) {
         // dlog('ss = ' + miniJSONify(this.stylesheet));
@@ -161,33 +206,19 @@ DasTier.prototype.needsSequence = function(scale ) {
     return false;
 }
 
-DasTier.prototype.viewFeatures = function(chr, min, max, scale, features, sequence) {
+DasTier.prototype.viewFeatures = function(chr, coverage, scale, features, sequence) {
     this.currentFeatures = features;
     this.currentSequence = sequence;
     
     this.knownChr = chr;
-    this.knownStart = min; this.knownEnd = max;
-    this.status = null; this.error = null;
+    this.knownCoverage = coverage;
+
+    if (this.status) {
+        this.status = null;
+        this._notifierToStatus();
+    }
 
     this.draw();
-}
-
-DasTier.prototype.updateStatus = function(status) {
-    if (status) {
-        this.currentFeatures = [];
-        this.currentSequence = null;
-        this.error = status;
-        this.placardContent.textContent = status;
-        this.placard.style.display = 'block';
-        this.holder.style.display = 'none';
-        this.draw();
-        this.updateHeight();
-    } else if (this.error) {
-        this.placard.style.display = 'none';
-        this.holder.style.display = 'block';
-        this.error = null;
-        this.updateHeight();
-    }
 }
 
 DasTier.prototype.draw = function() {
@@ -203,26 +234,13 @@ DasTier.prototype.draw = function() {
     this.browser.arrangeTiers();
 }
 
-function zoomForScale(scale) {
-    var ssScale;
-    if (scale > 0.2) {
-        ssScale = 'high';
-    } else if (scale > 0.01) {
-        ssScale = 'medium';
-    } else  {
-        ssScale = 'low';
-    }
-    return ssScale;
-}
-
-
 DasTier.prototype.findNextFeature = function(chr, pos, dir, fedge, callback) {
     if (this.quantLeapThreshold) {
         var width = this.browser.viewEnd - this.browser.viewStart + 1;
         pos = (pos +  ((width * dir) / 2))|0
         this.featureSource.quantFindNextFeature(chr, pos, dir, this.quantLeapThreshold, callback);
     } else {
-        if (this.knownStart && pos >= this.knownStart && pos <= this.knownEnd) {
+        if (this.knownCoverage && pos >= this.knownCoverage.min() && pos <= this.knownCoverage.max()) {
             if (this.currentFeatures) {
                 var bestFeature = null;
                 for (var fi = 0; fi < this.currentFeatures.length; ++fi) {
@@ -288,11 +306,7 @@ DasTier.prototype.updateLabel = function() {
 }
 
 DasTier.prototype.updateHeight = function() {
-    this.currentHeight = Math.max(this.layoutHeight, Math.max(this.holder.clientHeight, this.label.clientHeight + 4));
-    if (this.placard.style.display !== 'none') {
-        // Hard-coded because we don't know exactly when the CSS will have loaded.
-        this.currentHeight = Math.max(this.currentHeight, /* this.placard.clientHeight + 2 */ 52);
-    }
+    this.currentHeight = Math.max(Math.max(this.layoutHeight, this.label.clientHeight + 2), this.browser.minTierHeight);
     this.row.style.height = '' + this.currentHeight + 'px';
     this.browser.updateHeight();
  }
@@ -300,9 +314,14 @@ DasTier.prototype.updateHeight = function() {
 DasTier.prototype.drawOverlay = function() {
     var t = this;
     var b = this.browser;
+    var retina = b.retina && window.devicePixelRatio > 1;
     var g = t.overlay.getContext('2d');
     
     t.overlay.height = t.viewport.height;
+    t.overlay.width = t.viewport.width;
+    if (retina) {
+        g.scale(2, 2);
+    }
     // g.clearRect(0, 0, t.overlay.width, t.overlay.height);
     
     var origin = b.viewStart - (1000/b.scale);
@@ -323,11 +342,30 @@ DasTier.prototype.drawOverlay = function() {
     }
 
     t.oorigin = b.viewStart;
+    t.overlay.style.width = t.viewport.style.width;
+    t.overlay.style.height = t.viewport.style.height;
     t.overlay.style.left = '-1000px'
 }
 
+DasTier.prototype.updateStatus = function(status) {
+    if (status) {
+        this.status = status;
+        this.currentFeatures = [];
+        this.currentSequence = null;
+        this.draw();
+        this.updateHeight();
+        this._notifierToStatus();
+    } else {
+        if (this.status) {
+            this.status = null
+            this._notifierToStatus();
+        }
+    }
+}
+
 DasTier.prototype.notify = function(message, timeout) {
-    timeout = timeout || 2000;
+    if (typeof(timeout) !== 'number')
+        timeout = 2000;
 
     if (this.notifierFadeTimeout) {
         clearTimeout(this.notifierFadeTimeout);
@@ -335,20 +373,33 @@ DasTier.prototype.notify = function(message, timeout) {
     }
 
     if (message) {
-        this.notifier.textContent = message;
-        this.notifier.style.opacity = 0.8;
-    
+        this._notifierOn(message);
         if (timeout > 0) {
             var thisB = this;
             this.notifierFadeTimeout = setTimeout(function() {
-                thisB.notifier.style.opacity = 0;
-                thisB.notifierFadeTimeout = null;
+                thisB._notifierToStatus();
             }, timeout);
         }
     } else {
-        this.notifier.style.opacity = 0;
+        this._notifierToStatus();
     }
+}
 
+DasTier.prototype._notifierOn = function(message) {
+    this.notifier.textContent = message;
+    this.notifier.style.opacity = 0.8;
+}
+
+DasTier.prototype._notifierOff = function() {
+    this.notifier.style.opacity = 0;
+}
+
+DasTier.prototype._notifierToStatus = function() {
+    if (this.status) {
+        this._notifierOn(this.status)
+    } else {
+        this._notifierOff();
+    }
 }
 
 DasTier.prototype.setConfig = function(config) {
@@ -367,6 +418,7 @@ DasTier.prototype.mergeConfig = function(newConfig) {
 
 DasTier.prototype._updateFromConfig = function() {
     var needsRefresh = false;
+    var needsReorder = false;
 
     if (typeof this.config.name === 'string')
         this.nameElement.textContent = this.config.name;
@@ -418,8 +470,17 @@ DasTier.prototype._updateFromConfig = function() {
         needsRefresh = true;
     }
 
+    var wantedPinned = this.config.pinned !== undefined ? this.config.pinned : this.dasSource.pinned;
+    if (wantedPinned !== this.pinned) {
+        this.pinned = wantedPinned;
+        needsReorder = true;
+    }
+
     if (needsRefresh)
         this.scheduleRedraw();
+
+    if (needsReorder)
+        this.browser.reorderTiers();
 }
 
 DasTier.prototype.scheduleRedraw = function() {

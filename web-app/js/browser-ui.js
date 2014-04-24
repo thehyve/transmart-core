@@ -7,6 +7,8 @@
 // browser-us.js: standard UI wiring
 //
 
+"use strict";
+
 function formatLongInt(n) {
     return (n|0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
@@ -33,7 +35,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     holder.classList.add('dalliance');
     var toolbar = b.toolbar = makeElement('div', null, {className: 'btn-toolbar toolbar'});
 
-    var title = b.coordSystem.speciesName + ' ' + b.coordSystem.auth + b.coordSystem.version;
+    var title = b.coordSystem.speciesName + ' ' + b.nameForCoordSystem(b.coordSystem);
     if (this.setDocumentTitle) {
         document.title = title + ' :: dalliance';
     }
@@ -62,7 +64,18 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     var leapLeftButton = makeElement('a', [makeElement('i', null, {className: 'fa fa-chevron-left'})], {className: 'btn'});
     var leapRightButton = makeElement('a', [makeElement('i', null, {className: 'fa fa-chevron-right'})], {className: 'btn pull-right'});
 
-    var modeButtons = makeElement('div', [addTrackBtn, tierEditButton, svgBtn, optsButton, helpButton], {className: 'btn-group pull-right'});
+    var modeButtons = makeElement('div', null, {className: 'btn-group pull-right'});
+    if (!this.noTrackAdder)
+        modeButtons.appendChild(addTrackBtn);
+    if (!this.noTrackEditor)
+        modeButtons.appendChild(tierEditButton);
+    if (!this.noExport)
+        modeButtons.appendChild(svgBtn);
+    if (!this.noOptions)
+        modeButtons.appendChild(optsButton);
+    if (!this.noHelp)
+        modeButtons.appendChild(helpButton);
+
     this.setUiMode = function(m) {
         this.uiMode = m;
         var mb = {help: helpButton, add: addTrackBtn, opts: optsButton, 'export': svgBtn, tier: tierEditButton};
@@ -75,18 +88,27 @@ Browser.prototype.initUI = function(holder, genomePanel) {
     }
 
 
-    toolbar.appendChild(leapRightButton);
-    toolbar.appendChild(modeButtons);
+    if (!this.noLeapButtons)
+        toolbar.appendChild(leapRightButton);
+
+    if (modeButtons.firstChild)
+        toolbar.appendChild(modeButtons);
     
-    toolbar.appendChild(leapLeftButton);
+    if (!this.noLeapButtons)
+        toolbar.appendChild(leapLeftButton);
     if (!this.noTitle) {
         toolbar.appendChild(makeElement('div', makeElement('h4', title, {}, {margin: '0px'}), {className: 'btn-group title'}));
     }
-    toolbar.appendChild(makeElement('div', [locField, locStatusField], {className: 'btn-group loc-group'}));
-    toolbar.appendChild(clearHighlightsButton);
-    toolbar.appendChild(makeElement('div', [zoomInBtn,
-                                            makeElement('span', zoomSlider, {className: 'btn'}),
-                                            zoomOutBtn], {className: 'btn-group'}));
+    if (!this.noLocationField)
+        toolbar.appendChild(makeElement('div', [locField, locStatusField], {className: 'btn-group loc-group'}));
+    if (!this.noClearHighlightsButton)
+        toolbar.appendChild(clearHighlightsButton);
+
+    if (!this.noZoomSlider) {
+        toolbar.appendChild(makeElement('div', [zoomInBtn,
+                                                makeElement('span', zoomSlider, {className: 'btn'}),
+                                                zoomOutBtn], {className: 'btn-group'}));
+    }
     
 
     holder.appendChild(toolbar);
@@ -171,7 +193,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
        ev.stopPropagation(); ev.preventDefault();
         b.openExportPanel();
     }, false);
-    b.makeTooltip(svgBtn, 'Export publication-quality SVG. (P)');
+    b.makeTooltip(svgBtn, 'Export publication-quality SVG. (X)');
 
     var optsPopup;
     optsButton.addEventListener('click', function(ev) {
@@ -270,7 +292,7 @@ Browser.prototype.initUI = function(holder, genomePanel) {
             if (b.selectedTiers.length == 1) {
                 b.openTierPanel(b.tiers[b.selectedTiers[0]]);
             }
-        } else if (ev.keyCode == 80 || ev.keyCode == 112) { // p
+        } else if (ev.keyCode == 88 || ev.keyCode == 120) { // x
             ev.stopPropagation(); ev.preventDefault();
             b.openExportPanel();
         } else if (ev.keyCode == 67 || ev.keyCode == 99) { // c
@@ -301,6 +323,8 @@ Browser.prototype.initUI = function(holder, genomePanel) {
 }
 
 Browser.prototype.showToolPanel = function(panel, nowrap) {
+    var thisB = this;
+
     if (this.activeToolPanel) {
         this.activeToolPanel.parentElement.removeChild(this.activeToolPanel);
     }
@@ -311,7 +335,14 @@ Browser.prototype.showToolPanel = function(panel, nowrap) {
     else
         content = makeElement('div', panel, {}, {overflowY: 'auto', width: '100%'});
 
-    this.activeToolPanel = makeElement('div', [makeElement('div', null, {className: 'tool-divider'}), content], {className: 'tool-holder'});
+
+    var divider = makeElement('div', makeElement('i', null, {className: 'fa fa-caret-right'}), {className: 'tool-divider'});
+    divider.addEventListener('click', function(ev) {
+        thisB.hideToolPanel();
+        thisB.setUiMode('none');
+    }, false);
+    this.makeTooltip(divider, 'Close tool panel (ESC)');
+    this.activeToolPanel = makeElement('div', [divider, content], {className: 'tool-holder'});
     this.svgHolder.appendChild(this.activeToolPanel);
     this.resizeViewer();
 
@@ -332,7 +363,7 @@ Browser.prototype.toggleHelpPopup = function(ev) {
         this.hideToolPanel();
         this.setUiMode('none');
     } else {
-        var helpFrame = makeElement('iframe', null, {scrolling: 'yes', seamless: 'seamless', src: this.uiPrefix + 'help/index.html', seamless: 'seamless', className: 'help-panel'});
+        var helpFrame = makeElement('iframe', null, {scrolling: 'yes', seamless: 'seamless', src: this.uiPrefix + 'help/index.html', className: 'help-panel'});
         this.showToolPanel(helpFrame, true);
         this.setUiMode('help');
     }
@@ -391,8 +422,4 @@ Browser.prototype.toggleOptsPopup = function(ev) {
         this.showToolPanel(optsForm);
         this.setUiMode('opts');
     }
-
 }
-
-
-

@@ -5,6 +5,8 @@
 // feature-draw.js: new feature-tier renderer
 //
 
+"use strict";
+
 var MIN_PADDING = 3;
 var DEFAULT_SUBTIER_MAX = 100;
 
@@ -46,11 +48,6 @@ SubTier.prototype.indexFor = function(glyph) {
 
 SubTier.prototype.add = function(glyph) {
     var ind = this.indexFor(glyph);
-    /* if (ind==0) {
-        console.log('len=' + this.glyphs.length + ';ind=' + ind);
-        console.log('min=' + glyph.min());
-        console.log('arr=' + this.glyphs.map(function(g) {return g.min()}).join(','));
-    }*/
     this.glyphs.splice(ind, 0, glyph);
     this.height = Math.max(this.height, glyph.height());
     if (glyph.quant && this.quant == null) {
@@ -66,22 +63,13 @@ SubTier.prototype.hasSpaceFor = function(glyph) {
         return false;
 
     return true;
-
-    /*
-    var gmin = glyph.min(), gmax = glyph.max();
-    for (var i = 0; i < this.glyphs.length; ++i) {
-        var g = this.glyphs[i];
-        if (g.min() <= gmax && g.max() >= gmin) {
-            return false;
-        }
-    }
-    return true; */
 }
 
 var GLOBAL_GC;
 
 function drawFeatureTier(tier)
 {
+    var start = Date.now()|0;
     GLOBAL_GC = tier.viewport.getContext('2d'); // Should only be used for metrics.
     sortFeatures(tier);
 
@@ -109,7 +97,7 @@ function drawFeatureTier(tier)
                 pusho(gbsFeatures, style.id, f);
                 gbsStyles[style.id] = style;
             } else {
-                var g = glyphForFeature(f, 0, tier.styleForFeature(f), tier);
+                var g = glyphForFeature(f, 0, style, tier);
                 if (g)
                     glyphs.push(g);
             }
@@ -193,7 +181,7 @@ function drawFeatureTier(tier)
                     // end coverage-counting
 
                     var newf = new DASFeature();
-                    for (k in template) {
+                    for (var k in template) {
                         newf[k] = template[k];
                     }
                     newf.min = r.min();
@@ -320,6 +308,9 @@ function drawFeatureTier(tier)
 
     tier.subtiers = bumpedSTs;
     tier.glyphCacheOrigin = tier.browser.viewStart;
+
+    var end = Date.now()|0;
+    // console.log('dft took ' + (end-start) + 'ms');
 }
 
 function formatQuantLabel(v) {
@@ -342,6 +333,7 @@ function formatQuantLabel(v) {
 }
 
 DasTier.prototype.paint = function() {
+    var start = Date.now()|0;
     var retina = this.browser.retina && window.devicePixelRatio > 1;
 
     var subtiers = this.subtiers;
@@ -363,6 +355,7 @@ DasTier.prototype.paint = function() {
         lh = lh + subtiers[s].height + MIN_PADDING;
     }
     lh += 6
+    lh = Math.max(lh, this.browser.minTierHeight);
 
     var canvasHeight = lh;
     if (retina) {
@@ -378,21 +371,33 @@ DasTier.prototype.paint = function() {
     this.viewport.style.width = retina ? ('' + (fpw/2) + 'px') : ('' + fpw + 'px');
     this.viewport.style.height = '' + lh + 'px';
     this.layoutHeight =  Math.max(lh, this.browser.minTierHeight);
-    this.holder.style.height = '' + this.layoutHeight + 'px';
 
     this.updateHeight();
     this.drawOverlay();
     this.norigin = this.browser.viewStart;
 
     var gc = this.viewport.getContext('2d');
-    gc.fillStyle = this.background;
     gc.clearRect(0, 0, fpw, canvasHeight);
-    gc.restore();
 
     gc.save();
     if (retina) {
         gc.scale(2, 2);
     }
+
+    if (this.background) {
+        gc.fillStyle = this.background;
+
+        if (this.knownCoverage) {
+            var knownRanges = this.knownCoverage.ranges();
+            for (var ri = 0; ri < knownRanges.length; ++ri) {
+                var r = knownRanges[ri];
+                var knownMin = (r.min() - this.browser.viewStart) * this.browser.scale + 1000;
+                var knownMax = (r.max() - this.browser.viewStart) * this.browser.scale + 1000;
+                gc.fillRect(knownMin, 0, knownMax - knownMin, lh);
+            }
+        }
+    }
+
     var offset = ((this.glyphCacheOrigin - this.browser.viewStart)*this.browser.scale)+1000;
     gc.translate(offset, MIN_PADDING);
    
@@ -429,6 +434,9 @@ DasTier.prototype.paint = function() {
     }
 
     this.paintQuant();
+
+    var end = Date.now()|0;
+    // console.log('paint took ' + (end-start) + 'ms');
 }
 
 DasTier.prototype.paintQuant = function() {
@@ -453,9 +461,6 @@ DasTier.prototype.paintQuant = function() {
         if (retina)
             ctx.scale(2, 2);
 
-        ctx.fillStyle = 'white'
-        ctx.globalAlpha = 0.6;
-
         var numTics = 2;
         if (h > 40) {
             numTics = 1 + ((h/20) | 0);
@@ -463,18 +468,12 @@ DasTier.prototype.paintQuant = function() {
         var ticSpacing = (h+MIN_PADDING*2) / (numTics - 1);
         var ticInterval = (quant.max - quant.min) / (numTics - 1);
 
+        ctx.fillStyle = 'white'
+        ctx.globalAlpha = 0.6;
         if (this.browser.rulerLocation == 'right') {
-            ctx.fillRect(w-30, 0, 30, 20);
-            ctx.fillRect(w-30, h-20 + MIN_PADDING*2, 30, 20);
-            for (var t = 1; t < numTics-1; ++t) {
-                ctx.fillRect(w-30, t*ticSpacing - 10, 30, 20);
-            }
+            ctx.fillRect(w-30, 0, 30, h + MIN_PADDING*2);
         } else {
-            ctx.fillRect(0, 0, 30, 20);
-            ctx.fillRect(0, h - 20 + MIN_PADDING*2, 30, 20);
-            for (var t = 1; t < numTics-1; ++t) {
-                ctx.fillRect(0, t*ticSpacing - 10, 30, 20);
-            }
+            ctx.fillRect(0, 0, 30, h + MIN_PADDING*2);
         }
         ctx.globalAlpha = 1.0;
 
@@ -883,7 +882,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
             var ops = parseCigar(feature.cigar);
             seq = ''
             quals = '';
-            cursor = 0;
+            var cursor = 0;
             for (var ci = 0; ci < ops.length; ++ci) {
                 var co = ops[ci];
                 if (co.op == 'M') {
@@ -940,7 +939,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
         }
     } else if (gtype === '__INSERTION') {
         var ig = new TriangleGlyph(minPos, 5, 'S', 5, 'red');
-        gg = new LabelledGlyph(ig, feature.insertion || feature.altAlleles[0], false, 'left', 'above', '7px sans-serif');
+        gg = new LabelledGlyph(ig, feature.insertion || feature.altAlleles[0], false, 'center', 'above', '7px sans-serif');
         if ((maxPos - minPos) > 1) {
             var fill = style.BGCOLOR || style.COLOR1 || 'green';
             var bg = new BoxGlyph(minPos, 5, (maxPos - minPos), height, fill, stroke);
@@ -978,7 +977,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
 }
 
 DasTier.prototype.styleForFeature = function(f) {
-    var ssScale = zoomForScale(this.browser.scale);
+    var ssScale = this.browser.zoomForCurrentScale();
 
     if (!this.stylesheet) {
         return null;

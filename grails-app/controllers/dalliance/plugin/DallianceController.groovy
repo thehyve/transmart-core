@@ -53,7 +53,14 @@ class DallianceController {
                 servletContext.contextPath+pluginContextPath+'/js/trix.js',
                 servletContext.contextPath+pluginContextPath+'/js/tabix.js',
                 servletContext.contextPath+pluginContextPath+'/js/tabix-source.js',                
-                servletContext.contextPath+pluginContextPath+'/dalliance.js'
+                servletContext.contextPath+pluginContextPath+'/dalliance.js',
+                servletContext.contextPath+pluginContextPath+'/js/bedwig.js',
+                servletContext.contextPath+pluginContextPath+'/js/bigtab.js',
+                servletContext.contextPath+pluginContextPath+'/js/export-config.js',
+                servletContext.contextPath+pluginContextPath+'/js/export-ui.js',
+                servletContext.contextPath+pluginContextPath+'/js/memstore.js',
+                servletContext.contextPath+pluginContextPath+'/js/probe.js',
+                servletContext.contextPath+pluginContextPath+'/js/vcf.js'
         ]
 
         JSONObject result = new JSONObject()

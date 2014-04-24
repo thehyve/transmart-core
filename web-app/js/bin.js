@@ -7,6 +7,8 @@
 // bin.js general binary data support
 //
 
+"use strict";
+
 function BlobFetchable(b) {
     this.blob = b;
 }
@@ -32,12 +34,30 @@ BlobFetchable.prototype.slice = function(start, length) {
 
 BlobFetchable.prototype.salted = function() {return this;}
 
-BlobFetchable.prototype.fetch = function(callback) {
-    var reader = new FileReader();
-    reader.onloadend = function(ev) {
-        callback(bstringToBuffer(reader.result));
-    };
-    reader.readAsBinaryString(this.blob);
+if (typeof(FileReader) !== 'undefined') {
+    // console.log('defining async BlobFetchable.fetch');
+
+    BlobFetchable.prototype.fetch = function(callback) {
+        var reader = new FileReader();
+        reader.onloadend = function(ev) {
+            callback(bstringToBuffer(reader.result));
+        };
+        reader.readAsBinaryString(this.blob);
+    }
+
+} else {
+    // if (console && console.log)
+    //    console.log('defining sync BlobFetchable.fetch');
+
+    BlobFetchable.prototype.fetch = function(callback) {
+        var reader = new FileReaderSync();
+        try {
+            var res = reader.readAsArrayBuffer(this.blob);
+            callback(res);
+        } catch (e) {
+            callback(null, e);
+        }
+    }
 }
 
 function URLFetchable(url, start, end, opts) {

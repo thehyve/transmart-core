@@ -7,6 +7,8 @@
 // domui.js: SVG UI components
 //
 
+"use strict";
+
 Browser.prototype.removeAllPopups = function() {
     removeChildren(this.hPopupHolder);
     removeChildren(this.popupHolder);
@@ -28,15 +30,7 @@ Browser.prototype.makeTooltip = function(ele, text)
     };
 
     var setup = function(ev) {
-        // [rnugraha] fix tooltip elements
-        // -- start customization --
-
-        // var mx = ev.clientX + window.scrollX, my = ev.clientY + window.scrollY;
-
-        var mouseOver = myHandleEvent(ev);
-        var top = mouseOver.y;
-        var left = mouseOver.x;
-
+        var mx = ev.clientX + window.scrollX, my = ev.clientY + window.scrollY;
         if (!timer) {
             timer = setTimeout(function() {
                 var ttt;
@@ -48,15 +42,12 @@ Browser.prototype.makeTooltip = function(ele, text)
 
                 var popup = makeElement('div',
                     [makeElement('div', null, {className: 'tooltip-arrow'}),
-                        makeElement('div', ttt, {className: 'tooltip-inner'})],
-                    // {className: 'tooltip bottom in'}, {
-                    {className: 'tooltip in'}, {
-                        display: 'block',
-                        // top: '' + (my + 20) + 'px',
-                        // left: '' + Math.max(mx - 30, 20) + 'px'
-                        top: '' + (top + 10) + 'px',
-                        left: '' + left + 'px'
-                    });
+                     makeElement('div', ttt, {className: 'tooltip-inner'})], 
+                    {className: 'tooltip bottom in'}, {
+                    display: 'block',
+                    top: '' + (my + 20) + 'px',
+                    left: '' + Math.max(mx - 30, 20) + 'px'
+                });
                 thisB.hPopupHolder.appendChild(popup);
                 var moveHandler;
                 moveHandler = function(ev) {
@@ -94,84 +85,17 @@ Browser.prototype.makeTooltip = function(ele, text)
     }, false);
 }
 
-/**
- * [rnugraha] helper function to return the mouse position (x & y)
- * @param e
- * @returns {{x: number, y: number}}
- */
-function myHandleEvent(e) {
-    var evt = e ? e:window.event;
-    var clickX=0, clickY=0;
-
-    if ((evt.clientX || evt.clientY) &&
-        document.body &&
-        document.body.scrollLeft!=null) {
-        clickX = evt.clientX + document.body.scrollLeft;
-        clickY = evt.clientY + document.body.scrollTop;
-    }
-    if ((evt.clientX || evt.clientY) &&
-        document.compatMode=='CSS1Compat' &&
-        document.documentElement &&
-        document.documentElement.scrollLeft!=null) {
-        clickX = evt.clientX + document.documentElement.scrollLeft;
-        clickY = evt.clientY + document.documentElement.scrollTop;
-    }
-    if (evt.pageX || evt.pageY) {
-        clickX = evt.pageX;
-        clickY = evt.pageY;
-    }
-    return {x:clickX, y:clickY};
-}
-
-/**
- * [rnugraha] helper function to get position of element
- * @param element
- * @returns {{x: number, y: number}}
- */
-function getPosition(element) {
-    var xPosition = 0;
-    var yPosition = 0;
-
-    while(element) {
-        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
-        element = element.offsetParent;
-    }
-    return { x: xPosition, y: yPosition };
-}
-
-
-
 Browser.prototype.popit = function(ev, name, ele, opts)
 {
     var thisB = this;
-    if (!opts)
+    if (!opts) 
         opts = {};
-    if (!ev)
+    if (!ev) 
         ev = {};
 
     var width = opts.width || 200;
 
-
-
-    // [rnugraha] fix popup elements
-    //  -- start customization --
-
-//    var mx, my;
-//
-//    if (ev.clientX) {
-//        var mx =  ev.clientX, my = ev.clientY;
-//    } else {
-//        mx = 500; my= 50;
-//    }
-//    mx +=  document.documentElement.scrollLeft || document.body.scrollLeft;
-//    my +=  document.documentElement.scrollTop || document.body.scrollTop;
-//
-//    var winWidth = window.innerWidth;
-//
-//    var top = (my + 20);
-//    var left = Math.min(mx - (width/2), (winWidth - width - 30));
-
+    var mx, my;
 
     if (ev.clientX) {
         var mx =  ev.clientX, my = ev.clientY;
@@ -182,17 +106,8 @@ Browser.prototype.popit = function(ev, name, ele, opts)
     my +=  document.documentElement.scrollTop || document.body.scrollTop;
     var winWidth = window.innerWidth;
 
-    var mouseClick = myHandleEvent(ev);
-
-//    var top = my;
-//    var left = Math.min(mx - (width/2) - 4, (winWidth - width - 30));
-
-    var top = mouseClick.y;
-    var left = mouseClick.x - (width/2);
-
-
-    // -- end customization --
-
+    var top = my;
+    var left = Math.min(mx - (width/2) - 4, (winWidth - width - 30));
 
     var popup = makeElement('div');
     popup.className = 'popover fade ' + (ev.clientX ? 'bottom ' : '') + 'in';

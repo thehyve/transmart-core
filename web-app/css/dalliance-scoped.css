@@ -16,29 +16,63 @@
 *.dalliance * {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.dalliance-injection-point {
+  display: flex;
+  display: -webkit-flex;
+}
+
+.dalliance-root {
+  flex: 100% 1 1;
+  -webkit-flex: 100% 1 1;
+  display: inline-flex;
+  display: -webkit-inline-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  max-height: 500px;
+  width: 100%;
+  outline: none;
+}
+
 *.dalliance .tier-viewport-background {
   background-color: #fff;
   background-image: -webkit-linear-gradient(#000 2px, transparent 2px), -webkit-linear-gradient(0, #000 2px, transparent 2px), -webkit-linear-gradient(rgba(0, 0, 0, .3) 1px, transparent 1px), -webkit-linear-gradient(0, rgba(0, 0, 0, .3) 1px, transparent 1px);
   background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
   background-position: -15px -15px, -15px -15px, -14px -14px, -14px -14px;
 }
+
 *.dalliance .track-label {
   font-size: 10pt;
+  line-height: 15px;
   position: absolute;
-  z-index: 999;
-  background: rgba(220, 220, 220, 0.8);
-  padding: 3px;
-  cursor: default;
-  border-radius: 4px;
+  z-index: 1001;
+  left: 2px;
+  top: 2px;
+  display: inline-block;
+  opacity: 0.8;
 }
+
+*.dalliance .track-label-info {
+  display: none;
+  max-width: 200px
+  white-space: normal;
+  color: rgb(100, 100, 100);
+}
+
+*.dalliance .track-name-holder {
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 *.dalliance .tier-tab {
   display: inline-block;
   *display: inline;
   padding: 0px 2px;
   margin-bottom: 0;
   *margin-left: .3em;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 15px;
   color: #333;
   text-align: center;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
@@ -76,6 +110,24 @@
 *:focus.dalliance .tier-tab.active {
   border: 3px solid rgb(150, 150, 230);
 }
+
+*.dalliance .tier {
+  position: relative;
+  height: 30px;
+  display: block;
+  text-align: center;
+  overflow: hidden;
+
+  background-color: #eee;
+  background-size: 15px 15px;
+  background-image: -webkit-linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),
+                    -webkit-linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
+  background-image: -moz-linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),
+                    -moz-linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+                    linear-gradient(135deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc); 
+}
+
 *.dalliance .loc-field {
   width: 240px;
   margin-bottom: 0px;
@@ -99,7 +151,7 @@
   position: relative;
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
+  -moz-user-select: none
 }
 
 *.dalliance .tier-holder {
@@ -113,17 +165,49 @@
   -moz-box-flex: 1;
   -webkit-flex: 1 1 100%;
   flex: 1 1 100%;
+
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+*.dalliance .tier-holder-pinned {
+  flex: none;
+  -webkit-flex: none;
+  display: none;
+}
+
+*.dalliance .tier-holder-pinned-full {
+  display: block;
+  overflow-y: hidden;
+  border-bottom: 3px solid gray;
+}
+
+*.dalliance .tier-holder-rest {
+  flex: 1 1;
+  -webkit-flex: 1 1;
+}
+
+*.dalliance .tier-holder-holder {
+  width: 100%;
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
 }
 
 *.dalliance .tool-divider {
   background-color: gray;
   width: 8px;
   min-height: 100px;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
   -webkit-box-flex: 0;
   -moz-box-flex: 0;
   -webkit-flex: 0 0 8px;
   flex: 0 0 8px;
+
 }
 
 *.dalliance .tool-holder {
@@ -167,6 +251,10 @@
   vertical-align: top;
 }
 
+*.dalliance .toolbar {
+  flex: none;
+  -webkit-flex: none;
+}
 
 *.dalliance .toolbar > * {
   vertical-align: top;
@@ -198,26 +286,13 @@
 }
 
 *.dalliance .viewport-overlay {
-  position: relative;
+  position: absolute;
   padding: 0px;
   margin: 0px;
   border: 0px;
   left: -1000px;
   z-index: 1000;
   pointer-events: none;
-}
-
-*.dalliance .placard {
-  display: none;
-  position: relative;
-  border-collapse: collapse;
-  margin-top: -1px;
-  height: 50px;
-  text-align: center;
-  line-height: 50px;
-  border-style: solid;
-  border-color: red;
-  border-width: 1px;
 }
 
 *.dalliance .quant-overlay {
@@ -229,13 +304,6 @@
   display: none;
 }
 
-*.dalliance .view-holder {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
 *.dalliance .tier-edit input {
   margin-bottom: 0px;
 }
@@ -245,4 +313,39 @@
   text-align: right;
   padding-right: 10px;
   vertical-align: middle;
+}
+
+*.dalliance .notifier {
+  background-color: black;
+  color: white;
+  opacity: 0.;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  transition: opacity 0.6s ease-in-out;
+  pointer-events: none;
+}
+
+*.dalliance .notifier-holder {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  text-align: center;
+  z-index: 5000;
+  pointer-events: none;
+}
+
+*.dalliance .export-form {
+  flex: none;
+  -webkit-flex: none;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  align-items: flex-start;
+  -webkit-align-items: flex-start;
 }
