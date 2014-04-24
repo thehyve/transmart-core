@@ -33,6 +33,7 @@ $rights_table = [
 ];
 
 $sql_options_table = [
+    ''             => '',
 	'GRANT_OPTION' => ' WITH GRANT OPTION',
 ];
 
