@@ -2,29 +2,36 @@ package org.transmartproject.rest
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 
 class ObservationsResourceTests extends ResourceTestCase {
 
     def studyId = 'STUDY1'
+    def label = "\\foo\\study1\\bar\\"
+
+    def study1BarExpectedObservations = [
+            [
+                    subject: [id: -103],
+                    label: label,
+                    value: null,
+            ],
+            [
+                    subject: [id: -102],
+                    label: label,
+                    value: null,
+            ],
+            [
+                    subject: [id: -101],
+                    label: label,
+                    value: closeTo(10.0 as Double, 0.00001 as Double),
+            ],
+    ]
 
     void testListAllObservationsForStudy() {
         get("${baseURL}studies/${studyId}/observations")
         assertStatus 200
 
-        assertThat JSON, contains(
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -103)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry('value', null)),
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -102)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry('value', null)),
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -101)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry(is('value'),
-                                closeTo(10.0 as Double, 0.00001 as Double))))
+        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testListAllObservationsForSubject() {
@@ -46,11 +53,7 @@ class ObservationsResourceTests extends ResourceTestCase {
                                 hasEntry('deathDate', null),
                                 hasEntry('race', null),
                         )),
-                        hasEntry(is('concept'), allOf(
-                                hasEntry('conceptCode', '2'),
-                                hasEntry('conceptPath', '\\foo\\study1\\bar\\'),
-                                hasEntry('label', '\\foo\\study1\\bar\\')
-                        )),
+
                         hasEntry('value', 10.0 as Double)
                 )
         )
@@ -61,23 +64,6 @@ class ObservationsResourceTests extends ResourceTestCase {
         get("${baseURL}studies/${studyId}/concepts/${conceptId}/observations")
         assertStatus 200
 
-        assertThat JSON, contains(
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -103)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry('value', null)
-                ),
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -102)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry('value', null)
-                ),
-                allOf(
-                        hasEntry(is('subject'), hasEntry('id', -101)),
-                        hasEntry(is('concept'), hasEntry('conceptCode', '2')),
-                        hasEntry('value', 10.0 as Double)
-                )
-        )
+        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
     }
-
 }
