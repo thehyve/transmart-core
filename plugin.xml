@@ -1,5 +1,6 @@
-<plugin name='transmart-legacy-db' version='0.1.0-SNAPSHOT' grailsVersion='2.2 &gt; *'>
-  <author>Your name</author>
+<plugin name='transmart-legacy-db' version='0.3-ORACLE-SNAPSHOT' grailsVersion='2.2 &gt; *'>
+  <author>Florian Guitton</author>
+  <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
   <title>Transmart Legacy Db Plugin</title>
   <description>Brief summary/description of the plugin.
 </description>
@@ -32,82 +33,5 @@
     <resource>i2b2.SnpProbeSortedDef</resource>
     <resource>i2b2.StringLineReader</resource>
     <resource>i2b2.SubjectSnpDataset</resource>
-    <resource>org.transmart.biomart.BioAssay</resource>
-    <resource>org.transmart.biomart.BioAssayAnalysis</resource>
-    <resource>org.transmart.biomart.BioAssayAnalysisData</resource>
-    <resource>org.transmart.biomart.BioAssayAnalysisDataTea</resource>
-    <resource>org.transmart.biomart.BioAssayAnalysisPlatform</resource>
-    <resource>org.transmart.biomart.BioAssayData</resource>
-    <resource>org.transmart.biomart.BioAssayDataAnnotation</resource>
-    <resource>org.transmart.biomart.BioAssayDataStatistics</resource>
-    <resource>org.transmart.biomart.BioAssayDataset</resource>
-    <resource>org.transmart.biomart.BioAssayFeatureGroup</resource>
-    <resource>org.transmart.biomart.BioAssayPlatform</resource>
-    <resource>org.transmart.biomart.BioAssaySample</resource>
-    <resource>org.transmart.biomart.BioAssayStatsExpMarker</resource>
-    <resource>org.transmart.biomart.BioData</resource>
-    <resource>org.transmart.biomart.BioDataAttribute</resource>
-    <resource>org.transmart.biomart.BioDataCorrelation</resource>
-    <resource>org.transmart.biomart.BioDataCorrelationDescr</resource>
-    <resource>org.transmart.biomart.BioDataExternalCode</resource>
-    <resource>org.transmart.biomart.BioMarker</resource>
-    <resource>org.transmart.biomart.BioMarkerCorrelationMV</resource>
-    <resource>org.transmart.biomart.BioMarkerExpAnalysisMV</resource>
-    <resource>org.transmart.biomart.BioSample</resource>
-    <resource>org.transmart.biomart.BioSubject</resource>
-    <resource>org.transmart.biomart.CellLine</resource>
-    <resource>org.transmart.biomart.CgdcpData</resource>
-    <resource>org.transmart.biomart.ClinicalTrial</resource>
-    <resource>org.transmart.biomart.ClinicalTrialPatientGroup</resource>
-    <resource>org.transmart.biomart.ClinicalTrialTimePoint</resource>
-    <resource>org.transmart.biomart.Compound</resource>
-    <resource>org.transmart.biomart.ConceptCode</resource>
-    <resource>org.transmart.biomart.Content</resource>
-    <resource>org.transmart.biomart.ContentReference</resource>
-    <resource>org.transmart.biomart.ContentRepository</resource>
-    <resource>org.transmart.biomart.CurationDataset</resource>
-    <resource>org.transmart.biomart.Disease</resource>
-    <resource>org.transmart.biomart.Experiment</resource>
-    <resource>org.transmart.biomart.Literature</resource>
-    <resource>org.transmart.biomart.LiteratureAlterationData</resource>
-    <resource>org.transmart.biomart.LiteratureAssocMoleculeDetailsData</resource>
-    <resource>org.transmart.biomart.LiteratureInhibitorData</resource>
-    <resource>org.transmart.biomart.LiteratureInteractionData</resource>
-    <resource>org.transmart.biomart.LiteratureInteractionModelMV</resource>
-    <resource>org.transmart.biomart.LiteratureModelData</resource>
-    <resource>org.transmart.biomart.LiteratureProteinEffectData</resource>
-    <resource>org.transmart.biomart.LiteratureReferenceData</resource>
-    <resource>org.transmart.biomart.LiteratureSummaryData</resource>
-    <resource>org.transmart.biomart.Patient</resource>
-    <resource>org.transmart.biomart.PatientEvent</resource>
-    <resource>org.transmart.biomart.PatientEventAttribute</resource>
-    <resource>org.transmart.biomart.Taxonomy</resource>
-    <resource>org.transmart.searchapp.AccessLog</resource>
-    <resource>org.transmart.searchapp.AuthUser</resource>
-    <resource>org.transmart.searchapp.AuthUserSecureAccess</resource>
-    <resource>org.transmart.searchapp.CustomFilter</resource>
-    <resource>org.transmart.searchapp.CustomFilterItem</resource>
-    <resource>org.transmart.searchapp.GeneSignature</resource>
-    <resource>org.transmart.searchapp.GeneSignatureFileSchema</resource>
-    <resource>org.transmart.searchapp.GeneSignatureItem</resource>
-    <resource>org.transmart.searchapp.Principal</resource>
-    <resource>org.transmart.searchapp.Requestmap</resource>
-    <resource>org.transmart.searchapp.Role</resource>
-    <resource>org.transmart.searchapp.SearchBioMarkerCorrelFastMV</resource>
-    <resource>org.transmart.searchapp.SearchKeyword</resource>
-    <resource>org.transmart.searchapp.SearchKeywordTerm</resource>
-    <resource>org.transmart.searchapp.SecureAccessLevel</resource>
-    <resource>org.transmart.searchapp.SecureObject</resource>
-    <resource>org.transmart.searchapp.SecureObjectAccess</resource>
-    <resource>org.transmart.searchapp.SecureObjectPath</resource>
-    <resource>org.transmart.searchapp.UserGroup</resource>
   </resources>
-  <repositories>
-    <repository name='grailsCentral' url='http://grails.org/plugins' />
-    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
-  </repositories>
-  <dependencies />
-  <plugins />
-  <runtimePluginRequirements />
-  <behavior />
 </plugin>

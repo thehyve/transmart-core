@@ -1,15 +1,15 @@
 class TransmartLegacyDbGrailsPlugin {
     // the plugin version
-    def version = "0.1.0-SNAPSHOT"
+    def version = "0.3-ORACLE-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.2 > *"
+    def grailsVersion = "2.3 > *"
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
 
     // TODO Fill in these fields
-    def title = "Transmart Legacy Db Plugin" // Headline display name of the plugin
+    def title = "Transmart Legacy DB Plugin" // Headline display name of the plugin
     def author = "Florian Guitton"
     def authorEmail = "f.guitton@imperial.ac.uk"
     def description = '''\
