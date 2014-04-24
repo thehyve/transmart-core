@@ -144,9 +144,6 @@ class ClinicalVariableFactory {
                         'is not a folder')
             }
 
-            //this code assumes that numerical leaves WILL have metadata, with the 'okToUseValues' properly set.
-            //this is a bit dangerous, as later on values are expected to be Strings, and misconfigured
-            //numerical concepts will cause an exception will be thrown (see CategoricalVariable.getVariableValue)
             if (it.metadata?.okToUseValues) {
                 // numeric leaf
                 composingVariables <<

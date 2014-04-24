@@ -178,4 +178,16 @@ class ComposedVariablesCreationTests {
                         isA(TerminalConceptVariable),
                         isA(TerminalConceptVariable)))
     }
+
+    @Test
+    void normalizedLeafVariableOnParentOfNumericVariable() {
+        NormalizedLeafsVariable var
+        var = clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
+                concept_code: conceptData.i2b2List.find { it.fullName == '\\foo\\study1\\' }.code)
+
+        assertThat var.innerClinicalVariables, contains(allOf(
+                isA(TerminalConceptVariable),
+                hasProperty('conceptPath', is('\\foo\\study1\\bar\\'))))
+    }
 }
