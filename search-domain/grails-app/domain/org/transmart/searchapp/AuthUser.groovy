@@ -74,4 +74,20 @@ class AuthUser extends Principal {
     def beforeUpdate = {
         name = userRealName
     }
+    
+        /**
+	 * is this user an Admin
+	 */
+    def isAdmin() {
+		def bAdmin = false;
+		authorities.each { if(it.authority==Role.ADMIN_ROLE) bAdmin = true; }
+		return bAdmin;
+	}
+
+    /**
+     * is this user an Data Set Explorer Admin
+     */
+    def isDseAdmin() {
+        authorities.any { it.authority == Role.DS_EXPLORER_ROLE }
+    }
 }
