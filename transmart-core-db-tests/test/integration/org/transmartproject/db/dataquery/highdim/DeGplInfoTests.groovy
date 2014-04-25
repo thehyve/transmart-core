@@ -20,10 +20,10 @@ class DeGplInfoTests {
                 hasProperty('markerType', equalTo('generic')),
                 hasProperty('title', equalTo('Test Generic Platform')),
                 hasProperty('organism', equalTo('Homo Sapiens')),
-                hasProperty('releaseNumber', equalTo(18)),
-                hasProperty('annotationDate', equalTo(
-                        Date.parse('yyyy-MM-dd', '2013-05-03'))),
-
+                hasProperty('genomeReleaseId', equalTo('hg18')),
+                hasProperty('annotationDate', equalTo(Date.parse('yyyy-MM-dd', '2013-05-03'))),
         )
+
+        assertThat GenomeBuildNumber.forId(platform.genomeReleaseId), is(GenomeBuildNumber.GRCh36)
     }
 }
