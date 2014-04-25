@@ -1,35 +1,37 @@
 #tranSMART RESTful API documentation
 
 
+
+
 ### Available calls for the tranSMART RESTful API
 
 The following is a list of all HTTP requests that can be made to a tranSMART RESTful API. All URI's are relative to your tranSMART server's URI (eg. http://some.transmart.server/transmart).
 
 The return message's body will contain JSON with additional HAL format, with the exception of the request for high dimensional data (see section below).
 
-Call | HTTP request | Description
-- | - | -
-get all studies | GET `/studies`  | returns information on all available studies
-get single study | GET `/studies/{studyName}`  | returns information on a single study
-get all concepts | GET `/studies/{studyName}/concepts` | returns information on all concepts for a study
-get single concept | GET `/studies/{studyName}/concepts/{conceptPath}` | returns information on one concept for a study
-get all subjects | GET `/studies/{studyName}/subjects` | returns information on all subjects for a study
-get single subject | GET `/studies/{studyName}/subjects/{subjectId}` | returns information on one subject for a study
-get subjects with concept | GET `/studies/{studyName}/concepts/{conceptPath}/subjects` | returns the subjects which have data for this concept
-get all observations | GET `/studies/{studyName}/observations` | returns all clinical observation values for a study
-get observations for single concept | GET `/studies/{studyName}/concepts/{conceptPath}/observations` | returns clinical observation values for one concept for a study
-get index of highdim data for single concept| GET `/studies/{studyName}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections for this highdim concept for a study
-get highdim data for single concept| GET `/studies/{studyName}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}` | returns highdim data of a specific dataType and projection for one concept of a study
+| Call | HTTP request | Description |
+| --- | --- | --- |
+| get all studies | GET `/studies`  | returns information on all available studies |
+| get single study | GET `/studies/{studyName}`  | returns information on a single study |
+| get all concepts | GET `/studies/{studyName}/concepts` | returns information on all concepts for a study |
+| get single concept | GET `/studies/{studyName}/concepts/{conceptPath}` | returns information on one concept for a study |
+| get all subjects | GET `/studies/{studyName}/subjects` | returns information on all subjects for a study |
+| get single subject | GET `/studies/{studyName}/subjects/{subjectId}` | returns information on one subject for a study |
+| get subjects with concept | GET `/studies/{studyName}/concepts/{conceptPath}/subjects` | returns the subjects which have data for this concept |
+| get all observations | GET `/studies/{studyName}/observations` | returns all clinical observation values for a study |
+| get observations for single concept | GET `/studies/{studyName}/concepts/{conceptPath}/observations` | returns clinical observation values for one concept for a study |
+| get index of highdim data for single concept| GET `/studies/{studyName}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections for this highdim concept for a study |
+| get highdim data for single concept| GET `/studies/{studyName}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}` | returns highdim data of a specific dataType and projection for one concept of a study |
 
 
 #### Explanation of URI variables
-variable  | explanation
-- | -
-{studyName} | The name of the study, as returned by the `/studies` call.
-{conceptPath} | A path that defines the concept within a study. This is similar to the concept path as defined within tranSMART, but without the initial part that defines the study path (and with necessary character conversion to make it compatible with URI syntax). The safest and most robust method of obtaining this value is by making use of the embedded links in the `/studies/{studyName}/concepts` result.
-{subjectId} | A unique subject identifier, as returned by `/studies/{studyName}/subjects` call.
-{dataType} | High dimensional concepts can be of several types, depending on what your tranSMART version supports. Possible data type options are contained in the highdim index returned by the `/studies/{studyName}/concepts/{conceptPath}/highdim` call.
-{projectionType} | High dimensional data can have values stored in a variety of projections. Possible projection options are contained in the highdim index returned by the `/studies/{studyName}/concepts/{conceptPath}/highdim` call.
+| variable  | explanation |
+| --- | --- |
+| {studyName} | The name of the study, as returned by the `/studies` call. |
+| {conceptPath} | A path that defines the concept within a study. This is similar to the concept path as defined within tranSMART, but without the initial part that defines the study path (and with necessary character conversion to make it compatible with URI syntax). The safest and most robust method of obtaining this value is by making use of the embedded links in the `/studies/{studyName}/concepts` result. |
+| {subjectId} | A unique subject identifier, as returned by `/studies/{studyName}/subjects` call. |
+| {dataType} | High dimensional concepts can be of several types, depending on what your tranSMART version supports. Possible data type options are contained in the highdim index returned by the `/studies/{studyName}/concepts/{conceptPath}/highdim` call. |
+| {projectionType} | High dimensional data can have values stored in a variety of projections. Possible projection options are contained in the highdim index returned by the `/studies/{studyName}/concepts/{conceptPath}/highdim` call. |
 
 #### HTTP exchange details
 Each of the above GET requests needs two header fields set:
@@ -81,9 +83,9 @@ The response of step 3 will be JSON containing the access token, in addition to 
 
 #### Explanation of URI variables
 
-variable  | explanation
-- | -
-{oauthServer} | The URI of the OAuth server to be used. By default this will be identical to the URI of your tranSMART server.
-{clientId} | The client id assigned to your client application after registering it with the OAuth server.
-{clientSecret} | The client secret assigned to your client application after registering it with the OAuth server.
-{requestToken} | The temporary token received by your end-user after authenticating, and which needs to be exchanged by your client for an access token.
+| variable  | explanation |
+| --- | --- |
+| {oauthServer} | The URI of the OAuth server to be used. By default this will be identical to the URI of your tranSMART server. |
+| {clientId} | The client id assigned to your client application after registering it with the OAuth server. |
+| {clientSe****cret} | The client secret assigned to your client application after registering it with the OAuth server. |
+| {requestToken} | The temporary token received by your end-user after authenticating, and which needs to be exchanged by your client for an access token. |
