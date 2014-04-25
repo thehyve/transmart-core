@@ -17,7 +17,7 @@ This repository is a set of make files and scripts for:
 The current schema is the one necessary to support the
 [`master` branch][master] on The Hyve's fork.
 
-Oracle databases are still not supported. This goal is to have this project
+This goal is to have this project
 displace `transmart-DB` by providing a better way to manage the tranSMART
 database.
 
@@ -65,7 +65,9 @@ created for you. You can skip the previous step and do only:
 
     . ./vars-ubuntu
 
-The several options are fairly self-explanatory. The configured PostgreSQL user
+The several options are fairly self-explanatory.
+
+The configured PostgreSQL user
 must be a database superuser. You can connect to PostgreSQL with UNIX sockets by
 specifying the parent directory of the socket in `PGHOST`. In that case,
 `localhost` will be used in the situation where UNIX sockets are not supported,

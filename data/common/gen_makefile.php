@@ -22,6 +22,7 @@ if ($tableList === false) {
 }
 
 echo "THIS_SCHEMA := ", $argv[1], "\n";
+echo "include $(COMMON_DIR)/makefile_schemas.inc\n";
 
 foreach ($tableList as $table) {
 	$table = trim($table);
@@ -61,6 +62,4 @@ echo ".PHONY: load\n";
 $all_dump_targets = implode(" ", array_map(function ($t) { return "dump_$t"; }, $tableList));
 echo "\n";
 echo "dump: $all_dump_targets\n";
-echo "%:\n\tTHIS_SCHEMA=$(THIS_SCHEMA) $(MAKE) -C ../../$(DBMS_DATA_FOLDER) $*\n";
 echo ".PHONY: dump\n";
-echo "ifndef DBMS_DATA_FOLDER\n\t$(error DBMS_DATA_FOLDER variable is not set)\nendif\n";
