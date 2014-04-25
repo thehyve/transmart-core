@@ -35,9 +35,9 @@ public interface Platform {
     /**
      * A genome build release identifier.
      *
-     * @return the genome build number
+     * @return the genome build release identifier
      */
-    GenomeBuildNumber getGenomeBuildNumber()
+    String getGenomeReleaseId()
 
     /**
      * The time when this platform was imported to the database. Maybe.
