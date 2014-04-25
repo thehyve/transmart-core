@@ -15,6 +15,7 @@ get all concepts | GET `/studies/{studyName}/concepts` | returns information on 
 get single concept | GET `/studies/{studyName}/concepts/{conceptPath}` | returns information on one concept for a study
 get all subjects | GET `/studies/{studyName}/subjects` | returns information on all subjects for a study
 get single subject | GET `/studies/{studyName}/subjects/{subjectId}` | returns information on one subject for a study
+get subjects with concept | GET `/studies/{studyName}/concepts/{conceptPath}/subjects` | returns the subjects which have data for this concept
 get all observations | GET `/studies/{studyName}/observations` | returns all clinical observation values for a study
 get observations for single concept | GET `/studies/{studyName}/concepts/{conceptPath}/observations` | returns clinical observation values for one concept for a study
 get index of highdim data for single concept| GET `/studies/{studyName}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections for this highdim concept for a study
