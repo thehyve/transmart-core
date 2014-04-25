@@ -1,22 +1,3 @@
-/*************************************************************************
- * tranSMART - translational medicine data mart
- *
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- *
- * This product includes software developed at Janssen Research & Development, LLC.
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- ******************************************************************/
-
 
 package org.transmart.biomart
 
@@ -29,6 +10,12 @@ class BioAssayPlatform {
     String accession
     String array
     String vendor
+    String platformType
+    String platformTechnology
+
+    String uniqueId
+
+    static transients = ['uniqueId', 'fullName']
 
     static mapping = {
         table 'BIO_ASSAY_PLATFORM'
@@ -44,6 +31,8 @@ class BioAssayPlatform {
             accession column: 'PLATFORM_ACCESSION'
             array column: 'PLATFORM_ARRAY'
             vendor column: 'PLATFORM_VENDOR'
+            platformType column: 'PLATFORM_TYPE'
+            platformTechnology column: 'PLATFORM_TECHNOLOGY'
         }
     }
 
@@ -51,5 +40,50 @@ class BioAssayPlatform {
         name(nullable: true, maxSize: 400)
         platformVersion(nullable: true, maxSize: 400)
         description(nullable: true, maxSize: 2000)
+        platformType(nullable: true)
+        platformTechnology(nullable: true)
+    }
+    /**
+     * Use transient property to support unique ID for tagValue.
+     * @return tagValue's uniqueId
+     */
+
+    String getUniqueId() {
+        if (uniqueId == null) {
+            if (id) {
+                BioData data = BioData.get(id);
+                if (data != null) {
+                    uniqueId = data.uniqueId
+                    return data.uniqueId;
+                }
+                return null;
+            } else {
+                return null;
+            }
+        } else {
+
+            return uniqueId;
+        }
+    }
+
+
+    String getFullName() {
+        return (platformType + "/" + platformTechnology + "/" + vendor + "/" + name)
+
+    }
+
+/**
+ * Find concept code by its uniqueId
+ * @param uniqueId
+ * @return BioAssayPlatform with matching uniqueId or null, if match not found.
+ */
+
+    static BioAssayPlatform findByUniqueId(String uniqueId) {
+        BioAssayPlatform cc;
+        BioData bd = BioData.findByUniqueId(uniqueId);
+        if (bd != null) {
+            cc = BioAssayPlatform.get(bd.id);
+        }
+        return cc;
     }
 }
