@@ -1,9 +1,5 @@
 package com.recomdata.transmart.plugin
-
 import grails.converters.JSON
-import org.hibernate.Hibernate
-
-import java.sql.Clob
 
 class PluginModule {
 
@@ -12,7 +8,7 @@ class PluginModule {
     long id
     String name
     String moduleName
-    Clob params
+    String params
     String version
     Boolean active
     Boolean hasForm
@@ -47,7 +43,7 @@ class PluginModule {
     def private setParamsStr(moduleParams) {
         if (moduleParams?.trim()) {
             def jsonObject = JSON.parse(moduleParams)
-            params = Hibernate.createClob(jsonObject?.toString())
+            params = jsonObject?.toString()
         }
     }
 
