@@ -119,7 +119,7 @@ class PCAController {
             inStr.eachLine {
 
                 //Split the current line.
-                String[] resultArray = it.split();
+                String[] resultArray = it.split("\t");
 
                 //Add the line from the text file to the html table.
                 buf.append("<tr><td>${resultArray[0]}</td><td>${resultArray[1]}</td></tr>")
