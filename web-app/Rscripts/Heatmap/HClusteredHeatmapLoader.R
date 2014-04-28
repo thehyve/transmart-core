@@ -127,6 +127,8 @@ cluster.by.columns = TRUE
     } else {
         #Prepare the package to capture the image file.
         CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
+
+        options(device="png")
         Plot.error.message("Not enough marker/samples to draw heatmap"); return()
     }
 
@@ -187,9 +189,11 @@ plotHeatmap <- function(data, colcolors, cluster.by.rows, cluster.by.columns, co
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
                  height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
+        options(device="svg")
     } else {
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
+        options(device="png")
     }
 
     heatmap.2(data,

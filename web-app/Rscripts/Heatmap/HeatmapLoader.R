@@ -171,9 +171,11 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
                  height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
+        options(device="svg")
     } else {
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
+        options(device="png")
     }
 
     heatmap.2(data,
