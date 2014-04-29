@@ -7,12 +7,12 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
+
 /**
  * Created by glopes on 11/22/13.
  */
 @InheritConstructors
 class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
-
     List<ChromosomalSegment> retrieveChromosomalSegments(
             List<AssayConstraint> assayConstraints) {
 

@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -34,9 +33,11 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = typesMap(DeSubjectRnaData,
+            ['rawIntensity', 'logIntensity', 'zscore'])
 
-    private final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
+    final Map<String, Class> rowProperties = typesMap(RnaSeqCogDataRow,
+            ['annotationId', 'geneSymbol', 'geneId'])
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

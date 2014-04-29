@@ -49,6 +49,8 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
 
         cache   usage: 'read-only', include: 'non-lazy' /* don't cache groups */
 
+        realName column: 'user_real_name'
+
         version false
     }
 

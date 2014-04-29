@@ -5,6 +5,12 @@ import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataCon
 
 class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
 
+    //initialized with ChromosomeSegmentConstraintFactory
+    String regionPrefix
+    String regionChromosomeColumn
+    String regionStartColumn
+    String regionEndColumn
+
     String chromosome
     Long   start,
            end
@@ -18,16 +24,16 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
         criteria.with {
             and {
                 if (chromosome) {
-                    eq 'region.chromosome', chromosome
+                    eq regionPrefix + regionChromosomeColumn, chromosome
                 }
 
                 if (start  != null && end != null) {
                     or {
-                        between 'region.start', start, end
-                        between 'region.end',   start, end
+                        between regionPrefix+regionStartColumn, start, end
+                        between regionPrefix+regionEndColumn,   start, end
                         and {
-                            le 'region.start', start
-                            ge 'region.end',   end
+                            le regionPrefix + regionStartColumn, start
+                            ge regionPrefix + regionEndColumn,   end
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -23,15 +22,18 @@ import javax.annotation.PostConstruct
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
+
     final String name = 'metabolite'
 
     final List<String> platformMarkerTypes = ['METABOLOMICS']
 
     final String description = 'Metabolomics data (Mass Spec)'
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = typesMap(DeSubjectMetabolomicsData,
+            ['rawIntensity', 'logIntensity', 'zscore'])
 
-    private final Set<String> rowProperties = ImmutableSet.of('hmdbId', 'biochemicalName')
+    final Map<String, Class> rowProperties = typesMap(MetaboliteDataRow,
+            ['hmdbId', 'biochemicalName'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

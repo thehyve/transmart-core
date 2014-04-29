@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -28,9 +27,11 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RBM']
 
-    private final Set<String> dataProperties = ImmutableSet.of('value', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = typesMap(DeSubjectRbmData,
+            ['value', 'logIntensity', 'zscore'])
 
-    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'unit', 'uniprotName')
+    final Map<String, Class> rowProperties = typesMap(RbmRow,
+            ['antigenName', 'unit', 'uniprotName'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

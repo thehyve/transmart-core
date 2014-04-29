@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import grails.util.Holders
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -25,7 +26,7 @@ class MrnaTestData {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
                 organism: 'Homo Sapiens',
-                markerTypeId: 'Gene Expression')
+                markerType: 'Gene Expression')
         res.id = 'BOGUSGPL570'
         res
     }()
@@ -109,5 +110,12 @@ class MrnaTestData {
         save patients
         save assays
         save microarrayData
+    }
+
+    void updateDoubleScaledValues() {
+        //making sure BigDecimals use the scale specified in the db (otherwise toString() will yield different results)
+        Holders.applicationContext.sessionFactory.currentSession.flush()
+        microarrayData.each { it.refresh() }
+
     }
 }

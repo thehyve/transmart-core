@@ -29,6 +29,13 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     @Autowired
     HighDimensionResourceService highDimensionResourceService
 
+    static Map<String, Class> typesMap(Class domainClass, List<String> fields,
+                                       Map<String, String> translationMap = [:]) {
+        fields.collectEntries({
+            [(it): domainClass.metaClass.getMetaProperty(translationMap.get(it, it)).type]
+        }).asImmutable()
+    }
+
     @PostConstruct
     void init() {
         this.highDimensionResourceService.registerHighDimensionDataTypeModule(

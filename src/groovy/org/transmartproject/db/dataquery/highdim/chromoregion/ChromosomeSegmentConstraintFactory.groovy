@@ -6,11 +6,19 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
 
+import org.springframework.context.annotation.Scope
+
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam
 
 @Component
+@Scope("prototype")
 class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFactory {
+
+    String segmentPrefix = 'region.'
+    String segmentChromosomeColumn = 'chromosome'
+    String segmentStartColumn      = 'start'
+    String segmentEndColumn        = 'end'
 
     private static final String SEGMENT_CHROMOSOME_PARAM = 'chromosome'
     private static final String SEGMENT_START_PARAM      = 'start'
@@ -48,7 +56,14 @@ class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFac
                     'makes the end parameter be required and vice-versa')
         }
 
-        new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end)
+        def chr = new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end).with({
+            regionPrefix = segmentPrefix
+            regionChromosomeColumn = segmentChromosomeColumn
+            regionStartColumn = segmentStartColumn
+            regionEndColumn = segmentEndColumn
+            it
+        })
+        return chr
     }
 
 }
