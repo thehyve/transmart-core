@@ -32,6 +32,8 @@ ALTER FUNCTION i2b2_load_chrom_region(character varying, character varying, nume
 
 ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
 
+ALTER FUNCTION i2b2_load_proteomics_annot(numeric) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+
 ALTER FUNCTION i2b2_load_security_data(numeric) SET search_path TO tm_cz, i2b2metadata, pg_temp;
 
 ALTER FUNCTION i2b2_move_study(character varying, character varying, numeric) SET search_path TO tm_cz, i2b2metadata, i2b2demodata, pg_temp;
@@ -40,7 +42,12 @@ ALTER FUNCTION i2b2_process_acgh_data(character varying, character varying, char
 
 ALTER FUNCTION i2b2_process_mrna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, deapp, i2b2demodata, pg_temp;
 
+ALTER FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+
 ALTER FUNCTION i2b2_process_rnaseq_data(character varying, character varying, character varying, character varying, numeric) SET search_path TO tm_cz, tm_lz, tm_wz, deapp, i2b2demodata, pg_temp;
+
+ALTER FUNCTION i2b2_proteomics_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) SET search_path TO tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+
 --
 -- Name: czv_pivot_sample_categories; Type: VIEW; Schema: tm_cz; Owner: -
 --
