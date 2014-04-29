@@ -10,7 +10,7 @@ class AsyncJob {
     Long id
     String jobName
     String jobStatus
-    String runTime
+//    String runTime
     Date lastRunOn
     Date jobStatusTime
     String viewerURL
@@ -26,7 +26,7 @@ class AsyncJob {
                 params: [sequence: 'I2B2DEMODATA.ASYNC_JOB_SEQ']
         jobName column: 'JOB_NAME'
         jobStatus column: 'JOB_STATUS'
-        runTime column: 'RUN_TIME'
+//        runTime column: 'RUN_TIME'
         lastRunOn column: 'LAST_RUN_ON'
         jobStatusTime column: 'JOB_STATUS_TIME'
         viewerURL column: 'VIEWER_URL'
@@ -38,16 +38,16 @@ class AsyncJob {
     static constraints = {
         jobName(nullable: true)
         jobStatus(nullable: true)
-        runTime(nullable: true)
+//        runTime(nullable: true)
         viewerURL(nullable: true)
         altViewerURL(nullable: true)
         results(nullable: true)
     }
 
-    TimeDuration getRunTime() {
-        def lastTime = TERMINATION_STATES.contains(jobStatus) ? this.jobStatusTime : new Date()
-        lastRunOn && lastTime ? TimeCategory.minus(lastTime, lastRunOn) : null
-    }
+//    TimeDuration getRunTime() {
+//        def lastTime = TERMINATION_STATES.contains(jobStatus) ? this.jobStatusTime : new Date()
+//        lastRunOn && lastTime ? TimeCategory.minus(lastTime, lastRunOn) : null
+//    }
 
     void setJobStatus(String jobStatus) {
         if (this.jobStatus == jobStatus) {
