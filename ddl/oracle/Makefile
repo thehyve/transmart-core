@@ -44,7 +44,7 @@ load_tablespaces: create_tablespaces.php
 	$(RUN_SQL) -f GLOBAL/tablespaces.sql
 
 load: create_tablespaces.php
-	test '$(ORACLE_MANAGE_TABLESPACES)' = '1' && $(MAKE) load_tablespaces
+	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) load_tablespaces ; fi
 	$(MAKE) load_users
 	$(MAKE) load_user_objects
 
@@ -61,7 +61,7 @@ drop_tablespaces: drop_tablespaces.sql
 	$(RUN_SQL) -c -j 4 -f $<
 
 drop: drop_users
-	test '$(ORACLE_MANAGE_TABLESPACES)' = '1' && $(MAKE) drop_tablespaces
+	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) drop_tablespaces ; fi
 
 clean_all:
 	find $(SCHEMAS) GLOBAL -name '*.sql' -delete -o -name items.json -delete

@@ -1,3 +1,5 @@
 *.sw[op]
+*.iml
+/.idea
 /vars
 /vars-ubuntu

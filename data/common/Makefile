@@ -2,6 +2,9 @@
 #we need a temporary file because we want to read and write from
 #the same file
 
+TABLE_FILES = $(wildcard *_list)
+TABLE_DIRS = $(patsubst %_list,%,$(TABLE_FILES))
+
 minimize_diffs:
 	/bin/bash -c '                                                       \
 	for f in `php find_chg_tsv.php`; do                                  \
@@ -19,3 +22,21 @@ minimize_diffs:
 	done'
 
 .PHONY: minimize_diffs
+
+$(TABLE_DIRS):
+	mkdir $@
+
+#XXX: php file only reads dependencies from postgres
+%/makefile.inc: % ../../ddl/postgres/%/dependencies.php
+	php gen_makefile.php $* > $*/makefile.inc
+
+clean:
+	rm -f $(foreach d,$(TABLE_DIRS),$d/makefile.inc); \
+	$(foreach d,$(TABLE_DIRS),[ -d $d ] && rmdir $d;) \
+	true
+
+#don't include this in clean; dumping everything should only be needed sporadically
+clean_dumps:
+	rm -rf */*.tsv
+
+.PRECIOUS: %/makefile.inc
