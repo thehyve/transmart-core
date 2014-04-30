@@ -75,7 +75,7 @@ class AccessControlChecks {
             and soav.securedObject.bioDataUniqueId = :token
             and soav.securedObject.dataType = 'BIO_CLINICAL_TRIAL'
             '''
-        query.setParameter 'user', this
+        query.setParameter 'user', user
         query.setParameter 'token', token
 
         List<AccessLevel> results = query.list()
