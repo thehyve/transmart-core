@@ -67,6 +67,13 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
     boolean canPerform(ProtectedOperation protectedOperation,
                        ProtectedResource protectedResource) {
 
+        if (!accessControlChecks.respondsTo('canPerform',
+                [User, ProtectedOperation, protectedResource.getClass()] as Object[])) {
+            throw new UnsupportedOperationException("Do not know how to check " +
+                    "access for user $this, operation $protectedOperation on " +
+                    "$protectedResource")
+        }
+
         if (roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
@@ -75,15 +82,8 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             return true
         }
 
-        if (accessControlChecks.respondsTo('canPerform',
-                [User, ProtectedOperation, protectedResource.getClass()] as Object[])) {
-            return accessControlChecks.canPerform(this,
-                                                  protectedOperation,
-                                                  protectedResource)
-        } else {
-            throw new UnsupportedOperationException("Do not know how to check " +
-                    "access for user $this, operation $protectedOperation on " +
-                    "$protectedResource")
-        }
+        accessControlChecks.canPerform(this,
+                                       protectedOperation,
+                                       protectedResource)
     }
 }

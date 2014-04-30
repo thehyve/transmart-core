@@ -112,6 +112,10 @@ class UserAccessLevelTests {
     void testWithUnsupportedProtectedResource() {
         def adminUser = accessLevelTestData.users[0]
 
+        // should fail even though the user is an admin and usually bypasses
+        // all checks. The reason is we don't want to throw exceptions
+        // only when a non-admin is used when by mistake where's checking
+        // access for an unsupported ProtectedResource
         shouldFail UnsupportedOperationException, {
             adminUser.canPerform(API_READ, mock(ProtectedResource))
         }
