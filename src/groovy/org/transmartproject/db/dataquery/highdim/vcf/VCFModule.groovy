@@ -11,7 +11,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
-import org.transmartproject.db.dataquery.highdim.vcf.*
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -20,18 +19,16 @@ import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-/**
- * Created by j.hudecek on 6-2-14.
- */
-class CohortMAFModule extends AbstractHighDimensionDataTypeModule {
 
-    static final String VALUES_PROJECTION = 'cohortMAF_values'
+class VCFModule extends AbstractHighDimensionDataTypeModule {
+
+    static final String VALUES_PROJECTION = 'vcf_values'
 
     final List<String> platformMarkerTypes = ['VCF']
 
-    final String name = 'cohortMAF'
+    final String name = 'vcf'
 
-    final String description = "cohortMAF_values data"
+    final String description = "Genomic Variant data"
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

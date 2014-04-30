@@ -37,7 +37,7 @@ class VcfEndToEndRetrievalTests {
     void setUp() {
         testData.saveAll()
 
-        vcfResource = highDimensionResourceService.getSubResourceForType 'cohortMAF'
+        vcfResource = highDimensionResourceService.getSubResourceForType 'vcf'
         assertThat vcfResource, is(notNullValue())
 
         trialNameConstraint = vcfResource.createAssayConstraint(
@@ -53,7 +53,7 @@ class VcfEndToEndRetrievalTests {
     @Test
     void basicTest() {
         List dataConstraints = []
-        def projection = vcfResource.createProjection [:], 'cohortMAF_values'
+        def projection = vcfResource.createProjection [:], 'vcf_values'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
@@ -109,7 +109,7 @@ class VcfEndToEndRetrievalTests {
                         (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [chromosome: "1", start: 1, end: 2]
                 ]
         )]
-        def projection = vcfResource.createProjection [:], 'cohortMAF_values'
+        def projection = vcfResource.createProjection [:], 'vcf_values'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
@@ -161,7 +161,7 @@ class VcfEndToEndRetrievalTests {
     @Test
     void basicTestWithCalculation() {
         List dataConstraints = []
-        def projection = vcfResource.createProjection [:], 'cohortMAF_values'
+        def projection = vcfResource.createProjection [:], 'vcf_values'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
@@ -253,9 +253,9 @@ class VcfEndToEndRetrievalTests {
                 getSubResourcesAssayMultiMap([constraint])
 
         assertThat map, hasKey(
-                hasProperty('dataTypeName', equalTo('cohortMAF')))
+                hasProperty('dataTypeName', equalTo('vcf')))
 
-        def entry = map.entrySet().find { it.key.dataTypeName == 'cohortMAF' }
+        def entry = map.entrySet().find { it.key.dataTypeName == 'vcf' }
 
         assertThat entry.value, allOf(
                 hasSize(greaterThan(0)),
