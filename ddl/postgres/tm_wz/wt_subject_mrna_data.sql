@@ -4,7 +4,7 @@
 CREATE TABLE wt_subject_mrna_data (
     probeset character varying(500),
     expr_id character varying(500),
-    intensity_value bigint,
+    intensity_value numeric,
     assay_id bigint,
     patient_id bigint,
     sample_id bigint,

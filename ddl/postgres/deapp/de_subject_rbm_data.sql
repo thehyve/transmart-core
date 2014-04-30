@@ -13,12 +13,12 @@ CREATE TABLE de_subject_rbm_data (
     concept_cd character varying(100),
     timepoint character varying(100),
     data_uid character varying(100),
-    value bigint,
-    log_intensity bigint,
-    mean_intensity bigint,
-    stddev_intensity bigint,
-    median_intensity bigint,
-    zscore bigint,
+    value double precision,
+    log_intensity numeric,
+    mean_intensity numeric,
+    stddev_intensity numeric,
+    median_intensity numeric,
+    zscore double precision,
     rbm_panel character varying(50)
 );
 
