@@ -1,35 +1,35 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import org.hibernate.ScrollableResults
+import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import grails.orm.HibernateCriteriaBuilder
+
+import org.hibernate.ScrollableResults
+import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
-import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
-import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
+import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.hibernate.engine.SessionImplementor
-import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.AssayColumn
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class VCFModule extends AbstractHighDimensionDataTypeModule {
-
-    static final String VALUES_PROJECTION = 'vcf_values'
-
-    final List<String> platformMarkerTypes = ['VCF']
 
     final String name = 'vcf'
 
     final String description = "Genomic Variant data"
 
+    final List<String> platformMarkerTypes = ['VCF']
+
+    // VCF specific projection names
+    static final String VCF_PROJECTION       = 'vcf'
+    static final String COHORT_PROJECTION    = 'cohort'
+    
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -52,23 +52,30 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
         chromosomeSegmentConstraintFactory.segmentEndColumn        = 'pos'
         //customize the segment constraint factory to produce constraints targeting the right DeVariantSubjectSummaryCoreDb columns
         [
-                standardDataConstraintFactory,
-                chromosomeSegmentConstraintFactory
-                //TODO: implement constraint on dataset
+            standardDataConstraintFactory,
+            chromosomeSegmentConstraintFactory
+            //TODO: implement constraint on dataset
         ]
     }
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ //there needs to be a projection factory even though we're not using projections
-                new MapBasedParameterFactory(
-                        (VALUES_PROJECTION): { Map<String, Object> params ->
-                            if (!params.isEmpty()) {
-                                throw new InvalidArgumentsException('Expected no parameters here')
-                            }
-                            new VcfValuesProjection()
-                        }
-                )
+        [ 
+            new MapBasedParameterFactory(
+                (COHORT_PROJECTION): { Map<String, Object> params ->
+                    if (!params.isEmpty()) {
+                        throw new InvalidArgumentsException('Expected no parameters here')
+                    }
+                    new CohortProjection()
+                },
+                (VCF_PROJECTION): { Map<String, Object> params ->
+                    if (!params.isEmpty()) {
+                        throw new InvalidArgumentsException('Expected no parameters here')
+                    }
+                    new VCFProjection()
+                }
+
+            )
         ]
     }
 
@@ -115,9 +122,7 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    TabularResult transformResults(ScrollableResults results,
-                                   List<AssayColumn> assays,
-                                   Projection projection) {
+    TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
         /* assumption here is the assays in the passed in list are in the same
          * order as the assays in the result set */
         Map assayIndexMap = createAssayIndexMap assays
@@ -133,7 +138,7 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup:         { List collectedEntries -> /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
-                     *, but we're guaranteed to have at least one non-null */
+                    *, but we're guaranteed to have at least one non-null */
                     projection.doWithResult(collectedEntries)
                 }
         )
