@@ -9,16 +9,16 @@ import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
-class VCFModule extends AbstractHighDimensionDataTypeModule {
+class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     final String name = 'vcf'
 
@@ -27,8 +27,22 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
     final List<String> platformMarkerTypes = ['VCF']
 
     // VCF specific projection names
-    static final String VCF_PROJECTION       = 'vcf'
+    
+    /**
+     * Projection to use if you want to compute cohort level properties (such as MAF)
+     */
     static final String COHORT_PROJECTION    = 'cohort'
+    
+    /**
+     * Projection that simply returns the variant (e.g. CTC) for each subject
+     */
+    static final String VARIANT_PROJECTION    = 'variant'
+    
+    final Map<String, Class> dataProperties = typesMap(DeVariantSubjectSummaryCoreDb,
+        ['reference', 'variant', 'variantType'])
+
+    final Map<String, Class> rowProperties = typesMap(VcfDataRow,
+        ['chromosome', 'position', 'rsId'])
     
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -68,14 +82,14 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
                     }
                     new CohortProjection()
                 },
-                (VCF_PROJECTION): { Map<String, Object> params ->
+                (VARIANT_PROJECTION): { Map<String, Object> params ->
                     if (!params.isEmpty()) {
                         throw new InvalidArgumentsException('Expected no parameters here')
                     }
-                    new VCFProjection()
+                    new VariantProjection()
                 }
-
-            )
+            ),
+            new AllDataProjectionFactory(dataProperties, rowProperties)
         ]
     }
 
@@ -105,7 +119,7 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
                 property 'p.filter'                ,'filter'
                 property 'p.info'                  ,'info'
                 property 'p.format'                ,'format'
-                property 'p.variant'               ,'variant'
+                property 'p.variant'               ,'variants'
 
                 property 'assay.id'                ,'assayId'
 
@@ -134,12 +148,37 @@ class VCFModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 assayIdFromRow:        { it[0].assayId } ,
-                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos  },
-                finalizeGroup:         { List collectedEntries -> /* list of all the results belonging to a group defined by inSameGroup */
+                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos },
+                finalizeGroup:         { List list -> /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
                     *, but we're guaranteed to have at least one non-null */
-                    projection.doWithResult(collectedEntries)
+                    /* we may have nulls if allowMissingAssays is true,
+                     * but we're guaranteed to have at least one non-null */
+                    
+                    def firstNonNullCell = list.find()
+                    new VcfDataRow(
+                            // Chromosome to define the position
+                            chromosome: firstNonNullCell[0].chr,
+                            position: firstNonNullCell[0].pos,
+                            rsId: firstNonNullCell[0].rsId,
+                            
+                            // Reference and alternatives for this position
+                            referenceAllele: firstNonNullCell[0].ref,
+                            alternatives: firstNonNullCell[0].alt,
+                            
+                            // Study level properties
+                            quality: firstNonNullCell[0].quality,
+                            filter: firstNonNullCell[0].filter,
+                            info:  firstNonNullCell[0].info,
+                            format: firstNonNullCell[0].format,
+                            variants: firstNonNullCell[0].variants,
+                        
+                            assayIndexMap: assayIndexMap,
+                            data: list.collect {
+                                projection.doWithResult it?.getAt(0)
+                            }
+                    )
                 }
         )
     }

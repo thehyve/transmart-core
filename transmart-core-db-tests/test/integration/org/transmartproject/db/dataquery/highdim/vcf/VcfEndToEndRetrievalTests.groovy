@@ -53,14 +53,14 @@ class VcfEndToEndRetrievalTests {
     @Test
     void basicTest() {
         List dataConstraints = []
-        def projection = vcfResource.createProjection [:], 'vcf_values'
+        def projection = vcfResource.createProjection [:], 'cohort'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
 
         def resultList = []
         for (def region : dataQueryResult.rows) {
-            resultList += region[0][0]
+            resultList += region[0]
         }
 
         assertThat resultList, hasSize(3)
@@ -109,14 +109,14 @@ class VcfEndToEndRetrievalTests {
                         (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [chromosome: "1", start: 1, end: 2]
                 ]
         )]
-        def projection = vcfResource.createProjection [:], 'vcf_values'
+        def projection = vcfResource.createProjection [:], 'cohort'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
 
         def resultList = []
         for (def region : dataQueryResult.rows) {
-            resultList += region[0][0]
+            resultList += region[0]
         }
 
         assertThat resultList, hasSize(2)
@@ -161,7 +161,7 @@ class VcfEndToEndRetrievalTests {
     @Test
     void basicTestWithCalculation() {
         List dataConstraints = []
-        def projection = vcfResource.createProjection [:], 'vcf_values'
+        def projection = vcfResource.createProjection [:], 'cohort'
 
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
@@ -170,6 +170,7 @@ class VcfEndToEndRetrievalTests {
         for (RegionRow region : dataQueryResult.rows) {
             resultList.add(region)
         }
+        
         /*
         chr: 1,
         pos: position,
@@ -190,10 +191,6 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(1L)),
-                        hasProperty('mafAllele', equalTo('A')),
-                        hasProperty('maf', closeTo(0.666 as Double, 0.1 as Double)),
-                        hasProperty('genomicVariantTypes', contains(org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.SNP)),
-                        hasProperty('alternativeAlleles', contains('A')),
                         hasProperty('additionalInfo', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
@@ -201,9 +198,6 @@ class VcfEndToEndRetrievalTests {
                                 hasEntry(equalTo('DP4'),equalTo('0,0,80,0')),
                                 hasEntry(equalTo('MQ'),equalTo('60')),
                                 hasEntry(equalTo('FQ'),equalTo('-268')),
-                                //computed values
-                                hasEntry(equalTo('AC'),equalTo('4')),
-                                hasEntry(equalTo('AN'),equalTo('6')),
 
                         ))
                 )
@@ -211,21 +205,12 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(2L)),
-                        hasProperty('mafAllele', equalTo('GCCCC')),
-                        hasProperty('maf', closeTo(0.666 as Double, 0.1 as Double)),
-                        hasProperty('genomicVariantTypes', contains(org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.DEL)),
-                        hasProperty('alternativeAlleles', contains('GCCCC'))
 
                 )
         )
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
-                        hasProperty('mafAllele', equalTo('C')),
-                        hasProperty('maf', closeTo(0.5 as Double, 0.1 as Double)),
-                        hasProperty('genomicVariantTypes', contains(org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.SNP,
-                                org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.SNP)),
-                        hasProperty('alternativeAlleles', containsInAnyOrder('C', 'T')),
                         hasProperty('additionalInfo', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
@@ -233,9 +218,6 @@ class VcfEndToEndRetrievalTests {
                                 hasEntry(equalTo('DP4'),equalTo('0,0,80,0')),
                                 hasEntry(equalTo('MQ'),equalTo('60')),
                                 hasEntry(equalTo('FQ'),equalTo('-268')),
-                                //computed values
-                                hasEntry(equalTo('AC'),equalTo('1,3')),
-                                hasEntry(equalTo('AN'),equalTo('6')),
 
                         ))
                 )
