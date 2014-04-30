@@ -23,7 +23,8 @@ CREATE TABLE observation_fact (
     download_date timestamp without time zone,
     import_date timestamp without time zone,
     sourcesystem_cd character varying(50),
-    upload_id numeric(38,0)
+    upload_id numeric(38,0),
+    sample_cd character varying(200)
 );
 
 --

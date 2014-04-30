@@ -45,6 +45,7 @@
 \i i2b2demodata/qt_privilege.sql
 \i i2b2demodata/qt_xml_result.sql
 \i i2b2demodata/sample_categories.sql
+\i i2b2demodata/sample_dimension.sql
 \i i2b2demodata/set_type.sql
 \i i2b2demodata/set_upload_status.sql
 \i i2b2demodata/source_master.sql
