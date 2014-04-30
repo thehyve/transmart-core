@@ -1,7 +1,5 @@
 package org.transmartproject.core.dataquery.highdim.vcf
 
-import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType;
-
 enum GenomicVariantType {
     SNP, INS, DEL, DIV
     
