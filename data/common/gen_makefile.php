@@ -22,7 +22,7 @@ if ($tableList === false) {
 }
 
 echo "THIS_SCHEMA := ", $argv[1], "\n";
-echo "include ../makefile.inc\n\n";
+echo "include $(COMMON_DIR)/makefile_schemas.inc\n";
 
 foreach ($tableList as $table) {
 	$table = trim($table);
