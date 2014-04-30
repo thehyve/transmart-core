@@ -1,30 +1,46 @@
 /**
  * Retrieve DAS resources from tranSMART's DAS
  *
- * @param track_label
  * @param result_instance_id
  * @returns {Array}
  */
-function retrieveTransmartDASSources (node, result_instance_id, callback) {
+function getTransmartDASSources (result_instance_id) {
 
-    if (isHighDimensionalNode(node)) {
         var arrNds = new Array();
 
         // Code below is hardcoded
         // TODO : Check the local Das features and then collect them in arrNDS
 
         arrNds[0] = new DASSource({name: 'acgh', uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
-//        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
-//        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
+        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
+        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
 //        arrNds[3] = new DASSource({name: 'maf', uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
-//        arrNds[4] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
-//        arrNds[5] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+        arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
+        arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
 
-        callback(arrNds);
+        return arrNds;
+}
 
-    } else {
-        displayError('Error', 'Cannot display non-High Dimensional node');
-    }
+function addDasSource(arr, nameSuffix, testSegment, tryAddDASxSources) {
+
+    arr.forEach(function(nds) {
+
+        nds.features(testSegment, {}, function(features) {
+
+            if (!nds.name)  {
+                var nameExtractPattern = new RegExp('/([^/]+)/?$');
+                var match = nameExtractPattern.exec(nds.uri);
+                if (match) {
+                    nds.name = match[1];
+                }
+            }
+
+            tryAddDASxSources(nds, nameSuffix);
+
+            return;
+        });
+    });
+
 }
 
 /**
@@ -65,34 +81,30 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         /** Code below contains callback hell .. TODO: refactor please! **/
         /** ----------------------------------------------------------- **/
 
-        // define features
-        var arrNds = retrieveTransmartDASSources(node, res_inst_id_1, function(arr) {
 
-            arr.forEach(function(nds) {
 
-                nds.features(testSegment, {}, function(features) {
 
-                    var nameExtractPattern = new RegExp('/([^/]+)/?$');
-                    var match = nameExtractPattern.exec(nds.uri);
-                    if (match) {
-                        nds.name = match[1];
-                    }
-
-                    tryAddDASxSources(nds);
-
-                    return;
-                });
-            });
-
-        });
+        if (isHighDimensionalNode(node)) {
+            // define features
+            var sources = getTransmartDASSources(res_inst_id_1);
+            addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
+            if (res_inst_id_2) {
+                sources.concat(getTransmartDASSources(res_inst_id_2));
+                addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+            }
+            thisB.createAddInfoButton()
+        } else {
+            displayError('Error', 'Cannot display non-High Dimensional node');
+        }
 
 
         /**
          * Add DAS x Sources
          * @param nds
+         * @param nameSuffix for distinguishing multiple subsets
          * @param retry
          */
-        function tryAddDASxSources(nds, retry) {
+        function tryAddDASxSources(nds, nameSuffix, retry) {
 
             var uri = nds.uri;
             if (retry) {
@@ -103,7 +115,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
             function sqfail() {
                 if (!retry) {
-                    return tryAddDASxSources(nds, true);
+                    return tryAddDASxSources(nds, nameSuffix, true);
                 } else {
                     return drawTrack(nds);
                 }
@@ -130,7 +142,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                     var coordsDetermined = false, quantDetermined = false;
 
                     if (fs) {
-                        nds.name = fs.name;
+                        nds.name = fs.name+nameSuffix;
                         nds.desc = fs.desc;
                         if (fs.maxbins) {
                             nds.maxbins = true;
@@ -187,4 +199,79 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         }
 
     });
+}
+
+Browser.prototype.createAddInfoButton= function() {
+    that = this;
+    //get the Add track button
+    var dalBtns = jQuery('.pull-right.btn-group').children();
+    jQuery(dalBtns[0]).click(function() {
+        if (jQuery('#btnAddVCFINFO').length > 0)
+            return; //it's already there
+        //add a button to add custom INFO tracks for VCF
+        var btn = that.makeButton('Add VCF INFO', 'Add a custom track with a particular field from the INFO column in a VCF file');
+        btn.id = 'btnAddVCFINFO';
+        btn.addEventListener('click', function(ev) {
+            ev.preventDefault(); ev.stopPropagation();
+            var vcfs = that.scanCurrentTracksForVCF();
+
+            //only add the track if there is a query result instance
+            if (vcfs.length > 0) {
+                var infoField = prompt(
+                    'You can add custom track from the INFO column. If you know the VCF file\'s INFO column contains for example: \n\nDP=89;AF1=1;AC1=2;DP4=0,0,81,0;MQ=60;FQ=-271,\n\n you can add a track for DP to see the values of DP plotted. \n'+
+                        'Please, first drop a VCF node from the concept tree on the genome browser. \n'+
+                        'Note: please remember to remove the track and add it again if you change the patient subset selection criteria',
+                    'DP');
+                if (infoField != null) {
+                    that.addVCFInfoTrack(infoField, vcfs[0].id, vcfs.length>1?'-subset 1' : '');
+                    if (vcfs.length>1)
+                        that.addVCFInfoTrack(infoField, vcfs[1].id, '-subset 2');
+                }
+            }
+            else {
+                alert('Please, first drop a VCF node from the concept tree on the genome browser.');
+            }
+        });
+        jQuery('.nav').prepend(btn);
+    })
+}
+
+Browser.prototype.addVCFInfoTrack= function(infoField, qri, nameSuffix) {
+    this.addTier(new DASSource({
+        name: 'VCF-'+infoField.trim()+nameSuffix,
+        uri: pageInfo.basePath + "/das/vcfInfo-"+infoField.trim()+'-'+ qri + "/"
+    }))
+}
+
+Browser.prototype.scanCurrentTracksForVCF = function () {
+    var subset1, subset2; var subset1INFOs=[], subset2INFOs=[];
+    var vcfs = [];
+    for (var i=0;i<this.sources.length;i++){
+        var s = this.sources[i];
+        if (!s.uri) continue;
+        if (s.uri.indexOf('vcf-') > -1 ||
+            s.uri.indexOf('vcfInfo-') > -1 ||
+            s.uri.indexOf('smaf-') > -1 ||
+            s.uri.indexOf('qd-') > -1 ||
+            s.uri.indexOf('gv-') > -1) {
+            //stuff between last / identifies track, numbers after last - identify QRI
+            var match = /([^\-]+)-(([^\-]+)-)?([^\/]+)\/$/.exec(s.uri)
+            if (match) {
+                var qri = match[4]; //QRI is fourth group
+                var info = match[3];
+                var subset = null;
+                for (var j=0;j<vcfs.length;j++)
+                    if (vcfs[j].id == qri)
+                        subset = vcfs[j];
+                if (subset == null)
+                    vcfs.push(subset = {id: qri, infos:[info], sources: [s]});
+                else {
+                    subset.infos.push(info);
+                    subset.sources.push(s);
+                }
+
+            }
+        }
+    }
+    return vcfs;
 }
