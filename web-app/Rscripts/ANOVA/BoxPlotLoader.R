@@ -78,6 +78,14 @@ BoxPlot.loader <- function(
 	#Reapply the factor to get the items in the right order.
 		line.data$X <- factor(line.data$X,factorDataFrame$binname,ordered = TRUE)
 	}
+
+	#If the image is flipped, columns GROUP and GROUP.1 should be inverted
+	if(flipimage)
+	{
+        columnNames <- colnames(line.data)
+        colnames(line.data)[which(columnNames == "GROUP")] <- "GROUP.1"
+        colnames(line.data)[which(columnNames == "GROUP.1")] <- "GROUP"
+	}
 	
 	#If we are generating statistics per group, we apply the stats function after splitting the groups.
 	if(("GROUP" %in% colnames(line.data)) && ("GROUP.1" %in% colnames(line.data)))
