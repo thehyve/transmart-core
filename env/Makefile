@@ -1,3 +1,4 @@
+REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
@@ -10,6 +11,14 @@ ONDREJ_KEY=E5267A6C
 GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
+
+TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
+$(TRANSMART_LOADER_ARCHIVE):
+	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
+
+TRANSMART_LOADER=transmart-loader
+$(TRANSMART_LOADER): $(TRANSMART_LOADER_ARCHIVE)
+	mkdir $@ & tar --touch -xf $< -C $@
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
