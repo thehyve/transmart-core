@@ -17,8 +17,17 @@ $(TRANSMART_LOADER_ARCHIVE):
 	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
 
 TRANSMART_LOADER=transmart-loader
-$(TRANSMART_LOADER): $(TRANSMART_LOADER_ARCHIVE)
+$(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE)
 	mkdir $@ & tar --touch -xf $< -C $@
+
+TRANSMART_LOADER_REPO_GIT_URL = git@github.com:thehyve/transmart-loader.git
+update-transmart-loader:
+	$(call update_repos,$(TRANSMART_LOADER),$(TRANSMART_LOADER_REPO_GIT_URL),master)
+
+package-transmart-loader:
+	if [ ! -d $(TRANSMART_LOADER) ]; then \
+	git clone -b master '$(TRANSMART_LOADER_REPO_GIT_URL)' $(TRANSMART_LOADER); \
+	fi && cd $(TRANSMART_LOADER) && mvn package
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
@@ -47,7 +56,7 @@ update_repos = if [ ! -d $(1) ]; then \
 
 update_etl:
 	$(call update_repos,tranSMART-ETL,git://github.com/thehyve/tranSMART-ETL.git,master)
-.PHONY: update_repos
+.PHONY: update_repos, update-transmart-loader, package-transmart-loader, $(TRANSMART_LOADER)-from-file-server
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):
