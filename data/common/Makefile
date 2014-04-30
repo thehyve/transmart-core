@@ -4,6 +4,18 @@
 
 TABLE_FILES = $(wildcard *_list)
 TABLE_DIRS = $(patsubst %_list,%,$(TABLE_FILES))
+REMOTE_FILE_STORAGE = http://files.thehyve.net
+
+DIC_SRC_FILES_FOLDER = _dic_src
+$(DIC_SRC_FILES_FOLDER):
+	mkdir $@
+
+UNIPROT_DIC_SRC_FILE = uniprot-dictionary.tsv
+UNIPROT_DIC_SRC_FILE_ARCH = $(UNIPROT_DIC_SRC_FILE).xz
+$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
+	curl -f $(REMOTE_FILE_STORAGE)/dictionaries/$(UNIPROT_DIC_SRC_FILE_ARCH) > $@
+$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE): $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH)
+	xz -d --stdout $< > $@
 
 minimize_diffs:
 	/bin/bash -c '                                                       \
