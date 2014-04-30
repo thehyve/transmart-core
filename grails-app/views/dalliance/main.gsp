@@ -1,4 +1,4 @@
-<div id='svgHolder' style='margin: 20px;font-family: Arial'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
+<div id='svgHolder' style="margin: 5px;width: 100% !important">Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
 
 
 
