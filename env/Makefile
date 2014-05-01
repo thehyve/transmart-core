@@ -12,6 +12,11 @@ GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
 
+MAVEN_VERSION=3.2.1
+MAVEN_ZIP=apache-maven-$(MAVEN_VERSION)-bin.zip
+MAVEN_URL=http://apache.mirror.1000mbps.com/maven/maven-3/$(MAVEN_VERSION)/binaries/$(MAVEN_ZIP)
+MAVEN_BIN=apache-maven-$(MAVEN_VERSION)/bin/mvn
+
 TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
 $(TRANSMART_LOADER_ARCHIVE):
 	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
@@ -24,7 +29,7 @@ TRANSMART_LOADER_REPO_GIT_URL = git@github.com:thehyve/transmart-loader.git
 update-transmart-loader:
 	$(call update_repos,$(TRANSMART_LOADER),$(TRANSMART_LOADER_REPO_GIT_URL),master)
 
-package-transmart-loader:
+package-transmart-loader: maven
 	if [ ! -d $(TRANSMART_LOADER) ]; then \
 	git clone -b master '$(TRANSMART_LOADER_REPO_GIT_URL)' $(TRANSMART_LOADER); \
 	fi && cd $(TRANSMART_LOADER) && mvn package
@@ -37,6 +42,16 @@ $(GROOVY_BIN): $(GROOVY_ZIP)
 	touch $@
 
 groovy: $(GROOVY_BIN)
+	ln -s $< $@
+
+$(MAVEN_ZIP):
+	curl -f "$(MAVEN_URL)" > $@
+
+$(MAVEN_BIN): $(MAVEN_ZIP)
+	unzip $<
+	touch $@
+
+mvn: $(MAVEN_BIN)
 	ln -s $< $@
 
 install_ubuntu_packages:
@@ -73,7 +88,7 @@ data-integration: $(KETTLE_ARCHIVE)
 	php -d variables_order=E $< > $@
 
 ubuntu_deps_root: install_ubuntu_packages /var/lib/postgresql/tablespaces
-ubuntu_deps_regular: update_etl data-integration ../vars-ubuntu groovy
+ubuntu_deps_regular: update_etl data-integration ../vars-ubuntu groovy package-transmart-loader
 
 .DELETE_ON_ERROR:
 
