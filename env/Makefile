@@ -29,10 +29,10 @@ TRANSMART_LOADER_REPO_GIT_URL = https://github.com/thehyve/transmart-loader.git
 update-transmart-loader:
 	$(call update_repos,$(TRANSMART_LOADER),$(TRANSMART_LOADER_REPO_GIT_URL),master)
 
-package-transmart-loader: maven
+package-transmart-loader: mvn
 	if [ ! -d $(TRANSMART_LOADER) ]; then \
 	git clone -b master '$(TRANSMART_LOADER_REPO_GIT_URL)' $(TRANSMART_LOADER); \
-	fi && cd $(TRANSMART_LOADER) && mvn package
+	fi && cd $(TRANSMART_LOADER) && ../mvn package
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
