@@ -25,7 +25,7 @@ TRANSMART_LOADER=transmart-loader
 $(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE)
 	mkdir $@ & tar --touch -xf $< -C $@
 
-TRANSMART_LOADER_REPO_GIT_URL = git@github.com:thehyve/transmart-loader.git
+TRANSMART_LOADER_REPO_GIT_URL = https://github.com/thehyve/transmart-loader.git
 update-transmart-loader:
 	$(call update_repos,$(TRANSMART_LOADER),$(TRANSMART_LOADER_REPO_GIT_URL),master)
 
