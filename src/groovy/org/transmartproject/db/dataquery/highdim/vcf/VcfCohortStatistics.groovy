@@ -28,15 +28,21 @@ class VcfCohortStatistics implements VcfCohortInfo {
         computeCohortStatistics()
     }
     
-    String getReferenceAllele() {
-        dataRow.referenceAllele
-    }
-    
     @Override
     List<Double> getAlleleFrequency() {
         alleleCount.collect {  it / totalAlleleCount }
     }
     
+    @Override
+    String getReferenceAllele() {
+        majorAllele
+    }
+
+    @Override
+    List<String> getAlternativeAlleles() {
+        alleles - referenceAllele
+    }
+
     /**
      * Computes cohort level statistics
      */
