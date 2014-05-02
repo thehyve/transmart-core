@@ -21,16 +21,9 @@ class CohortProjection implements CriteriaProjection<Map> {
             return null /* missing data for an assay */
         }
 
-        // For computing the cohort properties, we need at least 
-        // the allele1 and allele2 properties
-        Map output = [:]
-        
-        // We receive an object with HashMapEntries, but will have 
-        // to convert it into a map
-        object.each { 
-            output[ it.key ] = it.value
-        }
-        
-        output
+        // For computing the cohort properties, we need only 
+        // the allele1 and allele2 properties, as we
+        // are interested in computing cohort level statistics
+        [ allele1: object.allele1, allele2: object.allele2 ]
     }
 }
