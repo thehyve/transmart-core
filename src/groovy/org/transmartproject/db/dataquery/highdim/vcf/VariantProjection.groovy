@@ -16,7 +16,7 @@ class VariantProjection implements CriteriaProjection<String> {
 
     @Override
     String doWithResult(Object object) {
-        if (obj == null) {
+        if (object == null) {
             return null /* missing data for an assay */
         }
 
