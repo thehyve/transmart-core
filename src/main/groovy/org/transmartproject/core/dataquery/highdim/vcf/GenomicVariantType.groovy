@@ -11,14 +11,14 @@ enum GenomicVariantType {
         def refCleaned = (ref ?: '').replaceAll(/[^ACGT]/, '')
         def altCleaned = (alt ?: '').replaceAll(/[^ACGT]/, '')
 
-        if(refCleaned.length() == 1 && altCleaned.length() == 1)
+        if (refCleaned.length() == 1 && altCleaned.length() == 1)
             return SNP
 
-        if(altCleaned.length() > refCleaned.length()
+        if (altCleaned.length() > refCleaned.length()
                 && altCleaned.contains(refCleaned))
             return INS
 
-        if(altCleaned.length() < refCleaned.length()
+        if (altCleaned.length() < refCleaned.length()
                 && refCleaned.contains(altCleaned))
             return DEL
 
