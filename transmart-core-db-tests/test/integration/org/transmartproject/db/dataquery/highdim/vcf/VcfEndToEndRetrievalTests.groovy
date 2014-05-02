@@ -1,6 +1,11 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
+import java.util.List;
+import java.util.Map;
+
 import grails.test.mixin.TestMixin
+import groovy.lang.Lazy;
+
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -69,7 +74,7 @@ class VcfEndToEndRetrievalTests {
                 hasEntry(equalTo('chr'), equalTo("1")),
                 hasEntry(equalTo('rsId'), equalTo(".")),
                 hasEntry(equalTo('filter'), equalTo(".")),
-                hasEntry(equalTo('format'), equalTo("")),
+                hasEntry(equalTo('format'), equalTo("GT")),
                 hasKey('quality'),
                 hasKey('pos')
         )
@@ -125,7 +130,7 @@ class VcfEndToEndRetrievalTests {
                 hasEntry(equalTo('chr'), equalTo("1")),
                 hasEntry(equalTo('rsId'), equalTo(".")),
                 hasEntry(equalTo('filter'), equalTo(".")),
-                hasEntry(equalTo('format'), equalTo("")),
+                hasEntry(equalTo('format'), equalTo("GT")),
                 hasKey('quality'),
                 hasKey('pos')
         )
@@ -167,7 +172,7 @@ class VcfEndToEndRetrievalTests {
                 [], dataConstraints, projection)
 
         def resultList = []
-        for (RegionRow region : dataQueryResult.rows) {
+        for (VcfDataRow region : dataQueryResult.rows) {
             resultList.add(region)
         }
         
@@ -183,14 +188,29 @@ class VcfEndToEndRetrievalTests {
         format: ''
             createDetail(1, 'C', 'A', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268'),
             createDetail(2, 'GCCCCC', 'GCCCC', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268'),
-            createDetail(3, 'A', 'C', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
+            createDetail(3, 'A', 'C,T', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
         */
         //{assayId=-1403, allele2=2, allele1=1, format=, variant=null, reference=true, variantType=SNV,
         // info=DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268, pos=1, ref=C, rsId=., alt=A, subjectId=SAMPLE_FOR_-803,
         // quality=1, variantFormat=R/R, filter=., chr=1}
         assertThat resultList, hasItem(
                 allOf(
+                        hasProperty('chromosome', equalTo("1")),
                         hasProperty('position', equalTo(1L)),
+                        hasProperty('rsId', equalTo(".")),
+                        
+                        hasProperty('referenceAllele', equalTo("C")),
+                        hasProperty('alternatives', equalTo("A")),
+
+                        hasProperty('quality', equalTo("1")),
+                        hasProperty('filter', equalTo(".")),
+                        hasProperty('info', equalTo("DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268")),
+                        hasProperty('format', equalTo("GT")),
+                        hasProperty('variants', equalTo("1/1\t2/2")),
+
+                        hasProperty('qualityOfDepth', closeTo( 2.0 as Double, 0.01 as Double )),
+                        hasProperty('formatFields', hasItem( equalTo( "GT" ) ) ),
+                            
                         hasProperty('infoFields', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
@@ -204,24 +224,74 @@ class VcfEndToEndRetrievalTests {
         )
         assertThat resultList, hasItem(
                 allOf(
-                        hasProperty('position', equalTo(2L)),
+                    hasProperty('position', equalTo(2L)),
+                   
+                    hasProperty('referenceAllele', equalTo("GCCCCC")),
+                    hasProperty('alternatives', equalTo("GCCCC")),
 
                 )
         )
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
-                        hasProperty('infoFields', allOf(
-                                hasEntry(equalTo('DP'),equalTo('88')),
-                                hasEntry(equalTo('AF1'),equalTo('1')),
-                                hasEntry(equalTo('QD'),equalTo('2')),
-                                hasEntry(equalTo('DP4'),equalTo('0,0,80,0')),
-                                hasEntry(equalTo('MQ'),equalTo('60')),
-                                hasEntry(equalTo('FQ'),equalTo('-268')),
-
-                        ))
+                        hasProperty('referenceAllele', equalTo("A")),
+                        hasProperty('alternatives', equalTo("C,T")),
+    
                 )
         )
+    }
+    
+    @Test
+    void testCohortProjection() {
+        List dataConstraints = []
+        def projection = vcfResource.createProjection [:], 'cohort'
+
+        dataQueryResult = vcfResource.retrieveData(
+                [], dataConstraints, projection)
+
+        
+        System.err.println dataQueryResult
+        def resultList = []
+        for (VcfDataRow row: dataQueryResult.rows) {
+            resultList.add(row)
+        }
+        
+        assertThat resultList, hasItem(
+                hasProperty('data', allOf(
+                        hasItem( allOf(
+                                hasEntry(equalTo('allele1'),equalTo(1)),
+                                hasEntry(equalTo('allele2'),equalTo(0))
+                        )),
+                        hasItem( allOf(
+                                hasEntry(equalTo('allele1'),equalTo(0)),
+                                hasEntry(equalTo('allele2'),equalTo(1))
+                        )),
+                        hasItem( allOf(
+                                hasEntry(equalTo('allele1'),equalTo(1)),
+                                hasEntry(equalTo('allele2'),equalTo(1))
+                        )),
+                ))
+        )
+    }
+    
+    @Test
+    void testVariantProjection() {
+        List dataConstraints = []
+        def projection = vcfResource.createProjection [:], 'variant'
+
+        dataQueryResult = vcfResource.retrieveData(
+                [], dataConstraints, projection)
+
+        def resultList = []
+        for (VcfDataRow row: dataQueryResult.rows) {
+            resultList.add(row)
+        }
+        
+        assertThat resultList, hasItem( allOf( 
+                hasProperty('referenceAllele', equalTo( 'C' ) ),
+                hasProperty('alternatives', equalTo( 'A' ) ),
+                hasProperty('data', hasItems( "C/A", "A/C", "A/A" ) ) 
+        ))
     }
 
     void testVcfPlatformIsRecognized() {
