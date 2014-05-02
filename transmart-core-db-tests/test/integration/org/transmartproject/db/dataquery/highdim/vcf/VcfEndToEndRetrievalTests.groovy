@@ -50,57 +50,6 @@ class VcfEndToEndRetrievalTests {
     }
 
     @Test
-    void basicTest() {
-        List dataConstraints = []
-        def projection = vcfResource.createProjection [:], 'cohort'
-
-        dataQueryResult = vcfResource.retrieveData(
-                [], dataConstraints, projection)
-
-        def resultList = []
-        for (def region : dataQueryResult.rows) {
-            resultList += region[0]
-        }
-
-        assertThat resultList, hasSize(3)
-
-        assertThat resultList, everyItem(allOf(
-                hasEntry(equalTo('chr'), equalTo("1")),
-                hasEntry(equalTo('rsId'), equalTo(".")),
-                hasEntry(equalTo('filter'), equalTo(".")),
-                hasEntry(equalTo('format'), equalTo("GT")),
-                hasKey('quality'),
-                hasKey('pos')
-        )
-
-        )
-        assertThat resultList, everyItem(
-                Matchers.hasEqualValueProperties('pos', 'quality')
-        )
-        assertThat resultList, hasItem(
-                allOf(
-                        hasEntry(equalTo('pos'), equalTo(1L)),
-                        hasEntry(equalTo('ref'), equalTo('C')),
-                        hasEntry(equalTo('alt'), equalTo('A'))
-                )
-        )
-        assertThat resultList, hasItem(
-                allOf(
-                        hasEntry(equalTo('pos'), equalTo(2L)),
-                        hasEntry(equalTo('ref'), equalTo('GCCCCC')),
-                        hasEntry(equalTo('alt'), equalTo('GCCCC'))
-                )
-        )
-        assertThat resultList, hasItem(
-                allOf(
-                        hasEntry(equalTo('pos'), equalTo(3L)),
-                        hasEntry(equalTo('ref'), equalTo('A')),
-                        hasEntry(equalTo('alt'), equalTo('C,T'))
-                )
-        )
-    }
-
-    @Test
     void basicTestWithConstraints() {
         List dataConstraints = [vcfResource.createDataConstraint(
                 DataConstraint.DISJUNCTION_CONSTRAINT,
@@ -115,50 +64,40 @@ class VcfEndToEndRetrievalTests {
 
         def resultList = []
         for (def region : dataQueryResult.rows) {
-            resultList += region[0]
+            resultList.add( region )
         }
 
         assertThat resultList, hasSize(2)
 
-        assertThat resultList, everyItem(allOf(
-                hasEntry(equalTo('chr'), equalTo("1")),
-                hasEntry(equalTo('rsId'), equalTo(".")),
-                hasEntry(equalTo('filter'), equalTo(".")),
-                hasEntry(equalTo('format'), equalTo("GT")),
-                hasKey('quality'),
-                hasKey('pos')
-        )
-
-        )
         assertThat resultList, everyItem(
-                Matchers.hasEqualValueProperties('pos', 'quality')
+                Matchers.hasEqualValueProperties('position', 'quality')
         )
         assertThat resultList, hasItem(
                 allOf(
-                        hasEntry(equalTo('pos'), equalTo(1L)),
-                        hasEntry(equalTo('ref'), equalTo('C')),
-                        hasEntry(equalTo('alt'), equalTo('A'))
+                        hasProperty('position', equalTo(1L)),
+                        hasProperty('referenceAllele', equalTo('C')),
+                        hasProperty('alternatives', equalTo('A'))
                 )
         )
         assertThat resultList, hasItem(
                 allOf(
-                        hasEntry(equalTo('pos'), equalTo(2L)),
-                        hasEntry(equalTo('ref'), equalTo('GCCCCC')),
-                        hasEntry(equalTo('alt'), equalTo('GCCCC'))
+                        hasProperty('position', equalTo(2L)),
+                        hasProperty('referenceAllele', equalTo('GCCCCC')),
+                        hasProperty('alternatives', equalTo('GCCCC'))
                 )
         )
         assertThat resultList, not(hasItem(
                 allOf(
-                        hasEntry(equalTo('pos'), equalTo(3L)),
-                        hasEntry(equalTo('ref'), equalTo('A')),
-                        hasEntry(equalTo('alt'), equalTo('C,T'))
+                        hasProperty('position', equalTo(3L)),
+                        hasProperty('referenceAllele', equalTo('A')),
+                        hasProperty('alternatives', equalTo('C,T'))
                 )
         )
         )
     }
 
     @Test
-    void basicTestWithCalculation() {
+    void testVcfDataRowRetrieval() {
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'cohort'
 
@@ -248,22 +187,25 @@ class VcfEndToEndRetrievalTests {
         for (VcfDataRow row: dataQueryResult.rows) {
             resultList.add(row)
         }
-        
+
+                
+        // Please note: the order of the assays is opposite from the order of creation
+        // as the assayId is decreased while creating the assays 
         assertThat resultList, hasItem(
-                hasProperty( 'data', allOf(
-                        hasItem( allOf(
+                contains(
+                        allOf(
                                 hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(0))
-                        )),
-                        hasItem( allOf(
+                                hasEntry(equalTo('allele2'),equalTo(1))
+                        ),
+                        allOf(
                                 hasEntry(equalTo('allele1'),equalTo(0)),
                                 hasEntry(equalTo('allele2'),equalTo(1))
-                        )),
-                        hasItem( allOf(
+                        ),
+                        allOf(
                                 hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(1))
-                        )),
-                ))
+                                hasEntry(equalTo('allele2'),equalTo(0))
+                        ),
+                )
         )
     }
     
@@ -280,13 +222,21 @@ class VcfEndToEndRetrievalTests {
             resultList.add(row)
         }
         
+        def expected
+        def indices = dataQueryResult.indicesList
+        def assayOrder = [ indices[ ]]
+        
         assertThat resultList, hasItem( allOf( 
                 hasProperty('referenceAllele', equalTo( 'C' ) ),
                 hasProperty('alternatives', equalTo( 'A' ) ),
-                hasProperty('data', hasItems( "C/A", "A/C", "A/A" ) ) 
+                
+                // Please note: the order of the assays is opposite from the order of creation
+                // as the assayId is decreased while creating the assays 
+                contains( "A/A", "C/A", "A/C" )  
         ))
     }
 
+    @Test
     void testVcfPlatformIsRecognized() {
         def constraint = highDimensionResourceService.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
