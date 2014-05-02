@@ -99,21 +99,32 @@ function
 	# Update list of aCGHpids
 	aCGHpids <- bothpids
 
-	#If eventNo was not specified, we consider everyone to have had the event.
-	if(concept.eventNo=="")
+	#Check if concept.eventNo is specified and has observations in current patient cohort
+	validEventNo = TRUE
+	if( missing(concept.eventNo) || is.null(concept.eventNo) || nchar(concept.eventNo) == 0)
+	{
+	  validEventNo = FALSE
+	}
+	else
+	{ # concept.eventNo is at least a non-zero length string. Further process it
+		specifiedEventNoConcepts <- strsplit(concept.eventNo," *[|] *")[[1]]
+		if (! any(specifiedEventNoConcepts %in% allConcepts))
+		{
+			# No observations found for censoring variable
+			validEventNo = FALSE
+		}
+	}
+	
+	#If eventNo was not specified or no observations for it have been found, we consider everyone to have had the event.
+	if(!validEventNo)
 	{
 		# No censoring variables, all events happened ((EventHappened=1) == Death)
 		finalData<-cbind(finalData,1)
 		
 	} else {
 		# We merge the eventNo ((eventHappened=0 == Alive) in, everything else gets set to NA. We will mark them as uncensored later.
-		specifiedEventNoConcepts <- strsplit(concept.eventNo," *[|] *")[[1]]
-		
-		# Check if at least one of the censor concepts is observed
-		if (! any(specifiedEventNoConcepts %in% allConcepts)) stop(paste("||FRIENDLY||No observations found for censoring variable:",specifiedEventNoConcepts))
-
 		boundData <- splitData[specifiedEventNoConcepts[1]] [[1]]
-
+		
 		if(length(specifiedEventNoConcepts)>1) {
 			# Multiple eventNo concepts
 			for (i in 2:length(specifiedEventNoConcepts) )

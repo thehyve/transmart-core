@@ -500,11 +500,16 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 			var analysisTypeComponent = this.inputBar.analysisTypePanel.getComponent('analysis-type-chk-group');
 			var analysisTypeVal =  analysisTypeComponent.getSelectedValue();
 
+                        // create a string of all the concepts we need for the i2b2 data.
+                        var variablesConceptCode = rnaseqVal;
+                        variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
+
 			// compose params
 			var formParams = {
 				RNASeqVariable: rnaseqVal,
 				groupVariable: groupVals,
 				analysisType: analysisTypeVal,
+                                variablesConceptPaths: variablesConceptCode,
 				jobType: RGT_JOB_TYPE
 			};
 
