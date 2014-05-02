@@ -191,7 +191,7 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(1L)),
-                        hasProperty('additionalInfo', allOf(
+                        hasProperty('infoFields', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
                                 hasEntry(equalTo('QD'),equalTo('2')),
@@ -211,7 +211,7 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
-                        hasProperty('additionalInfo', allOf(
+                        hasProperty('infoFields', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
                                 hasEntry(equalTo('QD'),equalTo('2')),

@@ -5,135 +5,90 @@ import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
 import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.INS
 import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.SNP
 
-import java.util.List;
-import java.util.Map;
-
-import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
-import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
-import org.transmartproject.db.dataquery.highdim.AbstractDataRow
-import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult;
+import org.transmartproject.core.dataquery.highdim.vcf.VcfCohortInfo
 
-class VcfCohortStatistics implements VcfValues {
+class VcfCohortStatistics implements VcfCohortInfo {
     protected VcfDataRow dataRow
     
-    // Cohort level properties
-    Double maf = 0.0
-    String mafAllele = "."
-    
-    List<String> alternativeAlleles = []
+    // Allele information for the alleles in this cohort
+    List<String> alleles = []
+    List<Integer> alleleCount = []
+    int totalAlleleCount = 0
     List<GenomicVariantType> genomicVariantTypes = []
 
+    // Cohort level properties
+    String majorAllele = "."
+    String minorAllele = "."
+    Double minorAlleleFrequency = 0.0
+    
     VcfCohortStatistics( VcfDataRow dataRow ) {
         this.dataRow = dataRow
         
         computeCohortStatistics()
     }
     
-    // Allele distribution for the current cohort
-    @Lazy
-    Map alleleDistribution = {
-        def alleleDistribution = [:].withDefault { 0 }
-        for (row in dataRow.data) {
-            if ( !row )
-                continue;
-                
-            def allele1 = row.allele1
-            def allele2 = row.allele2
-            alleleDistribution[allele1]++
-            alleleDistribution[allele2]++
-        }
-        alleleDistribution
-    }()
-
-    @Override
-    String getChromosome() {
-        return dataRow.chromosome
-    }
-    
-    @Override
-    Long getPosition() {
-        return dataRow.position
-    }
-    
-    @Override
-    String getRsId() {
-        return dataRow.rsId
-    }
-    
-    @Override
     String getReferenceAllele() {
-        return dataRow.referenceAllele
+        dataRow.referenceAllele
     }
-
     
     @Override
-    public Map<String, String> getAdditionalInfo() {
-        return dataRow.additionalInfo
-    }
-
-    @Override
-    public Double getQualityOfDepth() {
-        // TODO Auto-generated method stub
-        return dataRow.qualityOfDepth;
-    }
-        
-    List<GenomicVariantType> getGenomicVariantTypes(Collection<String> altCollection) {
-        getGenomicVariantTypes(referenceAllele, altCollection)
-    }
-
-    List<GenomicVariantType> getGenomicVariantTypes(String ref, Collection<String> altCollection) {
-        altCollection.collect{ GenomicVariantType.getGenomicVariantType(ref, it) }
-    }
-
-    List<String> getAltAllelesByPositions(Collection<Integer> pos) {
-        pos.collect { 
-            println "" + it + " - " + dataRow.alternatives[it - 1] + " (" + dataRow.alternatives + ")"
-            dataRow.alternatives[it - 1]
-        }
+    List<Double> getAlleleFrequency() {
+        alleleCount.collect {  it / totalAlleleCount }
     }
     
     /**
      * Computes cohort level statistics
      */
     protected computeCohortStatistics() {
-        if( !alleleDistribution )
+        Map<String,Integer> numAlleles = countAlleles()
+
+        if( !numAlleles )
             return
-            
-        int total = alleleDistribution.values().sum()
-        def altAlleleNums = alleleDistribution.keySet() - [DeVariantSubjectSummaryCoreDb.REF_ALLELE]
+
+        // Store generic allele distribution
+        alleles = new ArrayList<String>(numAlleles.keySet())
+        alleleCount = new ArrayList<Integer>(numAlleles.values())
+        totalAlleleCount = alleleCount.sum()
         
-        additionalInfo['AN'] = total.toString()
-        
-        if (!altAlleleNums) {
-            //R/R no mutation
-            additionalInfo['AC'] = '.'
-        } else {
-            // Perform computations
-            def altAlleleDistribution = alleleDistribution.subMap(altAlleleNums)
-            def altAlleleFrequencies = altAlleleDistribution.collectEntries { [(it.key): it.value / (double) total] }
-            def mafEntry = altAlleleFrequencies.max { it.value }
+        // Find the most frequent and second most frequent alleles
+        majorAllele = numAlleles.max { it.value }?.key
+        minorAllele = numAlleles.findAll { it.key != majorAllele }.max { it.value }?.key ?: "."
+        if( minorAllele != "." )
+            minorAlleleFrequency = numAlleles.getAt( minorAllele ) / totalAlleleCount
             
-            // Store values
-            def studyAlternatives = dataRow.alternatives.split( "," )
-            additionalInfo['AC'] = altAlleleDistribution.values().join(',')
-            alternativeAlleles = studyAlternatives[ altAlleleNums.collect { it - 1 } ]
-            mafAllele = alternativeAlleles[altAlleleNums.asList().indexOf(mafEntry.key)]
-            genomicVariantTypes = getGenomicVariantTypes(alternativeAlleles)
-            maf = mafEntry.value
+        // Determine genomic variant types, with the major allele as a reference
+        genomicVariantTypes = getGenomicVariantTypes( majorAllele, alleles)
+    }
+    
+    // Allele distribution for the current cohort
+    Map<String,Integer> countAlleles( ) {
+        List alleleNames = [] + dataRow.referenceAllele + dataRow.alternativeAlleles
+        def alleleDistribution = [:].withDefault { 0 }
+        for (row in dataRow.data) {
+            if ( !row )
+                continue;
+            
+            if( row.allele1 != null && row.allele1 != "." ) {
+                def allele1 = alleleNames[row.allele1]
+                alleleDistribution[allele1]++
+            }
+            
+            if( row.allele2 != null && row.allele2 != "." ) {
+                def allele2 = alleleNames[row.allele2]
+                alleleDistribution[allele2]++
+            }
         }
+        alleleDistribution
+    }
+    
+    List<GenomicVariantType> getGenomicVariantTypes(Collection<String> alleleCollection) {
+        getGenomicVariantTypes(majorAllele, altCollection)
     }
 
-    
-    private Map parseVcfInfo(String info) {
-        if (!info) {
-            return [:]
-        }
-
-        info.split(';').collectEntries {
-            def keyValues = it.split('=')
-            [(keyValues[0]): keyValues.length > 1 ? keyValues[1] : 'Yes']
+    List<GenomicVariantType> getGenomicVariantTypes(String ref, Collection<String> alleleCollection) {
+        alleleCollection.collect{
+            ref == it ? null : GenomicVariantType.getGenomicVariantType(ref, it) 
         }
     }
 

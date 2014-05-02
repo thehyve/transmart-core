@@ -7,7 +7,7 @@ import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
 
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
-import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
+import org.transmartproject.core.dataquery.highdim.vcf.VcfCohortInfo
 import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
@@ -29,45 +29,34 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
     String format
     String variants
     
+    List<String> getAlternativeAlleles() {
+        return alternatives.split(",")
+    }
+    
     @Lazy
     Double qualityOfDepth = {
-        if (getAdditionalInfo()['QD'] && additionalInfo['QD'].isNumber()) {
-            Double.valueOf(additionalInfo['QD'])
+        if (infoFields['QD'] && infoFields['QD'].isNumber()) {
+            Double.valueOf(infoFields['QD'])
         } else {
             quality as double;
         }
     }()
 
     @Lazy
-    Map<String, String> additionalInfo = {
+    Map<String, String> infoFields = {
         parseVcfInfo( info )
     }()
     
     @Lazy
-    VcfCohortStatistics cohortStatistics = {
+    List<String> formatFields = {
+        format.split( ":" )
+    }()
+
+    @Lazy
+    VcfCohortInfo cohortInfo = {
        new VcfCohortStatistics(this) 
     }()
 
-    @Override
-    String getMafAllele() {
-        cohortStatistics.mafAllele
-    }
-    
-    @Override
-    Double getMaf() {
-        cohortStatistics.maf
-    }
-    
-    @Override 
-    List<GenomicVariantType> getGenomicVariantTypes() {
-        cohortStatistics.genomicVariantTypes
-    }
-    
-    @Override
-    List<String> getAlternativeAlleles() {
-        cohortStatistics.alternativeAlleles
-    }
-    
     //RegionRow implementation
     @Override
     String getLabel() {

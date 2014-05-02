@@ -32,7 +32,7 @@ class VcfDataRowTests {
             data: []
         )
         
-        assertThat dataRow.additionalInfo, allOf(
+        assertThat dataRow.infoFields, allOf(
             hasEntry(equalTo('DP'),equalTo('88')),
             hasEntry(equalTo('AF1'),equalTo('1')),
             hasEntry(equalTo('QD'),equalTo('2')),
