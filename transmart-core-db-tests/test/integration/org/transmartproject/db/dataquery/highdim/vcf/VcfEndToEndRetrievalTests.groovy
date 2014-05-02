@@ -1,10 +1,8 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import java.util.List;
-import java.util.Map;
-
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 import grails.test.mixin.TestMixin
-import groovy.lang.Lazy;
 
 import org.junit.After
 import org.junit.Before
@@ -12,13 +10,9 @@ import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.db.test.Matchers
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
-
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import org.transmartproject.db.test.Matchers
 
 /**
  * Created by j.hudecek on 17-3-14.
@@ -250,14 +244,13 @@ class VcfEndToEndRetrievalTests {
                 [], dataConstraints, projection)
 
         
-        System.err.println dataQueryResult
         def resultList = []
         for (VcfDataRow row: dataQueryResult.rows) {
             resultList.add(row)
         }
         
         assertThat resultList, hasItem(
-                hasProperty('data', allOf(
+                hasProperty( 'data', allOf(
                         hasItem( allOf(
                                 hasEntry(equalTo('allele1'),equalTo(1)),
                                 hasEntry(equalTo('allele2'),equalTo(0))
