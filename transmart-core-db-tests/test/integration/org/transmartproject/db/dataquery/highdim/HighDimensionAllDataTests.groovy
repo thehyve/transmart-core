@@ -16,6 +16,7 @@ import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
+import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -70,6 +71,11 @@ class HighDimensionAllDataTests {
             [rawIntensity:BigDecimal, logIntensity:BigDecimal, zscore:BigDecimal],
             [annotationId:String, geneSymbol:String, geneId:String],
             RnaSeqCogTestData
+        ], [
+            'vcf',
+            [reference:Boolean, variant:String, variantType:String],
+            [chromosome:String, position:Long, rsId: String, referenceAllele:String],
+            VcfTestData
         ]
     ].collect {it.toArray()}}
 
