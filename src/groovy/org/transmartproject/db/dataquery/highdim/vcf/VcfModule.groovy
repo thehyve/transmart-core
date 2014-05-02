@@ -27,23 +27,23 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
     final List<String> platformMarkerTypes = ['VCF']
 
     // VCF specific projection names
-    
+
     /**
      * Projection to use if you want to compute cohort level properties (such as MAF)
      */
     static final String COHORT_PROJECTION    = 'cohort'
-    
+
     /**
      * Projection that simply returns the variant (e.g. CTC) for each subject
      */
     static final String VARIANT_PROJECTION    = 'variant'
-    
+
     final Map<String, Class> dataProperties = typesMap(DeVariantSubjectSummaryCoreDb,
-        ['reference', 'variant', 'variantType'])
+    ['reference', 'variant', 'variantType'])
 
     final Map<String, Class> rowProperties = typesMap(VcfDataRow,
-        ['chromosome', 'position', 'rsId', 'referenceAllele'])
-    
+    ['chromosome', 'position', 'rsId', 'referenceAllele'])
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -74,22 +74,22 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [ 
-            new MapBasedParameterFactory(
-                (COHORT_PROJECTION): { Map<String, Object> params ->
-                    if (!params.isEmpty()) {
-                        throw new InvalidArgumentsException('Expected no parameters here')
-                    }
-                    new CohortProjection()
-                },
-                (VARIANT_PROJECTION): { Map<String, Object> params ->
-                    if (!params.isEmpty()) {
-                        throw new InvalidArgumentsException('Expected no parameters here')
-                    }
-                    new VariantProjection()
-                }
-            ),
-            new AllDataProjectionFactory(dataProperties, rowProperties)
+        [
+                new MapBasedParameterFactory(
+                        (COHORT_PROJECTION): { Map<String, Object> params ->
+                            if (!params.isEmpty()) {
+                                throw new InvalidArgumentsException('Expected no parameters here')
+                            }
+                            new CohortProjection()
+                        },
+                        (VARIANT_PROJECTION): { Map<String, Object> params ->
+                            if (!params.isEmpty()) {
+                                throw new InvalidArgumentsException('Expected no parameters here')
+                            }
+                            new VariantProjection()
+                        }
+                ),
+                new AllDataProjectionFactory(dataProperties, rowProperties)
         ]
     }
 
@@ -152,34 +152,31 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup:         { List list -> /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
-                    *, but we're guaranteed to have at least one non-null */
-                    /* we may have nulls if allowMissingAssays is true,
-                     * but we're guaranteed to have at least one non-null */
-                    
+                     *, but we're guaranteed to have at least one non-null */
                     def firstNonNullCell = list.find()
                     new VcfDataRow(
                             // Chromosome to define the position
                             chromosome: firstNonNullCell[0].chr,
                             position: firstNonNullCell[0].pos,
                             rsId: firstNonNullCell[0].rsId,
-                            
+
                             // Reference and alternatives for this position
                             referenceAllele: firstNonNullCell[0].ref,
                             alternatives: firstNonNullCell[0].alt,
-                            
+
                             // Study level properties
                             quality: firstNonNullCell[0].quality,
                             filter: firstNonNullCell[0].filter,
                             info:  firstNonNullCell[0].info,
                             format: firstNonNullCell[0].format,
                             variants: firstNonNullCell[0].variants,
-                        
+
                             assayIndexMap: assayIndexMap,
                             data: list.collect {
                                 projection.doWithResult it?.getAt(0)
                             }
-                    )
+                            )
                 }
-        )
+                )
     }
 }
