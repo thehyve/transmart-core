@@ -7,13 +7,19 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.querytool.Item
+import org.transmartproject.core.querytool.Panel
+import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_IN_TABLE
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
 import static org.transmartproject.db.user.AccessLevelTestData.*
@@ -144,6 +150,125 @@ class UserAccessLevelTests {
         def fifthUser = accessLevelTestData.users[4]
 
         assertThat fifthUser.canPerform(SHOW_SUMMARY_STATISTICS, getStudy(STUDY2)), is(true)
+    }
+
+    @Test
+    void testQueryDefinitionUserHasAccessToOnePanelButNotAnother() {
+        // it's enough to have access to one panel
+        // fourth user has no access to study 2, but study 1 is public
+        def fourthUser = accessLevelTestData.users[3]
+
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(items: [new Item(
+                        conceptKey: getStudy(STUDY2).ontologyTerm.key,
+                )]),
+                new Panel(items: [new Item(
+                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                )]),
+        ])
+
+        assertThat fourthUser.canPerform(BUILD_COHORT, definition), is(true)
+    }
+
+    @Test
+    void testQueryDefinitionUserHasNoAccessToAnyPanel() {
+        // it's enough to have access to one panel
+        // fourth user has no access to study 2, but study 1 is public
+        def fourthUser = accessLevelTestData.users[3]
+
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(items: [
+                        new Item(
+                                conceptKey: getStudy(STUDY2).ontologyTerm.key
+                        )]),
+                ])
+
+        assertThat fourthUser.canPerform(BUILD_COHORT, definition), is(false)
+    }
+
+    @Test
+    void testDoNotAllowInvertedPanel() {
+        def secondUser = accessLevelTestData.users[1]
+
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(invert: true, items: [new Item(
+                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                )]),
+        ])
+
+        assertThat secondUser.canPerform(BUILD_COHORT, definition), is(false)
+    }
+
+    @Test
+    void testAllowInvertedPanelIfThereIsAnotherWithAccess() {
+        def secondUser = accessLevelTestData.users[1]
+
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(invert: true, items: [new Item(
+                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                )]),
+                new Panel(items: [new Item(
+                        conceptKey: getStudy(STUDY2).ontologyTerm.key,
+                )]),
+        ])
+
+        assertThat secondUser.canPerform(BUILD_COHORT, definition), is(true)
+    }
+
+    @Test
+    void testQueryDefinitionAlwaysAllowAdministrator() {
+        // first user is an admin
+        def firstUser = accessLevelTestData.users[0]
+
+        // normally would not be allowed because it's a single inverted panel
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(invert: true, items: [new Item(
+                        conceptKey: getStudy(STUDY1).ontologyTerm.key,
+                )]),
+        ])
+
+        assertThat firstUser.canPerform(BUILD_COHORT, definition), is(true)
+    }
+
+    @Test
+    void testQueryResultMismatch() {
+        def secondUser = accessLevelTestData.users[1]
+        def thirdUser = accessLevelTestData.users[2]
+
+        QueryResult res = mock(QueryResult)
+        res.getClass().returns QueryResult
+        res.username.returns secondUser.username
+
+        play {
+            assertThat thirdUser.canPerform(READ, res), is(false)
+        }
+    }
+
+    @Test
+    void testQueryResultMatching() {
+        def secondUser = accessLevelTestData.users[1]
+
+        QueryResult res = mock(QueryResult)
+        res.getClass().returns QueryResult
+        res.username.returns secondUser.username
+
+        play {
+            assertThat secondUser.canPerform(READ, res), is(true)
+        }
+    }
+
+    @Test
+    void testQueryResultNonReadOperation() {
+        def secondUser = accessLevelTestData.users[1]
+
+        QueryResult res = mock(QueryResult)
+        res.getClass().returns QueryResult
+
+        play {
+            shouldFail UnsupportedOperationException, {
+                secondUser.canPerform(API_READ, res)
+            }
+        }
     }
 
     private Study getStudy(String name) {
