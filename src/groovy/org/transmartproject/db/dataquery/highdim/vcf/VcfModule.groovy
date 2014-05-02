@@ -42,7 +42,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
         ['reference', 'variant', 'variantType'])
 
     final Map<String, Class> rowProperties = typesMap(VcfDataRow,
-        ['chromosome', 'position', 'rsId'])
+        ['chromosome', 'position', 'rsId', 'referenceAllele'])
     
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
