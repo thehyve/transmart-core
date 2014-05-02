@@ -139,6 +139,12 @@ class AccessControlChecks {
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryResult result) {
+        if (operation != ProtectedOperation.WellKnownOperations.READ) {
+            log.warn "Requested protected operation different from " +
+                    "READ on QueryResult $result"
+            throw new UnsupportedOperationException("Operation $operation ")
+        }
+
         def res = result.username == user.username
 
         if (!res) {
