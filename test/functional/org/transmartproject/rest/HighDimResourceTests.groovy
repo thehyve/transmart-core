@@ -61,6 +61,7 @@ class HighDimResourceTests extends ResourceTestCase {
                 assayCount: 2,
                 name: 'mrna',
                 supportedProjections: mrnaSupportedProjections,
+                genomeBuildId: 'hg19'
         ]
     }
 

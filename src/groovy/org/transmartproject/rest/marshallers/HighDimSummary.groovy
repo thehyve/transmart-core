@@ -5,4 +5,5 @@ class HighDimSummary {
     String name
     int assayCount
     Set<String> supportedProjections
+    String genomeBuildId
 }
