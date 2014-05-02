@@ -372,4 +372,17 @@ class QueriesResourceServiceTests {
         }
     }
 
+    @Test
+    void testOverloadWithUsername() {
+        def username = 'bogus_username'
+
+        def definition = new QueryDefinition([
+                new Panel(items: [
+                        new Item(conceptKey: '\\\\i2b2tc\\a\\'),])])
+
+        def result = queriesResourceService.runQuery(definition, username)
+
+        assertThat result, hasProperty('username', is(username))
+    }
+
 }
