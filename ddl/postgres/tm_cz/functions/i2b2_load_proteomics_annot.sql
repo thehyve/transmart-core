@@ -122,6 +122,7 @@ BEGIN
     select cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
     select cz_end_audit (jobID, 'FAIL') into rtnCd;
 
+  return rtnCd;
 END;
 $$;
 

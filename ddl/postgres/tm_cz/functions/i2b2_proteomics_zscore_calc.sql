@@ -89,8 +89,8 @@ BEGIN
 	execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
 	execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
 
-	drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1;		
-	drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_CALCS_I1;
+	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1;		
+	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_CALCS_I1;
 	
 	stepCt := stepCt + 1;
 	select cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done') into rtnCd;
@@ -149,9 +149,9 @@ BEGIN
 
 	
     
-	execute ('create index WT_SUBJECT_PROTEOMICS_LOGS_I1 on tm_wz.WT_SUBJECT_PROTEOMICS_LOGS (trial_name, probeset_id)');
+	--execute ('create index WT_SUBJECT_PROTEOMICS_LOGS_I1 on tm_wz.WT_SUBJECT_PROTEOMICS_LOGS (trial_name, probeset_id)');
 	stepCt := stepCt + 1;
-	select cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_PROTEOMICS_LOGS_I1',0,stepCt,'Done') into rtnCd;
+	--select cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_PROTEOMICS_LOGS_I1',0,stepCt,'Done') into rtnCd;
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
 
