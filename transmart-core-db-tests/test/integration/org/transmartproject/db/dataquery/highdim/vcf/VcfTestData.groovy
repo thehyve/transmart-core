@@ -39,6 +39,8 @@ class VcfTestData  {
 
         summariesData = []
         detailsData.each { detail ->
+            // Create VCF summary entries with the following variants:
+            // 1/0, 0/1 and 1/1
             int mut = 0
             assays.each { assay ->
                 mut++
@@ -64,8 +66,9 @@ class VcfTestData  {
                     quality: position, //nonsensical value
                     filter: '.',
                     info:  info,
-                    format: '',
-                    dataset: dataset
+                    format: 'GT',
+                    dataset: dataset,
+                    variant: "" + position + "/" + position + "\t" + ( position + 1 ) + "/" + ( position + 1 ) 
             )
     }
 
@@ -75,12 +78,13 @@ class VcfTestData  {
         int allele2,
         DeSubjectSampleMapping assay
             ->
+            
             new DeVariantSubjectSummaryCoreDb(
                     chr: 1,
                     pos: detail.pos,
                     rsId: '.',
-                    variant: (allele1 ? detail.ref : detail.alt) + '/' + (allele2 ? detail.ref : detail.alt),
-                    variantFormat: (allele1 ? 'R':'V') + '/' + (allele2 ? 'R':'V'),
+                    variant: ( (allele1 == 0)? detail.ref : detail.alt) + '/' + ( (allele2 == 0)? detail.ref : detail.alt),
+                    variantFormat: ( (allele1 == 0) ? 'R':'V') + '/' + ( (allele2 == 0) ? 'R':'V'),
                     variantType: detail.ref.length()>1?'DIV':'SNV',
                     reference: true,
                     allele1: allele1,
