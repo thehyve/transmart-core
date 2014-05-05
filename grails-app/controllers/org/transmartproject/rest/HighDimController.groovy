@@ -67,7 +67,9 @@ class HighDimController {
                     conceptWrapper: new OntologyTermWrapper(concept),
                     name: it.key.dataTypeName,
                     assayCount: it.value.size(),
-                    supportedProjections: it.key.supportedProjections)
+                    supportedProjections: it.key.supportedProjections,
+                    genomeBuildId: it.value[0].platform.genomeReleaseId
+            )
         }
     }
 
