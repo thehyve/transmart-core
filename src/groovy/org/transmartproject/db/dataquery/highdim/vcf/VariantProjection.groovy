@@ -2,8 +2,6 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.orm.HibernateCriteriaBuilder
 
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -22,7 +20,8 @@ class VariantProjection implements CriteriaProjection<String> {
         def projection = builder.instance.projection
         
         if (!(projection instanceof ProjectionList)) {
-            throw new IllegalArgumentException( "doWithCriteriaBuilder method requires a Hibernate Projectionlist to be set.")
+            throw new IllegalArgumentException("doWithCriteriaBuilder method" +
+                    " requires a Hibernate Projectionlist to be set.")
         }
 
         // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
