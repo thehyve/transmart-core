@@ -135,8 +135,6 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     require(Cairo)
     require(gplots)
 
-    par(mar = c(0, 0, 0, 0))
-
     pxPerCell <- 15
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     if (nrow(data) < 30 || ncol(data) < 30) {
@@ -171,13 +169,11 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
                  height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
-        options(device="svg")
     } else {
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
-        options(device="png")
     }
-
+    par(mar = c(0, 0, 0, 0))
     heatmap.2(data,
               Rowv=NA,
               Colv=NA,

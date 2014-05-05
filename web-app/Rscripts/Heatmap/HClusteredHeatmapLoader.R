@@ -128,7 +128,6 @@ cluster.by.columns = TRUE
         #Prepare the package to capture the image file.
         CairoPNG(file=paste(output.file,".png",sep=""),width=as.numeric(imageWidth),height=as.numeric(imageHeight),pointsize=as.numeric(pointsize))
 
-        options(device="png")
         Plot.error.message("Not enough marker/samples to draw heatmap"); return()
     }
 
@@ -138,8 +137,6 @@ cluster.by.columns = TRUE
 plotHeatmap <- function(data, colcolors, cluster.by.rows, cluster.by.columns, color.range.clamps, output.file = "Heatmap", extension = "png") {
     require(Cairo)
     require(gplots)
-
-    par(mar = c(0, 0, 0, 0))
 
     dendrogramOptions <- ifelse(cluster.by.rows,
             ifelse(cluster.by.columns, "both", "row"),
@@ -189,12 +186,11 @@ plotHeatmap <- function(data, colcolors, cluster.by.rows, cluster.by.columns, co
     if (extension == "svg") {
         CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
                  height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
-        options(device="svg")
     } else {
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
-        options(device="png")
     }
+    par(mar = c(0, 0, 0, 0))
 
     heatmap.2(data,
               ColSideColors = colcolors,
