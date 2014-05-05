@@ -99,27 +99,21 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 createCriteriaBuilder(DeVariantSubjectSummaryCoreDb, 'summary', session)
 
         criteriaBuilder.with {
-            createAlias 'jDetail', 'p', INNER_JOIN
+            createAlias 'jDetail', 'detail', INNER_JOIN
             projections {
-                property 'summary.subjectId'       ,'subjectId'
-                property 'summary.rsId'            ,'rsId'
-                property 'summary.variant'         ,'variant'
-                property 'summary.variantFormat'   ,'variantFormat'
-                property 'summary.variantType'     ,'variantType'
-                property 'summary.reference'       ,'reference'
-                property 'summary.allele1'         ,'allele1'
-                property 'summary.allele2'         ,'allele2'
-
-                property 'p.chr'                   ,'chr'
-                property 'p.pos'                   ,'pos'
-                property 'p.rsId'                  ,'rsId'
-                property 'p.ref'                   ,'ref'
-                property 'p.alt'                   ,'alt'
-                property 'p.quality'               ,'quality'
-                property 'p.filter'                ,'filter'
-                property 'p.info'                  ,'info'
-                property 'p.format'                ,'format'
-                property 'p.variant'               ,'variants'
+                // These fields are needed to fill the VcfDataRow
+                // Fields describing the actual data are added by
+                // the projections
+                property 'detail.chr'              ,'chr'
+                property 'detail.pos'              ,'pos'
+                property 'detail.rsId'             ,'rsId'
+                property 'detail.ref'              ,'ref'
+                property 'detail.alt'              ,'alt'
+                property 'detail.quality'          ,'quality'
+                property 'detail.filter'           ,'filter'
+                property 'detail.info'             ,'info'
+                property 'detail.format'           ,'format'
+                property 'detail.variant'          ,'variants'
 
                 property 'assay.id'                ,'assayId'
 
@@ -175,8 +169,8 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                             data: list.collect {
                                 projection.doWithResult it?.getAt(0)
                             }
-                            )
+                    )
                 }
-                )
+        )
     }
 }
