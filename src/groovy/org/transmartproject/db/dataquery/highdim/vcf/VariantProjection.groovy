@@ -12,7 +12,6 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
  * Created by j.hudecek on 21-2-14.
  */
 class VariantProjection implements CriteriaProjection<String> {
-    static Log LOG = LogFactory.getLog(this)
     
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
@@ -22,14 +21,8 @@ class VariantProjection implements CriteriaProjection<String> {
         // currently in, although they are both called Projection!
         def projection = builder.instance.projection
         
-        if (!projection) {
-            LOG.debug 'Skipping criteria manipulation because projection is not set'
-            return
-        }
-        if (!(projection instanceof ProjectionList)) {
-            LOG.debug 'Skipping criteria manipulation because projection ' +
-                    'is not a ProjectionList'
-            return
+        if (!projection || !(projection instanceof ProjectionList)) {
+            throw new IllegalArgumentException( "doWithCriteriaBuilder method requires a Hibernate Projectionlist to be set.")
         }
 
         // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
