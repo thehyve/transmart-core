@@ -13,6 +13,8 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.db.test.Matchers
+import com.google.common.collect.Lists
+
 
 /**
  * Created by j.hudecek on 17-3-14.
@@ -20,8 +22,6 @@ import org.transmartproject.db.test.Matchers
 @TestMixin(RuleBasedIntegrationTestMixin)
 class VcfEndToEndRetrievalTests {
 
-
-    private static final double DELTA = 0.0001
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource vcfResource
@@ -62,10 +62,7 @@ class VcfEndToEndRetrievalTests {
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
 
-        def resultList = []
-        for (def region : dataQueryResult.rows) {
-            resultList.add( region )
-        }
+        def resultList = Lists.newArrayList(dataQueryResult)
 
         assertThat resultList, hasSize(2)
 
@@ -89,11 +86,8 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, not(hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
-                        hasProperty('referenceAllele', equalTo('A')),
-                        hasProperty('alternatives', equalTo('C,T'))
                 )
-        )
-        )
+        ))
     }
 
     @Test
