@@ -19,7 +19,7 @@ class CohortProjection implements CriteriaProjection<Map> {
         // currently in, although they are both called Projection!
         def projection = builder.instance.projection
         
-        if (!projection || !(projection instanceof ProjectionList)) {
+        if (!(projection instanceof ProjectionList)) {
             throw new IllegalArgumentException( "doWithCriteriaBuilder method requires a Hibernate Projectionlist to be set.")
         }
 
