@@ -26,7 +26,7 @@ try {
 	String species = options.s ?: 'Homo Sapiens'
 	String gplId = options.p
 	while((inLine = reader.readNext()) != null) {
-		def uniprotId = inLine[uniprotColumnPos]
+		def uniprotId = inLine[uniprotColumnPos].replaceAll('-.*$', '')
 		//First column must be probeset.
 		writer.writeNext([inLine[0], uniprotId, species, gplId] as String[])
 	}
