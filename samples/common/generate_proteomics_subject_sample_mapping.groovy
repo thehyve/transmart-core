@@ -26,12 +26,12 @@ try {
 	String gplId = options.p
 	String trialId = options.t
 	String tissue = options.y
-	def lfqs = inLine.collect { it =~ /(?i)^LFQ\.intensity\.(.+)_.+$/ }
+	def lfqs = inLine.collect { it =~ /(?i)^LFQ\.intensity\.(.+)_(.+)$/ }
 	lfqs.each { matcher ->
 		if(matcher) {
 			//TODO site_id is really used in calculations. Needs to be not null value
 			writer.writeNext(
-				[trialId, 'NA', matcher[0][1], matcher[0][0], gplId, tissue, null, null, 'Biomarker_Data+PLATFORM+ATTR1', 'STD' ] as String[])
+				[trialId, 'NA', matcher[0][1], matcher[0][0], gplId, tissue, "LFQ-${matcher[0][2]}", null, 'Biomarker_Data+PLATFORM+ATTR1', 'STD' ] as String[])
 		}
 	}
 } finally {
