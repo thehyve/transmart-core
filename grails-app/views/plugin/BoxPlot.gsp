@@ -31,7 +31,7 @@
                         option below.</span>
                         <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable', true)">High Dimensional Data</button>
                             <button type="button" onclick="boxPlotView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="independentVarDataType">
@@ -118,7 +118,7 @@
                         using the binning option below.</span>
                         <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable', true)">High Dimensional Data</button>
                             <button type="button" onclick="boxPlotView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="dependentVarDataType">

@@ -152,6 +152,7 @@ calculateANOVA <- function(splitData,splitColumn,fileNameQualifier)
 	
 	#If we have a qualifier we need to throw a "_" after the name of the file.
 	if(fileNameQualifier != '') fileNameQualifier <- paste('_',fileNameQualifier,sep="");
+	fileNameQualifier <- gsub(" (.*)$", "",fileNameQualifier, perl=TRUE)
 	
 	#The filename for the summary stats file.
 	summaryFileName <- paste("ANOVA_RESULTS",fileNameQualifier,".txt",sep="")
@@ -166,7 +167,7 @@ calculateANOVA <- function(splitData,splitColumn,fileNameQualifier)
 
 	#Get a summary of the ANOVA
 	summaryAnova <- summary(dataChunk.aov)
-
+    
 	#If we have a group column we should write the group name to the file.
 	if(splitColumn %in% colnames(splitData)) write(paste("name=",currentGroup,sep=""), file=summaryFileName,append=T)
 	
@@ -253,6 +254,7 @@ graphSubset <- function(currentGroup,
 {
 	#Get the name of the group.
 	trimmedGroupName <- gsub("^\\s+|\\s+$", "",currentGroup)
+	trimmedGroupName <- gsub(" (.*)$", "",trimmedGroupName, perl=TRUE)
 	
 	#If we don't have a group, graph all the data.
 	if(trimmedGroupName != '') dataToGraph <- dataToGraph[[currentGroup]]

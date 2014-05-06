@@ -34,7 +34,7 @@
                         </span>
                         <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divDependentVariable', true)">High Dimensional Data</button>
                             <button type="button" onclick="lineGraphView.clear_high_dimensional_input('divDependentVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="dependentVarDataType">
@@ -67,7 +67,7 @@
                         </span>
                         <div id='divGroupByVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divGroupByVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divGroupByVariable', true)">High Dimensional Data</button>
                             <button type="button" onclick="lineGraphView.clear_high_dimensional_input('divGroupByVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="groupByVarDataType">

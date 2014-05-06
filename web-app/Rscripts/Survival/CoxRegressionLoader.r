@@ -50,6 +50,7 @@ CoxRegression.loader.individual <- function(dataChunk,output.file,variable.selec
 	{
 		currentGroup <- unique(dataChunk$GROUP)
 		currentGroup <- gsub("^\\s+|\\s+$", "",currentGroup)
+		currentGroup <- gsub(" (.*)$", "",currentGroup, perl=TRUE)
 		
 		#Change the output file name to have the group in it.
 		output.file <- paste(output.file,'_',currentGroup,sep='')
