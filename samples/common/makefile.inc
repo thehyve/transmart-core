@@ -99,13 +99,13 @@ load_proteomics_%: ../common/%/proteomics.params ../common/%/proteomics/$(PROTEO
 ../common/%/proteomics/$(PROTEOMICS_DATA_FILE):
 	$(error Copy proteomics data into $@)
 
-../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE)
+../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_annotation.groovy
 	groovy ../common/generate_proteomics_annotation.groovy -i $< -o $@ -p $*
 
-../common/%/proteomics/$(PROTEOMICS_SSM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE)
+../common/%/proteomics/$(PROTEOMICS_SSM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_subject_sample_mapping.groovy
 	groovy ../common/generate_proteomics_subject_sample_mapping.groovy -i $< -o $@ -p $* -t $* -y $(PROTEOMICS_DATA_TISSUE)
 
-../common/%/proteomics/$(PROTEOMICS_CM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE)
+../common/%/proteomics/$(PROTEOMICS_CM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_column_mapping.groovy
 	groovy ../common/generate_proteomics_column_mapping.groovy -i $< -o $@
 
 .PRECIOUS: ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
