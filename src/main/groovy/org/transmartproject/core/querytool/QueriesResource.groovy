@@ -1,6 +1,5 @@
 package org.transmartproject.core.querytool
 
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
@@ -12,10 +11,26 @@ interface QueriesResource {
     /**
      * Creates and executes a query in one go. The query is run synchronously.
      *
+     * In a tranSMART environment, consider using
+     * {@link #runQuery(QueryDefinition, String)} instead. Query
+     * definitions have to be associated with the user that issue the queries
+     * so that access control to the results can be implemented
+     *
      * @param definition the definition to use
      * @return the resulting query result
      */
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException
+
+    /**
+     * Creates and executes a query in one go. The query is run synchronously.
+     *
+     * @param definition the definition to use
+     * @param username the user that issued the query. This is the username of
+     * a tranSMART user (for usages in tranSMART) or an i2b2 user, for
+     * compatibility with i2b2.
+     * @return the resulting query result
+     */
+    QueryResult runQuery(QueryDefinition definition, String username) throws InvalidRequestException
 
     /**
      * Fetches a {@link QueryResult} using its id.

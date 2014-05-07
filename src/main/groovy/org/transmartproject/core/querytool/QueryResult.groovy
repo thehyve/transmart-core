@@ -1,6 +1,7 @@
 package org.transmartproject.core.querytool
 
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.users.ProtectedResource
 
 /**
  * A query result instance contains information about a specific run of a
@@ -8,7 +9,7 @@ import org.transmartproject.core.dataquery.Patient
  *
  * All query results are assumed to be of PATIENTSET type.
  */
-interface QueryResult {
+interface QueryResult extends ProtectedResource {
 
     /**
      * The query result instance id.
@@ -45,5 +46,14 @@ interface QueryResult {
      * @return the set of patients
      */
     public Set<Patient> getPatients()
+
+    /**
+     * The username of the user associated with this query. There may not
+     * exist a user with this username anymore.
+     *
+     * @return the username associated with the query definition used to issue
+     * this query
+     */
+    public String getUsername()
 
 }
