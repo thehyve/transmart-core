@@ -66,7 +66,7 @@ function Browser(opts) {
     this.highlights = [];
     this.selectedTiers = [1];
 
-    this.maxViewWidth = 500000;
+    this.maxViewWidth = 40000000;
 
     // Options.
     
