@@ -8,6 +8,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.transmart.searchapp.GeneSignature
 import org.transmart.searchapp.GeneSignatureItem
 import org.transmart.searchapp.SearchKeyword
+import org.transmart.searchapp.AuthUser
+import org.transmart.searchapp.SecureObject
 import com.recomdata.transmart.domain.searchapp.FormLayout
 
 import java.lang.reflect.UndeclaredThrowableException
@@ -21,19 +23,20 @@ import static java.util.UUID.randomUUID
 class GwasSearchController {
 
     def regionSearchService
+	def gwasWebService
     def RModulesFileWritingService
     def RModulesJobProcessingService
     def RModulesOutputRenderService
-
+    def springSecurityService
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
      */
     def getRegionFilter = {
-        render(template:'/gwas/regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']], plugin: "transmartGwas")
+        render(template:'/GWAS/regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']], plugin: "transmartGwas")
     }
 
     def getEqtlTranscriptGeneFilter = {
-        render(template:'/gwas/eqtlTranscriptGeneFilter', plugin: "transmartGwas")
+        render(template:'/GWAS/eqtlTranscriptGeneFilter', plugin: "transmartGwas")
     }
 
     def webStartPlotter = {
@@ -84,8 +87,6 @@ class GwasSearchController {
 							  <resources>
 							    <j2se version="1.6+" java-vm-args="-Xmx800m"/>
 
-							    <jar href="./lib/BioServicesClient.jar"/>
-							    <jar href="./lib/BioServicesUtil.jar"/>
 							    <jar href="./lib/commons-beanutils-1.8.3.jar"/>
 							    <jar href="./lib/commons-beanutils-bean-collections-1.8.3.jar"/>
 							    <jar href="./lib/commons-beanutils-core-1.8.3.jar"/>
@@ -100,7 +101,6 @@ class GwasSearchController {
 							    <jar href="./lib/jgoodies-common-1.3.1.jar"/>
 							    <jar href="./lib/jgoodies-looks-2.5.1.jar"/>
 							    <jar href="./lib/log4j-1.2.17.jar"/>
-							    <jar href="./lib/TDBApi.jar"/>
 							    <jar href="${jar}"/>
 
 							    <property name="jsessionid" value='""" + session.getId() + """'/>
@@ -446,6 +446,7 @@ class GwasSearchController {
             switch(currentAnalysis.assayDataType)
             {
                 case "GWAS" :
+				case "GWAS Fail" :
                 case "Metabolic GWAS" :
                     analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames, transcriptGeneNames, false).results
                     analysisIndexData = searchDAO.getGwasIndexData()
@@ -637,7 +638,7 @@ class GwasSearchController {
                 exportResults(regionSearchResults.columnNames, regionSearchResults.analysisData, "analysis" + analysisId + ".csv")
             }
             else {
-                render(plugin: "transmartGwas", template: "/gwas/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, wasShortcut: regionSearchResults.wasShortcut, analysisId: analysisId])
+                render(plugin: "transmartGwas", template: "/GWAS/analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, wasShortcut: regionSearchResults.wasShortcut, analysisId: analysisId])
             }
         }
         catch (Exception e) {
@@ -723,7 +724,7 @@ class GwasSearchController {
             }
         }
         else {
-            render(plugin: "transmartGwas", template: "/gwas/gwasAndEqtlResults", model: [results: regionSearchResults, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search])
+            render(plugin: "transmartGwas", template: "/GWAS/gwasAndEqtlResults", model: [results: regionSearchResults, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search])
         }
     }
 
@@ -839,7 +840,14 @@ class GwasSearchController {
 							else if (searchItem?.dataCategory?.equals('GENE')) {
 								def geneId = searchItem?.id
 								def limits = regionSearchService.getGeneLimits(geneId, '19', sig.flankingRegion)
+								if (limits!=null)
+								{
 								regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
+								}
+								else
+								{
+									log.debug("Gene not found deapp:"+geneId)
+								}
 							}
 						
 
@@ -1011,7 +1019,22 @@ class GwasSearchController {
 
         dataWriter.close()
     }
-
+	def getExperimentSecureStudyList(){  //ZHANH101
+		
+		StringBuilder s = new StringBuilder();
+		s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
+		def t=[:];
+		//return access levels for the children of this path that have them
+		def results = SecureObject.executeQuery(s.toString());
+		for (row in results){
+			def token = row[0];
+			def dataid = row[1];
+			token=token.replaceFirst("EXP:","")
+			log.info(token+":"+dataid);
+			t.put(token,dataid);
+		}
+		return t;
+	}
     def exportAnalysis = {
 
         def paramMap = params;
@@ -1025,7 +1048,9 @@ class GwasSearchController {
         def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
         def queryparameter=session['solrSearchFilter']
 
-
+		def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+		def secObjs=getExperimentSecureStudyList()
+		
         if (isLink == "true") {
             def analysisId = params.analysisId
             analysisId = analysisId.toLong()
@@ -1045,7 +1070,14 @@ class GwasSearchController {
 
                 for (analysisId in analysisIds) {
                     analysisId = analysisId.toLong()
-                    links += link+"?analysisId=" + analysisId + "&regions="+regions.toString().replace(" ","")+"&cutoff="+cutoff+"&geneNames="+geneNames.toString().replace(" ","")+"&isLink=true\n"
+					def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
+					def access=gwasWebService.getGWASAccess(analysis.etlId, user)
+					if(!secObjs.containsKey(analysis.etlId) || (!access.equals("Locked")  && !access.equals("VIEW"))){
+						links += link+"?analysisId=" + analysisId + "&regions="+regions.toString().replace(" ","")+"&cutoff="+cutoff+"&geneNames="+geneNames.toString().replace(" ","")+"&isLink=true\n"
+					}
+					else{
+						links += "Analysis " + analysis.name + " is a restricted study, you do not have permission to export.\n"
+					}
                 }
             }
             def messageSubject = "Export Analysis Results"  //(links,messageSubject,mailId)
@@ -1059,16 +1091,27 @@ class GwasSearchController {
         } else {
             def analysisIds = params?.analysisIds.split(",")
             def mailId = params.toMailId
-
+			def restrictedMsg=""
             def timestamp = new Date().format("yyyyMMddhhmmss")
             def rootFolder = "Export_" + timestamp
             String location = grailsApplication.config.grails.mail.attachments.dir
 			String lineSeparator = System.getProperty('line.separator')
             String rootDir = location + File.separator+rootFolder 
-			log.debug(rootDir +"is root directory");
+			log.debug(rootDir +" is root directory");
+			def analysisAIds=[]
+			for(analysisId in analysisIds){
+				analysisId = analysisId.toLong()
+				def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
+				def access=gwasWebService.getGWASAccess(analysis.etlId, user)
+				if(!secObjs.containsKey(analysis.etlId) || (!access.equals("Locked")  && !access.equals("VIEW"))){
+					analysisAIds.add(analysisId)
+				}
+				else{
+					restrictedMsg += "Analysis " + analysis.name + "is a restricted study, you do not have permission to export.\n"				}
+			}
             if (analysisIds.size() > 0) {
 
-                for (analysisId in analysisIds) {
+                for (analysisId in analysisAIds) {
                     analysisId = analysisId.toLong()
                     def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
                     def accession = analysis.etlId
@@ -1093,7 +1136,7 @@ class GwasSearchController {
                     File file = new File(fileName);
                     BufferedWriter dataWriter = new BufferedWriter(new FileWriter(file));
                     exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,transcriptGeneNames,200)
-File.separator
+//File.separator
                     //This is to generate a file with Study Metadata
                     def FileStudyMeta = dirStudy + accession + "_STUDY_METADATA.txt"
                     File FileStudy = new File(FileStudyMeta)
@@ -1349,10 +1392,11 @@ File.separator
             File topDir = new File(rootDir)
 
             def zipFile = location +File.separator+ rootFolder + ".zip"
+			
             ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(zipFile));
 
             int topDirLength = topDir.absolutePath.length()
-
+			
             topDir.eachFileRecurse { file ->
                 def relative = file.absolutePath.substring(topDirLength).replace('\\', '/')
                 if (file.isDirectory() && !relative.endsWith('/')) {
@@ -1370,17 +1414,17 @@ File.separator
             zipOutput.close()
 
             //the path of the file e.g. : "c:/Users/nikos7/Desktop/myFile.txt"
-            String messageBody = "Attached is the list of Analyses"
+            String messageBody = "Attached is the list of Analyses\n"+restrictedMsg
             String file = zipFile
             String messageSubject = "Export of Analysis as attachment"
             if (queryparameter) {messageBody+="Query Criteria at time of export: "+queryparameter+"\n"}
-
+            file.substring(file.lastIndexOf('/')+1)
             sendMail {
                 multipart true
                 to mailId
                 subject messageSubject
                 text messageBody
-                attach file, "application/zip", new File(file)
+                attach file.substring(file.lastIndexOf('/')+1), "application/zip", new File(file)
             }
         }
 

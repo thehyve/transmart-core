@@ -52,7 +52,22 @@ class GwasWebController {
         def results = gwasWebService.getModelInfo(type)
         renderDataSet(results)
     }
-
+	
+	def getSecureModelInfoByDataType = {
+		
+				def type = "NONE"
+				def typeId = params.long('dataType')
+				def cUser = params.user
+		
+				switch (typeId) {
+					case 1: type = "GWAS"; break;
+					case 2: type = "EQTL"; break;
+					case 3: type = "Metabolic GWAS"; break;
+				}
+		
+				def results = gwasWebService.getSecureModelInfo(type,cUser)
+				renderDataSet(results)
+			}
     def resultDataForFilteredByModelIdGeneAndRangeRev = { //TODO Negotiate this name into something more reasonable
         def snpSource = params.snpSource;
         if (!snpSource) {snpSource = '19'}

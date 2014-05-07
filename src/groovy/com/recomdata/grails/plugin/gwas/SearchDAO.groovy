@@ -3,12 +3,12 @@ package com.recomdata.grails.plugin.gwas
 import org.apache.log4j.Logger
 import org.springframework.context.ApplicationContext
 
-class GwasSearchDAO {
+class SearchDAO {
 	ApplicationContext ctx = org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
 	def dataSource = ctx.getBean('dataSource')
 	def grailsApplication = ctx.getBean('grailsApplication')
 	
-	static Logger log = Logger.getLogger(GwasSearchDAO.class)
+	static Logger log = Logger.getLogger(SearchDAO.class)
 	
 	def getGwasData(analysisId) {
 		getGwasData(analysisId, null)
@@ -22,7 +22,7 @@ class GwasSearchDAO {
 							gwas.pValue,
 							gwas.logPValue,
 							gwas.ext_data
-					FROM	org.transmart.biomart.BioAssayAnalysisGwas gwas
+					FROM	bio.BioAssayAnalysisGwas gwas
 					WHERE	gwas.analysis.id = :parAnalysisId""")
 		
 		if (ranges) {
@@ -34,14 +34,14 @@ class GwasSearchDAO {
 	
 	def getGwasIndexData()
 	{
-		def results = org.transmart.biomart.BioAssayAnalysisDataIdx.findAllByExt_type("GWAS", [sort:"display_idx",order:"asc"])
+		def results = bio.BioAssayAnalysisDataIdx.findAllByExt_type("GWAS", [sort:"display_idx",order:"asc"])
 		
 		return results
 	}
 
 	def getEqtlIndexData()
 	{
-		def results = org.transmart.biomart.BioAssayAnalysisDataIdx.findAllByExt_type("EQTL", [sort:"display_idx",order:"asc"])
+		def results = bio.BioAssayAnalysisDataIdx.findAllByExt_type("EQTL", [sort:"display_idx",order:"asc"])
 		
 		return results
 	}
@@ -57,7 +57,7 @@ class GwasSearchDAO {
 					eqtl.pValue,
 					eqtl.logPValue,
 					eqtl.ext_data
-			FROM	org.transmart.biomart.BioAssayAnalysisEqtl eqtl
+			FROM	bio.BioAssayAnalysisEqtl eqtl
 			WHERE	eqtl.analysis.id = :parAnalaysisId
 			""",[parAnalaysisId : analysisId],[max:100])
 		

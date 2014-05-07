@@ -9,7 +9,7 @@
         </label>
     </div>
     <div style="height: 300px; overflow: auto; border-top: 1px solid black; margin-bottom: 10px">
-        <g:render template="/GWAS/tableViewResults" plugin="transmart-gwas" model="[
+        <g:render template="/gwas/tableViewResults" plugin="transmart-gwas" model="[
             'type': 'GWAS',
             'analysisData': results.gwasResults.analysisData,
             'columnNames': results.gwasResults.columnNames,
@@ -24,7 +24,7 @@
         ]"/>
     </div>
     <div style="height: 300px; overflow: auto; border-top: 1px solid black; ">
-        <g:render template="/GWAS/tableViewResults" plugin="transmart-gwas" model="[
+        <g:render template="/gwas/tableViewResults" plugin="transmart-gwas" model="[
                 'type': 'eQTL',
                 'analysisData': results.eqtlResults.analysisData,
                 'columnNames': results.eqtlResults.columnNames,
@@ -40,7 +40,7 @@
     </div>
 </g:if>
 <g:elseif test="${results.gwasResults}">
-    <g:render template="/GWAS/tableViewResults" plugin="transmart-gwas" model="[
+    <g:render template="/gwas/tableViewResults" plugin="transmart-gwas" model="[
             'type': 'GWAS',
             'showSearch': true,
             'analysisData': results.gwasResults.analysisData,
@@ -56,7 +56,7 @@
     ]"/>
 </g:elseif>
 <g:elseif test="${results.eqtlResults}">
-    <g:render template="/GWAS/tableViewResults" plugin="transmart-gwas" model="[
+    <g:render template="/gwas/tableViewResults" plugin="transmart-gwas" model="[
             'type': 'eQTL',
             'showSearch': true,
             'analysisData': results.eqtlResults.analysisData,
