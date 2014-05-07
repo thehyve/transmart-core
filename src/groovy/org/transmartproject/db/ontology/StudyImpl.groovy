@@ -20,6 +20,21 @@ class StudyImpl implements Study {
          * but this is more straightforward */
         PatientTrialCoreDb.executeQuery '''
             SELECT pt.patient FROM PatientTrialCoreDb pt WHERE pt.study = :study''',
-            [study: name]
+                [study: name]
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (getClass() != o.class) {
+            return false
+        }
+
+        ontologyTerm?.name == o.ontologyTerm?.name
+    }
+
+    int hashCode() {
+        ontologyTerm?.name?.hashCode() ?: 0
     }
 }
