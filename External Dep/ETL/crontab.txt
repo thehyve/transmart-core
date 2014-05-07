@@ -1,0 +1,3 @@
+01 22 * * * /bin/sh  /home/transmart/ETL/nightly_processing > /home/transmart/ETL/nightly_processing.log 2>&1
+01 07 * * * /bin/sh  /home/solr-rwg/script/refresh.sh > /home/solr-rwg/script/refresh.log 2>&1
+#46 09 * * * /bin/sh  /home/transmart/ETL/nightly_processing.sh > /home/transmart/ETL/nightly_processing.log 2>&1
