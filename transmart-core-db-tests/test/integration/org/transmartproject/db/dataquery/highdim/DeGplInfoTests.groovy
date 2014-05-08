@@ -1,10 +1,10 @@
 package org.transmartproject.db.dataquery.highdim
 
 import org.junit.Test
+import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 
 class DeGplInfoTests {
 

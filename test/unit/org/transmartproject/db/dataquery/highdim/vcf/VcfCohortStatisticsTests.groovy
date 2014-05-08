@@ -2,10 +2,8 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
-import org.hibernate.ScrollableResults
-import org.junit.Before;
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType;
+import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*

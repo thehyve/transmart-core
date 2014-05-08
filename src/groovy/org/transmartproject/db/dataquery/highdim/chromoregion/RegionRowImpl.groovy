@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.transmartproject.core.dataquery.highdim.Platform
-import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 

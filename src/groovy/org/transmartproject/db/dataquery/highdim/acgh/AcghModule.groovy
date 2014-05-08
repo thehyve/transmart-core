@@ -1,9 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
-
-import org.apache.commons.lang.NotImplementedException
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired

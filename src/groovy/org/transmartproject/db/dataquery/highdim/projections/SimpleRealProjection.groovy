@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.projections
 
 import grails.orm.HibernateCriteriaBuilder
-import groovy.transform.Immutable
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList

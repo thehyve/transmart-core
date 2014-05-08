@@ -1,8 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import grails.orm.HibernateCriteriaBuilder
-
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -17,6 +15,8 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+
+import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class VcfModule extends AbstractHighDimensionDataTypeModule {
 

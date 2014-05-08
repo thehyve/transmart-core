@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.clinical
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
@@ -10,9 +9,9 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
-import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
 class ClinicalTestData {
 

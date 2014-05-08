@@ -1,6 +1,8 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import org.transmartproject.db.dataquery.highdim.*
+import org.transmartproject.db.dataquery.highdim.DeGplInfo
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -78,7 +80,7 @@ class VcfTestData  {
         int allele2,
         DeSubjectSampleMapping assay
             ->
-            
+
             new DeVariantSubjectSummaryCoreDb(
                     chr: 1,
                     pos: detail.pos,

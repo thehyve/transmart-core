@@ -1,9 +1,7 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
-
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -11,10 +9,11 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.db.test.Matchers
-import com.google.common.collect.Lists
+import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 
 /**
  * Created by j.hudecek on 17-3-14.
@@ -102,7 +101,7 @@ class VcfEndToEndRetrievalTests {
         for (VcfDataRow region : dataQueryResult.rows) {
             resultList.add(region)
         }
-        
+
         /*
         chr: 1,
         pos: position,
@@ -125,7 +124,7 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('chromosome', equalTo("1")),
                         hasProperty('position', equalTo(1L)),
                         hasProperty('rsId', equalTo(".")),
-                        
+
                         hasProperty('referenceAllele', equalTo("C")),
                         hasProperty('alternatives', equalTo("A")),
 
@@ -137,7 +136,7 @@ class VcfEndToEndRetrievalTests {
 
                         hasProperty('qualityOfDepth', closeTo( 2.0 as Double, 0.01 as Double )),
                         hasProperty('formatFields', hasItem( equalTo( "GT" ) ) ),
-                            
+
                         hasProperty('infoFields', allOf(
                                 hasEntry(equalTo('DP'),equalTo('88')),
                                 hasEntry(equalTo('AF1'),equalTo('1')),
@@ -152,7 +151,7 @@ class VcfEndToEndRetrievalTests {
         assertThat resultList, hasItem(
                 allOf(
                     hasProperty('position', equalTo(2L)),
-                   
+
                     hasProperty('referenceAllele', equalTo("GCCCCC")),
                     hasProperty('alternatives', equalTo("GCCCC")),
 
@@ -163,11 +162,11 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('position', equalTo(3L)),
                         hasProperty('referenceAllele', equalTo("A")),
                         hasProperty('alternatives', equalTo("C,T")),
-    
+
                 )
         )
     }
-    
+
     @Test
     void testCohortProjection() {
         List dataConstraints = []
@@ -176,15 +175,14 @@ class VcfEndToEndRetrievalTests {
         dataQueryResult = vcfResource.retrieveData(
                 [], dataConstraints, projection)
 
-        
         def resultList = []
         for (VcfDataRow row: dataQueryResult.rows) {
             resultList.add(row)
         }
 
-                
+
         // Please note: the order of the assays is opposite from the order of creation
-        // as the assayId is decreased while creating the assays 
+        // as the assayId is decreased while creating the assays
         assertThat resultList, hasItem(
                 contains(
                         allOf(
@@ -202,7 +200,7 @@ class VcfEndToEndRetrievalTests {
                 )
         )
     }
-    
+
     @Test
     void testVariantProjection() {
         List dataConstraints = []
@@ -215,18 +213,18 @@ class VcfEndToEndRetrievalTests {
         for (VcfDataRow row: dataQueryResult.rows) {
             resultList.add(row)
         }
-        
+
         def expected
         def indices = dataQueryResult.indicesList
         def assayOrder = [ indices[ ]]
-        
-        assertThat resultList, hasItem( allOf( 
+
+        assertThat resultList, hasItem( allOf(
                 hasProperty('referenceAllele', equalTo( 'C' ) ),
                 hasProperty('alternatives', equalTo( 'A' ) ),
-                
+
                 // Please note: the order of the assays is opposite from the order of creation
-                // as the assayId is decreased while creating the assays 
-                contains( "A/A", "C/A", "A/C" )  
+                // as the assayId is decreased while creating the assays
+                contains( "A/A", "C/A", "A/C" )
         ))
     }
 

@@ -1,10 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.DEL
-import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.DIV
-import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.INS
-import static org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType.SNP
-
 import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
 import org.transmartproject.core.dataquery.highdim.vcf.VcfCohortInfo
 

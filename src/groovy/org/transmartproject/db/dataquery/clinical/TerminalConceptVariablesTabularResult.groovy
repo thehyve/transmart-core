@@ -5,7 +5,6 @@ import com.google.common.collect.HashBiMap
 import com.google.common.collect.Maps
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
-import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.CollectingTabularResult
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable

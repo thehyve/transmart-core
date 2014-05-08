@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
-import groovy.transform.ToString
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 

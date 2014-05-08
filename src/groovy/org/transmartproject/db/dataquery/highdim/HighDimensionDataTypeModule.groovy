@@ -5,7 +5,6 @@ import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform

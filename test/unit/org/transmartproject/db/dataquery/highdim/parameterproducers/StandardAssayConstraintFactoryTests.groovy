@@ -13,11 +13,7 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.concept.ConceptKey
-import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultPatientSetConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryResultInstance
 

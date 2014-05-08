@@ -13,11 +13,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import javax.annotation.PostConstruct
 

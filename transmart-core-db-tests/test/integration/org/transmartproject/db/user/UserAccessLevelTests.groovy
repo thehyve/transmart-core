@@ -16,12 +16,7 @@ import org.transmartproject.core.users.ProtectedResource
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_IN_TABLE
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.SHOW_SUMMARY_STATISTICS
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @WithGMock

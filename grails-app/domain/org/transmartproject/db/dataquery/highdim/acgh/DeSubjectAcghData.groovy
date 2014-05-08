@@ -1,10 +1,10 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import groovy.transform.EqualsAndHashCode
-import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.acgh.CopyNumberState
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.i2b2data.PatientDimension
 
 @EqualsAndHashCode(includes = [ 'assay', 'region' ])

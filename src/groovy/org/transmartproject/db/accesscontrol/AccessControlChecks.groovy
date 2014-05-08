@@ -1,6 +1,5 @@
 package org.transmartproject.db.accesscontrol
 
-import com.google.common.collect.Sets
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.hibernate.classic.Session
@@ -15,7 +14,6 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.user.RoleCoreDb
 import org.transmartproject.db.user.User
 
 /**

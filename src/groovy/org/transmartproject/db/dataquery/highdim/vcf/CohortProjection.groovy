@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.orm.HibernateCriteriaBuilder
-
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
