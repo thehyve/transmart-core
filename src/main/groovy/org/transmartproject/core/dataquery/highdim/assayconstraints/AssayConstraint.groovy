@@ -1,7 +1,6 @@
 package org.transmartproject.core.dataquery.highdim.assayconstraints
 
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.querytool.QueryResult
 
 /**
  * Marker interface for limiting the assays returned in the the result of a

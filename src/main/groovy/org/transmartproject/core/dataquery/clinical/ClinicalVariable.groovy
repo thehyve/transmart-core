@@ -1,7 +1,6 @@
 package org.transmartproject.core.dataquery.clinical
 
 import org.transmartproject.core.doc.Experimental
-import org.transmartproject.core.ontology.OntologyTerm
 
 @Experimental
 public interface ClinicalVariable {
