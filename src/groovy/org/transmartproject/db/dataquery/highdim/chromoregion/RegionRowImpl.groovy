@@ -30,6 +30,10 @@ final class RegionRowImpl extends AbstractDataRow implements RegionRow {
 
     Integer getNumberOfProbes() { rowList[6] as Integer }
 
+    String getGeneSymbol() { rowList[7] as String }
+
+    Long getGeneId() { rowList[8] as Long }
+
     @Override
     String getLabel() {
         cytoband
