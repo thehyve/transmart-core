@@ -4,19 +4,27 @@
  * @param result_instance_id
  * @returns {Array}
  */
-function getTransmartDASSources (result_instance_id) {
+function getTransmartDASSources (result_instance_id, dataType) {
 
         var arrNds = new Array();
 
         // Code below is hardcoded
         // TODO : Check the local Das features and then collect them in arrNDS
 
-        arrNds[0] = new DASSource({name: 'acgh', uri: pageInfo.basePath + "/das/acgh-" + result_instance_id + "/"});
-        arrNds[1] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
-        arrNds[2] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
-//        arrNds[3] = new DASSource({name: 'maf', uri: pageInfo.basePath + "/das/maf-"+ result_instance_id + "/"});
-        arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
-        arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+        if (dataType == 'acgh') {
+            arrNds[0] = new DASSource({name: 'acgh-gain', uri: pageInfo.basePath + "/das/acgh-gain-" + result_instance_id + "/"});
+            arrNds[1] = new DASSource({name: 'acgh-loss', uri: pageInfo.basePath + "/das/acgh-loss-" + result_instance_id + "/"});
+            arrNds[2] = new DASSource({name: 'acgh-normal', uri: pageInfo.basePath + "/das/acgh-normal-" + result_instance_id + "/"});
+            arrNds[3] = new DASSource({name: 'acgh-amp', uri: pageInfo.basePath + "/das/acgh-amp-" + result_instance_id + "/"});
+            arrNds[4] = new DASSource({name: 'acgh-inv', uri: pageInfo.basePath + "/das/acgh-inv-" + result_instance_id + "/"});
+        } else if (dataType == '') { // until this point, empty data type will be considered as genomic variants type
+            arrNds[0] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
+            arrNds[1] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
+            arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
+            arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+        } else {
+            console.log("Unknown data type", dataType);
+        }
 
         return arrNds;
 }
@@ -58,6 +66,29 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
     GLOBAL.CurrentSubsetIDs[1] = null;
     GLOBAL.CurrentSubsetIDs[2] = null;
 
+    var _getNodeDetails = function (node, callback) {
+
+        var nodReq = new XMLHttpRequest();
+        var nodUrl = pageInfo.basePath + "/HighDimension/nodeDetails";
+
+        nodReq.open('POST', nodUrl, true);
+        nodReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+        nodReq.onreadystatechange = function() {
+            if (nodReq.readyState == 4) {
+                if (nodReq.status == 200 || nodReq.status == 206) {
+                    return callback(nodReq.responseText);
+                } else {
+                    return callback(null);
+                }
+            }
+        };
+
+        var params = "conceptKeys="+encodeURIComponent([node.id]);
+        nodReq.send(params);
+
+    };
+
     // get result instance id as representative of cohort selection
     // in Comparison tab
     runAllQueries(function () {
@@ -76,27 +107,29 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         var tsm = Math.max(knownSpace.min, (knownSpace.min + knownSpace.max - 100) / 2)|0;
         var testSegment = new DASSegment(knownSpace.chr, tsm, Math.min(tsm + 99, knownSpace.max));
 
+        var _nodeDetails = _getNodeDetails(node, function (response) {
 
-        /** ----------------------------------------------------------- **/
-        /** Code below contains callback hell .. TODO: refactor please! **/
-        /** ----------------------------------------------------------- **/
+            var dataType = "";
 
-
-
-
-        if (isHighDimensionalNode(node)) {
-            // define features
-            var sources = getTransmartDASSources(res_inst_id_1);
-            addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
-            if (res_inst_id_2) {
-                sources.concat(getTransmartDASSources(res_inst_id_2));
-                addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+            for (var key in JSON.parse(response)) {
+                dataType = key;
             }
-            thisB.createAddInfoButton()
-        } else {
-            displayError('Error', 'Cannot display non-High Dimensional node');
-        }
 
+
+            if (isHighDimensionalNode(node)) {
+                // define features
+                var sources = getTransmartDASSources(res_inst_id_1, dataType);
+                addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
+                if (res_inst_id_2) {
+                    sources.concat(getTransmartDASSources(res_inst_id_2, dataType));
+                    addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+                }
+                thisB.createAddInfoButton()
+            } else {
+                displayError('Error', 'Cannot display non-High Dimensional node');
+            }
+
+        });
 
         /**
          * Add DAS x Sources
