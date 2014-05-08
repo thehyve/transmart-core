@@ -9,7 +9,7 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
  * Created by j.hudecek on 21-2-14.
  */
 class VariantProjection implements CriteriaProjection<String> {
-    
+
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
         // Retrieving the criteriabuilder projection (which contains
@@ -17,7 +17,7 @@ class VariantProjection implements CriteriaProjection<String> {
         // N.B. This is a different object than the object we are 
         // currently in, although they are both called Projection!
         def projection = builder.instance.projection
-        
+
         if (!(projection instanceof ProjectionList)) {
             throw new IllegalArgumentException("doWithCriteriaBuilder method" +
                     " requires a Hibernate Projectionlist to be set.")
@@ -29,7 +29,7 @@ class VariantProjection implements CriteriaProjection<String> {
                         Projections.property( "summary.variant"),
                         "variant"))
     }
-    
+
     @Override
     String doWithResult(Object object) {
         if (object == null) {
