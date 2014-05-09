@@ -133,7 +133,7 @@ class RetrieveDataService {
             m = [:]
             m["name"] = jobResult.jobName
             m["status"] = jobResult.jobStatus
-            m["runTime"] = jobResult.runTime
+            m["runTime"] = jobResult.jobStatusTime
             m["startDate"] = jobResult.lastRunOn
             m["viewerURL"] = jobResult.viewerURL
             m["altViewerURL"] = jobResult.altViewerURL

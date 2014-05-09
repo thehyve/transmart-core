@@ -29,11 +29,11 @@ GRANT ALL ON TABLE galaxy.status_of_export_job TO galaxy;
 GRANT ALL ON TABLE galaxy.status_of_export_job TO biomart_user;
 
 
--- Table: galaxy.users_details_for_export_to_galaxy
+-- Table: galaxy.USERS_DETAILS_FOR_EXPORT_GAL
 
--- DROP TABLE galaxy.users_details_for_export_to_galaxy;
+-- DROP TABLE galaxy.users_details_for_export_gal;
 
-CREATE TABLE galaxy.users_details_for_export_to_galaxy
+CREATE TABLE galaxy.users_details_for_export_gal
 (
   id bigint NOT NULL,
   galaxy_key character varying(100),
@@ -43,10 +43,10 @@ CREATE TABLE galaxy.users_details_for_export_to_galaxy
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE galaxy.users_details_for_export_to_galaxy
+ALTER TABLE galaxy.users_details_for_export_gal
   OWNER TO galaxy;
-GRANT ALL ON TABLE galaxy.users_details_for_export_to_galaxy TO galaxy;
-GRANT ALL ON TABLE galaxy.users_details_for_export_to_galaxy TO biomart_user;
+GRANT ALL ON TABLE galaxy.users_details_for_export_gal TO galaxy;
+GRANT ALL ON TABLE galaxy.users_details_for_export_gal TO biomart_user;
 
 
 -- Sequence: galaxy.hibernate_id
