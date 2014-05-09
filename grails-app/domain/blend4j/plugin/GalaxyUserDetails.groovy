@@ -8,7 +8,7 @@ class GalaxyUserDetails implements Serializable {
     String mailAddress
 
     static mapping = {
-        table 'GALAXY.USERS_DETAILS_FOR_EXPORT_TO_GALAXY'
+        table 'GALAXY.USERS_DETAILS_FOR_EXPORT_GAL'
         version false
         id column: 'ID',
                 generator: 'increment',
