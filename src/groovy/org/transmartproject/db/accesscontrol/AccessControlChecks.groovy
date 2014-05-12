@@ -143,6 +143,23 @@ class AccessControlChecks {
             throw new UnsupportedOperationException("Operation $operation ")
         }
 
+        /* Note that this check doesn't account for the fact that the user's
+         * permissions on the check from which the result was generated may
+         * have been revoked in the meantime. We could check again the access
+         * to the studies with:
+         *
+         * def qd = queryDefinitionXml.fromXml(new StringReader(
+         *         queryResult.queryInstance.queryMaster.requestXml))
+         * canPerform(user, BUILD_COHORT, qd)
+         *
+         * However, this would be less efficient and is not deemed necessary
+         * at this point.
+         *
+         * Another option would be to expire user's query results when his
+         * permissions change, but this can be tricky if the permissions
+         * are changed on a group or if the stuff is reimported.
+         *
+         */
         def res = result.username == user.username
 
         if (!res) {
