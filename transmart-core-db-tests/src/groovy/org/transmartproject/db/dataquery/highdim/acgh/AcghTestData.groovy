@@ -52,7 +52,9 @@ class AcghTestData {
                         end: 9999,
                         numberOfProbes: 42,
                         name: 'region 1:33-9999',
-                        cytoband: 'cytoband1'
+                        cytoband: 'cytoband1',
+                        geneSymbol: 'TP53',
+                        geneId: 7157
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -61,7 +63,9 @@ class AcghTestData {
                         end: 99,
                         numberOfProbes: 2,
                         name: 'region 2:66-99',
-                        cytoband: 'cytoband2'
+                        cytoband: 'cytoband2',
+                        geneSymbol: 'AURKA',
+                        geneId: 6790
                 ),
         ]
         r[0].id = -1001L
