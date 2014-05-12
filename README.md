@@ -1,0 +1,47 @@
+//GWAS Related Configuration:
+com.recomdata.dataUpload.appTitle="Upload data to tranSMART (GPL)"
+com.recomdata.dataUpload.templates.dir="/home/transmart/templates/"
+com.recomdata.dataUpload.uploads.dir="/vol1/transmart/uploads/"
+com.recomdata.dataUpload.adminEmail="mailto:DL-tranSMART_Support@transmartfoundation.org"
+com.recomdata.dataUpload.etl.dir="/vol1/transmart/ETL/"
+com.recomdata.dataUpload.stageScript="run_analysis_stage"
+
+// Folder Manager
+com.recomdata.FmFolderService.importDirectory = '/vol1/transmart/import'
+com.recomdata.FmFolderService.filestoreDirectory = '/vol1/transmart/filestore'
+//Mail Configuration
+
+grails.mail.host = "mailhub.transmartFoundation.org"
+grails.mail.port = 25
+grails.mail.props = ["mail.smtp.auth":"false", "mail.smtp.starttls.enable":"true"]
+// grails.mail.props = ["mail.smtp.auth":"false",
+// "mail.smtp.socketFactory.port":"25",
+// "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory",
+// "mail.smtp.socketFactory.fallback":"false"]
+grails.mail.default.from = "DL-tranSMART_Support@transmartfoundation.org"
+grails.mail.attachments.dir = "/home/transmart/export"
+
+//GWAS Related Configuration:
+com.recomdata.dataUpload.appTitle="Upload data to tranSMART (GPL)"
+com.recomdata.dataUpload.templates.dir="/home/transmart/templates/"
+com.recomdata.dataUpload.uploads.dir="/vol1/transmart/uploads/"
+com.recomdata.dataUpload.adminEmail="mailto:DL-tranSMART_Support@transmartfoundation.org"
+com.recomdata.dataUpload.etl.dir="/vol1/transmart/ETL/"
+com.recomdata.dataUpload.stageScript="run_analysis_stage"
+
+// Folder Manager
+com.recomdata.FmFolderService.importDirectory = '/vol1/transmart/import'
+com.recomdata.FmFolderService.filestoreDirectory = '/vol1/transmart/filestore'
+//Mail Configuration
+
+grails.mail.host = "mailhub.transmartFoundation.org"
+grails.mail.port = 25
+grails.mail.props = ["mail.smtp.auth":"false", "mail.smtp.starttls.enable":"true"]
+// grails.mail.props = ["mail.smtp.auth":"false",
+// "mail.smtp.socketFactory.port":"25",
+// "mail.smtp.socketFactory.class":"javax.net.ssl.SSLSocketFactory",
+// "mail.smtp.socketFactory.fallback":"false"]
+grails.mail.default.from = "DL-tranSMART_Support@transmartfoundation.org"
+grails.mail.attachments.dir = "/home/transmart/export"
+
+
