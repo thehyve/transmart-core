@@ -45,3 +45,11 @@ grails.mail.default.from = "DL-tranSMART_Support@transmartfoundation.org"
 grails.mail.attachments.dir = "/home/transmart/export"
 
 
+Update run_analysis_stage, load_analysis_stage.sh, move_analysis_to_biomart.sh, nightly_processing.sh to point to the respective directories of the scripts.
+ADD FMAPP configuration to kettle.properties:
+
+FMAPP_DB_SERVER=dbserver.com
+FMAPP_DB_PORT=1524
+FMAPP_DB_USER=fmapp
+FMAPP_DB_PWD=fmapp
+
