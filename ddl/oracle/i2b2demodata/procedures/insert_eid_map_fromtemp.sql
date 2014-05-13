@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: INSERT_EID_MAP_FROMTEMP
 --
-  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."INSERT_EID_MAP_FROMTEMP" (tempEidTableName IN VARCHAR,  upload_id IN NUMBER,
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."INSERT_EID_MAP_FROMTEMP" (tempEidTableName IN VARCHAR,  upload_id IN NUMBER,
    errorMsg OUT VARCHAR )
 is
  existingEncounterNum varchar2(32);
@@ -130,5 +130,5 @@ EXCEPTION
       rollback;
       raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end;
-/
  
+/

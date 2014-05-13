@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: CZ_END_AUDIT
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."CZ_END_AUDIT" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."CZ_END_AUDIT" 
 (
   jobID NUMBER, 
   jobStatus VARCHAR2
@@ -42,5 +42,6 @@ BEGIN
 		and job_id=jobID;
 
 END;
-/
+
  
+/

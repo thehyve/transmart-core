@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: CZ_INFO_HANDLER
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."CZ_INFO_HANDLER" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."CZ_INFO_HANDLER" 
 (
 	jobId IN NUMBER,
 	messageID IN NUMBER , 
@@ -42,5 +42,5 @@ BEGIN
   cz_write_info(jobID, messageID, messageLine, messageProcedure, infoMessage );
   
 END;
-/
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: DEAPP; Name: NUMBER_PARSER
 --
-  CREATE OR REPLACE FUNCTION "DEAPP"."NUMBER_PARSER" (
+  CREATE OR REPLACE EDITIONABLE FUNCTION "DEAPP"."NUMBER_PARSER" (
      numbers_to_parse IN varchar2
 )
 --Custom Collection type returned
@@ -70,5 +70,5 @@ BEGIN
 END number_parser;
  
  
-/
  
+/

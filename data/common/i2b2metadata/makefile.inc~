@@ -1,0 +1,8 @@
+THIS_SCHEMA := i2b2metadata
+include $(COMMON_DIR)/makefile_schemas.inc
+
+load: load_birn load_i2b2_secure load_schemes load_table_access
+.PHONY: load
+
+dump: dump_birn dump_i2b2_secure dump_schemes dump_table_access
+.PHONY: dump

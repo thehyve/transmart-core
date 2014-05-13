@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: UTIL_MAKE_OBJECT_LIST
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."UTIL_MAKE_OBJECT_LIST" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."UTIL_MAKE_OBJECT_LIST" 
 (
   -- comma-separated list of things,
   v_whattype IN VARCHAR2 DEFAULT NULL,
@@ -38,5 +38,5 @@ BEGIN
    v_things := REPLACE(UPPER(v_things), ',', ''',''') ;
    v_things := '''' || v_things || '''' ;
 END;
-/
  
+/

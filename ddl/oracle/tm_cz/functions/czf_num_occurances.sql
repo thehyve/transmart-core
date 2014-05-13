@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: CZF_NUM_OCCURANCES
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."CZF_NUM_OCCURANCES" (
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."CZF_NUM_OCCURANCES" (
   input_str nvarchar2,
   search_str nvarchar2
 ) return number
@@ -14,5 +14,6 @@ begin
   end loop;
   return num;
 end;
-/
+
  
+/

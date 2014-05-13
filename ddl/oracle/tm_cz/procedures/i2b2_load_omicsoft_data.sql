@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_OMICSOFT_DATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_OMICSOFT_DATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_OMICSOFT_DATA" 
 (analysis_id IN number
 ,i_job_id		number	:= null
 ,rtn_code		OUT	NUMBER
@@ -309,5 +309,5 @@ AS
     rtn_code := 16;
 	
 END;
-/
  
+/

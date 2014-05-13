@@ -123,6 +123,20 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "SEARCHAPP",
       "name" : "SCH_SEC_A_U_FK"
@@ -341,10 +355,6 @@
     }, {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
-      "name" : "SEARCH_GENE_SIGNATURE"
-    }, {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
       "name" : "SEARCH_GENE_SIG_FILE_SCHEMA"
     } ]
   }, {
@@ -553,6 +563,13 @@
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_AUTH_USER"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TRIGGER",
@@ -813,6 +830,20 @@
       "name" : "PLUGIN_SEQ"
     },
     "file" : "searchapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    },
+    "file" : "searchapp/report.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
+    },
+    "file" : "searchapp/report_item.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
@@ -1093,6 +1124,13 @@
       "name" : "SH_AUTH_USER_ID_FK"
     },
     "file" : "searchapp/search_auth_user.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
+    },
+    "file" : "searchapp/subset.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

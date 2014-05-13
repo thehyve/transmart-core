@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: RDC_INIT_CAP
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."RDC_INIT_CAP" (
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."RDC_INIT_CAP" (
      text_to_parse IN VARCHAR2
 	-- text_delimiter IN VARCHAR2
 )
@@ -103,5 +103,5 @@ BEGIN
   return initcap_text;
 
 END RDC_INIT_CAP;
-/
  
+/

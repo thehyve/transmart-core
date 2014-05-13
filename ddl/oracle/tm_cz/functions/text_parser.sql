@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: TEXT_PARSER
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."TEXT_PARSER" (
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."TEXT_PARSER" (
 		 text_to_parse IN VARCHAR2,
      text_delimiter IN VARCHAR2
 )
@@ -69,5 +69,6 @@ END text_parser;
 
 
 
-/
+
  
+/

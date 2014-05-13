@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: UPDATE_OBSERVATION_FACT
 --
-  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."UPDATE_OBSERVATION_FACT" (upload_temptable_name IN VARCHAR, upload_id IN NUMBER, appendFlag IN NUMBER,
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."UPDATE_OBSERVATION_FACT" (upload_temptable_name IN VARCHAR, upload_id IN NUMBER, appendFlag IN NUMBER,
    errorMsg OUT VARCHAR)
 IS
 BEGIN
@@ -173,5 +173,5 @@ EXCEPTION
 	WHEN OTHERS THEN
 		raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 END;
-/
  
+/

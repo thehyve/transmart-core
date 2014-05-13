@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: CZ_ERROR_HANDLER
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."CZ_ERROR_HANDLER" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."CZ_ERROR_HANDLER" 
 (
   jobID NUMBER,
   procedureName NVARCHAR2
@@ -52,5 +52,6 @@ BEGIN
   cz_write_error(jobID, errorNumber, errorMessage, errorStack, errorBackTrace);
 
 END;
-/
+
  
+/

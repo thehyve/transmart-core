@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: UTIL_IS_POPULATED
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."UTIL_IS_POPULATED" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."UTIL_IS_POPULATED" 
 (
   tabname IN varchar2,
   retval OUT integer
@@ -34,5 +34,5 @@ begin
    --dbms_output.put_line(l_count);
 
 end;
-/
  
+/

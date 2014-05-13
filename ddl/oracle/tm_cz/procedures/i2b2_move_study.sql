@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_MOVE_STUDY
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_MOVE_STUDY" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_MOVE_STUDY" 
 (
   old_path VARCHAR2,
   new_path VARCHAR2,
@@ -169,5 +169,5 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 		
 END;
-/
  
+/

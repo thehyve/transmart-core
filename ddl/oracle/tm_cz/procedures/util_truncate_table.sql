@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: UTIL_TRUNCATE_TABLE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."UTIL_TRUNCATE_TABLE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."UTIL_TRUNCATE_TABLE" 
 (
   v_tabname IN VARCHAR2 DEFAULT NULL ,
   v_dummyarg IN VARCHAR2 DEFAULT 'Y'
@@ -61,5 +61,5 @@ BEGIN
    -- while loop
    CLOSE v_cmdlist;-- procedure
 END;
-/
  
+/

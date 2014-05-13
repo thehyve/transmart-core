@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: UPGRADE_MRNA_DATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."UPGRADE_MRNA_DATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."UPGRADE_MRNA_DATA" 
 (
  currentJobID NUMBER := null
 )
@@ -165,5 +165,6 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 	
 END;
-/
+
  
+/

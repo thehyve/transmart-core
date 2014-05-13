@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: IS_DATE
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."IS_DATE" 
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."IS_DATE" 
  ( p_string in varchar2
  , d_fmt varchar2 := 'YYYYMMDD')
  return number
@@ -17,5 +17,6 @@
 
 
 
-/
+
  
+/

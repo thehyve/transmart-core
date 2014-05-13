@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_DELETE_1_NODE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_DELETE_1_NODE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_DELETE_1_NODE" 
 (
   path VARCHAR2
  ,currentJobID NUMBER := null
@@ -111,5 +111,5 @@ begin
     --End Proc
     czx_end_audit (jobID, 'FAIL');    
 END;
-/
  
+/

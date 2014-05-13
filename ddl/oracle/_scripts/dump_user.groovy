@@ -443,7 +443,7 @@ class ObjectFinder {
                                            name:  it['INDEX_NAME'],
                                            it['DDL'].characterStream.text
 
-            def parentTable = factory.createItem owner: owner,
+            def parentTable = factory.createItem owner: it['TABLE_OWNER'],
                                                  type:  it['TABLE_TYPE'],
                                                  name:  it['TABLE_NAME']
 

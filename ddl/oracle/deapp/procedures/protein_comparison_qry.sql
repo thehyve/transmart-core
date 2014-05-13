@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: DEAPP; Name: PROTEIN_COMPARISON_QRY
 --
-  CREATE OR REPLACE PROCEDURE "DEAPP"."PROTEIN_COMPARISON_QRY" (
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "DEAPP"."PROTEIN_COMPARISON_QRY" (
 	patient_ids	 IN VARCHAR2, -- CSV list of patient IDs
 	sample_types IN VARCHAR2, -- CSV list of concept cds to use for filtering
     pathway_uid1 IN VARCHAR2, --  A Unique pathway ID from BIO_DADA_UID to use for filtering
@@ -116,5 +116,5 @@ SELECT COUNT(*)
 END protein_comparison_qry;
  
  
-/
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: PARSE_NTH_VALUE
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."PARSE_NTH_VALUE" (pValue varchar2, location NUMBER, delimiter VARCHAR2)
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."PARSE_NTH_VALUE" (pValue varchar2, location NUMBER, delimiter VARCHAR2)
    return varchar2
 is
    v_posA number;
@@ -31,5 +31,6 @@ end parse_nth_value;
 
 
 
-/
+
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_STUDY_METADATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_STUDY_METADATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_STUDY_METADATA" 
 (
   currentJobID NUMBER := null
 )
@@ -827,5 +827,5 @@ END;
 	cz_write_audit(jobId,databaseName,procedureName,'Inserted SNP WORKFLOW in I2B2METADATA i2b2_tags',SQL%ROWCOUNT,stepCt,'Done');
 	commit;		
 */
-/
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_RNA_SEQ_ZSCORE_CALC
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_RNA_SEQ_ZSCORE_CALC" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_RNA_SEQ_ZSCORE_CALC" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -451,5 +451,5 @@ select d.probeset_id
  where 1=2;
 		   
 */
-/
  
+/

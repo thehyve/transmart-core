@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: UTIL_RECOMPILE_ALL
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."UTIL_RECOMPILE_ALL" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."UTIL_RECOMPILE_ALL" 
 AUTHID CURRENT_USER
 AS
 -------------------------------------------------------------------------------------
@@ -44,5 +44,5 @@ BEGIN
    -- while loop
    CLOSE v_proclist;-- procedure
 END;
-/
  
+/

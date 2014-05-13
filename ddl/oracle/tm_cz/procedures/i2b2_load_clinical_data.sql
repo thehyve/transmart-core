@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_CLINICAL_DATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_CLINICAL_DATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_CLINICAL_DATA" 
 (
   trial_id 			IN	VARCHAR2
  ,top_node			in  varchar2
@@ -1209,5 +1209,5 @@ SET  --Static XML String
 		rtnCode := 16;
 	
 end;
-/
  
+/

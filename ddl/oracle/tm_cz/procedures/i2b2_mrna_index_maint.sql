@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_MRNA_INDEX_MAINT
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_MRNA_INDEX_MAINT" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_MRNA_INDEX_MAINT" 
 (
   run_type 			VARCHAR2 := 'DROP'
  ,tablespace_name	varchar2	:= 'INDX'
@@ -272,5 +272,6 @@ BEGIN
 end;
  
  
-/
+
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: CZ_AUDIT_EXAMPLE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."CZ_AUDIT_EXAMPLE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."CZ_AUDIT_EXAMPLE" 
 (
   currentJobID NUMBER
 )
@@ -65,5 +65,5 @@ BEGIN
     cz_end_audit (jobID, 'FAIL');
 
 END;
-/
  
+/

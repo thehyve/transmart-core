@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: IS_NUMBER
 --
-  CREATE OR REPLACE FUNCTION "TM_CZ"."IS_NUMBER" 
+  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."IS_NUMBER" 
  ( p_string in varchar2)
  return number
     as
@@ -18,5 +18,6 @@
 
 
 
-/
+
  
+/

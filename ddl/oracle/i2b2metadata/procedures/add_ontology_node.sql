@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2METADATA; Name: ADD_ONTOLOGY_NODE
 --
-  CREATE OR REPLACE PROCEDURE "I2B2METADATA"."ADD_ONTOLOGY_NODE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2METADATA"."ADD_ONTOLOGY_NODE" 
 (parent_path_src varchar2--(255)
 , node_name varchar2--(255)
 , is_leaf_src varchar2--(30)
@@ -122,5 +122,5 @@ end;
  
  
  
-/
  
+/

@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_FILL_IN_TREE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_FILL_IN_TREE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_FILL_IN_TREE" 
 (
   trial_id VARCHAR2
  ,path VARCHAR2
@@ -129,5 +129,5 @@ BEGIN
     cz_end_audit (jobID, 'FAIL');
 	
 END;
-/
  
+/

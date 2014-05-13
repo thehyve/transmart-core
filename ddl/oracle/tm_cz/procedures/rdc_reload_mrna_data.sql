@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: RDC_RELOAD_MRNA_DATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."RDC_RELOAD_MRNA_DATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."RDC_RELOAD_MRNA_DATA" 
 (
   trial_id 		VARCHAR2
  ,data_type		varchar2 := 'R'		--	R = raw data, do zscore calc, T = transformed data, load raw values as zscore,
@@ -310,5 +310,5 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 		--select 16 into rtn_code from dual;
 END;
-/
  
+/

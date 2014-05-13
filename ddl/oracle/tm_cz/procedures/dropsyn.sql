@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: DROPSYN
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."DROPSYN" IS
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."DROPSYN" IS
  CURSOR s_cur IS
  SELECT synonym_name
  FROM user_synonyms;
@@ -22,5 +22,6 @@ END dropsyn;
 
 
 
-/
+
  
+/

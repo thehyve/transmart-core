@@ -3,6 +3,7 @@ package inc
 class ItemRepository {
     Map<Item, Set<Item>> dependencies = new HashMap() //dependent (child) -> dependency (parent)
     Map<Item, String> fileAssignments = new HashMap()
+    private Map<String, Item> itemsNamesMap = new HashMap()
 
     /**
      * Remove dependency and file assignment information for objects
@@ -25,11 +26,34 @@ class ItemRepository {
         ret
     }
 
-    void addItem(Item item) {
+    Item addItem(Item item) {
         if (dependencies[item]) {
-            return
+            return item
         }
+
+        String fcName = "${item.owner}.${item.name}"
+        if(itemsNamesMap.containsKey(fcName)) {
+            def oldItem = itemsNamesMap[fcName]
+            /**
+             * Oracle materialized views appears as both tables and materialized views at the same time.
+             * Below is way to resolve the name conflict.
+             */
+            if(item.type == 'TABLE' && oldItem.type == 'MATERIALIZED_VIEW') {
+                Log.err("There is already materialized view declaration for ${fcName}. Skip conflicting table creation.")
+                return oldItem
+            }
+            if(item.type == 'MATERIALIZED_VIEW' && oldItem.type == 'TABLE') {
+                Log.err("There is already table declaration for ${fcName}. Replacing it in favor of the materialized view.")
+                dependencies[item] = dependencies[oldItem]
+                dependencies[item].remove(item)
+                itemsNamesMap[fcName] = item
+                return item
+            }
+        }
+
         dependencies[item] = new HashSet()
+        itemsNamesMap[fcName] = item
+        item
     }
 
     void addFileAssignment(Item item, File file) {
@@ -37,9 +61,11 @@ class ItemRepository {
     }
 
     void addDependency(Item parent, Item child) {
-        addItem parent
-        addItem child
-        dependencies[child].add parent
+        def _child = addItem(child)
+        def _parent = addItem(parent)
+        if(_child != _parent) {
+            dependencies[_child].add _parent
+        }
     }
 
     Set<Item> getChildren(Item item) {

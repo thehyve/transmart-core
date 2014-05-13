@@ -1,24 +1,6 @@
-SCHEMAS = $(filter-out _% GLOBAL,$(shell find * -maxdepth 0 -type d))
-
-DUMP_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),dump_$(s))
-LOAD_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),load_$(s))
-WRITE_SYNONYM_TARGETS = $(foreach s,$(SCHEMAS),$(s)/_synonyms.sql)
-WRITE_GRANT_TARGETS = $(foreach s,$(SCHEMAS),$(s)/_grants.sql)
-LOAD_USER_TARGETS = $(foreach s,$(SCHEMAS),load_user_$(s))
-
-include ../../lib/makefile.inc
-
-DUMP_USER = groovy -cp $(JDBC_DRIVER_ORA):_scripts _scripts/dump_user.groovy
-LOAD_DDL  = groovy -cp $(JDBC_DRIVER_ORA):_scripts _scripts/load_ddl.groovy
-RUN_SQL   = groovy -cp $(JDBC_DRIVER_ORA):_scripts _scripts/run_sql.groovy
-
-$(JDBC_DRIVER_ORA): $(JDBC_DRIVER_ORA_PATH)
-	ln -s ../../lib/$(JDBC_DRIVER_ORA)
-
-$(DUMP_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA)
 	$(DUMP_USER) -u $(patsubst dump_%,%,$@)
 
-dump_users: $(JDBC_DRIVER_ORA)
+dump_users: $(JDBC_DRIVER_ORA_PATH)
 	$(DUMP_USER) -g $(foreach s,$(SCHEMAS),-u $(s))
 
 dump_user_objects: $(DUMP_SCHEMA_TARGETS)
@@ -47,7 +29,7 @@ load_tablespaces: create_tablespaces.php
 	$(RUN_SQL) -f GLOBAL/tablespaces.sql
 
 load: create_tablespaces.php
-	test '$(ORACLE_MANAGE_TABLESPACES)' = '1' && $(MAKE) load_tablespaces
+	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) load_tablespaces ; fi
 	$(MAKE) load_users
 	$(MAKE) load_user_objects
 
@@ -64,18 +46,15 @@ drop_tablespaces: drop_tablespaces.sql
 	$(RUN_SQL) -c -j 4 -f $<
 
 drop: drop_users
-	test '$(ORACLE_MANAGE_TABLESPACES)' = '1' && $(MAKE) drop_tablespaces
+	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) drop_tablespaces ; fi
 
-clean:
-	rm -f $(JDBC_DRIVER_ORA)
-
-clean_all: clean
+clean_all:
 	find $(SCHEMAS) GLOBAL -name '*.sql' -delete -o -name items.json -delete
 
-runsql.sh: $(JDBC_DRIVER_ORA)
+runsql.sh: $(JDBC_DRIVER_ORA_PATH)
 	printf '#!/bin/sh\n\n%s $$@\n' '$(RUN_SQL)' > $@
 	chmod +x $@
 
-.PHONY: clean clean_all $(DUMP_SCHEMA_TARGETS) dump $(LOAD_SCHEMA_TARGETS) load \
+.PHONY: clean_all $(DUMP_SCHEMA_TARGETS) dump $(LOAD_SCHEMA_TARGETS) load \
 	dump_users dump_user_objects load_users load_user_objects $(LOAD_USER_TARGETS) \
 	load_tablespaces drop_users drop_tablespaces drop

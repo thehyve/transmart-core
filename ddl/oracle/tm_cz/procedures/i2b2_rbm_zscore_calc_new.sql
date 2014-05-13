@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_RBM_ZSCORE_CALC_NEW
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_RBM_ZSCORE_CALC_NEW" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_RBM_ZSCORE_CALC_NEW" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -399,5 +399,5 @@ where not exists( select * from deapp.de_rbm_data_annotation_join j where j.data
     cz_end_audit (jobID, 'FAIL');
 	
 END;
-/
  
+/

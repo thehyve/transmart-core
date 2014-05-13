@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: CREATE_TEMP_TABLE
 --
-  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."CREATE_TEMP_TABLE" (tempTableName IN VARCHAR, errorMsg OUT VARCHAR)
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."CREATE_TEMP_TABLE" (tempTableName IN VARCHAR, errorMsg OUT VARCHAR)
 IS
 BEGIN
 	execute immediate 'create table ' ||  tempTableName || '  (
@@ -40,5 +40,5 @@ EXCEPTION
 	WHEN OTHERS THEN
 		dbms_output.put_line(SQLCODE|| ' - ' ||SQLERRM);
 END;
-/
  
+/

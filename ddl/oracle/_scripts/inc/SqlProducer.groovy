@@ -10,14 +10,21 @@ import java.sql.Statement
 import static java.lang.System.getenv
 import static groovyx.gpars.GParsPool.withPool
 
+import static java.lang.System.out
+
 class SqlProducer {
     static Sql createFromEnv(String user = null, String password = null, Boolean enhance = false) {
         Class.forName 'oracle.jdbc.driver.OracleDriver'
         def url = "jdbc:oracle:thin:@${getenv 'ORAHOST'}:${getenv 'ORAPORT'}:${getenv "ORASID"}"
-
-        Connection connection = DriverManager.getConnection(url,
+	Connection connection
+	try {
+        connection = DriverManager.getConnection(url,
                 user ?: getenv('ORAUSER'),
                 password ?: getenv('ORAPASSWORD'))
+	} catch(Exception e){
+	  Log.err "Oops! Failed with "+e.toString()
+	  System.exit 1
+	}
         connection.autoCommit = false
         /* by creating an Sql from a Connection, we ensure only that connection
          * is used by the Sql; it will not generate connections by itself.

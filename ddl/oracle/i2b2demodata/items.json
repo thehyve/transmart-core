@@ -8,6 +8,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ASYNC_JOB_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "CD"
@@ -489,6 +496,13 @@
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "MODIFIER_DIMENSION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
     },
     "parents" : [ ]
   }, {
@@ -1093,6 +1107,13 @@
     "file" : "i2b2demodata/async_job.sql"
   }, {
     "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ASYNC_JOB_SEQ"
+    },
+    "file" : "i2b2demodata/_misc.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "CD"
@@ -1497,6 +1518,13 @@
       "name" : "MODIFIER_DIMENSION"
     },
     "file" : "i2b2demodata/modifier_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
+    },
+    "file" : "i2b2demodata/modifier_metadata.sql"
   }, {
     "item" : {
       "type" : "TABLE",

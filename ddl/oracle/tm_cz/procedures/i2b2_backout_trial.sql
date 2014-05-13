@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_BACKOUT_TRIAL
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_BACKOUT_TRIAL" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_BACKOUT_TRIAL" 
 (
   trial_id VARCHAR2
  ,path_string varchar2
@@ -304,5 +304,5 @@ BEGIN
     cz_end_audit (jobID, 'FAIL');
   
 END;
-/
  
+/

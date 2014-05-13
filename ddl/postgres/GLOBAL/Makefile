@@ -4,7 +4,11 @@ TBNAMES = deapp \
 		  biomart \
 		  transmart \
 		  indx \
-		  search_app
+		  search_app \
+		  amapp \
+		  fmapp \
+		  galaxy
+
 
 TBDIR_TARGETS = $(addprefix $(TABLESPACES), $(TBNAMES))
 TB_TARGETS = $(addprefix tablespace_, $(TBNAMES))
@@ -15,11 +19,12 @@ cluster_dump.sql:
 
 general_db_dump.sql:
 	$(PGDUMP_COMMAND) -s -x -N i2b2demodata -N i2b2metadata -N tm_lz \
-			-N tm_cz -N tm_wz -N searchapp -N biomart -N public > $@
+			-N tm_cz -N tm_wz -N searchapp -N biomart \
+			-N public -N amapp -N fmapp -N galaxy > $@
 
 roles.sql: cluster_dump.sql
 	php ../_scripts/filter_type.php $< "Roles" | \
-			egrep 'ROLE (biomart_user|deapp|i2b2metadata|i2b2demodata|tm_cz|tm_lz|tm_wz|biomart|searchapp)\b' \
+			egrep 'ROLE (biomart_user|deapp|i2b2metadata|i2b2demodata|tm_cz|tm_lz|tm_wz|biomart|searchapp|amapp|fmapp|galaxy)\b' \
 			> $@
 
 extensions.sql: general_db_dump.sql

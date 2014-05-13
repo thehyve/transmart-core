@@ -7,16 +7,12 @@
     },
     "parents" : [ {
       "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+      "owner" : "TM_LZ",
+      "name" : "LT_QPCR_MIRNA_ANNOTATION"
     }, {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LT_SRC_QPCR_MIRNA_DATA"
     } ]
   }, {
     "child" : {

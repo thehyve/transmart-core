@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_SECURE_STUDY
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_SECURE_STUDY" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_SECURE_STUDY" 
 (trial_id	 varchar2
 ,currentJobID NUMBER := null
 )
@@ -127,5 +127,5 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 	
 END;
-/
  
+/

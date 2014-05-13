@@ -8,7 +8,10 @@ SCHEMAS = \
 		  tm_lz \
 		  tm_cz \
 		  tm_wz \
-		  searchapp
+		  searchapp \
+		  amapp \
+		  fmapp \
+		  galaxy
 
 FULL_SCHEMA_DUMPS = $(foreach schema, $(SCHEMAS), _dumps/$(schema).sql)
 

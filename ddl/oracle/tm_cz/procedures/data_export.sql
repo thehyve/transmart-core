@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: DATA_EXPORT
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."DATA_EXPORT" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."DATA_EXPORT" 
 AS
 --Iterate through a cursor of all patient IDs
 --Dynamically build a sql statement
@@ -39,5 +39,5 @@ BEGIN
   dbms_output.put_line('UNION ALL');
   dbms_output.put_line(dynamicsql2);
 END;
-/
  
+/

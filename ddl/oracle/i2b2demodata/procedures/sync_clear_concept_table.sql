@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: SYNC_CLEAR_CONCEPT_TABLE
 --
-  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."SYNC_CLEAR_CONCEPT_TABLE" (tempConceptTableName in VARCHAR, backupConceptTableName IN VARCHAR, uploadId in NUMBER, errorMsg OUT VARCHAR )
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."SYNC_CLEAR_CONCEPT_TABLE" (tempConceptTableName in VARCHAR, backupConceptTableName IN VARCHAR, uploadId in NUMBER, errorMsg OUT VARCHAR )
 IS
    interConceptTableName  varchar2(400);
 BEGIN
@@ -52,5 +52,5 @@ EXCEPTION
 	WHEN OTHERS THEN
 		raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 END;
-/
  
+/

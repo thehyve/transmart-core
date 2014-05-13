@@ -1,6 +1,51 @@
 transmart-data
 ==============
 
+A short list of the most useful commands
+------------
+
+DDL
+---
+
+Dump database ddl schema
+
+    make -C ddl/oracle dump
+    make -C ddl/postgres dump
+
+Create database database ddl structure from dumped scripts
+
+    make -C ddl/oracle load
+    make -C ddl/postgres load
+
+Reference data
+--------------
+
+Dump reference data to tsv files from the tables specified in `data/common/<schema_name>_list`
+
+    make -C data/oracle dump
+    make -C data/postgres dump
+
+Upload reference data from the tsv files
+
+    make -C data/oracle load
+    make -C data/postgres load
+
+DDL + Reference data
+--------------------
+
+Create database and upload reference data
+
+    make oracle
+    make postgres
+
+Drop database
+
+    make oracle_drop
+    make postgres_drop
+
+Introduction
+------------
+
 This repository is a set of make files and scripts for:
 
 * creating the tranSMART database and all its objects;
@@ -17,7 +62,7 @@ This repository is a set of make files and scripts for:
 The current schema is the one necessary to support the
 [`master` branch][master] on The Hyve's fork.
 
-Oracle databases are still not supported. This goal is to have this project
+This goal is to have this project
 displace `transmart-DB` by providing a better way to manage the tranSMART
 database.
 
@@ -65,7 +110,9 @@ created for you. You can skip the previous step and do only:
 
     . ./vars-ubuntu
 
-The several options are fairly self-explanatory. The configured PostgreSQL user
+The several options are fairly self-explanatory.
+
+The configured PostgreSQL user
 must be a database superuser. You can connect to PostgreSQL with UNIX sockets by
 specifying the parent directory of the socket in `PGHOST`. In that case,
 `localhost` will be used in the situation where UNIX sockets are not supported,
@@ -91,15 +138,24 @@ and assigning them the correct owner.
 
     make postgres_drop
 
+    make oracle_drop
+
 ### Create the database and load everything
 
     make -j4 postgres
+
+    make -j4 oracle
 
 You can skip the tablespace assignments, which are not really important for
 development, by setting the environment variable `skip_fix_tablespaces` to any
 non-empty value:
 
     skip_fix_tablespaces=1 make -j4 postgres
+
+Oracle version in oposite do not manage tablespaces by default.
+Fo forcing use `ORACLE_MANAGE_TABLESPACES`:
+
+    ORACLE_MANAGE_TABLESPACES=1 make -j4 oracle
 
 There's a simple script in `data/postgres/set_password.sh` for changing users'
 passwords.
@@ -116,10 +172,10 @@ These can be done with the targets `fix_permissions`, `fix_owners` and
 Right now, only some sample data from the GSE8581 study is available. You can
 import it like this:
 
-    make -C samples/postgres load_clinical_GSE8581
-    make -C samples/postgres load_ref_annotation_GSE8581
-    make -C samples/postgres load_expression_GSE8581
-    make -C samples/postgres load_analysis_GSE8581
+    make -C samples/{oracle,postgres} load_clinical_GSE8581
+    make -C samples/{oracle,postgres} load_ref_annotation_GSE8581
+    make -C samples/{oracle,postgres} load_expression_GSE8581
+    make -C samples/{oracle,postgres} load_analysis_GSE8581
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
@@ -173,7 +229,7 @@ run:
 
     make -C config install
 
-### Generating new import files from model database
+### Generating new import files from model database (Postgresql)
 
 This part still needs some work, but it goes more or less like this:
 

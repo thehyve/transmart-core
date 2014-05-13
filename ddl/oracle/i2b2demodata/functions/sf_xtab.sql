@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: I2B2DEMODATA; Name: SF_XTAB
 --
-  CREATE OR REPLACE FUNCTION "I2B2DEMODATA"."SF_XTAB" (v_variable IN varchar2,
+  CREATE OR REPLACE EDITIONABLE FUNCTION "I2B2DEMODATA"."SF_XTAB" (v_variable IN varchar2,
                                     v_protocol IN number,
                                     v_subject  IN varchar2,
                                     v_rowid number)RETURN varchar2 IS
@@ -58,5 +58,5 @@ END sf_xtab;
  
  
  
-/
  
+/

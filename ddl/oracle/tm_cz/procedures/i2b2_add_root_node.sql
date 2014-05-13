@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_ADD_ROOT_NODE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_ADD_ROOT_NODE" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_ADD_ROOT_NODE" 
 (root_node		varchar2
 ,currentJobID	NUMBER := null
 ) AUTHID CURRENT_USER
@@ -164,5 +164,5 @@ Begin
 		czx_end_audit (jobID, 'FAIL');
 	
 END;
-/
  
+/

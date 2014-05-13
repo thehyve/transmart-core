@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_PROCESS_RNA_SEQ_DATA
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_PROCESS_RNA_SEQ_DATA" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_PROCESS_RNA_SEQ_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -1024,5 +1024,5 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 		select 166 into rtn_code from dual;
 END;
-/
  
+/

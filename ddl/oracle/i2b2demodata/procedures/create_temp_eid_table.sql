@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: CREATE_TEMP_EID_TABLE
 --
-  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."CREATE_TEMP_EID_TABLE" (tempPatientMappingTableName IN VARCHAR ,errorMsg OUT VARCHAR)
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."CREATE_TEMP_EID_TABLE" (tempPatientMappingTableName IN VARCHAR ,errorMsg OUT VARCHAR)
 IS
 BEGIN
 execute immediate 'create table ' ||  tempPatientMappingTableName || ' (
@@ -28,5 +28,5 @@ execute immediate 'create table ' ||  tempPatientMappingTableName || ' (
 	WHEN OTHERS THEN
 		dbms_output.put_line(SQLCODE|| ' - ' ||SQLERRM);
 END;
-/
  
+/
