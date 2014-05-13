@@ -4,9 +4,11 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -17,11 +19,19 @@ class AcghTestData {
 
     static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
 
+    SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
+
     private String conceptCode
 
     AcghTestData(String conceptCode = 'concept code #1') {
         this.conceptCode = conceptCode
     }
+
+    List<SearchKeywordCoreDb> searchKeywords = {
+        bioMarkerTestData.geneSearchKeywords +
+                bioMarkerTestData.proteinSearchKeywords +
+                bioMarkerTestData.geneSignatureSearchKeywords
+    }()
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
@@ -53,8 +63,8 @@ class AcghTestData {
                         numberOfProbes: 42,
                         name: 'region 1:33-9999',
                         cytoband: 'cytoband1',
-                        geneSymbol: 'TP53',
-                        geneId: 7157
+                        geneSymbol: 'ADIRF',
+                        geneId: -130753
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -65,7 +75,7 @@ class AcghTestData {
                         name: 'region 2:66-99',
                         cytoband: 'cytoband2',
                         geneSymbol: 'AURKA',
-                        geneId: 6790
+                        geneId: -130751
                 ),
         ]
         r[0].id = -1001L
@@ -110,6 +120,8 @@ class AcghTestData {
     }()
 
     void saveAll() {
+        bioMarkerTestData.saveGeneData()
+
         save([ regionPlatform, bogusTypePlatform ])
         save regions
         save patients

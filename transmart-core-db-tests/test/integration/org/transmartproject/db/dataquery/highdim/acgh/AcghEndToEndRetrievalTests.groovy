@@ -228,4 +228,33 @@ class AcghEndToEndRetrievalTests {
                 isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
     }
 
+    @Test
+    void testWithGeneConstraint() {
+        def assayConstraints = [
+                acghResource.createAssayConstraint(
+                        AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
+                acghResource.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT,
+                        result_instance_id: testData.allPatientsQueryResult.id),
+        ]
+        def dataConstraints = [
+                acghResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
+                        find({ it.keyword == 'AURKA' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = acghResource.createProjection([:], ACGH_VALUES_PROJECTION)
+
+        dataQueryResult = acghResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
+
+        def resultList = Lists.newArrayList dataQueryResult
+
+        assertThat resultList, allOf(
+                hasSize(1),
+                everyItem(hasProperty('data', hasSize(2))),
+                contains(hasProperty('bioMarker', equalTo('AURKA')))
+        )
+    }
+
 }
