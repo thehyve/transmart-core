@@ -51,12 +51,20 @@ BEGIN
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
         --	delete any existing data from deapp.de_protien_annotation
-        delete from deapp.de_protein_annotation
-	where gpl_id =gplId;
+        begin
+		delete from deapp.de_protein_annotation
+		where gpl_id =gplId;
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_protien_annotation',rowCt,stepCt,'Done') into rtnCd;
+	begin
 	insert into  deapp.de_protein_annotation
 	(gpl_id
 	,peptide 
@@ -75,30 +83,28 @@ BEGIN
 	--  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens')
 	 -- and (d.gpl_id is not null or d.gene_symbol is not null)
 	  ;
-	/*	
-	update deapp.de_protein_annotation t
-	set biomarker_id=(select min(b.bio_marker_name) as biomarker_id
-				 from biomart.mirna_bio_marker b
-				 where to_char(t.uniprot_id) = b.primary_external_id
-				   and upper(b.organism) = upper(t.organism)
-				   and upper(b.bio_marker_type) = 'PROTEIN')
-	where t.gpl_id = gplId
-	  and t.biomarker_id is null
-	  and t.uniprot_id is not null
-	  and exists
-		 (select 1 from biomart.mirna_bio_marker x
-		  where to_char(t.uniprot_id) = x.primary_external_id
-			and upper(x.organism) = upper(t.organism)
-			and upper(x.bio_marker_type) = 'PROTEIN');
-	*/		
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
+		
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Updated missing uniprot_id in de_protien_annotation',rowCt,stepCt,'Done') into rtnCd;
-	
+
+	begin
         update DEAPP.DE_PROTEIN_ANNOTATION set uniprot_name = (select bio_marker_name
         from BIOMART.BIO_MARKER
         WHERE biomart.bio_marker.primary_external_id = deapp.de_protein_annotation.uniprot_id)
-        where gpl_id = gplId;  
+        where gpl_id = gplId;
+        exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;  
         
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;

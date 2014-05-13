@@ -90,8 +90,8 @@ BEGIN
 		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
 	exception
 	when others then
-		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
 		return -16;
 	end;
 	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1;		
@@ -126,8 +126,8 @@ BEGIN
 			where trial_name = TrialId;
 		exception
 		when others then
-			select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
 			return -16;
 		end;
 	else	
@@ -152,8 +152,8 @@ BEGIN
 			where trial_name = TrialId;
 		exception
 		when others then
-			select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
 			return -16;
 		end;
 	end if;
@@ -188,8 +188,8 @@ BEGIN
 			,d.probeset_id;
 	exception
 	when others then
-		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -234,8 +234,8 @@ BEGIN
     where d.probeset_id = c.probeset_id;
     	exception
 	when others then
-		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -275,8 +275,8 @@ BEGIN
         where d.peptide=m.probeset_id;
         exception
 	when others then
-		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
 		return -16;
 	end;
 	stepCt := stepCt + 1;
