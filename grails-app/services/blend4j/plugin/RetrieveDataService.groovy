@@ -1,4 +1,5 @@
 package blend4j.plugin
+
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstance
 import com.github.jmchilton.blend4j.galaxy.GalaxyInstanceFactory
 import com.github.jmchilton.blend4j.galaxy.LibrariesClient
@@ -33,7 +34,7 @@ class RetrieveDataService {
 
     def updateStatusOfExport(String nameOfTheExportJob, String newState) {
         try{
-            def idOfTheExportJob = StatusOfExport.findByJobName(nameOfTheExportJob).id;
+            def idOfTheExportJob = getLatest(StatusOfExport.findAllByJobName(nameOfTheExportJob)).id;
             def newJob = StatusOfExport.get(idOfTheExportJob);
             newJob.jobStatus = newState;
             newJob.save();
@@ -138,7 +139,7 @@ class RetrieveDataService {
             m["viewerURL"] = jobResult.viewerURL
             m["altViewerURL"] = jobResult.altViewerURL
             m["jobInputsJson"] = new JSONObject(jobResult.jobInputsJson ?: "{}")
-            d = StatusOfExport.findByJobName(jobResult.jobName);
+            d = getLatest(StatusOfExport.findAllByJobName(jobResult.jobName));
             if(!d.equals(null) ) {
                 m["lastExportName"] = d.lastExportName;
                 m["lastExportTime"] = d.lastExportTime.toString();
@@ -156,5 +157,24 @@ class RetrieveDataService {
         result.put("jobs", rows)
 
         return result
+    }
+
+    private def getLatest(ArrayList<?> exports){
+
+        switch (exports.size()){
+            case 0:
+                log.error("An error has occured while exporting to galaxy. The job name doesn't existe in the database");
+                return null;
+            case 1:
+                return exports[0];
+            default:
+                def latest = exports[0];
+                for(i in 1..exports.size()-1){
+                    if(exports[i].id > latest.id){
+                        latest = exports[i];
+                    }
+                }
+                return latest;
+        }
     }
 }

@@ -28,8 +28,8 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenLocal()
         mavenCentral()
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
+
+        mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
         mavenRepo "http://repo.etriks.org/content/groups/public/"
 
     }
@@ -48,6 +48,9 @@ grails.project.dependency.resolution = {
         }
         runtime ':resources:1.2.1'
         runtime ':hibernate:3.6.10.7'
+        compile ':rdc-rmodules:0.3-LH-SNAPSHOT'
+        compile ':transmart-legacy-db:0.3-SNAPSHOT'
+        build ':tomcat:7.0.50'
     }
 
 
