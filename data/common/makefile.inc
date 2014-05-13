@@ -49,16 +49,14 @@ $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
 $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE): $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH)
 	xz -d --stdout $< > $@
 
-TRANSMART_LOADER = $(ENV_DIR)/transmart-loader
+TRANSMART_LOADER = transmart-loader-latest-bamboo-snapshot
 TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
-$(TRANSMART_LOADER_JAR):
-	if [ ! -e $(TRANSMART_LOADER)/target/$(TRANSMART_LOADER_JAR) ]; then \
-	$(MAKE) -C $(ENV_DIR) package-transmart-loader; \
-	fi
+$(TRANSMART_LOADER):
+	$(MAKE) -C $(ENV_DIR) $@
 
-load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER_JAR)
-	cd $(TRANSMART_LOADER) \
-	&& java -cp target/$(TRANSMART_LOADER_JAR) \
+load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER)
+	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
+	&& java -cp $(TRANSMART_LOADER_JAR) \
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
 
