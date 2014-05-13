@@ -84,11 +84,16 @@ BEGIN
 	end if;
    
 --	truncate tmp tables
-
-	execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
-	execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
-	execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
-
+	begin
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1;		
 	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_CALCS_I1;
 	
@@ -100,6 +105,7 @@ BEGIN
 
 
 	if dataType = 'L' then
+		begin
 		insert into WT_SUBJECT_PROTEOMICS_LOGS 
 			(probeset_id
 			,intensity_value
@@ -118,9 +124,14 @@ BEGIN
 				  ,subject_id
 			from WT_SUBJECT_PROTEOMICS_PROBESET
 			where trial_name = TrialId;
-           
-		--end if;
+		exception
+		when others then
+			select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
 	else	
+		begin
                 	insert into WT_SUBJECT_PROTEOMICS_LOGS 
 			(probeset_id
 			,intensity_value
@@ -139,8 +150,12 @@ BEGIN
 				  ,subject_id
 			from WT_SUBJECT_PROTEOMICS_PROBESET
 			where trial_name = TrialId;
---		end if;
-
+		exception
+		when others then
+			select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
 	end if;
 
 	stepCt := stepCt + 1;
@@ -155,6 +170,7 @@ BEGIN
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
 
+	begin
 	insert into WT_SUBJECT_PROTEOMICS_CALCS
 	(trial_name
 	,probeset_id
@@ -170,6 +186,12 @@ BEGIN
 	from WT_SUBJECT_PROTEOMICS_LOGS d 
 	group by d.trial_name 
 			,d.probeset_id;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ WT_SUBJECT_PROTEOMICS_CALCS',rowCt,stepCt,'Done') into rtnCd;
@@ -182,6 +204,7 @@ BEGIN
 		
 -- calculate zscore
 
+	begin
 	insert into WT_SUBJECT_PROTEOMICS_MED 
 	(probeset_id
 	,intensity_value
@@ -209,12 +232,18 @@ BEGIN
     from WT_SUBJECT_PROTEOMICS_LOGS d 
 		,WT_SUBJECT_PROTEOMICS_CALCS c 
     where d.probeset_id = c.probeset_id;
+    	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ WT_SUBJECT_PROTEOMICS_MED',rowCt,stepCt,'Done') into rtnCd;
 
     
-
+	begin
 	insert into DE_SUBJECT_PROTEIN_DATA
 	(
 	 trial_name
@@ -244,6 +273,12 @@ BEGIN
 	from WT_SUBJECT_PROTEOMICS_MED m
        , DEAPP.DE_PROTEIN_ANNOTATION d
         where d.peptide=m.probeset_id;
+        exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP DE_SUBJECT_PROTEIN_DATA',rowCt,stepCt,'Done') into rtnCd;

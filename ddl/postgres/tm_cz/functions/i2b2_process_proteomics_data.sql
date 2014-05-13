@@ -219,9 +219,15 @@ BEGIN
 	end if;
 
 	--	uppercase study_id in LT_SRC_PROTEOMICS_SUB_SAM_MAP in case curator forgot
-	
+	begin
 	update LT_SRC_PROTEOMICS_SUB_SAM_MAP
 	set trial_name=upper(trial_name);
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
@@ -230,6 +236,7 @@ BEGIN
 	--	create records in patient_dimension for subject_ids if they do not exist
 	--	format of sourcesystem_cd:  trial:[site:]subject_cd
 
+	begin
 	insert into patient_dimension
     ( patient_num,
       sex_cd,
@@ -264,6 +271,12 @@ BEGIN
 			   where x.sourcesystem_cd = 
 				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':', 'g'))
 		) x;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	get diagnostics rowCt := ROW_COUNT;
 	stepCt := stepCt + 1;
@@ -271,7 +284,8 @@ BEGIN
 	select i2b2_create_security_for_trial(TrialId, secureStudy, jobID) into rtnCd;
 
 	--	Delete existing observation_fact data, will be repopulated
-	
+
+	begin
 	delete from observation_fact obf
 	where obf.concept_cd in
 		 (select distinct x.concept_code
@@ -279,34 +293,60 @@ BEGIN
 		  where x.trial_name = TrialId
 		    and coalesce(x.source_cd,'STD') = sourceCD
 		    and x.platform = 'PROTEIN');
-
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',rowCt,stepCt,'Done') into rtnCd;
-		
+
+	begin
 	delete from DE_SUBJECT_PROTEIN_DATA
 	where trial_name = TrialId ;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete data from DE_SUBJECT_PROTEIN_DATA',rowCt,stepCt,'Done') into rtnCd;
 		
 	--	Cleanup any existing data in de_subject_sample_mapping.  
 
+	begin
 	delete from DE_SUBJECT_SAMPLE_MAPPING ssm
 	where trial_name = TrialID 
 	  and coalesce(ssm.source_cd,'STD') = sourceCd
 	  and platform = 'PROTEIN'
 	; --Making sure only miRNA data is deleted
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		  
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
+	begin
 	execute('truncate table tm_wz.WT_PROTEOMICS_NODES');
---	load temp table with leaf node path, use temp table with distinct sample_type, ATTR2, platform, and title   this was faster than doing subselect
---	from wt_subject_mirna_data
-
 	execute('truncate table tm_wz.WT_PROTEOMICS_NODE_VALUES');
-	
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+
+	begin
 	insert into WT_PROTEOMICS_NODE_VALUES
 	(category_cd
 	,platform
@@ -331,11 +371,19 @@ BEGIN
 	  and g.title = (select min(x.title) from de_gpl_info x where coalesce(a.platform,'GPL570') = x.platform)
       -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
       
 	--  and decode(dataType,'R',sign(a.intensity_value),1) = 1;	--	take all values when dataType T, only >0 for dataType R
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Insert node values into DEAPP WT_PROTEOMICS_NODE_VALUES',rowCt,stepCt,'Done') into rtnCd;
+
+	begin
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -354,12 +402,19 @@ BEGIN
           ,attribute_2 as attribute_2
 		  ,'LEAF'
 	from  WT_PROTEOMICS_NODE_VALUES;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Create leaf nodes in DEAPP tmp_proteomics_nodes',rowCt,stepCt,'Done') into rtnCd;
 	--	insert for platform node so platform concept can be populated
-	
+
+	begin
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -379,12 +434,19 @@ BEGIN
           ,case when instr(substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'ATTR2') > 1 then attribute_2 else null end as attribute_2
 		  ,'PLATFORM'
 	from  WT_PROTEOMICS_NODE_VALUES;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Create platform nodes in WT_PROTEOMICS_NODES',rowCt,stepCt,'Done') into rtnCd;
 	--	insert for ATTR1 node so ATTR1 concept can be populated in tissue_type_cd
-	
+
+	begin
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -406,12 +468,19 @@ BEGIN
 	from  WT_PROTEOMICS_NODE_VALUES
 	where category_cd like '%ATTR1%'
 	  and attribute_1 is not null;
+	  exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Create ATTR1 nodes in WT_PROTEOMICS_NODES',rowCt,stepCt,'Done') into rtnCd;
 	--	insert for ATTR2 node so ATTR2 concept can be populated in timepoint_cd
-	
+
+	begin
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -433,12 +502,19 @@ BEGIN
 	from  WT_PROTEOMICS_NODE_VALUES
 	where category_cd like '%ATTR2%'
 	  and attribute_2 is not null;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_PROTEOMICS_NODES',rowCt,stepCt,'Done') into rtnCd;
 	--	insert for tissue_type node so sample_type_cd can be populated
 
+	begin
 	insert into WT_PROTEOMICS_NODES
 	(leaf_node
 	,category_cd
@@ -459,12 +535,25 @@ BEGIN
 		  ,'TISSUETYPE'
 	from  WT_PROTEOMICS_NODE_VALUES
 	where category_cd like '%TISSUETYPE%';
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_PROTEOMICS_NODES',rowCt,stepCt,'Done') into rtnCd;
+	begin
 	update WT_PROTEOMICS_NODES
 	set node_name=parse_nth_value(leaf_node,length(leaf_node)-length(replace(leaf_node,'\','')),'\');
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
@@ -494,17 +583,25 @@ BEGIN
 	END LOOP;  
 	
 	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-	
+
+	begin
 	update i2b2 b
 	set sourcesystem_cd=null,c_comment=null
 	where b.sourcesystem_cd = TrialId
 	  and length(b.c_fullname) < length(topNode);
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	  	
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',rowCt,stepCt,'Done') into rtnCd;
 --	update concept_cd for nodes, this is done to make the next insert easier
-	
+
+	begin
 	update WT_PROTEOMICS_NODES t
 	set concept_cd=(select c.concept_cd from concept_dimension c
 	                where c.concept_path = t.leaf_node limit 1
@@ -514,6 +611,12 @@ BEGIN
 	                where x.concept_path = t.leaf_node
 				   )
 	  and t.concept_cd is null;
+	  exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
@@ -543,6 +646,7 @@ BEGIN
   
   --ASSAY_ID        = generated by trigger
 
+	begin
 	insert into de_subject_sample_mapping
 	(patient_id
 	,site_id
@@ -658,11 +762,18 @@ BEGIN
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD
 		  and  ln.concept_cd is not null) t;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Insert trial into DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
-	
+
+	begin
 	insert into observation_fact
     (patient_num
 	,concept_cd
@@ -698,12 +809,19 @@ BEGIN
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
       and m.platform = 'PROTEIN';
-	  
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done') into rtnCd;
 	--	Insert sample facts 
-	
+
+	begin
 	insert into observation_fact
     (patient_num
 	,concept_cd
@@ -739,25 +857,43 @@ BEGIN
 	  and m.source_cd = sourceCd
       and m.platform = 'PROTEIN'
 	 and m.patient_id != m.sample_id;
-	  
+    exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done') into rtnCd;
 	--Update I2b2 for correct data type
+	begin
 	update i2b2 t
 	set c_columndatatype = 'T', c_metadataxml = null, c_visualattributes='FA'
 	where t.c_basecode in (select distinct x.concept_cd from WT_PROTEOMICS_NODES x);
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
   
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',rowCt,stepCt,'Done') into rtnCd;
 
 	 ---INSERT sample_dimension
+	begin
       INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
          SELECT DISTINCT SAMPLE_CD FROM 
-       
-	   
 	   DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
     stepCt := stepCt + 1;
     get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
@@ -766,6 +902,7 @@ BEGIN
 
        for ul in uploadI2b2
         loop
+        begin
 	 update i2b2 n
 	SET n.c_columndatatype = 'T',
       --Static XML String
@@ -779,7 +916,12 @@ BEGIN
                 <New /></Analysis>'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi 
       from tm_lz.lt_src_protein_display_mapping m where m.category_cd=ul.category_cd)||
                 '</ValueMetadata>') where n.c_fullname=(select leaf_node from WT_PROTEOMICS_NODES where category_cd=ul.category_cd and leaf_node=n.c_fullname);
-                
+        exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
                 end loop;
 		  
 	stepCt := stepCt + 1;
@@ -787,21 +929,34 @@ BEGIN
 	select cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',rowCt,stepCt,'Done') into rtnCd;
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
+	begin
 	update i2b2 a
         set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = 'PROTEIN'
 							 and x.concept_code is not null);
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	  
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',rowCt,stepCt,'Done') into rtnCd;
   
-        
-	 update i2b2 a
+        begin
+	update i2b2 a
 	set c_visualattributes='FAS'
         where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
         
         stepCt := stepCt + 1;
         get diagnostics rowCt := ROW_COUNT;
@@ -837,11 +992,18 @@ BEGIN
 	select cz_write_audit(jobId,databaseName,procedureName,'Load security data',0,stepCt,'Done') into rtnCd;
 
 --	tag data with probeset_id from reference.probeset_deapp
-  
+	begin
 	execute('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_PROBESET');
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	--	note: assay_id represents a unique subject/site/sample
 
+	begin
 	insert into WT_SUBJECT_PROTEOMICS_PROBESET  --mod
 	(probeset
 --	,expr_id
@@ -872,6 +1034,13 @@ BEGIN
 	group by md.peptide ,subject_id
 		  ,sd.patient_id,sd.assay_id;
 
+	exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
 	get diagnostics rowCt := ROW_COUNT;
 	pExists := rowCt;
 	
@@ -889,6 +1058,8 @@ BEGIN
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
 
 	if dataType = 'T' then
+
+	begin
 		insert into DE_SUBJECT_PROTEIN_DATA
 		(trial_name
 	,protein_annotation_id
@@ -925,6 +1096,12 @@ BEGIN
                 ,DEAPP.DE_PROTEIN_ANNOTATION d
 		where trial_name = TrialID
                  and d.peptide=m.probeset;
+        exception
+	when others then
+		select tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM) into rtnCd;
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		stepCt := stepCt + 1;
 		get diagnostics rowCt := ROW_COUNT;
 		select cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_PROTEIN_DATA',rowCt,stepCt,'Done') into rtnCd;
