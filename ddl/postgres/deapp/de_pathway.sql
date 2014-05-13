@@ -9,6 +9,7 @@ CREATE TABLE de_pathway (
     source character varying(100),
     externalid character varying(100),
     pathway_uid character varying(200),
-    user_id bigint
+    user_id bigint,
+    PRIMARY KEY (id)
 );
 

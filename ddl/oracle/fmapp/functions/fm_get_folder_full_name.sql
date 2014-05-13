@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: FMAPP; Name: FM_GET_FOLDER_FULL_NAME
 --
-  CREATE OR REPLACE FUNCTION "FMAPP"."FM_GET_FOLDER_FULL_NAME" (
+  CREATE OR REPLACE EDITIONABLE FUNCTION "FMAPP"."FM_GET_FOLDER_FULL_NAME" (
   p_folder_id number
 )
 return nvarchar2
@@ -29,5 +29,6 @@ begin
   
   return v_folder_full_name;  
 end;
-/
+
  
+/

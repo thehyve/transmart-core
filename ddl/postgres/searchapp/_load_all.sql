@@ -24,9 +24,6 @@
 \i searchapp/views/search_bio_mkr_correl_fast_view.sql
 \i searchapp/search_taxonomy.sql
 \i searchapp/search_taxonomy_rels.sql
-\i searchapp/subset.sql
-\i searchapp/report.sql
-\i searchapp/report_item.sql
 \i searchapp/views/search_categories.sql
 \i searchapp/search_custom_filter.sql
 \i searchapp/search_custom_filter_item.sql
@@ -44,3 +41,7 @@
 \i searchapp/views/search_taxonomy_terms_cats.sql
 \i searchapp/views/solr_keywords_lineage.sql
 \i searchapp/_misc.sql
+\i searchapp/report.sql
+\i searchapp/report_item.sql
+\i searchapp/search_user_feedback.sql
+\i searchapp/subset.sql

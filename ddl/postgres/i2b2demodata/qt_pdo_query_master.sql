@@ -30,4 +30,3 @@ ALTER TABLE ONLY qt_pdo_query_master
 -- Name: qt_idx_pqm_ugid; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX qt_idx_pqm_ugid ON qt_pdo_query_master USING btree (user_id, group_id);
-

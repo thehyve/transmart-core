@@ -100,6 +100,10 @@
       "name" : "FM_GET_FOLDER_FULL_NAME"
     },
     "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
       "type" : "FUNCTION",
       "owner" : "FMAPP",
       "name" : "FM_FOLDER_UID"
@@ -110,7 +114,15 @@
       "owner" : "FMAPP",
       "name" : "FM_UPDATE_FOLDER_FULL_NAME"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_GET_FOLDER_FULL_NAME"
+    } ]
   }, {
     "child" : {
       "type" : "SEQUENCE",

@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: FMAPP; Name: FM_UPDATE_FOLDER_FULL_NAME
 --
-  CREATE OR REPLACE PROCEDURE "FMAPP"."FM_UPDATE_FOLDER_FULL_NAME" 
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "FMAPP"."FM_UPDATE_FOLDER_FULL_NAME" 
 as
   v_folder_full_name nvarchar2(1000);
   cursor folder_ids is
@@ -18,5 +18,6 @@ begin
     where folder_id = folder_rec.folder_id;
   end loop;
 end;
-/
+
  
+/

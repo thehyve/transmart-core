@@ -1,0 +1,32 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "USERS_DETAILS_FOR_EXPORT_GAL"
+    },
+    "parents" : [ ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB"
+    },
+    "file" : "galaxy/status_of_export_job.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "USERS_DETAILS_FOR_EXPORT_GAL"
+    },
+    "file" : "galaxy/users_details_for_export_gal.sql"
+  } ]
+}

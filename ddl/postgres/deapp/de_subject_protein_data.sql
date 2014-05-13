@@ -2,8 +2,8 @@
 -- Name: de_subject_protein_data; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_subject_protein_data (
-    trial_name character varying(15),
-    component character varying(15),
+    trial_name character varying(50),
+    component character varying(200),
     intensity bigint,
     patient_id bigint,
     subject_id character varying(10),
@@ -15,6 +15,8 @@ CREATE TABLE de_subject_protein_data (
     mean_intensity bigint,
     stddev_intensity bigint,
     median_intensity bigint,
-    zscore bigint
+    zscore bigint,
+    log_intensity bigint,
+    protein_annotation_id bigint
 );
 

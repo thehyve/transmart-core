@@ -19,12 +19,13 @@
  USING INDEX
  TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION DEFERRED
+COMPRESS BASIC NOLOGGING
  TABLESPACE "BIOMART" ;
-
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_CELL_LINE_ID
 --
-  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_CELL_LINE_ID" before insert on "BIO_CELL_LINE"    for each row begin     if inserting then       if :NEW."BIO_CELL_LINE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CELL_LINE_ID" from dual;       end if;    end if; end;
+  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_CELL_LINE_ID" before insert on "BIO_CELL_LINE"    for each row begin     if inserting then       if :NEW."BIO_CELL_LINE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CELL_LINE_ID" from dual;       end if;    end if; end;
+
 
 
 
@@ -38,17 +39,14 @@
 
 /
 ALTER TRIGGER "BIOMART"."TRG_BIO_CELL_LINE_ID" ENABLE;
- 
 --
 -- Type: INDEX; Owner: BIOMART; Name: BIO_CELL_LINE_NAME_IDX
 --
 CREATE INDEX "BIOMART"."BIO_CELL_LINE_NAME_IDX" ON "BIOMART"."BIO_CELL_LINE" ("CELL_LINE_NAME", "BIO_CELL_LINE_ID")
 TABLESPACE "INDX" 
 PARALLEL 3 ;
-
 --
 -- Type: REF_CONSTRAINT; Owner: BIOMART; Name: CD_DISEASE_FK
 --
 ALTER TABLE "BIOMART"."BIO_CELL_LINE" ADD CONSTRAINT "CD_DISEASE_FK" FOREIGN KEY ("BIO_DISEASE_ID")
  REFERENCES "BIOMART"."BIO_DISEASE" ("BIO_DISEASE_ID") ENABLE;
-

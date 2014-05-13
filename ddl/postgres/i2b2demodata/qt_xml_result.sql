@@ -2,7 +2,7 @@
 -- Name: qt_sq_qxr_xrid; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE qt_sq_qxr_xrid
-    START WITH 1
+    START WITH 655
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

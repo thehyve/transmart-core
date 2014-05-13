@@ -36,3 +36,8 @@ $$;
 --
 CREATE TRIGGER trg_snp_data_by_patient_id BEFORE INSERT ON de_snp_data_by_patient FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_data_by_patient_id();
 
+--
+-- Name: fk_snp_dataset_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_data_by_patient
+    ADD CONSTRAINT fk_snp_dataset_id FOREIGN KEY (snp_dataset_id) REFERENCES de_subject_snp_dataset(subject_snp_dataset_id);

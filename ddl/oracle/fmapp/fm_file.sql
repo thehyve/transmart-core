@@ -18,12 +18,12 @@
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
+NOCOMPRESS LOGGING
  TABLESPACE "TRANSMART" ;
-
 --
 -- Type: TRIGGER; Owner: FMAPP; Name: TRG_FM_FILE_ID
 --
-  CREATE OR REPLACE TRIGGER "FMAPP"."TRG_FM_FILE_ID" before insert on fmapp."FM_FILE"    
+  CREATE OR REPLACE EDITIONABLE TRIGGER "FMAPP"."TRG_FM_FILE_ID" before insert on fmapp."FM_FILE"    
 for each row begin    
 if inserting then      
   if :NEW."FILE_ID" is null then          
@@ -31,13 +31,13 @@ if inserting then
   end if;    
 end if; 
 end;
+
 /
 ALTER TRIGGER "FMAPP"."TRG_FM_FILE_ID" ENABLE;
- 
 --
 -- Type: TRIGGER; Owner: FMAPP; Name: TRG_FM_FILE_UID
 --
-  CREATE OR REPLACE TRIGGER "FMAPP"."TRG_FM_FILE_UID" after insert on fmapp."FM_FILE"    
+  CREATE OR REPLACE EDITIONABLE TRIGGER "FMAPP"."TRG_FM_FILE_UID" after insert on fmapp."FM_FILE"    
 for each row
 DECLARE
   rec_count NUMBER;
@@ -51,6 +51,6 @@ BEGIN
     values (:NEW."FILE_ID", FM_FILE_UID(:NEW."FILE_ID"), 'FM_FILE');
   end if;
 end;
+
 /
 ALTER TRIGGER "FMAPP"."TRG_FM_FILE_UID" ENABLE;
- 

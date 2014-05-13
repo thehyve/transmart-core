@@ -22,6 +22,12 @@ ALTER TABLE ONLY de_snp_probe
     ADD CONSTRAINT u_snp_probe_name UNIQUE (probe_name);
 
 --
+-- Name: fk_snp_probe_snp_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_probe
+    ADD CONSTRAINT fk_snp_probe_snp_id FOREIGN KEY (snp_id) REFERENCES de_snp_info(snp_info_id);
+
+--
 -- Name: tf_trg_de_snp_probe_id(); Type: FUNCTION; Schema: deapp; Owner: -
 --
 CREATE FUNCTION tf_trg_de_snp_probe_id() RETURNS trigger

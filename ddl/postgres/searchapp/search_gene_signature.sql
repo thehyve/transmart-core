@@ -42,8 +42,8 @@ CREATE TABLE search_gene_signature (
     multiple_testing_correction boolean,
     p_value_cutoff_concept_id bigint NOT NULL,
     upload_file character varying(255) NOT NULL,
-    search_gene_sig_file_schema_id bigint DEFAULT 1,
-    fold_chg_metric_concept_id bigint,
+    search_gene_sig_file_schema_id bigint DEFAULT 1 NOT NULL,
+    fold_chg_metric_concept_id bigint DEFAULT NULL NOT NULL,
     experiment_type_cell_line_id bigint
 );
 

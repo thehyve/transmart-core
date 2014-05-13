@@ -43,7 +43,7 @@ CREATE TRIGGER trg_cz_seq_id BEFORE INSERT ON cz_job_audit FOR EACH ROW EXECUTE 
 -- Name: seq_cz_job_audit; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_audit
-    START WITH 123843
+    START WITH 1544242
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

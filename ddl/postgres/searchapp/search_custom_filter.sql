@@ -6,7 +6,7 @@ CREATE TABLE search_custom_filter (
     search_user_id bigint NOT NULL,
     name character varying(200) NOT NULL,
     description character varying(2000),
-    private character(1) DEFAULT 'N'::bpchar
+    private character(1) DEFAULT 'N'::bpchar NOT NULL --oracle NOT NULL
 );
 
 --

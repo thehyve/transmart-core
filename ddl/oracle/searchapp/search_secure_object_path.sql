@@ -9,12 +9,13 @@
  USING INDEX
  TABLESPACE "BIOMART"  ENABLE
   ) SEGMENT CREATION DEFERRED
+NOCOMPRESS LOGGING
  TABLESPACE "BIOMART" ;
-
 --
 -- Type: TRIGGER; Owner: SEARCHAPP; Name: TRG_SEARCH_SEC_OBJ_PATH_ID
 --
-  CREATE OR REPLACE TRIGGER "SEARCHAPP"."TRG_SEARCH_SEC_OBJ_PATH_ID" before insert on "SEARCH_SECURE_OBJECT_PATH"    for each row begin     if inserting then       if :NEW."SEARCH_SECURE_OBJ_PATH_ID" is null then          select SEQ_SEARCH_DATA_ID.nextval into :NEW."SEARCH_SECURE_OBJ_PATH_ID" from dual;       end if;    end if; end;
+  CREATE OR REPLACE EDITIONABLE TRIGGER "SEARCHAPP"."TRG_SEARCH_SEC_OBJ_PATH_ID" before insert on "SEARCH_SECURE_OBJECT_PATH"    for each row begin     if inserting then       if :NEW."SEARCH_SECURE_OBJ_PATH_ID" is null then          select SEQ_SEARCH_DATA_ID.nextval into :NEW."SEARCH_SECURE_OBJ_PATH_ID" from dual;       end if;    end if; end;
+
 
 
 
@@ -27,4 +28,3 @@
 
 /
 ALTER TRIGGER "SEARCHAPP"."TRG_SEARCH_SEC_OBJ_PATH_ID" ENABLE;
- 

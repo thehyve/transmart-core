@@ -2,7 +2,7 @@
 -- Name: cz_job_master; Type: TABLE; Schema: tm_cz; Owner: -
 --
 CREATE TABLE cz_job_master (
-    job_id bigint NOT NULL,
+    job_id bigint DEFAULT NULL NOT NULL, --oracle DEFAULT NULL
     start_date timestamp without time zone,
     end_date timestamp without time zone,
     active character varying(1),
@@ -43,7 +43,7 @@ CREATE TRIGGER trg_cz_job_id BEFORE INSERT ON cz_job_master FOR EACH ROW EXECUTE
 -- Name: seq_cz_job_master; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_master
-    START WITH 12627
+    START WITH 13781
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

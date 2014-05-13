@@ -12,14 +12,14 @@ CREATE TABLE patient_dimension (
     race_cd character varying(50),
     marital_status_cd character varying(50),
     religion_cd character varying(50),
-    zip_cd character varying(10),
+    zip_cd character varying(50),
     statecityzip_path character varying(700),
     income_cd character varying(50),
     patient_blob text,
     update_date timestamp without time zone,
     download_date timestamp without time zone,
     import_date timestamp without time zone,
-    sourcesystem_cd character varying(50),
+    sourcesystem_cd character varying(107),
     upload_id numeric(38,0)
 );
 

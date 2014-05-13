@@ -4,7 +4,7 @@
 CREATE TABLE wrk_clinical_data (
     study_id        character varying(25),
     site_id         character varying(50),
-    subject_id      character varying(20),
+    subject_id      character varying(30),
     visit_name      character varying(100),
     data_label      character varying(500),
     modifier_cd     character varying(100),
@@ -14,9 +14,11 @@ CREATE TABLE wrk_clinical_data (
     category_cd     character varying(250),
     etl_job_id      bigint,
     etl_date        timestamp without time zone,
-    usubjid         character varying(200),
+    usubjid         character varying(200), --oracle was 107 in postgres
     category_path   character varying(1000),
     data_type       character varying(10),
-    ctrl_vocab_code character varying(200)
+    ctrl_vocab_code character varying(200),
+    visit_date      character varying(200),
+    sample_cd       character varying(200)
 );
 

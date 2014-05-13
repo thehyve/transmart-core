@@ -1,4 +1,15 @@
 --
+-- Type: SEQUENCE; Owner: I2B2METADATA; Name: I2B2_ID_SEQ
+--
+CREATE SEQUENCE i2b2_id_seq
+    NO MINVALUE
+    NO MAXVALUE
+    INCREMENT BY 1
+    START WITH 445288
+    CACHE 1
+;
+
+--
 -- Name: i2b2; Type: TABLE; Schema: i2b2metadata; Owner: -
 --
 CREATE TABLE i2b2 (
@@ -24,6 +35,7 @@ CREATE TABLE i2b2 (
     import_date timestamp without time zone,
     sourcesystem_cd character varying(50),
     valuetype_cd character varying(50),
+    i2b2_id bigint,
     m_exclusion_cd character varying(25),
     c_path character varying(700),
     c_symbol character varying(50)

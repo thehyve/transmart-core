@@ -52,36 +52,6 @@ CREATE SEQUENCE seq_child_rollup_id
     CACHE 20;
 
 --
--- Name: seq_cz_data; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_data
-    START WITH 5
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
--- Name: seq_cz_data_file; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_data_file
-    START WITH 6
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
--- Name: seq_cz_dw_version_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_dw_version_id
-    START WITH 41
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
 -- Name: seq_cz_job_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_id
@@ -95,7 +65,7 @@ CREATE SEQUENCE seq_cz_job_id
 -- Name: seq_cz_job_message; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_message
-    START WITH 1
+    START WITH 63
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

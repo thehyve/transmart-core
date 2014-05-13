@@ -1,7 +1,7 @@
 --
 -- Type: VIEW; Owner: AMAPP; Name: AM_TAG_DISPLAY_VW
 --
-  CREATE OR REPLACE FORCE VIEW "AMAPP"."AM_TAG_DISPLAY_VW" ("SUBJECT_UID", "TAG_ITEM_ID", "DISPLAY_VALUE", "OBJECT_TYPE", "OBJECT_UID", "OBJECT_ID") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "AMAPP"."AM_TAG_DISPLAY_VW" ("SUBJECT_UID", "TAG_ITEM_ID", "DISPLAY_VALUE", "OBJECT_TYPE", "OBJECT_UID", "OBJECT_ID") AS 
   SELECT DISTINCT tass.subject_uid,
     tass.tag_item_id,
     TO_CHAR(tval.value) AS display_value,
@@ -98,5 +98,5 @@ UNION
   JOIN biomart.bio_data_uid obj_uid
   ON tass.object_uid = obj_uid.unique_id
   JOIN BIOMART.bio_observation bio_val
-  ON obj_uid.bio_data_id = bio_val.bio_observation_id;
- 
+  ON obj_uid.bio_data_id = bio_val.bio_observation_id
+ ;

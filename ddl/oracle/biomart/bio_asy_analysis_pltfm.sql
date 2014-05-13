@@ -10,12 +10,13 @@
  USING INDEX
  TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION DEFERRED
+COMPRESS BASIC NOLOGGING
  TABLESPACE "BIOMART" ;
-
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_ASY_ANALYSIS_PLTFM_ID
 --
-  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_ASY_ANALYSIS_PLTFM_ID" before insert on "BIO_ASY_ANALYSIS_PLTFM"    for each row begin     if inserting then       if :NEW."BIO_ASY_ANALYSIS_PLTFM_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_ASY_ANALYSIS_PLTFM_ID" from dual;       end if;    end if; end;
+  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_ASY_ANALYSIS_PLTFM_ID" before insert on "BIO_ASY_ANALYSIS_PLTFM"    for each row begin     if inserting then       if :NEW."BIO_ASY_ANALYSIS_PLTFM_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_ASY_ANALYSIS_PLTFM_ID" from dual;       end if;    end if; end;
+
 
 
 
@@ -31,4 +32,3 @@
 
 /
 ALTER TRIGGER "BIOMART"."TRG_BIO_ASY_ANALYSIS_PLTFM_ID" ENABLE;
- 

@@ -14,28 +14,26 @@
  USING INDEX
  TABLESPACE "DEAPP"  ENABLE
   ) SEGMENT CREATION DEFERRED
+NOCOMPRESS NOLOGGING
  TABLESPACE "DEAPP" ;
-
 --
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_PATHWAY_ID
 --
-  CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_PATHWAY_ID" before insert on "DE_PATHWAY"    for each row
+  CREATE OR REPLACE EDITIONABLE TRIGGER "DEAPP"."TRG_DE_PATHWAY_ID" before insert on "DE_PATHWAY"    for each row
 begin     if inserting then       if :NEW."ID" is null then          select SEQ_DATA_ID.nextval into :NEW."ID" from dual;       end if;    end if; end;
+
 
 
 
 /
 ALTER TRIGGER "DEAPP"."TRG_DE_PATHWAY_ID" ENABLE;
- 
 --
 -- Type: INDEX; Owner: DEAPP; Name: DE_PATHWAY_NAME_IDX
 --
 CREATE INDEX "DEAPP"."DE_PATHWAY_NAME_IDX" ON "DEAPP"."DE_PATHWAY" ("NAME")
 TABLESPACE "DEAPP" ;
-
 --
 -- Type: INDEX; Owner: DEAPP; Name: DE_PATHWAY_IDX3
 --
 CREATE INDEX "DEAPP"."DE_PATHWAY_IDX3" ON "DEAPP"."DE_PATHWAY" ("PATHWAY_UID", "ID")
 TABLESPACE "DEAPP" ;
-

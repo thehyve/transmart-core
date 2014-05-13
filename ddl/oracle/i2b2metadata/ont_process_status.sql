@@ -18,5 +18,19 @@
  USING INDEX
  TABLESPACE "I2B2_DATA"  ENABLE
   ) SEGMENT CREATION DEFERRED
+NOCOMPRESS NOLOGGING
  TABLESPACE "I2B2_DATA" ;
 
+-- trigger needed to match postgres default values
+
+-- Type: TRIGGER; Owner: I2B2METADATA; Name: TRG_QRY_PS_PR_ID
+--
+  CREATE OR REPLACE TRIGGER "I2B2METADATA"."TRG_QRY_PS_PR_ID" before insert on "I2B2METADATA"."ONT_PROCESS_STATUS"    
+for each row begin    
+if inserting then      
+  if :NEW."PROCESS_ID" is null then          
+    select ONT_SQ_PS_PRID.nextval into :NEW."PROCESS_ID" from dual;       
+  end if;    
+end if; 
+end;
+/

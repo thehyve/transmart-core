@@ -11,12 +11,12 @@
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
+NOCOMPRESS LOGGING
  TABLESPACE "TRANSMART" ;
-
 --
 -- Type: TRIGGER; Owner: AMAPP; Name: TRG_AM_TAG_TEMPLATE_ID
 --
-  CREATE OR REPLACE TRIGGER "AMAPP"."TRG_AM_TAG_TEMPLATE_ID" before insert on "AMAPP"."AM_TAG_TEMPLATE"    
+  CREATE OR REPLACE EDITIONABLE TRIGGER "AMAPP"."TRG_AM_TAG_TEMPLATE_ID" before insert on "AMAPP"."AM_TAG_TEMPLATE"    
 for each row begin    
 if inserting then      
   if :NEW."TAG_TEMPLATE_ID" is null then          
@@ -24,6 +24,6 @@ if inserting then
   end if;    
 end if; 
 end;
+
 /
 ALTER TRIGGER "AMAPP"."TRG_AM_TAG_TEMPLATE_ID" ENABLE;
- 

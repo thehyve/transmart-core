@@ -86,3 +86,11 @@
 \i tm_cz/tmp_trial_data.sql
 \i tm_cz/tmp_trial_nodes.sql
 \i tm_cz/_misc.sql
+\i tm_cz/antigen_deapp.sql
+\i tm_cz/cz_data.sql
+\i tm_cz/cz_data_file.sql
+\i tm_cz/cz_dw_version.sql
+\i tm_cz/cz_form_layout.sql
+\i tm_cz/cz_test_severity.sql
+\i tm_cz/mirna_annotation_deapp.sql
+\i tm_cz/mirna_probeset_deapp.sql

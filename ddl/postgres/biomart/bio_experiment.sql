@@ -17,8 +17,8 @@ CREATE TABLE bio_experiment (
     accession character varying(100),
     entrydt timestamp without time zone,
     updated timestamp without time zone,
-    institution character varying(100),
-    country character varying(50),
+    institution character varying(400),
+    country character varying(1000),
     biomarker_type character varying(255),
     target character varying(255),
     access_type character varying(100)

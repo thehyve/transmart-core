@@ -6,7 +6,22 @@
 "NAME" VARCHAR2(100 BYTE), 
 "DESCRIPTION" VARCHAR2(200 BYTE), 
 "DISPLAY_TYPE_ID" VARCHAR2(500 BYTE), 
-"VISUAL_ATTRIBUTE_TYPE_ID" VARCHAR2(3 BYTE)
+"VISUAL_ATTRIBUTE_TYPE_ID" VARCHAR2(3 BYTE),
+CONSTRAINT "QT_QUERY_RESULT_TYPE_PKEY" PRIMARY KEY ("RESULT_TYPE_ID")
   ) SEGMENT CREATION DEFERRED
+NOCOMPRESS LOGGING
  TABLESPACE "I2B2_DATA" ;
 
+-- trigger needed to match postgres default values
+
+-- Type: TRIGGER; Owner: I2B2DEMODATA; Name: TRG_QT_QRY_QR_TY_ID
+--
+  CREATE OR REPLACE TRIGGER "I2B2DEMODATA"."TRG_QT_QRY_QR_TY_ID" before insert on "I2B2DEMODATA"."QT_QUERY_RESULT_TYPE"    
+for each row begin    
+if inserting then      
+  if :NEW."RESULT_TYPE_ID" is null then          
+    select QT_SQ_QR_QRID.nextval into :NEW."RESULT_TYPE_ID" from dual;       
+  end if;    
+end if; 
+end;
+/

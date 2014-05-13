@@ -60,14 +60,3 @@ $$;
 -- Name: trg_ctd2_clin_inhib_effect; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_ctd2_clin_inhib_effect BEFORE INSERT ON ctd2_clin_inhib_effect FOR EACH ROW EXECUTE PROCEDURE tf_trg_ctd2_clin_inhib_effect();
-
---
--- Name: seq_clinical_trial_design_id; Type: SEQUENCE; Schema: biomart; Owner: -
---
-CREATE SEQUENCE seq_clinical_trial_design_id
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 20;
-

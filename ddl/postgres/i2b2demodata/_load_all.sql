@@ -25,7 +25,6 @@
 \i i2b2demodata/datamart_report.sql
 \i i2b2demodata/encounter_mapping.sql
 \i i2b2demodata/modifier_dimension.sql
-\i i2b2demodata/modifier_metadata.sql
 \i i2b2demodata/news_updates.sql
 \i i2b2demodata/observation_fact.sql
 \i i2b2demodata/patient_dimension.sql
@@ -51,4 +50,19 @@
 \i i2b2demodata/source_master.sql
 \i i2b2demodata/upload_status.sql
 \i i2b2demodata/visit_dimension.sql
+\i i2b2demodata/cd.sql
+\i i2b2demodata/counter.sql
+\i i2b2demodata/crc_db_lookup.sql
+\i i2b2demodata/dimloader.sql
+\i i2b2demodata/hilosequences.sql
+\i i2b2demodata/jms_messages.sql
+\i i2b2demodata/jms_roles.sql
+\i i2b2demodata/jms_subscriptions.sql
+\i i2b2demodata/jms_transactions.sql
+\i i2b2demodata/jms_users.sql
+\i i2b2demodata/map.sql
+\i i2b2demodata/modifier_metadata.sql
+\i i2b2demodata/ricerca.sql
+\i i2b2demodata/sample_dimension.sql
+\i i2b2demodata/timers.sql
 \i i2b2demodata/_misc.sql

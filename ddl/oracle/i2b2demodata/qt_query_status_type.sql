@@ -4,7 +4,23 @@
  CREATE TABLE "I2B2DEMODATA"."QT_QUERY_STATUS_TYPE" 
   (	"STATUS_TYPE_ID" NUMBER(3,0), 
 "NAME" VARCHAR2(100 BYTE), 
-"DESCRIPTION" VARCHAR2(200 BYTE)
+"DESCRIPTION" VARCHAR2(200 BYTE),
+CONSTRAINT "QT_QUERY_STATUS_TYPE_PKEY" PRIMARY KEY ("STATUS_TYPE_ID") --postgres
   ) SEGMENT CREATION DEFERRED
+NOCOMPRESS LOGGING
  TABLESPACE "I2B2_DATA" ;
 
+-- trigger needed to match postgres default values
+
+-- Type: TRIGGER; Owner: I2B2DEMODATA; Name: TRG_QT_QRY_ST_TY_ID
+--
+  CREATE OR REPLACE TRIGGER "I2B2DEMODATA"."TRG_QT_QRY_ST_TY_ID" before insert on "I2B2DEMODATA"."QT_QUERY_INSTANCE"    
+for each row begin    
+if inserting then      
+  if :NEW."STATUS_TYPE_ID" is null then          
+    select QT_SQ_QS_QSID.nextval into :NEW."STATUS_TYPE_ID" from dual;       
+  end if;    
+end if; 
+end;
+/
+ALTER TRIGGER "I2B2DEMODATA"."TRG_QT_QRY_INST_ID" ENABLE;

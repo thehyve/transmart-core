@@ -41,9 +41,9 @@ CREATE TRIGGER trg_probeset_deapp BEFORE INSERT ON probeset_deapp FOR EACH ROW E
 -- Name: seq_probeset_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_probeset_id
-    START WITH 5461
+    START WITH 754178
     INCREMENT BY 1
     NO MINVALUE
-    MAXVALUE 99999999
+    NO MAXVALUE
     CACHE 20;
 

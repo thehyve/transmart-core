@@ -10,6 +10,17 @@ CREATE TABLE de_snp_data_by_probe (
     trial_name character varying(255),
     data_by_probe text
 );
+--
+-- Name: fk_snp_by_probe_probe_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_data_by_probe
+    ADD CONSTRAINT fk_snp_by_probe_probe_id FOREIGN KEY (probe_id) REFERENCES de_snp_probe(snp_probe_id);
+
+--
+-- Name: fk_snp_by_probe_snp_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_data_by_probe
+    ADD CONSTRAINT fk_snp_by_probe_snp_id FOREIGN KEY (snp_id) REFERENCES de_snp_info(snp_info_id);
 
 --
 -- Name: sys_c0020601; Type: CONSTRAINT; Schema: deapp; Owner: -

@@ -2,7 +2,7 @@
 -- Type: TABLE; Owner: BIOMART; Name: BIO_EXPERIMENT
 --
  CREATE TABLE "BIOMART"."BIO_EXPERIMENT" 
-  (	"BIO_EXPERIMENT_ID" NUMBER(18,0), 
+  (	"BIO_EXPERIMENT_ID" NUMBER(18,0) NOT NULL ENABLE, --postgres NOT NULL
 "BIO_EXPERIMENT_TYPE" NVARCHAR2(200), 
 "TITLE" NVARCHAR2(1000), 
 "DESCRIPTION" NVARCHAR2(2000), 
@@ -26,46 +26,25 @@
  USING INDEX
  TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
+COMPRESS BASIC NOLOGGING
  TABLESPACE "BIOMART" ;
-
 --
 -- Type: INDEX; Owner: BIOMART; Name: BIO_EXP_ACEN_IDX
 --
 CREATE INDEX "BIOMART"."BIO_EXP_ACEN_IDX" ON "BIOMART"."BIO_EXPERIMENT" ("ACCESSION")
 TABLESPACE "INDX" 
 PARALLEL 4 ;
-
---
--- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_EXPERIMENT_UID
---
-  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_UID" after insert on "BIO_EXPERIMENT"    
-for each row
-DECLARE
-  rec_count NUMBER;
-BEGIN
-  SELECT COUNT(*) INTO rec_count 
-  FROM bio_data_uid 
-  WHERE bio_data_id = :new.BIO_EXPERIMENT_ID;
-  
-  if rec_count = 0 then
-    insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
-    values (:NEW."BIO_EXPERIMENT_ID", BIO_EXPERIMENT_UID(:NEW."ACCESSION"), 'BIO_EXPERIMENT');
-  end if;
-end;
-/
-ALTER TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_UID" ENABLE;
- 
 --
 -- Type: INDEX; Owner: BIOMART; Name: BIO_EXP_TYPE_IDX
 --
 CREATE INDEX "BIOMART"."BIO_EXP_TYPE_IDX" ON "BIOMART"."BIO_EXPERIMENT" ("BIO_EXPERIMENT_TYPE")
 TABLESPACE "INDX" 
 PARALLEL 4 ;
-
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_EXPERIMENT_ID
 --
-  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_ID" before insert on "BIO_EXPERIMENT"    for each row begin     if inserting then       if :NEW."BIO_EXPERIMENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_EXPERIMENT_ID" from dual;       end if;    end if; end;
+  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_ID" before insert on "BIO_EXPERIMENT"    for each row begin     if inserting then       if :NEW."BIO_EXPERIMENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_EXPERIMENT_ID" from dual;       end if;    end if; end;
+
 
 
 
@@ -81,4 +60,23 @@ PARALLEL 4 ;
 
 /
 ALTER TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_ID" ENABLE;
- 
+--
+-- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_EXPERIMENT_UID
+--
+  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_UID" after insert on "BIO_EXPERIMENT"    
+for each row
+DECLARE
+  rec_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO rec_count 
+  FROM bio_data_uid 
+  WHERE bio_data_id = :new.BIO_EXPERIMENT_ID;
+  
+  if rec_count = 0 then
+    insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
+    values (:NEW."BIO_EXPERIMENT_ID", BIO_EXPERIMENT_UID(:NEW."ACCESSION"), 'BIO_EXPERIMENT');
+  end if;
+end;
+
+/
+ALTER TRIGGER "BIOMART"."TRG_BIO_EXPERIMENT_UID" ENABLE;

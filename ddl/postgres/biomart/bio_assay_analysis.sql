@@ -21,16 +21,16 @@ CREATE TABLE bio_assay_analysis (
     long_description character varying(4000),
     qa_criteria character varying(4000),
     data_count bigint,
-    tea_data_count bigint,
-    analysis_update_date date,
+    tea_data_count bigint,	--added to oracle
+    analysis_update_date date,	--added to oracle
     lsmean_cutoff double precision
 );
 
 --
--- Name: bio_data_anl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_anl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis
-    ADD CONSTRAINT bio_data_anl_pk PRIMARY KEY (bio_assay_analysis_id);
+    ADD CONSTRAINT bio_assay_anl_pk PRIMARY KEY (bio_assay_analysis_id);
 
 --
 -- Name: bio_assay_analysis_pk; Type: INDEX; Schema: biomart; Owner: -
@@ -56,14 +56,3 @@ CREATE TRIGGER trg_bio_assay_analysis_id BEFORE INSERT ON bio_assay_analysis FOR
 --
 ALTER TABLE ONLY bio_assay_analysis
     ADD CONSTRAINT bio_assay_ans_pltfm_fk FOREIGN KEY (bio_asy_analysis_pltfm_id) REFERENCES bio_asy_analysis_pltfm(bio_asy_analysis_pltfm_id);
-
---
--- Name: seq_bio_data_id; Type: SEQUENCE; Schema: biomart; Owner: -
---
-CREATE SEQUENCE seq_bio_data_id
-    START WITH 1082041
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 20;
-
