@@ -29,8 +29,6 @@ class DeChromosomalRegion implements Region {
         name           column: 'region_name'
         numberOfProbes column: 'num_probes'
         platform       column: 'gpl_id'
-        geneSymbol     column: 'gene_symbol'
-        geneId         column: 'gene_id'
 
         version false
 
