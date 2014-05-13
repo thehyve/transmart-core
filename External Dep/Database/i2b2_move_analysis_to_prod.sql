@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_MOVE_ANALYSIS_TO_PROD_NEW" 
+CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_MOVE_ANALYSIS_TO_PROD" 
 (i_etl_id        number    := -1
 ,i_job_id        number    := null
 )
 AS
-    -- create indexes using parallele 8  -zhanh101 5/10/2013 use ~20-30% original time  
+    -- For partitioned table  2/4/2014
     --Audit variables
     newJobFlag     INTEGER(1);
     databaseName     VARCHAR(100);
@@ -11,34 +11,16 @@ AS
     jobID         number(18,0);
     stepCt         number(18,0);
     
-    v_etl_id                    number(18,0);
-    v_bio_assay_analysis_id        number(18,0);
-    v_data_type                    varchar2(50);
-    v_sqlText                    varchar2(2000);
+    v_etl_id                                        number(18,0);
+    v_bio_assay_analysis_id                number(18,0);
+    v_data_type                                        varchar2(50);
+    v_sqlText                                        varchar2(2000);
     v_exists                    int;
-    v_GWAS_staged                int;
-    v_EQTL_staged                int;
-    
-    type stage_rec  is record
-    (bio_assay_analysis_id        number(18,0)
-    ,etl_id                        number(18,0)
-    ,study_id                    varchar2(500)
-    ,data_type                    varchar2(50)
-    ,orig_data_type                varchar2(50)
-    ,analysis_name                varchar2(1000)
-    );
-
-    type stage_table is table of stage_rec; 
-    stage_array stage_table;
-    
-    type stage_table_names_rec is record
-    (table_name                    varchar2(500)
-    );
-    
-    type stage_table_names is table of stage_table_names_rec;
-    stage_table_array stage_table_names;
-    
-    no_staged_data    exception;
+    v_GWAS_staged                                int;
+    v_EQTL_staged                                int;
+        v_gwas_indx                                        int;
+        v_eqtl_indx                                        int;
+        v_max_ext_flds                                int;
     
     BEGIN    
     
@@ -58,94 +40,174 @@ AS
     END IF;
         
     stepCt := 1;    
-    cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_move_analysis_to_prod',0,stepCt,'Done');
+    cz_write_audit(jobID,databaseName,procedureName,'Starting i2b2_move_analysis_to_prod',0,stepCt,'Done');
     
+        v_GWAS_staged := 0;
+        v_EQTL_staged := 0;
+        v_gwas_indx := 0;
+        
     --    load staged analysis to array
     
-    select baa.bio_assay_analysis_id
-          ,lz.etl_id
-          ,lz.study_id
-          ,case when lz.data_type = 'Metabolic GWAS' then 'GWAS' else lz.data_type end as data_type
-          ,lz.data_type as orig_data_type
-          ,lz.analysis_name
-    bulk collect into stage_array
-    from tm_lz.lz_src_analysis_metadata lz
-        ,biomart.bio_assay_analysis baa
-    where lz.status = 'STAGED'
-      and lz.study_id = baa.etl_id
-      and lz.etl_id = baa.etl_id_source
-      and case when i_etl_id = -1 then 1
+        for stage_rec in 
+                (select baa.bio_assay_analysis_id
+                          ,lz.etl_id
+                          ,lz.study_id
+                          ,case when lz.data_type = 'Metabolic GWAS' then 'GWAS' else lz.data_type end as data_type
+                          ,lz.data_type as orig_data_type
+                          ,lz.analysis_name
+                from tm_lz.lz_src_analysis_metadata lz
+                        ,biomart.bio_assay_analysis baa
+                where lz.status = 'STAGED'
+                  and lz.study_id = baa.etl_id
+                  and lz.etl_id = baa.etl_id_source
+                  and case when i_etl_id = -1 then 1
                when lz.etl_id = i_etl_id then 1
-               else 0 end = 1;
-               
-    v_exists := SQL%ROWCOUNT;
-    
-    if v_exists = 0 then
-        raise no_staged_data;
-    end if;
-
-    --    set variables if staged data contains GWAS and/or EQTL data
-    
-    v_GWAS_staged := 0;
-    v_EQTL_staged := 0;
-    
-    for i in stage_array.first .. stage_array.last
-    loop    
-        if stage_array(i).data_type = 'GWAS' then
+               else 0 end = 1)
+        loop
+                stepCt := stepCt + 1;
+        cz_write_audit(jobId,databaseName,procedureName,'Loading ' || stage_rec.study_id || ' ' || stage_rec.orig_data_type || ' ' ||
+                       stage_rec.analysis_name,0,stepCt,'Done');
+                           
+                v_bio_assay_analysis_id := stage_rec.bio_assay_analysis_id;
+                v_etl_id := stage_rec.etl_id;
+                v_data_type := stage_rec.data_type;
+                
+                --        get max nbr fields in ext_data for original data type
+                        
+                select max(field_idx) into v_max_ext_flds
+                from biomart.bio_asy_analysis_data_idx
+                where ext_type = stage_rec.orig_data_type;
+                
+        if stage_rec.data_type = 'GWAS' then
+                        --        GWAS data
             v_GWAS_staged := 1;
-        end if;
+                /* comment out for not disabling the indexes   by HZ 1/15/2014
+                        if v_gwas_indx = 0 then
+                                --        disable indexes if loading GWAS data
+                                for gwas_idx in (select index_name
+                                                                           ,table_name
+                                                                 from all_indexes 
+                                                             where owner = 'BIOMART' 
+                                                                   and table_name in ('BIO_ASSAY_ANALYSIS_GWAS','BIO_ASY_ANALYSIS_GWAS_TOP50') 
+                                                                   and partitioned = 'NO' and compression!='DISABLED' )
+                                loop
+                                        v_sqlText := 'alter index biomart.' || gwas_idx.index_name || ' unusable';
+                                        stepCt := stepCt + 1;
+                                        cz_write_audit(jobID,databaseName,procedureName,'Disabling index ' || gwas_idx.index_name || ' on ' || gwas_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+                                        execute immediate(v_sqlText);
+                                        stepCt := stepCt + 1;
+                                        cz_write_audit(jobID,databaseName,procedureName,'Disabling complete',SQL%ROWCOUNT,stepCt,'Done');       
+                                end loop;
+                                v_gwas_indx := 1;
+                        end if;
+              */          
+                        --        check if partition exists for bio_assay_analysis_id, if not, add, if yes, truncate
+                        select count(*) into v_exists
+                        from all_tab_partitions
+                        where table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
+                          and partition_name = to_char(v_bio_assay_analysis_id);
+                
+                        if v_exists = 0 then        
+                                --        add partition to bio_assay_analysis_gwas
+                                v_sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
+                                                    to_char(v_bio_assay_analysis_id) || ') ' ||
+                                                   'NOLOGGING TABLESPACE "BIOMART" ';
+                                execute immediate(v_sqlText);
+                                stepCt := stepCt + 1;
+                                cz_write_audit(jobID,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas '|| to_char(v_bio_assay_analysis_id),0,stepCt,'Done');
+                        else
+                                --        truncate existing partition
+                                v_sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
+                                execute immediate(v_sqlText);
+                                stepCt := stepCt + 1;
+                                cz_write_audit(jobID,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas '|| to_char(v_bio_assay_analysis_id),0,stepCt,'Done');
+                        end if;
+                        
+            insert into biomart.bio_assay_analysis_gwas
+            (bio_asy_analysis_gwas_id
+            ,bio_assay_analysis_id
+            ,rs_id
+            ,p_value
+            ,p_value_char
+            ,etl_id
+            ,ext_data
+            ,log_p_value)
+            select bio_asy_analysis_gwas_id
+                  ,bio_assay_analysis_id
+                  ,rs_id
+                  ,to_binary_double(p_value_char)
+                  ,p_value_char
+                  ,etl_id
+                  ,case when length(ext_data)-length(replace(ext_data,';','')) < v_max_ext_flds
+                                                then tm_cz.repeat_char(ext_data,v_max_ext_flds-(length(ext_data)-length(replace(ext_data,';',''))),';')
+                                                else ext_data
+                                   end
+                  ,to_binary_double(log10_pval_char)
+            from biomart_stage.bio_assay_analysis_gwas
+            where bio_assay_analysis_id = v_bio_assay_analysis_id;
+            stepCt := stepCt + 1;
+            cz_write_audit(jobID,databaseName,procedureName,'Insert data for analysis from biomart.bio_assay_analysis_gwas',SQL%ROWCOUNT,stepCt,'Done');
+            commit; 
+                        
+                        --        update data_count in bio_assay_analysis
+                        
+            update biomart.bio_assay_analysis baa
+                        set data_count=(select count(*) from biomart.bio_assay_analysis_gwas x
+                                                        where x.bio_assay_analysis_id=v_bio_assay_analysis_id) 
+            where baa.bio_assay_analysis_id=v_bio_assay_analysis_id;
+            stepCt := stepCt +1;
+            cz_write_audit(jobID,databaseName,procedureName,'Update data_count for analysis',SQL%ROWCOUNT,stepCt,'Done');
+            commit;                        
         
-        if stage_array(i).data_type = 'EQTL' then
-            v_EQTL_staged := 1;
-        end if;    
-        
-    end loop;
-    
-    --    disable indexes if loading GWAS data
-    
-    if v_GWAS_staged = 1 then
-		for gwas_idx in (select index_name from all_indexes where owner = 'BIOMART' and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
-		loop
-			v_sqlText := 'alter index ' || gwas_idx.index_name || ' unusable';
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Disabling index ' || gwas_idx.index_name || ' on BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
-			execute immediate(v_sqlText);
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Disabling complete',SQL%ROWCOUNT,stepCt,'Done');       
-		end loop;
-    end if;
+                        --        update status in lz_src_analysis_metadata
+                        
+                        update tm_lz.lz_src_analysis_metadata
+                        set status='PRODUCTION'
+                        where etl_id = v_etl_id;
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Set status to PRODUCTION in tm_lz.lz_src_analysis_metadata',SQL%ROWCOUNT,stepCt,'Done');
+                        commit;        
+                        
+                        --        delete data from biomart_stage
+                        
+                        delete from biomart_stage.bio_assay_analysis_gwas
+                        where bio_assay_analysis_id = v_bio_assay_analysis_id;
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Delete data for analysis from biomart_stage.bio_assay_analysis_gwas',SQL%ROWCOUNT,stepCt,'Done');
+                        commit; 
 
-    --    delete any existing data in bio_assay_analysis_eqtl
+                        --        load top50 table
+                        i2b2_load_gwas_top50(v_bio_assay_analysis_id, jobID);
+                        
+                else
+                        --        EQTL data
+                        v_EQTL_staged := 1;
+                      /*  
+                        if v_eqtl_indx = 0 then
+                                --        disable indexes if loading eqtl data
+                                for eqtl_idx in (select index_name
+                                                                           ,table_name
+                                                                 from all_indexes 
+                                                             where owner = 'BIOMART' 
+                                                                   and table_name = 'BIO_ASY_ANALYSIS_EQTL_TOP50' )
+                                loop
+                                        v_sqlText := 'alter index ' || eqtl_idx.index_name || ' unusable';
+                                        stepCt := stepCt + 1;
+                                        cz_write_audit(jobID,databaseName,procedureName,'Disabling index ' || eqtl_idx.index_name || ' on ' || eqtl_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+                                        execute immediate(v_sqlText);
+                                        stepCt := stepCt + 1;
+                                        cz_write_audit(jobID,databaseName,procedureName,'Disabling complete',SQL%ROWCOUNT,stepCt,'Done');       
+                                end loop;
+                                v_eqtl_indx := 1;
+                        end if;
+                        */
+                        --        delete existing data from bio_assay_analysis_eqtl
+                        delete from biomart.bio_assay_analysis_eqtl g
+                        where g.bio_assay_analysis_id = v_bio_assay_analysis_id;
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Delete exising data for staged analyses from biomart.bio_assay_analysis_eqtl',SQL%ROWCOUNT,stepCt,'Done');
+                        commit;    
 
-    if v_EQTL_staged = 1 then
-        delete from biomart.bio_assay_analysis_eqtl g
-        where g.bio_assay_analysis_id in
-             (select x.bio_assay_analysis_id
-              from tm_lz.lz_src_analysis_metadata t
-                  ,biomart.bio_assay_analysis x
-              where t.status = 'STAGED'
-                and t.data_type = 'EQTL'
-                and t.study_id = x.etl_id
-                and t.etl_id = x.etl_id_source
-                and case when i_etl_id = -1 then 1
-                         when t.etl_id = i_etl_id then 1
-                         else 0 end = 1);
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Delete exising data for staged analyses from BIOMART.BIO_ASSAY_ANALYSIS_EQTL',SQL%ROWCOUNT,stepCt,'Done');
-        commit;    
-    end if;
-    
-    for i in stage_array.first .. stage_array.last
-    loop
-        
-        cz_write_audit(jobId,databaseName,procedureName,'Loading ' || stage_array(i).study_id || ' ' || stage_array(i).orig_data_type || ' ' ||
-                       stage_array(i).analysis_name,0,stepCt,'Done');
-                       
-        v_etl_id := stage_array(i).etl_id;
-        v_bio_assay_analysis_id := stage_array(i).bio_assay_analysis_id;
-        v_data_type := stage_array(i).data_type;
-        
-        if v_data_type = 'EQTL' then
             insert into biomart.bio_assay_analysis_eqtl
             (bio_asy_analysis_eqtl_id
             ,bio_assay_analysis_id
@@ -167,161 +229,118 @@ AS
                   ,cis_trans
                   ,distance_from_gene
                   ,etl_id
-                  ,ext_data
+                  ,case when length(ext_data)-length(replace(ext_data,';','')) < v_max_ext_flds
+                                                then tm_cz.repeat_char(ext_data,v_max_ext_flds-(length(ext_data)-length(replace(ext_data,';',''))),';')
+                                                else ext_data
+                                   end
                   ,log(10,to_binary_double(p_value_char))*-1
             from biomart_stage.bio_assay_analysis_eqtl
             where bio_assay_analysis_id = v_bio_assay_analysis_id;
             stepCt := stepCt + 1;
-            cz_write_audit(jobId,databaseName,procedureName,'Insert data for analysis from BIOMART_STAGE.BIO_ASSAY_ANALYSIS_' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
-         
+            cz_write_audit(jobID,databaseName,procedureName,'Insert data for analysis into biomart.bio_assay_analysis_eqtl',SQL%ROWCOUNT,stepCt,'Done');
             commit;        
-        else
-			--	check if partition exists for bio_assay_analysis_id, if not, add, if yes, truncate
-			select count(*) into v_exists
-			from all_tab_partitions
-			where table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-			  and partition_name = to_char(v_bio_assay_analysis_id);
-		
-			if v_exists = 0 then	
-				--	need to add partition to bio_assay_analysis_gwas
-				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
-						    to_char(v_bio_assay_analysis_id) || ') ' ||
-						   'NOLOGGING TABLESPACE "BIOMART" ';
-				execute immediate(v_sqlText);
-				stepCt := stepCt + 1;
-				cz_write_audit(jobId,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas',0,stepCt,'Done');
-			else
-				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
-				execute immediate(v_sqlText);
-				stepCt := stepCt + 1;
-				cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas',0,stepCt,'Done');
-			end if;
-			
-            insert into biomart.bio_assay_analysis_gwas
-            (bio_asy_analysis_gwas_id
-            ,bio_assay_analysis_id
-            ,rs_id
-            ,p_value
-            ,p_value_char
-            ,etl_id
-            ,ext_data
-            ,log_p_value)
-            select bio_asy_analysis_gwas_id
-                  ,bio_assay_analysis_id
-                  ,rs_id
-                  ,to_binary_double(p_value_char)
-                  ,p_value_char
-                  ,etl_id
-                  ,ext_data
-                  ,log(10,to_binary_double(p_value_char))*-1
-            from biomart_stage.bio_assay_analysis_gwas
+                        
+                        --        update data_count in bio_assay_analysis
+                        
+            update biomart.bio_assay_analysis baa
+                        set data_count=(select count(*) from biomart.bio_assay_analysis_eqtl x
+                                                        where x.bio_assay_analysis_id=v_bio_assay_analysis_id) 
+            where baa.bio_assay_analysis_id=v_bio_assay_analysis_id;
+            stepCt := stepCt +1;
+            cz_write_audit(jobID,databaseName,procedureName,'Update data_count for analysis',SQL%ROWCOUNT,stepCt,'Done');
+            commit;                        
+        
+                        --        update status in lz_src_analysis_metadata
+                        
+                        update tm_lz.lz_src_analysis_metadata
+                        set status='PRODUCTION'
+                        where etl_id = v_etl_id;
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Set status to PRODUCTION in tm_lz.lz_src_analysis_metadata',SQL%ROWCOUNT,stepCt,'Done');
+                        commit;        
+                        
+                        --        delete data from biomart_stage
+                        
+                        delete from biomart_stage.bio_assay_analysis_eqtl
             where bio_assay_analysis_id = v_bio_assay_analysis_id;
             stepCt := stepCt + 1;
-            cz_write_audit(jobId,databaseName,procedureName,'Insert data for analysis from BIOMART_STAGE.BIO_ASSAY_ANALYSIS_' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
-            commit;    
-        end if;
+            cz_write_audit(jobID,databaseName,procedureName,'Delete data for analysis from biomart_stage.bio_assay_analysis_eqtl',SQL%ROWCOUNT,stepCt,'Done');
+            commit; 
 
-        if i_etl_id > -1 then
-
-            v_sqlText := 'delete from biomart_stage.bio_assay_analysis_' || v_data_type || 
-                         ' where bio_assay_analysis_id = ' || to_char(v_bio_assay_analysis_id);
-            --dbms_output.put_line(v_sqlText);
-            execute immediate(v_sqlText);
-            stepCt := stepCt + 1;
-            cz_write_audit(jobId,databaseName,procedureName,'Delete data for analysis from BIOMART_STAGE.BIO_ASSAY_ANALYSIS_' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
-            commit;    
-        end if;    
-        
-        update tm_lz.lz_src_analysis_metadata
-        set status='PRODUCTION'
-        where etl_id = v_etl_id;
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Set status to PRODUCTION in tm_lz.lz_src_analysis_metadata',SQL%ROWCOUNT,stepCt,'Done');
-        commit;                
-            
-    end loop;
-    
-    if i_etl_id = -1 then
-    
-        select table_name
-        bulk collect into stage_table_array
-        from all_tables
-        where owner = 'BIOMART_STAGE'
-          and table_name like 'BIO_ASSAY_ANALYSIS%';
-          
-        for i in stage_table_array.first .. stage_table_array.last
-        loop
-            v_sqlText := 'truncate table biomart_stage.' || stage_table_array(i).table_name;
-            --dbms_output.put_line(v_sqlText);
-            execute immediate(v_sqlText);
-            stepCt := stepCt + 1;
-            cz_write_audit(jobId,databaseName,procedureName,'Truncated biomart_stage.' || stage_table_array(i).table_name,0,stepCt,'Done');
+                        --        load top50 table
+                        i2b2_load_eqtl_top50(v_bio_assay_analysis_id, jobID);
+                
+                end if;
         end loop;
-    end if;
     
     --    rebuild indexes if loading GWAS data
-    
+    /*
     if v_GWAS_staged = 1 then
-		for gwas_idx in (select index_name from all_indexes where owner = 'BIOMART' and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
-		loop
-			v_sqlText := 'alter index ' || gwas_idx.index_name || ' rebuild';
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding index ' || gwas_idx.index_name || ' on BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
-			execute immediate(v_sqlText);
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
-		end loop;
-		
-		I2B2_LOAD_GWAS_TOP50();
-		stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created top 50 GWAS',0,stepCt,'Done');
-    end if;
-        
-    if v_EQTL_staged = 1 then
-		I2B2_LOAD_EQTL_TOP50();
-		stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created top 50 EQTL',0,stepCt,'Done');
-    end if;
-    
-    --Insert data_count to bio_assay_analysis table. added by Haiyan Zhang 01/22/2013
-    for i in stage_array.first .. stage_array.last
-    loop
-        v_bio_assay_analysis_id := stage_array(i).bio_assay_analysis_id;
-        v_data_type := stage_array(i).data_type;
-        if v_data_type = 'EQTL' then
-          
-            update biomart.bio_assay_analysis set data_count=(select count(*) from biomart.bio_assay_analysis_eqtl 
-            where bio_assay_analysis_eqtl.bio_assay_analysis_id=v_bio_assay_analysis_id) 
-            where bio_assay_analysis.bio_assay_analysis_id=v_bio_assay_analysis_id;
-            stepCt := stepCt +1;
-            cz_write_audit(jobId,databaseName,procedureName,'Update data_count for analysis ' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
-            commit;
-        else
-          
-            update biomart.bio_assay_analysis set data_count=(select count(*) from biomart.bio_assay_analysis_gwas 
-            where bio_assay_analysis_gwas.bio_assay_analysis_id=v_bio_assay_analysis_id) 
-            where bio_assay_analysis.bio_assay_analysis_id=v_bio_assay_analysis_id;
-            stepCt := stepCt +1;
-            cz_write_audit(jobId,databaseName,procedureName,'Update data_count for analysis ' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
-            commit;
+                for gwas_idx in (select index_name 
+                                                           ,table_name
+                                                 from all_indexes 
+                                                 where owner = 'BIOMART' 
+                                                   and table_name In ('BIO_ASSAY_ANALYSIS_GWAS','BIO_ASY_ANALYSIS_GWAS_TOP50') )
+                loop
+                        v_sqlText := 'alter index ' || gwas_idx.index_name || ' rebuild';
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Rebuilding index ' || gwas_idx.index_name || ' on ' || gwas_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+                        execute immediate(v_sqlText);
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
+                end loop;
         end if;
-    end loop; 
-    ---end added by Haiyan Zhang
-    
-    cz_write_audit(jobId,databaseName,procedureName,'End i2b2_move_analysis_to_prod',0,stepCt,'Done');
+        */
+        if v_gwas_staged = 0 and v_eqtl_staged = 0 then
+        cz_write_audit(jobID, databaseName, procedureName, 'No staged data - run terminating normally',0,stepCt,'Done');
+        cz_end_audit(jobID, 'Success');
+        end if;
+
+    --    rebuild indexes if loading EQTL data
+    /*
+    if v_eqtl_staged = 1 then
+                for eqtl_idx in (select index_name 
+                                                           ,table_name
+                                                 from all_indexes 
+                                                 where owner = 'BIOMART' 
+                                                   and table_name = 'BIO_ASY_ANALYSIS_EQTL_TOP50')
+                loop
+                        v_sqlText := 'alter index ' || eqtl_idx.index_name || ' rebuild';
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Rebuilding index ' || eqtl_idx.index_name || ' on ' || eqtl_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+                        execute immediate(v_sqlText);
+                        stepCt := stepCt + 1;
+                        cz_write_audit(jobID,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
+                end loop;
+        end if;
+        */
+     /*   if v_eqtl_staged = 0 and v_eqtl_staged = 0 then
+        cz_write_audit(jobID, databaseName, procedureName, 'No staged data - run terminating normally',0,stepCt,'Done');
+        cz_end_audit(jobID, 'Success');
+        end if;  
+        */      
+        --        check if any data left in staging tables, ususally indicated no bio_assay_analysis record in biomart
+        
+        select count(*) into v_exists
+        from (select distinct bio_assay_analysis_id from biomart_stage.bio_assay_analysis_gwas
+                  union 
+                  select distinct bio_assay_analysis_id from biomart_stage.bio_assay_analysis_eqtl);
+                  
+        if v_exists > 0 then
+        cz_write_audit(jobID, databaseName, procedureName, '**WARNING ** data remains in stage tables',0,stepCt,'Done');
+      --  cz_end_audit(jobID, 'Success');
+        end if;                  
+                
+    cz_write_audit(jobID,databaseName,procedureName,'End ' || procedureName,0,stepCt,'Done');
     stepCt := stepCt + 1;
     
-    cz_end_audit(jobId, 'Success');
+    cz_end_audit(jobID, 'Success');
     
     exception
-    when no_staged_data then
-        cz_write_audit(jobId, databaseName, procedureName, 'No staged data - run terminating normally',0,stepCt,'Done');
-        cz_end_audit(jobId, 'Success');
     when others then
     --Handle errors.
         cz_error_handler (jobID, procedureName);
     --End Proc
         cz_end_audit (jobID, 'FAIL');
-    
-END;
+    END;
 

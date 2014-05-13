@@ -53,3 +53,7 @@ FMAPP_DB_PORT=1524
 FMAPP_DB_USER=fmapp
 FMAPP_DB_PWD=fmapp
 
+_____________________________
+
+Update ARCHIVE_DIR variable in Kettle-ETL/load_analysis_from_lz_to_staging.kjb
+
