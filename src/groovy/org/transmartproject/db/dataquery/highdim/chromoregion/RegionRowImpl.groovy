@@ -1,10 +1,11 @@
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
+import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-final class RegionRowImpl extends AbstractDataRow implements RegionRow {
+final class RegionRowImpl extends AbstractDataRow implements RegionRow, BioMarkerDataRow {
 
     final List rowList
 
@@ -30,9 +31,8 @@ final class RegionRowImpl extends AbstractDataRow implements RegionRow {
 
     Integer getNumberOfProbes() { rowList[6] as Integer }
 
-    String getGeneSymbol() { rowList[7] as String }
-
-    Long getGeneId() { rowList[8] as Long }
+    @Override
+    String getBioMarker() { rowList[7] as String }
 
     @Override
     String getLabel() {

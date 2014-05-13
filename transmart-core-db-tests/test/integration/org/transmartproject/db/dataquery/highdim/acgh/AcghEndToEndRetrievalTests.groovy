@@ -92,13 +92,11 @@ class AcghEndToEndRetrievalTests {
         assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].cytoband)),
-                hasProperty('geneSymbol', equalTo(testData.regions[1].geneSymbol)),
-                hasProperty('geneId', equalTo(testData.regions[1].geneId)))
+                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)))
         assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].cytoband)),
-                hasProperty('geneSymbol', equalTo(testData.regions[0].geneSymbol)),
-                hasProperty('geneId', equalTo(testData.regions[0].geneId)))
+                hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)))
 
         assertThat regionRows[1][assayColumns[1]],
                 hasSameInterfaceProperties(AcghValues, testData.acghData[0])
