@@ -5,6 +5,7 @@ import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.concept.ConceptKey
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
@@ -125,6 +126,13 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
             ]
         }
         ret
+    }
+
+    @Override
+    Study getStudy() {
+        // since Study (in this sense) is a transmart concept, this only makes
+        // sense for objects from tranSMART's i2b2 metadata table: I2b2
+        null
     }
 
     @Override

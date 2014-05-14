@@ -6,6 +6,7 @@ import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.concept.ConceptKey
 
 @EqualsAndHashCode(includes = [ 'tableCode' ])
@@ -132,7 +133,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         getDescendants(false, showHidden, showSynonyms)
     }
 
-    //@Override
+    @Override
     List<OntologyTerm> getAllDescendants(boolean showHidden = false,
                                          boolean showSynonyms = false) {
         getDescendants(true, showHidden, showSynonyms)
@@ -199,6 +200,14 @@ class TableAccess extends AbstractQuerySpecifyingType implements
             }
             order('name')
         }
+    }
+
+    @Override
+    Study getStudy() {
+        /* never has an associated tranSMART study;
+         * in tranSMART table access will only have 'Public Studies' and
+         * 'Private Studies' nodes */
+        null
     }
 
     @Override
