@@ -182,6 +182,22 @@ class UserAccessLevelTests {
     }
 
     @Test
+    void testQueryDefinitionNonTopNode() {
+        // test for bug where checking access only worked on the study top node
+        // study 1 is public
+        def thirdUser = accessLevelTestData.users[2]
+
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(items: [
+                        new Item(
+                                conceptKey: '\\\\i2b2 main\\foo\\study1\\bar\\'
+                        )]),
+        ])
+
+        assertThat thirdUser.canPerform(BUILD_COHORT, definition), is(true)
+    }
+
+    @Test
     void testDoNotAllowInvertedPanel() {
         def secondUser = accessLevelTestData.users[1]
 

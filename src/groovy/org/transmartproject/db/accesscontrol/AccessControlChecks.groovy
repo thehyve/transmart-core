@@ -113,8 +113,7 @@ class AccessControlChecks {
 
                 /* this could be optimized by adding a new method in
                  * StudiesResource */
-                studiesResource.getStudyByOntologyTerm(
-                        conceptsResource.getByKey(item.conceptKey))
+                conceptsResource.getByKey(item.conceptKey).study
             } as Set
 
             foundStudies.every { Study study1 ->
