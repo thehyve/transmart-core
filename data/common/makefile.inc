@@ -61,7 +61,7 @@ TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
 $(TRANSMART_LOADER):
 	$(MAKE) -C $(ENV_DIR) $@
 
-load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FOLDER) $(TRANSMART_LOADER)
+load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER)
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
 	&& java -cp $(TRANSMART_LOADER_JAR) \
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
