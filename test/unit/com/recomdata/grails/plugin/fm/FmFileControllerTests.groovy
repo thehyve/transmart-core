@@ -1,4 +1,4 @@
-package com.recomdata.grails.plugin.fm
+package fm
 
 import grails.test.*
 

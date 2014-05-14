@@ -18,10 +18,9 @@
  ******************************************************************/
   
 
-package com.recomdata.grails.plugin.fm
+package fm
 
 import org.transmart.biomart.Experiment
-import com.recomdata.grails.plugin.fm.FmFile
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream

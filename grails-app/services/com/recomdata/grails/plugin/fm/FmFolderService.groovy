@@ -17,7 +17,7 @@
  *
  ******************************************************************/
 
-package com.recomdata.grails.plugin.fm
+package fm
 
 //import annotation.*
 import org.transmart.biomart.BioData

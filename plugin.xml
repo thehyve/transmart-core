@@ -10,13 +10,13 @@ Adds folder management features to tranSMART, allowing files to be attached to s
     <resource>Config</resource>
     <resource>DataSource</resource>
     <resource>UrlMappings</resource>
-    <resource>com.recomdata.grails.plugin.fm.FileExportController</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmFolderController</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmData</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmFile</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmFolder</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmFolderAssociation</resource>
-    <resource>com.recomdata.grails.plugin.fm.FmFolderService</resource>
+    <resource>fm.FileExportController</resource>
+    <resource>fm.FmFolderController</resource>
+    <resource>fm.FmData</resource>
+    <resource>fm.FmFile</resource>
+    <resource>fm.FmFolder</resource>
+    <resource>fm.FmFolderAssociation</resource>
+    <resource>fm.FmFolderService</resource>
   </resources>
   <dependencies />
   <behavior />
