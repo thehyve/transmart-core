@@ -27,9 +27,9 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
         AbstractI2b2Metadata.mapping.delegate = delegate
         AbstractI2b2Metadata.mapping()
-	}
+    }
 
-	static constraints = {
+    static constraints = {
         cTotalnum           nullable:   true
         cComment            nullable:   true
         mAppliedPath        nullable:   false,   maxSize:   700
@@ -44,6 +44,6 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
         AbstractI2b2Metadata.constraints.delegate = delegate
         AbstractI2b2Metadata.constraints()
-	}
+    }
 
 }
