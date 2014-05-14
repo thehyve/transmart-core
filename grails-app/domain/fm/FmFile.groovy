@@ -17,12 +17,11 @@
  *
  ******************************************************************/
 
-package com.recomdata.grails.plugin.fm
+package fm
 
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
+import groovy.transform.ToString
 
+@ToString(includes = ['id', 'displayName', 'originalName', 'fileSize', 'filestoreLocation', 'filestoreName', 'createDate'])
 class FmFile {
 
     Long id
@@ -38,7 +37,6 @@ class FmFile {
     Date createDate = new Date()
     Date updateDate = new Date()
     String uniqueId
-    String fileDescription
 
     static hasMany = [folders: FmFolder] //Should probably only have one, but Grails doesn't allow join table on one-many
 
@@ -51,20 +49,18 @@ class FmFile {
         version false
         cache true
         sort "displayName"
-        id column:'file_id', generator: 'sequence', params:[sequence:'seq_fm_id']
-        folders joinTable: [name: 'fm_folder_file_association',  key:'file_id', column: 'folder_id']
-        fileDescription column: 'DESCRIPTION'
+        id column: 'file_id', generator: 'sequence', params: [sequence: 'seq_fm_id']
+        folders joinTable: [name: 'fm_folder_file_association', key: 'file_id', column: 'folder_id']
     }
 
     static constraints = {
-        displayName(maxSize:1000)
-        originalName(maxSize:1000)
-        fileType(nullable:true, maxSize:100)
-        fileSize(nullable:true)
-        filestoreLocation(nullable:true, maxSize:1000)
-        filestoreName(nullable:true, maxSize:1000)
-        linkUrl(nullable:true, maxSize:1000)
-        fileDescription(nullable: true, maxSize:2000)
+        displayName(maxSize: 1000)
+        originalName(maxSize: 1000)
+        fileType(nullable: true, maxSize: 100)
+        fileSize(nullable: true)
+        filestoreLocation(nullable: true, maxSize: 1000)
+        filestoreName(nullable: true, maxSize: 1000)
+        linkUrl(nullable: true, maxSize: 1000)
     }
 
     /**
