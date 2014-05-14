@@ -129,7 +129,7 @@ class GWASController {
    /**
 	*   Execute a SOLR query to retrieve all the analyses for a certain trial that match the given criteria
 	 */
-	def querySOLRTrialAnalysis(params, List sessionFilter) {
+	def querySOLRTrialAnalysis(params, sessionFilter) {
 		
 		def trialNumber = params['trialNumber']
  
@@ -479,7 +479,7 @@ class GWASController {
     * Create the SOLR query string for the nonfaceted fields (i.e. those that are not in tree)
     * It will be of form ((<cat1>:"term1" OR <cat1>:"term2") AND ( (<cat2>:"term3") ) AND () .. )
     */
-   public String createSOLRNonfacetedQueryString(List queryParams) {
+   public String createSOLRNonfacetedQueryString(queryParams) {
 	   def nonfacetedQuery=""
 	   // loop through each regular query parameter
 	   for (qp in queryParams)  {
@@ -910,7 +910,7 @@ class GWASController {
    * Load the initial facet results for the tree (no filters)
    * @return JSON object containing facet counts
    */
-   def getInitialFacetResults = {List categoriesList  ->
+   def getInitialFacetResults = {categoriesList  ->
 	   // initial state of the significant field is checked, so need to add the search field to the SOLR query to get the initial facet coutns
 	   //  and save the search term to the session variable so that is applied to the query to get the analysis list 
 	   //def queryParams = ["ANY_SIGNIFICANT_GENES:1"]

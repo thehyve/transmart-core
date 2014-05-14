@@ -205,7 +205,7 @@ class GwasSearchController {
         return genes
     }
 
-    def getRegionSearchResults(Long max, Long offset, Double cutoff, String sortField, String order, String search, List analysisIds) throws Exception {
+    def getRegionSearchResults(Long max, Long offset, Double cutoff, String sortField, String order, String search, analysisIds) throws Exception {
 
         //Get list of REGION restrictions from session and translate to regions
         def regions = getSearchRegions(session['solrSearchFilter'])
