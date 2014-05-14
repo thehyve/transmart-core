@@ -101,3 +101,62 @@ CREATE SEQUENCE seq_region_id
     NO MAXVALUE
     CACHE 1;
 
+--
+-- Type: TYPE; Owner: TM_CZ; Name: T_STRING_AGG
+--
+  CREATE TYPE t_string_agg AS
+(
+  g_string  character varying(32767)
+);
+
+CREATE OR REPLACE FUNCTION TStringAggregateInitialize(
+       sctx  IN OUT  t_string_agg
+)
+    RETURNS t_string_agg AS $body$
+  BEGIN
+    sctx := t_string_agg(NULL);
+    RETURN;
+  END;
+$body$
+LANGUAGE PLPGSQL;
+
+
+CREATE OR REPLACE FUNCTION TStringAggregateIterate(
+       self   IN OUT  t_string_agg,
+       value  IN      text
+)
+     RETURNS t_string_agg AS $body$
+  BEGIN
+    self.g_string := self.g_string || ',' || value;
+    RETURN;
+  END;
+$body$
+LANGUAGE PLPGSQL;
+
+
+CREATE OR REPLACE FUNCTION TStringAggregateTerminate(
+       self     IN   t_string_agg,
+       returnValue  OUT  text,
+       flags        IN   bigint
+)
+    RETURNS text AS $body$
+  BEGIN
+    returnValue := RTRIM(LTRIM(SELF.g_string, ','), ',');
+    RETURN;
+  END;
+
+$body$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION TStringAggregateMerge(
+       self  IN OUT  t_string_agg,
+       ctx2  IN      t_string_agg
+)
+    RETURNS t_string_agg AS $body$
+ BEGIN
+    self.g_string := self.g_string || ',' || ctx2.g_string;
+    RETURN;
+  END;
+
+$body$
+LANGUAGE PLPGSQL;
