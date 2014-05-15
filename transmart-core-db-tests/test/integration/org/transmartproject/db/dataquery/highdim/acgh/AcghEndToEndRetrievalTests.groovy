@@ -91,10 +91,12 @@ class AcghEndToEndRetrievalTests {
         /* results are ordered (asc) by region id */
         assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
-                hasProperty('label', equalTo(testData.regions[1].cytoband)))
+                hasProperty('label', equalTo(testData.regions[1].cytoband)),
+                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)))
         assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
-                hasProperty('label', equalTo(testData.regions[0].cytoband)))
+                hasProperty('label', equalTo(testData.regions[0].cytoband)),
+                hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)))
 
         assertThat regionRows[1][assayColumns[1]],
                 hasSameInterfaceProperties(AcghValues, testData.acghData[0])
@@ -224,6 +226,35 @@ class AcghEndToEndRetrievalTests {
 
         assertThat Lists.newArrayList(dataQueryResult), everyItem(
                 isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
+    }
+
+    @Test
+    void testWithGeneConstraint() {
+        def assayConstraints = [
+                acghResource.createAssayConstraint(
+                        AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
+                acghResource.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT,
+                        result_instance_id: testData.allPatientsQueryResult.id),
+        ]
+        def dataConstraints = [
+                acghResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
+                        find({ it.keyword == 'AURKA' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = acghResource.createProjection([:], ACGH_VALUES_PROJECTION)
+
+        dataQueryResult = acghResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
+
+        def resultList = Lists.newArrayList dataQueryResult
+
+        assertThat resultList, allOf(
+                hasSize(1),
+                everyItem(hasProperty('data', hasSize(2))),
+                contains(hasProperty('bioMarker', equalTo('AURKA')))
+        )
     }
 
 }

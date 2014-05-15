@@ -11,10 +11,10 @@ class DeChromosomalRegion implements Region {
     Integer numberOfProbes
     String  name
     String  cytoband
-
-    /* unused */
     String  geneSymbol
     Long    geneId
+
+    /* unused */
     String  organism
 
     static belongsTo = [platform: DeGplInfo]

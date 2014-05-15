@@ -14,6 +14,8 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
@@ -38,6 +40,9 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     ChromosomeSegmentConstraintFactory chromosomeSegmentConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
     @Override
     HighDimensionDataTypeResource createHighDimensionResource(Map params) {
         /* return instead subclass of HighDimensionDataTypeResourceImpl,
@@ -54,7 +59,9 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                chromosomeSegmentConstraintFactory
+                chromosomeSegmentConstraintFactory,
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'GENE', 'jRegion', 'geneId')
         ]
     }
 
@@ -97,6 +104,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 property 'region.start'
                 property 'region.end'
                 property 'region.numberOfProbes'
+                property 'region.geneSymbol'
             }
 
             order 'region.id', 'asc'
@@ -125,7 +133,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..14])
+                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..15])
                     regionRow.assayIndexMap = assayIndexMap
                     regionRow.data = list.collect {
                         projection.doWithResult(Arrays.asList(it)[0..7])
