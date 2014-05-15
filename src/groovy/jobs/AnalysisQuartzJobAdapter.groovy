@@ -2,6 +2,7 @@ package jobs
 
 import grails.util.Holders
 import groovy.util.logging.Log4j
+import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
 import org.quartz.Job
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
@@ -48,7 +49,11 @@ class AnalysisQuartzJobAdapter implements Job {
 
         setupDefaultScopeBeans()
 
+        PersistenceContextInterceptor interceptor
         try {
+            interceptor = Holders.applicationContext.persistenceInterceptor
+            interceptor.init()
+
             AbstractAnalysisJob job
             try {
                 job = createAnalysisJob()
@@ -68,6 +73,8 @@ class AnalysisQuartzJobAdapter implements Job {
             }
         } finally {
             cleanJobBeans()
+            interceptor.flush()
+            interceptor.destroy()
         }
     }
 
