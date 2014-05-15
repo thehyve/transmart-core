@@ -105,7 +105,6 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 property 'region.end'
                 property 'region.numberOfProbes'
                 property 'region.geneSymbol'
-                property 'region.geneId'
             }
 
             order 'region.id', 'asc'
@@ -134,7 +133,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..16])
+                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..15])
                     regionRow.assayIndexMap = assayIndexMap
                     regionRow.data = list.collect {
                         projection.doWithResult(Arrays.asList(it)[0..7])
