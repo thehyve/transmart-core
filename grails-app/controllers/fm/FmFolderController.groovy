@@ -1,27 +1,4 @@
-/*************************************************************************
- * tranSMART - translational medicine data mart
- *
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- *
- * This product includes software developed at Janssen Research & Development, LLC.
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- ******************************************************************/
 package fm
-
-//import annotation.AmTagDisplayValue
-//import annotation.AmTagItem
-//import annotation.AmTagTemplate
-//import annotation.AmTagTemplateAssociation
 
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.BioAssayAnalysisData
@@ -770,29 +747,29 @@ class FmFolderController {
 /*
 	private String createDataTable(folders, folderType)
 	{
-		
+
 		if (folders == null || folders.size() < 1) return
-					
+
 		ExportTableNew table=new ExportTableNew();
-		
+
 		def dataObject
 		def childMetaDataTagItems
-		
+
 		for (folder in folders) {
 			dataObject = getBioDataObject(folder)
 			childMetaDataTagItems = getChildMetaDataItems(folder)
 			if (dataObject && childMetaDataTagItems) break
 		}
-		
-		childMetaDataTagItems.eachWithIndex() 
-		{obj, i ->    // 
+
+		childMetaDataTagItems.eachWithIndex()
+		{obj, i ->    //
 			AmTagItem amTagItem = obj
-			if(amTagItem.viewInChildGrid) 
+			if(amTagItem.viewInChildGrid)
 			{
 				if(amTagItem.tagItemType == 'FIXED')
 				{
 					log.info ("CREATEDATATABLE::FIXED TYPE == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
-					
+
 					if(dataObject.hasProperty(amTagItem.tagItemAttr))
 					{
 						//log.info ("CREATEDATATABLE::FIXED COLUMNS == " + amTagItem.tagItemAttr + " " + amTagItem.displayName)
@@ -802,7 +779,7 @@ class FmFolderController {
 					{
 						log.error("CREATEDATATABLE::TAG ITEM ID = " + amTagItem.id + " COLUMN " + amTagItem.tagItemAttr + " is not a propery of " + dataObject)
 					}
-					
+
 				}
 				else if(amTagItem.tagItemType == 'CUSTOM')
 				{
@@ -822,30 +799,30 @@ class FmFolderController {
 			}
 
 		}
-		
-		folders.each 
+
+		folders.each
 		{
 				log.info "FOLDER::" + it
-				
+
 				def bioDataObject = getBioDataObject(it)
 				def folderObject = it
 				ExportRowNew newrow=new ExportRowNew();
 				childMetaDataTagItems.eachWithIndex()
-				{obj, i -> 
+				{obj, i ->
 					AmTagItem amTagItem = obj
 					if(amTagItem.viewInChildGrid)
 					{
 						if(amTagItem.tagItemType == 'FIXED' && bioDataObject.hasProperty(amTagItem.tagItemAttr))
 						{
-							def bioDataDisplayValue = null 
+							def bioDataDisplayValue = null
 							def bioDataPropertyValue = bioDataObject[amTagItem.tagItemAttr]
 							if(amTagItem.tagItemSubtype == 'PICKLIST' || amTagItem.tagItemSubtype == 'MULTIPICKLIST')
 							{
 								if(bioDataPropertyValue)
 								{
 								def cc = ConceptCode.findByUniqueId(bioDataPropertyValue)
-								if(cc) 
-								{ 
+								if(cc)
+								{
 									bioDataDisplayValue = cc.codeName
 								}
 								else
@@ -871,7 +848,7 @@ class FmFolderController {
 							{
 								log.error "FIXED ATTRIBUTE ERROR::Unknown tagItemSubType"
 							}
-							
+
 							log.info("ROWS == " + amTagItem.tagItemAttr + " " + bioDataObject[amTagItem.tagItemAttr])
 							newrow.put(amTagItem.id.toString(),bioDataDisplayValue?bioDataDisplayValue:'');
 						}
@@ -885,16 +862,16 @@ class FmFolderController {
 						{
 						    def tagValues = AmTagDisplayValue.findAllDisplayValue(it.uniqueId,amTagItem.id)
 							log.info("BIOOBJECT PARAMETERS " + it.uniqueId + " " + amTagItem.id + " tagValues " +tagValues)
-							
+
 							newrow.put(amTagItem.id.toString(),createDisplayString(tagValues));
 						}
-	
+
 					}
 				}
-				
+
 				table.putRow(bioDataObject.id.toString(), newrow);
 		}
-		
+
 		return table.toJSON_DataTables("", folderType).toString(5);
 	}
 */
@@ -1080,7 +1057,7 @@ class FmFolderController {
 		{
 			log.error "Unable to find child amTagTemplate for object Id = " + folder.getUniqueId()
 		}
-		
+
 		return metaDataTagItems
 	}
 
@@ -1103,7 +1080,7 @@ class FmFolderController {
 		{
 			log.error "Unable to find amTagTemplate for object Id = " + folder.getUniqueId()
 		}
-		
+
 		return metaDataTagItems
 	} */
 
@@ -1134,45 +1111,45 @@ class FmFolderController {
     }
 
     def editMetaData =
-        {
-            log.info "editMetaData called"
-            log.info "params = " + params
-
-
-            if (!isAdmin()) return;
-
-            //log.info "** action: expDetail called!"
-            def folderId = params.folderId
-
-            def folder
-            def bioDataObject
-            def amTagTemplate
-            def metaDataTagItems
-            if (folderId)
             {
-                folder = FmFolder.get(folderId)
-                if(folder)
+                log.info "editMetaData called"
+                log.info "params = " + params
+
+
+                if (!isAdmin()) return;
+
+                //log.info "** action: expDetail called!"
+                def folderId = params.folderId
+
+                def folder
+                def bioDataObject
+                def amTagTemplate
+                def metaDataTagItems
+                if (folderId)
                 {
-                    bioDataObject = getBioDataObject(folder)
-                    metaDataTagItems = getMetaDataItems(folder,true)
-                }
-                else
-                {
-                    log.error "Unable to find folder for folder Id = " + folderId
+                    folder = FmFolder.get(folderId)
+                    if(folder)
+                    {
+                        bioDataObject = getBioDataObject(folder)
+                        metaDataTagItems = getMetaDataItems(folder,true)
+                    }
+                    else
+                    {
+                        log.error "Unable to find folder for folder Id = " + folderId
+                    }
+
                 }
 
+                // def title = "Edit Meta Data"
+                // def templateType = "editMetadataForm"
+
+                def measurements  = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT platformType FROM BioAssayPlatform as p ORDER BY p.platformType")
+                def vendors = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT vendor FROM BioAssayPlatform as p ORDER BY p.vendor")
+                def technologies = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
+                def platforms = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT name FROM BioAssayPlatform as p ORDER BY p.name")
+
+                render(template: "editMetaData", model:[bioDataObject:bioDataObject, measurements:measurements, technologies:technologies, vendors:vendors, platforms:platforms, folder:folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
             }
-
-            // def title = "Edit Meta Data"
-            // def templateType = "editMetadataForm"
-
-            def measurements  = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT platformType FROM BioAssayPlatform as p ORDER BY p.platformType")
-            def vendors = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT vendor FROM BioAssayPlatform as p ORDER BY p.vendor")
-            def technologies = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
-            def platforms = bio.BioAssayPlatform.executeQuery("SELECT DISTINCT name FROM BioAssayPlatform as p ORDER BY p.name")
-
-            render(template: "editMetaData", model:[bioDataObject:bioDataObject, measurements:measurements, technologies:technologies, vendors:vendors, platforms:platforms, folder:folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
-        }
 
     def updateMetaData = {
         log.info "updateMetaData called"
@@ -1223,34 +1200,34 @@ class FmFolderController {
     }
 
     def subFolders =
-        {
-            ExportTableNew table;
-
-            //Keep this if you want to cache the grid data
-            //ExportTableNew table=(ExportTableNew)request.getSession().getAttribute("gridtable");
-
-            if(table==null)
             {
-                table=new ExportTableNew();
+                ExportTableNew table;
+
+                //Keep this if you want to cache the grid data
+                //ExportTableNew table=(ExportTableNew)request.getSession().getAttribute("gridtable");
+
+                if(table==null)
+                {
+                    table=new ExportTableNew();
+                }
+
+                table.putColumn("ident", new ExportColumn("ident", "ID", "", "String", 50));
+                table.putColumn("name", new ExportColumn("name", "Name", "", "String", 50));
+                table.putColumn("description", new ExportColumn("description", "Description", "", "String", 50));
+
+                ExportRowNew newrow=new ExportRowNew();
+                newrow.put("ident", "foo.id");
+                newrow.put("name", "foo.name");
+                newrow.put("description", "foo.description");
+                table.putRow("somerow", newrow);
+
+                def jSONToReturn = table.toJSON_DataTables("").toString(5);
+
+                request.getSession().setAttribute("gridtable", table);
+
+                [jSONForGrid: jSONToReturn]
+
             }
-
-            table.putColumn("ident", new ExportColumn("ident", "ID", "", "String", 50));
-            table.putColumn("name", new ExportColumn("name", "Name", "", "String", 50));
-            table.putColumn("description", new ExportColumn("description", "Description", "", "String", 50));
-
-            ExportRowNew newrow=new ExportRowNew();
-            newrow.put("ident", "foo.id");
-            newrow.put("name", "foo.name");
-            newrow.put("description", "foo.description");
-            table.putRow("somerow", newrow);
-
-            def jSONToReturn = table.toJSON_DataTables("").toString(5);
-
-            request.getSession().setAttribute("gridtable", table);
-
-            [jSONForGrid: jSONToReturn]
-
-        }
 
     /**
      * Calls service to import files into tranSMART filestore and index them with SOLR
@@ -1312,90 +1289,90 @@ class FmFolderController {
 
 
     def ajaxTechnologies =
-        {
-            def queryString = " where 1=1"
-            if(params.measurementName!=null&& params.measurementName != 'null')
             {
-                queryString += " and platformType = '" + params.measurementName  + "'"
-            }
-            if(params.vendorName!=null&&params.vendorName != 'null')
-            {
-                queryString += " and vendor = '" + params.vendorName + "'"
-            }
+                def queryString = " where 1=1"
+                if(params.measurementName!=null&& params.measurementName != 'null')
+                {
+                    queryString += " and platformType = '" + params.measurementName  + "'"
+                }
+                if(params.vendorName!=null&&params.vendorName != 'null')
+                {
+                    queryString += " and vendor = '" + params.vendorName + "'"
+                }
 
-            queryString = "SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformTechnology"
-            def technologies = bio.BioAssayPlatform.executeQuery(queryString)
-            log.info queryString + " " + technologies
-            render(template: "selectTechnologies", model: [technologies:technologies, technology: params.technologyName])
-        }
+                queryString = "SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformTechnology"
+                def technologies = bio.BioAssayPlatform.executeQuery(queryString)
+                log.info queryString + " " + technologies
+                render(template: "selectTechnologies", model: [technologies:technologies, technology: params.technologyName])
+            }
 
     def ajaxVendors =
-        {
-            log.info params
-            def queryString = " where 1=1"
-
-            if(params.technologyName!=null&&params.technologyName != 'null')
             {
-                queryString += " and platformTechnology = '" + params.technologyName  + "'"
-            }
+                log.info params
+                def queryString = " where 1=1"
 
-            if(params.measurementName!=null&&params.measurementName != 'null')
-            {
-                queryString += " and platformType = '" + params.measurementName + "'"
-            }
+                if(params.technologyName!=null&&params.technologyName != 'null')
+                {
+                    queryString += " and platformTechnology = '" + params.technologyName  + "'"
+                }
 
-            queryString = "SELECT DISTINCT vendor FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.vendor"
-            def vendors  = bio.BioAssayPlatform.executeQuery(queryString)
-            log.info queryString + " " +vendors
-            render(template: "selectVendors", model: [vendors:vendors, vendor: params.vendorName])
-        }
+                if(params.measurementName!=null&&params.measurementName != 'null')
+                {
+                    queryString += " and platformType = '" + params.measurementName + "'"
+                }
+
+                queryString = "SELECT DISTINCT vendor FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.vendor"
+                def vendors  = bio.BioAssayPlatform.executeQuery(queryString)
+                log.info queryString + " " +vendors
+                render(template: "selectVendors", model: [vendors:vendors, vendor: params.vendorName])
+            }
 
     def ajaxMeasurements =
-        {
-            log.info params
-            def queryString = " where 1=1"
-
-            if(params.technologyName!=null&&params.technologyName != 'null')
             {
-                queryString += " and platformTechnology = '" + params.technologyName  + "'"
-            }
+                log.info params
+                def queryString = " where 1=1"
 
-            if(params.vendorName!=null&&params.vendorName != 'null')
-            {
-                queryString += " and vendor = '" + params.vendorName + "'"
-            }
+                if(params.technologyName!=null&&params.technologyName != 'null')
+                {
+                    queryString += " and platformTechnology = '" + params.technologyName  + "'"
+                }
 
-            queryString = "SELECT DISTINCT platformType FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
-            def measurements  = bio.BioAssayPlatform.executeQuery(queryString)
-            log.info queryString + " " + measurements
-            render(template: "selectMeasurements", model: [measurements:measurements, measurement: params.measurementName])
-        }
+                if(params.vendorName!=null&&params.vendorName != 'null')
+                {
+                    queryString += " and vendor = '" + params.vendorName + "'"
+                }
+
+                queryString = "SELECT DISTINCT platformType FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
+                def measurements  = bio.BioAssayPlatform.executeQuery(queryString)
+                log.info queryString + " " + measurements
+                render(template: "selectMeasurements", model: [measurements:measurements, measurement: params.measurementName])
+            }
 
     def ajaxPlatforms =
-        {
-            log.info params
-            def queryString = " where 1=1"
-
-            if(params.measurementName!=null&&params.measurementName != 'null')
             {
-                queryString += " and platformType = '" + params.measurementName + "'"
-            }
+                log.info params
+                def queryString = " where 1=1"
 
-            if(params.technologyName!=null&&params.technologyName != 'null')
-            {
-                queryString += " and platformTechnology = '" + params.technologyName  + "'"
-            }
+                if(params.measurementName!=null&&params.measurementName != 'null')
+                {
+                    queryString += " and platformType = '" + params.measurementName + "'"
+                }
 
-            if(params.vendorName!=null&&params.vendorName != 'null')
-            {
-                queryString += " and vendor = '" + params.vendorName + "'"
-            }
+                if(params.technologyName!=null&&params.technologyName != 'null')
+                {
+                    queryString += " and platformTechnology = '" + params.technologyName  + "'"
+                }
 
-            queryString = "FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
-            def platforms = bio.BioAssayPlatform.executeQuery(queryString)
-            log.info queryString + " " + platforms
-            render(template: "selectPlatforms", model: [platforms:platforms])
-        }
+                if(params.vendorName!=null&&params.vendorName != 'null')
+                {
+                    queryString += " and vendor = '" + params.vendorName + "'"
+                }
+
+                queryString = "FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
+                def platforms = bio.BioAssayPlatform.executeQuery(queryString)
+                log.info queryString + " " + platforms
+                render(template: "selectPlatforms", model: [platforms:platforms])
+            }
 
     private boolean isAdmin() {
         if("anonymousUser" != springSecurityService.getPrincipal())
@@ -1453,8 +1430,4 @@ class FmFolderController {
         def folder = fmFolderService.getFolderByBioDataObject(experiment)
         render (text: folder?.fmFiles ? true : false);
     }
-
-
 }
-
-
