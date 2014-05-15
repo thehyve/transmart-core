@@ -1,8 +1,18 @@
 --
+-- Name: de_variant_metadata_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE de_variant_metadata_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
 -- Name: de_variant_metadata; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_variant_metadata (
-    de_variant_metadata_id integer NOT NULL,
+    de_variant_metadata_id integer DEFAULT nextval('de_variant_metadata_seq'::regclass) NOT NULL,
     dataset_id character varying(50),
     key character varying(255),
     value text
