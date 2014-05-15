@@ -25,7 +25,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ":resources:1.2.RC2"
+        compile(':resources:1.2.1')
         compile(':transmart-java:1.0-SNAPSHOT')
         compile(':biomart-domain:1.0-SNAPSHOT')
         compile(':search-domain:1.0-SNAPSHOT')

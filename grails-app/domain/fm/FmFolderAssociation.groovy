@@ -37,7 +37,7 @@ class FmFolderAssociation implements Serializable {
 
     public getBioObject() {
         log.info "ObjectUID=" + this.objectUid
-        def bioData = bio.BioData.findByUniqueId(this.objectUid)
+        def bioData = org.transmart.biomart.BioData.findByUniqueId(this.objectUid)
         def clazz = lookupDomainClass()
         if (!clazz || !bioData) {
             return null
