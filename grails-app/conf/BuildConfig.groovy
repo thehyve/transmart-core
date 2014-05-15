@@ -35,7 +35,7 @@ grails.project.dependency.resolution = {
 		compile(':transmart-java:1.0-SNAPSHOT')
 		compile(':biomart-domain:1.1-SNAPSHOT')
 		compile(':search-domain:1.0-SNAPSHOT')
-		compile(':folder-management:1.1-SNAPSHOT')
+		compile(':folder-management:1.2-SNAPSHOT')
 		compile(':transmart-legacy-db:0.3-ORACLE-SNAPSHOT')
 		compile(':spring-security-core:2.0-RC2')
 		compile(':quartz:1.0-RC2')
