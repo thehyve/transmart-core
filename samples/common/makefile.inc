@@ -26,6 +26,8 @@ EXPRESSION_PARAMS_FILES := $(wildcard ../common/*/expression.params)
 ANALYSIS_PARAMS_FILES := $(wildcard ../common/*/analysis.params)
 ACGH_PARAMS_FILES := $(wildcard ../common/*/acgh.params)
 PROTEOMICS_PARAMS_FILES := $(wildcard ../common/*/proteomics.params)
+MIRNA_ANNOTATION_PARAMS_FILES := $(wildcard ../common/*/mirna_annotation.params)
+MIRNA_PARAMS_FILES := $(wildcard ../common/*/mirna.params)
 
 LOAD_CLINICAL_TARGETS := $(patsubst ../common/%/clinical.params,load_clinical_%, $(CLINICAL_PARAMS_FILES))
 LOAD_ANNOTATION_TARGETS := $(patsubst ../common/%/annotation.params,load_annotation_%, $(ANNOTATION_PARAMS_FILES))
@@ -34,8 +36,10 @@ LOAD_EXPRESSION_PARAMS_TARGETS := $(patsubst ../common/%/expression.params,load_
 LOAD_ANALYSIS_PARAMS_TARGETS := $(patsubst ../common/%/analysis.params,load_analysis_%, $(ANALYSIS_PARAMS_FILES))
 LOAD_ACGH_PARAMS_TARGETS := $(patsubst ../common/%/acgh.params,load_acgh_%, $(ACGH_PARAMS_FILES))
 LOAD_PROTEOMICS_PARAMS_TARGETS := $(patsubst ../common/%/proteomics.params,load_proteomics_%, $(PROTEOMICS_PARAMS_FILES))
+LOAD_MIRNA_ANNOTATION_PARAMS_TARGETS := $(patsubst ../common/%/mirna_annotation.params,load_mirna_annotation_%, $(MIRNA_ANNOTATION_PARAMS_FILES))
+LOAD_MIRNA_PARAMS_TARGETS := $(patsubst ../common/%/mirna.params,load_mirna_%, $(MIRNA_PARAMS_FILES))
 
-KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS)
+KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_ANNOTATION_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
 
 $(KETTLE_TARGETS): write_kettle_properties
 #these ones are here just for autocompletion:
@@ -107,6 +111,17 @@ load_proteomics_%: ../common/%/proteomics.params ../common/%/proteomics/$(PROTEO
 
 ../common/%/proteomics/$(PROTEOMICS_CM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_column_mapping.groovy
 	groovy ../common/generate_proteomics_column_mapping.groovy -i $< -o $@
+
+load_mirna_annotation_%: ../common/%/mirna_annotation.params ../common/%/mirna_annotation
+	GPL_ID=$* \
+	DATA_LOCATION="$(realpath ../common/$*/mirna_annotation)" \
+	KETTLE_HOME="$(realpath kettle-home)" \
+	./load_mirna_annotation.sh $<
+
+load_mirna_%: ../common/%/mirna.params ../common/%/mirna
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../common/$*/mirna)" \
+        KETTLE_HOME="$(realpath kettle-home)" \
+	./load_mirna.sh $<
 
 .PRECIOUS: ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
 
