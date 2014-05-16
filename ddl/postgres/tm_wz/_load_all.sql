@@ -11,11 +11,17 @@
 \i tm_wz/wt_num_data_types.sql
 \i tm_wz/wt_proteomics_node_values.sql
 \i tm_wz/wt_proteomics_nodes.sql
+\i tm_wz/wt_qpcr_mirna_node_values.sql
+\i tm_wz/wt_qpcr_mirna_nodes.sql
 \i tm_wz/wt_subject_acgh_region.sql
 \i tm_wz/wt_subject_info.sql
 \i tm_wz/wt_subject_microarray_calcs.sql
 \i tm_wz/wt_subject_microarray_logs.sql
 \i tm_wz/wt_subject_microarray_med.sql
+\i tm_wz/wt_subject_mirna_calcs.sql
+\i tm_wz/wt_subject_mirna_logs.sql
+\i tm_wz/wt_subject_mirna_med.sql
+\i tm_wz/wt_subject_mirna_probeset.sql
 \i tm_wz/wt_subject_mrna_data.sql
 \i tm_wz/wt_subject_mrna_probeset.sql
 \i tm_wz/wt_subject_proteomics_calcs.sql
