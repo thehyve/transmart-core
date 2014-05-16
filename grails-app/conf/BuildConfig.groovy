@@ -50,7 +50,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
 
         mavenCentral()
-        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
+        mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
     }
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
