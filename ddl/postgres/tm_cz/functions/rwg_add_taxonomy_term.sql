@@ -8,10 +8,10 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_add_taxonomy_term (
-	New_Term_in text,
-	parent_term_in text,
-	category_term_in text,
-	currentJobID bigint DEFAULT null
+	New_Term_in character varying,
+	parent_term_in character varying,
+	category_term_in character varying,
+	currentJobID numeric DEFAULT (-1)
 )
  RETURNS BIGINT AS $body$
 DECLARE
@@ -35,9 +35,9 @@ DECLARE
 	newJobFlag    smallint;
 	databaseName  varchar(100);
 	procedureName varchar(100);
-	jobID         bigint;
-	stepCt        bigint;
-	rowCt         bigint;
+	jobID         integer;
+	stepCt        integer;
+	rowCt         integer;
 	errorNumber   varchar;
 	errorMessage  varchar;
 

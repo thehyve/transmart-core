@@ -19,7 +19,7 @@ CREATE FUNCTION tf_trg_bio_observation_id() RETURNS trigger
 begin
        if NEW.BIO_OBSERVATION_ID is null then
  select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_OBSERVATION_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

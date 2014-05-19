@@ -2,10 +2,10 @@
 -- Name: number_parser(text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION number_parser (
-     numbers_to_parse IN text
+     numbers_to_parse IN character varying
 )
 --Custom Collection type returned
- RETURNS NUMBER_TABLE AS $body$
+ RETURNS _numeric AS $body$
 DECLARE
 
    start_pos bigint;
@@ -15,7 +15,7 @@ DECLARE
    counter integer;
    token_value varchar(32676);
 
-   list_values NUMBER_TABLE;
+   list_values _numeric;
 
 
 BEGIN

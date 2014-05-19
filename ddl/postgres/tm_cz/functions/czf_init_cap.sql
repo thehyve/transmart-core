@@ -1,17 +1,17 @@
 --
--- Name: czf_init_cap(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czf_init_cap(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION czf_init_cap (
-     text_to_parse IN text
-	-- text_delimiter IN VARCHAR2
+     text_to_parse IN character varying
+	-- text_delimiter IN character varying
 )
 --	text string returned with words initcapped except for any in category_path_excluded_words
 
  RETURNS varchar AS $body$
 DECLARE
 
-   start_pos 		bigint;
-   end_pos   		bigint;
+   start_pos 		integer;
+   end_pos   		integer;
    string_length 	integer;
    string_tokens 	varchar(32676);
    counter 			integer;

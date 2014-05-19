@@ -5,9 +5,9 @@ CREATE TABLE fm_file (
     file_id bigint NOT NULL,
     display_name character varying(1000) NOT NULL,
     original_name character varying(1000) NOT NULL,
-    file_version bigint,
+    file_version numeric,
     file_type character varying(100),
-    file_size bigint,
+    file_size numeric,
     filestore_location character varying(1000),
     filestore_name character varying(1000),
     link_url character varying(1000),
@@ -25,7 +25,7 @@ CREATE FUNCTION tf_trg_fm_file_id() RETURNS trigger
 begin
        if NEW.FILE_ID is null then
  select nextval('fmapp.SEQ_FM_ID') into NEW.FILE_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

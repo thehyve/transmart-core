@@ -31,7 +31,7 @@ CREATE FUNCTION tf_trg_cz_form_layout_id() RETURNS trigger
 begin
        if NEW.FORM_LAYOUT_ID is null then
  select nextval('tm_cz.SEQ_FORM_LAYOUT_ID') into NEW.FORM_LAYOUT_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

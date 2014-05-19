@@ -1,7 +1,7 @@
 --
--- Name: bio_disease_uid(text); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: bio_disease_uid(character varying); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION bio_disease_uid(mesh_code text) RETURNS character varying
+CREATE FUNCTION bio_disease_uid(mesh_code character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
 BEGIN

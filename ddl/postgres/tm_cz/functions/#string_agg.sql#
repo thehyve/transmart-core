@@ -8,3 +8,6 @@ CREATE OR REPLACE FUNCTION string_agg (
 RETURNS varchar AS $body$
 
 PARALLEL_ENABLE AGGREGATE USING t_string_agg;
+
+$body$
+LANGUAGE PLPGSQL;

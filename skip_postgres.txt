@@ -23,10 +23,7 @@ i2b2metadata/i2b2_bk.sql
 i2b2metadata/query1.sql
 i2b2metadata/table_access_20111030.sql
 searchapp/mlog$_search_gene_signatur.sql
-tm_cz/az_test_comparison_info.sql
-tm_cz/az_test_run.sql
-tm_cz/az_test_step_act_result.sql
-tm_cz/az_test_step_run.sql
 tm_lz/lt_src_study_metadata_orig.sql
 tm_cz/probeset_deapp_bkp.sql
 tm_cz/tjea_junk.sql
+tm_cz/views/validate_hd_data_view.sql

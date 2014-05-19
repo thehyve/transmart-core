@@ -1,10 +1,10 @@
 --
--- Name: sf_xtab(text, bigint, text, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: sf_xtab(character varying, numeric, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION sf_xtab (v_variable IN text,
-                                    v_protocol IN bigint,
-                                    v_subject  IN text,
-                                    v_rowid bigint) RETURNS varchar AS $body$
+CREATE OR REPLACE FUNCTION sf_xtab (v_variable IN character varying,
+                                    v_protocol IN numeric,
+                                    v_subject  IN character varying,
+                                    v_rowid bigint) RETURNS character varying AS $body$
 DECLARE
 
 

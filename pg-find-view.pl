@@ -34,7 +34,7 @@ foreach $dir (readdir(PDIR)) {
     while($v = readdir(VDIR)){
 	open(VIN, "$dpdir/$dir/views/$v") || die "Failed to open $dpdir/$dir/views/$v";
 	while(<VIN>) {
-	    if(/^\s*CREATE.*?VIEW (\S+)/) {
+	    if(/^\s*CREATE .*?VIEW (\S+)/) {
 		$vname = lc($1);
 		$vuser = $dir;
 		if(defined($pview{$vname})){$pview{$vname} .= ";"}
@@ -68,8 +68,16 @@ closedir DIR;
 foreach $v (sort(keys(%oview))) {
     if(defined($view{$v})) {
 	$done = "...";
-	if(defined($pview{$v})){$done = $pview{$v}}
-	printf "%-30s %-15s %-15s %s\n", $v, $oview{$v}, $done, $view{$v};
+	$diff = "";
+	if(defined($pview{$v})){
+	    $done = $pview{$v};
+	    if($oview{$v} ne $pview{$v}) {$diff = "FIX "}
+	}
+	else {$diff = "ADD "}
+	printf "%-30s %-15s %-15s %s%s\n", $v, $oview{$v}, $done, $diff, $view{$v};
+    }
+    elsif(defined($pview{$v})){
+	printf "%-30s %-15s %-15s %s\n", $v, $oview{$v}, $pview{$v}, "UNKNOWN";
     }
     else {
 	printf "%-30s %-15s UNKNOWN\n", $v, $oview{$v};

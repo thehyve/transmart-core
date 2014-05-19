@@ -1,9 +1,9 @@
 --
--- Name: bio_disease_uid(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: bio_disease_uid(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION bio_disease_uid (
-  MESH_CODE text
-)  RETURNS varchar AS $body$
+  MESH_CODE character varying
+)  RETURNS character varying AS $body$
 BEGIN
   -- $Id$
   -- Creates bio_disease_uid.

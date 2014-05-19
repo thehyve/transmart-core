@@ -17,7 +17,7 @@ CREATE FUNCTION tf_trg_mirna_probeset_deapp() RETURNS trigger
 begin
        if NEW.PROBESET_ID is null then
  select nextval('tm_cz.SEQ_PROBESET_ID') into NEW.PROBESET_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

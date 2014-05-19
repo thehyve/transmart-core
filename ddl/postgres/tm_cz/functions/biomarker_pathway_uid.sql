@@ -1,10 +1,10 @@
 --
--- Name: biomarker_pathway_uid(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: biomarker_pathway_uid(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION biomarker_pathway_uid (
-  P_SOURCE IN text ,
-  PATHWAY_ID  IN text
-)  RETURNS varchar AS $body$
+  P_SOURCE IN character varying ,
+  PATHWAY_ID  IN character varying
+)  RETURNS character varying AS $body$
 BEGIN
   -- $Id$
   -- Creates uid for bio_experiment.

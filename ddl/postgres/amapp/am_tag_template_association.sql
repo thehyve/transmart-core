@@ -16,7 +16,7 @@ CREATE FUNCTION tf_trg_am_tag_temp_assoc_id() RETURNS trigger
 begin
        if NEW.ID is null then
  select nextval('amapp.SEQ_AMAPP_DATA_ID') into NEW.ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

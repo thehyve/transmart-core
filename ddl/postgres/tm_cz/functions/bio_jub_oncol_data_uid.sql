@@ -1,10 +1,10 @@
 --
--- Name: bio_jub_oncol_data_uid(bigint, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: bio_jub_oncol_data_uid(numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION bio_jub_oncol_data_uid (
-  RECORD_ID bigint,
-  BIO_CURATION_NAME text
-)  RETURNS varchar AS $body$
+  RECORD_ID numeric,
+  BIO_CURATION_NAME character varying
+)  RETURNS character varying AS $body$
 BEGIN
   -- $Id$
   -- Creates uid for bio_experiment.

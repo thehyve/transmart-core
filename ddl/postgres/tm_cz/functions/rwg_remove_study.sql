@@ -8,25 +8,25 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_remove_study (
-  trialID text,
-  currentJobID bigint DEFAULT null
+  trialID character varying,
+  currentJobID numeric DEFAULT (-1)
 )
- RETURNS BIGINT AS $body$
+ RETURNS numeric AS $body$
 DECLARE
 --Audit variables
 	newJobFlag    smallint;
 	databaseName  varchar(100);
 	procedureName varchar(100);
-	jobID         bigint;
-	stepCt        bigint;
-	rowCt         bigint;
+	jobID         numeric;
+	stepCt        integer;
+	rowCt         integer;
 	errorNumber   varchar;
 	errorMessage  varchar;
 
 	sqlText      varchar(500);
 	partExists   boolean;
-	V_BIO_EXP_ID bigint;
-	partTable    text;
+	V_BIO_EXP_ID integer;
+	partTable    character varying;
 
 BEGIN
 	--Set Audit Parameters

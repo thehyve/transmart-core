@@ -100,7 +100,7 @@ CREATE SEQUENCE seq_region_id
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
+/*
 --
 -- Type: TYPE; Owner: TM_CZ; Name: T_STRING_AGG
 --
@@ -160,3 +160,4 @@ CREATE OR REPLACE FUNCTION TStringAggregateMerge(
 
 $body$
 LANGUAGE PLPGSQL;
+*/

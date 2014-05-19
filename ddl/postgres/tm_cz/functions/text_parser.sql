@@ -1,10 +1,11 @@
 --
 -- Name: text_parser(text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
+CREATE OR REPLACE FUNCTION text_parser (
 		 text_to_parse IN text
 )
 --Custom Collection type returned
- RETURNS varchar_table AS $body$
+ RETURNS _text AS $body$
 DECLARE
 
    start_pos bigint;
@@ -29,7 +30,7 @@ BEGIN
   string_tokens := text_to_parse || ',';
 
   --Initialize the collection
-  list_values := varchar_table() ;
+  list_values := _text() ;
 
   --get length of string
   string_length := length(string_tokens);

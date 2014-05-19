@@ -41,7 +41,6 @@ foreach $dir (readdir(PDIR)) {
 		$fuser = $dir;
 		if(defined($pfunction{$fname})){$pfunction{$fname} .= ";"}
 		$pfunction{$fname} .= $fuser;
-		print "Found $fuser.%$name\n";
 	    }
 	}
 	close FIN;
@@ -71,8 +70,16 @@ closedir DIR;
 foreach $f (sort(keys(%ofunction))) {
     if(defined($function{$f})) {
 	$done = "...";
-	if(defined($pfunction{$f})){$done = $pfunction{$f}}
-	printf "%-30s %-15s %-15s %s\n", $f, $ofunction{$f}, $done, $function{$f};
+	$diff = "";
+	if(defined($pfunction{$f})){
+	    $done = $pfunction{$f};
+	    if($ofunction{$f} ne $pfunction{$f}){$diff = "FIX "}
+	}
+	else {$diff = "ADD "}
+	printf "%-30s %-15s %-15s %s%s\n", $f, $ofunction{$f}, $done, $diff, $function{$f};
+    }
+    elsif(defined($pfunction{$f})){
+	printf "%-30s %-15s %-15s %s\n", $f, $ofunction{$f}, $pfunction{$f}, "UNKNOWN";
     }
     else {
 	printf "%-30s %-15s UNKNOWN\n", $f, $ofunction{$f};

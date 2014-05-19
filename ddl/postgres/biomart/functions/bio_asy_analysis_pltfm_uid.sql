@@ -1,7 +1,7 @@
 --
--- Name: bio_asy_analysis_pltfm_uid(text); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: bio_asy_analysis_pltfm_uid(character varying); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION bio_asy_analysis_pltfm_uid(platform_name text) RETURNS character varying
+CREATE FUNCTION bio_asy_analysis_pltfm_uid(platform_name character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
 BEGIN

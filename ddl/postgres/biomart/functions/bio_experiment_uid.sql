@@ -1,7 +1,7 @@
 --
--- Name: bio_experiment_uid(text); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: bio_experiment_uid(character varying); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION bio_experiment_uid(primary_id text) RETURNS character varying
+CREATE FUNCTION bio_experiment_uid(primary_id character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
 BEGIN

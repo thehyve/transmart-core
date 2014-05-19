@@ -2,12 +2,12 @@
 -- Name: num_occurances(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION num_occurances (
-  input_str text,
-  search_str text
-)  RETURNS bigint AS $body$
+  input_str character varying,
+  search_str character varying
+)  RETURNS integer AS $body$
 DECLARE
 
-  num bigint;
+  num integer;
 
 BEGIN
   num := 0;

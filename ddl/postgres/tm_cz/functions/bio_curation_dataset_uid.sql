@@ -1,9 +1,9 @@
 --
--- Name: bio_curation_dataset_uid(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: bio_curation_dataset_uid(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION bio_curation_dataset_uid (
-  BIO_CURATION_TYPE text
-)  RETURNS varchar AS $body$
+  BIO_CURATION_TYPE character varying
+)  RETURNS character varying AS $body$
 BEGIN
   -- $Id$
   -- Creates uid for bio_experiment.

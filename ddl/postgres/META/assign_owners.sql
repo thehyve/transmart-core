@@ -38,7 +38,10 @@ BEGIN
         'tm_wz',
         'i2b2demodata',
         'i2b2metadata',
+        'amapp',
         'deapp',
+        'fmapp',
+        'galaxy',
         'searchapp',
         'biomart'
     ];
@@ -67,6 +70,7 @@ BEGIN
 
             RAISE NOTICE 'The owner of % %.% is %; changing to %',
                     CASE obj_type
+                        WHEN 'T' THEN 'type'
                         WHEN 'r' THEN 'table'
                         WHEN 'S' THEN 'sequence'
                         WHEN 'v' THEN 'view'
@@ -82,6 +86,7 @@ BEGIN
             -- ALTER TABLE can be used for all the types here
             command := 'ALTER ' ||
                     CASE obj_type
+                        WHEN 'T' THEN 'TYPE'
                         WHEN 'f' THEN 'FUNCTION'
                         WHEN 'a' THEN 'AGGREGATE'
                         WHEN 's' THEN 'SCHEMA'

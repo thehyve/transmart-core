@@ -1,7 +1,7 @@
 --
--- Name: fm_file_uid(text); Type: FUNCTION; Schema: fmapp; Owner: -
+-- Name: fm_file_uid(character varying); Type: FUNCTION; Schema: fmapp; Owner: -
 --
-CREATE FUNCTION fm_file_uid(file_id text) RETURNS character varying
+CREATE FUNCTION fm_file_uid(file_id character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
 BEGIN

@@ -1,6 +1,7 @@
 \i i2b2demodata/prelude.sql
 \i i2b2demodata/functions/create_temp_concept_table.sql
 \i i2b2demodata/functions/create_temp_eid_table.sql
+\i i2b2demodata/functions/create_temp_modifier_table.sql
 \i i2b2demodata/functions/create_temp_patient_table.sql
 \i i2b2demodata/functions/create_temp_pid_table.sql
 \i i2b2demodata/functions/create_temp_provider_table.sql
@@ -14,7 +15,9 @@
 \i i2b2demodata/functions/insert_pid_map_fromtemp.sql
 \i i2b2demodata/functions/insert_provider_fromtemp.sql
 \i i2b2demodata/functions/remove_temp_table.sql
+\i i2b2demodata/functions/sp_xtab.sql
 \i i2b2demodata/functions/sync_clear_concept_table.sql
+\i i2b2demodata/functions/sync_clear_modifier_table.sql
 \i i2b2demodata/functions/sync_clear_provider_table.sql
 \i i2b2demodata/functions/update_observation_fact.sql
 \i i2b2demodata/archive_observation_fact.sql

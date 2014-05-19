@@ -35,7 +35,7 @@ CREATE FUNCTION tf_trg_cz_data_file_id() RETURNS trigger
 begin
        if NEW.DATA_FILE_ID is null then
  select nextval('tm_cz.SEQ_CZ_DATA_FILE') into NEW.DATA_FILE_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;

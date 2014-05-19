@@ -69,8 +69,16 @@ closedir DIR;
 foreach $p (sort(keys(%oprocedure))) {
     if(defined($procedure{$p})) {
 	$done = "...";
-	if(defined($pprocedure{$p})){$done = $pprocedure{$p}}
-	printf "%-30s %-15s %-15s %s\n", $p, $oprocedure{$p}, $done, $procedure{$p};
+	$diff = "";
+	if(defined($pprocedure{$p})){
+	    $done = $pprocedure{$p};
+	    if($oprocedure{$p} ne $pprocedure{$p}){$diff = "FIX "}
+	}
+	else {$diff = "ADD "}
+	printf "%-30s %-15s %-15s %s%s\n", $p, $oprocedure{$p}, $done, $diff, $procedure{$p};
+    }
+    elsif(defined($pprocedure{$p})){
+	printf "%-30s %-15s %-15s %s\n", $p, $oprocedure{$p}, $pprocedure{$p}, "UNKNOWN";
     }
     else {
 	printf "%-30s %-15s UNKNOWN\n", $p, $oprocedure{$p};

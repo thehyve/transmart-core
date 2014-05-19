@@ -1,9 +1,9 @@
 --
--- Name: biomarker_gene_uid(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: biomarker_gene_uid(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE OR REPLACE FUNCTION biomarker_gene_uid (
-  GENE_ID text
-)  RETURNS varchar AS $body$
+  GENE_ID character varying
+)  RETURNS character varying AS $body$
 BEGIN
   -- $Id$
   -- Creates uid for bio_experiment.

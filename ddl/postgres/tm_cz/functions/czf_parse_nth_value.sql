@@ -1,12 +1,12 @@
 --
 -- Name: czf_parse_nth_value(text, bigint, text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czf_parse_nth_value (pValue text, location bigint, delimiter text)
+CREATE OR REPLACE FUNCTION czf_parse_nth_value (pValue character varying, location numeric, delimiter character varying)
     RETURNS varchar AS $body$
 DECLARE
 
-   v_posA bigint;
-   v_posB bigint;
+   v_posA integer;
+   v_posB integer;
 
 
 BEGIN

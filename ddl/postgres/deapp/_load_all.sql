@@ -1,4 +1,10 @@
 \i deapp/prelude.sql
+\i deapp/functions/dump_table_to_csv.sql
+\i deapp/functions/protein_comparison_qry.sql
+\i deapp/functions/protein_dbl_comp_qry.sql
+\i deapp/functions/rbm_comparison_qry.sql
+\i deapp/functions/rbm_dbl_comp_qry.sql
+\i deapp/functions/i2b2_process_rna_seq_data.sql
 \i deapp/de_gpl_info.sql
 \i deapp/de_chromosomal_region.sql
 \i deapp/de_mrna_annotation.sql

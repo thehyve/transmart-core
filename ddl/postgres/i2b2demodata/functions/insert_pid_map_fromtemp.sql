@@ -8,10 +8,10 @@ CREATE FUNCTION insert_pid_map_fromtemp(temppidtablename character varying, uplo
 DECLARE
  existingPatientNum VARCHAR(32);
  maxPatientNum NUMERIC;
- --TYPE distinctPidCurTyp IS REF CURSOR;
+ --TYPE distinctPidCurTyp IS CURSOR;
  --distinctPidCurTyp refcursor;
  --distinctPidCur   distinctPidCurTyp;
- distinctPidCur REFCURSOR;
+ distinctPidCur CURSOR;
  sql_stmt  VARCHAR(400);
 disPatientId VARCHAR(100); 
 disPatientIdSource VARCHAR(100);

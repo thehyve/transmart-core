@@ -22,7 +22,7 @@ CREATE FUNCTION tf_trg_fm_folder_id() RETURNS trigger
 begin
        if NEW.FOLDER_ID is null then
  select nextval('fmapp.SEQ_FM_ID') into NEW.FOLDER_ID ;
-if;
+endif;
        RETURN NEW;
 end;
 $$;
