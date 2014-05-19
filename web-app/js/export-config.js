@@ -7,6 +7,20 @@
 // export-config.js
 //
 
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
+
+    var utils = require('./utils');
+    var shallowCopy = utils.shallowCopy;
+
+    var sha1 = require('./sha1');
+    var hex_sha1 = sha1.hex_sha1;
+
+    var das = require('./das');
+    var copyStylesheet = das.copyStylesheet;
+}
+
 Browser.prototype.exportFullConfig = function(opts) {
     opts = opts || {};
 
@@ -18,13 +32,24 @@ Browser.prototype.exportFullConfig = function(opts) {
 
         coordSystem: this.coordSystem,
 
-        sources: this.exportSourceConfig()
+        sources: this.exportSourceConfig(),
+
+        chains: this.exportChains()
     };
 
-    if (this.uiPrefix)
-        config.uiPrefix = this.uiPrefix;
+    if (this.prefix)
+        config.prefix = this.prefix;
 
     return config;
+}
+
+Browser.prototype.exportChains = function() {
+    var cc = {};
+    var cs = this.chains || {};
+    for (var k in cs) {
+        cc[k] = cs[k].exportConfig();
+    }
+    return cc;
 }
 
 Browser.prototype.exportSourceConfig = function(opts) {
@@ -74,7 +99,7 @@ Browser.prototype.exportPageTemplate = function(opts) {
     opts = opts || {};
     var template = '<html>\n' +
                    '  <head>\n' +
-                   '    <script language="javascript" src="' + this.uiPrefix + 'dalliance-compiled.js"></script>\n' +
+                   '    <script language="javascript" src="' + this.resolveURL('$$dalliance-compiled.js') + '"></script>\n' +
                    '    <script language="javascript">\n' +
                    '      var dalliance_browser = new Browser(' + JSON.stringify(this.exportFullConfig(opts), null, 2) + ');\n' +
                    '    </script>\n' +  

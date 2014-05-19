@@ -9,16 +9,26 @@
 
 "use strict";
 
-var REGION_PATTERN = /([\d+,\w,\.,\_,\-]+):([0-9,]+)([KkMmGg])?([\-,\,.]+([0-9,]+)([KkMmGg])?)?/;
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
+
+    var bin = require('./bin');
+    var URLFetchable = bin.URLFetchable;
+
+    var connectTrix = require('./trix').connectTrix;
+}
+
+var REGION_PATTERN = /^([\d+,\w,\.,\_,\-]+):([0-9,\.]+?)([KkMmGg])?((-|\.\.)+([0-9,\.]+)([KkMmGg])?)?$/;
 
 function parseLocCardinal(n, m) {
-    var i = n.replace(/,/g, '');
+    var i = parseFloat(n.replace(/,/g, ''));
     if (m === 'k' || m === 'K') {
-        return i * 1000;
+        return (i * 1000)|0;
     } else if (m == 'm' || m === 'M') {
-        return i * 1000000;
+        return (i * 1000000)|0;
     } else {
-        return i;
+        return i|0;
     }
 }
 
@@ -28,9 +38,9 @@ Browser.prototype.search = function(g, statusCallback) {
 
     if (m) {
         var chr = m[1], start, end;
-        if (m[5]) {
+        if (m[6]) {
             start = parseLocCardinal(m[2],  m[3]);
-            end = parseLocCardinal(m[5], m[6]);
+            end = parseLocCardinal(m[6], m[7]);
         } else {
             var width = this.viewEnd - this.viewStart + 1;
             start = (parseLocCardinal(m[2], m[3]) - (width/2))|0;
@@ -94,7 +104,7 @@ Browser.prototype.search = function(g, statusCallback) {
 
         for (var ti = 0; ti < this.tiers.length; ++ti) {
             (function(tier) {
-                if (sourceAdapterIsCapable(tier.featureSource, 'search')) {
+                if (thisB.sourceAdapterIsCapable(tier.featureSource, 'search')) {
                     if (tier.dasSource.trixURI) {
                         ++searchCount;
                         if (tier.trix) {

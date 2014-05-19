@@ -9,23 +9,46 @@
 
 "use strict";
 
-var BAM_MAGIC = 21840194;
-var BAI_MAGIC = 21578050;
+if (typeof(require) !== 'undefined') {
+    var spans = require('./spans');
+    var Range = spans.Range;
+    var union = spans.union;
+    var intersection = spans.intersection;
+
+    var bin = require('./bin');
+    var readInt = bin.readInt;
+    var readShort = bin.readShort;
+    var readByte = bin.readByte;
+    var readInt64 = bin.readInt64;
+    var readFloat = bin.readFloat;
+
+    var lh3utils = require('./lh3utils');
+    var readVob = lh3utils.readVob;
+    var unbgzf = lh3utils.unbgzf;
+    var reg2bins = lh3utils.reg2bins;
+    var Chunk = lh3utils.Chunk;
+}
+
+
+var BAM_MAGIC = 0x14d4142;
+var BAI_MAGIC = 0x1494142;
+
+var BamFlags = {
+    MULTIPLE_SEGMENTS:       0x1,
+    ALL_SEGMENTS_ALIGN:      0x2,
+    SEGMENT_UNMAPPED:        0x4,
+    NEXT_SEGMENT_UNMAPPED:   0x8,
+    REVERSE_COMPLEMENT:      0x10,
+    NEXT_REVERSE_COMPLEMENT: 0x20,
+    FIRST_SEGMENT:           0x40,
+    LAST_SEGMENT:            0x80,
+    SECONDARY_ALIGNMENT:     0x100,
+    QC_FAIL:                 0x200,
+    DUPLICATE:               0x400,
+    SUPPLEMENTARY:           0x800
+};
 
 function BamFile() {
-}
-
-function Vob(b, o) {
-    this.block = b;
-    this.offset = o;
-}
-
-Vob.prototype.toString = function() {
-    return '' + this.block + ':' + this.offset;
-}
-
-function Chunk(minv, maxv) {
-    this.minv = minv; this.maxv = maxv;
 }
 
 function makeBam(data, bai, callback) {
@@ -311,6 +334,11 @@ BamFile.prototype.readBamRecords = function(ba, offset, sink, min, max, chrId, o
             record.seqLength = lseq;
 
         if (!opts.light) {
+            if (nextRef >= 0) {
+                record.nextSegment = this.indexToChr[nextRef];
+                record.nextPos = nextPos;
+            }
+
             var readName = '';
             for (var j = 0; j < nl-1; ++j) {
                 readName += String.fromCharCode(ba[offset + 36 + j]);
@@ -420,104 +448,11 @@ BamFile.prototype.readBamRecords = function(ba, offset, sink, min, max, chrId, o
     // Exits via top of loop.
 };
 
-(function(global) {
-    var convertBuffer = new ArrayBuffer(8);
-    var ba = new Uint8Array(convertBuffer);
-    var fa = new Float32Array(convertBuffer);
-
-
-    global.readFloat = function(buf, offset) {
-        ba[0] = buf[offset];
-        ba[1] = buf[offset+1];
-        ba[2] = buf[offset+2];
-        ba[3] = buf[offset+3];
-        return fa[0];
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        makeBam: makeBam,
+        BAM_MAGIC: BAM_MAGIC,
+        BAI_MAGIC: BAI_MAGIC,
+        BamFlags: BamFlags
     };
- }(this));
-
-function readInt64(ba, offset) {
-    return (ba[offset + 7] << 24) | (ba[offset + 6] << 16) | (ba[offset + 5] << 8) | (ba[offset + 4]);
-}
-
-function readInt(ba, offset) {
-    return (ba[offset + 3] << 24) | (ba[offset + 2] << 16) | (ba[offset + 1] << 8) | (ba[offset]);
-}
-
-function readShort(ba, offset) {
-    return (ba[offset + 1] << 8) | (ba[offset]);
-}
-
-function readByte(ba, offset) {
-    return ba[offset];
-}
-
-function readVob(ba, offset) {
-    var block = ((ba[offset+6] & 0xff) * 0x100000000) + ((ba[offset+5] & 0xff) * 0x1000000) + ((ba[offset+4] & 0xff) * 0x10000) + ((ba[offset+3] & 0xff) * 0x100) + ((ba[offset+2] & 0xff));
-    var bint = (ba[offset+1] << 8) | (ba[offset]);
-    if (block == 0 && bint == 0) {
-        return null;  // Should only happen in the linear index?
-    } else {
-        return new Vob(block, bint);
-    }
-}
-
-function unbgzf(data, lim) {
-    lim = Math.min(lim || 1, data.byteLength - 50);
-    var oBlockList = [];
-    var ptr = [0];
-    var totalSize = 0;
-
-    while (ptr[0] < lim) {
-        var ba = new Uint8Array(data, ptr[0], 12); // FIXME is this enough for all credible BGZF block headers?
-        var xlen = (ba[11] << 8) | (ba[10]);
-        // dlog('xlen[' + (ptr[0]) +']=' + xlen);
-        var unc = jszlib_inflate_buffer(data, 12 + xlen + ptr[0], Math.min(65536, data.byteLength - 12 - xlen - ptr[0]), ptr);
-        ptr[0] += 8;
-        totalSize += unc.byteLength;
-        oBlockList.push(unc);
-    }
-
-    if (oBlockList.length == 1) {
-        return oBlockList[0];
-    } else {
-        var out = new Uint8Array(totalSize);
-        var cursor = 0;
-        for (var i = 0; i < oBlockList.length; ++i) {
-            var b = new Uint8Array(oBlockList[i]);
-            arrayCopy(b, 0, out, cursor, b.length);
-            cursor += b.length;
-        }
-        return out.buffer;
-    }
-}
-
-//
-// Binning (transliterated from SAM1.3 spec)
-//
-
-/* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
-function reg2bin(beg, end)
-{
-    --end;
-    if (beg>>14 == end>>14) return ((1<<15)-1)/7 + (beg>>14);
-    if (beg>>17 == end>>17) return ((1<<12)-1)/7 + (beg>>17);
-    if (beg>>20 == end>>20) return ((1<<9)-1)/7 + (beg>>20);
-    if (beg>>23 == end>>23) return ((1<<6)-1)/7 + (beg>>23);
-    if (beg>>26 == end>>26) return ((1<<3)-1)/7 + (beg>>26);
-    return 0;
-}
-
-/* calculate the list of bins that may overlap with region [beg,end) (zero-based) */
-var MAX_BIN = (((1<<18)-1)/7);
-function reg2bins(beg, end) 
-{
-    var i = 0, k, list = [];
-    --end;
-    list.push(0);
-    for (k = 1 + (beg>>26); k <= 1 + (end>>26); ++k) list.push(k);
-    for (k = 9 + (beg>>23); k <= 9 + (end>>23); ++k) list.push(k);
-    for (k = 73 + (beg>>20); k <= 73 + (end>>20); ++k) list.push(k);
-    for (k = 585 + (beg>>17); k <= 585 + (end>>17); ++k) list.push(k);
-    for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
-    return list;
 }

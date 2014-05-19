@@ -9,6 +9,17 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var utils = require('./utils');
+    var makeElement = utils.makeElement;
+    var shallowCopy = utils.shallowCopy;
+    var pushnew = utils.pushnew;
+
+    var das = require('./das');
+    var DASStylesheet = das.DASStylesheet;
+    var DASStyle = das.DASStyle;
+}
+
 var __tier_idSeed = 0;
 
 function DasTier(browser, source, config, background)
@@ -86,7 +97,7 @@ function DasTier(browser, source, config, background)
     this.initSources();
 
     var thisB = this;
-    if (this.featureSource && this.featureSource.getDefaultFIPs) {
+    if (this.featureSource && this.featureSource.getDefaultFIPs && !source.noSourceFeatureInfo) {
         this.featureSource.getDefaultFIPs(function(fip) {
             if (fip)
                 thisB.addFeatureInfoPlugin(fip);
@@ -100,6 +111,7 @@ function DasTier(browser, source, config, background)
     }
 
     this.listeners = [];
+    this.featuresLoadedListeners = [];
 }
 
 DasTier.prototype.toString = function() {
@@ -119,15 +131,8 @@ DasTier.prototype.init = function() {
         this.setStylesheet({styles: tier.dasSource.style});
         this.browser.refreshTier(this);
     } else {
-        var ssSource;
-        if (tier.dasSource.stylesheet_uri) {
-            ssSource = new DASFeatureSource(tier.dasSource);
-        } else {
-            ssSource = tier.getSource();
-        }
         tier.status = 'Fetching stylesheet';
-        
-        ssSource.getStyleSheet(function(ss, err) {
+        tier.fetchStylesheet(function(ss, err) {
             if (err || !ss) {
                 tier.error = 'No stylesheet';
                 var ss = new DASStylesheet();
@@ -209,6 +214,7 @@ DasTier.prototype.needsSequence = function(scale ) {
 DasTier.prototype.viewFeatures = function(chr, coverage, scale, features, sequence) {
     this.currentFeatures = features;
     this.currentSequence = sequence;
+    this.notifyFeaturesLoaded();
     
     this.knownChr = chr;
     this.knownCoverage = coverage;
@@ -322,7 +328,6 @@ DasTier.prototype.drawOverlay = function() {
     if (retina) {
         g.scale(2, 2);
     }
-    // g.clearRect(0, 0, t.overlay.width, t.overlay.height);
     
     var origin = b.viewStart - (1000/b.scale);
     var visStart = b.viewStart - (1000/b.scale);
@@ -511,4 +516,31 @@ DasTier.prototype.notifyTierListeners = function(change) {
         }
     }
     this.browser.notifyTier();
+}
+
+DasTier.prototype.addFeaturesLoadedListener = function(handler) {
+    this.featuresLoadedListeners.push(handler);
+}
+
+DasTier.prototype.notifyFeaturesLoaded = function() {
+    for (var li = 0; li < this.featuresLoadedListeners.length; ++li) {
+        try {
+            this.featuresLoadedListeners[li].call(this);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        DasTier: DasTier
+    };
+
+    // Imported for side effects
+    var fd = require('./feature-draw');
+    var drawFeatureTier = fd.drawFeatureTier;
+    var sd = require('./sequence-draw');
+    var drawSeqTier = sd.drawSeqTier;
+    // require('./sourceadapters');  /* Done in cbrowser instead */
 }

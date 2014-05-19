@@ -9,6 +9,17 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var utils = require('./utils');
+    var textXHR = utils.textXHR;
+    var relativeURL = utils.relativeURL;
+    var shallowCopy = utils.shallowCopy;
+
+    var das = require('./das');
+    var DASStylesheet = das.DASStylesheet;
+    var DASStyle = das.DASStyle;
+}
+
 var THUB_STANZA_REGEXP = /\n\s*\n/;
 var THUB_PARSE_REGEXP  = /(\w+) +(.+)\n?/;
 var THUB_SUBGROUP_REGEXP = /subGroup[1-9]/;
@@ -275,6 +286,14 @@ TrackHubTrack.prototype.toDallianceSource = function() {
                 source.credentials = true;
             }
             return source;
+        } else if (typeToks[0] == 'vcfTabix') {
+            source.uri = relativeURL(this._db.absURL, this.bigDataUrl);
+            source.tier_type = 'tabix';
+            source.payload = 'vcf';
+            if (this._db.credentials) {
+                source.credentials = true;
+            }
+            return source;
         } else {
             console.log('Unsupported ' + this.type);
         }
@@ -381,7 +400,7 @@ TrackHubTrack.prototype.bigbedStyles = function() {
     tlStyle.HEIGHT = 10;
     tlStyle.BUMP = true;
     tlStyle.ZINDEX = 20;
-    stylesheet.pushStyle({type: 'bb-translation'}, null, tlStyle);
+    stylesheet.pushStyle({type: 'translation'}, null, tlStyle);
     
     var tsStyle = new DASStyle();
     tsStyle.glyph = 'BOX';
@@ -391,15 +410,7 @@ TrackHubTrack.prototype.bigbedStyles = function() {
     tsStyle.ZINDEX = 10;
     tsStyle.BUMP = true;
     tsStyle.LABEL = true;
-    stylesheet.pushStyle({type: 'bb-transcript'}, null, tsStyle);
-
-/*
-    var densStyle = new DASStyle();
-    densStyle.glyph = 'HISTOGRAM';
-    densStyle.COLOR1 = 'white';
-    densStyle.COLOR2 = 'black';
-    densStyle.HEIGHT=30;
-    stylesheet.pushStyle({type: 'density'}, null, densStyle); */
+    stylesheet.pushStyle({type: 'transcript'}, null, tsStyle);
 
     return stylesheet.styles;
 }
@@ -414,4 +425,11 @@ function THUB_COMPARE(g, h) {
     } else {
         return g.shortLabel.localeCompare(h.shortLabel);
     }
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        connectTrackHub: connectTrackHub,
+        THUB_COMPARE: THUB_COMPARE
+    };
 }

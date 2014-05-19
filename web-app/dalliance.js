@@ -1,4 +1,24 @@
 /**
+ * forEach is a recent addition to the ECMA-262 standard; as such it may not be present in other implementations of the
+ * standard. You can work around this by inserting the following code at the beginning of your scripts, allowing use of
+ * forEach in implementations which do not natively support it.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+ */
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fn, scope) {
+        'use strict';
+        var i, len;
+        for (i = 0, len = this.length; i < len; ++i) {
+            if (i in this) {
+                fn.call(scope, this[i], i, this);
+            }
+        }
+    };
+}
+
+/**
  * Load Dalliance Genome Browser
  * @param resultsTabPanel
  */
@@ -67,9 +87,127 @@ var genomeBrowserPanel = new Ext.Panel(
             b.addTrackByNode(data.node, result_instance_id_1, result_instance_id_2);
             //this.parent.genomeBrowser.showTrackAdder(e);
         },
+
         // create new instance of dalliance browser
         createGenomeBrowser: function () {
 
+            this.genomeBrowser = new Browser({
+                chr:          '22',
+                viewStart:    30000000,
+                viewEnd:      30030000,
+                cookieKey:    'human-grc_h37',
+
+                coordSystem: {
+                    speciesName: 'Human',
+                    taxon: 9606,
+                    auth: 'GRCh',
+                    version: '37',
+                    ucscName: 'hg19'
+                },
+
+                chains: {
+                    hg18ToHg19: new Chainset('http://www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
+                        {
+                            speciesName: 'Human',
+                            taxon: 9606,
+                            auth: 'GRCh',
+                            version: 36
+                        })
+                },
+
+                sources:     [{name:                 'Genome',
+                    twoBitURI:            'http://www.biodalliance.org/datasets/hg19.2bit',
+                    tier_type:            'sequence',
+                    provides_entrypoints: true,
+                    pinned: true
+                },
+                    {name: 'GENCODE',
+                        bwgURI: 'http://www.biodalliance.org/datasets/gencode.bb',
+                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/gencode.xml',
+                        collapseSuperGroups: true,
+                        trixURI: 'http://www.biodalliance.org/datasets/geneIndex.ix'},
+                    {name: 'Repeats',
+                        desc: 'Repeat annotation from RepeatMasker',
+                        bwgURI: 'http://www.biodalliance.org/datasets/repeats.bb',
+                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats.xml',
+                        forceReduction: -1},
+                    {name: 'SNPs',
+                        tier_type: 'ensembl',
+                        species:'human',
+                        type: 'variation',
+                        disabled: true,
+                        featureInfoPlugin: function(f, info) {
+                            if (f.id) {
+                                info.add('SNP', makeElement('a', f.id, {href: 'http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id, target: '_newtab'}));
+                            }
+                        }
+                    },
+                    {name: 'CpG',
+                        desc: 'CpG observed/expected ratio',
+                        uri: 'http://www.derkholm.net:8080/das/hg19comp/',
+                        // stylesheet_uri: 'http://www.derkholm.net/dalliance-test/stylesheets/cpg.xml'
+                        quantLeapThreshold: 0.8,
+                        forceReduction: -1,
+                        style:                [{type: 'cpgoe',
+                            style: {glyph: 'LINEPLOT',
+                                FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}]
+                    },
+                    {name:                 'BWG test',
+                        bwgURI:               'http://www.biodalliance.org/datasets/spermMethylation.bw',
+                        stylesheet_uri:       'http://www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
+                        mapping:              'hg18ToHg19',
+                        quantLeapThreshold: 80
+                    }
+                ],
+
+                setDocumentTitle: true,
+                uiPrefix: '',
+
+                fullScreen: true,
+
+                browserLinks: {
+                    Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
+                    UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
+                    Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
+                }
+            });
+
+            this.genomeBrowser.hubs = [
+                'http://www.biodalliance.org/datasets/testhub/hub.txt',
+                'http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'
+            ];
+
+            this.genomeBrowser.addFeatureInfoPlugin(function(f, info) {
+                info.add('Testing', 'This is a test!');
+            });
+
+            this.genomeBrowser.addViewListener(function(chr, min, max) {
+                var link = document.getElementById('enslink');
+                link.href = 'http://www.ensembl.org/Homo_sapiens/Location/View?r=' + chr + ':' + min + '-' + max;
+            });
+
+            /*
+             var geneDescriptions;
+             connectBigTab(new URLFetchable('http://www.biodalliance.org/datasets/ensg-to-desc.bt'), function(bt) {
+             geneDescriptions = bt;
+             });
+
+             b.addFeatureInfoPlugin(function(f, info) {
+             if (f.geneId) {
+             var desc = makeElement('div', 'Loading...');
+             info.add('Description', desc);
+             geneDescriptions.index.lookup(f.geneId, function(res, err) {
+             if (err) {
+             console.log(err);
+             } else {
+             desc.textContent = res;
+             }
+             });
+             }
+             }); */
+
+
+/*
             this.genomeBrowser = new Browser({
                 chr:                 '22',
                 viewStart:           30700000,
@@ -131,21 +269,23 @@ var genomeBrowserPanel = new Ext.Panel(
 
                 hubs: ['http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt']
             });
+*/
 
-            var that = this;
-            setTimeout(function() {
-                that.genomeBrowser.realInit();
-                //if we get rid of max-height, dalliance browser is able to fill the screen
-                jQuery('.dalliance-root').css('max-height', 'none');
-                setTimeout(function() {that.genomeBrowser.resizeViewer();},0);
+//            var that = this;
+//            setTimeout(function() {
+//                that.genomeBrowser.realInit();
+////                //if we get rid of max-height, dalliance browser is able to fill the screen
+////                jQuery('.dalliance-root').css('max-height', 'none');
+////                setTimeout(function() {that.genomeBrowser.resizeViewer();},0);
+//
+//                var vcfs = that.genomeBrowser.scanCurrentTracksForVCF();
+//
+//                if (vcfs.length>0) {
+//                    that.genomeBrowser.createAddInfoButton();
+//                }
+//
+//            }, 0);
 
-                var vcfs = that.genomeBrowser.scanCurrentTracksForVCF();
-
-                if (vcfs.length>0) {
-                    that.genomeBrowser.createAddInfoButton();
-                }
-
-            }, 0);
         }
     }
 );

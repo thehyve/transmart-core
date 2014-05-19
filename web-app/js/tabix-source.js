@@ -9,6 +9,22 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var sa = require('./sourceadapters');
+    var dalliance_registerSourceAdapterFactory = sa.registerSourceAdapterFactory;
+    var dalliance_makeParser = sa.makeParser;
+    var FeatureSourceBase = sa.FeatureSourceBase;
+
+    var bin = require('./bin');
+    var URLFetchable = bin.URLFetchable;
+    var BlobFetchable = bin.BlobFetchable;
+
+    var utils = require('./utils');
+    var Awaited = utils.Awaited;
+
+    var connectTabix = require('./tabix').connectTabix;
+}
+
 function TabixFeatureSource(source) {
     FeatureSourceBase.call(this);
     this.readiness = 'Connecting';
@@ -35,6 +51,15 @@ function TabixFeatureSource(source) {
     }
     connectTabix(data, index, function(tabix, err) {
         thisB.tabixHolder.provide(tabix);
+        tabix.fetchHeader(function(lines, err) {
+            if (lines) {
+                var session = parser.createSession(function() { /* Null sink because we shouldn't get records */ });
+                for (var li = 0; li < lines.length; ++li) {
+                    session.parse(lines[li]);
+                }
+                session.flush();
+            }
+        });
         thisB.readiness = null
         thisB.notifyReadiness();
     });

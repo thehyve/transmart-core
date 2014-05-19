@@ -4,12 +4,90 @@
  * @param result_instance_id
  * @returns {Array}
  */
-function getTransmartDASSources (result_instance_id, dataType) {
 
-        var arrNds = new Array();
+"use strict";
 
-        // Code below is hardcoded
-        // TODO : Check the local Das features and then collect them in arrNDS
+//if (typeof(require) !== 'undefined') {
+//    var browser = require('./cbrowser');
+//    var Browser = browser.Browser;
+//
+//    var tUtils = require('./tsmart-utils');
+//    var displayError = tUtils.displayError;
+////    var isHighDimensionalNode = tUtils.isHighDimensionalNode;
+//
+//    var das = require('./das');
+//    var DASSegment = das.DASSegment;
+//    var DASRegistry = das.DASRegistry;
+//    var coordsMatch = das.coordsMatch;
+//
+//}
+
+
+
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
+    var sourcesAreEqual = browser.sourcesAreEqual;
+
+    var utils = require('./utils');
+    var makeElement = utils.makeElement;
+    var removeChildren = utils.removeChildren;
+    var Observed = utils.Observed;
+
+    var thub = require('./thub');
+    var THUB_COMPARE = thub.THUB_COMPARE;
+    var connectTrackHub = thub.connectTrackHub;
+
+    var domui = require('./domui');
+    var makeTreeTableSection = domui.makeTreeTableSection;
+
+    var probeResource = require('./probe').probeResource;
+
+
+    // Most of this could disappear if we leave all probing to the probe module...
+    var bin = require('./bin');
+    var URLFetchable = bin.URLFetchable;
+    var BlobFetchable = bin.BlobFetchable;
+    var readInt = bin.readInt;
+
+    var lh3utils = require('./lh3utils');
+    var unbgzf = lh3utils.unbgzf;
+
+    var bam = require('./bam');
+    var BAM_MAGIC = bam.BAM_MAGIC;
+    var BAI_MAGIC = bam.BAI_MAGIC;
+
+    var tbi = require('./tabix');
+    var TABIX_MAGIC = tbi.TABIX_MAGIC;
+
+
+    var das = require('./das');
+    var DASSource = das.DASSource;
+    var DASSegment = das.DASSegment;
+    var DASRegistry = das.DASRegistry;
+}
+
+/**
+ * Add track when user drag & drop a node
+ * @param node
+ * @param result_instance_id_1
+ */
+Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_instance_id_2) {
+
+    var thisB = this;
+    var das_source;
+    var res_inst_id_1, res_inst_id_2;
+
+    /**
+     * Get tranSMART's DAS source
+     * @param result_instance_id
+     * @param dataType
+     * @returns {Array}
+     * @private
+     */
+    var _getTransmartDASSources = function (result_instance_id, dataType) {
+
+var arrNds = new Array();
 
         if (dataType == 'acgh') {
             arrNds[0] = new DASSource({name: 'acgh-gain', uri: pageInfo.basePath + "/das/acgh-gain-" + result_instance_id + "/"});
@@ -27,40 +105,37 @@ function getTransmartDASSources (result_instance_id, dataType) {
         }
 
         return arrNds;
-}
+    }
 
-function addDasSource(arr, nameSuffix, testSegment, tryAddDASxSources) {
+    /**
+     * Add DAS source
+     * @param arr
+     * @param nameSuffix
+     * @param testSegment
+     * @param tryAddDASxSources
+     * @private
+     */
+    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources) {
 
-    arr.forEach(function(nds) {
+        arr.forEach(function(nds) {
 
-        nds.features(testSegment, {}, function(features) {
+            nds.features(testSegment, {}, function(features) {
 
-            if (!nds.name)  {
-                var nameExtractPattern = new RegExp('/([^/]+)/?$');
-                var match = nameExtractPattern.exec(nds.uri);
-                if (match) {
-                    nds.name = match[1];
+                if (!nds.name)  {
+                    var nameExtractPattern = new RegExp('/([^/]+)/?$');
+                    var match = nameExtractPattern.exec(nds.uri);
+                    if (match) {
+                        nds.name = match[1];
+                    }
                 }
-            }
 
-            tryAddDASxSources(nds, nameSuffix);
+                tryAddDASxSources(nds, nameSuffix);
 
-            return;
+                return;
+            });
         });
-    });
 
-}
-
-/**
- * Add track when user drag & drop a node
- * @param node
- * @param result_instance_id_1
- */
-Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_instance_id_2) {
-
-    var thisB = this;
-    var das_source;
-    var res_inst_id_1, res_inst_id_2;
+    }
 
     // reseting the global subset ids (result instance ids)
     GLOBAL.CurrentSubsetIDs[1] = null;
@@ -98,6 +173,18 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
         var knownSpace = thisB.knownSpace;
 
+        /**
+         * Check if a node is high dimensional or not
+         * @param node
+         * @returns {boolean}
+         */
+        var _isHighDimensionalNode = function (node) {
+            if (node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') != -1)
+                return true;
+            else
+                return false;
+        }
+
         // validate space
         if (!knownSpace) {
             alert("Can't confirm track-addition to an unit browser.");
@@ -116,13 +203,13 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
 
 
-            if (isHighDimensionalNode(node)) {
+            if (_isHighDimensionalNode(node)) {
                 // define features
-                var sources = getTransmartDASSources(res_inst_id_1, dataType);
-                addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
+                var sources = _getTransmartDASSources(res_inst_id_1, dataType);
+                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
                 if (res_inst_id_2) {
-                    sources.concat(getTransmartDASSources(res_inst_id_2, dataType));
-                    addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+                    sources.concat(_getTransmartDASSources(res_inst_id_2, dataType));
+                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
                 }
                 thisB.createAddInfoButton()
             } else {
@@ -174,6 +261,18 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
                     var coordsDetermined = false, quantDetermined = false;
 
+                    /**
+                     *
+                     * @param c1
+                     * @param c2
+                     * @returns {boolean}
+                     * @private
+                     */
+                    var _coordsMatch = function (c1, c2) {
+                        return c1.taxon == c2.taxon && c1.auth == c2.auth && c1.version == c2.version;
+                    }
+
+
                     if (fs) {
                         nds.name = fs.name+nameSuffix;
                         nds.desc = fs.desc;
@@ -219,7 +318,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
          */
         var drawTrack = function(nds, coordsDetermined, quantDetermined, quantIrrelevant) {
 
-            dataToFinalize = nds;
+            var dataToFinalize = nds;
 
             var m = '__default__'; // coordinate system
             if (m != '__default__') {
@@ -235,7 +334,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 }
 
 Browser.prototype.createAddInfoButton= function() {
-    that = this;
+    var that = this;
     //get the Add track button
     var dalBtns = jQuery('.pull-right.btn-group').children();
     jQuery(dalBtns[0]).click(function() {
