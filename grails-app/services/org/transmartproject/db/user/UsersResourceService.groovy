@@ -20,17 +20,28 @@ class UsersResourceService implements UsersResource {
          * clear that the User implementation is an Hibernate object.
          */
 
-        User.withSession { session ->
-            Query query = session.createQuery(
-                    'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
-            query.setParameter 0, username
-            def users = query.list()
-            if (!users) {
-                throw new NoSuchResourceException("No user with username " +
-                        "$username was found")
-            }
+        def user = User.withSession { session ->
+            if (session.respondsTo('createQuery', String)) {
+                Query query = session.createQuery(
+                        'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
+                query.setParameter 0, username
+                def users = query.list()
 
-            users[0]
+                users[0]
+            } else {
+                // in case hibernate is not in use (unit tests)
+                def user = User.findByUsername username
+                user?.roles
+
+                user
+            }
         }
+
+        if (!user) {
+            throw new NoSuchResourceException("No user with username " +
+                    "$username was found")
+        }
+        
+        user
     }
 }
