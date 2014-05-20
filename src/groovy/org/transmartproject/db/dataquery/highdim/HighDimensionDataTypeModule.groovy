@@ -1,5 +1,7 @@
 package org.transmartproject.db.dataquery.highdim
 
+import java.util.List;
+
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
@@ -88,13 +90,12 @@ public interface HighDimensionDataTypeModule {
                                      Projection projection)
 
     /**
-     * Whether the platform passed in refers to data of the type implemented by
-     * this module.
+     * Returns a list of markertypes that are supported by this module
      *
      * See {@link HighDimensionDataTypeResource#matchesPlatform(Platform)}.
+     * See {@link DeGplInfo#getMarkerType()}.
      *
-     * @param platform the platform to match
-     * @return true iif the the platform and this data type match
+     * @return List of marker types supported by this module
      */
-    boolean matchesPlatform(Platform platform)
+    List<String> getPlatformMarkerTypes()
 }
