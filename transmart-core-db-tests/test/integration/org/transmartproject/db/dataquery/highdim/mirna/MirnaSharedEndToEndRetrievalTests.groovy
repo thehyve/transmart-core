@@ -24,7 +24,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     private static final double DELTA = 0.0001
 
-    MirnaTestData testData = new MirnaTestData()
+    MirnaTestData testData
 
     HighDimensionResource highDimensionResourceService
 
@@ -40,6 +40,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     @Before
     void setUp() {
+        testData = new MirnaTestData( typeName )
         testData.saveAll()
         mirnaResource = highDimensionResourceService.getSubResourceForType typeName
 
