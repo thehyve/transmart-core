@@ -165,8 +165,8 @@
 				$('#save-modal .basic').click(openSaveSearchDialog);
 			});
 		</script>
-                  
-                
+
+        <r:layoutResources /><%-- XXX: Use template --%>
     </head>
     <body>
         <div id="header-div">        
@@ -361,5 +361,6 @@
         <g:ifPlugin name="folder-management">
             <div id="exportOverlay" class="overlay" style="display: none;">&nbsp;</div>
         </g:ifPlugin>
+        <r:layoutResources /><%-- XXX: Use template --%>
     </body>
 </html>
