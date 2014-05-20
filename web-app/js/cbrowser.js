@@ -216,9 +216,10 @@ Browser.prototype.realInit = function() {
     this.bhtmlRoot = makeElement('div');
     if (!this.disablePoweredBy) {
         this.bhtmlRoot.appendChild(makeElement('span', ['Powered by ', makeElement('a', 'Biodalliance', {href: 'http://www.biodalliance.org/'}), ' ' + VERSION], {className: 'powered-by'}));
+        this.bhtmlRoot.appendChild(makeElement('span', [' | ', makeElement('a', 'Link to Ensembl', {href: 'http://www.ensembl.org/', id: 'enslink', target: '_newtab'}), ' ' ], {className: 'powered-by'}));
     }
     this.browserHolder.appendChild(this.bhtmlRoot);
-    
+
     window.addEventListener('resize', function(ev) {
         thisB.resizeViewer();
     }, false);
@@ -1396,7 +1397,7 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 
 Browser.prototype.setFullScreenHeight = function() {
     var rest = document.body.offsetHeight - this.browserHolder.offsetHeight;
-    this.browserHolder.style.maxHeight = Math.max(300, window.innerHeight - rest - 20) + 'px'
+    this.browserHolder.style.maxHeight = Math.max(1000, window.innerHeight - rest - 20) + 'px'
 }
 
 Browser.prototype.addTier = function(conf) {
@@ -2164,6 +2165,7 @@ if (typeof(module) !== 'undefined') {
     // Required because they add stuff to Browser.prototype
     require('./browser-ui');
     require('./track-adder');
+    require('./track-adder-custom');
     require('./feature-popup');
     require('./tier-actions');
     require('./domui');
