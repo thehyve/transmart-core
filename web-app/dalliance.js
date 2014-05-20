@@ -23,10 +23,27 @@ if (!Array.prototype.forEach) {
  * @param resultsTabPanel
  */
 function loadDalliance(resultsTabPanel) {
-    // everything starts here ..
-    resultsTabPanel.add(genomeBrowserPanel);
-    resultsTabPanel.doLayout();
+    var nodReq = new XMLHttpRequest();
+    var nodUrl = pageInfo.basePath + "/Helpers/getPluginPath";
+
+    nodReq.open('POST', nodUrl, true);
+    nodReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+    nodReq.onreadystatechange = function() {
+        if (nodReq.readyState == 4) {
+            if (nodReq.status == 200 || nodReq.status == 206) {
+                window.dalliance_plugin_path = nodReq.responseText;
+                resultsTabPanel.add(genomeBrowserPanel);
+                resultsTabPanel.doLayout();
+            } else {
+                console.error("Cannot retrieve plugin path");
+            }
+        }
+    };
+
+    nodReq.send();
 }
+
 
 /**
  * Create new instance of Genome Browser Panel
@@ -92,11 +109,21 @@ var genomeBrowserPanel = new Ext.Panel(
         createGenomeBrowser: function () {
 
             this.genomeBrowser = new Browser({
+
+                workerPath: "$$build/worker-all.js",
+
+                /**
+                 * Override resolve URL to fix the relative path since dalliance here installed as grails plugin
+                 * @param url
+                 */
+                resolveURL: function (url) {
+                    return url.replace('$$', window.dalliance_plugin_path + "/");
+                },
+
                 chr:          '22',
                 viewStart:    30000000,
                 viewEnd:      30030000,
                 cookieKey:    'human-grc_h37',
-
                 coordSystem: {
                     speciesName: 'Human',
                     taxon: 9606,
@@ -186,6 +213,9 @@ var genomeBrowserPanel = new Ext.Panel(
                 link.href = 'http://www.ensembl.org/Homo_sapiens/Location/View?r=' + chr + ':' + min + '-' + max;
             });
 
+            // Override the max view width so that user has ability to zoom out more
+            this.genomeBrowser.maxViewWidth = 40000000;
+
             /*
              var geneDescriptions;
              connectBigTab(new URLFetchable('http://www.biodalliance.org/datasets/ensg-to-desc.bt'), function(bt) {
@@ -206,85 +236,6 @@ var genomeBrowserPanel = new Ext.Panel(
              }
              }); */
 
-
-/*
-            this.genomeBrowser = new Browser({
-                chr:                 '22',
-                viewStart:           30700000,
-                viewEnd:             30900000,
-                cookieKey:           'human-grc_h37',
-
-                coordSystem: {
-                    speciesName: 'Human',
-                    taxon: 9606,
-                    auth: 'GRCh',
-                    version: '37',
-                    ucscName: 'hg19'
-                },
-
-                chains: {
-                    hg18ToHg19: new Chainset('http://www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
-                        {
-                            speciesName: 'Human',
-                            taxon: 9606,
-                            auth: 'NCBI',
-                            version: 36,
-                            ucscName: 'hg18'
-                        })
-                },
-
-                sources: [
-                    {name: 'Genome',
-                    twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-                    tier_type: 'sequence'},
-                    {name: 'Genes',
-                        desc: 'Gene structures from GENCODE 19',
-                        bwgURI: 'http://www.biodalliance.org/datasets/gencode.bb',
-                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/gencode.xml',
-                        collapseSuperGroups: true,
-                        trixURI: 'http://www.biodalliance.org/datasets/geneIndex.ix'}
-//                    {name: 'Repeats',
-//                        desc: 'Repeat annotation from Ensembl 59',
-//                        bwgURI: 'http://www.biodalliance.org/datasets/repeats.bb',
-//                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats.xml'},
-//                    {name: 'Conservation',
-//                        desc: 'Conservation',
-//                        bwgURI: 'http://www.biodalliance.org/datasets/phastCons46way.bw',
-//                        noDownsample: true},
-//                    {name: 'GM12878 ChromHMM', desc: 'GM12878 ChromHMM Genome Segmentation',
-//                        pennant: 'http://genome.ucsc.edu/images/encodeThumbnail.jpg',
-//                        bwgURI: 'http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/byDataType/segmentations/jan2011/hub/gm12878.ChromHMM.bb',
-//                        style: [{type: 'bigwig', style: {glyph: 'BOX', FGCOLOR: 'black', BGCOLOR: 'blue', HEIGHT: 8, BUMP: false, LABEL: false, ZINDEX: 20, BGITEM: true, id: 'style1'}},
-//                            {type: 'bb-translation', style: {glyph: 'BOX', FGCOLOR: 'black', BGITEM: true, BGCOLOR: 'red', HEIGHT: 10, BUMP: true, ZINDEX: 20, id: 'style2'}},
-//                            {type: 'bb-transcript', style: {glyph: 'BOX', FGCOLOR: 'black', BGCOLOR: 'white', HEIGHT: 10, ZINDEX: 10, BUMP: true, LABEL: true, id: 'style3'}}]}
-                ],
-
-                setDocumentTitle: true,
-
-                browserLinks: {
-                    Ensembl: 'http://www.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
-                    UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
-                    Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
-                },
-
-                hubs: ['http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt']
-            });
-*/
-
-//            var that = this;
-//            setTimeout(function() {
-//                that.genomeBrowser.realInit();
-////                //if we get rid of max-height, dalliance browser is able to fill the screen
-////                jQuery('.dalliance-root').css('max-height', 'none');
-////                setTimeout(function() {that.genomeBrowser.resizeViewer();},0);
-//
-//                var vcfs = that.genomeBrowser.scanCurrentTracksForVCF();
-//
-//                if (vcfs.length>0) {
-//                    that.genomeBrowser.createAddInfoButton();
-//                }
-//
-//            }, 0);
 
         }
     }
