@@ -173,7 +173,8 @@ class AccessControlChecks {
 
         if (!res) {
             log.warn "Denying $user access to query result $result because " +
-                    "its creator doesn't match the user"
+                    "its creator (${result.username}) doesn't match the user " +
+                    "(${user.username})"
         } else {
             log.debug "Granting $user access to $result (usernames match)"
         }

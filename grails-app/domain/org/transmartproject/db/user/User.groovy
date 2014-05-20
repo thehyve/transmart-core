@@ -34,6 +34,8 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
 
         hash    column: 'passwd'
 
+        // no way to fetch the roles' properties themselves :(
+        // http://stackoverflow.com/questions/4208728
         roles   joinTable: [//name:   'search_role_auth_user',
                             name:   'searchapp.search_role_auth_user',
                             key:    'authorities_id',
