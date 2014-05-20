@@ -127,4 +127,6 @@
 \i biomart/views/ctd_td_status_view.sql
 \i biomart/views/ctd_treatment_phases_view.sql
 \i biomart/heat_map_results.sql
+\i biomart/mirna_bio_assay_data_annot.sql
+\i biomart/mirna_bio_assay_feature_group.sql
 \i biomart/_misc.sql

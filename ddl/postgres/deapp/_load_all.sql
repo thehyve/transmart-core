@@ -5,6 +5,7 @@
 \i deapp/de_pathway.sql
 \i deapp/de_pathway_gene.sql
 \i deapp/de_protein_annotation.sql
+\i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rc_snp_info.sql
 \i deapp/de_saved_comparison.sql
 \i deapp/de_snp_calls_by_gsm.sql
@@ -21,13 +22,13 @@
 \i deapp/de_subject_microarray_data.sql
 \i deapp/de_subject_microarray_logs.sql
 \i deapp/de_subject_microarray_med.sql
+\i deapp/de_subject_mirna_data.sql
 \i deapp/de_subject_protein_data.sql
 \i deapp/de_subject_rbm_data.sql
 \i deapp/de_subject_rnaseq_data.sql
 \i deapp/de_subject_sample_mapping.sql
 \i deapp/de_subject_snp_dataset.sql
 \i deapp/de_variant_dataset.sql
-\i deapp/de_variant_metadata.sql
 \i deapp/de_variant_population_data.sql
 \i deapp/de_variant_population_info.sql
 \i deapp/de_variant_subject_detail.sql
