@@ -12,6 +12,10 @@ $dependencies = array (
   array (
     0 => 'de_chromosomal_region',
   ),
+  'de_subject_protein_data' => 
+  array (
+    0 => 'de_protein_annotation',
+  ),
   'de_variant_dataset' => 
   array (
     0 => 'de_gpl_info',

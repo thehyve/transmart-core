@@ -9,6 +9,8 @@
 \i tm_wz/wt_mrna_nodes.sql
 \i tm_wz/wt_mrna_subj_sample_map.sql
 \i tm_wz/wt_num_data_types.sql
+\i tm_wz/wt_proteomics_node_values.sql
+\i tm_wz/wt_proteomics_nodes.sql
 \i tm_wz/wt_subject_acgh_region.sql
 \i tm_wz/wt_subject_info.sql
 \i tm_wz/wt_subject_microarray_calcs.sql
@@ -16,6 +18,10 @@
 \i tm_wz/wt_subject_microarray_med.sql
 \i tm_wz/wt_subject_mrna_data.sql
 \i tm_wz/wt_subject_mrna_probeset.sql
+\i tm_wz/wt_subject_proteomics_calcs.sql
+\i tm_wz/wt_subject_proteomics_logs.sql
+\i tm_wz/wt_subject_proteomics_med.sql
+\i tm_wz/wt_subject_proteomics_probeset.sql
 \i tm_wz/wt_subject_rnaseq_region.sql
 \i tm_wz/wt_trial_nodes.sql
 \i tm_wz/wt_xtrial_nodes.sql

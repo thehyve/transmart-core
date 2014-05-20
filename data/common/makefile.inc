@@ -3,6 +3,7 @@
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(SELF_DIR)/../../makefile.inc
 COMMON_DIR := $(realpath $(SELF_DIR)/../common)
+ENV_DIR := $(realpath $(SELF_DIR)/../../env)
 
 TABLE_FILES      := $(wildcard $(COMMON_DIR)/*_list)
 SCHEMA_DIRS      := $(patsubst %_list,%,$(TABLE_FILES))
@@ -34,7 +35,32 @@ dump_schema_%: %/Makefile
 	$(MAKE) -C $* dump
 load_schema_%: %/Makefile
 	$(MAKE) -C $* load
-.PHONY: dump_schema_% load_schema_%
+
+REMOTE_FILE_STORAGE = http://files.thehyve.net
+
+DIC_SRC_FILES_FOLDER = $(COMMON_DIR)/_dic_src
+$(DIC_SRC_FILES_FOLDER):
+	mkdir $@
+
+UNIPROT_DIC_SRC_FILE = uniprot-dictionary.tsv
+UNIPROT_DIC_SRC_FILE_ARCH = $(UNIPROT_DIC_SRC_FILE).xz
+$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
+	curl -f $(REMOTE_FILE_STORAGE)/dictionaries/$(UNIPROT_DIC_SRC_FILE_ARCH) > $@
+$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE): $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH)
+	xz -d --stdout $< > $@
+
+TRANSMART_LOADER = transmart-loader-latest-bamboo-snapshot
+TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
+$(TRANSMART_LOADER):
+	$(MAKE) -C $(ENV_DIR) $@
+
+load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER)
+	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
+	&& java -cp $(TRANSMART_LOADER_JAR) \
+	org.transmartproject.pipeline.dictionary.UniProtDictionary \
+	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
+
+.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
 
 
