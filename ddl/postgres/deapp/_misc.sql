@@ -1,3 +1,7 @@
+--
+-- Name: TABLE de_variant_metadata; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON TABLE de_variant_metadata IS 'Contains meta information from the headers of a VCF file. Each header with meta information consists of a key and value.';
 
 --
 -- Name: seq_assay_id; Type: SEQUENCE; Schema: deapp; Owner: -

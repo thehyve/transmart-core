@@ -12,11 +12,6 @@ GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
 
-MAVEN_VERSION=3.2.1
-MAVEN_ZIP=apache-maven-$(MAVEN_VERSION)-bin.zip
-MAVEN_URL=http://apache.mirror.1000mbps.com/maven/maven-3/$(MAVEN_VERSION)/binaries/$(MAVEN_ZIP)
-MAVEN_BIN=apache-maven-$(MAVEN_VERSION)/bin/mvn
-
 TRANSMART_LOADER=transmart-loader
 
 %/conf/log4j.properties:
@@ -38,15 +33,6 @@ $(TRANSMART_LOADER_ARCHIVE):
 $(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
 	tar --touch -xf $< -C $@
 
-TRANSMART_LOADER_REPO_GIT_URL = https://github.com/thehyve/transmart-loader.git
-update-transmart-loader:
-	$(call update_repos,$(TRANSMART_LOADER),$(TRANSMART_LOADER_REPO_GIT_URL),master)
-
-package-transmart-loader: mvn
-	if [ ! -d $(TRANSMART_LOADER) ]; then \
-	git clone -b master '$(TRANSMART_LOADER_REPO_GIT_URL)' $(TRANSMART_LOADER); \
-	fi && cd $(TRANSMART_LOADER) && ../mvn package
-
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
 
@@ -55,16 +41,6 @@ $(GROOVY_BIN): $(GROOVY_ZIP)
 	touch $@
 
 groovy: $(GROOVY_BIN)
-	ln -s $< $@
-
-$(MAVEN_ZIP):
-	curl -f "$(MAVEN_URL)" > $@
-
-$(MAVEN_BIN): $(MAVEN_ZIP)
-	unzip $<
-	touch $@
-
-mvn: $(MAVEN_BIN)
 	ln -s $< $@
 
 install_ubuntu_packages:
@@ -84,7 +60,7 @@ update_repos = if [ ! -d $(1) ]; then \
 
 update_etl:
 	$(call update_repos,tranSMART-ETL,git://github.com/thehyve/tranSMART-ETL.git,master)
-.PHONY: update_repos, update-transmart-loader, package-transmart-loader, $(TRANSMART_LOADER)-from-file-server
+.PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):

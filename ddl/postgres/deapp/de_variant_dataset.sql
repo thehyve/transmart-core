@@ -8,7 +8,8 @@ CREATE TABLE de_variant_dataset (
     etl_date date,
     genome character varying(50) NOT NULL,
     metadata_comment text,
-    variant_dataset_type character varying(50)
+    variant_dataset_type character varying(50),
+    gpl_id character varying(50)
 );
 
 --
@@ -16,4 +17,10 @@ CREATE TABLE de_variant_dataset (
 --
 ALTER TABLE ONLY de_variant_dataset
     ADD CONSTRAINT dataset_id PRIMARY KEY (dataset_id);
+
+--
+-- Name: gpl_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_variant_dataset
+    ADD CONSTRAINT gpl_id FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
 
