@@ -24,7 +24,8 @@ class VcfTestData  {
     List<DeSubjectSampleMapping> assays
     List<DeVariantSubjectSummaryCoreDb> summariesData
     List<DeVariantSubjectDetailCoreDb> detailsData
-
+    List<DeVariantSubjectIdxCoreDb> indexData
+    
     public VcfTestData() {
         // Create VCF platform and assays
         platform = new DeGplInfo(
@@ -36,16 +37,6 @@ class VcfTestData  {
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
-        
-        // Add also another platform and assays for those patients
-        // to test whether the VCF module only returns VCF assays
-        otherPlatform = new DeGplInfo(
-            title: 'Other platform',
-            organism: 'Homo Sapiens',
-            markerType: 'mrna')
-        otherPlatform.id = 'BOGUSGPLMRNA'
-        
-        assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
         
         // Create VCF data
         detailsData = []
@@ -65,6 +56,25 @@ class VcfTestData  {
             if (detail.alt.contains(','))
                 summariesData.last().allele1=2
         }
+        
+        indexData = []
+        assays.eachWithIndex { assay, idx ->
+            indexData << new DeVariantSubjectIdxCoreDb(
+                dataset: dataset,
+                subjectId: assay.sampleCode,
+                position: idx + 1
+            )
+        }
+        
+        // Add also another platform and assays for those patients
+        // to test whether the VCF module only returns VCF assays
+        otherPlatform = new DeGplInfo(
+            title: 'Other platform',
+            organism: 'Homo Sapiens',
+            markerType: 'mrna')
+        otherPlatform.id = 'BOGUSGPLMRNA'
+        
+        assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
     }
 
     def createDetail = {
@@ -84,7 +94,7 @@ class VcfTestData  {
                     info:  info,
                     format: 'GT',
                     dataset: dataset,
-                    variant: "" + position + "/" + position + "\t" + ( position + 1 ) + "/" + ( position + 1 ) 
+                    variant: "" + position + "/" + position + "\t" + ( position + 1 ) + "/" + ( position + 1 ) + "\t" + ( position * 2 ) + "/" + ( position * 2 ) 
             )
     }
 
@@ -123,5 +133,6 @@ class VcfTestData  {
         save assays
         save detailsData
         save summariesData
+        save indexData
     }
 }

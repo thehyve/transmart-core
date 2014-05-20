@@ -143,6 +143,7 @@ class VcfEndToEndRetrievalTests {
         // quality=1, variantFormat=R/R, filter=., chr=1}
         assertThat resultList, hasItem(
                 allOf(
+                        hasProperty('datasetId', equalTo("BOGUSDTST")),
                         hasProperty('chromosome', equalTo("1")),
                         hasProperty('position', equalTo(1L)),
                         hasProperty('rsId', equalTo(".")),
@@ -154,7 +155,7 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('filter', equalTo(".")),
                         hasProperty('info', equalTo("DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268")),
                         hasProperty('format', equalTo("GT")),
-                        hasProperty('variants', equalTo("1/1\t2/2")),
+                        hasProperty('variants', equalTo("1/1\t2/2\t2/2")),
 
                         hasProperty('qualityOfDepth', closeTo( 2.0 as Double, 0.01 as Double )),
                         hasProperty('formatFields', hasItem( equalTo( "GT" ) ) ),
@@ -256,8 +257,6 @@ class VcfEndToEndRetrievalTests {
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
 
-        testData.saveAll()
-
         def map = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([constraint])
 
@@ -272,5 +271,33 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('platform',
                                 hasProperty('markerType',
                                         equalTo('VCF')))))
+    }
+    
+    @Test
+    void testOriginalSubjectData() {
+        List dataConstraints = []
+        def projection = vcfResource.createProjection [:], 'cohort'
+        dataQueryResult = vcfResource.retrieveData(
+                [], dataConstraints, projection)
+
+        // Make sure that the original variant values are returned properly
+        // Please note: the order of the assays is opposite from the order of creation
+        // as the assayId is decreased while creating the assays
+        def expected = [
+            [ "2/2", "2/2", "1/1" ],
+            [ "4/4", "3/3", "2/2" ],
+            [ "6/6", "4/4", "3/3" ],
+        ]
+        
+        def assays = dataQueryResult.indicesList
+        def rows = dataQueryResult.getRows()
+        
+        expected.each { position ->
+            def row = rows.next()
+            
+            position.eachWithIndex { result, assayIndex ->
+                assertThat row.getOriginalSubjectData( assays[ assayIndex ] ), equalTo( result )
+            }
+        }
     }
 }
