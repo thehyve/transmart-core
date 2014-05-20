@@ -11,10 +11,10 @@ CREATE VIEW bio_marker_correl_mv AS
                                 UNION 
                                          SELECT DISTINCT b.bio_marker_id, 
                                             b.bio_marker_id AS asso_bio_marker_id, 
-                                            'Protein'::text AS correl_type, 
+                                            'PROTEIN'::text AS correl_type, 
                                             4 AS mv_id
                                            FROM bio_marker b
-                                          WHERE ((b.bio_marker_type)::text = 'Protein'::text))
+                                          WHERE ((b.bio_marker_type)::text = 'PROTEIN'::text))
                         UNION 
                                  SELECT DISTINCT c.bio_data_id AS bio_marker_id, 
                                     c.asso_bio_data_id AS asso_bio_marker_id, 
