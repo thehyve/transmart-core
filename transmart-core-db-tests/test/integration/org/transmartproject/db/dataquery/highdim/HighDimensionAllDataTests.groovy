@@ -85,10 +85,6 @@ class HighDimensionAllDataTests {
         this.typename = typename
         this.dataProperties = dataProperties
         this.rowProperties = rowProperties
-
-        println "---------------------------------"
-        println "Testdata: " + testData
-
         this.testData = testData.newInstance()
     }
 

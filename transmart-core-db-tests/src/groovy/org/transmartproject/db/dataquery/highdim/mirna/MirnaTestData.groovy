@@ -31,7 +31,6 @@ class MirnaTestData {
     }
     
     protected void generateTestData() {
-        println "Generating mirna Test Data for " + typeName
         platform = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
