@@ -90,6 +90,28 @@ class VcfEndToEndRetrievalTests {
     }
 
     @Test
+    void testAssayFilter() {
+        List dataConstraints = [vcfResource.createDataConstraint(
+                DataConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [chromosome: "1", start: 1, end: 2]
+                ]
+        )]
+        def projection = vcfResource.createProjection [:], 'cohort'
+
+        dataQueryResult = vcfResource.retrieveData(
+                [], dataConstraints, projection)
+
+        // Make sure that only the VCF assays are returned
+        assertThat dataQueryResult.indicesList, hasSize(3)
+
+        assertThat dataQueryResult.indicesList, everyItem(
+                hasProperty('platform',
+                        hasProperty('markerType', equalTo('VCF'))
+        ))
+    }
+    
+    @Test
     void testVcfDataRowRetrieval() {
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'cohort'

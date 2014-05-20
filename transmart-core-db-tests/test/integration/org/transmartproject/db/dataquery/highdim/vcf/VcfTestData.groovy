@@ -18,6 +18,7 @@ class VcfTestData  {
     public static final String TRIAL_NAME = 'VCF_SAMP_TRIAL'
 
     DeGplInfo platform
+    DeGplInfo otherPlatform
     DeVariantDatasetCoreDb dataset
     List<PatientDimension> patients
     List<DeSubjectSampleMapping> assays
@@ -25,6 +26,7 @@ class VcfTestData  {
     List<DeVariantSubjectDetailCoreDb> detailsData
 
     public VcfTestData() {
+        // Create VCF platform and assays
         platform = new DeGplInfo(
                     title: 'Test VCF',
                     organism: 'Homo Sapiens',
@@ -34,6 +36,18 @@ class VcfTestData  {
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
+        
+        // Add also another platform and assays for those patients
+        // to test whether the VCF module only returns VCF assays
+        otherPlatform = new DeGplInfo(
+            title: 'Other platform',
+            organism: 'Homo Sapiens',
+            markerType: 'mrna')
+        otherPlatform.id = 'BOGUSGPLMRNA'
+        
+        assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
+        
+        // Create VCF data
         detailsData = []
         detailsData += createDetail(1, 'C', 'A', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
         detailsData += createDetail(2, 'GCCCCC', 'GCCCC', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
@@ -103,6 +117,7 @@ class VcfTestData  {
 
     void saveAll() {
         assertThat platform.save(), is(notNullValue(DeGplInfo))
+        assertThat otherPlatform.save(), is(notNullValue(DeGplInfo))
         save([dataset])
         save patients
         save assays

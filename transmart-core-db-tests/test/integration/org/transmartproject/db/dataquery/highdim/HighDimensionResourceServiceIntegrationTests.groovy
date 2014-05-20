@@ -41,8 +41,7 @@ class HighDimensionResourceServiceIntegrationTests {
                 registerHighDimensionDataTypeModule('foobar') {
                     [
                             getDataTypeName: { -> 'foobar' },
-                            matchesPlatform: { Platform p ->
-                                p.markerType == 'Foobar' }
+                            getPlatformMarkerTypes: { -> [ 'Foobar' ] }
                     ] as HighDimensionDataTypeResource
                 }
     }
