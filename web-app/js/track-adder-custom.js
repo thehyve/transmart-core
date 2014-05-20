@@ -7,22 +7,18 @@
 
 "use strict";
 
-//if (typeof(require) !== 'undefined') {
-//    var browser = require('./cbrowser');
-//    var Browser = browser.Browser;
-//
-//    var tUtils = require('./tsmart-utils');
-//    var displayError = tUtils.displayError;
-////    var isHighDimensionalNode = tUtils.isHighDimensionalNode;
-//
-//    var das = require('./das');
-//    var DASSegment = das.DASSegment;
-//    var DASRegistry = das.DASRegistry;
-//    var coordsMatch = das.coordsMatch;
-//
-//}
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
 
+    var tUtils = require('./tsmart-utils');
+    var displayError = tUtils.displayError;
 
+    var das = require('./das');
+    var DASSegment = das.DASSegment;
+    var DASRegistry = das.DASRegistry;
+
+}
 
 if (typeof(require) !== 'undefined') {
     var browser = require('./cbrowser');
@@ -288,11 +284,11 @@ var arrNds = new Array();
 
                         if (fs.coords && fs.coords.length == 1) {
                             var coords = fs.coords[0];
-                            if (coordsMatch(coords, thisB.coordSystem)) {
+                            if (_coordsMatch(coords, thisB.coordSystem)) {
                                 coordsDetermined = true;
                             } else if (thisB.chains) {
                                 for (var k in thisB.chains) {
-                                    if (coordsMatch(coords, thisB.chains[k].coords)) {
+                                    if (_coordsMatch(coords, thisB.chains[k].coords)) {
                                         nds.mapping = k;
                                         coordsDetermined = true;
                                     }
