@@ -242,13 +242,29 @@ class UserAccessLevelTests {
     }
 
     @Test
+    void testQueryDefinitionNonStudyNodeIsDenied() {
+        def secondUser = accessLevelTestData.users[1]
+
+        /* non study nodes are typically parents to study nodes (e.g. 'Public
+           Studies', so access to them should be denied, at least in the
+           context of a query definition */
+        QueryDefinition definition = new QueryDefinition([
+                new Panel(items: [new Item(
+                        conceptKey: '\\\\i2b2 main\\foo\\',
+                )]),
+        ])
+
+        assertThat secondUser.canPerform(BUILD_COHORT, definition), is(false)
+    }
+
+    @Test
     void testQueryResultMismatch() {
         def secondUser = accessLevelTestData.users[1]
         def thirdUser = accessLevelTestData.users[2]
 
         QueryResult res = mock(QueryResult)
         res.getClass().returns QueryResult
-        res.username.returns secondUser.username
+        res.username.returns(secondUser.username).atLeastOnce()
 
         play {
             assertThat thirdUser.canPerform(READ, res), is(false)

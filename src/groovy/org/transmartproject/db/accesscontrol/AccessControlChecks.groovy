@@ -113,10 +113,20 @@ class AccessControlChecks {
 
                 /* this could be optimized by adding a new method in
                  * StudiesResource */
-                conceptsResource.getByKey(item.conceptKey).study
+                def concept = conceptsResource.getByKey(item.conceptKey)
+                def study = concept.study
+
+                if (study == null) {
+                    log.info "User included concept with no study: $concept"
+                }
+
+                study
             } as Set
 
             foundStudies.every { Study study1 ->
+                if (study1 == null) {
+                    return false
+                }
                 canPerform user, operation, study1
             }
         }
