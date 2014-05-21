@@ -67,6 +67,9 @@ grails.project.dependency.resolution = {
             transitive = false /* don't bring groovy-all */
             export     = false
         }
+        //Galaxy
+        runtime 'com.github.jmchilton.blend4j:blend4j:0.1-alpha-7'
+
         test('org.hamcrest:hamcrest-library:1.3',
                 'org.hamcrest:hamcrest-core:1.3') {
             export     = false

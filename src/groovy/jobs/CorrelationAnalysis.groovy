@@ -20,7 +20,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class CorrelationAnalysis extends AbstractAnalysisJob {
+class CorrelationAnalysis extends AbstractLocalRAnalysisJob {
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 

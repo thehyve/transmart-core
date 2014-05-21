@@ -21,7 +21,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
  */
 @Component
 @Scope('job')
-class SurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
+class SurvivalAnalysis extends AbstractLocalRAnalysisJob implements InitializingBean {
 
     private static def CENSORING_TRUE = '1'
     private static def CENSORING_FALSE = '0'

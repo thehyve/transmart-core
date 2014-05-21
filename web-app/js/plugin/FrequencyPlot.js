@@ -234,10 +234,15 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             var acghVal = this.inputBar.acghPanel.getConceptCode();
             var groupVals = this.inputBar.groupPanel.getConceptCodes();
 
+            // create a string of all the concepts we need for the i2b2 data.
+            var variablesConceptCode = acghVal;
+            variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
+ 
             // compose params
             var formParams = {
                 regionVariable: acghVal,
                 groupVariable: groupVals,
+                variablesConceptPaths: variablesConceptCode,
                 jobType: FP_JOB_TYPE
             };
 
