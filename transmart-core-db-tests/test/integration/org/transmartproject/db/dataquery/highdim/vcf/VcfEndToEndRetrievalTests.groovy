@@ -203,22 +203,27 @@ class VcfEndToEndRetrievalTests {
             resultList.add(row)
         }
 
-
         // Please note: the order of the assays is opposite from the order of creation
         // as the assayId is decreased while creating the assays
         assertThat resultList, hasItem(
                 contains(
                         allOf(
                                 hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(1))
+                                hasEntry(equalTo('allele2'),equalTo(1)),
+                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-803")),
+                                hasEntry(equalTo('subjectPosition'),equalTo(3L))
                         ),
                         allOf(
                                 hasEntry(equalTo('allele1'),equalTo(0)),
-                                hasEntry(equalTo('allele2'),equalTo(1))
+                                hasEntry(equalTo('allele2'),equalTo(1)),
+                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-802")),
+                                hasEntry(equalTo('subjectPosition'),equalTo(2L))
                         ),
                         allOf(
                                 hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(0))
+                                hasEntry(equalTo('allele2'),equalTo(0)),
+                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-801")),
+                                hasEntry(equalTo('subjectPosition'),equalTo(1L))
                         ),
                 )
         )

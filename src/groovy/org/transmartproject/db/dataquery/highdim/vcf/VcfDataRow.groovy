@@ -59,12 +59,15 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
         def subjectVariants = [:]
         def variantsInOrder = variants.tokenize( '\t' )
         
-        DeVariantSubjectIdxCoreDb.where { dataset.id == datasetId }.each {
-            // Position starts at 1
-            def index = (int) it.position - 1
-            if( variantsInOrder.size() > index )
-                subjectVariants[ it.subjectId ] = variantsInOrder[ index ]
+        data.each {
+            if (it.subjectPosition != null && it.subjectId != null) {
+                // Position starts at 1
+                def index = (int) it.subjectPosition - 1
+                if (variantsInOrder.size() > index)
+                    subjectVariants[it.subjectId] = variantsInOrder[index]
+            }
         }
+        
         subjectVariants
     }()
     

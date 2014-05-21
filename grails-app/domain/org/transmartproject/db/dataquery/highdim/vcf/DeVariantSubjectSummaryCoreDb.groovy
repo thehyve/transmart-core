@@ -15,15 +15,15 @@ class DeVariantSubjectSummaryCoreDb {
     Integer allele2
 
     DeVariantSubjectDetailCoreDb jDetail
+    DeVariantSubjectIdxCoreDb subjectIndex
 
     static belongsTo = [dataset: DeVariantDatasetCoreDb, assay: DeSubjectSampleMapping]   //TODO: implement constraint on dataset
-
-
 
     static constraints = {
         variant(nullable: true)
         variantFormat(nullable: true)
         variantType(nullable: true)
+        subjectIndex(nullable: true)
     }
 
     static mapping = {
@@ -41,6 +41,10 @@ class DeVariantSubjectSummaryCoreDb {
             jDetail {
                 column name: 'chr'
                 column name: 'pos'
+            }
+            subjectIndex {
+                column name: 'dataset'
+                column name: 'subjectId'
             }
         }
     }

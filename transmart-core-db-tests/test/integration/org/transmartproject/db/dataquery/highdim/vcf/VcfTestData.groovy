@@ -44,19 +44,6 @@ class VcfTestData  {
         detailsData += createDetail(2, 'GCCCCC', 'GCCCC', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
         detailsData += createDetail(3, 'A', 'C,T', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
 
-        summariesData = []
-        detailsData.each { detail ->
-            // Create VCF summary entries with the following variants:
-            // 1/0, 0/1 and 1/1
-            int mut = 0
-            assays.each { assay ->
-                mut++
-                summariesData += createSummary detail, mut&1, (mut&2)>>1,  assay
-            }
-            if (detail.alt.contains(','))
-                summariesData.last().allele1=2
-        }
-        
         indexData = []
         assays.eachWithIndex { assay, idx ->
             indexData << new DeVariantSubjectIdxCoreDb(
@@ -64,6 +51,19 @@ class VcfTestData  {
                 subjectId: assay.sampleCode,
                 position: idx + 1
             )
+        }
+        
+        summariesData = []
+        detailsData.each { detail ->
+            // Create VCF summary entries with the following variants:
+            // 1/0, 0/1 and 1/1
+            int mut = 0
+            assays.eachWithIndex { assay, idx ->
+                mut++
+                summariesData += createSummary detail, mut&1, (mut&2)>>1,  assay, indexData[idx]
+            }
+            if (detail.alt.contains(','))
+                summariesData.last().allele1=2
         }
         
         // Add also another platform and assays for those patients
@@ -102,7 +102,8 @@ class VcfTestData  {
         DeVariantSubjectDetailCoreDb detail,
         int allele1,
         int allele2,
-        DeSubjectSampleMapping assay
+        DeSubjectSampleMapping assay,
+        DeVariantSubjectIdxCoreDb subjectIndex
             ->
 
             new DeVariantSubjectSummaryCoreDb(
@@ -118,7 +119,8 @@ class VcfTestData  {
                     subjectId: assay.sampleCode,
                     dataset: dataset,
                     assay: assay,
-                    jDetail: detail
+                    jDetail: detail,
+                    subjectIndex: subjectIndex
             )
     }
 
@@ -132,7 +134,7 @@ class VcfTestData  {
         save patients
         save assays
         save detailsData
-        save summariesData
         save indexData
+        save summariesData
     }
 }
