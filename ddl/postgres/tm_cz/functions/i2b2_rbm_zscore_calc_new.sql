@@ -1,15 +1,9 @@
 --
--- Name: i2b2_rbm_zscore_calc_new(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_rbm_zscore_calc_new(character varying, character varying, bigint, character varying, bigint, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_rbm_zscore_calc_new (
-  trial_id character varying
- ,run_type character varying DEFAULT 'L'::character varying
- ,currentJobID bigint DEFAULT 0
- ,data_type character varying DEFAULT 'R'::character varying
- ,log_base	bigint DEFAULT 2
- ,source_cd	character varying DEFAULT null
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_rbm_zscore_calc_new(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid bigint DEFAULT 0, data_type character varying DEFAULT 'R'::character varying, log_base bigint DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -406,5 +400,5 @@ where not exists( select * from deapp.de_rbm_data_annotation_join j where j.data
 	
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

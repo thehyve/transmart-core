@@ -6,3 +6,4 @@ CREATE TABLE tmp_project_disease (
     accession character varying(100),
     disease character varying(4000)
 );
+

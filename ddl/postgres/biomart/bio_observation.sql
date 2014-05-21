@@ -10,8 +10,15 @@ CREATE TABLE bio_observation (
     obs_type character varying(20),
     obs_code_source character varying(20)
 );
+
 --
--- Name: tf_trg_bio_observation_id; Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: observationdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY bio_observation
+    ADD CONSTRAINT observationdim_pk PRIMARY KEY (bio_observation_id);
+
+--
+-- Name: tf_trg_bio_observation_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
 CREATE FUNCTION tf_trg_bio_observation_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -25,12 +32,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_observation_id(); Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: trg_bio_observation_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-  CREATE TRIGGER trg_bio_observation_id BEFORE INSERT ON bio_observation FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_observation_id();
+CREATE TRIGGER trg_bio_observation_id BEFORE INSERT ON bio_observation FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_observation_id();
 
---
--- Name: observationdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
---
-ALTER TABLE ONLY bio_observation
-    ADD CONSTRAINT observationdim_pk PRIMARY KEY (bio_observation_id);

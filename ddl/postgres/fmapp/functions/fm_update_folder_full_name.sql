@@ -1,7 +1,7 @@
 --
--- Type: PROCEDURE; Owner: FMAPP; Name: FM_UPDATE_FOLDER_FULL_NAME
+-- Name: fm_update_folder_full_name(); Type: FUNCTION; Schema: fmapp; Owner: -
 --
-CREATE FUNCTION fm_update_folder_full_name () RETURNS void
+CREATE FUNCTION fm_update_folder_full_name() RETURNS void
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -21,4 +21,4 @@ begin
   end loop;
 end;
 $$;
- 
+

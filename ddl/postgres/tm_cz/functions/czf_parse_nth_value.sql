@@ -1,8 +1,9 @@
 --
--- Name: czf_parse_nth_value(text, bigint, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czf_parse_nth_value(character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czf_parse_nth_value (pValue character varying, location numeric, delimiter character varying)
-    RETURNS varchar AS $body$
+CREATE FUNCTION czf_parse_nth_value(pvalue character varying, location numeric, delimiter character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
    v_posA integer;
@@ -30,5 +31,5 @@ BEGIN
 
 end;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

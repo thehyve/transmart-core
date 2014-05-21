@@ -11,3 +11,4 @@ CREATE TABLE de_subject_microarray_data_new (
     log_intensity double precision,
     zscore double precision
 );
+

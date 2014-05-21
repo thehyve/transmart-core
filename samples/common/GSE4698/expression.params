@@ -1,0 +1,5 @@
+DATA_FILE_PREFIX=Acute_Lymphoblastic_Leukemia_Kirschner_Schwabe_GSE4698_Gene_Expression_Data_L.txt
+DATA_TYPE=L
+LOG_BASE=2
+MAP_FILENAME=Acute_Lymphoblastic_Leukemia_Kirschner_Schwabe_GSE4698_Subject_Sample_Mapping.txt
+NODE_NAME=MRNA

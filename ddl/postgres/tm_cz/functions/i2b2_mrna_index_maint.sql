@@ -1,12 +1,9 @@
 --
--- Name: i2b2_mrna_index_maint(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_mrna_index_maint(text, text, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_mrna_index_maint (
-  run_type 			text DEFAULT 'DROP'
- ,tablespace_name	text	DEFAULT 'INDX'
- ,currentJobID 		bigint DEFAULT null
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_mrna_index_maint(run_type text DEFAULT 'DROP'::text, tablespace_name text DEFAULT 'INDX'::text, currentjobid bigint DEFAULT NULL::bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -277,5 +274,5 @@ end;
  
 
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

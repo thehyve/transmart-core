@@ -1,12 +1,9 @@
 --
 -- Name: util_drop_anything(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_drop_anything (
-  v_objname IN character varying DEFAULT NULL ,
-  v_objtype IN character varying DEFAULT NULL
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_drop_anything(v_objname character varying DEFAULT NULL::character varying, v_objtype character varying DEFAULT NULL::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -36,5 +33,5 @@ BEGIN
    END;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

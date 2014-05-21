@@ -1,16 +1,9 @@
 --
--- Name: czx_write_error(bigint, bigint, text, text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czx_write_error(numeric, character varying, character varying, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czx_write_error (JOBID IN numeric,
-	ERRORNUMBER IN numeric , 
-	ERRORMESSAGE IN character varying , 
-	ERRORSTACK IN character varying,
-  ERRORBACKTRACE IN character varying)
---  AUTHID CURRENT_USER
- RETURNS VOID AS $body$
-DECLARE
-
- PRAGMA AUTONOMOUS_TRANSACTION;
+CREATE FUNCTION czx_write_error(jobid numeric, errornumber character varying, errormessage character varying, errorstack character varying, errorbacktrace character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -29,30 +22,33 @@ DECLARE
 
 BEGIN
 
-	INSERT INTO CZ_JOB_ERROR(
-		JOB_ID,
-		ERROR_NUMBER,
-		ERROR_MESSAGE,
-		ERROR_STACK,
-    ERROR_BACKTRACE,
-		SEQ_ID)
-	PERFORM
-		JOBID,
-		ERRORNUMBER,
-		ERRORMESSAGE,
-		ERRORSTACK,
-    ERRORBACKTRACE,
-		MAX(SEQ_ID) 
-  FROM 
-    CZ_JOB_AUDIT 
-  WHERE 
-    JOB_ID=JOBID;
+	begin
+	insert into tm_cz.cz_job_error(
+		job_id,
+		error_number,
+		error_message,
+		error_stack,
+		error_backtrace,
+		seq_id)
+	select
+		jobID,
+		errorNumber,
+		errorMessage,
+		errorStack,
+		errorBackTrace,
+		max(seq_id) 
+  from tm_cz.cz_job_audit 
+  where job_id=jobID;
   
-  COMMIT;
+  end;
+  
+  return 1;
  
-EXCEPTION
-    WHEN OTHERS THEN ROLLBACK;
+  exception 
+	when OTHERS then
+		raise notice 'proc failed state=%  errm=%', SQLSTATE, SQLERRM;
+		return -16; 
+
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

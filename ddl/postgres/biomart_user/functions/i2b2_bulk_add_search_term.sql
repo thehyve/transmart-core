@@ -1,10 +1,9 @@
 --
 -- Name: i2b2_bulk_add_search_term(bigint); Type: FUNCTION; Schema: biomart_user; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_bulk_add_search_term ( 
-  currentJobID bigint DEFAULT null
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_bulk_add_search_term(currentjobid bigint DEFAULT NULL::bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -191,5 +190,5 @@ BEGIN
   
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

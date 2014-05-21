@@ -12,3 +12,4 @@ CREATE TABLE de_metabolite_super_pathways (
 --
 ALTER TABLE ONLY de_metabolite_super_pathways
     ADD CONSTRAINT de_metabolite_super_pathway_pk PRIMARY KEY (id);
+

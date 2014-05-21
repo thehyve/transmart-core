@@ -11,3 +11,4 @@ CREATE TABLE de_subject_mirna_data (
     zscore double precision,
     probeset_id bigint
 );
+

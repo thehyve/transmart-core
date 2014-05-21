@@ -10,3 +10,4 @@ CREATE TABLE sample_dimension (
 --
 ALTER TABLE ONLY sample_dimension
     ADD CONSTRAINT sample_dimension_pk PRIMARY KEY (sample_cd);
+

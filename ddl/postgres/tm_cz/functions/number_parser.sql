@@ -1,11 +1,9 @@
 --
--- Name: number_parser(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: number_parser(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION number_parser (
-     numbers_to_parse IN character varying
-)
---Custom Collection type returned
- RETURNS _numeric AS $body$
+CREATE FUNCTION number_parser(numbers_to_parse character varying) RETURNS numeric[]
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
    start_pos bigint;
@@ -70,5 +68,5 @@ BEGIN
 
 END number_parser;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

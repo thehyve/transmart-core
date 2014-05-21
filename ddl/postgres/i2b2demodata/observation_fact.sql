@@ -1,15 +1,4 @@
 --
--- Type: SEQUENCE; Owner: I2B2DEMODATA; Name: SEQ_ENCOUNTER_NUM
---
-CREATE SEQUENCE seq_encounter_num
-    NO MINVALUE
-    NO MAXVALUE
-    INCREMENT BY 1
-    START WITH 9571119
-    CACHE 1
-;
-
---
 -- Name: observation_fact; Type: TABLE; Schema: i2b2demodata; Owner: -
 --
 CREATE TABLE observation_fact (
@@ -37,6 +26,12 @@ CREATE TABLE observation_fact (
     observation_blob text,
     instance_num bigint
 );
+
+--
+-- Name: observation_fact_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY observation_fact
+    ADD CONSTRAINT observation_fact_pkey PRIMARY KEY (patient_num, concept_cd, provider_id, modifier_cd);
 
 --
 -- Name: fact_modifier_patient; Type: INDEX; Schema: i2b2demodata; Owner: -

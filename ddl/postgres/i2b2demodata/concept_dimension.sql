@@ -15,7 +15,7 @@ CREATE TABLE concept_dimension (
 );
 
 --
--- name: concept_dimension_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+-- Name: concept_dimension_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY concept_dimension
     ADD CONSTRAINT concept_dimension_pk PRIMARY KEY (concept_path);

@@ -1,16 +1,9 @@
 --
--- Name: rdc_reload_mrna_data(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: rdc_reload_mrna_data(text, text, text, bigint, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION rdc_reload_mrna_data (
-  trial_id 		text
- ,data_type		text DEFAULT 'R'		--	R = raw data, do zscore calc, T = transformed data, load raw values as zscore,
-									--	L = log intensity data, skip log step in zscore calc
- ,source_cd		text DEFAULT 'STD'	--	default source_cd = 'STD'
- ,log_base		bigint DEFAULT 2			--	log base value for conversion back to raw
- ,currentJobID 	bigint DEFAULT null
--- ,rtn_code		OUT	NUMBER
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION rdc_reload_mrna_data(trial_id text, data_type text DEFAULT 'R'::text, source_cd text DEFAULT 'STD'::text, log_base bigint DEFAULT 2, currentjobid bigint DEFAULT NULL::bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 
@@ -313,5 +306,5 @@ BEGIN
 		--select 16 into rtn_code from dual;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

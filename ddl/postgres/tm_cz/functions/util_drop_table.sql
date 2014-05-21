@@ -1,11 +1,9 @@
 --
--- Name: util_drop_table(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_drop_table(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_drop_table (
-  v_tabname IN character varying DEFAULT NULL
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_drop_table(v_tabname character varying DEFAULT NULL::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -34,5 +32,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -1,11 +1,9 @@
 --
 -- Name: util_drop_synonym(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_drop_synonym (
-  v_objname IN character varying DEFAULT NULL
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_drop_synonym(v_objname character varying DEFAULT NULL::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -49,5 +47,5 @@ BEGIN
    CLOSE ts;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

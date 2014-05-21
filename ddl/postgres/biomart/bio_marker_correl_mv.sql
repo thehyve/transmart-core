@@ -7,3 +7,4 @@ CREATE TABLE bio_marker_correl_mv (
     correl_type character varying(18),
     mv_id bigint
 );
+

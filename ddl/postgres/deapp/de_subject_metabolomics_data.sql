@@ -12,8 +12,10 @@ CREATE TABLE de_subject_metabolomics_data (
     log_intensity bigint,
     zscore bigint NOT NULL
 );
+
 --
--- Type: REF_CONSTRAINT; Owner: DEAPP; Name: SYS_C0010757
+-- Name: de_subject_metabolomics_data_metabolite_annotation_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
-ALTER TABLE de_subject_metabolomics_data ADD FOREIGN KEY (metabolite_annotation_id)
- REFERENCES de_metabolite_annotation(id);
+ALTER TABLE ONLY de_subject_metabolomics_data
+    ADD CONSTRAINT de_subject_metabolomics_data_metabolite_annotation_id_fkey FOREIGN KEY (metabolite_annotation_id) REFERENCES de_metabolite_annotation(id);
+

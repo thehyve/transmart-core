@@ -48,9 +48,6 @@ RETURN NEW;
 end;
 $$;
 
-
-SET default_with_oids = false;
-
 --
 -- Name: trg_snp_subject_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
 --

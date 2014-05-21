@@ -15,3 +15,4 @@ CREATE TABLE crc_db_lookup (
     c_change_date timestamp without time zone,
     c_status_cd character(1)
 );
+

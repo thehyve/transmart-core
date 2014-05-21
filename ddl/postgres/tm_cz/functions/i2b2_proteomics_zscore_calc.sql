@@ -1,15 +1,9 @@
 --
--- Name: i2b2_proteomics_zscore_calc(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_proteomics_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_proteomics_zscore_calc (
-  trial_id character varying
- ,run_type character varying DEFAULT 'L'::character varying
- ,currentJobID numeric DEFAULT (-1)
- ,data_type character varying DEFAULT 'R'::character varying
- ,log_base	numeric DEFAULT 2
- ,source_cd	character varying DEFAULT null
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_proteomics_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT (-1), data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -344,5 +338,5 @@ BEGIN
 	
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

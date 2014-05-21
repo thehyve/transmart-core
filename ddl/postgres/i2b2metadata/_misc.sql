@@ -1,24 +1,52 @@
 --
--- Type: SEQUENCE; Owner: I2B2METADATA; Name: SEQ_CONCEPT_CODE
+-- Name: i2b2_id_seq; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
-CREATE SEQUENCE seq_concept_code
+CREATE SEQUENCE i2b2_id_seq
+    START WITH 445288
+    INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    INCREMENT BY 1
-    START WITH 1000
-    CACHE 1
-;
+    CACHE 1;
 
 --
--- Type: SEQUENCE; Owner: I2B2METADATA; Name: SEQ_I2B2_DATA_ID
+-- Name: seq_concept_code; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
-CREATE SEQUENCE seq_i2b2_data_id
+CREATE SEQUENCE seq_concept_code
+    START WITH 1000
+    INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    INCREMENT BY 1
+    CACHE 1;
+
+--
+-- Name: seq_i2b2_data_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
+--
+CREATE SEQUENCE seq_i2b2_data_id
     START WITH 1789
-    CACHE 1
-;
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: sq_i2b2_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
+--
+CREATE SEQUENCE sq_i2b2_id
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: sq_i2b2_tag_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
+--
+CREATE SEQUENCE sq_i2b2_tag_id
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 --
 -- Name: INDEX i2b2_c_comment_char_length_idx; Type: COMMENT; Schema: i2b2metadata; Owner: -

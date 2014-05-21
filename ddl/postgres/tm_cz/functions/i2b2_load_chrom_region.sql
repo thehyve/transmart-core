@@ -1,11 +1,9 @@
 --
 -- Name: i2b2_load_chrom_region(character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-
-CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1))
-  RETURNS numeric 
-  LANGUAGE plpgsql
-  AS $BODY$
+CREATE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 
 Declare
 	--Audit variables
@@ -185,4 +183,5 @@ BEGIN
 
 END;
 
-$BODY$;
+$$;
+

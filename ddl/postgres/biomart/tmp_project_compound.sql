@@ -6,3 +6,4 @@ CREATE TABLE tmp_project_compound (
     accession character varying(100),
     compound character varying(4000)
 );
+

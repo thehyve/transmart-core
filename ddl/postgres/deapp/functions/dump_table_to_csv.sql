@@ -1,10 +1,9 @@
 --
--- Name: dump_table_to_csv(text, text, text); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: dump_table_to_csv(character varying, character varying, character varying); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE OR REPLACE FUNCTION dump_table_to_csv ( p_tname in character varying,
-                                                   p_dir   in character varying,
-                                                   p_filename in character varying )
-     RETURNS VOID AS $body$
+CREATE FUNCTION dump_table_to_csv(p_tname character varying, p_dir character varying, p_filename character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
         l_output        utl_file.file_type;
@@ -54,5 +53,5 @@ BEGIN
            raise;
    end;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

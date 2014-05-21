@@ -1,13 +1,9 @@
 --
--- Name: czx_error_handler(bigint, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czx_error_handler(numeric, character varying, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czx_error_handler (
-  jobID bigint,
-  procedureName text
-) --AUTHID CURRENT_USER
- RETURNS VOID AS $body$
-DECLARE
-
+CREATE FUNCTION czx_error_handler(jobid numeric, procedurename character varying, errornumber character varying, errormessage character varying) RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -23,37 +19,43 @@ DECLARE
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************/
-
-  databaseName varchar(100);
-	errorNumber bigint;
-	errorMessage varchar(1000);
-  errorStack varchar(4000);
-  errorBackTrace varchar(4000);
-	stepNo bigint;
-
+Declare
+	databaseName VARCHAR(100);
+	--errorNumber		character varying;	--	PostgreSQL SQLSTATE is alphanumeric
+	--errorNumber NUMBER(18,0);
+	--errorMessage VARCHAR(1000);
+	errorStack VARCHAR(4000);
+	errorBackTrace VARCHAR(4000);
+	stepNo numeric(18,0);
+	
+	rtnCd	integer;
 
 BEGIN
-  --Get DB Name
+	--Get DB Name
 	select database_name INTO databaseName
-		from cz_job_master 
-		where job_id=jobID;
-  --Get Latest Step
-	select max(step_number) into stepNo from cz_job_audit where job_id = jobID;
-  
-  --Get all error info
-  errorNumber := SQLSTATE;
-  errorMessage := SQLERRM;
-  errorStack := dbms_utility.format_error_stack;
-  errorBackTrace := dbms_utility.format_error_backtrace;
+	from tm_cz.cz_job_master 
+	where job_id=jobID;
 
-  --Update the audit step for the error
-  czx_write_audit(jobID, databaseName,procedureName, 'Job Failed: See error log for details',SQL%ROWCOUNT, stepNo, 'FAIL');
-
+	--Get Latest Step
+	select max(step_number) into stepNo from tm_cz.cz_job_audit where job_id = jobID;
   
-  --write out the error info
-  czx_write_error(jobID, errorNumber, errorMessage, errorStack, errorBackTrace);
+	--Get all error info, passed in as parameters, only available from EXCEPTION block
+	--errorNumber := SQLSTATE;
+	--errorMessage := SQLERRM;
+	
+	--	No corresponding functionality in PostgreSQL
+	--errorStack := dbms_utility.format_error_stack;
+	--errorBackTrace := dbms_utility.format_error_backtrace;
+
+	--Update the audit step for the error
+	select tm_cz.czx_write_audit(jobID, databaseName,procedureName, 'Job Failed: See error log for details',1, stepNo, 'FAIL') into rtnCd;
+  
+	--write out the error info
+	select tm_cz.czx_write_error(jobID, errorNumber, errorMessage, errorStack, errorBackTrace) into rtnCd;
+	
+	return 1;
 
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+
+$$;
+

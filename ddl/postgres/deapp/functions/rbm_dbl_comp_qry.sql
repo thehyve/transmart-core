@@ -1,15 +1,9 @@
 --
--- Name: rbm_dbl_comp_qry(character varying, character varying, character varying, character varying, character varying, character varying, REFCURSOR); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: rbm_dbl_comp_qry(character varying, character varying, character varying, character varying, character varying, character varying, refcursor); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE OR REPLACE FUNCTION rbm_dbl_comp_qry (
-  patient_ids1 IN character varying
-, patient_ids2 IN character varying
-, concept_cds1 IN character varying
-, concept_cds2 IN character varying
-, timepoints1 IN character varying
-, timepoints2 IN character varying
-, cv_1 INOUT REFCURSOR
-)  RETURNS REFCURSOR AS $body$
+CREATE FUNCTION rbm_dbl_comp_qry(patient_ids1 character varying, patient_ids2 character varying, concept_cds1 character varying, concept_cds2 character varying, timepoints1 character varying, timepoints2 character varying, INOUT cv_1 refcursor) RETURNS refcursor
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
   tp_cnt1 integer;
@@ -96,5 +90,5 @@ BEGIN
 
 END RBM_DBL_COMP_QRY;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -1,16 +1,9 @@
 --
--- Name: util_make_object_list(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_make_object_list(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_make_object_list (
-  -- comma-separated list of things,
-  v_whattype IN character varying DEFAULT NULL,
-
-  -- resolved list of things formatted as a list of quoted strings
-  -- but without the enclosing parentheses.
-  v_things OUT character varying
-)
---AUTHID CURRENT_USER
- RETURNS character varying AS $body$
+CREATE FUNCTION util_make_object_list(v_whattype character varying DEFAULT NULL::character varying, OUT v_things character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -41,5 +34,5 @@ BEGIN
    v_things := '''' || v_things || '''' ;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

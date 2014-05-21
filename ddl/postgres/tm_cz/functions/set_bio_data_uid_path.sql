@@ -1,7 +1,9 @@
 --
 -- Name: set_bio_data_uid_path(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION set_bio_data_uid_path () RETURNS VOID AS $body$
+CREATE FUNCTION set_bio_data_uid_path() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
  -- jobRunID CONTROL.SYSTEM_JOB_RUN.JOB_RUN_ID%TYPE;
@@ -69,5 +71,5 @@ end;
 
 
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

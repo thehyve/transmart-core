@@ -13,14 +13,15 @@ CREATE TABLE az_test_run (
     param1 character varying(4000),
     test_category_id bigint
 );
+
 --
--- Type: REF_CONSTRAINT; Owner: TM_CZ; Name: az_test_run_cz_test_categ_fk1
+-- Name: az_test_run_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
 --
-ALTER TABLE az_test_run
-      ADD CONSTRAINT az_test_run_cz_test_categ_fk1 FOREIGN KEY (test_category_id)
-       REFERENCES cz_test_category(test_category_id);
+ALTER TABLE ONLY az_test_run
+    ADD CONSTRAINT az_test_run_pk PRIMARY KEY (test_run_id);
+
 --
--- Name: tf_trg_az_test_run_id; Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: tf_trg_az_test_run_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE FUNCTION tf_trg_az_test_run_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -34,18 +35,29 @@ end;
 $$;
 
 --
--- Name: tf_trg_az_test_run_id(); Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: tf_trg_az_test_run_id; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-  CREATE TRIGGER tf_trg_az_test_run_id BEFORE INSERT ON az_test_run FOR EACH ROW EXECUTE PROCEDURE tf_trg_az_test_run_id();
---
--- Type: REF_CONSTRAINT; Owner: TM_CZ; Name: AZ_TEST_RUN_CZ_DW_VERSION_FK1
---
-ALTER TABLE az_test_run
-      ADD CONSTRAINT az_test_run_cz_dw_version_fk1 FOREIGN KEY (dw_version_id)
-       REFERENCES cz_dw_version(dw_version_id);
+CREATE TRIGGER tf_trg_az_test_run_id BEFORE INSERT ON az_test_run FOR EACH ROW EXECUTE PROCEDURE tf_trg_az_test_run_id();
 
 --
--- Name: az_test_run_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
+-- Name: az_test_run_cz_dw_version_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
 --
 ALTER TABLE ONLY az_test_run
-    ADD CONSTRAINT az_test_run_pk PRIMARY KEY (test_run_id);
+    ADD CONSTRAINT az_test_run_cz_dw_version_fk1 FOREIGN KEY (dw_version_id) REFERENCES cz_dw_version(dw_version_id);
+
+--
+-- Name: az_test_run_cz_test_categ_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
+--
+ALTER TABLE ONLY az_test_run
+    ADD CONSTRAINT az_test_run_cz_test_categ_fk1 FOREIGN KEY (test_category_id) REFERENCES cz_test_category(test_category_id);
+
+--
+-- Name: seq_cz_test; Type: SEQUENCE; Schema: tm_cz; Owner: -
+--
+CREATE SEQUENCE seq_cz_test
+    START WITH 8259
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 2;
+

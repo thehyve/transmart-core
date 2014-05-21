@@ -5,3 +5,4 @@ CREATE TABLE hilosequences (
     sequencename character varying(50) NOT NULL,
     highvalues bigint NOT NULL
 );
+

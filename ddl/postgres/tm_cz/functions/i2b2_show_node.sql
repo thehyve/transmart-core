@@ -1,10 +1,9 @@
 --
 -- Name: i2b2_show_node(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_show_node (
-  path character varying
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_show_node(path character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
 
   -------------------------------------------------------------
@@ -29,5 +28,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -9,6 +9,13 @@ CREATE TABLE wt_trial_nodes (
     data_label character varying(500),
     node_name character varying(500),
     data_value character varying(500),
-    data_type character varying(20)
+    data_type character varying(20),
+    data_label_ctrl_vocab_code character varying(500),
+    data_value_ctrl_vocab_code character varying(500),
+    data_label_components character varying(1000),
+    link_type character varying(50),
+    obs_string character varying(100),
+    valuetype_cd character varying(50),
+    rec_num numeric
 );
 

@@ -1,17 +1,9 @@
 --
--- Name: protein_dbl_comp_qry(character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, REFCURSOR); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: protein_dbl_comp_qry(character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, refcursor); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE OR REPLACE FUNCTION protein_dbl_comp_qry (
-  patient_ids1 IN character varying
-, patient_ids2 IN character varying
-, sample_types1 IN character varying
-, sample_types2 IN character varying
-, pathway_uid1 IN character varying
-, pathway_uid2 IN character varying
-, timepoints1 IN character varying
-, timepoints2 IN character varying
-, cv_1 INOUT REFCURSOR
-)  RETURNS REFCURSOR AS $body$
+CREATE FUNCTION protein_dbl_comp_qry(patient_ids1 character varying, patient_ids2 character varying, sample_types1 character varying, sample_types2 character varying, pathway_uid1 character varying, pathway_uid2 character varying, timepoints1 character varying, timepoints2 character varying, INOUT cv_1 refcursor) RETURNS refcursor
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
   sample_record_count1 integer;
@@ -244,5 +236,5 @@ END PROTEIN_DBL_COMP_QRY;
  
  
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -1,10 +1,9 @@
 --
--- Name: i2b2_load_proteomics_annot(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_proteomics_annot(bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_load_proteomics_annot (
-currentJobID bigint DEFAULT null
- )
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_load_proteomics_annot(currentjobid bigint DEFAULT NULL::bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -244,5 +243,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

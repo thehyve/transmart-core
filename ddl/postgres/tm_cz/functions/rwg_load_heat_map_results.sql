@@ -7,9 +7,9 @@
 -- DATASOURCE: dbi:Oracle:host=mydb.mydom.fr;sid=SIDNAME
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_load_heat_map_results (
-  In_Study_Id In character varying
-  ,currentJobID numeric DEFAULT (-1)
-)  RETURNS numeric AS $body$
+  In_Study_Id In text
+  ,currentJobID bigint DEFAULT null
+)  RETURNS bigint AS $body$
 DECLARE
 
 /*************************************************************************
@@ -32,15 +32,15 @@ DECLARE
 	newJobFlag    smallint;
 	databaseName  varchar(100);
 	procedureName varchar(100);
-	jobID         numeric;
-	stepCt        integer;
-	rowCt         integer;
+	jobID         bigint;
+	stepCt        bigint;
+	rowCt         bigint;
 	errorNumber   varchar;
 	errorMessage  varchar;
 
 	sqlText    varchar(500);
 	partExists boolean;
-	partTable  character varying;
+	partTable  text;
 	i          integer;
 	/*
 	cursor cInsert is

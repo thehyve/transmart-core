@@ -8,8 +8,8 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_import_from_ext (
-  trialID character varying
- ,currentJobID numeric DEFAULT (-1)
+  trialID text
+ ,currentJobID bigint DEFAULT null
 )
  RETURNS BIGINT AS $body$
 DECLARE
@@ -46,7 +46,7 @@ BEGIN
 
 	--Audit JOB Initialization
 	--If Job ID does not exist, then this is a single procedure run and we need to create it
-	IF (coalesce(jobID::character varying, '') = '' OR jobID < 1)
+	IF (coalesce(jobID::text, '') = '' OR jobID < 1)
 		THEN
 		newJobFlag := 1; -- True
 		SELECT cz_start_audit(procedureName, databaseName) INTO jobID;

@@ -1,10 +1,9 @@
 --
--- Name: sf_xtab(character varying, numeric, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: sf_xtab(character varying, numeric, character varying, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION sf_xtab (v_variable IN character varying,
-                                    v_protocol IN numeric,
-                                    v_subject  IN character varying,
-                                    v_rowid bigint) RETURNS character varying AS $body$
+CREATE FUNCTION sf_xtab(v_variable character varying, v_protocol numeric, v_subject character varying, v_rowid bigint) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -55,5 +54,5 @@ BEGIN
      
 END sf_xtab; 
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

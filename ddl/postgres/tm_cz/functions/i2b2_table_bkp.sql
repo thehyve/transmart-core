@@ -1,7 +1,9 @@
 --
 -- Name: i2b2_table_bkp(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_table_bkp () RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_table_bkp() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -79,5 +81,5 @@ END;
 
 
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

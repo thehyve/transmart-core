@@ -2,7 +2,7 @@
 -- Name: project_info; Type: TABLE; Schema: biomart; Owner: -
 --
 CREATE TABLE project_info (
-    file_id integer,
+    file_id integer NOT NULL,
     id character varying(100),
     name character varying(100),
     file_name character varying(100),
@@ -44,9 +44,30 @@ CREATE TABLE project_info (
     project_editors character varying(100),
     project_isprivate character varying(100),
     project_publishdate character varying(100),
-    entrydt timestamp without time zone,
-    PRIMARY KEY (file_id),
-    UNIQUE (id),
-    UNIQUE (name),
-    UNIQUE (file_name)
+    entrydt timestamp without time zone
 );
+
+--
+-- Name: project_info_file_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY project_info
+    ADD CONSTRAINT project_info_file_name_key UNIQUE (file_name);
+
+--
+-- Name: project_info_id_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY project_info
+    ADD CONSTRAINT project_info_id_key UNIQUE (id);
+
+--
+-- Name: project_info_name_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY project_info
+    ADD CONSTRAINT project_info_name_key UNIQUE (name);
+
+--
+-- Name: project_info_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY project_info
+    ADD CONSTRAINT project_info_pkey PRIMARY KEY (file_id);
+

@@ -1,12 +1,9 @@
 --
--- Name: util_truncate_table(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_truncate_table(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_truncate_table (
-  v_tabname IN character varying DEFAULT NULL ,
-  v_dummyarg IN character varying DEFAULT 'Y'::character varying
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_truncate_table(v_tabname character varying DEFAULT NULL::character varying, v_dummyarg character varying DEFAULT 'Y'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -64,5 +61,5 @@ BEGIN
    CLOSE v_cmdlist;-- procedure
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

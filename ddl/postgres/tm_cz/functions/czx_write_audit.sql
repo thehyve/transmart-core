@@ -1,17 +1,9 @@
 --
 -- Name: czx_write_audit(numeric, character varying, character varying, character varying, numeric, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czx_write_audit (JOBID IN numeric,
-	DATABASENAME IN character varying,
-	PROCEDURENAME IN character varying,
-	STEPDESC IN character varying,
-	RECORDSMANIPULATED IN numeric,
-	STEPNUMBER IN numeric,
-	STEPSTATUS IN character varying)
---  AUTHID CURRENT_USER
- RETURNS VOID AS $body$
-DECLARE
-
+CREATE FUNCTION czx_write_audit(jobid numeric, databasename character varying, procedurename character varying, stepdesc character varying, recordsmanipulated numeric, stepnumber numeric, stepstatus character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -27,51 +19,60 @@ DECLARE
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************/
- PRAGMA AUTONOMOUS_TRANSACTION;
-
-  LASTTIME timestamp;
-  v_version_id numeric;
-
-
+DECLARE
+	lastTime timestamp;
+	currTime timestamp;
+	elapsedSecs	numeric;
+	rtnCd		numeric;
+	
 BEGIN
-  SELECT MAX(JOB_DATE)
-    INTO LASTTIME
-    FROM CZ_JOB_AUDIT
-    WHERE JOB_ID = JOBID;
 
-	INSERT 	INTO CZ_JOB_AUDIT(
-		JOB_ID,
-		DATABASE_NAME,
- 		PROCEDURE_NAME,
- 		STEP_DESC,
-		RECORDS_MANIPULATED,
-		STEP_NUMBER,
-		STEP_STATUS,
-    JOB_DATE,
-    TIME_ELAPSED_SECS
+	select max(job_date)
+    into lastTime
+    from tm_cz.cz_job_audit
+    where job_id = jobID;
+	
+	--	clock_timestamp() is the current system time
+	
+	select clock_timestamp() into currTime;
+
+	elapsedSecs :=	coalesce(((DATE_PART('day', currTime - lastTime) * 24 + 
+				   DATE_PART('hour', currTime - lastTime)) * 60 +
+				   DATE_PART('minute', currTime - lastTime)) * 60 +
+				   DATE_PART('second', currTime - lastTime),0);
+
+	begin
+	insert into tm_cz.cz_job_audit
+	(job_id
+	,database_name
+ 	,procedure_name
+ 	,step_desc
+	,records_manipulated
+	,step_number
+	,step_status
+    ,job_date
+    ,time_elapsed_secs
 	)
-	PERFORM
- 		JOBID,
-		DATABASENAME,
-		PROCEDURENAME,
-		STEPDESC,
-		RECORDSMANIPULATED,
-		STEPNUMBER,
-		STEPSTATUS,
-    SYSTIMESTAMP,
-      COALESCE(
-      EXTRACT (DAY    FROM (SYSTIMESTAMP - LASTTIME))*24*60*60 +
-      EXTRACT (HOUR   FROM (SYSTIMESTAMP - LASTTIME))*60*60 +
-      EXTRACT (MINUTE FROM (SYSTIMESTAMP - LASTTIME))*60 +
-      EXTRACT (SECOND FROM (SYSTIMESTAMP - LASTTIME))
-      ,0)
-  ;
-
-  COMMIT;
-
-EXCEPTION
-    WHEN OTHERS THEN ROLLBACK;
+	values(
+ 		jobId,
+		databaseName,
+		procedureName,
+		stepDesc,
+		recordsManipulated,
+		stepNumber,
+		stepStatus,
+		currTime,
+		elapsedSecs);
+	exception 
+	when OTHERS then
+		--raise notice 'proc failed state=%  errm=%', SQLSTATE, SQLERRM;
+		select tm_cz.czx_write_error(jobId,'0'::character varying(10),SQLERRM::character varying(1000),SQLSTATE::character varying(1000),SQLERRM::character varying(1000)) into rtnCd;
+		return -16;
+	end;
+	
+	raise notice 'step: %', stepDesc;
+	
+	return 1;
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -9,7 +9,7 @@ CREATE TABLE mirna_probeset_deapp (
 );
 
 --
--- Name: tf_trg_mirna_probeset_deapp; Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: tf_trg_mirna_probeset_deapp(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE FUNCTION tf_trg_mirna_probeset_deapp() RETURNS trigger
     LANGUAGE plpgsql
@@ -23,7 +23,17 @@ end;
 $$;
 
 --
--- Name: trg_mirna_probeset_deapp(); Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: trg_mirna_probeset_deapp; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-  CREATE TRIGGER trg_mirna_probeset_deapp BEFORE INSERT ON mirna_probeset_deapp FOR EACH ROW EXECUTE PROCEDURE tf_trg_mirna_probeset_deapp();
+CREATE TRIGGER trg_mirna_probeset_deapp BEFORE INSERT ON mirna_probeset_deapp FOR EACH ROW EXECUTE PROCEDURE tf_trg_mirna_probeset_deapp();
+
+--
+-- Name: seq_probeset_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
+--
+CREATE SEQUENCE seq_probeset_id
+    START WITH 754178
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 20;
 

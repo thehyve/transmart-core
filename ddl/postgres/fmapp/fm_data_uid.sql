@@ -18,3 +18,4 @@ ALTER TABLE ONLY fm_data_uid
 --
 ALTER TABLE ONLY fm_data_uid
     ADD CONSTRAINT fm_data_uid_uk_1 UNIQUE (unique_id);
+

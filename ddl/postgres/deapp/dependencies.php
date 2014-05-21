@@ -4,9 +4,56 @@ $dependencies = array (
   array (
     0 => 'de_gpl_info',
   ),
+  'de_metabolite_sub_pathways' => 
+  array (
+    0 => 'de_metabolite_super_pathways',
+  ),
+  'de_metabolite_sub_pway_metab' => 
+  array (
+    0 => 'de_metabolite_annotation',
+    1 => 'de_metabolite_sub_pathways',
+  ),
+  'de_rbm_data_annotation_join' => 
+  array (
+    0 => 'de_rbm_annotation',
+    1 => 'de_subject_rbm_data',
+  ),
   'de_subject_acgh_data' => 
   array (
     0 => 'de_chromosomal_region',
+  ),
+  'de_subject_metabolomics_data' => 
+  array (
+    0 => 'de_metabolite_annotation',
+  ),
+  'de_subject_rnaseq_data' => 
+  array (
+    0 => 'de_chromosomal_region',
+  ),
+  'de_xtrial_child_map' => 
+  array (
+    0 => 'de_xtrial_parent_names',
+  ),
+  'de_snp_data_by_probe' => 
+  array (
+    0 => 'de_snp_probe',
+    1 => 'de_snp_info',
+  ),
+  'de_snp_data_by_patient' => 
+  array (
+    0 => 'de_subject_snp_dataset',
+  ),
+  'de_snp_gene_map' => 
+  array (
+    0 => 'de_snp_info',
+  ),
+  'de_snp_data_dataset_loc' => 
+  array (
+    0 => 'de_subject_snp_dataset',
+  ),
+  'de_snp_probe' => 
+  array (
+    0 => 'de_snp_info',
   ),
   'de_variant_subject_detail' => 
   array (

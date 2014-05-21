@@ -13,3 +13,4 @@ CREATE TABLE de_subject_proteomics_data (
     intensity bigint,
     zscore bigint
 );
+

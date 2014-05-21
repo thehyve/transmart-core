@@ -10,3 +10,4 @@ CREATE TABLE annotation (
     organism character varying(200),
     id bigint
 );
+

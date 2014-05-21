@@ -1,35 +1,13 @@
 --
--- Name: cz_write_info(numeric, numeric,m numeric, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: cz_write_info(numeric, numeric, numeric, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION cz_write_info (
-	jobId IN numeric,
-	messageID IN numeric,
-	messageLine IN numeric, 
-	messageProcedure IN character varying, 
-	infoMessage IN character varying
-)
- RETURNS VOID AS $body$
-DECLARE
-
-/*************************************************************************
-* Copyright 2008-2012 Janssen Research & Development, LLC.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-******************************************************************/
+CREATE FUNCTION cz_write_info(jobid numeric, messageid numeric, messageline numeric, messageprocedure character varying, infomessage character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 
 BEGIN
-
-	insert into cz_job_message
+    begin
+insert into tm_cz.cz_job_message
     (
       job_id,
       message_id,
@@ -38,7 +16,7 @@ BEGIN
       info_message,
       seq_id
     )
-	PERFORM
+select
       jobID,
       messageID,
       messageLine,
@@ -46,13 +24,15 @@ BEGIN
       infoMessage,
       max(seq_id)
   from
-    cz_job_audit
+    tm_cz.cz_job_audit
   where
     job_id = jobID;
+    end;
   
   COMMIT;
+  return 1;
 
 END;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

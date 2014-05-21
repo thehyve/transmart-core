@@ -1,6 +1,12 @@
-# to be included from <schema>/Makefile
+include ../../../makefile.inc
 
 include ../../../makefile.inc
+DICTIONARIES_LOCATION := http://files.thehyve.net/dictionaries/
+
+ifndef THIS_SCHEMA
+$(error THIS_SCHEMA variable is not set)
+endif
+
 OUTDIR := ../../common/$(THIS_SCHEMA)
 
 dump_%:
@@ -14,3 +20,15 @@ load_%:
 		$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* FROM STDIN \
 			CSV DELIMITER E'\t'" < $(OUTDIR)/$*.tsv; \
 	fi
+
+ifeq ($(THIS_SCHEMA), deapp)
+#special case
+../../common/deapp/de_rc_snp_info.tsv:
+	curl -f $(DICTIONARIES_LOCATION)$(notdir $@).17_21.xz | xz -d --stdout > $@
+
+load: load_de_rc_snp_info
+endif
+
+.DELETE_ON_ERROR:
+
+# vim: set filetype=make:

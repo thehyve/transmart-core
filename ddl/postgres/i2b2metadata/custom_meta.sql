@@ -30,12 +30,12 @@ CREATE TABLE custom_meta (
 );
 
 --
--- Name: meta_fullname_custom_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
---
-CREATE INDEX meta_fullname_custom_idx ON custom_meta USING btree (c_fullname);
-
---
 -- Name: meta_applied_path_custom_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
 --
 CREATE INDEX meta_applied_path_custom_idx ON custom_meta USING btree (m_applied_path);
+
+--
+-- Name: meta_fullname_custom_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
+--
+CREATE INDEX meta_fullname_custom_idx ON custom_meta USING btree (c_fullname);
 

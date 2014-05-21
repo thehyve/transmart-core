@@ -1,0 +1,4 @@
+PLATFORM=GPL1291
+TITLE="Hitachisoft AceGene Human Oligo Chip 30K 1 Chip Version"
+ORGANISM="Homo Sapiens"
+ANNOTATIONS_FILE=GPL1291.tsv

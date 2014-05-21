@@ -16,18 +16,13 @@ CREATE TABLE cz_data_file (
 );
 
 --
--- Type: SEQUENCE; Owner: TM_CZ; Name: SEQ_CZ_DATA_FILE
+-- Name: cz_data_file_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
 --
-CREATE SEQUENCE seq_cz_data_file
-  NO MINVALUE
-  NO MAXVALUE
-  INCREMENT BY 1
-  START WITH 6
-  CACHE 2
-;
+ALTER TABLE ONLY cz_data_file
+    ADD CONSTRAINT cz_data_file_pk PRIMARY KEY (data_file_id);
 
 --
--- Name: tf_trg_cz_data_file_id; Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: tf_trg_cz_data_file_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE FUNCTION tf_trg_cz_data_file_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -41,19 +36,23 @@ end;
 $$;
 
 --
--- Name: trg_cz_data_file_id(); Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: trg_cz_data_file_id; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-  CREATE TRIGGER trg_cz_data_file_id BEFORE INSERT ON cz_data_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_data_file_id();
+CREATE TRIGGER trg_cz_data_file_id BEFORE INSERT ON cz_data_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_data_file_id();
 
 --
--- Name: CZ_DATA_FILE_CZ_DATA_FK1 Type: REF_CONSTRAINT; Schema: tm_cz; Owner: -
---
-ALTER TABLE cz_data_file
-  ADD CONSTRAINT cz_data_file_cz_data_fk1 FOREIGN KEY (data_id) REFERENCES cz_data(data_id);
-
-
---
--- Name: cz_data_file_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
+-- Name: cz_data_file_cz_data_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
 --
 ALTER TABLE ONLY cz_data_file
-    ADD CONSTRAINT cz_data_file_pk PRIMARY KEY (data_file_id);
+    ADD CONSTRAINT cz_data_file_cz_data_fk1 FOREIGN KEY (data_id) REFERENCES cz_data(data_id);
+
+--
+-- Name: seq_cz_data_file; Type: SEQUENCE; Schema: tm_cz; Owner: -
+--
+CREATE SEQUENCE seq_cz_data_file
+    START WITH 6
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 2;
+

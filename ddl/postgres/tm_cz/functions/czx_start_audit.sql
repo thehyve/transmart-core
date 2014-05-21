@@ -1,16 +1,11 @@
 --
--- Name: czx_start_audit(text, text, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czx_start_audit(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czx_start_audit (V_JOB_NAME IN character varying DEFAULT NULL ,
-  V_DATABASE_NAME IN character varying DEFAULT NULL ,
-  O_JOB_ID OUT numeric)
-  --AUTHID CURRENT_USER  
- RETURNS numeric AS $body$
-DECLARE
-
-  PRAGMA AUTONOMOUS_TRANSACTION;
+CREATE FUNCTION czx_start_audit(jobname character varying, databasename character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
-* Copyright 2008-2012 Janssen Research and Development, LLC.
+* Copyright 2008-2012 Janssen Research & Development, LLC.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,42 +19,34 @@ DECLARE
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************/
-
-	v_os_user	varchar(200);
-	v_job_id	numeric;
-
-
+declare
+	rtnCd	integer;
+	jobId	numeric;
 BEGIN
-
-   INSERT INTO CZ_JOB_MASTER
-     ( START_DATE, 
-		ACTIVE, 
-		DATABASE_NAME, 
-		JOB_NAME, 
-		JOB_STATUS )
-     VALUES (
-		LOCALTIMESTAMP, 
-		'Y', 
-		V_DATABASE_NAME, 
-		V_JOB_NAME, 
-		'Running' )
-
-	RETURNING JOB_ID INTO V_JOB_ID;
-	
-	PERFORM sys_context('USERENV','OS_USER') into v_os_user ;
-	
-	INSERT INTO cz_job_message
-    ( job_id, message_id, message_procedure, info_message )
-    VALUES ( v_job_id, 1, 'OS user name',v_os_user );
-
-	
-	COMMIT;
-	
-	o_job_id := v_job_id;
+	begin
+		insert into tm_cz.cz_job_master
+			(start_date, 
+			active, 
+			database_name,
+			job_name,
+			job_status) 
+		VALUES(
+			CLOCK_TIMESTAMP(),
+			'Y', 
+			databaseName,
+			jobName,
+			'Running')
+	  RETURNING job_id INTO jobID;
+	end;
   
-EXCEPTION
-    WHEN OTHERS THEN ROLLBACK;
+  return jobID;
+  
+  exception 
+	when OTHERS then
+		select tm_cz.czx_write_error(jobId,'0',SQLERRML,SQLSTATE,SQLERRM) into rtnCd;
+		return -16;
+
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+
+$$;
+

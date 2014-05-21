@@ -1,10 +1,9 @@
 --
--- Name: i2b2_load_sample_categories(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_sample_categories(bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_load_sample_categories (
-  currentJobID bigint DEFAULT null
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_load_sample_categories(currentjobid bigint DEFAULT NULL::bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 
@@ -135,5 +134,5 @@ BEGIN
 	
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+
