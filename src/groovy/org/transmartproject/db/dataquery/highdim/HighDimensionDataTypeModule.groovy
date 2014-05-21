@@ -1,15 +1,12 @@
 package org.transmartproject.db.dataquery.highdim
 
-import java.util.List;
-
 import grails.orm.HibernateCriteriaBuilder
+
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection

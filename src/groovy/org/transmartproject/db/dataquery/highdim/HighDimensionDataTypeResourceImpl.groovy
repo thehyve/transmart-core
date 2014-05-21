@@ -55,7 +55,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new PlatformConstraint( platformNames: module.platformMarkerTypes )
+        assayConstraints << new PlatformConstraint(
+                platformNames: module.platformMarkerTypes)
                                                                   
         def assayQuery = new AssayQuery(assayConstraints)
         List<AssayColumn> assays

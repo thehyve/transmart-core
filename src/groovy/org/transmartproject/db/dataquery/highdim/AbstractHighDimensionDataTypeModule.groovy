@@ -160,6 +160,4 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         int i = 0
         assays.collectEntries { [ it, i++ ] }
     }
-
-    abstract List<String> getPlatformMarkerTypes()
 }
