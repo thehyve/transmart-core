@@ -26,18 +26,18 @@ class CohortProjection implements CriteriaProjection<Map> {
         }
 
         // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
-        [ "allele1", "allele2", "subjectId" ].each { field ->
+        ["allele1", "allele2", "subjectId"].each { field ->
             projection.add(
                     Projections.alias(
-                            Projections.property( "summary." + field),
+                            Projections.property("summary." + field),
                             field))
         }
         
-        builder.createAlias( 'subjectIndex', 'subjectIndex', LEFT_OUTER_JOIN )
+        builder.createAlias('subjectIndex', 'subjectIndex', LEFT_OUTER_JOIN)
         projection.add(
                 Projections.alias(
-                        Projections.property( "subjectIndex.position" ), 
-                        "subjectPosition" ))
+                        Projections.property("subjectIndex.position"),
+                        "subjectPosition"))
     }
 
     @Override
@@ -50,9 +50,9 @@ class CohortProjection implements CriteriaProjection<Map> {
         // the allele1 and allele2 properties, as we
         // are interested in computing cohort level statistics
         [ 
-                allele1: object.allele1, 
-                allele2: object.allele2, 
-                subjectId: object.subjectId, 
+                allele1:         object.allele1,
+                allele2:         object.allele2,
+                subjectId:       object.subjectId,
                 subjectPosition: object.subjectPosition 
         ]
     }

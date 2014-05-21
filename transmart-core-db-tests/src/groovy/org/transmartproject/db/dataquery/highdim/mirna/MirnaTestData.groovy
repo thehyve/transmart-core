@@ -25,7 +25,7 @@ class MirnaTestData {
         generateTestData()
     }
 
-    public MirnaTestData( String typeName ) {
+    public MirnaTestData(String typeName) {
         this.typeName = typeName
         generateTestData()
     }
@@ -34,7 +34,7 @@ class MirnaTestData {
         platform = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
-                markerType: ( typeName == 'mirnaseq' ) ? 'MIRNA_SEQ' : 'MIRNA_QPCR' )
+                markerType: typeName == 'mirnaseq' ? 'MIRNA_SEQ' : 'MIRNA_QPCR')
         platform.id = 'BOGUSGPL15466'
         
         patients = HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
@@ -91,7 +91,7 @@ class MirnaTestData {
     void saveAll() {
         bioMarkerTestData.saveMirnaData()
 
-        save([ platform ])
+        save([platform])
         save patients
         save assays
         save probes

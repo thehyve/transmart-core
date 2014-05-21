@@ -41,12 +41,12 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
 
     @Lazy
     Map<String, String> infoFields = {
-        parseVcfInfo( info )
+        parseVcfInfo info
     }()
     
     @Lazy
     List<String> formatFields = {
-        format.split( ":" )
+        format.split ":"
     }()
 
     @Lazy
@@ -57,7 +57,7 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
     @Lazy
     private Map<String,String> allOriginalSubjectData = {
         def subjectVariants = [:]
-        def variantsInOrder = variants.tokenize( '\t' )
+        def variantsInOrder = variants.tokenize '\t'
         
         data.each {
             if (it.subjectPosition != null && it.subjectId != null) {
@@ -71,8 +71,8 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
         subjectVariants
     }()
     
-    String getOriginalSubjectData( Assay assay ) {
-        allOriginalSubjectData[ assay.sampleCode ]
+    String getOriginalSubjectData(Assay assay) {
+        allOriginalSubjectData[assay.sampleCode]
     }
     
     //RegionRow implementation
