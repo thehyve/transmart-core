@@ -9,9 +9,31 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var bin = require('./bin');
+    var URLFetchable = bin.URLFetchable;
+    var BlobFetchable = bin.BlobFetchable;
+    var readInt = bin.readInt;
+
+    var bbi = require('./bigwig');
+    var BIG_WIG_MAGIC = bbi.BIG_WIG_MAGIC;
+    var BIG_BED_MAGIC = bbi.BIG_BED_MAGIC;
+
+    var lh3utils = require('./lh3utils');
+    var unbgzf = lh3utils.unbgzf;
+
+    var bam = require('./bam');
+    var BAM_MAGIC = bam.BAM_MAGIC;
+    var BAI_MAGIC = bam.BAI_MAGIC;
+
+    var tbi = require('./tabix');
+    var TABIX_MAGIC = tbi.TABIX_MAGIC;
+}
+
 function probeResource(source, listener, retry) {
     var BED_REGEXP = new RegExp('^.+\t[0-9]+\t[0-9]+.*$');
     var KV_REGEXP=/([^=]+)=\"?([^\"]+)\"?/;
+    var VCFHEAD_RE = /^##\s*fileformat=VCFv4\..+/;
 
     var fetchable;
     if (source.blob)
@@ -30,7 +52,8 @@ function probeResource(source, listener, retry) {
         }
 
         var ba = new Uint8Array(result);
-        var magic = readInt(ba, 0);
+        var la = new Uint32Array(result, 0, 1);
+        var magic = la[0];
         if (magic == BIG_WIG_MAGIC || magic == BIG_BED_MAGIC) {
             source.tier_type = 'bwg';
             var nameExtractPattern = new RegExp('/?([^/]+?)(.bw|.bb|.bigWig|.bigBed)?$');
@@ -76,6 +99,17 @@ function probeResource(source, listener, retry) {
         } else {
             var text = String.fromCharCode.apply(null, ba);
             var lines = text.split("\n");
+
+            if (lines.length > 0 && VCFHEAD_RE.test(lines[0])) {
+                source.tier_type = 'memstore';
+                source.payload = 'vcf';
+                var nameExtractPattern = new RegExp('/?([^/]+?)(\.vcf)?$');
+                var match = nameExtractPattern.exec(source.uri || source.blob.name);
+                if (match && !source.name) {
+                    source.name = match[1];
+                }
+                return listener(source, null);
+            }
 
             for (var li = 0; li < lines.length; ++li) {
                 var line = lines[li].replace('\r', '');
@@ -136,4 +170,10 @@ function finishProbeBedWig(source, maybeType) {
         }
     }
     source.payload = maybeType || 'bed';
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        probeResource: probeResource
+    };
 }

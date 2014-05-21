@@ -12,10 +12,10 @@
 var VERSION = {
     CONFIG: 5,
     MAJOR:  0,
-    MINOR:  11,
-    MICRO:  10,
+    MINOR:  12,
+    MICRO:  1,
     PATCH:  '',
-    BRANCH: 'dev'
+    BRANCH: ''
 }
 
 VERSION.toString = function() {
@@ -27,4 +27,8 @@ VERSION.toString = function() {
         vs = vs + '-' + this.BRANCH;
     }
     return vs;
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = VERSION;
 }

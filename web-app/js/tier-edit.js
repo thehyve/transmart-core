@@ -9,6 +9,22 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
+
+    var utils = require('./utils');
+    var makeElement = utils.makeElement;
+
+    var das = require('./das');
+    var isDasBooleanTrue = das.isDasBooleanTrue;
+    var isDasBooleanNotFalse = das.isDasBooleanNotFalse;
+    var copyStylesheet = das.copyStylesheet;
+
+    var color = require('./color');
+    var dasColourForName = color.dasColourForName;
+}
+
 var __dalliance_smallGlyphs = {DOT: true, EX: true, STAR: true, SQUARE: true, CROSS: true, TRIANGLE: true, PLIMSOLL: true}
 
 Browser.prototype.openTierPanel = function(tier) {
@@ -159,7 +175,7 @@ Browser.prototype.openTierPanel = function(tier) {
             }
 
             if (tier.stylesheet.styles.length > 0) {
-                var s = mainStyle = tier.stylesheet.styles[0].style;
+                var s = null;
                 var isQuantitative=false, isSimpleQuantitative = false;
                 var ssScale = tier.browser.zoomForCurrentScale();
                 var activeStyleCount = 0;
@@ -170,13 +186,20 @@ Browser.prototype.openTierPanel = function(tier) {
                         continue;
                     }
                     ++activeStyleCount;
-
                     var ss = tier.stylesheet.styles[si].style;
+
+                    if (!s) {
+                        s = mainStyle = ss;
+                    }
+                    
                     if (ss.glyph == 'LINEPLOT' || ss.glyph == 'HISTOGRAM' || ss.glyph == 'GRADIENT' || isDasBooleanTrue(ss.SCATTER)) {
                         if (!isQuantitative)
                             s = mainStyle = ss;
                         isQuantitative = true;
                     }
+                }
+                if (!s) {
+                    return;
                 }
 
                 semanticBanner.style.display = (activeStyleCount == tier.stylesheet.styles.length) ? 'none' : 'block';
@@ -286,7 +309,7 @@ Browser.prototype.openTierPanel = function(tier) {
                 }
             }
 
-            if (isQuantitative && sourceAdapterIsCapable(tier.featureSource, 'quantLeap'))
+            if (isQuantitative && tier.browser.sourceAdapterIsCapable(tier.featureSource, 'quantLeap'))
                 quantLeapRow.style.display = 'table-row';
             else 
                 quantLeapRow.style.display = 'none';
@@ -490,14 +513,3 @@ function getSeqStyle(stylesheet) {
     }
 }
 
-function copyStylesheet(ss) {
-    var nss = shallowCopy(ss);
-    nss.styles = [];
-    for (var si = 0; si < ss.styles.length; ++si) {
-        var sh = nss.styles[si] = shallowCopy(ss.styles[si]);
-        sh._methodRE = sh._labelRE = sh._typeRE = undefined;
-        sh.style = shallowCopy(sh.style);
-        sh.style.id = undefined;
-    }
-    return nss;
-}

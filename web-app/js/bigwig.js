@@ -9,8 +9,33 @@
 
 "use strict";
 
-var BIG_WIG_MAGIC = -2003829722;
-var BIG_BED_MAGIC = -2021002517;
+
+if (typeof(require) !== 'undefined') {
+    var spans = require('./spans');
+    var Range = spans.Range;
+    var union = spans.union;
+    var intersection = spans.intersection;
+
+    var das = require('./das');
+    var DASFeature = das.DASFeature;
+    var DASGroup = das.DASGroup;
+
+    var utils = require('./utils');
+    var shallowCopy = utils.shallowCopy;
+
+    var bin = require('./bin');
+    var readInt = bin.readInt;
+
+    var jszlib = require('jszlib');
+    var jszlib_inflate_buffer = jszlib.inflateBuffer;
+    var arrayCopy = jszlib.arrayCopy;
+}
+
+var BIG_WIG_MAGIC = 0x888FFC26;
+var BIG_WIG_MAGIC_BE = 0x26FC8F88;
+var BIG_BED_MAGIC = 0x8789F2EB;
+var BIG_BED_MAGIC_BE = 0xEBF28987;
+
 
 var BIG_WIG_TYPE_GRAPH = 1;
 var BIG_WIG_TYPE_VSTEP = 2;
@@ -412,7 +437,9 @@ BigWigView.prototype.parseFeatures = function(data, createFeature, filter) {
                 featureOpts.label = bedColumns[0];
             }
             if (bedColumns.length > 1 && dfc > 4) {
-                featureOpts.score = stringToInt(bedColumns[1]);
+                var score = parseInt(bedColumns[1]);
+                if (!isNaN(score))
+                    featureOpts.score = score;
             }
             if (bedColumns.length > 2 && dfc > 5) {
                 featureOpts.orientation = bedColumns[2];
@@ -440,7 +467,7 @@ BigWigView.prototype.parseFeatures = function(data, createFeature, filter) {
                     var blockSizes = bedColumns[7].split(',');
                     var blockStarts = bedColumns[8].split(',');
                     
-                    featureOpts.type = 'bb-transcript'
+                    featureOpts.type = 'transcript'
                     var grp = new DASGroup();
                     for (var k in featureOpts) {
                         grp[k] = featureOpts[k];
@@ -483,7 +510,7 @@ BigWigView.prototype.parseFeatures = function(data, createFeature, filter) {
                     if (thickEnd > thickStart) {
                         var tl = intersection(spans, new Range(thickStart, thickEnd));
                         if (tl) {
-                            featureOpts.type = 'bb-translation';
+                            featureOpts.type = 'translation';
                             var tlList = tl.ranges();
                             for (var s = 0; s < tlList.length; ++s) {
                                 var ts = tlList[s];
@@ -690,15 +717,6 @@ BigWig.prototype.getZoomedView = function(z) {
     return zh.view;
 }
 
-
-function makeBwgFromURL(url, callback, creds) {
-    makeBwg(new URLFetchable(url, {credentials: creds}), callback, url);
-}
-
-function makeBwgFromFile(file, callback) {
-    makeBwg(new BlobFetchable(file), callback, 'file');
-}
-
 function makeBwg(data, callback, name) {
     var bwg = new BigWig();
     bwg.data = data;
@@ -712,14 +730,16 @@ function makeBwg(data, callback, name) {
         var ba = new Uint8Array(header);
         var sa = new Int16Array(header);
         var la = new Int32Array(header);
-        if (la[0] == BIG_WIG_MAGIC) {
+        var magic = ba[0] + (M1 * ba[1]) + (M2 * ba[2]) + (M3 * ba[3]);
+        if (magic == BIG_WIG_MAGIC) {
             bwg.type = 'bigwig';
-        } else if (la[0] == BIG_BED_MAGIC) {
+        } else if (magic == BIG_BED_MAGIC) {
             bwg.type = 'bigbed';
+        } else if (magic == BIG_WIG_MAGIC_BE || magic == BIG_BED_MAGIC_BE) {
+            callback(null, "Currently don't support big-endian BBI files");
         } else {
-            callback(null, "Not a supported format");
+            callback(null, "Not a supported format, magic=0x" + magic.toString(16));
         }
-        // console.log('magic okay');
 
         bwg.version = sa[2];             // 4
         bwg.numZoomLevels = sa[3];       // 6
@@ -732,15 +752,6 @@ function makeBwg(data, callback, name) {
         bwg.totalSummaryOffset = bwg_readOffset(ba, 44);
         bwg.uncompressBufSize = la[13];  // 52
         bwg.extHeaderOffset = bwg_readOffset(ba, 56);
-        
-        // console.log('bwgVersion: ' + bwg.version);
-        // dlog('bigType: ' + bwg.type);
-        // dlog('chromTree at: ' + bwg.chromTreeOffset);
-        // dlog('uncompress: ' + bwg.uncompressBufSize);
-        // dlog('data at: ' + bwg.unzoomedDataOffset);
-        // dlog('index at: ' + bwg.unzoomedIndexOffset);
-        // dlog('field count: ' + bwg.fieldCount);
-        // dlog('defined count: ' + bwg.definedFieldCount);
 
         bwg.zoomLevels = [];
         for (var zl = 0; zl < bwg.numZoomLevels; ++zl) {
@@ -1037,4 +1048,12 @@ BBIExtraIndex.prototype.lookup = function(name, callback) {
 
         bptReadNode(thisB.offset + rootNodeOffset);
     });
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        makeBwg: makeBwg,
+        BIG_BED_MAGIC: BIG_BED_MAGIC,
+        BIG_WIG_MAGIC: BIG_WIG_MAGIC
+    }
 }

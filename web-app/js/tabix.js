@@ -11,6 +11,26 @@
 
 var TABIX_MAGIC = 0x01494254;
 
+if (typeof(require) !== 'undefined') {
+    var spans = require('./spans');
+    var Range = spans.Range;
+    var union = spans.union;
+    var intersection = spans.intersection;
+
+    var bin = require('./bin');
+    var readInt = bin.readInt;
+    var readShort = bin.readShort;
+    var readByte = bin.readByte;
+    var readInt64 = bin.readInt64;
+    var readFloat = bin.readFloat;
+
+    var lh3utils = require('./lh3utils');
+    var readVob = lh3utils.readVob;
+    var unbgzf = lh3utils.unbgzf;
+    var reg2bins = lh3utils.reg2bins;
+    var Chunk = lh3utils.Chunk;
+}
+
 function TabixFile() {
 }
 
@@ -98,6 +118,8 @@ function connectTabix(data, tbi, callback) {
             }                     
         }
 
+        tabix.headerMax = minBlockIndex;
+
         callback(tabix);
     });
 }
@@ -122,7 +144,6 @@ TabixFile.prototype.blocksForRange = function(refId, min, max) {
     for (var b = 0; b < nbin; ++b) {
         var bin = readInt(index, p);
         var nchnk = readInt(index, p+4);
-//        dlog('bin=' + bin + '; nchnk=' + nchnk);
         p += 8;
         if (intBins[bin]) {
             for (var c = 0; c < nchnk; ++c) {
@@ -135,8 +156,6 @@ TabixFile.prototype.blocksForRange = function(refId, min, max) {
             p +=  (nchnk * 16);
         }
     }
-    // console.log('leafChunks = ' + miniJSONify(leafChunks));
-    // console.log('otherChunks = ' + miniJSONify(otherChunks));
 
     var nintv = readInt(index, p);
     var lowest = null;
@@ -150,7 +169,6 @@ TabixFile.prototype.blocksForRange = function(refId, min, max) {
             lowest = lb;
         }
     }
-   //  console.log('Lowest LB = ' + lowest);
     
     var prunedOtherChunks = [];
     if (lowest != null) {
@@ -161,7 +179,6 @@ TabixFile.prototype.blocksForRange = function(refId, min, max) {
             }
         }
     } 
-    // console.log('prunedOtherChunks = ' + miniJSONify(prunedOtherChunks));
     otherChunks = prunedOtherChunks;
 
     var intChunks = [];
@@ -194,7 +211,6 @@ TabixFile.prototype.blocksForRange = function(refId, min, max) {
         }
         mergedChunks.push(cur);
     }
-    // console.log('mergedChunks = ' + miniJSONify(mergedChunks));
 
     return mergedChunks;
 }
@@ -270,4 +286,39 @@ TabixFile.prototype.readRecords = function(ba, offset, sink, min, max, chr) {
         }
         return;
     }
+}
+
+TabixFile.prototype.fetchHeader = function(callback) {
+    var self = this;
+    var fetchPtr = 0, ptr = 0, line='';
+    var lines = [];
+
+    self.data.slice(0, self.headerMax).fetch(function(chnk) {
+        if (!chnk) {
+            return callback(null, "Fetch failed");
+        }
+        var ba = new Uint8Array(unbgzf(chnk, chnk.byteLength));
+        var ptr = 0, line = '', lines = [];
+        while (ptr < ba.length) {
+            var ch = ba[ptr++]
+            if (ch == 10) {
+                if (line.charCodeAt(0) == self.meta) {
+                    lines.push(line);
+                    line = '';
+                } else {
+                    return callback(lines);
+                }
+            } else {
+                line += String.fromCharCode(ch);
+            }
+        }
+        callback(lines);
+    });
+}
+
+if (typeof(module) !== 'undefined') {
+    module.exports = {
+        connectTabix: connectTabix,
+        TABIX_MAGIC: TABIX_MAGIC
+    };
 }

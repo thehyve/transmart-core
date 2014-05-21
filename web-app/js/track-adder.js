@@ -9,6 +9,48 @@
 
 "use strict";
 
+if (typeof(require) !== 'undefined') {
+    var browser = require('./cbrowser');
+    var Browser = browser.Browser;
+    var sourcesAreEqual = browser.sourcesAreEqual;
+
+    var utils = require('./utils');
+    var makeElement = utils.makeElement;
+    var removeChildren = utils.removeChildren;
+    var Observed = utils.Observed;
+
+    var thub = require('./thub');
+    var THUB_COMPARE = thub.THUB_COMPARE;
+    var connectTrackHub = thub.connectTrackHub;
+
+    var domui = require('./domui');
+    var makeTreeTableSection = domui.makeTreeTableSection;
+
+    var probeResource = require('./probe').probeResource;
+
+
+    // Most of this could disappear if we leave all probing to the probe module...
+    var bin = require('./bin');
+    var URLFetchable = bin.URLFetchable;
+    var BlobFetchable = bin.BlobFetchable;
+    var readInt = bin.readInt;
+
+    var lh3utils = require('./lh3utils');
+    var unbgzf = lh3utils.unbgzf;
+
+    var bam = require('./bam');
+    var BAM_MAGIC = bam.BAM_MAGIC;
+    var BAI_MAGIC = bam.BAI_MAGIC;
+
+    var tbi = require('./tabix');
+    var TABIX_MAGIC = tbi.TABIX_MAGIC;
+
+    var das = require('./das');
+    var DASSource = das.DASSource;
+    var DASSegment = das.DASSegment;
+    var DASRegistry = das.DASRegistry;
+}
+
 Browser.prototype.currentlyActive = function(source) {
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         if (sourcesAreEqual(this.tiers[ti].dasSource, source))
@@ -45,7 +87,7 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     var thisB = this;
 
-    var popup = makeElement('div', null, {className: 'dalliance'} , {width: '100%', display: 'inline-block', boxSizing: 'border-box', MozBoxSizing: 'border-box', verticalAlign: 'top'});
+    var popup = makeElement('div', null, {className: 'dalliance'} , {width: '100%', display: 'inline-block', boxSizing: 'border-box', MozBoxSizing: 'border-box', verticalAlign: 'top', paddingRight: '15px'});
 
     var addModeButtons = [];
     var makeStab, makeStabObserver;
@@ -708,7 +750,6 @@ Browser.prototype.showTrackAdder = function(ev) {
                 }
 
                 if (custUser.value.length > 1 && custPass.value.length > 1) {
-                    dlog('password');
                     dataToFinalize.xUser = custUser.value;
                     dataToFinalize.xPass = custPass.value;
                 }
@@ -729,7 +770,8 @@ Browser.prototype.showTrackAdder = function(ev) {
             } else if (customMode === 'multiple') {
                 for (var mi = 0; mi < multipleSet.length; ++mi) {
                     var s = multipleSet[mi];
-
+                    if (s.hidden)
+                        continue;
 
                     if (s.tier_type == 'bam' && !s.indexBlob && !s.indexUri)
                         continue;
@@ -832,7 +874,6 @@ Browser.prototype.showTrackAdder = function(ev) {
         nds.features(testSegment, {}, function(features, status) {
             if (status) {
                 if (!retry) {
-                    dlog('retrying with credentials');
                     nds.credentials = true;
                     tryAddDAS(nds, true);
                 } else {
@@ -1161,55 +1202,62 @@ Browser.prototype.showTrackAdder = function(ev) {
         }
 
         for (var fi = 0; fi < newSources.length; ++fi) {
-            probeResource(newSources[fi], function(source, err) {
-                if (err) {
-                    source.error = err;
-                }
-
-                var usedIndices = [];
-                var bams = {}, tabixes = {};
-                for (var si = 0; si < multipleSet.length; ++si) {
-                    var s = multipleSet[si];
-                    if (s.tier_type == 'bam' && !s.indexBlob) {
-                        bams[s.blob.name] = s;
-                    }
-                    if (s.tier_type == 'tabix' && !s.indexBlob) {
-                        tabixes[s.blob.name] = s;
-                    }
-                }
-
-                for (var si = 0; si < multipleSet.length; ++si) {
-                    var s = multipleSet[si];
-                    if (s.tier_type === 'bai') {
-                        var baiPattern = new RegExp('(.+)\\.bai$');
-                        var match = baiPattern.exec(s.blob.name);
-                        if (match && bams[match[1]]) {
-                            bams[match[1]].indexBlob = s.blob;
-                            usedIndices.push(si);
-                        }
-                    } else if (s.tier_type === 'tabix-index') {
-                        var tbiPattern = new RegExp('(.+)\\.tbi$');
-                        var match = tbiPattern.exec(s.blob.name);
-                        if (match && tabixes[match[1]]) {
-                            tabixes[match[1]].indexBlob = s.blob;
-                            usedIndices.push(si);
-                        }
-                    }
-                }
-
-                for (var bi = usedIndices.length - 1; bi >= 0; --bi) {
-                    multipleSet.splice(usedIndices[bi], 1);
-                }
-
-                updateMultipleStatus();
-            });
+            probeMultiple(newSources[fi]);
         }
         updateMultipleStatus();
     }
 
+    var probeMultiple = function(ns) {
+        probeResource(ns, function(source, err) {
+            if (err) {
+                source.error = err;
+            }
+
+            var usedIndices = [];
+            var bams = {}, tabixes = {};
+            for (var si = 0; si < multipleSet.length; ++si) {
+                var s = multipleSet[si];
+                if (s.tier_type == 'bam' && !s.indexBlob) {
+                    bams[s.blob.name] = s;
+                }
+                if (s.tier_type == 'tabix' && !s.indexBlob) {
+                    tabixes[s.blob.name] = s;
+                }
+            }
+
+            for (var si = 0; si < multipleSet.length; ++si) {
+                var s = multipleSet[si];
+                if (s.tier_type === 'bai') {
+                    var baiPattern = new RegExp('(.+)\\.bai$');
+                    var match = baiPattern.exec(s.blob.name);
+                    if (match && bams[match[1]]) {
+                        bams[match[1]].indexBlob = s.blob;
+                        usedIndices.push(si);
+                    }
+                } else if (s.tier_type === 'tabix-index') {
+                    var tbiPattern = new RegExp('(.+)\\.tbi$');
+                    var match = tbiPattern.exec(s.blob.name);
+                    if (match && tabixes[match[1]]) {
+                        tabixes[match[1]].indexBlob = s.blob;
+                        usedIndices.push(si);
+                    }
+                }
+            }
+
+            for (var bi = usedIndices.length - 1; bi >= 0; --bi) {
+                multipleSet.splice(usedIndices[bi], 1);
+            }
+
+            updateMultipleStatus();
+        });
+    }
+
     var updateMultipleStatus = function() {
         removeChildren(stabHolder);
-        var multTable = makeElement('table', multipleSet.map(function(s) {
+        var needsIndex = false;
+        var multTable = makeElement('table', multipleSet
+          .filter(function(s) {return !s.hidden})
+          .map(function(s) {
             var row = makeElement('tr');
             row.appendChild(makeElement('td', s.name || s.blob.name));
             var typeContent;
@@ -1222,8 +1270,17 @@ Browser.prototype.showTrackAdder = function(ev) {
             }
 
             var ccs;
-            if (s.tier_type == 'bwg' || (s.tier_type == 'bam' && s.indexBlob) || (s.tier_type == 'tabix' && s.indexBlob) || s.tier_type == 'memstore') {
-                ccs = makeElement('select', null, null, {width: '100px'});
+            var state = 'unknown';
+            if (s.tier_type == 'bwg' || s.tier_type == 'memstore') {
+                state = 'okay';
+            } else if (s.tier_type == 'bam') {
+                state = s.indexBlob ? 'okay' : 'needs-index';
+            } else if (s.tier_type == 'tabix') {
+                state = s.indexBlob ? 'okay' : 'needs-index';
+            }
+
+            if (state == 'okay') {
+                ccs = makeElement('select', null, null, {width: '150px'});
                 ccs.appendChild(makeElement('option', thisB.nameForCoordSystem(thisB.coordSystem), {value: '__default__'}));
                 if (thisB.chains) {
                     for (var csk in thisB.chains) {
@@ -1237,6 +1294,9 @@ Browser.prototype.showTrackAdder = function(ev) {
                     s.mapping = ccs.value;
                     console.log(s);
                 }, false);
+            } else if (state == 'needs-index') {
+                ccs = makeElement('span', 'Needs index', {}, {color: 'red'});
+                needsIndex = true;
             }
 
             return makeElement('tr', [makeElement('td', s.name || s.blob.name),
@@ -1245,6 +1305,25 @@ Browser.prototype.showTrackAdder = function(ev) {
 
         }), {className: 'table table-striped table-condensed'});
         stabHolder.appendChild(multTable);
+
+        if (needsIndex) {
+            stabHolder.appendChild(makeElement('p', 'Some of these files are missing required index (.bai or .tbi) files.  For security reasons, web applications like Dalliance can only access local files which you have explicity selected.  Please use the file chooser below to select the appropriate index file'));
+            stabHolder.appendChild(document.createTextNode('Index file(s): '));
+            var indexFile = makeElement('input', null, {type: 'file', multiple: 'multiple'});
+            stabHolder.appendChild(indexFile);
+            indexFile.addEventListener('change', function(ev) {
+                console.log('fileset changed');
+                var fileList = indexFile.files || [];
+                for (var fi = 0; fi < fileList.length; ++fi) {
+                    var f = fileList[fi];
+                    if (f) {
+                        var ns = {blob: f, hidden: true};
+                        multipleSet.push(ns);
+                        probeMultiple(ns);
+                    }
+                }
+            }, false);
+        }
     }
 
     var canButton = makeElement('button', 'Cancel', {className: 'btn'});
