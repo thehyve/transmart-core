@@ -289,9 +289,9 @@ class VcfEndToEndRetrievalTests {
         // Please note: the order of the assays is opposite from the order of creation
         // as the assayId is decreased while creating the assays
         def expected = [
-            [ "2/2", "2/2", "1/1" ],
-            [ "4/4", "3/3", "2/2" ],
-            [ "6/6", "4/4", "3/3" ],
+            ["2/2", "2/2", "1/1"],
+            ["4/4", "3/3", "2/2"],
+            ["6/6", "4/4", "3/3"],
         ]
         
         def assays = dataQueryResult.indicesList
@@ -301,7 +301,7 @@ class VcfEndToEndRetrievalTests {
             def row = rows.next()
             
             position.eachWithIndex { result, assayIndex ->
-                assertThat row.getOriginalSubjectData( assays[ assayIndex ] ), equalTo( result )
+                assertThat row.getOriginalSubjectData(assays[assayIndex]), equalTo(result)
             }
         }
     }

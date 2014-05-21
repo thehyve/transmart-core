@@ -40,7 +40,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     @Before
     void setUp() {
-        testData = new MirnaTestData( typeName )
+        testData = new MirnaTestData(typeName)
         testData.saveAll()
         mirnaResource = highDimensionResourceService.getSubResourceForType typeName
 
@@ -61,7 +61,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
     void basicTest() {
         def dataConstraints = [
                 mirnaResource.createDataConstraint(
-                        'mirnas', names: [ 'MIR323B', 'MIR3161' ])
+                        'mirnas', names: ['MIR323B', 'MIR3161'])
         ]
 
         result = mirnaResource.retrieveData(

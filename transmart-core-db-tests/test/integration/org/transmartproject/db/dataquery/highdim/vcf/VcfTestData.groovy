@@ -60,7 +60,7 @@ class VcfTestData  {
             int mut = 0
             assays.eachWithIndex { assay, idx ->
                 mut++
-                summariesData += createSummary detail, mut&1, (mut&2)>>1,  assay, indexData[idx]
+                summariesData += createSummary detail, mut & 1, (mut & 2) >> 1,  assay, indexData[idx]
             }
             if (detail.alt.contains(','))
                 summariesData.last().allele1=2
@@ -94,7 +94,9 @@ class VcfTestData  {
                     info:  info,
                     format: 'GT',
                     dataset: dataset,
-                    variant: "" + position + "/" + position + "\t" + ( position + 1 ) + "/" + ( position + 1 ) + "\t" + ( position * 2 ) + "/" + ( position * 2 ) 
+                    variant: "" + position + "/" + position + "\t" +
+                            (position + 1) + "/" + (position + 1) + "\t" +
+                            (position * 2) + "/" + (position * 2)
             )
     }
 
@@ -110,9 +112,11 @@ class VcfTestData  {
                     chr: 1,
                     pos: detail.pos,
                     rsId: '.',
-                    variant: ( (allele1 == 0)? detail.ref : detail.alt) + '/' + ( (allele2 == 0)? detail.ref : detail.alt),
-                    variantFormat: ( (allele1 == 0) ? 'R':'V') + '/' + ( (allele2 == 0) ? 'R':'V'),
-                    variantType: detail.ref.length()>1?'DIV':'SNV',
+                    variant: ((allele1 == 0) ? detail.ref : detail.alt) + '/' +
+                            ((allele2 == 0) ? detail.ref : detail.alt),
+                    variantFormat: ((allele1 == 0) ? 'R':'V') + '/' +
+                            ((allele2 == 0) ? 'R':'V'),
+                    variantType: detail.ref.length() > 1 ? 'DIV' : 'SNV',
                     reference: true,
                     allele1: allele1,
                     allele2: allele2,
