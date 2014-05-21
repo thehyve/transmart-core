@@ -105,6 +105,10 @@ class OptionalBinningColumnConfigurator extends ColumnConfigurator {
                 throw new InvalidArgumentsException("Numeric variables must be " +
                         "binned for column ${getHeader()}")
             }
+			if(!isCategorical() && isMultiVariable()){
+				throw new InvalidArgumentsException("Cannot bin more than one " +
+					"numerical variable for column ${getHeader()}")
+			}
             
             //configure binning only if has variable
             binningConfigurator.addColumn decorateColumn
