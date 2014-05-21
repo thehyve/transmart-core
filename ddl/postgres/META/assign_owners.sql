@@ -41,6 +41,7 @@ BEGIN
         'amapp',
         'deapp',
         'fmapp',
+        'biomart_user',
         'galaxy',
         'searchapp',
         'biomart'

@@ -11,6 +11,7 @@ SCHEMAS = \
 		  searchapp \
 		  amapp \
 		  fmapp \
+		  biomart_user \
 		  galaxy
 
 FULL_SCHEMA_DUMPS = $(foreach schema, $(SCHEMAS), _dumps/$(schema).sql)
