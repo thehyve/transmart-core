@@ -59,8 +59,8 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
         def subjectVariants = [:]
         def variantsInOrder = variants.tokenize( '\t' )
         
-        data.each {
-            if (it.subjectPosition != null && it.subjectId != null) {
+        data.each { 
+            if (it && it.subjectPosition != null && it.subjectId != null) {
                 // Position starts at 1
                 def index = (int) it.subjectPosition - 1
                 if (variantsInOrder.size() > index)
