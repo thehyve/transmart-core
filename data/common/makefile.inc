@@ -49,18 +49,31 @@ $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
 $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE): $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH)
 	xz -d --stdout $< > $@
 
+MIRNA_DIC_SRC_FOLDER = mirna-dic
+MIRNA_DIC_SRC_FILE_ARCH = mirna-dictionary.tar.xz
+$(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
+	curl -f $(REMOTE_FILE_STORAGE)/dictionaries/$(MIRNA_DIC_SRC_FILE_ARCH) > $@
+$(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER): $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FILE_ARCH)
+	mkdir -p $@ && tar -C $@ -xJf $<
+
 TRANSMART_LOADER = transmart-loader-latest-bamboo-snapshot
 TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
 $(TRANSMART_LOADER):
 	$(MAKE) -C $(ENV_DIR) $@
 
-load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER)
+load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
 	&& java -cp $(TRANSMART_LOADER_JAR) \
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
 
-.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary
+load_mirna_dictionary: $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
+	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
+	&& java -cp $(TRANSMART_LOADER_JAR) \
+	org.transmartproject.pipeline.dictionary.MiRBaseDictionary \
+	$(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/miRNA.dat $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/aliases.txt
+
+.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_mirna_dictionary
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
 
 

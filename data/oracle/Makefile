@@ -13,10 +13,6 @@ $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties:
 	&& echo "searchapp_username=searchapp" >> $@ \
 	&& echo "searchapp_password=$(SEARCHAPP_PSW)" >> $@
 
-config-transmart-loader: $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
-
-load_proteomics_dictionary: config-transmart-loader
-
 .PHONY: $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
 # vim: set filetype=make:

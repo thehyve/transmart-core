@@ -20,10 +20,11 @@ export KETTLE_HOME
 source $1
 
 $KITCHEN -norep=Y						\
--file="$KETTLE_JOBS/load_proteomics_annotation.kjb"		\
--log="load_proteomics_annotation_$(date +"%Y%m%d%H%M").log"	\
+-file="$KETTLE_JOBS/load_QPCR_MIRNA_annotation.kjb"		\
+-log="load_mirna_annotation_$(date +"%Y%m%d%H%M").log"		\
 -param:DATA_LOCATION="$DATA_LOCATION"				\
 -param:SORT_DIR=/tmp						\
 -param:GPL_ID="$GPL_ID"						\
 -param:LOAD_TYPE=I						\
--param:ANNOTATION_TITLE="$GPL_ID"
+-param:ANNOTATION_TITLE="$GPL_ID"				\
+-param:MIRNA_TYPE="$MIRNA_TYPE"

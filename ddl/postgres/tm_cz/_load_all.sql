@@ -19,12 +19,15 @@
 \i tm_cz/functions/i2b2_load_annotation_deapp.sql
 \i tm_cz/functions/i2b2_load_chrom_region.sql
 \i tm_cz/functions/i2b2_load_clinical_data.sql
+\i tm_cz/functions/i2b2_load_mirna_annot_deapp.sql
 \i tm_cz/functions/i2b2_load_proteomics_annot.sql
 \i tm_cz/functions/i2b2_load_security_data.sql
+\i tm_cz/functions/i2b2_mirna_zscore_calc.sql
 \i tm_cz/functions/i2b2_move_study.sql
 \i tm_cz/functions/i2b2_process_acgh_data.sql
 \i tm_cz/functions/i2b2_process_mrna_data.sql
 \i tm_cz/functions/i2b2_process_proteomics_data.sql
+\i tm_cz/functions/i2b2_process_qpcr_mirna_data.sql
 \i tm_cz/functions/i2b2_process_rnaseq_data.sql
 \i tm_cz/functions/i2b2_proteomics_zscore_calc.sql
 \i tm_cz/functions/instr.sql
@@ -77,6 +80,8 @@
 \i tm_cz/haploview_data_release.sql
 \i tm_cz/i2b2_release.sql
 \i tm_cz/i2b2_tags_release.sql
+\i tm_cz/mirna_annotation_deapp.sql
+\i tm_cz/mirna_probeset_deapp.sql
 \i tm_cz/node_curation.sql
 \i tm_cz/observation_fact_release.sql
 \i tm_cz/patient_dimension_release.sql

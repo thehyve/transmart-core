@@ -24,8 +24,6 @@ $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties:
 	&& echo "searchapp_username=searchapp" >> $@ \
 	&& echo "searchapp_password=$(SEARCHAPP_PSW)" >> $@
 
-load_proteomics_dictionary: $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
-
 .PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
 # vim: set filetype=make:

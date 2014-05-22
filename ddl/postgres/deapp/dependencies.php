@@ -1,9 +1,5 @@
 <?php
 $dependencies = array (
-  'de_variant_metadata' => 
-  array (
-    0 => 'de_variant_dataset',
-  ),
   'de_chromosomal_region' => 
   array (
     0 => 'de_gpl_info',
@@ -12,13 +8,13 @@ $dependencies = array (
   array (
     0 => 'de_chromosomal_region',
   ),
+  'de_subject_rnaseq_data' => 
+  array (
+    0 => 'de_chromosomal_region',
+  ),
   'de_subject_protein_data' => 
   array (
     0 => 'de_protein_annotation',
-  ),
-  'de_variant_dataset' => 
-  array (
-    0 => 'de_gpl_info',
   ),
   'de_variant_subject_detail' => 
   array (
