@@ -3,10 +3,10 @@ import au.com.bytecode.opencsv.CSVWriter
 import au.com.bytecode.opencsv.CSVReader
 
 def parseOptions() {
-	def cli = new CliBuilder(usage: "generate_proteomics_annotation.groovy")
+	def cli = new CliBuilder(usage: "generate_proteomics_subject_sample_mapping.groovy")
 	cli.p 'Platform id', required: true, longOpt: 'gpl_id', args: 1, argName: 'gpl_id'
 	cli.t 'Trial id', required: true, longOpt: 'trial_id', args: 1, argName: 'trial_id'
-	cli.y 'Tissue type', required: true, longOpt: 'tissue', args: 1, argName: 'tissue'
+	cli.y 'Tissue type', longOpt: 'tissue', args: 1, argName: 'tissue'
 	cli.i 'tsv input file; stdin if unspecified', longOpt: 'input', args: 1, argName: 'file'
 	cli.o 'tsv output file; stdout if unspecified', longOpt: 'output', args: 1, argName: 'file'
 	def options = cli.parse(args)
