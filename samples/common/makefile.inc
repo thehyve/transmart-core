@@ -83,12 +83,14 @@ PROTEOMICS_DATA_FILE?=$(PROTEOMICS_DATA_PREFIX).txt
 PROTEOMICS_ANNOT_PREFIX?=proteomics
 PROTEOMICS_ANNOT_FILE?=$(PROTEOMICS_ANNOT_PREFIX)_annotation.txt
 
-load_proteomics_%: ../common/%/proteomics.params ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
+load_proteomics_annotation_%: ../common/%/proteomics.params ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE)
 	GPL_ID=$*_proteomics \
 	DATA_LOCATION="$(realpath ../common/$*/proteomics)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_proteomics_annotation.sh $< \
-	&& MAP_FILENAME=$(PROTEOMICS_SSM_FILE) \
+
+load_proteomics_%: ../common/%/proteomics.params load_proteomics_annotation_% ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
+	MAP_FILENAME=$(PROTEOMICS_SSM_FILE) \
 	COLUMN_MAPPING_FILE=$(PROTEOMICS_CM_FILE) \
 	DATA_FILE_PREFIX=$(PROTEOMICS_DATA_PREFIX) \
 	STUDY_ID=$* \
@@ -108,17 +110,23 @@ load_proteomics_%: ../common/%/proteomics.params ../common/%/proteomics/$(PROTEO
 ../common/%/proteomics/$(PROTEOMICS_CM_FILE): ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_column_mapping.groovy
 	groovy ../common/generate_proteomics_column_mapping.groovy -i $< -o $@
 
+.PHONY: load_proteomics_annotation_% load_proteomics_%
+.PRECIOUS: ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
+
 MIRNA_SSM_FILE?=mirna_subject_sample_mapping.txt
 MIRNA_DATA_PREFIX?=mirna_data
 MIRNA_DATA_FILE?=$(MIRNA_DATA_PREFIX).txt
 MIRNA_ANNOT_PREFIX?=mirna
 MIRNA_ANNOT_FILE?=$(MIRNA_ANNOT_PREFIX)_annotation.txt
-load_mirna_%: ../common/%/mirna.params ../common/%/mirna ../common/%/mirna/$(MIRNA_ANNOT_FILE) ../common/%/mirna/$(MIRNA_SSM_FILE)
+
+load_mirna_annotation_%: ../common/%/mirna.params ../common/%/mirna ../common/%/mirna/$(MIRNA_ANNOT_FILE)
 	GPL_ID=$*_mirna \
 	DATA_LOCATION="$(realpath ../common/$*/mirna)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_mirna_annotation.sh $< \
-	&& MAP_FILENAME=$(MIRNA_SSM_FILE) \
+
+load_mirna_%: ../common/%/mirna.params ../common/%/mirna load_mirna_annotation_% ../common/%/mirna/$(MIRNA_SSM_FILE)
+	MAP_FILENAME=$(MIRNA_SSM_FILE) \
 	DATA_FILE_PREFIX=$(MIRNA_DATA_PREFIX) \
 	DATA_FILE=$(MIRNA_DATA_FILE) \
 	STUDY_ID=$* \
@@ -135,7 +143,8 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna ../common/%/mirna/$(MIR
 ../common/%/mirna/$(MIRNA_SSM_FILE): ../common/%/mirna ../common/generate_mirna_subject_sample_mapping.groovy
 	groovy ../common/generate_mirna_subject_sample_mapping.groovy -i $< -o $@ -p $*_mirna -t $*
 
-.PRECIOUS: ../common/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE) ../common/%/mirna/$(MIRNA_DATA_FILE) ../common/%/mirna/$(MIRNA_ANNOT_FILE) ../common/%/mirna/$(MIRNA_SSM_FILE)
+.PHONY: load_mirna_annotation_% load_mirna_%
+.PRECIOUS: ../common/%/mirna/$(MIRNA_DATA_FILE) ../common/%/mirna/$(MIRNA_ANNOT_FILE) ../common/%/mirna/$(MIRNA_SSM_FILE)
 
 ../common/%/clinical: ../common/Makefile
 	$(MAKE) -C ../common $*/clinical
@@ -152,11 +161,9 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna ../common/%/mirna/$(MIR
 ../common/%/acgh: ../common/Makefile
 	$(MAKE) -C ../common $*/acgh
 
-preprocess_proteomics: ../common/Makefile ../common/%/proteomics/$(PROTEOMICS_SSM_FILE) ../common/%/proteomics/$(PROTEOMICS_CM_FILE)
-
 clean:
 	rm -f logs/*.log kettle-home/kettle.properties
 
-.PHONY: write_kettle_properties clean preprocess_proteomics
+.PHONY: write_kettle_properties clean
 
 # vim: ft=make :
