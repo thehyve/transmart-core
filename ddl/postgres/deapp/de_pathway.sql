@@ -12,4 +12,22 @@ CREATE TABLE de_pathway (
     user_id bigint,
     PRIMARY KEY (id)
 );
+--
+-- Name: tf_trg_de_pathway_id; Type: FUNCTION; Schema: deapp; Owner: -
+--
+CREATE FUNCTION tf_trg_de_pathway_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.ID is null then
+ select nextval('deapp.SEQ_DATA_ID') into NEW.ID ;
+end if;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_de_pathway_id(); Type: TRIGGER; Schema: deapp; Owner: -
+--
+  CREATE TRIGGER trg_de_pathway_id BEFORE INSERT ON de_pathway FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_pathway_id();
 
