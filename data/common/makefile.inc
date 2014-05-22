@@ -61,19 +61,19 @@ TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
 $(TRANSMART_LOADER):
 	$(MAKE) -C $(ENV_DIR) $@
 
-load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER)
+load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
 	&& java -cp $(TRANSMART_LOADER_JAR) \
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
 
-load_mirna_dictionary: $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER) $(TRANSMART_LOADER)
+load_mirna_dictionary: $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
 	&& java -cp $(TRANSMART_LOADER_JAR) \
 	org.transmartproject.pipeline.dictionary.MiRBaseDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/miRNA.dat $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/aliases.txt
 
-.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary
+.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_mirna_dictionary
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
 
 
