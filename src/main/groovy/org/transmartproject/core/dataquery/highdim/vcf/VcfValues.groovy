@@ -1,6 +1,6 @@
 package org.transmartproject.core.dataquery.highdim.vcf
 
-import org.transmartproject.core.dataquery.assay.Assay;
+import org.transmartproject.core.dataquery.assay.Assay
 
 /**
  * Represents metadata about one row from the VCF file.
@@ -28,5 +28,5 @@ interface VcfValues {
     /**
      * Returns original subject variant data for a given assay
      */
-    String getOriginalSubjectData( Assay assay )
+    String getOriginalSubjectData(Assay assay)
 }
