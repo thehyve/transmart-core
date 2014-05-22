@@ -107,7 +107,8 @@ class VcfTestData  {
         DeSubjectSampleMapping assay,
         DeVariantSubjectIdxCoreDb subjectIndex
             ->
-
+            // Dataset and subjectId are inserted through the
+            // subjectIndex object
             new DeVariantSubjectSummaryCoreDb(
                     chr: 1,
                     pos: detail.pos,
@@ -120,8 +121,6 @@ class VcfTestData  {
                     reference: true,
                     allele1: allele1,
                     allele2: allele2,
-                    subjectId: assay.sampleCode,
-                    dataset: dataset,
                     assay: assay,
                     jDetail: detail,
                     subjectIndex: subjectIndex
