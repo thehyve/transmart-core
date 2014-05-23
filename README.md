@@ -172,10 +172,10 @@ These can be done with the targets `fix_permissions`, `fix_owners` and
 Right now, only some sample data from the GSE8581 study is available. You can
 import it like this:
 
-    make -C samples/{oracle,postgres} load_clinical_GSE8581
-    make -C samples/{oracle,postgres} load_ref_annotation_GSE8581
-    make -C samples/{oracle,postgres} load_expression_GSE8581
-    make -C samples/{oracle,postgres} load_analysis_GSE8581
+    make -C samples/{oralce,postgres} load_clinical_GSE8581
+    make -C samples/{oralce,postgres} load_ref_annotation_GSE8581
+    make -C samples/{oralce,postgres} load_expression_GSE8581
+    make -C samples/{oralce,postgres} load_analysis_GSE8581
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.

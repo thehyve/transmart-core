@@ -3,10 +3,10 @@
 --
 CREATE TABLE wt_subject_microarray_calcs (
     trial_name character varying(50),
-    probeset_id numeric(22,0),
-    mean_intensity numeric(18,6),
-    median_intensity numeric(18,6),
-    stddev_intensity numeric(18,6)
+    probeset_id bigint,
+    mean_intensity numeric,
+    median_intensity numeric,
+    stddev_intensity numeric
 );
 
 --

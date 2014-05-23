@@ -16,8 +16,6 @@
 \i deapp/de_mrna_annotation.sql
 \i deapp/de_pathway.sql
 \i deapp/de_pathway_gene.sql
-\i deapp/de_protein_annotation.sql
-\i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rbm_annotation.sql
 \i deapp/de_subject_rbm_data.sql
 \i deapp/de_rbm_data_annotation_join.sql
@@ -42,7 +40,9 @@
 \i deapp/de_subject_microarray_data_new.sql
 \i deapp/de_subject_microarray_logs.sql
 \i deapp/de_subject_microarray_med.sql
+\i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_subject_mirna_data.sql
+\i deapp/de_protein_annotation.sql
 \i deapp/de_subject_protein_data.sql
 \i deapp/de_subject_proteomics_data.sql
 \i deapp/de_subject_rna_data.sql

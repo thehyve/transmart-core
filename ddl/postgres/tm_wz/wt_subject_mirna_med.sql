@@ -2,20 +2,20 @@
 -- Name: wt_subject_mirna_med; Type: TABLE; Schema: tm_wz; Owner: -
 --
 CREATE TABLE wt_subject_mirna_med (
-    probeset_id character varying(50),
-    intensity_value bigint,
-    log_intensity bigint,
-    assay_id bigint,
-    patient_id bigint,
-    sample_id bigint,
+    probeset_id numeric(38,0),
+    intensity_value numeric,
+    log_intensity numeric,
+    assay_id numeric(18,0),
+    patient_id numeric(18,0),
+    sample_id numeric(18,0),
     subject_id character varying(50),
     trial_name character varying(50),
     timepoint character varying(100),
     pvalue double precision,
-    num_calls bigint,
-    mean_intensity bigint,
-    stddev_intensity bigint,
-    median_intensity bigint,
-    zscore bigint
+    num_calls numeric,
+    mean_intensity numeric,
+    stddev_intensity numeric,
+    median_intensity numeric,
+    zscore numeric
 );
 

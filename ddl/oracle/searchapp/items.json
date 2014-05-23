@@ -109,6 +109,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_BACKUP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_MODULE_SEQ"
@@ -119,20 +126,6 @@
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_SEQ"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "REPORT"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "REPORT_ITEM"
     },
     "parents" : [ ]
   }, {
@@ -304,6 +297,25 @@
     } ]
   }, {
     "child" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
@@ -352,6 +364,10 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_AUTH_USER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE"
     }, {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
@@ -536,6 +552,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_USER_SETTINGS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "SEQ_SEARCH_DATA_ID"
@@ -563,13 +586,6 @@
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_AUTH_USER"
     } ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SUBSET"
-    },
-    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TRIGGER",
@@ -720,17 +736,6 @@
       "owner" : "SEARCHAPP",
       "name" : "SEQ_SEARCH_DATA_ID"
     } ]
-  }, {
-    "child" : {
-      "type" : "SYNONYM",
-      "owner" : "SEARCHAPP",
-      "name" : "UTIL_GRANT_ALL"
-    },
-    "parents" : [ {
-      "type" : "SYNONYM",
-      "owner" : "BIOMART_USER",
-      "name" : "UTIL_GRANT_ALL"
-    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -818,6 +823,13 @@
     "file" : "searchapp/plugin_module.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_BACKUP"
+    },
+    "file" : "searchapp/plugin_module_backup.sql"
+  }, {
+    "item" : {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_MODULE_SEQ"
@@ -830,20 +842,6 @@
       "name" : "PLUGIN_SEQ"
     },
     "file" : "searchapp/_misc.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "REPORT"
-    },
-    "file" : "searchapp/report.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "REPORT_ITEM"
-    },
-    "file" : "searchapp/report_item.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
@@ -935,6 +933,13 @@
       "name" : "SEARCH_AUTH_USER_SEC_ACCESS_V"
     },
     "file" : "searchapp/views/search_auth_user_sec_access_v.sql"
+  }, {
+    "item" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
+    },
+    "file" : "searchapp/views/search_bio_mkr_correl_fast_mv.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1105,6 +1110,13 @@
     "file" : "searchapp/search_user_feedback.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_USER_SETTINGS"
+    },
+    "file" : "searchapp/search_user_settings.sql"
+  }, {
+    "item" : {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "SEQ_SEARCH_DATA_ID"
@@ -1124,13 +1136,6 @@
       "name" : "SH_AUTH_USER_ID_FK"
     },
     "file" : "searchapp/search_auth_user.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SUBSET"
-    },
-    "file" : "searchapp/subset.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

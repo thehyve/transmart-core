@@ -3,14 +3,9 @@
 --
 CREATE TABLE wt_subject_mirna_calcs (
     trial_name character varying(50),
-    probeset_id character varying(50),
-    mean_intensity bigint,
-    median_intensity bigint,
-    stddev_intensity bigint
+    probeset_id numeric(38,0),
+    mean_intensity numeric,
+    median_intensity numeric,
+    stddev_intensity numeric
 );
-
---
--- Name: wt_subject_mirna_calcs_i1; Type: INDEX; Schema: tm_wz; Owner: -
---
-CREATE INDEX wt_subject_mirna_calcs_i1 ON wt_subject_mirna_calcs USING btree (trial_name, probeset_id);
 

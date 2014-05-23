@@ -21,13 +21,6 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_ENCOUNTER_LEVEL"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
       "name" : "DE_GPL_INFO"
     },
     "parents" : [ ]
@@ -44,26 +37,14 @@
       "owner" : "DEAPP",
       "name" : "DE_METABOLITE_SUB_PATHWAYS"
     },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
-    } ]
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_METABOLITE_SUB_PWAY_METAB"
     },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_ANNOTATION"
-    }, {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_SUB_PATHWAYS"
-    } ]
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -87,6 +68,28 @@
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -469,57 +472,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX1"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX2"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX3"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX4"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA"
@@ -695,6 +647,17 @@
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
+      "name" : "FK_PROTEIN_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
       "name" : "FK_SNP_BY_PROBE_PROBE_ID"
     },
     "parents" : [ {
@@ -796,12 +759,20 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "DEAPP",
-      "name" : "I2B2_PROCESS_RNA_SEQ_DATA"
+      "name" : "I2B2_RBM_ZSCORE_CALC_NEW"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RNA_DATA"
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
     }, {
       "type" : "TABLE",
       "owner" : "DEAPP",
@@ -939,6 +910,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "DEAPP",
       "name" : "PROTEIN_COMPARISON_QRY"
@@ -998,6 +976,21 @@
       "type" : "TYPE",
       "owner" : "DEAPP",
       "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "PROTEOMICS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
     } ]
   }, {
     "child" : {
@@ -1099,40 +1092,7 @@
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010748"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
-    } ]
-  }, {
-    "child" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010753"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010756"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
-    } ]
-  }, {
-    "child" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010757"
+      "name" : "SYS_C0033500"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -1143,34 +1103,23 @@
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010758"
+      "name" : "SYS_C0033938"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
     } ]
   }, {
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010759"
+      "name" : "SYS_C0033939"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
-    } ]
-  }, {
-    "child" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010760"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
     } ]
   }, {
     "child" : {
@@ -1414,13 +1363,6 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_ENCOUNTER_LEVEL"
-    },
-    "file" : "deapp/de_encounter_level.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
       "name" : "DE_GPL_INFO"
     },
     "file" : "deapp/de_gpl_info.sql"
@@ -1464,6 +1406,20 @@
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
     },
     "file" : "deapp/de_subject_microarray_data.sql"
   }, {
@@ -1762,41 +1718,6 @@
     "file" : "deapp/de_subject_protein_data.sql"
   }, {
     "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX1"
-    },
-    "file" : "deapp/de_subject_protein_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX2"
-    },
-    "file" : "deapp/de_subject_protein_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX3"
-    },
-    "file" : "deapp/de_subject_protein_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEIN_MCIDX4"
-    },
-    "file" : "deapp/de_subject_protein_data.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
-    },
-    "file" : "deapp/de_subject_proteomics_data.sql"
-  }, {
-    "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA"
@@ -1932,6 +1853,13 @@
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
+      "name" : "FK_PROTEIN_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_subject_protein_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
       "name" : "FK_SNP_BY_PROBE_PROBE_ID"
     },
     "file" : "deapp/de_snp_data_by_probe.sql"
@@ -2009,9 +1937,9 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "DEAPP",
-      "name" : "I2B2_PROCESS_RNA_SEQ_DATA"
+      "name" : "I2B2_RBM_ZSCORE_CALC_NEW"
     },
-    "file" : "deapp/procedures/i2b2_process_rna_seq_data.sql"
+    "file" : "deapp/procedures/i2b2_rbm_zscore_calc_new.sql"
   }, {
     "item" : {
       "type" : "INDEX",
@@ -2112,6 +2040,13 @@
     "file" : "deapp/_misc.sql"
   }, {
     "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "DEAPP",
       "name" : "PROTEIN_COMPARISON_QRY"
@@ -2124,6 +2059,13 @@
       "name" : "PROTEIN_DBL_COMP_QRY"
     },
     "file" : "deapp/procedures/protein_dbl_comp_qry.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "PROTEOMICS_ID"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
@@ -2184,51 +2126,23 @@
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010748"
-    },
-    "file" : "deapp/de_rbm_data_annotation_join.sql"
-  }, {
-    "item" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010753"
-    },
-    "file" : "deapp/de_subject_protein_data.sql"
-  }, {
-    "item" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010756"
-    },
-    "file" : "deapp/de_rbm_data_annotation_join.sql"
-  }, {
-    "item" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010757"
+      "name" : "SYS_C0033500"
     },
     "file" : "deapp/de_subject_metabolomics_data.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010758"
+      "name" : "SYS_C0033938"
     },
-    "file" : "deapp/de_metabolite_sub_pway_metab.sql"
+    "file" : "deapp/de_rbm_data_annotation_join.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C0010759"
+      "name" : "SYS_C0033939"
     },
-    "file" : "deapp/de_metabolite_sub_pway_metab.sql"
-  }, {
-    "item" : {
-      "type" : "REF_CONSTRAINT",
-      "owner" : "DEAPP",
-      "name" : "SYS_C0010760"
-    },
-    "file" : "deapp/de_metabolite_sub_pathways.sql"
+    "file" : "deapp/de_rbm_data_annotation_join.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",

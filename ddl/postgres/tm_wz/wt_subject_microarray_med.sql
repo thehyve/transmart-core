@@ -13,9 +13,9 @@ CREATE TABLE wt_subject_microarray_med (
     timepoint character varying(100),
     pvalue double precision,
     num_calls bigint,
-    mean_intensity numeric(18,6),
-    stddev_intensity numeric(18,6),
-    median_intensity numeric(18,6),
-    zscore numeric(18,4)
+    mean_intensity numeric,
+    stddev_intensity numeric,
+    median_intensity numeric,
+    zscore double precision
 );
 

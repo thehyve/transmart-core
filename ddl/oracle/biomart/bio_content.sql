@@ -17,8 +17,7 @@
  CONSTRAINT "EXTERNAL_FILE_PK" PRIMARY KEY ("BIO_FILE_CONTENT_ID")
  USING INDEX
  TABLESPACE "INDX"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-COMPRESS BASIC NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "BIOMART" ;
 --
 -- Type: REF_CONSTRAINT; Owner: BIOMART; Name: EXT_FILE_CNT_CNT_REPO_FK
@@ -28,8 +27,7 @@ ALTER TABLE "BIOMART"."BIO_CONTENT" ADD CONSTRAINT "EXT_FILE_CNT_CNT_REPO_FK" FO
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_FILE_CONTENT_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_FILE_CONTENT_ID" before insert on "BIO_CONTENT"    for each row begin     if inserting then       if :NEW."BIO_FILE_CONTENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_FILE_CONTENT_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_FILE_CONTENT_ID" before insert on "BIO_CONTENT"    for each row begin     if inserting then       if :NEW."BIO_FILE_CONTENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_FILE_CONTENT_ID" from dual;       end if;    end if; end;
 
 
 

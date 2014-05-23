@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_SAMPLE_CATEGORIES
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_SAMPLE_CATEGORIES" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_SAMPLE_CATEGORIES" 
 
 (
   currentJobID NUMBER := null
@@ -20,7 +20,7 @@ AS
 	--	JEA@20120209	Remove insert of sample to patient_dimension
 
 	--
-	-- Copyright ? 2011 Recombinant Data Corp.
+	-- Copyright © 2011 Recombinant Data Corp.
 	--
 
 BEGIN
@@ -133,5 +133,6 @@ BEGIN
 		cz_end_audit (jobID, 'FAIL');
 	
 END;
+
  
 /

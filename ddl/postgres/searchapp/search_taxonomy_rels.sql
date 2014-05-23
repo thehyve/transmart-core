@@ -49,14 +49,3 @@ ALTER TABLE ONLY search_taxonomy_rels
 --
 ALTER TABLE ONLY search_taxonomy_rels
     ADD CONSTRAINT fk_search_tax_rels_parent FOREIGN KEY (parent_id) REFERENCES search_taxonomy(term_id);
-
---
--- Name: seq_search_data_id; Type: SEQUENCE; Schema: searchapp; Owner: -
---
-CREATE SEQUENCE seq_search_data_id
-    START WITH 3262634
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 20;
-

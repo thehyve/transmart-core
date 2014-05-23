@@ -9,7 +9,6 @@
  USING INDEX
  TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
-COMPRESS BASIC NOLOGGING
  TABLESPACE "BIOMART" ;
 --
 -- Type: INDEX; Owner: BIOMART; Name: BIO_ASY_FEATURE_GRP_NAME_IDX
@@ -20,8 +19,7 @@ PARALLEL 3 ;
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_ASSAY_F_G_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_ASSAY_F_G_ID" before insert on "BIO_ASSAY_FEATURE_GROUP"    for each row begin     if inserting then       if :NEW."BIO_ASSAY_FEATURE_GROUP_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_ASSAY_FEATURE_GROUP_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_ASSAY_F_G_ID" before insert on "BIO_ASSAY_FEATURE_GROUP"    for each row begin     if inserting then       if :NEW."BIO_ASSAY_FEATURE_GROUP_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_ASSAY_FEATURE_GROUP_ID" from dual;       end if;    end if; end;
 
 
 

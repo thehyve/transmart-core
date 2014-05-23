@@ -8,13 +8,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "SEQUENCE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "ASYNC_JOB_SEQ"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "CD"
@@ -502,13 +495,6 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
-      "name" : "MODIFIER_METADATA"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
       "name" : "NEWS_UPDATES"
     },
     "parents" : [ ]
@@ -526,17 +512,6 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1107,13 +1082,6 @@
     "file" : "i2b2demodata/async_job.sql"
   }, {
     "item" : {
-      "type" : "SEQUENCE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "ASYNC_JOB_SEQ"
-    },
-    "file" : "i2b2demodata/_misc.sql"
-  }, {
-    "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "CD"
@@ -1522,13 +1490,6 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
-      "name" : "MODIFIER_METADATA"
-    },
-    "file" : "i2b2demodata/modifier_metadata.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
       "name" : "NEWS_UPDATES"
     },
     "file" : "i2b2demodata/news_updates.sql"
@@ -1546,13 +1507,6 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "file" : "i2b2demodata/observation_fact_bk.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
       "type" : "TABLE",

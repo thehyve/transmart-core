@@ -87,8 +87,7 @@
 \i biomart/bio_lit_pe_data.sql
 \i biomart/bio_lit_sum_data.sql
 \i biomart/bio_marker.sql
-\i biomart/bio_marker_correl_mv.sql
-\i biomart/views/bio_marker_correl_mview.sql
+\i biomart/views/bio_marker_correl_mv.sql
 \i biomart/views/bio_marker_correl_view.sql
 \i biomart/views/bio_marker_exp_analysis_mv.sql
 \i biomart/bio_observation.sql

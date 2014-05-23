@@ -49,3 +49,13 @@ ALTER TABLE ONLY search_auth_user_sec_access
 ALTER TABLE ONLY search_auth_user_sec_access
     ADD CONSTRAINT search_sec_s_o_fk FOREIGN KEY (search_secure_object_id) REFERENCES search_secure_object(search_secure_object_id);
 
+--
+-- Name: seq_search_data_id; Type: SEQUENCE; Schema: searchapp; Owner: -
+--
+CREATE SEQUENCE seq_search_data_id
+    START WITH 1789472
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 20;
+

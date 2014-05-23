@@ -3,7 +3,7 @@
 --
 CREATE TABLE de_subject_microarray_logs (
     probeset character varying(50),
-    raw_intensity bigint,
+    raw_intensity numeric,
     pvalue double precision,
     refseq character varying(50),
     gene_symbol character varying(50),
@@ -12,6 +12,6 @@ CREATE TABLE de_subject_microarray_logs (
     subject_id character varying(20),
     trial_name character varying(15),
     timepoint character varying(30),
-    log_intensity bigint
+    log_intensity numeric
 );
 

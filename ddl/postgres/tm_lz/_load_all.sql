@@ -17,6 +17,7 @@
 \i tm_lz/lt_src_metabolomic_map.sql
 \i tm_lz/lt_src_mirna_deapp_annot.sql
 \i tm_lz/lt_src_mirna_subj_samp_map.sql
+\i tm_lz/lt_src_mirna_display_mapping.sql
 \i tm_lz/lt_src_mrna_data.sql
 \i tm_lz/lt_src_mrna_subj_samp_map.sql
 \i tm_lz/lt_src_nextbio.sql
@@ -32,6 +33,7 @@
 \i tm_lz/lt_src_rbm_subj_samp_map.sql
 \i tm_lz/lt_src_rna_seq_data.sql
 \i tm_lz/lt_src_rna_seq_subj_samp_map.sql
+\i tm_lz/lt_src_protein_display_mapping.sql
 \i tm_lz/lt_src_rnaseq_data.sql
 \i tm_lz/lt_src_sample_categories.sql
 \i tm_lz/lt_src_study_metadata.sql

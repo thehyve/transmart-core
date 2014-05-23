@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: TEXT_PARSER
 --
-  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."TEXT_PARSER" (
+  CREATE OR REPLACE FUNCTION "TM_CZ"."TEXT_PARSER" (
 		 text_to_parse IN VARCHAR2,
      text_delimiter IN VARCHAR2
 )
@@ -23,7 +23,7 @@ BEGIN
    -- Populates a temp_token table with parsed values for any comma separated list.
    -- Requires a type so that multiple records can exist for different uses.
    -- KCR@20090106 - First rev.
-   -- Copyright ? 2009 Recombinant Data Corp.
+   -- Copyright ¿ 2009 Recombinant Data Corp.
    -------------------------------------------------------------------------------
   --Add a delimiter to the end of the string so we dont lose last value
   string_tokens := text_to_parse || text_delimiter;
@@ -69,6 +69,4 @@ END text_parser;
 
 
 
-
- 
 /

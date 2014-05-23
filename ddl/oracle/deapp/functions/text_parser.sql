@@ -1,7 +1,7 @@
 --
 -- Type: FUNCTION; Owner: DEAPP; Name: TEXT_PARSER
 --
-  CREATE OR REPLACE EDITIONABLE FUNCTION "DEAPP"."TEXT_PARSER" (
+  CREATE OR REPLACE FUNCTION "DEAPP"."TEXT_PARSER" (
 		 text_to_parse IN VARCHAR2
 )
 --Custom Collection type returned
@@ -63,7 +63,6 @@ BEGIN
   return list_values;
 
 END text_parser;
- 
  
  
 /

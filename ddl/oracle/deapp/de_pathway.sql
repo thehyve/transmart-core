@@ -13,15 +13,13 @@
  CONSTRAINT "DE_PATHWAY_PK" PRIMARY KEY ("ID")
  USING INDEX
  TABLESPACE "DEAPP"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-NOCOMPRESS NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "DEAPP" ;
 --
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_PATHWAY_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "DEAPP"."TRG_DE_PATHWAY_ID" before insert on "DE_PATHWAY"    for each row
+  CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_PATHWAY_ID" before insert on "DE_PATHWAY"    for each row
 begin     if inserting then       if :NEW."ID" is null then          select SEQ_DATA_ID.nextval into :NEW."ID" from dual;       end if;    end if; end;
-
 
 
 

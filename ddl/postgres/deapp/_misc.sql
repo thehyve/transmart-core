@@ -1,12 +1,3 @@
---
--- Name: de_subject_rbm_data_seq; Type: SEQUENCE; Schema: deapp; Owner: -
---
-CREATE SEQUENCE de_subject_rbm_data_seq
-    START WITH 61
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
 
 --
 -- Name: metabolite_sub_pth_id; Type: SEQUENCE; Schema: deapp; Owner: -

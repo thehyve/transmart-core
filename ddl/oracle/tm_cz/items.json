@@ -1,6 +1,17 @@
 {
   "dependencies" : [ {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ADD_ONTOLOGY_NODE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2METADATA",
+      "name" : "ADD_ONTOLOGY_NODE"
+    } ]
+  }, {
+    "child" : {
       "type" : "VIEW",
       "owner" : "TM_CZ",
       "name" : "ALL_TEST_DETAIL_VIEW"
@@ -51,6 +62,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "ANNOTATION"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "ANNOTATION_DEAPP"
@@ -63,6 +85,28 @@
       "name" : "ANTIGEN_DEAPP"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ASSAY_ANALYSIS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ASYNC_JOB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ASYNC_JOB"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -182,11 +226,121 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "BIO_ASSAY_ANALYSIS_UID"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_DATA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_DATA_STATS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA_STATS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_PLATFORM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -196,11 +350,132 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASSAY_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASY_ANALYSIS_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASY_ANALYSIS_PLTFM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_PLTFM"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "BIO_ASY_ANALYSIS_PLTFM_UID"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_ASY_DATA_STATS_ALL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_DATA_STATS_ALL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CELL_LINE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CELL_LINE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CGDCP_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CGDCP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINC_TRIAL_ATTR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_ATTR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINC_TRIAL_PT_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_PT_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINC_TRIAL_TIME_PT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_TIME_PT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINICAL_TRIAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINICAL_TRIAL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINICAL_TRIAL_DESIGN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINICAL_TRIAL_DESIGN"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -230,6 +505,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "BIO_CONCEPT_CODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONCEPT_CODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "BIO_CONTENT"
     },
     "parents" : [ {
@@ -258,6 +544,28 @@
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_CONTENT_REPOSITORY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CURATED_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CURATED_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CURATION_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CURATION_DATASET"
     } ]
   }, {
     "child" : {
@@ -266,6 +574,17 @@
       "name" : "BIO_CURATION_DATASET_UID"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_ATTRIBUTE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_ATTRIBUTE"
+    } ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -288,12 +607,67 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "BIO_DATA_CORRELATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORRELATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "BIO_DATA_DISEASE"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_DATA_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_EXT_CODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_EXT_CODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_LITERATURE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_LITERATURE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_OMIC_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_OMIC_MARKER"
     } ]
   }, {
     "child" : {
@@ -385,12 +759,188 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "BIO_LIT_ALT_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_ALT_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_AMD_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_AMD_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_INH_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_INT_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_MODEL_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_MODEL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_PE_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_PE_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_REF_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_REF_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_LIT_SUM_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_SUM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "BIO_MARKER"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_PATIENT_EVENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT_EVENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_PATIENT_EVENT_ATTR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT_EVENT_ATTR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_STATS_EXP_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_STATS_EXP_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_SUBJECT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_SUBJECT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "BIO_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_TAXONOMY"
     } ]
   }, {
     "child" : {
@@ -403,6 +953,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "CODE_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CODE_LOOKUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "CONCEPT_COUNTS"
     },
     "parents" : [ {
@@ -414,12 +975,34 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "CONCEPT_COUNTS_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_COUNTS_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "CONCEPT_DIMENSION"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "CONCEPT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION_BK"
     } ]
   }, {
     "child" : {
@@ -441,11 +1024,594 @@
     } ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "COUNTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "COUNTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CRC_DB_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CRC_DB_LOOKUP"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "CREATE_SYNONYMS"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_CONCEPT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_CONCEPT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_EID_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_EID_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_PATIENT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PATIENT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_PID_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PID_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_PROVIDER_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PROVIDER_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CREATE_TEMP_VISIT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_VISIT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD2_CLIN_INHIB_EFFECT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_CLIN_INHIB_EFFECT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD2_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD2_INHIB_DETAILS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_INHIB_DETAILS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD2_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD2_TRIAL_DETAILS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_TRIAL_DETAILS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_ALLOWED_MEDS_TREATMENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_ALLOWED_MEDS_TREATMENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_ARM_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_ARM_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_BIOMARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_BIOMARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_BIOMARKER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_BIOMARKER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_CELL_INFO_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_CELL_INFO_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_CLINICAL_CHARS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_CLINICAL_CHARS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_DRUG_EFFECTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_EFFECTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_DRUG_INHIB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_INHIB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_DRUG_INHIBITOR_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_INHIBITOR_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EVENTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EVENTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EXPERIMENTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPERIMENTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EXPR_AFTER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_AFTER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EXPR_BASELINE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_BASELINE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EXPR_BIO_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_BIO_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_EXPR_SOURCE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_SOURCE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_FULL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_FULL_CLINICAL_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL_CLINICAL_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_FULL_SEARCH_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL_SEARCH_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_INCLUSION_CRITERIA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_INCLUSION_CRITERIA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_PRIMARY_ENDPTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIMARY_ENDPTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_PRIMARY_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIMARY_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_PRIOR_MED_USE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIOR_MED_USE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_PULMONARY_PATH_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PULMONARY_PATH_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_QUANT_PARAMS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_QUANT_PARAMS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_REFERENCE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_REFERENCE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_RUNIN_THERAPIES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_RUNIN_THERAPIES_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_SECONDARY_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_SECONDARY_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_SEC_ENDPTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_SEC_ENDPTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_STATS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_STATS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_STUDY_DETAILS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_STUDY_DETAILS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_DESIGN_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_DESIGN_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_EXCL_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_EXCL_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_INCLUSION_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_INCLUSION_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_SMOKER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_SMOKER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_SPONSOR_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_SPONSOR_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TD_STATUS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_STATUS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CTD_TREATMENT_PHASES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TREATMENT_PHASES_VIEW"
+    } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -839,6 +2005,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DATAMART_REPORT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DATAMART_REPORT"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "DATA_EXPORT"
@@ -851,6 +2028,17 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DEAPP_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DEAPP_ANNOTATION"
     } ]
   }, {
     "child" : {
@@ -885,6 +2073,39 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "DE_MRNA_ANNOTATION"
     },
     "parents" : [ {
@@ -903,6 +2124,39 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "DE_PATHWAY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_PATHWAY_GENE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "DE_RBM_ANNOTATION"
     },
     "parents" : [ {
@@ -920,6 +2174,17 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_RNASEQ_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SAVED_COMPARISON"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAVED_COMPARISON"
     } ]
   }, {
     "child" : {
@@ -977,11 +2242,33 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_GENE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "DE_SNP_GENE_MAP_RELEASE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -991,11 +2278,33 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_PROBE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "DE_SNP_PROBE_RELEASE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1029,6 +2338,28 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "DE_SUBJECT_MIRNA_DATA"
     },
     "parents" : [ {
@@ -1047,12 +2378,12 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
     } ]
   }, {
     "child" : {
@@ -1121,6 +2452,46 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DIMLOADER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DIMLOADER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DK1"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "DROPSYN"
@@ -1135,6 +2506,28 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DUMP_TABLE_TO_CSV"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "DUMP_TABLE_TO_CSV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DX"
+    } ]
+  }, {
+    "child" : {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
       "name" : "EMT_TEMP_SEQ"
@@ -1142,11 +2535,77 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ENCOUNTER_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ENCOUNTER_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "GENEGO_GENE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GENEGO_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "GSE_ANALYSIS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GSE_ANALYSIS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "GSE_PROBESET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GSE_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "HAPLOVIEW_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "HAPLOVIEW_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "HAPLOVIEW_DATA_RELEASE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "HILOSEQUENCES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "HILOSEQUENCES"
+    } ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -1424,6 +2883,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_BK"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "I2B2_BULK_ADD_SEARCH_TERM"
@@ -1545,6 +3015,65 @@
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_TRIAL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_INC_TRIAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_TRIAL"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_SECURE_OBJECT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
     }, {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
@@ -1915,9 +3444,470 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_16_11"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_ID"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ID_SEQ"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_DATE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_NUMBER"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LZ_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_SUBJECT_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_CLINICAL_DATA_DUPS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_NUM_DATA_TYPES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_TRIAL_NODES"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_ID"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ID_SEQ"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_DATE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_NUMBER"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LZ_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_SUBJECT_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_CLINICAL_DATA_DUPS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_NUM_DATA_TYPES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_TRIAL_NODES"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_ID"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_INC_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ID_SEQ"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_DATE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "IS_NUMBER"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LZ_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_SUBJECT_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_CLINICAL_DATA_DUPS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_NUM_DATA_TYPES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_TRIAL_NODES"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_LOAD_METABOLOMICS_ANNOT"
     },
     "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
@@ -1958,6 +3948,14 @@
       "owner" : "DEAPP",
       "name" : "METABOLOMICS_ANNOT_ID"
     }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD_TERM"
+    }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "BIO_MARKER"
@@ -1977,6 +3975,14 @@
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -2105,10 +4111,6 @@
     }, {
       "type" : "TABLE",
       "owner" : "BIOMART",
-      "name" : "BIO_ASSAY_FEATURE_GROUP"
-    }, {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
       "name" : "BIO_DATA_UID"
     }, {
       "type" : "TABLE",
@@ -2118,6 +4120,10 @@
       "type" : "FUNCTION",
       "owner" : "BIOMART",
       "name" : "TEA_NPV_PRECOMPUTE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
     }, {
       "type" : "TABLE",
       "owner" : "FMAPP",
@@ -2162,6 +4168,10 @@
       "name" : "I2B2_LOAD_PROTEOMICS_ANNOT"
     },
     "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
@@ -2276,6 +4286,14 @@
       "owner" : "DEAPP",
       "name" : "SEQ_ASSAY_ID"
     }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "CONCEPT_DIMENSION"
@@ -2299,6 +4317,10 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_RBM_ANNOTATION"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -2342,7 +4364,7 @@
     }, {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
-      "name" : "I2B2_RBM_ZSCORE_CALC_NEW"
+      "name" : "I2B2_RBM_ZSCORE_CALC"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -2387,6 +4409,149 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_RBM_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_RBM_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RBM_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RBM_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RBM_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RBM_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RBM_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -2610,6 +4775,80 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_SRC_METABOLOMIC_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MBOLOMICS_PROBESET"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_METABOLOMICS_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_METABOLOMICS_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_METABOLOMICS_MED"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_MBOLOMICS_PROBESET"
     }, {
       "type" : "SYNONYM",
@@ -2627,6 +4866,72 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_METABOLOMIC_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MIRNA_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MIRNA_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MIRNA_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MIRNA_PROBESET"
     } ]
   }, {
     "child" : {
@@ -2769,6 +5074,72 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MICROARRAY_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MICROARRAY_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MICROARRAY_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_MRNA_INDEX_MAINT"
     },
     "parents" : [ {
@@ -2815,6 +5186,10 @@
       "owner" : "TM_CZ",
       "name" : "DE_SUBJECT_MICROARRAY_DATA"
     }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INDEX_MAINT"
+    }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_MICROARRAY_CALCS"
@@ -2849,6 +5224,10 @@
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -2964,7 +5343,150 @@
     }, {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_METABOLOMIC_DISPLAY_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_METABOLOMIC_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MIRNA_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_QPCR_MIRNA_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_PROBESET_DEAPP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_QPCR_MIRNA_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_QPCR_MIRNA_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MIRNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -3109,17 +5631,9 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
-      "name" : "I2B2_PROCESS_PROTEOMICS_DATA"
+      "name" : "I2B2_PROCESS_MRNA_DATA_BACKUP"
     },
     "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_PROTEIN_ANNOTATION"
-    }, {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
-    }, {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_ASSAY_ID"
@@ -3150,7 +5664,559 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+      "name" : "DE_MRNA_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MRNA_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_MRNA_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MRNA_INC_DATA_Old"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_MRNA_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MRNA_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_PROTEIN_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_PROTEOMICS_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_PROTEOMICS_SUB_SAM_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_PROTEOMICS_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_PROTEOMICS_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEIN_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_PROTEOMICS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -3235,6 +6301,10 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_PROTEOMICS_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEIN_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -3245,11 +6315,19 @@
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SUBJECT_SAMPLE_MAPPING"
     }, {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -3321,10 +6399,6 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
-      "name" : "LT_QPCR_MIRNA_ANNOTATION"
-    }, {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
       "name" : "LT_SRC_MIRNA_SUBJ_SAMP_MAP"
     }, {
       "type" : "SYNONYM",
@@ -3366,6 +6440,10 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_MIRNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -3374,9 +6452,17 @@
       "name" : "I2B2_PROCESS_RNA_SEQ_DATA"
     },
     "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -3485,7 +6571,578 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_RNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
     } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_RNA_SEQ_DATA_OLD"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RNA_SEQ_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RNA_SEQ_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RNA_SEQ_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RNA_SEQ_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_RNA_SEQ_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNASEQ_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RNA_SEQ_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RNA_SEQ_SUBJ_SAMP_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RNA_SEQ_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_RNA_SEQ_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROC_METABOLOMIC_INC_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_ADD_ROOT_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_CONCEPT_COUNTS"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_FOR_TRIAL"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_DELETE_1_NODE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_FILL_IN_TREE"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_SECURITY_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_ZSCORE_CALC"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_METABOLOMIC_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_METABOLOMIC_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_METABOLOMIC_MAP"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "TM_CZ",
+      "name" : "PARSE_NTH_VALUE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_PATIENT_NUM"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TABLE_ACCESS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_METABOLOMIC_NODES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_METABOLOMIC_NODE_VALUES"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MBOLOMICS_PROBESET"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_METABOLOMIC_DISPLAY_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_METABOLOMIC_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_SUB_ZSCORE2"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_PROTEOMICS_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEOMICS_INC_SUB_ZSCORE"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "PROCEDURE",
@@ -3515,7 +7172,7 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
-      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
@@ -3537,7 +7194,243 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_RBM_ZSCORE_CALC_NEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RBM_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_ZSCORE_CALC_NEW2"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -3650,39 +7543,78 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_RNASEQ_INC_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_INC_SUB_ZSCORE"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_MED"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_INC_SUB_ZSCORE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_RNA_SEQ_ANNOTATION"
     },
     "parents" : [ {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "BIO_MARKER"
-    }, {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
-      "name" : "DE_GPL_INFO"
-    }, {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
-      "name" : "DE_RNASEQ_ANNOTATION"
-    }, {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
-      "name" : "LT_RNASEQ_ANNOTATION"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_CZ",
-      "name" : "PROBESET_DEAPP"
-    } ]
-  }, {
-    "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_CZ",
-      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RNA_DATA"
     }, {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
@@ -3702,6 +7634,41 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "DE_RNASEQ_ANNOTATION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_RNASEQ_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_RNA_CALCS"
     }, {
       "type" : "SYNONYM",
@@ -3710,10 +7677,96 @@
     }, {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
-      "name" : "WT_SUBJECT_RNA_PROBESET"
+      "name" : "WT_SUBJECT_RNA_MED"
     }, {
-      "type" : "TABLE",
-      "owner" : "TM_WZ",
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC_BK1"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_MED"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC_OLD"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_END_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_ERROR_HANDLER"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_START_AUDIT"
+    }, {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_WRITE_AUDIT"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_PROBESET"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_CALCS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_LOGS"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_RNA_MED"
     } ]
   }, {
@@ -3726,6 +7779,17 @@
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "I2B2_SECURE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_SECURE_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_SECURE_BK"
     } ]
   }, {
     "child" : {
@@ -3834,6 +7898,98 @@
     } ]
   }, {
     "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_UI_LABEL_CHANGE_BK"
+    },
+    "parents" : [ {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION"
+    }, {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "I2B2"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_CONCEPT_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_CONCEPT_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_EID_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_EID_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_ENCOUNTERVISIT_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_ENCOUNTERVISIT_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_PATIENT_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PATIENT_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_PID_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PID_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "INSERT_PROVIDER_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PROVIDER_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ISNUMERIC"
+    },
+    "parents" : [ {
+      "type" : "FUNCTION",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ISNUMERIC"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "IS_DATE"
@@ -3853,6 +8009,61 @@
       "name" : "IS_NUMBER_V2"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "JMS_MESSAGES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_MESSAGES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "JMS_ROLES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_ROLES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "JMS_SUBSCRIPTIONS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_SUBSCRIPTIONS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "JMS_TRANSACTIONS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_TRANSACTIONS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "JMS_USERS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_USERS"
+    } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -3952,6 +8163,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_METABOLOMIC_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_METABOLOMIC_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_PROTEIN_ANNOTATION"
     },
     "parents" : [ {
@@ -3985,6 +8207,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_SRC_CEL_FILES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_CEL_FILES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_SRC_CLINICAL_DATA"
     },
     "parents" : [ {
@@ -3996,12 +8229,34 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_SRC_DATA_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DATA_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_SRC_DEAPP_ANNOT"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_DEAPP_ANNOT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -4024,6 +8279,28 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_METABOLOMIC_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MIRNA_DEAPP_ANNOT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_DEAPP_ANNOT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_MIRNA_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_MIRNA_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -4057,6 +8334,17 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_MRNA_SUBJ_SAMP_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_PROTEIN_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_PROTEIN_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -4117,12 +8405,34 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LT_SRC_RBM_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RBM_DISPLAY_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LT_SRC_RBM_SUBJ_SAMP_MAP"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_RBM_SUBJ_SAMP_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
     } ]
   }, {
     "child" : {
@@ -4194,12 +8504,67 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "LZ_SRC_MRNA_SUBJ_SAMP_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_MRNA_SUBJ_SAMP_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "LZ_SRC_SAMPLE_CATEGORIES"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LZ_SRC_SAMPLE_CATEGORIES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MESH_DESCRIPTOR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MESH_DESCRIPTOR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "METABOLOMICS_ANNOT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLOMICS_ANNOT_ID"
     } ]
   }, {
     "child" : {
@@ -4210,11 +8575,55 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MIRNA_BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "MIRNA_PROBESET_DEAPP"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "NEWS_UPDATES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "NEWS_UPDATES"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -4249,6 +8658,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "ONT_DB_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_DB_LOOKUP"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "PARSE_NTH_VALUE"
@@ -4272,6 +8692,17 @@
       "name" : "PATIENT_DIMENSION_RELEASE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_MAPPING"
+    } ]
   }, {
     "child" : {
       "type" : "SYNONYM",
@@ -4318,6 +8749,182 @@
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "PROBESET_DEAPP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PROJECT_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "PROJECT_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PROTEIN_COMPARISON_QRY"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_COMPARISON_QRY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PROTEIN_DBL_COMP_QRY"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_DBL_COMP_QRY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "PROVIDER_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PROVIDER_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_PATIENT_ENC_COLLECTION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_ENC_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_PATIENT_SET_COLLECTION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_SET_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_QUERY_INSTANCE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_QUERY_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_QUERY_RESULT_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QT_XML_RESULT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_XML_RESULT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QUERY1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "QUERY1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "QUERY_GLOBAL_TEMP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QUERY_GLOBAL_TEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "RBM_COMPARISON_QRY"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_COMPARISON_QRY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "RBM_DBL_COMP_QRY"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_DBL_COMP_QRY"
     } ]
   }, {
     "child" : {
@@ -4380,6 +8987,17 @@
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_MICROARRAY_MED"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "REMOVE_TEMP_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "REMOVE_TEMP_TABLE"
     } ]
   }, {
     "child" : {
@@ -4447,11 +9065,44 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SAMPLE_CATEGORIES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_CATEGORIES"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "SAMPLE_CATEGORIES_RELEASE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SAMPLE_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SCHEMES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "SCHEMES"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -4466,6 +9117,17 @@
       "name" : "SEQ_ANTIGEN_ID"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_BIO_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "SEQ_BIO_DATA_ID"
+    } ]
   }, {
     "child" : {
       "type" : "SEQUENCE",
@@ -4591,6 +9253,61 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SET_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SET_UPLOAD_STATUS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_UPLOAD_STATUS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SF_XTAB"
+    },
+    "parents" : [ {
+      "type" : "FUNCTION",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SF_XTAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SOURCE_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SOURCE_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SP_XTAB"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SP_XTAB"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "STRING_AGG"
@@ -4599,6 +9316,17 @@
       "type" : "TYPE",
       "owner" : "TM_CZ",
       "name" : "T_STRING_AGG"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SYNONYM1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_STUDY_METADATA"
     } ]
   }, {
     "child" : {
@@ -4613,6 +9341,24 @@
     } ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TEMP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TESTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TESTS"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "TEXT_PARSER"
@@ -4624,6 +9370,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TIMERS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TIMERS"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "TJEA_JUNK"
@@ -4631,11 +9388,77 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "TMP_NUM_DATA_TYPES"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_OMICSOFT_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_OMICSOFT_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_OMICSOFT_DISEASE_M1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_OMICSOFT_DISEASE_M1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_PROJECT_CATEGORY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_CATEGORY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_PROJECT_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "TMP_PROJECT_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_DISEASE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -4921,6 +9744,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "UPDATE_OBSERVATION_FACT"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "UPDATE_OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "UPGRADE_MRNA_DATA"
@@ -4957,6 +9791,17 @@
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "I2B2_MRNA_INDEX_MAINT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "UPLOAD_STATUS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "UPLOAD_STATUS"
     } ]
   }, {
     "child" : {
@@ -5051,13 +9896,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "VIEW",
-      "owner" : "TM_CZ",
-      "name" : "VALIDATE_HD_DATA_VIEW"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "TYPE",
       "owner" : "TM_CZ",
       "name" : "VARCHAR_TABLE"
@@ -5067,12 +9905,34 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "VISIT_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "VISIT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WRK_CLINICAL_DATA"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WRK_CLINICAL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WRK_MRNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_MRNA_DATA"
     } ]
   }, {
     "child" : {
@@ -5111,6 +9971,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "WT_MRNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WT_MRNA_NODES"
     },
     "parents" : [ {
@@ -5128,6 +9999,17 @@
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WT_MRNA_NODE_VALUES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_MRNA_SUBJ_SAMPLE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_MRNA_SUBJ_SAMPLE_MAP"
     } ]
   }, {
     "child" : {
@@ -5227,6 +10109,17 @@
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WT_RNA_SEQ_NODE_VALUES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_INFO"
     } ]
   }, {
     "child" : {
@@ -5353,6 +10246,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_MRNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_MRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "WT_SUBJECT_MRNA_PROBESET"
     },
     "parents" : [ {
@@ -5469,6 +10373,17 @@
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WT_SUBJECT_RNA_LOGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "WT_SUBJECT_RNA_MED"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_SUBJECT_RNA_MED"
     } ]
   }, {
     "child" : {
@@ -6041,6 +10956,13 @@
     "file" : "tm_cz/de_subj_sample_map_release.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DK1"
+    },
+    "file" : "tm_cz/dk1.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "DROPSYN"
@@ -6127,6 +11049,13 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_CREATE_SECURITY_INC_TRIAL"
+    },
+    "file" : "tm_cz/procedures/i2b2_create_security_inc_trial.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_DELETE_1_NODE"
     },
     "file" : "tm_cz/procedures/i2b2_delete_1_node.sql"
@@ -6165,6 +11094,27 @@
       "name" : "I2B2_LOAD_CLINICAL_DATA"
     },
     "file" : "tm_cz/procedures/i2b2_load_clinical_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_16_11"
+    },
+    "file" : "tm_cz/procedures/i2b2_load_clinical_data_16_11.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
+    },
+    "file" : "tm_cz/procedures/i2b2_load_clinical_data_backup.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_CLINICAL_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_load_clinical_inc_data.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -6218,6 +11168,13 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_LOAD_RBM_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_load_rbm_inc_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_LOAD_SAMPLE_CATEGORIES"
     },
     "file" : "tm_cz/procedures/i2b2_load_sample_categories.sql"
@@ -6246,6 +11203,34 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_metbolo_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_METBOLO_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_metbolo_inc_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_mirna_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MIRNA_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_mirna_inc_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_MIRNA_ZSCORE_CALC"
     },
     "file" : "tm_cz/procedures/i2b2_mirna_zscore_calc.sql"
@@ -6263,6 +11248,20 @@
       "name" : "I2B2_MOVE_STUDY"
     },
     "file" : "tm_cz/procedures/i2b2_move_study.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_mrna_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_MRNA_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_mrna_inc_zscore_calc.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -6288,9 +11287,44 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MIRNA_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_mirna_inc_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_PROCESS_MRNA_DATA"
     },
     "file" : "tm_cz/procedures/i2b2_process_mrna_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MRNA_DATA_BACKUP"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_mrna_data_backup.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MRNA_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_mrna_inc_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_MRNA_INC_DATA_Old"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_mrna_inc_data_old.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_PROTEIN_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_protein_inc_data.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -6316,6 +11350,69 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_RNA_SEQ_DATA_OLD"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_rna_seq_data_old.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROCESS_RNA_SEQ_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_process_rna_seq_inc_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROC_METABOLOMIC_INC_DATA"
+    },
+    "file" : "tm_cz/procedures/i2b2_proc_metabolomic_inc_data.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_protein_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_SUB_ZSCORE2"
+    },
+    "file" : "tm_cz/procedures/i2b2_protein_inc_sub_zscore2.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_protein_inc_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC2"
+    },
+    "file" : "tm_cz/procedures/i2b2_protein_inc_zscore_calc2.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEIN_INC_ZSCORE_CALC3"
+    },
+    "file" : "tm_cz/procedures/i2b2_protein_inc_zscore_calc3.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_PROTEOMICS_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_proteomics_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_PROTEOMICS_ZSCORE_CALC"
     },
     "file" : "tm_cz/procedures/i2b2_proteomics_zscore_calc.sql"
@@ -6323,9 +11420,37 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_rbm_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_rbm_inc_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_rbm_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_RBM_ZSCORE_CALC_NEW"
     },
     "file" : "tm_cz/procedures/i2b2_rbm_zscore_calc_new.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RBM_ZSCORE_CALC_NEW2"
+    },
+    "file" : "tm_cz/procedures/i2b2_rbm_zscore_calc_new2.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -6344,6 +11469,20 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
+      "name" : "I2B2_RNASEQ_INC_ZSCORE_CALC"
+    },
+    "file" : "tm_cz/procedures/i2b2_rnaseq_inc_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_INC_SUB_ZSCORE"
+    },
+    "file" : "tm_cz/procedures/i2b2_rna_inc_sub_zscore.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
       "name" : "I2B2_RNA_SEQ_ANNOTATION"
     },
     "file" : "tm_cz/procedures/i2b2_rna_seq_annotation.sql"
@@ -6354,6 +11493,20 @@
       "name" : "I2B2_RNA_SEQ_ZSCORE_CALC"
     },
     "file" : "tm_cz/procedures/i2b2_rna_seq_zscore_calc.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC_BK1"
+    },
+    "file" : "tm_cz/procedures/i2b2_rna_seq_zscore_calc_bk1.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RNA_SEQ_ZSCORE_CALC_OLD"
+    },
+    "file" : "tm_cz/procedures/i2b2_rna_seq_zscore_calc_old.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -6396,6 +11549,13 @@
       "name" : "I2B2_TRUNCATE_RELEASE_TABLES"
     },
     "file" : "tm_cz/procedures/i2b2_truncate_release_tables.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_UI_LABEL_CHANGE_BK"
+    },
+    "file" : "tm_cz/procedures/i2b2_ui_label_change_bk.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",
@@ -6706,6 +11866,13 @@
     "file" : "tm_cz/functions/string_agg.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TEMP"
+    },
+    "file" : "tm_cz/temp.sql"
+  }, {
+    "item" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "TEXT_PARSER"
@@ -6970,13 +12137,6 @@
       "name" : "UTIL_TRUNCATE_TABLE"
     },
     "file" : "tm_cz/procedures/util_truncate_table.sql"
-  }, {
-    "item" : {
-      "type" : "VIEW",
-      "owner" : "TM_CZ",
-      "name" : "VALIDATE_HD_DATA_VIEW"
-    },
-    "file" : "tm_cz/views/validate_hd_data_view.sql"
   }, {
     "item" : {
       "type" : "TYPE",

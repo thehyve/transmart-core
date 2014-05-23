@@ -1,20 +1,27 @@
 --
--- Name: bio_marker_correl_mview; Type: VIEW; Schema: biomart; Owner: -
+-- Name: bio_marker_correl_mv; Type: VIEW; Schema: biomart; Owner: -
 --
-CREATE VIEW bio_marker_correl_mview AS
-        (        (        (        (         SELECT DISTINCT b.bio_marker_id,
-                                            b.bio_marker_id AS asso_bio_marker_id,
-                                            'GENE'::text AS correl_type,
-                                            1 AS mv_id
-                                           FROM bio_marker b
-                                          WHERE ((b.bio_marker_type)::text = 'GENE'::text)
+CREATE VIEW bio_marker_correl_mv AS
+        (        (        (        (        (         SELECT DISTINCT b.bio_marker_id,
+                                                    b.bio_marker_id AS asso_bio_marker_id,
+                                                    'GENE'::text AS correl_type,
+                                                    1 AS mv_id
+                                                   FROM bio_marker b
+                                                  WHERE ((b.bio_marker_type)::text = 'GENE'::text)
+                                        UNION
+                                                 SELECT DISTINCT b.bio_marker_id,
+                                                    b.bio_marker_id AS asso_bio_marker_id,
+                                                    'PROTEIN'::text AS correl_type,
+                                                    4 AS mv_id
+                                                   FROM bio_marker b
+                                                  WHERE ((b.bio_marker_type)::text = 'PROTEIN'::text))
                                 UNION
                                          SELECT DISTINCT b.bio_marker_id,
                                             b.bio_marker_id AS asso_bio_marker_id,
-                                            'Protein'::text AS correl_type,
-                                            4 AS mv_id
+                                            'MIRNA'::text AS correl_type,
+                                            7 AS mv_id
                                            FROM bio_marker b
-                                          WHERE ((b.bio_marker_type)::text = 'Protein'::text))
+                                          WHERE ((b.bio_marker_type)::text = 'MIRNA'::text))
                         UNION
                                  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
                                     c.asso_bio_data_id AS asso_bio_marker_id,

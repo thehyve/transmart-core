@@ -2,21 +2,16 @@
 -- Name: wt_subject_mirna_logs; Type: TABLE; Schema: tm_wz; Owner: -
 --
 CREATE TABLE wt_subject_mirna_logs (
-    probeset_id character varying(50),
-    intensity_value bigint,
+    probeset_id numeric(38,0),
+    intensity_value numeric,
     pvalue double precision,
-    num_calls bigint,
-    assay_id bigint,
-    patient_id bigint,
-    sample_id bigint,
+    num_calls numeric,
+    assay_id numeric(18,0),
+    patient_id numeric(18,0),
+    sample_id numeric(18,0),
     subject_id character varying(50),
     trial_name character varying(50),
     timepoint character varying(100),
-    log_intensity bigint
+    log_intensity numeric
 );
-
---
--- Name: wt_subject_mirna_logs_i1; Type: INDEX; Schema: tm_wz; Owner: -
---
-CREATE INDEX wt_subject_mirna_logs_i1 ON wt_subject_mirna_logs USING btree (trial_name, probeset_id);
 
