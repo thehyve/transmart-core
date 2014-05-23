@@ -9341,13 +9341,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "TABLE",
-      "owner" : "TM_CZ",
-      "name" : "TEMP"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "TESTS"
@@ -11864,13 +11857,6 @@
       "name" : "STRING_AGG"
     },
     "file" : "tm_cz/functions/string_agg.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "TM_CZ",
-      "name" : "TEMP"
-    },
-    "file" : "tm_cz/temp.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",
