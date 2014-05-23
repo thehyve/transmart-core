@@ -2,7 +2,7 @@
 -- Name: i2b2_id_seq; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
 CREATE SEQUENCE i2b2_id_seq
-    START WITH 445288
+    START WITH 496244
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

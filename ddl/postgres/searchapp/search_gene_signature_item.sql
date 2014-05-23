@@ -7,7 +7,8 @@ CREATE TABLE search_gene_signature_item (
     fold_chg_metric bigint,
     bio_data_unique_id character varying(200),
     id bigint NOT NULL,
-    bio_assay_feature_group_id bigint
+    bio_assay_feature_group_id bigint,
+    probeset_id bigint
 );
 
 --

@@ -33,7 +33,7 @@ CREATE TRIGGER trg_baad_idx_id BEFORE INSERT ON bio_asy_analysis_data_idx FOR EA
 -- Name: seq_bio_data_id; Type: SEQUENCE; Schema: biomart; Owner: -
 --
 CREATE SEQUENCE seq_bio_data_id
-    START WITH 1
+    START WITH 391523268
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

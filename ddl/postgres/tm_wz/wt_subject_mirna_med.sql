@@ -2,7 +2,7 @@
 -- Name: wt_subject_mirna_med; Type: TABLE; Schema: tm_wz; Owner: -
 --
 CREATE TABLE wt_subject_mirna_med (
-    probeset_id numeric(38,0),
+    probeset_id character varying(1000), --was numeric(38,0) but char in postgres
     intensity_value numeric,
     log_intensity numeric,
     assay_id numeric(18,0),

@@ -3,7 +3,7 @@
 -- Name: metabolite_sub_pth_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE metabolite_sub_pth_id
-    START WITH 7
+    START WITH 1095
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -13,7 +13,7 @@ CREATE SEQUENCE metabolite_sub_pth_id
 -- Name: metabolite_sup_pth_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE metabolite_sup_pth_id
-    START WITH 5
+    START WITH 152
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -23,7 +23,7 @@ CREATE SEQUENCE metabolite_sup_pth_id
 -- Name: metabolomics_annot_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE metabolomics_annot_id
-    START WITH 8
+    START WITH 4479
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -33,7 +33,7 @@ CREATE SEQUENCE metabolomics_annot_id
 -- Name: seq_assay_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_assay_id
-    START WITH 41
+    START WITH 45741
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -43,7 +43,7 @@ CREATE SEQUENCE seq_assay_id
 -- Name: seq_de_mrna_annotation_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_de_mrna_annotation_id
-    START WITH 111121
+    START WITH 263161
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

@@ -30,7 +30,7 @@ CREATE TRIGGER trg_antigen_deapp BEFORE INSERT ON antigen_deapp FOR EACH ROW EXE
 -- Name: seq_antigen_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_antigen_id
-    START WITH 9341
+    START WITH 46391
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

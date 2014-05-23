@@ -22,7 +22,8 @@ CREATE TABLE bio_assay_analysis_data_tea (
     tea_normalized_pvalue double precision,
     bio_experiment_type character varying(50),
     bio_assay_feature_group_id bigint,
-    tea_rank bigint
+    tea_rank bigint,
+    probeset_id bigint
 );
 
 --

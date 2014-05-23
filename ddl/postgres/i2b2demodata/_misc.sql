@@ -12,7 +12,7 @@ CREATE SEQUENCE async_job_seq
 -- Name: concept_id; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE concept_id
-    START WITH 1288961
+    START WITH 1340964
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -32,7 +32,7 @@ CREATE SEQUENCE protocol_id_seq
 -- Name: seq_encounter_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE seq_encounter_num
-    START WITH 9571119
+    START WITH 49814595
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -42,7 +42,7 @@ CREATE SEQUENCE seq_encounter_num
 -- Name: seq_patient_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE seq_patient_num
-    START WITH 1000117527
+    START WITH 1000384597
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

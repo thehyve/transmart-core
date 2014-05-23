@@ -18,7 +18,11 @@ ALTER TABLE ONLY de_mrna_annotation
     ADD CONSTRAINT de_mrna_annotation_pkey PRIMARY KEY (de_mrna_annotation_id);
 
 --
--- Name: de_mrna_annotation_index1; Type: INDEX; Schema: deapp; Owner: -
+-- Name: de_mrna_annotation_id1; Type: INDEX; Schema: deapp; Owner: -
 --
-CREATE INDEX de_mrna_annotation_index1 ON de_mrna_annotation USING btree (probeset_id);
+CREATE INDEX de_mrna_annotation_idx1 ON de_mrna_annotation USING btree (gpl_id, probe_id);
+--
+-- Name: de_mrna_annotation_id2; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_mrna_annotation_idx2 ON de_mrna_annotation USING btree (gene_id, probeset_id);
 

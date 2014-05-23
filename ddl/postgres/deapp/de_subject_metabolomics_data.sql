@@ -14,8 +14,8 @@ CREATE TABLE de_subject_metabolomics_data (
 );
 
 --
--- Name: de_subject_metabolomics_data_metabolite_annotation_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_sj_met_data_met_ann_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_metabolomics_data
-    ADD CONSTRAINT de_subject_metabolomics_data_metabolite_annotation_id_fkey FOREIGN KEY (metabolite_annotation_id) REFERENCES de_metabolite_annotation(id);
+    ADD CONSTRAINT de_sj_met_data_met_ann_id_fk FOREIGN KEY (metabolite_annotation_id) REFERENCES de_metabolite_annotation(id);
 

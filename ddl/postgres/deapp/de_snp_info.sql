@@ -43,7 +43,7 @@ CREATE TRIGGER trg_de_snp_info_id BEFORE INSERT ON de_snp_info FOR EACH ROW EXEC
 -- Name: seq_data_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_data_id
-    START WITH 1
+    START WITH 11594011
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
