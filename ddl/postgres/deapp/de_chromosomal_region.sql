@@ -8,11 +8,14 @@ CREATE SEQUENCE de_chromosomal_region_region_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
+SET default_with_oids = false;
+
 --
 -- Name: de_chromosomal_region; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_chromosomal_region (
-    region_id bigint NOT NULL,
+    region_id bigint DEFAULT nextval('de_chromosomal_region_region_id_seq'::regclass) NOT NULL,
     gpl_id character varying(50),
     chromosome character varying(2),
     start_bp bigint,
@@ -24,11 +27,6 @@ CREATE TABLE de_chromosomal_region (
     gene_id bigint,
     organism character varying(200)
 );
-
---
--- Name: region_id; Type: DEFAULT; Schema: deapp; Owner: -
---
-ALTER TABLE ONLY de_chromosomal_region ALTER COLUMN region_id SET DEFAULT nextval('de_chromosomal_region_region_id_seq'::regclass);
 
 --
 -- Name: de_chromosomal_region_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -

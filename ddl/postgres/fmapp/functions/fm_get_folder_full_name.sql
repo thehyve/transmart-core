@@ -1,7 +1,7 @@
 --
--- Type: FUNCTION; Owner: FMAPP; Name: FM_GET_FOLDER_FULL_NAME
+-- Name: fm_get_folder_full_name(bigint); Type: FUNCTION; Schema: fmapp; Owner: -
 --
-CREATE FUNCTION fm_get_folder_full_name (p_folder_id bigint) RETURNS  character varying
+CREATE FUNCTION fm_get_folder_full_name(p_folder_id bigint) RETURNS character varying
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -29,4 +29,4 @@ begin
   return v_folder_full_name;  
 end;
 $$;
- 
+

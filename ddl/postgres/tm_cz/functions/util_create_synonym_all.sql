@@ -1,12 +1,9 @@
 --
 -- Name: util_create_synonym_all(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_create_synonym_all (
-	V_FROMZONE IN character varying DEFAULT NULL ,
-	V_WHATTYPE IN character varying DEFAULT 'PROCEDURES,FUNCTIONS,TABLES,VIEWS'
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_create_synonym_all(v_fromzone character varying DEFAULT NULL::character varying, v_whattype character varying DEFAULT 'PROCEDURES,FUNCTIONS,TABLES,VIEWS'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -146,5 +143,5 @@ BEGIN
    END IF;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

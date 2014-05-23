@@ -6,3 +6,4 @@ CREATE TABLE tmp_project_category (
     accession character varying(100),
     category character varying(4000)
 );
+

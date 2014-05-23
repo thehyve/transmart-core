@@ -7,3 +7,4 @@ CREATE TABLE gene_info_test (
     gene_symbol character varying(200),
     gene_descr character varying(4000)
 );
+

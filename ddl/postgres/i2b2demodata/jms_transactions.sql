@@ -4,3 +4,4 @@
 CREATE TABLE jms_transactions (
     txid bigint
 );
+

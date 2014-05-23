@@ -1,7 +1,9 @@
 --
 -- Name: i2b2_table_defrag(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_table_defrag () RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_table_defrag() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
 
   -------------------------------------------------------------
@@ -35,5 +37,5 @@ END;
 
 
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

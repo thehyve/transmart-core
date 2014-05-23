@@ -1,18 +1,9 @@
 --
--- Name: i2b2_load_rbm_data(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_load_rbm_data (
-  trial_id 	character varying
- ,top_node	character varying
- ,data_type	character varying DEFAULT 'R'::character varying		--	R = raw data, do zscore calc, T = transformed data, load raw values as zscore,
-									--	L = log intensity data, skip log step in zscore calc
- ,source_cd	character varying DEFAULT 'STD'::character varying	--	default source_cd = 'STD'
- ,log_base	numeric DEFAULT 2			--	log base value for conversion back to raw
- ,secure_study	character varying DEFAULT null			--	security setting if new patients added to patient_dimension
- ,currentJobID 	numeric DEFAULT (-1)
- ,rtn_code		OUT	numeric
-)
- RETURNS numeric AS $body$
+CREATE FUNCTION i2b2_load_rbm_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT (-1), OUT rtn_code numeric) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -1038,5 +1029,5 @@ BEGIN
 		PERFORM 16  into rtn_code ;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

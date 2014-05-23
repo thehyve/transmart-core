@@ -1,11 +1,9 @@
 --
--- Name: czx_end_audit(bigint, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: czx_end_audit(numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czx_end_audit (V_JOB_ID IN numeric DEFAULT NULL ,
-  V_JOB_STATUS IN character varying DEFAULT 'Success'::character varying)
---  AUTHID CURRENT_USER
- RETURNS VOID AS $body$
-DECLARE
+CREATE FUNCTION czx_end_audit(jobid numeric, jobstatus character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -22,41 +20,35 @@ DECLARE
 * limitations under the License.
 ******************************************************************/
 
- PRAGMA AUTONOMOUS_TRANSACTION;
- 
-  ENDDATE timestamp;
-
+declare
+	endDate timestamp;
+	rtnCd	numeric;
 
 BEGIN
-  RAISE NOTICE '%%%%', 'Job ID = ' ,  V_JOB_ID ,  ',' ,  V_JOB_STATUS;
   
-  ENDDATE := SYSTIMESTAMP;
+	select clock_timestamp() into endDate;
   
-	UPDATE CZ_JOB_MASTER
-		SET 
-			ACTIVE='N',
-			END_DATE = ENDDATE,
-      TIME_ELAPSED_SECS = 
-      EXTRACT (DAY    FROM (ENDDATE - START_DATE))*24*60*60 + 
-      EXTRACT (HOUR   FROM (ENDDATE - START_DATE))*60*60 + 
-      EXTRACT (MINUTE FROM (ENDDATE - START_DATE))*60 + 
-      EXTRACT (SECOND FROM (ENDDATE - START_DATE)),
-			JOB_STATUS = V_JOB_STATUS
-		WHERE ACTIVE='Y' 
-		AND JOB_ID=V_JOB_ID;
-
-COMMIT;
-
-	IF V_JOB_STATUS = 'FAIL'
-	THEN
-		RAISE NOTICE 'Job Failed - See cz_job_error for details';
-	END IF;
-  
---EXCEPTION
---	WHEN OTHERS THEN 
---	DBMS_OUTPUT.PUT_LINE('ERROR HERE!');
---    ROLLBACK;  
+	begin
+	update tm_cz.cz_job_master
+		set 
+			active='N',
+			end_date = endDate,
+			time_elapsed_secs = coalesce(((DATE_PART('day', endDate - START_DATE) * 24 + 
+				   DATE_PART('hour', endDate - START_DATE)) * 60 +
+				   DATE_PART('minute', endDate - START_DATE)) * 60 +
+				   DATE_PART('second', endDate - START_DATE),0),
+			job_status = jobStatus		
+		where active='Y' 
+		and job_id=jobID;
+	end;
+	
+	return 1;
+	
+	exception 
+	when OTHERS then
+		--raise notice 'proc failed state=%  errm=%', SQLSTATE, SQLERRM;
+		select tm_cz.cz_write_error(jobId,'0',SQLSTATE,SQLERRM,null) into rtnCd;
+		return -16;
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -1,9 +1,9 @@
 --
--- Name: sp_xtab(text, bigint, text); Type: FUNCTION; Schema: i2b2demodata; Owner: -
+-- Name: sp_xtab(character varying, integer, character varying); Type: FUNCTION; Schema: i2b2demodata; Owner: -
 --
-CREATE OR REPLACE FUNCTION sp_xtab (v_variable IN character varying,
-                                    v_protocol IN integer,
-                                    v_subject  IN character varying)  RETURNS VOID AS $body$
+CREATE FUNCTION sp_xtab(v_variable character varying, v_protocol integer, v_subject character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -53,5 +53,5 @@ BEGIN
        RAISE;
 END sp_xtab; 
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

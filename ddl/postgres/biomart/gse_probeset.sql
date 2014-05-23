@@ -6,3 +6,4 @@ CREATE TABLE gse_probeset (
     platform character varying(100),
     probeset character varying(100)
 );
+

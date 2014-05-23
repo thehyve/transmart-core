@@ -11,5 +11,6 @@ CREATE TABLE az_test_comparison_info (
     curr_test_step_run_id bigint,
     curr_act_record_cnt double precision,
     curr_run_date timestamp without time zone,
-    prev_run_date DATE
+    prev_run_date date
 );
+

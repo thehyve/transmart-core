@@ -7,3 +7,4 @@ CREATE TABLE gene_ontology_data (
     gene_symbol character varying(200),
     organism character varying(100)
 );
+

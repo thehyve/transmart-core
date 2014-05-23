@@ -1,13 +1,9 @@
 --
 -- Name: czf_init_cap(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION czf_init_cap (
-     text_to_parse IN character varying
-	-- text_delimiter IN character varying
-)
---	text string returned with words initcapped except for any in category_path_excluded_words
-
- RETURNS varchar AS $body$
+CREATE FUNCTION czf_init_cap(text_to_parse character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
    start_pos 		integer;
@@ -101,5 +97,5 @@ BEGIN
 
 END CZF_INIT_CAP;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

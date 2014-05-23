@@ -1,8 +1,9 @@
 --
 -- Name: util_recompile_all(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_recompile_all() --AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_recompile_all() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -47,5 +48,5 @@ BEGIN
    CLOSE v_proclist;-- procedure
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

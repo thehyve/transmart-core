@@ -3,13 +3,6 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
-      "name" : "A"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
       "name" : "ANNOTATION"
     },
     "parents" : [ ]
@@ -260,14 +253,112 @@
       "owner" : "BIOMART",
       "name" : "BIO_ASSAY_ANALYSIS_DATA"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -410,6 +501,28 @@
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_ASSAY_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_AD_FG_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_AD_TEA_FG_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
     } ]
   }, {
     "child" : {
@@ -1268,6 +1381,25 @@
     } ]
   }, {
     "child" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_MODEL_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_LIT_INT_MODEL_MV"
@@ -1336,6 +1468,29 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORRELATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_CORREL_MV"
@@ -1354,15 +1509,15 @@
     }, {
       "type" : "TABLE",
       "owner" : "BIOMART",
-      "name" : "BIO_ASSAY_DATA_ANNOTATION"
-    }, {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
       "name" : "BIO_EXPERIMENT"
     }, {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
     } ]
   }, {
     "child" : {
@@ -3143,13 +3298,6 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
-      "name" : "A"
-    },
-    "file" : "biomart/a.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
       "name" : "ANNOTATION"
     },
     "file" : "biomart/annotation.sql"
@@ -3323,9 +3471,51 @@
     "file" : "biomart/bio_assay_analysis_data.sql"
   }, {
     "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK1"
+    },
+    "file" : "biomart/bio_assay_analysis_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK2"
+    },
+    "file" : "biomart/bio_assay_analysis_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_N_FK3"
+    },
+    "file" : "biomart/bio_assay_analysis_data.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    },
+    "file" : "biomart/bio_assay_analysis_data_tea.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK1"
+    },
+    "file" : "biomart/bio_assay_analysis_data_tea.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK2"
+    },
+    "file" : "biomart/bio_assay_analysis_data_tea.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_T_FK3"
     },
     "file" : "biomart/bio_assay_analysis_data_tea.sql"
   }, {
@@ -3419,6 +3609,20 @@
       "name" : "BIO_ASSAY_SAMPLE_BIO_SAMPLE_FK"
     },
     "file" : "biomart/bio_assay_sample.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_AD_FG_FK"
+    },
+    "file" : "biomart/bio_assay_analysis_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_AD_TEA_FG_FK"
+    },
+    "file" : "biomart/bio_assay_analysis_data_tea.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -4016,6 +4220,13 @@
     "file" : "biomart/bio_lit_int_data.sql"
   }, {
     "item" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    },
+    "file" : "biomart/views/bio_lit_int_model_mv.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_LIT_INT_MODEL_MV"
@@ -4072,6 +4283,13 @@
     "file" : "biomart/bio_marker.sql"
   }, {
     "item" : {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "file" : "biomart/views/bio_marker_correl_mv.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_CORREL_MV"
@@ -4083,7 +4301,7 @@
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
     },
-    "file" : "biomart/views/bio_marker_exp_analysis_mv.sql"
+    "file" : "biomart/_cross.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",

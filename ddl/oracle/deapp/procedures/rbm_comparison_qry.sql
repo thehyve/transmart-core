@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: DEAPP; Name: RBM_COMPARISON_QRY
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "DEAPP"."RBM_COMPARISON_QRY" (
+  CREATE OR REPLACE PROCEDURE "DEAPP"."RBM_COMPARISON_QRY" (
   patient_ids	 IN VARCHAR2, -- list of patient IDs in CSV
   concept_cds    IN VARCHAR2,  -- list of concept_cds in CSV
   timepoints     IN VARCHAR2,  -- list of timepoint concept_cds in CSV
@@ -51,7 +51,6 @@ BEGIN
               order by t1.ANTIGEN_NAME, t1.GENE_SYMBOL, t1.patient_id;
     end if;
 END RBM_comparison_qry;
- 
  
  
 /

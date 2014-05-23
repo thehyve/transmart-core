@@ -6,3 +6,4 @@ CREATE TABLE kegg (
     gene_id character varying(20),
     gene_symbol character varying(20)
 );
+

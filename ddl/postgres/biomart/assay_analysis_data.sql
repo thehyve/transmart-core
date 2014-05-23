@@ -14,3 +14,4 @@ CREATE TABLE assay_analysis_data (
     adjusted_pvalue double precision,
     preferred_pvalue double precision
 );
+

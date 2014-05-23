@@ -6,3 +6,4 @@ CREATE TABLE mesh_descriptor (
     mesh_heading character varying(256),
     mesh_annotation character varying(2000)
 );
+

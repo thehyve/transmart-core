@@ -6,3 +6,4 @@ CREATE TABLE cd (
     parent_concept_path character varying(500),
     patient_count bigint
 );
+

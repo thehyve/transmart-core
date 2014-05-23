@@ -1,0 +1,5 @@
+DATA_FILE_PREFIX=Breast_Cancer_Pawitan_GSE1456_Gene_Expression_Data_L_
+DATA_TYPE=L
+LOG_BASE=2
+MAP_FILENAME=Breast_Cancer_Pawitan_GSE1456_Subject_Sample_Mapping.txt
+NODE_NAME=MRNA

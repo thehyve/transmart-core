@@ -1,0 +1,32 @@
+<?php
+// See Config-extra.php.sample for more information about this file
+
+$insertionPoints = [
+    'I001' => /* post-WAR-variables */ <<<EOD
+oauthEnabled = false
+EOD
+,
+    'I002' => /* end */ <<<'EOD'
+com.rwg.solr.path   = '/solr/sanofi/select/'
+com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
+                             "${new File(com.rwg.solr.path).parent}"
+
+def fileStoreDirectory = new File(System.getenv('HOME'), '.grails/transmart-filestore')
+def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transmart-fileimport')
+com.recomdata.FmFolderService.filestoreDirectory = fileStoreDirectory.absolutePath
+com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath
+
+[fileStoreDirectory, fileImportDirectory].each {
+    if (!it.exists()) {
+        it.mkdir()
+    }
+}
+
+// You MUST leave this at the end
+// Do not move it up, otherwise syntax errors may not be detected
+
+org.transmart.configFine = true
+EOD
+];
+
+// vim: filetype=php et ts=4 sw=4 ai tw=80:

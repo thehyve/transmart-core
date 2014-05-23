@@ -5,3 +5,4 @@ CREATE TABLE dd (
     drn character varying(20),
     drug character varying(100)
 );
+

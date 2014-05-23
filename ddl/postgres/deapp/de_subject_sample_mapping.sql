@@ -7,7 +7,7 @@ CREATE TABLE de_subject_sample_mapping (
     subject_id character varying(100),
     subject_type character varying(100),
     concept_code character varying(1000),
-    assay_id bigint,
+    assay_id bigint NOT NULL,
     patient_uid character varying(50),
     sample_type character varying(100),
     assay_uid character varying(100),

@@ -1,7 +1,9 @@
 --
 -- Name: i2b2_truncate_release_tables(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_truncate_release_tables () RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_truncate_release_tables() RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 	--	Procedure to run one test in CZ_TEST
@@ -79,5 +81,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

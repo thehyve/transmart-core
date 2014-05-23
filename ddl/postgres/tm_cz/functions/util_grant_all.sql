@@ -1,10 +1,9 @@
 --
--- Name: util_grant_all(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_grant_all(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_grant_all (username	character varying DEFAULT 'DATATRUST'::character varying
-,V_WHATTYPE IN character varying DEFAULT 'PROCEDURES,FUNCTIONS,TABLES,VIEWS,PACKAGES'::character varying)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_grant_all(username character varying DEFAULT 'DATATRUST'::character varying, v_whattype character varying DEFAULT 'PROCEDURES,FUNCTIONS,TABLES,VIEWS,PACKAGES'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -68,5 +67,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

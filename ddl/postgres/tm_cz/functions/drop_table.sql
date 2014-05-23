@@ -1,11 +1,9 @@
 --
--- Name: drop_table(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: drop_table(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION drop_table (
-  TabOwner in character varying,
-  TabName in character varying
-  )
-   RETURNS VOID AS $body$
+CREATE FUNCTION drop_table(tabowner character varying, tabname character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
     temp integer:=0;
@@ -36,5 +34,5 @@ BEGIN
 
 END DROP_TABLE;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

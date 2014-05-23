@@ -1,11 +1,9 @@
 --
 -- Name: text_parser(text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION text_parser (
-		 text_to_parse IN text
-)
---Custom Collection type returned
- RETURNS _text AS $body$
+CREATE FUNCTION text_parser(text_to_parse text) RETURNS text[]
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
    start_pos bigint;
@@ -65,5 +63,5 @@ BEGIN
 
 END text_parser;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

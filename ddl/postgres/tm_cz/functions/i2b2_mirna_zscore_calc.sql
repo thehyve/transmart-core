@@ -1,57 +1,34 @@
 --
--- Name: i2b2_mirna_zscore_calc(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_mirna_zscore_calc (
-  trial_id character varying
- ,run_type character varying DEFAULT 'L'::character varying
- ,currentJobID numeric DEFAULT (-1)
- ,data_type character varying DEFAULT 'R'::character varying
- ,log_base	numeric DEFAULT 2
- ,source_cd	character varying DEFAULT 'STD'::character varying
-)
- RETURNS VOID AS $body$
-DECLARE
-
+CREATE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
-This Stored Procedure is used in ETL load QPCR MIRNA data
-Date:10/28/2013
+This Stored Procedure is used in ETL load MIRNA data
+Date:12/9/2013
 ******************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-  TrialID varchar(50);
-  sourceCD	varchar(50);
-  sqlText varchar(2000);
-  runType varchar(10);
-  dataType varchar(10);
-  stgTrial varchar(50);
-  idxExists integer;
-  pExists	integer;
-  nbrRecs integer;
-  logBase integer;
+Declare
+  TrialID character varying(50);
+  sourceCD	character varying(50);
+  sqlText character varying(2000);
+  runType character varying(10);
+  dataType character varying(10);
+  stgTrial character varying(50);
+  idxExists numeric;
+  pExists	numeric;
+  nbrRecs numeric;
+  logBase numeric;
    
   --Audit variables
-  newJobFlag integer(1);
-  databaseName varchar(100);
-  procedureName varchar(100);
-  jobID numeric;
-  stepCt integer;
+  newJobFlag numeric(1);
+  databaseName VARCHAR(100);
+  procedureName VARCHAR(100);
+  jobID numeric(18,0);
+  stepCt numeric(18,0);
+  rtnCd integer;
+  rowCt integer;
   
-  --  exceptions
-  invalid_runType exception;
-  trial_mismatch exception;
-  trial_missing exception;
-  
-
 BEGIN
 
 	TrialId := trial_id;
@@ -64,30 +41,32 @@ BEGIN
   newJobFlag := 0; -- False (Default)
   jobID := currentJobID;
 
-  PERFORM sys_context('USERENV', 'CURRENT_SCHEMA') INTO databaseName ;
-  procedureName := $$PLSQL_UNIT;
+  databaseName := 'TM_CZ';
+  procedureName := 'I2B2_MIRNA_ZSCORE_CALC';
 
   --Audit JOB Initialization
   --If Job ID does not exist, then this is a single procedure run and we need to create it
-  IF(coalesce(jobID::text, '') = '' or jobID < 1)
+  IF(jobID IS NULL or jobID < 1)
   THEN
     newJobFlag := 1; -- True
-    cz_start_audit (procedureName, databaseName, jobID);
+    select cz_start_audit (procedureName, databaseName) into jobID;
   END IF;
    
   stepCt := 0;
   
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Starting zscore calc for ' || TrialId || ' RunType: ' || runType || ' dataType: ' || dataType,0,stepCt,'Done');
+	select cz_write_audit(jobId,databaseName,procedureName,'Starting zscore calc for ' || TrialId || ' RunType: ' || runType || ' dataType: ' || dataType,0,stepCt,'Done') into rtnCd;
   
 	if runType != 'L' then
 		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Invalid runType passed - procedure exiting'
-,SQL%ROWCOUNT,stepCt,'Done');
-		raise invalid_runType;
+		get diagnostics rowCt := ROW_COUNT;
+		select cz_write_audit(jobId,databaseName,procedureName,'Invalid runType passed - procedure exiting',rowCt,stepCt,'Done') into rtnCd;
+		select cz_error_handler (jobID, procedureName) into rtnCd;  
+		select cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return 150;
 	end if;
   
---	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mrna_data
+--	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_mirna_data
 --	If not, raise exception
 
 	if runType = 'L' then
@@ -96,66 +75,38 @@ BEGIN
 		
 		if stgTrial != TrialId then
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in WT_SUBJECT_MIRNA_PROBESET - procedure exiting'
-,SQL%ROWCOUNT,stepCt,'Done');
-			raise trial_mismatch;
+			get diagnostics rowCt := ROW_COUNT;
+			select cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in WT_SUBJECT_MIRNA_PROBESET - procedure exiting',rowCt,stepCt,'Done') into rtnCd;
+			select cz_error_handler(jobID, procedureName) into rtnCd;
+			select cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return 161;
 		end if;
 	end if;
-
-/*	remove Reload processing
---	For Reload, make sure that the TrialId passed as parameter has data in de_subject_MIRNA_data
---	If not, raise exception
-
-	if runType = 'R' then
-		select count(*) into idxExists
-		from de_subject_MIRNA_data
-		where trial_name = TrialId;
-		
-		if idxExists = 0 then
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in de_subject_MIRNA_data - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
-			raise trial_missing;
-		end if;
-	end if;
-*/
    
 --	truncate tmp tables
-
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_logs');
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_calcs');
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_med');
-
-	select count(*) 
-	into idxExists
-	from all_indexes
-	where table_name = 'WT_SUBJECT_MIRNA_LOGS'
-	  and index_name = 'WT_SUBJECT_MRNA_LOGS_I1'
-	  and owner = 'TM_WZ';
-		
-	if idxExists = 1 then
-		EXECUTE('drop index tm_wz.wt_subject_mrna_logs_i1');		
-	end if;
+	begin
+		execute ('truncate table tm_wz.WT_SUBJECT_MIRNA_LOGS');
+		execute ('truncate table tm_wz.WT_SUBJECT_MIRNA_CALCS');
+		execute ('truncate table tm_wz.WT_SUBJECT_MIRNA_MED');
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
+	--drop index if exists tm_wz.WT_SUBJECT_MIRNA_LOGS_I1;		
+	--drop index if exists tm_wz.WT_SUBJECT_MIRNA_CALCS_I1;
 	
-	select count(*) 
-	into idxExists
-	from all_indexes
-	where table_name = 'WT_SUBJECT_MIRNA_CALCS'
-	  and index_name = 'WT_SUBJECT_MRNA_CALCS_I1'
-	  and owner = 'TM_WZ';
-		
-	if idxExists = 1 then
-		EXECUTE('drop index tm_wz.wt_subject_mrna_calcs_i1');
-	end if;
-
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
+	select cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done') into rtnCd;
 	
 	--	if dataType = L, use intensity_value as log_intensity
 	--	if dataType = R, always use intensity_value
 
 
 	if dataType = 'L' then
-		insert into wt_subject_mirna_logs 
+		begin
+		insert into WT_SUBJECT_MIRNA_LOGS 
 			(probeset_id
 			,intensity_value
 			,assay_id
@@ -164,19 +115,26 @@ BEGIN
 		--	,sample_cd
 		--	,subject_id
 			)
-			PERFORM probeset_id
-				  ,intensity_value  
+			select probeset_id
+				  ,intensity_value ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,intensity_value
+				  ,round((case when intensity_value<=0 then 0
+                                  when intensity_value>0 then log(2,intensity_value)
+                                  else 0 end),5)
 				  ,patient_id
 			--	  ,sample_cd
 			--	  ,subject_id
-			from wt_subject_mirna_probeset
+			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
-           
-		--end if;
+		exception
+		when others then
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
+			return -16;
+		end;
 	else	
-                	insert into wt_subject_mirna_logs 
+		begin
+                	insert into WT_SUBJECT_MIRNA_LOGS 
 			(probeset_id
 			,intensity_value
 			,assay_id
@@ -185,57 +143,71 @@ BEGIN
 		--	,sample_cd
 		--	,subject_id
 			)
-			PERFORM probeset_id
-				  ,intensity_value 
+			select probeset
+				  ,intensity_value  ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,-(intensity_value)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
-			from wt_subject_mirna_probeset
+			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
---		end if;
-
+		exception
+		when others then
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
+			return -16;
+		end;
 	end if;
 
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_mirna_logs',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_mirna_logs',rowCt,stepCt,'Done') into rtnCd;
 
-	commit;
+	
     
---	execute immediate('create index tm_wz.wt_subject_mrna_logs_i1 on tm_wz.wt_subject_mirna_logs (trial_name, probeset_id) nologging  tablespace "INDX"');
-	--stepCt := stepCt + 1;
-	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_logs',0,stepCt,'Done');
+	--execute ('create index WT_SUBJECT_MIRNA_LOGS_I1 on tm_wz.WT_SUBJECT_MIRNA_LOGS (trial_name, probeset_id)');
+	stepCt := stepCt + 1;
+	--select cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_MIRNA_LOGS_I1',0,stepCt,'Done') into rtnCd;
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
 
-	insert into wt_subject_mirna_calcs
+	begin
+	insert into WT_SUBJECT_MIRNA_CALCS
 	(trial_name
 	,probeset_id
 	,mean_intensity
 	,median_intensity
 	,stddev_intensity
 	)
-	PERFORM d.trial_name 
+	select d.trial_name 
 		  ,d.probeset_id
 		  ,avg(log_intensity)
 		  ,median(log_intensity)
 		  ,stddev(log_intensity)
-	from wt_subject_mirna_logs d 
+	from WT_SUBJECT_MIRNA_LOGS d 
 	group by d.trial_name 
 			,d.probeset_id;
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ wt_subject_mirna_calcs',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ WT_SUBJECT_MIRNA_CALCS',rowCt,stepCt,'Done') into rtnCd;
 
-	commit;
+	
 
-	--execute immediate('create index tm_wz.wt_subject_mrna_calcs_i1 on tm_wz.wt_subject_mirna_calcs (trial_name, probeset_id) nologging tablespace "INDX"');
+	--execute ('create index tm_wz.wt_subject_mirna_calcs_i1 on tm_wz.WT_SUBJECT_MIRNA_CALCS (trial_name, probeset_id) nologging tablespace "INDX"');
 	--stepCt := stepCt + 1;
-	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_mirna_calcs',0,stepCt,'Done');
+	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_MIRNA_CALCS',0,stepCt,'Done');
 		
 -- calculate zscore
 
-	insert into wt_subject_mirna_med parallel 
+	begin
+	insert into WT_SUBJECT_MIRNA_MED 
 	(probeset_id
 	,intensity_value
 	,log_intensity
@@ -248,42 +220,33 @@ BEGIN
 --	,sample_cd
 --	,subject_id
 	)
-	PERFORM d.probeset_id
+	select d.probeset_id
 		  ,d.intensity_value 
 		  ,d.log_intensity 
 		  ,d.assay_id  
 		  ,c.mean_intensity 
 		  ,c.stddev_intensity 
 		  ,c.median_intensity 
-		  ,(CASE WHEN stddev_intensity=0 THEN 0 ELSE (log_intensity - median_intensity ) / stddev_intensity END)
+		  ,(CASE WHEN stddev_intensity=0 THEN 0 ELSE (d.log_intensity - c.median_intensity ) / c.stddev_intensity END)
 		  ,d.patient_id
 	--	  ,d.sample_cd
 	--	  ,d.subject_id
-    from wt_subject_MIRNA_logs d 
-		,wt_subject_mirna_calcs c 
+    from WT_SUBJECT_MIRNA_LOGS d 
+		,WT_SUBJECT_MIRNA_CALCS c 
     where d.probeset_id = c.probeset_id;
+    	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ wt_subject_mirna_med',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ WT_SUBJECT_MIRNA_MED',rowCt,stepCt,'Done') into rtnCd;
 
-    commit;
-
-/*
-	select count(*) into n
-	select count(*) into nbrRecs
-	from wt_subject_MIRNA_med;
+	--select count(*) into pExists from de_subject_mirna_data where trial_name=TrialId;
 	
-	if nbrRecs > 10000000 then
-		i2b2_mrna_index_maint('DROP',,jobId);
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
-	else
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Less than 10M records, index drop bypassed',0,stepCt,'Done');
-	end if;
-*/
-	
-
-
+	begin
 	insert into de_subject_mirna_data
 	(trial_source
 	,trial_name
@@ -296,134 +259,50 @@ BEGIN
 	--,sample_id
 	--,subject_id
 	)
-	PERFORM (TrialId || ':' || sourceCD)
+	select (TrialId || ':' || sourceCD)
 		  ,TrialId
 	      ,m.assay_id
 	      ,m.probeset_id 
-		  ,round(case when dataType = 'R' then m.intensity_value
+		  ,case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
-				then case when logBase = -1 then null else power(logBase, m.log_intensity) end
+				then m.intensity_value
 				else null
-				end,4) as raw_intensity
+				end as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(m.log_intensity,4)
-	      ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)
+		  ,case when dataType = 'R' then -(m.intensity_value)
+				when dataType = 'L' 
+				then m.log_intensity
+				else null
+				end
+	      ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
+              --,m.zscore
 		  ,m.patient_id
 	--	  ,m.sample_id
 	--	  ,m.subject_id
 	from wt_subject_MIRNA_med m;
+        exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP de_subject_mirna_data',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP DE_SUBJECT_MIRNA_DATA',rowCt,stepCt,'Done') into rtnCd;
 
-  	commit;
-
---	add indexes, if indexes were not dropped, procedure will not try and recreate
-/*
-	i2b2_mrna_index_maint('ADD',,jobId);
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_MIRNA_data',0,stepCt,'Done');
-*/
-	
---	cleanup tmp_ files
-
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_logs');
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_calcs');
-	EXECUTE('truncate table tm_wz.wt_subject_mirna_med');
-
-   	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
-    
-    ---Cleanup OVERALL JOB if this proc is being run standalone
+	/*
+	if pExists > 0 then
+		perform tm_cz.I2B2_MIRNA_INC_SUB_ZSCORE(TrialId,dataType);
+		stepCt := stepCt + 1;
+		perform cz_write_audit(jobId,databaseName,procedureName,'update zscore in de_subject_MIRNA_data ',0,stepCt,'Done');
+	end if;
+	*/
+	---Cleanup OVERALL JOB if this proc is being run standalone
   IF newJobFlag = 1
   THEN
-    cz_end_audit (jobID, 'SUCCESS');
+    perform cz_end_audit (jobID, 'SUCCESS');
   END IF;
-
-  EXCEPTION
-
-  WHEN invalid_runType or trial_mismatch or trial_missing then
-    --Handle errors.
-    cz_error_handler (jobID, procedureName);
-    --End Proc
-  
-    cz_end_audit (jobID, 'FAIL');
-  when OTHERS THEN
-    --Handle errors.
-    cz_error_handler (jobID, procedureName);
-
-
-    cz_end_audit (jobID, 'FAIL');
-	
+  return 0;	
 END;
+$$;
 
-
-/*	--	Recreate tmp tables used for calculation of miRNA Zscore if necessary
-
-create table wt_subject_MIRNA_logs parallel nologging compress as 
-select probeset_id 
-	  ,raw_intensity 
-	  ,pvalue 
-	  ,refseq 
-	  ,assay_id 
-	  ,patient_id 
-	  ,subject_id 
-	  ,trial_name 
-	  ,timepoint  
-      ,raw_intensity as log_intensity 
-       from de_subject_MIRNA_data
-	   where 1=2;
-	   
-create index tmp_MIRNA_logs_i1 on wt_subject_MIRNA_logs (trial_name, probeset_id);
-
-create table wt_subject_MIRNA_calcs parallel nologging compress as
-select d.trial_name 
-	  ,d.probeset_id
-	  ,log_intensity as mean_intensity
-	  ,log_intensity as median_intensity 
-	  ,log_intensity as stddev_intensity 
-from wt_subject_MIRNA_logs d 
-where 1=2;
-
-create index tmp_MIRNA_calcs_i1 on wt_subject_MIRNA_calcs (trial_name, probeset_id);	
-
-create table wt_subject_MIRNA_med parallel nologging compress as  
-select d.probeset_id
-	  ,d.raw_intensity  
-	  ,d.log_intensity  
-	  ,d.assay_id  
-	  ,d.patient_id  
-	  ,d.subject_id  
-	  ,d.trial_name  
-	  ,d.timepoint  
-	  ,d.pvalue  
-	  ,d.refseq 
-	  ,c.mean_intensity  
-	  ,c.stddev_intensity  
-	  ,c.median_intensity  
-	  ,d.log_intensity as zscore 
-from wt_subject_MIRNA_logs d  
-	 ,wt_subject_MIRNA_calcs c
-where 1=2;
-            
-create table wt_subject_MIRNA_mcapped parallel nologging compress as 
-select d.probeset_id 
-	  ,d.patient_id 
-	  ,d.trial_name 
-	  ,d.timepoint 
-	  ,d.pvalue 
-	  ,d.refseq 
-	  ,d.subject_id 
-	  ,d.raw_intensity 
-	  ,d.log_intensity 
-	  ,d.assay_id 
-	  ,d.mean_intensity 
-	  ,d.stddev_intensity 
-	  ,d.median_intensity 
-	  ,d.zscore 
- from wt_subject_MIRNA_med d
- where 1=2;
-		   
-*/
- 
-$body$
-LANGUAGE PLPGSQL;

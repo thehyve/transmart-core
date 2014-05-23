@@ -1,12 +1,9 @@
 --
--- Name: util_is_populated(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_is_populated(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_is_populated (
-  tabname IN character varying,
-  retval OUT integer
-)
---AUTHID CURRENT_USER
- RETURNS integer AS $body$
+CREATE FUNCTION util_is_populated(tabname character varying, OUT retval integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -37,5 +34,5 @@ BEGIN
 
 end;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

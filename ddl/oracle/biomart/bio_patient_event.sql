@@ -12,8 +12,7 @@
  CONSTRAINT "BIO_PATIENT_EVENT_PK" PRIMARY KEY ("BIO_PATIENT_EVENT_ID")
  USING INDEX
  TABLESPACE "INDX"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-COMPRESS BASIC NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "BIOMART" ;
 --
 -- Type: REF_CONSTRAINT; Owner: BIOMART; Name: BIO_PT_EVENT_BIO_PT_FK
@@ -28,8 +27,7 @@ ALTER TABLE "BIOMART"."BIO_PATIENT_EVENT" ADD CONSTRAINT "BIO_PT_EVENT_BIO_TRL_T
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_PATIENT_EVENT_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_PATIENT_EVENT_ID" before insert on "BIO_PATIENT_EVENT"    for each row begin     if inserting then       if :NEW."BIO_PATIENT_EVENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_PATIENT_EVENT_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_PATIENT_EVENT_ID" before insert on "BIO_PATIENT_EVENT"    for each row begin     if inserting then       if :NEW."BIO_PATIENT_EVENT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_PATIENT_EVENT_ID" from dual;       end if;    end if; end;
 
 
 

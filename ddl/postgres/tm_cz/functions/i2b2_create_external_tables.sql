@@ -1,11 +1,9 @@
 --
--- Name: i2b2_create_external_tables(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_create_external_tables(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_create_external_tables (
-  TPMExtFn character varying,
-  CATGExtFn character varying
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_create_external_tables(tpmextfn character varying, catgextfn character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -71,5 +69,5 @@ sqltxt:='    CREATE or REPLACE  TABLE "I2B2_LZ"."TIME_POINT_MEASUREMENT_EXTRNL"
 
 END;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -16,5 +16,3 @@ CREATE SCHEMA i2b2metadata;
 
 SET search_path = i2b2metadata, pg_catalog;
 
-SET default_with_oids = false;
-

@@ -1,46 +1,34 @@
 --
--- Name: i2b2_proteomics_zscore_calc(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_proteomics_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_proteomics_zscore_calc (
-  trial_id character varying
- ,run_type character varying DEFAULT 'L'::character varying
- ,currentJobID numeric DEFAULT (-1)
- ,data_type character varying DEFAULT 'R'::character varying
- ,log_base	numeric DEFAULT 2
- ,source_cd	character varying DEFAULT null
-)
- RETURNS VOID AS $body$
-DECLARE
-
+CREATE FUNCTION i2b2_proteomics_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 This Stored Procedure is used in ETL load PROTEOMICS data
 Date:12/9/2013
 ******************************************************************/
-
-  TrialID varchar(50);
-  sourceCD	varchar(50);
-  sqlText varchar(2000);
-  runType varchar(10);
-  dataType varchar(10);
-  stgTrial varchar(50);
-  idxExists bigint;
-  pExists	bigint;
-  nbrRecs bigint;
-  logBase bigint;
+Declare
+  TrialID character varying(50);
+  sourceCD	character varying(50);
+  sqlText character varying(2000);
+  runType character varying(10);
+  dataType character varying(10);
+  stgTrial character varying(50);
+  idxExists numeric;
+  pExists	numeric;
+  nbrRecs numeric;
+  logBase numeric;
    
   --Audit variables
-  newJobFlag integer(1);
-  databaseName varchar(100);
-  procedureName varchar(100);
-  jobID bigint;
-  stepCt bigint;
+  newJobFlag numeric(1);
+  databaseName VARCHAR(100);
+  procedureName VARCHAR(100);
+  jobID numeric(18,0);
+  stepCt numeric(18,0);
+  rtnCd integer;
+  rowCt integer;
   
-  --  exceptions
-  invalid_runType exception;
-  trial_mismatch exception;
-  trial_missing exception;
-  
-
 BEGIN
 
 	TrialId := trial_id;
@@ -53,27 +41,29 @@ BEGIN
   newJobFlag := 0; -- False (Default)
   jobID := currentJobID;
 
-  PERFORM sys_context('USERENV', 'CURRENT_SCHEMA') INTO databaseName ;
-  procedureName := $$PLSQL_UNIT;
+  databaseName := 'TM_CZ';
+  procedureName := 'I2B2_PROTEOMICS_ZSCORE_CALC';
 
   --Audit JOB Initialization
   --If Job ID does not exist, then this is a single procedure run and we need to create it
-  IF(coalesce(jobID::text, '') = '' or jobID < 1)
+  IF(jobID IS NULL or jobID < 1)
   THEN
     newJobFlag := 1; -- True
-    cz_start_audit (procedureName, databaseName, jobID);
+    select cz_start_audit (procedureName, databaseName) into jobID;
   END IF;
    
   stepCt := 0;
   
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Starting zscore calc for ' || TrialId || ' RunType: ' || runType || ' dataType: ' || dataType,0,stepCt,'Done');
+	select cz_write_audit(jobId,databaseName,procedureName,'Starting zscore calc for ' || TrialId || ' RunType: ' || runType || ' dataType: ' || dataType,0,stepCt,'Done') into rtnCd;
   
 	if runType != 'L' then
 		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Invalid runType passed - procedure exiting'
-,SQL%ROWCOUNT,stepCt,'Done');
-		raise invalid_runType;
+		get diagnostics rowCt := ROW_COUNT;
+		select cz_write_audit(jobId,databaseName,procedureName,'Invalid runType passed - procedure exiting',rowCt,stepCt,'Done') into rtnCd;
+		select cz_error_handler (jobID, procedureName) into rtnCd;  
+		select cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return 150;
 	end if;
   
 --	For Load, make sure that the TrialId passed as parameter is the same as the trial in stg_subject_proteomics_data
@@ -85,65 +75,37 @@ BEGIN
 		
 		if stgTrial != TrialId then
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in WT_SUBJECT_PROTEOMICS_PROBESET - procedure exiting'
-,SQL%ROWCOUNT,stepCt,'Done');
-			raise trial_mismatch;
+			get diagnostics rowCt := ROW_COUNT;
+			select cz_write_audit(jobId,databaseName,procedureName,'TrialId not the same as trial in WT_SUBJECT_PROTEOMICS_PROBESET - procedure exiting',rowCt,stepCt,'Done') into rtnCd;
+			select cz_error_handler(jobID, procedureName) into rtnCd;
+			select cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return 161;
 		end if;
 	end if;
-
-/*	remove Reload processing
---	For Reload, make sure that the TrialId passed as parameter has data in de_subject_proteomics_data
---	If not, raise exception
-
-	if runType = 'R' then
-		select count(*) into idxExists
-		from de_subject_proteomics_data
-		where trial_name = TrialId;
-		
-		if idxExists = 0 then
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in de_subject_proteomics_data - procedure exiting',SQL%ROWCOUNT,stepCt,'Done');
-			raise trial_missing;
-		end if;
-	end if;
-*/
    
 --	truncate tmp tables
-
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
-
-	select count(*) 
-	into idxExists
-	from all_indexes
-	where table_name = 'WT_SUBJECT_PROTEOMICS_LOGS'
-	  and index_name = 'WT_SUBJECT_PROTEOMICS_LOGS_I1'
-	  and owner = 'TM_WZ';
-		
-	if idxExists = 1 then
-		EXECUTE('drop index tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1');		
-	end if;
+	begin
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
+		execute ('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
+	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1;		
+	--drop index if exists tm_wz.WT_SUBJECT_PROTEOMICS_CALCS_I1;
 	
-	select count(*) 
-	into idxExists
-	from all_indexes
-	where table_name = 'WT_SUBJECT_PROTEOMICS_CALCS'
-	  and index_name = 'WT_SUBJECT_PROTEOMICS_CALCS_I1'
-	  and owner = 'TM_WZ';
-		
-	if idxExists = 1 then
-		EXECUTE('drop index tm_wz.WT_SUBJECT_PROTEOMICS_CALCS_I1');
-	end if;
-
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
+	select cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done') into rtnCd;
 	
 	--	if dataType = L, use intensity_value as log_intensity
 	--	if dataType = R, always use intensity_value
 
 
 	if dataType = 'L' then
+		begin
 		insert into WT_SUBJECT_PROTEOMICS_LOGS 
 			(probeset_id
 			,intensity_value
@@ -153,18 +115,23 @@ BEGIN
 		--	,sample_cd
 			,subject_id
 			)
-			PERFORM probeset
-				  ,intensity_value  
+			select probeset
+				  ,intensity_value ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,intensity_value
+				  ,round(intensity_value,4)
 				  ,patient_id
 			--	  ,sample_cd
 				  ,subject_id
 			from WT_SUBJECT_PROTEOMICS_PROBESET
 			where trial_name = TrialId;
-           
-		--end if;
+		exception
+		when others then
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
+			return -16;
+		end;
 	else	
+		begin
                 	insert into WT_SUBJECT_PROTEOMICS_LOGS 
 			(probeset_id
 			,intensity_value
@@ -174,30 +141,36 @@ BEGIN
 		--	,sample_cd
 			,subject_id
 			)
-			PERFORM probeset
-				  ,intensity_value 
+			select probeset
+				  ,intensity_value  ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value  + 0.001),4)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 				  ,subject_id
 			from WT_SUBJECT_PROTEOMICS_PROBESET
 			where trial_name = TrialId;
---		end if;
-
+		exception
+		when others then
+			perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+			perform tm_cz.cz_end_audit (jobID, 'FAIL');
+			return -16;
+		end;
 	end if;
 
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_mirna_logs',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_mirna_logs',rowCt,stepCt,'Done') into rtnCd;
 
-	commit;
+	
     
-	EXECUTE('create index tm_wz.WT_SUBJECT_PROTEOMICS_LOGS_I1 on tm_wz.WT_SUBJECT_PROTEOMICS_LOGS (trial_name, probeset_id) nologging  tablespace "INDX"');
+	--execute ('create index WT_SUBJECT_PROTEOMICS_LOGS_I1 on tm_wz.WT_SUBJECT_PROTEOMICS_LOGS (trial_name, probeset_id)');
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_PROTEOMICS_LOGS_I1',0,stepCt,'Done');
+	--select cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_PROTEOMICS_LOGS_I1',0,stepCt,'Done') into rtnCd;
 		
 --	calculate mean_intensity, median_intensity, and stddev_intensity per experiment, probe
 
+	begin
 	insert into WT_SUBJECT_PROTEOMICS_CALCS
 	(trial_name
 	,probeset_id
@@ -205,7 +178,7 @@ BEGIN
 	,median_intensity
 	,stddev_intensity
 	)
-	PERFORM d.trial_name 
+	select d.trial_name 
 		  ,d.probeset_id
 		  ,avg(log_intensity)
 		  ,median(log_intensity)
@@ -213,18 +186,26 @@ BEGIN
 	from WT_SUBJECT_PROTEOMICS_LOGS d 
 	group by d.trial_name 
 			,d.probeset_id;
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ WT_SUBJECT_PROTEOMICS_CALCS',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Calculate intensities for trial in TM_WZ WT_SUBJECT_PROTEOMICS_CALCS',rowCt,stepCt,'Done') into rtnCd;
 
-	commit;
+	
 
-	--execute immediate('create index tm_wz.wt_subject_proteomics_calcs_i1 on tm_wz.WT_SUBJECT_PROTEOMICS_CALCS (trial_name, probeset_id) nologging tablespace "INDX"');
+	--execute ('create index tm_wz.wt_subject_proteomics_calcs_i1 on tm_wz.WT_SUBJECT_PROTEOMICS_CALCS (trial_name, probeset_id) nologging tablespace "INDX"');
 	--stepCt := stepCt + 1;
 	--cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ WT_SUBJECT_PROTEOMICS_CALCS',0,stepCt,'Done');
 		
 -- calculate zscore
 
-	insert into WT_SUBJECT_PROTEOMICS_MED parallel 
+	begin
+	insert into WT_SUBJECT_PROTEOMICS_MED 
 	(probeset_id
 	,intensity_value
 	,log_intensity
@@ -237,7 +218,7 @@ BEGIN
 --	,sample_cd
 	,subject_id
 	)
-	PERFORM d.probeset_id
+	select d.probeset_id
 		  ,d.intensity_value 
 		  ,d.log_intensity 
 		  ,d.assay_id  
@@ -251,29 +232,19 @@ BEGIN
     from WT_SUBJECT_PROTEOMICS_LOGS d 
 		,WT_SUBJECT_PROTEOMICS_CALCS c 
     where d.probeset_id = c.probeset_id;
+    	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ WT_SUBJECT_PROTEOMICS_MED',SQL%ROWCOUNT,stepCt,'Done');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score for trial in TM_WZ WT_SUBJECT_PROTEOMICS_MED',rowCt,stepCt,'Done') into rtnCd;
 
-    commit;
-
-/*
-	select count(*) into n
-	select count(*) into nbrRecs
-	from WT_SUBJECT_PROTEOMICS_MED;
-	
-	if nbrRecs > 10000000 then
-		i2b2_mrna_index_maint('DROP',,jobId);
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on DEAPP de_subject_proteomics_data',0,stepCt,'Done');
-	else
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Less than 10M records, index drop bypassed',0,stepCt,'Done');
-	end if;
-*/
-	
-
-
-	insert into DE_SUBJECT_PROTEOMICS_DATA
+    
+	begin
+	insert into DE_SUBJECT_PROTEIN_DATA
 	(
 	 trial_name
 	,protein_annotation_id
@@ -284,9 +255,10 @@ BEGIN
 	,subject_id
 	,intensity 
 	,zscore
+        ,log_intensity
 	,patient_id
 	)
-	PERFORM TrialId
+	select TrialId
                  ,d.id
                  ,m.probeset_id 
                  ,d.uniprot_id
@@ -294,55 +266,32 @@ BEGIN
                  ,m.assay_id
                  ,m.subject_id
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(m.log_intensity,4)
-                  ,round(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END,5)		  
-                   ,m.patient_id
+                ,m.intensity_value as intensity  ---UAT 154 changes done on 19/03/2014
+                ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)	
+                ,round(m.log_intensity,4) as log_intensity
+                ,m.patient_id
 	from WT_SUBJECT_PROTEOMICS_MED m
        , DEAPP.DE_PROTEIN_ANNOTATION d
         where d.peptide=m.probeset_id;
+        exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP de_subject_proteomics_data',SQL%ROWCOUNT,stepCt,'Done');
-
-  	commit;
-
---	add indexes, if indexes were not dropped, procedure will not try and recreate
-/*
-	i2b2_mrna_index_maint('ADD',,jobId);
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Add indexes on DEAPP de_subject_proteomics_data',0,stepCt,'Done');
-*/
-	
---	cleanup tmp_ files
-
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_LOGS');
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_CALCS');
-	EXECUTE('truncate table tm_wz.WT_SUBJECT_PROTEOMICS_MED');
+	get diagnostics rowCt := ROW_COUNT;
+	select cz_write_audit(jobId,databaseName,procedureName,'Insert data for trial in DEAPP DE_SUBJECT_PROTEIN_DATA',rowCt,stepCt,'Done') into rtnCd;
 
    	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done');
+	select cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done') into rtnCd;
     
     ---Cleanup OVERALL JOB if this proc is being run standalone
   IF newJobFlag = 1
   THEN
-    cz_end_audit (jobID, 'SUCCESS');
+    select cz_end_audit (jobID, 'SUCCESS') into rtnCd;
   END IF;
-
-  EXCEPTION
-
-  WHEN invalid_runType or trial_mismatch or trial_missing then
-    --Handle errors.
-    cz_error_handler (jobID, procedureName);
-    --End Proc
-  
-    cz_end_audit (jobID, 'FAIL');
-  when OTHERS THEN
-    --Handle errors.
-    cz_error_handler (jobID, procedureName);
-
-
-    cz_end_audit (jobID, 'FAIL');
-	
+  return 1;	
 END;
- 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -5,7 +5,7 @@ CREATE TABLE bio_experiment (
     bio_experiment_id bigint NOT NULL,
     bio_experiment_type character varying(200),
     title character varying(1000),
-    description character varying(2000),
+    description character varying(4000),
     design character varying(2000),
     start_date timestamp without time zone,
     completion_date timestamp without time zone,

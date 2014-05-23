@@ -1,10 +1,9 @@
 --
 -- Name: cz_audit_example(bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION cz_audit_example (
-  currentJobID bigint
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION cz_audit_example(currentjobid bigint) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
   --Audit variables
@@ -68,5 +67,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

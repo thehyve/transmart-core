@@ -12,7 +12,12 @@ CREATE TABLE async_job (
     alt_viewer_url character varying(600),
     job_results text,
     job_inputs_json text,
-    job_type character varying(20),
-    PRIMARY KEY (id)
+    job_type character varying(20)
 );
+
+--
+-- Name: async_job_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY async_job
+    ADD CONSTRAINT async_job_pkey PRIMARY KEY (id);
 

@@ -15,13 +15,11 @@
  USING INDEX
  TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
-COMPRESS BASIC NOLOGGING
  TABLESPACE "BIOMART" ;
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TMP_TRG_BIO_CONCEPT_CODE_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TMP_TRG_BIO_CONCEPT_CODE_ID" before insert on "BIO_CONCEPT_CODE"    for each row begin     if inserting then       if :NEW."BIO_CONCEPT_CODE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CONCEPT_CODE_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TMP_TRG_BIO_CONCEPT_CODE_ID" before insert on "BIO_CONCEPT_CODE"    for each row begin     if inserting then       if :NEW."BIO_CONCEPT_CODE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CONCEPT_CODE_ID" from dual;       end if;    end if; end;
 
 
 

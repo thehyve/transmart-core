@@ -1,13 +1,9 @@
 --
--- Name: add_ontology_node(text, text, text, text); Type: FUNCTION; Schema: i2b2metadata; Owner: -
+-- Name: add_ontology_node(character varying, character varying, character varying, character varying, character varying); Type: FUNCTION; Schema: i2b2metadata; Owner: -
 --
-CREATE OR REPLACE FUNCTION add_ontology_node (parent_path_src character varying--(255)
-, node_name character varying--(255)
-, is_leaf_src character varying--(30)
-, is_number character varying--(30)
-, prefix character varying
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION add_ontology_node(parent_path_src character varying, node_name character varying, is_leaf_src character varying, is_number character varying, prefix character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
   declare
     max_basecode numeric;
@@ -114,5 +110,8 @@ BEGIN
   end;
 end;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+
+
+SET default_with_oids = false;
+

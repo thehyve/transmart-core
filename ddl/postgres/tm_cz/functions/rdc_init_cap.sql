@@ -1,13 +1,9 @@
 --
 -- Name: rdc_init_cap(text); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION rdc_init_cap (
-     text_to_parse IN text
-	-- text_delimiter IN VARCHAR2
-)
---	text string returned with words initcapped except for any in category_path_excluded_words
-
- RETURNS varchar AS $body$
+CREATE FUNCTION rdc_init_cap(text_to_parse text) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
    start_pos 		bigint;
@@ -105,5 +101,5 @@ BEGIN
 
 END RDC_INIT_CAP;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

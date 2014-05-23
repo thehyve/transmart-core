@@ -9,8 +9,7 @@ CREATE TABLE de_pathway (
     source character varying(100),
     externalid character varying(100),
     pathway_uid character varying(200),
-    user_id bigint,
-    PRIMARY KEY (id)
+    user_id bigint
 );
 --
 -- Name: tf_trg_de_pathway_id; Type: FUNCTION; Schema: deapp; Owner: -
@@ -30,4 +29,10 @@ $$;
 -- Name: trg_de_pathway_id(); Type: TRIGGER; Schema: deapp; Owner: -
 --
   CREATE TRIGGER trg_de_pathway_id BEFORE INSERT ON de_pathway FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_pathway_id();
+
+--
+-- Name: de_pathway_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_pathway
+    ADD CONSTRAINT de_pathway_pkey PRIMARY KEY (id);
 

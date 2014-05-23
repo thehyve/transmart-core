@@ -8,3 +8,4 @@ CREATE TABLE tmp_omicsoft_compound (
     compound character varying(4000),
     bio_experiment_id bigint
 );
+

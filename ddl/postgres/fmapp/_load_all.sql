@@ -8,4 +8,3 @@
 \i fmapp/fm_folder.sql
 \i fmapp/fm_folder_association.sql
 \i fmapp/fm_folder_file_association.sql
-\i fmapp/_misc.sql

@@ -7,3 +7,4 @@ CREATE TABLE modifier_metadata (
     std_units character varying(50),
     visit_ind character(1)
 );
+

@@ -1,13 +1,9 @@
 --
--- Name: i2b2_move_node(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_move_node(character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_move_node (
-  old_path character varying,
-  new_path character varying,
-  topNode	character varying,
-  currentJobID numeric DEFAULT (-1)
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_move_node(old_path character varying, new_path character varying, topnode character varying, currentjobid numeric DEFAULT (-1)) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -119,5 +115,5 @@ BEGIN
 		
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

@@ -2,7 +2,7 @@
 -- Name: i2b2_load_chrom_region(character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1))
+CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, genome_release character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1))
   RETURNS numeric 
   LANGUAGE plpgsql
   AS $BODY$
@@ -112,8 +112,9 @@ BEGIN
 		, organism
 		, annotation_date
 		, marker_type
+                , release_nbr
 	)
-	values (gplId, platform_title, organismId, current_timestamp, 'Chromosomal');
+	values (gplId, platform_title, organismId, current_timestamp, 'Chromosomal', genome_release);
 	get diagnostics rowCt := ROW_COUNT;	
 	exception
 	when others then

@@ -8,12 +8,12 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_add_search_term (
-  New_Term character varying,
-  category_name character varying,
-  category_display character varying,
-  currentJobID numeric DEFAULT (-1)
+  New_Term text,
+  category_name text,
+  category_display	text,
+  currentJobID bigint DEFAULT null
 )
- RETURNS numeric AS $body$
+ RETURNS BIGINT AS $body$
 DECLARE
 
 /*************************************************************************

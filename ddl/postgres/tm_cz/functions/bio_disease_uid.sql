@@ -1,9 +1,9 @@
 --
 -- Name: bio_disease_uid(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION bio_disease_uid (
-  MESH_CODE character varying
-)  RETURNS character varying AS $body$
+CREATE FUNCTION bio_disease_uid(mesh_code character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$
 BEGIN
   -- $Id$
   -- Creates bio_disease_uid.
@@ -11,5 +11,5 @@ BEGIN
   RETURN 'DIS:' || coalesce(MESH_CODE, 'ERROR');
 END BIO_DISEASE_UID;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

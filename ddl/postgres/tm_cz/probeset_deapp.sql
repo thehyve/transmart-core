@@ -37,13 +37,3 @@ $$;
 --
 CREATE TRIGGER trg_probeset_deapp BEFORE INSERT ON probeset_deapp FOR EACH ROW EXECUTE PROCEDURE tf_trg_probeset_deapp();
 
---
--- Name: seq_probeset_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_probeset_id
-    START WITH 754178
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 20;
-
