@@ -1,5 +1,9 @@
 <?php
 $dependencies = array (
+  'de_variant_metadata' => 
+  array (
+    0 => 'de_variant_dataset',
+  ),
   'de_chromosomal_region' => 
   array (
     0 => 'de_gpl_info',
@@ -34,6 +38,10 @@ $dependencies = array (
   array (
     0 => 'de_xtrial_parent_names',
   ),
+  'de_subject_protein_data' => 
+  array (
+    0 => 'de_protein_annotation',
+  ),
   'de_snp_data_by_probe' => 
   array (
     0 => 'de_snp_probe',
@@ -54,6 +62,10 @@ $dependencies = array (
   'de_snp_probe' => 
   array (
     0 => 'de_snp_info',
+  ),
+  'de_variant_dataset' => 
+  array (
+    0 => 'de_gpl_info',
   ),
   'de_variant_subject_detail' => 
   array (
