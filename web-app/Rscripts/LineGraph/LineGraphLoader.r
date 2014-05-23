@@ -60,7 +60,7 @@ LineGraph.loader <- function(
       else {
         groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
         p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
-        probes <- unlist(strsplit(plotGroup, '[|]'))
+        probes <- unlist(strsplit(as.character(plotGroup), '[|]'))
         plotTitle <- ''
         if(probes[1] != ''){
             plotTitle <- paste('Intensity of', probes[1], '.') 
