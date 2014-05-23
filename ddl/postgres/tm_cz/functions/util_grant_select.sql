@@ -1,9 +1,9 @@
 --
--- Name: util_grant_select(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_grant_select(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_grant_select (username	character varying DEFAULT 'DATATRUST'::character varying)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_grant_select(username character varying DEFAULT 'DATATRUST'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -46,5 +46,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

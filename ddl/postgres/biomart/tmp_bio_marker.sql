@@ -6,3 +6,4 @@ CREATE TABLE tmp_bio_marker (
     gene_id character varying(50),
     organism character varying(200)
 );
+

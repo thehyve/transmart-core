@@ -7,7 +7,6 @@
 "PLATFORM" VARCHAR2(100 BYTE) NOT NULL ENABLE, 
 "ORGANISM" VARCHAR2(200 BYTE)
   ) SEGMENT CREATION IMMEDIATE
-NOCOMPRESS NOLOGGING
  TABLESPACE "TRANSMART" ;
 --
 -- Type: INDEX; Owner: TM_CZ; Name: PROBESET_DEAPP_I1
@@ -22,7 +21,7 @@ TABLESPACE "INDX" ;
 --
 -- Type: TRIGGER; Owner: TM_CZ; Name: TRG_PROBESET_DEAPP
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "TM_CZ"."TRG_PROBESET_DEAPP" 
+  CREATE OR REPLACE TRIGGER "TM_CZ"."TRG_PROBESET_DEAPP" 
 before insert on "PROBESET_DEAPP"    
 	for each row begin     
 		if inserting then       
@@ -30,7 +29,6 @@ before insert on "PROBESET_DEAPP"
 				select SEQ_PROBESET_ID.nextval into :NEW."PROBESET_ID" from dual;       
 			end if;   
 		end if; end;
-
 
 
 

@@ -166,6 +166,25 @@
       "owner" : "AMAPP",
       "name" : "SEQ_AMAPP_DATA_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE_UID"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -256,6 +275,13 @@
       "type" : "TRIGGER",
       "owner" : "AMAPP",
       "name" : "TRG_AM_TAG_VALUE_ID"
+    },
+    "file" : "amapp/am_tag_value.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_UID"
     },
     "file" : "amapp/am_tag_value.sql"
   } ]

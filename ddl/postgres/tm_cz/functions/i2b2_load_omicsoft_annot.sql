@@ -1,11 +1,9 @@
 --
--- Name: i2b2_load_omicsoft_annot(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_omicsoft_annot(bigint, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_load_omicsoft_annot (analysis_id IN bigint
-,i_job_id		bigint	DEFAULT null
-,rtn_code		OUT	bigint
-)
- RETURNS bigint AS $body$
+CREATE FUNCTION i2b2_load_omicsoft_annot(analysis_id bigint, i_job_id bigint DEFAULT NULL::bigint, OUT rtn_code bigint) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -122,5 +120,5 @@ BEGIN
 	
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

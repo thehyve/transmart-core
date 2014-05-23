@@ -1,9 +1,9 @@
 --
 -- Name: biomarker_gene_uid(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION biomarker_gene_uid (
-  GENE_ID character varying
-)  RETURNS character varying AS $body$
+CREATE FUNCTION biomarker_gene_uid(gene_id character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$
 BEGIN
   -- $Id$
   -- Creates uid for bio_experiment.
@@ -11,5 +11,5 @@ BEGIN
   RETURN 'GENE:' || coalesce(GENE_ID, 'ERROR');
 END biomarker_gene_uid;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

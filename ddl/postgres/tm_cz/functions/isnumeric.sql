@@ -1,8 +1,9 @@
 --
--- Name: isnumeric(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: isnumeric(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION isnumeric ( p_string in character varying)
-   RETURNS numeric AS $body$
+CREATE FUNCTION isnumeric(p_string character varying) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
       l_number numeric;
@@ -15,5 +16,5 @@ BEGIN
           return 0;
   end;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

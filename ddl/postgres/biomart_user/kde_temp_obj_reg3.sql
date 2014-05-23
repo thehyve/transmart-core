@@ -9,3 +9,4 @@ CREATE TABLE kde_temp_obj_reg3 (
     kde_session character varying(255),
     object_created_timestamp character(15)
 );
+

@@ -3,7 +3,7 @@
 --
 CREATE TABLE wt_subject_microarray_logs (
     probeset_id bigint,
-    intensity_value bigint,
+    intensity_value numeric,
     pvalue double precision,
     num_calls bigint,
     assay_id bigint,

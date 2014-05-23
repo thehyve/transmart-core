@@ -1,8 +1,9 @@
 --
--- Name: is_number_v2(text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: is_number_v2(character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION is_number_v2 ( p_string in character varying)
-  RETURNS numeric AS $body$
+CREATE FUNCTION is_number_v2(p_string character varying) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
         l_number numeric;
@@ -15,5 +16,5 @@ BEGIN
            return 1;
    end;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

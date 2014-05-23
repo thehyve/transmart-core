@@ -11,14 +11,12 @@
  CONSTRAINT "BIO_CLINICAL_TRIAL_TIME_POINT_" PRIMARY KEY ("BIO_CLINC_TRIAL_TM_PT_ID")
  USING INDEX
  TABLESPACE "INDX"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-COMPRESS BASIC NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "BIOMART" ;
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_CL_TRL_TIME_PT_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_CL_TRL_TIME_PT_ID" before insert on "BIO_CLINC_TRIAL_TIME_PT"    for each row begin     if inserting then       if :NEW."BIO_CLINC_TRIAL_TM_PT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CLINC_TRIAL_TM_PT_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_CL_TRL_TIME_PT_ID" before insert on "BIO_CLINC_TRIAL_TIME_PT"    for each row begin     if inserting then       if :NEW."BIO_CLINC_TRIAL_TM_PT_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_CLINC_TRIAL_TM_PT_ID" from dual;       end if;    end if; end;
 
 
 

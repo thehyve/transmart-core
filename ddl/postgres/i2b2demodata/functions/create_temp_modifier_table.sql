@@ -1,9 +1,9 @@
 --
--- Name: create_temp_modifier_table(character varying, character varying); Type: FUNCTION; Schema: i2b2demodata; Owner: -
+-- Name: create_temp_modifier_table(character varying); Type: FUNCTION; Schema: i2b2demodata; Owner: -
 --
-CREATE OR REPLACE FUNCTION create_temp_modifier_table (tempModifierTableName IN character varying,
-  errorMsg OUT character varying)
- RETURNS character varying AS $body$
+CREATE FUNCTION create_temp_modifier_table(tempmodifiertablename character varying, OUT errormsg character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
 EXECUTE 'create table ' ||  tempModifierTableName || ' (
         MODIFIER_CD varchar(50) NOT NULL,
@@ -23,5 +23,5 @@ EXCEPTION
 		RAISE NOTICE '%%%', SQLSTATE,  ' - ' , SQLERRM;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

@@ -8,12 +8,13 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_load_analysis_metadata (
-	trialID                  character  varying,
-	i_study_data_category    character varying  DEFAULT 'Study'::character varying,
-	i_study_category_display character varying   DEFAULT null,
-	currentJobID             numeric DEFAULT (-1)
+	trialID                  text,
+	i_study_data_category    text   DEFAULT 'Study',
+	i_study_category_display text   DEFAULT null,
+	currentJobID             bigint DEFAULT null,
+	rtn_code                 OUT    bigint
 )
-RETURNS numeric AS $body$
+RETURNS bigint AS $body$
 DECLARE
 
 /*************************************************************************
@@ -35,9 +36,9 @@ DECLARE
 	newJobFlag    smallint;
 	databaseName  varchar(100);
 	procedureName varchar(100);
-	jobID         integer;
-	stepCt        integer;
-	rowCt         integer;
+	jobID         bigint;
+	stepCt        bigint;
+	rowCt         bigint;
 	errorNumber   varchar;
 	errorMessage  varchar;
 
@@ -45,7 +46,7 @@ DECLARE
 	lcount        integer;
 	analysisCount integer;
 	resultCount   integer;
-	innerRet      integer;
+	innerRet      bigint;
 
 BEGIN
 	--Set Audit Parameters
@@ -56,7 +57,7 @@ BEGIN
 
 	--Audit JOB Initialization
 	--If Job ID does not exist, then this is a single procedure run and we need to create it
-	IF (coalesce(jobID::character varying, '') = '' OR jobID < 1)
+	IF (coalesce(jobID::text, '') = '' OR jobID < 1)
 		THEN
 		newJobFlag := 1; -- True
 		SELECT cz_start_audit(procedureName, databaseName) INTO jobID;
@@ -95,7 +96,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	--see how many of the analysees match by using the cohort analysis name
@@ -119,7 +121,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	IF analysisCount != resultCount THEN  
@@ -140,7 +143,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	BEGIN
@@ -159,7 +163,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	BEGIN
@@ -175,7 +180,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	/** Delete study from biomart.bio_assay_cohort table **/
@@ -192,7 +198,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	/** Populate biomart.bio_assay_cohort table **/
@@ -236,7 +243,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	SELECT coalesce(Max(Length(Regexp_Replace(analysis.Cohorts,'[^;]','g'))),0)+1
@@ -275,7 +283,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 	END LOOP;
 
@@ -298,7 +307,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	--	insert study as search_term term, sp will check if already exists
@@ -311,7 +321,8 @@ BEGIN
 				', ' || i_study_category_display  || ', ' || jobId;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END IF;
 
 	PERFORM cz_write_audit(jobId, databaseName, procedureName,
@@ -344,7 +355,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- sample_type: insert terms into attribute table
@@ -377,7 +389,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- disease: check for any records that do not have a match in the taxonomy
@@ -413,7 +426,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- disease: insert terms into attribute table
@@ -448,7 +462,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- pathology: check for any records that do not have a match in the taxonomy
@@ -483,7 +498,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- pathology: insert terms into attribute table
@@ -518,7 +534,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- LOOP FOR TREATMENT
@@ -589,7 +606,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	END LOOP;
@@ -631,7 +649,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- organism: insert terms into attribute table
@@ -666,7 +685,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- data_type: check for any records that do not have a match in the taxonomy
@@ -701,7 +721,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- data_type: insert terms into attribute table
@@ -737,7 +758,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16; 
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- platform: check for any records that do not have a match in the taxonomy
@@ -772,7 +794,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- platform: insert terms into attribute table
@@ -808,7 +831,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- LOOP FOR ANALYSIS TYPE
@@ -884,7 +908,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 	END LOOP;
 
@@ -925,7 +950,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- search_area: insert terms into attribute table
@@ -959,7 +985,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- data source: check for any records that do not have a match in the taxonomy
@@ -994,7 +1021,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 	
 	-- data source: insert terms into attribute table
@@ -1028,7 +1056,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- study_design: check for any records that do not have a match in the taxonomy
@@ -1063,7 +1092,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	-- study_design: insert terms into attribute table
@@ -1101,7 +1131,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 
 	--	populate biomart.bio_analysis_attribute_lineage in one shot
@@ -1131,7 +1162,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 	/* END populate */
 
@@ -1153,7 +1185,8 @@ BEGIN
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 	END;
 	PERFORM cz_write_audit(jobId,databaseName,procedureName,'End FUNCTION',0,stepCt,'Done');
 
@@ -1171,13 +1204,14 @@ EXCEPTION
 		PERFORM cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
 		--End Proc
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := 16;		
 	WHEN OTHERS THEN
 	errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		PERFORM cz_error_handler(jobID, procedureName, errorNumber, errorMessage);
 		PERFORM cz_end_audit (jobID, 'FAIL');
-		RETURN -16;
+		rtn_code := -16;
+		RETURN;
 END;
 
 $body$

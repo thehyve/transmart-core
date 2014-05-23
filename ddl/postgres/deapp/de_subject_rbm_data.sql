@@ -1,13 +1,3 @@
--- Type: SEQUENCE; Owner: DEAPP; Name: DE_SUBJECT_RBM_DATA_SEQ
---
-CREATE SEQUENCE de_subject_rbm_data_seq
-    NO MINVALUE
-    NO MAXVALUE
-    INCREMENT BY 1
-    START WITH 61
-    CACHE 1
-;
-
 --
 -- Name: de_subject_rbm_data; Type: TABLE; Schema: deapp; Owner: -
 --
@@ -23,17 +13,16 @@ CREATE TABLE de_subject_rbm_data (
     concept_cd character varying(100),
     timepoint character varying(100),
     data_uid character varying(100),
-    value bigint,
-    log_intensity bigint,
-    mean_intensity bigint,
-    stddev_intensity bigint,
-    median_intensity bigint,
-    zscore bigint,
+    value double precision,
+    log_intensity numeric,
+    mean_intensity numeric,
+    stddev_intensity numeric,
+    median_intensity numeric,
+    zscore double precision,
     rbm_panel character varying(50),
     unit character varying(50),
-    id bigint
+    id bigint NOT NULL
 );
-
 
 --
 -- Name: pk_de_subject_rbm_data; Type: CONSTRAINT; Schema: deapp; Owner: -

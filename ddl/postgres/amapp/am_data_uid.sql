@@ -8,13 +8,14 @@ CREATE TABLE am_data_uid (
 );
 
 --
+-- Name: am_data_uid_pk; Type: CONSTRAINT; Schema: amapp; Owner: -
+--
+ALTER TABLE ONLY am_data_uid
+    ADD CONSTRAINT am_data_uid_pk PRIMARY KEY (am_data_id);
+
+--
 -- Name: am_data_uid_uk; Type: CONSTRAINT; Schema: amapp; Owner: -
 --
 ALTER TABLE ONLY am_data_uid
     ADD CONSTRAINT am_data_uid_uk UNIQUE (unique_id);
 
---
--- Name: am_data_uid_pk; Type: CONSTRAINT; Schema: amapp; Owner: -
---
-ALTER TABLE ONLY am_data_uid
-    ADD CONSTRAINT am_data_uid_pk PRIMARY KEY (am_data_id);

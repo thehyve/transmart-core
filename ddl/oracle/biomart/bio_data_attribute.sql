@@ -10,14 +10,12 @@
  CONSTRAINT "BIO_DATA_ATTR_PK" PRIMARY KEY ("BIO_DATA_ATTRIBUTE_ID")
  USING INDEX
  TABLESPACE "INDX"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-COMPRESS BASIC NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "BIOMART" ;
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_DATA_ATTR_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_DATA_ATTR_ID" before insert on "BIO_DATA_ATTRIBUTE"    for each row begin     if inserting then       if :NEW."BIO_DATA_ATTRIBUTE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_DATA_ATTRIBUTE_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_DATA_ATTR_ID" before insert on "BIO_DATA_ATTRIBUTE"    for each row begin     if inserting then       if :NEW."BIO_DATA_ATTRIBUTE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_DATA_ATTRIBUTE_ID" from dual;       end if;    end if; end;
 
 
 

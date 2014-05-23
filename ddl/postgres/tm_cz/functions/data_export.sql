@@ -1,7 +1,9 @@
 --
 -- Name: data_export(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION data_export () RETURNS VOID AS $body$
+CREATE FUNCTION data_export() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 --Iterate through a cursor of all patient IDs
@@ -42,5 +44,5 @@ BEGIN
   RAISE NOTICE '%', dynamicsql2;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

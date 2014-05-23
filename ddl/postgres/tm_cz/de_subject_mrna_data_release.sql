@@ -16,7 +16,7 @@ CREATE TABLE de_subject_mrna_data_release (
     median_intensity double precision,
     log_intensity double precision,
     zscore double precision,
-    sample_id bigint,		--added to oracle
+    sample_id bigint,
     release_study character varying(50)
 );
 

@@ -1,13 +1,9 @@
 --
--- Name: rbm_comparison_qry(character varying, character varying, character varying, REFCURSOR); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: rbm_comparison_qry(character varying, character varying, character varying, refcursor); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE OR REPLACE FUNCTION rbm_comparison_qry (
-  patient_ids	 IN character varying, -- list of patient IDs in CSV
-  concept_cds    IN character varying,  -- list of concept_cds in CSV
-  timepoints     IN character varying,  -- list of timepoint concept_cds in CSV
-  cv_1 INOUT REFCURSOR  --Resultset in Cursor for iteration by caller
-)
- RETURNS REFCURSOR AS $body$
+CREATE FUNCTION rbm_comparison_qry(patient_ids character varying, concept_cds character varying, timepoints character varying, INOUT cv_1 refcursor) RETURNS refcursor
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -57,5 +53,5 @@ END RBM_comparison_qry;
  
  
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

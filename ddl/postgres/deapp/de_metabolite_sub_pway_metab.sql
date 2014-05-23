@@ -5,13 +5,16 @@ CREATE TABLE de_metabolite_sub_pway_metab (
     metabolite_id bigint NOT NULL,
     sub_pathway_id bigint NOT NULL
 );
+
 --
--- Type: REF_CONSTRAINT; Owner: DEAPP; Name: SYS_C0010758
+-- Name: de_metabolite_sub_pway_metab_metabolite_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
-ALTER TABLE de_metabolite_sub_pway_metab ADD FOREIGN KEY (sub_pathway_id)
- REFERENCES de_metabolite_sub_pathways(id);
+ALTER TABLE ONLY de_metabolite_sub_pway_metab
+    ADD CONSTRAINT de_metabolite_sub_pway_metab_metabolite_id_fkey FOREIGN KEY (metabolite_id) REFERENCES de_metabolite_annotation(id);
+
 --
--- Type: REF_CONSTRAINT; Owner: DEAPP; Name: SYS_C0010759
+-- Name: de_metabolite_sub_pway_metab_sub_pathway_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
-ALTER TABLE de_metabolite_sub_pway_metab ADD FOREIGN KEY (metabolite_id)
- REFERENCES de_metabolite_annotation(id);
+ALTER TABLE ONLY de_metabolite_sub_pway_metab
+    ADD CONSTRAINT de_metabolite_sub_pway_metab_sub_pathway_id_fkey FOREIGN KEY (sub_pathway_id) REFERENCES de_metabolite_sub_pathways(id);
+

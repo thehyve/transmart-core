@@ -1,11 +1,9 @@
 --
--- Name: create_synonyms(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: create_synonyms(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION create_synonyms (
-  fromDB IN character varying,
-  toDB IN character varying
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION create_synonyms(fromdb character varying, todb character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
   cTableList CURSOR FOR
@@ -65,5 +63,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

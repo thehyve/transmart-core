@@ -5,7 +5,7 @@ $dependencies = array (
     0 => 'bio_lit_int_data',
     1 => 'bio_lit_model_data',
   ),
-  'views/bio_marker_correl_mv' => 
+  'views/bio_marker_correl_mview' => 
   array (
     0 => 'bio_data_correl_descr',
     1 => 'bio_data_correlation',

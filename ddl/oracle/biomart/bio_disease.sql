@@ -15,14 +15,12 @@
  CONSTRAINT "DISEASEDIM_PK" PRIMARY KEY ("BIO_DISEASE_ID")
  USING INDEX
  TABLESPACE "INDX"  ENABLE
-  ) SEGMENT CREATION DEFERRED
-COMPRESS BASIC NOLOGGING
+  ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "BIOMART" ;
 --
 -- Type: TRIGGER; Owner: BIOMART; Name: TRG_BIO_DISEASE_ID
 --
-  CREATE OR REPLACE EDITIONABLE TRIGGER "BIOMART"."TRG_BIO_DISEASE_ID" before insert on "BIO_DISEASE"    for each row begin     if inserting then       if :NEW."BIO_DISEASE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_DISEASE_ID" from dual;       end if;    end if; end;
-
+  CREATE OR REPLACE TRIGGER "BIOMART"."TRG_BIO_DISEASE_ID" before insert on "BIO_DISEASE"    for each row begin     if inserting then       if :NEW."BIO_DISEASE_ID" is null then          select SEQ_BIO_DATA_ID.nextval into :NEW."BIO_DISEASE_ID" from dual;       end if;    end if; end;
 
 
 

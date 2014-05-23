@@ -1,7 +1,9 @@
 --
 -- Name: load_kegg_content_data(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION load_kegg_content_data () RETURNS VOID AS $body$
+CREATE FUNCTION load_kegg_content_data() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
 
 begin
@@ -93,5 +95,5 @@ end;
 
 end;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

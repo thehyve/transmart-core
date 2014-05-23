@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: I2B2DEMODATA; Name: SP_XTAB
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "I2B2DEMODATA"."SP_XTAB" (v_variable IN varchar2,
+  CREATE OR REPLACE PROCEDURE "I2B2DEMODATA"."SP_XTAB" (v_variable IN varchar2,
                                     v_protocol IN number,
                                     v_subject  IN varchar2) IS
 
@@ -49,7 +49,6 @@ BEGIN
        -- Consider logging the error and then re-raise
        RAISE;
 END sp_xtab; 
- 
  
  
  

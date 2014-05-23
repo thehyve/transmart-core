@@ -1,17 +1,9 @@
 --
--- Name: i2b2_process_metabolomic_data(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, character varying, bigint, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_process_metabolomic_data (
-  trial_id 	character varying
- ,top_node	character varying
- ,data_type	character varying DEFAULT 'R'::character varying	--	R = raw data, do zscore calc, T = transformed data, load raw values as zscore,
-								 	--	L = log intensity data, skip log step in zscore calc
- ,source_cd	character varying DEFAULT 'STD'::character varying	--	default source_cd = 'STD'
- ,secure_study	character varying DEFAULT 'N'::character varying	--	security setting if new patients added to patient_dimension
- ,log_base	bigint DEFAULT 2			 		--	log base value for conversion back to raw
- ,currentJobID 	bigint DEFAULT (-1)
-)
- RETURNS numeric AS $body$
+CREATE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, secure_study character varying DEFAULT 'N'::character varying, log_base bigint DEFAULT 2, currentjobid bigint DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $_$
 
 /*************************************************************************
 
@@ -1065,5 +1057,5 @@ BEGIN
 		return 16;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

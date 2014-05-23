@@ -1,13 +1,9 @@
 --
--- Name: i2b2_rename_node(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_rename_node(character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_rename_node (
-  trial_id character varying,
-  old_node character varying,
-  new_node character varying,
-  currentJobID numeric DEFAULT (-1)
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_rename_node(trial_id character varying, old_node character varying, new_node character varying, currentjobid numeric DEFAULT (-1)) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 /*************************************************************************
@@ -141,5 +137,5 @@ BEGIN
   END IF;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

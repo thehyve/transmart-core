@@ -1,8 +1,9 @@
 --
 -- Name: i2b2_rna_seq_annotation(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_rna_seq_annotation ( rtn_code OUT bigint
-)  RETURNS bigint AS $body$
+CREATE FUNCTION i2b2_rna_seq_annotation(OUT rtn_code bigint) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 gpl_rtn bigint;
@@ -58,5 +59,5 @@ BEGIN
  
 END I2B2_RNA_SEQ_ANNOTATION;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

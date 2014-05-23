@@ -1,14 +1,9 @@
 --
--- Name: protein_comparison_qry(character varying, character varying, character varying, REFCURSOR); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: protein_comparison_qry(character varying, character varying, character varying, character varying, refcursor); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE OR REPLACE FUNCTION protein_comparison_qry (
-	patient_ids	 IN character varying, -- CSV list of patient IDs
-	sample_types IN character varying, -- CSV list of concept cds to use for filtering
-    pathway_uid1 IN character varying, --  A Unique pathway ID from BIO_DADA_UID to use for filtering
-    timepoints IN character varying,  -- CSV list of timepoint concept codes
-    cv_1 INOUT REFCURSOR  --Resultset in Cursor for iteration by caller
-)
- RETURNS REFCURSOR AS $body$
+CREATE FUNCTION protein_comparison_qry(patient_ids character varying, sample_types character varying, pathway_uid1 character varying, timepoints character varying, INOUT cv_1 refcursor) RETURNS refcursor
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
   --Counter to check if samples exist.
@@ -118,5 +113,5 @@ SELECT COUNT(*)
   END IF;
 END protein_comparison_qry;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

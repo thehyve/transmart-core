@@ -13,11 +13,17 @@ CREATE TABLE fm_file (
     link_url character varying(1000),
     active_ind character(1) NOT NULL,
     create_date timestamp without time zone NOT NULL,
-    update_date timestamp without time zone NOT NULL,
-    PRIMARY KEY (file_id)
+    update_date timestamp without time zone NOT NULL
 );
+
 --
--- Name: tf_trg_fm_file_id; Type: FUNCTION; Schema: fmapp; Owner: -
+-- Name: fm_file_pkey; Type: CONSTRAINT; Schema: fmapp; Owner: -
+--
+ALTER TABLE ONLY fm_file
+    ADD CONSTRAINT fm_file_pkey PRIMARY KEY (file_id);
+
+--
+-- Name: tf_trg_fm_file_id(); Type: FUNCTION; Schema: fmapp; Owner: -
 --
 CREATE FUNCTION tf_trg_fm_file_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -31,18 +37,15 @@ end;
 $$;
 
 --
--- Name: trg_fm_file_id(); Type: TRIGGER; Schema: fmapp; Owner: -
+-- Name: trg_fm_file_id; Type: TRIGGER; Schema: fmapp; Owner: -
 --
-  CREATE TRIGGER trg_fm_file_id BEFORE INSERT ON fm_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_file_id();
- 
---
--- Type: TRIGGER; Owner: FMAPP; Name: TRG_FM_FILE_UID
---
+CREATE TRIGGER trg_fm_file_id BEFORE INSERT ON fm_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_file_id();
 
--- insert in table if UID is not already there
-
+--
+-- Name: tf_trg_fm_file_uid(); Type: FUNCTION; Schema: fmapp; Owner: -
+--
 CREATE FUNCTION tf_trg_fm_file_uid() RETURNS trigger
-LANGUAGE plpgsql
+    LANGUAGE plpgsql
     AS $$
 DECLARE
   rec_count bigint;
@@ -58,5 +61,18 @@ BEGIN
 end;
 $$;
 
--- ALTER TRIGGER fmapp.trg_fm_file_uid;
+--
+-- Name: trg_fm_file_uid; Type: TRIGGER; Schema: fmapp; Owner: -
+--
 CREATE TRIGGER trg_fm_file_uid AFTER INSERT ON fm_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_file_uid();
+
+--
+-- Name: seq_fm_id; Type: SEQUENCE; Schema: fmapp; Owner: -
+--
+CREATE SEQUENCE seq_fm_id
+    START WITH 1992275
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+

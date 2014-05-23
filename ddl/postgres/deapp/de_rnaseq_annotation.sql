@@ -9,3 +9,4 @@ CREATE TABLE de_rnaseq_annotation (
     organism character varying(30),
     probeset_id bigint
 );
+

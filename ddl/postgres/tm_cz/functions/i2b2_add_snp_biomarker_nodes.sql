@@ -1,12 +1,9 @@
 --
 -- Name: i2b2_add_snp_biomarker_nodes(character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION i2b2_add_snp_biomarker_nodes (
-  trial_id 	character varying
-  ,ont_path	character varying
- ,currentJobID 	numeric DEFAULT (-1)
-)
- RETURNS VOID AS $body$
+CREATE FUNCTION i2b2_add_snp_biomarker_nodes(trial_id character varying, ont_path character varying, currentjobid numeric DEFAULT (-1)) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
 DECLARE
 
 	--	Adds SNP platform and sample type nodes into Biomarker Data ontology and adds rows into observation_fact for
@@ -276,5 +273,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$_$;
+

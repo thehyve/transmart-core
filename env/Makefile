@@ -1,3 +1,4 @@
+REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
@@ -10,6 +11,27 @@ ONDREJ_KEY=E5267A6C
 GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
+
+TRANSMART_LOADER=transmart-loader
+
+%/conf/log4j.properties:
+	mkdir -p $*/conf \
+	&& echo "log4j.rootLogger=INFO, console" > $@ \
+	&& echo "log4j.appender.console=org.apache.log4j.ConsoleAppender" >> $@ \
+	&& echo "log4j.appender.console.layout=org.apache.log4j.PatternLayout" >> $@ \
+	&& echo "log4j.appender.console.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n" >> $@
+
+TRANSMART_LOADER_SNAPSHOT_NAME=loader-jar-with-dependencies.jar
+LATEST_TRANSMART_LAODER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+$(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-snapshot/conf/log4j.properties
+	curl $(LATEST_TRANSMART_LAODER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+
+TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
+$(TRANSMART_LOADER_ARCHIVE):
+	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
+
+$(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
+	tar --touch -xf $< -C $@
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
@@ -38,7 +60,7 @@ update_repos = if [ ! -d $(1) ]; then \
 
 update_etl:
 	$(call update_repos,tranSMART-ETL,git://github.com/thehyve/tranSMART-ETL.git,master)
-.PHONY: update_repos
+.PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):

@@ -4,7 +4,7 @@
 CREATE TABLE lt_src_study_metadata (
     study_id character varying(100),
     title character varying(1000),
-    description character varying(2000),
+    description character varying(4000),
     design character varying(2000),
     start_date character varying(50),
     completion_date character varying(50),
@@ -33,7 +33,7 @@ CREATE TABLE lt_src_study_metadata (
     inclusion_criteria character varying(4000),
     exclusion_criteria character varying(4000),
     subjects character varying(2000),
-    gender_restriction_MFB character varying(510),
+    gender_restriction_mfb character varying(510),
     min_age character varying(100),
     max_age character varying(100),
     secondary_ids character varying(510),
@@ -43,30 +43,20 @@ CREATE TABLE lt_src_study_metadata (
     search_area character varying(100),
     compound character varying(1000),
     disease character varying(1000),
-    pubmed_ids character varying(1000),
-    organism character varying(200)
+    pubmed_ids character varying(4000),
+    organism character varying(200),
+    study_title character varying(500),
+    study_date character varying(50),
+    study_institution character varying(500),
+    study_country character varying(500),
+    study_related_publication character varying(500),
+    study_description character varying(2000),
+    study_access_type character varying(500),
+    study_objective character varying(2000),
+    study_biomarker_type character varying(500),
+    study_compound character varying(500),
+    study_design_factors character varying(2000),
+    study_nbr_subjects character varying(20),
+    study_organism character varying(500)
 );
-
---
--- Replace with Oracle table
--- apparently used only by Oracle ETL pipelines
-
---CREATE TABLE lt_src_study_metadata (
---    study_title character varying(500),
---    study_date character varying(50),
---    study_owner character varying(500),
---    study_institution character varying(500),
---    study_country character varying(500),
---    study_related_publication character varying(500),
---    study_description character varying(2000),
---    study_access_type character varying(500),
---    study_phase character varying(500),
---    study_objective character varying(2000),
---    study_biomarker_type character varying(500),
---    study_compound character varying(500),
---    study_design_factors character varying(2000),
---    study_nbr_subjects character varying(20),
---    study_organism character varying(500),
---    study_id character varying(50)
---);
 

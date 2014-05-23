@@ -12,7 +12,7 @@ CREATE TABLE wt_subject_acgh_region (
     probgain double precision,
     probamp double precision,
     num_calls bigint,
-    pvalue bigint,
+    pvalue double precision,
     assay_id bigint,
     patient_id bigint,
     sample_id bigint,

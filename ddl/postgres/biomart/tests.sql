@@ -13,3 +13,4 @@ CREATE TABLE tests (
     fold_change double precision,
     max_ls_mean double precision
 );
+

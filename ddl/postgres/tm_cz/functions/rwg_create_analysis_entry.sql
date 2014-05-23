@@ -8,9 +8,9 @@
 
 
 CREATE OR REPLACE FUNCTION tm_cz.rwg_create_analysis_entry (
-	trialID character varying,
-	delete_flag character varying DEFAULT null,
-	currentJobID numeric DEFAULT (-1)
+	trialID text,
+	delete_flag text DEFAULT null,
+	currentJobID bigint DEFAULT null
 )
  RETURNS BIGINT AS $body$
 DECLARE
@@ -18,9 +18,9 @@ DECLARE
 	newJobFlag    smallint;
 	databaseName  varchar(100);
 	procedureName varchar(100);
-	jobID         numeric;
-	stepCt        integer;
-	rowCt         integer;
+	jobID         bigint;
+	stepCt        bigint;
+	rowCt         bigint;
 	errorNumber   varchar;
 	errorMessage  varchar;
 

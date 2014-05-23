@@ -6,3 +6,4 @@ CREATE TABLE genego_gene_map (
     gene_id character varying(10),
     bio_marker_id bigint NOT NULL
 );
+

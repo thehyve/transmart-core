@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: DEAPP; Name: DUMP_TABLE_TO_CSV
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "DEAPP"."DUMP_TABLE_TO_CSV" ( p_tname in varchar2,
+  CREATE OR REPLACE PROCEDURE "DEAPP"."DUMP_TABLE_TO_CSV" ( p_tname in varchar2,
                                                    p_dir   in varchar2,
                                                    p_filename in varchar2 )
     is
@@ -50,7 +50,6 @@
            execute immediate 'alter session set nls_date_format=''dd-MON-yy'' ';
            raise;
    end;
- 
  
  
 /

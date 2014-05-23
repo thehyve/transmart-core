@@ -10,9 +10,9 @@ CREATE TABLE timers (
     info text
 );
 
-
 --
 -- Name: timers_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY timers
     ADD CONSTRAINT timers_pk PRIMARY KEY (timerid, targetid);
+

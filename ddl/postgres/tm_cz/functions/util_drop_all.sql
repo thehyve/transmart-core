@@ -1,12 +1,9 @@
 --
--- Name: util_drop_all(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: util_drop_all(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION util_drop_all (
-  v_whattype IN character varying DEFAULT 'PROCEDURES,FUNCTIONS,VIEWS,SYNONYMS'::character varying ,
-  v_dropifempty IN character varying DEFAULT 'Y'::character varying
-)
---AUTHID CURRENT_USER
- RETURNS VOID AS $body$
+CREATE FUNCTION util_drop_all(v_whattype character varying DEFAULT 'PROCEDURES,FUNCTIONS,VIEWS,SYNONYMS'::character varying, v_dropifempty character varying DEFAULT 'Y'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 -------------------------------------------------------------------------------------
@@ -119,5 +116,5 @@ BEGIN
 
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

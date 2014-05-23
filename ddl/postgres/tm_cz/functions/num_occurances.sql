@@ -1,10 +1,9 @@
 --
--- Name: num_occurances(text, text); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: num_occurances(character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION num_occurances (
-  input_str character varying,
-  search_str character varying
-)  RETURNS integer AS $body$
+CREATE FUNCTION num_occurances(input_str character varying, search_str character varying) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
   num integer;
@@ -17,5 +16,5 @@ BEGIN
   return num;
 end;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

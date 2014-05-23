@@ -1,3 +1,18 @@
+SCHEMAS = $(filter-out _% GLOBAL,$(shell find * -maxdepth 0 -type d))
+
+DUMP_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),dump_$(s))
+LOAD_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),load_$(s))
+WRITE_SYNONYM_TARGETS = $(foreach s,$(SCHEMAS),$(s)/_synonyms.sql)
+WRITE_GRANT_TARGETS = $(foreach s,$(SCHEMAS),$(s)/_grants.sql)
+LOAD_USER_TARGETS = $(foreach s,$(SCHEMAS),load_user_$(s))
+
+include ../../lib/makefile.inc
+
+DUMP_USER = groovy -cp $(DIR)*:_scripts _scripts/dump_user.groovy
+LOAD_DDL  = groovy -cp $(DIR)*:_scripts _scripts/load_ddl.groovy
+RUN_SQL   = groovy -cp $(DIR)*:_scripts _scripts/run_sql.groovy
+
+$(DUMP_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
 	$(DUMP_USER) -u $(patsubst dump_%,%,$@)
 
 dump_users: $(JDBC_DRIVER_ORA_PATH)

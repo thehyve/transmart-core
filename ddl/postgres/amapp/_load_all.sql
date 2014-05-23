@@ -6,4 +6,3 @@
 \i amapp/am_tag_template.sql
 \i amapp/am_tag_template_association.sql
 \i amapp/am_tag_value.sql
-\i amapp/_misc.sql

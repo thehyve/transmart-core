@@ -11,8 +11,15 @@ CREATE TABLE az_test_step_run (
     seq_id bigint,
     param1 character varying(4000)
 );
+
 --
--- Name: tf_trg_az_test_step_run_id; Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: az_test_step_run_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
+--
+ALTER TABLE ONLY az_test_step_run
+    ADD CONSTRAINT az_test_step_run_pk PRIMARY KEY (test_step_run_id);
+
+--
+-- Name: tf_trg_az_test_step_run_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE FUNCTION tf_trg_az_test_step_run_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -26,24 +33,19 @@ end;
 $$;
 
 --
--- Name: trg_az_test_step_run_id(); Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: trg_az_test_step_run_id; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-  CREATE TRIGGER trg_az_test_step_run_id BEFORE INSERT ON az_test_step_run FOR EACH ROW EXECUTE PROCEDURE tf_trg_az_test_step_run_id();
---
--- Type: REF_CONSTRAINT; Owner: TM_CZ; Name: AZ_TEST_STEP_RUN_CZ_JOB_FK1
---
-ALTER TABLE az_test_step_run
-       ADD CONSTRAINT az_test_step_run_cz_job_fk1 FOREIGN KEY (test_id)
-       REFERENCES cz_test(test_id);
---
--- Type: REF_CONSTRAINT; Owner: TM_CZ; Name: AZ_TST_STEP_RUN_AZ_TEST_RU_FK1
---
-ALTER TABLE az_test_step_run
-       ADD CONSTRAINT az_tst_step_run_az_test_ru_fk1 FOREIGN KEY (test_run_id)
-        REFERENCES az_test_run(test_run_id);
+CREATE TRIGGER trg_az_test_step_run_id BEFORE INSERT ON az_test_step_run FOR EACH ROW EXECUTE PROCEDURE tf_trg_az_test_step_run_id();
 
 --
--- Name: az_test_step_run_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
+-- Name: az_test_step_run_cz_job_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
 --
 ALTER TABLE ONLY az_test_step_run
-    ADD CONSTRAINT az_test_step_run_pk PRIMARY KEY (test_step_run_id);
+    ADD CONSTRAINT az_test_step_run_cz_job_fk1 FOREIGN KEY (test_id) REFERENCES cz_test(test_id);
+
+--
+-- Name: az_tst_step_run_az_test_ru_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
+--
+ALTER TABLE ONLY az_test_step_run
+    ADD CONSTRAINT az_tst_step_run_az_test_ru_fk1 FOREIGN KEY (test_run_id) REFERENCES az_test_run(test_run_id);
+

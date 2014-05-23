@@ -1,8 +1,9 @@
 --
--- Name: rename_study(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: rename_study(character varying, character varying, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION rename_study (programName IN character varying, oldTitle IN character varying, newTitle IN character varying)
- RETURNS VOID AS $body$
+CREATE FUNCTION rename_study(programname character varying, oldtitle character varying, newtitle character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 oldTopNode		varchar(2000);
@@ -38,5 +39,5 @@ DBMS_OUTPUT.ENABLE (20000);
  
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

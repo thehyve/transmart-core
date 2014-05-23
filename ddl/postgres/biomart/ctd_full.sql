@@ -198,6 +198,9 @@ begin
 end;
 $$;
 
+
+SET default_with_oids = false;
+
 --
 -- Name: trig_clinical_trial_design_id; Type: TRIGGER; Schema: biomart; Owner: -
 --

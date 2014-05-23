@@ -1,8 +1,9 @@
 --
--- Name: sync_clear_modifier_table(character varying, character varying, numeric, character varying); Type: FUNCTION; Schema: i2b2demodata; Owner: -
+-- Name: sync_clear_modifier_table(character varying, character varying, numeric); Type: FUNCTION; Schema: i2b2demodata; Owner: -
 --
-CREATE OR REPLACE FUNCTION sync_clear_modifier_table (tempModifierTableName in character varying, backupModifierTableName IN character varying, uploadId in numeric, errorMsg OUT character varying )
- RETURNS character varying AS $body$
+CREATE FUNCTION sync_clear_modifier_table(tempmodifiertablename character varying, backupmodifiertablename character varying, uploadid numeric, OUT errormsg character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 
@@ -57,5 +58,5 @@ EXCEPTION
 		RAISE EXCEPTION 'An error was encountered - % -ERROR- %',SQLSTATE,SQLERRM;
 END;
  
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

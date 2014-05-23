@@ -13,5 +13,6 @@ SET client_min_messages = warning;
 --
 CREATE SCHEMA biomart_user;
 
+
 SET search_path = biomart_user, pg_catalog;
 

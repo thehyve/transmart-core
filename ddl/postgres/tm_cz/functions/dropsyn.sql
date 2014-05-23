@@ -1,7 +1,9 @@
 --
 -- Name: dropsyn(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE OR REPLACE FUNCTION dropsyn () RETURNS VOID AS $body$
+CREATE FUNCTION dropsyn() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
  s_cur CURSOR FOR
@@ -20,5 +22,5 @@ BEGIN
   END LOOP;
 END dropsyn;
 
-$body$
-LANGUAGE PLPGSQL;
+$$;
+

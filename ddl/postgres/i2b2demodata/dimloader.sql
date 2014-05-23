@@ -24,3 +24,4 @@ CREATE TABLE dimloader (
     sourcesystem_cd character varying(50),
     valuetype_cd character varying(50)
 );
+
