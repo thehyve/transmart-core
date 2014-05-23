@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.vcf.VcfCohortInfo
@@ -7,7 +8,8 @@ import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
-
+    String datasetId
+    
     // Chromosome to define the position
     String chromosome
     Long position
@@ -39,12 +41,12 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
 
     @Lazy
     Map<String, String> infoFields = {
-        parseVcfInfo( info )
+        parseVcfInfo info
     }()
     
     @Lazy
     List<String> formatFields = {
-        format.split( ":" )
+        format.split ":"
     }()
 
     @Lazy
@@ -52,6 +54,27 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
        new VcfCohortStatistics(this) 
     }()
 
+    @Lazy
+    private Map<String,String> allOriginalSubjectData = {
+        def subjectVariants = [:]
+        def variantsInOrder = variants.tokenize '\t'
+        
+        data.each { 
+            if (it && it.subjectPosition != null && it.subjectId != null) {
+                // Position starts at 1
+                def index = (int) it.subjectPosition - 1
+                if (variantsInOrder.size() > index)
+                    subjectVariants[it.subjectId] = variantsInOrder[index]
+            }
+        }
+        
+        subjectVariants
+    }()
+    
+    String getOriginalSubjectData(Assay assay) {
+        allOriginalSubjectData[assay.sampleCode]
+    }
+    
     //RegionRow implementation
     @Override
     String getLabel() {

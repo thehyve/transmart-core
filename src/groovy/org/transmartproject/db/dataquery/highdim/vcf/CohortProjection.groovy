@@ -5,6 +5,8 @@ import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
+import static org.hibernate.sql.JoinFragment.LEFT_OUTER_JOIN
+
 /**
  * Created by j.hudecek on 21-2-14.
  */
@@ -24,12 +26,18 @@ class CohortProjection implements CriteriaProjection<Map> {
         }
 
         // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
-        [ "allele1", "allele2" ].each { field ->
+        ["allele1", "allele2", "subjectId"].each { field ->
             projection.add(
                     Projections.alias(
-                            Projections.property( "summary." + field),
+                            Projections.property("summary." + field),
                             field))
         }
+        
+        builder.createAlias('subjectIndex', 'subjectIndex', LEFT_OUTER_JOIN)
+        projection.add(
+                Projections.alias(
+                        Projections.property("subjectIndex.position"),
+                        "subjectPosition"))
     }
 
     @Override
@@ -41,6 +49,11 @@ class CohortProjection implements CriteriaProjection<Map> {
         // For computing the cohort properties, we need only
         // the allele1 and allele2 properties, as we
         // are interested in computing cohort level statistics
-        [ allele1: object.allele1, allele2: object.allele2 ]
+        [ 
+                allele1:         object.allele1,
+                allele2:         object.allele2,
+                subjectId:       object.subjectId,
+                subjectPosition: object.subjectPosition 
+        ]
     }
 }

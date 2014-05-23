@@ -11,7 +11,8 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.metabolite.MetaboliteTestData
-import org.transmartproject.db.dataquery.highdim.mirna.MirnaTestData
+import org.transmartproject.db.dataquery.highdim.mirna.MirnaQpcrTestData
+import org.transmartproject.db.dataquery.highdim.mirna.MirnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
@@ -45,12 +46,12 @@ class HighDimensionAllDataTests {
             'mirnaqpcr',
             [rawIntensity:BigDecimal, logIntensity:BigDecimal, zscore:BigDecimal],
             [probeId:String, mirnaId:String],
-            MirnaTestData
+            MirnaQpcrTestData
         ], [
             'mirnaseq',
             [rawIntensity:BigDecimal, logIntensity:BigDecimal, zscore:BigDecimal],
             [probeId:String, mirnaId:String],
-            MirnaTestData
+            MirnaSeqTestData
         ], [
             'mrna',
             [trialName:String, rawIntensity:BigDecimal, logIntensity: BigDecimal, zscore:BigDecimal],

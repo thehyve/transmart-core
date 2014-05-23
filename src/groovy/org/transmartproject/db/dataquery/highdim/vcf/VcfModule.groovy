@@ -104,6 +104,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 // These fields are needed to fill the VcfDataRow
                 // Fields describing the actual data are added by
                 // the projections
+                property 'detail.dataset.id'       ,'dataset_id'
                 property 'detail.chr'              ,'chr'
                 property 'detail.pos'              ,'pos'
                 property 'detail.rsId'             ,'rsId'
@@ -149,6 +150,8 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                      *, but we're guaranteed to have at least one non-null */
                     def firstNonNullCell = list.find()
                     new VcfDataRow(
+                            datasetId: firstNonNullCell[0].dataset_id,
+                            
                             // Chromosome to define the position
                             chromosome: firstNonNullCell[0].chr,
                             position: firstNonNullCell[0].pos,

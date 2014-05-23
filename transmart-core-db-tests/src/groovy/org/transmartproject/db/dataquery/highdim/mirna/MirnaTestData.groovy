@@ -9,27 +9,42 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MirnaTestData {
-
+    
+    String typeName
     public static final String TRIAL_NAME = 'MIRNA_SAMP_TRIAL'
 
     SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
 
-    DeGplInfo platform = {
-        def res = new DeGplInfo(
+    DeGplInfo platform 
+    List<PatientDimension> patients
+    List<DeSubjectSampleMapping> assays
+    List<DeQpcrMirnaAnnotation> probes
+    List<DeSubjectMirnaData> mirnaData
+    
+    public MirnaTestData() {
+        generateTestData()
+    }
+
+    public MirnaTestData(String typeName) {
+        this.typeName = typeName
+        generateTestData()
+    }
+    
+    protected void generateTestData() {
+        platform = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
-                markerTypeId: 'MIRNA_SEQ')
-        res.id = 'BOGUSGPL15466'
-        res
-    }()
+                markerType: typeName == 'mirnaseq' ? 'MIRNA_SEQ' : 'MIRNA_QPCR')
+        platform.id = 'BOGUSGPL15466'
+        
+        patients = HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+        assays = HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
-    List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+        probes = createProbes()
+        mirnaData = createData()
+    }
 
-    List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
-
-    List<DeQpcrMirnaAnnotation> probes = {
+    protected List<DeQpcrMirnaAnnotation> createProbes() {
         def createAnnotation = { probesetId, mirna, detector ->
             def res = new DeQpcrMirnaAnnotation(
                     mirnaId: mirna,
@@ -43,9 +58,9 @@ class MirnaTestData {
                 createAnnotation(-502, null, 'snoRNA135-4380912'),
                 createAnnotation(-503, 'hsa-mir-323b', 'mmu-miR-323b-4373305'),
         ]
-    }()
+    }
 
-    List<DeSubjectMirnaData> mirnaData = {
+    protected List<DeSubjectMirnaData> createData() {
         def createMirnaEntry = { DeSubjectSampleMapping assay,
                                       DeQpcrMirnaAnnotation probe,
                                       double intensity ->
@@ -71,12 +86,12 @@ class MirnaTestData {
         }
 
         res
-    }()
+    }
 
     void saveAll() {
         bioMarkerTestData.saveMirnaData()
 
-        save([ platform ])
+        save([platform])
         save patients
         save assays
         save probes

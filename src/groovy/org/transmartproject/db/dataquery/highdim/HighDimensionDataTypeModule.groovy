@@ -1,13 +1,12 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
+
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -88,13 +87,12 @@ public interface HighDimensionDataTypeModule {
                                      Projection projection)
 
     /**
-     * Whether the platform passed in refers to data of the type implemented by
-     * this module.
+     * Returns a list of markertypes that are supported by this module
      *
      * See {@link HighDimensionDataTypeResource#matchesPlatform(Platform)}.
+     * See {@link DeGplInfo#getMarkerType()}.
      *
-     * @param platform the platform to match
-     * @return true iif the the platform and this data type match
+     * @return List of marker types supported by this module
      */
-    boolean matchesPlatform(Platform platform)
+    List<String> getPlatformMarkerTypes()
 }

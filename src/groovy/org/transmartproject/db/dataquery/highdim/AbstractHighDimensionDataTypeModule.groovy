@@ -1,19 +1,19 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
+
+import javax.annotation.PostConstruct
+
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.impl.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-
-import javax.annotation.PostConstruct
 
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
@@ -159,12 +159,5 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     final protected Map createAssayIndexMap(List assays) {
         int i = 0
         assays.collectEntries { [ it, i++ ] }
-    }
-
-    abstract protected List<String> getPlatformMarkerTypes()
-
-    @Override
-    boolean matchesPlatform(Platform platform) {
-        platform.markerType in platformMarkerTypes
     }
 }
