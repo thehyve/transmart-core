@@ -595,6 +595,7 @@ sub parsePostgresFunctions($){
 	if($f =~ /[.]sql$/) {
 #	    print "Postgres parse $d/$f\n";
 	    $pgsql{"$subd/$f"}++;
+	    $noret=0;
 
 	    postgresParsed("$d/$f",$f);
 	    open(IN,"$dir$d/$f") || die "Failed to read $d/$f";
@@ -622,6 +623,22 @@ sub parsePostgresFunctions($){
 		    $schema = uc($schema);
 		    if($ret ne "trigger"){
 			$pFunctionFile{"$schema.$func"} = "$d/$f";
+			$pFunctionReturn{"$schema.$func"} = "$ret";
+			$cfunc = 1;
+		    }
+		}
+		elsif(/^\s*CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+(\S+)\s+\($/) {
+		    $func = $2;
+		    $noret = 1;
+		    $func =~ s/\(\)$//g;
+		    ($schema) = ($d =~ /\/([^\/]+)\/functions$/);
+		    $func = uc($func);
+		    $schema = uc($schema);
+		    $pFunctionFile{"$schema.$func"} = "$d/$f";
+		}
+		elsif($noret && /^\s*RETURNS (\S+) AS/) {
+		    $ret = $1;
+		    if($ret ne "trigger"){
 			$pFunctionReturn{"$schema.$func"} = "$ret";
 			$cfunc = 1;
 		    }
