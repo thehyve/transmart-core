@@ -53,7 +53,7 @@ CREATE TABLE lt_src_study_metadata (
     study_description character varying(2000),
     study_access_type character varying(500),
     study_objective character varying(2000),
-    study_biomarker_type character varying(5000),
+    study_biomarker_type character varying(500),
     study_compound character varying(500),
     study_design_factors character varying(2000),
     study_nbr_subjects character varying(20),

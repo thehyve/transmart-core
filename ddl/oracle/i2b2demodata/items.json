@@ -260,6 +260,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "FK_UP_SET_TYPE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_UPLOAD_STATUS"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "GLOBAL_TEMP_FACT_PARAM_TABLE"
@@ -281,31 +292,9 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "SYNONYM",
-      "owner" : "I2B2DEMODATA",
-      "name" : "I2B2"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
-      "name" : "I2B2"
-    } ]
-  }, {
-    "child" : {
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
       "name" : "IDX_CONCEPT_DIM_1"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "CONCEPT_DIMENSION"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "IDX_CONCEPT_DIM_2"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -495,6 +484,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "NEWS_UPDATES"
     },
     "parents" : [ ]
@@ -647,6 +643,94 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_PEC_RI"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_ENC_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_PSC_RI"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_SET_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QI_MID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QI_STID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_RID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_RTID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_STID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_XMLR_RIID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_XML_RESULT"
+    } ]
+  }, {
+    "child" : {
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_IDX_PQM_UGID"
@@ -706,14 +790,22 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_PATIENT_ENC_COLLECTION"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_PATIENT_SET_COLLECTION"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -734,7 +826,15 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_QUERY_INSTANCE"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_MASTER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -748,7 +848,19 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_QUERY_RESULT_INSTANCE"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_INSTANCE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_TYPE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -832,7 +944,11 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_XML_RESULT"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -902,7 +1018,11 @@
       "owner" : "I2B2DEMODATA",
       "name" : "SET_UPLOAD_STATUS"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_TYPE"
+    } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -1306,6 +1426,13 @@
     "file" : "i2b2demodata/encounter_mapping.sql"
   }, {
     "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "FK_UP_SET_TYPE_ID"
+    },
+    "file" : "i2b2demodata/set_upload_status.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "GLOBAL_TEMP_FACT_PARAM_TABLE"
@@ -1330,13 +1457,6 @@
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
       "name" : "IDX_CONCEPT_DIM_1"
-    },
-    "file" : "i2b2demodata/concept_dimension.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "IDX_CONCEPT_DIM_2"
     },
     "file" : "i2b2demodata/concept_dimension.sql"
   }, {
@@ -1490,6 +1610,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
+    },
+    "file" : "i2b2demodata/modifier_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "NEWS_UPDATES"
     },
     "file" : "i2b2demodata/news_updates.sql"
@@ -1612,6 +1739,62 @@
       "name" : "QT_BREAKDOWN_PATH"
     },
     "file" : "i2b2demodata/qt_breakdown_path.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_PEC_RI"
+    },
+    "file" : "i2b2demodata/qt_patient_enc_collection.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_PSC_RI"
+    },
+    "file" : "i2b2demodata/qt_patient_set_collection.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QI_MID"
+    },
+    "file" : "i2b2demodata/qt_query_instance.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QI_STID"
+    },
+    "file" : "i2b2demodata/qt_query_instance.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_RID"
+    },
+    "file" : "i2b2demodata/qt_query_result_instance.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_RTID"
+    },
+    "file" : "i2b2demodata/qt_query_result_instance.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_QRI_STID"
+    },
+    "file" : "i2b2demodata/qt_query_result_instance.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_FK_XMLR_RIID"
+    },
+    "file" : "i2b2demodata/qt_xml_result.sql"
   }, {
     "item" : {
       "type" : "INDEX",
