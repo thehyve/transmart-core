@@ -143,7 +143,7 @@ LineGraph.plotter <- function(
     timeDiff <- max(data.to.plot$TIME_VALUE)
     errorBarScale <- 0.05
     #the error bars width have to be scaled from the max time value, otherwise they are very wide if time values are low and very small if time values are high
-	if (!plot.individuals) p <- p + geom_errorbar(limits,width=timeDiff*errorBarScale-(errorBarScale/timeDiff)*2)
+    if (!plot.individuals) p <- p + geom_errorbar(limits,width=timeDiff*errorBarScale-(errorBarScale/timeDiff)*2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
     p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT, expand=c(0,timeDiff*errorBarScale))
