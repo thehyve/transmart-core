@@ -24,7 +24,7 @@ CREATE TABLE de_subj_sample_map_release (
     rbm_panel character varying(50),
     sample_id bigint,
     sample_cd character varying(200),
-    category_cd character varying(1000),
+    category_cd character varying(10000),
     release_study character varying(30)
 );
 

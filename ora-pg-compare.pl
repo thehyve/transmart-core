@@ -2,7 +2,7 @@
 
 ##################################################
 #
-# Functions: need to rap and process parameters
+# Functions: need to trap and process parameters
 # and return type for multi-line
 #
 # Need better comparisons for all except tables in both
@@ -167,7 +167,7 @@ sub parseOracleFunctions($){
 			$cfunc = 1;
 		    }
 		    else {
-			print "$d/$f unexpected function $func     $fuse\n";
+			print STDERR "$d/$f unexpected function $func     $fuse\n";
 		    }
 		}
 	    }
@@ -221,7 +221,7 @@ sub parseOracleProcedures($){
 			$cproc = 1;
 		    }
 		    else {
-			print "$d/$f unexpected procedure $proc     $puse\n";
+			print STDERR "$d/$f unexpected procedure $proc     $puse\n";
 		    }
 		}
 	    }
@@ -280,7 +280,7 @@ sub parseOracleViews($){
 			$cview = 1;
 		    }
 		    else {
-			print "$d/$f unexpected view $view     $vuse     '$rest'\n";
+			print STDERR "$d/$f unexpected view $view     $vuse     '$rest'\n";
 		    }
 		}
 	    }
@@ -395,7 +395,7 @@ sub parseOracle($){
 	    while(<IN>) {
 		s/\s*--.*//g;
 		if($forkey) {
-		    if(/^\s+REFERENCES \"([^\"]+)\"[.]\"([^\"]+)\" \(\"([^\"]+)\"\) (EN|DIS)ABLE;/) {
+		    if(/^\s+REFERENCES \"([^\"]+)\"[.]\"([^\"]+)\" \(\"([^\"]+)\"\) (ON DELETE CASCADE )?(EN|DIS)ABLE;/) {
 			$pk = " ";
 			$pk .= uc($1);
 			$pk .= ".";
@@ -406,7 +406,7 @@ sub parseOracle($){
 			$oTableForkey{"$schema.$table"} .= $pk;
 		    }
 		    else {
-			print STDERR "Unexpected forkey format $d/$f: $_";
+			print STDERR "$d/$f Unexpected foreign key format $d/$f: $_";
 		    }
 		    $forkey = 0;
 		}
@@ -444,10 +444,17 @@ sub parseOracle($){
 			$col =~ s/\"//g;
 			$oTableColumn{"$schema.$table"} .= "$col $cdef;";
 		    }
-		    if(/^\s*(CONSTRAINT \S+\s+)?PRIMARY KEY \(([^\)]+)\)/){
-			$pk = uc($2);
+		    if(/^\s*(CONSTRAINT (\S+)\s+)?PRIMARY KEY \(([^\)]+)\)/){
+			$pkc = $2;
+			$pk = uc($3);
 			$pk =~ s/\s//g;
 			$pk =~ s/\"//g;
+			if(defined($pkc)){
+			    $pkc = uc($pkc);
+			    $pkc =~ s/\s//g;
+			    $pkc =~ s/\"//g;
+			    $oTableKeycon{"$schema.$table"} = $pkc;
+			}
 			$oTableKey{"$schema.$table"} = $pk;
 		    }
 		    if(/^\s*(CONSTRAINT (\S+\s+))?FOREIGN KEY (\([^\)]+\))/){
@@ -523,7 +530,7 @@ sub parseOracle($){
 			$cview = 1;
 		    }
 		    else {
-			print "$d/$f unexpected view $view     $vuse     '$rest'\n";
+			print STDERR "$d/$f unexpected view $view     $vuse     '$rest'\n";
 		    }
 		}
 	    }
@@ -589,7 +596,7 @@ sub parsePostgresFunctions($){
 	if($f =~ /^[.]/) {next}
 	if($f =~ /[~]$/) {next}
 	if(-d "$dir$d/$f") {
-	    print STDERR "PostgresFunctions subdir $d/$f\n";
+	    print STDERR "PostgresFunctions subdirectory $d/$f\n";
 	    next;
 	}
 	if($f =~ /[.]sql$/) {
@@ -692,7 +699,7 @@ sub parsePostgresViews($){
 			$cview = 1;
 		    }
 		    else {
-			print "$d/$f unexpected view $view     $vuse     '$rest'\n";
+			print STDERR "$d/$f unexpected view $view     $vuse     '$rest'\n";
 		    }
 		}
 	    }
@@ -855,7 +862,7 @@ sub parsePostgresLoadall($){
 	    $pgload{"$1"}++;
 	}
 	else {
-	    print STDERR "parsePostgresLoadall $f: $_\n";
+	    print STDERR "Unexpected line in parsePostgresLoadall $f: $_\n";
 	}
     }
     close IN;
@@ -925,11 +932,13 @@ sub parsePostgres($){
 		s/\s*--.*//g;
 
 		if($alterctable) {
-		    if(/^\s*ADD CONSTRAINT \S+ PRIMARY KEY \(([^\)]+)\)/) {
-			$pk = uc($1);
+		    if(/^\s*ADD CONSTRAINT (\S+) PRIMARY KEY \(([^\)]+)\)/) {
+			$pkc = uc($1);
+			$pk = uc($2);
 			$pk =~ s/\s//g;
 			$pk =~ s/\"//g;
 			$pTableKey{$altertable} = $pk;
+			if(defined($pkc)){$pTableKeycon{"$schema.$table"} = $pkc}
 		    }
 		    if(/^\s*ADD CONSTRAINT (\S+ )FOREIGN KEY (\(\S+\) )REFERENCES ([^\(]+\([^\)]+\))/){
 			$pk = uc($1).uc($2);
@@ -975,11 +984,18 @@ sub parsePostgres($){
 			$cdef =~ s/,\s+$//g;
 			$pTableColumn{"$schema.$table"} .= "$col $cdef;";
 		    }
-		    if(/^\s*(CONSTRAINT \S+\s+)?PRIMARY KEY \(([^\)]+)\)/){
-			$pk = uc($2);
+		    if(/^\s*(CONSTRAINT (\S+)\s+)?PRIMARY KEY \(([^\)]+)\)/){
+			$pkc = $2;
+			$pk = uc($3);
 			$pk =~ s/\s//g;
 			$pk =~ s/\"//g;
 			$pTableKey{"$schema.$table"} = $pk;
+			if(defined($pkc)){
+			    $pkc = uc($pkc);
+			    $pkc =~ s/\s//g;
+			    $pkc =~ s/\"//g;
+			    $pTableKeycon{"$schema.$table"} = $pkc;
+			}
 		    }
 		}
 
@@ -1064,7 +1080,7 @@ sub parsePostgres($){
 			$cview = 1;
 		    }
 		    else {
-			print "$d/$f unexpected view $view     $vuse     '$rest'\n";
+			print STDERR "$d/$f unexpected view $view     $vuse     '$rest'\n";
 		    }
 		}
 	    }
@@ -1326,6 +1342,13 @@ sub compareColumns($){
     if(defined($pTableKey{$t})){$pkey = $pTableKey{$t}}
     if($okey ne $pkey) {
 	$compstr .= "PRIMARY KEY     $okey    $pkey\n";
+	if($okey eq "undefined") {
+	    if(!defined($pTableKeycon{$t})) {
+		$compstr .= "PRIMARY KEY (\"$pTableKey{$t}\")\n";
+	    }else{
+		$compstr .= "CONSTRAINT \"$pTableKeycon{$t}\" PRIMARY KEY (\"$pTableKey{$t}\")\n";
+	    }
+	}
     }
 
     my @okey = ();
@@ -1366,6 +1389,16 @@ sub compareColumns($){
 	for ($i = 0; $i < $pkey; $i++) {
 	    $compstr .= "          postgres: $pkey[$i]\n";
 	}
+	($ts,$tt) = ($t =~ /([^.]+)[.](.*)/);
+	for ($i = 0; $i < $pkey; $i++) {
+	    ($kn,$ki,$ks,$kt,$kr) = ($pkey[$i] =~ /(\S+) \(([^\)]+)\) ([^.]+)[.]([^\(]+)\(([^\)]+)\)/);
+	    $compstr .= "--
+-- Type: REF_CONSTRAINT; Owner: $ts; Name: $kn
+--
+ALTER TABLE \"$ts\".\"$tt\" ADD CONSTRAINT \"$kn\" FOREIGN KEY (\"$ki\")
+ REFERENCES \"$ks\".\"$kt\" (\"$kr\") ENABLE;
+";
+	}
     }
 
     if($head eq "") {$compstr .= "\n"}
@@ -1396,7 +1429,7 @@ sub compareSequence($){
     $ptxt =~ s/\s+$//g;
 
     $ptxt =~ s/NO MINVALUE/MINVALUE 1/g;
-    $otxt =~ s/MAXVALUE 999999999+/MAXVALUE 999999999999999999999999999/g;
+    $otxt =~ s/MAXVALUE 999999[9]+/MAXVALUE 999999999999999999999999999/g;
     $ptxt =~ s/NO MAXVALUE/MAXVALUE 999999999999999999999999999/g;
 
     $otxt =~ s/NOCACHE/CACHE 1/;

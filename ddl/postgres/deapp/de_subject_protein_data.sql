@@ -7,7 +7,7 @@ CREATE TABLE de_subject_protein_data (
     component character varying(100),
     patient_id numeric(38,0),
     gene_symbol character varying(100),
-    gene_id character varying(200),
+    gene_id character varying(200), --defined as NUMBR(10,0) in oracle
     assay_id numeric,
     subject_id character varying(100),
     intensity numeric,

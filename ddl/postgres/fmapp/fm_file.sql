@@ -70,7 +70,7 @@ CREATE TRIGGER trg_fm_file_uid AFTER INSERT ON fm_file FOR EACH ROW EXECUTE PROC
 -- Name: seq_fm_id; Type: SEQUENCE; Schema: fmapp; Owner: -
 --
 CREATE SEQUENCE seq_fm_id
-    START WITH 1992275
+    START WITH 1992447
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

@@ -40,7 +40,7 @@ CREATE TRIGGER rbm_id_trigger BEFORE INSERT ON de_rbm_annotation FOR EACH ROW EX
 -- Name: rbm_annotation_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE rbm_annotation_id
-    START WITH 12365
+    START WITH 105393
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

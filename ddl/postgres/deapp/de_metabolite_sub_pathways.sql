@@ -15,8 +15,8 @@ ALTER TABLE ONLY de_metabolite_sub_pathways
     ADD CONSTRAINT de_metabolite_sub_pathway_pk PRIMARY KEY (id);
 
 --
--- Name: de_metabolite_sub_pathways_super_pathway_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_met_sub_pw_sup_pw_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_metabolite_sub_pathways
-    ADD CONSTRAINT de_metabolite_sub_pathways_super_pathway_id_fkey FOREIGN KEY (super_pathway_id) REFERENCES de_metabolite_super_pathways(id);
+    ADD CONSTRAINT de_met_sub_pw_sup_pw_id_fkey FOREIGN KEY (super_pathway_id) REFERENCES de_metabolite_super_pathways(id);
 

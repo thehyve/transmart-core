@@ -3,7 +3,7 @@
 --
 CREATE TABLE bio_lit_inh_data (
     bio_lit_inh_data_id bigint NOT NULL,
-    bio_lit_ref_data_id bigint,
+    bio_lit_ref_data_id bigint,	--oracle NOT NULL DISABLE
     etl_id character varying(50),
     trial_type character varying(250),
     trial_phase character varying(250),

@@ -5,7 +5,7 @@ CREATE TABLE search_user_settings (
     id bigint NOT NULL,
     setting_name character varying(255) NOT NULL,
     user_id bigint NOT NULL,
-    setting_value character varying(255) NOT NULL
+    setting_value character varying(1024) NOT NULL
 );
 
 --

@@ -18,7 +18,7 @@ CREATE TABLE wrk_clinical_data (
     data_value_ctrl_vocab_code character varying(500),
     data_label_components character varying(1000),
     units_cd character varying(50),
-    visit_date character varying(50),
+    visit_date character varying(200),
     node_name character varying(1000),
     link_type character varying(20),
     link_value character varying(200),

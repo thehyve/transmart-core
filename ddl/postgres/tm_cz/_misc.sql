@@ -75,7 +75,7 @@ CREATE SEQUENCE seq_cz_job_id
 -- Name: seq_cz_job_message; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_message
-    START WITH 63
+    START WITH 988
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
