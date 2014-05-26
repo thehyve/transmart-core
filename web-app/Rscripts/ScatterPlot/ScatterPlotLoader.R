@@ -69,8 +69,6 @@ ScatterPlot.loader <- function(
 			
 			trimmedGroupName <- gsub("^\\s+|\\s+$", "",currentGroup)
 			trimmedGroupName <- gsub(" (.*)$", "",trimmedGroupName, perl=TRUE)
-			print("1: ")
-			print(trimmedGroupName)
 
 			#This is the filename for this group.
 			fileName <- paste("LinearRegression_",trimmedGroupName,".txt",sep="")
