@@ -62,12 +62,8 @@ LineGraph.loader <- function(
         p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
         probes <- unlist(strsplit(as.character(plotGroup), '[|]'))
         plotTitle <- ''
-        if(probes[1] != ''){
-            plotTitle <- paste('Intensity of', probes[1], '.') 
-        }
-        if(length(probes)>1){
-            plotTitle <- paste(plotTitle, 'Binned value of', probes[2] , '.')
-        }
+        if(probes[1] != '') plotTitle <- paste('Intensity of', probes[1], '.') 
+        if(length(probes)>1) plotTitle <- paste(plotTitle, 'Binned value of', probes[2] , '.')
         p <- p + labs(title = plotTitle)
         fileIter <- fileIter + 1
         print(p)
