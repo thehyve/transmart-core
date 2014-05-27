@@ -74,6 +74,7 @@ RmodulesView.prototype.get_parameters_for_mrna = function (constraints) {
     constraints['dataConstraints']['pathways'] = null;
     constraints['dataConstraints']['proteins'] = null;
     constraints['dataConstraints']['homologenes'] = null;
+    constraints['dataConstraints']['gene_lists'] = null;
 
     return constraints;
 };

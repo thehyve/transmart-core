@@ -47,15 +47,6 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
     }
 
     @Test
-    void testDisabled() {
-
-        table.conceptPaths << path1
-        table.conceptPaths << path2
-        table.enabledClosure = { false }
-        assertNoResult()
-    }
-
-    @Test
     void testFailNoCommonUnit() {
 
         OntologyTerm ot1 = setConceptResourceKeyExpect(path1, 'days', '1')
