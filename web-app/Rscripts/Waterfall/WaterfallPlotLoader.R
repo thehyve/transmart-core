@@ -57,7 +57,7 @@ WaterfallPlot.loader <- function
 	tmp <- tmp + geom_rect(aes(x = PATIENT_NUM,ymin = 0, ymax = X,xmin=id - .45, xmax = id + .45))
 	
 	#Tilt the axis labels.
-	tmp <- tmp + opts(axis.text.x = theme_text(size = 13,angle=90))
+	tmp <- tmp + opts(axis.text.x = element_text(size = 13,angle=90))
 	
 	#Set the x label.
 	tmp <- tmp + xlab('Patient Identifier') 
