@@ -7,7 +7,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.EmptySetException
 
 class OpenHighDimensionalDataStep implements Step {
 
@@ -29,13 +28,8 @@ class OpenHighDimensionalDataStep implements Step {
                 ontologyTerms.each { ontologyTerm ->
                     String seriesLabel = ontologyTerm.split('\\\\')[-1]
                     List<String> keyList = ["S" + (index + 1), seriesLabel]
-                    TabularResult res = fetchSubset(resultInstanceId, ontologyTerm)
-                    if(res != null) results[keyList] = res 
+                    results[keyList] = fetchSubset(resultInstanceId, ontologyTerm)
                 }
-            }
-            if (results.size() == 0) {
-                throw new EmptySetException(
-				            'No assays satisfy the provided criteria')
             }
         } catch(Throwable t) {
             results.values().each { it.close() }
