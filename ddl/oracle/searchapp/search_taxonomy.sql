@@ -1,68 +1,36 @@
---------------------------------------------------------
---  DDL for Table SEARCH_TAXONOMY
---------------------------------------------------------
-
-CREATE TABLE "SEARCHAPP"."SEARCH_TAXONOMY" 
-   (	"TERM_ID" NUMBER(22,0) NOT NULL ENABLE,		--postgres NOT NULL
-"TERM_NAME" VARCHAR2(900 BYTE) NOT NULL ENABLE, --postgres NOT NULL
+--
+-- Type: TABLE; Owner: SEARCHAPP; Name: SEARCH_TAXONOMY
+--
+ CREATE TABLE "SEARCHAPP"."SEARCH_TAXONOMY" 
+  (	"TERM_ID" NUMBER(22,0) NOT NULL ENABLE, 
+"TERM_NAME" VARCHAR2(900 BYTE) NOT NULL ENABLE, 
 "SOURCE_CD" VARCHAR2(900 BYTE), 
 "IMPORT_DATE" TIMESTAMP (1) DEFAULT Sysdate, 
-"SEARCH_KEYWORD_ID" NUMBER(38,0),
-CONSTRAINT "SEARCH_TAXONOMY_PK" PRIMARY KEY ("TERM_ID")
-   )
-  TABLESPACE "BIOMART" ;
-  
---------------------------------------------------------
---  DDL for Index SEARCH_TAXONOMY_PK
---------------------------------------------------------
+"SEARCH_KEYWORD_ID" NUMBER(38,0), 
+ CONSTRAINT "SEARCH_TAXONOMY_PK" PRIMARY KEY ("TERM_ID")
+ USING INDEX
+ TABLESPACE "BIOMART"  ENABLE
+  ) SEGMENT CREATION DEFERRED
+ TABLESPACE "BIOMART" ;
 
-  CREATE UNIQUE INDEX "SEARCHAPP"."SEARCH_TAXONOMY_PK" ON "SEARCHAPP"."SEARCH_TAXONOMY" ("TERM_ID") 
-
---------------------------------------------------------
---  Constraints for Table SEARCH_TAXONOMY
---------------------------------------------------------
-
-  ALTER TABLE "SEARCHAPP"."SEARCH_TAXONOMY" ADD CONSTRAINT "SEARCH_TAXONOMY_PK" PRIMARY KEY ("TERM_ID")
-  TABLESPACE "BIOMART"  ENABLE;
- 
---  ALTER TABLE "SEARCHAPP"."SEARCH_TAXONOMY" MODIFY ("TERM_ID" NOT NULL ENABLE);
- 
---  ALTER TABLE "SEARCHAPP"."SEARCH_TAXONOMY" MODIFY ("TERM_NAME" NOT NULL ENABLE);
-
---------------------------------------------------------
---  Ref Constraints for Table SEARCH_TAXONOMY
---------------------------------------------------------
-
-  ALTER TABLE "SEARCHAPP"."SEARCH_TAXONOMY" ADD CONSTRAINT "FK_SEARCH_TAX_SEARCH_KEYWORD" FOREIGN KEY ("SEARCH_KEYWORD_ID")
-	  REFERENCES "SEARCHAPP"."SEARCH_KEYWORD" ("SEARCH_KEYWORD_ID") ENABLE;
-
---------------------------------------------------------
---  DDL for Trigger TGR_SEARCH_TAXONOMY_TERM_ID
---------------------------------------------------------
-
+--
+-- Type: TRIGGER; Owner: SEARCHAPP; Name: TGR_SEARCH_TAXONOMY_TERM_ID
+--
   CREATE OR REPLACE TRIGGER "SEARCHAPP"."TGR_SEARCH_TAXONOMY_TERM_ID" 
   before insert on "SEARCHAPP"."SEARCH_TAXONOMY" for each row
-begin 
-    If Inserting 
-      Then If :New.Term_Id Is Null 
-        Then Select SEQ_SEARCH_DATA_ID.nextval Into :New.Term_Id From Dual; 
-      End If; 
+begin
+    If Inserting
+      Then If :New.Term_Id Is Null
+        Then Select SEQ_SEARCH_DATA_ID.nextval Into :New.Term_Id From Dual;
+      End If;
     end if;
 end;
-
-
 /
-ALTER TRIGGER "SEARCHAPP"."TGR_SEARCH_TAXONOMY_TERM_ID" ENABLE;	
+ALTER TRIGGER "SEARCHAPP"."TGR_SEARCH_TAXONOMY_TERM_ID" ENABLE;
+ 
+--
+-- Type: REF_CONSTRAINT; Owner: SEARCHAPP; Name: FK_SEARCH_TAX_SEARCH_KEYWORD
+--
+ALTER TABLE "SEARCHAPP"."SEARCH_TAXONOMY" ADD CONSTRAINT "FK_SEARCH_TAX_SEARCH_KEYWORD" FOREIGN KEY ("SEARCH_KEYWORD_ID")
+ REFERENCES "SEARCHAPP"."SEARCH_KEYWORD" ("SEARCH_KEYWORD_ID") ENABLE;
 
---------------------------------------------------------
---  DDL for Synonymn SEARCH_TAXONOMY
---------------------------------------------------------
-
-  CREATE OR REPLACE SYNONYM "BIOMART_USER"."SEARCH_TAXONOMY" FOR "SEARCHAPP"."SEARCH_TAXONOMY";
-
---------------------------------------------------------
---  DDL for Synonymn SEQ_SEARCH_TAXONOMY_TERM_ID
---------------------------------------------------------
-
-  CREATE OR REPLACE SYNONYM "BIOMART_USER"."SEQ_SEARCH_TAXONOMY_TERM_ID" FOR "SEARCHAPP"."SEQ_SEARCH_TAXONOMY_TERM_ID";  
-  

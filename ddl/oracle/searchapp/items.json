@@ -39,6 +39,39 @@
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_RELS_CHILD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_RELS_PARENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_SEARCH_KEYWORD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
       "name" : "GENE_SIG_CREATE_AUTH_USER_FK1"
     },
     "parents" : [ {
@@ -106,7 +139,11 @@
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_MODULE"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -114,6 +151,17 @@
       "name" : "PLUGIN_MODULE_BACKUP"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_PLUGIN_FK1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE"
+    } ]
   }, {
     "child" : {
       "type" : "SEQUENCE",
@@ -126,6 +174,20 @@
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
     },
     "parents" : [ ]
   }, {
@@ -304,23 +366,12 @@
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
-      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
-    }, {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
       "name" : "SEARCH_GENE_SIGNATURE"
     }, {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_GENE_SIGNATURE_ITEM"
     } ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
-    },
-    "parents" : [ ]
   }, {
     "child" : {
       "type" : "VIEW",
@@ -364,10 +415,6 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_AUTH_USER"
-    }, {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SEARCH_GENE_SIGNATURE"
     }, {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
@@ -547,6 +594,28 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
       "name" : "SEARCH_USER_FEEDBACK"
     },
     "parents" : [ ]
@@ -585,6 +654,43 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_AUTH_USER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TGR_SEARCH_TAXONOMY_RELS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TGR_SEARCH_TAXONOMY_TERM_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_DATA_ID"
     } ]
   }, {
     "child" : {
@@ -769,6 +875,27 @@
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_RELS_CHILD"
+    },
+    "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_RELS_PARENT"
+    },
+    "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "FK_SEARCH_TAX_SEARCH_KEYWORD"
+    },
+    "file" : "searchapp/search_taxonomy.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
       "name" : "GENE_SIG_CREATE_AUTH_USER_FK1"
     },
     "file" : "searchapp/search_gene_signature.sql"
@@ -830,6 +957,13 @@
     "file" : "searchapp/plugin_module_backup.sql"
   }, {
     "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_PLUGIN_FK1"
+    },
+    "file" : "searchapp/plugin_module.sql"
+  }, {
+    "item" : {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
       "name" : "PLUGIN_MODULE_SEQ"
@@ -842,6 +976,20 @@
       "name" : "PLUGIN_SEQ"
     },
     "file" : "searchapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    },
+    "file" : "searchapp/report.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
+    },
+    "file" : "searchapp/report_item.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
@@ -940,13 +1088,6 @@
       "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
     },
     "file" : "searchapp/views/search_bio_mkr_correl_fast_mv.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
-    },
-    "file" : "searchapp/search_bio_mkr_correl_fast_mv.sql"
   }, {
     "item" : {
       "type" : "VIEW",
@@ -1105,6 +1246,20 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    },
+    "file" : "searchapp/search_taxonomy.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    },
+    "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
       "name" : "SEARCH_USER_FEEDBACK"
     },
     "file" : "searchapp/search_user_feedback.sql"
@@ -1136,6 +1291,27 @@
       "name" : "SH_AUTH_USER_ID_FK"
     },
     "file" : "searchapp/search_auth_user.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
+    },
+    "file" : "searchapp/subset.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TGR_SEARCH_TAXONOMY_RELS_ID"
+    },
+    "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TGR_SEARCH_TAXONOMY_TERM_ID"
+    },
+    "file" : "searchapp/search_taxonomy.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

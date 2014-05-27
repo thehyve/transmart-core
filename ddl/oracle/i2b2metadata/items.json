@@ -6,10 +6,6 @@
       "name" : "ADD_ONTOLOGY_NODE"
     },
     "parents" : [ {
-      "type" : "SYNONYM",
-      "owner" : "I2B2DEMODATA",
-      "name" : "I2B2"
-    }, {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "I2B2"
@@ -18,6 +14,13 @@
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "BIRN"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -96,6 +99,17 @@
       "name" : "I2B2_TAGS"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TRIAL_NODES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    } ]
   }, {
     "child" : {
       "type" : "INDEX",
@@ -241,6 +255,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
+      "name" : "BIRN"
+    },
+    "file" : "i2b2metadata/birn.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
       "name" : "CUSTOM_META"
     },
     "file" : "i2b2metadata/custom_meta.sql"
@@ -307,6 +328,13 @@
       "name" : "I2B2_TAGS"
     },
     "file" : "i2b2metadata/i2b2_tags.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TRIAL_NODES"
+    },
+    "file" : "i2b2metadata/views/i2b2_trial_nodes.sql"
   }, {
     "item" : {
       "type" : "INDEX",
