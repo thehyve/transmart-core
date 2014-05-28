@@ -8,7 +8,9 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 class AcghValuesProjection implements CriteriaProjection<AcghValues>, MultiValueProjection {
 
-    Collection<String> dataProperties = AcghValues.metaClass.properties*.name - 'class'
+    Map<String, Class> dataProperties = AcghValues.metaClass.properties.collectEntries {
+        it.name != 'class' ? [(it.name): it.type] : [:]
+    }
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {

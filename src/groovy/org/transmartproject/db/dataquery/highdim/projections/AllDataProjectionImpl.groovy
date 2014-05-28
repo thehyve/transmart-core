@@ -8,20 +8,16 @@ import org.hibernate.criterion.Projections
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 
 /**
- * Created by jan on 12/17/13.
- */
-
-/**
  * This projection collects all the fields specified in the constructor as a map from field name to value
  */
 class AllDataProjectionImpl implements CriteriaProjection<Map<String, Object>>, AllDataProjection {
 
     static Log LOG = LogFactory.getLog(this)
 
-    Collection<String> dataProperties
-    Collection<String> rowProperties
+    Map<String, Class> dataProperties
+    Map<String, Class> rowProperties
 
-    AllDataProjectionImpl(Collection<String> dataProperties, Collection<String> rowProperties) {
+    AllDataProjectionImpl(Map<String, Class> dataProperties, Map<String, Class> rowProperties) {
         this.dataProperties = dataProperties
         this.rowProperties = rowProperties
     }
@@ -40,7 +36,7 @@ class AllDataProjectionImpl implements CriteriaProjection<Map<String, Object>>, 
             return
         }
 
-        for (String field : dataProperties) {
+        for (String field : dataProperties.keySet()) {
             // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
             projection.add(
                     Projections.alias(

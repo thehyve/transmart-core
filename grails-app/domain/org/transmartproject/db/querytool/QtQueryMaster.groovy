@@ -23,7 +23,7 @@ class QtQueryMaster {
         /* use sequence instead of identity because our Oracle schema doesn't
          * have a trigger that fills the column in this case */
         id              column: 'query_master_id', generator: 'sequence',
-                        params: [sequence: 'qt_sq_qm_qmid']
+                        params: [sequence: 'qt_sq_qm_qmid', schema: 'i2b2demodata']
         generatedSql    type:   'text'
         requestXml      type:   'text'
         i2b2RequestXml  column: 'I2B2_REQUEST_XML', type: 'text'

@@ -12,7 +12,7 @@ class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
 
         id composite: ['fullName', 'name']
 
-        secureObjectToken name: 'secure_obj_token'
+        secureObjectToken column: 'secure_obj_token'
 
         AbstractI2b2Metadata.mapping.delegate = delegate
         AbstractI2b2Metadata.mapping()

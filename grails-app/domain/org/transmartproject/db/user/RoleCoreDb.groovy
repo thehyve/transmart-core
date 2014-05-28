@@ -2,6 +2,8 @@ package org.transmartproject.db.user
 
 class RoleCoreDb {
 
+    public static final String ROLE_ADMIN_AUTHORITY = 'ROLE_ADMIN'
+
     String authority
     String description
 

@@ -2,11 +2,7 @@ package org.transmartproject.db.querytool
 
 import groovy.xml.MarkupBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.ConstraintByValue
-import org.transmartproject.core.querytool.Item
-import org.transmartproject.core.querytool.Panel
-import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
+import org.transmartproject.core.querytool.*
 
 /**
  * Handles conversions of {@link org.transmartproject.core.querytool

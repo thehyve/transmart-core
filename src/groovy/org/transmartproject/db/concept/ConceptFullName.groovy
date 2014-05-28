@@ -10,7 +10,7 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode
 final class ConceptFullName {
     private final String fullPath
-    final List<String> parts;
+    final List<String> parts
 
     ConceptFullName(String path) {
         if (path.size() == 0 || path[0] != '\\')
@@ -40,6 +40,19 @@ final class ConceptFullName {
 
     def getLength() {
         parts.size()
+    }
+
+    ConceptFullName getParent() {
+        if (length == 1) {
+            return null
+        }
+        new ConceptFullName('\\' + parts[0..-2].join('\\') + '\\')
+    }
+
+    boolean isSiblingOf(ConceptFullName otherFullName) {
+        otherFullName.length == this.length &&
+                this.length == 1 ||
+                otherFullName.parts[1..-1] == this.parts[1..-1]
     }
 
     @Override

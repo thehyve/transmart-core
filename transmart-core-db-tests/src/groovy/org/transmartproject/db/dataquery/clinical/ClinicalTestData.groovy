@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.clinical
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
@@ -10,11 +9,13 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 
 class ClinicalTestData {
 
+    public static final long DUMMY_ENCOUNTER_ID = -300L
     List<Patient> patients
     List<ObservationFact> facts
 
@@ -51,7 +52,7 @@ class ClinicalTestData {
         assert patients.size() >= count
 
         def leafConceptsCodes = concepts.findAll {
-            OntologyTerm.VisualAttributes.LEAF in it.visualAttributes
+            LEAF in it.visualAttributes
         } collect { it.code }
 
         assert leafConceptsCodes.size() >= count
@@ -59,9 +60,34 @@ class ClinicalTestData {
         def facts = []
         for (int i = 0; i < count; i++) {
             facts << createObservationFact(leafConceptsCodes[i], patients[i],
-                    -300L, Math.pow(10, i + 1))
+                    DUMMY_ENCOUNTER_ID, Math.pow(10, i + 1))
         }
         facts
+    }
+
+    static List<ObservationFact> createDiagonalCategoricalFacts(
+            int count, List<I2b2> concepts /* terminal */, List<Patient> patients) {
+
+        assert patients.size() >= count
+        assert concepts.size() > 0
+
+        def map = [:]
+        for (int i = 0; i < count; i++) {
+            int j = i % concepts.size()
+            assert LEAF in concepts[j].visualAttributes //leaf
+            assert !concepts[j].metadata?.okToUseValues  //non-numeric
+
+            map[patients[i]] = concepts[j]
+        }
+
+        createCategoricalFacts map
+    }
+
+    static List<ObservationFact> createCategoricalFacts(Map<Patient, I2b2> values) {
+        values.collect { patient, i2b2 ->
+            createObservationFact(
+                    i2b2.code, patient, DUMMY_ENCOUNTER_ID, i2b2.name)
+        }
     }
 
     static ObservationFact createObservationFact(ConceptDimension concept,

@@ -28,15 +28,17 @@ class QtQueryResultInstance implements QueryResult {
     static hasMany = [patientSet: QtPatientSetCollection,
                       patientsA:  PatientDimension]
 
+    static transients = ['username']
+
 	static mapping = {
         table          schema: 'I2B2DEMODATA'
 
         /* use sequence instead of identity because our Oracle schema doesn't
          * have a trigger that fills the column in this case */
         id             column: 'result_instance_id', generator: 'sequence',
-                       params: [sequence: 'qt_sq_qri_qriid']
+                       params: [sequence: 'qt_sq_qri_qriid', schema: 'i2b2demodata']
         errorMessage   column: 'message'
-        queryInstance  column: 'query_instance_id'
+        queryInstance  column: 'query_instance_id', fetch: 'join'
 
         patientsA      joinTable: [name:   'qt_patient_set_collection',
                                    key:    'result_instance_id',
@@ -96,5 +98,10 @@ class QtQueryResultInstance implements QueryResult {
         }
 
         res
+    }
+
+    @Override
+    String getUsername() {
+        queryInstance.userId
     }
 }

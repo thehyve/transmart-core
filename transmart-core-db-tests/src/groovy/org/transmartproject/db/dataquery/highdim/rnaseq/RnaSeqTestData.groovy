@@ -23,7 +23,7 @@ class RnaSeqTestData {
                 organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
                 markerType: REGION_PLATFORM_MARKER_TYPE,
-                releaseNumber: 18,
+                releaseNumber: 'hg18',
         )
         p.id = 'test-region-platform_rnaseq'
         p

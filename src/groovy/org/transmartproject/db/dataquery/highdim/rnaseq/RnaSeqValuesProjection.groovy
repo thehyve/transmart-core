@@ -7,7 +7,9 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 class RnaSeqValuesProjection implements CriteriaProjection<RnaSeqValues>, MultiValueProjection {
 
-    Collection<String> dataProperties = RnaSeqValues.metaClass.properties*.name - 'class'
+    Map<String, Class> dataProperties = RnaSeqValues.metaClass.properties.collectEntries {
+        it.name != 'class' ? [(it.name): it.type] : [:]
+    }
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {

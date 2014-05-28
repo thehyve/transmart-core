@@ -19,7 +19,7 @@ class ProteinTestData {
         def res = new DeGplInfo(
                 title: 'Bogus protein platform',
                 organism: 'Homo Sapiens',
-                markerTypeId: 'BOGUS PROTEIN MARKER TYPE') // ?? what should be here
+                markerType: 'PROTEOMICS') 
         res.id = 'BOGUS_PROTEIN_PLATFORM'                  // ?? what should be here
         res
     }()

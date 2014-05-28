@@ -21,8 +21,7 @@ class DeVariantDatasetCoreDb {
     }
 
     static mapping = {
-        table schema: 'deapp'
-        table   name:  'de_variant_dataset'
+        table schema: 'deapp', name:  'de_variant_dataset'
         version false
         id column:'dataset_id', generator: 'assigned'
     }

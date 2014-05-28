@@ -26,7 +26,8 @@ class MrnaTestData {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
                 organism: 'Homo Sapiens',
-                markerType: 'Gene Expression')
+                markerType: 'Gene Expression',
+                genomeReleaseId: 'hg19')
         res.id = 'BOGUSGPL570'
         res
     }()

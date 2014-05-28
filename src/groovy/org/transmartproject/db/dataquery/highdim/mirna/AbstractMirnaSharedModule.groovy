@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -8,18 +7,13 @@ import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import javax.annotation.PostConstruct
 
@@ -32,9 +26,11 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeModule {
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = typesMap(DeSubjectMirnaData,
+            ['rawIntensity', 'logIntensity', 'zscore'])
 
-    private final Set<String> rowProperties = ImmutableSet.of('probeId', 'mirnaId')
+    final Map<String, Class> rowProperties = typesMap(MirnaProbeRow,
+            ['probeId', 'mirnaId'])
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

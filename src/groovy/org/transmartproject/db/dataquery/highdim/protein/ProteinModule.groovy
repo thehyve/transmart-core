@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -27,9 +26,11 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['PROTEOMICS']
 
-    private final Set<String> dataProperties = ImmutableSet.of('intensity', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = typesMap(DeSubjectProteinData,
+            ['intensity', 'logIntensity', 'zscore'])
 
-    private final Set<String> rowProperties = ImmutableSet.of('uniprotName', 'peptide')
+    final Map<String, Class> rowProperties = typesMap(ProteinDataRow,
+            ['uniprotName', 'peptide'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

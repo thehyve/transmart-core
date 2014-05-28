@@ -1,12 +1,11 @@
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
+import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AbstractMethodBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.ProducerFor
-
-import org.springframework.context.annotation.Scope
 
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.convertToLong
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.getParam

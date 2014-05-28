@@ -119,7 +119,7 @@ class MetaboliteTestData {
             new DeSubjectMetabolomicsData(
                     assay: assay,
                     annotation: annotation,
-                    intensity: intensity,
+                    rawIntensity: intensity,
                     logIntensity: Math.log(intensity),
                     zscore:    (intensity - 0.35) / 0.1871
             )
