@@ -16,9 +16,9 @@ ALTER TABLE ONLY search_custom_filter
     ADD CONSTRAINT search_custom_filter_pk PRIMARY KEY (search_custom_filter_id);
 
 --
--- Name: tf_trgi_search_custom_filter_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_custom_filter_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_custom_filter_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_custom_filter_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin 
@@ -30,7 +30,7 @@ end;
 $$;
 
 --
--- Name: trgi_search_custom_filter_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_custom_filter_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_custom_filter_id BEFORE INSERT ON search_custom_filter FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_custom_filter_id();
+CREATE TRIGGER trg_search_custom_filter_id BEFORE INSERT ON search_custom_filter FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_custom_filter_id();
 

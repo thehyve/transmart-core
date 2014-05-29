@@ -14,3 +14,8 @@ CREATE TABLE search_user_settings (
 ALTER TABLE ONLY search_user_settings
     ADD CONSTRAINT search_user_settings_pkey PRIMARY KEY (id);
 
+--
+-- Name: search_user_settings_uk; Type: CONSTRAINT; Schema: searchapp; Owner: -
+--
+ALTER TABLE ONLY search_user_settings
+    ADD CONSTRAINT search_user_settings_uk UNIQUE (user_id,setting_name,setting_value);

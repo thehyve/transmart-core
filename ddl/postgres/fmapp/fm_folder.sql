@@ -64,5 +64,5 @@ SET default_with_oids = false;
 --
 -- Name: trg_fm_folder_uid; Type: TRIGGER; Schema: fmapp; Owner: -
 --
-CREATE TRIGGER trg_fm_folder_uid AFTER INSERT ON fm_folder FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_folder_uid();
+CREATE TRIGGER trg_fm_folder_uid BEFORE INSERT ON fm_folder FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_folder_uid();
 

@@ -27,10 +27,36 @@ end;
 $$;
 
 
+--
+-- Name: tf_trg_am_tag_value_uid(); Type: FUNCTION; Schema: fmapp; Owner: -
+--
+CREATE FUNCTION tf_trg_am_tag_value_uid() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  rec_count bigint;
+BEGIN
+  SELECT COUNT(*) INTO rec_count 
+  FROM am_data_uid 
+  WHERE am_data_id = new.tagvalue_id;
+  
+  if rec_count = 0 then
+    insert into amapp.am_data_uid (am_data_id, unique_id, am_data_type)
+    values (NEW.tag_value_id, am_tag_value_uid(NEW.tag_value_id), 'AM_TAG_VALUE');
+  end if;
+end;
+$$;
+
+
 SET default_with_oids = false;
 
 --
 -- Name: trg_am_tag_value_id; Type: TRIGGER; Schema: amapp; Owner: -
 --
 CREATE TRIGGER trg_am_tag_value_id BEFORE INSERT ON am_tag_value FOR EACH ROW EXECUTE PROCEDURE tf_trg_am_tag_value_id();
+
+--
+-- Name: trg_am_tag_value_uid; Type: TRIGGER; Schema: amapp; Owner: -
+--
+CREATE TRIGGER trg_am_tag_value_uid BEFORE INSERT ON am_tag_value FOR EACH ROW EXECUTE PROCEDURE tf_trg_am_tag_value_uid();
 

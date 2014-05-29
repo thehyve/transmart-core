@@ -48,4 +48,22 @@ CREATE INDEX pd_idx_dates ON patient_dimension USING btree (patient_num, vital_s
 -- Name: pd_idx_statecityzip; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX pd_idx_statecityzip ON patient_dimension USING btree (statecityzip_path, patient_num);
+--
+-- Name: tf_trg_patient_dimension(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
+--
+CREATE FUNCTION tf_trg_patient_dimension() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.PATIENT_NUM is null then
+ select nextval('i2b2demodata.SEQ_PATIENT_NUM') into NEW.PATIENT_NUM ;
+endif;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_patient_dimension; Type: TRIGGER; Schema: i2b2demodata; Owner: -
+--
+CREATE TRIGGER trg_patient_dimension BEFORE INSERT ON patient_dimension FOR EACH ROW EXECUTE PROCEDURE tf_trg_patient_dimension();
 

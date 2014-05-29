@@ -15,9 +15,9 @@ ALTER TABLE ONLY search_custom_filter_item
     ADD CONSTRAINT search_cust_fil_item_pk PRIMARY KEY (search_custom_filter_item_id);
 
 --
--- Name: tf_trgi_search_cust_fil_item_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_cust_fil_item_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_cust_fil_item_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_cust_fil_item_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin 
@@ -29,7 +29,7 @@ end;
 $$;
 
 --
--- Name: trgi_search_cust_fil_item_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_cust_fil_item_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_cust_fil_item_id BEFORE INSERT ON search_custom_filter_item FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_cust_fil_item_id();
+CREATE TRIGGER trg_search_cust_fil_item_id BEFORE INSERT ON search_custom_filter_item FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_cust_fil_item_id();
 

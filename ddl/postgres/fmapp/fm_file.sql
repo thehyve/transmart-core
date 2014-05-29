@@ -64,7 +64,7 @@ $$;
 --
 -- Name: trg_fm_file_uid; Type: TRIGGER; Schema: fmapp; Owner: -
 --
-CREATE TRIGGER trg_fm_file_uid AFTER INSERT ON fm_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_file_uid();
+CREATE TRIGGER trg_fm_file_uid BEFORE INSERT ON fm_file FOR EACH ROW EXECUTE PROCEDURE tf_trg_fm_file_uid();
 
 --
 -- Name: seq_fm_id; Type: SEQUENCE; Schema: fmapp; Owner: -

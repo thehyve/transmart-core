@@ -29,3 +29,21 @@ CREATE TABLE de_subject_rbm_data (
 --
 ALTER TABLE ONLY de_subject_rbm_data
     ADD CONSTRAINT pk_de_subject_rbm_data PRIMARY KEY (id);
+--
+-- Name: tf_trg_de_subj_rbm_data_id(); Type: FUNCTION; Schema: deapp; Owner: -
+--
+CREATE FUNCTION tf_trg_de_subj_rbm_data_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.ID is null then
+ select nextval('deapp.DE_SUBJECT_RBM_DATA_SEQ') into NEW.ID ;
+endif;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_de_subj_rbm_data_id; Type: TRIGGER; Schema: deapp; Owner: -
+--
+CREATE TRIGGER trg_de_subj_rbm_data_id BEFORE INSERT ON de_subject_rbm_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subj_rbm_data_id();

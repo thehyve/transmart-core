@@ -62,4 +62,6 @@
 \i deapp/kegg.sql
 \i deapp/kegg_def.sql
 \i deapp/ricerca.sql
+\i deapp/de_encounter_level.sql
+\i deapp/de_obs_enroll_days.sql
 \i deapp/_misc.sql

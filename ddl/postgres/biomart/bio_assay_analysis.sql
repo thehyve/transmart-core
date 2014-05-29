@@ -58,3 +58,30 @@ CREATE TRIGGER trg_bio_assay_analysis_id BEFORE INSERT ON bio_assay_analysis FOR
 ALTER TABLE ONLY bio_assay_analysis
     ADD CONSTRAINT bio_assay_ans_pltfm_fk FOREIGN KEY (bio_asy_analysis_pltfm_id) REFERENCES bio_asy_analysis_pltfm(bio_asy_analysis_pltfm_id);
 
+
+--
+-- Name: tf_bio_assay_analysis_uid(); Type: FUNCTION; Schema: biomart; Owner: -
+--
+CREATE FUNCTION tf_trg_bio_assay_analysis_uid() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  rec_count bigint;
+BEGIN
+  SELECT COUNT(*) INTO rec_count 
+  FROM bio_data_uid 
+  WHERE bio_data_id = new.bio_assay_analysis_id;
+  
+  if rec_count = 0 then
+    insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
+    values (NEW.bio_assay_analysis_id, bio_assay_analysis_uid(NEW.bio_assay_analysis_id), 'BIO_ASSAY_ANALYSIS');
+  end if;
+end;
+$$;
+
+
+--
+-- Name: trg_bio_assay_analysis_uid; Type: TRIGGER; Schema: biomart; Owner: -
+--
+CREATE TRIGGER trg_bio_assay_analysis_uid BEFORE INSERT ON bio_assay_analysis FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_analysis_uid();
+

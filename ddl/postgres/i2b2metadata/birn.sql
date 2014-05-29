@@ -11,7 +11,7 @@ CREATE TABLE birn (
     c_basecode character varying(50),
     c_metadataxml text,
     c_facttablecolumn character varying(50) NOT NULL,
-    c_tablename character varying(50) NOT NULL,
+    c_tablename character varying(150) NOT NULL,
     c_columnname character varying(50) NOT NULL,
     c_columndatatype character varying(50) NOT NULL,
     c_operator character varying(10) NOT NULL,

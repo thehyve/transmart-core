@@ -31,6 +31,26 @@ CREATE TABLE i2b2 (
 );
 
 --
+-- Name: tf_trg_i2b2_id(); Type: FUNCTION; Schema: i2b2metadata; Owner: -
+--
+CREATE FUNCTION tf_trg_i2b2_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.I2B2_ID is null then
+ select nextval('i2b2metadata.I2B2_ID_SEQ') into NEW.I2B2_ID ;
+endif;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_i2b2_id; Type: TRIGGER; Schema: i2b2metadata; Owner: -
+--
+CREATE TRIGGER trg_i2b2_id BEFORE INSERT ON i2b2 FOR EACH ROW EXECUTE PROCEDURE tf_trg_i2b2_id();
+
+
+--
 -- Name: i2b2_c_comment_char_length_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
 --
 CREATE INDEX i2b2_c_comment_char_length_idx ON i2b2 USING btree (c_comment, char_length((c_fullname)::text));

@@ -41,4 +41,9 @@
 \i searchapp/views/search_taxonomy_terms_cats.sql
 \i searchapp/search_user_settings.sql
 \i searchapp/views/solr_keywords_lineage.sql
+\i searchapp/plugin_module_backup.sql
+\i searchapp/report.sql
+\i searchapp/report_item.sql
+\i searchapp/search_user_feedback.sql
+\i searchapp/subset.sql
 \i searchapp/_misc.sql

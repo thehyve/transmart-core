@@ -59,3 +59,23 @@ CREATE SEQUENCE seq_mrna_partition_id
     NO MAXVALUE
     CACHE 1;
 
+--
+-- Name: de_subject_rbm_data_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE de_subject_rbm_data_seq
+    START WITH 1272564
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: tt; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE tt
+    START WITH 241
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+

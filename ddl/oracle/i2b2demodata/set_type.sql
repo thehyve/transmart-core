@@ -2,9 +2,24 @@
 -- Type: TABLE; Owner: I2B2DEMODATA; Name: SET_TYPE
 --
  CREATE TABLE "I2B2DEMODATA"."SET_TYPE" 
-  (	"ID" NUMBER(38,0), 
+  (	"ID" NUMBER(38,0) NOT NULL ENABLE, 
 "NAME" VARCHAR2(500 BYTE), 
-"CREATE_DATE" TIMESTAMP,
+"CREATE_DATE" DATE,
 CONSTRAINT "PK_ST_ID" PRIMARY KEY ("ID")
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "I2B2_DATA" ;
+--
+-- Type: TRIGGER; Owner: I2B2DEMODATA; Name: TRG_SET_TYPE_ID
+--
+  CREATE OR REPLACE TRIGGER "I2B2DEMODATA"."TRG_SET_TYPE_ID" 
+   before insert on "I2B2DEMODATA"."SET_TYPE" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID" is null then 
+         select SQ_UP_PATDIM_PATIENTNUM.nextval into :NEW."ID" from dual; 
+      end if; 
+   end if; 
+end;
+/
+ALTER TRIGGER "I2B2DEMODATA"."TRG_SET_TYPE_ID" ENABLE;

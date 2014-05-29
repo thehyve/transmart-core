@@ -198,4 +198,6 @@
 \i tm_cz/tmp_subject_info.sql
 \i tm_cz/tmp_trial_data.sql
 \i tm_cz/tmp_trial_nodes.sql
+\i tm_cz/cz_form_layout.sql
+\i tm_cz/dk1.sql
 \i tm_cz/_misc.sql

@@ -26,3 +26,21 @@ CREATE INDEX de_mrna_annotation_idx1 ON de_mrna_annotation USING btree (gpl_id, 
 --
 CREATE INDEX de_mrna_annotation_idx2 ON de_mrna_annotation USING btree (gene_id, probeset_id);
 
+--
+-- Name: tf_trg_de_mrna_annotation_id(); Type: FUNCTION; Schema: deapp; Owner: -
+--
+CREATE FUNCTION tf_trg_de_mrna_annotation_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.DE_MRNA_ANNOTATION_ID is null then
+ select nextval('deapp.SEQ_DE_MRNA_ANNOTATION_ID') into NEW.DE_MRNA_ANNOTATION_ID ;
+endif;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_de_mrna_anotation_id; Type: TRIGGER; Schema: deapp; Owner: -
+--
+CREATE TRIGGER trg_de_mrna_annotation_id BEFORE INSERT ON de_mrna_annotation FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_mrna_annotation_id();

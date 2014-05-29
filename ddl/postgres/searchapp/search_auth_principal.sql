@@ -19,9 +19,9 @@ ALTER TABLE ONLY search_auth_principal
     ADD CONSTRAINT pk_search_principal PRIMARY KEY (id);
 
 --
--- Name: tf_trgi_search_au_prcpl_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_au_prcpl_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_au_prcpl_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_au_prcpl_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
@@ -32,7 +32,7 @@ end;
 $$;
 
 --
--- Name: trgi_search_au_prcpl_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_au_prcpl_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_au_prcpl_id BEFORE INSERT ON search_auth_principal FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_au_prcpl_id();
+CREATE TRIGGER trg_search_au_prcpl_id BEFORE INSERT ON search_auth_principal FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_au_prcpl_id();
 

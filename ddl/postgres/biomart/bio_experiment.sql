@@ -59,3 +59,31 @@ $$;
 --
 CREATE TRIGGER trg_bio_experiment_id BEFORE INSERT ON bio_experiment FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_experiment_id();
 
+
+
+--
+-- Name: tf_trg_bio_experiment_uid(); Type: FUNCTION; Schema: biomart; Owner: -
+--
+CREATE FUNCTION tf_trg_bio_experiment_uid() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  rec_count bigint;
+BEGIN
+  SELECT COUNT(*) INTO rec_count 
+  FROM bio_data_uid 
+  WHERE bio_data_id = new.bio_experiment_id;
+  
+  if rec_count = 0 then
+    insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
+    values (NEW.bio_experiment_id, bio_experiment_uid(NEW.accession), 'BIO_EXPERIMENT');
+  end if;
+end;
+$$;
+
+
+--
+-- Name: trg_bio_experiment_uid; Type: TRIGGER; Schema: fmapp; Owner: -
+--
+CREATE TRIGGER trg_bio_experiment_uid BEFORE INSERT ON bio_experiment FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_experiment_uid();
+

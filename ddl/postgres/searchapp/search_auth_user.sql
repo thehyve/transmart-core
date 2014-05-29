@@ -12,10 +12,10 @@ CREATE TABLE search_auth_user (
 );
 
 --
--- Name: search_auth_user_federated_id_key; Type: CONSTRAINT; Schema: searchapp; Owner: -
+-- Name: sau_fed_id_key; Type: CONSTRAINT; Schema: searchapp; Owner: -
 --
 ALTER TABLE ONLY search_auth_user
-    ADD CONSTRAINT search_auth_user_federated_id_key UNIQUE (federated_id);
+    ADD CONSTRAINT sau_fed_id_key UNIQUE (federated_id);
 
 --
 -- Name: sys_c0011119; Type: CONSTRAINT; Schema: searchapp; Owner: -

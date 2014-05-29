@@ -77,9 +77,9 @@ CREATE INDEX bad_idx13 ON bio_assay_analysis_data USING btree (bio_assay_analysi
 CREATE UNIQUE INDEX pk_baad ON bio_assay_analysis_data USING btree (bio_asy_analysis_data_id);
 
 --
--- Name: tf_trig_bio_asy_analysis_data_id(); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: tf_trg_bio_asy_analysis_data_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION tf_trig_bio_asy_analysis_data_id() RETURNS trigger
+CREATE FUNCTION tf_trg_bio_asy_analysis_data_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -91,9 +91,9 @@ END
 $$;
 
 --
--- Name: trig_bio_asy_analysis_data_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: trg_bio_asy_analysis_data_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-CREATE TRIGGER trig_bio_asy_analysis_data_id BEFORE INSERT ON bio_assay_analysis_data FOR EACH ROW EXECUTE PROCEDURE tf_trig_bio_asy_analysis_data_id();
+CREATE TRIGGER trg_bio_asy_analysis_data_id BEFORE INSERT ON bio_assay_analysis_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_analysis_data_id();
 
 --
 -- Name: bio_assay_analysis_data_n_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -
