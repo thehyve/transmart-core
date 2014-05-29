@@ -394,6 +394,15 @@ sub parseOracle($){
 	    open(IN,"$dir$d/$f") || die "Failed to read $d/$f";
 	    while(<IN>) {
 		s/\s*--.*//g;
+		if($ctrig) {
+		    if(/select ([^.]+)[.]nextval into :NEW[.]\"([^\"]+)\" from dual;/){
+			$nid = $1;
+			$ncol=$2;
+			$oNextval{"$schema.$table"} = "$ncol.$nid";
+			$oNexttrig{"$schema.$trig"} = "$schema.$table";
+		    }
+		    if(/ALTER TRIGGER \S+ ENABLE/) {$ctrig = 0}
+		}
 		if($forkey) {
 		    if(/^\s+REFERENCES \"([^\"]+)\"[.]\"([^\"]+)\" \(\"([^\"]+)\"\) (ON DELETE CASCADE )?(EN|DIS)ABLE;/) {
 			$pk = " ";
@@ -425,9 +434,13 @@ sub parseOracle($){
 		    }
 		    elsif($tuse eq "ALTER") {
 			if(/CONSTRAINT (\S+ )FOREIGN KEY (\([^\)]+\))/){
-			    $pk = uc($1).uc($2);
-			    $pk =~ s/\"//g;
-			    $oTableForkey{"$schema.$table"} .= $pk;
+			    $pc = $1;
+			    $pk = $2;
+			    $pc =~ s/\"//g;
+			    if(length($pc) > 31){print STDERR "Oracle constraint length ".length($pc)." '$pc'\n"}
+			    $pfk = uc($pc).uc($pk);
+			    $pfk =~ s/\"//g;
+			    $oTableForkey{"$schema.$table"} .= $pfk;
 			    $forkey=1;
 			}
 		    }
@@ -456,6 +469,19 @@ sub parseOracle($){
 			    $oTableKeycon{"$schema.$table"} = $pkc;
 			}
 			$oTableKey{"$schema.$table"} = $pk;
+		    }
+		    if(/^\s*(CONSTRAINT (\S+)\s+)?UNIQUE \(([^\)]+)\)/){
+			$pkc = $2;
+			$pk = uc($3);
+			$pk =~ s/\s//g;
+			$pk =~ s/\"//g;
+			if(defined($pkc)){
+			    $pkc = uc($pkc);
+			    $pkc =~ s/\s//g;
+			    $pkc =~ s/\"//g;
+			    $oTableUnikey{"$schema.$table"} .= "$pkc $pk;";
+			}
+			else {$oTableUnikey{"$schema.$table"} .= ". $pk;"}
 		    }
 		    if(/^\s*(CONSTRAINT (\S+\s+))?FOREIGN KEY (\([^\)]+\))/){
 			if(defined($1)) {$pk = uc($2).uc($3)}
@@ -508,6 +534,9 @@ sub parseOracle($){
 		    if($tuse =~ /^CREATE/) {
 			$oTriggerFile{"$schema.$trig"} = "$d/$f";
 			$ctrig = 1;
+#			if($trig !~ /^TRG_/){
+#			    print STDERR "ctrig set for $schema.$trig\n";
+#			}
 		    }
 		}
 
@@ -544,7 +573,7 @@ sub parseOracle($){
 		if(/^\s+\"file\" : \"(\S+)\"/){
 		    $ofile = $1;
 		    if($ofile !~ /\/_cross[.]sql$/){
-			$orload{"$1"}++;
+			$orload{"$ofile"}++;
 		    }
 		}
 	    }
@@ -940,6 +969,14 @@ sub parsePostgres($){
 			$pTableKey{$altertable} = $pk;
 			if(defined($pkc)){$pTableKeycon{"$schema.$table"} = $pkc}
 		    }
+		    if(/^\s*ADD CONSTRAINT (\S+) UNIQUE \(([^\)]+)\)/) {
+			$pkc = uc($1);
+			$pk = uc($2);
+			$pk =~ s/\s//g;
+			$pk =~ s/\"//g;
+			if(defined($pkc)){$pTableUnikey{$altertable} .= "$pkc $pk;"}
+			else {$pTableUnikey{$altertable} .= ". $pk;"}
+		    }
 		    if(/^\s*ADD CONSTRAINT (\S+ )FOREIGN KEY (\(\S+\) )REFERENCES ([^\(]+\([^\)]+\))/){
 			$pk = uc($1).uc($2);
 			$pk .= uc($schema);
@@ -981,8 +1018,15 @@ sub parsePostgres($){
 		    if(/^\s*([a-z]\S+)\s+(.*?),?$/) {
 			$col = $1;
 			$cdef = $2;
+			$col = uc($col);
 			$cdef =~ s/,\s+$//g;
 			$pTableColumn{"$schema.$table"} .= "$col $cdef;";
+			if($cdef =~ / DEFAULT nextval\(\'([^\']+)\'::regclass\) NOT NULL$/){
+			    $cid = $1;
+			    $cid = uc($1);
+			    $pNextval{"$schema.$table"} = "$col.$cid";
+			}
+			elsif($cdef =~ /DEFAULT nextval/){print STDERR "$d/$f DEFAULT nextval not recognized: '$cdef'\n"}
 		    }
 		    if(/^\s*(CONSTRAINT (\S+)\s+)?PRIMARY KEY \(([^\)]+)\)/){
 			$pkc = $2;
@@ -996,6 +1040,19 @@ sub parsePostgres($){
 			    $pkc =~ s/\"//g;
 			    $pTableKeycon{"$schema.$table"} = $pkc;
 			}
+		    }
+		    if(/^\s*(CONSTRAINT (\S+)\s+)?UNIQUE \(([^\)]+)\)/){
+			$pkc = $2;
+			$pk = uc($3);
+			$pk =~ s/\s//g;
+			$pk =~ s/\"//g;
+			if(defined($pkc)){
+			    $pkc = uc($pkc);
+			    $pkc =~ s/\s//g;
+			    $pkc =~ s/\"//g;
+			    $pTableUnikey{"$schema.$table"} .= "$pkc $pk;";
+			}
+			else {$pTableUnikey{"$schema.$table"} .= ". $pk;"}
 		    }
 		}
 
@@ -1102,14 +1159,16 @@ sub parsePostgres($){
     return $err;
 }
 
-sub compareTypes($$){
-    my ($ot,$pt) = @_;
+sub compareTypes($$$$){
+    my ($st,$c,$ot,$pt) = @_;
+    my $s;
+    my $t;
     if($ot eq $pt) {return 0}
 
-    if($pt =~ /DEFAULT NEXTVAL\S+/ && $ot =~ /\/\* POSTGRES NEXTVAL NEEDS TRIGGER \*\//){
-	$pt =~ s/DEFAULT NEXTVAL\S+ //g;
-	$ot =~ s/\/\*[^*]+\*\/ //g;
-    }
+#    if($pt =~ /DEFAULT NEXTVAL\S+/ && $ot =~ /\/\* POSTGRES NEXTVAL NEEDS TRIGGER \*\//){
+#	$pt =~ s/DEFAULT NEXTVAL\S+ //g;
+#	$ot =~ s/\/\*[^*]+\*\/ //g;
+#    }
 
     if($ot =~ /NOT NULL ENABLE$/ && $pt =~ /NOT NULL$/) {
 	$pt .= " ENABLE";
@@ -1253,15 +1312,23 @@ sub compareTypes($$){
     }
 
     elsif($pt =~ /^TIMESTAMP(\((\d)\))? WITHOUT TIME ZONE/){
-	$it = $1;
-	if(!defined($it)) {$it = 6}
+	if(!defined($1)) {$it = 6}
+	else {$it = $2}
 	if($ot =~ /^DATE/) {
 	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
 	    $ot =~ s/^\S+/matched/;
 	}
+	elsif($ot =~ /^TIMESTAMP \(9\)/ && $it == 6) {
+	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
+	    $ot =~ s/^\S+ \S+/matched/;
+	}
 	elsif($ot =~ /^TIMESTAMP \($it\)/) {
 	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
 	    $ot =~ s/^\S+ \S+/matched/;
+	}
+	if($pt =~ / DEFAULT NOW\(\)$/ && $ot =~ / DEFAULT SYSDATE$/) {
+	    $pt =~ s/ \S+ \S+$//;
+	    $ot =~ s/ \S+ \S+$//;
 	}
     }
     elsif($pt =~ /^TIMESTAMP(\(\d\))/){
@@ -1280,6 +1347,50 @@ sub compareTypes($$){
 	$pt =~ s/(DEFAULT '\S')::BPCHAR/$1/;
     }
 
+    $otrigger = "";
+
+    if($pt =~ /^matched DEFAULT NEXTVAL\(\'([^\']+)\'::REGCLASS\) NOT NULL/) {
+	$sq = $1;
+	($s,$t) = ($st =~ /([^.]+)[.](.*)/);
+	my $onv = "";
+	my $pnv = "";
+	if(defined($oNextval{"$s.$t"})) {$onv = $oNextval{"$s.$t"}}
+	if(defined($pNextval{"$s.$t"})) {$pnv = $pNextval{"$s.$t"}}
+	if($ot eq "matched NOT NULL ENABLE" && $onv eq $pnv) {
+	    $ot =~ s/ \S+ \S+ \S+$//;
+	    $pt =~ s/ \S+ \S+ \S+ \S+ \S+$//;
+	}
+	else {
+	    print STDERR "Create trigger onv: '$onv' pnv: '$pnv'\n";
+	    my $trig = "TRG_$t\_$c";
+	    $trig =~ s/PATIENT/PAT/g;
+	    $trig =~ s/COLLECTION/COL/g;
+	    $trig =~ s/QUERY_MASTER/QM/g;
+	    $trig =~ s/QUERY_RESULT_INSTANCE/QRI/g;
+	    $trig =~ s/QUERY_INSTANCE/QI/g;
+	    $trig =~ s/QUERY_RESULT/QR/g;
+	    $trig =~ s/RESULT_INSTANCE/RI/g;
+	    $trig =~ s/QUERY/Q/g;
+	    $trig =~ s/RESULT/RES/g;
+	    $otrigger = "--
+-- Type: TRIGGER; Owner: $s; Name: $trig
+--
+  CREATE OR REPLACE TRIGGER \"$s\".\"$trig\" 
+   before insert on \"$s\".\"$t\" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.\"$c\" is null then 
+         select $sq.nextval into :NEW.\"$c\" from dual; 
+      end if; 
+   end if; 
+end;
+/
+ALTER TRIGGER \"$s\".\"$trig\" ENABLE;
+";
+
+	}
+    }
     if($ot eq $pt) {return 0} 
 
     return 1;
@@ -1319,9 +1430,10 @@ sub compareColumns($){
 	    $compstr .= sprintf "$head"."column not in Postgres:  %-32s %s\n", $c, $ocol{$c};
 	    $head = "";
 	}
-	elsif(compareTypes($ocol{$c},$pcol{$c})) {
+	elsif(compareTypes($t,$c,$ocol{$c},$pcol{$c})) {
 	    $compstr .= sprintf "$head"."column %-32s %-45s <=> %-45s\n",
 	                        $c, "'$ocol{$c}'", "'$pcol{$c}'";
+            if($otrigger ne "") {$compstr .= $otrigger}
 	    $head="";
 	}
 	else {
@@ -1338,6 +1450,9 @@ sub compareColumns($){
 
     my $okey = "undefined";
     my $pkey = "undefined";
+    my @okey = ();
+    my @pkey = ();
+
     if(defined($oTableKey{$t})){$okey = $oTableKey{$t}}
     if(defined($pTableKey{$t})){$pkey = $pTableKey{$t}}
     if($okey ne $pkey) {
@@ -1349,10 +1464,110 @@ sub compareColumns($){
 		$compstr .= "CONSTRAINT \"$pTableKeycon{$t}\" PRIMARY KEY (\"$pTableKey{$t}\")\n";
 	    }
 	}
+	if($pkey eq "undefined") {
+	    $lk = lc($oTableKey{$t});
+	    if(!defined($oTableKeycon{$t})) {
+		$compstr .= "PRIMARY KEY (lk)\n";
+	    }else{
+		($ts,$tt) = ($t =~ /([^.]+)[.](.*)/);
+		$lc = lc($oTableKeycon{$t});
+		$compstr .= "--
+-- Name: $lc; Type: CONSTRAINT; Schema: $ts; Owner: -
+--
+ALTER TABLE ONLY $tt\n";
+ 		$compstr .= "    ADD CONSTRAINT $lc PRIMARY KEY ($lk);\n";
+	    }
+	}
     }
 
-    my @okey = ();
-    my @pkey = ();
+    $okey=0;
+    $pkey=0;
+    if(defined($oTableUnikey{$t})){@okey = sort(split(/;/,$oTableUnikey{$t}));$okey=$#okey+1}
+    if(defined($pTableUnikey{$t})){@pkey = sort(split(/;/,$pTableUnikey{$t}));$pkey=$#pkey+1}
+    if($okey && $pkey) {
+	if($okey == $pkey) {
+	    for ($i = 0; $i < $okey; $i++) {
+		if($okey[$i] ne $pkey[$i]) {
+		    $compstr .= "UNIQUE      oracle: $okey[$i]\n";
+		    $compstr .= "          postgres: $pkey[$i]\n";
+		}
+	    }
+	}
+	else {
+	    $compstr = "UNIQUE      count $okey    $pkey\n";
+	    for ($i = 0; $i < $okey; $i++) {
+		$compstr .= "            oracle: $okey[$i]\n";
+	    }
+	    for ($i = 0; $i < $pkey; $i++) {
+		$compstr .= "          postgres: $pkey[$i]\n";
+	    }
+	}
+    }
+    elsif($#okey >= 0) {
+	$compstr = "UNIQUE oracle only $okey\n";
+	for ($i = 0; $i < $okey; $i++) {
+	    $pk = lc($okey[$i]);
+	    $compstr .= "            oracle: $pk\n";
+	}
+	for ($i = 0; $i < $okey; $i++) {
+	    ($ts,$tt) = ($t =~ /([^.]+)[.](.*)/);
+	    $ts = lc($ts);
+	    $tt = lc($tt);
+	    ($kn,$ki) = ($pk =~ /(\S+) (\S+)/);
+	    $compstr .= "--
+-- Name: $kn; Type: CONSTRAINT; Schema: $ts; Owner: -
+--
+ALTER TABLE ONLY $tt
+    ADD CONSTRAINT $kn UNIQUE ($ki);\n"
+	}
+    }
+    elsif($#pkey >= 0) {
+	$compstr = "UNIQUE postgres only $pkey\n";
+	for ($i = 0; $i < $pkey; $i++) {
+	    $compstr .= "          postgres: $pkey[$i]\n";
+	}
+	($ts,$tt) = ($t =~ /([^.]+)[.](.*)/);
+	for ($i = 0; $i < $pkey; $i++) {
+	    ($kn,$ki) = ($pkey[$i] =~ /(\S+) (\S+)/);
+	    $ki =~ s/,/\",\"/g;
+	    $compstr .= "--
+-- Type: REF_CONSTRAINT; Owner: $ts; Name: $kn
+--
+ALTER TABLE \"$ts\".\"$tt\"
+    ADD CONSTRAINT \"$kn\" UNIQUE (\"$ki\");
+";
+	}
+    }
+
+#    if($okey ne $pkey) {
+#	$compstr .= "UNIQUE     $okey    $pkey\n";
+#	if($okey eq "undefined") {
+#	    $uk = $pTableUnikey{$t};
+#	    $uk =~ s/,/\",\"/g;
+#	    if(!defined($pTableUnikeycon{$t})) {
+#		$compstr .= "UNIQUE (\"$uk\")\n";
+#	    }else{
+#		$compstr .= "CONSTRAINT \"$pTableUnikeycon{$t}\" UNIQUE (\"$uk\")\n";
+#	    }
+#	}
+#	if($pkey eq "undefined") {
+#	    $lk = lc($oTableUnikey{$t});
+#	    if(!defined($oTableUnikeycon{$t})) {
+#		$compstr .= "UNIQUE ($lk)\n";
+#	    }else{
+#		($ts,$tt) = ($t =~ /([^.]+)[.](.*)/);
+#		$lc = lc($oTableUnikeycon{$t});
+#		$compstr .= "--
+#-- Name: $lc; Type: CONSTRAINT; Schema: $ts; Owner: -
+#--
+#ALTER TABLE ONLY $tt
+#    ADD CONSTRAINT $lc UNIQUE ($lk);\n"
+#	    }
+#	}
+#   }
+
+    @okey = ();
+    @pkey = ();
     $okey=0;
     $pkey=0;
     if(defined($oTableForkey{$t})){@okey = sort(split(/;/,$oTableForkey{$t}));$okey=$#okey+1}
@@ -1497,6 +1712,16 @@ if(defined(SKIPP)) {
 	if(/(\S+)/) {$orskip{"$oplus/$1"}=0}
     }
     close SKIPP;
+}
+
+# Triggers to isnore in Postgres
+# e.g. logon_trigger to set Oracle user identifier
+open(SKIPOT, "skip_oracle_trigger.txt") || print STDERR "Unable to open skip_oracle_trigger.txt";
+if(defined(SKIPOT)) {
+    while(<SKIPOT>){
+	if (/(\S+)/) {$oSkipTrigger{"$1"}=0}
+    }
+    close SKIPOT;
 }
 
 opendir(ODIR, "$oplus") || die "Failed to open oracle DDLs";
@@ -1663,10 +1888,33 @@ foreach $t (sort(keys(%pSequenceFile))) {
 $notrig = 0;
 $onlyotrig = 0;
 foreach $t (sort(keys(%oTriggerFile))) {
+    if(defined($oSkipTrigger{$t})){next}
     ++$notrig;
     if(!defined($pTriggerFile{$t})){
-	printf "Oracle trigger %-50s %s\n", $t, $oTriggerFile{$t};
-	++$onlyotrig;
+# check for Postgres nextval default
+# implemented as a trigger in Oracle
+	$pnext=0;
+	if(defined($oNexttrig{$t})){
+#	    ($tn) = ($t =~ /[^.]+[.](.*)/);
+	    $st = $oNexttrig{$t};
+	    $nvo = $oNextval{$st};
+	    if(defined($pNextval{$st})){
+		$nvp = $pNextval{$st};
+		if($nvo eq $nvp) {
+		    $pnext=1;
+		}
+		else {
+#		    print STDERR "Triggers mismatch '$t' '$tn' '$nvo' '$nvp'\n";
+		}
+	    }
+	    else {
+#		print STDERR "Triggers unknown '$t' '$tn' '$nvo'\n";
+	    }
+	}
+	if(!$pnext){
+	    printf "Oracle trigger %-50s %s\n", $t, $oTriggerFile{$t};
+	    ++$onlyotrig;
+	}
     }
     else {
 	$pfile = $pTriggerFile{$t};
@@ -1717,6 +1965,11 @@ foreach $t (sort(keys(%oFunctionFile))) {
 $npfunc = 0;
 $onlypfunc = 0;
 foreach $t (sort(keys(%pFunctionFile))) {
+    my $tt = $t;
+    if($tt =~ /[.]TF_/) {
+    $tt =~ s/[.]TF_/./;
+if(defined($pTriggerFile{$tt})) {next}
+}
     ++$npfunc;
     if(!defined($oFunctionFile{$t}) &&
        !defined($oProcFile{$t})){
