@@ -113,7 +113,7 @@ class AnalysisQuartzJobAdapter implements Job {
         }
 
         job.studyName = i2b2ExportHelperService.
-                findStudyAccessions jobDataMap.result_instance_id1
+                findStudyAccessions([jobDataMap.result_instance_id1])
 
         job
     }
