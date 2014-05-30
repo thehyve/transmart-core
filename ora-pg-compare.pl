@@ -2,14 +2,9 @@
 
 ##################################################
 #
-# Functions: need to trap and process parameters
-# and return type for multi-line
-#
-# Need better comparisons for all except tables in both
-#
-# Need to understand where Oracle procedures are in postgres why they might not be there
-#
 # Need to capture function return type for oracle to compare
+# Need to capture and compare function arguments
+# Need to catch "CREATE UNIQUE INDEX" and compare
 #
 ##################################################
 
@@ -1014,6 +1009,7 @@ sub parsePostgres($){
 		elsif($ctable) {
 		    if(/;/){$ctable=0; next}
 		    if(/^\s*\(/){s/^\s*\(\s*//}
+		    if(/^\s*\"position\"\s+/){s/\"position\"/position/} # used in de_variant_subject_idx
 		    if(/^\s*\)/){$ctable=2; s/^\s*\)\s*//}
 		    if(/^\s*([a-z]\S+)\s+(.*?),?$/) {
 			$col = $1;
@@ -1170,8 +1166,9 @@ sub compareTypes($$$$){
 #	$ot =~ s/\/\*[^*]+\*\/ //g;
 #    }
 
-    if($ot =~ /NOT NULL ENABLE$/ && $pt =~ /NOT NULL$/) {
-	$pt .= " ENABLE";
+    if($ot =~ / NOT NULL ENABLE$/ && $pt =~ / NOT NULL$/) {
+	$ot =~ s/ NOT NULL ENABLE$//;
+	$pt =~ s/ NOT NULL$//;
     }
 
     $ot =~ s/ WITH LOCAL TIME ZONE//g; # only allows local time display, storage unchanged
@@ -1267,7 +1264,7 @@ sub compareTypes($$$$){
     elsif($pt =~ /^NUMERIC/) {
 	$size=$1;
 	$prec=$2;
-	if($ot =~ /NUMBER\((\d+),(\d+)\)/){
+	if($ot =~ /NUMBER\(([*]|\d+),(\d+)\)/){
 	    if($2 == 0) {
 		$ot =~ s/^\S+/matched/;
 		$pt =~ s/^\S+/matched/;
@@ -1297,6 +1294,13 @@ sub compareTypes($$$$){
 	    $ot =~ s/^\S+/matched/;
 	    $pt =~ s/^\S+ \S+/matched/;
 	}
+	if($ot =~ / DEFAULT \'([^\']*)\'$/) {
+	    $oval = $1;
+	    if($pt =~ /DEFAULT \'$oval\'::CHARACTER VARYING$/) {
+		$ot =~ s/ DEFAULT \'([^\']*)\'$//;
+		$pt =~ s/ DEFAULT \'$oval\'::CHARACTER VARYING$//;
+	    }
+	}
     }
 
     elsif($pt =~ /^CHARACTER\((\d+)\)/) {
@@ -1322,6 +1326,10 @@ sub compareTypes($$$$){
 	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
 	    $ot =~ s/^\S+ \S+/matched/;
 	}
+	elsif($ot =~ /^TIMESTAMP$/ && $it == 6) {
+	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
+	    $ot =~ s/^\S+/matched/;
+	}
 	elsif($ot =~ /^TIMESTAMP \($it\)/) {
 	    $pt =~ s/^\S+ \S+ \S+ \S+/matched/;
 	    $ot =~ s/^\S+ \S+/matched/;
@@ -1334,6 +1342,16 @@ sub compareTypes($$$$){
     elsif($pt =~ /^TIMESTAMP(\(\d\))/){
 	if($ot =~ /^TIMESTAMP \(\d\)/) {
 	    $ot =~ s/^(\S+) (\S+)/$1$2/;
+	}
+    }
+    elsif($pt =~ /^DATE\b/){
+	if($ot =~ /^DATE\b/) {
+	    $ot =~ s/^(\S+)/matched/;
+	    $pt =~ s/^(\S+)/matched/;
+	}
+	if($pt =~ / DEFAULT NOW\(\)$/ && $ot =~ / DEFAULT SYSDATE$/) {
+	    $pt =~ s/ \S+ \S+$//;
+	    $ot =~ s/ \S+ \S+$//;
 	}
     }
     elsif($pt =~ /^TEXT/){
@@ -1349,16 +1367,16 @@ sub compareTypes($$$$){
 
     $otrigger = "";
 
-    if($pt =~ /^matched DEFAULT NEXTVAL\(\'([^\']+)\'::REGCLASS\) NOT NULL/) {
+    if($pt =~ /^matched DEFAULT NEXTVAL\(\'([^\']+)\'::REGCLASS\)/) {
 	$sq = $1;
 	($s,$t) = ($st =~ /([^.]+)[.](.*)/);
 	my $onv = "";
 	my $pnv = "";
 	if(defined($oNextval{"$s.$t"})) {$onv = $oNextval{"$s.$t"}}
 	if(defined($pNextval{"$s.$t"})) {$pnv = $pNextval{"$s.$t"}}
-	if($ot eq "matched NOT NULL ENABLE" && $onv eq $pnv) {
-	    $ot =~ s/ \S+ \S+ \S+$//;
-	    $pt =~ s/ \S+ \S+ \S+ \S+ \S+$//;
+	if($ot eq "matched" && $onv eq $pnv) {
+	    $ot =~ s/ \S+$//;
+	    $pt =~ s/ \S+ \S+$//;
 	}
 	else {
 	    print STDERR "Create trigger onv: '$onv' pnv: '$pnv'\n";
