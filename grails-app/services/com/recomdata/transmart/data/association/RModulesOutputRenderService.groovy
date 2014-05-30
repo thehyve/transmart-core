@@ -196,6 +196,82 @@ class RModulesOutputRenderService {
 		
 		parseValueString
 	}
+
+    def parseVersionFile()
+    {
+        def tempDirectoryFile = new File(tempDirectory)
+        String versionData = fileParseLoop(tempDirectoryFile,/.*sessionInfo.*\.txt/,/.*sessionInfo(.*)\.txt/, parseVersionFileClosure)
+
+        return versionData
+    }
+
+    def parseVersionFileClosure = {
+        statsInStr ->
+
+            //Buffer that will hold the HTML we output.
+            StringBuffer buf = new StringBuffer();
+
+            buf.append("<br /><a href='#' onclick='\$(\"versionInfoDiv\").toggle()'><span class='AnalysisHeader'>R Version Information</span></a><br /><br />")
+
+            buf.append("<div id='versionInfoDiv' style='display: none;'>")
+
+            //This will tell us if we are printing the contents of the package or the session info. We will print the package contents in a table.
+            Boolean packageCommand = false
+            Boolean firstPackageLine = true
+
+            statsInStr.eachLine
+                    {
+
+                        if(it.contains("||PACKAGEINFO||"))
+                        {
+                            packageCommand = true
+                            return;
+                        }
+
+                        if(!packageCommand)
+                        {
+                            buf.append(it)
+                            buf.append("<br />")
+                        }
+                        else
+                        {
+                            def currentLine = it.split("\t")
+
+                            if(firstPackageLine)
+                            {
+                                buf.append("<br /><br /><table class='AnalysisResults'>")
+                                buf.append("<tr>")
+                                currentLine.each()
+                                        {
+                                            currentSegment ->
+
+                                                buf.append("<th>${currentSegment}</th>")
+
+                                        }
+                                buf.append("</tr>")
+
+                                firstPackageLine = false
+                            }
+                            else
+                            {
+                                buf.append("<tr>")
+                                currentLine.each()
+                                        {
+                                            currentSegment ->
+
+                                                buf.append("<td>${currentSegment}</td>")
+
+                                        }
+                                buf.append("</tr>")
+                            }
+                        }
+                    }
+
+            buf.append("</table>")
+            buf.append("</div>")
+
+            buf.toString();
+    }
 	
     def createDirectory(File directory) {
         def dirs = []

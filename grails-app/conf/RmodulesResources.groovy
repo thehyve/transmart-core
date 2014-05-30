@@ -29,6 +29,9 @@ modules = {
     scatter_plot {
         resource url:"/js/plugin/ScatterPlot.js"
     }
+    forest_plot {
+        resource url:"/js/plugin/ForestPlot.js"
+    }
     table_fisher {
         resource url:"/js/plugin/TableWithFisher.js"
     }
@@ -41,6 +44,9 @@ modules = {
     line_graph {
         resource url:"/js/plugin/LineGraph.js"
     }
+    logistic_regression {
+        resource url:"/js/plugin/LogisticRegression.js"
+    }
     correlation_analysis {
         resource url:"/js/plugin/CorrelationAnalysis.js"
     }
@@ -51,3 +57,4 @@ modules = {
         resource url:"/js/plugin/Histogram.js"
     }
 }
+

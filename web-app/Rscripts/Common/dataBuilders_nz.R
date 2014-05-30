@@ -45,30 +45,49 @@ encounterColumn = FALSE
 )
 {
 	print("     -------------------")
-	print(Sys.time())
 	print("     dataBuilders.R")
-	sprintf("     BUILDING DATA: %s", concept.type)
+	print("     BUILDING DATA")
+	print(paste("     Concept - ",concept,sep=""))
 	
-	#Depending on the type of data we are using we use a different extraction method.
+	#Depedning on the type of data we are using we use a different extraction method.
 	if(concept.type == "CLINICAL")
 	{
 		#Extract the concepts from the clinical data file.
-		axisValueMatrix <- extractConcepts(splitData,concept,fullConcept,conceptColumn=conceptColumn)
+		axisValueMatrix <- extractConcepts(splitData,concept,fullConcept,conceptColumn=conceptColumn, encounterColumn=encounterColumn)
 	}
 	else if(concept.type == "MRNA")
 	{
 		axisValueMatrix <- gexBuilder(	GEXFile = GEXFile,
-						sampleType = sampleType,
-						timepointType = timepointType,
-						tissueType = tissueType,
-						platform.type = platform.type,
-						gene.list = gene.list,
-						gene.aggregate = gene.aggregate)
+										sampleType = sampleType,
+										timepointType = timepointType,
+										tissueType = tissueType,
+										platform.type = platform.type,
+										gene.list = gene.list,
+										gene.aggregate = gene.aggregate)
 	}
 	else if(concept.type == "SNP")
 	{
-		#Pull the data from the SNP file.
-		snpData <- data.frame(read.delim(SNPFile));
+		#Pull the data from the SNP file from a table.
+		# add on 01-10-2014 by HX
+		##################################################################
+		#snpData <- data.frame(read.delim(SNPFile));
+        library(nzr)
+        nzDisconnect()
+        nzConnect('biomart_user', 'biomart_user', '172.20.5.8', 'tsmrt')
+
+        tableName <- extractTableName(SNPFile);
+        snpData <- as.data.frame(nz.data.frame(tableName));
+        nzQuery(c("drop table ", tableName));
+        nzDisconnect();
+
+        colnames(snpData)[1] <- c("PROBE.ID")
+        colnames(snpData)[5] <- c("SAMPLE.TYPE")
+        colnames(snpData)[7] <- c("TISSUE.TYPE")
+        colnames(snpData)[10] <- c("PATIENT.ID")
+        colnames(snpData)[11] <- c("GPL.ID")
+        colnames(snpData)[12] <- c("SEARCH_ID")
+
+		#################################################################
 		
 		#PATIENT.ID,GENE,PROBE.ID,GENOTYPE,COPYNUMBER,SAMPLE,TIMEPOINT,TISSUE,SEARCH_ID
 		snpData <- filterData(snpData,gene.list,sampleType,timepointType,tissueType,platform.type)
@@ -77,7 +96,7 @@ encounterColumn = FALSE
 		{
 			
 			#If we need to aggregate the probes, do so here. Check to make sure we actually need to aggregate. CHANGE THIS.
-			if((gene.aggregate == TRUE || gene.aggregate == 'true') && (length(levels(snpData$PROBE.ID)) > 1))
+			if((gene.aggregate == TRUE || gene.aggregate == 'true') && (length(levels(as.factor(snpData$PROBE.ID))) > 1))
 			{
 				#Pass the complete set of data to the function that collapses the data.			
 				collapsedData <- collapsingSNPCNVData(snpData)
@@ -97,7 +116,7 @@ encounterColumn = FALSE
 		else
 		{
 			#Add the No Call level to the factor.
-			snpData$GENOTYPE <- factor(snpData$GENOTYPE, levels = c(levels(snpData$GENOTYPE), "No Call"))
+			snpData$GENOTYPE <- factor(snpData$GENOTYPE, levels = c(levels(as.factor(snpData$GENOTYPE)), "No Call"))
 			
 			#Replace the 0 0 text with No Call.
 			snpData$GENOTYPE[gsub("(^ +)|( +$)", "",snpData$GENOTYPE) == "0 0"] <- 'No Call'
@@ -134,8 +153,32 @@ GEXData = ''
 {
 	if(GEXFile != '')
 	{
-		#Pull the data from the MRNA file.
-		mrnaData <- data.frame(read.delim(GEXFile));
+		#Pull the data from the MRNA file from a table.
+		# add on 01-10-2014 by HX
+		##################################################################
+		#mrnaData <- data.frame(read.delim(GEXFile));
+        library(nzr)
+        nzDisconnect()
+        nzConnect('biomart_user', 'biomart_user', '172.20.5.8', 'tsmrt')
+
+        mRNATableName <- extractTableName(GEXFile);
+        sampleTableName <- gsub(' ', '', paste(mRNATableName, "_SAMPLE"));
+        query <- c("select t1.sourcesystem_cd as patient_num,t2.sample_type,t2.TIMEPOINT,t2.TISSUE_TYPE,t1.gpl_id,t1.assay_id,t1.RAW_INTENSITY as value,t1.zscore,t1.LOG_INTENSITY as log2ed,t1.probe_id,t1.PROBESET_ID,t1.gene_id,t1.gene_symbol,t1.SEARCH_KEYWORD_ID as search_id from ",mRNATableName," t1, ", sampleTableName, " t2 where t1.assay_id=t2.assay_id");
+        mrnaData <- nzQuery(query);
+        nzQuery(c("drop table ", sampleTableName));
+        nzQuery(c("drop table ", mRNATableName));
+        nzDisconnect();
+
+        colnames(mrnaData)[1] <- c("PATIENT.ID");
+        colnames(mrnaData)[2] <- c("SAMPLE.TYPE");
+        colnames(mrnaData)[4] <- c("TISSUE.TYPE");
+        colnames(mrnaData)[5] <- c("GPL.ID");
+        colnames(mrnaData)[6] <- c("ASSAY.ID");
+        colnames(mrnaData)[10] <- c("PROBE.ID");
+        colnames(mrnaData)[11] <- c("PROBESET.ID");
+
+		#################################################################
+		##############################################
 	}
 	else
 	{
@@ -172,7 +215,7 @@ GEXData = ''
 	{
 	
 		#If we need to aggregate the probes, do so here. Check to make sure we actually need to aggregate. CHANGE THIS.
-		if((gene.aggregate == TRUE || gene.aggregate == 'true') && (length(levels(mrnaData$PROBE.ID)) > 1))
+		if((gene.aggregate == TRUE || gene.aggregate == 'true') && (length(levels(as.factor(mrnaData$PROBE.ID))) > 1))
 		{
 			#Pass the complete set of data to the function that collapses the data.			
 			collapsedData <- collapsingGEXData(mrnaData,columnToCollapse)
@@ -182,7 +225,7 @@ GEXData = ''
 
 			#Pull the columns we are interested in out of the merged data.
 			mrnaData <- mrnaData[c("PATIENT.ID",paste(columnToCollapse,".x",sep=""),"GENE_SYMBOL")]
-			
+
 		}
 		else
 		{
@@ -338,6 +381,22 @@ platform.type
 #This is a conveniance method that will return the list of columns in the clinical data export file. Keeping it in one place will prevent us from having to changing all the workflows when we add a column.
 defaultColumnList <-  function()
 {
-	#return(c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH","ENCOUNTER_NUM","LINK_TYPE"))
-	return(c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH"))
+	return(c("PATIENT_NUM","SUBSET","CONCEPT_CODE","CONCEPT_PATH_SHORT","VALUE","CONCEPT_PATH","ENCOUNTER_NUM","LINK_TYPE"))
 }
+
+
+#**********************************************************************
+# extract and form a table/view name for nzr using  from inputFile
+#**********************************************************************
+extractTableName <- function(inputFile){
+    inputFile <- gsub('//', '/', inputFile);
+    str <- strsplit(inputFile, "/")
+    for(idx in 1:length(str[[1]]) ) {
+        if(str[[1]][idx] == "jobs") {
+            tableName <-  paste(gsub('-', '_', str[[1]][idx+1]),'_', str[[1]][idx+3])
+        }
+    }
+    tableName <- toupper(gsub(' ', '', tableName))
+    return (tableName)
+}
+

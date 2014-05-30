@@ -118,6 +118,9 @@ class RModulesController {
             case 'waterfall':
                 jsonResult = createJob(params, Waterfall, false)
                 break
+            case 'logisticRegression':
+                jsonResult = createJob(params, LogisticRegression, false)
+                break
             case 'histogram':
                 jsonResult = createJob(params, Histogram, false)
                 break

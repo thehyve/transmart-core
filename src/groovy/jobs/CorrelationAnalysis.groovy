@@ -51,11 +51,11 @@ class CorrelationAnalysis extends AbstractLocalRAnalysisJob {
                 params: params)
 
         steps << new BuildTableResultStep(
-                table:         table,
+                table: table,
                 configurators: [columnConfigurator])
 
         steps << new CorrelationAnalysisDumpDataStep(
-                table:              table,
+                table: table,
                 temporaryDirectory: temporaryDirectory,
                 groupNamesHolder:   holder,
                 outputFileName: DEFAULT_OUTPUT_FILE_NAME)
