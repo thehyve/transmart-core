@@ -880,6 +880,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "BIO_OBSERVATION"
     },
     "parents" : [ {
@@ -1983,6 +1994,20 @@
     } ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_CTRL_VOCAB"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_EXCLUSION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "DATAMART_REPORT"
@@ -2028,6 +2053,17 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DEAPP_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_ENCOUNTER_LEVEL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_LEVEL"
     } ]
   }, {
     "child" : {
@@ -2505,6 +2541,17 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
     } ]
   }, {
     "child" : {
@@ -8933,6 +8980,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
+      "name" : "MIGRATE_TABLES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
       "name" : "MIRNA_ANNOTATION_DEAPP"
     },
     "parents" : [ ]
@@ -8997,6 +9051,17 @@
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "MODIFIER_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "MODIFIER_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
     } ]
   }, {
     "child" : {
@@ -9170,6 +9235,13 @@
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "PROBESET_DEAPP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP_20120206"
     },
     "parents" : [ ]
   }, {
@@ -9614,6 +9686,28 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "REPORT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "REPORT_ITEM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "RICERCA"
     },
     "parents" : [ {
@@ -9928,6 +10022,28 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
+      "name" : "SEARCH_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
       "name" : "SEARCH_USER_FEEDBACK"
     },
     "parents" : [ {
@@ -10196,6 +10312,17 @@
       "type" : "TYPE",
       "owner" : "TM_CZ",
       "name" : "T_STRING_AGG"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "TM_CZ",
+      "name" : "SUBSET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
     } ]
   }, {
     "child" : {
@@ -10584,6 +10711,21 @@
       "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "CZ_TEST_RESULT"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_CZ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
+      "name" : "TRG_CZ_XTRIAL_CTRL_VOCAB_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_CTRL_VOCAB"
     }, {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
@@ -11731,6 +11873,20 @@
     "file" : "tm_cz/procedures/cz_write_info.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_CTRL_VOCAB"
+    },
+    "file" : "tm_cz/cz_xtrial_ctrl_vocab.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_EXCLUSION"
+    },
+    "file" : "tm_cz/cz_xtrial_exclusion.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
       "name" : "DATA_EXPORT"
@@ -12482,6 +12638,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
+      "name" : "MIGRATE_TABLES"
+    },
+    "file" : "tm_cz/migrate_tables.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
       "name" : "MIRNA_ANNOTATION_DEAPP"
     },
     "file" : "tm_cz/mirna_annotation_deapp.sql"
@@ -12534,6 +12697,13 @@
       "name" : "PROBESET_DEAPP"
     },
     "file" : "tm_cz/probeset_deapp.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP_20120206"
+    },
+    "file" : "tm_cz/probeset_deapp_20120206.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -12884,6 +13054,13 @@
       "name" : "TRG_CZ_TEST_RESULT_ID"
     },
     "file" : "tm_cz/cz_test_result.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
+      "name" : "TRG_CZ_XTRIAL_CTRL_VOCAB_ID"
+    },
+    "file" : "tm_cz/cz_xtrial_ctrl_vocab.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

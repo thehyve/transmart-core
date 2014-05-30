@@ -121,11 +121,45 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "LISTSIG_GENES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "MLOG$_SEARCH_GENE_SIGNATUR"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "PATHWAY_GENES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -188,6 +222,13 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "REPORT_ITEM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH"
     },
     "parents" : [ ]
   }, {
@@ -376,6 +417,21 @@
     "child" : {
       "type" : "VIEW",
       "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FST_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
       "name" : "SEARCH_BIO_MKR_CORREL_VIEW"
     },
     "parents" : [ {
@@ -390,6 +446,21 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CATEGORIES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
     } ]
   }, {
     "child" : {
@@ -603,6 +674,112 @@
     } ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CATEGORIES"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL5"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    }, {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LINEAGE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_TAXONOMY_RELS"
@@ -611,6 +788,33 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_TERMS_CATS"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL5"
     } ]
   }, {
     "child" : {
@@ -624,6 +828,13 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_USER_SETTINGS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SAVED_FACETED_SEARCH_ID"
     },
     "parents" : [ ]
   }, {
@@ -657,6 +868,21 @@
     } ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SOLR_KEYWORDS_LINEAGE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LINEAGE"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SUBSET"
@@ -666,31 +892,16 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "SEARCHAPP",
-      "name" : "TGR_SEARCH_TAXONOMY_RELS_ID"
+      "name" : "TRG_SAVED_FACETED_SEARCH_ID"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
-      "name" : "SEARCH_TAXONOMY_RELS"
+      "name" : "SAVED_FACETED_SEARCH"
     }, {
       "type" : "SEQUENCE",
       "owner" : "SEARCHAPP",
-      "name" : "SEQ_SEARCH_DATA_ID"
-    } ]
-  }, {
-    "child" : {
-      "type" : "TRIGGER",
-      "owner" : "SEARCHAPP",
-      "name" : "TGR_SEARCH_TAXONOMY_TERM_ID"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "SEARCHAPP",
-      "name" : "SEARCH_TAXONOMY"
-    }, {
-      "type" : "SEQUENCE",
-      "owner" : "SEARCHAPP",
-      "name" : "SEQ_SEARCH_DATA_ID"
+      "name" : "SEQ_SAVED_FACETED_SEARCH_ID"
     } ]
   }, {
     "child" : {
@@ -842,6 +1053,36 @@
       "owner" : "SEARCHAPP",
       "name" : "SEQ_SEARCH_DATA_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_TAXONOMY_RELS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_TAXONOMY_TERM_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_DATA_ID"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -929,11 +1170,25 @@
     "file" : "searchapp/_misc.sql"
   }, {
     "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "LISTSIG_GENES"
+    },
+    "file" : "searchapp/views/listsig_genes.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "MLOG$_SEARCH_GENE_SIGNATUR"
     },
     "file" : "searchapp/mlog$_search_gene_signatur.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "PATHWAY_GENES"
+    },
+    "file" : "searchapp/_cross.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -990,6 +1245,13 @@
       "name" : "REPORT_ITEM"
     },
     "file" : "searchapp/report_item.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH"
+    },
+    "file" : "searchapp/saved_faceted_search.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
@@ -1092,9 +1354,23 @@
     "item" : {
       "type" : "VIEW",
       "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FST_VIEW"
+    },
+    "file" : "searchapp/views/search_bio_mkr_correl_fst_view.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
       "name" : "SEARCH_BIO_MKR_CORREL_VIEW"
     },
     "file" : "searchapp/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CATEGORIES"
+    },
+    "file" : "searchapp/views/search_categories.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1251,11 +1527,60 @@
     "file" : "searchapp/search_taxonomy.sql"
   }, {
     "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    },
+    "file" : "searchapp/views/search_taxonomy_level1.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    },
+    "file" : "searchapp/views/search_taxonomy_level2.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    },
+    "file" : "searchapp/views/search_taxonomy_level3.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    },
+    "file" : "searchapp/views/search_taxonomy_level4.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL5"
+    },
+    "file" : "searchapp/views/search_taxonomy_level5.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LINEAGE"
+    },
+    "file" : "searchapp/views/search_taxonomy_lineage.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_TAXONOMY_RELS"
     },
     "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_TERMS_CATS"
+    },
+    "file" : "searchapp/views/search_taxonomy_terms_cats.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1270,6 +1595,13 @@
       "name" : "SEARCH_USER_SETTINGS"
     },
     "file" : "searchapp/search_user_settings.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SAVED_FACETED_SEARCH_ID"
+    },
+    "file" : "searchapp/saved_faceted_search.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
@@ -1293,6 +1625,13 @@
     "file" : "searchapp/search_auth_user.sql"
   }, {
     "item" : {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SOLR_KEYWORDS_LINEAGE"
+    },
+    "file" : "searchapp/views/solr_keywords_lineage.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SUBSET"
@@ -1302,16 +1641,9 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "SEARCHAPP",
-      "name" : "TGR_SEARCH_TAXONOMY_RELS_ID"
+      "name" : "TRG_SAVED_FACETED_SEARCH_ID"
     },
-    "file" : "searchapp/search_taxonomy_rels.sql"
-  }, {
-    "item" : {
-      "type" : "TRIGGER",
-      "owner" : "SEARCHAPP",
-      "name" : "TGR_SEARCH_TAXONOMY_TERM_ID"
-    },
-    "file" : "searchapp/search_taxonomy.sql"
+    "file" : "searchapp/saved_faceted_search.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",
@@ -1382,5 +1714,19 @@
       "name" : "TRG_SEARCH_SEC_OBJ_PATH_ID"
     },
     "file" : "searchapp/search_secure_object_path.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_TAXONOMY_RELS_ID"
+    },
+    "file" : "searchapp/search_taxonomy_rels.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_TAXONOMY_TERM_ID"
+    },
+    "file" : "searchapp/search_taxonomy.sql"
   } ]
 }

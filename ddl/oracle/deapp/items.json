@@ -21,7 +21,50 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROM_REGION_GPL_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CONCEPT_VISIT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_ENCOUNTER_LEVEL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_TYPE"
     },
     "parents" : [ ]
   }, {
@@ -355,6 +398,20 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_RNASEQ_ANNOTATION"
     },
     "parents" : [ ]
@@ -502,6 +559,39 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SUBJECT_METABOLOMICS_DATA"
     },
     "parents" : [ {
@@ -571,21 +661,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "TRIGGER",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RBM_DATA_ID_TRIGGER"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RBM_DATA"
-    }, {
-      "type" : "SEQUENCE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
-    } ]
-  }, {
-    "child" : {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA_SEQ"
@@ -634,6 +709,39 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
     } ]
   }, {
     "child" : {
@@ -710,6 +818,172 @@
       "name" : "DE_SUBJECT_SNP_DATASET_GSK"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_ACGH_REGION_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_RNASEQ_REGION_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DETAIL_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DT_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VAR_POPULAT_DEFAULT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -840,6 +1114,17 @@
       "name" : "GPL3718_20_MAP"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "GPL_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1172,6 +1457,21 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "DEAPP",
+      "name" : "TRG_DE_CHROMOSOMAL_REGION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
       "name" : "TRG_DE_MRNA_ANNOTATION_ID"
     },
     "parents" : [ {
@@ -1212,6 +1512,21 @@
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_RC_SNP_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
     } ]
   }, {
     "child" : {
@@ -1287,6 +1602,111 @@
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJ_RBM_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_METADATA_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_PD_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_DETAIL_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_IDX_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_SUMM_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VP_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
     } ]
   }, {
     "child" : {
@@ -1373,6 +1793,61 @@
       "name" : "VARCHAR_TABLE"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_DETAIL_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_IDX_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_SUMMARY_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VAR_MET_DATASET_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "VAR_POPULAT_INFO_DATASET_NAME"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -1392,9 +1867,44 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROM_REGION_GPL_ID_FKEY"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CONCEPT_VISIT"
+    },
+    "file" : "deapp/de_concept_visit.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_ENCOUNTER_LEVEL"
     },
     "file" : "deapp/de_encounter_level.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_TYPE"
+    },
+    "file" : "deapp/de_encounter_type.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1630,6 +2140,20 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_RNASEQ_ANNOTATION"
     },
     "file" : "deapp/de_rnaseq_annotation.sql"
@@ -1749,6 +2273,27 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_PATIENT"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_REGION"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_SUBJECT_METABOLOMICS_DATA"
     },
     "file" : "deapp/de_subject_metabolomics_data.sql"
@@ -1810,13 +2355,6 @@
     "file" : "deapp/de_subject_rbm_data.sql"
   }, {
     "item" : {
-      "type" : "TRIGGER",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_RBM_DATA_ID_TRIGGER"
-    },
-    "file" : "deapp/de_subject_rbm_data.sql"
-  }, {
-    "item" : {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_RBM_DATA_SEQ"
@@ -1850,6 +2388,27 @@
       "name" : "DE_SUBJECT_RBM_MCIDX4"
     },
     "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_PATIENT"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_REGION"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1913,6 +2472,132 @@
       "name" : "DE_SUBJECT_SNP_DATASET_GSK"
     },
     "file" : "deapp/de_subject_snp_dataset_gsk.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_ACGH_REGION_ID_FKEY"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_RNASEQ_REGION_ID_FKEY"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    },
+    "file" : "deapp/de_variant_dataset.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DETAIL_IDX2"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DT_IDX1"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VAR_POPULAT_DEFAULT_IDX"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -2011,6 +2696,13 @@
       "name" : "GPL3718_20_MAP"
     },
     "file" : "deapp/gpl3718_20_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "GPL_ID"
+    },
+    "file" : "deapp/de_variant_dataset.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -2211,6 +2903,13 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "DEAPP",
+      "name" : "TRG_DE_CHROMOSOMAL_REGION_ID"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
       "name" : "TRG_DE_MRNA_ANNOTATION_ID"
     },
     "file" : "deapp/de_mrna_annotation.sql"
@@ -2228,6 +2927,13 @@
       "name" : "TRG_DE_PATHWAY_ID"
     },
     "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_RC_SNP_INFO_ID"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",
@@ -2263,6 +2969,55 @@
       "name" : "TRG_DE_SUBJECT_SORTED_DEF_ID"
     },
     "file" : "deapp/de_snp_subject_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJ_RBM_DATA_ID"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_METADATA_ID"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_PD_ID"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_DETAIL_ID"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_IDX_ID"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_SUMM_ID"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VP_INFO_ID"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",
@@ -2312,5 +3067,40 @@
       "name" : "VARCHAR_TABLE"
     },
     "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_DETAIL_FK"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_IDX_FK"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_SUMMARY_FK"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VAR_MET_DATASET_ID"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "VAR_POPULAT_INFO_DATASET_NAME"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
   } ]
 }

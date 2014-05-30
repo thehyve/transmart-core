@@ -243,6 +243,21 @@
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "TRG_ONT_PS_PROCESS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_PROCESS_STATUS"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_SQ_PS_PRID"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -376,7 +391,7 @@
       "owner" : "I2B2METADATA",
       "name" : "ONT_SQ_PS_PRID"
     },
-    "file" : "i2b2metadata/_misc.sql"
+    "file" : "i2b2metadata/ont_process_status.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -440,5 +455,12 @@
       "name" : "TRG_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/i2b2_tags.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "TRG_ONT_PS_PROCESS_ID"
+    },
+    "file" : "i2b2metadata/ont_process_status.sql"
   } ]
 }
