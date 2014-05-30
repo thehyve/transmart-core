@@ -1203,6 +1203,10 @@
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_QUERY_INSTANCE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QI_QIID"
     } ]
   }, {
     "child" : {
@@ -1214,6 +1218,10 @@
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_QUERY_MASTER"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QM_QMID"
     } ]
   }, {
     "child" : {
@@ -1255,6 +1263,10 @@
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_QUERY_STATUS_TYPE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QS_QSID"
     } ]
   }, {
     "child" : {
@@ -1293,6 +1305,10 @@
       "name" : "TRG_UPLOAD_STATUS_UPLOAD_ID"
     },
     "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SQ_UPLOADSTATUS_UPLOADID"
+    }, {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "UPLOAD_STATUS"
@@ -2101,14 +2117,14 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_SQ_QI_QIID"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/qt_query_instance.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2DEMODATA",
       "name" : "QT_SQ_QM_QMID"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/qt_query_master.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
@@ -2143,7 +2159,7 @@
       "owner" : "I2B2DEMODATA",
       "name" : "QT_SQ_QS_QSID"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/qt_query_status_type.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
@@ -2255,7 +2271,7 @@
       "owner" : "I2B2DEMODATA",
       "name" : "SQ_UPLOADSTATUS_UPLOADID"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/upload_status.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
