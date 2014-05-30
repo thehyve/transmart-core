@@ -73,13 +73,73 @@ HighDimensionalData.prototype.populate_data = function () {
                     document.getElementById("tissue1").value = _strTissueTypes;
                 }
 
-                this.create_pathway_search_box('searchPathway', 'divpathway');
+                this.new_create_pathway_search_box('searchPathway', 'divpathway');
             }
 
         } else {
             Ext.Msg.alert("Error", "Returned object is unknown.");
         }
     }
+}
+
+HighDimensionalData.prototype.new_create_pathway_search_box = function (searchInputEltName, divName) {
+
+    var el = document.getElementById(searchInputEltName);
+    if (el) {
+        el.value = '';   // empty the search input value
+        // then remove all child elements
+        while (el.firstChild) {
+            el.removeChild(el.firstChild);
+        }
+    }
+
+    '<span class="category-{display:lowercase}">{display}&gt;{source}</span>&nbsp;',
+        '<b>{keyword}</b>&nbsp; {synonyms}',
+
+        jQuery( "#searchPathway" ).autocomplete({
+            source: function( request, response ) {
+                jQuery.ajax({
+                    url: pageInfo.basePath + '/search/loadSearchPathways',
+                    dataType: "json",
+                    data: {
+                        query: request.term
+                    },
+                    success: function( data ) {
+                        response( jQuery.map( data.rows, function( item ) {
+                            return {
+                                label: item.display + ">" + item.source + " " + item.keyword + " " + item.synonyms,
+                                value: item.keyword,
+                                id: item.id
+                            }
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function( event, ui ) {
+                var sp = Ext.get(searchInputEltName);
+                sp.dom.value = ui.item.keyword;
+                GLOBAL.CurrentPathway = ui.item.id;
+                GLOBAL.CurrentPathwayName = ui.item.keyword;
+            },
+            open: function() {
+
+                jQuery(this).removeClass( "ui-corner-all" ).addClass( "ui-corner-top");
+
+            },
+            close: function() {
+
+                jQuery(this).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+            }
+        });
+
+    if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType == 'PCA') {
+        //Clear the pathway variable so we don't submit a value.
+        GLOBAL.CurrentPathway = '';
+        //Remove the pathway box.
+        document.getElementById(divName).style.display = "none";
+    }
+
 }
 
 HighDimensionalData.prototype.create_pathway_search_box = function (searchInputEltName, divName) {
