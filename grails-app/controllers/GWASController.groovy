@@ -352,9 +352,6 @@ class GWASController {
 		  }
 		  
 	  }
-	  else  {
-		  throw new Exception("Root node not found")
-	  }
 	  
 	  response.setContentType("text/json")
 	  response.outputStream << categories?.toString()
