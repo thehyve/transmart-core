@@ -32,11 +32,11 @@ TABLESPACE "DEAPP" ;
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VP_INFO_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VP_INFO_ID" 
-before insert on deapp.de_variant_population_info
+before insert on "DEAPP"."DE_VARIANT_POPULATION_INFO"
 for each row begin
        	if inserting then
-               	if :NEW.variant_population_info_id is null then
-                       	select de_variant_population_info_seq.nextval into :NEW.variant_population_info_id from dual;
+               	if :NEW."VARIANT_POPULATION_INFO_ID" is null then
+                       	select DE_VARIANT_POPULATION_INFO_SEQ.nextval into :NEW."VARIANT_POPULATION_INFO_ID" from dual;
                	end if;
        	end if;
 end;

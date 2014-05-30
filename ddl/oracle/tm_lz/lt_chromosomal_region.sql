@@ -19,3 +19,18 @@
   ) SEGMENT CREATION DEFERRED
  TABLESPACE "TRANSMART" ;
 
+--
+-- Type: TRIGGER; Owner: TM_LZ; Name: TRG_LT_CHROMO_REGION_ID
+--
+  CREATE OR REPLACE TRIGGER "TM_LZ"."TRG_LT_CHROMO_REGION_ID" 
+   before insert on "TM_LZ"."LT_CHROMOSOMAL_REGION" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."REGION_ID" is null then 
+         select LT_CHROMO_REGION_ID_SEQ.nextval into :NEW."REGION_ID" from dual; 
+      end if; 
+   end if; 
+end;
+/
+ALTER TRIGGER "TM_LZ"."TRG_LT_CHROMO_REGION_ID" ENABLE;

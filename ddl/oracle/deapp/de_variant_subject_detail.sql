@@ -11,7 +11,7 @@
 "ALT" VARCHAR2(500 BYTE), 
 "QUAL" VARCHAR2(100 BYTE), 
 "FILTER" VARCHAR2(50 BYTE), 
-"INFO" VARCHAR2(4000 BYTE), 
+"INFO" VARCHAR2(5000 BYTE), 
 "FORMAT" VARCHAR2(500 BYTE), 
 "VARIANT_VALUE" CLOB, 
  CONSTRAINT "VARIANT_SUBJECT_DETAIL_ID" PRIMARY KEY ("VARIANT_SUBJECT_DETAIL_ID")
@@ -38,11 +38,11 @@ CREATE SEQUENCE  "DEAPP"."DE_VARIANT_SUBJECT_DETAIL_SEQ"  MINVALUE 1 MAXVALUE 99
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VARIANT_SUBJ_DETAIL_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VARIANT_SUBJ_DETAIL_ID" 
-before insert on deapp.de_variant_subject_detail
+before insert on "DEAPP"."DE_VARIANT_SUBJECT_DETAIL"
 for each row begin
        	if inserting then
-               	if :NEW.variant_subject_detail_id is null then
-                       	select de_variant_subject_detail_seq.nextval into :NEW.variant_subject_detail_id from dual;
+               	if :NEW."VARIANT_SUBJECT_DETAIL_ID" is null then
+                       	select DE_VARIANT_SUBJECT_DETAIL_SEQ.nextval into :NEW."VARIANT_SUBJECT_DETAIL_ID" from dual;
                	end if;
        	end if;
 end;

@@ -28,11 +28,11 @@ CREATE SEQUENCE  "DEAPP"."DE_CHROMO_REGION_ID_SEQ"  MINVALUE 1 MAXVALUE 99999999
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_CHROMOSOMAL_REGION_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_CHROMOSOMAL_REGION_ID" 
-before insert on deapp.de_chromosomal_region
+before insert on "DEAPP"."DE_CHROMOSOMAL_REGION"
 for each row begin
        	if inserting then
-               	if :NEW.region_id is null then
-                       	select de_chromo_region_id_seq.nextval into :NEW.region_id from dual;
+               	if :NEW."REGION_ID" is null then
+                       	select DE_CHROMO_REGION_ID_SEQ.nextval into :NEW."REGION_ID" from dual;
                	end if;
        	end if;
 end;

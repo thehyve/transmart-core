@@ -10,7 +10,7 @@
 "INFO_INDEX" NUMBER(*,0) DEFAULT 0, 
 "INTEGER_VALUE" NUMBER, 
 "FLOAT_VALUE" FLOAT(126), 
-"TEXT_VALUE" VARCHAR2(4000 BYTE), 
+"TEXT_VALUE" VARCHAR2(5000 BYTE), 
  CONSTRAINT "DE_VAR_POPULAT_DATA_ID_IDX" PRIMARY KEY ("VARIANT_POPULATION_DATA_ID")
  USING INDEX
  TABLESPACE "DEAPP"  ENABLE
@@ -32,11 +32,11 @@ CREATE SEQUENCE  "DEAPP"."DE_VARIANT_POPULATION_DATA_SEQ"  MINVALUE 1 MAXVALUE 9
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VARIANT_PD_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VARIANT_PD_ID" 
-before insert on deapp.de_variant_population_data
+before insert on "DEAPP"."DE_VARIANT_POPULATION_DATA"
 for each row begin
        	if inserting then
-               	if :NEW.variant_population_data_id is null then
-                       	select de_variant_population_data_seq.nextval into :NEW.variant_population_data_id from dual;
+               	if :NEW."VARIANT_POPULATION_DATA_ID" is null then
+                       	select DE_VARIANT_POPULATION_DATA_SEQ.nextval into :NEW."VARIANT_POPULATION_DATA_ID" from dual;
                	end if;
        	end if;
 end;

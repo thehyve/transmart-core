@@ -30,9 +30,9 @@ CREATE TABLE lz_src_analysis_metadata (
 );
 
 --
--- Name: tf_trg_etl_id(); Type: FUNCTION; Schema: tm_lz; Owner: -
+-- Name: tf_trg_lz_src_analysis_meta_id(); Type: FUNCTION; Schema: tm_lz; Owner: -
 --
-CREATE FUNCTION tf_trg_etl_id() RETURNS trigger
+CREATE FUNCTION tf_trg_lz_src_analysis_meta_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
@@ -47,9 +47,9 @@ $$;
 SET default_with_oids = false;
 
 --
--- Name: trg_analysis_metadata_etl_id; Type: TRIGGER; Schema: tm_lz; Owner: -
+-- Name: trg_lz_src_analysis_meta_id; Type: TRIGGER; Schema: tm_lz; Owner: -
 --
-CREATE TRIGGER trg_analysis_metadata_etl_id BEFORE INSERT ON lz_src_analysis_metadata FOR EACH ROW EXECUTE PROCEDURE tf_trg_etl_id();
+CREATE TRIGGER trg_lz_src_analysis_meta_id BEFORE INSERT ON lz_src_analysis_metadata FOR EACH ROW EXECUTE PROCEDURE tf_trg_lz_src_analysis_meta_id();
 
 --
 -- Name: seq_etl_id; Type: SEQUENCE; Schema: tm_lz; Owner: -

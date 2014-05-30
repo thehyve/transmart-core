@@ -5,7 +5,7 @@
   (	"DATASET_ID" VARCHAR2(50 BYTE), 
 "SUBJECT_ID" VARCHAR2(50 BYTE), 
 "POSITION" NUMBER, 
-"VARIANT_SUBJECT_IDX_ID" NUMBER
+"VARIANT_SUBJECT_IDX_ID" NUMBER NOT NULL ENABLE
   ) SEGMENT CREATION DEFERRED
  TABLESPACE "DEAPP" ;
 
@@ -24,11 +24,11 @@ CREATE SEQUENCE  "DEAPP"."DE_VARIANT_SUBJECT_IDX_SEQ"  MINVALUE 1 MAXVALUE 99999
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VARIANT_SUBJ_IDX_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VARIANT_SUBJ_IDX_ID" 
-before insert on deapp.de_variant_subject_idx
+before insert on "DEAPP"."DE_VARIANT_SUBJECT_IDX"
 for each row begin
        	if inserting then
-               	if :NEW.VARIANT_SUBJECT_IDX_ID is null then
-                       	select de_variant_subject_idx_seq.nextval into :NEW.VARIANT_SUBJECT_IDX_ID from dual;
+               	if :NEW."VARIANT_SUBJECT_IDX_ID" is null then
+                       	select DE_VARIANT_SUBJECT_IDX_SEQ.nextval into :NEW."VARIANT_SUBJECT_IDX_ID" from dual;
                	end if;
        	end if;
 end;
