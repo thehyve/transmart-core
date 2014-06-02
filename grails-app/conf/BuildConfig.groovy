@@ -2,9 +2,6 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
-grails.project.repos.default = 'repo.thehyve.nl-snapshots'
-grails.project.repos."${grails.project.repos.default}".url = 'https://repo.thehyve.nl/content/repositories/snapshots/'
-
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
     log "warn"
@@ -13,8 +10,16 @@ grails.project.dependency.resolution = {
     inherits('global') {}
 
     repositories {
+        //  grailsPlugins()
+        // grailsHome()
+        grailsCentral()
+
         mavenLocal()
-        mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
+        mavenCentral()
+        mavenRepo([
+                name: 'repo.transmartfoundation.org-public',
+                root: 'https://repo.transmartfoundation.org/content/repositories/public/'
+        ])
     }
 
     dependencies {
