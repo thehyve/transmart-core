@@ -1,6 +1,8 @@
 import com.google.common.collect.ImmutableMap
+import jobs.AnalysisQuartzJobAdapter
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.stereotype.Component
+import org.transmartproject.core.users.User
 
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
@@ -58,9 +60,12 @@ Brief description of the plugin.
             scopes = ImmutableMap.of('job', ref('jobSpringScope'))
         }
 
+        /* these beans are actually created manually and put
+         * in the storage for the job scope */
         jobName(String) { bean ->
-            /* this bean is actually created manually and put
-             * in the storage for the job scope */
+            bean.scope = 'job'
+        }
+        "${AnalysisQuartzJobAdapter.BEAN_USER_IN_CONTEXT}"(User) { bean ->
             bean.scope = 'job'
         }
 
@@ -79,7 +84,17 @@ Brief description of the plugin.
     }
 
     def doWithApplicationContext = { applicationContext ->
-        // TODO Implement post initialization spring config (optional)
+        // currentUserBean is a tranSMART bean
+        def currentUserBean = applicationContext.getBean('&currentUserBean')
+        if (!currentUserBean) {
+            throw new IllegalStateException("The context doesn't provide the " +
+                    "bean currentUserBean. Most likely, you're using an " +
+                    "incompatible transmartApp")
+        }
+
+        // allow currentUserBean to be able to find the current user inside
+        // the jobs (quartz) threads
+        currentUserBean.registerBeanToTry(AnalysisQuartzJobAdapter.BEAN_USER_IN_CONTEXT)
     }
 
     def onChange = { event ->

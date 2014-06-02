@@ -10,7 +10,7 @@ function advancedWorkflowMenu() {
 
     Ext.Ajax.request({
         url : pageInfo.basePath+"/plugin/modules",
-        params: {pluginName:'R-Modules'},
+        params: {pluginNames: ['R-Modules', 'Galaxy']},
         method : 'GET',
         timeout: '1800000',
         success : function(result, request)
@@ -460,6 +460,26 @@ function readConceptVariables(divIds){
         }
     }
     return variableConceptCode;
+}
+function readConceptVariables2(divIds){
+    var variableConceptCode = ""
+    var variableCode = ""
+    var variableEle = Ext.get(divIds);
+    //If the variable element has children, we need to parse them and concatenate their values.
+    if(variableEle && variableEle.dom.childNodes[0])
+    {
+        //Loop through the variables and add them to a comma seperated list.
+        for(nodeIndex = 0; nodeIndex < variableEle.dom.childNodes.length; nodeIndex++)
+        {
+            //If we already have a value, add the seperator.
+            if(variableConceptCode != '') 		variableConceptCode += '|'
+            if(variableCode != '') 				variableCode += '|'
+            //Add the concept path to the string.
+            variableConceptCode 			+= getQuerySummaryItem(variableEle.dom.childNodes[nodeIndex]).trim()
+            variableCode 					+= getQueryCdItem(variableEle.dom.childNodes[nodeIndex]).trim();
+        }
+    }
+    return [variableConceptCode,variableCode];
 }
 
 function submitJob(formParams)

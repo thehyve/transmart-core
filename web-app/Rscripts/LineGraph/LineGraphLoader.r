@@ -144,16 +144,16 @@ LineGraph.plotter <- function(
 	p <- p + aes(colour = GROUP) + scale_colour_manual(values = rep_len(brewer.pal(noColors, "Set1"), length.out = noPoints))
 	
 	#Set the text options for the axis.
-	p <- p + theme(axis.text.x = theme_text(size = 17,face="bold",angle=5));
-	p <- p + theme(axis.text.y = theme_text(size = 17,face="bold"));
+	p <- p + theme(axis.text.x = element_text(size = 17,face="bold",angle=5));
+	p <- p + theme(axis.text.y = element_text(size = 17,face="bold"));
 	
 	#Set the text options for the title.
-	p <- p + theme(axis.title.x = theme_text(vjust = -.5,size = 20,face="bold"));
-	p <- p + theme(axis.title.y = theme_text(vjust = .35,size = 20,face="bold",angle=90));
+	p <- p + theme(axis.title.x = element_text(vjust = -.5,size = 20,face="bold"));
+	p <- p + theme(axis.title.y = element_text(vjust = .35,size = 20,face="bold",angle=90));
 	
 	#Set the legend attributes.
-	p <- p + theme(legend.title = theme_text(size = 20,face="bold"));
-	p <- p + theme(legend.text = theme_text(size = 15,face="bold"));
+	p <- p + theme(legend.title = element_text(size = 20,face="bold"));
+	p <- p + theme(legend.text = element_text(size = 15,face="bold"));
 	p <- p + theme(legend.title=theme_blank())
 
 	p <- p + geom_point(size=4);
