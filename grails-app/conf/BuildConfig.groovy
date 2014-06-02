@@ -2,6 +2,23 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+def defaultVMSettings = [
+        maxMemory: 768,
+        minMemory: 64,
+        debug:     false,
+        maxPerm:   256
+]
+
+grails.project.fork = [
+        test:    [*: defaultVMSettings, daemon:      true],
+        run:     [*: defaultVMSettings, forkReserve: false],
+        war:     [*: defaultVMSettings, forkReserve: false],
+        console: defaultVMSettings
+]
+
+grails.project.repos.default = 'repo.thehyve.nl-snapshots'
+grails.project.repos."${grails.project.repos.default}".url = 'https://repo.thehyve.nl/content/repositories/snapshots/'
+
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
     log "warn"
