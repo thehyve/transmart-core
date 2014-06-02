@@ -1,7 +1,6 @@
 package org.transmartproject.core.ontology
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 
 /**
  * An i2b2 ontology metadata entry.
@@ -32,6 +31,15 @@ public interface OntologyTerm {
      * @return the full path of the term; path with \ as a separator
      */
     String getFullName()
+
+    /**
+     * A tranSMART-ism. Return a wrapper around either this ontology term or
+     * a parent of this ontology term that is identified as a 'study' or
+     * 'experiment' in tranSMART. Maybe return null if no such term exist.
+     *
+     * @return the study corresponding to this ontology term
+     */
+    Study getStudy()
 
     /**
      * The user friendly name of the term.

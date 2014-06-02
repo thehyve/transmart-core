@@ -3,14 +3,18 @@ package org.transmartproject.core.users
 /**
  * Describes a set of operations that can be performed on a certain resource.
  *
- * At this point, the protected resources are only studies, and the only
- * available permissions are:
+ * At this point, the only available permissions are:
  *
  * <ul>
  *     <li><code>OWN</code></li>
  *     <li><code>EXPORT</code></li>
  *     <li><code>VIEW</code></li>
  * </ul>
+ *
+ * Note: even though this interface doesn't make it explicit, a
+ * <code>Permission</code> object is bound to a specific
+ * {@link ProtectedResource}. A method may be added in the future to retrieve
+ * this resource.
  *
  */
 public interface Permission {
