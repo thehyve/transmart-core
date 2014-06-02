@@ -11,14 +11,10 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
 @CompileStatic
 class ClinicalDataTabularResult implements TabularResult<ClinicalVariableColumn, PatientRow> {
-
-    /*
-     * Right now, we only support TerminalConceptVariables, so we can delegate
-     * most stuff exclusively to the conceptVariablesTabularResult
-     */
 
     private TerminalConceptVariablesTabularResult conceptVariablesTabularResult
 
@@ -26,9 +22,11 @@ class ClinicalDataTabularResult implements TabularResult<ClinicalVariableColumn,
 
     ClinicalDataTabularResult(ScrollableResults results,
                               List<ClinicalVariableColumn> indicesList,
+                              List<TerminalConceptVariable> flattenedIndices,
                               SortedMap<Long, Patient> patientMap) {
         conceptVariablesTabularResult =
-                new TerminalConceptVariablesTabularResult(results, indicesList)
+                new TerminalConceptVariablesTabularResult(
+                        results, flattenedIndices)
 
         this.indicesList = indicesList
         this.patientMap = patientMap

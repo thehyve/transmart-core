@@ -15,7 +15,7 @@ import static org.transmartproject.db.dataquery.clinical.variables.TerminalConce
 
 @CompileStatic
 class TerminalConceptVariablesTabularResult extends
-        CollectingTabularResult<ClinicalVariableColumn, PatientIdAnnotatedDataRow> {
+        CollectingTabularResult<TerminalConceptVariable, PatientIdAnnotatedDataRow> {
 
     /* XXX: this class hierarchy needs some refactoring, we're depending on
      * implementation details of CollectingTabularResults and skipping quite
@@ -31,14 +31,10 @@ class TerminalConceptVariablesTabularResult extends
     private Map<String, Integer> conceptCodeToIndex = Maps.newHashMap()
 
     TerminalConceptVariablesTabularResult(ScrollableResults results,
-                                          List<ClinicalVariableColumn> indicesList) {
+                                          List<TerminalConceptVariable> indicesList) {
         this.results = results
 
-        /* This class is supposed to handle the subset of the clinical variables
-         * of type TerminalConceptVariable (in practice the only type now) */
-        this.indicesList = indicesList.findAll {
-            it instanceof TerminalConceptVariable
-        } as List
+        this.indicesList = indicesList
 
         this.indicesList.each { TerminalConceptVariable it ->
             localIndexMap[it] = indicesList.indexOf it
@@ -70,8 +66,8 @@ class TerminalConceptVariablesTabularResult extends
     final String columnEntityName = 'concept'
 
     @Override
-    protected Object getIndexObjectId(ClinicalVariableColumn object) {
-        ((TerminalConceptVariable)object).conceptCode
+    protected Object getIndexObjectId(TerminalConceptVariable object) {
+        object.conceptCode
     }
 
     protected void finalizeCollectedEntries(ArrayList collectedEntries) {

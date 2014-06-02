@@ -36,7 +36,7 @@ grails.project.dependency.resolution = {
         test 'org.hamcrest:hamcrest-core:1.3',
              'org.hamcrest:hamcrest-library:1.3'
 
-        test 'org.gmock:gmock:0.8.3', {
+        test 'org.gmock:gmock:0.9.0-r435-hyve2', {
             transitive = false /* don't bring groovy-all */
         }
     }

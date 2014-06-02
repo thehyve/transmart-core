@@ -352,17 +352,15 @@ class ClinicalDataRetrievalTests {
     }
 
     @Test
-    void testRetrieveDataWithPatientAndOntologyTermSets() {
+    void testRetrieveDataWithPatientsDirectly() {
         def patientIds = [-101L, -102L]
         def conceptCode = 'c2'
         Set patients = testData.i2b2Data.patients.findAll {
             it.id in patientIds
         }
-        Set concepts = testData.conceptData.i2b2List.findAll {
-            it.code == conceptCode
-        }
 
-        results = clinicalDataResourceService.retrieveData(patients, concepts)
+        results = clinicalDataResourceService.retrieveData(patients, [
+                new TerminalConceptVariable(conceptCode: conceptCode)])
         List<PatientRow> rows = Lists.newArrayList(results)
 
         assertThat rows, contains(
