@@ -47,10 +47,13 @@ grails.project.dependency.resolution = {
     log "warn"
 
     repositories {
+        // grailsPlugins()
+        // grailsHome()
         grailsCentral()
-		grailsHome()
+
+        mavenLocal()
         mavenCentral()
-        mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
+        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
     }
     dependencies {
         compile 'net.sf.opencsv:opencsv:2.3'
