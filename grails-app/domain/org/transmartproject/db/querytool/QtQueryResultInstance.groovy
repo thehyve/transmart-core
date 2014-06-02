@@ -3,6 +3,7 @@ package org.transmartproject.db.querytool
 import com.google.common.collect.Sets
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
+import org.hibernate.cfg.NotYetImplementedException
 import org.hibernate.classic.Session
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
@@ -96,5 +97,10 @@ class QtQueryResultInstance implements QueryResult {
         }
 
         res
+    }
+
+    String getUsername() {
+        //queryInstance.queryMaster.userId
+        throw new NotYetImplementedException();
     }
 }

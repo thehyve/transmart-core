@@ -35,4 +35,9 @@ class DeGplInfo implements Platform {
     Iterable<?> getTemplate() {
         throw new NotYetImplementedException()
     }
+
+    @Override
+    String getGenomeReleaseId() {
+        throw new NotYetImplementedException()
+    }
 }

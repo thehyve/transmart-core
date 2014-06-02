@@ -34,9 +34,9 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
-    private final Set<String> dataProperties = ImmutableSet.of('rawIntensity', 'logIntensity', 'zscore')
+    private final Map<String, Class> dataProperties = [rawIntensity:Double, logIntensity:Double, zscore:Double].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of('annotationId', 'geneSymbol', 'geneId')
+    private final Map<String, Class> rowProperties = [annotationId:String, geneSymbol:String, geneId:String].asImmutable()
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

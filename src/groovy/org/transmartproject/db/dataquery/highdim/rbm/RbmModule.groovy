@@ -28,9 +28,9 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RBM']
 
-    private final Set<String> dataProperties = ImmutableSet.of('value', 'logIntensity', 'zscore')
+    private final Map<String, Class> dataProperties = [value:Double, logIntensity:Double, zscore:Double].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of('antigenName', 'unit', 'uniprotName')
+    private final Map<String, Class> rowProperties = [antigenName:String, unit:String, uniprotName:String].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

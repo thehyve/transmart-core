@@ -28,9 +28,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['Gene Expression']
 
-    final Set<String> dataProperties = ImmutableSet.of('trialName', 'rawIntensity', 'logIntensity', 'zscore')
+    final Map<String, Class> dataProperties = [trialName:String, rawIntensity:Double,
+            logIntensity: Double, zscore:Double].asImmutable()
 
-    final Set<String> rowProperties = ImmutableSet.of('probe', 'geneId', 'geneSymbol')
+    final Map<String, Class> rowProperties = [probe:String, geneId:String, geneSymbol:String].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

@@ -36,9 +36,9 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "Messenger RNA data (Sequencing)"
 
-    private final Set<String> dataProperties = ImmutableSet.of('trialName', 'readCount')
+    private final Map<String, Class> dataProperties = [trialName:String, readCount:Integer].asImmutable()
 
-    private final Set<String> rowProperties = ImmutableSet.of()
+    private final Map<String, Class> rowProperties = [:].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
