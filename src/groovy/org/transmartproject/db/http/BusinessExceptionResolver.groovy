@@ -10,13 +10,7 @@ import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
-import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.exceptions.*
 
 import javax.annotation.PostConstruct
 import javax.servlet.ServletContext

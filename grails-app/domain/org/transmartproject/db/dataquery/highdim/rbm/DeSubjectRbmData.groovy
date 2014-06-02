@@ -18,7 +18,7 @@ class DeSubjectRbmData {
 
     static mapping = {
         table schema: 'deapp', name: 'de_subject_rbm_data'
-        id generator: 'sequence', params: [sequence: 'de_subject_rbm_data_seq']
+        id generator: 'sequence', params: [sequence: 'de_subject_rbm_data_seq', schema: 'deapp']
         assay column: 'assay_id'
         annotations joinTable: [
                 name: 'de_rbm_data_annotation_join',

@@ -1,6 +1,5 @@
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -14,11 +13,7 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.RepeatedEntriesCollectingTabularResult
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
-import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -34,9 +29,11 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['RNASEQ']
 
-    private final Map<String, Class> dataProperties = [rawIntensity:Double, logIntensity:Double, zscore:Double].asImmutable()
+    final Map<String, Class> dataProperties = typesMap(DeSubjectRnaData,
+            ['rawIntensity', 'logIntensity', 'zscore'])
 
-    private final Map<String, Class> rowProperties = [annotationId:String, geneSymbol:String, geneId:String].asImmutable()
+    final Map<String, Class> rowProperties = typesMap(RnaSeqCogDataRow,
+            ['annotationId', 'geneSymbol', 'geneId'])
 
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory

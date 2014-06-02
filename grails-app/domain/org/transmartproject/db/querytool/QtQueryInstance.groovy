@@ -21,7 +21,7 @@ class QtQueryInstance {
         /* use sequence instead of identity because our Oracle schema doesn't
          * have a trigger that fills the column in this case */
 		id          column: 'query_instance_id', generator: 'sequence',
-                    params: [sequence: 'qt_sq_qi_qiid']
+                    params: [sequence: 'qt_sq_qi_qiid', schema: 'i2b2demodata']
         queryMaster column: 'query_master_id'
 		version false
 	}

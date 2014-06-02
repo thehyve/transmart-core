@@ -1,8 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
-import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
-
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,12 +12,12 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.acgh.AcghDataTypeResource
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-import org.transmartproject.db.dataquery.highdim.acgh.AcghDataTypeResource
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -36,9 +34,10 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "Messenger RNA data (Sequencing)"
 
-    private final Map<String, Class> dataProperties = [trialName:String, readCount:Integer].asImmutable()
+    final Map<String, Class> dataProperties = typesMap(DeSubjectRnaseqData,
+            ['trialName', 'readCount'])
 
-    private final Map<String, Class> rowProperties = [:].asImmutable()
+    final Map<String, Class> rowProperties = [:].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
 import org.springframework.core.annotation.AnnotationUtils
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method

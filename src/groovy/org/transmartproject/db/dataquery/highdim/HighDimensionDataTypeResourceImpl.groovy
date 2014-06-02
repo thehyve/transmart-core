@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Log4j
+
 import org.hibernate.ScrollMode
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
@@ -13,6 +14,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
@@ -49,6 +51,13 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     TabularResult retrieveData(List<AssayConstraint> assayConstraints,
                                  List<DataConstraint> dataConstraints,
                                  Projection projection) {
+
+        // Each module should only return assays that match 
+        // the markertypes specified, in addition to the 
+        // constraints given
+        assayConstraints << new PlatformConstraint(
+                platformNames: module.platformMarkerTypes)
+                                                                  
         def assayQuery = new AssayQuery(assayConstraints)
         List<AssayColumn> assays
 
@@ -122,6 +131,6 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
     @Override
     boolean matchesPlatform(Platform platform) {
-        module.matchesPlatform platform
+        platform.markerType in module.platformMarkerTypes
     }
 }

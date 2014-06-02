@@ -1,4 +1,5 @@
 import org.springframework.stereotype.Component
+import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
@@ -49,6 +50,8 @@ A runtime dependency for tranSMART that implements the Core API
         xmlns context:"http://www.springframework.org/schema/context"
 
         businessExceptionResolver(BusinessExceptionResolver)
+
+        accessControlChecks(AccessControlChecks)
 
         clinicalVariableFactory(ClinicalVariableFactory)
 

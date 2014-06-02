@@ -42,7 +42,7 @@ class AccessLevelTestData {
                     }.collectEntries {
                         [it.name, it.getProperty(i2b2)]
                     })
-            if (i2b2sec.fullName.contains('study1')) {
+            if (i2b2sec.fullName.contains('study1') || i2b2.cComment == null) {
                 i2b2sec.secureObjectToken = 'EXP:PUBLIC'
             } else {
                 i2b2sec.secureObjectToken = i2b2.cComment.replace('trial', 'EXP')

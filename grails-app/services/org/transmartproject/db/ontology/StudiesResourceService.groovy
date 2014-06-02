@@ -25,7 +25,6 @@ class StudiesResourceService implements StudiesResource {
         // the query is awkward (cross join) due to the non-existence of an
         // association. See comment on I2b2TrialNodes
 
-        println query.list()
         query.list().collect {
             new StudyImpl(ontologyTerm: it)
         } as Set
