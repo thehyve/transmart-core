@@ -20,7 +20,7 @@ CREATE TABLE de_variant_population_data (
     info_index integer DEFAULT 0,
     integer_value bigint,
     float_value double precision,
-    text_value character varying(5000)
+    text_value character varying(4000)
 );
 
 --
