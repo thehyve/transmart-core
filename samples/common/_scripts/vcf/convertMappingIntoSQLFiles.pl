@@ -7,8 +7,8 @@
 
 ## This script has been adjusted to work for postgres databases
 
-if ($#ARGV < 5) {
-	print "Usage: perl convertMappingIntoSQLFiles.pl subject_sample_mapping_file output_dir study_id dataset_id fullpath(separated by +) dbname\n";
+if ($#ARGV < 4) {
+	print "Usage: perl convertMappingIntoSQLFiles.pl subject_sample_mapping_file output_dir study_id dataset_id fullpath(separated by +)\n";
 	print "    subject_sample_mapping_file is a tabseparated file with\n";
 	print "        subject_id as known in clinical data in the first column\n";
 	print "        sample_id as known in VCF file in the second column\n";
@@ -18,7 +18,7 @@ if ($#ARGV < 5) {
 	print "    fullpath is the path in the dataset explorer tree where the VCF node should appear.\n";
 	print "        The path must be delimited by + sign. Use quotation marks if the path contains whitespace\n";
 	print "\n";
-	print "Example: perl generate_VCF_mapping_files.pl subject_sample.txt /tmp/vcf GSE8581 GSE8581_Lung \"Public Studies+GSE8581+Exome Sequencing\" transmart\n";
+	print "Example: perl convertMappingIntoSQLFiles.pl subject_sample.txt /tmp/vcf GSE8581 GSE8581_Lung \"Public Studies+GSE8581+Exome Sequencing\"\n";
 	exit;
 } else {
 	our $subject_sample = $ARGV[0];
