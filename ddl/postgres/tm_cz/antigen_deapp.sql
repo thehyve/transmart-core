@@ -16,7 +16,7 @@ CREATE FUNCTION tf_trg_antigen_deapp() RETURNS trigger
 begin
        if NEW.ANTIGEN_ID is null then
  select nextval('tm_cz.SEQ_ANTIGEN_ID') into NEW.ANTIGEN_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

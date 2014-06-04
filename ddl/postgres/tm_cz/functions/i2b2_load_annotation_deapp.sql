@@ -298,7 +298,7 @@ BEGIN
 		return -16;	
 	end;		
 	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_id in de_mrna_annotation',rowCt,stepCt,'Done') into rtnCd;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_symbol in de_mrna_annotation',rowCt,stepCt,'Done') into rtnCd;
 		
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_annotation_deapp',0,stepCt,'Done') into rtnCd;

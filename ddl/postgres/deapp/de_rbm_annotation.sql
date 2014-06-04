@@ -26,7 +26,7 @@ CREATE FUNCTION tf_rbm_id_trigger() RETURNS trigger
 begin
        if NEW.ID is null then
  select nextval('deapp.RBM_ANNOTATION_ID') into NEW.ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

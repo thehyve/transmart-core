@@ -26,7 +26,7 @@ CREATE FUNCTION tf_trg_az_test_step_act_result() RETURNS trigger
 begin
        if NEW.TEST_STEP_ACT_RESULT_ID is null then
  select nextval('tm_cz.SEQ_CZ_TEST') into NEW.TEST_STEP_ACT_RESULT_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

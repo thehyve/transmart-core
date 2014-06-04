@@ -35,7 +35,7 @@ CREATE FUNCTION tf_trg_de_mrna_annotation_id() RETURNS trigger
 begin
        if NEW.DE_MRNA_ANNOTATION_ID is null then
  select nextval('deapp.SEQ_DE_MRNA_ANNOTATION_ID') into NEW.DE_MRNA_ANNOTATION_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

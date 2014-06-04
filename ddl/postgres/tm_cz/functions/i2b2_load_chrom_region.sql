@@ -172,6 +172,76 @@ BEGIN
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load chromosomal region data into deapp.de_chromosomal_region for platform: ' || gplId,rowCt,stepCt,'Done') into rtnCd;
 
 
+--	update gene_id if null
+	
+	begin
+	with upd as (select b.bio_marker_name as gene_symbol, b.organism, min(b.primary_external_id::numeric) as gene_id 
+			 from biomart.bio_marker b
+			 where upper(b.bio_marker_type) = 'GENE'
+			 group by b.bio_marker_name, b.organism)
+	update deapp.de_chromosomal_region a
+	set gene_id=upd.gene_id
+	from upd
+	where a.gpl_id = gplId
+	      and a.gene_id is null
+	      and a.gene_symbol is not null
+	      and a.gene_symbol = upd.gene_symbol
+	      and upper(a.organism) = upper(upd.organism)
+	      and exists
+		 (select 1 from biomart.bio_marker x
+		  where a.gene_symbol = x.bio_marker_name
+			and upper(x.organism) = upper(a.organism)
+			and upper(x.bio_marker_type) = 'GENE');
+	get diagnostics rowCt := ROW_COUNT;	
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;		
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_id in de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
+
+
+	--	update gene_symbol if null
+	
+	begin
+	with upd as (select b.primary_external_id::numeric as gene_id, b.organism, min(b.bio_marker_name) as gene_symbol
+			 from biomart.bio_marker b
+			 where upper(b.bio_marker_type) = 'GENE'
+			 group by b.primary_external_id, b.organism)
+	update deapp.de_chromosomal_region a
+	set gene_symbol=upd.gene_symbol
+	from upd
+	where a.gpl_id = gplId
+	      and a.gene_symbol is null
+	      and a.gene_id is not null
+	      and a.gene_id = upd.gene_id
+	      and a.organism = upd.organism
+	      and exists
+		 (select 1 from biomart.bio_marker x
+		  where a.gene_id::varchar = x.primary_external_id
+			and upper(x.organism) = upper(a.organism)
+			and upper(x.bio_marker_type) = 'GENE');
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;	
+	end;		
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_symbol in de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
+
+
 -- wrapping up
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_chrom_region',0,stepCt,'Done') into rtnCd;

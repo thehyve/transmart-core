@@ -23,7 +23,7 @@ CREATE FUNCTION tf_trg_bio_ad_hoc_prop_id() RETURNS trigger
 begin
        if NEW.AD_HOC_PROPERTY_ID is null then
  select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.AD_HOC_PROPERTY_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

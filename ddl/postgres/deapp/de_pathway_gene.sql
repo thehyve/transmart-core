@@ -23,7 +23,7 @@ CREATE FUNCTION tf_trg_de_pathway_gene_id() RETURNS trigger
 begin
        if NEW.ID is null then
  select nextval('deapp.SEQ_DATA_ID') into NEW.ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;
