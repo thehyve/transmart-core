@@ -476,7 +476,7 @@ function toggleFilters()	{
 		jQuery("#title-filter").attr('style', 'visibility:visible; display:inline');
 		jQuery("#side-scroll").attr('style', 'visibility:visible; display:inline');
 		jQuery("#main").css('left', 300);
-		jQuery("#toggle-btn").css('left', 278);
+		jQuery("#toggle-btn").css('left', 0);
 		jQuery("#toggle-btn").css('height;', 20);
 		jQuery("#main").css('padding-left', 0);	
 		jQuery("#menu_bar").css('margin-left', -1);
