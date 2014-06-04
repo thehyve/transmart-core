@@ -57,7 +57,7 @@ CREATE FUNCTION tf_trg_patient_dimension() RETURNS trigger
 begin
        if NEW.PATIENT_NUM is null then
  select nextval('i2b2demodata.SEQ_PATIENT_NUM') into NEW.PATIENT_NUM ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

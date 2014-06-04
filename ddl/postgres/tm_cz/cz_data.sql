@@ -27,7 +27,7 @@ CREATE FUNCTION tf_trg_cz_data_id() RETURNS trigger
 begin
        if NEW.DATA_ID is null then
  select nextval('tm_cz.SEQ_CZ_DATA') into NEW.DATA_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

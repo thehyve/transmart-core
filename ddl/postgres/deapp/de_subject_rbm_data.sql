@@ -38,7 +38,7 @@ CREATE FUNCTION tf_trg_de_subj_rbm_data_id() RETURNS trigger
 begin
        if NEW.ID is null then
  select nextval('deapp.DE_SUBJECT_RBM_DATA_SEQ') into NEW.ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

@@ -30,7 +30,7 @@ CREATE FUNCTION tf_trg_snp_data_dataset_loc_id() RETURNS trigger
 begin
        if NEW.SNP_DATA_DATASET_LOC_ID is null then
  select nextval('deapp.SEQ_DATA_ID') into NEW.SNP_DATA_DATASET_LOC_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

@@ -31,7 +31,7 @@ CREATE FUNCTION tf_trg_fm_file_id() RETURNS trigger
 begin
        if NEW.FILE_ID is null then
  select nextval('fmapp.SEQ_FM_ID') into NEW.FILE_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

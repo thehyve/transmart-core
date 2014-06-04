@@ -20,7 +20,7 @@ CREATE FUNCTION tf_trg_cz_message_seq_id() RETURNS trigger
 begin
        if NEW.SEQ_ID is null then
  select nextval('tm_cz.SEQ_CZ_JOB_MESSAGE') into NEW.SEQ_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

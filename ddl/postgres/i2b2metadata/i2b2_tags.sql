@@ -19,7 +19,7 @@ CREATE FUNCTION tf_trg_i2b2_tag_id() RETURNS trigger
 begin
        if NEW.TAG_ID is null then
  select nextval('i2b2metadata.SEQ_I2B2_DATA_ID') into NEW.TAG_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;

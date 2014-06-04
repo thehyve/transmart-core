@@ -25,7 +25,7 @@ CREATE FUNCTION tf_trg_cz_dw_version_id() RETURNS trigger
 begin
        if NEW.DW_VERSION_ID is null then
  select nextval('tm_cz.SEQ_CZ_DW_VERSION_ID') into NEW.DW_VERSION_ID ;
-endif;
+end if;
        RETURN NEW;
 end;
 $$;
