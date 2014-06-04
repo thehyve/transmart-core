@@ -28,7 +28,8 @@ CREATE TABLE de_subject_sample_mapping (
     source_cd character varying(200),
     omic_source_study character varying(200),
     omic_patient_num bigint,
-    omic_patient_id bigint
+    omic_patient_id bigint,
+    partition_id numeric
 );
 
 --
