@@ -9,9 +9,9 @@ CREATE TABLE cz_xtrial_ctrl_vocab (
 );
 
 --
--- Name: tf_trg_xtrial_ctrl_vocab_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: tf_trg_cz_xtrial_ctrl_vocab_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION tf_trg_xtrial_ctrl_vocab_id() RETURNS trigger
+CREATE FUNCTION tf_trg_cz_xtrial_ctrl_vocab_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
@@ -21,7 +21,7 @@ end;
 $$;
 
 --
--- Name: trg_xtrial_ctrl_vocab_id; Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: trg_cz_xtrial_ctrl_vocab_id; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-CREATE TRIGGER trg_xtrial_ctrl_vocab_id BEFORE INSERT ON cz_xtrial_ctrl_vocab FOR EACH ROW EXECUTE PROCEDURE tf_trg_xtrial_ctrl_vocab_id();
+CREATE TRIGGER trg_cz_xtrial_ctrl_vocab_id BEFORE INSERT ON cz_xtrial_ctrl_vocab FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_xtrial_ctrl_vocab_id();
 

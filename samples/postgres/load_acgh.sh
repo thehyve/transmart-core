@@ -14,6 +14,7 @@
   export KETTLE_HOME
 
 # Should define DATA_FILE_PREFIX, MAP_FILENAME
+# SOURCE_CD is optional
   source $1
 
   SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
@@ -68,7 +69,7 @@ _END
 	-param:MAP_FILENAME=$MAP_FILENAME                                  \
 	-param:SECURITY_REQUIRED=$SECURITY_REQUIRED                        \
 	-param:SORT_DIR=$TEMPDIR                                           \
-	-param:SOURCE_CD=STD                                               \
+	-param:SOURCE_CD="${SOURCE_CD:-STD}"                               \
 	-param:STUDY_ID=$STUDY_ID                                          \
 	"-param:TOP_NODE=$TOP_NODE"
 

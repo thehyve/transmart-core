@@ -11,9 +11,9 @@ CREATE TABLE bio_asy_analysis_data_idx (
 );
 
 --
--- Name: tf_trg_baad_idx_id(); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: tf_trg_bio_asy_adi_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION tf_trg_baad_idx_id() RETURNS trigger
+CREATE FUNCTION tf_trg_bio_asy_adi_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
@@ -25,9 +25,9 @@ begin
 $$;
 
 --
--- Name: trg_baad_idx_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: trg_bio_asy_adi_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-CREATE TRIGGER trg_baad_idx_id BEFORE INSERT ON bio_asy_analysis_data_idx FOR EACH ROW EXECUTE PROCEDURE tf_trg_baad_idx_id();
+CREATE TRIGGER trg_bio_asy_adi_id BEFORE INSERT ON bio_asy_analysis_data_idx FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_adi_id();
 
 --
 -- Name: seq_bio_data_id; Type: SEQUENCE; Schema: biomart; Owner: -

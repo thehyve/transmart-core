@@ -15,9 +15,9 @@ ALTER TABLE ONLY bio_analysis_attribute_lineage
     ADD CONSTRAINT pk_baal_id PRIMARY KEY (bio_analysis_att_lineage_id);
 
 --
--- Name: tf_trg_bio_anly_att_lineage_id(); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: tf_trg_bio_analysis_al_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION tf_trg_bio_anly_att_lineage_id() RETURNS trigger
+CREATE FUNCTION tf_trg_bio_analysis_al_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
@@ -30,7 +30,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_anly_att_lineage_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: trg_bio_analysis_al_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-CREATE TRIGGER trg_bio_anly_att_lineage_id BEFORE INSERT ON bio_analysis_attribute_lineage FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_anly_att_lineage_id();
+CREATE TRIGGER trg_bio_analysis_al_id BEFORE INSERT ON bio_analysis_attribute_lineage FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_analysis_al_id();
 

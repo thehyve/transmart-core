@@ -30,11 +30,11 @@ CREATE SEQUENCE  "DEAPP"."DE_VARIANT_SUBJECT_SUMMARY_SEQ"  MINVALUE 1 MAXVALUE 9
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VARIANT_SUBJ_SUMM_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VARIANT_SUBJ_SUMM_ID" 
-before insert on deapp.de_variant_subject_summary
+before insert on "DEAPP"."DE_VARIANT_SUBJECT_SUMMARY"
 for each row begin
        	if inserting then
-               	if :NEW.variant_subject_summary_id is null then
-                       	select de_variant_subject_summary_seq.nextval into :NEW.variant_subject_summary_id from dual;
+               	if :NEW."VARIANT_SUBJECT_SUMMARY_ID" is null then
+                       	select DE_VARIANT_SUBJECT_SUMMARY_SEQ.nextval into :NEW."VARIANT_SUBJECT_SUMMARY_ID" from dual;
                	end if;
        	end if;
 end;

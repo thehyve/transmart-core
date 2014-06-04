@@ -30,11 +30,11 @@ CREATE SEQUENCE  "DEAPP"."DE_VARIANT_METADATA_SEQ"  MINVALUE 1 MAXVALUE 99999999
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_VARIANT_METADATA_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_VARIANT_METADATA_ID" 
-before insert on deapp.de_variant_metadata
+before insert on "DEAPP"."DE_VARIANT_METADATA"
 for each row begin
        	if inserting then
-               	if :NEW.de_variant_metadata_id is null then
-                       	select de_variant_metadata_seq.nextval into :NEW.de_variant_metadata_id from dual;
+               	if :NEW."DE_VARIANT_METADATA_ID" is null then
+                       	select DE_VARIANT_METADATA_SEQ.nextval into :NEW."DE_VARIANT_METADATA_ID" from dual;
                	end if;
        	end if;
 end;

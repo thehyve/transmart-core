@@ -40,11 +40,11 @@ CREATE SEQUENCE  "DEAPP"."DE_RC_SNP_INFO_SEQ"  MINVALUE 1 MAXVALUE 9999999999999
 -- Type: TRIGGER; Owner: DEAPP; Name: TRG_DE_RC_SNP_INFO_ID
 --
   CREATE OR REPLACE TRIGGER "DEAPP"."TRG_DE_RC_SNP_INFO_ID" 
-before insert on deapp.de_rc_snp_info
+before insert on "DEAPP"."DE_RC_SNP_INFO"
 for each row begin
        	if inserting then
-               	if :NEW.snp_info_id is null then
-                       	select de_rc_snp_info_seq.nextval into :NEW.snp_info_id from dual;
+               	if :NEW."SNP_INFO_ID" is null then
+                       	select DE_RC_SNP_INFO_SEQ.nextval into :NEW."SNP_INFO_ID" from dual;
                	end if;
        	end if;
 end;
