@@ -11,7 +11,7 @@ CREATE TABLE fm_file (
     filestore_location character varying(1000),
     filestore_name character varying(1000),
     link_url character varying(1000),
-    active_ind character(1) NOT NULL,
+    active_ind boolean NOT NULL,
     create_date timestamp without time zone NOT NULL,
     update_date timestamp without time zone NOT NULL
 );
