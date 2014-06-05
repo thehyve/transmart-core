@@ -14,7 +14,8 @@ CREATE TABLE de_subject_microarray_data (
     new_raw double precision,
     new_log double precision,
     new_zscore double precision,
-    trial_source character varying(200)
+    trial_source character varying(200),
+    partition_id numeric
 );
 
 --
