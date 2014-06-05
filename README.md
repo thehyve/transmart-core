@@ -1,48 +1,6 @@
 transmart-data
 ==============
 
-A short list of the most useful commands
-------------
-
-DDL
----
-
-Dump database ddl schema
-
-    make -C ddl/oracle dump
-    make -C ddl/postgres dump
-
-Create database database ddl structure from dumped scripts
-
-    make -C ddl/oracle load
-    make -C ddl/postgres load
-
-Reference data
---------------
-
-Dump reference data to tsv files from the tables specified in `data/common/<schema_name>_list`
-
-    make -C data/oracle dump
-    make -C data/postgres dump
-
-Upload reference data from the tsv files
-
-    make -C data/oracle load
-    make -C data/postgres load
-
-DDL + Reference data
---------------------
-
-Create database and upload reference data
-
-    make oracle
-    make postgres
-
-Drop database
-
-    make oracle_drop
-    make postgres_drop
-
 Introduction
 ------------
 
@@ -62,9 +20,8 @@ This repository is a set of make files and scripts for:
 The current schema is the one necessary to support the
 [`master` branch][master] on The Hyve's fork.
 
-This goal is to have this project
-displace `transmart-DB` by providing a better way to manage the tranSMART
-database.
+This goal is to have this project displace `transmart-DB` by providing a better
+way to manage the tranSMART database.
 
 This project does not handle database upgrades and is therefore more adequate
 for development. Using [Liquibase][liquibase] here or some other more ad hoc
@@ -82,18 +39,20 @@ The following are required:
 * tar with support for the -J switch (GNU tar only?)
 * An up-to-date checkout of the [`tranSMART-ETL` repository][ts_etl]. Revision
   e712fcd7 is necessary for Faceted Search support (ETL only)
+* Groovy (>= 2.1). Can be installed with `make -C env groovy` and updating the
+  `PATH` (Oracle and some secondary functionaly only)
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
-* Java environment (JDK) (Solr only)
+* Java environment (JDK 7)
 
-If you are using Ubuntu, you should be able to install all these dependencies
-by running
+If you are using Ubuntu and you intend to use PostgreSQL, you should be able to
+install all these dependencies by running
 
     sudo make -C env ubuntu_deps_root
 	make -C env ubuntu_deps_regular
 
 which will also prepare some directories for the tablespaces and assign them the
-correct ownership.
+correct ownership .
 
 Usage
 -----
@@ -112,11 +71,12 @@ created for you. You can skip the previous step and do only:
 
 The several options are fairly self-explanatory.
 
-The configured PostgreSQL user
-must be a database superuser. You can connect to PostgreSQL with UNIX sockets by
-specifying the parent directory of the socket in `PGHOST`. In that case,
-`localhost` will be used in the situation where UNIX sockets are not supported,
-such as for JDBC connections.
+### PostgreSQL-specific notes
+
+The configured PostgreSQL user must be a database superuser. You can connect to
+PostgreSQL with UNIX sockets by specifying the parent directory of the socket
+in `PGHOST`. In that case, `localhost` will be used in the situation where UNIX
+sockets are not supported, such as for JDBC connections.
 
 The variable `$TABLESPACES` is the parent directory for where the tablespaces
 will be created in the PostgreSQL server's filesystem.
@@ -146,21 +106,22 @@ and assigning them the correct owner.
 
     make -j4 oracle
 
-You can skip the tablespace assignments, which are not really important for
-development, by setting the environment variable `skip_fix_tablespaces` to any
-non-empty value:
+For PostgreSQL, you can skip the tablespace assignments, which are not really
+important for development, by setting the environment variable
+`skip_fix_tablespaces` to any non-empty value:
 
     skip_fix_tablespaces=1 make -j4 postgres
 
-Oracle version in oposite do not manage tablespaces by default.
-Fo forcing use `ORACLE_MANAGE_TABLESPACES`:
+The Oracle version, on the other hand, does not manage tablespaces by default.
+For forcing, use `ORACLE_MANAGE_TABLESPACES`:
 
     ORACLE_MANAGE_TABLESPACES=1 make -j4 oracle
 
-There's a simple script in `data/postgres/set_password.sh` for changing users'
-passwords.
+For PostgreSQL, there's a simple script in `data/postgres/set_password.sh` for
+changing users' passwords. If you're using Oracle, you can still use part of it
+to generate the hashes.
 
-### Only fix permissions, owners or tablespace assignments
+### Only fix permissions, owners or tablespace assignments (PostgreSQL only)
 
 These can be done with the targets `fix_permissions`, `fix_owners` and
 `fix_tablespaces`, under `ddl/postgres/META`. Example:
@@ -172,10 +133,10 @@ These can be done with the targets `fix_permissions`, `fix_owners` and
 Right now, only some sample data from the GSE8581 study is available. You can
 import it like this:
 
-    make -C samples/{oralce,postgres} load_clinical_GSE8581
-    make -C samples/{oralce,postgres} load_ref_annotation_GSE8581
-    make -C samples/{oralce,postgres} load_expression_GSE8581
-    make -C samples/{oralce,postgres} load_analysis_GSE8581
+    make -C samples/{oracle,postgres} load_clinical_GSE8581
+    make -C samples/{oracle,postgres} load_ref_annotation_GSE8581
+    make -C samples/{oracle,postgres} load_expression_GSE8581
+    make -C samples/{oracle,postgres} load_analysis_GSE8581
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
@@ -196,6 +157,14 @@ Once it is running, you can run full imports with:
 The Faceted Search core also supports delta imports:
 
     make -C solr rwg_delta_import
+
+Due to different functionality in tranSMART versions targetting each RDBMS,
+there's a separate Solr core for Oracle:
+
+    ORACLE=1 make -C solr start
+	ORACLE=1 make -C solr sanofi_full_import
+
+Document (e.g. PDFs) reindexing has a special procedure.
 
 ### Changing ownership or permission information
 
@@ -229,7 +198,7 @@ run:
 
     make -C config install
 
-### Generating new import files from model database (Postgresql)
+### Generating new import files from model database (PostgreSQL)
 
 This part still needs some work, but it goes more or less like this:
 
@@ -273,6 +242,16 @@ action; better to edit the files in
 	make searchapp/Makefile
     make -C searchapp dump_plugin_module
     make -C ../common/searchapp/plugin_modules_params process_dump
+
+### Generating new import files from model database (Oracle)
+
+For Oracle, only schema dumping a loading is supported:
+
+    make -C ddl/oracle dump
+	make -C ddl/oracle load
+
+A separate branch exists that supports loading data from the TSV files dumped
+by PostgreSQL.
 
   [master]: https://github.com/thehyve/transmartApp/tree/master
   [liquibase]: http://www.liquibase.com/
