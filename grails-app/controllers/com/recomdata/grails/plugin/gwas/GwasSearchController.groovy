@@ -256,7 +256,7 @@ class GwasSearchController {
         def totalCount
 
         def columnNames = []
-        def searchDAO = new GwasSearchDAO()
+        def searchDAO = new GwasSearchService()
 
 //		if (max > 0 && true) {
 //			//If everything is the same as last time except the limits, return those rows out of the cache in the session
@@ -427,7 +427,7 @@ class GwasSearchController {
             def indexMap = [:]
 
             //Initiate Data Access object to get to search data.
-            def searchDAO = new GwasSearchDAO()
+            def searchDAO = new GwasSearchService()
 
             //Get the GWAS Data. Call a different class based on the data type.
             def analysisData
