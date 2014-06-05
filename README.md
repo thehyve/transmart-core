@@ -44,6 +44,7 @@ The following are required:
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
 * Java environment (JDK 7)
+* build-essentials tools and gcc-fortran (building R from source only)
 
 If you are using Ubuntu and you intend to use PostgreSQL, you should be able to
 install all these dependencies by running
@@ -165,6 +166,27 @@ there's a separate Solr core for Oracle:
 	ORACLE=1 make -C solr sanofi_full_import
 
 Document (e.g. PDFs) reindexing has a special procedure.
+
+### Running Rserve
+
+You can install a *recent* version of R from your distro and run the R scripts
+inside the `R` directory to install the required packages. You can also build R
+from source:
+
+    make -C R -j8 root/bin/R
+	make -C R install_packages
+
+Beware that if you run `install_packages` with concurrency some packages will
+fail building and you may have to run the command again.
+
+There is an init script and a systemd unit available to run Rserve. It has to
+be run as the same user as the tranSMART web application:
+
+    TRANSMART_USER=<tomcat user> make -C R install_rserve_init
+	update-rc.d rserve defaults 85 # to enable the service
+
+This is applicable to the Debian-family distributions. See also the
+`install_rserve_unit` target for systemd based distros.
 
 ### Changing ownership or permission information
 
