@@ -28,7 +28,7 @@ CREATE FUNCTION tf_trg_de_subject_snp_dataset_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-      if coalesce(NEW.SUBJECT_SNP_DATASET_ID::text, '') = '' then
+      if NEW.SUBJECT_SNP_DATASET_ID is null then
          select nextval('deapp.SEQ_DATA_ID') into NEW.SUBJECT_SNP_DATASET_ID ;
       end if;
 RETURN NEW;

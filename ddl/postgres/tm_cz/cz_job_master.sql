@@ -27,11 +27,11 @@ CREATE FUNCTION tf_trg_cz_job_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
-      if coalesce(NEW.JOB_ID::text, '') = '' then          
+      if NEW.JOB_ID is null then
         select nextval('tm_cz.SEQ_CZ_JOB_MASTER') into NEW.JOB_ID ;       
       end if;       
-       RETURN NEW;
-  end;
+  RETURN NEW;
+end;
 $$;
 
 --

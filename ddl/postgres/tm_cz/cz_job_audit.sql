@@ -27,7 +27,7 @@ CREATE FUNCTION tf_trg_cz_seq_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
-      if coalesce(NEW.SEQ_ID::text, '') = '' then          
+      if NEW.SEQ_ID is null then
         select nextval('tm_cz.SEQ_CZ_JOB_AUDIT') into NEW.SEQ_ID ;       
       end if;       
        RETURN NEW;

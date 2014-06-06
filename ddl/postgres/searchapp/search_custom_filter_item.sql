@@ -21,11 +21,11 @@ CREATE FUNCTION tf_trg_search_cust_fil_item_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin 
-    if NEW.SEARCH_CUSTOM_FILTER_ITEM_ID is null then select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_CUSTOM_FILTER_ITEM_ID ; end if; RETURN NEW;
+    if NEW.SEARCH_CUSTOM_FILTER_ITEM_ID is null then
+        select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_CUSTOM_FILTER_ITEM_ID ;
+    end if;
+RETURN NEW;
 end;
-
-
-
 $$;
 
 --

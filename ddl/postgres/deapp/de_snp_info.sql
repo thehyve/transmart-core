@@ -27,7 +27,7 @@ CREATE FUNCTION tf_trg_de_snp_info_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-      if coalesce(NEW.SNP_INFO_ID::text, '') = '' then
+      if NEW.SNP_INFO_ID is null then
          select nextval('deapp.SEQ_DATA_ID') into NEW.SNP_INFO_ID ;
       end if;
 RETURN NEW;
