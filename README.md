@@ -34,5 +34,4 @@ After restarting transmartApp, dalliance-plugin will be downloaded and installed
 
 ```
      grails.plugin.location.'dalliance-plugin' = '/path/to/dalliance-plugin project'
-
 ```
