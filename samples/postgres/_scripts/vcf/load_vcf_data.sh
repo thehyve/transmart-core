@@ -18,7 +18,10 @@ PSQL_COMMAND=$2
 DIR=`dirname "$0"`
 
 # First load the dataset
-$PSQL_COMMAND -f "$1/load_platform.sql"
+source $output_dir/load_platform.params
+$PSQL_COMMAND -c "insert into deapp.de_gpl_info (platform, title, marker_type, genome_build, organism) \
+		select '$PLATFORM', '$PLATFORM_TITLE', '$MARKER_TYPE', '$GENOME_BUILD', '$ORGANISM' \
+		WHERE NOT EXISTS(select platform from deapp.de_gpl_info where platform = '$PLATFORM');"
 
 # List of TSV files to be loaded
 TSVFILES=( "load_variant_dataset" "load_variant_metadata" "load_variant_subject_idx" \
@@ -42,17 +45,5 @@ do
 
     echo "Processing text file $FILENAME"
     $PSQL_COMMAND -c "COPY $TABLE ($COLUMNS) FROM STDIN \
-			DELIMITER $PGDELIMITER " < $output_dir/$FILENAME;
-done
-
-# List of SQL files to be loaded
-SQLFILES=( "load_concept_dimension" "load_observation_fact" \
-        "load_i2b2" "load_i2b2_secure" \
-	    "load_de_subject_sample_mapping" "load_concept_counts" )
-
-# Loop through the SQL files
-for SQLFILE in "${SQLFILES[@]}"
-do
-    echo "Processing SQL file $SQLFILE"
-    $PSQL_COMMAND -f "$output_dir/$SQLFILE.sql";
+			DELIMITER $PGDELIMITER" < $output_dir/$FILENAME;
 done

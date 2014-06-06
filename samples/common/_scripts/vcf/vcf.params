@@ -27,10 +27,12 @@ STUDY_ID=GSE8581
 
 # Concept path to store the VCF data in the clinical data tree.
 # The concept path must be specified completely, where parts of the
-# path are separated by the + sign.
-# For example: Public Studies+GSE8581+Genomic Variants
-# N.B. Use quotes around the parameter if it contains spaces
-CONCEPT_PATH="Public Studies+GSE8581+Genomic Variants"
+# path are separated by the \ sign. The path must NOT start with a
+# slash.
+# For example: Public Studies\GSE8581\Genomic Variants
+# N.B. Use quotes around the parameter if it contains spaces and
+#      to escape the slashes
+CONCEPT_PATH="Public Studies\\GSE8581\\Genomic Variants"
 
 
 # Identifier for the genome build that is used as a reference

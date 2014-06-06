@@ -13,9 +13,14 @@ $(JDBC_DRIVER): $(JDBC_DRIVER_PSQL_PATH)
 
 include ../common/makefile.inc
 
-.PHONY:  load_vcf
-load_vcf:
+.PHONY:  load_vcf load_vcf_data load_vcf_mapping
+load_vcf: load_vcf_data load_vcf_mapping
+load_vcf_data:
 	./_scripts/vcf/load_vcf_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
+
+load_vcf_mapping:
+	./_scripts/vcf/load_mapping_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
+
 
 export JDBC_DRIVER
 

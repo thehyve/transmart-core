@@ -46,7 +46,8 @@ if ($#ARGV < 6) {
 ## Do Not change anything after this line
 our (@t, $rs);
 
-our $ETL_date = `date +FORMAT=%Y-%m-%d`;
+# Oracle expects the date to be specifially formatted
+our $ETL_date = `date +FORMAT=%d-%h-%Y`;
 $ETL_date =~ s/FORMAT=//;
 $ETL_date =~ s/\n//;
 our $depth_threshold = 0;	# The depth_threshold is disabled for now
@@ -61,11 +62,13 @@ if( !-d $output_dir || !-x $output_dir ) {
 }
 
 # Create a platform for VCF, if it doesn't exist yet
-open PLATFORM, "> $output_dir/load_platform.sql" or die "Cannot open file: $!";
-print PLATFORM "insert into deapp.de_gpl_info (platform, title, marker_type, release_nbr)";
-print PLATFORM "select '$gpl_id', 'VCF platform for $genome', 'VCF', '$genome' WHERE NOT EXISTS( ";
-print PLATFORM "  select platform from deapp.de_gpl_info where platform = '$gpl_id'";
-print PLATFORM ");";
+open PLATFORM, "> $output_dir/load_platform.params" or die "Cannot open file: $!";
+print PLATFORM "PLATFORM=\"$gpl_id\"\n";
+print PLATFORM "PLATFORM_TITLE=\"VCF platform for $genome\"\n";
+print PLATFORM "MARKER_TYPE=\"VCF\"\n";
+print PLATFORM "GENOME_BUILD=\"$genome\"\n";
+print PLATFORM "ORGANISM=\"Homo Sapiens\"\n";
+print PLATFORM "export PLATFORM PLATFORM_TITLE MARKER_TYPE GENOME_BUILD ORGANISM\n";
 close PLATFORM;
 
 # Make sure the metadata about the dataset is loaded properly.
