@@ -8,7 +8,7 @@ CREATE TABLE fm_folder (
     folder_level bigint NOT NULL,
     folder_type character varying(100) NOT NULL,
     folder_tag character varying(50),
-    active_ind character(1) NOT NULL,
+    active_ind boolean NOT NULL,
     parent_id bigint,
     description character varying(2000)
 );
