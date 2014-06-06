@@ -10,7 +10,7 @@ Edit BuildConfig.groovy in transmartApp project.
 
      plugins {
             ..
-            runtime ':dalliance-plugin:0.1-SNAPSHOT'
+            runtime ':dalliance-plugin:0.2-SNAPSHOT'
             ..
     }
     
