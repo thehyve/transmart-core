@@ -15,10 +15,10 @@ include ../common/makefile.inc
 
 .PHONY:  load_vcf load_vcf_data load_vcf_mapping
 load_vcf: load_vcf_data load_vcf_mapping
-load_vcf_data:
+load_vcf_data: ../common/parse_vcf
 	./_scripts/vcf/load_vcf_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
 
-load_vcf_mapping:
+load_vcf_mapping:  ../common/parse_vcf
 	./_scripts/vcf/load_mapping_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
 
 

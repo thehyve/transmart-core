@@ -15,10 +15,10 @@ include ../common/makefile.inc
 
 .PHONY:  load_vcf load_vcf_data load_vcf_mapping
 load_vcf: load_vcf_data load_vcf_mapping
-load_vcf_data: $(JDBC_DRIVER)
+load_vcf_data: $(JDBC_DRIVER)  ../common/parse_vcf
 	./_scripts/vcf/load_vcf_data.sh "$(VCF_TEMP_DIR)"
 
-load_vcf_mapping: $(JDBC_DRIVER)
+load_vcf_mapping: $(JDBC_DRIVER)  ../common/parse_vcf
 	./_scripts/vcf/load_mapping_data.sh "$(VCF_TEMP_DIR)"
 
 export JDBC_DRIVER

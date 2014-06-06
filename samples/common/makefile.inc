@@ -166,4 +166,12 @@ clean:
 
 .PHONY: write_kettle_properties clean
 
+.PHONY: parse_vcf
+../common/parse_vcf:
+	perl ../common/_scripts/vcf/parseVCFintoTextFiles.pl "$(VCF_FILE)" "$(VCF_TEMP_DIR)" "$(DATASOURCE)" \
+			"$(DATASET_ID)" "$(GPL_ID)" "$(GENOME_BUILD)" "$(ETL_USER)"
+	perl ../common/_scripts/vcf/convertMappingIntoSQLFiles.pl "$(SUBJECT_SAMPLE_MAPPING_FILE)" "$(VCF_TEMP_DIR)" \
+			"$(STUDY_ID)" "$(DATASET_ID)" "$(CONCEPT_PATH)"
+
+
 # vim: ft=make :
