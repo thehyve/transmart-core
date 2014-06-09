@@ -26,7 +26,7 @@ CREATE FUNCTION tf_trg_bio_analysis_attribute_id() RETURNS trigger
 			THEN
 			SELECT nextval('BIOMART.SEQ_BIO_DATA_ID') INTO NEW.BIO_ANALYSIS_ATTRIBUTE_ID;
   		END IF;
-	RETURN new;
+RETURN NEW;
 END;
 $$;
 

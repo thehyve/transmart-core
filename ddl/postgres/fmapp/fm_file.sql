@@ -58,6 +58,7 @@ BEGIN
     insert into fmapp.fm_data_uid (fm_data_id, unique_id, fm_data_type)
     values (NEW.file_id, fm_file_uid(NEW.file_id), 'FM_FILE');
   end if;
+RETURN NEW;
 end;
 $$;
 

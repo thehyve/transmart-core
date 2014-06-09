@@ -6,7 +6,7 @@ CREATE FUNCTION biomarker_gene_uid(gene_id character varying) RETURNS character 
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for biomarker_gene.
 
   RETURN 'GENE:' || coalesce(GENE_ID, 'ERROR');
 END biomarker_gene_uid;

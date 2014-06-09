@@ -83,7 +83,7 @@ BEGIN
     insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
     values (NEW.bio_experiment_id, bio_experiment_uid(NEW.accession), 'BIO_EXPERIMENT');
   end if;
-return NEW;
+RETURN NEW;
 end;
 $$;
 

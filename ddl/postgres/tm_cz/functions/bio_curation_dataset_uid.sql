@@ -6,7 +6,7 @@ CREATE FUNCTION bio_curation_dataset_uid(bio_curation_type character varying) RE
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for bio_curation_dataset.
 
   RETURN 'BCD:' || coalesce(BIO_CURATION_TYPE, 'ERROR');
 END BIO_CURATION_DATASET_UID;

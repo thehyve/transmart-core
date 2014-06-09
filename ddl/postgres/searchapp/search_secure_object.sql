@@ -25,7 +25,7 @@ begin
     if NEW.SEARCH_SECURE_OBJECT_ID is null then
           select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_SECURE_OBJECT_ID ;
     end if;
-ETURN NEW;
+RETURN NEW;
 end;
 $$;
 

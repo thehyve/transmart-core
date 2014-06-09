@@ -6,7 +6,7 @@ CREATE FUNCTION bio_asy_analysis_pltfm_uid(platform_name character varying) RETU
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for bio_asy_analysis_pltfm
 
   RETURN 'BAAP:' || coalesce(PLATFORM_NAME, 'ERROR');
 END;

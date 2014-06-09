@@ -6,7 +6,7 @@ CREATE FUNCTION biomarker_pathway_uid(p_source character varying, pathway_id cha
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for biomarker_pathway.
 
   RETURN 'PATHWAY:'|| P_SOURCE || ':' || coalesce(PATHWAY_ID, 'ERROR');
 END biomarker_pathway_uid;
