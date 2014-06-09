@@ -28,6 +28,8 @@ class GwasSearchController {
     def RModulesJobProcessingService
     def RModulesOutputRenderService
     def springSecurityService
+    def gwasSearchService
+
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
      */
@@ -256,24 +258,7 @@ class GwasSearchController {
         def totalCount
 
         def columnNames = []
-        def searchDAO = new GwasSearchDAO()
 
-//		if (max > 0 && true) {
-//			//If everything is the same as last time except the limits, return those rows out of the cache in the session
-//			def cachedAnalysisData = session['cachedAnalysisData']
-//			def cachedCount = session['cachedCount']
-//			for (int i = offset+1; i < max+offset; i++) {
-//				analysisData.push(cachedAnalysisData[i]);
-//			}
-//			totalCount = cachedCount
-//		}
-//		else if (true) {
-//			//If the order is different, rerun the query but still use the cached count
-//			queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, false)
-//			analysisData = queryResult.results
-//			totalCount = session['cachedCount']
-//			session['cachedAnalysisData'] = analysisData
-//		}
         def wasShortcut = false
         if (!regions && !geneNames && !transcriptGeneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
             println("Triggering shortcut query")
@@ -304,10 +289,10 @@ class GwasSearchController {
 
         def analysisIndexData
         if (type.equals("eqtl")) {
-            analysisIndexData = searchDAO.getEqtlIndexData()
+            analysisIndexData = gwasSearchService.getEqtlIndexData()
         }
         else {
-            analysisIndexData = searchDAO.getGwasIndexData()
+            analysisIndexData = gwasSearchService.getGwasIndexData()
         }
         def returnedAnalysisData = []
 
@@ -426,9 +411,6 @@ class GwasSearchController {
             //This will hold the index lookups for deciphering the large text meta-data field.
             def indexMap = [:]
 
-            //Initiate Data Access object to get to search data.
-            def searchDAO = new GwasSearchDAO()
-
             //Get the GWAS Data. Call a different class based on the data type.
             def analysisData
 
@@ -449,11 +431,11 @@ class GwasSearchController {
 				case "GWAS Fail" :
                 case "Metabolic GWAS" :
                     analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "gwas", geneNames, transcriptGeneNames, false).results
-                    analysisIndexData = searchDAO.getGwasIndexData()
+                    analysisIndexData = gwasSearchService.getGwasIndexData()
                     break;
                 case "EQTL" :
                     analysisData = regionSearchService.getAnalysisData(analysisIds, regions, 0, 0, pvalueCutoff, "null", "asc", search, "eqtl", geneNames, transcriptGeneNames, false).results
-                    analysisIndexData = searchDAO.getEqtlIndexData()
+                    analysisIndexData = gwasSearchService.getEqtlIndexData()
                     break;
                 default :
                     throw new Exception("No applicable data type found.")
