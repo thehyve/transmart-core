@@ -20,7 +20,7 @@ import javax.annotation.PostConstruct
 
 @Component
 @Scope('job')
-class LogisticRegression extends AbstractAnalysisJob {
+class LogisticRegression extends AbstractLocalRAnalysisJob {
 
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
@@ -99,7 +99,7 @@ class LogisticRegression extends AbstractAnalysisJob {
     protected List<String> getRStatements() {
         [
             '''source('$pluginDirectory/LogisticRegression/LogisticRegressionLoader.R')''',
-            '''LogisticRegressionData.loader(input.filename='outputfile',
+            '''LogisticRegressionData.loader(input.filename='outputfile.txt',
                         concept.dependent='$dependentVariable',
                         concept.independent='$independentVariable',
                         binning.enabled='FALSE',
