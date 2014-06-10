@@ -35,4 +35,4 @@ do
 done
 
 # Execute stored procedure to update concept counts
-$PSQL_COMMAND -c "select tm_cz.i2b2_create_concept_counts('$CONCEPT_PATH');"
+$PSQL_COMMAND -c "select tm_cz.i2b2_create_concept_counts('\\$CONCEPT_PATH\\');"

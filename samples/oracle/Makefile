@@ -17,9 +17,9 @@ include ../common/makefile.inc
 		load_parsed_vcf_mapping
 
 parse_vcf: ../common/parse_vcf
-load_vcf: parse_vcf load_parsed_vcf_data load_parsed_mapping_data
+load_vcf: parse_vcf load_parsed_vcf_data load_parsed_vcf_mapping
 load_vcf_data: parse_vcf load_parsed_vcf_data
-load_vcf_mapping:  parse_vcf load_parsed_mapping_data
+load_vcf_mapping:  parse_vcf load_parsed_vcf_mapping
 
 load_parsed_vcf_data: $(JDBC_DRIVER)
 	./_scripts/vcf/load_vcf_data.sh "$(VCF_TEMP_DIR)"
