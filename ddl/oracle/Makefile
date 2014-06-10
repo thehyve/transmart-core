@@ -12,10 +12,10 @@ DUMP_USER = groovy -cp $(DIR)*:_scripts _scripts/dump_user.groovy
 LOAD_DDL  = groovy -cp $(DIR)*:_scripts _scripts/load_ddl.groovy
 RUN_SQL   = groovy -cp $(DIR)*:_scripts _scripts/run_sql.groovy
 
-$(DUMP_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
+$(DUMP_SCHEMA_TARGETS):
 	$(DUMP_USER) -u $(patsubst dump_%,%,$@)
 
-dump_users: $(JDBC_DRIVER_ORA_PATH)
+dump_users:
 	$(DUMP_USER) -g $(foreach s,$(SCHEMAS),-u $(s))
 
 dump_user_objects: $(DUMP_SCHEMA_TARGETS)
@@ -24,14 +24,14 @@ dump:
 	$(MAKE) dump_users
 	$(MAKE) dump_user_objects
 
-$(LOAD_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
+$(LOAD_SCHEMA_TARGETS):
 	$(MAKE) $(patsubst load_%,%,$@)/_synonyms.sql $(patsubst load_%,%,$@)/_grants.sql
 	$(LOAD_DDL) -u $(patsubst load_%,%,$@) -j 1
 
-$(LOAD_USER_TARGETS): $(JDBC_DRIVER_ORA_PATH)
+$(LOAD_USER_TARGETS):
 	$(RUN_SQL) GLOBAL/$(patsubst load_user_%,%,$@).sql
 
-load_users: $(JDBC_DRIVER_ORA_PATH)
+load_users:
 	$(RUN_SQL) $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
 
 load_user_objects: $(WRITE_SYNONYM_TARGETS) $(WRITE_GRANT_TARGETS)
@@ -59,6 +59,9 @@ drop_users: drop_users.php
 
 drop_tablespaces: drop_tablespaces.sql
 	$(RUN_SQL) -c -j 4 -f $<
+
+$(DUMP_SCHEMA_TARGETS) dump_users $(LOAD_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
+$(LOAD_USER_TARGETS) load_users drop_users drop_tablespaces: $(JDBC_DRIVER_ORA_PATH)
 
 drop: drop_users
 	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) drop_tablespaces ; fi
