@@ -5,6 +5,8 @@ import au.com.bytecode.opencsv.CSVReader
 import groovy.sql.BatchingPreparedStatementWrapper
 import groovy.sql.Sql
 
+import java.sql.SQLException
+
 def parseOptions() {
     def cli = new CliBuilder(usage: "LoadTsvFile.groovy")
     cli.t 'qualified table name', required: true, longOpt: 'table', args: 1, argName: 'table'
@@ -109,7 +111,27 @@ def getColumnTypesMap(Sql sql, String table, List<String> columns = []) {
 }
 
 def truncateTable(sql, table) {
-    sql.execute("TRUNCATE TABLE $table" as String)
+    try {
+        print "Truncating table ${options.table}... "
+        sql.execute("TRUNCATE TABLE $table" as String)
+        println 'Done'
+    } catch (SQLException sqlException) {
+        if (sqlException.errorCode == 2266) {
+            // cannot truncate due to foreign keys
+            print 'Failed. Trying delete... '
+            try {
+                sql.execute("DELETE FROM $table" as String)
+                println 'Done'
+            } catch (SQLException e) {
+                println 'Failed again! Aborting'
+                throw e
+            }
+        } else {
+            // failed for another reason
+            println 'Failed! Aborting'
+            throw sqlException
+        }
+    }
 }
 
 options = parseOptions()
@@ -127,9 +149,7 @@ if(System.getenv('NLS_TIMESTAMP_FORMAT')) {
 }
 sql.withTransaction {
     if (options.truncate) {
-        print "Truncating table ${options.table}... "
         truncateTable(sql, options.table)
-        println 'Done'
     }
 
     uploadTsvFileToTable(sql,
