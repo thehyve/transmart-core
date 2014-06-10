@@ -174,7 +174,7 @@ class GWASController {
         // if there is a link to an active term, use that as id (i.e. search_keyword_id)
         // if not, use the id from the search_taxonomy table prepended with a letter (to ensure that there are no id collisions)
         def id
-        if (parentNode.searchKeywordId) {
+        if (parentNode?.searchKeywordId) {
             id = parentNode.searchKeywordId
         } else {
             id = 'X' + parentNode.id
@@ -236,7 +236,7 @@ class GWASController {
         }
 
         def childIndex = 1
-        if (parentNode.children) {
+        if (parentNode?.children) {
             // recursively add each child
             for (childNode in parentNode.children) {
                 addDynaNode(childNode, children, false, categoryName, uniqueTreeId + ":" + childIndex, initialFacetCounts)
@@ -294,7 +294,7 @@ class GWASController {
 
         JSONArray categories = new JSONArray()
 
-        if (rootNode.children) {
+        if (rootNode?.children) {
 
             def categoriesList = []
             // loop thru all children of root and create a list of categories to be used for initial facet search
