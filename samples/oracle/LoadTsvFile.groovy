@@ -67,7 +67,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
             while (line != null) {
                 i++
                 if (i % 10000 == 0) {
-                    println i
+                    print '.'
                 }
 
                 if (line.length != colsNum) {
@@ -83,7 +83,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
             }
     }
     reader.close()
-    println i
+    println " Done after $i rows"
 }
 //TODO Find better way
 private def boolToNum(line, booleanCollumnsPositions) {
