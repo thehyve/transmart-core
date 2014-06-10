@@ -44,7 +44,7 @@ load_tablespaces: create_tablespaces.php
 	$(RUN_SQL) -f GLOBAL/tablespaces.sql
 
 load: create_tablespaces.php
-	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) load_tablespaces ; fi
+	test '$(ORACLE_MANAGE_TABLESPACES)' != '1' || $(MAKE) load_tablespaces
 	$(MAKE) load_users
 	$(MAKE) load_user_objects
 
@@ -64,7 +64,7 @@ $(DUMP_SCHEMA_TARGETS) dump_users $(LOAD_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH
 $(LOAD_USER_TARGETS) load_users drop_users drop_tablespaces: $(JDBC_DRIVER_ORA_PATH)
 
 drop: drop_users
-	if [ '$(ORACLE_MANAGE_TABLESPACES)' == '1' ] ; then $(MAKE) drop_tablespaces ; fi
+	test '$(ORACLE_MANAGE_TABLESPACES)' != '1' || $(MAKE) drop_tablespaces
 
 clean_all:
 	find $(SCHEMAS) GLOBAL -name '*.sql' -delete -o -name items.json -delete
