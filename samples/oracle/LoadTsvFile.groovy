@@ -34,12 +34,15 @@ private String constructColumnExpression(List<String> columns) {
 
 private String constructPlaceHoldersExpression(Map<String, String> columnTypeMap) {
     columnTypeMap.collect({ entry ->
-    	'?'
+        '?'
     }).join(', ')
 }
 
 def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColumns, int batchSize) {
-    CSVReader reader = new CSVReader(new InputStreamReader(istr, 'UTF-8'), '\t' as char, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.NULL_CHARACTER)
+    CSVReader reader = new CSVReader(new InputStreamReader(istr, 'UTF-8'),
+                                     '\t' as char,
+                                     CSVParser.DEFAULT_QUOTE_CHARACTER,
+                                     CSVParser.NULL_CHARACTER)
 
     String[] line = reader.readNext()
     if (!line) return
@@ -50,10 +53,10 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
 
     String colGroup = constructColumnExpression(columnsInfo.keySet() as List)
     String placeHolders = constructPlaceHoldersExpression(columnsInfo)
-    def booleanCollumnsPositions = []
+    def booleanColumnsPositions = []
     columnsInfo.eachWithIndex { ci, index ->
-        if(ci.value.type == 'NUMBER' && ci.value.size == 1) {
-            booleanCollumnsPositions << index
+        if (ci.value.type == 'NUMBER' && ci.value.size == 1) {
+            booleanColumnsPositions << index
         }
     }
 
@@ -70,8 +73,8 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
                 if (line.length != colsNum) {
                     println("${i} line contains wrong number of columns (${line.length} but expected to be ${colsNum}): ${line}")
                 } else {
-                    if(booleanCollumnsPositions) {
-                        boolToNum(line, booleanCollumnsPositions)
+                    if (booleanColumnsPositions) {
+                        boolToNum(line, booleanColumnsPositions)
                     }
                     it.addBatch line
                 }
@@ -85,9 +88,9 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
 //TODO Find better way
 private def boolToNum(line, booleanCollumnsPositions) {
     booleanCollumnsPositions.each { pos ->
-        if(line[pos] == 't') {
+        if (line[pos] == 't') {
             line[pos] = '1'
-        } else if(line[pos] == 'f') {
+        } else if (line[pos] == 'f') {
             line[pos] = '0'
         }
     }
@@ -100,7 +103,7 @@ def getColumnTypesMap(Sql sql, String table, List<String> columns = []) {
             [(meta.getColumnLabel(it)): [type: meta.getColumnTypeName(it), size: meta.getPrecision(it)]]
         }
     }
-    if(columns) {
+    if (columns) {
         columns.collectEntries{
             def columnName = it.toUpperCase(Locale.ENGLISH)
             [(columnName): columnTypes[columnName]]
@@ -141,11 +144,11 @@ if (!options) {
 }
 
 def sql = DatabaseConnection.setupDatabaseConnection()
-if(System.getenv('NLS_DATE_FORMAT')) {
-	sql.execute "ALTER SESSION SET NLS_DATE_FORMAT = '${ System.getenv('NLS_DATE_FORMAT') }'".toString()
+if (System.getenv('NLS_DATE_FORMAT')) {
+    sql.execute "ALTER SESSION SET NLS_DATE_FORMAT = '${System.getenv('NLS_DATE_FORMAT')}'".toString()
 }
-if(System.getenv('NLS_TIMESTAMP_FORMAT')) {
-	sql.execute "ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '${ System.getenv('NLS_TIMESTAMP_FORMAT') }'".toString()
+if (System.getenv('NLS_TIMESTAMP_FORMAT')) {
+    sql.execute "ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '${System.getenv('NLS_TIMESTAMP_FORMAT')}'".toString()
 }
 sql.withTransaction {
     if (options.truncate) {
@@ -159,4 +162,4 @@ sql.withTransaction {
             options.b ? options.b as int : 5000)
 }
 
-// vim: et sts=0 sw=2 ts=2 cindent cinoptions=(0,u0,U0
+// vim: et sts=0 sw=4 ts=4 cindent cinoptions=(0,u0,U0
