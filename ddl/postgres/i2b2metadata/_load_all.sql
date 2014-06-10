@@ -1,5 +1,4 @@
 \i i2b2metadata/prelude.sql
-\i i2b2metadata/birn.sql
 \i i2b2metadata/i2b2.sql
 \i i2b2metadata/i2b2_secure.sql
 \i i2b2metadata/i2b2_tags.sql
