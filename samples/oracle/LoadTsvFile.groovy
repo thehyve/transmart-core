@@ -9,6 +9,8 @@ def parseOptions() {
     def cli = new CliBuilder(usage: "LoadTsvFile.groovy")
     cli.t 'qualified table name', required: true, longOpt: 'table', args: 1, argName: 'table'
     cli.f 'tsv file; stdin if unspecified', longOpt: 'file', args: 1, argName: 'file'
+    cli.d 'single character used as delimiter; tab if unspecified', longOpt: 'delimiter', args: 1, argName: 'delimiter'
+    cli.n 'string used as NULL value; no NULL detection if unspecified', longOpt: 'null', args: 1
     cli.c 'column names', longOpt: 'cols', argName: 'col1,col2,...', args: 1
     cli._ 'truncate table before', longOpt: 'truncate'
     cli.b 'batch size', longOpt: 'batch', args: 1
@@ -36,8 +38,8 @@ private String constructPlaceHoldersExpression(Map<String, String> columnTypeMap
     }).join(', ')
 }
 
-def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColumns, int batchSize) {
-    CSVReader reader = new CSVReader(new InputStreamReader(istr, 'UTF-8'), '\t' as char, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.NULL_CHARACTER)
+def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColumns, String delimiter,  int batchSize) {
+    CSVReader reader = new CSVReader(new InputStreamReader(istr, 'UTF-8'), delimiter as char, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.NULL_CHARACTER)
 
     String[] line = reader.readNext()
     if (!line) return
@@ -71,6 +73,11 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
                     if(booleanCollumnsPositions) {
                         boolToNum(line, booleanCollumnsPositions)
                     }
+
+                    // Detect null values
+                    if( options.null )
+                        line = line.collect { it == options.null ? null : it }
+
                     it.addBatch line
                 }
 
@@ -136,6 +143,7 @@ sql.withTransaction {
             options.file ? new FileInputStream(options.file) : System.in,
             options.table,
             options.c ?: '',
+            options.delimiter ? options.delimiter : "\t",
             options.b ? options.b as int : 5000)
 }
 
