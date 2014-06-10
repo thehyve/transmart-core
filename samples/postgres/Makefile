@@ -17,9 +17,9 @@ include ../common/makefile.inc
 		load_parsed_vcf_mapping
 
 parse_vcf: ../common/parse_vcf
-load_vcf: ../common/parse_vcf load_parsed_vcf_data load_parsed_mapping_data
+load_vcf: ../common/parse_vcf load_parsed_vcf_data load_parsed_vcf_mapping
 load_vcf_data: ../common/parse_vcf load_parsed_vcf_data
-load_vcf_mapping:  ../common/parse_vcf load_parsed_mapping_data
+load_vcf_mapping:  ../common/parse_vcf load_parsed_vcf_mapping
 
 load_parsed_vcf_data:
 	./_scripts/vcf/load_vcf_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
