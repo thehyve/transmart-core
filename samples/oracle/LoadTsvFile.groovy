@@ -45,11 +45,19 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
                                      CSVParser.NULL_CHARACTER)
 
     String[] line = reader.readNext()
-    if (!line) return
+    if (!line) {
+        return
+    }
 
     List<String> columns = csColumns ? csColumns.split(',') as List : []
 
     def columnsInfo = getColumnTypesMap(sql, table, columns)
+
+    if (columnsInfo.size() != line.size()) {
+        throw new Exception("Expected to insert into ${columnsInfo.size()} " +
+                "columns ${columnsInfo.keySet()}, but first line of TSV file " +
+                "has ${line.size()} ($line)")
+    }
 
     String colGroup = constructColumnExpression(columnsInfo.keySet() as List)
     String placeHolders = constructPlaceHoldersExpression(columnsInfo)
@@ -71,7 +79,9 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
                 }
 
                 if (line.length != colsNum) {
-                    println("${i} line contains wrong number of columns (${line.length} but expected to be ${colsNum}): ${line}")
+                    System.err "${i} line contains wrong number of columns " +
+                            "(${line.length} but expected to be ${colsNum}): ${line}; " +
+                            "continuing anyway"
                 } else {
                     if (booleanColumnsPositions) {
                         boolToNum(line, booleanColumnsPositions)
@@ -85,6 +95,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
     reader.close()
     println " Done after $i rows"
 }
+
 //TODO Find better way
 private def boolToNum(line, booleanCollumnsPositions) {
     booleanCollumnsPositions.each { pos ->
