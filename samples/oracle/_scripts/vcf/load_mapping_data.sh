@@ -40,4 +40,4 @@ done
 $RUN_SQL_COMMAND -t $file_params
 
 # Execute stored procedure to update concept counts
-echo "call tm_cz.i2b2_create_concept_counts('$CONCEPT_PATH');" | $RUN_SQL_COMMAND
+echo "call tm_cz.i2b2_create_concept_counts('\\$CONCEPT_PATH\\');" | $RUN_SQL_COMMAND
