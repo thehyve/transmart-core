@@ -48,7 +48,7 @@ class AmTagItem implements Comparable<AmTagItem> {
         cache true
         sort "displayOrder"
         amTagTemplate joinTable: [name: 'am_tag_template', key: 'tag_template_id', column: 'tag_item_id'], lazy: false
-        columns { id column: 'tag_item_id' }
+        id column: 'tag_item_id', generator: 'sequence', params: [sequence: 'AMAPP.SEQ_AMAPP_DATA_ID']
         amTagTemplate column: 'tag_template_id'
 //		amTagAssociation joinTable: [name: 'am_tag_association',  key:'tag_item_id', column: 'tag_item_id'], lazy: false
 
