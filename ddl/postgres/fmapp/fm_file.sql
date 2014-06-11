@@ -11,7 +11,7 @@ CREATE TABLE fm_file (
     filestore_location character varying(1000),
     filestore_name character varying(1000),
     link_url character varying(1000),
-    active_ind character(1) NOT NULL,
+    active_ind boolean NOT NULL,
     create_date timestamp without time zone NOT NULL,
     update_date timestamp without time zone NOT NULL
 );
@@ -58,6 +58,7 @@ BEGIN
     insert into fmapp.fm_data_uid (fm_data_id, unique_id, fm_data_type)
     values (NEW.file_id, fm_file_uid(NEW.file_id), 'FM_FILE');
   end if;
+RETURN NEW;
 end;
 $$;
 

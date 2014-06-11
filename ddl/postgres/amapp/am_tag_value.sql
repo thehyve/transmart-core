@@ -44,6 +44,7 @@ BEGIN
     insert into amapp.am_data_uid (am_data_id, unique_id, am_data_type)
     values (NEW.tag_value_id, am_tag_value_uid(NEW.tag_value_id), 'AM_TAG_VALUE');
   end if;
+RETURN NEW;
 end;
 $$;
 

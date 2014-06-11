@@ -55,6 +55,7 @@ BEGIN
     insert into fmapp.fm_data_uid (fm_data_id, unique_id, fm_data_type)
     values (NEW.folder_id, fm_folder_uid(NEW.folder_id), 'FM_FOLDER');
   end if;
+RETURN NEW;
 end;
 $$;
 

@@ -44,7 +44,12 @@ CREATE INDEX bio_mkr_type_idx ON bio_marker USING btree (bio_marker_type);
 CREATE FUNCTION tf_trg_bio_marker_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin  if NEW.BIO_MARKER_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_MARKER_ID ;       end if;  RETURN NEW;  end;
+begin
+    if NEW.BIO_MARKER_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_MARKER_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

@@ -36,11 +36,11 @@ CREATE FUNCTION tf_trg_lz_src_analysis_meta_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
-      if coalesce(NEW.ETL_ID::text, '') = '' then          
+      if NEW.ETL_ID is null then
         select nextval('tm_lz.seq_etl_id') into NEW.ETL_ID ;       
       end if;       
-       RETURN NEW;
-  end;
+    RETURN NEW;
+end;
 $$;
 
 

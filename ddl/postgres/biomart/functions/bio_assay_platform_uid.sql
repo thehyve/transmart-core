@@ -6,7 +6,7 @@ CREATE FUNCTION bio_assay_platform_uid(platform_name character varying) RETURNS 
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for bio_assay_platform
 
   RETURN 'BAP:' || coalesce(PLATFORM_NAME, 'ERROR');
 END;

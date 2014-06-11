@@ -26,7 +26,12 @@ ALTER TABLE ONLY bio_assay_platform
 CREATE FUNCTION tf_trg_bio_assay_platform_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.BIO_ASSAY_PLATFORM_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_ASSAY_PLATFORM_ID ;       end if;  RETURN NEW;  end;
+begin
+    if coalesce(NEW.BIO_ASSAY_PLATFORM_ID::text, '') = '' then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_ASSAY_PLATFORM_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

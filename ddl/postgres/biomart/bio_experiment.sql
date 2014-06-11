@@ -51,7 +51,12 @@ CREATE UNIQUE INDEX bio_experiment_pk ON bio_experiment USING btree (bio_experim
 CREATE FUNCTION tf_trg_bio_experiment_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin         if NEW.BIO_EXPERIMENT_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_EXPERIMENT_ID ;       end if; RETURN NEW;   end;
+begin
+      if NEW.BIO_EXPERIMENT_ID is null then
+         select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_EXPERIMENT_ID ;
+      end if;
+RETURN NEW;
+end;
 $$;
 
 --
@@ -78,6 +83,7 @@ BEGIN
     insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
     values (NEW.bio_experiment_id, bio_experiment_uid(NEW.accession), 'BIO_EXPERIMENT');
   end if;
+RETURN NEW;
 end;
 $$;
 

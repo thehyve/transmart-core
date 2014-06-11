@@ -24,7 +24,7 @@ CREATE FUNCTION tf_trg_snp_data_by_pprobe_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-      if coalesce(NEW.SNP_DATA_BY_PROBE_ID::text, '') = '' then
+      if NEW.SNP_DATA_BY_PROBE_ID is null then
          select nextval('deapp.SEQ_DATA_ID') into NEW.SNP_DATA_BY_PROBE_ID ;
       end if;
 RETURN NEW;

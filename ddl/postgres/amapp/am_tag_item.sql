@@ -11,7 +11,7 @@ CREATE TABLE am_tag_item (
     max_values bigint,
     code_type_name character varying(200),
     editable character varying(1),
-    active_ind character(1) NOT NULL,
+    active_ind boolean NOT NULL,
     tag_item_uid character varying(300) NOT NULL,
     tag_item_attr character varying(300),
     tag_item_type character varying(200),
