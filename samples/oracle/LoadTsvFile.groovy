@@ -6,6 +6,7 @@ import groovy.sql.BatchingPreparedStatementWrapper
 import groovy.sql.Sql
 
 import java.sql.SQLException
+import java.util.regex.Pattern
 
 def parseOptions() {
     def cli = new CliBuilder(usage: "LoadTsvFile.groovy")
@@ -61,12 +62,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
 
     String colGroup = constructColumnExpression(columnsInfo.keySet() as List)
     String placeHolders = constructPlaceHoldersExpression(columnsInfo)
-    def booleanColumnsPositions = []
-    columnsInfo.eachWithIndex { ci, index ->
-        if (ci.value.type == 'NUMBER' && ci.value.size == 1) {
-            booleanColumnsPositions << index
-        }
-    }
+    Closure<String[]> dataFilter = constructDataFilter(columnsInfo)
 
     int i = 0
     int colsNum = line.length
@@ -83,10 +79,7 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
                             "(${line.length} but expected to be ${colsNum}): ${line}; " +
                             "continuing anyway"
                 } else {
-                    if (booleanColumnsPositions) {
-                        boolToNum(line, booleanColumnsPositions)
-                    }
-                    it.addBatch line
+                    it.addBatch dataFilter(line)
                 }
 
                 line = reader.readNext()
@@ -96,24 +89,57 @@ def uploadTsvFileToTable(Sql sql, InputStream istr, String table, String csColum
     println " Done after $i rows"
 }
 
-//TODO Find better way
-private def boolToNum(line, booleanCollumnsPositions) {
-    booleanCollumnsPositions.each { pos ->
-        if (line[pos] == 't') {
-            line[pos] = '1'
-        } else if (line[pos] == 'f') {
-            line[pos] = '0'
+private Closure<String[]> constructDataFilter(Map<String, ColumnMeta> columnsInfo) {
+    List booleanColumnsPositions = columnsInfo.findIndexValues { entry ->
+        entry.value.type == 'NUMBER' && entry.value.size == 1
+    }.collect { it as int }
+    List datePositions = columnsInfo.findIndexValues { entry ->
+        entry.value.type == 'DATE'
+    }.collect { it as int }
+    Pattern cutMillis = ~/\.\d{3,6}$/
+
+    return { String[] line ->
+        booleanColumnsPositions.each { pos ->
+            switch (line[pos]) {
+                case 't':
+                    line[pos] = '1'
+                    break
+                case 'f':
+                    line[pos] = '0'
+                    break
+            }
         }
+
+        /* DATE in Oracle was mapped to TIMESTAMP in PostgreSQL. However,
+          TIMESTAMP has microsecond precision in PostgreSQL and DATE has
+          second precision. We need to remove the fractional second part
+          from the value, otherwise Oracle will reject it. */
+        datePositions.each { pos ->
+            def matcher = cutMillis.matcher(line[pos])
+            line[pos] = matcher.replaceFirst('')
+        }
+
+        line /* also changes the argument! */
     }
 }
 
-def getColumnTypesMap(Sql sql, String table, List<String> columns = []) {
+@groovy.transform.Immutable
+class ColumnMeta {
+    String type
+    Integer size
+}
+
+Map<String, ColumnMeta> getColumnTypesMap(Sql sql, String table, List<String> columns = []) {
     def columnTypes = [:]
-    sql.rows "SELECT ${columns ? constructColumnExpression(columns) : '*'} FROM ${table}".toString(), 0, 0, { meta ->
+    def sqlExpression = "SELECT ${columns ? constructColumnExpression(columns) : '*'} FROM ${table}".toString()
+    sql.rows sqlExpression, 1, 0, { meta ->
         columnTypes = (1..meta.columnCount).collectEntries {
-            [(meta.getColumnLabel(it)): [type: meta.getColumnTypeName(it), size: meta.getPrecision(it)]]
+            [(meta.getColumnLabel(it)): new ColumnMeta(
+                    type: meta.getColumnTypeName(it),
+                    size: meta.getPrecision(it))]
         }
     }
+
     if (columns) {
         columns.collectEntries{
             def columnName = it.toUpperCase(Locale.ENGLISH)
