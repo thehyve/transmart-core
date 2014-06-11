@@ -1,21 +1,18 @@
-var FP_JOB_TYPE = 'acghFrequencyPlot';
-
 var frequencyPlotView;
 
 /**
- * Buttons for Input Panel
- * @type {Array}
+ * Where everything starts
  */
-var fpInputBarBtnList = ['->',{  // '->' making it right aligned
-    xtype: 'button',
-    text: 'Run Analysis',
-    scale: 'medium',
-    iconCls: 'runbutton',
-    handler: function () {
-        frequencyPlotView.submitFrequencyPlotJob();
-    }
-}];
+function loadAcghFrequencyPlotView(){
+    frequencyPlotView = new FrequencyPlotView();
+}
 
+/**
+ * Frequency Plot input panel which consists of
+ * - acgh input box
+ * - group input box
+ * @type {void|*}
+ */
 var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
     acghPanel: null,
@@ -59,7 +56,6 @@ var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
     }
 });
 
-
 /**
  * This class represents the whole Group Test view
  * @type {*|Object}
@@ -68,6 +64,9 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
     // input panel
     inputBar : null,
+
+    // job type
+    jobType: 'acghFrequencyPlot',
 
     // job info
     jobInfo : null,
@@ -99,9 +98,24 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
     createInputToolBar: function() {
         var _this = this;
+
+        /**
+         * Buttons for Input Panel
+         * @type {Array}
+         */
+        var _fpInputBarBtnList = ['->',{  // '->' making it right aligned
+            xtype: 'button',
+            text: 'Run Analysis',
+            scale: 'medium',
+            iconCls: 'runbutton',
+            handler: function () {
+                frequencyPlotView.submitFrequencyPlotJob();
+            }
+        }];
+
         return new Ext.Toolbar({
             height: 30,
-            items: fpInputBarBtnList
+            items: _fpInputBarBtnList
         });
     },
 
@@ -220,7 +234,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
     },
 
     submitFrequencyPlotJob: function () {
-
+        var _this = this;
         var formParameters = {}; // init
 
         // instantiate input elements object with their corresponding validations
@@ -243,7 +257,24 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                 regionVariable: acghVal,
                 groupVariable: groupVals,
                 variablesConceptPaths: variablesConceptCode,
-                jobType: FP_JOB_TYPE
+                analysisConstraints: JSON.stringify({
+                    "job_type":  _this.jobType,
+                    "data_type": "acgh",
+                    "assayConstraints": {
+                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                        "assay_id_list": null,
+                        "ontology_term": [{
+                            'term': acghVal,
+                            'options': {'type': "default"}
+                        }],
+                        "trial_name": null
+                    },
+                    "dataConstraints": {
+                        "disjunction": null
+                    },
+                    "projections": ["default_real_projection"]
+                }),
+                jobType: _this.jobType
             };
 
             var job = this.submitJob(formParams, this.onJobFinish, this);
@@ -266,10 +297,11 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                     {type:"REQUIRED"},
                     {type:"HIGH_DIMENSIONAL_ACGH"}
                 ]
-            },
-            /** Group doesn't need to be defined for a frequency plot nor need to consist of at least two elements
-             *   If no group is defined, a single frequency plot of all subjects in the cohort will be created
-             *   If one group is defined, a single frequency plot of that group within the cohort will be created
+            }
+            /**
+             *  Group doesn't need to be defined for a frequency plot nor need to consist of at least two elements
+             *  If no group is defined, a single frequency plot of all subjects in the cohort will be created
+             *  If one group is defined, a single frequency plot of that group within the cohort will be created
              * {
              *    "label" : "Group",
              *    "el" : this.inputBar.groupPanel.getInputEl(),
@@ -283,9 +315,3 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
     }
 
 });
-
-function loadAcghFrequencyPlotView(){
-    // everything starts here ..
-    frequencyPlotView = new FrequencyPlotView();
-}
-
