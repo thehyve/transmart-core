@@ -70,7 +70,7 @@ class AmTagValue {
         version false
         cache true
         sort "value"
-        columns { id column: 'tag_value_id' }
+        id column: 'tag_value_id', generator: 'sequence', params: [sequence: 'AMAPP.SEQ_AMAPP_DATA_ID']
 //		amTagItem joinTable: [name: 'am_tag_template',  key:'tag_item_id', column: 'tag_value_id'], lazy: false
 //		amTagItem column: 'tag_item_id'
 

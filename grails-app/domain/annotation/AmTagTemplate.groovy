@@ -37,7 +37,7 @@ class AmTagTemplate {
         version false
         cache true
         sort "tagTemplateName"
-        columns { id column: 'tag_template_id' }
+        id column: 'tag_template_id', generator: 'sequence', params: [sequence: 'AMAPP.SEQ_AMAPP_DATA_ID']
 //		amTagItems joinTable: [name: 'tag_template_item_def',  key:'tag_template_id', column: 'tag_item_id'], 
         amTagItems lazy: false
 //		fmFolders joinTable: [name: 'am_tag_template_association', key:'tag_template_id', column: 'object_uid'], lazy: false
