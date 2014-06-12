@@ -56,7 +56,7 @@ $(PHP_SRCDIR): $(PHP_TARBALL)
 	tar --touch -xf '$<'
 
 $(PHP_BIN): $(PHP_SRCDIR)
-	cd $(PHP_SRCDIR) && ./configure --prefix=$(realpath .)/php5 --disable-all --enable-json
+	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json
 	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
 
 php: $(PHP_BIN)
