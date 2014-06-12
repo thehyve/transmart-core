@@ -16,6 +16,7 @@ class BioAssayPlatform {
     String uniqueId
 
     static transients = ['uniqueId', 'fullName']
+    static hasMany = [analyses:BioAssayAnalysis]
 
     static mapping = {
         table 'BIO_ASSAY_PLATFORM'
@@ -33,6 +34,7 @@ class BioAssayPlatform {
             vendor column: 'PLATFORM_VENDOR'
             platformType column: 'PLATFORM_TYPE'
             platformTechnology column: 'PLATFORM_TECHNOLOGY'
+            analyses joinTable:[name:'BIO_DATA_PLATFORM', key:'BIO_ASSAY_PLATFORM_ID']
         }
     }
 
