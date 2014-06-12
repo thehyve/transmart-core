@@ -223,8 +223,8 @@
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>418</xloc>
-      <yloc>52</yloc>
+      <xloc>415</xloc>
+      <yloc>49</yloc>
       </entry>
     <entry>
       <name>Process one analysis record</name>
@@ -276,9 +276,10 @@
       <name>Write To Log</name>
       <description/>
       <type>WRITE_TO_LOG</type>
-      <logmessage/>
+      <logmessage>*******************************************
+*******************************************</logmessage>
       <loglevel>Basic</loglevel>
-      <logsubject>Invalid metadata filename</logsubject>
+      <logsubject>${DATA_LOCATION}&#47;${METADATA_FILE}  does not exist</logsubject>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
