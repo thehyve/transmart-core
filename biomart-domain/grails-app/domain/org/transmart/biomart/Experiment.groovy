@@ -52,8 +52,7 @@ class Experiment implements IExcelProfile {
         tablePerHierarchy false
         table 'BIO_EXPERIMENT'
         version false
-        cache usage: 'read-only'
-        //	 id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
+        id column: 'BIO_EXPERIMENT_ID', generator: 'sequence', params: [sequence: 'SEQ_BIO_DATA_ID']
         columns {
             id column: 'BIO_EXPERIMENT_ID'
             type column: 'BIO_EXPERIMENT_TYPE'
@@ -87,6 +86,9 @@ class Experiment implements IExcelProfile {
         startDate(nullable: true)
         completionDate(nullable: true)
         primaryInvestigator(nullable: true, maxSize: 800)
+        institution(nullable: true)
+        target(nullable: true)
+        status(nullable: true)
     }
 
     def getCompoundNames() {
