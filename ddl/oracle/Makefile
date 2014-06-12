@@ -61,7 +61,7 @@ drop_tablespaces: drop_tablespaces.sql
 	$(RUN_SQL) -c -j 4 -f $<
 
 $(DUMP_SCHEMA_TARGETS) dump_users $(LOAD_SCHEMA_TARGETS): $(JDBC_DRIVER_ORA_PATH)
-$(LOAD_USER_TARGETS) load_users drop_users drop_tablespaces: $(JDBC_DRIVER_ORA_PATH)
+$(LOAD_USER_TARGETS) load_tablespaces load_users drop_users drop_tablespaces: $(JDBC_DRIVER_ORA_PATH)
 
 drop: drop_users
 	test '$(ORACLE_MANAGE_TABLESPACES)' != '1' || $(MAKE) drop_tablespaces
