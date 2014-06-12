@@ -12,6 +12,12 @@ GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
 
+PHP_VERSION=5.5.13
+PHP_TARBALL=php-$(PHP_VERSION).tar.gz
+PHP_SRCDIR=php-$(PHP_VERSION)
+PHP_URL=http://nl1.php.net/distributions/php-$(PHP_VERSION).tar.gz
+PHP_BIN=php5/bin/php
+
 TRANSMART_LOADER=transmart-loader
 
 %/conf/log4j.properties:
@@ -41,6 +47,19 @@ $(GROOVY_BIN): $(GROOVY_ZIP)
 	touch $@
 
 groovy: $(GROOVY_BIN)
+	ln -s $< $@
+
+$(PHP_TARBALL):
+	curl -f '$(PHP_URL)' > $@
+
+$(PHP_SRCDIR): $(PHP_TARBALL)
+	tar --touch -xf '$<'
+
+$(PHP_BIN): $(PHP_SRCDIR)
+	cd $(PHP_SRCDIR) && ./configure --prefix=$(realpath .)/php5 --disable-all --enable-json
+	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
+
+php: $(PHP_BIN)
 	ln -s $< $@
 
 install_ubuntu_packages:
