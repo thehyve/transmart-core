@@ -91,7 +91,7 @@ var arrNds = new Array();
             arrNds[2] = new DASSource({name: 'acgh-normal', uri: pageInfo.basePath + "/das/acgh-normal-" + result_instance_id + "/"});
             arrNds[3] = new DASSource({name: 'acgh-amp', uri: pageInfo.basePath + "/das/acgh-amp-" + result_instance_id + "/"});
             arrNds[4] = new DASSource({name: 'acgh-inv', uri: pageInfo.basePath + "/das/acgh-inv-" + result_instance_id + "/"});
-        } else if (dataType == '') { // until this point, empty data type will be considered as genomic variants type
+        } else if (dataType == 'vcf') {
             arrNds[0] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
             arrNds[1] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
             arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
