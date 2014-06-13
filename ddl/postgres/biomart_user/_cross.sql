@@ -130,7 +130,7 @@ CREATE VIEW browse_programs_view AS
    JOIN amapp.am_tag_item ati ON ((ata.tag_item_id = ati.tag_item_id)))
    JOIN biomart.bio_data_uid bdu ON (((bdu.unique_id)::text = (ata.object_uid)::text)))
    JOIN biomart.bio_concept_code bcc ON ((bcc.bio_concept_code_id = bdu.bio_data_id)))
-  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (to_char((ati.code_type_name)::numeric, ''::text) = 'THERAPEUTIC_DOMAIN'::text))
+  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (ati.code_type_name::text = 'THERAPEUTIC_DOMAIN'::text))
   GROUP BY fdu.unique_id) therapeutic_domains ON (((therapeutic_domains.id)::text = (fd.unique_id)::text)))
    LEFT JOIN ( SELECT fdu.unique_id AS id,
     string_agg((ata.object_uid)::text, '|'::text ORDER BY (ata.object_uid)::text) AS object_uids
@@ -140,7 +140,7 @@ CREATE VIEW browse_programs_view AS
    JOIN amapp.am_tag_item ati ON ((ata.tag_item_id = ati.tag_item_id)))
    JOIN biomart.bio_data_uid bdu ON (((bdu.unique_id)::text = (ata.object_uid)::text)))
    JOIN biomart.bio_concept_code bcc ON ((bcc.bio_concept_code_id = bdu.bio_data_id)))
-  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (to_char((ati.code_type_name)::numeric, ''::text) = 'PROGRAM_INSTITUTION'::text))
+  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (ati.code_type_name::text = 'PROGRAM_INSTITUTION'::text))
   GROUP BY fdu.unique_id) institutions ON (((institutions.id)::text = (fd.unique_id)::text)))
    LEFT JOIN ( SELECT fdu.unique_id AS id,
     string_agg((ata.object_uid)::text, '|'::text ORDER BY (ata.object_uid)::text) AS object_uids
@@ -150,7 +150,7 @@ CREATE VIEW browse_programs_view AS
    JOIN amapp.am_tag_item ati ON ((ata.tag_item_id = ati.tag_item_id)))
    JOIN biomart.bio_data_uid bdu ON (((bdu.unique_id)::text = (ata.object_uid)::text)))
    JOIN biomart.bio_concept_code bcc ON ((bcc.bio_concept_code_id = bdu.bio_data_id)))
-  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (to_char((ati.code_type_name)::numeric, ''::text) = 'PROGRAM_TARGET_PATHWAY_PHENOTYPE'::text))
+  WHERE ((((ata.object_type)::text = ANY (ARRAY[('BIO_CONCEPT_CODE'::character varying)::text, ('PROGRAM_TARGET'::character varying)::text])) AND ((ff.folder_type)::text = 'PROGRAM'::text)) AND (ati.code_type_name::text = 'PROGRAM_TARGET_PATHWAY_PHENOTYPE'::text))
   GROUP BY fdu.unique_id) targets ON (((targets.id)::text = (fd.unique_id)::text)))
   WHERE (((f.folder_type)::text = 'PROGRAM'::text) AND f.active_ind);
 
