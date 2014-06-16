@@ -27,7 +27,7 @@ LineGraph.loader <- function(
         scaling.file <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
         scaling.data <- data.frame(GROUP = scaling.file$GROUP, VALUE=rank(scaling.file$VALUE))
     }else{
-        scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
+    scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
     }
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
@@ -167,7 +167,7 @@ LineGraph.plotter <- function(
 	#Set the legend attributes.
 	p <- p + theme(legend.title = theme_text(size = 20,face="bold"));
 	p <- p + theme(legend.text = theme_text(size = 15,face="bold"));
-	p <- p + theme(legend.title=theme_blank())
+	p <- p + theme(legend.title=element_blank())
 
 	p <- p + geom_point(size=4);
 	
