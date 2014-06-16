@@ -281,4 +281,10 @@ class SampleBioMarkerTestData {
         save metaboliteSearchKeywords
     }
 
+    void saveAll() {
+        saveGeneData()
+        saveProteinData()
+        saveMirnaData()
+        saveMetabolomicsData()
+    }
 }

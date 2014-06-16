@@ -19,15 +19,17 @@ class AcghTestData {
 
     static final String ACGH_PLATFORM_MARKER_TYPE = 'Chromosomal'
 
-    SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
+    SampleBioMarkerTestData bioMarkerTestData
 
     private String conceptCode
 
-    AcghTestData(String conceptCode = 'concept code #1') {
+    AcghTestData(String conceptCode = 'concept code #1',
+                 SampleBioMarkerTestData bioMarkerTestData = null) {
         this.conceptCode = conceptCode
+        this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
-    List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords +
                 bioMarkerTestData.proteinSearchKeywords +
                 bioMarkerTestData.geneSignatureSearchKeywords
