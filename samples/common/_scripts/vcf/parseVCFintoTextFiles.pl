@@ -494,7 +494,7 @@ chomp;
 	     				$variant_format = $variant_format . "V";
 	     			}
 
-					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "T" : "F" ), $variant_type, ( $allele1 eq "." ? "\\N" : $allele1 ), ( $allele2 eq "." ? "\\N" : $allele2 )), "\n";
+					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "t" : "f" ), $variant_type, ( $allele1 eq "." ? "\\N" : $allele1 ), ( $allele2 eq "." ? "\\N" : $allele2 )), "\n";
 	     			
 	     		} else {
 					$numGenotypes{"invalid"}++;
