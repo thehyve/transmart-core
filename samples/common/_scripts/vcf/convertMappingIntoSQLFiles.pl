@@ -103,7 +103,9 @@ chomp;
         if ($subj_id eq "" or $sample_id eq "") {
                 die "The subject sample mapping file should be tab-delimited and have at least two columns.";
         }
-        
+
+        $patient_sourcesystem_cd= uc($study_id) . ":$subj_id";
+
         # Insert a record into the subject-sample-mapping table
         # The patient_num is retrieved from the i2b2demodata.patient_dimension table
         # The concept_code is retrieved from the i2b2demodata.concept_dimension table
@@ -111,7 +113,7 @@ chomp;
         print DE "insert into deapp.de_subject_sample_mapping (patient_id, subject_id, sample_cd, assay_id, concept_code, trial_name, platform, gpl_id)\n";
         print DE "   select patient_dimension.patient_num, '$subj_id', '$sample_id', deapp.seq_assay_id.nextval, concept_cd, '$dataset_id', 'VCF', gpl_id\n";
         print DE "      from i2b2demodata.concept_dimension, i2b2demodata.patient_dimension, deapp.de_variant_dataset\n";
-        print DE "      where CONCEPT_PATH = '$path' AND patient_dimension.sourcesystem_cd='$study_id:$subj_id' AND dataset_id = '$dataset_id';\n";
+        print DE "      where CONCEPT_PATH = '$path' AND patient_dimension.sourcesystem_cd='$patient_sourcesystem_cd' AND dataset_id = '$dataset_id';\n";
 
 		# Update the data in the summary table to have the proper assay_id. This is done after each subject_sample_mapping entry
 		# in order to use the currval function, instead of looking up the assay_id afterwards.
@@ -119,7 +121,7 @@ chomp;
 
 		# Add an observation to the observation fact table
 		print OF "insert into i2b2demodata.observation_fact (patient_num, concept_cd, provider_id, modifier_cd, valtype_cd,tval_char,valueflag_cd,location_cd,import_date,sourcesystem_cd,instance_num)\n";
-		print OF "   select patient_dimension.patient_num, concept_cd,'\@','$dataset_id','T','$name','\@','\@',CURRENT_TIMESTAMP,'$dataset_id:$sample_id',1 from i2b2demodata.concept_dimension, i2b2demodata.patient_dimension  where CONCEPT_PATH = '$path'  AND patient_dimension.sourcesystem_cd='$study_id:$subj_id';\n";
+		print OF "   select patient_dimension.patient_num, concept_cd,'\@','$dataset_id','T','$name','\@','\@',CURRENT_TIMESTAMP,'$dataset_id:$sample_id',1 from i2b2demodata.concept_dimension, i2b2demodata.patient_dimension  where CONCEPT_PATH = '$path'  AND patient_dimension.sourcesystem_cd='$patient_sourcesystem_cd';\n";
 }
 
 close MAPPING;

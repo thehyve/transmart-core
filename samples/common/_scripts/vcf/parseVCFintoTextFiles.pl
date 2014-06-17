@@ -98,7 +98,8 @@ my %counts = (
 	"patients" => 0,
 	"variants" => 0,
 	"infoFieldsPerVariant" => 0,
-	"infoFields" => 0
+	"infoFields" => 0,
+	"noGenotypes" => 0
 );
 my %numGenotypes = (
 	"invalid" => 0,
@@ -392,7 +393,8 @@ chomp;
 
 			# Skip if genotype is not specified
 			if( $gt eq "." ) {
-   				print "Can't import sample " . $i . " for line with SNP " . $rs . " (" . $pos . "), because its genotype is not specified.\n";
+				$counts{noGenotypes}++;
+   				# print "Can't import sample " . $i . " for line with SNP " . $rs . " (" . $pos . "), because its genotype is not specified.\n";
    				next;
    			}
 
@@ -508,6 +510,14 @@ chomp;
 			$numGenotypes{".."}++;
 	    }
 	 }
+
+    if( $counts{"variants"} % 10000 == 0) {
+        print ".";
+    }
+
+    if( $counts{"variants"} % 500000 == 0 ) {
+        print "\n";
+    }
 
 	$rs_saved{$location} = $rs;
 	resetNext();

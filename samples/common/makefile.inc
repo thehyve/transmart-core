@@ -164,11 +164,16 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna load_mirna_annotation_%
 ../common/%/acgh: ../common/Makefile
 	$(MAKE) -C ../common $*/acgh
 
-parse_vcf_%: ../common/%/vcf.params
-	STUDY_ID=$* ../common/_scripts/vcf/parse_vcf.sh $<
+../common/%/vcf: ../common/Makefile
+	$(MAKE) -C ../common $*/vcf
+
+parse_vcf_%: ../common/%/vcf.params ../common/%/vcf
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../common/$*/vcf)" \
+			../common/_scripts/vcf/parse_vcf.sh $<
 
 load_vcf_%: ../common/%/vcf.params parse_vcf_%
 	STUDY_ID=$* PSQL='$(PSQL_COMMAND) -d $(PGDATABASE)' \
+			DATA_LOCATION="$(realpath ../common/$*/vcf)" \
 			./load_vcf.sh $<
 
 clean:
