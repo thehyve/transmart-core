@@ -16,6 +16,7 @@ fi
 export KETTLE_HOME
 
 # Should define DATA_FILE_PREFIX, DATA_LOCATION, DATA_TYPE, LOG_BASE, MAP_FILENAME and NODE_NAME
+# SOURCE_CD is optional
 source $1
 
 #FilePivot.jar expected in $KETTLE_JOBS/..
@@ -44,6 +45,6 @@ $KITCHEN -norep=Y                                        \
 /param:SAMPLE_SUFFIX=.rma-Signal                         \
 /param:SECURITY_REQUIRED=$SECURITY_REQUIRED              \
 /param:SORT_DIR=/tmp                                     \
-/param:SOURCE_CD=STD                                     \
+/param:SOURCE_CD="${SOURCE_CD:-STD}"                               \
 /param:STUDY_ID=$STUDY_ID                                \
 "/param:TOP_NODE=$TOP_NODE"
