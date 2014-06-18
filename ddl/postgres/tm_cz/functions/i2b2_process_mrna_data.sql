@@ -174,7 +174,7 @@ BEGIN
 	where platform in (select distinct m.platform from tm_lz.lt_src_mrna_subj_samp_map m);
 
 	if pCount = 0 then
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'No Gene Expression platforms in deapp.de_mrna_annotation',0,pCount,'Done') into rtnCd;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'No Gene Expression platforms in tm_cz.probeset_deapp',0,pCount,'Done') into rtnCd;
 		select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
 		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
 		return -16;
@@ -780,7 +780,8 @@ BEGIN
 		  and pd.source_cd = sourceCD
 		  and coalesce(pd.site_id,'') = coalesce(upd.site_id,'')
 		  and pd.subject_id = upd.subject_id
-		  and pd.sample_cd = upd.sample_cd;
+		  and pd.sample_cd = upd.sample_cd
+		  and pd.gpl_id=upd.gpl_id;
 		get diagnostics rowCt := ROW_COUNT;
 		exception
 		when others then
