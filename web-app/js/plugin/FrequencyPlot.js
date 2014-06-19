@@ -272,7 +272,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                     "dataConstraints": {
                         "disjunction": null
                     },
-                    "projections": ["default_real_projection"]
+                    "projections": ["acgh_values"]
                 }),
                 jobType: _this.jobType
             };
