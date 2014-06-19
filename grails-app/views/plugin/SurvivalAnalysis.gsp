@@ -45,7 +45,7 @@
                         This variable is not required.</div>
                         <div id='divCategoryVariable' class="queryGroupIncludeLong divInputBox"></div>
                         <div class="highDimBtns">
-                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divCategoryVariable')">High Dimensional Data</button>
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divCategoryVariable', true)">High Dimensional Data</button>
                             <button type="button" onclick="survivalAnalysisView.clear_high_dimensional_input('divCategoryVariable')">Clear</button>
                         </div>
                         <input type="hidden" id="dependentVarDataType">

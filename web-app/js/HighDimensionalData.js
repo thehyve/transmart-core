@@ -34,13 +34,14 @@ var HighDimensionalData = function () {
 
     // div id
     this.divId = null;
+    
+    this.hideAggregration = null;
 }
 
 /**
  * Populate data to the popup window
  */
 HighDimensionalData.prototype.populate_data = function () {
-
     for (var key in this.data) {
         if (this.data.hasOwnProperty(key)) {
 
@@ -74,6 +75,13 @@ HighDimensionalData.prototype.populate_data = function () {
                 }
 
                 this.create_pathway_search_box('searchPathway', 'divpathway');
+                
+            	document.getElementById("probesAggregation").checked = false;
+                if(this.hideAggregration){
+                	document.getElementById("probesAggregationDiv").style.visibility = "hidden";
+                }else{
+                	document.getElementById("probesAggregationDiv").style.visibility = "visible";
+                }
             }
 
         } else {
@@ -312,10 +320,10 @@ HighDimensionalData.prototype.get_inputs = function (divId) {
     ]
 }
 
-HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
+HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration) {
 
     var _this = this;
-
+    this.hideAggregration=hideAggregration;
     /**
      * Reset global variables
      * @private
@@ -339,7 +347,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     if (!variableDivEmpty(divId)
         && ((GLOBAL.CurrentSubsetIDs[1] == null) || (multipleSubsets() && GLOBAL.CurrentSubsetIDs[2] == null))) {
         runAllQueriesForSubsetId(function () {
-            _this.gather_high_dimensional_data(divId);
+            _this.gather_high_dimensional_data(divId, hideAggregration);
         }, divId);
         return;
     }
@@ -584,7 +592,6 @@ HighDimensionalData.prototype.display_high_dimensional_popup = function () {
 
     // generate view and populate it with the data
     this.view = this.generate_view();
-
     // then show it
     if (typeof viewport !== undefined) {
         this.view.show(viewport, this.populate_data());
