@@ -1,11 +1,12 @@
 package jobs
 
+import jobs.steps.AcghRegionDumpDataStep
 import jobs.steps.BuildTableResultStep
 import jobs.steps.OpenHighDimensionalDataStep
 import jobs.steps.ParametersFileStep
+import jobs.steps.RCommandsStep
 import jobs.steps.SimpleDumpTableResultStep
 import jobs.steps.Step
-import jobs.steps.ValueGroupDumpDataStep
 import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.HighDimensionColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
@@ -18,9 +19,11 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 import javax.annotation.PostConstruct
 
+import static jobs.steps.AbstractDumpStep.getDEFAULT_OUTPUT_FILE_NAME
+
 @Component
 @Scope('job')
-class FrequencyPlot extends AbstractLocalRAnalysisJob {
+class AcghFrequencyPlot extends AbstractLocalRAnalysisJob {
 
     @Autowired
     HighDimensionResource highDimensionResource
@@ -52,9 +55,6 @@ class FrequencyPlot extends AbstractLocalRAnalysisJob {
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
-        println "params is $params"
-        println "analysisConstraints is $analysisConstraints"
-
         steps << new ParametersFileStep(
                 temporaryDirectory: temporaryDirectory,
                 params: params)
@@ -64,30 +64,35 @@ class FrequencyPlot extends AbstractLocalRAnalysisJob {
                 configurators: [primaryKeyColumnConfigurator,
                                 groupByConfigurator])
 
-// TODO : To get with aCGH high dimensional
-
-//        def openResultSetStep = new OpenHighDimensionalDataStep(
-//                params: params,
-//                dataTypeResource: highDimensionResource.getSubResourceForType(analysisConstraints['data_type']),
-//                analysisConstraints: analysisConstraints)
-//
-//        steps << createDumpHighDimensionDataStep { -> openResultSetStep.results }
-
-//        steps << openResultSetStep
-
-
         steps << new SimpleDumpTableResultStep(table: table,
                 temporaryDirectory: temporaryDirectory,
                 outputFileName: 'phenodata.tsv',
                 noQuotes: true
         )
 
+        def openResultSetStep = new OpenHighDimensionalDataStep(
+                params: params,
+                dataTypeResource: highDimensionResource.getSubResourceForType(analysisConstraints['data_type']),
+                analysisConstraints: analysisConstraints)
+
+        steps << openResultSetStep
+
+        steps << createDumpHighDimensionDataStep { -> openResultSetStep.results }
+
+        steps << new RCommandsStep(
+                temporaryDirectory: temporaryDirectory,
+                scriptsDirectory: scriptsDirectory,
+                rStatements: RStatements,
+                studyName: studyName,
+                params: params,
+                extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
+
         steps
     }
 
     @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
-        new ValueGroupDumpDataStep(
+        new AcghRegionDumpDataStep(
                 temporaryDirectory: temporaryDirectory,
                 resultsHolder: resultsHolder,
                 params: params)
@@ -96,13 +101,13 @@ class FrequencyPlot extends AbstractLocalRAnalysisJob {
     @Override
     protected List<String> getRStatements() {
         [
-                '''source($pluginDirectory/aCGH/acgh-frequency-plot.R)''',
+                '''source('$pluginDirectory/aCGH/acgh-frequency-plot.R')''',
                 '''acgh.frequency.plot(column = 'group')'''
         ]
     }
 
     @Override
     protected getForwardPath() {
-        return null
+        return "/AcghFrequencyPlot/acghFrequencyPlotOutput?jobName=${name}"
     }
 }
