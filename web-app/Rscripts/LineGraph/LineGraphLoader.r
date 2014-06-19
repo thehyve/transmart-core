@@ -154,7 +154,7 @@ LineGraph.plotter <- function(
 	#Set the legend attributes.
 	p <- p + theme(legend.title = element_text(size = 20,face="bold"));
 	p <- p + theme(legend.text = element_text(size = 15,face="bold"));
-	p <- p + theme(legend.title=theme_blank())
+	p <- p + theme(legend.title=element_blank())
 
 	p <- p + geom_point(size=4);
 	
