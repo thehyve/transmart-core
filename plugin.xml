@@ -2,7 +2,7 @@
   <author>Transmart Foundation</author>
   <authorEmail>admin@transmartproject.org</authorEmail>
   <title>Blend4j Plugin</title>
-  <description>Brief summary/description of the plugin.
+  <description>Brief summary/description of the plugin.</description>
   <documentation>http://grails.org/plugin/blend4j-plugin</documentation>
   <type>Blend4jPluginGrailsPlugin</type>
   <resources>
