@@ -123,7 +123,7 @@ class RModulesController {
                 jsonResult = createJob(params, Histogram, false)
                 break
             case 'acghFrequencyPlot':
-                jsonResult = createJob(params, FrequencyPlot)
+                jsonResult = createJob(params, AcghFrequencyPlot)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(
