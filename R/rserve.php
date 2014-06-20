@@ -4,7 +4,11 @@ if (!isset($_ENV['TRANSMART_USER'])) {
         exit(1);
 }
 $u = $_ENV['TRANSMART_USER'];
-$r = __DIR__ . '/root/bin/R';
+if (empty($_ENV['R_PREFIX'])) {
+        $r = __DIR__ . '/root/bin/R';
+} else {
+        $r = $_ENV['R_PREFIX'] . '/bin/R';
+}
 ?>
 #!/bin/bash
 
@@ -19,7 +23,7 @@ $r = __DIR__ . '/root/bin/R';
 
 # for when user is a variable
 if [[ -f /etc/default/rserve ]]; then
-		. /etc/default/rserve
+        . /etc/default/rserve
 fi
 
 function do_start {
@@ -44,11 +48,11 @@ function do_stop {
         if pgrep -u <?= $u ?> -f Rserve  > /dev/null
         then
                 kill `pgrep -u  <?= $u ?> -f Rserve`
-				if [ $? -eq 0 ]; then
-						echo "Rserve killed"
-				else
-						echo "Failed killing Rserve"
-				fi
+                if [ $? -eq 0 ]; then
+                        echo "Rserve killed"
+                else
+                        echo "Failed killing Rserve"
+                fi
         else
                 echo "nothing to stop; Rserve is not running"
                 exit 0
