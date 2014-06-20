@@ -17,6 +17,11 @@ $r = __DIR__ . '/root/bin/R';
 # Short-Description:    rserve
 ### END INIT INFO
 
+# for when user is a variable
+if [[ -f /etc/default/rserve ]]; then
+		. /etc/default/rserve
+fi
+
 function do_start {
         # Rserve does not daemonize properly. We need to reopen stdout
         # as /dev/null, otherwise we get all kinds of output
