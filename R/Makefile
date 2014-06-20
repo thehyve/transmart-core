@@ -7,7 +7,7 @@ R_EXEC = $(PREFIX)/bin/R
 R_FLAGS ?= -O2 -march=native -mtune=native
 
 $(R_SOURCE):
-	curl -f $(R_MIRROR)/src/base/R-3/$@.tar.gz | tar xzf -
+	curl -f $(R_MIRROR)/src/base/R-3/$@.tar.gz | $(TAR_COMMAND) xzf -
 
 build/Makefile: $(R_SOURCE)
 	mkdir -p build && cd build && \

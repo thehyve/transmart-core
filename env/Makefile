@@ -2,7 +2,7 @@ REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
-				tar openjdk-7-jdk gfortran g++ unzip
+				$(TAR_COMMAND) openjdk-7-jdk gfortran g++ unzip
 
 GROOVY_VERSION=2.1.9
 
@@ -31,7 +31,7 @@ $(TRANSMART_LOADER_ARCHIVE):
 	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
 
 $(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
-	tar --touch -xf $< -C $@
+	$(TAR_COMMAND) --touch -xf $< -C $@
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
@@ -67,7 +67,7 @@ $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
 data-integration: $(KETTLE_ARCHIVE)
-	tar --touch -xzf $<
+	$(TAR_COMMAND) --touch -xzf $<
 
 /var/lib/postgresql/tablespaces:
 	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'
