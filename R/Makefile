@@ -1,8 +1,8 @@
-R_MIRROR = http://cran-mirror.cs.uu.nl
+R_MIRROR ?= http://cran-mirror.cs.uu.nl
 R_VERSION = 3.0.1
 R_SOURCE = R-$(R_VERSION)
-PREFIX = root
-R_EXEC = $(PREFIX)/bin/R
+R_PREFIX ?= root
+R_EXEC = $(R_PREFIX)/bin/R
 
 R_FLAGS ?= -O2 -march=native -mtune=native
 
@@ -14,7 +14,7 @@ build/Makefile: $(R_SOURCE)
 		CFLAGS="$(R_FLAGS)" \
 		CXXFLAGS="$(R_FLAGS)" \
 		FFLAGS="$(R_FLAGS)" \
-		../$(R_SOURCE)/configure --prefix=$(realpath .)/$(PREFIX) \
+		../$(R_SOURCE)/configure --prefix=$(realpath .)/$(R_PREFIX) \
 		--enable-R-shlib --without-readline \
 		--with-libpng --without-jpeglib --without-libtiff \
 		--without-system-xz --without-ICU \
