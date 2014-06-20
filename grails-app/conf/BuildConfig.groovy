@@ -27,7 +27,7 @@ grails.project.dependency.resolution = {
     plugins {
         compile(':resources:1.2.1')
         compile(':transmart-java:1.0-SNAPSHOT')
-        compile(':biomart-domain:1.0-SNAPSHOT')
+        compile(':biomart-domain:1.1-SNAPSHOT')
         compile(':search-domain:1.0-SNAPSHOT')
         compile(':transmart-legacy-db:0.3-ORACLE-SNAPSHOT')
         compile(':spring-security-core:2.0-RC2')
