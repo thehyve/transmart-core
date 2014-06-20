@@ -14,7 +14,7 @@ build/Makefile: $(R_SOURCE)
 		CFLAGS="$(R_FLAGS)" \
 		CXXFLAGS="$(R_FLAGS)" \
 		FFLAGS="$(R_FLAGS)" \
-		../$(R_SOURCE)/configure --prefix=$(realpath .)/$(R_PREFIX) \
+		../$(R_SOURCE)/configure --prefix=$(R_PREFIX) \
 		--enable-R-shlib --without-readline \
 		--with-libpng --without-jpeglib --without-libtiff \
 		--without-system-xz --without-ICU \
