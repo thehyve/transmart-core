@@ -1,8 +1,9 @@
 R_MIRROR ?= http://cran-mirror.cs.uu.nl
 R_VERSION = 3.0.1
 R_SOURCE = R-$(R_VERSION)
-R_PREFIX ?= root
+R_PREFIX ?= $(realpath .)/root
 R_EXEC = $(R_PREFIX)/bin/R
+RSERVE_CONF = $(R_PREFIX)/lib/R/library/Rserve/Rserv_nodaemon.conf
 
 R_FLAGS ?= -O2 -march=native -mtune=native
 
@@ -27,28 +28,48 @@ cran_packages: cran_pkg.R $(R_EXEC)
 	CRAN_MIRROR=$(R_MIRROR) $(R_EXEC) -f $<
 
 other_packages: other_pkg.R cran_packages $(R_EXEC)
-	$(R_EXEC) -f $<
+	CRAN_MIRROR=$(R_MIRROR) $(R_EXEC) -f $<
 
 install_packages: cran_packages other_packages
 
 start_Rserve start_Rserve.dbg:
 	$(R_EXEC) CMD $(patsubst start_%,%,$@)
 
-# must be run as root
-install_rserve_init:
-	TRANSMART_USER=$(TRANSMART_USER) php -d variables_order=E -d open_basedir=/ \
-		rserve.php > /etc/init.d/rserve
-	chmod +x /etc/init.d/rserve
+# phony target because it depends on value of env var
+write_default_rserve:
+	@test -n '$(TRANSMART_USER)' || { \
+		echo 'Define $$TRANSMART_USER' 2>&1 ; false; }
+	echo 'USER=$(TRANSMART_USER)' > /etc/default/rserve
 
-install_rserve_unit:
-	TRANSMART_USER=$(TRANSMART_USER) php -d variables_order=E -d open_basedir=/ \
-		rserve.service.php > /etc/systemd/system/rserve.service
+$(RSERVE_CONF): Rserv_nodaemon.conf
+	cp '$<' '$@'
+
+# must be run as root
+install_rserve_init: /etc/init.d/rserve
+/etc/init.d/rserve: write_default_rserve $(RSERVE_CONF)
+	R_PREFIX='$(R_PREFIX)' RSERVE_CONF=$(RSERVE_CONF) php \
+		-d variables_order=E -d open_basedir=/ \
+		rserve.php > $@
+	chmod +x '$@'
+
+install_rserve_upstart: /etc/init/rserve.conf
+/etc/init/rserve.conf: write_default_rserve $(RSERVE_CONF)
+	R_PREFIX='$(R_PREFIX)' RSERVE_CONF=$(RSERVE_CONF) php \
+		-d variables_order=E -d open_basedir=/ \
+		rserve.conf.php > $@
+	initctl reload-configuration
+
+install_rserve_unit: /etc/systemd/system/rserve.service
+/etc/systemd/system/rserve.service: $(RSERVE_CONF)
+	R_PREFIX='$(R_PREFIX)' RSERVE_CONF=$(RSERVE_CONF) \
+		TRANSMART_USER=$(TRANSMART_USER) php \
+		-d variables_order=E -d open_basedir=/ rserve.service.php > $@
 	systemctl daemon-reload
 
 clean:
 	rm -rf build $(R_SOURCE) root
 
 .PHONY: install_packages cran_packages other_packages clean \
-		start_Rserve start_Rserve.dbg install_init
+		start_Rserve start_Rserve.dbg install_init write_default_rserve
 
 .DELETE_ON_ERROR:

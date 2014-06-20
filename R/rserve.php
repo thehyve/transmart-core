@@ -1,14 +1,6 @@
 <?php
-if (!isset($_ENV['TRANSMART_USER'])) {
-        fprintf(STDERR, "TRANSMART_USER is not set\n");
-        exit(1);
-}
-$u = $_ENV['TRANSMART_USER'];
-if (empty($_ENV['R_PREFIX'])) {
-        $r = __DIR__ . '/root/bin/R';
-} else {
-        $r = $_ENV['R_PREFIX'] . '/bin/R';
-}
+$r = "$_ENV[R_PREFIX]/bin/R";
+$c = $_ENV['RSERVE_CONF'];
 ?>
 #!/bin/bash
 
@@ -25,6 +17,10 @@ if (empty($_ENV['R_PREFIX'])) {
 if [[ -f /etc/default/rserve ]]; then
         . /etc/default/rserve
 fi
+if [[ -z $USER ]]; then
+        echo '$USER not defined' >&2
+        exit 1
+fi
 
 function do_start {
         # Rserve does not daemonize properly. We need to reopen stdout
@@ -34,7 +30,7 @@ function do_start {
         # but obviously we are unable to do that
         exec 7>&1
         exec 1>/dev/null
-        su - -c "<?= $r ?> CMD Rserve --quiet --vanilla" <?= $u, "\n" ?> >&7
+        su - -c "<?= $r ?> CMD Rserve --quiet --vanilla" "$USER" >&7
         EXIT_VAL=$?
         exec 1>&7 7>&-
         if [ $EXIT_VAL -eq 0 ]; then
@@ -45,9 +41,9 @@ function do_start {
 }
 
 function do_stop {
-        if pgrep -u <?= $u ?> -f Rserve  > /dev/null
+        if pgrep -u "$USER" -f Rserve  > /dev/null
         then
-                kill `pgrep -u  <?= $u ?> -f Rserve`
+                kill `pgrep -u "$USER" -f Rserve`
                 if [ $? -eq 0 ]; then
                         echo "Rserve killed"
                 else
@@ -74,7 +70,7 @@ case "$1" in
         ;;
 
         status)
-                if pgrep -u <?= $u ?> -f Rserve > /dev/null
+                if pgrep -u "$USER" -f Rserve > /dev/null
                 then
                         echo "Rserve service running."
                         exit 0
