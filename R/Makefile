@@ -3,7 +3,7 @@ R_VERSION = 3.0.1
 R_SOURCE = R-$(R_VERSION)
 R_PREFIX ?= $(realpath .)/root
 R_EXEC = $(R_PREFIX)/bin/R
-RSERVE_CONF = $(R_PREFIX)/lib/R/library/Rserve/Rserv_nodaemon.conf
+RSERVE_CONF ?= $(realpath .)/Rserv_nodaemon.conf
 
 R_FLAGS ?= -O2 -march=native
 
@@ -42,6 +42,7 @@ write_default_rserve:
 	echo 'USER=$(TRANSMART_USER)' > /etc/default/rserve
 
 $(RSERVE_CONF): Rserv_nodaemon.conf
+	mkdir -p '$(dir $@)'
 	cp '$<' '$@'
 
 # must be run as root
