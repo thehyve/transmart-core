@@ -21,6 +21,11 @@ build/Makefile: $(R_SOURCE)
 		--without-system-xz --without-ICU \
 		--without-recommended-packages
 
+# for the default prefix, expose a relative path target
+ifeq ($(R_PREFIX), $(realpath .)/root)
+root/bin/R: $(R_EXEC)
+endif
+
 $(R_EXEC): build/Makefile
 	 $(MAKE) -C build -j8 && $(MAKE) -C build -j8 install
 
