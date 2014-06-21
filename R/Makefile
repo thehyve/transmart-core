@@ -5,7 +5,7 @@ R_PREFIX ?= $(realpath .)/root
 R_EXEC = $(R_PREFIX)/bin/R
 RSERVE_CONF = $(R_PREFIX)/lib/R/library/Rserve/Rserv_nodaemon.conf
 
-R_FLAGS ?= -O2 -march=native -mtune=native
+R_FLAGS ?= -O2 -march=native
 
 $(R_SOURCE):
 	curl -f $(R_MIRROR)/src/base/R-3/$@.tar.gz | tar xzf -
