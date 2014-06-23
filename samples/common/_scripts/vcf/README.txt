@@ -31,21 +31,8 @@ In order to load your VCF data, follow these steps:
 
 Other command available for both oracle and postgres are:
 
-    load_vcf:                parses the VCF file and loads the data and mapping into the
-                             database.
-
     parse_vcf:               parses the VCF file and generates intermediate txt files
                              into the VCF_TEMP_DIR.
-
-    load_vcf_data:           parses the VCF file and only loads the VCF data itself. This
-                             results in VCF data loaded in the deapp schema, but not mapped
-                             to patients, and the data won't show up in the dataset
-                             explorer tree.
-
-    load_vcf_mapping         parses the VCF file and only loads the VCF mapping. This is
-                             only useful if the VCF data itself is already loaded,
-                             otherwise a mapping to subjects will be made, and a node in
-                             the tree is created,  but the data itself doesn't exist.
 
     load_parsed_vcf_data     loads the VCF data itself. This command requires the VCF file
                              to be parsed already. The resulting txt files are to be
@@ -55,3 +42,19 @@ Other command available for both oracle and postgres are:
                              the VCF file to be parsed already. The resulting txt files are
                              to be stored in the VCF_TEMP_DIR specified in the params file.
                              This command only makes sense if the data is loaded as well.
+
+    load_vcf:                parses the VCF file and loads the data and mapping into the
+                             database.
+                             = parse_vcf, load_parsed_vcf_data, load_parsed_vcf_mapping
+
+    load_vcf_data:           parses the VCF file and only loads the VCF data itself. This
+                             results in VCF data loaded in the deapp schema, but not mapped
+                             to patients, and the data won't show up in the dataset
+                             explorer tree.
+                             = parse_vcf, load_parsed_vcf_data
+
+    load_vcf_mapping         parses the VCF file and only loads the VCF mapping. This is
+                             only useful if the VCF data itself is already loaded,
+                             otherwise a mapping to subjects will be made, and a node in
+                             the tree is created,  but the data itself doesn't exist.
+                             = parse_vcf, load_parsed_vcf_mapping
