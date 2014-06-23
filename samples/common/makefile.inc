@@ -27,6 +27,7 @@ ANALYSIS_PARAMS_FILES := $(wildcard ../common/*/analysis.params)
 ACGH_PARAMS_FILES := $(wildcard ../common/*/acgh.params)
 PROTEOMICS_PARAMS_FILES := $(wildcard ../common/*/proteomics.params)
 MIRNA_PARAMS_FILES := $(wildcard ../common/*/mirna.params)
+VCF_PARAMS_FILES := $(wildcard ../common/*/vcf.params)
 
 LOAD_CLINICAL_TARGETS := $(patsubst ../common/%/clinical.params,load_clinical_%, $(CLINICAL_PARAMS_FILES))
 LOAD_ANNOTATION_TARGETS := $(patsubst ../common/%/annotation.params,load_annotation_%, $(ANNOTATION_PARAMS_FILES))
@@ -36,6 +37,7 @@ LOAD_ANALYSIS_PARAMS_TARGETS := $(patsubst ../common/%/analysis.params,load_anal
 LOAD_ACGH_PARAMS_TARGETS := $(patsubst ../common/%/acgh.params,load_acgh_%, $(ACGH_PARAMS_FILES))
 LOAD_PROTEOMICS_PARAMS_TARGETS := $(patsubst ../common/%/proteomics.params,load_proteomics_%, $(PROTEOMICS_PARAMS_FILES))
 LOAD_MIRNA_PARAMS_TARGETS := $(patsubst ../common/%/mirna.params,load_mirna_%, $(MIRNA_PARAMS_FILES))
+LOAD_VCF_PARAMS_TARGETS := $(patsubst ../common/%/vcf.params,load_vcf_%, $(VCF_PARAMS_FILES))
 
 KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
 
@@ -43,6 +45,7 @@ $(KETTLE_TARGETS): write_kettle_properties
 #these ones are here just for autocompletion:
 $(LOAD_ANNOTATION_TARGETS):
 $(LOAD_REF_ANNOTATION_TARGETS):
+$(LOAD_VCF_PARAMS_TARGETS):
 
 write_kettle_properties: gen_kettle_properties.php
 	php -d variables_order=E $< > kettle-home/kettle.properties
@@ -160,6 +163,18 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna load_mirna_annotation_%
 
 ../common/%/acgh: ../common/Makefile
 	$(MAKE) -C ../common $*/acgh
+
+../common/%/vcf: ../common/Makefile
+	$(MAKE) -C ../common $*/vcf
+
+parse_vcf_%: ../common/%/vcf.params ../common/%/vcf
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../common/$*/vcf)" \
+			../common/_scripts/vcf/parse_vcf.sh $<
+
+load_vcf_%: ../common/%/vcf.params parse_vcf_%
+	STUDY_ID=$* PSQL='$(PSQL_COMMAND) -d $(PGDATABASE)' \
+			DATA_LOCATION="$(realpath ../common/$*/vcf)" \
+			./load_vcf.sh $<
 
 clean:
 	rm -f logs/*.log kettle-home/kettle.properties
