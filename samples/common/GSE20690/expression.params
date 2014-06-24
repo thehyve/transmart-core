@@ -1,0 +1,5 @@
+DATA_FILE_PREFIX=Rheumatoid Arthritis_Takeuchi_GSE20690_Gene_Expression_Data_R.txt
+DATA_TYPE=R
+LOG_BASE=2
+MAP_FILENAME=Rheumatoid Arthritis_Takeuchi_GSE20690_Subject_Sample_Mapping_File.tsv
+NODE_NAME=MRNA
