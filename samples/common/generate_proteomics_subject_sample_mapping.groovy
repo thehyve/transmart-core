@@ -18,7 +18,7 @@ if (!options) {
     System.exit 1
 }
 
-CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char)
+CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char, '\u0000' as char)
 CSVReader reader = new CSVReader(new InputStreamReader(options.i ? new FileInputStream(options.i) : System.in, 'UTF-8'), '\t' as char)
 try {
 	String[] inLine = reader.readNext()
@@ -29,9 +29,9 @@ try {
 	def lfqs = inLine.collect { it =~ /(?i)^LFQ\.intensity\.(.+)_(.+)$/ }
 	lfqs.each { matcher ->
 		if(matcher) {
-			//TODO site_id is really used in calculations. Needs to be not null value
+			//TODO site_id is really used in calculations.
 			writer.writeNext(
-				[trialId, 'NA', matcher[0][1], matcher[0][0], gplId, tissue, "LFQ-${matcher[0][2]}", null, 'Biomarker_Data+PLATFORM+ATTR1', 'STD' ] as String[])
+				[trialId, null, matcher[0][1], matcher[0][0], gplId, tissue, "LFQ-${matcher[0][2]}", null, 'Biomarker_Data+PLATFORM+ATTR1', 'STD' ] as String[])
 		}
 	}
 } finally {
