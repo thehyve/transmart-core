@@ -8,11 +8,7 @@ import org.transmartproject.db.i2b2data.PatientTrialCoreDb
 class StudyImpl implements Study {
 
     OntologyTerm ontologyTerm
-
-    @Override
-    String getName() {
-        ontologyTerm.name.toUpperCase(Locale.ENGLISH)
-    }
+    String name
 
     @Override
     Set<Patient> getPatients() {

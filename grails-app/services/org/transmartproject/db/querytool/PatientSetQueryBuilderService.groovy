@@ -147,8 +147,8 @@ class PatientSetQueryBuilderService {
             def predicates = spec.collect {
                 "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
                         "tval_char " + (it[1].size() == 1
-                                        ? "= '${it[1][0]}'"
-                                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
+                        ? "= '${it[1][0]}'"
+                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
             }
 
             clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
