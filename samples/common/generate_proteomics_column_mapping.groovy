@@ -15,7 +15,7 @@ if (!options) {
     System.exit 1
 }
 
-CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char)
+CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char, '\u0000' as char)
 inputFile = new File(options.i)
 CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputFile), 'UTF-8'), '\t' as char)
 try {
