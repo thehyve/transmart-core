@@ -7,3 +7,15 @@ deapp	de_saved_comparison
 biomart	bio_assay_feature_group
 biomart	bio_marker
 biomart	bio_assay_data_annotation
+amapp	am_data_uid
+amapp	am_tag_association
+amapp	am_tag_item
+amapp	am_tag_value
+amapp	am_tag_display
+amapp	am_tag_template
+amapp	am_tag_template_association
+fmapp	fm_data_uid
+fmapp	fm_folder
+fmapp	fm_folder_association
+fmapp	fm_file
+fmapp	fm_folder_file_association
