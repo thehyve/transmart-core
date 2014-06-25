@@ -25,13 +25,13 @@ class I2b2Tests {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
-                cVisualattributes: 'FH', cComment: 'trial:FOO')
+                cVisualattributes: 'FH', cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
         addI2b2(level: 2, fullName: '\\foo\\xpto\\bar\\', name: 'bar',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
 
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\jar\\', name: 'jar')
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\binks\\', name: 'binks')
@@ -105,7 +105,7 @@ class I2b2Tests {
 
         Study study = bar.study
         assertThat study, allOf(
-                hasProperty('name', is('FOO')),
+                hasProperty('name', is('STUDY_ID')),
                 hasProperty('ontologyTerm', is(foo)),
         )
     }

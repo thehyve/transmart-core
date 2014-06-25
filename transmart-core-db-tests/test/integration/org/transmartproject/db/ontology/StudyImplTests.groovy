@@ -25,16 +25,16 @@ class StudyImplTests {
 
     @Test
     void testStudyGetAllPatients() {
-        Study study = studiesResourceService.getStudyByName('study1')
+        Study study = studiesResourceService.getStudyByName('study_id_1')
 
         assertThat study.patients, containsInAnyOrder(studyTestData.i2b2Data.patients.collect { is it })
     }
 
     @Test
     void testStudyGetName() {
-        Study study = studiesResourceService.getStudyByName('study1')
+        Study study = studiesResourceService.getStudyByName('study_id_1')
 
-        assertThat study.name, is('STUDY1' /* term name in uppercase */)
+        assertThat study.name, is('STUDY_ID_1' /* term name in uppercase */)
     }
 
 }

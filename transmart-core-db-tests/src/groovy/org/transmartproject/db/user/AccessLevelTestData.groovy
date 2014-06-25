@@ -17,20 +17,20 @@ class AccessLevelTestData {
     /**
      * The public study (has token EXP:PUBLIC)
      */
-    public static final String STUDY1 = 'STUDY1'
+    public static final String STUDY1 = 'STUDY_ID_1'
 
     /**
-     * The private study (has token EXP:STUDY2)
+     * The private study (has token EXP:STUDY_ID_2)
      */
-    public static final String STUDY2 = 'STUDY2'
+    public static final String STUDY2 = 'STUDY_ID_2'
 
     /**
-     * Private study (token EXP:STUDY3), but EVERYONE_GROUP has permissions here
+     * Private study (token EXP:STUDY_ID_3), but EVERYONE_GROUP has permissions here
      */
-    public static final String STUDY3 = 'STUDY3'
+    public static final String STUDY3 = 'STUDY_ID_3'
 
-    public static final String STUDY2_SECURE_TOKEN = 'EXP:STUDY2'
-    public static final String STUDY3_SECURE_TOKEN = 'EXP:STUDY3'
+    public static final String STUDY2_SECURE_TOKEN = 'EXP:STUDY_ID_2'
+    public static final String STUDY3_SECURE_TOKEN = 'EXP:STUDY_ID_3'
 
     ConceptTestData conceptTestData = ConceptTestData.createDefault()
 

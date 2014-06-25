@@ -74,7 +74,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
         if (res.size() > 1) {
             throw new UnexpectedResultException("More than one study with name $trial")
         } else if (res.size() == 1) {
-            new StudyImpl(ontologyTerm: res[0])
+            new StudyImpl(ontologyTerm: res[0], name: trial)
         } else {
             null
         }
