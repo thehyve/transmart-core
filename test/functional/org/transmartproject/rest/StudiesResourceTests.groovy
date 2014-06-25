@@ -38,7 +38,7 @@ class StudiesResourceTests extends APITestCase {
 
         assertThat JSON, contains(
                 allOf(
-                        hasEntry('name', 'STUDY1'),
+                        hasEntry('id', 'STUDY_ID_1'),
                         hasEntry(is('ontologyTerm'), allOf(
                                 hasEntry('name', 'study1'),
                                 hasEntry('fullName', '\\foo\\study1\\'),
@@ -46,7 +46,7 @@ class StudiesResourceTests extends APITestCase {
                         ))
                 ),
                 allOf(
-                        hasEntry('name', 'STUDY2'),
+                        hasEntry('id', 'STUDY_ID_2'),
                         hasEntry(is('ontologyTerm'), allOf(
                                 hasEntry('name', 'study2'),
                                 hasEntry('fullName', '\\foo\\study2\\'),
@@ -54,7 +54,7 @@ class StudiesResourceTests extends APITestCase {
                         ))
                 ),
                 allOf(
-                        hasEntry('name', 'STUDY3'),
+                        hasEntry('id', 'STUDY_ID_3'),
                         hasEntry(is('ontologyTerm'), allOf(
                                 hasEntry('name', 'study3'),
                                 hasEntry('fullName', '\\foo\\study3\\'),
@@ -65,12 +65,12 @@ class StudiesResourceTests extends APITestCase {
     }
 
     void testGetStudy() {
-        def studyName = 'STUDY1'
-        get("${baseURL}studies/${studyName}")
+        def studyId = 'STUDY_ID_1'
+        get("${baseURL}studies/${studyId}")
         assertStatus 200
 
         assertThat JSON, allOf(
-                hasEntry('name', 'STUDY1'),
+                hasEntry('id', 'STUDY_ID_1'),
                 hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', 'study1'),
                         hasEntry('fullName', '\\foo\\study1\\'),

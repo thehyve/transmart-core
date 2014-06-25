@@ -46,8 +46,8 @@ class HighDimResourceTests extends ResourceTestCase {
     def mrnaSupportedProjections = ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
 
     Map<String,String> indexUrlMap = [
-            mrna: "/studies/study1/concepts/bar/highdim",
-            acgh: "/studies/study2/concepts/study1/highdim",
+            mrna: "/studies/study_id_1/concepts/bar/highdim",
+            acgh: "/studies/study_id_2/concepts/study1/highdim",
     ]
 
     void testSummaryAsJson() {

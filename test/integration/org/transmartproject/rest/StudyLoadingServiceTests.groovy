@@ -120,7 +120,7 @@ class StudyLoadingServiceTests {
         studyInRequest = AccessLevelTestData.STUDY1
 
         play {
-            assertThat testee.study, hasProperty('name',
+            assertThat testee.study, hasProperty('id',
                     equalTo(AccessLevelTestData.STUDY1))
         }
     }
@@ -132,7 +132,7 @@ class StudyLoadingServiceTests {
         studyInRequest = AccessLevelTestData.STUDY2
 
         play {
-            assertThat testee.study, hasProperty('name',
+            assertThat testee.study, hasProperty('id',
                     equalTo(AccessLevelTestData.STUDY2))
         }
     }
@@ -156,7 +156,7 @@ class StudyLoadingServiceTests {
 
         testee.springSecurityService = null
 
-        assertThat testee.study, hasProperty('name',
+        assertThat testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
     }
 
@@ -166,7 +166,7 @@ class StudyLoadingServiceTests {
 
         SpringSecurityUtils.securityConfig.active = false
 
-        assertThat testee.study, hasProperty('name',
+        assertThat testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
     }
 
