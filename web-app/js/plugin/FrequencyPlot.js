@@ -1,54 +1,54 @@
-var FP_JOB_TYPE = 'acghFrequencyPlot';
-
 var frequencyPlotView;
 
 /**
- * Buttons for Input Panel
- * @type {Array}
+ * Where everything starts
  */
-var fpInputBarBtnList = ['->',{  // '->' making it right aligned
-    xtype: 'button',
-    text: 'Run Analysis',
-    scale: 'medium',
-    iconCls: 'runbutton',
-    handler: function () {
-        frequencyPlotView.submitFrequencyPlotJob();
-    }
-}];
+function loadAcghFrequencyPlotView() {
+    frequencyPlotView = new FrequencyPlotView();
+}
 
+/**
+ * Frequency Plot input panel which consists of
+ * - acgh input box
+ * - group input box
+ * @type {void|*}
+ */
 var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
     acghPanel: null,
     groupPanel: null,
 
-    constructor: function(config) {
+    constructor: function (config) {
         FrequencyPlotInputWidget.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
-    init: function() {
+    init: function () {
 
         // define child panel configs
-        var childPanelConfig = [{
-            title: 'Array CGH',
-            id: 'fp-input-acgh',
-            isDroppable: true,
-            notifyFunc: dropOntoCategorySelection,
-            toolTipTitle: 'Tip: array CGH',
-            toolTipTxt: 'Drag and drop aCGH data here.',
-            columnWidth:.5
-        },{
-            title: 'Group',
-            id: 'fp-input-group',
-            isDroppable: true,
-            notifyFunc: dropOntoCategorySelection,
-            toolTipTitle: 'Tip: Group',
-            toolTipTxt: 'Drag and drop clinical variables to define multiple groups. '+
-                'Please keep in mind that only one variable can be compared, '+
-                'e.g. gender (female) with gender (male); '+
-                'not gender (female) with age (>60)!',
-            columnWidth:.5
-        }];
+        var childPanelConfig = [
+            {
+                title: 'Array CGH',
+                id: 'fp-input-acgh',
+                isDroppable: true,
+                notifyFunc: dropOntoCategorySelection,
+                toolTipTitle: 'Tip: array CGH',
+                toolTipTxt: 'Drag and drop aCGH data here.',
+                columnWidth: .5
+            },
+            {
+                title: 'Group',
+                id: 'fp-input-group',
+                isDroppable: true,
+                notifyFunc: dropOntoCategorySelection,
+                toolTipTitle: 'Tip: Group',
+                toolTipTxt: 'Drag and drop clinical variables to define multiple groups. ' +
+                    'Please keep in mind that only one variable can be compared, ' +
+                    'e.g. gender (female) with gender (male); ' +
+                    'not gender (female) with age (>60)!',
+                columnWidth: .5
+            }
+        ];
 
         // create child panels
         this.acghPanel = this.createChildPanel(childPanelConfig[0]);
@@ -59,7 +59,6 @@ var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
     }
 });
 
-
 /**
  * This class represents the whole Group Test view
  * @type {*|Object}
@@ -67,17 +66,20 @@ var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
 var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
     // input panel
-    inputBar : null,
+    inputBar: null,
+
+    // job type
+    jobType: 'acghFrequencyPlot',
 
     // job info
-    jobInfo : null,
+    jobInfo: null,
 
     // constructor
-    constructor: function() {
+    constructor: function () {
         this.init();
     },
 
-    init: function() {
+    init: function () {
 
         // first of all, let's reset all major components
         this.resetAll();
@@ -97,11 +99,26 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
         Ext.destroy(this.inputBar);
     },
 
-    createInputToolBar: function() {
+    createInputToolBar: function () {
         var _this = this;
+
+        /**
+         * Buttons for Input Panel
+         * @type {Array}
+         */
+        var _fpInputBarBtnList = ['->', {  // '->' making it right aligned
+            xtype: 'button',
+            text: 'Run Analysis',
+            scale: 'medium',
+            iconCls: 'runbutton',
+            handler: function () {
+                frequencyPlotView.submitFrequencyPlotJob();
+            }
+        }];
+
         return new Ext.Toolbar({
             height: 30,
-            items: fpInputBarBtnList
+            items: _fpInputBarBtnList
         });
     },
 
@@ -114,19 +131,19 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
         // get image path
         Ext.Ajax.request({
-            url: pageInfo.basePath+"/AcghFrequencyPlot/imagePath",
+            url: pageInfo.basePath + "/AcghFrequencyPlot/imagePath",
             method: 'POST',
-            success: function(result, request){
+            success: function (result, request) {
 
                 imagePath = result.responseText;
 
                 _this.resultPanel = new GenericPlotPanel({
                     id: 'plotResultCurve',
                     renderTo: 'freq_plot_wrapper',
-                    width:'100%',
-                    frame:true,
-                    height:600,
-                    defaults: {autoScroll:true}
+                    width: '100%',
+                    frame: true,
+                    height: 600,
+                    defaults: {autoScroll: true}
                 });
 
                 // Getting the template as blue print for survival curve plot.
@@ -153,9 +170,9 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                 frequencyPlotTpl.overwrite(Ext.get('freq_plot_wrapper'), region);
 
                 // generate download button
-                var exportBtn = new Ext.Button ({
-                    text : 'Download Result',
-                    iconCls : 'downloadbutton',
+                var exportBtn = new Ext.Button({
+                    text: 'Download Result',
+                    iconCls: 'downloadbutton',
                     renderTo: 'downloadBtn',
                     handler: function () {
                         _this.downloadFrequencyPlotResult(jobName);
@@ -175,30 +192,31 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
         try {
             Ext.destroy(Ext.get('downloadIframe'));
         }
-        catch(e) {}
+        catch (e) {
+        }
 
         // get the file
         Ext.DomHelper.append(document.body, {
             tag: 'iframe',
-            id:'downloadIframe',
+            id: 'downloadIframe',
             frameBorder: 0,
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath+"/AcghFrequencyPlot/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/AcghFrequencyPlot/zipFile?jobName=" + jobName
         });
     },
 
-    onJobFinish: function(jobName, view) {
+    onJobFinish: function (jobName, view) {
         this.renderResults(jobName, view);
     },
 
     getJobByName: function (jobName, view) {
         var _this = this;
 
-        Ext.Ajax.request ({
+        Ext.Ajax.request({
             // retrieve information about the job (status, inputs, run-time, etc)
-            url: pageInfo.basePath+"/asyncJob/getjobbyname",
+            url: pageInfo.basePath + "/asyncJob/getjobbyname",
             method: 'GET',
             success: function (result, request) {
                 var resultJSON = JSON.parse(result.responseText);
@@ -214,13 +232,13 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
     },
 
-    renderResults: function(jobName, view) {
+    renderResults: function (jobName, view) {
         this.getJobByName(jobName, view);
         this.createResultPlotPanel(jobName, view);
     },
 
     submitFrequencyPlotJob: function () {
-
+        var _this = this;
         var formParameters = {}; // init
 
         // instantiate input elements object with their corresponding validations
@@ -237,13 +255,32 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             // create a string of all the concepts we need for the i2b2 data.
             var variablesConceptCode = acghVal;
             variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
- 
+
             // compose params
             var formParams = {
                 regionVariable: acghVal,
                 groupVariable: groupVals,
                 variablesConceptPaths: variablesConceptCode,
-                jobType: FP_JOB_TYPE
+                analysisConstraints: JSON.stringify({
+                    "job_type": _this.jobType,
+                    "data_type": "acgh",
+                    "assayConstraints": {
+                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                        "assay_id_list": null,
+                        "ontology_term": [
+                            {
+                                'term': acghVal,
+                                'options': {'type': "default"}
+                            }
+                        ],
+                        "trial_name": null
+                    },
+                    "dataConstraints": {
+                        "disjunction": null
+                    },
+                    "projections": ["acgh_values"]
+                }),
+                jobType: _this.jobType
             };
 
             var job = this.submitJob(formParams, this.onJobFinish, this);
@@ -260,17 +297,18 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
 
         return  [
             {
-                "label" : "Array CGH Data",
-                "el" : this.inputBar.acghPanel.getInputEl(),
-                "validations" : [
-                    {type:"REQUIRED"},
-                    {type:"HIGH_DIMENSIONAL_ACGH"}
+                "label": "Array CGH Data",
+                "el": this.inputBar.acghPanel.getInputEl(),
+                "validations": [
+                    {type: "REQUIRED"},
+                    {type: "HIGH_DIMENSIONAL_ACGH"}
                 ]
-            },
-            /** Group doesn't need to be defined for a frequency plot nor need to consist of at least two elements
-             *   If no group is defined, a single frequency plot of all subjects in the cohort will be created
-             *   If one group is defined, a single frequency plot of that group within the cohort will be created
-             * {
+            }
+        /**
+         *  Group doesn't need to be defined for a frequency plot nor need to consist of at least two elements
+         *  If no group is defined, a single frequency plot of all subjects in the cohort will be created
+         *  If one group is defined, a single frequency plot of that group within the cohort will be created
+         * {
              *    "label" : "Group",
              *    "el" : this.inputBar.groupPanel.getInputEl(),
              *    "validations" : [
@@ -278,14 +316,8 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
              *       {type:"GROUP_VARIABLE"}
              *    ]
              * }
-             */
+         */
         ];
     }
 
 });
-
-function loadAcghFrequencyPlotView(){
-    // everything starts here ..
-    frequencyPlotView = new FrequencyPlotView();
-}
-
