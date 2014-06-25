@@ -34,21 +34,21 @@ import org.gmock.WithGMock
 import org.junit.Test
 import org.transmartproject.core.ontology.Study
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
 
 @WithGMock
 @TestMixin(IntegrationTestMixin)
 class StudyMarshallerTests {
 
-    private static final String STUDY_NAME = 'TEST_STUDY'
+    private static final String STUDY_ID = 'TEST_STUDY'
     private static final String ONTOLOGY_TERM_NAME = 'test_study'
     private static final String ONTOLOGY_KEY = '\\\\foo bar\\foo\\test_study\\'
     private static final String ONTOLOGY_FULL_NAME = '\\foo\\test_study\\'
 
     Study getMockStudy() {
-        createStudy(STUDY_NAME, ONTOLOGY_KEY)
+        createStudy(STUDY_ID, ONTOLOGY_KEY)
     }
 
     @Test
@@ -57,7 +57,7 @@ class StudyMarshallerTests {
 
         JsonSlurper slurper = new JsonSlurper()
         assertThat slurper.parseText(json.toString()), allOf(
-                hasEntry('name', STUDY_NAME),
+                hasEntry('id', STUDY_ID),
                 hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', ONTOLOGY_TERM_NAME),
                         hasEntry('fullName', ONTOLOGY_FULL_NAME),
@@ -76,15 +76,15 @@ class StudyMarshallerTests {
 
         JsonSlurper slurper = new JsonSlurper()
         assertThat slurper.parseText(stringResult), allOf(
-                hasEntry('name', STUDY_NAME),
+                hasEntry('id', STUDY_ID),
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry('href', "/studies/$ONTOLOGY_TERM_NAME".toString()))),
+                                hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}".toString()))),
                 hasEntry(is('_embedded'),
                     hasEntry(is('ontologyTerm'), allOf(
                             hasEntry(is('_links'),
                                     hasEntry(is('self'),
-                                            hasEntry('href', "/studies/$ONTOLOGY_TERM_NAME/concepts/ROOT".toString()))),
+                                            hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
                             hasEntry('name', ONTOLOGY_TERM_NAME),
                             hasEntry('fullName', ONTOLOGY_FULL_NAME),
                             hasEntry('key', ONTOLOGY_KEY),

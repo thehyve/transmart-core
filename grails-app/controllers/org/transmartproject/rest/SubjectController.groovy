@@ -58,10 +58,10 @@ class SubjectController {
     def show(Integer id) {
         def patient = patientsResourceService.getPatientById(id)
 
-        def studyName = studyLoadingServiceProxy.study.name
-        if (patient.trial != studyName) {
+        def studyId = studyLoadingServiceProxy.study.id
+        if (patient.trial != studyId) {
             throw new NoSuchResourceException("The patient with id $id " +
-                    "does not belong to the study '$studyName'")
+                    "does not belong to the study '$studyId'")
         }
 
         respond patient

@@ -49,6 +49,6 @@ class StudyController {
      *  @param name the name of the study
      */
     def show(String id) {
-        respond studiesResourceService.getStudyByName(id)
+        respond studiesResourceService.getStudyById(id)
     }
 }

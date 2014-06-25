@@ -32,7 +32,8 @@ import static org.hamcrest.Matchers.*
 
 class ConceptsResourceTests extends ResourceTestCase {
 
-    def studyId = 'study1'
+    def studyId = 'study_id_1'
+    def studyFolderName = 'study1'
     def partialConceptName = 'bar'
 
     def rootConceptPath = '\\foo\\study1\\'
@@ -50,9 +51,9 @@ class ConceptsResourceTests extends ResourceTestCase {
     def longConceptName = 'with%some$characters_'
     def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
     def longConceptKey  = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_'
+    def longConceptUrl  = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_'
 
-    def study2ConceptListUrl = '/studies/study2/concepts'
+    def study2ConceptListUrl = '/studies/study_id_2/concepts'
 
     void testIndexAsJson() {
         def result = getAsJson conceptListUrl
@@ -93,14 +94,14 @@ class ConceptsResourceTests extends ResourceTestCase {
     void testShowRootConceptAsJson() {
         def result = getAsJson rootConceptUrl
         assertStatus 200
-        assertThat result, jsonConceptResponse(rootConceptKey, studyId, rootConceptPath)
+        assertThat result, jsonConceptResponse(rootConceptKey, studyFolderName, rootConceptPath)
     }
 
     void testShowRootConceptAsHal() {
         def result = getAsHal rootConceptUrl
         assertStatus 200
 
-       assertThat result, halConceptResponse(rootConceptKey, studyId, rootConceptPath, rootConceptUrl, false)
+       assertThat result, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
     }
 
     void testPathOfLongConcept() {
