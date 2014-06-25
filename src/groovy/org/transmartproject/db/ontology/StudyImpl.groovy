@@ -7,8 +7,8 @@ import org.transmartproject.db.i2b2data.PatientTrialCoreDb
 
 class StudyImpl implements Study {
 
+    String id
     OntologyTerm ontologyTerm
-    String name
 
     @Override
     Set<Patient> getPatients() {
@@ -16,7 +16,7 @@ class StudyImpl implements Study {
          * but this is more straightforward */
         PatientTrialCoreDb.executeQuery '''
             SELECT pt.patient FROM PatientTrialCoreDb pt WHERE pt.study = :study''',
-                [study: name]
+                [study: id]
     }
 
     boolean equals(o) {

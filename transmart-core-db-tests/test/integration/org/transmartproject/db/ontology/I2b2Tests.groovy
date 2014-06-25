@@ -105,7 +105,7 @@ class I2b2Tests {
 
         Study study = bar.study
         assertThat study, allOf(
-                hasProperty('name', is('STUDY_ID')),
+                hasProperty('id', is('STUDY_ID')),
                 hasProperty('ontologyTerm', is(foo)),
         )
     }

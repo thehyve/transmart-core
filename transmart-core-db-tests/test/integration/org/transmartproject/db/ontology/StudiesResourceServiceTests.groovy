@@ -34,26 +34,26 @@ class StudiesResourceServiceTests {
                 everyItem(isA(Study)),
                 containsInAnyOrder(
                         allOf(
-                                hasProperty('name', is('STUDY_ID_1')),
+                                hasProperty('id', is('STUDY_ID_1')),
                                 hasProperty('ontologyTerm',
                                     hasProperty('fullName', is('\\foo\\study1\\')))),
                         allOf(
-                                hasProperty('name', is('STUDY_ID_2')),
+                                hasProperty('id', is('STUDY_ID_2')),
                                 hasProperty('ontologyTerm',
                                     hasProperty('fullName', is('\\foo\\study2\\')))),
                         allOf(
-                                hasProperty('name', is('STUDY_ID_3')),
+                                hasProperty('id', is('STUDY_ID_3')),
                                 hasProperty('ontologyTerm',
                                         hasProperty('fullName', is('\\foo\\study3\\'))))))
     }
 
     @Test
-    void testGetStudyByName() {
+    void testGetStudyById() {
         // shouldn't get confused with \foo\study2\study1
-        def result = studiesResourceService.getStudyByName('study_id_1')
+        def result = studiesResourceService.getStudyById('study_id_1')
 
         assertThat result, allOf(
-                hasProperty('name', is('STUDY_ID_1')),
+                hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
                     allOf(
                         hasProperty('name', is('study1')),
@@ -64,11 +64,11 @@ class StudiesResourceServiceTests {
     }
 
     @Test
-    void testGetStudyByNameDifferentCase() {
-        def result = studiesResourceService.getStudyByName('stuDY_Id_1')
+    void testGetStudyByIdDifferentCase() {
+        def result = studiesResourceService.getStudyById('stuDY_Id_1')
 
         assertThat result, allOf(
-                hasProperty('name', is('STUDY_ID_1')),
+                hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
                         allOf(
                                 hasProperty('name', is('study1')),
@@ -81,7 +81,7 @@ class StudiesResourceServiceTests {
     @Test
     void testGetStudyByNameNonExistent() {
         shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyByName('bad study name')
+            studiesResourceService.getStudyById('bad study id')
         }
     }
 
@@ -92,7 +92,7 @@ class StudiesResourceServiceTests {
         def result = studiesResourceService.getStudyByOntologyTerm(concept)
 
         assertThat result, allOf(
-                hasProperty('name', is('STUDY_ID_1')),
+                hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
                         allOf(
                                 hasProperty('name', is('study1')),

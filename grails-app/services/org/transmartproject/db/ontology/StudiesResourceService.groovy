@@ -26,30 +26,30 @@ class StudiesResourceService implements StudiesResource {
         // association. See comment on I2b2TrialNodes
 
         query.list().collect { row ->
-            new StudyImpl(ontologyTerm: row[0], name: row[1])
+            new StudyImpl(ontologyTerm: row[0], id: row[1])
         } as Set
     }
 
     @Override
-    Study getStudyByName(String name) throws NoSuchResourceException {
-        def trial = name.toUpperCase(Locale.ENGLISH)
+    Study getStudyById(String id) throws NoSuchResourceException {
+        def normalizedStudyId = id.toUpperCase(Locale.ENGLISH)
         def query = sessionFactory.currentSession.createQuery '''
                 SELECT I
                 FROM I2b2 I WHERE fullName IN (
-                    SELECT fullName FROM I2b2TrialNodes WHERE trial = :study
+                    SELECT fullName FROM I2b2TrialNodes WHERE trial = :trial
                 )'''
-        query.setParameter 'study', trial
+        query.setParameter 'trial', normalizedStudyId
 
         def result = query.list()
 
         if (result.empty) {
-            throw new NoSuchResourceException("No study with name '$name' was found")
+            throw new NoSuchResourceException("No study with id '$id' was found")
         }
         if (result.size() > 1) {
             throw new UnexpectedResultException(
-                    "Found more than one study term with name '$name'")
+                    "Found more than one study term with id '$id'")
         }
-        new StudyImpl(ontologyTerm: result.first(), name: trial)
+        new StudyImpl(ontologyTerm: result.first(), id: normalizedStudyId)
     }
 
     @Override
@@ -59,7 +59,7 @@ class StudiesResourceService implements StudiesResource {
         def trialNodes = I2b2TrialNodes.findByFullName(term.fullName)
         if (term.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)
                 || trialNodes) {
-            new StudyImpl(ontologyTerm: term, name: trialNodes.trial)
+            new StudyImpl(ontologyTerm: term, id: trialNodes.trial)
         } else {
             throw new NoSuchResourceException(
                     "The ontology term $term is not the top node for a study")
