@@ -2,7 +2,6 @@ package jobs.steps
 
 import com.google.common.collect.Lists
 import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.acgh.ACGHValues
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
@@ -22,7 +21,7 @@ class AcghRegionDumpDataStep extends AbstractDumpHighDimensionalDataStep {
                             DataRow genericRow,
                             AssayColumn column /* null */,
                             Object cell /* null */) {
-        RegionRow<ACGHValues> row = genericRow
+        RegionRow<AcghValues> row = genericRow
         // +1 because the first column has no header
         def line = Lists.newArrayListWithCapacity(csvHeader.size() + 1)
         line[0] = rowNumber++ as String
