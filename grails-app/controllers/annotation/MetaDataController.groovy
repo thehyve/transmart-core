@@ -62,7 +62,9 @@ class MetaDataController {
         log.info "There are " + conceptCodes.size() + " " + params.codeTypeName + " records found in ConceptCode"
         def itemlist = [];
         for (conceptCode in conceptCodes) {
-            itemlist.add([id: conceptCode.uniqueId, keyword: conceptCode.codeName, sourceAndCode: conceptCode.uniqueId, category: "", display: ""]);
+            if(conceptCode.uniqueId != null && conceptCode.codeName != null) {
+                itemlist.add([id: conceptCode.uniqueId, keyword: conceptCode.codeName, sourceAndCode: conceptCode.uniqueId, category: "", display: ""]);
+            }
         }
 
         render itemlist as JSON;
