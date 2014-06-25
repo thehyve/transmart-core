@@ -19,7 +19,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 
 import javax.annotation.PostConstruct
 
-import static jobs.steps.AbstractDumpStep.getDEFAULT_OUTPUT_FILE_NAME
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
