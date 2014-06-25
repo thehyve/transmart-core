@@ -54,11 +54,8 @@ class StudiesResourceService implements StudiesResource {
 
     @Override
     Study getStudyByOntologyTerm(OntologyTerm term) throws NoSuchResourceException {
-        // first condition is a shortcut for the versions of transmart that
-        // implement that specific visual attribute
         def trialNodes = I2b2TrialNodes.findByFullName(term.fullName)
-        if (term.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)
-                || trialNodes) {
+        if (trialNodes) {
             new StudyImpl(ontologyTerm: term, id: trialNodes.trial)
         } else {
             throw new NoSuchResourceException(
