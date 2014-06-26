@@ -1,9 +1,10 @@
---
--- Name: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, character varying, bigint, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
---
-CREATE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, secure_study character varying DEFAULT 'N'::character varying, log_base bigint DEFAULT 2, currentjobid bigint DEFAULT (-1)) RETURNS numeric
-    LANGUAGE plpgsql
-    AS $_$
+-- Function: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint)
+
+-- DROP FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint);
+
+CREATE OR REPLACE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base bigint DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid bigint DEFAULT (-1))
+  RETURNS numeric AS
+$BODY$
 
 /*************************************************************************
 
@@ -46,22 +47,20 @@ Declare
   tablespaceName	varchar(200);
   v_bio_experiment_id	bigint;
   rtn_code		integer;
+  partitioniD	numeric(18,0);
+  partitionName	varchar(100);
+  partitionIndx	varchar(100);
   
     --Audit variables
-  newJobFlag integer(1);
+  newJobFlag integer;
   databaseName varchar(100);
   procedureName varchar(100);
   jobID bigint;
   stepCt bigint;
-  
-  --unmapped_patients exception;
-  missing_platform	exception;
-  missing_tissue	EXCEPTION;
-  unmapped_platform exception;
-  multiple_platform	exception;
-  no_probeset_recs	exception;
-  
-
+  rowCt			numeric(18,0);
+  errorNumber		character varying;
+  errorMessage	character varying;
+  rtnCd			integer;
   
 	addNodes CURSOR FOR
 	SELECT distinct t.leaf_node
@@ -82,10 +81,10 @@ Declare
     --and c_visualattributes like '_H_';
 
 
-    /* cursor uploadI2b2 is 
+     uploadI2b2 cursor for
     select category_cd,display_value,display_label,display_unit from
     tm_lz.lt_src_METABOLOMICS_display_mapping;
-    */
+    
 
 
 
@@ -98,7 +97,7 @@ BEGIN
 	end if;
 	
 	topNode := REGEXP_REPLACE('\' || top_node || '\','(\\){2,}', '\');	
-	PERFORM length(topNode)-length(replace(topNode,'\','')) into topLevel ;
+	select length(topNode)-length(replace(topNode,'\','')) into topLevel ;
 	
 	if coalesce(data_type::text, '') = '' then
 		dataType := 'R';
@@ -111,26 +110,26 @@ BEGIN
 	end if;
 	
 	logBase := log_base;
-	sourceCd := upper(coalesce(source_cd,'STD'));
+	sourceCd := upper(coalesce(source_code,'STD'));
 
   --Set Audit Parameters
   newJobFlag := 0; -- False (Default)
   jobID := currentJobID;
 
-  PERFORM sys_context('USERENV', 'CURRENT_SCHEMA') INTO databaseName ;
-  procedureName := $$PLSQL_UNIT;
+    databaseName := 'TM_CZ';
+	procedureName := 'I2B2_PROCESS_METABOLOMIC_DATA';
 
   --Audit JOB Initialization
   --If Job ID does not exist, then this is a single procedure run and we need to create it
   IF(coalesce(jobID::text, '') = '' or jobID < 1)
   THEN
     newJobFlag := 1; -- True
-    cz_start_audit (procedureName, databaseName, jobID);
+    select cz_start_audit (procedureName, databaseName, jobID) into jobId;
   END IF;
     	
 	stepCt := 0;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_process_metabolomics_data',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_process_metabolomics_data',0,stepCt,'Done');
 	
 	--	Get count of records in LT_SRC_METABOLOMIC_MAP
 	
@@ -138,16 +137,15 @@ BEGIN
 	from LT_SRC_METABOLOMIC_MAP;
 	
 	--	check if all subject_sample map records have a platform, If not, abort run
-       /* if sCount > 0 then
-		raise missing_platform;
-	end if;
-	*/
 	select count(*) into pCount
 	from LT_SRC_METABOLOMIC_MAP
 	where coalesce(platform::text, '') = '';
 	
 	if pCount > 0 then
-		raise missing_platform;
+		perform cz_write_audit(jobId,databasename,procedurename,'Platform data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
+		perform cz_error_handler(jobid,procedurename);
+		select cz_end_audit (jobId,'FAIL') into rtnCd;
+		return 161;
 	end if;
   
   	--	check if platform exists in de_qpcr_mirna_annotation .  If not, abort run.
@@ -156,16 +154,15 @@ BEGIN
 	from LT_METABOLOMIC_ANNOTATION
 	where gpl_id in (select distinct m.platform from LT_SRC_METABOLOMIC_MAP m);
 	
-	--if PCOUNT = 0 then
-		--RAISE UNMAPPED_platform;
-	--end if;--mod
-	
 	select count(*) into pCount
 	from DE_gpl_info
 	where platform in (select distinct m.platform from LT_SRC_METABOLOMIC_MAP m);
 	
 	if PCOUNT = 0 then
-		RAISE UNMAPPED_platform;
+		perform cz_write_audit(jobId,databasename,procedurename,'Platform not found in de_qpcr_metabolomics_annotation',1,stepCt,'ERROR');
+		perform CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
+		select cz_end_audit (jobId,'FAIL') into rtnCd;
+		RETURN 163;
 	end if;
 		
 	--	check if all subject_sample map records have a tissue_type, If not, abort run
@@ -175,7 +172,10 @@ BEGIN
 	where coalesce(tissue_type::text, '') = '';
 	
 	if pCount > 0 then
-		raise missing_tissue;
+		perform cz_write_audit(jobId,databasename,procedurename,'Tissue Type data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
+		perform cz_error_handler(jobid,procedurename);
+		select CZ_END_AUDIT (JOBID,'FAIL') into rtnCd;
+		return 162;
 	end if;
 	
 	--	check if there are multiple platforms, if yes, then platform must be supplied in LT_SRC_METABOLOMIC_MAP
@@ -184,28 +184,25 @@ BEGIN
 	from (select sample_cd
 		  from LT_SRC_METABOLOMIC_MAP
 		  group by sample_cd
-		  GROUP BY md.biochemical ,subject_id
-		  ,sd.patient_id,sd.assay_id;
-		  
-	pExists := SQL%ROWCOUNT;
-	
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName, HAVING count(distinct platform) > 1);
+		  having count(distinct platform) > 1)as s;
 	
 	if pCount > 0 then
-		raise multiple_platform;
+		perform cz_write_audit(jobId,databasename,procedurename,'Multiple platforms for sample_cd in LT_SRC_METABOLOMIC_MAP',1,stepCt,'ERROR');
+		perform CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
+		select cz_end_audit (jobId,'FAIL') into rtnCd;
+		RETURN 164;
 	end if;
 		
 	-- Get root_node from topNode
   
-	PERFORM parse_nth_value(topNode, 2, '\') into RootNode ;
+	select parse_nth_value(topNode, 2, '\') into RootNode ;
 	
 	select count(*) into pExists
 	from table_access
 	where c_name = rootNode;
 	
 	if pExists = 0 then
-		i2b2_add_root_node(rootNode, jobId);
+		perform i2b2_add_root_node(rootNode, jobId);
 	end if;
 	
 	select c_hlevel into root_level
@@ -214,29 +211,39 @@ BEGIN
 	
 	-- Get study name from topNode
   
-	PERFORM parse_nth_value(topNode, topLevel, '\') into study_name ;
+	select parse_nth_value(topNode, topLevel, '\') into study_name ;
 	
 	--	Add any upper level nodes as needed
 	
 	tPath := REGEXP_REPLACE(replace(top_node,study_name,null),'(\\){2,}', '\');
-	PERFORM length(tPath) - length(replace(tPath,'\',null)) into pCount ;
+	select length(tPath) - length(replace(tPath,'\',null)) into pCount ;
 
 	if pCount > 2 then
-		i2b2_fill_in_tree(null, tPath, jobId);
+		perform i2b2_fill_in_tree(null, tPath, jobId);
 	end if;
 
 	--	uppercase study_id in LT_SRC_METABOLOMIC_MAP in case curator forgot
-	
+	begin
 	update LT_SRC_METABOLOMIC_MAP
 	set trial_name=upper(trial_name);
-	
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Uppercase trial_name in LT_SRC_METABOLOMIC_MAP',SQL%ROWCOUNT,stepCt,'Done');
-	commit;	
+	perform cz_write_audit(jobId,databaseName,procedureName,'Uppercase trial_name in LT_SRC_METABOLOMIC_MAP',rowCt,stepCt,'Done');
 	
 	--	create records in patient_dimension for subject_ids if they do not exist
 	--	format of sourcesystem_cd:  trial:[site:]subject_cd
-
+	begin
 	insert into patient_dimension
     ( patient_num,
       sex_cd,
@@ -247,7 +254,7 @@ BEGIN
       import_date,
       sourcesystem_cd
     )
-    PERFORM nextval('seq_patient_num')
+    select nextval('i2b2demodata.seq_patient_num')
 		  ,x.sex_cd
 		  ,x.age_in_years_num
 		  ,x.race_cd
@@ -258,7 +265,7 @@ BEGIN
 	from (select distinct 'Unknown' as sex_cd,
 				 0 as age_in_years_num,
 				 null as race_cd,
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':') as sourcesystem_cd
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g') as sourcesystem_cd
 		 from LT_SRC_METABOLOMIC_MAP s
 		     ,de_gpl_info g
 		 where (s.subject_id IS NOT NULL AND s.subject_id::text <> '')
@@ -269,19 +276,27 @@ BEGIN
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':'))
-		) x;
-	
-	pCount := SQL%ROWCOUNT;
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g'))
+		) as x;
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert subjects to patient_dimension',pCount,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Insert subjects to patient_dimension',rowCt,stepCt,'Done');
 	
-	i2b2_create_security_for_trial(TrialId, secureStudy, jobID);
+	perform i2b2_create_security_for_trial(TrialId, secureStudy, jobID);
 
 	--	Delete existing observation_fact data, will be repopulated
-	
+	begin
 	delete from observation_fact obf
 	where obf.concept_cd in
 		 (select distinct x.concept_code
@@ -289,63 +304,60 @@ BEGIN
 		  where x.trial_name = TrialId
 		    and coalesce(x.source_cd,'STD') = sourceCD
 		    and x.platform = 'METABOLOMICS');
-
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Delete data from observation_fact',rowCt,stepCt,'Done');
 
-	select count(*) into pExists
-	from all_tables
-	where table_name = 'DE_SUBJECT_METABOLOMICS_DATA'
-	  and partitioned = 'YES';
+	select count(*) into partExists
+	from deapp.de_subject_sample_mapping sm
+	where sm.trial_name = TrialId
+	and coalesce(sm.source_cd,'STD') = sourceCd
+	and sm.platform = 'METABOLOMICS'
+	and sm.partition_id is not null;
 	
-	if pExists = 0 then
-		--	dataset is not partitioned so must delete
-		
-		delete from DE_SUBJECT_METABOLOMICS_DATA
-		where trial_name = TrialId ;
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Delete data from DE_SUBJECT_METABOLOMICS_DATA',SQL%ROWCOUNT,stepCt,'Done');
-		commit;
+	if partExists = 0 then
+		select nextval('deapp.seq_metabolomics_partition_id') into partitionId;
 	else
-		--	Create partition in DE_SUBJECT_METABOLOMICS_DATA if it doesn't exist else truncate partition
-			
-		select count(*)
-			into pExists
-			from all_tab_partitions
-			where table_name = 'DE_SUBJECT_METABOLOMICS_DATA'
-			  and partition_name = TrialId || ':' || sourceCd;
-			
-		if pExists = 0 then
-					
-			--	needed to add partition to de_subject_MIRNA_data
-
-			sqlText := 'alter table deapp.DE_SUBJECT_METABOLOMICS_DATA add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
-			EXECUTE(sqlText);
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to DE_SUBJECT_METABOLOMICS_DATA',0,stepCt,'Done');
-				
-		else
-			sqlText := 'alter table deapp.DE_SUBJECT_METABOLOMICS_DATA truncate partition "' || TrialID || ':' || sourceCd || '"';
-			EXECUTE(sqlText);
-			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in DE_SUBJECT_METABOLOMICS_DATA',0,stepCt,'Done');
-		end if;
-		
+		select distinct partition_id into partitionId
+		from deapp.de_subject_sample_mapping sm
+		where sm.trial_name = TrialId
+		and coalesce(sm.source_cd,'STD') = sourceCd
+		and sm.platform = 'METABOLOMICS';
 	end if;
-		
-	--	Cleanup any existing data in de_subject_sample_mapping.  
 
+	partitionName := 'deapp.de_subject_metabolomics_data_' || partitionId::text;
+	partitionIndx := 'de_subject_metabolomics_data_' || partitionId::text;
+
+	--	Cleanup any existing data in de_subject_sample_mapping.  
+	begin
 	delete from DE_SUBJECT_SAMPLE_MAPPING 
 	where trial_name = TrialID 
 	  and coalesce(source_cd,'STD') = sourceCd
 	  and platform = 'METABOLOMICS'; --Making sure only metabolomic data is deleted
+	  get diagnostics rowCt := ROW_COUNT;
+	  exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		  
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
-
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Delete trial from DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done');
 
 --	truncate tmp node table
 
@@ -355,7 +367,7 @@ BEGIN
 --	from wt_subject_mirna_data
 
 	EXECUTE('truncate table tm_wz.WT_METABOLOMIC_NODE_VALUES');
-	
+	begin
 	insert into WT_METABOLOMIC_NODE_VALUES
 	(category_cd
 	,platform
@@ -364,7 +376,7 @@ BEGIN
 	,attribute_2
 	,title
 	)
-	PERFORM distinct a.category_cd
+	select distinct a.category_cd
 				   ,coalesce(a.platform,'GPL570')
 				   ,coalesce(a.tissue_type,'Unspecified Tissue Type')
 	               ,a.attribute_1
@@ -378,14 +390,22 @@ BEGIN
 	  and a.platform = g.platform
 	  and upper(g.marker_type) = 'METABOLOMICS'
 	  and g.title = (select min(x.title) from de_gpl_info x where coalesce(a.platform,'GPL570') = x.platform)
-      -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
-      
-	--  and decode(dataType,'R',sign(a.intensity_value),1) = 1;	--	take all values when dataType T, only >0 for dataType R
+	  get diagnostics rowCt := ROW_COUNT;
+      exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert node values into DEAPP WT_METABOLOMIC_NODE_VALUES',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Insert node values into DEAPP WT_METABOLOMIC_NODE_VALUES',rowCt,stepCt,'Done');
 	
+	begin
 	insert into WT_METABOLOMIC_NODES
 	(leaf_node
 	,category_cd
@@ -395,8 +415,8 @@ BEGIN
     ,attribute_2
 	,node_type
 	)
-	PERFORM distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       category_cd,'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\','(\\){2,}', '\') 
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
+category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\','(\\){2,}', '\', 'g')
 		  ,category_cd
 		  ,platform as platform
 		  ,tissue_type
@@ -404,13 +424,23 @@ BEGIN
           ,attribute_2 as attribute_2
 		  ,'LEAF'
 	from  WT_METABOLOMIC_NODE_VALUES;
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create leaf nodes in DEAPP tmp_metabolomics_nodes',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create leaf nodes in DEAPP tmp_metabolomics_nodes',rowCt,stepCt,'Done');
 	
 	--	insert for platform node so platform concept can be populated
-	
+	begin
 	insert into WT_METABOLOMIC_NODES
 	(leaf_node
 	,category_cd
@@ -420,9 +450,9 @@ BEGIN
     ,attribute_2
 	,node_type
 	)
-	PERFORM distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
-		   '(\\){2,}', '\')
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
+	substr(category_cd,1,tm_cz.instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	'(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'PLATFORM')+8)
 		  ,platform as platform
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then tissue_type else null end as tissue_type
@@ -430,13 +460,23 @@ BEGIN
           ,case when instr(substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'ATTR2') > 1 then attribute_2 else null end as attribute_2
 		  ,'PLATFORM'
 	from  WT_METABOLOMIC_NODE_VALUES;
-		   
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create platform nodes in WT_METABOLOMIC_NODES',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-	
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create platform nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
+
 	--	insert for ATTR1 node so ATTR1 concept can be populated in tissue_type_cd
-	
+	begin
 	insert into WT_METABOLOMIC_NODES
 	(leaf_node
 	,category_cd
@@ -446,9 +486,9 @@ BEGIN
 	,attribute_2
 	,node_type
 	)
-	PERFORM distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
-		   '(\\){2,}', '\')
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
+	substr(category_cd,1,tm_cz.instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	'(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR1')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM') > 1 then platform else null end as platform
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then tissue_type else null end as tissue_type
@@ -458,13 +498,23 @@ BEGIN
 	from  WT_METABOLOMIC_NODE_VALUES
 	where category_cd like '%ATTR1%'
 	  and (attribute_1 IS NOT NULL AND attribute_1::text <> '');
-		   
+	  get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR1 nodes in WT_METABOLOMIC_NODES',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create ATTR1 nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
 	
 	--	insert for ATTR2 node so ATTR2 concept can be populated in timepoint_cd
-	
+	begin
 	insert into WT_METABOLOMIC_NODES
 	(leaf_node
 	,category_cd
@@ -474,9 +524,9 @@ BEGIN
 	,attribute_2
 	,node_type
 	)
-	PERFORM distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
-		   '(\\){2,}', '\')
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
+		substr(category_cd,1,tm_cz.instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+		'(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR2')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM') > 1 then platform else null end as platform
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then tissue_type else null end as tissue_type
@@ -486,13 +536,23 @@ BEGIN
 	from  WT_METABOLOMIC_NODE_VALUES
 	where category_cd like '%ATTR2%'
 	  and (attribute_2 IS NOT NULL AND attribute_2::text <> '');
+	  get diagnostics rowCt := ROW_COUNT;
+	  exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		   
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_METABOLOMIC_NODES',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
 	
 	--	insert for tissue_type node so sample_type_cd can be populated
-
+	begin
 	insert into WT_METABOLOMIC_NODES
 	(leaf_node
 	,category_cd
@@ -502,9 +562,9 @@ BEGIN
     ,attribute_2
 	,node_type
 	)
-	PERFORM distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
-		   '(\\){2,}', '\')
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
+	substr(category_cd,1,tm_cz.instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	'(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then platform else null end as platform
 		  ,tissue_type as tissue_type
@@ -513,61 +573,112 @@ BEGIN
 		  ,'TISSUETYPE'
 	from  WT_METABOLOMIC_NODE_VALUES
 	where category_cd like '%TISSUETYPE%';
-		   
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_METABOLOMIC_NODES',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-				
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
+	
+	begin
 	update WT_METABOLOMIC_NODES
-	set node_name=parse_nth_value(leaf_node,length(leaf_node)-length(replace(leaf_node,'\',null)),'\');
-		   
+	set node_name=parse_nth_value(leaf_node,length(leaf_node)-length(replace(leaf_node,'\','')),'\');
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Updated node_name in DEAPP tmp_metabolomics_nodes',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Updated node_name in DEAPP tmp_metabolomics_nodes',rowCt,stepCt,'Done');
 		
 --	add leaf nodes for metabolomics data  The cursor will only add nodes that do not already exist.
 
 	 FOR r_addNodes in addNodes Loop
 
     --Add nodes for all types (ALSO DELETES EXISTING NODE)
-
-		i2b2_add_node(TrialID, r_addNodes.leaf_node, r_addNodes.node_name, jobId);
+		begin
+		perform i2b2_add_node(TrialID, r_addNodes.leaf_node, r_addNodes.node_name, jobId);
+		get diagnostics rowCt := ROW_COUNT;
+		exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 		stepCt := stepCt + 1;
 		tText := 'Added Leaf Node: ' || r_addNodes.leaf_node || '  Name: ' || r_addNodes.node_name;
 		
-		cz_write_audit(jobId,databaseName,procedureName,tText,SQL%ROWCOUNT,stepCt,'Done');
+		perform cz_write_audit(jobId,databaseName,procedureName,tText,rowCt,stepCt,'Done');
 		
-		i2b2_fill_in_tree(TrialId, r_addNodes.leaf_node, jobID);
+		perform i2b2_fill_in_tree(TrialId, r_addNodes.leaf_node, jobID);
 
 	END LOOP;  
 	
 	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-	
+	begin
 	update i2b2 b
 	set sourcesystem_cd=null,c_comment=null
 	where b.sourcesystem_cd = TrialId
 	  and length(b.c_fullname) < length(topNode);
+	  get diagnostics rowCt := ROW_COUNT;
+	  exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	  	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',rowCt,stepCt,'Done');
 		
 --	update concept_cd for nodes, this is done to make the next insert easier
-	
+	begin
 	update WT_METABOLOMIC_NODES t
 	set concept_cd=(select c.concept_cd from concept_dimension c
-	                where c.concept_path = t.leaf_node LIMIT 1 OFFSET 1
+	                where c.concept_path = t.leaf_node
 				   )
     where exists
          (select 1 from concept_dimension x
 	                where x.concept_path = t.leaf_node
 				   )
 	  and coalesce(t.concept_cd::text, '') = '';
+	  get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Update WT_METABOLOMIC_NODES with newly created concept_cds',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-	 
+	perform cz_write_audit(jobId,databaseName,procedureName,'Update WT_METABOLOMIC_NODES with newly created concept_cds',rowCt,stepCt,'Done'); 
 	
   --Load the DE_SUBJECT_SAMPLE_MAPPING from wt_subject_metabolomics_data
 
@@ -593,7 +704,7 @@ BEGIN
   --SOURCE_CD		= sourceCd
   
   --ASSAY_ID        = generated by trigger
-
+	begin
 	insert into de_subject_sample_mapping
 	(patient_id
 	,site_id
@@ -618,13 +729,14 @@ BEGIN
 	,source_cd
 	,omic_source_study
 	,omic_patient_id
+	,partition_id
     )
-	PERFORM t.patient_id
+	select t.patient_id
 		  ,t.site_id
 		  ,t.subject_id
 		  ,t.subject_type
 		  ,t.concept_code
-		  ,deapp.nextval('seq_assay_id')
+		  ,nextval('deapp.seq_assay_id')
 		  ,t.sample_type
 		  ,t.sample_type_cd
 		  ,t.trial_name
@@ -642,6 +754,7 @@ BEGIN
 		  ,t.source_cd
 		  ,t.omic_source_study
 		  ,t.omic_patient_id
+		  ,partitionId
 	from (select distinct b.patient_num as patient_id
 			  ,a.site_id
 			  ,a.subject_id
@@ -656,7 +769,7 @@ BEGIN
 			  ,a1.concept_cd as tissue_type_cd
 			  ,'METABOLOMICS' as platform
 			  ,pn.concept_cd as platform_cd
-			  ,ln.concept_cd || '-' || to_char(b.patient_num) as data_uid
+			  ,ln.concept_cd || '-' || b.patient_num::text as data_uid
 			  ,a.platform as gpl_id
 			  ,coalesce(sid.patient_num,b.patient_num) as sample_id
 			  ,a.sample_cd
@@ -667,7 +780,7 @@ BEGIN
 		from LT_SRC_METABOLOMIC_MAP a		
 		--Joining to Pat_dim to ensure the ID's match. If not I2B2 won't work.
 		inner join patient_dimension b
-		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':') = b.sourcesystem_cd
+		  on regexp_replace(TrialID || ':' || coalesce(a.site_id,'') || ':' || a.subject_id,'(::){1,}', ':', 'g') = b.sourcesystem_cd
 		inner join WT_METABOLOMIC_NODES ln
 			on a.platform = ln.platform
 			and a.tissue_type = ln.tissue_type
@@ -699,37 +812,32 @@ BEGIN
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = coalesce(a2.attribute_1,'@')
 			and a2.node_type = 'ATTR2'			  
 		left outer join patient_dimension sid
-			on  regexp_replace(TrialId || 'S:' || a.site_id || ':' || a.subject_id || ':' || a.sample_cd,
-							  '(::){1,}', ':') = sid.sourcesystem_cd
+			on regexp_replace(TrialID || ':' || coalesce(a.site_id,'') || ':' || a.subject_id,'(::){1,}', ':','g') = sid.sourcesystem_cd
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD
 		  and  (ln.concept_cd IS NOT NULL AND ln.concept_cd::text <> '')) t;
-
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert trial into DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
-
-  commit;
-
---	recreate de_subject_sam
---	recreate de_subject_sample_mapping indexes
-
-	--execute immediate('create index de_subject_smpl_mpng_idx1 on de_subject_sample_mapping(timepoint, patient_id, trial_name) parallel nologging'); 
-	--execute immediate('create index de_subject_smpl_mpng_idx2 on de_subject_sample_mapping(patient_id, timepoint_cd, platform_cd, assay_id, trial_name) parallel nologging'); 
-	--execute immediate('create bitmap index de_subject_smpl_mpng_idx3 on de_subject_sample_mapping(sample_type_cd) parallel nologging');
-	--execute immediate('create index de_subject_smpl_mpng_idx4 on de_subject_sample_mapping(gpl_id) parallel nologging');
-	--execute immediate('create index de_subject_smpl_mpng_idx4 on de_subject_sample_mapping(platform, gpl_id) parallel nologging');
-    --stepCt := stepCt + 1;
-	--cz_write_audit(jobId,databaseName,procedureName,'Recreate indexes on DEAPP de_subject_sample_mapping',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Insert trial into DEAPP de_subject_sample_mapping',rowCt,stepCt,'Done');
 
 --	Insert records for patients and samples into observation_fact
-
+	begin
 	insert into observation_fact
     (patient_num
 	,concept_cd
 	,modifier_cd
 	,valtype_cd
 	,tval_char
-	,nval_num
 	,sourcesystem_cd
 	,import_date
 	,valueflag_cd
@@ -738,12 +846,11 @@ BEGIN
 	,units_cd
         ,INSTANCE_NUM
     )
-    PERFORM distinct m.patient_id
+    select distinct m.patient_id
 		  ,m.concept_code
 		  ,'@'
 		  ,'T' -- Text data type
 		  ,'E'  --Stands for Equals for Text Types
-		  ,null	--	not numeric for qpcr_mirna
 		  ,m.trial_name
 		  ,LOCALTIMESTAMP
 		  ,'@'
@@ -755,21 +862,29 @@ BEGIN
     where m.trial_name = TrialID 
 	  and m.source_cd = sourceCD
       and m.platform = 'METABOLOMICS';
+	  get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	  
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done');
 
-    commit;
-    
 	--	Insert sample facts 
-	
+	begin
 	insert into observation_fact
     (patient_num
 	,concept_cd
 	,modifier_cd
 	,valtype_cd
 	,tval_char
-	,nval_num
 	,sourcesystem_cd
 	,import_date
 	,valueflag_cd
@@ -777,12 +892,11 @@ BEGIN
 	,location_cd
 	,units_cd
     )
-    PERFORM distinct m.sample_id
+    select distinct m.sample_id
 		  ,m.concept_code
 		  ,m.trial_name
 		  ,'T' -- Text data type
 		  ,'E'  --Stands for Equals for Text Types
-		  ,null	--	not numeric for miRNA
 		  ,m.trial_name
 		  ,LOCALTIMESTAMP
 		  ,'@'
@@ -794,53 +908,70 @@ BEGIN
 	  and m.source_cd = sourceCd
       and m.platform = 'METABOLOMICS'
 	 and m.patient_id != m.sample_id;
+	 get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	  
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done');
 
-    commit;
-    
 	--Update I2b2 for correct data type
-
+	begin
 	update i2b2 t
 	set c_columndatatype = 'T', c_metadataxml = null, c_visualattributes='FA'
 	where t.c_basecode in (select distinct x.concept_cd from WT_METABOLOMIC_NODES x);
-  
+  get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',rowCt,stepCt,'Done');
 	
-	
-/*
-	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
-	update i2b2 a
-    set c_visualattributes = 'LA'
-    where 1 = (
-      select count(*)
-      from i2b2 b
-      where b.c_fullname like (a.c_fullname || '%'))
-      and c_fullname like '%' || topNode || '%';
-*/
 
-/*
+
  ---INSERT sample_dimension
+	begin
       INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
          SELECT DISTINCT SAMPLE_CD FROM 
-       
-	   
 	   DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
+	   get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	perform cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',rowCt,stepCt,'Done');
 
     ---- update c_metedataxml in i2b2
-
+	begin
        for ul in uploadI2b2
         loop
 	 update i2b2 n
 	SET n.c_columndatatype = 'N',
       --Static XML String
-		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+		c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
                 <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
                 <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
                 <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
@@ -852,32 +983,65 @@ BEGIN
                 '</ValueMetadata>') where n.c_fullname=ul.category_cd;
                 
                 end loop;
-		  
+		 get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end; 
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-        
-          */
+	perform cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',rowCt,stepCt,'Done');
+	    
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
+	begin
 	update i2b2 a
     set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = 'METABOLOMICS'
 							 and (x.concept_code IS NOT NULL AND x.concept_code::text <> ''));
-	  
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',rowCt,stepCt,'Done');
   
-	COMMIT;
-
+  begin
+    update i2b2metadata.i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		perform tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage);	
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
+        
+	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
+	perform cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',rowCt,stepCt,'Done');
+    
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
   -- a unique top-level node for metabolomic data
   
-    i2b2_create_concept_counts(topNode ,jobID );
+    perform i2b2_create_concept_counts(topNode ,jobID );
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Create concept counts',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create concept counts',0,stepCt,'Done');
 	
 	--	delete each node that is hidden
 
@@ -885,38 +1049,45 @@ BEGIN
 
     --	deletes hidden nodes for a trial one at a time
 
-		i2b2_delete_1_node(r_delNodes.c_fullname);
+		perform i2b2_delete_1_node(r_delNodes.c_fullname);
 		stepCt := stepCt + 1;
 		tText := 'Deleted node: ' || r_delNodes.c_fullname;
 		
-		cz_write_audit(jobId,databaseName,procedureName,tText,SQL%ROWCOUNT,stepCt,'Done');
+		perform cz_write_audit(jobId,databaseName,procedureName,tText,rowCt,stepCt,'Done');
 
 	END LOOP;  	
 
 
   --Reload Security: Inserts one record for every I2B2 record into the security table
+	begin
+    perform i2b2_load_security_data(jobId);
+        exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		perform tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage);	
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
 
-    i2b2_load_security_data(jobId);
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Load security data',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Load security data',0,stepCt,'Done');
 
 --	tag data with probeset_id from reference.probeset_deapp
   
 	EXECUTE ('truncate table tm_wz.WT_SUBJECT_MBOLOMICS_PROBESET');
 	
 	--	note: assay_id represents a unique subject/site/sample
-
+	begin
 	insert into WT_SUBJECT_MBOLOMICS_PROBESET  --mod
 	(probeset
---	,expr_id
 	,intensity_value
 	,patient_id
---	,sample_cd
 	,subject_id
 	,trial_name
 	,assay_id
 	)
-	PERFORM    md.biochemical
+	select md.biochemical
 		  ,avg(md.intensity_value)
                   ,sd.patient_id
                   ,sd.subject_id
@@ -924,76 +1095,100 @@ BEGIN
 		  ,sd.assay_id
 	from deapp.de_subject_sample_mapping sd
 		,LT_SRC_METABOLOMIC_DATA md   
-              --  ,peptide_deapp p
 	where sd.sample_cd = md.expr_id
 	  and sd.platform = 'METABOLOMICS'
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
-	 -- and sd.gpl_id = gs.id_ref
-	--  and md.peptide =p.peptide-- gs.mirna_id
-	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
-	procedureName,'Insert into DEAPP WT_SUBJECT_MBOLOMICS_PROBESET',SQL%ROWCOUNT,stepCt,'Done');
+	 and (CASE WHEN dataType = 'R' THEN sign(md.intensity_value) ELSE 1 END) = 1 
+		group by md.biochemical, subject_id
+		,sd.patient_id, sd.assay_id;
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
 	
-	commit;		
-	
-	/*if pExists = 0 then
-		raise no_probeset_recs;
-	end if;*/
---mod
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_mbolomics_probeset',rowCt,stepCt,'Done') into rtnCd;
 
+	select count(*) into pExists
+	from information_schema.tables
+	where table_name = partitionindx;
+
+	if pExists = 0 then
+	sqlText := 'create table ' || partitionName || ' ( constraint metabolomics_' || partitionId::text || '_check check ( partition_id = ' || partitionId::text ||
+	')) inherits (deapp.de_subject_metabolomics_data)';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
+	else
+	sqlText := 'drop index if exists ' || partitionIndx || '_idx1';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	sqlText := 'drop index if exists ' || partitionIndx || '_idx2';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	sqlText := 'drop index if exists ' || partitionIndx || '_idx3';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	sqlText := 'drop index if exists ' || partitionIndx || '_idx4';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
+	sqlText := 'truncate table ' || partitionName;
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Truncate ' || partitionName,1,stepCt,'Done') into rtnCd;
+	end if;
+	
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
 
 	if dataType = 'T' then
-        insert into DE_SUBJECT_METABOLOMICS_DATA
-	(
-        trial_source
-        ,trial_name
-	,metabolite_annotation_id
-	--,component
-	--,gene_symbol
-	--,gene_id
-	,assay_id
-	,subject_id
-	,raw_intensity 
-        ,log_intensity
-	,zscore
-	,patient_id
-		)
-                PERFORM m.trial_name || ':' || mpp.source_cd,
-                  TrialID
-                ,d.Id
-		  ,m.assay_id
-                  ,m.subject_id 
-                  ,m.intensity_value
-                  ,log(2,m.intensity_value)
-			  ,case when m.intensity_value < -2.5
-			        then -2.5
-					when m.intensity_value > 2.5
-					then 2.5
-					else m.intensity_value
-			   end as zscore
-                           ,m.patient_id
-                from WT_SUBJECT_MBOLOMICS_PROBESET  m,
-                (select distinct mp.source_cd,mp.platform From "TM_LZ"."LT_SRC_METABOLOMIC_MAP" mp LIMIT 1 OFFSET 1 and mp.trial_name =TrialID) mpp
-                ,DEAPP.DE_METABOLITE_ANNOTATION d
-		where m.trial_name = TrialID
-                and d.biochemical_name = m.probeset
-                and mpp.platform = d.gpl_id;
+        sqlText := 'insert into ' || partitionName || 
+	'(partition_id,trial_source ,trial_name ,metabolite_annotation_id ' ||
+	',assay_id ,subject_id ,raw_intensity ,log_intensity ,zscore ,patient_id ) ' ||
+                'select ' || partitioniD::text || ', m.trial_name || '':'' || mpp.source_cd, ' ||
+                  '''' || TrialId || '''' ||
+                ',d.Id ,m.assay_id ,m.subject_id ,m.intensity_value ' ||
+                  ' ,log(2,m.intensity_value) ' ||
+			  ',case when m.intensity_value < -2.5 ' ||
+			        'then -2.5 ' ||
+					'when m.intensity_value > 2.5 ' ||
+					'then 2.5 ' ||
+					'else m.intensity_value ' ||
+			   'end as zscore' ||
+                           ',m.patient_id ' ||
+                'from WT_SUBJECT_MBOLOMICS_PROBESET  m, ' ||
+                '(select distinct mp.source_cd,mp.platform From TM_LZ.LT_SRC_METABOLOMIC_MAP mp and mp.trial_name = ''' || TrialID || ''') mpp ' ||
+                ',DEAPP.DE_METABOLITE_ANNOTATION d ' ||
+		'where m.trial_name = TrialID ' ||
+                'and d.biochemical_name = m.probeset ' ||
+                'and mpp.platform = d.gpl_id' ;
 		
-		stepCt := stepCt + 1;
-		cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_METABOLOMICS_DATA',SQL%ROWCOUNT,stepCt,'Done');
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	get diagnostics rowCt := ROW_COUNT;
+	stepCt := stepCt + 1;
+		perform cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_METABOLOMICS_DATA',rowCt,stepCt,'Done');
 
-		commit;	 
 	else
 		
 	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
 	--	WT_SUBJECT_MBOLOMICS_PROBESET as part of a Load.  
 
 		if dataType = 'R' or dataType = 'L' then
-			I2B2_METABOLOMICS_ZSCORE_CALC(TrialID,'L',jobId,dataType,logBase,sourceCD);
+			perform I2B2_METABOLOMICS_ZSCORE_CALC(TrialID, partitionName, partitionindx,partitioniD,sourceCD,'L',jobId,dataType,logBase);
 			stepCt := stepCt + 1;
-			cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score',0,stepCt,'Done');
-			commit;
+			perform cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score',0,stepCt,'Done');
 		end if;
 	
 	end if;
@@ -1001,61 +1196,23 @@ BEGIN
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'End i2b2_process_metabolomics_data',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'End i2b2_process_metabolomics_data',0,stepCt,'Done');
 
 	IF newJobFlag = 1
 	THEN
-		cz_end_audit (jobID, 'SUCCESS');
+		perform cz_end_audit (jobID, 'SUCCESS');
 	END IF;
 
-	PERFORM 0 into rtn_code ;
+	select 0 into rtn_code ;
 	return 0;
 
-	EXCEPTION
-	--when unmapped_patients then
-	--	cz_write_audit(jobId,databasename,procedurename,'No site_id/subject_id mapped to patient_dimension',1,stepCt,'ERROR');
-	--	cz_error_handler(jobid,procedurename);
-	--	cz_end_audit (jobId,'FAIL');
-	--      return -16;
-	when missing_platform then
-		cz_write_audit(jobId,databasename,procedurename,'Platform data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
-		cz_error_handler(jobid,procedurename);
-		cz_end_audit (jobId,'FAIL');
-		PERFORM 161 into rtn_code ;
-		return 161;
-	when missing_tissue then
-		cz_write_audit(jobId,databasename,procedurename,'Tissue Type data missing from one or more subject_sample mapping records',1,stepCt,'ERROR');
-		cz_error_handler(jobid,procedurename);
-		CZ_END_AUDIT (JOBID,'FAIL');
-		PERFORM 162 into rtn_code ;
-		return 162;
-	when unmapped_platform then
-		cz_write_audit(jobId,databasename,procedurename,'Platform not found in de_qpcr_metabolomics_annotation',1,stepCt,'ERROR');
-		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
-		cz_end_audit (jobId,'FAIL');
-		PERFORM 163 into rtn_code ;--mod
-		RETURN 163;
-	when multiple_platform then
-		cz_write_audit(jobId,databasename,procedurename,'Multiple platforms for sample_cd in LT_SRC_METABOLOMIC_MAP',1,stepCt,'ERROR');
-		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
-		cz_end_audit (jobId,'FAIL');
-		PERFORM 164 into rtn_code ;
-		RETURN 164;
-	when no_probeset_recs then
-		cz_write_audit(jobId,databasename,procedurename,'Unable to match probesets to platform in probeset_deapp',1,stepCt,'ERROR');
-		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
-		cz_end_audit (jobId,'FAIL');
-		PERFORM 165 into rtn_code ;
-		RETURN 165;
-	WHEN OTHERS THEN
-		--Handle errors.
-		cz_error_handler (jobID, procedureName);
-		--End Proc
-		cz_end_audit (jobID, 'FAIL');
-		PERFORM 16  into rtn_code ;
-
-		return 16;
 END;
  
-$_$;
-
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+  ALTER FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+ALTER FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint)
+  OWNER TO tm_cz;
+GRANT EXECUTE ON FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) TO tm_cz;
+REVOKE ALL ON FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) FROM public;

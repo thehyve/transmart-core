@@ -1,9 +1,10 @@
---
--- Name: i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
---
-CREATE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS numeric
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+-- Function: i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
+
+-- DROP FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying);
+
+CREATE OR REPLACE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying)
+  RETURNS numeric AS
+$BODY$
 /*************************************************************************
 This Stored Procedure is used in ETL load MIRNA data
 Date:12/9/2013
@@ -112,8 +113,6 @@ BEGIN
 			,assay_id
 			,log_intensity
 			,patient_id
-		--	,sample_cd
-		--	,subject_id
 			)
 			select probeset_id
 				  ,intensity_value ----UAT 154 changes done on 19/03/2014
@@ -122,8 +121,6 @@ BEGIN
                                   when intensity_value>0 then log(2,intensity_value)
                                   else 0 end),5)
 				  ,patient_id
-			--	  ,sample_cd
-			--	  ,subject_id
 			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
 		exception
@@ -140,16 +137,12 @@ BEGIN
 			,assay_id
 			,log_intensity
 			,patient_id
-		--	,sample_cd
-		--	,subject_id
 			)
-			select probeset
+			select probeset_id
 				  ,intensity_value  ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
 				  ,-(intensity_value)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
-		--		  ,sample_cd
-		--		  ,subject_id
 			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
 		exception
@@ -304,5 +297,10 @@ BEGIN
   END IF;
   return 0;	
 END;
-$$;
-
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+ALTER FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
+  OWNER TO tm_cz;
+GRANT EXECUTE ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
+REVOKE ALL ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) FROM public;
