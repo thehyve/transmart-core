@@ -129,7 +129,7 @@ class StudyLoadingService {
              * is mapped to $id (can we rename the param to $studyId
              * for consistency?)
              */
-            studyId = term.name
+            studyId = term.study.id
             pathPart = 'ROOT'
         }
         studyId = studyId.toLowerCase(Locale.ENGLISH).encodeAsURL()
