@@ -54,8 +54,11 @@ class StudiesResourceService implements StudiesResource {
 
     @Override
     Study getStudyByOntologyTerm(OntologyTerm term) throws NoSuchResourceException {
-        def trialNodes = I2b2TrialNodes.findByFullName(term.fullName)
-        if (trialNodes) {
+        def trialNodes
+        if (OntologyTerm.VisualAttributes.STUDY in term.visualAttributes &&
+                term.hasProperty('studyId') && term.studyId) {
+            new StudyImpl(ontologyTerm: term, id: term.studyId)
+        } else if ((trialNodes = I2b2TrialNodes.findByFullName(term.fullName))) {
             new StudyImpl(ontologyTerm: term, id: trialNodes.trial)
         } else {
             throw new NoSuchResourceException(

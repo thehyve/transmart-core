@@ -11,6 +11,7 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
 @TestMixin(RuleBasedIntegrationTestMixin)
 class StudiesResourceServiceTests {
@@ -97,6 +98,31 @@ class StudiesResourceServiceTests {
                         allOf(
                                 hasProperty('name', is('study1')),
                                 hasProperty('fullName', is('\\foo\\study1\\'))
+                        )
+                )
+        )
+    }
+
+    @Test
+    void testGetStudyByOntologyTermOptimization() {
+        /* Terms marked with the"Study" visual attribute can be assumed to
+         * refer to studies, a fact for which we optimize */
+        I2b2 concept = createI2b2Concept(code: -9999, level: 1,
+                fullName: '\\foo\\Study Visual Attribute\\',
+                name: 'Study Visual Attribute',
+                cComment: 'trial:ST_VIS_ATTR',
+                cVisualattributes: 'FAS')
+
+        assertThat concept.save(), is(notNullValue())
+
+        def result = studiesResourceService.getStudyByOntologyTerm(concept)
+
+        assertThat result, allOf(
+                hasProperty('id', is('ST_VIS_ATTR')),
+                hasProperty('ontologyTerm',
+                        allOf(
+                                hasProperty('name', is('Study Visual Attribute')),
+                                hasProperty('fullName', is('\\foo\\Study Visual Attribute\\'))
                         )
                 )
         )
