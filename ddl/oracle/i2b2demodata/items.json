@@ -281,17 +281,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "SYNONYM",
-      "owner" : "I2B2DEMODATA",
-      "name" : "I2B2"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
-      "name" : "I2B2"
-    } ]
-  }, {
-    "child" : {
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
       "name" : "IDX_CONCEPT_DIM_1"
@@ -512,6 +501,17 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1507,6 +1507,13 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "file" : "i2b2demodata/observation_fact_bk.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
       "type" : "TABLE",
