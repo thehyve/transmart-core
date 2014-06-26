@@ -273,17 +273,17 @@ graphSubset <- function(currentGroup,
 		tmp <- tmp + xlab(xAxisLabel)
 		
 		#Set the font for the x axis title.
-		tmp <- tmp + theme(axis.title.x=theme_text(size = 15,face="bold"))		
+		tmp <- tmp + theme(axis.title.x=element_text(size = 15,face="bold"))		
 		
 		#Set the fonts for the axis labels.
-		tmp <- tmp + theme(axis.text.y = theme_text(size = 15,face="bold"))
-		tmp <- tmp + theme(axis.text.x = theme_text(size = 10,face="bold"))
+		tmp <- tmp + theme(axis.text.y = element_text(size = 15,face="bold"))
+		tmp <- tmp + theme(axis.text.x = element_text(size = 10,face="bold"))
 		
 		#Flip the image.
 		tmp <- tmp + coord_flip()
 		
 		#Set the font size for the legend.
-		tmp <- tmp + theme(legend.text = theme_text(size = 9,hjust=0))
+		tmp <- tmp + theme(legend.text = element_text(size = 9,hjust=0))
 		
 		#Get the device ready for printing and create the image file.
 		CairoPNG(file=paste(output.file,"_",trimmedGroupName,".png",sep=""),width=800,height=800)
@@ -312,14 +312,14 @@ graphSubset <- function(currentGroup,
 		tmp <- tmp + xlab(xAxisLabel)		
 		
 		#Set the font for the y axis title.
-		tmp <- tmp + theme(axis.title.y=theme_text(size = 15,face="bold", angle=90))
+		tmp <- tmp + theme(axis.title.y=element_text(size = 15,face="bold", angle=90))
 		
 		#Set the fonts for the axis labels.
-		tmp <- tmp + theme(axis.text.x = theme_text(size = 15,face="bold",angle=15))
-		tmp <- tmp + theme(axis.text.y = theme_text(size = 10,face="bold"))
+		tmp <- tmp + theme(axis.text.x = element_text(size = 15,face="bold",angle=15))
+		tmp <- tmp + theme(axis.text.y = element_text(size = 10,face="bold"))
 		
 		#Set the font size for the legend.
-		tmp <- tmp + theme(legend.text = theme_text(size = 9,hjust=0))
+		tmp <- tmp + theme(legend.text = element_text(size = 9,hjust=0))
 		
 		#Get the device ready for printing and create the image file.
 		CairoPNG(file=paste(output.file,"_",trimmedGroupName,".png",sep=""),width=800,height=800)
