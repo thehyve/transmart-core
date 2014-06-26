@@ -21,7 +21,8 @@ CREATE TABLE de_subject_rbm_data (
     zscore double precision,
     rbm_panel character varying(50),
     unit character varying(50),
-    id bigint NOT NULL
+    id bigint NOT NULL,
+    partition_id numeric
 );
 
 --

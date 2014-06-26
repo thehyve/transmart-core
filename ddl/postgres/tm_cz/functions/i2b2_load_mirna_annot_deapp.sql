@@ -1,9 +1,10 @@
---
--- Name: i2b2_load_mirna_annot_deapp(numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
---
-CREATE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric) RETURNS integer
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+-- Function: i2b2_load_mirna_annot_deapp(numeric)
+
+ --DROP FUNCTION i2b2_load_mirna_annot_deapp(numeric);
+
+CREATE OR REPLACE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric)
+  RETURNS numeric AS
+$BODY$
 /*************************************************************************
 *This stored procedure is for ETL to load QPCR MIRNA ANNOTATION 
 * Date:10/29/2013
@@ -258,5 +259,12 @@ BEGIN
 
     return -16;
 END;
-$$;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp;
 
+ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric)
+  OWNER TO tm_cz;
+GRANT EXECUTE ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) TO tm_cz;
+REVOKE ALL ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) FROM public;
