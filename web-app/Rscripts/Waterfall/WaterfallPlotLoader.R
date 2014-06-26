@@ -30,7 +30,7 @@ WaterfallPlot.loader <- function
 	library(Cairo)
 	
 	#Pull the data for the histogram.
-	line.data<-read.delim('outputfile',header=T)
+	line.data<-read.delim(input.filename,header=T)
 
 	#Order the data by the x column.
 	line.data <- line.data[order(line.data$X),]
