@@ -32,11 +32,7 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
     
     @Lazy
     Double qualityOfDepth = {
-        if (infoFields['QD'] && infoFields['QD'].isNumber()) {
-            Double.valueOf(infoFields['QD'])
-        } else {
-            quality as double;
-        }
+        [infoFields.QD, quality].find { it?.double } as Double
     }()
 
     @Lazy
