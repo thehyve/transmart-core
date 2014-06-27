@@ -11,6 +11,7 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
 @TestMixin(RuleBasedIntegrationTestMixin)
 class StudiesResourceServiceTests {
@@ -34,40 +35,54 @@ class StudiesResourceServiceTests {
                 everyItem(isA(Study)),
                 containsInAnyOrder(
                         allOf(
-                                hasProperty('name', is('STUDY1')),
+                                hasProperty('id', is('STUDY_ID_1')),
                                 hasProperty('ontologyTerm',
                                     hasProperty('fullName', is('\\foo\\study1\\')))),
                         allOf(
-                                hasProperty('name', is('STUDY2')),
+                                hasProperty('id', is('STUDY_ID_2')),
                                 hasProperty('ontologyTerm',
                                     hasProperty('fullName', is('\\foo\\study2\\')))),
                         allOf(
-                                hasProperty('name', is('STUDY3')),
+                                hasProperty('id', is('STUDY_ID_3')),
                                 hasProperty('ontologyTerm',
                                         hasProperty('fullName', is('\\foo\\study3\\'))))))
     }
 
     @Test
-    void testGetStudyByName() {
+    void testGetStudyById() {
         // shouldn't get confused with \foo\study2\study1
-        def result = studiesResourceService.getStudyByName('study1')
+        def result = studiesResourceService.getStudyById('study_id_1')
 
-        assertThat result, hasProperty('ontologyTerm',
-                hasProperty('fullName', is('\\foo\\study1\\')))
+        assertThat result, allOf(
+                hasProperty('id', is('STUDY_ID_1')),
+                hasProperty('ontologyTerm',
+                    allOf(
+                        hasProperty('name', is('study1')),
+                        hasProperty('fullName', is('\\foo\\study1\\'))
+                    )
+                )
+        )
     }
 
     @Test
-    void testGetStudyByNameDifferentCase() {
-        def result = studiesResourceService.getStudyByName('stuDY1')
+    void testGetStudyByIdDifferentCase() {
+        def result = studiesResourceService.getStudyById('stuDY_Id_1')
 
-        assertThat result, hasProperty('ontologyTerm',
-                hasProperty('fullName', is('\\foo\\study1\\')))
+        assertThat result, allOf(
+                hasProperty('id', is('STUDY_ID_1')),
+                hasProperty('ontologyTerm',
+                        allOf(
+                                hasProperty('name', is('study1')),
+                                hasProperty('fullName', is('\\foo\\study1\\'))
+                        )
+                )
+        )
     }
 
     @Test
     void testGetStudyByNameNonExistent() {
         shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyByName('bad study name')
+            studiesResourceService.getStudyById('bad study id')
         }
     }
 
@@ -77,7 +92,40 @@ class StudiesResourceServiceTests {
 
         def result = studiesResourceService.getStudyByOntologyTerm(concept)
 
-        assertThat result, hasProperty('ontologyTerm', is(concept))
+        assertThat result, allOf(
+                hasProperty('id', is('STUDY_ID_1')),
+                hasProperty('ontologyTerm',
+                        allOf(
+                                hasProperty('name', is('study1')),
+                                hasProperty('fullName', is('\\foo\\study1\\'))
+                        )
+                )
+        )
+    }
+
+    @Test
+    void testGetStudyByOntologyTermOptimization() {
+        /* Terms marked with the"Study" visual attribute can be assumed to
+         * refer to studies, a fact for which we optimize */
+        I2b2 concept = createI2b2Concept(code: -9999, level: 1,
+                fullName: '\\foo\\Study Visual Attribute\\',
+                name: 'Study Visual Attribute',
+                cComment: 'trial:ST_VIS_ATTR',
+                cVisualattributes: 'FAS')
+
+        assertThat concept.save(), is(notNullValue())
+
+        def result = studiesResourceService.getStudyByOntologyTerm(concept)
+
+        assertThat result, allOf(
+                hasProperty('id', is('ST_VIS_ATTR')),
+                hasProperty('ontologyTerm',
+                        allOf(
+                                hasProperty('name', is('Study Visual Attribute')),
+                                hasProperty('fullName', is('\\foo\\Study Visual Attribute\\'))
+                        )
+                )
+        )
     }
 
     @Test

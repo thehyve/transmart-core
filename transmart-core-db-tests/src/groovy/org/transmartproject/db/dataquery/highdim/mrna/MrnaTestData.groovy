@@ -18,7 +18,7 @@ class MrnaTestData {
 
     public static final String TRIAL_NAME = 'MRNA_SAMP_TRIAL'
 
-    SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
+    SampleBioMarkerTestData bioMarkerTestData
 
     private String conceptCode
 
@@ -32,21 +32,23 @@ class MrnaTestData {
         res
     }()
 
-    MrnaTestData(String conceptCode = 'concept code #1') {
+    MrnaTestData(String conceptCode = 'concept code #1',
+                 SampleBioMarkerTestData bioMarkerTestData = null) {
         this.conceptCode = conceptCode
+        this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
     List<BioMarkerCoreDb> getBioMarkers() {
         bioMarkerTestData.geneBioMarkers
     }
 
-    List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords +
                 bioMarkerTestData.proteinSearchKeywords +
                 bioMarkerTestData.geneSignatureSearchKeywords
     }()
 
-    List<DeMrnaAnnotationCoreDb> annotations = {
+    @Lazy List<DeMrnaAnnotationCoreDb> annotations = {
         def createAnnotation = { probesetId, probeId, BioMarkerCoreDb bioMarker ->
             def res = new DeMrnaAnnotationCoreDb(
                     gplId: platform.id,
@@ -71,7 +73,7 @@ class MrnaTestData {
     List<DeSubjectSampleMapping> assays =
         HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode)
 
-    List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
+    @Lazy List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [
                 trialName: TRIAL_NAME,
                 //trialSource: "$TRIAL_NAME:STD" (not mapped)
@@ -103,8 +105,10 @@ class MrnaTestData {
         res
     }()
 
-    void saveAll() {
-        bioMarkerTestData.saveGeneData()
+    void saveAll(boolean skipBioMarkerData = false) {
+        if (!skipBioMarkerData) {
+            bioMarkerTestData.saveGeneData()
+        }
 
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         save annotations

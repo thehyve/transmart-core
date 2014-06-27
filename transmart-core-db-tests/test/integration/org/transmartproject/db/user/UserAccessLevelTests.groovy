@@ -298,7 +298,7 @@ class UserAccessLevelTests {
         }
     }
 
-    private Study getStudy(String name) {
-        studiesResource.getStudyByName name
+    private Study getStudy(String id) {
+        studiesResource.getStudyById id
     }
 }

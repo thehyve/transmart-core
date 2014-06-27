@@ -63,7 +63,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     boolean isSynonym() {
-        cSynonymCd != 'Y'
+        cSynonymCd == 'Y'
     }
 
     void setSynonym(boolean value) {

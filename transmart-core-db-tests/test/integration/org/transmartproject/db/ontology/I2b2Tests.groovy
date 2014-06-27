@@ -1,6 +1,9 @@
 package org.transmartproject.db.ontology
 
 import grails.test.mixin.TestMixin
+import grails.util.Holders
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
@@ -25,13 +28,13 @@ class I2b2Tests {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
-                cVisualattributes: 'FH', cComment: 'trial:FOO')
+                cVisualattributes: 'FH', cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
         addI2b2(level: 2, fullName: '\\foo\\xpto\\bar\\', name: 'bar',
-                cComment: 'trial:FOO')
+                cComment: 'trial:STUDY_ID')
 
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\jar\\', name: 'jar')
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\binks\\', name: 'binks')
@@ -105,7 +108,7 @@ class I2b2Tests {
 
         Study study = bar.study
         assertThat study, allOf(
-                hasProperty('name', is('FOO')),
+                hasProperty('id', is('STUDY_ID')),
                 hasProperty('ontologyTerm', is(foo)),
         )
     }
@@ -149,6 +152,25 @@ class I2b2Tests {
             //empty
         )
 
+    }
+
+    @Test
+    void testSynonymIsTransient() {
+        GrailsDomainClass domainClass =
+                Holders.grailsApplication.getDomainClass('org.transmartproject.db.ontology.I2b2')
+        GrailsDomainClassProperty synonymProperty =
+                domainClass.getPropertyByName('synonym')
+
+        assertThat synonymProperty.isPersistent(), is(false)
+    }
+
+    @Test
+    void testSynonym() {
+        I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
+        assertThat jar, hasProperty('synonym', is(false))
+
+        jar.cSynonymCd = 'Y'
+        assertThat jar, hasProperty('synonym', is(true))
     }
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {

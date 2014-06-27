@@ -9,7 +9,7 @@ class I2b2Data {
     List<PatientTrialCoreDb> patientTrials
 
     static I2b2Data createDefault() {
-        String trialName = 'STUDY1'
+        String trialName = 'STUDY_ID_1'
         List<PatientDimension> patients = createTestPatients(3, -100, trialName)
         List<PatientTrialCoreDb> patientTrials = createPatientTrialLinks(patients, trialName)
         new I2b2Data(trialName: trialName, patients: patients, patientTrials: patientTrials)

@@ -19,45 +19,47 @@ class StudiesResourceService implements StudiesResource {
         // we have to drop the pretense that we use table_access and multiple
         // ontology tables at this point.
         def query = sessionFactory.currentSession.createQuery '''
-                SELECT I
+                SELECT I, TN.trial
                 FROM I2b2 I, I2b2TrialNodes TN
                 WHERE (I.fullName = TN.fullName)'''
         // the query is awkward (cross join) due to the non-existence of an
         // association. See comment on I2b2TrialNodes
 
-        query.list().collect {
-            new StudyImpl(ontologyTerm: it)
+        query.list().collect { row ->
+            new StudyImpl(ontologyTerm: row[0], id: row[1])
         } as Set
     }
 
     @Override
-    Study getStudyByName(String name) throws NoSuchResourceException {
+    Study getStudyById(String id) throws NoSuchResourceException {
+        def normalizedStudyId = id.toUpperCase(Locale.ENGLISH)
         def query = sessionFactory.currentSession.createQuery '''
                 SELECT I
                 FROM I2b2 I WHERE fullName IN (
-                    SELECT fullName FROM I2b2TrialNodes WHERE trial = :study
+                    SELECT fullName FROM I2b2TrialNodes WHERE trial = :trial
                 )'''
-        query.setParameter 'study', name.toUpperCase(Locale.ENGLISH)
+        query.setParameter 'trial', normalizedStudyId
 
         def result = query.list()
 
         if (result.empty) {
-            throw new NoSuchResourceException("No study with name '$name' was found")
+            throw new NoSuchResourceException("No study with id '$id' was found")
         }
         if (result.size() > 1) {
             throw new UnexpectedResultException(
-                    "Found more than one study term with name '$name'")
+                    "Found more than one study term with id '$id'")
         }
-        new StudyImpl(ontologyTerm: result.first())
+        new StudyImpl(ontologyTerm: result.first(), id: normalizedStudyId)
     }
 
     @Override
     Study getStudyByOntologyTerm(OntologyTerm term) throws NoSuchResourceException {
-        // first condition is a shortcut for the versions of transmart that
-        // implement that specific visual attribute
-        if (term.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)
-                || I2b2TrialNodes.findByFullName(term.fullName)) {
-            new StudyImpl(ontologyTerm: term)
+        def trialNodes
+        if (OntologyTerm.VisualAttributes.STUDY in term.visualAttributes &&
+                term.hasProperty('studyId') && term.studyId) {
+            new StudyImpl(ontologyTerm: term, id: term.studyId)
+        } else if ((trialNodes = I2b2TrialNodes.findByFullName(term.fullName))) {
+            new StudyImpl(ontologyTerm: term, id: trialNodes.trial)
         } else {
             throw new NoSuchResourceException(
                     "The ontology term $term is not the top node for a study")
