@@ -96,4 +96,34 @@ class VcfDataRowTests {
         assertThat dataRow.qualityOfDepth, closeTo(0.2 as Double, ERROR)
     }
 
+    @Test
+    void testQualityOfDepthDotInInfoField() {
+        def dataRow = new VcfDataRow(
+                quality: 0.9,
+                info: "QD=.;AB=1,201;"
+        )
+
+        assertThat 'QD=.', dataRow.qualityOfDepth, closeTo(0.9 as Double, ERROR)
+    }
+
+    @Test
+    void testQualityOfDepthInfoFieldIsNull() {
+        def dataRow = new VcfDataRow(
+                quality: 0.95,
+                info: null
+        )
+
+        assertThat 'info is null', dataRow.qualityOfDepth, closeTo(0.95 as Double, ERROR)
+    }
+
+    @Test
+    void testQualityOfDepthAllNulls() {
+        def dataRow = new VcfDataRow(
+                quality: null,
+                info: null
+        )
+
+        assertNull 'info and quality is null', dataRow.qualityOfDepth
+    }
+
 }
