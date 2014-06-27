@@ -10,6 +10,7 @@ class VcfCohortStatistics implements VcfCohortInfo {
     List<String> alleles = []
     List<Integer> alleleCount = []
     int totalAlleleCount = 0
+    int numberOfSamplesWithData = 0
     List<GenomicVariantType> genomicVariantTypes = []
 
     // Cohort level properties
@@ -66,18 +67,27 @@ class VcfCohortStatistics implements VcfCohortInfo {
     Map<String,Integer> countAlleles( ) {
         List alleleNames = [] + dataRow.referenceAllele + dataRow.alternativeAlleles
         def alleleDistribution = [:].withDefault { 0 }
-        for (row in dataRow.data) {
-            if ( !row )
+        
+        numberOfSamplesWithData = 0
+        for (sampleData in dataRow.data) {
+            if ( !sampleData )
                 continue;
             
-            if( row.allele1 != null && row.allele1 != "." ) {
-                def allele1 = alleleNames[row.allele1]
+            boolean sampleHasData = false
+            if (sampleData.allele1 != null && sampleData.allele1 != ".") {
+                def allele1 = alleleNames[sampleData.allele1]
                 alleleDistribution[allele1]++
+                sampleHasData = true
             }
             
-            if( row.allele2 != null && row.allele2 != "." ) {
-                def allele2 = alleleNames[row.allele2]
+            if (sampleData.allele2 != null && sampleData.allele2 != ".") {
+                def allele2 = alleleNames[sampleData.allele2]
                 alleleDistribution[allele2]++
+                sampleHasData = true
+            }
+            
+            if (sampleHasData) {
+                numberOfSamplesWithData++
             }
         }
         alleleDistribution

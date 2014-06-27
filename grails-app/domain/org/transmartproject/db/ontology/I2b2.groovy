@@ -19,6 +19,8 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     static String backingTable = 'I2B2'
 
+    static transients = AbstractI2b2Metadata.transients + ['studyId', 'study']
+
     static mapping = {
         table         name: 'I2B2', schema: 'I2B2METADATA'
         version       false
@@ -49,14 +51,16 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
         AbstractI2b2Metadata.constraints()
     }
 
-    @Override
-    Study getStudy() {
-        def trial
-
+    String getStudyId() {
         def matcher = cComment =~ /(?<=^trial:).+/
         if (matcher.find()) {
-            trial = matcher.group 0
+            matcher.group 0
         }
+    }
+
+    @Override
+    Study getStudy() {
+        def trial = studyId
 
         if (!trial) {
             return null
@@ -74,7 +78,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
         if (res.size() > 1) {
             throw new UnexpectedResultException("More than one study with name $trial")
         } else if (res.size() == 1) {
-            new StudyImpl(ontologyTerm: res[0])
+            new StudyImpl(ontologyTerm: res[0], id: trial)
         } else {
             null
         }

@@ -123,7 +123,7 @@ class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
 
         info.split(';').collectEntries {
             def keyValues = it.split('=')
-            [(keyValues[0]): keyValues.length > 1 ? keyValues[1] : 'Yes']
+            [(keyValues[0]): keyValues.length > 1 ? keyValues[1] : true]
         }
     }
 

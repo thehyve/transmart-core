@@ -40,7 +40,7 @@ class VcfDataRowTests {
             hasEntry(equalTo('MQ'),equalTo('60')),
             hasEntry(equalTo('FQ'),equalTo('-268')),
             
-            hasEntry(equalTo( "NOVAL"), equalTo("Yes"))
+            hasEntry(equalTo( "NOVAL"), equalTo(true))
         )
     }
     
