@@ -67,10 +67,10 @@ class StudyLoadingService {
             throw new InvalidArgumentsException('Could not find a study id')
         }
 
-        def study = studiesResourceService.getStudyByName(studyId)
+        def study = studiesResourceService.getStudyById(studyId)
 
         if (!checkAccess(study)) {
-            throw new AccessDeniedException("Denied access to study ${study.name}")
+            throw new AccessDeniedException("Denied access to study ${study.id}")
         }
 
         study
@@ -79,18 +79,18 @@ class StudyLoadingService {
     private boolean checkAccess(Study study) {
         if (springSecurityService == null) {
             log.warn "Spring security service not available, " +
-                    "granting access to study ${study.name} unconditionally"
+                    "granting access to study ${study.id} unconditionally"
             return true
         }
 
         if (!SpringSecurityUtils.securityConfig.active) {
             log.info "Spring security is inactive, " +
-                    "granting access to study ${study.name} unconditionally"
+                    "granting access to study ${study.id} unconditionally"
             return true
         }
 
         if (!springSecurityService.isLoggedIn()) {
-            log.warn "User is not logged in; denying access to study ${study.name}"
+            log.warn "User is not logged in; denying access to study ${study.id}"
             return false
         }
 
@@ -100,14 +100,14 @@ class StudyLoadingService {
         def result = user.canPerform(
                 ProtectedOperation.WellKnownOperations.API_READ, study)
         if (!result) {
-            log.warn "User $username denied access to study ${study.name}"
+            log.warn "User $username denied access to study ${study.id}"
         }
 
         result
     }
 
     String getStudyLowercase() {
-        study.name.toLowerCase(Locale.ENGLISH)
+        study.id.toLowerCase(Locale.ENGLISH)
     }
 
     /**
@@ -116,11 +116,11 @@ class StudyLoadingService {
      */
     String getOntologyTermUrl(OntologyTerm term) {
         //this gets tricky. We may be rendering this as part of the /studies response
-        String studyName
+        String studyId
         def pathPart
 
         try {
-            studyName = study.name
+            studyId = study.id
             use (OntologyTermCategory) {
                 pathPart = term.encodeAsURLPart study
             }
@@ -129,11 +129,11 @@ class StudyLoadingService {
              * is mapped to $id (can we rename the param to $studyId
              * for consistency?)
              */
-            studyName = term.name
+            studyId = term.study.id
             pathPart = 'ROOT'
         }
-        studyName = studyName.toLowerCase(Locale.ENGLISH).encodeAsURL()
-        "/studies/$studyName/concepts/$pathPart"
+        studyId = studyId.toLowerCase(Locale.ENGLISH).encodeAsURL()
+        "/studies/$studyId/concepts/$pathPart"
     }
 
 }

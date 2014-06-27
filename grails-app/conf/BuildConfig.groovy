@@ -45,6 +45,7 @@ grails.project.fork = [
 // to avoid committing changes here by accident
 //grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
 //grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
+//grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
 
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {

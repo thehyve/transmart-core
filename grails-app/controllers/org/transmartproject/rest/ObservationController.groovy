@@ -117,9 +117,9 @@ class ObservationController {
         }
 
         def patient = patientsResourceService.getPatientById(subjectId)
-        if (patient.trial != study.name) {
+        if (patient.trial != study.id) {
             throw new NoSuchResourceException("Subject $subjectId does not " +
-                    "belong to study ${study.name}")
+                    "belong to study ${study.id}")
         }
         patient
     }

@@ -31,7 +31,7 @@ import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 
 class ObservationsResourceTests extends ResourceTestCase {
 
-    def studyId = 'STUDY1'
+    def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
 
     def study1BarExpectedObservations = [

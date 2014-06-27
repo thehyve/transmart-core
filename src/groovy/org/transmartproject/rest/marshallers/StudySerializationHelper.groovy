@@ -39,13 +39,13 @@ class StudySerializationHelper implements HalOrJsonSerializationHelper<Study> {
     @Override
     Collection<Link> getLinks(Study study) {
         [new Link(RELATIONSHIP_SELF, '/studies/' +
-                study.name.toLowerCase(Locale.ENGLISH).encodeAsURL())]
+                study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
     }
 
     @Override
     Map<String, Object> convertToMap(Study study) {
         def term = new OntologyTermWrapper(study.ontologyTerm)
-            [name: study.name,
+            [id: study.id,
                 ontologyTerm: term]
     }
 

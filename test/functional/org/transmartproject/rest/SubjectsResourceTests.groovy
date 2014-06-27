@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.*
 
 class SubjectsResourceTests extends ResourceTestCase {
 
-    def study = 'study1'
+    def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
     def subjectId = -101
     def UNKNOWN = 'UNKOWN' // funny typo here
@@ -109,7 +109,7 @@ class SubjectsResourceTests extends ResourceTestCase {
                 )
     }
 
-    def subjectsPerLongConceptUrl  = '/studies/study2/concepts/long%20path/with%25some%24characters_/subjects'
+    def subjectsPerLongConceptUrl  = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_/subjects'
 
     void testSubjectsIndexOnLongConcept() {
         def result = getAsHal subjectsPerLongConceptUrl
