@@ -1,6 +1,9 @@
 package org.transmartproject.db.ontology
 
 import grails.test.mixin.TestMixin
+import grails.util.Holders
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
@@ -149,6 +152,25 @@ class I2b2Tests {
             //empty
         )
 
+    }
+
+    @Test
+    void testSynonymIsTransient() {
+        GrailsDomainClass domainClass =
+                Holders.grailsApplication.getDomainClass('org.transmartproject.db.ontology.I2b2')
+        GrailsDomainClassProperty synonymProperty =
+                domainClass.getPropertyByName('synonym')
+
+        assertThat synonymProperty.isPersistent(), is(false)
+    }
+
+    @Test
+    void testSynonym() {
+        I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
+        assertThat jar, hasProperty('synonym', is(false))
+
+        jar.cSynonymCd = 'Y'
+        assertThat jar, hasProperty('synonym', is(true))
     }
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {
