@@ -14,15 +14,15 @@ interface StudiesResource {
     Set<Study> getStudySet()
 
     /**
-     * Fetches a study by name. Study names are unique. This method is
-     * case insensitive. Therefore, the value of the parameter <code>name</code>
-     * may not match exactly the value of {@link Study#getName()}.
+     * Fetches a study by id. Study id are unique. This method is
+     * case insensitive. Therefore, the value of the parameter <code>id</code>
+     * may not match exactly the value of {@link Study#getId()}.
      *
-     * @param name the name of the study
+     * @param id the id of the study
      * @return the study
      * @throws NoSuchResourceException if there's no study with such a name
      */
-    Study getStudyByName(String name) throws NoSuchResourceException
+    Study getStudyById(String id) throws NoSuchResourceException
 
     /**
      * Exchanges the top-level ontology term of a study with the corresponsing

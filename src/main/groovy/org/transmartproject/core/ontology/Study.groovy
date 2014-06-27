@@ -11,11 +11,9 @@ public interface Study extends ProtectedResource {
     /**
      * The (hopefully unique) name of the study.
      *
-     * This is the <code>{@link #getOntologyTerm()}.name</code> in uppercase.
-     *
-     * @return the name of the study
+     * @return the id of the study (it also appears as trial in the system)
      */
-    String getName()
+    String getId()
 
     /**
      * The ontology term object associated with this object.
