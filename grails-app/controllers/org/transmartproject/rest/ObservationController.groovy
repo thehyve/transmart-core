@@ -91,7 +91,7 @@ class ObservationController {
     private ClinicalVariable createClinicalVariable(OntologyTerm term) {
         clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
-                concept_code: term.code)
+                concept_path: term.fullName)
     }
 
     private Study getStudy() { studyLoadingServiceProxy.study }
