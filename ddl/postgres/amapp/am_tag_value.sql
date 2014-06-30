@@ -38,7 +38,7 @@ DECLARE
 BEGIN
   SELECT COUNT(*) INTO rec_count 
   FROM am_data_uid 
-  WHERE am_data_id = new.tagvalue_id;
+  WHERE am_data_id = new.tag_value_id;
   
   if rec_count = 0 then
     insert into amapp.am_data_uid (am_data_id, unique_id, am_data_type)

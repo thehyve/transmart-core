@@ -31,7 +31,7 @@ BEGIN
 	exception 
 	when OTHERS then
 		--raise notice 'proc failed state=%  errm=%', SQLSTATE, SQLERRM;
-		select tm_cz.cz_write_error(jobId,0,SQLSTATE,SQLERRM,null) into rtnCd;
+		select tm_cz.cz_write_error(jobId,SQLSTATE,SQLERRM,null,null) into rtnCd;
 		return -16;
 END;
 $$;

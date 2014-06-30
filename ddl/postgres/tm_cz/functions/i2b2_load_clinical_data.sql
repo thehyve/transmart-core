@@ -1,9 +1,10 @@
---
--- Name: i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
---
-CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+-- Function: i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric)
+
+-- DROP FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric);
+
+CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1))
+  RETURNS numeric AS
+$BODY$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -75,6 +76,11 @@ Declare
 		  where sm.trial_name = TrialId
 		    and sm.concept_code = m.c_basecode
 			and m.c_visualattributes like 'L%');
+			
+	-- added by Cognizant for requirement 3 and 4 under #1
+    uploadI2b2 cursor is
+    select category_cd,display_value,display_label,display_unit from
+    tm_lz.lt_src_display_mapping group by category_cd,display_value,display_label,display_unit;
 BEGIN
   
 	TrialID := upper(trial_id);
@@ -82,9 +88,14 @@ BEGIN
 	--Set Audit Parameters
 	newJobFlag := 0; -- False (Default)
 	jobID := currentJobID;
+	
+	
 
 	databaseName := 'TM_CZ';
 	procedureName := 'I2B2_LOAD_CLINICAL_DATA';
+	
+	
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Start i2b2_load_clinical_data ',0,stepCt,'Done') into rtnCd;
 
 	--Audit JOB Initialization
 	--If Job ID does not exist, then this is a single procedure run and we need to create it
@@ -1042,6 +1053,43 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted leaf nodes into I2B2METADATA i2b2',rowCt,stepCt,'Done') into rtnCd;
 
+	begin
+for ul in uploadI2b2
+        loop
+     update i2b2 n
+    SET  --Static XML String
+        c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version>
+    <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
+    <CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName>
+    </TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse>
+    </Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+    <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue><EnumValues></EnumValues>
+    <CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion><UnitValues>
+    <NormalUnits>ratio</NormalUnits><EqualUnits></EqualUnits><ExcludingUnits></ExcludingUnits>
+    <ConvertingUnits><Units></Units><MultiplyingFactor></MultiplyingFactor></ConvertingUnits>
+    </UnitValues><Analysis><Enums /><Counts /><New /></Analysis>   
+'||(select xmlelement(name "SeriesMeta",xmlforest(m.display_value as "Value",m.display_unit as "Unit",m.display_label as "DisplayName")) as hi
+      from tm_lz.lt_src_display_mapping m where (m.category_cd||m.display_label)=(ul.category_cd||ul.display_label))||
+                '</ValueMetadata>') where n.c_fullname in  
+				(select leaf_node from wt_trial_nodes where (((category_cd||'+'||replace(data_label,'PCT','%'))||node_name)=(ul.category_cd||ul.display_label) 
+				or (category_cd||node_name)=(ul.category_cd||ul.display_label)) and leaf_node=n.c_fullname);
+                
+                end loop;
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated I2B2 for metadataXML',rowCt,stepCt,'Done') into rtnCd;
+
+				
 	--	delete from observation_fact all concept_cds for trial that are clinical data, exclude concept_cds from biomarker data
 	
 	begin
@@ -1165,8 +1213,9 @@ BEGIN
 	set c_visualattributes=case when upd.nbr_children = 1 
 								then 'L' || substr(b.c_visualattributes,2,2)
 								else 'F' || substr(b.c_visualattributes,2,1) ||
-									case when upd.c_fullname = topNode and highlight_study = 'Y'
-										 then 'J' else substr(b.c_visualattributes,3,1) end
+									case when upd.c_fullname = topNode
+										then case when highlight_study = 'Y' then 'J' else 'S' end 
+									 else substr(b.c_visualattributes,3,1) end
 								end
 		,c_columndatatype=case when upd.nbr_children > 1 then 'T' else b.c_columndatatype end
 	from upd
@@ -1241,18 +1290,15 @@ BEGIN
 	END IF;
 
 	return 1;
-/*	
-	EXCEPTION
-	WHEN OTHERS THEN
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-*/
 END;
 
-$$;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
 
+-- ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+--
+-- ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) FROM public;

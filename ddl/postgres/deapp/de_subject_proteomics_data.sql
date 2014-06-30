@@ -11,6 +11,7 @@ CREATE TABLE de_subject_proteomics_data (
     assay_id bigint,
     subject_id character varying(100),
     intensity bigint,
-    zscore bigint
+    zscore bigint,
+    partition_id numeric
 );
 

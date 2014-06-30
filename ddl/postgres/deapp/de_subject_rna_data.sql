@@ -9,7 +9,8 @@ CREATE TABLE de_subject_rna_data (
     patient_id bigint,
     raw_intensity double precision,
     log_intensity double precision,
-    zscore double precision
+    zscore double precision,
+    partition_id numeric
 );
 
 --
