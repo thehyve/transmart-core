@@ -2,7 +2,7 @@
 
  --DROP FUNCTION i2b2_load_mirna_annot_deapp(numeric);
 
-CREATE OR REPLACE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric)
+CREATE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric)
   RETURNS numeric AS
 $BODY$
 /*************************************************************************
@@ -262,9 +262,10 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
-ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp;
 
-ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) FROM public;
+-- ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp;
+--
+-- ALTER FUNCTION i2b2_load_mirna_annot_deapp(numeric)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_load_mirna_annot_deapp(numeric) FROM public;

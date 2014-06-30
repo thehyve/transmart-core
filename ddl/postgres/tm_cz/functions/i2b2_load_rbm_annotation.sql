@@ -2,7 +2,7 @@
 
 -- DROP FUNCTION i2b2_load_rbm_annotation(bigint);
 
-CREATE OR REPLACE FUNCTION i2b2_load_rbm_annotation(currentjobid bigint DEFAULT NULL::bigint)
+CREATE FUNCTION i2b2_load_rbm_annotation(currentjobid bigint DEFAULT NULL::bigint)
   RETURNS numeric AS
 $BODY$
 DECLARE
@@ -344,7 +344,8 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION i2b2_load_rbm_annotation(bigint)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_load_rbm_annotation(bigint) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_load_rbm_annotation(bigint) FROM public;
+
+-- ALTER FUNCTION i2b2_load_rbm_annotation(bigint)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_load_rbm_annotation(bigint) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_load_rbm_annotation(bigint) FROM public;

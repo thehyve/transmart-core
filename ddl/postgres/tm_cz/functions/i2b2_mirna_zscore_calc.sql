@@ -2,7 +2,7 @@
 
 -- DROP FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying);
 
-CREATE OR REPLACE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying)
+CREATE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying)
   RETURNS numeric AS
 $BODY$
 /*************************************************************************
@@ -300,7 +300,8 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
-ALTER FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) FROM public;
+
+-- ALTER FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) FROM public;

@@ -63,6 +63,7 @@
 \i tm_cz/functions/i2b2_load_rbm_annotation.sql
 \i tm_cz/functions/i2b2_load_rbm_data.sql
 \i tm_cz/functions/i2b2_load_sample_categories.sql
+\i tm_cz/functions/i2b2_load_metabolomics_annot.sql
 \i tm_cz/functions/i2b2_load_proteomics_annot.sql
 \i tm_cz/functions/i2b2_proteomics_zscore_calc.sql
 \i tm_cz/functions/i2b2_process_proteomics_data.sql

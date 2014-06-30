@@ -2,7 +2,7 @@
 
 -- DROP FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric);
 
-CREATE OR REPLACE FUNCTION i2b2_process_rna_seq_data(IN trial_id character varying, IN top_node character varying, IN data_type character varying DEFAULT 'R'::character varying, IN source_code character varying DEFAULT 'STD'::character varying, IN log_base numeric DEFAULT 2, IN secure_study character varying DEFAULT NULL::character varying, IN currentjobid numeric DEFAULT (-1))
+CREATE FUNCTION i2b2_process_rna_seq_data(IN trial_id character varying, IN top_node character varying, IN data_type character varying DEFAULT 'R'::character varying, IN source_code character varying DEFAULT 'STD'::character varying, IN log_base numeric DEFAULT 2, IN secure_study character varying DEFAULT NULL::character varying, IN currentjobid numeric DEFAULT (-1))
   RETURNS numeric AS
 $BODY$
 DECLARE
@@ -1221,7 +1221,8 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) FROM public;
+
+-- ALTER FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
+--  OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_process_rna_seq_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) FROM public;

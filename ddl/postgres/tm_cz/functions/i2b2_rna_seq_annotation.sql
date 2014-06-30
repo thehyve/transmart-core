@@ -1,6 +1,6 @@
 -- Function: i2b2_rna_seq_annotation()
 
-CREATE OR REPLACE FUNCTION i2b2_rna_seq_annotation(currentjobid bigint DEFAULT NULL::bigint)
+CREATE FUNCTION i2b2_rna_seq_annotation(currentjobid bigint DEFAULT NULL::bigint)
   RETURNS numeric AS
 $BODY$
 DECLARE
@@ -110,7 +110,8 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION i2b2_rna_seq_annotation()
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_rna_seq_annotation() TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_rna_seq_annotation() FROM public;
+
+-- ALTER FUNCTION i2b2_rna_seq_annotation(bigint)
+--  OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_rna_seq_annotation(bigint) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_rna_seq_annotation(bigint) FROM public;

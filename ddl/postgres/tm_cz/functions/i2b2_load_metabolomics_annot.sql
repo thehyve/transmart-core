@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(currentjobid numeric DEFAULT NULL::numeric)
+CREATE FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(currentjobid numeric DEFAULT NULL::numeric)
   RETURNS numeric AS
 $BODY$
 /*************************************************************************
@@ -489,9 +489,10 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
-ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp, deapp, tm_lz, tm_wz, biomart;
 
-ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) TO tm_cz;
-REVOKE ALL ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) FROM public;
+-- ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp, deapp, tm_lz, tm_wz, biomart;
+--
+-- ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) TO tm_cz;
+-- REVOKE ALL ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) FROM public;

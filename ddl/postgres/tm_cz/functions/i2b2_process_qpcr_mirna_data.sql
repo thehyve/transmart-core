@@ -2,7 +2,7 @@
 
 -- DROP FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying);
 
-CREATE OR REPLACE FUNCTION i2b2_process_qpcr_mirna_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric, mirna_type character varying DEFAULT NULL::character varying)
+CREATE FUNCTION i2b2_process_qpcr_mirna_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric, mirna_type character varying DEFAULT NULL::character varying)
   RETURNS numeric AS
 $BODY$
 /*************************************************************************
@@ -1202,9 +1202,10 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
-ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
 
-ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying)
-  OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) FROM public;
+-- ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+--
+-- ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying)
+--   OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) FROM public;
