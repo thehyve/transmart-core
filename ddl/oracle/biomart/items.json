@@ -3461,6 +3461,64 @@
       "owner" : "BIOMART",
       "name" : "SEQ_CLINICAL_TRIAL_DESIGN_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_EXT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_PLTFM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_OBSERVATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_OBSERVATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_DISEASE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DISEASE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MESH"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -5688,5 +5746,19 @@
       "name" : "TRIG_CLINICAL_TRIAL_DESIGN_ID "
     },
     "file" : "biomart/ctd_full.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH"
+    },
+    "file" : "biomart/views/vw_faceted_search.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH_DISEASE"
+    },
+    "file" : "biomart/views/vw_faceted_search_disease.sql"
   } ]
 }
