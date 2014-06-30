@@ -1,6 +1,6 @@
 -- Function: i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, numeric)
 
--- DROP FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, numeric);
+-- DROP FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, character varying, numeric, character varying, numeric);
 
 CREATE OR REPLACE FUNCTION i2b2_metabolomics_zscore_calc(trial_id character varying, partition_name character varying, partition_indx character varying, partitioniD numeric, source_cd character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT (-1), data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2)
   RETURNS void AS
@@ -307,7 +307,7 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, numeric)
+ALTER FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, character varying, numeric, character varying, numeric)
   OWNER TO tm_cz;
-GRANT EXECUTE ON FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
-REVOKE ALL ON FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, numeric) FROM public;
+GRANT EXECUTE ON FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
+REVOKE ALL ON FUNCTION i2b2_metabolomics_zscore_calc(character varying, character varying, character varying, numeric, character varying, character varying, numeric, character varying, numeric) FROM public;
