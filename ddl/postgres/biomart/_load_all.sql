@@ -162,4 +162,6 @@
 \i biomart/tmp_project_category.sql
 \i biomart/tmp_project_compound.sql
 \i biomart/tmp_project_disease.sql
+\i biomart/views/vw_faceted_search.sql
+\i biomart/views/vw_faceted_search_disease.sql
 \i biomart/_misc.sql
