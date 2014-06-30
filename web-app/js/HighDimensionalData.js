@@ -118,9 +118,9 @@ HighDimensionalData.prototype.new_create_pathway_search_box = function (searchIn
             minLength: 1,
             select: function( event, ui ) {
                 var sp = Ext.get(searchInputEltName);
-                sp.dom.value = ui.item.keyword;
+                sp.dom.value = ui.item.value;
                 GLOBAL.CurrentPathway = ui.item.id;
-                GLOBAL.CurrentPathwayName = ui.item.keyword;
+                GLOBAL.CurrentPathwayName = ui.item.value;
             },
             open: function() {
 
