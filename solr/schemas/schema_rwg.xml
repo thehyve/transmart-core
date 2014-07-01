@@ -65,22 +65,10 @@
     <field name="ANALYSIS_ID" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="STUDY" type="string" indexed="true" stored="false" required="false"/>
     <field name="STUDY_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
-    <field name="THERAPEUTIC_AREAS" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="ANALYSES" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="DATA_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="EXPERIMENTAL_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="SAMPLE_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="TREATMENT" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="ORGANISM" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="DATA_SOURCE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="PLATFORM" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="PATHOLOGY" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="TRIAL" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="COMPOUND" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="DISEASE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="SIGGENE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="ANY_SIGNIFICANT_GENES" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
-    <field name="ALLGENE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
 
     <field name="FACET_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
     <field name="PLATFORM_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
