@@ -83,8 +83,8 @@ Closure loadSchemaNoCrossClosure(BlockingQueue<Sql> sqls,
                 }
                 if (file.name == '_cross.sql') {
                     if (fileDependencies.getChildrenFor(file)) {
-                        Log.err "_cross.sql won't be loaded but apparently it has dependent objects!"
-                        Log.err "This should not happen. Things may very well fail!"
+                        Log.warn "_cross.sql won't be loaded but apparently it has dependent objects!"
+                        Log.warn "This should not happen. Things may very well fail!"
                     }
                     return
                 }
@@ -161,7 +161,7 @@ Map<File, DataflowVariable> loadMultiSchemaObjects(BlockingQueue<Sql> sqls,
         DataflowVariable promise = whenAllBound parentPromises, { List results ->
             def success = results.every()
             if (!success) {
-                Log.err "Skipping file $curFile because of dependency failure"
+                Log.warn "Skipping file $curFile because of dependency failure"
                 return false
             }
 
@@ -169,7 +169,7 @@ Map<File, DataflowVariable> loadMultiSchemaObjects(BlockingQueue<Sql> sqls,
             loadFileInTransaction curFile, user
         }, { Throwable exception ->
             //failure
-            Log.err "Skipping file $curFile because of uncaught exception in dependency"
+            Log.warn "Skipping file $curFile because of uncaught exception in dependency"
             return false
         }
 
