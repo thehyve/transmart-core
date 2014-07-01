@@ -527,7 +527,7 @@ close OUT;
 close POPULATION_INFO;
 close POPULATION_DATA;
 
-print "\n"
+print "\n";
 print "----------------------------------------------------\n";
 while ( my ($var, $count) = each(%counts) ) {
 	if( $count > 0 ) {
