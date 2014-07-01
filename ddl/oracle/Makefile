@@ -8,9 +8,9 @@ LOAD_USER_TARGETS = $(foreach s,$(SCHEMAS),load_user_$(s))
 
 include ../../lib/makefile.inc
 
-DUMP_USER = groovy -cp $(DIR)*:_scripts _scripts/dump_user.groovy
-LOAD_DDL  = groovy -cp $(DIR)*:_scripts _scripts/load_ddl.groovy
-RUN_SQL   = groovy -cp $(DIR)*:_scripts _scripts/run_sql.groovy
+DUMP_USER = groovy -cp '$(CP_ORA)' _scripts/dump_user.groovy
+LOAD_DDL  = groovy -cp '$(CP_ORA)' _scripts/load_ddl.groovy
+RUN_SQL   = groovy -cp '$(CP_ORA)' _scripts/run_sql.groovy
 
 $(DUMP_SCHEMA_TARGETS):
 	$(DUMP_USER) -u $(patsubst dump_%,%,$@)

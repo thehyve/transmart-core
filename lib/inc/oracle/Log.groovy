@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 class Log {
     static void err(message) {

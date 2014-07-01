@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 import groovy.transform.EqualsAndHashCode
 import org.codehaus.jackson.annotate.JsonIgnore

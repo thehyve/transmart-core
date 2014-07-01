@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 import org.codehaus.jackson.Version
 import org.codehaus.jackson.map.ObjectMapper

@@ -4,13 +4,11 @@ import groovyx.gpars.dataflow.DataflowQueue
 import groovyx.gpars.dataflow.Promise
 import groovyx.gpars.dataflow.SelectResult
 import groovyx.gpars.group.NonDaemonPGroup
-import groovyx.gpars.scheduler.Pool
-import inc.Log
-import inc.SqlProducer
-import inc.SqlSplitter
+import inc.oracle.Log
+import inc.oracle.SqlProducer
+import inc.oracle.SqlSplitter
 
 import java.sql.SQLException
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.LinkedBlockingQueue
 
 import static groovyx.gpars.dataflow.Dataflow.select

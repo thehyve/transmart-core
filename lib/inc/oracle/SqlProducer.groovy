@@ -1,11 +1,9 @@
-package inc
+package inc.oracle
 
 import groovy.sql.Sql
 
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.SQLWarning
-import java.sql.Statement
 
 import static java.lang.System.getenv
 import static groovyx.gpars.GParsPool.withPool

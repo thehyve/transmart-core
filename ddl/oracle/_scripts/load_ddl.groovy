@@ -1,7 +1,7 @@
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
 import groovy.sql.Sql
 import groovyx.gpars.dataflow.DataflowVariable
-import inc.*
+import inc.oracle.*
 import org.codehaus.jackson.map.ObjectReader
 
 import java.sql.SQLException

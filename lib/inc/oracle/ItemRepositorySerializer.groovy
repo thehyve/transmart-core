@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 import org.codehaus.jackson.JsonGenerator
 import org.codehaus.jackson.JsonProcessingException

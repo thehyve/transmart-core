@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 import groovy.sql.Sql
 

@@ -1,10 +1,10 @@
-import inc.BasicItem
+import inc.oracle.BasicItem
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
-import inc.Item
-import inc.ItemRepository
-import inc.JacksonMapperProducer
-import inc.Log
-import inc.SqlProducer
+import inc.oracle.Item
+import inc.oracle.ItemRepository
+import inc.oracle.JacksonMapperProducer
+import inc.oracle.Log
+import inc.oracle.SqlProducer
 import org.codehaus.jackson.annotate.JsonIgnore
 import groovy.sql.Sql
 

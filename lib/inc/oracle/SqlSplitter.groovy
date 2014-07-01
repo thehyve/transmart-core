@@ -1,4 +1,4 @@
-package inc
+package inc.oracle
 
 /**
  * Break .sql files into statements that can be used in JDBC.
