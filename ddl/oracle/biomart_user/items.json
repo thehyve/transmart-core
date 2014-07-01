@@ -2244,17 +2244,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "INDEX",
-      "owner" : "BIOMART_USER",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    } ]
-  }, {
-    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "ONT_DB_LOOKUP"
@@ -3338,13 +3327,6 @@
       "name" : "KDE_TEMP_OBJ_REG3"
     },
     "file" : "biomart_user/kde_temp_obj_reg3.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "BIOMART_USER",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "file" : "biomart_user/_cross.sql"
   }, {
     "item" : {
       "type" : "TYPE",

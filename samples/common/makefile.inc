@@ -135,7 +135,7 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna load_mirna_annotation_%
 	./load_mirna.sh $<
 
 ../common/%/mirna:
-        $(info Copy mirna data files into $*)
+	$(info Copy mirna data files into $*)
 
 ../common/%/mirna/$(MIRNA_ANNOT_FILE): ../common/%/mirna ../common/generate_mirna_data_annot_files.groovy
 	groovy ../common/generate_mirna_data_annot_files.groovy -i $< -a $@ -d $</$(MIRNA_DATA_FILE) -p $*_mirna

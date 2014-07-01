@@ -29,3 +29,4 @@ execute immediate 'create table ' ||  tempPatientMappingTableName || ' (
 		dbms_output.put_line(SQLCODE|| ' - ' ||SQLERRM);
 END;
 /
+ 
