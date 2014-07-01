@@ -28,7 +28,7 @@ do
 
     # Replace calls to sequences in the SQL files
     # Replace calls to nextval and currval
-    sed -e "s/\([a-zA-Z0-9\._]*\)\.\(curr\|next\)val/\2val( '\1' )/g" -e "s/from dual//g" "$output_dir/$SQLFILE.sql" > "$output_dir/$SQLFILE.postgres.sql"
+    perl -pe "s/([a-zA-Z0-9\._]*)\.(curr|next)val/\2val( '\1' )/g; s/from dual//g" < "$output_dir/$SQLFILE.sql" > "$output_dir/$SQLFILE.postgres.sql"
 
     $PSQL_COMMAND -f "$output_dir/$SQLFILE.postgres.sql";
 done
