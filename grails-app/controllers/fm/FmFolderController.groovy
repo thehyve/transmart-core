@@ -358,9 +358,16 @@ class FmFolderController {
         analysis.shortDescription = folder.description
         analysis.longDescription = folder.description
         analysis.analysisMethodCode = "TBD"
-        analysis.assayDataType = "TBD"
+        analysis.assayDataType = "Browse analysis"
         analysis.dataCount = -1
         analysis.teaDataCount = -1
+		def assocStudy = FmFolderAssociation.findByFmFolder(parentFolder)
+		if (assocStudy != null) {
+			def study = assocStudy.getBioObject()
+			if (study instanceof Experiment) {
+				analysis.etlId = ((Experiment)study).accession
+			}
+		}
 
         try {
             fmFolderService.saveFolder(folder, analysis, params)
