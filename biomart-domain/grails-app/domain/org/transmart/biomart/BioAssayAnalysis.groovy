@@ -52,7 +52,6 @@ class BioAssayAnalysis implements IExcelProfile {
 	static mapping = {
 		table 'BIO_ASSAY_ANALYSIS'
 		version false
-		cache usage:'read-only'
 		id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
 		columns {
 			name column:'ANALYSIS_NAME'
@@ -93,13 +92,14 @@ class BioAssayAnalysis implements IExcelProfile {
 		rValueCutoff(nullable:true)
 		analysisPlatform(nullable:true)
 		type(nullable:true, maxSize:400)
+		ext(nullable:true)
 	}
 
 	/**
 	 * get top analysis data records for the indicated analysis
 	 */
 	def static getTopAnalysisDataForAnalysis(Long analysisId, int topCount){
-		def query = "SELECT DISTINCT baad, baad_bm FROM bio.BioAssayAnalysisData baad JOIN baad.featureGroup.markers baad_bm  WHERE baad.analysis.id =:aid ORDER BY ABS(baad.foldChangeRatio) desc, baad.rValue, baad.rhoValue DESC";
+		def query = "SELECT DISTINCT baad, baad_bm FROM org.transmart.biomart.BioAssayAnalysisData baad JOIN baad.featureGroup.markers baad_bm  WHERE baad.analysis.id =:aid ORDER BY ABS(baad.foldChangeRatio) desc, baad.rValue, baad.rhoValue DESC";
 		return BioAssayAnalysisData.executeQuery(query, [aid:analysisId], [max:topCount]);
 	}
 
