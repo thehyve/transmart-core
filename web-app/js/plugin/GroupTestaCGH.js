@@ -8,23 +8,8 @@
  * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
  * @type {number}
  */
-var GT_JOB_TYPE = 'aCGHgroupTest';
 
 var groupTestView;
-
-/**
- * Buttons for Input Panel
- * @type {Array}
- */
-var gtInputBarBtnList = ['->', {  // '->' making it right aligned
-    xtype: 'button',
-    text: 'Run Analysis',
-    scale: 'medium',
-    iconCls: 'runbutton',
-    handler: function () {
-        groupTestView.submitGroupTestJob();
-    }
-}];
 
 var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
@@ -252,6 +237,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
     // alteration
     alteration: '',
 
+    // job type
+    jobType: 'aCGHgroupTest',
+
     // job info
     jobInfo: null,
 
@@ -287,6 +275,21 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
     createInputToolBar: function () {
         var _this = this;
+
+        /**
+         * Buttons for Input Panel
+         * @type {Array}
+         */
+        var gtInputBarBtnList = ['->', {  // '->' making it right aligned
+            xtype: 'button',
+            text: 'Run Analysis',
+            scale: 'medium',
+            iconCls: 'runbutton',
+            handler: function () {
+                groupTestView.submitGroupTestJob();
+            }
+        }];
+
         return new Ext.Toolbar({
             height: 30,
             items: gtInputBarBtnList
@@ -550,6 +553,15 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
     },
 
     submitGroupTestJob: function () {
+        var _this = this;
+
+        // Fill global subset ids if null
+        if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
+            (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
+            runAllQueries(function() {_this.submitGroupTestJob();});
+            return;
+        }
+
         if (this.validateInputs()) {
 
             var regionVal = this.inputBar.regionPanel.getConceptCode();
@@ -572,7 +584,26 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 statisticsType: statTestVal,
                 aberrationType: alternationVal,
                 variablesConceptPaths: variablesConceptCode,
-                jobType: GT_JOB_TYPE
+                analysisConstraints: JSON.stringify({
+                    "job_type": _this.jobType,
+                    "data_type": "acgh",
+                    "assayConstraints": {
+                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                        "assay_id_list": null,
+                        "ontology_term": [
+                            {
+                                'term': regionVal,
+                                'options': {'type': "default"}
+                            }
+                        ],
+                        "trial_name": null
+                    },
+                    "dataConstraints": {
+                        "disjunction": null
+                    },
+                    "projections": ["acgh_values"]
+                }),
+                jobType: _this.jobType
             };
 
             var job = this.submitJob(formParams, this.onJobFinish, this);

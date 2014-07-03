@@ -125,6 +125,9 @@ class RModulesController {
             case 'acghFrequencyPlot':
                 jsonResult = createJob(params, AcghFrequencyPlot)
                 break
+            case 'groupTestaCGH':
+                jsonResult = createJob(params, AcghGroupTest)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
