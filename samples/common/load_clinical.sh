@@ -31,8 +31,8 @@ fi
 $KITCHEN -norep=Y                                      \
 -file=$KETTLE_JOBS/create_clinical_data.kjb            \
 -log=logs/load_clinical_data_$(date +"%Y%m%d%H%M").log \
--param:COLUMN_MAP_FILE=$COLUMN_MAP_FILE                \
--param:DATA_LOCATION=$DATA_LOCATION                    \
+-param:COLUMN_MAP_FILE="$COLUMN_MAP_FILE"              \
+-param:DATA_LOCATION="$DATA_LOCATION"                  \
 -param:LOAD_TYPE=I                                     \
 -param:SECURITY_REQUIRED=$SECURITY_REQUIRED            \
 -param:SORT_DIR=/tmp                                   \
