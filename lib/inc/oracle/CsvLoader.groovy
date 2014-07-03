@@ -219,4 +219,8 @@ class MaybeLog {
             Log.invokeMethod(name, args)
         }
     }
+
+    def print(Object value) {
+        invokeMethod('print', [value] as Object[])
+    }
 }

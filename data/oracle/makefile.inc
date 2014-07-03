@@ -19,11 +19,19 @@ dump_%:
 	  -t $(THIS_SCHEMA).$* \
 	  -o $(OUTDIR)/$*.tsv
 
+# see the commend on override/
+ifndef USE_POOL_PROCESS
 load_%:
 	[ -f $(OVERDIR)/$*.skip ] || \
 	  groovy -cp '$(CP_ORA)' $(BASE_FOLDER)/samples/oracle/LoadTsvFile.groovy \
 	  -t $(THIS_SCHEMA).$* \
 	  -f $$([ -f $(OVERDIR)/$*.tsv ] && echo $(OVERDIR) || echo $(OUTDIR))/$*.tsv
-# see the commend on override/
+else
+load_%: $(NETTY_JAR_PATH) $(JDBC_DRIVER_ORA_PATH)
+	[ -f $(OVERDIR)/$*.skip ] || \
+	  groovy -cp '$(CP_ORA):$(NETTY_JAR_PATH)' ../submit_tsv_load.groovy \
+	  -t $(THIS_SCHEMA).$* \
+	  -f $$([ -f $(OVERDIR)/$*.tsv ] && echo $(OVERDIR) || echo $(OUTDIR))/$*.tsv
+endif
 
 # vim: set ft=make:
