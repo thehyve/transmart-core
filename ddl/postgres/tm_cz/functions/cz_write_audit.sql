@@ -55,7 +55,7 @@ BEGIN
 	)
 	values(
  		jobId,
-		databaseName,
+		substring(databaseName from 1 for 50),
 		procedureName,
 		stepDesc,
 		recordsManipulated,
