@@ -63,9 +63,9 @@ class EnhancedSql extends Sql {
             abbreviatedStatement += '...'
         }
         if (warning) {
-            Log.err "Warnings for statement $abbreviatedStatement"
+            Log.warn "Warnings for statement $abbreviatedStatement"
             while (warning) {
-                Log.err warning.message
+                Log.warn warning.message
                 warning = warning.nextWarning
             }
         }

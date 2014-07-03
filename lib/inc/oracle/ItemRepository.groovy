@@ -39,7 +39,7 @@ class ItemRepository {
              * Below is way to resolve the name conflict.
              */
             if(item.type == 'TABLE' && oldItem.type == 'MATERIALIZED_VIEW') {
-                Log.err("There is already materialized view declaration for ${fcName}. Skip conflicting table creation.")
+                Log.warn("There is already materialized view declaration for ${fcName}. Skip conflicting table creation.")
                 return oldItem
             }
             if(item.type == 'MATERIALIZED_VIEW' && oldItem.type == 'TABLE') {
