@@ -10,7 +10,6 @@ class ValueGroupDumpDataStep extends AbstractDumpHighDimensionalDataStep {
     protected computeCsvRow(String subsetName,
                             String seriesName,
                             DataRow row,
-                            Long rowNumber,
                             AssayColumn column,
                             Object cell) {
         [

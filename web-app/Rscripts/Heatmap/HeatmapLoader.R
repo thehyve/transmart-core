@@ -85,9 +85,16 @@ aggregate.probes = FALSE
 	#Convert data to a integer matrix.
 	mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
 
-	#We can't draw a heatmap for a matrix with only 1 row.
-	if(nrow(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Gene/Probe. Please check your variable selection and run again.")
+	#We can't draw a heatmap for a matrix with no rows.
+	if(nrow(mRNAData)<1) stop("||FRIENDLY||R cannot plot a heatmap with no Gene/Probe selected. Please check your variable selection and run again.")
 	if(ncol(mRNAData)<2) stop("||FRIENDLY||R cannot plot a heatmap with only 1 Patient data. Please check your variable selection and run again.")
+
+	#We can't draw a heatmap for a matrix with only 1 row (restriction of heatmap.2 function).
+	#Adding an extra dummy row with NA values, does the trick as they seems to be ignored in the plot and the density histogram
+	if(nrow(mRNAData)==1) {
+		mRNAData <- rbind(mRNAData, mRNAData[1,])
+		mRNAData[2,] = NA
+	}
 
 # by Serge and Wei to filter a sub set and reorder markers
 
@@ -135,8 +142,6 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
     require(Cairo)
     require(gplots)
 
-    par(mar = c(0, 0, 0, 0))
-
     pxPerCell <- 15
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     if (nrow(data) < 30 || ncol(data) < 30) {
@@ -175,7 +180,7 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
     }
-
+    par(mar = c(0, 0, 0, 0))
     heatmap.2(data,
               Rowv=NA,
               Colv=NA,

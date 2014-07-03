@@ -37,7 +37,8 @@ class RModulesController {
             "RBM":              "rbm",
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
-            "METABOLOMICS":     "metabolite"
+            "METABOLOMICS":     "metabolite",
+            "acgh":             "acgh"
     ]
 
     private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
@@ -123,6 +124,9 @@ class RModulesController {
                 break
             case 'histogram':
                 jsonResult = createJob(params, Histogram, false)
+                break
+            case 'acghFrequencyPlot':
+                jsonResult = createJob(params, AcghFrequencyPlot)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(

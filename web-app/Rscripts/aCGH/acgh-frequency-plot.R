@@ -4,8 +4,8 @@ acgh.frequency.plot <- function
 )
 {
   # read the data
-  dat       <- read.table('regions.tsv'  , header=TRUE, sep='\t', quote='"', as.is=TRUE      , check.names=FALSE)
-  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
+  dat       <- read.table('outputfile.txt'  , header=TRUE, sep='\t', quote='"', as.is=TRUE      , check.names=FALSE, stringsAsFactors = FALSE)
+  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors = FALSE)
 
   # Determine the groups (NA and '' are discarded)
   groupnames <- unique(phenodata[,column])
@@ -23,8 +23,10 @@ acgh.frequency.plot <- function
   for (group in groupnames) 
   {
       group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
-      group.ids     <- phenodata[group.samples,"PATIENT_NUM"]
-      group.calls   <- calls[,paste("flag.",group.ids,sep=""), drop=FALSE]
+      group.ids     <- phenodata[group.samples, "PATIENT_NUM"]
+      highdimColumnsMatchingGroupIds <- pmatch(paste("flag.",group.ids,sep=""), colnames(calls))
+      highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
+      group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
 
       data.info[, paste('gain.freq.', group, sep='')] <- rowSums(group.calls > 0) / ncol(group.calls)
       data.info[, paste('loss.freq.', group, sep='')] <- rowSums(group.calls < 0) / ncol(group.calls)

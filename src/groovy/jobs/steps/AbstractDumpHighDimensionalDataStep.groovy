@@ -10,6 +10,10 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
     final String statusName = null
 
+    /* true if computeCsvRow is to be called once per (row, column),
+       false to called only once per row */
+    boolean callPerColumn = true
+
     File temporaryDirectory
     Closure<Map<List<String>, TabularResult>> resultsHolder
     UserParameters params
@@ -30,7 +34,6 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
     abstract protected computeCsvRow(String subsetName,
                                      String seriesName,
                                      DataRow row,
-                                     Long rowNumber,
                                      AssayColumn column,
                                      Object cell)
 
@@ -69,7 +72,7 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
         }
     }
 
-    private void doSubset (List<String> resultsKey, CSVWriter csvWriter) {
+    private void doSubset(List<String> resultsKey, CSVWriter csvWriter) {
 
         def tabularResult = results[resultsKey]
         if (!tabularResult) {
@@ -81,19 +84,27 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
         def assayList = tabularResult.indicesList
 
-        long i = 0
         tabularResult.each { DataRow row ->
-            assayList.each { AssayColumn assay ->
-                if (row[assay] == null) {
-                    return
-                }
+            if (callPerColumn) {
+                assayList.each { AssayColumn assay ->
+                    if (row[assay] == null) {
+                        return
+                    }
 
+                    def csvRow = computeCsvRow(subsetName,
+                            seriesName,
+                            row,
+                            assay,
+                            row[assay])
+
+                    csvWriter.writeNext csvRow as String[]
+                }
+            } else {
                 def csvRow = computeCsvRow(subsetName,
-                                           seriesName,
-                                           row,
-                                           i++,
-                                           assay,
-                                           row[assay])
+                        seriesName,
+                        row,
+                        null,
+                        null)
 
                 csvWriter.writeNext csvRow as String[]
             }

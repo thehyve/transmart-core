@@ -103,7 +103,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 	if("GROUP" %in% colnames(currentDataSubset)) 
 	{
 		currentGroup <- unique(currentDataSubset$GROUP)
-		currentGroup <- gsub("^\\s+|\\s+$", "",currentGroup)
+		currentGroup <- gsub("^\\s+|\\s+$| \\(.*\\)$", "",currentGroup)
 		
 		#Change the output file name to have the group in it.
 		output.name <- paste(output.name,'_',currentGroup,sep='')
