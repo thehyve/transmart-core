@@ -10,4 +10,7 @@ class Log {
     static void out(message) {
         System.out.println message
     }
+    static void print(message) {
+        System.out.print message
+    }
 }

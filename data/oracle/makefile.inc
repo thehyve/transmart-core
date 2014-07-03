@@ -15,13 +15,13 @@ export NLS_TIMESTAMP_FORMAT
 dump_%:
 	NLS_DATE_FORMAT="$(NLS_DATE_FORMAT)" \
 	NLS_TIMESTAMP_FORMAT="$(NLS_TIMESTAMP_FORMAT)" \
-	groovy -cp $(BASE_FOLDER)/lib/*:$(BASE_FOLDER)/samples/oracle $(BASE_FOLDER)/samples/oracle/DumpTableData.groovy \
+	groovy -cp '$(CP_ORA)' $(BASE_FOLDER)/samples/oracle/DumpTableData.groovy \
 	  -t $(THIS_SCHEMA).$* \
 	  -o $(OUTDIR)/$*.tsv
 
 load_%:
 	[ -f $(OVERDIR)/$*.skip ] || \
-	  groovy -cp $(BASE_FOLDER)/lib/*:$(BASE_FOLDER)/samples/oracle $(BASE_FOLDER)/samples/oracle/LoadTsvFile.groovy \
+	  groovy -cp '$(CP_ORA)' $(BASE_FOLDER)/samples/oracle/LoadTsvFile.groovy \
 	  -t $(THIS_SCHEMA).$* \
 	  -f $$([ -f $(OVERDIR)/$*.tsv ] && echo $(OVERDIR) || echo $(OUTDIR))/$*.tsv
 # see the commend on override/

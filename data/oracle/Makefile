@@ -1,4 +1,5 @@
 include ../common/makefile.inc
+include ../../lib/makefile.inc
 
 BIOMART_PSW ?= biomart
 DEAPP_PSW ?= deapp
