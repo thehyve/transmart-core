@@ -1,4 +1,4 @@
 COLUMN_MAP_FILE="LupusNephritis_Berthier_GSE32583_Mapping_File.txt"
 WORD_MAP_FILE=x
 RECORD_EXCLUSION_FILE=x
-TOP_NODE="\Public Studies\GEO Studies\Lupus GSE32583"
+TOP_NODE="\Public Studies\GSE32583"
