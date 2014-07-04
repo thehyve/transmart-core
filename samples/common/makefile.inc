@@ -9,11 +9,13 @@ include ../../makefile.inc
 # To be done when more analsyes are ported to Oracle
 
 showdblog: $(JDBC_DRIVER)
-	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
+	groovy -cp '$(LIB_CLASSPATH)' ../common/dump_audit.groovy $(RDBMS) `tput cols`
 
 .PHONY: showdblog
 
 export KETTLE_JOBS
+export JDBC_DRIVER
+export LIB_CLASSPATH
 
 ifndef KITCHEN
 $(error KITCHEN is not set)

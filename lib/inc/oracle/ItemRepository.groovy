@@ -1,4 +1,23 @@
-package inc
+/*
+ * Copyright © 2013-2014 The Hyve B.V.
+ *
+ * This file is part of transmart-data.
+ *
+ * Transmart-data is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package inc.oracle
 
 class ItemRepository {
     Map<Item, Set<Item>> dependencies = new HashMap() //dependent (child) -> dependency (parent)
@@ -39,7 +58,7 @@ class ItemRepository {
              * Below is way to resolve the name conflict.
              */
             if(item.type == 'TABLE' && oldItem.type == 'MATERIALIZED_VIEW') {
-                Log.err("There is already materialized view declaration for ${fcName}. Skip conflicting table creation.")
+                Log.warn("There is already materialized view declaration for ${fcName}. Skip conflicting table creation.")
                 return oldItem
             }
             if(item.type == 'MATERIALIZED_VIEW' && oldItem.type == 'TABLE') {

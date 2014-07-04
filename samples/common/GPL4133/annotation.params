@@ -1,0 +1,4 @@
+PLATFORM=GPL4133
+TITLE="Agilent-014850 Whole Human Genome Microarray 4x44K G4112F"
+ORGANISM="Homo Sapiens"
+ANNOTATIONS_FILE=GPL4133.txt

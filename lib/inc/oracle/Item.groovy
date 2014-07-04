@@ -17,18 +17,26 @@
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package lib
+package inc.oracle
 
-class ParamsFile {
+import groovy.transform.EqualsAndHashCode
+import org.codehaus.jackson.annotate.JsonIgnore
 
-    File file
-    Map<String,String> params
+@EqualsAndHashCode(includes = ['type', 'owner', 'name'])
+abstract class Item implements Comparable<Item> {
+    String type
+    String owner
+    String name /* null if not named */
 
-    void write() {
-        file.withWriter {
-            params.each { k, v ->
-                it << "$k='$v'\n"
-            }
-        }
+    @JsonIgnore
+    abstract String getData()
+
+    @JsonIgnore
+    String getNameLower() {
+        name?.toLowerCase(Locale.ENGLISH)
+    }
+
+    int compareTo(Item other) {
+        owner <=> other.owner ?: name <=> other.name ?: type <=> other.type
     }
 }

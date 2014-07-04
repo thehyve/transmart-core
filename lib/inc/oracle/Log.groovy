@@ -17,18 +17,19 @@
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package lib
+package inc.oracle
 
-class ParamsFile {
-
-    File file
-    Map<String,String> params
-
-    void write() {
-        file.withWriter {
-            params.each { k, v ->
-                it << "$k='$v'\n"
-            }
-        }
+class Log {
+    static void err(message) {
+        System.err.println "\u001b[1;31mERROR\u001b[m: \u001b[1m$message\u001b[m"
+    }
+    static void warn(message) {
+        System.err.println "\u001b[1;33mWARN\u001b[m: \u001b[1m$message\u001b[m"
+    }
+    static void out(message) {
+        System.out.println message
+    }
+    static void print(message) {
+        System.out.print message
     }
 }

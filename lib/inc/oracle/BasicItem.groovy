@@ -17,18 +17,18 @@
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package lib
+package inc.oracle
 
-class ParamsFile {
+/**
+ * Item with no associated data
+ */
+class BasicItem extends Item {
+    @Override
+    String getData() {
+        ''
+    }
 
-    File file
-    Map<String,String> params
-
-    void write() {
-        file.withWriter {
-            params.each { k, v ->
-                it << "$k='$v'\n"
-            }
-        }
+    String toString() {
+        "$type ${owner}.$name"
     }
 }

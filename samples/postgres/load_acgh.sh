@@ -48,7 +48,7 @@ _END
 # Transfer chromosomal region defintion from landing-zone into deapp-tables
   echo "Transfer chromosomal region data tot the deapp tables"
   $PSQL_COMMAND << _END
-        select tm_cz.i2b2_load_chrom_region();
+        select tm_cz.i2b2_load_chrom_region('$PLATFORM_TITLE');
 _END
 
   TEMPDIR=$(mktemp -d -t load_acgh_XXXXXX)
