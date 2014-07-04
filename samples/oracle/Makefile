@@ -13,6 +13,8 @@ $(JDBC_DRIVER): $(JDBC_DRIVER_ORA_PATH)
 
 include ../common/makefile.inc
 
+$(LOAD_VCF_PARAMS_TARGETS): $(JDBC_DRIVER)
+
 .PHONY:  parse load_vcf load_vcf_data load_vcf_mapping load_parsed_vcf_data
 		load_parsed_vcf_mapping
 
