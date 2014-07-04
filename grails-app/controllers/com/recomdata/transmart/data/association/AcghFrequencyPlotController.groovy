@@ -12,14 +12,14 @@ class AcghFrequencyPlotController {
     }
 
     def acghFrequencyPlotOutput =
-        {
-            def jobTypeName = "acghFrequencyPlot"
-            def imageLinks = new ArrayList<String>()
+    {
+        def jobTypeName = "acghFrequencyPlot"
+        def imageLinks = new ArrayList<String>()
 
-            RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
+        RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
 
-            render (template: "/plugin/acghFrequencyPlot_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
-        }
+        render (template: "/plugin/acghFrequencyPlot_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
+    }
     /**
      * This function will return the image path
      */

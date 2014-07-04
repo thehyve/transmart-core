@@ -474,7 +474,7 @@ GenericAnalysisView = Ext.extend(Object, {
             jobName: jobName,
             parent: this,
             run: function() {
-                this.parent.updateJobStatus(this.jobName);
+                this.parent.updateJobStatus(jobName);
             },
             interval: pollInterval
         }

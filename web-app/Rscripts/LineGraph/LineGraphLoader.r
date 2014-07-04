@@ -2,6 +2,7 @@
 LineGraph.loader <- function(
 	input.filename,
   scaling.filename = NULL,
+    plotEvenlySpaced = FALSE,
 	output.file="LineGraph",
 	graphType="MERR",
     aggregate.probes = FALSE,
@@ -22,7 +23,12 @@ LineGraph.loader <- function(
 
   #Read the scaling data (location of each group (concept path) on X-axis)
   if (!is.null(scaling.filename)) {
+    if(plotEvenlySpaced){
+        scaling.file <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
+        scaling.data <- data.frame(GROUP = scaling.file$GROUP, VALUE=rank(scaling.file$VALUE))
+    }else{
     scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
+    }
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
   }
@@ -54,7 +60,11 @@ LineGraph.loader <- function(
       else {
         groupData <- line.data[which(line.data$PLOT_GROUP==plotGroup),]
         p <- LineGraph.plotter(groupData, graphType, plot.individuals, HDD.data.type)
-        p <- p + labs(title = as.character(plotGroup))
+        probes <- unlist(strsplit(as.character(plotGroup), '[|]'))
+        plotTitle <- ''
+        if(probes[1] != '') plotTitle <- paste('Intensity of', probes[1], '.') 
+        if(length(probes)>1) plotTitle <- paste(plotTitle, 'Binned value of', probes[2] , '.')
+        p <- p + labs(title = plotTitle)
         fileIter <- fileIter + 1
         print(p)
         dev.off()
@@ -130,10 +140,13 @@ LineGraph.plotter <- function(
   p <- ggplot(data=dataOutput,layerData) + ylab(yLabel)
 	
 	p <- p + geom_line(size=1.5)
-	if (!plot.individuals) p <- p + geom_errorbar(limits,width=0.2)
+    timeDiff <- max(data.to.plot$TIME_VALUE)
+    errorBarScale <- 0.05
+    #the error bars width have to be scaled from the max time value, otherwise they are very wide if time values are low and very small if time values are high
+    if (!plot.individuals) p <- p + geom_errorbar(limits,width=timeDiff*errorBarScale-(errorBarScale/timeDiff)*2)
   
 	#Defines a continuous x-axis with proper break-locations, labels, and axis-name
-    p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT)
+    p <- p + scale_x_continuous(name = "TIMEPOINT", breaks = dataOutput$TIME_VALUE, labels = dataOutput$TIMEPOINT, expand=c(0,timeDiff*errorBarScale))
   
 	#This sets the color theme of the background/grid.
 	p <- p + theme_bw();
@@ -154,7 +167,7 @@ LineGraph.plotter <- function(
 	#Set the legend attributes.
 	p <- p + theme(legend.title = element_text(size = 20,face="bold"));
 	p <- p + theme(legend.text = element_text(size = 15,face="bold"));
-	p <- p + theme(legend.title=theme_blank())
+	p <- p + theme(legend.title=element_blank())
 
 	p <- p + geom_point(size=4);
 	
