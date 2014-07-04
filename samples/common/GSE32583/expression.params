@@ -1,5 +1,5 @@
-DATA_FILE_PREFIX="LupusNephritis_Berthier_GSE32583_Gene_Expression_Data_L.txt"
+DATA_FILE_PREFIX="GSE32583_gex_data.txt"
 DATA_TYPE=R
 LOG_BASE=2
-MAP_FILENAME="LupusNephritis_Berthier_GSE32583_Subject_Sample_Mapping_File.txt"
+MAP_FILENAME="GSE32583_mapping.txt"
 NODE_NAME=MRNA
