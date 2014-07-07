@@ -9,18 +9,18 @@
 select FACET_ID, fs.ANALYSIS_ID, STUDY, STUDY_ID, ANALYSES, DATA_TYPE, PLATFORM, PLATFORM_DESCRIPTION, PLATFORM_VENDOR, OBSERVATION, STUDY_TITLE,STUDY_DESCRIPTION,STUDY_DESIGN,STUDY_PRIMARY_INV,STUDY_CONTACT_FIELD,STUDY_OVERALL_DESIGN,STUDY_INSTITUTION,STUDY_ACCESSION,STUDY_COUNTRY,STUDY_BIOMARKER_TYPE,STUDY_TARGET,STUDY_ACCESS_TYPE,ANALYSIS_NAME,ANALYSIS_DESCRIPTION_S,ANALYSIS_DESCRIPTION_L,ANALYSIS_TYPE,ANALYSIS_ANALYST_NAME,ANALYSIS_METHOD,ANALYSIS_DATA_TYPE,ANALYSIS_QA_CRITERIA,MODEL_NAME,MODEL_DESCRIPTION,RESEARCH_UNIT from biomart.vw_faceted_search fs
 LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assay_analysis_id
 " >
-            <field name="FACET_ID" column="FACET_ID" />
-            <field name="ANALYSIS_ID" column="ANALYSIS_ID" />
-            <field name="STUDY" column="STUDY" />
-            <field name="STUDY_ID" column="STUDY_ID" />
-            <field name="ANALYSES" column="ANALYSES" />
-            <field name="DATA_TYPE" column="DATA_TYPE" />
-            <field name="PLATFORM" column="PLATFORM" />
+        <field name="FACET_ID" column="FACET_ID" />
+        <field name="ANALYSIS_ID" column="ANALYSIS_ID" />
+        <field name="STUDY" column="STUDY" />
+        <field name="STUDY_ID" column="STUDY_ID" />
+        <field name="ANALYSES" column="ANALYSES" />
+        <field name="DATA_TYPE" column="DATA_TYPE" />
+        <field name="PLATFORM" column="PLATFORM" />
         <field name="PLATFORM_DESCRIPTION" column="PLATFORM_VENDOR" />
         <field name="PLATFORM_VENDOR" column="PLATFORM_DESCRIPTION" />
         <field name="PLATFORM_NAME" column="PLATFORM_NAME" />
-            <field name="OBSERVATION" column="OBSERVATION" />
-            <field column="DISEASE" splitBy="/" sourceColName="SOLR_HIERARCHY" />
+        <field name="OBSERVATION" column="OBSERVATION" />
+        <field column="DISEASE" splitBy="/" sourceColName="SOLR_HIERARCHY" />
 
         <field name="STUDY_TITLE" column="STUDY_TITLE" />
         <field name="STUDY_DESCRIPTION" column="STUDY_DESCRIPTION" />
@@ -44,7 +44,7 @@ LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assa
         <field name="ANALYSIS_QA_CRITERIA" column="ANALYSIS_QA_CRITERIA" />
         <field name="MODEL_NAME" column="MODEL_NAME" />
         <field name="MODEL_DESCRIPTION" column="MODEL_DESCRIPTION" />
-        <field name="RESEARCH_UNIT" column="RESEARCH_UNIT" splitBy="\|" />              
+        <field name="RESEARCH_UNIT" column="RESEARCH_UNIT" splitBy="\|" />
         </entity>
     </document>
 </dataConfig>
