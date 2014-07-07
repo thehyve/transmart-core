@@ -19,6 +19,8 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
+  library(Cairo)
+
   aberrations_dict <- c('loss', 'both', 'gain')
   aberrations_options <- c('-1', '0', '1')
   names(aberrations_dict) <- aberrations_options
@@ -146,10 +148,10 @@ acgh.group.test <- function
   
   if (aberrations == 'both')
   {
-    png(filename, width=1000, height=800)
+    CairoPNG(file=filename, width=1000, height=800)
     par(mfrow = c(2,1))
   } else {
-    png(filename, width=1000, height=400)
+    CairoPNG(file=filename, width=1000, height=400)
   }
 
   if (aberrations != 'loss')

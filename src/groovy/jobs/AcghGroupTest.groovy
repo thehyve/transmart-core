@@ -19,6 +19,6 @@ class AcghGroupTest extends AcghAnalysisJob {
 
     @Override
     protected getForwardPath() {
-        return "/AcghGroupTest/acghGroupTestOutput?jobName=${name}"
+        return "/aCGHgroupTest/aCGHgroupTestOutput?jobName=${name}"
     }
 }
