@@ -3,6 +3,9 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
+import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
+import org.transmartproject.db.ontology.DefaultConceptsResource
 import org.transmartproject.db.support.DatabasePortabilityService
 
 class TransmartCoreGrailsPlugin {
@@ -74,6 +77,15 @@ A runtime dependency for tranSMART that implements the Core API
         }
         if (!config.org.transmartproject.i2b2.group_id) {
             config.org.transmartproject.i2b2.group_id = 'Demo'
+        }
+
+        if (config.org.transmartproject.enableAcrossTrials != false) {
+            /* unless explicitly disabled, enable across trials functionality */
+            conceptsResourceService(AcrossTrialsConceptsResourceDecorator) {
+                inner = new DefaultConceptsResource()
+            }
+        } else {
+            conceptsResourceService(DefaultConceptsResource)
         }
     }
 

@@ -6,9 +6,9 @@ grails.databinding.trimStrings = false
 
 ///*
 //Example configuration for using the reveng plugin
-//grails.plugin.reveng.defaultSchema = 'DEAPP'
-//grails.plugin.reveng.includeTables = ['DE_SUBJECT_METABOLOMICS_DATA', 'DE_METABOLITE_ANNOTATION']
-//grails.plugin.reveng.packageName = 'org.transmartproject.db.dataquery.highdim.metabolite'
+grails.plugin.reveng.defaultSchema = 'i2b2demodata'
+grails.plugin.reveng.includeTables = ['modifier_dimension', 'modifier_metadata']
+grails.plugin.reveng.packageName = 'org.transmartproject.db.i2b2data'
 //*/
 
 log4j = {
