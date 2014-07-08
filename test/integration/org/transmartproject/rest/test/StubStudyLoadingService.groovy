@@ -40,14 +40,16 @@ class StubStudyLoadingService extends StudyLoadingService {
     }
 
     static Study createStudy(String studyId, String key) {
-        [
+        def study
+        study = [
                 getId: { -> studyId },
                 getOntologyTerm: { ->
                     [
                             getName:     { -> getComponents(key, -1) },
                             getFullName: { -> '\\' + getComponents(key, 3, -1) + '\\' },
                             getKey: { -> key },
-                            getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)}
+                            getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)},
+                            getStudy: { -> study }
                     ] as OntologyTerm
                 }
         ] as Study
