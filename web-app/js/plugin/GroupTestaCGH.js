@@ -8,94 +8,84 @@
  * GLOBAL PARAMETERS FOR GENERIC COMPONENTS
  * @type {number}
  */
-var GT_JOB_TYPE = 'aCGHgroupTest';
 
 var groupTestView;
 
-/**
- * Buttons for Input Panel
- * @type {Array}
- */
-var gtInputBarBtnList = ['->',{  // '->' making it right aligned
-	xtype: 'button',
-	text: 'Run Analysis',
-	scale: 'medium',
-	iconCls: 'runbutton',
-	handler: function () {
-		groupTestView.submitGroupTestJob();
-	}
-}];
-
 var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
-	regionPanel: null,
-	groupPanel: null,
-	statTestPanel: null,
-	alterationPanel: null,
+    regionPanel: null,
+    groupPanel: null,
+    statTestPanel: null,
+    alterationPanel: null,
 
-	statRadios: [
-		{boxLabel: 'Chi-square', name: 'stat-test-opt', XValue:'Chi-square'},
-		{boxLabel: 'Wilcoxon', name: 'stat-test-opt', XValue:'Wilcoxon'},
-		{boxLabel: 'Kruskal-Wallis', name: 'stat-test-opt', XValue:'KW'}
-	],
+    statRadios: [
+        {boxLabel: 'Chi-square', name: 'stat-test-opt', XValue: 'Chi-square'},
+        {boxLabel: 'Wilcoxon', name: 'stat-test-opt', XValue: 'Wilcoxon'},
+        {boxLabel: 'Kruskal-Wallis', name: 'stat-test-opt', XValue: 'KW'}
+    ],
 
-	alterationRadios: [
-		{boxLabel: 'GAIN', name: 'cb-col', XValue:'1'},
-		{boxLabel: 'LOSS', name: 'cb-col', XValue:'-1'},
-		{boxLabel: 'BOTH', name: 'cb-col', XValue:'0'}
-	],
+    alterationRadios: [
+        {boxLabel: 'GAIN', name: 'cb-col', XValue: '1'},
+        {boxLabel: 'LOSS', name: 'cb-col', XValue: '-1'},
+        {boxLabel: 'BOTH', name: 'cb-col', XValue: '0'}
+    ],
 
-	constructor: function(config) {
-		GroupTestInputWidget.superclass.constructor.apply(this, arguments);
-		this.init();
-	},
+    constructor: function (config) {
+        GroupTestInputWidget.superclass.constructor.apply(this, arguments);
+        this.init();
+    },
 
-	init: function() {
+    init: function () {
 
-		// define child panel configs
-		var childPanelConfig = [{
-			title: 'Region',
-			id:  'gt-input-region',
-			isDroppable: true,
-			notifyFunc: dropOntoCategorySelection,
-			toolTipTitle: 'Tip: Region',
-			toolTipTxt: 'Drag and drop aCGH region here.'
-		},{
-			title: 'Group',
-			id:  'gt-input-group',
-			isDroppable: true,
-			notifyFunc: dropOntoCategorySelection,
-			toolTipTitle: 'Tip: Group',
-			toolTipTxt: 'Drag and drop clinical variables to associate copy number data with. Please keep in mind that only ' +
-				'one variable can be compared, e.g. gender (female) with gender (male); not gender (female) with age ' +
-				'(>60)!'
-		},{
-			title: 'Statistical Test',
-			id: 'gt-input-stat-test',
-			toolTipTitle: 'Tip: Statistical Test',
-			toolTipTxt: '<ul><li><i>Chi-square</i>: test for association between aberration pattern and group label; can also do ' +
-				'multiple comparisons</li> <li><i>Wilcoxon</i>: rank-sum test for two groups</li> <li><i>Kruskal-Wallis</i>: generalisation of ' +
-				'Wilcoxon for more than two groups</li></ul>'
-		},{
-			title: 'Alteration Type',
-			id:  'gt-input-alteration',
-			toolTipTitle: 'Tip: Alteration Type',
-			toolTipTxt: 'Select type of chromosomal alteration to test the association.'
-		}];
+        // define child panel configs
+        var childPanelConfig = [
+            {
+                title: 'Region',
+                id: 'gt-input-region',
+                isDroppable: true,
+                notifyFunc: dropOntoCategorySelection,
+                toolTipTitle: 'Tip: Region',
+                toolTipTxt: 'Drag and drop aCGH region here.'
+            },
+            {
+                title: 'Group',
+                id: 'gt-input-group',
+                isDroppable: true,
+                notifyFunc: dropOntoCategorySelection,
+                toolTipTitle: 'Tip: Group',
+                toolTipTxt: 'Drag and drop clinical variables to associate copy number data with. Please keep in mind that only ' +
+                    'one variable can be compared, e.g. gender (female) with gender (male); not gender (female) with age ' +
+                    '(>60)!'
+            },
+            {
+                title: 'Statistical Test',
+                id: 'gt-input-stat-test',
+                toolTipTitle: 'Tip: Statistical Test',
+                toolTipTxt: '<ul><li><i>Chi-square</i>: test for association between aberration pattern and group label; can also do ' +
+                    'multiple comparisons</li> <li><i>Wilcoxon</i>: rank-sum test for two groups</li> <li><i>Kruskal-Wallis</i>: generalisation of ' +
+                    'Wilcoxon for more than two groups</li></ul>'
+            },
+            {
+                title: 'Alteration Type',
+                id: 'gt-input-alteration',
+                toolTipTitle: 'Tip: Alteration Type',
+                toolTipTxt: 'Select type of chromosomal alteration to test the association.'
+            }
+        ];
 
-		// create child panels
-		this.regionPanel = this.createChildPanel(childPanelConfig[0]);
-		this.groupPanel = this.createChildPanel(childPanelConfig[1]);
-		this.statTestPanel = this.createChildPanel(childPanelConfig[2]);
-		this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
+        // create child panels
+        this.regionPanel = this.createChildPanel(childPanelConfig[0]);
+        this.groupPanel = this.createChildPanel(childPanelConfig[1]);
+        this.statTestPanel = this.createChildPanel(childPanelConfig[2]);
+        this.alterationPanel = this.createChildPanel(childPanelConfig[3]);
 
-		// create check boxes
-		this.statTestPanel.add(this.createRadioBtnGroup(this.statRadios,'stat-test-chk-group'));
-		this.alterationPanel.add(this.createRadioBtnGroup(this.alterationRadios,'alteration-types-chk-group'));
+        // create check boxes
+        this.statTestPanel.add(this.createRadioBtnGroup(this.statRadios, 'stat-test-chk-group'));
+        this.alterationPanel.add(this.createRadioBtnGroup(this.alterationRadios, 'alteration-types-chk-group'));
 
-		// re-draw
-		this.doLayout();
-	}
+        // re-draw
+        this.doLayout();
+    }
 });
 
 /**
@@ -103,41 +93,48 @@ var GroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
  * @type {Array}
  * @private
  */
-var _grouptestgrid_columns = [{
-    id: 'chromosome', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
-    header: "chromosome",
-    dataIndex: 'chromosome',
-    width: 400,
-    sortable: true
-},{
-    header: "cytoband",
-    dataIndex: 'cytoband',
-    width: 100,
-    sortable: true
-},{
-    header: "start",
-    dataIndex: 'start',
-    width: 100,
-    sortable: true
-},{
-    header: "end",
-    dataIndex: 'end',
-    width: 100,
-    sortable: true
-},{
-    header: "pvalue",
-    dataIndex: 'pvalue',
-    width: 100,
-    align: 'right',
-    sortable: true
-},{
-    id: 'fdr',
-    header: "fdr",
-    dataIndex: 'fdr',
-    align: 'right',
-    width: 100,
-    sortable: true
-}];
+var _grouptestgrid_columns = [
+    {
+        id: 'chromosome', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
+        header: "chromosome",
+        dataIndex: 'chromosome',
+        width: 400,
+        sortable: true
+    },
+    {
+        header: "cytoband",
+        dataIndex: 'cytoband',
+        width: 100,
+        sortable: true
+    },
+    {
+        header: "start",
+        dataIndex: 'start',
+        width: 100,
+        sortable: true
+    },
+    {
+        header: "end",
+        dataIndex: 'end',
+        width: 100,
+        sortable: true
+    },
+    {
+        header: "pvalue",
+        dataIndex: 'pvalue',
+        width: 100,
+        align: 'right',
+        sortable: true
+    },
+    {
+        id: 'fdr',
+        header: "fdr",
+        dataIndex: 'fdr',
+        align: 'right',
+        width: 100,
+        sortable: true
+    }
+];
 
 /**
  * This object represents the intermediate result grid
@@ -145,9 +142,9 @@ var _grouptestgrid_columns = [{
  */
 var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
-    jobName : '',
+    jobName: '',
 
-    constructor: function(config) {
+    constructor: function (config) {
         GroupTestResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
@@ -174,7 +171,7 @@ var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
         // creating tab panel
         if (this.plotCurvePanel == null) {
-            this.plotCurvePanel =  new GenericTabPlotPanel({
+            this.plotCurvePanel = new GenericTabPlotPanel({
                 id: 'plotResultCurve',
                 renderTo: 'plotResultWrapper'
             });
@@ -184,9 +181,9 @@ var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
 var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
-    jobName : '',
+    jobName: '',
 
-    constructor: function(config) {
+    constructor: function (config) {
         GroupTestResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
@@ -209,177 +206,196 @@ var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
         try {
             Ext.destroy(Ext.get('downloadIframe'));
         }
-        catch(e) {}
+        catch (e) {
+        }
 
         // get the file
         Ext.DomHelper.append(document.body, {
             tag: 'iframe',
-            id:'downloadIframe',
+            id: 'downloadIframe',
             frameBorder: 0,
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath+"/aCGHgroupTest/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     }
 });
 
-    /**
+/**
  * This class represents the whole Group Test view
  * @type {*|Object}
  */
 var GroupTestView = Ext.extend(GenericAnalysisView, {
 
-	// input panel
-	inputBar : null,
+    // input panel
+    inputBar: null,
 
-	// result panel
-	resultPanel : null,
+    // result panel
+    resultPanel: null,
 
-	// alteration
-	alteration : '',
+    // alteration
+    alteration: '',
+
+    // job type
+    jobType: 'aCGHgroupTest',
 
     // job info
-    jobInfo : null,
+    jobInfo: null,
 
-	// constructor
-	constructor: function() {
-		this.init();
-	},
+    // constructor
+    constructor: function () {
+        this.init();
+    },
 
-	init: function() {
+    init: function () {
 
-		// first of all, let's reset all major components
-		this.resetAll();
+        // first of all, let's reset all major components
+        this.resetAll();
 
-		// draw input panel
-		this.inputBar = new GroupTestInputWidget({
-			id: 'gtInputPanel',
-			title: 'Input Parameters',
-			iconCls: 'newbutton',
-			renderTo: 'gtContainer',
-			bbar: this.createInputToolBar()
-		});
-	},
+        // draw input panel
+        this.inputBar = new GroupTestInputWidget({
+            id: 'gtInputPanel',
+            title: 'Input Parameters',
+            iconCls: 'newbutton',
+            renderTo: 'gtContainer',
+            bbar: this.createInputToolBar()
+        });
+    },
 
     redraw: function () {
         this.inputBar.doLayout();
     },
 
-	resetAll: function () {
-		this.tabIndex = 0;
-		Ext.destroy(this.inputBar);
-		Ext.destroy(this.resultPanel);
-	},
+    resetAll: function () {
+        this.tabIndex = 0;
+        Ext.destroy(this.inputBar);
+        Ext.destroy(this.resultPanel);
+    },
 
-	createInputToolBar: function() {
-		var _this = this;
-		return new Ext.Toolbar({
-			height: 30,
-			items: gtInputBarBtnList
-		});
-	},
+    createInputToolBar: function () {
+        var _this = this;
 
-	areAllMandatoryFieldsFilled: function() {
-		var isValid = true;
-		var invalidInputs = [];
+        /**
+         * Buttons for Input Panel
+         * @type {Array}
+         */
+        var gtInputBarBtnList = ['->', {  // '->' making it right aligned
+            xtype: 'button',
+            text: 'Run Analysis',
+            scale: 'medium',
+            iconCls: 'runbutton',
+            handler: function () {
+                groupTestView.submitGroupTestJob();
+            }
+        }];
 
-		var statisticalVal;
-		var alterationVal;
+        return new Ext.Toolbar({
+            height: 30,
+            items: gtInputBarBtnList
+        });
+    },
 
-		// check if region panel is empty
-		if (this.inputBar.regionPanel.isEmpty()) {
-			invalidInputs.push(this.inputBar.regionPanel.title);
-			isValid = false;
-		}
+    areAllMandatoryFieldsFilled: function () {
+        var isValid = true;
+        var invalidInputs = [];
 
-		// check if group panel is empty
-		if (this.inputBar.groupPanel.isEmpty()) {
-			invalidInputs.push(this.inputBar.groupPanel.title);
-			isValid = false;
-		}
+        var statisticalVal;
+        var alterationVal;
 
-		//check if stat test values has been selected
-		var statChkGroup = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
-		statisticalVal =  statChkGroup.getXValues();
-		if (statisticalVal.length < 1) {
-			isValid = false;
-			invalidInputs.push(this.inputBar.statTestPanel.title);
-		}
+        // check if region panel is empty
+        if (this.inputBar.regionPanel.isEmpty()) {
+            invalidInputs.push(this.inputBar.regionPanel.title);
+            isValid = false;
+        }
 
-		//check if alteration values has been selected
-		var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-		alterationVal =  alterationChkGroup.getSelectedValue();
+        // check if group panel is empty
+        if (this.inputBar.groupPanel.isEmpty()) {
+            invalidInputs.push(this.inputBar.groupPanel.title);
+            isValid = false;
+        }
 
-		if (!alterationVal) {
-			isValid = false;
-			invalidInputs.push(this.inputBar.alterationPanel.title);
-		}
+        //check if stat test values has been selected
+        var statChkGroup = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+        statisticalVal = statChkGroup.getXValues();
+        if (statisticalVal.length < 1) {
+            isValid = false;
+            invalidInputs.push(this.inputBar.statTestPanel.title);
+        }
 
-		if (!isValid) {
-			var strErrMsg = 'Following needs to be defined: ';
-			invalidInputs.each(function (item) {
-				strErrMsg += '['+item + '] ';
-			})
+        //check if alteration values has been selected
+        var alterationChkGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+        alterationVal = alterationChkGroup.getSelectedValue();
 
-			// inform user on mandatory inputs need to be defined
-			Ext.MessageBox.show({
-				title: 'Missing mandatory inputs',
-				msg: strErrMsg,
-				buttons: Ext.MessageBox.OK,
-				icon: Ext.MessageBox.ERROR
-			});
+        if (!alterationVal) {
+            isValid = false;
+            invalidInputs.push(this.inputBar.alterationPanel.title);
+        }
 
-		}
+        if (!isValid) {
+            var strErrMsg = 'Following needs to be defined: ';
+            invalidInputs.each(function (item) {
+                strErrMsg += '[' + item + '] ';
+            })
 
-		return isValid;
-	},
+            // inform user on mandatory inputs need to be defined
+            Ext.MessageBox.show({
+                title: 'Missing mandatory inputs',
+                msg: strErrMsg,
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
 
-	isGroupFieldValid: function() {
-		if (this.inputBar.groupPanel.getNumberOfConceptCodes() < 2) {
-			Ext.MessageBox.show({
+        }
+
+        return isValid;
+    },
+
+    isGroupFieldValid: function () {
+        if (this.inputBar.groupPanel.getNumberOfConceptCodes() < 2) {
+            Ext.MessageBox.show({
                 title: 'Incorrect number of groups',
                 msg: '[Group] input field should contain than one variables. Please add more variable.',
-				buttons: Ext.MessageBox.OK,
-				icon: Ext.MessageBox.ERROR
-			});
-			return false;
-		}
-		return true;
-	},
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+            return false;
+        }
+        return true;
+    },
 
-	validateInputs: function() {
-		return this.areAllMandatoryFieldsFilled() && this.isGroupFieldValid()
-	},
+    validateInputs: function () {
+        return this.areAllMandatoryFieldsFilled() && this.isGroupFieldValid()
+    },
 
-	createResultPlotPanel: function (jobName, view) {
+    createResultPlotPanel: function (jobName, view) {
 
-		var _this = view;
+        var _this = view;
 
-		// initialize image path
-		var imagePath = '';
+        // initialize image path
+        var imagePath = '';
 
 
-		// get image path
-		Ext.Ajax.request({
-			url: pageInfo.basePath+"/aCGHgroupTest/imagePath",
-			method: 'POST',
-			success: function(result, request){
+        // get image path
+        Ext.Ajax.request({
+            url: pageInfo.basePath + "/aCGHgroupTest/imagePath",
+            method: 'POST',
+            success: function (result, request) {
 
-				imagePath = result.responseText;
+                imagePath = result.responseText;
 
-				_this.resultPanel = new GenericPlotPanel({
-					id: 'plotResultCurve',
-					renderTo: 'gtPlotWrapper',
-					width:'100%',
-					frame:true,
-					height:600,
-					defaults: {autoScroll:true}
-				});
+                _this.resultPanel = new GenericPlotPanel({
+                    id: 'plotResultCurve',
+                    renderTo: 'gtPlotWrapper',
+                    width: '100%',
+                    frame: true,
+                    height: 600,
+                    defaults: {autoScroll: true}
+                });
 
-				// Getting the template as blue print for survival curve plot.
-				// Template is defined in GroupTestaCGH.gsp
-				var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
+                // Getting the template as blue print for survival curve plot.
+                // Template is defined in GroupTestaCGH.gsp
+                var groupTestPlotTpl = Ext.Template.from('template-group-test-plot');
 
                 var translatedAlteration = groupTestView.translateAlteration(
                     groupTestView.jobInfo.jobInputsJson.aberrationType
@@ -387,9 +403,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
                 var groupVariable = groupTestView.jobInfo.jobInputsJson.groupVariable;
                 var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
-				// create data instance
-				var region = {
-					filename: imagePath,
+                // create data instance
+                var region = {
+                    filename: imagePath,
                     jobName: groupTestView.jobInfo.name,
                     startDate: groupTestView.jobInfo.startDate,
                     runTime: groupTestView.jobInfo.runTime,
@@ -399,27 +415,27 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     inputCohort1: groupTestView.jobInfo.jobInputsJson.result_instance_id1,
                     inputCohort2: groupTestView.jobInfo.jobInputsJson.result_instance_id2,
                     inputAlteration: translatedAlteration
-				};
+                };
 
-				// generate template
-				groupTestPlotTpl.overwrite(Ext.get('gtPlotWrapper'), region);
+                // generate template
+                groupTestPlotTpl.overwrite(Ext.get('gtPlotWrapper'), region);
 
-				// generate download button
-				var exportBtn = new Ext.Button ({
-					text : 'Download Result',
-					iconCls : 'downloadbutton',
-					renderTo: 'downloadBtn',
-					handler: function () {
-						_this.downloadGroupTestResult(jobName);
-					}
-				});
-			},
-			params: {
-				jobName: jobName,
-				alteration: _this.alteration
-			}
-		});
-	},
+                // generate download button
+                var exportBtn = new Ext.Button({
+                    text: 'Download Result',
+                    iconCls: 'downloadbutton',
+                    renderTo: 'downloadBtn',
+                    handler: function () {
+                        _this.downloadGroupTestResult(jobName);
+                    }
+                });
+            },
+            params: {
+                jobName: jobName,
+                alteration: _this.alteration
+            }
+        });
+    },
 
     /**
      * generates intermediate result in grid panel
@@ -429,9 +445,9 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
         var _this = this;
 
-        Ext.Ajax.request ({
+        Ext.Ajax.request({
             // retrieve information about the job (status, inputs, run-time, etc)
-            url: pageInfo.basePath+"/asyncJob/getjobbyname",
+            url: pageInfo.basePath + "/asyncJob/getjobbyname",
             method: 'GET',
             success: function (result, request) {
 
@@ -445,7 +461,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     idProperty: 'threadid',
                     remoteSort: true,   // can be enhanced with remote sort
 
-                    baseParams: {jobName:jobName},
+                    baseParams: {jobName: jobName},
 
                     fields: [
                         'chromosome',
@@ -479,11 +495,11 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 Ext.destroy(Ext.get('intermediateGridPanel'));
 
                 // create new grid and render it
-                view.intermediateResultGrid  = new GroupTestResultGrid({
+                view.intermediateResultGrid = new GroupTestResultGrid({
                     id: 'intermediateGridPanel',
-                    title: 'Intermediate Result - Job Name: ' + jobName ,
+                    title: 'Intermediate Result - Job Name: ' + jobName,
                     renderTo: 'intermediateResultWrapper',
-                    trackMouseOver:false,
+                    trackMouseOver: false,
                     loadMask: true,
                     columns: _grouptestgrid_columns,
                     store: store,
@@ -494,7 +510,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 view.intermediateResultGrid.render();
 
                 // finally load the data
-                store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
+                store.load({params: {start: 0, limit: GEN_RESULT_GRID_LIMIT}});
             },
             failure: function (result, request) {
                 console.log('failure ....')
@@ -506,65 +522,94 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
     },
 
-	downloadGroupTestResult: function (jobName) {
+    downloadGroupTestResult: function (jobName) {
 
-		// clean up
-		try {
-			Ext.destroy(Ext.get('downloadIframe'));
-		}
-		catch(e) {}
+        // clean up
+        try {
+            Ext.destroy(Ext.get('downloadIframe'));
+        }
+        catch (e) {
+        }
 
-		// get the file
-		Ext.DomHelper.append(document.body, {
-			tag: 'iframe',
-			id:'downloadIframe',
-			frameBorder: 0,
-			width: 0,
-			height: 0,
-			css: 'display:none;visibility:hidden;height:0px;',
-			src: pageInfo.basePath+"/aCGHgroupTest/zipFile?jobName=" + jobName
-		});
-	},
+        // get the file
+        Ext.DomHelper.append(document.body, {
+            tag: 'iframe',
+            id: 'downloadIframe',
+            frameBorder: 0,
+            width: 0,
+            height: 0,
+            css: 'display:none;visibility:hidden;height:0px;',
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
+        });
+    },
 
-	onJobFinish: function(jobName, view) {
-		this.renderResults(jobName, view);
-	},
+    onJobFinish: function (jobName, view) {
+        this.renderResults(jobName, view);
+    },
 
-    renderResults: function(jobName, view) {
+    renderResults: function (jobName, view) {
         this.generateResultGrid(jobName, view);
         this.createResultPlotPanel(jobName, view);
     },
 
-	submitGroupTestJob: function () {
-		if (this.validateInputs()) {
+    submitGroupTestJob: function () {
+        var _this = this;
 
-			var regionVal = this.inputBar.regionPanel.getConceptCode();
-			var groupVals = this.inputBar.groupPanel.getConceptCodes();
-			var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
-			var statTestVal =  statTestComponent.getSelectedValue();
-			var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-			var alternationVal =  alternationComponent.getSelectedValue();
+        // Fill global subset ids if null
+        if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
+            (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
+            runAllQueries(function() {_this.submitGroupTestJob();});
+            return;
+        }
 
-			this.alteration = this.translateAlteration(alternationVal);
+        if (this.validateInputs()) {
 
-                        // create a string of all the concepts we need for the i2b2 data.
-                        var variablesConceptCode = regionVal;
-                        variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
+            var regionVal = this.inputBar.regionPanel.getConceptCode();
+            var groupVals = this.inputBar.groupPanel.getConceptCodes();
+            var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+            var statTestVal = statTestComponent.getSelectedValue();
+            var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+            var alternationVal = alternationComponent.getSelectedValue();
 
-			// compose params
-			var formParams = {
-				regionVariable: regionVal,
-				groupVariable: groupVals,
-				statisticsType: statTestVal,
-				aberrationType: alternationVal,
-                                variablesConceptPaths: variablesConceptCode,
-				jobType: GT_JOB_TYPE
-			};
+            this.alteration = this.translateAlteration(alternationVal);
 
-			var job = this.submitJob(formParams, this.onJobFinish, this);
-		}
+            // create a string of all the concepts we need for the i2b2 data.
+            var variablesConceptCode = regionVal;
+            variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
 
-	}
+            // compose params
+            var formParams = {
+                regionVariable: regionVal,
+                groupVariable: groupVals,
+                statisticsType: statTestVal,
+                aberrationType: alternationVal,
+                variablesConceptPaths: variablesConceptCode,
+                analysisConstraints: JSON.stringify({
+                    "job_type": _this.jobType,
+                    "data_type": "acgh",
+                    "assayConstraints": {
+                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                        "assay_id_list": null,
+                        "ontology_term": [
+                            {
+                                'term': regionVal,
+                                'options': {'type': "default"}
+                            }
+                        ],
+                        "trial_name": null
+                    },
+                    "dataConstraints": {
+                        "disjunction": null
+                    },
+                    "projections": ["acgh_values"]
+                }),
+                jobType: _this.jobType
+            };
+
+            var job = this.submitJob(formParams, this.onJobFinish, this);
+        }
+
+    }
 
 });
 
@@ -572,6 +617,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
  * Invoked when user selects Group Test aCGH from Analysis combo box
  */
 function loadGroupTestaCGHView() {
-	// everything starts here ..
-	groupTestView = new GroupTestView();
+    // everything starts here ..
+    groupTestView = new GroupTestView();
 }
