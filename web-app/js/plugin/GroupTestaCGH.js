@@ -217,7 +217,7 @@ var GroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath + "/aCGHgroupTest/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     }
 });
@@ -539,7 +539,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath + "/aCGHgroupTest/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     },
 
