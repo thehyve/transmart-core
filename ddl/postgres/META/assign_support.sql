@@ -86,18 +86,6 @@ BEGIN
             JOIN pg_roles r ON (c.relowner = r.oid)
         WHERE
             c.relkind IN ('r','S','v')
-            AND (
-                relkind <> 'S'
-                OR c.oid NOT IN ( --restriction to prevent error "cannot change owner; sequence is linked to table..."
-                    SELECT
-                        objid
-                    FROM
-                        pg_depend
-                    WHERE
-                        refobjsubid <> 0 -- dependent is a table
-                        AND deptype = 'a' -- dependency is automatic
-                )
-            )
         ORDER BY c.relkind = 'S'
     )
     UNION
