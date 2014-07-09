@@ -47,6 +47,7 @@ aggregate.probes = FALSE
     #Pull the GEX data from the file.
     mRNAData <- data.frame(read.delim(input.filename))
     if (nrow(mRNAData) == 0) {
+        CairoPNG(file = paste(output.file,".png",sep=""), width=1200, height=600,units = "px")
         Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
     }
 

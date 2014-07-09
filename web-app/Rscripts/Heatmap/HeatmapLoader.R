@@ -42,6 +42,10 @@ aggregate.probes = FALSE
 	
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
+	if (nrow(mRNAData) == 0) {
+        CairoPNG(file = paste(output.file,".png",sep=""), width=1200, height=600,units = "px")
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
     # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
@@ -272,4 +276,16 @@ Heatmap.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.
     write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
 
     finalData
+}
+
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
 }
