@@ -23,6 +23,7 @@ $spec = [
         ['BIOMART',      'BIO_ASSAY_FEATURE_GROUP',   'WRITE', ''],
         ['BIOMART',      'BIO_MARKER',                'WRITE', ''],
         ['BIOMART',      'BIO_ASSAY_DATA_ANNOTATION', 'WRITE', ''],
+        ['GALAXY',       '*TABLE',                    'FULL', ''],
     ],
     'TM_CZ' => [
         ['BIOMART',      '*TABLE',             'FULL', ''],
@@ -42,6 +43,7 @@ $spec = [
         ['TM_WZ',        '*VIEW',              'READ', ''],
         ['FMAPP',        '*TABLE',             'FULL', ''],
         ['AMAPP',        '*TABLE',             'FULL', ''],
+        ['GALAXY',       '*TABLE',             'FULL', ''],
     ],
     'SEARCHAPP' => [
         ['BIOMART', 'BIO_ASSAY_DATA_ANNOTATION', 'READ', 'GRANT_OPTION'],
