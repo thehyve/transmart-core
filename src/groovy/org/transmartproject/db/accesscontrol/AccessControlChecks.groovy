@@ -38,7 +38,7 @@ class AccessControlChecks {
                        ProtectedOperation protectedOperation,
                        Study study) {
 
-        if (user.roles.find { it.authority == 'ROLE_ADMIN' }) {
+        if (user.admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$study for user $this because he is an " +

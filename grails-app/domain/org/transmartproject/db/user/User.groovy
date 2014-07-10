@@ -25,7 +25,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             groups: Group
     ]
 
-    static transients = ['accessControlChecks']
+    static transients = ['accessControlChecks', 'admin']
 
     static mapping = {
         //table   schema: 'searchapp', name: 'search_auth_user'
@@ -65,6 +65,11 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         //federatedId nullable: true, unique: true
     }
 
+    /* not in api */
+    boolean isAdmin() {
+        roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }
+    }
+
     @Override
     boolean canPerform(ProtectedOperation protectedOperation,
                        ProtectedResource protectedResource) {
@@ -76,7 +81,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
                     "$protectedResource")
         }
 
-        if (roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }) {
+        if (admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$protectedResource for user $this because he is an " +
