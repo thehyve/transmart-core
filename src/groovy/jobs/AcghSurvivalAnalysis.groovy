@@ -120,11 +120,11 @@ class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initiali
                 '''acgh.survival.test(survival               = 'TIME',
                                       status                 = 'CENSOR',
                                       number.of.permutations = 10000,
-                                      test.aberrations       = $aberrationType)''',
+                                      test.aberrations       = '$aberrationType')''',
                 '''source('$pluginDirectory/aCGH/acgh-plot-survival.R')''',
                 '''acgh.plot.survival(survival             = 'TIME',
                                       status               = 'CENSOR',
-                                      aberrations          = $aberrationType,
+                                      aberrations          = '$aberrationType',
                                       confidence.intervals = '$confidenceIntervals')'''
         ]
     }
