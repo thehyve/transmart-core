@@ -41,6 +41,6 @@ class ModifierMetadataCoreDb implements Serializable {
         code      maxSize: 50
         valueType nullable: true,  maxSize: 10
         unit      nullable: true,  maxSize: 50
-        visitInd  nullable: false, maxSize: 1
+        visitInd  nullable: false
     }
 }
