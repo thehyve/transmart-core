@@ -39,9 +39,14 @@ class PatientSetQueryBuilderServiceTests {
         // Maybe making this an integration test would be preferable
         String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
 
+        def databasePortabilityStub = [
+                getDatabaseType: { -> POSTGRESQL }
+        ] as DatabasePortabilityService
+        service.databasePortabilityService = databasePortabilityStub
+
         def conceptsResourceServiceStub = [
                 getByKey: { String key ->
-                    new I2b2(
+                    def res = new I2b2(
                             factTableColumn    : 'concept_cd',
                             dimensionTableName : 'concept_dimension',
                             columnName         : 'concept_path',
@@ -49,14 +54,11 @@ class PatientSetQueryBuilderServiceTests {
                             operator           : 'LIKE',
                             dimensionCode      : new ConceptKey(key).conceptFullName.toString(),
                     )
+                    res.databasePortabilityService = databasePortabilityStub
+                    res
                 }
         ] as ConceptsResource
         service.conceptsResourceService = conceptsResourceServiceStub
-
-        def databasePortabilityStub = [
-                getDatabaseType: { -> POSTGRESQL }
-        ] as DatabasePortabilityService
-        service.databasePortabilityService = databasePortabilityStub
 
         resultInstance = new QtQueryResultInstance()
         resultInstance.id = 42

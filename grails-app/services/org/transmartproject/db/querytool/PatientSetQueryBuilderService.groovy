@@ -133,7 +133,7 @@ class PatientSetQueryBuilderService {
     private String doItem(AbstractQuerySpecifyingType term,
                           ConstraintByValue constraint) {
         /* constraint represented by the ontology term */
-        def clause = "$term.factTableColumn IN (${getQuerySql(term)})"
+        def clause = term.generateObservationFactConstraint()
 
         /* additional (and optional) constraint by value */
         if (!constraint) {
@@ -159,22 +159,6 @@ class PatientSetQueryBuilderService {
         }
 
         clause
-    }
-
-    /**
-     * Returns the SQL for the query that this object represents.
-     *
-     * @return raw SQL of the query that this type represents
-     */
-    private String getQuerySql(AbstractQuerySpecifyingType term) {
-        def res = "SELECT $term.factTableColumn " +
-                "FROM $term.dimensionTableName " +
-                "WHERE $term.columnName $term.operator $term.processedDimensionCode"
-        if (term.operator.equalsIgnoreCase('like') &&
-                databasePortabilityService.databaseType == ORACLE) {
-            res += " ESCAPE '\\'"
-        }
-        res
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,
