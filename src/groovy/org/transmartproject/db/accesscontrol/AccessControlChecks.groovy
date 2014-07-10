@@ -110,6 +110,54 @@ class AccessControlChecks {
         }
     }
 
+    /* Study is included if the user has ANY kind of access */
+    Set<Study> getAccessibleStudiesForUser(User user) {
+        /* this method could benefit from caching */
+        def studySet = studiesResource.studySet
+        if (user.admin) {
+            return studySet
+        }
+
+        List<I2b2Secure> allI2b2s = I2b2Secure.findAllByFullNameInList(
+                studySet*.ontologyTerm*.fullName as List)
+
+        allI2b2s.find { !it.secureObjectToken }?.collect {
+            throw new UnexpectedResultException("Found I2b2Secure object " +
+                    "with empty secureObjectToken")
+        }
+
+        Map<Study, String> studySOTMap = studySet.collectEntries { study ->
+            /* note that the user is GRANTED access to studies that don't
+             * have a corresponding I2b2Secure object. That is
+             * the reason for "?.(...) ?: PUBLIC_SOT" part below
+             */
+            [study, allI2b2s.find { i2b2secure ->
+                i2b2secure.fullName == study.ontologyTerm.fullName
+            }?.secureObjectToken ?: PUBLIC_SOT]
+        }
+
+        List<String> nonPublicSOTs = allI2b2s.findAll {
+            it.secureObjectToken && it.secureObjectToken != PUBLIC_SOT
+        }*.secureObjectToken
+
+        def query = session.createQuery '''
+            select soav.securedObject.bioDataUniqueId
+            from SecuredObjectAccessView soav
+            where (soav.user = :user OR soav.user is null)
+            and soav.securedObject.bioDataUniqueId IN (:tokens)
+            and soav.securedObject.dataType = 'BIO_CLINICAL_TRIAL'
+            '''
+        query.setParameter 'user', user
+        query.setParameterList 'tokens', nonPublicSOTs
+
+        List<String> userGrantedSOTs = nonPublicSOTs ? query.list() : []
+
+        studySet.findAll { Study study ->
+            studySOTMap[study] == PUBLIC_SOT ||
+                    studySOTMap[study] in userGrantedSOTs
+        }
+    }
+
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryDefinition definition) {

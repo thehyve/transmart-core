@@ -17,7 +17,7 @@ import org.transmartproject.db.ontology.I2b2Secure
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
@@ -172,6 +172,69 @@ class UserAccessLevelTests {
 
         shouldFail UnexpectedResultException, {
             fourthUser.canPerform(API_READ, getStudy(STUDY2))
+        }
+    }
+
+    @Test
+    void testGetAccessibleStudiesAdmin() {
+        def adminUser = accessLevelTestData.users[0]
+
+        def studies = adminUser.accessibleStudies
+        assertThat studies, hasItems(
+                hasProperty('id', equalTo(STUDY1)),
+                hasProperty('id', equalTo(STUDY2)),
+                hasProperty('id', equalTo(STUDY3)))
+    }
+
+    @Test
+    void testGetAccessibleStudiesPublicViaEveryoneGroup() {
+        def fourthUser = accessLevelTestData.users[3]
+
+        def studies = fourthUser.accessibleStudies
+        assertThat studies, hasItem(hasProperty('id', equalTo(STUDY3)))
+    }
+
+    @Test
+    void testGetAccessibleStudiesPublicViaPublicSecureAccessToken() {
+        def fourthUser = accessLevelTestData.users[3]
+
+        def studies = fourthUser.accessibleStudies
+        assertThat studies, hasItem(hasProperty('id', equalTo(STUDY1)))
+    }
+
+    @Test
+    void testGetAccessibleStudiesDeniedAccess() {
+        // fourth user has no access to study 2
+        def fourthUser = accessLevelTestData.users[3]
+
+        def studies = fourthUser.accessibleStudies
+        assertThat studies, not(hasItem(
+                hasProperty('id', equalTo(STUDY2))))
+    }
+
+    @Test
+    void testGetAccessibleStudiesAccessViaNoI2b2Secure() {
+        // fourth user has no access to study 2
+        def fourthUser = accessLevelTestData.users[3]
+
+        I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
+                delete(flush: true)
+
+        def studies = fourthUser.accessibleStudies
+        assertThat studies, hasItem(
+                hasProperty('id', equalTo(STUDY2)))
+    }
+
+    @Test
+    void testGetAccessibleStudiesEmptySOTShouldThrow() {
+        def fourthUser = accessLevelTestData.users[3]
+
+        def i2b2Secure =
+                I2b2Secure.findByFullName getStudy(STUDY2).ontologyTerm.fullName
+        i2b2Secure.secureObjectToken = null
+
+        shouldFail UnexpectedResultException, {
+            fourthUser.accessibleStudies
         }
     }
 

@@ -2,6 +2,7 @@ package org.transmartproject.db.user
 
 import org.hibernate.FetchMode
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
@@ -25,7 +26,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             groups: Group
     ]
 
-    static transients = ['accessControlChecks', 'admin']
+    static transients = ['accessControlChecks', 'admin', 'accessibleStudies']
 
     static mapping = {
         //table   schema: 'searchapp', name: 'search_auth_user'
@@ -92,5 +93,12 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         accessControlChecks.canPerform(this,
                                        protectedOperation,
                                        protectedResource)
+    }
+
+    /* not in API */
+    Set<Study> getAccessibleStudies() {
+        def studies = accessControlChecks.getAccessibleStudiesForUser this
+        log.debug "User $this has access to studies: ${studies*.id}"
+        studies
     }
 }
