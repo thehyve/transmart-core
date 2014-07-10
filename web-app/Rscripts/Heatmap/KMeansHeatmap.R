@@ -161,8 +161,6 @@ plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.f
     require(Cairo)
     require(gplots)
 
-    par(mar = c(0, 0, 0, 0))
-
     pxPerCell <- 15
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
     if (nrow(data) < 30 || ncol(data) < 30) {
@@ -201,6 +199,8 @@ plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.f
         CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
                  height = imageHeight, pointsize = hmPars$pointSize)
     }
+
+    par(mar = c(0, 0, 0, 0))
 
     heatmap.2(data,
               Rowv=NA,

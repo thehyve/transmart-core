@@ -26,7 +26,7 @@ class aCGHgroupTestController {
 	 * This function will return the image path
 	 */
 	def imagePath = {
-		def imagePath = "${RModulesOutputRenderService.imageURL}${params.jobName}/groups-test.png"
+		def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/groups-test.png"
 		render imagePath
 	}
 
@@ -34,7 +34,7 @@ class aCGHgroupTestController {
 	 * This function returns survival acgh analysis result in zipped file
 	 */
 	def zipFile = {
-		def zipFile = new File("${config.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
+		def zipFile = new File("${RModulesOutputRenderService.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
 		if(zipFile.exists()) {
 			response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
 			response.contentType  = 'application/octet-stream'
@@ -51,7 +51,7 @@ class aCGHgroupTestController {
             render new JSON([error: 'jobName parameter is required. It should contains just alphanumeric characters and dashes.'])
             return
         }
-        def file = new File("${config.tempFolderDirectory}", "${params.jobName}/workingDirectory/groups-test.txt")
+        def file = new File("${RModulesOutputRenderService.tempFolderDirectory}", "${params.jobName}/workingDirectory/groups-test.txt")
         if (file.exists()) {
             def fields = params.fields?.split('\\s*,\\s*') as Set ?: DEFAULT_FIELDS
 

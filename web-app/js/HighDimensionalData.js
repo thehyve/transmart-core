@@ -34,13 +34,14 @@ var HighDimensionalData = function () {
 
     // div id
     this.divId = null;
+    
+    this.hideAggregration = null;
 }
 
 /**
  * Populate data to the popup window
  */
 HighDimensionalData.prototype.populate_data = function () {
-
     for (var key in this.data) {
         if (this.data.hasOwnProperty(key)) {
 
@@ -73,73 +74,20 @@ HighDimensionalData.prototype.populate_data = function () {
                     document.getElementById("tissue1").value = _strTissueTypes;
                 }
 
-                this.new_create_pathway_search_box('searchPathway', 'divpathway');
+                this.create_pathway_search_box('searchPathway', 'divpathway');
+                
+            	document.getElementById("probesAggregation").checked = false;
+                if(this.hideAggregration){
+                	document.getElementById("probesAggregationDiv").style.visibility = "hidden";
+                }else{
+                	document.getElementById("probesAggregationDiv").style.visibility = "visible";
+                }
             }
 
         } else {
             Ext.Msg.alert("Error", "Returned object is unknown.");
         }
     }
-}
-
-HighDimensionalData.prototype.new_create_pathway_search_box = function (searchInputEltName, divName) {
-
-    var el = document.getElementById(searchInputEltName);
-    if (el) {
-        el.value = '';   // empty the search input value
-        // then remove all child elements
-        while (el.firstChild) {
-            el.removeChild(el.firstChild);
-        }
-    }
-
-    '<span class="category-{display:lowercase}">{display}&gt;{source}</span>&nbsp;',
-        '<b>{keyword}</b>&nbsp; {synonyms}',
-
-        jQuery( "#searchPathway" ).autocomplete({
-            source: function( request, response ) {
-                jQuery.ajax({
-                    url: pageInfo.basePath + '/search/loadSearchPathways',
-                    dataType: "json",
-                    data: {
-                        query: request.term
-                    },
-                    success: function( data ) {
-                        response( jQuery.map( data.rows, function( item ) {
-                            return {
-                                label: item.display + ">" + item.source + " " + item.keyword + " " + item.synonyms,
-                                value: item.keyword,
-                                id: item.id
-                            }
-                        }));
-                    }
-                });
-            },
-            minLength: 1,
-            select: function( event, ui ) {
-                var sp = Ext.get(searchInputEltName);
-                sp.dom.value = ui.item.keyword;
-                GLOBAL.CurrentPathway = ui.item.id;
-                GLOBAL.CurrentPathwayName = ui.item.keyword;
-            },
-            open: function() {
-
-                jQuery(this).removeClass( "ui-corner-all" ).addClass( "ui-corner-top");
-
-            },
-            close: function() {
-
-                jQuery(this).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-            }
-        });
-
-    if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType == 'PCA') {
-        //Clear the pathway variable so we don't submit a value.
-        GLOBAL.CurrentPathway = '';
-        //Remove the pathway box.
-        document.getElementById(divName).style.display = "none";
-    }
-
 }
 
 HighDimensionalData.prototype.create_pathway_search_box = function (searchInputEltName, divName) {
@@ -372,10 +320,10 @@ HighDimensionalData.prototype.get_inputs = function (divId) {
     ]
 }
 
-HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
+HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration) {
 
     var _this = this;
-
+    this.hideAggregration=hideAggregration;
     /**
      * Reset global variables
      * @private
@@ -399,7 +347,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId) {
     if (!variableDivEmpty(divId)
         && ((GLOBAL.CurrentSubsetIDs[1] == null) || (multipleSubsets() && GLOBAL.CurrentSubsetIDs[2] == null))) {
         runAllQueriesForSubsetId(function () {
-            _this.gather_high_dimensional_data(divId);
+            _this.gather_high_dimensional_data(divId, hideAggregration);
         }, divId);
         return;
     }
@@ -644,7 +592,6 @@ HighDimensionalData.prototype.display_high_dimensional_popup = function () {
 
     // generate view and populate it with the data
     this.view = this.generate_view();
-
     // then show it
     if (typeof viewport !== undefined) {
         this.view.show(viewport, this.populate_data());

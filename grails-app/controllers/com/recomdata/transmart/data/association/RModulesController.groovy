@@ -37,13 +37,15 @@ class RModulesController {
             "RBM":              "rbm",
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
-            "METABOLOMICS":     "metabolite"
+            "METABOLOMICS":     "metabolite",
+            "acgh":             "acgh"
     ]
 
     private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
 
     def springSecurityService
     def asyncJobService
+    def currentUserBean
     def RModulesService
     def grailsApplication
     def jobResultsService
@@ -117,6 +119,15 @@ class RModulesController {
             case 'waterfall':
                 jsonResult = createJob(params, Waterfall, false)
                 break
+            case 'logisticRegression':
+                jsonResult = createJob(params, LogisticRegression, false)
+                break
+            case 'histogram':
+                jsonResult = createJob(params, Histogram, false)
+                break
+            case 'acghFrequencyPlot':
+                jsonResult = createJob(params, AcghFrequencyPlot)
+                break
             default:
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
@@ -137,6 +148,7 @@ class RModulesController {
         }
 
         params.put(PARAM_USER_PARAMETERS, userParams)
+        params.put(PARAM_USER_IN_CONTEXT, currentUserBean.targetSource.target)
 
         JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
         jobDetail.jobDataMap  = new JobDataMap(params)

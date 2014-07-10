@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
 
 @Component
 @Scope('job')
-class LineGraph extends AbstractAnalysisJob {
+class LineGraph extends AbstractLocalRAnalysisJob {
 
     private static final String SCALING_VALUES_FILENAME = 'conceptScaleValues'
 
@@ -80,7 +80,6 @@ class LineGraph extends AbstractAnalysisJob {
         groupByConfigurator.setConstantColumnFallback 'SINGLE_GROUP'
 
         conceptTimeValues.conceptPaths = measurementConfigurator.getConceptPaths()
-        conceptTimeValues.enabledClosure = { -> !Boolean.parseBoolean(params.getProperty('plotEvenlySpaced')) }
     }
 
     @Override
@@ -133,7 +132,8 @@ class LineGraph extends AbstractAnalysisJob {
                 '''LineGraph.loader(
                     input.filename           = '$inputFileName',
                     graphType                = '$graphType',
-                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"}
+                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"},
+                    plotEvenlySpaced = '$plotEvenlySpaced'
         )''' ]
     }
 

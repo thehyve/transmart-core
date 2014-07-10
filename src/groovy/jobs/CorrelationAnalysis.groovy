@@ -20,7 +20,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class CorrelationAnalysis extends AbstractAnalysisJob {
+class CorrelationAnalysis extends AbstractLocalRAnalysisJob {
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
@@ -51,11 +51,11 @@ class CorrelationAnalysis extends AbstractAnalysisJob {
                 params: params)
 
         steps << new BuildTableResultStep(
-                table:         table,
+                table: table,
                 configurators: [columnConfigurator])
 
         steps << new CorrelationAnalysisDumpDataStep(
-                table:              table,
+                table: table,
                 temporaryDirectory: temporaryDirectory,
                 groupNamesHolder:   holder,
                 outputFileName: DEFAULT_OUTPUT_FILE_NAME)

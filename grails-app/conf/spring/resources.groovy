@@ -9,6 +9,9 @@ import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.querytool.QueriesResource
+import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.core.users.User
 
 @Log4j
 class GMockFactoryBean implements FactoryBean {
@@ -66,6 +69,40 @@ class GroovyInterceptableProxyFactoryBean implements FactoryBean {
     }()
 }
 
+@Log4j
+class CurrentUserBeanMockFactory implements FactoryBean<User> {
+    final Class<?> objectType = User
+
+    final boolean singleton = true
+
+    void registerBeanToTry(String beanName) {
+        log.debug('Mocked call to &currentUserBean.registerBeanToTry with ' +
+                "beanName=$beanName")
+    }
+
+    User getObject() throws Exception {
+        [
+            canPerform: { ProtectedOperation operation,
+                          ProtectedResource protectedResource ->
+                log.debug("Mocked call to currentUserBean.canPerform with " +
+                        "operation=$operation, " +
+                        "protectedResource=$protectedResource")
+                true
+            }
+        ] as User
+    }
+
+    /* the application is aware that currentUserBean is a BeanFactory that
+     * returns proxies. Hence, on doWithApplicationContext, we get a
+     * reference to the bean factory itself (with &) and in RModulesController
+     * we call currentUserBean.targetSource.
+     * The first case is covered here by implementing registerBeanToTry(),
+     * but the second is not necessary because we're not testing
+     * RModulesController. If we did, we'd need to have the object returned
+     * by getObject() to provide a getTargetSource method.
+     */
+}
+
 beans = {
     /*
      *  Note that this file is only used for testing.
@@ -108,4 +145,6 @@ beans = {
         bean.scope = 'job'
     }
 
+    /* Mock of transmartApp bean */
+    currentUserBean CurrentUserBeanMockFactory
 }

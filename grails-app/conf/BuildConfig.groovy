@@ -47,8 +47,11 @@ grails.project.dependency.resolution = {
     log "warn"
 
     repositories {
+        // grailsPlugins()
+        // grailsHome()
         grailsCentral()
 
+        mavenLocal()
         mavenCentral()
         mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
     }
@@ -59,7 +62,7 @@ grails.project.dependency.resolution = {
 
         /* serializable ImmutableMap only on guava 16 */
         compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
-        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
+        compile 'org.transmartproject:transmart-core-api:1.0-LH-SNAPSHOT'
 
         /* compile instead of test due to technical limitations
          * (referenced from resources.groovy) */
@@ -67,6 +70,9 @@ grails.project.dependency.resolution = {
             transitive = false /* don't bring groovy-all */
             export     = false
         }
+        //Galaxy
+        runtime 'com.github.jmchilton.blend4j:blend4j:0.1-alpha-7'
+
         test('org.hamcrest:hamcrest-library:1.3',
                 'org.hamcrest:hamcrest-core:1.3') {
             export     = false

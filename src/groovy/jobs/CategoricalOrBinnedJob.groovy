@@ -12,7 +12,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
-abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements InitializingBean {
+abstract class CategoricalOrBinnedJob extends AbstractLocalRAnalysisJob implements InitializingBean {
 
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
