@@ -305,7 +305,7 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath+"/survivalAnalysisResult/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     }
 
