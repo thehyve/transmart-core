@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.Item
@@ -158,6 +159,20 @@ class UserAccessLevelTests {
                 delete(flush: true)
 
         assertThat fourthUser.canPerform(API_READ, getStudy(STUDY2)), is(true)
+    }
+
+    @Test
+    void testStudyWithEmptyToken() {
+        // this should never happen. So we throw
+
+        def fourthUser = accessLevelTestData.users[3]
+
+        def i2b2Secure = I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName)
+        i2b2Secure.secureObjectToken = null
+
+        shouldFail UnexpectedResultException, {
+            fourthUser.canPerform(API_READ, getStudy(STUDY2))
+        }
     }
 
     @Test

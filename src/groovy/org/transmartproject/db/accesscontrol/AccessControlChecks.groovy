@@ -1,10 +1,11 @@
 package org.transmartproject.db.accesscontrol
 
-import grails.util.Holders
 import groovy.util.logging.Log4j
+import org.hibernate.SessionFactory
 import org.hibernate.classic.Session
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
@@ -28,11 +29,20 @@ import org.transmartproject.db.user.User
 @Component
 class AccessControlChecks {
 
+    public static final String PUBLIC_SOT = 'EXP:PUBLIC'
+
     @Autowired
     ConceptsResource conceptsResource
 
     @Autowired
     StudiesResource studiesResource
+
+    @Autowired
+    SessionFactory sessionFactory
+
+    Session getSession() {
+        sessionFactory.currentSession
+    }
 
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
@@ -58,15 +68,18 @@ class AccessControlChecks {
         }
 
         String token = secure.secureObjectToken
+        if (!token) {
+            throw new UnexpectedResultException("Found i2b2secure object with empty token")
+        }
         log.debug "Token for $study is $token"
 
         /* if token is EXP:PUBLIC, always permit */
-        if (token == 'EXP:PUBLIC') {
+        if (token == PUBLIC_SOT) {
             return true
         }
 
-        /* see if the user has some access level for this */
-        Session session = Holders.applicationContext.sessionFactory.currentSession
+        /* see if the user has some access level for this
+         * soav.user will be null to indicate access to EVERYONE_GROUP */
         def query = session.createQuery '''
             select soav.accessLevel from SecuredObjectAccessView soav
             where (soav.user = :user OR soav.user is null)
