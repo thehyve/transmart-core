@@ -12,6 +12,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.db.ontology.I2b2Secure
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
@@ -145,6 +146,18 @@ class UserAccessLevelTests {
         def fifthUser = accessLevelTestData.users[4]
 
         assertThat fifthUser.canPerform(SHOW_SUMMARY_STATISTICS, getStudy(STUDY2)), is(true)
+    }
+
+    @Test
+    void testStudyWithoutI2b2Secure() {
+        // such a study should be treated as public
+        // fourth user has no access to study 2
+        def fourthUser = accessLevelTestData.users[3]
+
+        I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
+                delete(flush: true)
+
+        assertThat fourthUser.canPerform(API_READ, getStudy(STUDY2)), is(true)
     }
 
     @Test
