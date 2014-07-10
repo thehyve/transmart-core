@@ -170,7 +170,8 @@ class PatientSetQueryBuilderService {
         def res = "SELECT $term.factTableColumn " +
                 "FROM $term.dimensionTableName " +
                 "WHERE $term.columnName $term.operator $term.processedDimensionCode"
-        if (databasePortabilityService.databaseType == ORACLE) {
+        if (term.operator.equalsIgnoreCase('like') &&
+                databasePortabilityService.databaseType == ORACLE) {
             res += " ESCAPE '\\'"
         }
         res
