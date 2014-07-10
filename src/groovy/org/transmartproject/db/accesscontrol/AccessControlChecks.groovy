@@ -14,8 +14,12 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
+
+import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
 /**
  * Access control methods for use in {@link org.transmartproject.db.user.User}.
@@ -170,8 +174,13 @@ class AccessControlChecks {
         // check there is at least one non-inverted panel for which the user
         // has permission in all the terms
         def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
-            Set<Study> foundStudies = panel.items.collect { Item item ->
-
+            Set<Study> foundStudies = panel.items.findAll { Item item ->
+                /* always permit across trial nodes.
+                 * Across trial terms have no study, so they have to be
+                 * handled especially */
+                new ConceptKey(item.conceptKey).tableCode !=
+                       ACROSS_TRIALS_TABLE_CODE
+            }.collect { Item item ->
                 /* this could be optimized by adding a new method in
                  * StudiesResource */
                 def concept = conceptsResource.getByKey(item.conceptKey)
