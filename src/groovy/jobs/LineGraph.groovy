@@ -80,7 +80,6 @@ class LineGraph extends AbstractLocalRAnalysisJob {
         groupByConfigurator.setConstantColumnFallback 'SINGLE_GROUP'
 
         conceptTimeValues.conceptPaths = measurementConfigurator.getConceptPaths()
-        conceptTimeValues.enabledClosure = { -> !Boolean.parseBoolean(params.getProperty('plotEvenlySpaced')) }
     }
 
     @Override
@@ -133,7 +132,8 @@ class LineGraph extends AbstractLocalRAnalysisJob {
                 '''LineGraph.loader(
                     input.filename           = '$inputFileName',
                     graphType                = '$graphType',
-                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"}
+                    scaling.filename  = ${scalingFilename == 'null' ? 'NULL' : "'$scalingFilename'"},
+                    plotEvenlySpaced = '$plotEvenlySpaced'
         )''' ]
     }
 

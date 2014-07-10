@@ -67,7 +67,7 @@ ScatterPlot.loader <- function(
 			#Pull the records into another object.
 			currentGroupingData <- line.data[currentIndex,]
 			
-			trimmedGroupName <- gsub("^\\s+|\\s+$", "",currentGroup)
+			trimmedGroupName <- gsub("^\\s+|\\s+$| \\(.*\\)$", "",currentGroup)
 
 			#This is the filename for this group.
 			fileName <- paste("LinearRegression_",trimmedGroupName,".txt",sep="")
@@ -150,7 +150,7 @@ ScatterPlot.loader <- function(
 		#Create the function that actually does the graphing.
 		graphSubset <- function(currentGroup,dataToGraph)
 		{
-			trimmedGroupName <- gsub("^\\s+|\\s+$", "",currentGroup)
+			trimmedGroupName <- gsub("^\\s+|\\s+$| \\(.*\\)$", "",currentGroup)
 			
 			CairoPNG(file=paste(output.file,"_",trimmedGroupName,".png",sep=""),width=800,height=800)
 			
