@@ -173,8 +173,8 @@ ScatterPlot.loader <- function(
             tmp <- tmp + geom_point(size = 4)
             tmp <- tmp + aes(shape = GROUP.1)
             tmp <- tmp + stat_smooth(method="lm", se=FALSE,size=1.25)
-            tmp <- tmp + scale_colour_manual(values = rep_len(brewer.pal(noColors, "Set1"), length.out = noPoints))
-            tmp <- tmp + scale_shape_manual(values = rep_len(shapesToUse, length.out = noPoints))
+            tmp <- tmp + scale_colour_manual(values = rep(brewer.pal(noColors, "Set1"), length.out = noPoints))
+            tmp <- tmp + scale_shape_manual(values = rep(shapesToUse, length.out = noPoints))
             tmp <- tmp + scale_x_continuous(modifiedXAxisLabel)
             tmp <- tmp + scale_y_continuous(yAxisLabel)
 			
@@ -199,8 +199,8 @@ ScatterPlot.loader <- function(
         tmp <- tmp + aes(shape = GROUP)
         tmp <- tmp + geom_point(size = 4)
         tmp <- tmp + stat_smooth(method="lm", se=FALSE,size=1.25)
-        tmp <- tmp + scale_colour_manual(values = rep_len(brewer.pal(noColors, "Set1"), length.out = noPoints))
-        tmp <- tmp + scale_shape_manual(values = rep_len(shapesToUse, length.out = noPoints))
+        tmp <- tmp + scale_colour_manual(values = rep(brewer.pal(noColors, "Set1"), length.out = noPoints))
+        tmp <- tmp + scale_shape_manual(values = rep(shapesToUse, length.out = noPoints))
         tmp <- tmp + scale_x_continuous(xAxisLabel)
         tmp <- tmp + scale_y_continuous(yAxisLabel)
 		
