@@ -21,4 +21,5 @@ order by REF_ARTICLE_PROTOCOL_ID, PRIMARY_ENDPOINT_TYPE
  
  
  
- ;
+;
+ 

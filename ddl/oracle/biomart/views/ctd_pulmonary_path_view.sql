@@ -19,4 +19,5 @@ order by REF_ARTICLE_PROTOCOL_ID, PULMONARY_PATHOLOGY_NAME
  
  
  
- ;
+;
+ 

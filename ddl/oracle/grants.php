@@ -32,7 +32,7 @@ $spec = [
         ['BIOMART',      '*VIEW',              'READ', ''],
         ['BIOMART',      'TEA_NPV_PRECOMPUTE', 'EXECUTE', ''], /* I2B2_LOAD_OMICSOFT_DATA */
         ['DEAPP',        '*TABLE',             'FULL', ''],
-        ['DEAPP',        '@SEQUENCE',          'READ', ''],
+        ['DEAPP',        '*SEQUENCE',          'READ', ''],
         ['I2B2DEMODATA', '*TABLE',             'FULL', ''],
         ['I2B2DEMODATA', '*SEQUENCE',          'READ', ''],
         ['I2B2METADATA', '*TABLE',             'FULL', ''],

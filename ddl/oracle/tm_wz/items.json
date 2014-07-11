@@ -15,13 +15,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_WZ",
-      "name" : "UTIL_GRANT_ALL"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "TM_WZ",
       "name" : "WRK_CLINICAL_DATA"
@@ -501,13 +494,6 @@
       "name" : "TMP_ASSAY_ANALYSIS_METRICS"
     },
     "file" : "tm_wz/tmp_assay_analysis_metrics.sql"
-  }, {
-    "item" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_WZ",
-      "name" : "UTIL_GRANT_ALL"
-    },
-    "file" : "tm_wz/procedures/util_grant_all.sql"
   }, {
     "item" : {
       "type" : "TABLE",

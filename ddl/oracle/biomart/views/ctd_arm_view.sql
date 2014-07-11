@@ -30,4 +30,5 @@ order by REF_ARTICLE_PROTOCOL_ID, ARM, to_number(ARM_NBR_OF_PATIENTS_STUDIED)
  
  
  
- ;
+;
+ 

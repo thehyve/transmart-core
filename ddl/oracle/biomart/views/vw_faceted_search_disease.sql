@@ -35,3 +35,4 @@ group by x.bio_assay_analysis_id, x.top_node
 order by x.bio_assay_analysis_id) y
 group by y.bio_assay_analysis_id) z
 order by bio_assay_analysis_id;
+ 

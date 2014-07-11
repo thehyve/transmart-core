@@ -1091,3 +1091,4 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 		select 166 into rtn_code from dual;
 END;
 /
+ 

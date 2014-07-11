@@ -4576,6 +4576,28 @@
       "owner" : "I2B2DEMODATA",
       "name" : "VISIT_DIMENSION"
     } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "VW_FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "VW_FACETED_SEARCH_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH_DISEASE"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
