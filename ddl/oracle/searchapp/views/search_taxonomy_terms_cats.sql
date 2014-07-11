@@ -1,8 +1,8 @@
 --
 -- Type: VIEW; Owner: SEARCHAPP; Name: SEARCH_TAXONOMY_TERMS_CATS
 --
-CREATE OR REPLACE FORCE VIEW "SEARCHAPP"."SEARCH_TAXONOMY_TERMS_CATS" ("TERM_ID", "TERM_NAME", "CATEGORY_NAME") AS 
-SELECT DISTINCT unoin_results.term_id,
+  CREATE OR REPLACE FORCE VIEW "SEARCHAPP"."SEARCH_TAXONOMY_TERMS_CATS" ("TERM_ID", "TERM_NAME", "CATEGORY_NAME") AS 
+  SELECT DISTINCT unoin_results.term_id,
   unoin_results.term_name,
   unoin_results.category_name
  FROM (        (        (        (         SELECT search_taxonomy_level1.term_id,
@@ -28,5 +28,5 @@ SELECT DISTINCT unoin_results.term_id,
                SELECT search_taxonomy_level5.term_id,
                   search_taxonomy_level5.term_name,
                   search_taxonomy_level5.category_name
-                 FROM searchapp.search_taxonomy_level5) unoin_results;
-
+FROM searchapp.search_taxonomy_level5) unoin_results;
+ 

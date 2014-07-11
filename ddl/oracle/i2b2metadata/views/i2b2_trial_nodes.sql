@@ -11,5 +11,5 @@
       WHERE c_comment IS NOT NULL)
 SELECT c_fullname, substr(CAST (c_comment AS VARCHAR2(100)), 7) AS trial
   FROM ranked_i2b2
- WHERE rank = 1;
+WHERE rank = 1;
  

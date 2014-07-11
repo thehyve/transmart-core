@@ -2,9 +2,9 @@
 
 DIR=`dirname "$0"`
 RUN_SQL_DIR=$DIR/../../../../ddl/oracle/_scripts
-RUN_SQL_COMMAND="groovy -cp $JDBC_DRIVER:$RUN_SQL_DIR $RUN_SQL_DIR/run_sql.groovy"
-LOAD_TSV_COMMAND="groovy -cp $JDBC_DRIVER LoadTsvFile.groovy"
-LOAD_PLATFORM_COMMAND="groovy -cp $JDBC_DRIVER InsertGplInfo.groovy"
+RUN_SQL_COMMAND="groovy -cp $LIB_CLASSPATH:$RUN_SQL_DIR $RUN_SQL_DIR/run_sql.groovy"
+LOAD_TSV_COMMAND="groovy -cp $LIB_CLASSPATH LoadTsvFile.groovy"
+LOAD_PLATFORM_COMMAND="groovy -cp $LIB_CLASSPATH InsertGplInfo.groovy"
 
 
 # Check input parameters
@@ -44,8 +44,7 @@ do
     source "$DIR/../../../common/_scripts/vcf/$TSVFILE.ctl"
 
     echo "Processing text file $FILENAME"
-
-	# Tab delimiter must be escaped when calling groovy script
+		# Tab delimiter must be escaped when calling groovy script
     if [ $DELIMITER = "\t" ]
     then
 		$LOAD_TSV_COMMAND \

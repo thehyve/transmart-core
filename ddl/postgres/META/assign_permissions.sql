@@ -77,7 +77,7 @@ DECLARE
     dummy record;
 BEGIN
     IF NOT schema_name = ANY(ARRAY['i2b2demodata', 'i2b2metadata', 'deapp',
-            'searchapp', 'biomart', 'amapp', 'fmapp', 'biomart_user']) THEN
+            'searchapp', 'galaxy', 'biomart', 'amapp', 'fmapp', 'biomart_user']) THEN
         RETURN NULL;
     END IF;
 
@@ -152,7 +152,7 @@ BEGIN
             WHEN 'v' THEN 'TABLE'
             WHEN 'S' THEN 'SEQUENCE'
             WHEN 'f' THEN 'FUNCTION'
-            WHEN 'f' THEN 'AGGREGATE'
+            WHEN 'a' THEN 'FUNCTION' -- It's actually AGGREGATE, but we have to reference to it as FUNCTION in DDL
             WHEN 's' THEN 'SCHEMA'
             WHEN 'T' THEN 'TABLESPACE'
             ELSE 'BAD TYPE: ' || type
@@ -274,6 +274,7 @@ BEGIN
             'fmapp',
             'deapp',
             'searchapp',
+            'galaxy',
             'biomart',
             'biomart_user',
             'tm_cz',

@@ -230,7 +230,22 @@
       "owner" : "SEARCHAPP",
       "name" : "SAVED_FACETED_SEARCH"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_USER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH_USER_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH"
+    } ]
   }, {
     "child" : {
       "type" : "REF_CONSTRAINT",
@@ -1083,6 +1098,17 @@
       "owner" : "SEARCHAPP",
       "name" : "SEQ_SEARCH_DATA_ID"
     } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_UPD_SAVED_FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH"
+    } ]
   } ],
   "fileAssignments" : [ {
     "item" : {
@@ -1250,6 +1276,13 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SAVED_FACETED_SEARCH"
+    },
+    "file" : "searchapp/saved_faceted_search.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH_USER_ID"
     },
     "file" : "searchapp/saved_faceted_search.sql"
   }, {
@@ -1728,5 +1761,12 @@
       "name" : "TRG_SEARCH_TAXONOMY_TERM_ID"
     },
     "file" : "searchapp/search_taxonomy.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_UPD_SAVED_FACETED_SEARCH"
+    },
+    "file" : "searchapp/saved_faceted_search.sql"
   } ]
 }

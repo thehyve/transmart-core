@@ -194,6 +194,20 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "TABLE_ACCESS"
@@ -418,6 +432,20 @@
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/_misc.sql"
   }, {

@@ -1,3 +1,22 @@
+/*
+ * Copyright © 2013-2014 The Hyve B.V.
+ *
+ * This file is part of transmart-data.
+ *
+ * Transmart-data is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 @Grab(group = 'net.sf.opencsv', module = 'opencsv', version = '2.3')
 import au.com.bytecode.opencsv.CSVWriter
 import au.com.bytecode.opencsv.CSVReader
@@ -17,7 +36,7 @@ if (!options) {
     System.exit 1
 }
 
-CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char)
+CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char, '\u0000' as char)
 CSVReader reader = new CSVReader(new InputStreamReader(options.i ? new FileInputStream(options.i) : System.in, 'UTF-8'), '\t' as char)
 try {
 	String[] inLine = reader.readNext()

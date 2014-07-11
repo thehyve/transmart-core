@@ -1,8 +1,8 @@
 --
 -- Type: VIEW; Owner: SEARCHAPP; Name: SOLR_KEYWORDS_LINEAGE
 --
-CREATE OR REPLACE FORCE VIEW "SEARCHAPP"."SOLR_KEYWORDS_LINEAGE" ("TERM_ID", "ANCESTOR_ID", "SEARCH_KEYWORD_ID") AS 
-SELECT DISTINCT union_results.term_id,
+  CREATE OR REPLACE FORCE VIEW "SEARCHAPP"."SOLR_KEYWORDS_LINEAGE" ("TERM_ID", "ANCESTOR_ID", "SEARCH_KEYWORD_ID") AS 
+  SELECT DISTINCT union_results.term_id,
   union_results.ancestor_id,
   union_results.search_keyword_id
  FROM (        (        (        (         SELECT DISTINCT l.child_id AS term_id,
@@ -40,4 +40,4 @@ SELECT DISTINCT union_results.term_id,
                   searchapp.search_taxonomy st
                 WHERE ((l.parent4 = st.term_id) AND (l.parent4 IS NOT NULL))) union_results
 WHERE (union_results.search_keyword_id IS NOT NULL);
-
+ 

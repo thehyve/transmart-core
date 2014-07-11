@@ -9,11 +9,13 @@ include ../../makefile.inc
 # To be done when more analsyes are ported to Oracle
 
 showdblog: $(JDBC_DRIVER)
-	groovy -cp $< ../common/dump_audit.groovy $(RDBMS) `tput cols`
+	groovy -cp '$(LIB_CLASSPATH)' ../common/dump_audit.groovy $(RDBMS) `tput cols`
 
 .PHONY: showdblog
 
 export KETTLE_JOBS
+export JDBC_DRIVER
+export LIB_CLASSPATH
 
 ifndef KITCHEN
 $(error KITCHEN is not set)
@@ -138,7 +140,7 @@ load_mirna_%: ../common/%/mirna.params ../common/%/mirna load_mirna_annotation_%
 	./load_mirna.sh $<
 
 ../common/%/mirna:
-        $(info Copy mirna data files into $*)
+	$(info Copy mirna data files into $*)
 
 ../common/%/mirna/$(MIRNA_ANNOT_FILE): ../common/%/mirna ../common/generate_mirna_data_annot_files.groovy
 	groovy ../common/generate_mirna_data_annot_files.groovy -i $< -a $@ -d $</$(MIRNA_DATA_FILE) -p $*_mirna

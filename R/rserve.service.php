@@ -1,11 +1,7 @@
 <?php
-if (!isset($_ENV['TRANSMART_USER'])) {
-        fprintf(STDERR, "TRANSMART_USER is not set\n");
-        exit(1);
-}
 $u = $_ENV['TRANSMART_USER'];
-$r = __DIR__ . '/root/bin/R';
-$c = __DIR__ . '/Rserv_nodaemon.conf'
+$r = "$_ENV[R_PREFIX]/bin/R";
+$c = $_ENV['RSERVE_CONF'];
 ?>
 [Unit]
 Description=Rserve (TCP/IP server for running R expressions)

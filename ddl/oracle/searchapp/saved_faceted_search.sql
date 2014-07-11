@@ -25,11 +25,20 @@ CREATE SEQUENCE  "SEARCHAPP"."SEQ_SAVED_FACETED_SEARCH_ID"  MINVALUE 1 MAXVALUE 
  TABLESPACE "BIOMART" ;
 
 --
--- Type: REF_CONSTRAINT; Owner: SEARCHAPP; Name: SAVED_FACETED_SEARCH_USER_ID
+-- Type: TRIGGER; Owner: SEARCHAPP; Name: TRG_UPD_SAVED_FACETED_SEARCH
 --
-ALTER TABLE "SEARCHAPP"."SAVED_FACETED_SEARCH" ADD CONSTRAINT "SAVED_FACETED_SEARCH_USER_ID" FOREIGN KEY ("USER_ID")
- REFERENCES "SEARCHAPP"."SEARCH_AUTH_USER" ("ID") ENABLE;
-
+  CREATE OR REPLACE TRIGGER "SEARCHAPP"."TRG_UPD_SAVED_FACETED_SEARCH" 
+before insert on searchapp.saved_faceted_search
+for each row begin
+       	if inserting then
+               	if :NEW.modified_dt is null then
+                       	:NEW.modified_dt := sysdate;
+               	end if;
+       	end if;
+end;
+/
+ALTER TRIGGER "SEARCHAPP"."TRG_UPD_SAVED_FACETED_SEARCH" ENABLE;
+ 
 --
 -- Type: TRIGGER; Owner: SEARCHAPP; Name: TRG_SAVED_FACETED_SEARCH_ID
 --
@@ -46,17 +55,8 @@ end;
 ALTER TRIGGER "SEARCHAPP"."TRG_SAVED_FACETED_SEARCH_ID" ENABLE;
  
 --
--- Type: TRIGGER; Owner: SEARCHAPP; Name: TRG_UPD_SAVED_FACETED_SEARCH
+-- Type: REF_CONSTRAINT; Owner: SEARCHAPP; Name: SAVED_FACETED_SEARCH_USER_ID
 --
-  CREATE OR REPLACE TRIGGER "SEARCHAPP"."TRG_UPD_SAVED_FACETED_SEARCH" 
-before insert on searchapp.saved_faceted_search
-for each row begin
-       	if inserting then
-               	if :NEW.modified_dt is null then
-                       	NEW.modified_dt = sysdate;
-               	end if;
-       	end if;
-end;
-/
-ALTER TRIGGER "SEARCHAPP"."TRG_UPD_SAVED_FACETED_SEARCH" ENABLE;
- 
+ALTER TABLE "SEARCHAPP"."SAVED_FACETED_SEARCH" ADD CONSTRAINT "SAVED_FACETED_SEARCH_USER_ID" FOREIGN KEY ("USER_ID")
+ REFERENCES "SEARCHAPP"."SEARCH_AUTH_USER" ("ID") ENABLE;
+
