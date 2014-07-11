@@ -10337,28 +10337,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
-      "name" : "TABLE_ACCESS_20111030"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
-      "name" : "TABLE_ACCESS_20111030"
-    } ]
-  }, {
-    "child" : {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
-      "name" : "TESTS"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "TESTS"
-    } ]
-  }, {
-    "child" : {
       "type" : "FUNCTION",
       "owner" : "TM_CZ",
       "name" : "TEXT_PARSER"

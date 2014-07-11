@@ -152,7 +152,7 @@ BEGIN
             WHEN 'v' THEN 'TABLE'
             WHEN 'S' THEN 'SEQUENCE'
             WHEN 'f' THEN 'FUNCTION'
-            WHEN 'f' THEN 'AGGREGATE'
+            WHEN 'a' THEN 'FUNCTION' -- It's actually AGGREGATE, but we have to reference to it as FUNCTION in DDL
             WHEN 's' THEN 'SCHEMA'
             WHEN 'T' THEN 'TABLESPACE'
             ELSE 'BAD TYPE: ' || type

@@ -5,11 +5,9 @@ endif
 include ../../lib/makefile.inc
 
 RDBMS = oracle
-JDBC_DRIVER = $(JDBC_DRIVER_ORA)
-KETTLE_JOBS = $(KETTLE_JOBS_ORA)
-
-$(JDBC_DRIVER): $(JDBC_DRIVER_ORA_PATH)
-	ln -s ../../lib/$(JDBC_DRIVER_ORA)
+JDBC_DRIVER   := $(JDBC_DRIVER_ORA_PATH)
+LIB_CLASSPATH := $(CP_ORA)
+KETTLE_JOBS   := $(KETTLE_JOBS_ORA)
 
 include ../common/makefile.inc
 
@@ -28,5 +26,3 @@ load_parsed_vcf_data: $(JDBC_DRIVER)
 
 load_parsed_vcf_mapping: $(JDBC_DRIVER)
 	./_scripts/vcf/load_mapping_data.sh "$(VCF_TEMP_DIR)"
-
-export JDBC_DRIVER

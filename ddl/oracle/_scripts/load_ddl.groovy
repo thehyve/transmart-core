@@ -1,7 +1,26 @@
+/*
+ * Copyright © 2013-2014 The Hyve B.V.
+ *
+ * This file is part of transmart-data.
+ *
+ * Transmart-data is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
 import groovy.sql.Sql
 import groovyx.gpars.dataflow.DataflowVariable
-import inc.*
+import inc.oracle.*
 import org.codehaus.jackson.map.ObjectReader
 
 import java.sql.SQLException
@@ -83,8 +102,8 @@ Closure loadSchemaNoCrossClosure(BlockingQueue<Sql> sqls,
                 }
                 if (file.name == '_cross.sql') {
                     if (fileDependencies.getChildrenFor(file)) {
-                        Log.err "_cross.sql won't be loaded but apparently it has dependent objects!"
-                        Log.err "This should not happen. Things may very well fail!"
+                        Log.warn "_cross.sql won't be loaded but apparently it has dependent objects!"
+                        Log.warn "This should not happen. Things may very well fail!"
                     }
                     return
                 }
@@ -161,7 +180,7 @@ Map<File, DataflowVariable> loadMultiSchemaObjects(BlockingQueue<Sql> sqls,
         DataflowVariable promise = whenAllBound parentPromises, { List results ->
             def success = results.every()
             if (!success) {
-                Log.err "Skipping file $curFile because of dependency failure"
+                Log.warn "Skipping file $curFile because of dependency failure"
                 return false
             }
 
@@ -169,7 +188,7 @@ Map<File, DataflowVariable> loadMultiSchemaObjects(BlockingQueue<Sql> sqls,
             loadFileInTransaction curFile, user
         }, { Throwable exception ->
             //failure
-            Log.err "Skipping file $curFile because of uncaught exception in dependency"
+            Log.warn "Skipping file $curFile because of uncaught exception in dependency"
             return false
         }
 

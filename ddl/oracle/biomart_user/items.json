@@ -3229,17 +3229,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "INDEX",
-      "owner" : "BIOMART_USER",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    } ]
-  }, {
-    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "ONT_DB_LOOKUP"
@@ -4630,13 +4619,6 @@
       "name" : "CONCEPT_CD_TAB"
     },
     "file" : "biomart_user/_misc.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "BIOMART_USER",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "file" : "biomart_user/_cross.sql"
   }, {
     "item" : {
       "type" : "TYPE",
