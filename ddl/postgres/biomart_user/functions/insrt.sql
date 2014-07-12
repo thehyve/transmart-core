@@ -18,7 +18,7 @@ END;
 ' LANGUAGE plpgsql;
 
 
-CREATE FUNCTION instr(varchar, varchar, varchar) RETURNS integer AS '
+CREATE FUNCTION instr(varchar, varchar, integer) RETURNS integer AS '
 DECLARE
     string ALIAS FOR $1;
     string_to_search ALIAS FOR $2;
@@ -59,6 +59,15 @@ BEGIN
 END;
 ' LANGUAGE plpgsql;
 
+CREATE FUNCTION instr(varchar, varchar, varchar) RETURNS integer AS '
+DECLARE
+    string ALIAS FOR $1;
+    string_to_search ALIAS FOR $2;
+    beg_index ALIAS FOR $3;
+BEGIN
+	return instr(string, string_to_search, cast(beg_index as int));
+END
+' LANGUAGE plpgsql;
 
 CREATE FUNCTION instr(varchar, varchar, integer, integer) RETURNS integer AS '
 DECLARE
