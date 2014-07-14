@@ -18,13 +18,6 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "BIRN"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
       "name" : "CUSTOM_META"
     },
     "parents" : [ ]
@@ -194,6 +187,20 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "TABLE_ACCESS"
@@ -266,13 +273,6 @@
       "name" : "ADD_ONTOLOGY_NODE"
     },
     "file" : "i2b2metadata/procedures/add_ontology_node.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
-      "name" : "BIRN"
-    },
-    "file" : "i2b2metadata/birn.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -418,6 +418,20 @@
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/_misc.sql"
   }, {

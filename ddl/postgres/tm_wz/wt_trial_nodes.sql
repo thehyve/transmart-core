@@ -3,7 +3,7 @@
 --
 CREATE TABLE wt_trial_nodes (
     leaf_node character varying(4000),
-    category_cd character varying(200),
+    category_cd character varying(250),
     visit_name character varying(100),
     sample_type character varying(100),
     data_label character varying(500),

@@ -1,38 +1,41 @@
 <?php
 $dependencies = array (
-  'de_variant_metadata' => 
-  array (
-    0 => 'de_variant_dataset',
-  ),
   'de_chromosomal_region' => 
   array (
     0 => 'de_gpl_info',
-  ),
-  'de_metabolite_sub_pathways' => 
-  array (
-    0 => 'de_metabolite_super_pathways',
   ),
   'de_metabolite_sub_pway_metab' => 
   array (
     0 => 'de_metabolite_annotation',
     1 => 'de_metabolite_sub_pathways',
   ),
+  'de_metabolite_sub_pathways' => 
+  array (
+    0 => 'de_metabolite_super_pathways',
+  ),
   'de_rbm_data_annotation_join' => 
   array (
     0 => 'de_rbm_annotation',
-    1 => 'de_subject_rbm_data',
-  ),
-  'de_subject_acgh_data' => 
-  array (
-    0 => 'de_chromosomal_region',
   ),
   'de_subject_metabolomics_data' => 
   array (
     0 => 'de_metabolite_annotation',
   ),
+  'de_subject_acgh_data' => 
+  array (
+    0 => 'de_chromosomal_region',
+  ),
   'de_subject_rnaseq_data' => 
   array (
     0 => 'de_chromosomal_region',
+  ),
+  'de_variant_population_data' => 
+  array (
+    0 => 'de_variant_dataset',
+  ),
+  'de_variant_population_info' => 
+  array (
+    0 => 'de_variant_dataset',
   ),
   'de_xtrial_child_map' => 
   array (
@@ -66,6 +69,10 @@ $dependencies = array (
   'de_variant_dataset' => 
   array (
     0 => 'de_gpl_info',
+  ),
+  'de_variant_metadata' => 
+  array (
+    0 => 'de_variant_dataset',
   ),
   'de_variant_subject_detail' => 
   array (

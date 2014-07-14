@@ -12,6 +12,7 @@
 "STUDY_ID" VARCHAR2(2000 BYTE)
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" ;
+
 --
 -- Type: TRIGGER; Owner: TM_CZ; Name: TRG_CZ_TEST_RESULT_ID
 --
@@ -23,3 +24,4 @@ select SEQ_CZ.nextval into :NEW."TEST_RESULT_ID" from dual;       end if;       
 
 /
 ALTER TRIGGER "TM_CZ"."TRG_CZ_TEST_RESULT_ID" ENABLE;
+ 

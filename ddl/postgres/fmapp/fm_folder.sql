@@ -25,12 +25,21 @@ ALTER TABLE ONLY fm_folder
 CREATE FUNCTION tf_trg_fm_folder_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin
-       if NEW.FOLDER_ID is null then
- select nextval('fmapp.SEQ_FM_ID') into NEW.FOLDER_ID ;
-end if;
-       RETURN NEW;
-end;
+	begin
+      if coalesce(NEW.FOLDER_ID::text, '') = '' then
+        select nextval('FMAPP.SEQ_FM_ID') into NEW.FOLDER_ID ;
+      end if;
+	  if coalesce(NEW.FOLDER_FULL_NAME::text, '') = '' then
+		if coalesce(NEW.PARENT_ID::text, '') = '' then
+			select '\' || fm_folder_uid(NEW.folder_id) || '\' into NEW.FOLDER_FULL_NAME ;
+		else
+			select folder_full_name || fm_folder_uid(NEW.folder_id) || '\' into NEW.FOLDER_FULL_NAME 
+      from fm_folder
+      where folder_id = NEW.parent_id;
+		end if;
+      end if;
+      RETURN NEW;
+  end;
 $$;
 
 --

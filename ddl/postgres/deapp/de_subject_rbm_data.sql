@@ -21,7 +21,8 @@ CREATE TABLE de_subject_rbm_data (
     zscore double precision,
     rbm_panel character varying(50),
     unit character varying(50),
-    id bigint NOT NULL
+    id bigint NOT NULL,
+    partition_id numeric
 );
 
 --
@@ -29,6 +30,7 @@ CREATE TABLE de_subject_rbm_data (
 --
 ALTER TABLE ONLY de_subject_rbm_data
     ADD CONSTRAINT pk_de_subject_rbm_data PRIMARY KEY (id);
+
 --
 -- Name: tf_trg_de_subj_rbm_data_id(); Type: FUNCTION; Schema: deapp; Owner: -
 --
@@ -47,3 +49,14 @@ $$;
 -- Name: trg_de_subj_rbm_data_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_subj_rbm_data_id BEFORE INSERT ON de_subject_rbm_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subj_rbm_data_id();
+
+--
+-- Name: de_subject_rbm_data_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE de_subject_rbm_data_seq
+    START WITH 1272564
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+

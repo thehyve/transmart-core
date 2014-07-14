@@ -18,11 +18,12 @@ ALTER TABLE ONLY de_mrna_annotation
     ADD CONSTRAINT de_mrna_annotation_pkey PRIMARY KEY (de_mrna_annotation_id);
 
 --
--- Name: de_mrna_annotation_id1; Type: INDEX; Schema: deapp; Owner: -
+-- Name: de_mrna_annotation_idx1; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_mrna_annotation_idx1 ON de_mrna_annotation USING btree (gpl_id, probe_id);
+
 --
--- Name: de_mrna_annotation_id2; Type: INDEX; Schema: deapp; Owner: -
+-- Name: de_mrna_annotation_idx2; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_mrna_annotation_idx2 ON de_mrna_annotation USING btree (gene_id, probeset_id);
 
@@ -41,6 +42,17 @@ end;
 $$;
 
 --
--- Name: trg_de_mrna_anotation_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: trg_de_mrna_annotation_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_mrna_annotation_id BEFORE INSERT ON de_mrna_annotation FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_mrna_annotation_id();
+
+--
+-- Name: seq_de_mrna_annotation_id; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE seq_de_mrna_annotation_id
+    START WITH 263161
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+

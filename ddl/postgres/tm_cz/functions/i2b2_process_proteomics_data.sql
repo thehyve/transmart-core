@@ -1,9 +1,10 @@
---
--- Name: i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
---
-CREATE FUNCTION i2b2_process_proteomics_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+-- Function: i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
+
+-- DROP FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric);
+
+CREATE FUNCTION i2b2_process_proteomics_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric)
+  RETURNS numeric AS
+$BODY$
 /*************************************************************************
 
 * This store procedure is for ETL for Sanofi to load  proteomics data
@@ -258,7 +259,7 @@ BEGIN
 	from (select distinct 'Unknown' as sex_cd,
 				 0 as age_in_years_num,
 				 null as race_cd,
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':', 'g') as sourcesystem_cd
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g') as sourcesystem_cd
 		 from LT_SRC_PROTEOMICS_SUB_SAM_MAP s
 		     ,de_gpl_info g
 		 where s.subject_id is not null
@@ -269,7 +270,7 @@ BEGIN
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':', 'g'))
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g'))
 		) x;
 	exception
 	when others then
@@ -369,7 +370,6 @@ BEGIN
 	  and a.platform = g.platform
 	  and upper(g.marker_type) = 'PROTEOMICS'
 	  and g.title = (select min(x.title) from de_gpl_info x where coalesce(a.platform,'GPL570') = x.platform)
-      -- and upper(g.organism) = 'HOMO SAPIENS'
 	  ;
 	exception
 	when others then
@@ -394,7 +394,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\','(\\){2,}', '\', 'g') 
+	       category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\','(\\){2,}', '\', 'g') 
 		  ,category_cd
 		  ,platform as platform
 		  ,tissue_type
@@ -425,7 +425,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'PLATFORM')+8)
 		  ,platform as platform
@@ -457,7 +457,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR1')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -491,7 +491,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR2')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -525,7 +525,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then platform else null end as platform
@@ -720,11 +720,11 @@ BEGIN
 		from lt_src_proteomics_sub_sam_map a		
 		--Joining to Pat_dim to ensure the ID's match. If not I2B2 won't work.
 		inner join patient_dimension b
-		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':', 'g') = b.sourcesystem_cd
+		  on regexp_replace(TrialID || ':' || coalesce(a.site_id,'') || ':' || a.subject_id,'(::){1,}', ':', 'g') = b.sourcesystem_cd
 		inner join WT_PROTEOMICS_NODES ln
 			on a.platform = ln.platform
 			and a.category_cd=ln.category_cd
-			and a.tissue_type = ln.tissue_type
+			and coalesce(a.tissue_type,'') = coalesce(ln.tissue_type,'')
 			and coalesce(a.attribute_1,'@') = coalesce(ln.attribute_1,'@')
 			and coalesce(a.attribute_2,'@') = coalesce(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
@@ -757,7 +757,7 @@ BEGIN
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = coalesce(a2.attribute_1,'@')
 			and a2.node_type = 'ATTR2'			  
 		left outer join patient_dimension sid
-			on  regexp_replace(TrialId || ':S:' || a.site_id || ':' || a.subject_id || ':' || a.sample_cd,
+			on  regexp_replace(TrialId || ':' || coalesce(a.site_id,'') || ':' || a.subject_id || ':' || a.sample_cd,
 							  '(::){1,}', ':', 'g') = sid.sourcesystem_cd
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD
@@ -1130,5 +1130,13 @@ BEGIN
 
 	return rtnCd;
 END;
-$$;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
 
+-- ALTER FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
+--
+-- ALTER FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
+--  OWNER TO tm_cz;
+-- GRANT EXECUTE ON FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
+-- REVOKE ALL ON FUNCTION i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) FROM public;

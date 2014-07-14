@@ -34,7 +34,7 @@ CREATE FUNCTION tf_trg_bio_assay_data_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-    if coalesce(NEW.BIO_ASSAY_DATA_ID::text, '') = '' then
+    if NEW.BIO_ASSAY_DATA_ID is null then
           select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_ASSAY_DATA_ID ;
     end if;
 RETURN NEW;

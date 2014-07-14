@@ -1,7 +1,7 @@
 --
 -- Name: i2b2_load_mirna_annot_deapp(numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric) RETURNS integer
+CREATE FUNCTION i2b2_load_mirna_annot_deapp(currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 /*************************************************************************

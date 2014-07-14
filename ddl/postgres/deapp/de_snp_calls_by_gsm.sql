@@ -9,3 +9,8 @@ CREATE TABLE de_snp_calls_by_gsm (
     snp_calls character varying(4)
 );
 
+--
+-- Name: de_snp_calls_by_gsm_patient_num_idx; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_snp_calls_by_gsm_patient_num_idx ON de_snp_calls_by_gsm USING btree (patient_num);
+

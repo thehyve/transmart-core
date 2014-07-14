@@ -31,3 +31,8 @@ CREATE TABLE i2b2_secure (
     secure_obj_token character varying(50)
 );
 
+--
+-- Name: idx_i2b2_secure_fullname; Type: INDEX; Schema: i2b2metadata; Owner: -
+--
+CREATE INDEX idx_i2b2_secure_fullname ON i2b2_secure USING btree (c_fullname);
+

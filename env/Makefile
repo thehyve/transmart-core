@@ -2,7 +2,7 @@ REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
-				tar openjdk-7-jdk gfortran g++ unzip
+				$(TAR_COMMAND) openjdk-7-jdk gfortran g++ unzip
 
 GROOVY_VERSION=2.1.9
 
@@ -11,6 +11,12 @@ ONDREJ_KEY=E5267A6C
 GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
 GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
+
+PHP_VERSION=5.5.13
+PHP_TARBALL=php-$(PHP_VERSION).tar.gz
+PHP_SRCDIR=php-$(PHP_VERSION)
+PHP_URL=http://nl1.php.net/distributions/php-$(PHP_VERSION).tar.gz
+PHP_BIN=php5/bin/php
 
 TRANSMART_LOADER=transmart-loader
 
@@ -31,7 +37,7 @@ $(TRANSMART_LOADER_ARCHIVE):
 	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
 
 $(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
-	tar --touch -xf $< -C $@
+	$(TAR_COMMAND) --touch -xf $< -C $@
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
@@ -41,6 +47,19 @@ $(GROOVY_BIN): $(GROOVY_ZIP)
 	touch $@
 
 groovy: $(GROOVY_BIN)
+	ln -s $< $@
+
+$(PHP_TARBALL):
+	curl -f '$(PHP_URL)' > $@
+
+$(PHP_SRCDIR): $(PHP_TARBALL)
+	tar --touch -xf '$<'
+
+$(PHP_BIN): $(PHP_SRCDIR)
+	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json
+	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
+
+php: $(PHP_BIN)
 	ln -s $< $@
 
 install_ubuntu_packages:
@@ -67,7 +86,7 @@ $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
 data-integration: $(KETTLE_ARCHIVE)
-	tar --touch -xzf $<
+	$(TAR_COMMAND) --touch -xzf $<
 
 /var/lib/postgresql/tablespaces:
 	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'

@@ -27,9 +27,8 @@ do
     echo "Processing and converting SQL file $SQLFILE"
 
     # Replace calls to sequences in the SQL files
-    # Replacing calls to nextval and currval
-    sed "s/\([a-zA-Z0-9\._]*\)\.\(curr\|next\)val/\2val( '\1' )/g" "$output_dir/$SQLFILE.sql" > "$output_dir/$SQLFILE.postgres.sql"
-    sed -i "s/from dual//g" "$output_dir/$SQLFILE.postgres.sql"
+    # Replace calls to nextval and currval
+    perl -pe "s/([a-zA-Z0-9\._]*)\.(curr|next)val/\2val( '\1' )/g; s/from dual//g" < "$output_dir/$SQLFILE.sql" > "$output_dir/$SQLFILE.postgres.sql"
 
     $PSQL_COMMAND -f "$output_dir/$SQLFILE.postgres.sql";
 done

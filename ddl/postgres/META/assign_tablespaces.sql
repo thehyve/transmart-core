@@ -17,7 +17,10 @@ BEGIN
         ['i2b2metadata', 'transmart'],
         ['deapp', 'deapp'],
         ['searchapp', 'search_app'],
-        ['biomart', 'biomart']
+        ['biomart', 'biomart'],
+        ['galaxy', 'transmart'],
+        ['fmapp', 'transmart'],
+        ['amapp', 'transmart']
     ];
     FOREACH pair SLICE 1 IN ARRAY spec LOOP
         -- Assign tables' tablespaces

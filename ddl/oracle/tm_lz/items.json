@@ -8,41 +8,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_OBS_ENROLL_DAYS"
-    }, {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LT_SRC_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LZ_SRC_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_WZ",
-      "name" : "WRK_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_WZ",
-      "name" : "WT_TRIAL_NODES"
-    } ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_CHROMOSOMAL_REGION"
@@ -472,6 +437,21 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "TM_LZ",
+      "name" : "TRG_LT_CHROMO_REGION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMOSOMAL_REGION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
       "name" : "TRG_LZ_SRC_ANALYSIS_META_ID"
     },
     "parents" : [ {
@@ -483,13 +463,6 @@
       "owner" : "TM_LZ",
       "name" : "SEQ_ETL_ID"
     } ]
-  }, {
-    "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "UTIL_GRANT_ALL"
-    },
-    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -514,13 +487,6 @@
     "file" : "tm_lz/clinical_trial_metadata_ext.sql"
   }, {
     "item" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
-    },
-    "file" : "tm_lz/procedures/i2b2_load_clinical_data_backup.sql"
-  }, {
-    "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_CHROMOSOMAL_REGION"
@@ -532,7 +498,7 @@
       "owner" : "TM_LZ",
       "name" : "LT_CHROMO_REGION_ID_SEQ"
     },
-    "file" : "tm_lz/_misc.sql"
+    "file" : "tm_lz/lt_chromosomal_region.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -950,16 +916,16 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "TM_LZ",
+      "name" : "TRG_LT_CHROMO_REGION_ID"
+    },
+    "file" : "tm_lz/lt_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
       "name" : "TRG_LZ_SRC_ANALYSIS_META_ID"
     },
     "file" : "tm_lz/lz_src_analysis_metadata.sql"
-  }, {
-    "item" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "UTIL_GRANT_ALL"
-    },
-    "file" : "tm_lz/procedures/util_grant_all.sql"
   }, {
     "item" : {
       "type" : "TABLE",

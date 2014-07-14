@@ -171,28 +171,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX3"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX4"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_MRNA_ANNOTATION"
@@ -1444,6 +1422,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -1973,20 +1958,6 @@
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_MICROARRAY_DATA_IDX2"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX3"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX4"
     },
     "file" : "deapp/de_subject_microarray_data.sql"
   }, {
@@ -2892,6 +2863,13 @@
       "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
     },
     "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    },
+    "file" : "deapp/_misc.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",

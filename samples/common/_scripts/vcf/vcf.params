@@ -23,7 +23,7 @@ ETL_USER=RH
 DATASET_ID=TraitTest
 
 # Study identifier as it is used in the clinical data. Is used to look up the subjects
-STUDY_ID=GSe8581
+STUDY_ID=GSE8581
 
 # Concept path to store the VCF data in the clinical data tree.
 # The concept path must be specified completely, where parts of the

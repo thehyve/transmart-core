@@ -98,7 +98,8 @@ my %counts = (
 	"patients" => 0,
 	"variants" => 0,
 	"infoFieldsPerVariant" => 0,
-	"infoFields" => 0
+	"infoFields" => 0,
+	"noGenotypes" => 0
 );
 my %numGenotypes = (
 	"invalid" => 0,
@@ -392,7 +393,8 @@ chomp;
 
 			# Skip if genotype is not specified
 			if( $gt eq "." ) {
-   				print "Can't import sample " . $i . " for line with SNP " . $rs . " (" . $pos . "), because its genotype is not specified.\n";
+				$counts{noGenotypes}++;
+   				# print "Can't import sample " . $i . " for line with SNP " . $rs . " (" . $pos . "), because its genotype is not specified.\n";
    				next;
    			}
 
@@ -438,7 +440,7 @@ chomp;
 	     				$variant_format = "V";
 	     			}
 
-					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "T" : "F" ), $variant_type, $allele, "\\N"), "\n";	     		
+					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "t" : "f" ), $variant_type, $allele, "\\N"), "\n";
 	     		} elsif( $gt =~ m/[\/|]/ ) {
      				# The genotype is phased if both alleles are separated by a |, instead of a /
      				$phased = $gt =~ m/\|/; 
@@ -494,7 +496,7 @@ chomp;
 	     				$variant_format = $variant_format . "V";
 	     			}
 
-					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "T" : "F" ), $variant_type, ( $allele1 eq "." ? "\\N" : $allele1 ), ( $allele2 eq "." ? "\\N" : $allele2 )), "\n";
+					print SUMMARY join("\t", $chr, $pos, $dataset_id, $subjects[$i], $rs, $variant, $variant_format, ( $reference ? "t" : "f" ), $variant_type, ( $allele1 eq "." ? "\\N" : $allele1 ), ( $allele2 eq "." ? "\\N" : $allele2 )), "\n";
 	     			
 	     		} else {
 					$numGenotypes{"invalid"}++;
@@ -509,6 +511,14 @@ chomp;
 	    }
 	 }
 
+    if( $counts{"variants"} % 10000 == 0) {
+        print ".";
+    }
+
+    if( $counts{"variants"} % 500000 == 0 ) {
+        print "\n";
+    }
+
 	$rs_saved{$location} = $rs;
 	resetNext();
 }
@@ -517,6 +527,7 @@ close OUT;
 close POPULATION_INFO;
 close POPULATION_DATA;
 
+print "\n";
 print "----------------------------------------------------\n";
 while ( my ($var, $count) = each(%counts) ) {
 	if( $count > 0 ) {

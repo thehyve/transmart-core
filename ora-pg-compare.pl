@@ -1220,12 +1220,20 @@ sub compareTypes($$$$){
 	    $ot =~ s/^\S+ DEFAULT 0 NOT NULL ENABLE/matched/;
 	    $pt =~ s/^\S+ DEFAULT FALSE/matched/;
 	}
+	elsif($ot =~ /^CHAR\(1 BYTE\) DEFAULT 0/){
+	    $ot =~ s/^\S+ \S+ DEFAULT 0/matched/;
+	    $pt =~ s/^\S+ DEFAULT FALSE/matched/;
+	}
 	else {return 1}
     }
 
     elsif($pt =~ /^BOOLEAN/) {
-	if($ot =~ /^NUMBER\(1,0\)/){
+	if($ot =~ /^NUMBER\(1,0\)/) {
 	    $ot =~ s/^\S+/matched/;
+	    $pt =~ s/^\S+/matched/;
+	}
+	elsif($ot =~ /^CHAR\(1 BYTE\)/) {
+	    $ot =~ s/^\S+ \S+/matched/;
 	    $pt =~ s/^\S+/matched/;
 	}
 	else {return 1}

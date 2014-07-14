@@ -62,6 +62,10 @@ $permissions = [
 		'tm_cz' => 'full',
 		'biomart_user' => 'write',
 	],
+	'galaxy' => [
+		'tm_cz' => 'full',
+		'biomart_user' => 'read',
+	],
 ];
 
 $stdout = fopen('php://stdout', 'w');

@@ -9,12 +9,12 @@ ALREADY_LOADED=`$PSQL_COMMAND -c "select exists \
 		 (select platform from deapp.de_gpl_info where platform = '$PLATFORM')" -tA`
 if [ $ALREADY_LOADED = 't' ]; then
 	echo -e "\e[33mWARNING\e[m: Platform $PLATFORM already loaded; skipping" >&2
-	exit 0
-fi
+else
 
 $PSQL_COMMAND -c "COPY deapp.de_gpl_info(platform, title, organism, marker_type) FROM STDIN" <<HEREDOC
 $PLATFORM	$TITLE	$ORGANISM	Gene Expression
 HEREDOC
+fi
 
 $PSQL_COMMAND -c "TRUNCATE tm_lz.lt_src_deapp_annot"
 $PSQL_COMMAND -c "COPY tm_lz.lt_src_deapp_annot FROM STDIN CSV DELIMITER E'\\t'" < \

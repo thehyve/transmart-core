@@ -42,7 +42,7 @@ DIC_SRC_FILES_FOLDER = $(COMMON_DIR)/_dic_src
 $(DIC_SRC_FILES_FOLDER):
 	mkdir $@
 
-UNIPROT_DIC_SRC_FILE = uniprot-dictionary.tsv
+UNIPROT_DIC_SRC_FILE = uniprot-dictionary2.tsv
 UNIPROT_DIC_SRC_FILE_ARCH = $(UNIPROT_DIC_SRC_FILE).xz
 $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
 	curl -f $(REMOTE_FILE_STORAGE)/dictionaries/$(UNIPROT_DIC_SRC_FILE_ARCH) > $@
@@ -63,13 +63,13 @@ $(TRANSMART_LOADER):
 
 load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
-	&& java -cp $(TRANSMART_LOADER_JAR) \
+	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
 
 load_mirna_dictionary: $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
-	&& java -cp $(TRANSMART_LOADER_JAR) \
+	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
 	org.transmartproject.pipeline.dictionary.MiRBaseDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/miRNA.dat $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER)/aliases.txt
 

@@ -15,13 +15,19 @@
 \i biomart/functions/refresh_bio_lit_int_model_mv.sql
 \i biomart/functions/refresh_bio_marker_correl_mv.sql
 \i biomart/functions/tea_npv_precompute.sql
+\i biomart/bio_assay_platform.sql
+\i biomart/bio_compound.sql
+\i biomart/bio_concept_code.sql
+\i biomart/bio_data_uid.sql
+\i biomart/bio_disease.sql
+\i biomart/bio_marker.sql
+\i biomart/bio_observation.sql
 \i biomart/annotation.sql
 \i biomart/assay_analysis_data.sql
 \i biomart/bio_ad_hoc_property.sql
 \i biomart/bio_analysis_attribute.sql
 \i biomart/bio_analysis_attribute_lineage.sql
 \i biomart/bio_analysis_cohort_xref.sql
-\i biomart/bio_assay_platform.sql
 \i biomart/bio_experiment.sql
 \i biomart/bio_assay.sql
 \i biomart/bio_asy_analysis_pltfm.sql
@@ -35,7 +41,6 @@
 \i biomart/bio_assay_cohort.sql
 \i biomart/bio_assay_dataset.sql
 \i biomart/bio_subject.sql
-\i biomart/bio_disease.sql
 \i biomart/bio_cell_line.sql
 \i biomart/bio_clinical_trial.sql
 \i biomart/bio_clinc_trial_pt_group.sql
@@ -56,8 +61,6 @@
 \i biomart/bio_clinc_trial_attr.sql
 \i biomart/bio_clinical_trial_design.sql
 \i biomart/bio_cohort_exp_xref.sql
-\i biomart/bio_compound.sql
-\i biomart/bio_concept_code.sql
 \i biomart/bio_content_repository.sql
 \i biomart/bio_content.sql
 \i biomart/bio_content_reference.sql
@@ -75,7 +78,6 @@
 \i biomart/bio_data_platform.sql
 \i biomart/bio_taxonomy.sql
 \i biomart/bio_data_taxonomy.sql
-\i biomart/bio_data_uid.sql
 \i biomart/bio_lit_ref_data.sql
 \i biomart/bio_lit_alt_data.sql
 \i biomart/bio_lit_amd_data.sql
@@ -86,12 +88,12 @@
 \i biomart/views/bio_lit_int_model_view.sql
 \i biomart/bio_lit_pe_data.sql
 \i biomart/bio_lit_sum_data.sql
-\i biomart/bio_marker.sql
 \i biomart/views/bio_marker_correl_mv.sql
 \i biomart/views/bio_marker_correl_view.sql
 \i biomart/views/bio_marker_exp_analysis_mv.sql
-\i biomart/bio_observation.sql
 \i biomart/bio_patient_event_attr.sql
+\i biomart/bio_recombination_rates.sql
+\i biomart/bio_regulome_score.sql
 \i biomart/bio_species_organism.sql
 \i biomart/bio_stats_exp_marker.sql
 \i biomart/biobank_sample.sql
@@ -162,4 +164,6 @@
 \i biomart/tmp_project_category.sql
 \i biomart/tmp_project_compound.sql
 \i biomart/tmp_project_disease.sql
+\i biomart/views/vw_faceted_search.sql
+\i biomart/views/vw_faceted_search_disease.sql
 \i biomart/_misc.sql

@@ -9,6 +9,7 @@ CREATE TABLE de_subject_mirna_data (
     raw_intensity numeric,
     log_intensity numeric,
     probeset_id numeric(38,0),
-    zscore numeric(18,9)
+    zscore numeric(18,9),
+    partition_id numeric
 );
 

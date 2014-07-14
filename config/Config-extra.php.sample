@@ -11,8 +11,8 @@ $insertionPoints = [
 //explodedWarDir    = catalinaBase + '/webapps/transmart'
 //solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
 //searchIndex       = catalinaBase + '/searchIndex' //create this directory
-// for running transmart as WAR, create this directory and then create an alias
-// in tomcat or apache for serving the images here from <context path>/tempImages
+// for running transmart as WAR, create this directory and make sure it's
+// writable by the user tomcat runs as
 //jobsDirectory     = "/var/tmp/jobs/"
 EOD
 ,

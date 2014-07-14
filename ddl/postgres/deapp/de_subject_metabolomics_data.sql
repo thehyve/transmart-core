@@ -10,7 +10,8 @@ CREATE TABLE de_subject_metabolomics_data (
     patient_id bigint,
     raw_intensity bigint,
     log_intensity bigint,
-    zscore bigint NOT NULL
+    zscore bigint NOT NULL,
+    partition_id numeric
 );
 
 --
