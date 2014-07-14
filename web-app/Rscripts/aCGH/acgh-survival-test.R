@@ -31,7 +31,7 @@ acgh.survival.test <- function
 
   # Filter for the calls that match the phenodata ids and have data
   phenodataIds <- phenodata[, "PATIENT_NUM"]
-  highdimColumnsMatchingGroupIds <- pmatch(paste("flag.",phenodataIds,sep=""), colnames(calls))
+  highdimColumnsMatchingGroupIds <- match(paste("flag.",phenodataIds,sep=""), colnames(calls))
   highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
   calls <- calls[, highdimColumnsMatchingGroupIds, drop=FALSE]
 
