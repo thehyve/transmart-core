@@ -1,10 +1,9 @@
 package jobs
 
 import jobs.steps.*
-import jobs.steps.helpers.CategoricalColumnConfigurator
+import jobs.steps.helpers.CensorColumnConfigurator
 import jobs.steps.helpers.NumericColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
-import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.InitializingBean
@@ -18,9 +17,6 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 @Scope('job')
 class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements InitializingBean {
 
-    private static def CENSORING_TRUE = '1'
-    private static def CENSORING_FALSE = '0'
-
     @Autowired
     HighDimensionResource highDimensionResource
 
@@ -31,9 +27,7 @@ class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initiali
     NumericColumnConfigurator timeVariableConfigurator
 
     @Autowired
-    CategoricalColumnConfigurator censoringInnerConfigurator
-
-    SurvivalAnalysis.CensoringColumnConfigurator censoringVariableConfigurator
+    CensorColumnConfigurator censoringConfigurator
 
     @Autowired
     Table table
@@ -53,17 +47,9 @@ class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initiali
     }
 
     void configureCensoringVariableConfigurator() {
-
-        censoringInnerConfigurator.required           = false
-        censoringInnerConfigurator.header             = 'CENSOR'
-        censoringInnerConfigurator.keyForConceptPaths = 'censoringVariable'
-
-        def noValueDefault = censoringInnerConfigurator.getConceptPaths() ? CENSORING_FALSE : CENSORING_TRUE
-
-        censoringInnerConfigurator.missingValueAction  =
-                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: noValueDefault)
-
-        censoringVariableConfigurator = new SurvivalAnalysis.CensoringColumnConfigurator(innerConfigurator: censoringInnerConfigurator)
+        censoringConfigurator.required           = false
+        censoringConfigurator.header             = 'CENSOR'
+        censoringConfigurator.keyForConceptPaths = 'censoringVariable'
     }
 
     protected List<Step> prepareSteps() {
@@ -77,7 +63,7 @@ class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initiali
                 table:         table,
                 configurators: [primaryKeyColumnConfigurator,
                         timeVariableConfigurator,
-                        censoringVariableConfigurator,
+                        censoringConfigurator,
                 ])
 
         steps << new MultiRowAsGroupDumpTableResultsStep(
