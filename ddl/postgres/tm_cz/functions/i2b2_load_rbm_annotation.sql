@@ -1,10 +1,9 @@
--- Function: i2b2_load_rbm_annotation(bigint)
-
--- DROP FUNCTION i2b2_load_rbm_annotation(bigint);
-
-CREATE FUNCTION i2b2_load_rbm_annotation(currentjobid bigint DEFAULT NULL::bigint)
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_load_rbm_annotation(bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_load_rbm_annotation(currentjobid bigint DEFAULT NULL::bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 /*************************************************************************
@@ -341,11 +340,5 @@ BEGIN
   
 END;
  
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
+$$;
 
--- ALTER FUNCTION i2b2_load_rbm_annotation(bigint)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_load_rbm_annotation(bigint) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_load_rbm_annotation(bigint) FROM public;

@@ -1,10 +1,9 @@
--- Function: i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying)
-
--- DROP FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying);
-
-CREATE FUNCTION i2b2_process_qpcr_mirna_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric, mirna_type character varying DEFAULT NULL::character varying)
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_process_qpcr_mirna_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric, mirna_type character varying DEFAULT NULL::character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 
 * This store procedure is for ETL for Sanofi to load  qpcr or seq miRNA data
@@ -61,9 +60,9 @@ Declare
 	addNodes CURSOR is
 	select distinct t.leaf_node
           ,t.node_name
-	from  tm_wz.wt_qpcr_mirna_nodes t
+	from  wt_qpcr_mirna_nodes t
 	where not exists
-		 (select 1 from i2b2metadata.i2b2 x
+		 (select 1 from i2b2 x
 		  where t.leaf_node = x.c_fullname);
 
  
@@ -1199,13 +1198,5 @@ BEGIN
 		perform cz_end_audit (jobID, 'FAIL');
 		return 16;
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-  COST 100;
+$$;
 
--- ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
---
--- ALTER FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_process_qpcr_mirna_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric, character varying) FROM public;

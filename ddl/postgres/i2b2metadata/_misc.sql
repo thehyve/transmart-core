@@ -1,28 +1,13 @@
 --
--- Name: i2b2_id_seq; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
+-- Name: i2b2_record_id_seq; Type: SEQUENCE OWNED BY; Schema: i2b2metadata; Owner: -
 --
-CREATE SEQUENCE i2b2_id_seq
-    START WITH 496244
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+--ALTER SEQUENCE i2b2_record_id_seq OWNED BY i2b2.record_id;
 
 --
 -- Name: seq_concept_code; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
 CREATE SEQUENCE seq_concept_code
     START WITH 1000
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
--- Name: seq_i2b2_data_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
---
-CREATE SEQUENCE seq_i2b2_data_id
-    START WITH 1789
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

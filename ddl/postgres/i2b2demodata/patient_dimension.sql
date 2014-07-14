@@ -30,6 +30,11 @@ ALTER TABLE ONLY patient_dimension
     ADD CONSTRAINT patient_dimension_pk PRIMARY KEY (patient_num);
 
 --
+-- Name: idx_pd_sourcesystemcd_pnum; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX idx_pd_sourcesystemcd_pnum ON patient_dimension USING btree (sourcesystem_cd, patient_num);
+
+--
 -- Name: patd_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX patd_uploadid_idx ON patient_dimension USING btree (upload_id);
@@ -48,6 +53,7 @@ CREATE INDEX pd_idx_dates ON patient_dimension USING btree (patient_num, vital_s
 -- Name: pd_idx_statecityzip; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX pd_idx_statecityzip ON patient_dimension USING btree (statecityzip_path, patient_num);
+
 --
 -- Name: tf_trg_patient_dimension(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
 --
@@ -66,4 +72,14 @@ $$;
 -- Name: trg_patient_dimension; Type: TRIGGER; Schema: i2b2demodata; Owner: -
 --
 CREATE TRIGGER trg_patient_dimension BEFORE INSERT ON patient_dimension FOR EACH ROW EXECUTE PROCEDURE tf_trg_patient_dimension();
+
+--
+-- Name: seq_patient_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
+--
+CREATE SEQUENCE seq_patient_num
+    START WITH 1000384597
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 

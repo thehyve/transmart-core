@@ -10,17 +10,15 @@ CREATE TABLE cz_form_layout (
     sequence bigint,
     display character(1)
 );
+
 --
--- Type: SEQUENCE; Owner: TM_CZ; Name: SEQ_FORM_LAYOUT_ID
+-- Name: cz_form_layout_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
 --
-CREATE SEQUENCE  seq_form_layout_id
-    NO MINVALUE
-    NO MAXVALUE
-    INCREMENT BY 1
-    START WITH 41
-    CACHE 20;
+ALTER TABLE ONLY cz_form_layout
+    ADD CONSTRAINT cz_form_layout_pk PRIMARY KEY (form_layout_id);
+
 --
--- Name: tf_trg_cz_form_layout_id; Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: tf_trg_cz_form_layout_id(); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
 CREATE FUNCTION tf_trg_cz_form_layout_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -34,12 +32,17 @@ end;
 $$;
 
 --
--- Name: trg_cz_form_layout_id(); Type: TRIGGER; Schema: tm_cz; Owner: -
+-- Name: trg_cz_form_layout_id; Type: TRIGGER; Schema: tm_cz; Owner: -
 --
-  CREATE TRIGGER trg_cz_form_layout_id BEFORE INSERT ON cz_form_layout FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_form_layout_id();
+CREATE TRIGGER trg_cz_form_layout_id BEFORE INSERT ON cz_form_layout FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_form_layout_id();
 
 --
--- Name: cz_form_layout_pk; Type: CONSTRAINT; Schema: tm_cz; Owner: -
+-- Name: seq_form_layout_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
-ALTER TABLE ONLY cz_form_layout
-    ADD CONSTRAINT cz_form_layout_pk PRIMARY KEY (form_layout_id);
+CREATE SEQUENCE seq_form_layout_id
+    START WITH 41
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 20;
+

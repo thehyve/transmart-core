@@ -1,6 +1,9 @@
-CREATE FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(currentjobid numeric DEFAULT NULL::numeric)
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_load_metabolomics_annot(numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_load_metabolomics_annot(currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 *This stored procedure is for ETL to load METABOLOMICS ANNOTATION
 * Date:12/29/2013
@@ -274,7 +277,7 @@ BEGIN
     ,bio_marker_id)
     select distinct fg.bio_assay_feature_group_id
           ,coalesce(bgs.bio_marker_id,bgi.bio_marker_id)
-    from tm_lz.lt_metabolomic_annotation t
+    from lt_metabolomic_annotation t
         inner join biomart.mirna_bio_assay_feature_group fg on t.biochemical_name = fg.feature_group_name
         left outer join biomart.mirna_bio_marker bgs on t.biochemical_name = bgs.bio_marker_name
         left outer join biomart.mirna_bio_marker bgi on t.hmdb_id::text= bgi.primary_external_id
@@ -355,15 +358,7 @@ exception
                 )
             ) as s;
 
-			  exception
-	when others then
-		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
-		perform tm_cz.cz_end_audit (jobID, 'FAIL');
-		return -16;
-	end;
-
-	stepCt := stepCt + 1;
-	get diagnostics rowCt := ROW_COUNT;
+            stepCt := stepCt + 1;
             perform cz_write_audit(jobId,databaseName,procedureName,'Insert subpathways into search_keyword_term',rowCt,stepCt,'Done');
             
             INSERT INTO searchapp.search_keyword (
@@ -486,13 +481,5 @@ exception
   END IF;
 
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-  COST 100;
+$$;
 
--- ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) SET search_path=tm_cz, i2b2metadata, pg_temp, deapp, tm_lz, tm_wz, biomart;
---
--- ALTER FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) TO tm_cz;
--- REVOKE ALL ON FUNCTION I2B2_LOAD_METABOLOMICS_ANNOT(numeric) FROM public;

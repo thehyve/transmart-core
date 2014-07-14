@@ -8,7 +8,7 @@ CREATE VIEW pathway_genes AS
    FROM search_keyword k_pathway,
     biomart.bio_marker_correl_mv b,
     search_keyword k_gene
-  WHERE ((((((b.correl_type)::text = 'PATHWAY_GENE'::text) AND (b.bio_marker_id = k_pathway.bio_data_id)) AND ((k_pathway.data_category)::text = 'PATHWAY'::text)) AND (b.asso_bio_marker_id = k_gene.bio_data_id)) AND ((k_gene.data_category)::text = 'GENE'::text));
+  WHERE (((((b.correl_type = 'PATHWAY_GENE'::text) AND (b.bio_marker_id = k_pathway.bio_data_id)) AND ((k_pathway.data_category)::text = 'PATHWAY'::text)) AND (b.asso_bio_marker_id = k_gene.bio_data_id)) AND ((k_gene.data_category)::text = 'GENE'::text));
 
 --
 -- Name: search_bio_mkr_correl_view; Type: VIEW; Schema: searchapp; Owner: -

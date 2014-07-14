@@ -29,26 +29,6 @@ CREATE SEQUENCE protocol_id_seq
     CACHE 1;
 
 --
--- Name: seq_encounter_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
---
-CREATE SEQUENCE seq_encounter_num
-    START WITH 49814595
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
--- Name: seq_patient_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
---
-CREATE SEQUENCE seq_patient_num
-    START WITH 1000384597
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
 -- Name: seq_subject_reference; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE seq_subject_reference

@@ -34,7 +34,7 @@ CREATE FUNCTION tf_trg_bio_file_content_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-    if coalesce(NEW.BIO_FILE_CONTENT_ID::text, '') = '' then
+    if NEW.BIO_FILE_CONTENT_ID is null then
           select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_FILE_CONTENT_ID ;
     end if;
 RETURN NEW;

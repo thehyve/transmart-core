@@ -1,10 +1,9 @@
--- Function: i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric)
-
--- DROP FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric);
-
-CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1))
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_load_clinical_data(trial_id character varying, top_node character varying, secure_study character varying DEFAULT 'N'::character varying, highlight_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -1292,13 +1291,5 @@ for ul in uploadI2b2
 	return 1;
 END;
 
-$BODY$
-  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-  COST 100;
+$$;
 
--- ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
---
--- ALTER FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_load_clinical_data(character varying, character varying, character varying, character varying, numeric) FROM public;

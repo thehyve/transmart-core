@@ -1,10 +1,9 @@
--- Function: i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
-
--- DROP FUNCTION i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric);
-
-CREATE FUNCTION i2b2_load_rbm_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT (-1))
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_load_rbm_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 DECLARE
 
 /*************************************************************************
@@ -586,16 +585,6 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 	from  tm_wz.WT_RBM_NODE_VALUES
 	where category_cd like '%TISSUETYPE%';
 		get diagnostics rowCt := ROW_COUNT;
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-	end;
 	exception
 	when others then
 		errorNumber := SQLSTATE;
@@ -1191,11 +1180,5 @@ begin
 	return 0 ; 
 END;
  
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
+$$;
 
--- ALTER FUNCTION i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_load_rbm_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric) FROM public;

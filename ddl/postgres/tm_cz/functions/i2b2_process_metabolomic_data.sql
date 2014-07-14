@@ -1,10 +1,9 @@
--- Function: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint)
-
--- DROP FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint);
-
-CREATE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base bigint DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid bigint DEFAULT (-1))
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base bigint DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid bigint DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 
 /*************************************************************************
 
@@ -1208,12 +1207,5 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 
 END;
  
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
+$$;
 
---  ALTER FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) SET search_path=tm_cz, tm_lz, tm_wz, i2b2demodata, i2b2metadata, deapp, pg_temp;
--- ALTER FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint) FROM public;

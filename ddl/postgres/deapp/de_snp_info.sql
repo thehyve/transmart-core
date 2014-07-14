@@ -9,10 +9,10 @@ CREATE TABLE de_snp_info (
 );
 
 --
--- Name: sys_c0020611; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_info_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_info
-    ADD CONSTRAINT sys_c0020611 PRIMARY KEY (snp_info_id);
+    ADD CONSTRAINT de_snp_info_id_pk PRIMARY KEY (snp_info_id);
 
 --
 -- Name: u_snp_info_name; Type: CONSTRAINT; Schema: deapp; Owner: -

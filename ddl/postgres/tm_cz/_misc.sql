@@ -5,7 +5,17 @@ CREATE AGGREGATE median(anyelement) (
     SFUNC = array_append,
     STYPE = anyarray,
     INITCOND = '{}',
-    FINALFUNC = _final_median
+    FINALFUNC = tm_cz._final_median
+);
+
+--
+-- Name: median(double precision); Type: AGGREGATE; Schema: tm_cz; Owner: -
+--
+CREATE AGGREGATE median(double precision) (
+    SFUNC = array_append,
+    STYPE = double precision[],
+    INITCOND = '{}',
+    FINALFUNC = tm_cz._final_median
 );
 
 
@@ -70,16 +80,6 @@ CREATE SEQUENCE seq_cz_job_id
     NO MINVALUE
     NO MAXVALUE
     CACHE 20;
-
---
--- Name: seq_cz_job_message; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_job_message
-    START WITH 988
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
 
 --
 -- Name: seq_cz_test_category; Type: SEQUENCE; Schema: tm_cz; Owner: -

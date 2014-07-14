@@ -26,9 +26,13 @@ end if;
 end;
 $$;
 
+--
+-- Name: trg_am_tag_value_id; Type: TRIGGER; Schema: amapp; Owner: -
+--
+CREATE TRIGGER trg_am_tag_value_id BEFORE INSERT ON am_tag_value FOR EACH ROW EXECUTE PROCEDURE tf_trg_am_tag_value_id();
 
 --
--- Name: tf_trg_am_tag_value_uid(); Type: FUNCTION; Schema: fmapp; Owner: -
+-- Name: tf_trg_am_tag_value_uid(); Type: FUNCTION; Schema: amapp; Owner: -
 --
 CREATE FUNCTION tf_trg_am_tag_value_uid() RETURNS trigger
     LANGUAGE plpgsql
@@ -50,11 +54,6 @@ $$;
 
 
 SET default_with_oids = false;
-
---
--- Name: trg_am_tag_value_id; Type: TRIGGER; Schema: amapp; Owner: -
---
-CREATE TRIGGER trg_am_tag_value_id BEFORE INSERT ON am_tag_value FOR EACH ROW EXECUTE PROCEDURE tf_trg_am_tag_value_id();
 
 --
 -- Name: trg_am_tag_value_uid; Type: TRIGGER; Schema: amapp; Owner: -

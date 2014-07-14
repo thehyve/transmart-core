@@ -20,7 +20,7 @@ CREATE TABLE qt_patient_enc_collection (
 );
 
 --
--- Name: qt_patient_enc_coll_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+-- Name: qt_patient_enc_coll_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY qt_patient_enc_collection
     ADD CONSTRAINT qt_patient_enc_coll_pk PRIMARY KEY (patient_enc_coll_id);

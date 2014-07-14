@@ -11,8 +11,15 @@ CREATE TABLE de_pathway (
     pathway_uid character varying(200),
     user_id bigint
 );
+
 --
--- Name: tf_trg_de_pathway_id; Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: de_pathway_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_pathway
+    ADD CONSTRAINT de_pathway_pkey PRIMARY KEY (id);
+
+--
+-- Name: tf_trg_de_pathway_id(); Type: FUNCTION; Schema: deapp; Owner: -
 --
 CREATE FUNCTION tf_trg_de_pathway_id() RETURNS trigger
     LANGUAGE plpgsql
@@ -26,13 +33,7 @@ end;
 $$;
 
 --
--- Name: trg_de_pathway_id(); Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: trg_de_pathway_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
-  CREATE TRIGGER trg_de_pathway_id BEFORE INSERT ON de_pathway FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_pathway_id();
-
---
--- Name: de_pathway_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
---
-ALTER TABLE ONLY de_pathway
-    ADD CONSTRAINT de_pathway_pkey PRIMARY KEY (id);
+CREATE TRIGGER trg_de_pathway_id BEFORE INSERT ON de_pathway FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_pathway_id();
 

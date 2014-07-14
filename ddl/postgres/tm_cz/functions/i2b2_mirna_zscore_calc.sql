@@ -1,10 +1,9 @@
--- Function: i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
-
--- DROP FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying);
-
-CREATE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying)
-  RETURNS numeric AS
-$BODY$
+--
+-- Name: i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying); Type: FUNCTION; Schema: tm_cz; Owner: -
+--
+CREATE FUNCTION i2b2_mirna_zscore_calc(trial_id character varying, run_type character varying DEFAULT 'L'::character varying, currentjobid numeric DEFAULT NULL::numeric, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, source_cd character varying DEFAULT NULL::character varying) RETURNS numeric
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
 /*************************************************************************
 This Stored Procedure is used in ETL load MIRNA data
 Date:12/9/2013
@@ -297,11 +296,5 @@ BEGIN
   END IF;
   return 0;	
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-  COST 100;
+$$;
 
--- ALTER FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying)
---   OWNER TO tm_cz;
--- GRANT EXECUTE ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) TO tm_cz;
--- REVOKE ALL ON FUNCTION i2b2_mirna_zscore_calc(character varying, character varying, numeric, character varying, numeric, character varying) FROM public;
