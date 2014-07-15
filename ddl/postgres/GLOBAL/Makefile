@@ -1,14 +1,7 @@
 include ../../../makefile.inc
 
-TBNAMES = deapp \
-		  biomart \
-		  transmart \
-		  indx \
-		  search_app \
-		  amapp \
-		  fmapp \
-		  galaxy
-
+TBNAMES = transmart \
+          indx
 
 TBDIR_TARGETS = $(addprefix $(TABLESPACES), $(TBNAMES))
 TB_TARGETS = $(addprefix tablespace_, $(TBNAMES))

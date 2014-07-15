@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # This script is used to parse VCF data for a specific study
 # The script requires 1 parameter: the params file to be used
 # If the parameter is not given, the user is expected to set
