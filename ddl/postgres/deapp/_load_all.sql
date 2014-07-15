@@ -21,6 +21,7 @@
 \i deapp/de_protein_annotation.sql
 \i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rbm_annotation.sql
+\i deapp/de_subject_rbm_data.sql
 \i deapp/de_rbm_data_annotation_join.sql
 \i deapp/de_rc_snp_info.sql
 \i deapp/de_rnaseq_annotation.sql
@@ -46,7 +47,6 @@
 \i deapp/de_subject_mirna_data.sql
 \i deapp/de_subject_protein_data.sql
 \i deapp/de_subject_proteomics_data.sql
-\i deapp/de_subject_rbm_data.sql
 \i deapp/de_subject_rna_data.sql
 \i deapp/de_subject_rnaseq_data.sql
 \i deapp/de_subject_sample_mapping.sql
