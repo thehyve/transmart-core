@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 DIR=`dirname "$0"`
 RUN_SQL_DIR=$DIR/../../../../ddl/oracle/_scripts
 RUN_SQL_COMMAND="groovy -cp $LIB_CLASSPATH:$RUN_SQL_DIR $RUN_SQL_DIR/run_sql.groovy"
