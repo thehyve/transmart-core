@@ -341,7 +341,7 @@ BEGIN
 			--	needed to add partition to de_subject_microarray_data
 
 			sqlText := 'alter table deapp.de_subject_microarray_data add PARTITION "' || TrialID || '"  VALUES (' || '''' || TrialID || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
+						   'NOLOGGING COMPRESS TABLESPACE "TRANSMART" ';
 			
                         execute immediate(sqlText);
                        
