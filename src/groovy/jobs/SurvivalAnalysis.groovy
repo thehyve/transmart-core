@@ -2,11 +2,9 @@ package jobs
 
 import jobs.steps.*
 import jobs.steps.helpers.*
-import jobs.table.Column
 import jobs.table.MissingValueAction
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
-import jobs.table.columns.TransformColumnDecorator
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -23,9 +21,6 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 @Scope('job')
 class SurvivalAnalysis extends AbstractLocalRAnalysisJob implements InitializingBean {
 
-    private static def CENSORING_TRUE = '1'
-    private static def CENSORING_FALSE = '0'
-
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 
@@ -37,9 +32,7 @@ class SurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initializing
     OptionalBinningColumnConfigurator categoryVariableConfigurator
 
     @Autowired
-    CategoricalColumnConfigurator censoringInnerConfigurator
-
-    CensoringColumnConfigurator censoringVariableConfigurator
+    CensorColumnConfigurator censoringVariableConfigurator
 
     @Autowired
     Table table
@@ -78,17 +71,8 @@ class SurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initializing
     }
 
     void configureCensoringVariableConfigurator() {
-
-        censoringInnerConfigurator.required           = false
-        censoringInnerConfigurator.header             = 'CENSOR'
-        censoringInnerConfigurator.keyForConceptPaths = 'censoringVariable'
-
-        def noValueDefault = censoringInnerConfigurator.getConceptPaths() ? CENSORING_FALSE : CENSORING_TRUE
-
-        censoringInnerConfigurator.missingValueAction  =
-                new MissingValueAction.ConstantReplacementMissingValueAction(replacement: noValueDefault)
-
-        censoringVariableConfigurator = new CensoringColumnConfigurator(innerConfigurator: censoringInnerConfigurator)
+        censoringVariableConfigurator.header             = 'CENSOR'
+        censoringVariableConfigurator.keyForConceptPaths = 'censoringVariable'
     }
 
     protected List<Step> prepareSteps() {
@@ -140,24 +124,4 @@ class SurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initializing
         "/survivalAnalysis/survivalAnalysisOutput?jobName=$name"
     }
 
-    static class CensoringColumnConfigurator extends ColumnConfigurator {
-
-        ColumnConfigurator innerConfigurator
-
-        @Override
-        protected void doAddColumn(Closure<Column> decorateColumn) {
-            innerConfigurator.addColumn(compose(decorateColumn, createDecoratorClosure()))
-        }
-
-        private Closure<Column> createDecoratorClosure() {
-            Closure<Object> function = { value ->
-                CENSORING_TRUE
-            }
-            def decorator = new TransformColumnDecorator(valueFunction: function)
-            return { Column originalColumn ->
-                decorator.inner = originalColumn
-                decorator
-            }
-        }
-    }
 }
