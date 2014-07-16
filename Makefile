@@ -18,4 +18,7 @@ oracle:
 oracle_drop:
 	$(MAKE) -C ddl/oracle drop
 
+update_datasets:
+	$(MAKE) -C samples/studies update_datasets
+
 .PHONY: postgres postgres_load postgres_drop oracle oracle_drop
