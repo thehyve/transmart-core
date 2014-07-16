@@ -47,7 +47,6 @@ class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements Initiali
     }
 
     void configureCensoringVariableConfigurator() {
-        censoringConfigurator.required           = false
         censoringConfigurator.header             = 'CENSOR'
         censoringConfigurator.keyForConceptPaths = 'censoringVariable'
     }

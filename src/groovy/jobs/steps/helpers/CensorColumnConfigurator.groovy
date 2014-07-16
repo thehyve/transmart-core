@@ -51,7 +51,7 @@ class CensorColumnConfigurator extends ColumnConfigurator {
     }
 
     String getConceptPaths() {
-        //if required this will fail on empty conceptPaths
-        getStringParam(keyForConceptPaths, required)
+        // empty conceptPaths are allowed (required=false)
+        getStringParam(keyForConceptPaths, false)
     }
 }
