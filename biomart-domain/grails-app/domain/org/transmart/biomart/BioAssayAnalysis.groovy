@@ -45,7 +45,7 @@ class BioAssayAnalysis implements IExcelProfile {
 	Long dataCount
 	Long teaDataCount
 	String etlId
-	static hasMany=[datasets:BioAssayDataset,files:ContentReference, diseases:Disease, observations:Observation, platforms:BioAssayPlatform]
+	static hasMany=[datasets:BioAssayDataset,files:ContentReference, uniqueIds: BioData, diseases:Disease, observations:Observation, platforms:BioAssayPlatform]
 	static hasOne=[ext:BioAssayAnalysisExt]
 	static belongsTo=[ContentReference, Disease, Observation, BioAssayPlatform]
 
@@ -77,6 +77,7 @@ class BioAssayAnalysis implements IExcelProfile {
 			diseases joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DATA_ID'], cache:true
 			observations joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_DATA_ID'], cache:true
 			platforms joinTable:[name:'BIO_DATA_PLATFORM', key:'BIO_DATA_ID'], cache:true
+            uniqueIds joinTable: [name: 'BIO_DATA_UID', key: 'BIO_DATA_ID']
 		}
 	}
 
@@ -109,4 +110,10 @@ class BioAssayAnalysis implements IExcelProfile {
 	public List getValues() {
 		return [shortDescription, longDescription, pValueCutoff, foldChangeCutoff, qaCriteria, analysisPlatform == null ? "" : analysisPlatform.platformName, analysisMethodCode, assayDataType]
 	}
+    
+    def getUniqueId() {
+        if (uniqueIds != null && !uniqueIds.isEmpty())
+            return uniqueIds.iterator().next();
+        return null;
+    }
 }
