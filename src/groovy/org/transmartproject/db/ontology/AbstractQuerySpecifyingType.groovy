@@ -8,6 +8,7 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
+import org.transmartproject.db.user.User
 
 /**
  * Properties that specify queries to be made in other tables. Used by
@@ -116,5 +117,10 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
             patientIdList = patientIdList.collect( {it as Long} )
         }
         PatientDimension.findAllByIdInList(patientIdList)
+    }
+
+    @Override
+    String postProcessQuery(String sql, User user) {
+        sql
     }
 }
