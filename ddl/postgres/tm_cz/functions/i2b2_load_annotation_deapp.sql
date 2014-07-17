@@ -57,11 +57,11 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_load_annotation_deapp',0,stepCt,'Done') into rtnCd;
 
-	--	get GPL id from external table
+	-- get GPL id from external table
 	
 	select distinct gpl_id into gplId from tm_lz.lt_src_deapp_annot;
 		
-	--	delete any existing data from annotation_deapp
+	-- delete any existing data from annotation_deapp
 	
 	begin
 	delete from tm_cz.annotation_deapp
@@ -81,7 +81,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from annotation_deapp',rowCt,stepCt,'Done') into rtnCd;
 
-	--	delete any existing data from deapp.de_mrna_annotation
+	-- delete any existing data from deapp.de_mrna_annotation
 	
 	begin
 	delete from deapp.de_mrna_annotation
@@ -101,7 +101,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_mrna_annotation',rowCt,stepCt,'Done') into rtnCd;
 
-	--	update organism for existing probesets in probeset_deapp
+	-- update organism for existing probesets in probeset_deapp
 	
 	begin
 	with upd as (select distinct t.gpl_id, t.probe_id, t.organism from tm_lz.lt_src_deapp_annot t)
@@ -129,7 +129,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Update organism in probeset_deapp',rowCt,stepCt,'Done') into rtnCd;
 			
-	--	insert any new probesets into probeset_deapp
+	-- insert any new probesets into probeset_deapp
 	
 	begin
 	insert into tm_cz.probeset_deapp
@@ -160,7 +160,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert new probesets into probeset_deapp',rowCt,stepCt,'Done') into rtnCd;
 		
-	--	insert data into annotation_deapp
+	-- insert data into annotation_deapp
 	
 	begin
 	insert into tm_cz.annotation_deapp
@@ -196,7 +196,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into REFERENCE annotation_deapp',rowCt,stepCt,'Done') into rtnCd;
 		
-	--	insert data into deapp.de_mrna_annotation
+	-- insert data into deapp.de_mrna_annotation
 	
 	begin
 	insert into deapp.de_mrna_annotation
@@ -232,13 +232,13 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_mrna_annotation',rowCt,stepCt,'Done') into rtnCd;
 		
-	--	update gene_id if null
+	-- update gene_id if null
 	
 	begin
 	with upd as (select b.bio_marker_name as gene_symbol, b.organism, min(b.primary_external_id::numeric) as gene_id 
-				 from biomart.bio_marker b
-				 where upper(b.bio_marker_type) = 'GENE'
-				 group by b.bio_marker_name, b.organism)
+			from biomart.bio_marker b
+			where upper(b.bio_marker_type) = 'GENE'
+			group by b.bio_marker_name, b.organism)
 	update deapp.de_mrna_annotation a
 	set gene_id=upd.gene_id
 	from upd
@@ -246,12 +246,7 @@ BEGIN
 	  and a.gene_id is null
 	  and a.gene_symbol is not null
 	  and a.gene_symbol = upd.gene_symbol
-	  and upper(a.organism) = upper(upd.organism)
-	  and exists
-		 (select 1 from biomart.bio_marker x
-		  where a.gene_symbol = x.bio_marker_name
-			and upper(x.organism) = upper(a.organism)
-			and upper(x.bio_marker_type) = 'GENE');
+	  and upper(a.organism) = upper(upd.organism);
 	get diagnostics rowCt := ROW_COUNT;	
 	exception
 	when others then
@@ -266,13 +261,13 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_id in de_mrna_annotation',rowCt,stepCt,'Done') into rtnCd;
 	
-	--	update gene_symbol if null
+	-- update gene_symbol if null
 	
 	begin
 	with upd as (select b.primary_external_id::numeric as gene_id, b.organism, min(b.bio_marker_name) as gene_symbol
-				 from biomart.bio_marker b
-				 where upper(b.bio_marker_type) = 'GENE'
-				 group by b.primary_external_id, b.organism)
+			from biomart.bio_marker b
+			where upper(b.bio_marker_type) = 'GENE'
+			group by b.primary_external_id, b.organism)
 	update deapp.de_mrna_annotation a
 	set gene_symbol=upd.gene_symbol
 	from upd
@@ -280,12 +275,7 @@ BEGIN
 	  and a.gene_symbol is null
 	  and a.gene_id is not null
 	  and a.gene_id = upd.gene_id
-	  and a.organism = upd.organism
-	  and exists
-		 (select 1 from biomart.bio_marker x
-		  where a.gene_id::varchar = x.primary_external_id
-			and upper(x.organism) = upper(a.organism)
-			and upper(x.bio_marker_type) = 'GENE');
+	  and upper(a.organism) = upper(upd.organism);
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -303,7 +293,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_annotation_deapp',0,stepCt,'Done') into rtnCd;
 	
-       ---Cleanup OVERALL JOB if this proc is being run standalone
+	--Cleanup OVERALL JOB if this proc is being run standalone
 	IF newJobFlag = 1
 	THEN
 		select tm_cz.cz_end_audit (jobID, 'SUCCESS') into rtnCd;
