@@ -7,7 +7,6 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
 
-import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 import org.transmartproject.db.user.User
 
 /**
@@ -27,41 +26,6 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     def sessionFactory
     def databasePortabilityService
 
-    /* implements (hopefully improved) transformations described here:
-     * https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology
-     */
-    String getProcessedDimensionCode() {
-        def v = dimensionCode
-        if (!v) {
-            return v
-        }
-
-        if (columnDataType == 'T' && v.length() > 2) {
-            if (operator.equalsIgnoreCase('like')) {
-                if (v[0] != "'" && !v[0] != '(') {
-                    if (v[-1] != '%') {
-                        if (v[-1] != '\\') {
-                            v += '\\'
-                        }
-                        v = v.asLikeLiteral() + '%'
-                    }
-                }
-            }
-
-            if (v[0] != "'") {
-                v = v.replaceAll(/'/, "''") /* escape single quotes */
-                v = "'$v'"
-            }
-
-        }
-
-        if (operator.equalsIgnoreCase('in')) {
-            v = "($v)"
-        }
-
-        v
-    }
-
     static constraints = {
         factTableColumn      nullable:   false,   maxSize:   50
         dimensionTableName   nullable:   false,   maxSize:   50
@@ -69,23 +33,6 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         columnDataType       nullable:   false,   maxSize:   50
         operator             nullable:   false,   maxSize:   10
         dimensionCode        nullable:   false,   maxSize:   700
-    }
-
-    /**
-     * Returns the SQL for the query that this object represents.
-     *
-     * @return raw SQL of the query that this type represents
-     */
-    String generateObservationFactConstraint() {
-        def res = "SELECT $factTableColumn " +
-                "FROM $dimensionTableName " +
-                "WHERE $columnName $operator $processedDimensionCode"
-        if (operator.equalsIgnoreCase('like') &&
-                databasePortabilityService.databaseType == ORACLE) {
-            res += " ESCAPE '\\'"
-        }
-
-        "$factTableColumn IN ($res)"
     }
 
     protected List<Patient> getPatients(OntologyTerm term) {

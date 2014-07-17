@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.ontology
 
-import org.hibernate.ObjectNotFoundException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
