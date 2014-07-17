@@ -56,19 +56,18 @@ GParsPool.withPool(NUMBER_OF_THREADS) {
     }.flatten()
 }
 
-dataSets = dataSets.groupBy {
+def groupedDataSets = dataSets.groupBy {
     [it.study, it.type]
-}.collect { List<String> key, List<DataSet> list ->
-    if (list.size() > 1) {
-        Log.warn("Dataset ${list[0].study}/${list[0].type} is repeated. " +
-                "Will pick one arbitrarily (using ${list[0].URL})")
-    }
-    list[0]
+}
+Log.out "Found ${groupedDataSets.size()} unique data sets"
+dataSets = groupedDataSets.collect { List<String> key, List<DataSet> list ->
+    list
 }
 
 new File(options.o).withWriter { writer ->
     dataSets.each {
-        writer.write "${it.study} ${it.type} ${it.URL.toExternalForm()}\n"
+        writer.write "${it[0].study} ${it[0].type} " +
+                "${it*.URL*.toExternalForm().join(" ")}\n"
     }
 }
 

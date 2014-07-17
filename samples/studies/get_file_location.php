@@ -19,7 +19,9 @@ foreach (new SplFileObject('./datasets') as $l) {
 	}
 	list($study, $type, $location) = preg_split('/\s+/', $l, 3);
 	if ($study == $desired_study && $type == $desired_type) {
-		echo $location;
+		$mult_locations = preg_split('/\s+/', $location);
+		shuffle($mult_locations);
+		echo implode(' ', $mult_locations), "\n";
 		exit(0);
 	}
 }
