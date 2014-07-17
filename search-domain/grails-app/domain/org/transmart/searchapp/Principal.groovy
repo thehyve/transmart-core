@@ -34,7 +34,8 @@ class Principal {
         table 'SEARCH_AUTH_PRINCIPAL'
         tablePerHierarchy false
         version false
-        id generator: 'assigned'
+        id generator: 'sequence',
+                params: [sequence: 'hibernate_sequence', schema: 'searchapp']
         columns
                 {
                     id column: 'ID'
