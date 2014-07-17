@@ -22,9 +22,12 @@ package org.transmartproject.db.ontology
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.concept.ConceptFullName
 import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.user.User
 
-abstract class AbstractAcrossTrialsOntologyTerm implements OntologyTerm {
+abstract class AbstractAcrossTrialsOntologyTerm
+        implements OntologyTerm, MetadataSelectQuerySpecification {
 
     public final static String ACROSS_TRIALS_TABLE_CODE = 'xtrials'
     public final static String ACROSS_TRIALS_TOP_TERM_NAME = "Across Trials"
@@ -96,7 +99,66 @@ abstract class AbstractAcrossTrialsOntologyTerm implements OntologyTerm {
 
     @Override
     List<Patient> getPatients() {
+        // can't work right now because this object doesn't have access to
+        // user in context. To support this we'll probably have to move
+        // the user in context bean from transmartApp to core-db
         throw new UnsupportedOperationException("Retrieving patients for " +
-                "x-trial node not supported")
+                "x-trial node not supported yet")
+    }
+
+    /* query specification methods */
+
+    @Override
+    String getFactTableColumn() {
+        'modifier_cd'
+    }
+
+    @Override
+    String getDimensionTableName() {
+        'modifier_dimension'
+    }
+
+    @Override
+    String getColumnName() {
+        'modifier_path'
+    }
+
+    @Override
+    String getColumnDataType() {
+        'T' // text
+    }
+
+    @Override
+    String getOperator() {
+        'LIKE'
+    }
+
+    @Override
+    String getDimensionCode() {
+        def conceptFullName = new ConceptFullName(fullName)
+        if (conceptFullName.length == 1) {
+            '\\'
+        } else {
+            "\\${conceptFullName[1..-1].join '\\'}\\"
+        }
+    }
+
+    @Override
+    String postProcessQuery(String sql, User userInContext) {
+        if (userInContext == null) {
+            throw new NullPointerException(
+                    "Across trial nodes need to have the user provided")
+        }
+        def accessibleStudies = userInContext.accessibleStudies
+        if (!accessibleStudies) {
+            return "$sql AND FALSE"
+        }
+
+        sql += "AND sourcesystem_cd IN "
+        sql += '(' +
+                userInContext.accessibleStudies.collect {
+                    "\'${it.id.replaceAll('\'', '\'\'')}\'"
+                }.join(', ') + ')'
+        sql
     }
 }
