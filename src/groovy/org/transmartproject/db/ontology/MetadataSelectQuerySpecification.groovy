@@ -36,6 +36,13 @@ interface MetadataSelectQuerySpecification {
     String getColumnName()
 
     /**
+     * The type of data returned by {@link #getDimensionCode()}}/
+     *
+     * @return
+     */
+    String getColumnDataType()
+
+    /**
      * The operator that will be used to filter the results; the operand will
      * be the column name and the dimension code
      *
