@@ -1,4 +1,0 @@
-PLATFORM=GPL14663
-TITLE="Affymetrix GeneChip Human Genome HG-U133A Custom CDF "
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=GPL14663.txt
