@@ -200,6 +200,25 @@ class ConfiguratorTestsHelper {
         createPatientRows(patients, createPatientRowLabels(n), builder.build(), relaxed)
     }
 
+    List<PatientRow> createPatientRows(List<ClinicalVariableColumn> columns,
+                                       List<List<String>> values,
+                                       boolean relaxed = false) {
+        def builder = ImmutableTable.builder()
+
+        def patients = createPatients values.size()
+        patients.eachWithIndex { patient, patientIndex ->
+            columns.eachWithIndex { columnVariable, columnIndex ->
+                if (values[patientIndex][columnIndex] != null) {
+                    builder.put(patient, columnVariable, values[patientIndex][columnIndex])
+                } else {
+                    builder.put(patient, columnVariable, NULL_PLACEHOLDER)
+                }
+            }
+        }
+
+        createPatientRows(patients, createPatientRowLabels(patients.size()), builder.build(), relaxed)
+    }
+
     List<PatientRow> createPatientRows(List<Patient> patients,
                                        List<String> labels,
                                        com.google.common.collect.Table<Patient, ClinicalVariableColumn, Object> data,
@@ -277,5 +296,19 @@ class ConfiguratorTestsHelper {
                 containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
     }
 
+    void setupClinicalResult(List<ClinicalVariableColumn> columns,
+                             List<List<Object>> patientColumnValues) {
+        assert patientColumnValues.every { it.size() == columns.size() }
+
+        TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
+                mock(TabularResult)
+        clinicalResult.iterator().returns(createPatientRows(columns,
+                patientColumnValues, true /* relaxed */).iterator())
+        clinicalResult.close().stub()
+
+        clinicalDataResourceMock.retrieveData(
+                mockQueryResults(),
+                containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
+    }
 
 }
