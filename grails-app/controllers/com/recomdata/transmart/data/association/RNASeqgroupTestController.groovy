@@ -34,21 +34,6 @@ class RNASeqgroupTestController {
         render imagePath
     }
 
-    /**
-     * This function returns survival acgh analysis result in zipped file
-     */
-    def zipFile = {
-        def zipFile = new File("${config.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
-        if (zipFile.exists()) {
-            response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
-            response.contentType = 'application/octet-stream'
-            response.outputStream << zipFile.getBytes()
-            response.outputStream.flush()
-        } else {
-            response.status = 404
-        }
-    }
-
     def resultTable = {
         response.contentType = 'text/json'
         if (!(params?.jobName ==~ /(?i)[-a-z0-9]+/)) {
