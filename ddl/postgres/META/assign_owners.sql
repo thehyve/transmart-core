@@ -57,7 +57,7 @@ BEGIN
         FOR obj_name, obj_type, cur_owner IN
                 SELECT name, kind, owner
                 FROM public.schemas_tables_funcs
-                WHERE nspname = schema_name
+                WHERE nspname = schema_name AND NOT change_owner_skip
                 LOOP
 
             SELECT proper_owner
