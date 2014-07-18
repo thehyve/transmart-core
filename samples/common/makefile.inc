@@ -24,7 +24,7 @@ endif
 DATASETS_FILE := $(wildcard ../studies/datasets)
 ifndef DATASETS_FILE
 $(info Fetching datasets...)
-$(shell $(MAKE) -C ../studies datasets)
+DUMMY := $(shell $(MAKE) -C ../studies datasets)
 $(info Finished fetching datasets)
 endif
 
