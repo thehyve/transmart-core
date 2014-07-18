@@ -20,11 +20,26 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.db.concept.ConceptFullName
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.user.AccessLevelTestData
 
 import static org.transmartproject.db.TestDataHelper.save
+import static org.transmartproject.db.dataquery.clinical.ClinicalTestData.*
+import static org.transmartproject.db.i2b2data.I2b2Data.createTestPatients
+import static org.transmartproject.db.ontology.ConceptTestData.createConceptDimensions
+import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
 class AcrossTrialsTestData {
 
+    public static final String MODIFIER_MALE = 'SNOMED:F-03CE6'
+    public static final String MODIFIER_FEMALE = 'SNOMED:F-03CE5'
+    public static final String MODIFIER_AGE_AT_DIAGNOSIS = 'SNOMED:F-08104'
+
+    ConceptTestData conceptTestData
+    List<PatientDimension> patients
+    List<ObservationFact> facts
+    AccessLevelTestData accessLevelTestData
     List<ModifierDimensionCoreDb> modifierDimensions
     List<ModifierMetadataCoreDb> modifierMetadatas
 
@@ -33,17 +48,86 @@ class AcrossTrialsTestData {
         list << createModifier(path: '\\Demographics\\',
                 code: 'CDEMO', nodeType: 'F')
         list << createModifier(path: '\\Demographics\\Age at Diagnosis\\',
-                code: 'SNOMED:F-08104', nodeType: 'L', valueType: 'N', unit: 'year')
+                code: MODIFIER_AGE_AT_DIAGNOSIS, nodeType: 'L', valueType: 'N', unit: 'year')
         list << createModifier(path: '\\Demographics\\Sex\\',
                 code: 'SNOMED:F-03D86', nodeType: 'F')
         list << createModifier(path: '\\Demographics\\Sex\\Female\\',
-                code: 'SNOMED:F-03CE5', nodeType: 'L')
+                code: MODIFIER_FEMALE, nodeType: 'L')
         list << createModifier(path: '\\Demographics\\Sex\\Male\\',
-                code: 'SNOMED:F-03CE6', nodeType: 'L')
+                code: MODIFIER_MALE, nodeType: 'L')
 
         def result = new AcrossTrialsTestData()
         result.modifierDimensions = list*.get(0)
         result.modifierMetadatas = list*.get(1)
+
+        def tableAccess = ConceptTestData.createTableAccess(
+                level:     0,
+                fullName:  '\\foo\\',
+                name:      'foo',
+                tableCode: 'i2b2 main',
+                tableName: 'i2b2')
+
+        int c = 1;
+        def i2b2List = [
+                createI2b2Concept(code: c++, level: 1, fullName: '\\foo\\study1\\', name: 'study1',
+                        cComment: 'trial:STUDY_ID_1', cVisualattributes: 'FA'),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study1\\age at diagnosis\\',
+                        name: 'age at diagnosis', cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LA',
+                        metadataxml: ConceptTestData.numericXml),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study1\\male\\', name: 'male',
+                        cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LA'),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study1\\female\\', name: 'female',
+                        cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LA'),
+                createI2b2Concept(code: c++, level: 1, fullName: '\\foo\\study2\\', name: 'study2',
+                        cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA'),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study2\\age at diagnosis\\',
+                        name: 'age at diagnosis', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
+                        metadataxml: ConceptTestData.numericXml),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study2\\male\\', name: 'male',
+                        cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA'),
+                createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study2\\female\\', name: 'female',
+                        cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA'),
+        ]
+
+        result.conceptTestData = new ConceptTestData(tableAccesses: [tableAccess],
+                i2b2List: i2b2List, conceptDimensions: createConceptDimensions(i2b2List))
+
+        def patientsStudy1 = createTestPatients(2, -400L, 'STUDY_ID_1')
+        def patientsStudy2 = createTestPatients(2, -500L, 'STUDY_ID_2')
+
+        def conceptDimensionFor = { String fullName ->
+            result.conceptTestData.conceptDimensions.find {
+                fullName == fullName
+            }
+        }
+
+        List<ObservationFact> observations = [
+                createDiagonalCategoricalFacts(2, i2b2List.findAll {
+                    it.fullName =~ /\\foo\\study1\\(fe)?male/
+                }, patientsStudy1),
+                createDiagonalCategoricalFacts(2, i2b2List.findAll {
+                    it.fullName =~ /\\foo\\study2\\(fe)?male/
+                }, patientsStudy2),
+                createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
+                        patientsStudy1[0], DUMMY_ENCOUNTER_ID, 1100),
+                createObservationFact(conceptDimensionFor('\\foo\\study1\\age at diagnosis\\'),
+                        patientsStudy1[1], DUMMY_ENCOUNTER_ID, 2101),
+                createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
+                        patientsStudy2[0], DUMMY_ENCOUNTER_ID, 1200),
+                createObservationFact(conceptDimensionFor('\\foo\\study2\\age at diagnosis\\'),
+                        patientsStudy2[1], DUMMY_ENCOUNTER_ID, 2201),
+        ].flatten()
+        observations[0].modifierCd = MODIFIER_MALE
+        observations[1].modifierCd = MODIFIER_FEMALE
+        observations[2].modifierCd = MODIFIER_MALE
+        observations[3].modifierCd = MODIFIER_FEMALE
+        observations[4..7]*.modifierCd = MODIFIER_AGE_AT_DIAGNOSIS
+
+        result.patients = patientsStudy1 + patientsStudy2
+        result.facts = observations
+
+        result.accessLevelTestData = AccessLevelTestData.
+                createWithAlternativeConceptData(result.conceptTestData)
 
         result
     }
@@ -85,5 +169,9 @@ class AcrossTrialsTestData {
     void saveAll() {
         save modifierDimensions
         save modifierMetadatas
+        conceptTestData.saveAll()
+        save patients
+        save facts
+        accessLevelTestData.saveAll()
     }
 }

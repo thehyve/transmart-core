@@ -6,7 +6,6 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.Item
@@ -14,16 +13,12 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
-import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
-import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.ontology.ModifierDimensionView
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
-import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @WithGMock
@@ -35,7 +30,7 @@ class UserAccessLevelTests {
     @Autowired
     SessionFactory sessionFactory
 
-    AccessLevelTestData accessLevelTestData = new AccessLevelTestData()
+    AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()
 
     @Before
     void setUp() {
@@ -351,35 +346,6 @@ class UserAccessLevelTests {
         ])
 
         assertThat secondUser.canPerform(BUILD_COHORT, definition), is(false)
-    }
-
-    @Test
-    void testQueryDefinitionAllowAcrossTrialNodes() {
-        def secondUser = accessLevelTestData.users[1]
-
-        def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
-        acrossTrialsTestData.saveAll()
-        sessionFactory.currentSession.flush()
-
-        /* add entry in I2b2Secure to make sure we're not allowing the thing
-         * because of the "public by default" behavior */
-        OntologyTerm term = new AcrossTrialsOntologyTerm(
-                modifierDimension: ModifierDimensionView.get(
-                        acrossTrialsTestData.modifierDimensions[0].path))
-
-        I2b2Secure i2b2x = createI2b2Secure(
-                fullName: term.fullName,
-                name: term.name,
-                secureObjectToken: 'EXP:FOOBAR')
-        i2b2x.save(flush: true)
-
-        QueryDefinition definition = new QueryDefinition([
-                new Panel(items: [new Item(
-                        conceptKey: term.key,
-                )]),
-        ])
-
-        assertThat secondUser.canPerform(BUILD_COHORT, definition), is(true)
     }
 
     @Test
