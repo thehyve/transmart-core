@@ -3,6 +3,8 @@ acgh.frequency.plot <- function
   column = 'group'
 )
 {
+  library(Cairo)
+
   # read the data
   dat       <- read.table('outputfile.txt'  , header=TRUE, sep='\t', quote='"', as.is=TRUE      , check.names=FALSE, stringsAsFactors = FALSE)
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors = FALSE)
@@ -65,7 +67,7 @@ acgh.frequency.plot <- function
 
   # Create the Plots.
   filename <- paste('frequency-plot','.png',sep='')
-  png(filename, width=1000, height=length(groupnames) * 400)
+  CairoPNG(file=filename, width=1000, height=length(groupnames) * 400)
   par(mfrow = c(length(groupnames),1))
   for (group in groupnames) 
   {

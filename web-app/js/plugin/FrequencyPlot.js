@@ -241,6 +241,13 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
         var _this = this;
         var formParameters = {}; // init
 
+        // Fill global subset ids if null
+        if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
+            (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
+            runAllQueries(function() {_this.submitFrequencyPlotJob();});
+            return;
+        }
+
         // instantiate input elements object with their corresponding validations
         var inputArray = this.get_inputs();
 

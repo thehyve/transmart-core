@@ -5,45 +5,29 @@ import org.transmartproject.utils.FileUtils
 
 class aCGHgroupTestController {
 
-	def RModulesOutputRenderService;
+    def RModulesOutputRenderService
     def grailsApplication
 
     final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
 
-	def aCGHgroupTestOutput =
-		{
-			def jobTypeName = "aCGHgroupTest"
+    def aCGHgroupTestOutput = {
+        def jobTypeName = "aCGHgroupTest"
 
-			def imageLinks = new ArrayList<String>()
+        def imageLinks = new ArrayList<String>()
 
-			RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
+        RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
 
-			render (template: "/plugin/aCGHgroupTest_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
-		}
+        render(template: "/plugin/aCGHgroupTest_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
+    }
 
-	/**
-	 * This function will return the image path
-	 */
-	def imagePath = {
-		def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/groups-test.png"
-		render imagePath
-	}
-
-	/**
-	 * This function returns survival acgh analysis result in zipped file
-	 */
-	def zipFile = {
-		def zipFile = new File("${RModulesOutputRenderService.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
-		if(zipFile.exists()) {
-			response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
-			response.contentType  = 'application/octet-stream'
-			response.outputStream << zipFile.getBytes()
-			response.outputStream.flush()
-		} else {
-			response.status = 404
-		}
-	}
+    /**
+     * This function will return the image path
+     */
+    def imagePath = {
+        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/groups-test.png"
+        render imagePath
+    }
 
     def resultTable = {
         response.contentType = 'text/json'
