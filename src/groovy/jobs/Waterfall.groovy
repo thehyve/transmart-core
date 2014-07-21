@@ -19,7 +19,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class Waterfall extends AbstractLocalRAnalysisJob {
+class Waterfall extends AbstractAnalysisJob {
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
 

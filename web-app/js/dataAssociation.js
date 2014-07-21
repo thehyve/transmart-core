@@ -10,7 +10,7 @@ function advancedWorkflowMenu() {
 
     Ext.Ajax.request({
         url : pageInfo.basePath+"/plugin/modules",
-        params: {pluginNames: ['R-Modules', 'Galaxy']},
+        params: {pluginName:'R-Modules'},
         method : 'GET',
         timeout: '1800000',
         success : function(result, request)

@@ -12,8 +12,6 @@ class SimpleDumpTableResultStep extends AbstractDumpStep {
 
     final String statusName = 'Dumping Table Result'
 
-    boolean noQuotes
-
     @Override
     void execute() {
         try {
@@ -55,7 +53,7 @@ class SimpleDumpTableResultStep extends AbstractDumpStep {
     private void withDefaultCsvWriter(Closure constructFile) {
         File output = new File(temporaryDirectory, outputFileName)
         output.withWriter { writer ->
-            CSVWriter csvWriter = new CSVWriter(writer, '\t' as char, noQuotes ? CSVWriter.NO_QUOTE_CHARACTER : CSVWriter.DEFAULT_QUOTE_CHARACTER)
+            CSVWriter csvWriter = new CSVWriter(writer, '\t' as char)
             constructFile.call(csvWriter)
         }
     }
