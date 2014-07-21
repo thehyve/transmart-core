@@ -35,7 +35,9 @@ class RCommandsStep implements Step {
 
         try {
             //Run the R command to set the working directory to our temp directory.
-            rConnection.eval "setwd('${RUtil.escapeRStringContent(temporaryDirectory.absolutePath)}')"
+            String wd = RUtil.escapeRStringContent(temporaryDirectory.absolutePath)
+            log.info "About to trigger R command: setwd('$wd')"
+            rConnection.eval "setwd('${wd}')"
 
             /**
              * Please make sure that any and all variables you add to the map here are placed _after_ the putAll

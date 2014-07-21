@@ -19,6 +19,8 @@ acgh.group.test <- function
   test.aberrations=0
 )
 {
+  library(Cairo)
+
   aberrations_dict <- c('loss', 'both', 'gain')
   aberrations_options <- c('-1', '0', '1')
   names(aberrations_dict) <- aberrations_options
@@ -30,8 +32,8 @@ acgh.group.test <- function
 	  aberrations <- aberrations_dict[[test.aberrations]]
 	}
 
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
+  dat       <- read.table('outputfile.txt', header=TRUE, sep='\t', quote='"', as.is=TRUE,       check.names=FALSE, stringsAsFactors = FALSE)
+  phenodata <- read.table('phenodata.tsv',  header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors = FALSE)
 
   groupnames <- unique(phenodata[,column])
   groupnames <- groupnames[!is.na(groupnames)]
@@ -45,15 +47,20 @@ acgh.group.test <- function
   datacgh <- data.frame()
   group.sizes <- integer()
   for (group in groupnames) {
+    # Get ids for patients in group
     group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
-    group.ids <- phenodata[group.samples,"PATIENT_NUM"]
-    group.calls <- calls[,paste("flag.",group.ids,sep=""), drop=FALSE]
+    group.ids     <- phenodata[group.samples, "PATIENT_NUM"]
+
+    # Match data with selected patients
+    highdimColumnsMatchingGroupIds <- pmatch(paste("flag.",group.ids,sep=""), colnames(calls))
+    highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
+    group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
     if (nrow(datacgh)==0) {
       datacgh <- group.calls
     } else {
       datacgh <- cbind(datacgh, group.calls)
     }
-    group.sizes <- c(group.sizes, length(group.ids))
+    group.sizes <- c(group.sizes, length(highdimColumnsMatchingGroupIds))
     data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls == -1), digits=3)
     data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls == 1), digits=3)
     if (2 %in% calls)
@@ -141,10 +148,10 @@ acgh.group.test <- function
   
   if (aberrations == 'both')
   {
-    png(filename, width=1000, height=800)
+    CairoPNG(file=filename, width=1000, height=800)
     par(mfrow = c(2,1))
   } else {
-    png(filename, width=1000, height=400)
+    CairoPNG(file=filename, width=1000, height=400)
   }
 
   if (aberrations != 'loss')
