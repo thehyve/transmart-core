@@ -23,7 +23,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class RNASeqGroupTest extends AbstractLocalRAnalysisJob {
+class RNASeqGroupTest extends AbstractAnalysisJob {
 
     @Autowired
     HighDimensionResource highDimensionResource
@@ -63,8 +63,7 @@ class RNASeqGroupTest extends AbstractLocalRAnalysisJob {
 
         steps << new SimpleDumpTableResultStep(table: table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: 'phenodata.tsv',
-                noQuotes: true
+                outputFileName: 'phenodata.tsv'
         )
 
         def openResultSetStep = new OpenHighDimensionalDataStep(
