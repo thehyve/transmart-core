@@ -15,7 +15,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class AcghSurvivalAnalysis extends AbstractLocalRAnalysisJob implements InitializingBean {
+class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBean {
 
     @Autowired
     HighDimensionResource highDimensionResource
