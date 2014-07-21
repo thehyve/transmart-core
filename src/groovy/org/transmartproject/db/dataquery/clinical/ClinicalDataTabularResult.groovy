@@ -44,46 +44,47 @@ class ClinicalDataTabularResult implements TabularResult<ClinicalVariableColumn,
                 Iterators.peekingIterator(wrappedPatientRowsIterator())
 
 
-        //XXX: we don't care about the patient part actually
-        //     the plain implementation of DataRow, which is what's needed here
-        //     should be moved to a different class
-        // the empty data row should have the same indices that the normal rows, and so based on flattened indices
+        // the empty data row should have the same indices that the normal rows,
+        // and so based on flattened indices
         def emptyDataRow = createEmptyRow(flattenedIndices)
 
         /* patients with no data will not be in the result set returned by
          * conceptVariablesTabularResult, so we need to add empty rows
          * for those patients. Both patientMap and conceptVariablesTabularResult
          * should return results sorted by patient id */
-            new AbstractIterator<PatientRow>() {
+        new AbstractIterator<PatientRow>() {
 
-                @Override
-                protected PatientRow computeNext() {
-                    if (!idToPatientEntries.hasNext()) {
-                        if (conceptVariableRows.hasNext()) {
-                            throw new UnexpectedResultException(
-                                    'Found end of patient list before end of data result set')
-                        }
-                        endOfData()
-                        return
+            @Override
+            protected PatientRow computeNext() {
+                if (!idToPatientEntries.hasNext()) {
+                    if (conceptVariableRows.hasNext()) {
+                        throw new UnexpectedResultException(
+                                'Found end of patient list before end of data result set')
                     }
+                    endOfData()
+                    return
+                }
 
-                    Patient currentPatient = idToPatientEntries.next().value
-                    if (!conceptVariableRows.hasNext() ||
-                            currentPatient.id != conceptVariableRows.peek().patient.id) {
-                        //empty row
-                        new PatientRowImpl(
-                                patient: currentPatient,
-                                delegatingDataRow: emptyDataRow)
-                    } else {
-                        conceptVariableRows.next()
-                    }
+                Patient currentPatient = idToPatientEntries.next().value
+                if (!conceptVariableRows.hasNext() ||
+                        currentPatient.id != conceptVariableRows.peek().patient.id) {
+                    //empty row
+                    new PatientRowImpl(
+                            patient: currentPatient,
+                            delegatingDataRow: emptyDataRow)
+                } else {
+                    conceptVariableRows.next()
                 }
             }
+        }
     }
 
     private DataRow createEmptyRow(List<TerminalConceptVariable> indices) {
         int i = 0
 
+        //XXX: we don't care about the patient part actually
+        //     the plain implementation of DataRow, which is what's needed here
+        //     should be moved to a different class
         new PatientIdAnnotatedDataRow(
                 data: indices.collect { null },
                 columnToIndex: indices.collectEntries { [it, i++] })
