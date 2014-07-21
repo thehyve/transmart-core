@@ -19,12 +19,24 @@ acgh.survival.test <- function
 )
 {
 
-  dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
-  phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+  dat       <- read.table('outputfile.txt', header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
+  phenodata <- read.table('phenodata.tsv',  header=TRUE, sep='\t', check.names=FALSE)
 
+  # Fill data.info with columns before first data column
   first.data.col <- min(grep('^chip\\.', names(dat)), grep('^flag\\.', names(dat)))
   data.info <- dat[,1:(first.data.col-1)]
+
+  # Fill calls with the flag data
   calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
+
+  # Filter for the calls that match the phenodata ids and have data
+  phenodataIds <- phenodata[, "PATIENT_NUM"]
+  highdimColumnsMatchingGroupIds <- match(paste("flag.",phenodataIds,sep=""), colnames(calls))
+  highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
+  calls <- calls[, highdimColumnsMatchingGroupIds, drop=FALSE]
+
+  # Filter for the phenodata rows that have matching calls
+  phenodata <- phenodata[paste("flag.",phenodata$PATIENT_NUM,sep="") %in% colnames(calls), ]
 
   nrcpus=0
   try({

@@ -52,7 +52,7 @@ acgh.group.test <- function
     group.ids     <- phenodata[group.samples, "PATIENT_NUM"]
 
     # Match data with selected patients
-    highdimColumnsMatchingGroupIds <- pmatch(paste("flag.",group.ids,sep=""), colnames(calls))
+    highdimColumnsMatchingGroupIds <- match(paste("flag.",group.ids,sep=""), colnames(calls))
     highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
     group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
     if (nrow(datacgh)==0) {

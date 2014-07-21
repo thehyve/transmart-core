@@ -277,5 +277,4 @@ class ConfiguratorTestsHelper {
                 containsInAnyOrder(columns.collect { is it })).returns(clinicalResult)
     }
 
-
 }

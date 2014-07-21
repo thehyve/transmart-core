@@ -21,6 +21,7 @@ acgh.plot.survival <- function
   library(survival)
   library(foreach)
   library(doParallel)
+  library(Cairo)
 
   nrcpus=0
   try({
@@ -85,7 +86,7 @@ acgh.plot.survival <- function
       main <- paste('Survival for', dat[i, 'cytoband'])
     }
     pngname<-paste('aCGHSurvivalAnalysis_',dat[i, 'chromosome'],'_',dat[i, 'start'],'_',dat[i, 'end'],'.png',sep='')
-    png(pngname)
+    CairoPNG(file=pngname)
     plot(f, main=main, xlab='t', ylab=expression(hat(S)(t)), col=cols)
     if (confidence.intervals == 'yes') {
       lines(f, conf.int='only', lty=2, col=cols)

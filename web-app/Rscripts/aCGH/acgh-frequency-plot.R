@@ -26,7 +26,7 @@ acgh.frequency.plot <- function
   {
       group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
       group.ids     <- phenodata[group.samples, "PATIENT_NUM"]
-      highdimColumnsMatchingGroupIds <- pmatch(paste("flag.",group.ids,sep=""), colnames(calls))
+      highdimColumnsMatchingGroupIds <- match(paste("flag.",group.ids,sep=""), colnames(calls))
       highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
       group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
 
