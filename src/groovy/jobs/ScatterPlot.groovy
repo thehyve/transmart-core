@@ -17,7 +17,7 @@ import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')
-class ScatterPlot extends AbstractLocalRAnalysisJob {
+class ScatterPlot extends AbstractAnalysisJob {
 
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator

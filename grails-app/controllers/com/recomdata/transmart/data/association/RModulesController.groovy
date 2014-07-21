@@ -119,9 +119,6 @@ class RModulesController {
             case 'waterfall':
                 jsonResult = createJob(params, Waterfall, false)
                 break
-            case 'histogram':
-                jsonResult = createJob(params, Histogram, false)
-                break
             case 'acghFrequencyPlot':
                 jsonResult = createJob(params, AcghFrequencyPlot)
                 break

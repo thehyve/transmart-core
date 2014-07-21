@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
 
 @Component
 @Scope('job')
-class LineGraph extends AbstractLocalRAnalysisJob {
+class LineGraph extends AbstractAnalysisJob {
 
     private static final String SCALING_VALUES_FILENAME = 'conceptScaleValues'
 
