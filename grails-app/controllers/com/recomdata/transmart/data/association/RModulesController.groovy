@@ -122,9 +122,6 @@ class RModulesController {
             case 'logisticRegression':
                 jsonResult = createJob(params, LogisticRegression, false)
                 break
-            case 'histogram':
-                jsonResult = createJob(params, Histogram, false)
-                break
             case 'acghFrequencyPlot':
                 jsonResult = createJob(params, AcghFrequencyPlot)
                 break
