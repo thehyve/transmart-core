@@ -9,12 +9,17 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.CollectingTabularResult
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
-import static org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable.CONCEPT_CODE_COLUMN_INDEX
-import static org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable.PATIENT_NUM_COLUMN_INDEX
-
 @CompileStatic
 class TerminalConceptVariablesTabularResult extends
         CollectingTabularResult<TerminalConceptVariable, PatientIdAnnotatedDataRow> {
+
+    public static final String TEXT_VALUE_TYPE = 'T'
+
+    public static final int PATIENT_NUM_COLUMN_INDEX  = 0
+    public static final int CONCEPT_CODE_COLUMN_INDEX = 1
+    public static final int VALUE_TYPE_COLUMN_INDEX   = 2
+    public static final int TEXT_VALUE_COLUMN_INDEX   = 3
+    public static final int NUMBER_VALUE_COLUMN_INDEX = 4
 
     /* XXX: this class hierarchy needs some refactoring, we're depending on
      * implementation details of CollectingTabularResults and skipping quite
@@ -104,12 +109,22 @@ class TerminalConceptVariablesTabularResult extends
                         "code $var.conceptCode. This is currently unsupported")
             }
 
-            transformedData[index] = var.getVariableValue(rawRow)
+            transformedData[index] = getVariableValue(rawRow)
         }
 
         new PatientIdAnnotatedDataRow(
                 patientId:     (list.find { it != null})[PATIENT_NUM_COLUMN_INDEX] as Long,
                 data:          Arrays.asList(transformedData) as List,
                 columnToIndex: localIndexMap as Map)
+    }
+
+    private Object getVariableValue(Object[] rawRow) {
+        String valueType = rawRow[VALUE_TYPE_COLUMN_INDEX]
+
+        if (valueType == TEXT_VALUE_TYPE) {
+            rawRow[TEXT_VALUE_COLUMN_INDEX]
+        } else {
+            rawRow[NUMBER_VALUE_COLUMN_INDEX]
+        }
     }
 }
