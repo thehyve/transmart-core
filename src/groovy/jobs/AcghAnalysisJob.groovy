@@ -57,8 +57,7 @@ abstract class AcghAnalysisJob extends AbstractAnalysisJob {
 
         steps << new SimpleDumpTableResultStep(table: table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: 'phenodata.tsv',
-                noQuotes: true
+                outputFileName: 'phenodata.tsv'
         )
 
         def openResultSetStep = new OpenHighDimensionalDataStep(
