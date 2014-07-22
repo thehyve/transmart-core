@@ -17,7 +17,6 @@
 package com.recomdata.transmart.data.association
 
 import com.recomdata.transmart.data.association.asynchronous.RModulesJobService
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
@@ -47,8 +46,6 @@ class RModulesService {
 	def i2b2ExportHelperService
 	def i2b2HelperService
 	def pluginService
-	
-	def config = ConfigurationHolder.config
 	
 	def jobStatusList = null
 	def jobDataMap = new JobDataMap()

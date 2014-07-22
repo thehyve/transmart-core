@@ -15,13 +15,13 @@
  ******************************************************************/
 
 package com.recomdata.transmart.data.association
-import org.apache.commons.io.FileUtils;
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-import groovy.util.ConfigObject;
+
+import org.apache.commons.io.FileUtils
 
 class LogisticRegressionController {
 
 	def RModulesOutputRenderService
+    def grailsApplication
 	
 	def logisticRegressionOutput =
 	{
