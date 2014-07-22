@@ -1,5 +1,0 @@
-DATA_FILE_PREFIX=Asthma_Misior_GSE13168_gene_expression_data_L.txt
-DATA_TYPE=L
-LOG_BASE=2
-MAP_FILENAME=Asthma_Misior_GSE13168_Subject_Sample_Mapping_File.txt
-NODE_NAME=MRNA
