@@ -38,7 +38,8 @@ class RModulesController {
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
             "METABOLOMICS":     "metabolite",
-            "acgh":             "acgh"
+            "acgh":             "acgh",
+            "rnaseq":           "rnaseq"
     ]
 
     private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
@@ -127,6 +128,9 @@ class RModulesController {
                 break
             case 'aCGHSurvivalAnalysis':
                 jsonResult = createJob(params, AcghSurvivalAnalysis)
+                break
+            case 'groupTestRNASeq':
+                jsonResult = createJob(params, RNASeqGroupTest)
                 break
             default:
                 jsonResult = RModulesService.scheduleJob(

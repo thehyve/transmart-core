@@ -5,49 +5,34 @@ import org.transmartproject.utils.FileUtils
 
 class RNASeqgroupTestController {
 
-	def RModulesOutputRenderService;
-	def grailsApplication;
+    def RModulesOutputRenderService;
+    def grailsApplication;
 
-    final def DEFAULT_FIELDS = ['genes', 'logFC', 'logCPM', 'PValue', 'FDR'] as Set
+    final
+    def DEFAULT_FIELDS = ['genes', 'logFC', 'logCPM', 'PValue', 'FDR'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['logFC', 'logCPM', 'PValue', 'FDR'] as Set
 
     private getConfig() {
         grailsApplication.config.RModules
     }
 
-	def RNASeqgroupTestOutput =
-		{
-			def jobTypeName = "RNASeqgroupTest"
+    def RNASeqgroupTestOutput = {
+        def jobTypeName = "RNASeqgroupTest"
 
-			def imageLinks = new ArrayList<String>()
+        def imageLinks = new ArrayList<String>()
 
-			RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
+        RModulesOutputRenderService.initializeAttributes(params.jobName, jobTypeName, imageLinks)
 
-			render (template: "/plugin/RNASeqgroupTest_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
-		}
+        render(template: "/plugin/RNASeqgroupTest_out", model: [zipLink: RModulesOutputRenderService.zipLink, imageLinks: imageLinks])
+    }
 
-	/**
-	 * This function will return the image path
-	 */
-	def imagePath = {
-		def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/rnaseq-groups-test.png"
-		render imagePath
-	}
-
-	/**
-	 * This function returns survival acgh analysis result in zipped file
-	 */
-	def zipFile = {
-		def zipFile = new File("${config.tempFolderDirectory}", "${params.jobName}/zippedData.zip")
-		if(zipFile.exists()) {
-			response.setHeader("Content-disposition", "attachment;filename=${zipFile.getName()}")
-			response.contentType  = 'application/octet-stream'
-			response.outputStream << zipFile.getBytes()
-			response.outputStream.flush()
-		} else {
-			response.status = 404
-		}
-	}
+    /**
+     * This function will return the image path
+     */
+    def imagePath = {
+        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/rnaseq-groups-test.png"
+        render imagePath
+    }
 
     def resultTable = {
         response.contentType = 'text/json'
