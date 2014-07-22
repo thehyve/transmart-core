@@ -342,6 +342,8 @@ class RModulesJobService implements Job {
 			}
 		}
 
+        // We close the connection to the R Server
+        c.close();
 	}
 
 	/**
