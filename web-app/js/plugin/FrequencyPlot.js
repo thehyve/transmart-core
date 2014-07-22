@@ -203,7 +203,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath + "/AcghFrequencyPlot/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     },
 

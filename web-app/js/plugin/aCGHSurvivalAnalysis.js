@@ -305,7 +305,7 @@ var IntermediateResultGrid = Ext.extend(GenericAnalysisResultGrid, {
             width: 0,
             height: 0,
             css: 'display:none;visibility:hidden;height:0px;',
-            src: pageInfo.basePath+"/survivalAnalysisResult/zipFile?jobName=" + jobName
+            src: pageInfo.basePath + "/analysisFiles/" + jobName + "/zippedData.zip"
         });
     }
 
@@ -381,6 +381,14 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
     },
 
     submitACGHSurvivalAnalysisJob: function() {
+        var _this = this;
+
+        // Fill global subset ids if null
+        if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
+            (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
+            runAllQueries(function() {_this.submitACGHSurvivalAnalysisJob();});
+            return;
+        }
 
         if (this.validateInputs()) {
             console.log('LOG: submit survival analysis acgh job');
@@ -405,10 +413,29 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
                 regionVariable : regionVarConceptCode,
                 timeVariable : survivalVarConceptCode,
                 censoringVariable : censoringVarConceptCode,
-                variablesConceptPaths:    variablesConceptCode,
+                variablesConceptPaths: variablesConceptCode,
                 aberrationType:alterationVal,
                 confidenceIntervals:'',
-                jobType: SA_JOB_TYPE
+                jobType: SA_JOB_TYPE,
+                analysisConstraints: JSON.stringify({
+                    "job_type": SA_JOB_TYPE,
+                    "data_type": "acgh",
+                    "assayConstraints": {
+                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                        "assay_id_list": null,
+                        "ontology_term": [
+                            {
+                                'term': regionVarConceptCode,
+                                'options': {'type': "default"}
+                            }
+                        ],
+                        "trial_name": null
+                    },
+                    "dataConstraints": {
+                        "disjunction": null
+                    },
+                    "projections": ["acgh_values"]
+                })
             };
 
             // reset previous analysis result

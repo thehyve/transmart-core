@@ -17,7 +17,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import javax.annotation.PostConstruct
 import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
-abstract class AcghAnalysisJob extends AbstractLocalRAnalysisJob {
+abstract class AcghAnalysisJob extends AbstractAnalysisJob {
 
     @Autowired
     HighDimensionResource highDimensionResource
@@ -57,8 +57,7 @@ abstract class AcghAnalysisJob extends AbstractLocalRAnalysisJob {
 
         steps << new SimpleDumpTableResultStep(table: table,
                 temporaryDirectory: temporaryDirectory,
-                outputFileName: 'phenodata.tsv',
-                noQuotes: true
+                outputFileName: 'phenodata.tsv'
         )
 
         def openResultSetStep = new OpenHighDimensionalDataStep(

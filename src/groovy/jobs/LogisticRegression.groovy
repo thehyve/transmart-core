@@ -20,7 +20,7 @@ import javax.annotation.PostConstruct
 
 @Component
 @Scope('job')
-class LogisticRegression extends AbstractLocalRAnalysisJob {
+class LogisticRegression extends AbstractAnalysisJob {
 
     @Autowired
     SimpleAddColumnConfigurator primaryKeyColumnConfigurator
