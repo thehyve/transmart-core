@@ -1,12 +1,6 @@
 package jobs
 
-import jobs.steps.AcghRegionDumpDataStep
-import jobs.steps.BuildTableResultStep
-import jobs.steps.OpenHighDimensionalDataStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.SimpleDumpTableResultStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.HighDimensionColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
@@ -14,7 +8,9 @@ import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+
 import javax.annotation.PostConstruct
+
 import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 abstract class AcghAnalysisJob extends AbstractAnalysisJob {

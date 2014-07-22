@@ -1,15 +1,9 @@
 package jobs
 
-import jobs.steps.AbstractDumpStep
-import jobs.steps.OpenHighDimensionalDataStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
-import jobs.steps.helpers.NumericColumnConfigurator
+import jobs.steps.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
 

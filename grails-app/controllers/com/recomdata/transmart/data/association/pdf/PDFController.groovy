@@ -16,12 +16,12 @@
 
 package com.recomdata.transmart.data.association.pdf
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.commons.lang.StringUtils
+import org.w3c.dom.Document
+import org.xhtmlrenderer.pdf.ITextRenderer
 
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * PDFController handles generating PDF file from HTML content.

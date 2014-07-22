@@ -1,10 +1,6 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.CorrelationAnalysisDumpDataStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.GroupNamesHolder
 import jobs.steps.helpers.MultiNumericClinicalVariableColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
@@ -16,7 +12,6 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
-
 
 @Component
 @Scope('job')
