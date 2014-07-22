@@ -86,7 +86,6 @@ class RNASeqGroupTest extends AbstractAnalysisJob {
         steps
     }
 
-    @Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
         new RNASeqDumpDataStep(
                 temporaryDirectory: temporaryDirectory,

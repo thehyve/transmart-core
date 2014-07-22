@@ -6,7 +6,6 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
 
-/* Only looks at subset 1 */
 class RNASeqDumpDataStep extends AbstractDumpHighDimensionalDataStep {
 
     int rowNumber = 1
