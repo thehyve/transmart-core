@@ -23,23 +23,18 @@
  */
 package com.recomdata.transmart.data.export.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-
+import com.recomdata.transmart.TransmartContextHolder;
+import com.recomdata.transmart.data.export.exception.FTPAuthenticationException;
+import com.recomdata.transmart.data.export.exception.InvalidFTPParamsException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
-import com.recomdata.transmart.data.export.exception.FTPAuthenticationException;
-import com.recomdata.transmart.data.export.exception.InvalidFTPParamsException;
+import java.io.*;
+import java.util.Map;
 
 /**
  * @author SMunikuntla
@@ -50,7 +45,7 @@ public class FTPUtil {
 	private static org.apache.log4j.Logger log =
             Logger.getLogger(FTPUtil.class);
 	@SuppressWarnings("rawtypes")
-	private static final Map config = ConfigurationHolder.getFlatConfig();
+	private static final Map config = TransmartContextHolder.getGrailsApplication().getFlatConfig();
 	
 	private static final String FTP_SERVER = (String) config.get("com.recomdata.transmart.data.export.ftp.server");
 	private static final String FTP_SERVER_PORT = (String) config.get("com.recomdata.transmart.data.export.ftp.serverport");
