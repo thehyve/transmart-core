@@ -152,6 +152,7 @@
 \i biomart/mesh.sql
 \i biomart/mesh_descriptor.sql
 \i biomart/mesh_entry.sql
+\i biomart/mesh_path.sql
 \i biomart/mesh_temp.sql
 \i biomart/mirna_bio_assay_data_annot.sql
 \i biomart/mirna_bio_assay_feature_group.sql
