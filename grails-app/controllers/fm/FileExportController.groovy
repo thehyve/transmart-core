@@ -2,7 +2,7 @@ package fm
 
 import org.transmart.biomart.Experiment
 
-import java.util.zip.ZipEntry;
+import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class FileExportController {

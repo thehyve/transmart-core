@@ -1,4 +1,9 @@
 package annotation
+
+import grails.converters.JSON
+import org.transmart.biomart.BioAssayPlatform
+import org.transmart.biomart.ConceptCode
+
 /*************************************************************************
  * tranSMART - translational medicine data mart
  *
@@ -17,10 +22,6 @@ package annotation
  *
  *
  ******************************************************************/
-import org.transmart.biomart.ConceptCode
-import grails.converters.JSON
-import org.transmart.biomart.BioAssayPlatform
-
 class MetaDataController {
 
     def formLayoutService
