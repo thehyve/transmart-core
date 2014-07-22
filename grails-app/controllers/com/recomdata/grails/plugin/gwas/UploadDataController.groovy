@@ -22,7 +22,6 @@ import grails.converters.JSON
  *
  *
  ******************************************************************/
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 import org.transmart.biomart.*
 import org.transmart.searchapp.AccessLog
@@ -40,6 +39,7 @@ class UploadDataController {
     def springSecurityService
     def dataUploadService
     def fmFolderService
+    def grailsApplication
 
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -142,7 +142,7 @@ class UploadDataController {
         //Get the fmFolder associated with this study
         Experiment experiment = Experiment.findByAccession(accession)
         def folder = fmFolderService.getFolderByBioDataObject(experiment)
-        def tempFile = new File(ConfigurationHolder.config.com.recomdata.FmFolderService.filestoreDirectory, f.getOriginalFilename())
+        def tempFile = new File(grailsApplication.config.com.recomdata.FmFolderService.filestoreDirectory, f.getOriginalFilename())
         f.transferTo(tempFile)
         fmFolderService.processFile(tempFile, folder, fileName, description)
         tempFile.delete()

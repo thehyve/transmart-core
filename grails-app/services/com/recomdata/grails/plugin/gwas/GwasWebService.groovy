@@ -20,15 +20,11 @@
 
 package com.recomdata.grails.plugin.gwas
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-
 class GwasWebService {
 
     boolean transactional = true
 
     def dataSource
-    def grailsApplication
-    def config = ConfigurationHolder.config
 
     def final geneLimitsSqlQueryByKeyword = """
 	

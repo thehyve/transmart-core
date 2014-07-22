@@ -20,15 +20,12 @@
 
 package com.recomdata.grails.plugin.gwas
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-
 class RegionSearchService {
 
     boolean transactional = true
 
     def dataSource
     def grailsApplication
-    def config = ConfigurationHolder.config
 
     def geneLimitsSqlQuery = """
 
@@ -267,7 +264,7 @@ class RegionSearchService {
 
         def analysisNameMap =[:]
 
-        if (ConfigurationHolder.config.com.recomdata.gwas.usehg19table) {
+        if (grailsApplication.config.com.recomdata.gwas.usehg19table) {
             if(!ranges){
                 hg19only = true;
             }else {

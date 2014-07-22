@@ -3,7 +3,6 @@ package com.recomdata.grails.plugin.gwas
 import au.com.bytecode.opencsv.CSVReader
 import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.upload.DataUploadResult
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 import java.math.MathContext
 
@@ -28,6 +27,7 @@ import java.math.MathContext
 
 public class DataUploadService{
 	def dataSource
+    def grailsApplication
 
 	def verifyFields(providedFields, uploadType) {
 		
@@ -111,7 +111,7 @@ public class DataUploadService{
 
 		def analysisNameMap =[:]
 
-		if (ConfigurationHolder.config.com.recomdata.gwas.usehg19table) {
+		if (grailsApplication.config.com.recomdata.gwas.usehg19table) {
 			if(!ranges){
 				hg19only = true;
 			}else {
@@ -643,8 +643,8 @@ public class DataUploadService{
 	
 	def runStaging(etlId) throws Exception {
 		
-			def etlPath = ConfigurationHolder.config.com.recomdata.dataUpload.etl.dir
-			def stageScript = ConfigurationHolder.config.com.recomdata.dataUpload.stageScript
+			def etlPath = grailsApplication.config.com.recomdata.dataUpload.etl.dir
+			def stageScript = grailsApplication.config.com.recomdata.dataUpload.stageScript
 			ProcessBuilder pb = new ProcessBuilder(etlPath + stageScript, String.valueOf(etlId));
 			pb.directory(new File(new File(etlPath).getCanonicalPath()))
 			
