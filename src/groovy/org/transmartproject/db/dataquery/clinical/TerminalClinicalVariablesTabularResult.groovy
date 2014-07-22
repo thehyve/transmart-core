@@ -5,18 +5,20 @@ import com.google.common.collect.HashBiMap
 import com.google.common.collect.Maps
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.CollectingTabularResult
+import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
 @CompileStatic
-class TerminalConceptVariablesTabularResult extends
-        CollectingTabularResult<TerminalConceptVariable, PatientIdAnnotatedDataRow> {
+class TerminalClinicalVariablesTabularResult extends
+        CollectingTabularResult<TerminalClinicalVariable, PatientIdAnnotatedDataRow> {
 
     public static final String TEXT_VALUE_TYPE = 'T'
 
     public static final int PATIENT_NUM_COLUMN_INDEX  = 0
-    public static final int CONCEPT_CODE_COLUMN_INDEX = 1
+    public static final int CODE_COLUMN_INDEX         = 1
     public static final int VALUE_TYPE_COLUMN_INDEX   = 2
     public static final int TEXT_VALUE_COLUMN_INDEX   = 3
     public static final int NUMBER_VALUE_COLUMN_INDEX = 4
@@ -29,24 +31,38 @@ class TerminalConceptVariablesTabularResult extends
      * instead would be a simple (but perhaps not very elegant) solution.
      */
 
-    BiMap<TerminalConceptVariable, Integer> localIndexMap = HashBiMap.create()
+    BiMap<TerminalClinicalVariable, Integer> localIndexMap = HashBiMap.create()
 
     /* variant of above map with variables replaced with their concept code */
     private Map<String, Integer> conceptCodeToIndex = Maps.newHashMap()
 
-    TerminalConceptVariablesTabularResult(ScrollableResults results,
-                                          List<TerminalConceptVariable> indicesList) {
+    final String variableGroup
+
+    TerminalClinicalVariablesTabularResult(ScrollableResults results,
+                                          List<TerminalClinicalVariable> indicesList) {
         this.results = results
 
         this.indicesList = indicesList
 
-        this.indicesList.each { TerminalConceptVariable it ->
+        this.indicesList.each { TerminalClinicalVariable it ->
             localIndexMap[it] = indicesList.indexOf it
         }
 
         localIndexMap.each { TerminalConceptVariable var, Integer index ->
             conceptCodeToIndex[var.conceptCode] = index
         }
+
+        if (indicesList.empty) {
+            throw new InvalidArgumentsException("Indices list is empty")
+        }
+
+        def groups = indicesList*.group.unique()
+        if (groups.size() != 1) {
+            throw new InvalidArgumentsException("Expected all the clinical " +
+                    "variables in this sub-result to have the same type, " +
+                    "found these: $groups")
+        }
+        this.variableGroup = groups[0]
 
         /* ** */
         columnsDimensionLabel = 'Clinical Variables'
@@ -56,7 +72,7 @@ class TerminalConceptVariablesTabularResult extends
         allowMissingColumns   = false
 
         columnIdFromRow = { Object[] row ->
-            row[CONCEPT_CODE_COLUMN_INDEX]
+            row[CODE_COLUMN_INDEX]
         }
         inSameGroup = { Object[] row1,
                         Object[] row2 ->
@@ -64,6 +80,9 @@ class TerminalConceptVariablesTabularResult extends
         }
 
         finalizeGroup = this.&finalizePatientGroup
+
+        /* session is managed outside, in ClinicalDataTabularResult */
+        closeSession = false
     }
 
 
@@ -79,7 +98,7 @@ class TerminalConceptVariablesTabularResult extends
     }
 
     private PatientIdAnnotatedDataRow finalizePatientGroup(List<Object[]> list) {
-        Map<Integer, TerminalConceptVariable> indexToColumn = localIndexMap.inverse()
+        Map<Integer, TerminalClinicalVariable> indexToColumn = localIndexMap.inverse()
 
         Object[] transformedData = new Object[localIndexMap.size()]
 
@@ -93,20 +112,20 @@ class TerminalConceptVariablesTabularResult extends
             Object[] rawRow = (Object[])rawRowUntyped
 
             /* find out the position of this concept in the final result */
-            Integer index = conceptCodeToIndex[rawRow[CONCEPT_CODE_COLUMN_INDEX] as String]
+            Integer index = conceptCodeToIndex[rawRow[CODE_COLUMN_INDEX] as String]
             if (index == null) {
                 throw new IllegalStateException("Unexpected concept code " +
-                        "'${rawRow[CONCEPT_CODE_COLUMN_INDEX]}' at this point; " +
+                        "'${rawRow[CODE_COLUMN_INDEX]}' at this point; " +
                         "expected one of ${conceptCodeToIndex.keySet()}")
             }
 
             /* and the corresponding variable */
-            TerminalConceptVariable var = indexToColumn[index]
+            TerminalClinicalVariable var = indexToColumn[index]
 
             if (transformedData[index] != null) {
                 throw new UnexpectedResultException("Got more than one fact for " +
-                        "patient ${rawRow[PATIENT_NUM_COLUMN_INDEX]} and concept " +
-                        "code $var.conceptCode. This is currently unsupported")
+                        "patient ${rawRow[PATIENT_NUM_COLUMN_INDEX]} and " +
+                        "code $var.code. This is currently unsupported")
             }
 
             transformedData[index] = getVariableValue(rawRow)

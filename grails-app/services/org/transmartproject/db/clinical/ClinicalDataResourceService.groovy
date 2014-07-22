@@ -9,7 +9,7 @@ import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
-import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
+import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
@@ -21,6 +21,9 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     @Autowired
     ClinicalVariableFactory clinicalVariableFactory
+
+    @Autowired
+    InnerClinicalTabularResultFactory innerResultFactory
 
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
@@ -53,18 +56,12 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             List<TerminalConceptVariable> flattenedVariables = []
             flattenClinicalVariables(flattenedVariables, variables)
 
-            TerminalConceptVariablesDataQuery query =
-                    new TerminalConceptVariablesDataQuery(
-                            session: session,
-                            patientIds: patientMap.keySet(),
-                            clinicalVariables: flattenedVariables)
-            query.init()
+            def intermediateResults =
+                    innerResultFactory.createIntermediateResults(session,
+                            patientCollection, flattenedVariables)
 
             new ClinicalDataTabularResult(
-                    query.openResultSet(),
-                    variables,
-                    flattenedVariables,
-                    patientMap)
+                    session, intermediateResults, patientMap)
         } catch (Throwable t) {
             session.close()
             throw t
