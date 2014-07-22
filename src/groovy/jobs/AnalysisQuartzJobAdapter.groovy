@@ -106,6 +106,9 @@ class AnalysisQuartzJobAdapter implements Job {
             job.log.info "updateStatus called for status:$status, viewerUrl:$viewerUrl"
             asyncJobService.updateStatus job.name, status, viewerUrl
         }
+        job.setStatusList = { List<String> statusList ->
+            jobResultsService[job.name]["StatusList"] = statusList
+        }
 
         job.topTemporaryDirectory = new File(Holders.config.RModules.tempFolderDirectory)
         job.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)

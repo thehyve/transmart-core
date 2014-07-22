@@ -27,6 +27,8 @@ abstract class AbstractAnalysisJob {
 
     Closure updateStatus
 
+    Closure setStatusList
+
     File topTemporaryDirectory
 
     File scriptsDirectory
@@ -48,6 +50,9 @@ abstract class AbstractAnalysisJob {
         setupTemporaryDirectory()
 
         List<Step> stepList = prepareSteps()
+
+        // build status list
+        setStatusList(stepList.collect({ it.statusName }).grep())
 
         for (Step step in stepList) {
             if (step.statusName) {

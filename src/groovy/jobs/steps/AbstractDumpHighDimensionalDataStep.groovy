@@ -8,7 +8,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 
 abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
-    final String statusName = null
+    final String statusName = 'Dumping high dimensional data'
 
     /* true if computeCsvRow is to be called once per (row, column),
        false to called only once per row */
