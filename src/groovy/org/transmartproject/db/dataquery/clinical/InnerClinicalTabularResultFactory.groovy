@@ -22,10 +22,11 @@ package org.transmartproject.db.dataquery.clinical
 import org.hibernate.engine.SessionImplementor
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
-@Component
+@Component /* not scanned; explicit bean definition */
 class InnerClinicalTabularResultFactory {
 
     public Collection<TerminalClinicalVariablesTabularResult> createIntermediateResults(
@@ -53,6 +54,15 @@ class InnerClinicalTabularResultFactory {
 
                 return new TerminalClinicalVariablesTabularResult(
                                 query.openResultSet(), relevantVariables)
+            case AcrossTrialsTerminalVariable.GROUP_NAME:
+                def query = new AcrossTrialsDataQuery(
+                        session:           session,
+                        patientIds:        patients*.id,
+                        clinicalVariables: relevantVariables)
+                query.init()
+
+                return new TerminalClinicalVariablesTabularResult(
+                        query.openResultSet(), relevantVariables)
             default:
                 throw new IllegalArgumentException("Unknown group name: $group")
         }

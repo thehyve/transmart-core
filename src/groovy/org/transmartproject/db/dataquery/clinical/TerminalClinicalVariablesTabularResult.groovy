@@ -34,7 +34,7 @@ class TerminalClinicalVariablesTabularResult extends
     BiMap<TerminalClinicalVariable, Integer> localIndexMap = HashBiMap.create()
 
     /* variant of above map with variables replaced with their concept code */
-    private Map<String, Integer> conceptCodeToIndex = Maps.newHashMap()
+    private Map<String, Integer> codeToIndex = Maps.newHashMap()
 
     final String variableGroup
 
@@ -48,8 +48,8 @@ class TerminalClinicalVariablesTabularResult extends
             localIndexMap[it] = indicesList.indexOf it
         }
 
-        localIndexMap.each { TerminalConceptVariable var, Integer index ->
-            conceptCodeToIndex[var.conceptCode] = index
+        localIndexMap.each { TerminalClinicalVariable var, Integer index ->
+            codeToIndex[var.code] = index
         }
 
         if (indicesList.empty) {
@@ -112,11 +112,11 @@ class TerminalClinicalVariablesTabularResult extends
             Object[] rawRow = (Object[])rawRowUntyped
 
             /* find out the position of this concept in the final result */
-            Integer index = conceptCodeToIndex[rawRow[CODE_COLUMN_INDEX] as String]
+            Integer index = codeToIndex[rawRow[CODE_COLUMN_INDEX] as String]
             if (index == null) {
                 throw new IllegalStateException("Unexpected concept code " +
                         "'${rawRow[CODE_COLUMN_INDEX]}' at this point; " +
-                        "expected one of ${conceptCodeToIndex.keySet()}")
+                        "expected one of ${codeToIndex.keySet()}")
             }
 
             /* and the corresponding variable */

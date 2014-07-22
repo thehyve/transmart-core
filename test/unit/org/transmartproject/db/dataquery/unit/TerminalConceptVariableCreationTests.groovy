@@ -6,6 +6,7 @@ import org.junit.Test
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.clinical.ClinicalDataResourceService
+import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
@@ -22,6 +23,7 @@ class TerminalConceptVariableCreationTests {
     void setup() {
         defineBeans {
             clinicalVariableFactory(ClinicalVariableFactory)
+            innerResultFactory(InnerClinicalTabularResultFactory)
         }
     }
 
