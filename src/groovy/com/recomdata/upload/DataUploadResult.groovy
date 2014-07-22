@@ -18,9 +18,7 @@
  ******************************************************************/
   
 
-package com.recomdata.upload;
-
-import java.util.List;
+package com.recomdata.upload
 
 public class DataUploadResult {
 

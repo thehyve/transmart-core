@@ -1,16 +1,12 @@
 package com.recomdata.grails.plugin.gwas
 
 import au.com.bytecode.opencsv.CSVWriter
-import org.transmart.biomart.BioAssayAnalysis
-import org.transmart.biomart.Experiment
+import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.transmart.searchapp.GeneSignature
-import org.transmart.searchapp.GeneSignatureItem
-import org.transmart.searchapp.SearchKeyword
-import org.transmart.searchapp.AuthUser
-import org.transmart.searchapp.SecureObject
-import com.recomdata.transmart.domain.searchapp.FormLayout
+import org.transmart.biomart.BioAssayAnalysis
+import org.transmart.biomart.Experiment
+import org.transmart.searchapp.*
 
 import java.lang.reflect.UndeclaredThrowableException
 import java.util.regex.Matcher

@@ -20,11 +20,7 @@
 
 package com.recomdata.grails.plugin.gwas
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-
-import org.transmart.searchapp.SearchKeyword
-
-import com.recomdata.transmart.data.export.util.FileWriterUtil
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class RegionSearchService {
 

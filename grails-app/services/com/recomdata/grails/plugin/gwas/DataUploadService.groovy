@@ -1,14 +1,11 @@
 package com.recomdata.grails.plugin.gwas
 
-import java.math.BigDecimal;
-import java.math.MathContext
-
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-
-import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVReader
 import au.com.bytecode.opencsv.CSVWriter
+import com.recomdata.upload.DataUploadResult
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
-import com.recomdata.upload.DataUploadResult;
+import java.math.MathContext
 
 /*************************************************************************
  * tranSMART - translational medicine data mart

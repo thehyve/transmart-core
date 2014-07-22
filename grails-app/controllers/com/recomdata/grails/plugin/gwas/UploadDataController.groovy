@@ -2,6 +2,7 @@ package com.recomdata.grails.plugin.gwas
 
 import com.recomdata.upload.DataUploadResult
 import fm.FmFile
+import grails.converters.JSON
 
 /*************************************************************************
  * tranSMART - translational medicine data mart
@@ -21,7 +22,6 @@ import fm.FmFile
  *
  *
  ******************************************************************/
-import grails.converters.JSON
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 import org.transmart.biomart.*
