@@ -19,8 +19,8 @@
  
 
 package com.recomdata.transmart.domain.searchapp
+
 import java.text.SimpleDateFormat
-import java.util.Date;
 
 class Report {
 	   Long id
