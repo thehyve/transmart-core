@@ -25,14 +25,14 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         // TODO number of permutations is not set? numberOfPermutations = as.integer(\'$txtNumberOfPermutations\'),
         String markerSelectionLoad = '''MS.loader(
                             input.filename = \'$inputFileName\',
-                            numberOfMarkers = as.integer(\'$txtNumberOfMarkers\'))'''
+                            numberOfMarkers = as.integer(\'$txtNumberOfMarkers\'),
+                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true')'''
         // set path to heatmap png file generator
         String sourceHeatmap = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
         // generate the actual heatmap png picture
         String createHeatmap = '''Heatmap.loader(
                             input.filename   = \'heatmapdata\',
-                            meltData         = FALSE,
-                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true'
+                            meltData         = FALSE
                             )'''
 
         [ sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap ]
