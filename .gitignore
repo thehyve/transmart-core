@@ -2,3 +2,11 @@
 /target/
 *.out
 *.iml
+
+# - Eclipse
+.settings
+.classpath
+.project
+eclipse-target
+
+
