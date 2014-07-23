@@ -32,8 +32,7 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         // generate the actual heatmap png picture
         String createHeatmap = '''Heatmap.loader(
                             input.filename   = \'heatmapdata\',
-                            meltData         = FALSE,
-                            aggregate.probes = FALSE
+                            meltData         = FALSE
                             )'''
 
         [ sourceMarkerSelection, markerSelectionLoad, sourceHeatmap, createHeatmap ]
