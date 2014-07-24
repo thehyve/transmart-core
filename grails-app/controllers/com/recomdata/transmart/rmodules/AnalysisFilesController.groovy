@@ -43,11 +43,11 @@ class AnalysisFilesController {
             return
         }
 
+        // Only expose files under the analysis directory
         File targetFile = new File(analysisDirectory, params.path)
-        //expose stuff only directory under the analysis
-
-        if (targetFile.parentFile != analysisDirectory) {
-            log.warn "Request for $targetFile, but it's not directly " +
+        String canonicalPath = targetFile.getCanonicalPath()
+        if (!canonicalPath.startsWith(analysisDirectory.getCanonicalPath())) {
+            log.warn "Request for $targetFile, but it's not " +
                     "under $analysisDirectory"
             render status: 404
             return
