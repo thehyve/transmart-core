@@ -133,32 +133,37 @@ class RModulesOutputRenderService {
             }
         }
 
+        // Rename and copy images if required, build image link list
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
             // Replace spaces with underscores, as Tomcat 6 is unable
             // to find files with spaces in their name
             String newFileName = currentImageFile.name.replaceAll(/[^.a-zA-Z0-9-_]/, "_")
-            File oldImage = new File(currentImageFile.path),
-                 newImage = new File(outputDirectory, newFileName);
-            log.debug("Move or copy $oldImage to $newImage")
+            File oldImage = new File(currentImageFile.path)
+            File renamedImage = new File(tempDirectoryFile, newFileName)
+            log.debug("Rename $oldImage to $renamedImage")
+            oldImage.renameTo(renamedImage)
+
             if (transferImageFile) {
-                newImage = new File(outputDirectory, newFileName);
+                // Copy the image (png) files to a location where they can be served
+                File copiedImage = new File(outputDirectoryFile, renamedImage.name)
+                log.debug("Copy $renamedImage to $copiedImage")
                 //TODO move FileUtils to Core
-                FileUtils.copyFile(oldImage, newImage)
-            } else {
-                oldImage.renameTo(newImage)
+                FileUtils.copyFile(renamedImage, copiedImage)
             }
 
-            String currentLink = "${imageURL}$jobName/${newFileName}"
+            // Build url to image
+            String currentLink = "${imageURL}$jobName/workingDirectory/${newFileName}"
             log.debug("New image link: " + currentLink)
             linksArray.add(currentLink)
-        };
+        }
 
+        // Zip the working directory
         zipLocation = "${outputDirectory}" + File.separator + "zippedData.zip"
-        this.zipLink = "${imageURL}${jobName}/zippedData.zip"
-
         if (!new File(zipLocation).isFile()) {
             zipService.zipFolder(tempDirectory, zipLocation)
         }
+        this.zipLink = "${imageURL}${jobName}/zippedData.zip"
+
     }
 	
 	def String fileParseLoop(tempDirectoryFile, fileNamePattern,
