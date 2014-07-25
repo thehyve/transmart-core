@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.solr.util.SimplePostTool
 import org.transmart.biomart.BioData
+import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 
@@ -608,6 +609,13 @@ class FmFolderService {
                 // TODO: Check for max values
             } else {
                 log.info item.displayName + " not required"
+            }
+            
+            //check for unique study identifer
+            if (item.codeTypeName == 'STUDY_IDENTIFIER') {
+                if (Experiment.findByAccession(values.list(item.tagItemAttr))){
+                    folder.errors.rejectValue("id", "blank", [item.displayName] as String[], "{0} must be unique.")
+                }           
             }
         }
 
