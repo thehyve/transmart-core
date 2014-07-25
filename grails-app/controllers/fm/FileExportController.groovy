@@ -99,30 +99,30 @@ class FileExportController {
                     String dirName = fmFolderService.getPath(fmFile.folder, true)
                     if (dirName.startsWith("/") || dirName.startsWith("\\")) {
                         dirName = dirName.substring(1)
-                        //Lose the first separator character, this would cause a blank folder name in the zip
-                        def fileEntry = new ZipEntry(dirName + "/" + fmFolderService.safeFileName(exportName))
-                        zipStream.putNextEntry(fileEntry)
-                        file.withInputStream({ is -> zipStream << is })
-                        zipStream.closeEntry()
-
-                        //For manifest files, add this file to a map, keyed by folder names.
-                        def manifestList = []
-                        if (manifestMap.containsKey(dirName)) {
-                            manifestList = manifestMap.get(dirName)
-                        }
-
-                        manifestList.push(fmFile)
-                        manifestMap.put(dirName, manifestList)
-
-                        //for each folder of the hieararchy of the file path, add file with metadata
-                        def path = fmFile.folder.folderFullName
-                        if (metadataExported.add(path)) exportMetadata(path, zipStream);
-
-                    } else {
-                        def errorMessage = "File not found for export: " + fileLocation
-                        log.error errorMessage
-                        errorResponse += errorMessage
                     }
+                    //Lose the first separator character, this would cause a blank folder name in the zip
+                    def fileEntry = new ZipEntry(dirName + "/" + fmFolderService.safeFileName(exportName))
+                    zipStream.putNextEntry(fileEntry)
+                    file.withInputStream({ is -> zipStream << is })
+                    zipStream.closeEntry()
+
+                    //For manifest files, add this file to a map, keyed by folder names.
+                    def manifestList = []
+                    if (manifestMap.containsKey(dirName)) {
+                        manifestList = manifestMap.get(dirName)
+                    }
+
+                    manifestList.push(fmFile)
+                    manifestMap.put(dirName, manifestList)
+
+                    //for each folder of the hieararchy of the file path, add file with metadata
+                    def path = fmFile.folder.folderFullName
+                    if (metadataExported.add(path)) exportMetadata(path, zipStream);
+
+                } else {
+                    def errorMessage = "File not found for export: " + fileLocation
+                    log.error errorMessage
+                    errorResponse += errorMessage
                 }
 
                 //Now for each item in the manifest map, create a manifest file and add it to the ZIP.
