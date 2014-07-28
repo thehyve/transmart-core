@@ -69,7 +69,7 @@ class AnalysisFilesController {
     }
 
     private File getJobsDirectory() {
-        new File(RModulesOutputRenderService.tempImageFolder)
+        new File(RModulesOutputRenderService.tempFolderDirectory)
     }
 
     private boolean checkPermissions(String jobName) {

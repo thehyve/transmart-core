@@ -39,7 +39,7 @@ class AnalysisFilesControllerTests {
         analysisDirectory.mkdir()
 
         controller.RModulesOutputRenderService = mock RModulesOutputRenderService
-        controller.RModulesOutputRenderService.tempImageFolder.
+        controller.RModulesOutputRenderService.tempFolderDirectory.
                 returns(temporaryDirectory.absolutePath).stub()
 
         sendFileServiceMock = mock()

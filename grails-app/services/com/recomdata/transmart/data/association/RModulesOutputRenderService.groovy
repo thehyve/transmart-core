@@ -46,47 +46,7 @@ class RModulesOutputRenderService {
         }
         dir
     }
-		
-    /**
-     * The directory where the zip file (and, if transferImageFile is true, the
-     * images as well) will be copied to. The web server should be able to serve
-     * static files from this directory via the logical name specified in
-     * the imageURL configuration entry.
-     *
-     * If transferImageFile is false, then this should be temporary jobs
-     * directory (see {@link #getTempFolderDirectory()}).
-     *
-     * @return the directory where the analysis files will be copied to.
-     */
-    private String getTempImageFolder() {
-        def dir = grailsApplication.config.RModules.temporaryImageFolder
-        if (dir && !dir.endsWith(File.separator)) {
-            dir += File.separator
-        }
-        if (!dir && !transferImageFile) {
-            dir = tempFolderDirectory
-        }
-	
-        if (!transferImageFile && dir != tempFolderDirectory) {
-            log.warn "We're not copying images, but the image directory is \
-                    not the same as the jobs directory!"
-        }
-	
-        dir
-    }
-			
-    /**
-     * Whether to copy the images from the jobs directory to another directory
-     * from which they can be served. This should be set to false for
-     * production for performance reasons.
-     *
-     * @return whether to copy images from the jobs directory to the
-     *         tempFolderDirectory.
-     */
-    private boolean isTransferImageFile() {
-        grailsApplication.config.RModules.transferImageFile
-    }
-			
+
     /**
      * The logical path from which the images will be served.
      * This used to be configurable via <code>RModules.imageURL</code>, but
@@ -109,29 +69,18 @@ class RModulesOutputRenderService {
     }
 
     def initializeAttributes(jobName, jobTypeName, linksArray) {
-        def zipLocation
-
         log.debug "initializeAttributes for jobName '$jobName'; jobTypeName " +
                 "'$jobTypeName'"
         log.debug "Settings are: jobs directory -> $tempFolderDirectory, " +
-                "images directory -> $tempImageFolder, images URL -> " +
-                "$imageURL, transfer image -> $transferImageFile"
+                "images URL -> $imageURL"
 
         this.jobName = jobName
         this.jobTypeName = jobTypeName
 
-        this.tempDirectory = tempFolderDirectory + jobName + File.separator +
-                "workingDirectory" + File.separator
-        String outputDirectory = tempImageFolder + this.jobName + File.separator
+        String analysisDirectory = tempFolderDirectory + jobName + File.separator
+        this.tempDirectory = analysisDirectory + "workingDirectory" + File.separator
 
-        File tempDirectoryFile   = new File(this.tempDirectory)
-        File outputDirectoryFile = new File(outputDirectory)
-
-        if (!outputDirectoryFile.exists()) {
-            if (transferImageFile) {
-                createDirectory(outputDirectoryFile)
-            }
-        }
+        File tempDirectoryFile = new File(this.tempDirectory)
 
         // Rename and copy images if required, build image link list
         tempDirectoryFile.traverse(nameFilter: ~/(?i).*\.png/) { currentImageFile ->
@@ -143,14 +92,6 @@ class RModulesOutputRenderService {
             log.debug("Rename $oldImage to $renamedImage")
             oldImage.renameTo(renamedImage)
 
-            if (transferImageFile) {
-                // Copy the image (png) files to a location where they can be served
-                File copiedImage = new File(outputDirectoryFile, renamedImage.name)
-                log.debug("Copy $renamedImage to $copiedImage")
-                //TODO move FileUtils to Core
-                FileUtils.copyFile(renamedImage, copiedImage)
-            }
-
             // Build url to image
             String currentLink = "${imageURL}$jobName/workingDirectory/${newFileName}"
             log.debug("New image link: " + currentLink)
@@ -158,7 +99,7 @@ class RModulesOutputRenderService {
         }
 
         // Zip the working directory
-        zipLocation = "${outputDirectory}" + File.separator + "zippedData.zip"
+        String zipLocation = "${analysisDirectory}zippedData.zip"
         if (!new File(zipLocation).isFile()) {
             zipService.zipFolder(tempDirectory, zipLocation)
         }
