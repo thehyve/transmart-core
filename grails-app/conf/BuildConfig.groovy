@@ -103,8 +103,7 @@ grails.project.dependency.resolution = {
 
         test ':functional-test:2.0.RC1'
         test ':transmart-core:1.1-LH-SNAPSHOT'
-        //FIXME
-        //test ':transmart-core-db-tests:1.1-LH-SNAPSHOT'
+        test ':transmart-core-db-tests:1.1-LH-SNAPSHOT'
     }
 }
 
