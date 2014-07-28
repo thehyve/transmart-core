@@ -145,24 +145,6 @@ class AnalysisFilesControllerTests {
     }
 
     @Test
-    void testNoSubDirectoriesAllowed() {
-        testUsername = USER_NAME
-
-        def subDirName = 'subdir'
-        def subDir = new File(analysisDirectory, subDirName)
-        assert subDir.mkdir()
-
-        def targetFile = "$subDirName/foo"
-        file = targetFile
-
-        play {
-            controller.download()
-        }
-
-        assertThat response.status, is(404)
-    }
-
-    @Test
     void testNonExistingFile() {
         testUsername = USER_NAME
 
