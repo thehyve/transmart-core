@@ -48,9 +48,6 @@ class PluginModule {
     }
 
     def private getParamsStr() {
-        def InputStream textStream = params?.getAsciiStream()
-        def paramsAsStr = ''
-        if (null != textStream) paramsAsStr = pluginService.convertStreamToString(textStream)
-        return paramsAsStr
+        return params
     }
 }
