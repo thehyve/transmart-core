@@ -1,5 +1,0 @@
-DATA_FILE_PREFIX="Autoimmune Diseases_Nishimoto_GSE17755_Gene_Expression_Data_T.txt"
-DATA_TYPE=T
-LOG_BASE=2
-MAP_FILENAME="Autoimmune Diseases_Nishimoto_GSE17755_Subject_Sample_Mapping_File.txt"
-NODE_NAME=MRNA

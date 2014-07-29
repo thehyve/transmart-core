@@ -1,4 +1,0 @@
-PLATFORM=GPL96
-TITLE="Affymetrix Human Genome U133A Array"
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=GPL96.tsv

@@ -71,7 +71,8 @@ BEGIN
         kind,
         owner,
         acl,
-        nspname
+        nspname,
+        change_owner_skip
     ) AS
     (  -- tables, views and sequences
         SELECT
@@ -79,7 +80,19 @@ BEGIN
             relkind,
             rolname,
             relacl,
-            nspname
+            nspname,
+            --prevent error "cannot change owner; sequence is linked to table..."
+            EXISTS(
+                SELECT
+                    1
+                FROM
+                    pg_depend
+                WHERE
+                    refobjsubid <> 0 -- dependent is a table
+                    AND deptype = 'a' -- dependency is automatic
+                    AND pg_depend.objid = c.oid
+                    LIMIT 1
+                ) as change_owner_skip
         FROM
             pg_class c
             JOIN pg_namespace n ON (c.relnamespace = n.oid)
@@ -95,7 +108,8 @@ BEGIN
             's',
             rolname,
             nspacl,
-            nspname
+            nspname,
+            FALSE as change_owner_skip
         FROM
             pg_namespace n
             JOIN pg_roles r ON (n.nspowner = r.oid)
@@ -107,7 +121,8 @@ BEGIN
             'T',
             NULL,
             spcacl,
-            NULL
+            NULL,
+            FALSE as change_owner_skip
         FROM
             pg_tablespace
         WHERE
@@ -141,7 +156,8 @@ BEGIN
             END::"char",
             rolname,
             proacl,
-            nspname
+            nspname,
+            FALSE as change_owner_skip
         FROM
             pg_proc p
             JOIN pg_namespace n ON (p.pronamespace = n.oid)
