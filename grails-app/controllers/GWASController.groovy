@@ -345,13 +345,13 @@ class GWASController {
 	/**
 	 * Determine if the given category node is acceptable as a top level node. Must be supported 
 	 * by the GUI and by SOLR. As of July 2014, the only categories supported by the GUI are:
-	 * Analyses, Study, Data Type, Region of Interest, EQTL Transcript Gene; of those only
+	 * Analyses, Study, Data Type, Region of Interest, eQTL Transcript Gene; of those only
 	 * items in SearchTaxonomy domain will be recognized. Further, the SOLR queries must also
-	 * be considered.
+	 * be considered. See TMART-208 for details.
 	 */
 	def acceptableForBrowse = {categoryNode ->
 		String catName = categoryNode.termName
-		if (["Analyses","Data Type"].contains(catName)){
+		if (["Analyses","Study","Data Type","Region of Interest"].contains(catName)){
 			return true;
 		}
 		return false; 
@@ -509,8 +509,6 @@ class GWASController {
      * @return JSONObject containing the facet counts
      */
     def executeSOLRFacetedQuery = { solrRequestUrl, solrQueryParams, returnAnalysisIds ->
-
-        // println(solrQueryParams)
 
         JSONObject facetCounts = new JSONObject()
         //solrQueryParams = "q=(*:*)"
