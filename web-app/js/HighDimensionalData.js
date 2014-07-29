@@ -151,11 +151,27 @@ HighDimensionalData.prototype.create_pathway_search_box = function (searchInputE
         applyTo: searchInputEltName,
         itemSelector: 'div.search-item',
 
-        onSelect: function (record) { // override default onSelect to do redirect
+        listeners: {
+            'beforequery': function (queryEvent) {
+                // Use the last element in the query string as the query
+                var keywords = queryEvent.query.split(/[,\s]\s*/);
+                queryEvent.query = keywords[keywords.length - 1];
+            }
+        },
+
+        onSelect: function (record) {
+            // Append the selected keyword to the list
+            if (GLOBAL.CurrentPathway) {
+                GLOBAL.CurrentPathway += ",";
+                GLOBAL.CurrentPathwayName += ", ";
+            }
+            GLOBAL.CurrentPathway += record.data.id;
+            GLOBAL.CurrentPathwayName += record.data.keyword;
+
+            // Set the value in the text field
             var sp = Ext.get(searchInputEltName);
-            sp.dom.value = record.data.keyword;
-            GLOBAL.CurrentPathway = record.data.id;
-            GLOBAL.CurrentPathwayName = record.data.keyword;
+            sp.dom.value = GLOBAL.CurrentPathwayName;
+
             search.collapse();
         }
     });

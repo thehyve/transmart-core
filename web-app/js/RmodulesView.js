@@ -180,7 +180,7 @@ RmodulesView.prototype.get_analysis_constraints = function (jobType) {
     // do not create search_keyword_ids param if  pathway / gene is not selected
     // when gene / pathway is not selected, analysis will take up all pathways/genes.
     if (GLOBAL.CurrentPathway) {
-        _returnVal['dataConstraints']['search_keyword_ids'] = [GLOBAL.CurrentPathway];
+        _returnVal['dataConstraints']['search_keyword_ids'] = GLOBAL.CurrentPathway.split(",");
     }
 
     var cases = {
