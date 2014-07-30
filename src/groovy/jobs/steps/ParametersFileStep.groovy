@@ -8,7 +8,7 @@ class ParametersFileStep implements Step{
     File temporaryDirectory
     UserParameters params
 
-    final String statusName = null
+    final String statusName = 'Writing parameters'
 
     @Override
     void execute() {

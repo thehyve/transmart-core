@@ -26,7 +26,7 @@ DEanalysis.group.test <-
 function
 (
 	analysisType        = 'two_group_unpaired',  ## two_group_unpaired, two_group_paired, multi_group
-	readcountFileName   = 'readcount.tsv',
+	readcountFileName   = 'outputfile.txt',
 	phenodataFileName   = 'phenodata.tsv',
 	QCchoice            = TRUE,
 	output_1            = 'probability.txt',
@@ -44,6 +44,7 @@ function
 	}
 
 	library(edgeR)
+    library(Cairo)
 
 	print("Arguments: analysisType, readcountFileName, phenodataFileName, QCchoice, output_1, output_2, output_3, output_4, output_5, output_6")
 	print(paste(analysisType, readcountFileName, phenodataFileName, QCchoice, output_1, output_2, output_3, output_4, output_5, output_6, sep=','))
@@ -70,10 +71,12 @@ function
 		## 	countTable = cbind(countTable,read.delim(countfiles[b],header=F,stringsAsFactors=F,row.names=1))
 		## }
 
-		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
-		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
-		conditions <- phenodata$group
-		
+		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+
+		# Filter phenodata for patients that have data in countTable
+		phenodata <- phenodata[paste("readcount.",phenodata$PATIENT_NUM,sep="") %in% colnames(countTable), ]
+
 		# Filter for HTSeq predefined counts:
 		exclude_HTSeq = c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
 		exclude_DEXSeq = c("_ambiguous","_empty","_lowaqual","_notaligned")
@@ -85,8 +88,9 @@ function
 		
 		# Make sure that the order of the subjects/samples in the readcount columns is consistent with the order of the subjects/samples in the phenodata rows
 		# Extract sample list from RNASeq data column names for which readcounts have been observed
-		#samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(countTable))] )
-		samplelist <- colnames(countTable)
+		countTable = countTable[grep('readcount.', colnames(countTable))]
+		samplelist <- sub("readcount.", "" , colnames(countTable))
+
 		# Make row names equal to the sample id
 		rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
 		# Reorder phenodata rows to match the order in the RNASeq data columns
@@ -104,7 +108,7 @@ function
 		
 		if(QC == TRUE) {
 		
-			png("rnaseq-groups-test.png", width=800, height=2400)
+			CairoPNG(file="rnaseq-groups-test.png", width=800, height=2400)
 			par(mfrow = c(3,1), cex=1.3)
 		  
 			print("Creating QC plots...")
@@ -183,7 +187,7 @@ function
 		
 		if (QC == TRUE) {
 
-			png("rnaseq-groups-test.png", width=800, height=2400)
+			CairoPNG(file="rnaseq-groups-test.png", width=800, height=2400)
 			par(mfrow = c(3,1), cex=1.3)
 
 			print("Creating QC plots...")
@@ -235,12 +239,17 @@ function
 		## 	countTable = cbind(countTable,read.delim(countfiles[b],header=F,stringsAsFactors=F,row.names=1))
 		## }
 		
-		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE)
-		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE)
-		
+		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+
+		# Filter phenodata for patients that have data in countTable
+		phenodata <- phenodata[paste("readcount.",phenodata$PATIENT_NUM,sep="") %in% colnames(countTable), ]
+
 		# Make sure that the order of the subjects/samples in the readcount columns is consistent with the order of the subjects/samples in the phenodata rows
 		# Extract sample list from RNASeq data column names for which readcounts have been observed
-		samplelist <- colnames(countTable)
+		countTable = countTable[grep('readcount.', colnames(countTable))]
+		samplelist <- sub("readcount.", "" , colnames(countTable))
+
 		# Make row names equal to the sample id
 		rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
 		# Reorder phenodata rows to match the order in the RNASeq data columns
@@ -273,7 +282,7 @@ function
 		
 		if (QC == TRUE) {
 		
-			png("rnaseq-groups-test.png", width=800, height=(2+(ngrp-1))*800)
+			CairoPNG(file="rnaseq-groups-test.png", width=800, height=(2+(ngrp-1))*800)
 			par(mfrow = c(2+(ngrp-1),1), cex=1.3)			
 		
 			print("Creating QC plots...")
