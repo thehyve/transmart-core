@@ -57,6 +57,7 @@ grails.project.dependency.resolution = {
 
     repositories {
         mavenLocal()
+        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
         mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
         inherits false // inherit repository definitions from plugins (default true)
     }
