@@ -15,7 +15,6 @@
 ******************************************************************/
 
 package com.recomdata.transmart.data.association
-import java.util.ArrayList;
 
 class IC50Controller {
 

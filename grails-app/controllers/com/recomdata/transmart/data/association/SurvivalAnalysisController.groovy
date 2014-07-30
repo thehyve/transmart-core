@@ -15,9 +15,6 @@
 ******************************************************************/
 
 package com.recomdata.transmart.data.association
-import org.apache.commons.io.FileUtils
-
-import com.recomdata.transmart.util.ZipUtil
 
 class SurvivalAnalysisController {
 	

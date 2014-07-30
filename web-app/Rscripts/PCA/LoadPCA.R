@@ -250,6 +250,11 @@ PCA.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.sele
 
     #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
     finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+    
+    #add a column with the subset number
+    finalData$SUBSET<-finalData$PATIENT.ID
+    finalData$SUBSET[grep("^S1_|_S1_|_S1$",finalData$SUBSET)]<-"S1"
+    finalData$SUBSET[grep("^S2_|_S2_|_S2$",finalData$SUBSET)]<-"S2"
 
     write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
 

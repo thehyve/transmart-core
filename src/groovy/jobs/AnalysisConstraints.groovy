@@ -1,7 +1,6 @@
 package jobs
 
 import com.google.common.collect.Maps
-import groovy.json.JsonBuilder
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 

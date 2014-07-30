@@ -16,8 +16,6 @@
 
 package com.recomdata.transmart.data.association
 
-import com.recomdata.transmart.util.ZipUtil;
-
 class CorrelationAnalysisController {
 
 	//def jobResultsService

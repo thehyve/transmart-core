@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
-
 import javax.annotation.PostConstruct
+
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
 
 @Component
 @Scope('job')

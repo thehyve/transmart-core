@@ -15,8 +15,6 @@
 ******************************************************************/
 
 package com.recomdata.transmart.data.association
-import com.recomdata.transmart.util.ZipUtil
-import org.apache.commons.io.FileUtils
 
 class TableWithFisherController {
 

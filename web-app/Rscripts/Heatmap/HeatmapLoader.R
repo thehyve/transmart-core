@@ -43,21 +43,21 @@ aggregate.probes = FALSE
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
 
-    # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
-    # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
-    mRNAData$GROUP <- as.character(mRNAData$GROUP)
-    rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
-    mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
-    mRNAData$GROUP <- as.factor(mRNAData$GROUP)
-
-    if (aggregate.probes) {
-        # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
-        mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
-    }
-
 	#If we have to melt and cast, do it here, otherwise we make the group column the rownames
 	if(meltData == TRUE)
 	{
+    	# The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
+        # but only if the latter does not contain a private value (which means that the biomarker was not present in any of the dictionaries)
+        mRNAData$GROUP <- as.character(mRNAData$GROUP)
+        rowsToConcatenate <- grep("^PRIVATE", mRNAData$GENE_SYMBOL, invert = TRUE)
+        mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
+        mRNAData$GROUP <- as.factor(mRNAData$GROUP)
+    
+        if (aggregate.probes) {
+            # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
+            mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
+        }
+        
 		#Trim the patient.id field.
 		mRNAData$PATIENT_NUM <- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT_NUM)
 	
@@ -69,6 +69,12 @@ aggregate.probes = FALSE
 	  
 		#When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
 		colnames(mRNAData) <- sub("^X","",colnames(mRNAData))
+		
+		  #Set the name of the rows to be the names of the probes.
+        rownames(mRNAData) = mRNAData$GROUP
+    
+        #Convert data to a integer matrix.
+        mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
 	}
 	else
 	{	
@@ -77,13 +83,10 @@ aggregate.probes = FALSE
 		#Use only unique row names. This unique should get rid of the case where we have multiple genes per probe. The values for the probes are all the same.
 		mRNAData <- unique(mRNAData)
 		
+        #Convert data to a integer matrix.
+        rownames(mRNAData) <- mRNAData$PROBE.ID
+        mRNAData <- data.matrix(subset(mRNAData, select = -c(PROBE.ID)))
 	}
-	
-	#Set the name of the rows to be the names of the probes.
-	rownames(mRNAData) = mRNAData$GROUP
-
-	#Convert data to a integer matrix.
-	mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
 
 	#We can't draw a heatmap for a matrix with no rows.
 	if(nrow(mRNAData)<1) stop("||FRIENDLY||R cannot plot a heatmap with no Gene/Probe selected. Please check your variable selection and run again.")

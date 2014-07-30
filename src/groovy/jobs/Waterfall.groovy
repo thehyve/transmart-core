@@ -1,10 +1,6 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.MultiRowAsGroupDumpTableResultsStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.steps.helpers.WaterfallColumnConfigurator
 import jobs.table.Table

@@ -46,6 +46,11 @@ aggregate.probes = FALSE
 	mRNAData$PROBE.ID 		<- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
 	mRNAData$GENE_SYMBOL 	<- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
 	mRNAData$PATIENT.ID   	<- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
+	
+    if (aggregate.probes) {
+        # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
+        mRNAData <- MS.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
+    }
 
 	#Create a data.frame with unique probe/gene ids.
 	geneStatsData <- data.frame(mRNAData$PROBE.ID,mRNAData$GENE_SYMBOL);
@@ -166,7 +171,11 @@ aggregate.probes = FALSE
 	print("MEAN/SD");
 	
 	#We don't need to rank the MEAN/SD on all the data, just the top X probes. Cut the list based on the probes in the ranked data frame.
-	rankCutmRNAData <- subset(mRNAData, PROBE.ID %in% geneStatsData$PROBE.ID)
+	if (aggregate.probes) {
+    rankCutmRNAData <- subset(mRNAData, GENE_SYMBOL %in% geneStatsData$GENE_SYMBOL)
+  } else {
+    rankCutmRNAData <- subset(mRNAData, PROBE.ID %in% geneStatsData$PROBE.ID)
+  }
 
 	#Get the list of distinct subsets.
 	distinctSubsetNames <- unique(mRNAData$SUBSET)	
@@ -236,8 +245,8 @@ aggregate.probes = FALSE
 	#Remove the t score and positive columns.
 	finalHeatmapData <- subset(finalHeatmapData, select = -c(GENE_SYMBOL,t,positive,S1.Mean,S2.Mean,S1.SD,S2.SD,FoldChange.relative.to.S1,RANK,rawp,Bonferroni,Holm,Hochberg,SidakSS,SidakSD,BH,BY,t.permutation,rawp.permutation,adjp.permutation))
 	
-	#Rename the first column to be "GROUP".
-	colnames(finalHeatmapData)[1] <- 'GROUP'
+	#Rename the first column to be "PROBE.ID".
+	colnames(finalHeatmapData)[1] <- 'PROBE.ID'
 	#---------------------
 	
 	#---------------------
@@ -258,4 +267,70 @@ aggregate.probes = FALSE
 	
 	print("-------------------")
 	##########################################
+}
+
+MS.probe.aggregation <- function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.file = "aggregated_data.txt") {
+    library(WGCNA)
+    
+    #remove SUBSET column
+    mRNAData <- subset(mRNAData, select = -c(SUBSET))
+    
+    meltedData <- melt(mRNAData, id=c("PROBE.ID","GENE_SYMBOL","PATIENT.ID"))
+
+    #Cast the data into a format that puts the PATIENT.ID in a column.
+    castedData <- data.frame(dcast(meltedData, PROBE.ID + GENE_SYMBOL ~ PATIENT.ID))
+
+    #Create a unique identifier column.
+    castedData$UNIQUE_ID <- paste(castedData$GENE_SYMBOL,castedData$PROBE.ID,sep="")
+
+    #Set the name of the rows to be the unique ID.
+    rownames(castedData) = castedData$UNIQUE_ID
+
+    if (nrow(castedData) <= 1) {
+        warning("Only one probe.id present in the data. Probe aggregation not possible.")
+        return (mRNAData)
+    }
+
+    #Run the collapse on a subset of the data by removing some columns.
+    finalData <- collapseRows(subset(castedData, select = -c(GENE_SYMBOL,PROBE.ID,UNIQUE_ID) ),
+                                  rowGroup = castedData$GENE_SYMBOL,
+                                  rowID = castedData$UNIQUE_ID,
+                                  method = collapseRow.method,
+                                  connectivityBasedCollapsing = TRUE,
+                                  methodFunction = NULL,
+                                  connectivityPower = 1,
+                                  selectFewestMissing = collapseRow.selectFewestMissing,
+                                  thresholdCombine = NA)
+
+    #Coerce the data into a data frame.
+    finalData=data.frame(finalData$group2row, finalData$datETcollapsed)
+
+    #Rename the columns, the selected row_id is the unique_id.
+    colnames(finalData)[2] <- 'UNIQUE_ID'
+
+    #Merge the probe.id back in.
+    finalData <- merge(finalData,castedData[c('UNIQUE_ID','PROBE.ID')],by=c('UNIQUE_ID'))
+
+    #Remove the unique_id and selected row ID column.
+    finalData <- subset(finalData, select = -c(UNIQUE_ID))
+
+    #Melt the data back.
+    finalData <- melt(finalData)
+
+    #Set the column names again.
+    colnames(finalData) <- c("GENE_SYMBOL","PROBE.ID","PATIENT.ID","VALUE")
+
+    #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
+    finalData$PATIENT.ID <- sub("^X","",finalData$PATIENT.ID)
+
+    #Return relevant columns
+    finalData <- finalData[,c("PATIENT.ID","VALUE","PROBE.ID","GENE_SYMBOL")]
+    
+    finalData$SUBSET<-finalData$PATIENT.ID
+    finalData$SUBSET[grep("^S1_|_S1_|_S1$",finalData$SUBSET)]<-"S1"
+    finalData$SUBSET[grep("^S2_|_S2_|_S2$",finalData$SUBSET)]<-"S2"
+
+    write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
+
+    finalData
 }
