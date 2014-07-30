@@ -34,7 +34,8 @@ class RModulesJobService implements Job {
     static transactional = true
 	static scope = 'request'
 
-	def ctx = AH.application.mainContext
+    def grailsApplication
+    def ctx = grailsApplication.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService
 	def asyncJobService = ctx.asyncJobService
