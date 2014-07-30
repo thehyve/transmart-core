@@ -8,6 +8,11 @@
 /ivy*
 /eclipse
 
+# eclipse generated files
+**/.settings
+**/.classpath
+**/.project
+
 # default HSQL database files for production mode
 /prodDb.*
 
