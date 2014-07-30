@@ -2502,6 +2502,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
+      "name" : "MESH_ALL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
       "name" : "MESH_DESCRIPTOR"
     },
     "parents" : [ ]

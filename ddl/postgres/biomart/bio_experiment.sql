@@ -74,7 +74,7 @@ DECLARE
   rec_count bigint;
 BEGIN
   SELECT COUNT(*) INTO rec_count 
-  FROM bio_data_uid 
+  FROM biomart.bio_data_uid 
   WHERE bio_data_id = NEW.bio_experiment_id;
   
   if rec_count = 0 then

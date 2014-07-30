@@ -53,7 +53,7 @@ $(PHP_TARBALL):
 	curl -f '$(PHP_URL)' > $@
 
 $(PHP_SRCDIR): $(PHP_TARBALL)
-	tar --touch -xf '$<'
+	$(TAR_COMMAND) --touch -xf '$<'
 
 $(PHP_BIN): $(PHP_SRCDIR)
 	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Check input parameters
 if [ $# -lt 2 ]
   then
