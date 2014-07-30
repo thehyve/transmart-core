@@ -398,7 +398,6 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
     generateResultGrid: function (jobName, view) {
 
         var _this = this;
-
         Ext.Ajax.request({
             // retrieve information about the job (status, inputs, run-time, etc)
             url: pageInfo.basePath + "/asyncJob/getjobbyname",

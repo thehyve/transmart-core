@@ -24,6 +24,7 @@ import org.quartz.JobExecutionException
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 import java.lang.reflect.UndeclaredThrowableException
 
@@ -32,7 +33,7 @@ class RModulesJobService implements Job {
     static transactional = true
 	static scope = 'request'
 
-    def grailsApplication
+    def grailsApplication = ApplicationHolder.application
 	def ctx = grailsApplication.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService
