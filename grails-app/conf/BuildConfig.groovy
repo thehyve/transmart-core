@@ -62,7 +62,7 @@ grails.project.dependency.resolution = {
 
         /* serializable ImmutableMap only on guava 16 */
         compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
-        compile 'org.transmartproject:transmart-core-api:1.0-LH-SNAPSHOT'
+        compile 'org.transmartproject:transmart-core-api:1.2.0'
 
         /* compile instead of test due to technical limitations
          * (referenced from resources.groovy) */
