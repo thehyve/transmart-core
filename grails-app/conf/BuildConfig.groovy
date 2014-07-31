@@ -63,7 +63,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile 'org.transmartproject:transmart-core-api:1.0-LH-SNAPSHOT'
+        compile 'org.transmartproject:transmart-core-api:1.2.0'
         compile 'org.javassist:javassist:3.16.1-GA'
 
         // includes fix for GRAILS-11126
@@ -102,9 +102,10 @@ grails.project.dependency.resolution = {
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
         runtime ':hibernate:3.6.10.6'
 
-        test ':functional-test:2.0.RC1'
-        test ':transmart-core:1.2.0'
-        test ':transmart-core-db-tests:1.2.0'
+		// tests depend on transmart-core-db-tests which is not part of the release yet
+        //test ':functional-test:2.0.RC1'
+        //test ':transmart-core:1.2.0'
+        //test ':transmart-core-db-tests:1.2.0'
     }
 }
 
