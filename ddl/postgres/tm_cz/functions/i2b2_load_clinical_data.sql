@@ -428,7 +428,7 @@ BEGIN
 	--set data_label = null
 	set category_path=substr(tpm.category_path,1,tm_cz.instr(tpm.category_path,'\',-2,1)-1)
 	   ,category_cd=substr(tpm.category_cd,1,tm_cz.instr(tpm.category_cd,'+',-2,1)-1)
-	where (tpm.category_cd, tpm.data_label) in
+	where tm_cz.instr(tpm.category_path,'\',-1,1) > 0 and (tpm.category_cd, tpm.data_label) in
 		  (select distinct t.category_cd
 				 ,t.data_label
 		   from tm_wz.wrk_clinical_data t
@@ -436,16 +436,26 @@ BEGIN
 			     = upper(t.data_label)
 		     and t.data_label is not null)
 	  and tpm.data_label is not null;
-	get diagnostics rowCt := ROW_COUNT;
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
+        update tm_wz.wrk_clinical_data tpm
+        set data_label = null
+        where tm_cz.instr(tpm.category_path,'\',-1,1) = 0 and (tpm.category_cd, tpm.data_label) in
+                  (select distinct t.category_cd
+                                 ,t.data_label
+                   from tm_wz.wrk_clinical_data t
+                   where upper(substr(t.category_path,tm_cz.instr(t.category_path,'\',-1,1)+1,length(t.category_path)-tm_cz.instr(t.category_path,'\',-1,1)))
+                             = upper(t.data_label)
+                     and t.data_label is not null)
+          and tpm.data_label is not null;
+        get diagnostics rowCt := ROW_COUNT;
+        exception
+        when others then
+                errorNumber := SQLSTATE;
+                errorMessage := SQLERRM;
+                --Handle errors.
+                select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+                --End Proc
+                select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+                return -16;
 	end;
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Set data_label to null when found in category_path',rowCt,stepCt,'Done') into rtnCd;
@@ -1220,7 +1230,7 @@ for ul in uploadI2b2
 	from upd
 	where b.c_fullname = upd.c_fullname
 	  and b.c_fullname in
-		 (select x.c_fullname from i2b2 x
+		 (select x.c_fullname from i2b2metadata.i2b2 x
 		  where x.c_fullname like topNode || '%' escape '`');
   	get diagnostics rowCt := ROW_COUNT;
 	exception
