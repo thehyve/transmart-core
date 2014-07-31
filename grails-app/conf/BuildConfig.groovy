@@ -12,6 +12,7 @@ grails.project.dependency.resolution = {
     repositories {
         grailsCentral()
         mavenCentral()
+        mavenLocal()
         mavenRepo([
                 name: 'repo.transmartfoundation.org-public',
                 root: 'https://repo.transmartfoundation.org/content/repositories/public/'
