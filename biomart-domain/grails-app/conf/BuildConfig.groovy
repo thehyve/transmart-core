@@ -20,7 +20,7 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        compile(':transmart-java:1.0-SNAPSHOT')
+        compile(':transmart-java:1.2.0')
 		build(":release:2.2.1",
 			":rest-client-builder:1.0.3") {
 		export = false
