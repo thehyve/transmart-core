@@ -355,8 +355,8 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // Getting the template as blue print for survival curve plot.
                 // Template is defined in GroupTestRNASeq.gsp
-                var groupTestRNASeqPlotTpl = Ext.Template.from('template-group-test-rnaseq-plot');
 
+                var groupTestRNASeqPlotTpl = Ext.Template.from('template-group-test-rnaseq-plot');
                 var groupVariable = RNASeqgroupTestView.jobInfo.jobInputsJson.groupVariable;
                 var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
                 // create data instance
@@ -395,7 +395,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view) {
+    generateResultGrid: function (jobName, view, callback) {
 
         var _this = this;
         Ext.Ajax.request({
@@ -463,9 +463,11 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // finally load the data
                 store.load({params: {start: 0, limit: GEN_RESULT_GRID_LIMIT}});
+                if(callback) callback();
             },
             failure: function (result, request) {
-                console.log('failure ....')
+                console.log('failure ....');
+                if(callback) callback();
             },
             params: {
                 jobName: jobName
@@ -500,8 +502,9 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
     },
 
     renderResults: function (jobName, view) {
-        this.generateResultGrid(jobName, view);
-        this.createResultPlotPanel(jobName, view);
+        view.generateResultGrid(jobName, view, function() {
+            view.createResultPlotPanel(jobName, view);
+        });
     },
 
     submitGroupTestJob: function () {
