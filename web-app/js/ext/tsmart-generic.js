@@ -468,18 +468,15 @@ GenericAnalysisView = Ext.extend(Object, {
     {
 
         var pollInterval = 1000;   // 1 second
-        var _me = this;
-
-        this.jobTask =    {
+        this.jobTask = new Ext.util.TaskRunner()
+        this.jobTask.start({
             jobName: jobName,
             parent: this,
             run: function() {
                 this.parent.updateJobStatus(jobName);
             },
             interval: pollInterval
-        }
-
-        Ext.TaskMgr.start(this.jobTask);
+        });
     },
 
     updateJobStatus: function (jobName) {
@@ -508,9 +505,8 @@ GenericAnalysisView = Ext.extend(Object, {
 
                         // close the job window
                         _me.jobWindow.close();
-
                         // stop the task manager
-                        Ext.TaskMgr.stop(_me.jobTask);
+                        _me.jobTask.stopAll();
 
                         //Set the results DIV to use the URL from the job.
                         var fullViewerURL = pageInfo.basePath + viewerURL;
@@ -523,12 +519,12 @@ GenericAnalysisView = Ext.extend(Object, {
                         _me.callback(jobName, _me.subView);
 
                     } else if (status == 'Cancelled') {
-                        Ext.TaskMgr.stop(_me.jobTask);
+                        _me.jobTask.stopAll();
                     } else if (status == 'Error') {
                         // close the job window
                         _me.jobWindow.close();
                         // stop the task
-                        Ext.TaskMgr.stop(_me.jobTask);
+                        _me.jobTask.stopAll();
                         // inform user on mandatory inputs need to be defined
                         Ext.MessageBox.show({
                             title: 'Error',
@@ -543,7 +539,7 @@ GenericAnalysisView = Ext.extend(Object, {
                 },
                 failure : function(result, request)
                 {
-                    Ext.TaskMgr.stop(_me.jobTask);
+                    _me.jobTask.stopAll();
                     showWorkflowStatusErrorDialog('Failed', 'Could not complete the job, please contact an administrator');
                 },
                 timeout : '300000',
