@@ -72,6 +72,13 @@ class DatabasePortabilityService {
         )
     }
 
+    String getCurrentDateTimeFunc() {
+        runCorrectImplementation(
+                { 'now()' },
+                { 'sysdate' }
+        )
+    }
+
     String createTopNQuery(String s) {
         runCorrectImplementation(
                 { "$s LIMIT ?" },
@@ -161,8 +168,8 @@ class DatabasePortabilityService {
      */
     String getNextSequenceValueSql(String schema, String sequenceName) {
         runCorrectImplementation(
-                { "SELECT nextval('$schema.$sequenceName)" },
-                { "SELECT $schema.$sequenceName.nextval FROM DUAL" }
+                { "SELECT nextval('${schema}.${sequenceName})" },
+                { "SELECT ${schema}.${sequenceName}.nextval FROM DUAL" }
         )
     }
 
