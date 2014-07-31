@@ -4,7 +4,7 @@
   <groupId>org.grails.plugins</groupId>
   <artifactId>blend4j-plugin</artifactId>
   <packaging>zip</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>1.2.0</version>
   <name>Blend4j Plugin</name>
   <description>Brief summary/description of the plugin.
 </description>
