@@ -19,14 +19,13 @@
  
 
 package com.recomdata.transmart.domain.searchapp
+
 import java.text.SimpleDateFormat
-import java.util.Date;
 
 class Report {
 	   Long id
 	   String name
 	   Date timestamp = new Date()
-	   String moduleName
 	   String description
 	   String creatingUser
 	   String publicFlag
@@ -35,7 +34,7 @@ class Report {
 	   static hasMany = [reportItems: ReportItem]
 	   
 static mapping = {
-	table 'REPORT'
+	table 'SEARCHAPP.REPORT'
 	version false
 	id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
 	columns {
@@ -46,7 +45,6 @@ static mapping = {
 	   creatingUser column:'CREATINGUSER'
 	   publicFlag column:'PUBLIC_FLAG'
 	   study column:'STUDY'
-	   moduleName column:'MODULE_NAME'
 	   }
    }
 
@@ -54,7 +52,6 @@ static constraints = {
 	timestamp(nullable:true)
 	description(nullable:true)
 	name(nullable:true)
-	moduleName(nullable:true)
 	   }
 
 def getDisplayDate(){

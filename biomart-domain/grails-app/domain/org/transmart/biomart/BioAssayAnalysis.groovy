@@ -45,14 +45,13 @@ class BioAssayAnalysis implements IExcelProfile {
 	Long dataCount
 	Long teaDataCount
 	String etlId
-	static hasMany=[datasets:BioAssayDataset,files:ContentReference, diseases:Disease, observations:Observation, platforms:BioAssayPlatform]
+	static hasMany=[datasets:BioAssayDataset,files:ContentReference, uniqueIds: BioData, diseases:Disease, observations:Observation, platforms:BioAssayPlatform]
 	static hasOne=[ext:BioAssayAnalysisExt]
 	static belongsTo=[ContentReference, Disease, Observation, BioAssayPlatform]
 
 	static mapping = {
 		table 'BIO_ASSAY_ANALYSIS'
 		version false
-		cache usage:'read-only'
 		id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
 		columns {
 			name column:'ANALYSIS_NAME'
@@ -78,6 +77,7 @@ class BioAssayAnalysis implements IExcelProfile {
 			diseases joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DATA_ID'], cache:true
 			observations joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_DATA_ID'], cache:true
 			platforms joinTable:[name:'BIO_DATA_PLATFORM', key:'BIO_DATA_ID'], cache:true
+            uniqueIds joinTable: [name: 'BIO_DATA_UID', key: 'BIO_DATA_ID']
 		}
 	}
 
@@ -93,13 +93,14 @@ class BioAssayAnalysis implements IExcelProfile {
 		rValueCutoff(nullable:true)
 		analysisPlatform(nullable:true)
 		type(nullable:true, maxSize:400)
+		ext(nullable:true)
 	}
 
 	/**
 	 * get top analysis data records for the indicated analysis
 	 */
 	def static getTopAnalysisDataForAnalysis(Long analysisId, int topCount){
-		def query = "SELECT DISTINCT baad, baad_bm FROM bio.BioAssayAnalysisData baad JOIN baad.featureGroup.markers baad_bm  WHERE baad.analysis.id =:aid ORDER BY ABS(baad.foldChangeRatio) desc, baad.rValue, baad.rhoValue DESC";
+		def query = "SELECT DISTINCT baad, baad_bm FROM org.transmart.biomart.BioAssayAnalysisData baad JOIN baad.featureGroup.markers baad_bm  WHERE baad.analysis.id =:aid ORDER BY ABS(baad.foldChangeRatio) desc, baad.rValue, baad.rhoValue DESC";
 		return BioAssayAnalysisData.executeQuery(query, [aid:analysisId], [max:topCount]);
 	}
 
@@ -109,4 +110,10 @@ class BioAssayAnalysis implements IExcelProfile {
 	public List getValues() {
 		return [shortDescription, longDescription, pValueCutoff, foldChangeCutoff, qaCriteria, analysisPlatform == null ? "" : analysisPlatform.platformName, analysisMethodCode, assayDataType]
 	}
+    
+    def getUniqueId() {
+        if (uniqueIds != null && !uniqueIds.isEmpty())
+            return uniqueIds.iterator().next();
+        return null;
+    }
 }

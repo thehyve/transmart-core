@@ -21,7 +21,6 @@
 package com.recomdata.transmart.domain.searchapp
 
 import java.text.SimpleDateFormat
-import java.util.Date;
 
 class Subset {
 	Long id
@@ -42,7 +41,7 @@ class Subset {
 static transients = ['emailLink','link', 'displayDate']
 	
 static mapping = {
- table 'SUBSET'
+ table 'SEARCHAPP.SUBSET'
  version false
  id generator:'sequence', params:[sequence:'SEQ_BIO_DATA_ID']
  columns {

@@ -41,6 +41,9 @@ class BioMarker implements IExcelProfile {
             literatures: Literature,
             assayDataStats: BioAssayDataStatistics]
 
+    String uniqueId
+    static transients = ['uniqueId']
+    
     def isGene() {
         return "GENE".equalsIgnoreCase(bioMarkerType)
     }
@@ -83,5 +86,31 @@ class BioMarker implements IExcelProfile {
      */
     public List getValues() {
         return [name, description, organism]
+    }
+    
+    String getUniqueId() {
+        if (uniqueId == null) {
+            if (id) {
+                BioData data = BioData.get(id);
+                if (data != null) {
+                    uniqueId = data.uniqueId
+                    return data.uniqueId;
+                }
+                return null;
+            } else {
+                return null;
+            }
+        } else {
+            return uniqueId;
+        }
+    }
+    
+    static BioMarker findByUniqueId(String uniqueId) {
+        BioMarker cc;
+        BioData bd = BioData.findByUniqueId(uniqueId);
+        if (bd != null) {
+            cc = BioMarker.get(bd.id);
+        }
+        return cc;
     }
 }
