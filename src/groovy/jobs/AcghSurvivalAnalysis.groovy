@@ -105,7 +105,7 @@ class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBe
                 '''source('$pluginDirectory/aCGH/acgh-survival-test.R')''',
                 '''acgh.survival.test(survival               = 'TIME',
                                       status                 = 'CENSOR',
-                                      number.of.permutations = 10000,
+                                      number.of.permutations = $numberOfPermutations,
                                       test.aberrations       = '$aberrationType')''',
                 '''source('$pluginDirectory/aCGH/acgh-plot-survival.R')''',
                 '''acgh.plot.survival(survival             = 'TIME',
