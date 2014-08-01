@@ -21,9 +21,7 @@
 \i deapp/de_protein_annotation.sql
 \i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rbm_annotation.sql
-\i deapp/de_rbm_data_annotation_join.sql
 \i deapp/de_rc_snp_info.sql
-\i deapp/de_rc_snp_info1.sql
 \i deapp/de_rnaseq_annotation.sql
 \i deapp/de_sample_snp_data.sql
 \i deapp/de_saved_comparison.sql
@@ -66,4 +64,6 @@
 \i deapp/kegg_data.sql
 \i deapp/kegg_def.sql
 \i deapp/ricerca.sql
+\i deapp/de_rbm_data_annotation_join.sql
+\i deapp/de_rc_snp_info1.sql
 \i deapp/_misc.sql

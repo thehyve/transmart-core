@@ -3,6 +3,7 @@ include ../../makefile.inc
 SCHEMAS = \
 		  i2b2metadata \
 		  i2b2demodata \
+		  biomart_user \
 		  biomart \
 		  deapp \
 		  tm_lz \
@@ -11,7 +12,6 @@ SCHEMAS = \
 		  searchapp \
 		  amapp \
 		  fmapp \
-		  biomart_user \
 		  galaxy
 
 FULL_SCHEMA_DUMPS = $(foreach schema, $(SCHEMAS), _dumps/$(schema).sql)
