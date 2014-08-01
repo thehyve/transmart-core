@@ -1,5 +1,9 @@
 <?php
 $dependencies = array (
+  'de_rc_snp_info1' => 
+  array (
+    0 => 'de_rc_snp_info',
+  ),
   'de_chromosomal_region' => 
   array (
     0 => 'de_gpl_info',

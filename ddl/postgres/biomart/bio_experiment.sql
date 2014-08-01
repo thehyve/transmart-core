@@ -85,7 +85,6 @@ RETURN NEW;
 END;
 $$;
 
-
 --
 -- Name: trg_bio_experiment_uid; Type: TRIGGER; Schema: biomart; Owner: -
 --

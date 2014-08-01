@@ -4,8 +4,8 @@
 CREATE FUNCTION am_tag_value_uid(tag_value_id bigint) RETURNS character varying
     LANGUAGE plpgsql
     AS $$
-begin
-  return 'TAG:' || tag_value_id::text;
-end;
+	BEGIN
+	  RETURN 'TAG:' || TAG_VALUE_ID::text;
+	END;
 $$;
 

@@ -22,13 +22,13 @@ BEGIN
 
   --jobStepID := control.insert_system_job_step(jobRunID, 'Insert disease pathways into bio_marker for GENEGO disease pathways'
   --, 'Insert disease pathways into bio_marker for GENEGO disease pathways', 22);
-  EXECUTE 'delete from bio_data_uid where unique_id in
+  EXECUTE 'delete from biomart.bio_data_uid where unique_id in
                     (select biomarker_pathway_uid(primary_source_code, primary_external_id)
                     from bio_marker)';
-  EXECUTE 'delete from bio_data_uid where unique_id in
+  EXECUTE 'delete from biomart.bio_data_uid where unique_id in
                     (select biomarker_gene_uid(primary_external_id)
                     from bio_marker)';
-  EXECUTE 'insert into bio_data_uid(
+  EXECUTE 'insert into biomart.bio_data_uid(
                     bio_data_id, unique_id, bio_data_type)
                     PERFORM
                     bio_marker_id
@@ -37,10 +37,10 @@ BEGIN
                     from bio_marker
                     where bio_marker_type=''PATHWAY''
                     and not exists
-                      (select 1 from bio_data_uid
+                      (select 1 from biomart.bio_data_uid
                       where biomarker_pathway_uid(bio_marker.primary_source_code, bio_marker.primary_external_id) =
                       bio_data_uid.unique_id)';
-  EXECUTE 'insert into bio_data_uid(
+  EXECUTE 'insert into biomart.bio_data_uid(
                     bio_data_id, unique_id, bio_data_type)
                     PERFORM
                     bio_marker_id
@@ -49,7 +49,7 @@ BEGIN
                     from bio_marker
                     where bio_marker_type=''GENE''
                     and not exists
-                      (select 1 from bio_data_uid
+                      (select 1 from biomart.bio_data_uid
                       where biomarker_gene_uid(bio_marker.primary_external_id) = bio_data_uid.unique_id)';
 
 

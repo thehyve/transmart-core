@@ -1,7 +1,6 @@
 --
 -- Name: bio_regulome_score; Type: TABLE; Schema: biomart; Owner: -
 --
-
 CREATE TABLE bio_regulome_score (
     chromosome character varying(20),
     "position" numeric(18,0),

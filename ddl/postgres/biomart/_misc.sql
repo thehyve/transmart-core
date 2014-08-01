@@ -18,3 +18,8 @@ CREATE SEQUENCE hibernate_sequence
     NO MAXVALUE
     CACHE 20;
 
+--
+-- Name: VIEW mesh_with_parent; Type: COMMENT; Schema: biomart; Owner: -
+--
+COMMENT ON VIEW mesh_with_parent IS '-- mesh terms with parent term relation';
+

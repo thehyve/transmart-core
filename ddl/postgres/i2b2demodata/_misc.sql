@@ -9,16 +9,6 @@ CREATE SEQUENCE async_job_seq
     CACHE 1;
 
 --
--- Name: concept_id; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
---
-CREATE SEQUENCE concept_id
-    START WITH 1340964
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
 -- Name: protocol_id_seq; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE protocol_id_seq

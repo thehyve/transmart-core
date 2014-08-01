@@ -14,3 +14,4 @@ CREATE TABLE plugin_module_backup (
     module_name character varying(50) NOT NULL,
     category character varying(50)
 );
+
