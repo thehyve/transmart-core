@@ -22,15 +22,15 @@ begin
 
   --jobStepID := control.insert_system_job_step(jobRunID, 'Insert disease pathways into bio_marker for GENEGO disease pathways'
   --, 'Insert disease pathways into bio_marker for GENEGO disease pathways', 22);
-  EXECUTE 'delete from bio_data_uid where unique_id in
-                    (select bio_disease_uid(mesh_code) from bio_disease)';
-  EXECUTE 'insert into bio_data_uid(
+  EXECUTE 'delete from biomart.bio_data_uid where unique_id in
+                    (select bio_disease_uid(mesh_code) from biomart.bio_disease)';
+  EXECUTE 'insert into biomart.bio_data_uid(
                     bio_data_id, unique_id, bio_data_type)
                     PERFORM
                     bio_disease_id, bio_disease_uid(mesh_code), ''BIO_DISEASE''
-                    from bio_disease
+                    from biomart.bio_disease
                     where not exists
-                      (select 1 from bio_data_uid
+                      (select 1 from biomart.bio_data_uid
                       where bio_disease_uid(bio_disease.mesh_code) = bio_data_uid.unique_id)';
 
   --control.update_system_job_step_pass(jobStepID, SQL%ROWCOUNT);

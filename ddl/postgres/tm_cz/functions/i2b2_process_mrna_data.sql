@@ -869,6 +869,7 @@ BEGIN
 		inner join tm_wz.wt_mrna_nodes ln
 			on a.platform = ln.platform
 			and a.tissue_type = ln.tissue_type
+			and a.category_cd = ln.category_cd
 			and coalesce(a.attribute_1,'') = coalesce(ln.attribute_1,'')
 			and coalesce(a.attribute_2,'') = coalesce(ln.attribute_2,'')
 			and ln.node_type = 'LEAF'

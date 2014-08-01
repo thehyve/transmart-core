@@ -246,7 +246,12 @@ BEGIN
 	  and a.gene_id is null
 	  and a.gene_symbol is not null
 	  and a.gene_symbol = upd.gene_symbol
-	  and upper(a.organism) = upper(upd.organism);
+	  and upper(a.organism) = upper(upd.organism)
+	  and exists
+	      (select 1 from biomart.bio_marker x
+              where a.gene_symbol = x.bio_marker_name
+                and upper(x.organism) = upper(a.organism)
+             	and upper(x.bio_marker_type) = 'GENE');
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -275,7 +280,12 @@ BEGIN
 	  and a.gene_symbol is null
 	  and a.gene_id is not null
 	  and a.gene_id = upd.gene_id
-	  and upper(a.organism) = upper(upd.organism);
+	  and upper(a.organism) = upper(upd.organism)
+	  and exists
+	      (select 1 from biomart.bio_marker x
+              where a.gene_symbol = x.bio_marker_name
+                and upper(x.organism) = upper(a.organism)
+             	and upper(x.bio_marker_type) = 'GENE');
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then

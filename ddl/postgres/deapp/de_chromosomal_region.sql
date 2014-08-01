@@ -8,9 +8,6 @@ CREATE SEQUENCE de_chromo_region_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-SET default_with_oids = false;
-
 --
 -- Name: de_chromosomal_region; Type: TABLE; Schema: deapp; Owner: -
 --

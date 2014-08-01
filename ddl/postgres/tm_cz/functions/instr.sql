@@ -16,7 +16,7 @@ BEGIN
     IF beg_index > 0 THEN
         beg := beg_index;
         temp_str := substring(string FROM beg_index);
-        
+
         FOR i IN 1..occur_index LOOP
             pos := position(string_to_search IN temp_str);
 
@@ -58,3 +58,4 @@ BEGIN
     END IF;
 END;
 $$;
+
