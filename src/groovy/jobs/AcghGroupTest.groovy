@@ -13,7 +13,8 @@ class AcghGroupTest extends AcghAnalysisJob {
                 '''source('$pluginDirectory/aCGH/acgh-group-test.R')''',
                 '''acgh.group.test(column = 'group',
                                    test.statistic = '$statisticsType',
-                                   test.aberrations = '$aberrationType')'''
+                                   test.aberrations = '$aberrationType',
+                                   number.of.permutations=$numberOfPermutations)'''
         ]
     }
 
