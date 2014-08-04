@@ -1,6 +1,6 @@
 #TranSMART Core-DB#
 
-[![Build Status](https://travis-ci.org/thehyve/transmart-core-db.png?branch=master)](https://travis-ci.org/thehyve/transmart-core-db)
+[![Build Status](https://travis-ci.org/transmart/transmart-core-db.png?branch=master)](https://travis-ci.org/transmart/transmart-core-db)
 
 The transmart-core-db project is a Grails plugin that implements the API
 described in transmart-core-api. It should be included as a runtime dependency
