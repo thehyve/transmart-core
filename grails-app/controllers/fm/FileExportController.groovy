@@ -4,10 +4,18 @@ import org.transmart.biomart.Experiment
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import annotation.AmTagTemplate
+import annotation.AmTagAssociation
+import annotation.AmTagValue
+import org.transmart.searchapp.SearchKeyword
+import org.transmart.biomart.BioData
+import org.transmart.biomart.ConceptCode
+import org.transmart.biomart.BioAssayPlatform
 
 class FileExportController {
 
     def fmFolderService
+    def amTagItemService
 
     def add = {
         def paramMap = params
@@ -30,7 +38,7 @@ class FileExportController {
     }
 
     def remove = {
-        def idList = params.list('id')
+        def idList = params.id.split(',')
 
         def exportList = session['foldermanagement.exportlist']
 
@@ -124,29 +132,27 @@ class FileExportController {
                     log.error errorMessage
                     errorResponse += errorMessage
                 }
-
-                //Now for each item in the manifest map, create a manifest file and add it to the ZIP.
-                def keyset = manifestMap.keySet()
-                for (key in keyset) {
-                    def manifestEntry = new ZipEntry(key + "/" + "manifest.txt")
-                    zipStream.putNextEntry(manifestEntry)
-                    def manifestList = manifestMap.get(key)
-                    zipStream.write((String.format("%60s%5s%15s\n", "File Name", "Type", "Size")).getBytes())
-                    zipStream.write("--------------------------------------------------------------------------------\n".getBytes())
-                    for (fmFileIt in manifestList) {
-                        zipStream.write((String.format("%60s%5s%15d\n", fmFileIt.displayName, fmFileIt.fileType, fmFileIt.fileSize)).getBytes())
-                    }
-                    zipStream.closeEntry()
-                }
-
-                zipStream.flush();
-                zipStream.close();
-
-                response.setHeader('Content-disposition', 'attachment; filename=export.zip')
-                response.contentType = 'application/zip'
-                response.outputStream << baos.toByteArray()
-                response.outputStream.flush()
             }
+            //Now for each item in the manifest map, create a manifest file and add it to the ZIP.
+            def keyset = manifestMap.keySet()
+            for (key in keyset) {
+                def manifestEntry = new ZipEntry(key + "/" + "manifest.txt")
+                zipStream.putNextEntry(manifestEntry)
+                def manifestList = manifestMap.get(key)
+                zipStream.write((String.format("%60s%5s%15s\n", "File Name", "Type", "Size")).getBytes())
+                zipStream.write("--------------------------------------------------------------------------------\n".getBytes())
+                for (fmFileIt in manifestList) {
+                    zipStream.write((String.format("%60s%5s%15d\n", fmFileIt.displayName, fmFileIt.fileType, fmFileIt.fileSize)).getBytes())
+                }
+                zipStream.closeEntry()
+            }
+            zipStream.flush();
+            zipStream.close();
+
+            response.setHeader('Content-disposition', 'attachment; filename=export.zip')
+            response.contentType = 'application/zip'
+            response.outputStream << baos.toByteArray()
+            response.outputStream.flush()
         }
         catch (Exception e) {
             log.error("Error writing ZIP", e)
