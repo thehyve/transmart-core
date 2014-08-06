@@ -2,7 +2,7 @@ REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
-				tar openjdk-7-jdk gfortran g++ unzip
+				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev
 
 GROOVY_VERSION=2.1.9
 
