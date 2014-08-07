@@ -39,13 +39,13 @@ LOAD_MIRNA_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets m
 
 KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
 
-$(KETTLE_TARGETS): write_kettle_properties
+$(KETTLE_TARGETS): kettle-home/kettle.properties
 #these ones are here just for autocompletion:
 $(LOAD_ANNOTATION_TARGETS):
 $(LOAD_REF_ANNOTATION_TARGETS):
 
-write_kettle_properties: gen_kettle_properties.php
-	php -d variables_order=E $< > kettle-home/kettle.properties
+kettle-home/kettle.properties: gen_kettle_properties.php ../../vars
+	php -d variables_order=E $< > $@
 
 ../studies/%:
 	$(MAKE) -C ../studies $*
@@ -152,6 +152,6 @@ load_mirna_%: ../studies/%/mirna.params ../studies/%/mirna load_mirna_annotation
 clean:
 	rm -f logs/*.log kettle-home/kettle.properties
 
-.PHONY: write_kettle_properties clean
+.PHONY: clean
 
 # vim: ft=make :

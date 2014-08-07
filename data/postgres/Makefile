@@ -11,19 +11,9 @@ row_counts:
 analyze:
 	$(PSQL_COMMAND) -c 'ANALYZE VERBOSE'
 
-BIOMART_PWD ?= biomart
-DEAPP_PWD ?= deapp
-SEARCHAPP_PWD ?= searchapp
-$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties:
-	echo "driver_class=org.postgresql.Driver" > $@ \
-	&& echo "url=jdbc:postgresql://localhost:$(PGPORT)/$(PGDATABASE)" >> $@ \
-	&& echo "biomart_username=biomart" >> $@ \
-	&& echo "biomart_password=$(BIOMART_PWD)" >> $@ \
-	&& echo "deapp_username=deapp" >> $@ \
-	&& echo "deapp_password=$(DEAPP_PWD)" >> $@ \
-	&& echo "searchapp_username=searchapp" >> $@ \
-	&& echo "searchapp_password=$(SEARCHAPP_PWD)" >> $@
+$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php ../../vars
+	php -d variables_order=E $< > $@
 
-.PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
+.PHONY: row_counts analyze
 
 # vim: set filetype=make:
