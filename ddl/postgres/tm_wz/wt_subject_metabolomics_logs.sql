@@ -18,5 +18,5 @@ CREATE TABLE wt_subject_metabolomics_logs (
 --
 -- Name: wt_subject_mbolomics_logs_i1; Type: INDEX; Schema: tm_wz; Owner: -
 --
-CREATE INDEX wt_subject_mbolomics_logs_i1 ON wt_subject_metabolomics_logs USING btree (trial_name, probeset);
+--CREATE INDEX wt_subject_mbolomics_logs_i1 ON wt_subject_metabolomics_logs USING btree (trial_name, probeset);
 

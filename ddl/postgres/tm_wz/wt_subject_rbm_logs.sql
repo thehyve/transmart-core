@@ -18,5 +18,5 @@ CREATE TABLE wt_subject_rbm_logs (
 --
 -- Name: wt_subject_rbm_logs_i1; Type: INDEX; Schema: tm_wz; Owner: -
 --
-CREATE INDEX wt_subject_rbm_logs_i1 ON wt_subject_rbm_logs USING btree (trial_name, probeset_id);
+--CREATE INDEX wt_subject_rbm_logs_i1 ON wt_subject_rbm_logs USING btree (trial_name, probeset_id);
 
