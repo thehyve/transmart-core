@@ -67,15 +67,15 @@ TSUSER_HOME=$HOME/
 #       make -C ddl/oracle load_passwords
 #     Depending on whether you're using oracle or postgres.
 #
-#BIOMART_USER_PWD=biomart_user
-#BIOMART_PWD=biomart
-#DEAPP_PWD=deapp
-#I2B2METADATA_PWD=i2b2metadata
-#I2B2DEMODATA_PWD=i2b2demodata
-#SEARCHAPP_PWD=searchapp
-#TM_CZ_PWD=tm_cz
-#TM_LZ_PWD=tm_lz
-#TM_WZ_PWD=tm_wz
+#export BIOMART_USER_PWD=biomart_user
+#export BIOMART_PWD=biomart
+#export DEAPP_PWD=deapp
+#export I2B2METADATA_PWD=i2b2metadata
+#export I2B2DEMODATA_PWD=i2b2demodata
+#export SEARCHAPP_PWD=searchapp
+#export TM_CZ_PWD=tm_cz
+#export TM_LZ_PWD=tm_lz
+#export TM_WZ_PWD=tm_wz
 # }}}
 
 # If your distro uses an old version of groovy, do make -C env groovy,
