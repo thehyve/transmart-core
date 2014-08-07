@@ -65,10 +65,10 @@ Start with copying the `vars.sample` file, editing it and sourcing it in:
     # edit file and save...
 	. ./vars
 
-If you ran `make -C env ubuntu_deps_regular`, you will have a `vars-ubuntu` file
+If you ran `make -C env ubuntu_deps_regular`, you will have a `vars` file
 created for you. You can skip the previous step and do only:
 
-    . ./vars-ubuntu
+    . ./vars
 
 The several options are fairly self-explanatory.
 

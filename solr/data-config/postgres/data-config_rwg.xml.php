@@ -1,8 +1,8 @@
-<?php require __DIR__ . '/../../../inc/host_fixup.php'; ?>
+<?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
 <dataSource name="ds1" driver="org.postgresql.Driver"
 			url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
-			user="biomart_user" password="biomart_user" readOnly="true"
+			user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" readOnly="true"
  autoCommit="false" />
 
     <document name="terms">

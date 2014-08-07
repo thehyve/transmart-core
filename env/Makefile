@@ -92,7 +92,7 @@ data-integration: $(KETTLE_ARCHIVE)
 	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'
 	chown -R postgres:postgres $@
 
-../vars-ubuntu: vars-ubuntu.php
+../vars: vars-ubuntu.php
 	php -d variables_order=E $< > $@
 
 ubuntu_deps_root: install_ubuntu_packages /var/lib/postgresql/tablespaces
