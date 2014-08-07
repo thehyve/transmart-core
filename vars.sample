@@ -58,6 +58,26 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 #end with /
 TSUSER_HOME=$HOME/
 
+# {{{ DB user passwords
+#     They default to the same as the username.
+#     These are set when the database is created and they are used when
+#     connecting to the database (e.g. for ETL).
+#     You can reset passwords to the values specified here with:
+#       make -C ddl/postgres/GLOBAL load_passwords
+#       make -C ddl/oracle load_passwords
+#     Depending on whether you're using oracle or postgres.
+#
+#BIOMART_USER_PWD=biomart_user
+#BIOMART_PWD=biomart
+#DEAPP_PWD=deapp
+#I2B2METADATA_PWD=i2b2metadata
+#I2B2DEMODATA_PWD=i2b2demodata
+#SEARCHAPP_PWD=searchapp
+#TM_CZ_PWD=tm_cz
+#TM_LZ_PWD=tm_lz
+#TM_WZ_PWD=tm_wz
+# }}}
+
 # If your distro uses an old version of groovy, do make -C env groovy,
 # and uncomment this. Version 2.1.9 is known to work, versions before 2
 # are known not to work

@@ -1,8 +1,8 @@
-<?php require __DIR__ . '/../../../inc/host_fixup.php'; ?>
+<?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
   <dataSource name="ds1" driver="org.postgresql.Driver"
               url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
-              user="biomart_user" password="biomart_user" readOnly="true" />
+              user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" readOnly="true" />
   <document>
     <entity name="id" query="select sample_id,trial_name,disease,tissue_type,data_types,biobank,source_organism,sample_treatment,subject_treatment from i2b2DemoData.sample_categories">
       <field name="id" column="sample_id"/>

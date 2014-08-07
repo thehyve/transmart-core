@@ -11,18 +11,18 @@ row_counts:
 analyze:
 	$(PSQL_COMMAND) -c 'ANALYZE VERBOSE'
 
-BIOMART_PSW ?= biomart
-DEAPP_PSW ?= deapp
-SEARCHAPP_PSW ?= searchapp
+BIOMART_PWD ?= biomart
+DEAPP_PWD ?= deapp
+SEARCHAPP_PWD ?= searchapp
 $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties:
 	echo "driver_class=org.postgresql.Driver" > $@ \
 	&& echo "url=jdbc:postgresql://localhost:$(PGPORT)/$(PGDATABASE)" >> $@ \
 	&& echo "biomart_username=biomart" >> $@ \
-	&& echo "biomart_password=$(BIOMART_PSW)" >> $@ \
+	&& echo "biomart_password=$(BIOMART_PWD)" >> $@ \
 	&& echo "deapp_username=deapp" >> $@ \
-	&& echo "deapp_password=$(DEAPP_PSW)" >> $@ \
+	&& echo "deapp_password=$(DEAPP_PWD)" >> $@ \
 	&& echo "searchapp_username=searchapp" >> $@ \
-	&& echo "searchapp_password=$(SEARCHAPP_PSW)" >> $@
+	&& echo "searchapp_password=$(SEARCHAPP_PWD)" >> $@
 
 .PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
