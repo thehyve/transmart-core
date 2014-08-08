@@ -1,9 +1,9 @@
-<?php require __DIR__ . '/../../../inc/host_fixup.php'; ?>
+<?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
 <dataSource name="ds1" driver="org.postgresql.Driver"
-                        url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
-                        user="biomart_user" password="biomart_user" readOnly="true"
- autoCommit="false" />
+			url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
+			user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>"
+			readOnly="true" autoCommit="false" />
     <document>
         <entity name="I2B2" query="select SAMPLE_ID,TRIAL_NAME,DISEASE,TISSUE_TYPE,DATA_TYPES,BIOBANK,SOURCE_ORGANISM,SAMPLE_TREATMENT,SUBJECT_TREATMENT from i2b2DemoData.sample_categories">
             <field name="id" column="SAMPLE_ID" />
