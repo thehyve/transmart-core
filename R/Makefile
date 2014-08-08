@@ -15,6 +15,7 @@ build/Makefile: $(R_SOURCE)
 		CFLAGS="$(R_FLAGS)" \
 		CXXFLAGS="$(R_FLAGS)" \
 		FFLAGS="$(R_FLAGS)" \
+		LIBnn=lib \
 		LDFLAGS="-Wl,-rpath=$(R_PREFIX)/lib/R/lib,--enable-new-dtags" \
 		../$(R_SOURCE)/configure --prefix=$(R_PREFIX) \
 		--enable-R-shlib --with-readline \
