@@ -1,3 +1,5 @@
+include ../makefile.inc
+
 REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
