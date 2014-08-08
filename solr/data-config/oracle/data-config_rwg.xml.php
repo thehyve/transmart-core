@@ -1,5 +1,9 @@
+<?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
-<dataSource driver="oracle.jdbc.driver.OracleDriver" url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?>:<?= $_ENV['ORASID'] ?>" user="biomart_user" password="biomart_user" />
+  <dataSource driver="oracle.jdbc.driver.OracleDriver"
+              url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?>:<?= $_ENV['ORASID'] ?>"
+              user="biomart_user"
+              password="<?= htmlspecialchars($biomart_user_pwd) ?>" />
          <document>
         <entity transformer="RegexTransformer" name="analysis" query="
 select FACET_ID, fs.ANALYSIS_ID, STUDY, STUDY_ID, coalesce(SOLR_HIERARCHY,'') as SOLR_HIERARCHY, ANALYSES, DATA_TYPE, PLATFORM, PLATFORM_DESCRIPTION, PLATFORM_VENDOR, OBSERVATION, STUDY_TITLE,STUDY_DESCRIPTION,STUDY_DESIGN,STUDY_PRIMARY_INV,STUDY_CONTACT_FIELD,STUDY_OVERALL_DESIGN,STUDY_INSTITUTION,STUDY_ACCESSION,STUDY_COUNTRY,STUDY_BIOMARKER_TYPE,STUDY_TARGET,STUDY_ACCESS_TYPE,ANALYSIS_NAME,ANALYSIS_DESCRIPTION_S,ANALYSIS_DESCRIPTION_L,ANALYSIS_TYPE,ANALYSIS_ANALYST_NAME,ANALYSIS_METHOD,ANALYSIS_DATA_TYPE,ANALYSIS_QA_CRITERIA,MODEL_NAME,MODEL_DESCRIPTION,RESEARCH_UNIT from biomart.vw_faceted_search fs
@@ -44,3 +48,6 @@ LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assa
         </entity>
     </document>
 </dataConfig>
+
+<!-- vim: et tw=80 ts=2 sw=2
+-->
