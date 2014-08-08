@@ -14,7 +14,7 @@ Config-extra.php BuildConfig.groovy:
 Config.groovy: Config-template.groovy Config-extra.php build-config.php
 	php build-config.php > $@
 
-DataSource.groovy: DataSource.groovy.php
+DataSource.groovy: DataSource.groovy.php ../vars
 	php -d 'variables_order=E' $< > $@
 
 TSCONFIG = $(TSUSER_HOME).grails/transmartConfig/

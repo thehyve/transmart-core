@@ -2,5 +2,5 @@
 *.iml
 /.idea
 /vars
-/vars-ubuntu
+/vars-*
 /private-feeds

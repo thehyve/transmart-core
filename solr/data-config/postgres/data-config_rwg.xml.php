@@ -1,8 +1,8 @@
-<?php require __DIR__ . '/../../../inc/host_fixup.php'; ?>
+<?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
 <dataSource name="ds1" driver="org.postgresql.Driver"
-                        url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
-                        user="biomart_user" password="biomart_user" readOnly="true"
+			url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
+			user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" readOnly="true"
  autoCommit="false" />
      <document>
         <entity transformer="RegexTransformer" name="analysis" query="
@@ -45,6 +45,6 @@ LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assa
         <field name="MODEL_NAME" column="MODEL_NAME" />
         <field name="MODEL_DESCRIPTION" column="MODEL_DESCRIPTION" />
         <field name="RESEARCH_UNIT" column="RESEARCH_UNIT" splitBy="\|" />
-        </entity>
+            </entity>
     </document>
 </dataConfig>

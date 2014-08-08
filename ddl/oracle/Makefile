@@ -33,6 +33,11 @@ $(LOAD_USER_TARGETS):
 
 load_users:
 	$(RUN_SQL) $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
+	$(MAKE) load_passwords
+
+load_passwords:
+	php -d variables_order=E GLOBAL/passwords.sql.php $(SCHEMAS) | \
+		$(RUN_SQL) --sequential
 
 load_user_objects: $(WRITE_SYNONYM_TARGETS) $(WRITE_GRANT_TARGETS)
 	$(LOAD_DDL) $(foreach s,$(SCHEMAS),-u $(s)) -j 10
