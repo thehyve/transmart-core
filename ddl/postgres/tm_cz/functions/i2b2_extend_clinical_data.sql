@@ -803,7 +803,7 @@ BEGIN
         --         (is there already an observation for given patient and concept)
 
 
-with maps as (select leaf_node, usubjid from tm_wz.wrk_clinical_data cd, tm_wz.wt_trial_nodes td where cd.data_label = td.data_label)
+with maps as (select td.leaf_node, usubjid from tm_wz.wrk_clinical_data cd, tm_wz.wt_trial_nodes td where cd.data_label = td.data_label)
 select count(*) into pExists from i2b2demodata.observation_fact of where (of.patient_num, of.concept_cd) IN
                            (select pd.patient_num, cd.concept_cd from i2b2demodata.patient_dimension pd 
                                                                       INNER JOIN maps on pd.sourcesystem_cd = maps.usubjid

@@ -65,10 +65,10 @@ Start with copying the `vars.sample` file, editing it and sourcing it in:
     # edit file and save...
 	. ./vars
 
-If you ran `make -C env ubuntu_deps_regular`, you will have a `vars-ubuntu` file
+If you ran `make -C env ubuntu_deps_regular`, you will have a `vars` file
 created for you. You can skip the previous step and do only:
 
-    . ./vars-ubuntu
+    . ./vars
 
 The several options are fairly self-explanatory.
 
@@ -131,8 +131,82 @@ These can be done with the targets `fix_permissions`, `fix_owners` and
 
 ### Running ETL targets
 
-Right now, only some sample data from the GSE8581 study is available. You can
-import it like this:
+This project can be used to download public or privately available datasets and
+load these into the database. Typically, but not always, this loading involves
+using Kettle jobs (with kitchen) available in an existing checkout of
+(tranSMART-ETL)[ts-etl] .
+
+Data fetching is done through a system of feeds that publish several data sets.
+A _data set_ is a combination of meta data and, for most data types, properly
+formatted data files.  The most important meta data, the meta data that
+uniquely identifies the data set, are the study name and the tranSMART data
+type (clinical data, mRNA data, etc.). A _feed_ is an object that provides a
+list of triplets consisting of study name, data type and location of a tarball
+containing the data and full metadata for the dataset.
+
+The tarballs must follow the following rules:
+
+  * they must be compressed with xz;
+  * their filename must be in the form `<study name>_<data type>.tar.xz`;
+  * they must have a file named `<data type>.params` in their root;
+  * most data types require, under the root, a directory named `<data type>`,
+    under which the data files should be located.
+
+For instance, a clinical data tarball could contain the following tree:
+```
+.
+|-- clinical
+|   |-- E-GEOD-8581.sdrf-rewrite.txt
+|   |-- E-GEOD-8581_columns.txt
+|   `-- E-GEOD-8581_wordmap.txt
+`-- clinical.params
+```
+
+Feeds are listed in `samples/studies/public-feeds` and, optionally, in a
+git-ignored `private-feeds`, in the root of the project. Each file contains a
+list of feeds in the following format:
+```
+<feed type> <type-specific feed location data>
+```
+
+The two supported feed types right now are `http-index` and `ftp-flat`.
+Examples:
+```
+http-index http://studies.thehyve.net/datasets_index
+ftp-flat ftp://studies.thehyve.net/
+```
+
+The type `http-index` points to a plain text file that lists the available
+datasets in the format `<study> <type> <tarball relative path>`. Example:
+```
+Cell-line acgh Cell-line/Cell-line_acgh.tar.xz
+Cell-line clinical Cell-line/Cell-line_clinical.tar.xz
+```
+
+The type `ftp-flat` points to an FTP directory that should store, directly
+underneath it, all the dataset tarballs.
+
+The list of datasets is automatically downloaded when needed, but it is not
+automatically updated. To update it, run at the root:
+
+    make update_datasets
+
+If a data set (study/type combination) is repeated, transmart-data will assume
+it is the same data and will download randomly from any source. If any download
+fails, another source will be tried until there is none left.
+
+When developing the data sets, the best course of action is to place the files
+directly under `samples/studies/<study name>`. The contents of this directory
+should include the contents of the tarball. When finished, the tarball can be
+created with (running from the root of the project):
+
+    tar -C samples/studies/<study name> \
+        -cJf <study name>_<data type>.tar.xz <data type>.params <data type>
+
+Data sets can be loaded by running a target named `load_<data type>_<study
+name>` in either `samples/oracle` or `samples/postgresql`, as appropriate.
+
+For instance:
 
     make -C samples/{oracle,postgres} load_clinical_GSE8581
     make -C samples/{oracle,postgres} load_ref_annotation_GSE8581
@@ -141,8 +215,6 @@ import it like this:
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
-
-The ETL functionality is not meant for any non-development purposes.
 
 ### Starting Solr
 

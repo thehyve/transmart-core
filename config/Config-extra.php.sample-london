@@ -3,7 +3,7 @@
 
 $insertionPoints = [
     'I001' => /* post-WAR-variables */ <<<EOD
-oauthEnabled = false
+//oauthEnabled = false
 EOD
 ,
     'I002' => /* end */ <<<'EOD'

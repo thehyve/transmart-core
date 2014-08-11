@@ -5,15 +5,15 @@
 \i deapp/functions/protein_dbl_comp_qry.sql
 \i deapp/functions/rbm_comparison_qry.sql
 \i deapp/functions/rbm_dbl_comp_qry.sql
+\i deapp/de_metabolite_annotation.sql
+\i deapp/de_metabolite_super_pathways.sql
+\i deapp/de_metabolite_sub_pathways.sql
+\i deapp/de_metabolite_sub_pway_metab.sql
 \i deapp/de_gpl_info.sql
 \i deapp/de_chromosomal_region.sql
 \i deapp/de_concept_visit.sql
 \i deapp/de_encounter_level.sql
 \i deapp/de_encounter_type.sql
-\i deapp/de_metabolite_annotation.sql
-\i deapp/de_metabolite_super_pathways.sql
-\i deapp/de_metabolite_sub_pathways.sql
-\i deapp/de_metabolite_sub_pway_metab.sql
 \i deapp/de_mrna_annotation.sql
 \i deapp/de_obs_enroll_days.sql
 \i deapp/de_pathway.sql
@@ -21,7 +21,6 @@
 \i deapp/de_protein_annotation.sql
 \i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rbm_annotation.sql
-\i deapp/de_rbm_data_annotation_join.sql
 \i deapp/de_rc_snp_info.sql
 \i deapp/de_rnaseq_annotation.sql
 \i deapp/de_sample_snp_data.sql
@@ -65,4 +64,6 @@
 \i deapp/kegg_data.sql
 \i deapp/kegg_def.sql
 \i deapp/ricerca.sql
+\i deapp/de_rbm_data_annotation_join.sql
+\i deapp/de_rc_snp_info1.sql
 \i deapp/_misc.sql

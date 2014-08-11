@@ -1,9 +1,9 @@
-<?php require __DIR__ . '/../inc/host_fixup.php'; ?>
+<?php require __DIR__ . '/../lib/php/env_helper.inc.php'; ?>
 dataSource {
     driverClassName = 'org.postgresql.Driver'
     url             = 'jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>'
     username        = 'biomart_user'
-    password        = 'biomart_user'
+    password        = '<?= $biomart_user_pwd ?>'
     dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
     dbCreate        = 'none'
 }

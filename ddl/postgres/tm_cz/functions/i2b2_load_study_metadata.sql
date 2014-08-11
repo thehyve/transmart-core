@@ -795,7 +795,7 @@ BEGIN
 	--	add study pubmed ids'
 	
 	select count(*) into dcount
-	from bio_content_repository
+	from biomart.bio_content_repository
 	where repository_type = 'PubMed';	
 	
 	if dcount = 0 then

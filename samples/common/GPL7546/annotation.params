@@ -1,4 +1,0 @@
-PLATFORM=GPL7546
-TITLE="Affymetrix GeneChip Mouse Genome 430 2.0 Array"
-ORGANISM="Mus musculus"
-ANNOTATIONS_FILE=GPL7546.txt

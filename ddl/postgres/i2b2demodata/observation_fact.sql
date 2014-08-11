@@ -81,3 +81,4 @@ CREATE SEQUENCE seq_encounter_num
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+

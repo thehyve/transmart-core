@@ -1,5 +1,0 @@
-DATA_FILE_PREFIX=Brain_Cancer_Phillips_GSE4271_Gene_Expression_Data_R.txt
-DATA_TYPE=R
-LOG_BASE=2
-MAP_FILENAME=Brain_Cancer_Phillips_GSE4271_Subject_Sample_Mapping.txt
-NODE_NAME=MRNA

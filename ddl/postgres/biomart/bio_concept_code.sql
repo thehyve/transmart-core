@@ -7,7 +7,7 @@ CREATE TABLE bio_concept_code (
     code_description character varying(1000),
     code_type_name character varying(200),
     bio_concept_code_id bigint NOT NULL,
-    filter_flag boolean DEFAULT false
+    filter_flag character(1) DEFAULT 0
 );
 
 --

@@ -72,7 +72,7 @@ BEGIN
   
   if rec_count = 0 then
     insert into biomart.bio_data_uid (bio_data_id, unique_id, bio_data_type)
-    values (NEW.bio_assay_analysis_id, biomart.bio_assay_analysis_uid(NEW.bio_assay_analysis_id), 'BIO_ASSAY_ANALYSIS');
+    values (NEW.bio_assay_analysis_id, biomart.bio_assay_analysis_uid(NEW.bio_assay_analysis_id::text), 'BIO_ASSAY_ANALYSIS');
   end if;
 RETURN NEW;
 end;

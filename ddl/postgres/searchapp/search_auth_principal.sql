@@ -25,10 +25,9 @@ CREATE FUNCTION tf_trg_search_au_prcpl_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
- if (NEW.ID is null or NEW.ID = -2000) then       
-    select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.ID ;      
- end if;
-RETURN NEW;
+ if(coalesce(NEW.ID::text, '') = '' or NEW.ID = -2000) then       
+ select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.ID ;      
+ end if;     RETURN NEW;
 end;
 $$;
 

@@ -1198,6 +1198,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "KEGG_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "KEGG_DEF"
     },
     "parents" : [ ]

@@ -1,14 +1,7 @@
 include ../../../makefile.inc
 
-TBNAMES = deapp \
-		  biomart \
-		  transmart \
-		  indx \
-		  search_app \
-		  amapp \
-		  fmapp \
-		  galaxy
-
+TBNAMES = transmart \
+          indx
 
 TBDIR_TARGETS = $(addprefix $(TABLESPACES), $(TBNAMES))
 TB_TARGETS = $(addprefix tablespace_, $(TBNAMES))
@@ -51,6 +44,10 @@ load_%:
 	$(PSQL_COMMAND) -f $*.sql
 
 load: load_cast_varchar_numeric load_roles load_extensions tablespaces
+	$(MAKE) load_passwords
+
+load_passwords:
+	php -d variables_order=E passwords.sql.php | $(PSQL_COMMAND)
 
 drop_roles:
 	$(PSQL_COMMAND) -d template1 -f drop_roles.sql
@@ -72,4 +69,5 @@ clean_generated: clean
 	rm -f roles.sql
 
 .PHONY: $(TBDROP_TARGETS)
-.PHONY: createdb clean_generated clean tablespaces load drop_roles drop_database drop_tablespaces drop
+.PHONY: createdb clean_generated clean tablespaces load drop_roles \
+	drop_database drop_tablespaces drop load_passwords

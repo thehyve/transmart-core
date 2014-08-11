@@ -1,11 +1,11 @@
-# The full path to the VCF file you want to load
-VCF_FILE=/home/robert/projects/transmart/trait-vcf/somaticVcfBeta-GS000010170-ASM-T1-N1.vcf
+# The relative path to the VCF file you want to load
+VCF_FILE=somaticVcfBeta-GS000010170-ASM-T1-N1.vcf
 
-# The full path to the subject-sample-mapping file
+# The relative path to the subject-sample-mapping file
 # This file is a tab-separated file, with two columns, containing
 #		subject_id as known in clinical data in the first column;
 #		sample_id as known in VCF file in the second column
-SUBJECT_SAMPLE_MAPPING_FILE=/home/robert/projects/transmart/trait-vcf/subject-sample-mapping.txt
+SUBJECT_SAMPLE_MAPPING_FILE=subject-sample-mapping.txt
 
 # A (temp) directory where the output files from parsing the file
 # will be stored. Must be writable by the current user
