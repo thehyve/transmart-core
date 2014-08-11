@@ -1,7 +1,6 @@
 --
 -- Name: bio_assay_analysis_uid(character varying); Type: FUNCTION; Schema: biomart; Owner: -
 --
-
 CREATE FUNCTION bio_assay_analysis_uid(analysis_name character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$

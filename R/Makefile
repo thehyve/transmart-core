@@ -1,5 +1,5 @@
 R_MIRROR ?= http://cran-mirror.cs.uu.nl
-R_VERSION = 3.0.1
+R_VERSION = 3.0.3
 R_SOURCE = R-$(R_VERSION)
 R_PREFIX ?= $(realpath .)/root
 R_EXEC = $(R_PREFIX)/bin/R
@@ -15,8 +15,11 @@ build/Makefile: $(R_SOURCE)
 		CFLAGS="$(R_FLAGS)" \
 		CXXFLAGS="$(R_FLAGS)" \
 		FFLAGS="$(R_FLAGS)" \
+		LIBnn=lib \
+		LDFLAGS="-Wl,-rpath=$(R_PREFIX)/lib/R/lib,--enable-new-dtags" \
 		../$(R_SOURCE)/configure --prefix=$(R_PREFIX) \
-		--enable-R-shlib --without-readline \
+		--enable-R-shlib --with-readline \
+		--enable-R-profiling --enable-memory-profiling \
 		--with-libpng --without-jpeglib --without-libtiff \
 		--without-system-xz --without-ICU \
 		--without-recommended-packages

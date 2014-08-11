@@ -62,7 +62,7 @@ CREATE SEQUENCE seq_mrna_partition_id
 -- Name: seq_rbm_partition_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_rbm_partition_id
-    START WITH 1
+    START WITH 29
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -72,7 +72,7 @@ CREATE SEQUENCE seq_rbm_partition_id
 -- Name: seq_rna_partition_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_rna_partition_id
-    START WITH 1
+    START WITH 107
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

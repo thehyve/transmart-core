@@ -25,8 +25,18 @@ BEGIN
         ['deapp',   'de_subject_proteomics_data',  'tm_cz'],
         ['deapp',   'de_subject_rbm_data',         'tm_cz'],
         ['deapp',   'de_subject_rna_data',         'tm_cz'],
+        ['tm_wz',   'wt_subject_metabolomics_logs','tm_cz'],
+        ['tm_wz',   'wt_subject_metabolomics_calcs','tm_cz'],
         ['tm_wz',   'wt_subject_microarray_logs',  'tm_cz'],
-        ['tm_wz',   'wt_subject_microarray_calcs', 'tm_cz']
+        ['tm_wz',   'wt_subject_microarray_calcs', 'tm_cz'],
+        ['tm_wz',   'wt_subject_mirna_logs',       'tm_cz'],
+        ['tm_wz',   'wt_subject_mirna_calcs',      'tm_cz'],
+        ['tm_wz',   'wt_subject_proteomics_logs',  'tm_cz'],
+        ['tm_wz',   'wt_subject_proteomics_calcs', 'tm_cz'],
+        ['tm_wz',   'wt_subject_rbm_logs',         'tm_cz'],
+        ['tm_wz',   'wt_subject_rbm_calcs',        'tm_cz'],
+        ['tm_wz',   'wt_subject_rna_logs',         'tm_cz'],
+        ['tm_wz',   'wt_subject_rna_calcs',        'tm_cz']
     ];
 
     -- Convert array to table

@@ -24,7 +24,7 @@ endif
 DATASETS_FILE := $(wildcard ../studies/datasets)
 ifndef DATASETS_FILE
 $(info Fetching datasets...)
-$(shell $(MAKE) -C ../studies datasets)
+DUMMY := $(shell $(MAKE) -C ../studies datasets)
 $(info Finished fetching datasets)
 endif
 
@@ -40,14 +40,14 @@ LOAD_VCF_PARAMS_TARGETS := $(patsubst ../studies/%/vcf.params,load_vcf_%, $(VCF_
 
 KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
 
-$(KETTLE_TARGETS): write_kettle_properties
+$(KETTLE_TARGETS): kettle-home/kettle.properties
 #these ones are here just for autocompletion:
 $(LOAD_ANNOTATION_TARGETS):
 $(LOAD_REF_ANNOTATION_TARGETS):
 $(LOAD_VCF_PARAMS_TARGETS):
 
-write_kettle_properties: gen_kettle_properties.php
-	php -d variables_order=E $< > kettle-home/kettle.properties
+kettle-home/kettle.properties: gen_kettle_properties.php ../../vars
+	php -d variables_order=E $< > $@
 
 ../studies/%:
 	$(MAKE) -C ../studies $*
@@ -163,7 +163,7 @@ load_vcf_%: ../studies/%/vcf.params parse_vcf_%
 clean:
 	rm -f logs/*.log kettle-home/kettle.properties
 
-.PHONY: write_kettle_properties clean
+.PHONY: clean
 
 .PHONY: parse_vcf
 ../common/parse_vcf:

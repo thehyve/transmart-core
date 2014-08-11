@@ -62,7 +62,27 @@ TSUSER_HOME=$HOME/
 # on Mac homebrew: brew install gnu-tar ; will set command gtar
 # if this is unset, then value defaults to tar (system tar command)
 #TAR_COMMAND=gtar
-#export TAR_COMMAND 
+#export TAR_COMMAND
+
+# {{{ DB user passwords
+#     They default to the same as the username.
+#     These are set when the database is created and they are used when
+#     connecting to the database (e.g. for ETL).
+#     You can reset passwords to the values specified here with:
+#       make -C ddl/postgres/GLOBAL load_passwords
+#       make -C ddl/oracle load_passwords
+#     Depending on whether you're using oracle or postgres.
+#
+#export BIOMART_USER_PWD=biomart_user
+#export BIOMART_PWD=biomart
+#export DEAPP_PWD=deapp
+#export I2B2METADATA_PWD=i2b2metadata
+#export I2B2DEMODATA_PWD=i2b2demodata
+#export SEARCHAPP_PWD=searchapp
+#export TM_CZ_PWD=tm_cz
+#export TM_LZ_PWD=tm_lz
+#export TM_WZ_PWD=tm_wz
+# }}}
 
 # If your distro uses an old version of groovy, do make -C env groovy,
 # and uncomment this. Version 2.1.9 is known to work, versions before 2

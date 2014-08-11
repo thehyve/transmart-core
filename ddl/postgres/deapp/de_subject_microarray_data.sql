@@ -19,10 +19,24 @@ CREATE TABLE de_subject_microarray_data (
 );
 
 --
--- Name: de_subject_microarray_data_idx1; Type: INDEX; Schema: deapp; Owner: -
+-- Name: de_microarray_data_idx1; Type: INDEX; Schema: deapp; Owner: -
 --
-CREATE INDEX de_subject_microarray_data_idx1 ON de_subject_microarray_data USING btree (probeset_id);
+CREATE INDEX de_microarray_data_idx1 ON de_subject_microarray_data USING btree (trial_name, assay_id, probeset_id);
 
+--
+-- Name: de_microarray_data_idx2; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_microarray_data_idx2 ON de_subject_microarray_data USING btree (assay_id, probeset_id);
+
+--
+-- Name: de_microarray_data_idx4; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_microarray_data_idx4 ON de_subject_microarray_data USING btree (trial_name);
+
+--
+-- Name: de_microarray_data_idx5; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX de_microarray_data_idx5 ON de_subject_microarray_data USING btree (assay_id, patient_id, probeset_id);
 
 --
 -- Name: de_subject_microarray_data_idx2; Type: INDEX; Schema: deapp; Owner: -
@@ -32,20 +46,10 @@ CREATE INDEX de_subject_microarray_data_idx2 ON de_subject_microarray_data USING
 --
 -- Name: de_subject_microarray_data_idx3; Type: INDEX; Schema: deapp; Owner: -
 --
-CREATE INDEX de_subject_microarray_data_idx3 ON de_subject_microarray_data USING btree (assay_id, probeset_id);
+CREATE INDEX de_subject_microarray_data_idx3 ON de_subject_microarray_data USING btree (probeset_id);
 
 --
 -- Name: de_subject_microarray_data_idx4; Type: INDEX; Schema: deapp; Owner: -
 --
-CREATE INDEX de_subject_microarray_data_idx4 ON de_subject_microarray_data USING btree (trial_name);
+CREATE INDEX de_subject_microarray_data_idx4 ON de_subject_microarray_data USING btree (assay_id, probeset_id);
 
---
--- Name: de_subject_microarray_data_idx5; Type: INDEX; Schema: deapp; Owner: -
---
-CREATE INDEX de_subject_microarray_data_idx5 ON de_subject_microarray_data USING btree (assay_id, patient_id, probeset_id);
-
-
---
--- Name: de_subject_microarray_data_idx6; Type: INDEX; Schema: deapp; Owner: -
---
-CREATE INDEX de_subject_microarray_data_idx6 ON de_subject_microarray_data USING btree (trial_name, assay_id, probeset_id);

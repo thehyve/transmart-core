@@ -46,7 +46,7 @@ update_datasets:
 TARBALLS := $(shell test ! -f datasets || php enumerate.php tarballs)
 $(TARBALLS):
 	@test -f datasets || $(MAKE) datasets
-	@mkdir -p "$$(echo '$@' | sed -e 's/\([^/]\+\).*/\1/')"
+	mkdir -p "$$(php -r 'preg_match("@^[^/]+@", $$argv[1], $$m); echo $$m[0];' '$@')"
 	./download_tarball.sh '$@' $$(php get_file_location.php '$@')
 
 clean:

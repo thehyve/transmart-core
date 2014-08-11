@@ -49,3 +49,4 @@ ALTER TABLE ONLY search_taxonomy_rels
 --
 ALTER TABLE ONLY search_taxonomy_rels
     ADD CONSTRAINT fk_search_tax_rels_parent FOREIGN KEY (parent_id) REFERENCES search_taxonomy(term_id);
+

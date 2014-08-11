@@ -1,9 +1,4 @@
 --
--- Name: i2b2_record_id_seq; Type: SEQUENCE OWNED BY; Schema: i2b2metadata; Owner: -
---
---ALTER SEQUENCE i2b2_record_id_seq OWNED BY i2b2.record_id;
-
---
 -- Name: seq_concept_code; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
 CREATE SEQUENCE seq_concept_code

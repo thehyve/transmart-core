@@ -7,7 +7,7 @@ CREATE FUNCTION cz_write_info(jobid numeric, messageid numeric, messageline nume
 
 BEGIN
     begin
-insert into tm_cz.cz_job_message
+	insert into tm_cz.cz_job_message
     (
       job_id,
       message_id,
@@ -16,7 +16,7 @@ insert into tm_cz.cz_job_message
       info_message,
       seq_id
     )
-select
+	select
       jobID,
       messageID,
       messageLine,

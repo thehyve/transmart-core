@@ -2,7 +2,7 @@
 -- Name: bio_assay_analysis_eqtl; Type: TABLE; Schema: biomart; Owner: -
 --
 CREATE TABLE bio_assay_analysis_eqtl (
-    bio_asy_analysis_eqtl_id bigint,
+    bio_asy_analysis_eqtl_id bigint NOT NULL,
     bio_assay_analysis_id bigint,
     rs_id character varying(50),
     gene character varying(50),
@@ -14,4 +14,10 @@ CREATE TABLE bio_assay_analysis_eqtl (
     p_value double precision,
     log_p_value double precision
 );
+
+--
+-- Name: bio_assay_analysis_eqtl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY bio_assay_analysis_eqtl
+    ADD CONSTRAINT bio_assay_analysis_eqtl_pk PRIMARY KEY (bio_asy_analysis_eqtl_id);
 

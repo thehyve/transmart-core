@@ -65,10 +65,10 @@ Start with copying the `vars.sample` file, editing it and sourcing it in:
     # edit file and save...
 	. ./vars
 
-If you ran `make -C env ubuntu_deps_regular`, you will have a `vars-ubuntu` file
+If you ran `make -C env ubuntu_deps_regular`, you will have a `vars` file
 created for you. You can skip the previous step and do only:
 
-    . ./vars-ubuntu
+    . ./vars
 
 The several options are fairly self-explanatory.
 
@@ -201,7 +201,7 @@ should include the contents of the tarball. When finished, the tarball can be
 created with (running from the root of the project):
 
     tar -C samples/studies/<study name> \
-        -xJf <study name>_<data type>.tar.xz <data type>.params <data type>
+        -cJf <study name>_<data type>.tar.xz <data type>.params <data type>
 
 Data sets can be loaded by running a target named `load_<data type>_<study
 name>` in either `samples/oracle` or `samples/postgresql`, as appropriate.

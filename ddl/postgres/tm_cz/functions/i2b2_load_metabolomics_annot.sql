@@ -480,6 +480,8 @@ exception
    perform cz_end_audit (jobID, 'SUCCESS');
   END IF;
 
+  return 1;
+
 END;
 $$;
 

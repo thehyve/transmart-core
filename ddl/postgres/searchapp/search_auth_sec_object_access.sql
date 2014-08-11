@@ -50,3 +50,4 @@ ALTER TABLE ONLY search_auth_sec_object_access
 --
 ALTER TABLE ONLY search_auth_sec_object_access
     ADD CONSTRAINT sch_sec_s_o_fk FOREIGN KEY (secure_object_id) REFERENCES search_secure_object(search_secure_object_id);
+
