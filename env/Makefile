@@ -96,7 +96,7 @@ data-integration: $(KETTLE_ARCHIVE)
 	php -d variables_order=E $< > $@
 
 ubuntu_deps_root: install_ubuntu_packages /var/lib/postgresql/tablespaces
-ubuntu_deps_regular: update_etl data-integration ../vars-ubuntu groovy
+ubuntu_deps_regular: update_etl data-integration ../vars groovy
 
 .DELETE_ON_ERROR:
 
