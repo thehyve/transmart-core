@@ -1,7 +1,7 @@
-<plugin name='transmart-legacy-db' version='0.3-ORACLE-SNAPSHOT' grailsVersion='2.2 &gt; *'>
+<plugin name='transmart-legacy-db' version='1.2.1-SNAPSHOT' grailsVersion='2.3 &gt; *'>
   <author>Florian Guitton</author>
   <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
-  <title>Transmart Legacy Db Plugin</title>
+  <title>Transmart Legacy DB Plugin</title>
   <description>Brief summary/description of the plugin.
 </description>
   <documentation>http://grails.org/plugin/transmart-legacy-db</documentation>
