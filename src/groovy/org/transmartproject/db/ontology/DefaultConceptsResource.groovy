@@ -24,7 +24,11 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptKey
 
-class ConceptsResourceService implements ConceptsResource {
+/**
+ * Handles loading {@link OntologyTerm}s from <code>table_access</code> and
+ * related tables.
+ */
+class DefaultConceptsResource implements ConceptsResource {
 
     @Override
     List<OntologyTerm> getAllCategories() {

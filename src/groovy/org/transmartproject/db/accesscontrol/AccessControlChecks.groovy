@@ -19,11 +19,12 @@
 
 package org.transmartproject.db.accesscontrol
 
-import grails.util.Holders
 import groovy.util.logging.Log4j
+import org.hibernate.SessionFactory
 import org.hibernate.classic.Session
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
@@ -32,8 +33,12 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
+
+import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
 /**
  * Access control methods for use in {@link org.transmartproject.db.user.User}.
@@ -47,17 +52,26 @@ import org.transmartproject.db.user.User
 @Component
 class AccessControlChecks {
 
+    public static final String PUBLIC_SOT = 'EXP:PUBLIC'
+
     @Autowired
     ConceptsResource conceptsResource
 
     @Autowired
     StudiesResource studiesResource
 
+    @Autowired
+    SessionFactory sessionFactory
+
+    Session getSession() {
+        sessionFactory.currentSession
+    }
+
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
                        Study study) {
 
-        if (user.roles.find { it.authority == 'ROLE_ADMIN' }) {
+        if (user.admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$study for user $this because he is an " +
@@ -77,15 +91,18 @@ class AccessControlChecks {
         }
 
         String token = secure.secureObjectToken
+        if (!token) {
+            throw new UnexpectedResultException("Found i2b2secure object with empty token")
+        }
         log.debug "Token for $study is $token"
 
         /* if token is EXP:PUBLIC, always permit */
-        if (token == 'EXP:PUBLIC') {
+        if (token == PUBLIC_SOT) {
             return true
         }
 
-        /* see if the user has some access level for this */
-        Session session = Holders.applicationContext.sessionFactory.currentSession
+        /* see if the user has some access level for this
+         * soav.user will be null to indicate access to EVERYONE_GROUP */
         def query = session.createQuery '''
             select soav.accessLevel from SecuredObjectAccessView soav
             where (soav.user = :user OR soav.user is null)
@@ -116,6 +133,54 @@ class AccessControlChecks {
         }
     }
 
+    /* Study is included if the user has ANY kind of access */
+    Set<Study> getAccessibleStudiesForUser(User user) {
+        /* this method could benefit from caching */
+        def studySet = studiesResource.studySet
+        if (user.admin) {
+            return studySet
+        }
+
+        List<I2b2Secure> allI2b2s = I2b2Secure.findAllByFullNameInList(
+                studySet*.ontologyTerm*.fullName as List)
+
+        allI2b2s.find { !it.secureObjectToken }?.collect {
+            throw new UnexpectedResultException("Found I2b2Secure object " +
+                    "with empty secureObjectToken")
+        }
+
+        Map<Study, String> studySOTMap = studySet.collectEntries { study ->
+            /* note that the user is GRANTED access to studies that don't
+             * have a corresponding I2b2Secure object. That is
+             * the reason for "?.(...) ?: PUBLIC_SOT" part below
+             */
+            [study, allI2b2s.find { i2b2secure ->
+                i2b2secure.fullName == study.ontologyTerm.fullName
+            }?.secureObjectToken ?: PUBLIC_SOT]
+        }
+
+        List<String> nonPublicSOTs = allI2b2s.findAll {
+            it.secureObjectToken && it.secureObjectToken != PUBLIC_SOT
+        }*.secureObjectToken
+
+        def query = session.createQuery '''
+            select soav.securedObject.bioDataUniqueId
+            from SecuredObjectAccessView soav
+            where (soav.user = :user OR soav.user is null)
+            and soav.securedObject.bioDataUniqueId IN (:tokens)
+            and soav.securedObject.dataType = 'BIO_CLINICAL_TRIAL'
+            '''
+        query.setParameter 'user', user
+        query.setParameterList 'tokens', nonPublicSOTs
+
+        List<String> userGrantedSOTs = nonPublicSOTs ? query.list() : []
+
+        studySet.findAll { Study study ->
+            studySOTMap[study] == PUBLIC_SOT ||
+                    studySOTMap[study] in userGrantedSOTs
+        }
+    }
+
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryDefinition definition) {
@@ -128,8 +193,13 @@ class AccessControlChecks {
         // check there is at least one non-inverted panel for which the user
         // has permission in all the terms
         def res = definition.panels.findAll { !it.invert }.any { Panel panel ->
-            Set<Study> foundStudies = panel.items.collect { Item item ->
-
+            Set<Study> foundStudies = panel.items.findAll { Item item ->
+                /* always permit across trial nodes.
+                 * Across trial terms have no study, so they have to be
+                 * handled especially */
+                new ConceptKey(item.conceptKey).tableCode !=
+                       ACROSS_TRIALS_TABLE_CODE
+            }.collect { Item item ->
                 /* this could be optimized by adding a new method in
                  * StudiesResource */
                 def concept = conceptsResource.getByKey(item.conceptKey)

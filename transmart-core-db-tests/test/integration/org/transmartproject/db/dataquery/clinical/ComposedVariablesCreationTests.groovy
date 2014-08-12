@@ -19,9 +19,11 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.CategoricalVariable
@@ -147,6 +149,34 @@ class ComposedVariablesCreationTests {
 
         assertThat throwable.message,
                 containsString('Could not find path of concept with code')
+    }
+
+    @Test
+    void testCategoricalRetrieveData() {
+        CategoricalVariable var
+        var = clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.CATEGORICAL_VARIABLE,
+                concept_path: '\\foo\\study2\\sex\\',)
+
+        def result = clinicalDataResourceService.retrieveData(
+                i2b2Data.patients as Set, [var])
+
+        // the indices list contains the flattened variables, not the original
+        assertThat result.indicesList, contains(
+                var.innerClinicalVariables.collect { is it } /* male, then female */)
+
+        assertThat Lists.newArrayList(result), contains(
+                facts.groupBy { it.patient }.
+                        sort { it.key. /* patient */ id }.
+                        collect { Patient patient, List<ObservationFact> facts ->
+                            allOf(
+                                    hasProperty('patient', equalTo(patient)),
+                                    contains(var.innerClinicalVariables.collect { clinicalVar ->
+                                        is(facts.find { it.conceptCode == clinicalVar.conceptCode }?.textValue)
+                                    })
+                            )
+                        }
+        )
     }
 
     /* Normalized Leaf */

@@ -30,6 +30,7 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.I2b2Data
@@ -42,6 +43,7 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
@@ -392,6 +394,52 @@ class ClinicalDataRetrievalTests {
                     contains it.textValue
                 }
         )
+    }
+
+    @Test
+    void testRetrieveDataWithoutVariables() {
+        shouldFail InvalidArgumentsException, {
+            clinicalDataResourceService.retrieveData(
+                    testData.i2b2Data.patients as Set, [])
+        }
+    }
+
+    @Test
+    void testRetrieveDataWithoutPatientsVariantQueryResult() {
+        results = clinicalDataResourceService.retrieveData(emptyQueryResult, [
+                new TerminalConceptVariable(conceptCode: 'c2')])
+
+        assertThat results, is(iterableWithSize(0))
+    }
+
+    @Test
+    void testRetrieveDataNullQueryResultVariantQueryResult() {
+        shouldFail NullPointerException, {
+            clinicalDataResourceService.retrieveData((QueryResult) null, [
+                new TerminalConceptVariable(conceptCode: 'c2')])
+        }
+    }
+
+    @Test
+    void testRetrieveDataWithoutPatientsVariantQueryResultList() {
+        results = clinicalDataResourceService.retrieveData([], [
+                new TerminalConceptVariable(conceptCode: 'c2')])
+
+        assertThat results, is(iterableWithSize(0))
+    }
+
+    @Test
+    void testRetrieveDataWithoutPatientsVariantSet() {
+        results = clinicalDataResourceService.retrieveData([] as Set, [
+                new TerminalConceptVariable(conceptCode: 'c2')])
+
+        assertThat results, is(iterableWithSize(0))
+    }
+
+    QueryResult getEmptyQueryResult() {
+        def result = createQueryResult([])
+        result.save(flush: true)
+        getQueryResultFromMaster(result)
     }
 
 }

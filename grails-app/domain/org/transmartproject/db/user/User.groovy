@@ -21,6 +21,7 @@ package org.transmartproject.db.user
 
 import org.hibernate.FetchMode
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
@@ -44,7 +45,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
             groups: Group
     ]
 
-    static transients = ['accessControlChecks']
+    static transients = ['accessControlChecks', 'admin', 'accessibleStudies']
 
     static mapping = {
         //table   schema: 'searchapp', name: 'search_auth_user'
@@ -84,6 +85,11 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         //federatedId nullable: true, unique: true
     }
 
+    /* not in api */
+    boolean isAdmin() {
+        roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }
+    }
+
     @Override
     boolean canPerform(ProtectedOperation protectedOperation,
                        ProtectedResource protectedResource) {
@@ -95,7 +101,7 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
                     "$protectedResource")
         }
 
-        if (roles.find { it.authority == RoleCoreDb.ROLE_ADMIN_AUTHORITY }) {
+        if (admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$protectedResource for user $this because he is an " +
@@ -106,5 +112,12 @@ class User extends PrincipalCoreDb implements org.transmartproject.core.users.Us
         accessControlChecks.canPerform(this,
                                        protectedOperation,
                                        protectedResource)
+    }
+
+    /* not in API */
+    Set<Study> getAccessibleStudies() {
+        def studies = accessControlChecks.getAccessibleStudiesForUser this
+        log.debug "User $this has access to studies: ${studies*.id}"
+        studies
     }
 }

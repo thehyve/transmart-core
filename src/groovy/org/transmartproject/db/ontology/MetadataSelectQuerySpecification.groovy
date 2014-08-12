@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.ontology
 
+import org.transmartproject.db.user.User
+
 /**
  * Specifies an i2b2 metadata SQL query in the form:
  *
@@ -55,6 +57,13 @@ interface MetadataSelectQuerySpecification {
     String getColumnName()
 
     /**
+     * The type of data returned by {@link #getDimensionCode()}}/
+     *
+     * @return
+     */
+    String getColumnDataType()
+
+    /**
      * The operator that will be used to filter the results; the operand will
      * be the column name and the dimension code
      *
@@ -69,4 +78,15 @@ interface MetadataSelectQuerySpecification {
      * @return the second operand of the WHERE clause
      */
     String getDimensionCode()
+
+    /**
+     * Do any necessary post processing to the query based on the fact
+     * that the issuing user is the one passed in.
+     *
+     * @param original the original query, constructed based on the
+     * properties of this object
+     * @param user the user issuing the query
+     * @return the original or a modified SQL statement
+     */
+    String postProcessQuery(String original, User user)
 }

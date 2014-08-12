@@ -23,6 +23,7 @@ import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -39,7 +40,7 @@ class StudiesResourceServiceTests {
 
     StudiesResource studiesResourceService
 
-    ConceptsResourceService conceptsResourceService
+    ConceptsResource conceptsResourceService
 
     @Before
     void setUp() {
