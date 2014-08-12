@@ -1,7 +1,7 @@
 --
 -- Type: VIEW; Owner: BIOMART_USER; Name: BROWSE_ANALYSES_VIEW
 --
-  CREATE OR REPLACE FORCE VIEW "BIOMART_USER"."BROWSE_ANALYSES_VIEW" ("ID", "TITLE", "DESCRIPTION", "MEASUREMENT_TYPE", "PLATFORM_NAME", "VENDOR", "TECHNOLOGY") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "BIOMART_USER"."BROWSE_ANALYSES_VIEW" ("ID", "TITLE", "DESCRIPTION", "MEASUREMENT_TYPE", "PLATFORM_NAME", "VENDOR", "TECHNOLOGY") AS 
   select
 fd.unique_id
 , baa.analysis_name as title
@@ -22,11 +22,15 @@ where
     ata.object_type in ('BIO_ASSAY_PLATFORM')
     and ff.active_ind = 1
 group by  fd.unique_id, baa.analysis_name, baa.long_description;
- 
+--
+-- Type: INDEX; Owner: BIOMART_USER; Name: OBSERVATION_FACT_PD
+--
+CREATE INDEX "BIOMART_USER"."OBSERVATION_FACT_PD" ON "I2B2DEMODATA"."OBSERVATION_FACT" ("PATIENT_NUM")
+TABLESPACE "BIOMART" ;
 --
 -- Type: VIEW; Owner: BIOMART_USER; Name: BROWSE_STUDIES_VIEW
 --
-  CREATE OR REPLACE FORCE VIEW "BIOMART_USER"."BROWSE_STUDIES_VIEW" ("ID", "TITLE", "DESCRIPTION", "DESIGN", "BIOMARKER_TYPE", "ACCESS_TYPE", "ACCESSION", "INSTITUTION", "COUNTRY", "DISEASE", "COMPOUND", "STUDY_OBJECTIVE", "ORGANISM", "STUDY_PHASE") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "BIOMART_USER"."BROWSE_STUDIES_VIEW" ("ID", "TITLE", "DESCRIPTION", "DESIGN", "BIOMARKER_TYPE", "ACCESS_TYPE", "ACCESSION", "INSTITUTION", "COUNTRY", "DISEASE", "COMPOUND", "STUDY_OBJECTIVE", "ORGANISM", "STUDY_PHASE") AS 
   SELECT
   fd.unique_id
 , exp.title
@@ -75,11 +79,10 @@ left outer join (select id, disease, compound, study_objective, species, phase f
 )
 )x on  x.id = fd.unique_id
 where ff.active_ind = 1;
- 
 --
 -- Type: VIEW; Owner: BIOMART_USER; Name: BROWSE_PROGRAMS_VIEW
 --
-  CREATE OR REPLACE FORCE VIEW "BIOMART_USER"."BROWSE_PROGRAMS_VIEW" ("ID", "TITLE", "DESCRIPTION", "DISEASE", "OBSERVATION", "PATHWAY", "GENE", "THERAPEUTIC_DOMAIN", "INSTITUTION", "TARGET") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "BIOMART_USER"."BROWSE_PROGRAMS_VIEW" ("ID", "TITLE", "DESCRIPTION", "DISEASE", "OBSERVATION", "PATHWAY", "GENE", "THERAPEUTIC_DOMAIN", "INSTITUTION", "TARGET") AS 
   select fd.unique_id
 , f.folder_name as title
 , f.description
@@ -176,11 +179,10 @@ left outer join
   )
   ) x on x.id = fd.unique_id
 where f.folder_type = 'PROGRAM' and f.active_ind = 1;
- 
 --
 -- Type: VIEW; Owner: BIOMART_USER; Name: BROWSE_FOLDERS_VIEW
 --
-  CREATE OR REPLACE FORCE VIEW "BIOMART_USER"."BROWSE_FOLDERS_VIEW" ("ID", "TITLE", "DESCRIPTION", "FILE_TYPE") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "BIOMART_USER"."BROWSE_FOLDERS_VIEW" ("ID", "TITLE", "DESCRIPTION", "FILE_TYPE") AS 
   select fd.unique_id
 , f.folder_name as title
 , f.description
@@ -192,11 +194,10 @@ where f.folder_type = 'FOLDER' and f.active_ind = 1
 and ata.object_type='BIO_CONCEPT_CODE'
 and ata.object_uid like 'FILE_TYPE%'
 group by fd.unique_id, f.folder_name, f.description;
- 
 --
 -- Type: VIEW; Owner: BIOMART_USER; Name: BROWSE_ASSAYS_VIEW
 --
-  CREATE OR REPLACE FORCE VIEW "BIOMART_USER"."BROWSE_ASSAYS_VIEW" ("ID", "TITLE", "DESCRIPTION", "MEASUREMENT_TYPE", "PLATFORM_NAME", "VENDOR", "TECHNOLOGY", "GENE", "MIRNA", "BIOMARKER_TYPE") AS 
+  CREATE OR REPLACE FORCE EDITIONABLE VIEW "BIOMART_USER"."BROWSE_ASSAYS_VIEW" ("ID", "TITLE", "DESCRIPTION", "MEASUREMENT_TYPE", "PLATFORM_NAME", "VENDOR", "TECHNOLOGY", "GENE", "MIRNA", "BIOMARKER_TYPE") AS 
   select DISTINCT fd.unique_id
   , f.folder_name as title
   , f.description
@@ -244,4 +245,3 @@ group by fd.unique_id, f.folder_name, f.description;
     ) x on x.id = fd.unique_id
   where f.folder_type = 'ASSAY' and f.active_ind = 1
 group by fd.unique_id, f.folder_name, f.description, x.gene, x.mirna, x.biomarker_type;
- 
