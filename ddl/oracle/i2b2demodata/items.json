@@ -339,6 +339,28 @@
     } ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_OB_FACT_PATIENT_NUMBER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_PD_SOURCESYSTEMCD_PNUM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "INSERT_CONCEPT_FROMTEMP"
@@ -522,17 +544,6 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "parents" : [ ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1690,6 +1701,20 @@
     "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_OB_FACT_PATIENT_NUMBER"
+    },
+    "file" : "i2b2demodata/observation_fact.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_PD_SOURCESYSTEMCD_PNUM"
+    },
+    "file" : "i2b2demodata/patient_dimension.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "INSERT_CONCEPT_FROMTEMP"
@@ -1849,13 +1874,6 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "file" : "i2b2demodata/observation_fact_bk.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT_PD"
-    },
-    "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
       "type" : "TABLE",
