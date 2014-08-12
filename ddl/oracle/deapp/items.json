@@ -2748,6 +2748,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "KEGG_DATA"
+    },
+    "file" : "deapp/kegg_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "KEGG_DEF"
     },
     "file" : "deapp/kegg_def.sql"

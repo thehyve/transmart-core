@@ -5246,6 +5246,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
+      "name" : "MESH_ALL"
+    },
+    "file" : "biomart/mesh_all.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
       "name" : "MESH_DESCRIPTOR"
     },
     "file" : "biomart/mesh_descriptor.sql"

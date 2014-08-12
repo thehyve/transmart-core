@@ -2946,6 +2946,28 @@
     } ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_ORGANISM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_SYMBOL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "JMS_MESSAGES"
@@ -4604,6 +4626,27 @@
   } ],
   "fileAssignments" : [ {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "file" : "biomart_user/gene_ontology.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "file" : "biomart_user/gene_ontology.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
       "type" : "VIEW",
       "owner" : "BIOMART_USER",
       "name" : "BROWSE_ANALYSES_VIEW"
@@ -4644,6 +4687,34 @@
       "name" : "CONCEPT_CD_TAB"
     },
     "file" : "biomart_user/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "file" : "biomart_user/gene_ontology.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_ORGANISM"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_SYMBOL"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
   }, {
     "item" : {
       "type" : "TYPE",
