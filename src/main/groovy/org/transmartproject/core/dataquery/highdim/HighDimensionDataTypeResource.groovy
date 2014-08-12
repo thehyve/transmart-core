@@ -5,6 +5,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 
@@ -43,6 +44,10 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * all the {@link DataRow} objects or even to know how many the result set
      * will contain.
      *
+     * This method throws an {@link EmptySetException} exception if and only if
+     * the assay constraints do not satisfy any assay. Other circumstances will
+     * not result in an {@link EmptySetException} exception.
+     *
      * @param assayConstraints list of constraints that filter the columns/
      * assays that are to be included in the result set
      * @param dataConstraints list of constraints that filter the rows that are
@@ -51,6 +56,7 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * mRNA, one could want to retrieve the raw intensities or some form of
      * normalized data.
      * @return the request result set
+     * @throws EmptySetException iif no assays can be found
      */
     TabularResult<AssayColumn, R> retrieveData(List<AssayConstraint> assayConstraints,
                                                  List<DataConstraint> dataConstraints,
