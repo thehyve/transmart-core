@@ -14,5 +14,24 @@
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
- TABLESPACE "TRANSMART" ; 
+ TABLESPACE "TRANSMART" ;
 
+--
+-- Type: TRIGGER; Owner: SEARCHAPP; Name: TRG_SEARCH_AU_PRCPL_ID
+--
+  CREATE OR REPLACE TRIGGER "SEARCHAPP"."TRG_SEARCH_AU_PRCPL_ID" 
+ before insert on SEARCH_AUTH_PRINCIPAL   
+ for each row begin     
+ if inserting then      
+ if(:NEW.ID is null or :NEW.ID = -2000) then       
+ select SEQ_SEARCH_DATA_ID.nextval into :NEW.ID from dual;      
+ end if;    end if; end;
+
+
+
+
+
+
+/
+ALTER TRIGGER "SEARCHAPP"."TRG_SEARCH_AU_PRCPL_ID" ENABLE;
+ 

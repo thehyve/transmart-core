@@ -121,6 +121,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "SEARCHAPP",
+      "name" : "IDX_SK_DISPLAY_CATEGORY1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    } ]
+  }, {
+    "child" : {
       "type" : "VIEW",
       "owner" : "SEARCHAPP",
       "name" : "LISTSIG_GENES"
@@ -152,10 +163,6 @@
       "name" : "PATHWAY_GENES"
     },
     "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_MARKER_CORREL_MV"
-    }, {
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_KEYWORD"
@@ -245,6 +252,17 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SAVED_FACETED_SEARCH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "SEARCHAPP",
+      "name" : "SCH_KWD_DT_CAT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
     } ]
   }, {
     "child" : {
@@ -1196,6 +1214,13 @@
     "file" : "searchapp/_misc.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "SEARCHAPP",
+      "name" : "IDX_SK_DISPLAY_CATEGORY1"
+    },
+    "file" : "searchapp/search_keyword.sql"
+  }, {
+    "item" : {
       "type" : "VIEW",
       "owner" : "SEARCHAPP",
       "name" : "LISTSIG_GENES"
@@ -1214,7 +1239,7 @@
       "owner" : "SEARCHAPP",
       "name" : "PATHWAY_GENES"
     },
-    "file" : "searchapp/_cross.sql"
+    "file" : "searchapp/views/pathway_genes.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1285,6 +1310,13 @@
       "name" : "SAVED_FACETED_SEARCH_USER_ID"
     },
     "file" : "searchapp/saved_faceted_search.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "SEARCHAPP",
+      "name" : "SCH_KWD_DT_CAT_IDX"
+    },
+    "file" : "searchapp/search_keyword.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
