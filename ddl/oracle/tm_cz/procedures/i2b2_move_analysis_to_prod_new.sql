@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_MOVE_ANALYSIS_TO_PROD_NEW
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_MOVE_ANALYSIS_TO_PROD_NEW" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_MOVE_ANALYSIS_TO_PROD_NEW" 
 (i_etl_id        number    := -1
 ,i_job_id        number    := null
 )

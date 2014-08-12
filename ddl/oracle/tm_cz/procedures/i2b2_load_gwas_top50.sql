@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_GWAS_TOP50
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_GWAS_TOP50" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_GWAS_TOP50" 
 (i_bio_assay_analysis_id number
 ,i_job_id        number := null
 )

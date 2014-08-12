@@ -1,7 +1,7 @@
 --
 -- Type: VIEW; Owner: SEARCHAPP; Name: PATHWAY_GENES
 --
-  CREATE OR REPLACE FORCE EDITIONABLE VIEW "SEARCHAPP"."PATHWAY_GENES" ("GENE_KEYWORD_ID", "PATHWAY_KEYWORD_ID", "GENE_BIOMARKER_ID") AS 
+  CREATE OR REPLACE FORCE VIEW "SEARCHAPP"."PATHWAY_GENES" ("GENE_KEYWORD_ID", "PATHWAY_KEYWORD_ID", "GENE_BIOMARKER_ID") AS 
   SELECT k_gene.search_keyword_id AS gene_keyword_id,
   k_pathway.search_keyword_id AS pathway_keyword_id,
   b.asso_bio_marker_id AS gene_biomarker_id
