@@ -49,9 +49,9 @@ LogisticRegressionView.prototype.toggle_binning = function () {
  */
 LogisticRegressionView.prototype.get_form_params = function (form) {
 
-    var dependentVariableConceptCode = readConceptVariables2("divIndependentVariable")[0];
-    var independentVariableConceptCode = readConceptVariables2("divIndependentVariable")[0];
-    var groupByVariableConceptCode = readConceptVariables2("divGroupByVariable")[0];
+    var dependentVariableConceptCode = readConceptVariables("divIndependentVariable");
+    var independentVariableConceptCode = readConceptVariables("divIndependentVariable");
+    var groupByVariableConceptCode = readConceptVariables("divGroupByVariable");
     var variablesConceptCode = dependentVariableConceptCode+"|"+groupByVariableConceptCode;
 
     var formParams = {

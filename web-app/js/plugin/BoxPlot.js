@@ -84,8 +84,8 @@ BoxPlotView.prototype.get_form_params = function (form) {
         return (nodeTypes[0] == "null") ? true : false;
     } //
 
-    var dependentVariableConceptCode = "";
-    var independentVariableConceptCode = "";
+    var dependentVariableConceptPath = "";
+    var independentVariableConceptPath = "";
 
     var flipImage = false;
 
@@ -100,10 +100,11 @@ BoxPlotView.prototype.get_form_params = function (form) {
         //Loop through the category variables and add them to a comma seperated list.
         for (nodeIndex = 0; nodeIndex < independentVariableEle.dom.childNodes.length; nodeIndex++) {
             //If we already have a value, add the seperator.
-            if (independentVariableConceptCode != '') independentVariableConceptCode += '|'
+            if (independentVariableConceptPath != '') independentVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            independentVariableConceptCode += getQuerySummaryItem(independentVariableEle.dom.childNodes[nodeIndex]).trim()
+            independentVariableConceptPath += RmodulesView.fetch_concept_path(
+                independentVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
@@ -112,20 +113,21 @@ BoxPlotView.prototype.get_form_params = function (form) {
         //Loop through the category variables and add them to a comma seperated list.
         for (nodeIndex = 0; nodeIndex < dependentVariableEle.dom.childNodes.length; nodeIndex++) {
             //If we already have a value, add the seperator.
-            if (dependentVariableConceptCode != '') dependentVariableConceptCode += '|'
+            if (dependentVariableConceptPath != '') dependentVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            dependentVariableConceptCode += getQuerySummaryItem(dependentVariableEle.dom.childNodes[nodeIndex]).trim()
+            dependentVariableConceptPath += RmodulesView.fetch_concept_path(
+                dependentVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
     //Make sure the user entered some items into the variable selection boxes.
-    if (dependentVariableConceptCode == '') {
+    if (dependentVariableConceptPath == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the dependent variable box.');
         return;
     }
 
-    if (independentVariableConceptCode == '') {
+    if (independentVariableConceptPath == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
         return;
     }
@@ -134,12 +136,12 @@ BoxPlotView.prototype.get_form_params = function (form) {
       return;
     }
 
-    var variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode;
+    var variablesConceptCode = dependentVariableConceptPath + "|" + independentVariableConceptPath;
 
     var formParams = {
-        dependentVariable: dependentVariableConceptCode,
+        dependentVariable: dependentVariableConceptPath,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
-        independentVariable: independentVariableConceptCode,
+        independentVariable: independentVariableConceptPath,
         independentVariableCategorical: _isCategorical(independentNodeList),
         jobType: 'BoxPlot',
         variablesConceptPaths: variablesConceptCode
