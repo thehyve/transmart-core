@@ -107,6 +107,17 @@
     "child" : {
       "type" : "INDEX",
       "owner" : "I2B2METADATA",
+      "name" : "IDX_I2B2_FULLNAME_BASECODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2METADATA",
       "name" : "META_APPLIED_PATH_CUSTOM_IDX"
     },
     "parents" : [ {
@@ -350,6 +361,13 @@
       "name" : "I2B2_TRIAL_NODES"
     },
     "file" : "i2b2metadata/views/i2b2_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2METADATA",
+      "name" : "IDX_I2B2_FULLNAME_BASECODE"
+    },
+    "file" : "i2b2metadata/i2b2.sql"
   }, {
     "item" : {
       "type" : "INDEX",

@@ -71,6 +71,24 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_GPL_INFO"
     },
     "parents" : [ ]
@@ -163,6 +181,39 @@
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX5"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -989,6 +1040,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "ENTREZ_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
       "name" : "FK_PROTEIN_ANNOTATION_ID"
@@ -1153,6 +1215,17 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SAMPLE_SNP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
     } ]
   }, {
     "child" : {
@@ -1436,6 +1509,28 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "SNP_NAME_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0029766"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    } ]
+  }, {
+    "child" : {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -1459,6 +1554,28 @@
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
       "name" : "DE_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_SOURCE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
     } ]
   }, {
     "child" : {
@@ -1901,6 +2018,20 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    },
+    "file" : "deapp/de_gene_source.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
       "name" : "DE_GPL_INFO"
     },
     "file" : "deapp/de_gpl_info.sql"
@@ -1965,6 +2096,27 @@
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX5"
     },
     "file" : "deapp/de_subject_microarray_data.sql"
   }, {
@@ -2599,6 +2751,13 @@
     "file" : "deapp/procedures/dump_table_to_csv.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "ENTREZ_IDX1"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
       "name" : "FK_PROTEIN_ANNOTATION_ID"
@@ -2720,6 +2879,13 @@
     "item" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
+      "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
       "name" : "IDX_PATHWAY_GENE_PATHWAY"
     },
     "file" : "deapp/de_pathway_gene.sql"
@@ -2744,6 +2910,13 @@
       "name" : "KEGG"
     },
     "file" : "deapp/kegg.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG_DATA"
+    },
+    "file" : "deapp/kegg_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -2879,6 +3052,20 @@
     "file" : "deapp/_misc.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "SNP_NAME_IDX1"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0029766"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -2891,6 +3078,20 @@
       "name" : "TRG_DE_CHROMOSOMAL_REGION_ID"
     },
     "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_INFO_ID"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_SOURCE_ID"
+    },
+    "file" : "deapp/de_gene_source.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

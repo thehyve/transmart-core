@@ -8,6 +8,52 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_CLINICAL_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_LZ",
+      "name" : "IDX_SCD_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_CHROMOSOMAL_REGION"
@@ -53,6 +99,27 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_RNASEQ_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_CALLS_BY_GSM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_COPY_NUMBER"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_GENE_MAP"
     },
     "parents" : [ ]
   }, {
@@ -465,6 +532,13 @@
     } ]
   }, {
     "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "UTIL_GRANT_ALL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "WT_SNP_NODES"
@@ -485,6 +559,20 @@
       "name" : "CLINICAL_TRIAL_METADATA_EXT"
     },
     "file" : "tm_lz/clinical_trial_metadata_ext.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
+    },
+    "file" : "tm_lz/procedures/i2b2_load_clinical_data_backup.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_LZ",
+      "name" : "IDX_SCD_STUDY"
+    },
+    "file" : "tm_lz/lt_src_clinical_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -534,6 +622,27 @@
       "name" : "LT_RNASEQ_ANNOTATION"
     },
     "file" : "tm_lz/lt_rnaseq_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_CALLS_BY_GSM"
+    },
+    "file" : "tm_lz/lt_snp_calls_by_gsm.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_COPY_NUMBER"
+    },
+    "file" : "tm_lz/lt_snp_copy_number.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_GENE_MAP"
+    },
+    "file" : "tm_lz/lt_snp_gene_map.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -926,6 +1035,13 @@
       "name" : "TRG_LZ_SRC_ANALYSIS_META_ID"
     },
     "file" : "tm_lz/lz_src_analysis_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_LZ",
+      "name" : "UTIL_GRANT_ALL"
+    },
+    "file" : "tm_lz/procedures/util_grant_all.sql"
   }, {
     "item" : {
       "type" : "TABLE",

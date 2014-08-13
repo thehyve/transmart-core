@@ -6,7 +6,7 @@
 ,be.bio_experiment_id as STUDY
 ,be.bio_experiment_id as STUDY_ID
 ,ba.analysis_type as ANALYSES
-,ba.bio_assay_data_type as DATA_TYPE 
+,ba.bio_assay_data_type as DATA_TYPE
 ,bplat.platform_accession as PLATFORM
 ,bplat.platform_description as PLATFORM_DESCRIPTION
 ,bplat.platform_vendor as PLATFORM_VENDOR
@@ -37,7 +37,7 @@
 ,bae.research_unit as RESEARCH_UNIT
 ,row_number() over (order by ba.bio_assay_analysis_id) as FACET_ID
 from bio_assay_analysis ba
-Join bio_experiment be 
+Join bio_experiment be
 on ba.etl_id = be.accession
 left outer join bio_assay_analysis_ext bae
 on bae.bio_assay_analysis_id = ba.bio_assay_analysis_id
@@ -51,5 +51,5 @@ left outer join bio_observation bpobs
 on bdpobs.bio_observation_id = bpobs.bio_observation_id
 left outer join bio_asy_analysis_pltfm baap
 on baap.bio_asy_analysis_pltfm_id = ba.bio_asy_analysis_pltfm_id
-WHERE lower(be.bio_experiment_type) = 'experiment';
+where lower(be.bio_experiment_type) = 'experiment';
  

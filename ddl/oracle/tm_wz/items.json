@@ -10,7 +10,89 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_WZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "I2B2_LOAD_PATH"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "I2B2_LOAD_PATH_WITH_COUNT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WRK_CD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WRK_CLINICAL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WTN_LOAD_CLINICAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WT_TRIALNODES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "WT_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
       "name" : "TMP_ASSAY_ANALYSIS_METRICS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_CALCS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_LOGS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_MED"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_WZ",
+      "name" : "UTIL_GRANT_ALL"
     },
     "parents" : [ ]
   }, {
@@ -491,9 +573,79 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_WZ",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    },
+    "file" : "tm_wz/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "I2B2_LOAD_PATH"
+    },
+    "file" : "tm_wz/i2b2_load_path.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "I2B2_LOAD_PATH_WITH_COUNT"
+    },
+    "file" : "tm_wz/i2b2_load_path_with_count.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WRK_CD"
+    },
+    "file" : "tm_wz/wrk_clinical_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WTN_LOAD_CLINICAL"
+    },
+    "file" : "tm_wz/wt_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_WZ",
+      "name" : "IDX_WT_TRIALNODES"
+    },
+    "file" : "tm_wz/wt_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
       "name" : "TMP_ASSAY_ANALYSIS_METRICS"
     },
     "file" : "tm_wz/tmp_assay_analysis_metrics.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_CALCS"
+    },
+    "file" : "tm_wz/tmp_subject_rbm_calcs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_LOGS"
+    },
+    "file" : "tm_wz/tmp_subject_rbm_logs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_WZ",
+      "name" : "TMP_SUBJECT_RBM_MED"
+    },
+    "file" : "tm_wz/tmp_subject_rbm_med.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "TM_WZ",
+      "name" : "UTIL_GRANT_ALL"
+    },
+    "file" : "tm_wz/procedures/util_grant_all.sql"
   }, {
     "item" : {
       "type" : "TABLE",
