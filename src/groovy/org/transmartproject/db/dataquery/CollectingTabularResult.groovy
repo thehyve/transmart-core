@@ -26,6 +26,58 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.UnexpectedResultException
 
+/**
+ * Implementation of {@link TabularResult} that converts an Hibernate scrollable
+ * result set where each row has the data for a cell in the
+ * {@link TabularResult}.
+ *
+ * The Hibernate result set should return sequentially (though not necessarily
+ * in the same column order unless some functionality described below is used)
+ * all the original rows that map to cells on the same {@link TabularResult}
+ * row.
+ *
+ * The properties {@link CollectingTabularResult#rowsDimensionLabel},
+ * {@link CollectingTabularResult#columnsDimensionLabel} and
+ * {@link CollectingTabularResult#indicesList} must be provided. The order in
+ * the indices list is not important unless
+ * {@link CollectingTabularResult#allowMissingColumns} is set to
+ * <code>true</code>, in which case it must also be the order under which the
+ * original rows are returned.
+ * For instance, if the indices list is <code>C1, C2, C3</code>, the original
+ * result set can return (sequentially) rows mapping to <code>C1, C2, C3</code>
+ * or <code>C1, C3</code>, but not <code>C2, C1, C3</code>.
+ *
+ * The settable closure
+ * {@link CollectingTabularResult#inSameGroup} determines if any two original
+ * rows belong in the same final (={@link TabularResult} row); in theory, this
+ * could permit returning the original rows in any order, but the order
+ * mentioned before must be respected.
+ *
+ * The settable closure {@link CollectingTabularResult#finalizeGroup} is given
+ * a set of original rows determined to belong to the same final row (in the
+ * same order as in the original result) and returns the final row object, of
+ * type <code>R</code>.
+ *
+ * Unless {@link CollectingTabularResult#allowMissingColumns} is set, this class
+ * checks that the number of sequential rows found to correspond to the same
+ * final row is equal to the number of indices provided in
+ * {@link CollectingTabularResult#allowMissingColumns}. If
+ * {@link CollectingTabularResult#columnIdFromRow} is provided, this will be
+ * used to generate a better error message.
+ *
+ * If {@link CollectingTabularResult#allowMissingColumns} is set,
+ * {@link CollectingTabularResult#columnIdFromRow} must be provided as well, and
+ * the indices list must be provided in order (see above). Note that due to the
+ * design of this class, it is impossible to have final rows where all the
+ * columns are missing (are <code>null</code>).
+ *
+ * This class takes ownership of the {@link CollectingTabularResult#results}'
+ * session if {@link CollectingTabularResult#closeSession} is <code>true</code>
+ * (the default).
+ *
+ * @param < C > the type for the columns
+ * @param < R > the type for the rows
+ */
 abstract class CollectingTabularResult<C, R extends DataRow>
         implements TabularResult<C, R>, Iterable<R> {
 

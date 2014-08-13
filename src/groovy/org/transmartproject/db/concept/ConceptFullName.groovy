@@ -46,7 +46,8 @@ final class ConceptFullName {
         parts = Lists.newArrayList(Splitter.on('\\').split(path))
 
         if (parts.size() == 0 || '' in parts) {
-            throw new IllegalArgumentException('Path cannot have empty parts')
+            throw new IllegalArgumentException(
+                    "Path cannot have empty parts (got '$path')")
         }
     }
 
@@ -55,6 +56,10 @@ final class ConceptFullName {
             index = parts.size() + index
 
         index < parts.size() ? parts[index] : null
+    }
+
+    def getAt(Range range) {
+        parts[range]
     }
 
     def getLength() {

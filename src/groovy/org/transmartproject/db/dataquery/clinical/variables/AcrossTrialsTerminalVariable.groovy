@@ -23,16 +23,16 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.core.dataquery.DataColumn
 
-@EqualsAndHashCode(includes = [ 'conceptCode', 'conceptPath' ])
+@EqualsAndHashCode(includes = [ 'modifierCode', 'conceptPath' ])
 @ToString
-class TerminalConceptVariable implements TerminalClinicalVariable, DataColumn {
+class AcrossTrialsTerminalVariable implements TerminalClinicalVariable, DataColumn {
 
     public final static String GROUP_NAME = this.simpleName
 
-    /* when created, only one needs to be filled, but then a postprocessing
-     * step must fill the other */
-    String conceptCode,
-           conceptPath
+    String conceptPath
+
+    /* to be filled by AcrossTrialsDataQuery */
+    String modifierCode
 
     @Override
     String getLabel() {
@@ -46,6 +46,6 @@ class TerminalConceptVariable implements TerminalClinicalVariable, DataColumn {
 
     @Override
     String getCode() {
-        conceptCode
+        modifierCode
     }
 }

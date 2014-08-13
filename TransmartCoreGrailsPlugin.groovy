@@ -19,9 +19,13 @@
 
 import org.springframework.stereotype.Component
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
+import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
+import org.transmartproject.db.ontology.DefaultConceptsResource
 import org.transmartproject.db.support.DatabasePortabilityService
 
 class TransmartCoreGrailsPlugin {
@@ -68,11 +72,28 @@ A runtime dependency for tranSMART that implements the Core API
     def doWithSpring = {
         xmlns context:"http://www.springframework.org/schema/context"
 
+        def config = application.config
+
+        /* unless explicitly disabled, enable across trials functionality */
+        def haveAcrossTrials =
+                config.org.transmartproject.enableAcrossTrials != false
+
         businessExceptionResolver(BusinessExceptionResolver)
 
         accessControlChecks(AccessControlChecks)
 
-        clinicalVariableFactory(ClinicalVariableFactory)
+        clinicalVariableFactory(ClinicalVariableFactory) {
+            disableAcrossTrials = !haveAcrossTrials
+        }
+        innerClinicalTabularResultFactory(InnerClinicalTabularResultFactory)
+
+        if (haveAcrossTrials) {
+            conceptsResourceService(AcrossTrialsConceptsResourceDecorator) {
+                inner = new DefaultConceptsResource()
+            }
+        } else {
+            conceptsResourceService(DefaultConceptsResource)
+        }
 
         context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {
             context.'include-filter'(
@@ -86,8 +107,6 @@ A runtime dependency for tranSMART that implements the Core API
                     expression: Component.canonicalName)
         }
 
-        // Config
-        def config = application.config
         if (!config.org.transmartproject.i2b2.user_id) {
             config.org.transmartproject.i2b2.user_id = 'i2b2'
         }

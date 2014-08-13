@@ -61,6 +61,7 @@ class H2Views {
             createSubPathwayCorrelView()
             createSuperPathwayCorrelView()
             createI2b2TrialNodes()
+            createModifierDimensionView()
         } finally {
             this.sql.close()
         }
@@ -370,6 +371,31 @@ class H2Views {
                     GROUP BY c_comment) B ON (
                         A.c_comment = B.c_comment
                         AND length (A.c_fullname) = B.min_length);'''
+    }
+
+    void createModifierDimensionView() {
+        if (handleCurrentState('I2B2DEMODATA', 'MODIFIER_DIMENSION_VIEW')) {
+            return
+        }
+
+        log.info 'Creating I2B2DEMODATA.MODIFIER_DIMENSION_VIEW'
+
+        sql.execute '''
+            CREATE VIEW I2B2DEMODATA.MODIFIER_DIMENSION_VIEW AS
+            SELECT
+                MD.modifier_path,
+                MD.modifier_cd,
+                MD.name_char,
+                MD.sourcesystem_cd,
+                MD.modifier_level,
+                MD.modifier_node_type,
+                MM.valtype_cd,
+                MM.std_units,
+                MM.visit_ind
+            FROM
+                I2B2DEMODATA.MODIFIER_DIMENSION MD
+                LEFT JOIN I2B2DEMODATA.MODIFIER_METADATA MM ON (
+                    MD.modifier_cd = MM.modifier_cd)'''
     }
 
     enum ObjectStatus {

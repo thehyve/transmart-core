@@ -68,13 +68,13 @@ class CorrelationTypesRegistry {
                 targetType:       'GENE',
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
-        
+
         registryTable << new CorrelationType(
-                name: 'GENE_LIST_ITEM',
-                sourceType: 'GENELIST',
-                targetType: 'GENE',
+                name:             'GENE_LIST_ITEM',
+                sourceType:       'GENELIST',
+                targetType:       'GENE',
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
-                leftSideColumn: 'DOMAIN_OBJECT_ID')
+                leftSideColumn:   'DOMAIN_OBJECT_ID')
     }
 
     private void registerKnownConstraints() {
@@ -83,7 +83,7 @@ class CorrelationTypesRegistry {
         constraintMap.PATHWAY    = DataConstraint.PATHWAYS_CONSTRAINT
         constraintMap.HOMOLOGENE = 'homologenes'
         constraintMap.GENESIG    = DataConstraint.GENE_SIGNATURES_CONSTRAINT
-        constraintMap.GENELIST = 'gene_lists'
+        constraintMap.GENELIST   = 'gene_lists'
     }
 
     void registerCorrelation(CorrelationType correlationType) {
