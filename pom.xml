@@ -6,6 +6,7 @@
     <groupId>org.transmartproject</groupId>
     <artifactId>transmart-core-api</artifactId>
     <name>tranSMART Core API</name>
+    <version>1.2.1-SNAPSHOT</version>
 
     <build>
         <pluginManagement>
@@ -96,6 +97,4 @@
         <gmavenProviderSelection>2.0</gmavenProviderSelection>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <version>1.2.1-SNAPSHOT</version>
 </project>

@@ -4,7 +4,6 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.doc.Experimental
 
-@Experimental
 interface PatientRow extends DataRow<ClinicalVariableColumn, Object> {
 
     /**

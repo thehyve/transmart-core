@@ -4,7 +4,6 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.doc.Experimental
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
-@Experimental
 interface PatientsResource {
 
     /**
