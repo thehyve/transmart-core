@@ -518,6 +518,21 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_DIMENSION_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_DIMENSION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "MODIFIER_METADATA"
@@ -1846,6 +1861,13 @@
       "name" : "MODIFIER_DIMENSION"
     },
     "file" : "i2b2demodata/modifier_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_DIMENSION_VIEW"
+    },
+    "file" : "i2b2demodata/views/modifier_dimension_view.sql"
   }, {
     "item" : {
       "type" : "TABLE",

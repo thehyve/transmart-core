@@ -85,7 +85,7 @@ def writeToFileHierarchy = { Set seenFiles, Item item, ItemRepository repos ->
                 return false
             }
             if (parent.owner != it.owner) {
-                Log.err "Cross schema dependency: ${(stack + parent).join(' -> ')}"
+                Log.warn "Cross schema dependency: ${(stack + parent).join(' -> ')}"
                 return true
             }
             return owner.call(parent, stack) /* owner is surrounding closure */
