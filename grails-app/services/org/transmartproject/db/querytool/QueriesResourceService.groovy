@@ -26,6 +26,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.user.User
 
 import java.sql.Connection
 
@@ -35,6 +36,7 @@ class QueriesResourceService implements QueriesResource {
     def patientSetQueryBuilderService
     def queryDefinitionXmlService
     def sessionFactory
+    def usersResourceService
 
     @Override
     @Deprecated
@@ -97,7 +99,7 @@ class QueriesResourceService implements QueriesResource {
             } as Work)
 
             sql = patientSetQueryBuilderService.buildPatientSetQuery(
-                    resultInstance, definition)
+                    resultInstance, definition, tryLoadingUser(username))
 
             sessionFactory.currentSession.doWork ({ Connection conn ->
                 def statement = conn.prepareStatement(sql)
@@ -178,5 +180,27 @@ class QueriesResourceService implements QueriesResource {
         }
 
         queryDefinitionXmlService.fromXml(new StringReader(answer[0]))
+    }
+
+    User tryLoadingUser(String user) {
+        /* this doesn't fail if the user doesn't exist. This is for historical
+         * reasons. The user associated with the query used to be an I2B2 user,
+         * not a tranSMART user. This lax behavior is to allow core-db to work
+         * under this old assumption (useful only for interoperability with
+         * i2b2). Though, arguably, this should not be supported in transmart
+         * as across trials queries and permission checks will fail if the
+         * user is not a tranSMART user. Log a warning.
+         */
+        if (user == null) {
+            throw new NullPointerException("Username not provided")
+        }
+        try {
+            usersResourceService.getUserFromUsername(user)
+        } catch (NoSuchResourceException unf) {
+            log.warn("User $user not found. This is permitted for " +
+                    "compatibility with i2b2, but tranSMART functionality " +
+                    "will be degraded, and this behavior is deprecated")
+            return null
+        }
     }
 }

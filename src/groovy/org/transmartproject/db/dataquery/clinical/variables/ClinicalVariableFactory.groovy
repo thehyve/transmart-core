@@ -31,13 +31,22 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.concept.ConceptFullName
 import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.I2b2
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.FOLDER
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
-@Component
+@Component /* not scanned; explicit bean definition */
 class ClinicalVariableFactory {
+
+    boolean disableAcrossTrials
+
+    @Lazy def helper = {
+        disableAcrossTrials ?
+                null :
+                new ClinicalVariableFactoryAcrossTrialsHelper()
+    }()
 
     private Map<String, Closure<ClinicalVariable>> knownTypes =
             ImmutableMap.of(
@@ -78,14 +87,22 @@ class ClinicalVariableFactory {
         closure.call((String) conceptCode, (String) conceptPath)
     }
 
-    private TerminalConceptVariable createTerminalConceptVariable(String conceptCode,
-                                                                  String conceptPath) {
+    private TerminalClinicalVariable createTerminalConceptVariable(String conceptCode,
+                                                                   String conceptPath) {
+        if (helper?.isAcrossTrialsPath(conceptPath)) {
+            return helper.createTerminalConceptVariable(conceptPath)
+        }
+
         new TerminalConceptVariable(conceptCode: conceptCode,
                                     conceptPath: conceptPath)
     }
 
     private CategoricalVariable createCategoricalVariable(String conceptCode,
                                                           String conceptPath) {
+        if (helper?.isAcrossTrialsPath(conceptPath)) {
+            return helper.createCategoricalVariable(conceptPath)
+        }
+
         List<ConceptDimension> descendantDimensions =
                 descendantDimensions(conceptCode, conceptPath)
 
@@ -122,6 +139,10 @@ class ClinicalVariableFactory {
 
     private NormalizedLeafsVariable createNormalizedLeafsVariable(String conceptCode,
                                                                   String conceptPath) {
+        if (helper?.isAcrossTrialsPath(conceptPath)) {
+            return helper.createNormalizedLeafsVariable(conceptPath)
+        }
+
         def resolvedConceptPath = resolveConceptPath(conceptCode, conceptPath)
 
         List<? extends OntologyTerm> terms = I2b2.withCriteria {
@@ -256,4 +277,28 @@ class ClinicalVariableFactory {
         result
     }
 
+}
+
+class ClinicalVariableFactoryAcrossTrialsHelper {
+
+    boolean isAcrossTrialsPath(String conceptPath) {
+        if (conceptPath == null) {
+            return false
+        }
+
+        new ConceptFullName(conceptPath)[0] ==
+                AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
+    }
+
+    AcrossTrialsTerminalVariable createTerminalConceptVariable(String conceptPath) {
+        new AcrossTrialsTerminalVariable(conceptPath: conceptPath)
+    }
+
+    ClinicalVariable createCategoricalVariable(String conceptPath) {
+        throw new UnsupportedOperationException('Not supported yet')
+    }
+
+    ClinicalVariable createNormalizedLeafsVariable(String conceptPath) {
+        throw new UnsupportedOperationException('Not supported yet')
+    }
 }

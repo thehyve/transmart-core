@@ -19,33 +19,16 @@
 
 package org.transmartproject.db.dataquery.clinical.variables
 
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
-import org.transmartproject.core.dataquery.DataColumn
+import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 
-@EqualsAndHashCode(includes = [ 'conceptCode', 'conceptPath' ])
-@ToString
-class TerminalConceptVariable implements TerminalClinicalVariable, DataColumn {
+public interface TerminalClinicalVariable extends ClinicalVariableColumn {
 
-    public final static String GROUP_NAME = this.simpleName
+    String getGroup()
 
-    /* when created, only one needs to be filled, but then a postprocessing
-     * step must fill the other */
-    String conceptCode,
-           conceptPath
-
-    @Override
-    String getLabel() {
-        conceptPath
-    }
-
-    @Override
-    String getGroup() {
-        GROUP_NAME
-    }
-
-    @Override
-    String getCode() {
-        conceptCode
-    }
+    /**
+     * The value of the dimension code. This is the value used to join with
+     * dimension table (e.g. concept_cd for concept_dimension or modifier_cd
+     * for modifier_dimension)
+     */
+    String getCode()
 }

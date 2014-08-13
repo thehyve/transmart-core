@@ -121,13 +121,14 @@ class ClinicalTestData {
                                                  Long encounterId,
                                                  Object value) {
         def of = new ObservationFact(
-                encounterNum: encounterId as BigDecimal,
-                providerId:   'fakeProviderId',
-                modifierCd:   'fakeModifierCd',
-                patient:      patient,
-                conceptCode:  conceptCode,
-                startDate:    new Date(),
-                instanceNum:  0)
+                encounterNum:   encounterId as BigDecimal,
+                providerId:     'fakeProviderId',
+                modifierCd:     'fakeModifierCd',
+                patient:        patient,
+                conceptCode:    conceptCode,
+                startDate:      new Date(),
+                sourcesystemCd: patient.trial,
+                instanceNum:    0)
 
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER

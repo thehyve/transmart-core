@@ -5,20 +5,20 @@ hibernate {
 }
 
 // environment specific settings
-//environments {
-//    development {
-//        dataSource {
-//            driverClassName = 'org.postgresql.Driver'
-//            url             = 'jdbc:postgresql://localhost:5432/transmart'
-//            dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
-//
+environments {
+    development {
+        dataSource {
+            driverClassName = 'org.postgresql.Driver'
+            url             = 'jdbc:postgresql://localhost:5433/transmart'
+            dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
+
 //            driverClassName = 'oracle.jdbc.driver.OracleDriver'
 //            url             = 'jdbc:oracle:thin:@localhost:11521:CI'
 //            dialect         = 'org.hibernate.dialect.Oracle10gDialect'
-//
-//            username        = 'biomart_user'
-//            password        = 'biomart_user'
-//            dbCreate        = 'none'
-//        }
-//    }
-//}
+
+            username        = 'biomart_user'
+            password        = 'biomart_user'
+            dbCreate        = 'none'
+        }
+    }
+}

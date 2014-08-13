@@ -19,13 +19,16 @@
 
 package org.transmartproject.db.querytool
 
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.db.ontology.AbstractQuerySpecifyingType
+import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
+import org.transmartproject.db.user.User
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
@@ -36,7 +39,8 @@ class PatientSetQueryBuilderService {
 
     def databasePortabilityService
 
-    String buildPatientIdListQuery(QueryDefinition definition)
+    String buildPatientIdListQuery(QueryDefinition definition,
+                                   User user = null)
             throws InvalidRequestException {
 
         generalDefinitionValidation(definition)
@@ -45,15 +49,20 @@ class PatientSetQueryBuilderService {
         def panelClauses = definition.panels.collect { Panel panel ->
 
             def itemPredicates = panel.items.collect { Item it ->
-                AbstractQuerySpecifyingType term
+                OntologyTerm term
                 try {
                     term = conceptsResourceService.getByKey(it.conceptKey)
+                    if (!(term instanceof MetadataSelectQuerySpecification)) {
+                        throw new InvalidArgumentsException("Ontology term " +
+                                "with key ${it.conceptKey} does not specify " +
+                                "a query")
+                    }
                 } catch (NoSuchResourceException nsr) {
                     throw new InvalidRequestException("No such concept key: " +
                             "$it.conceptKey", nsr)
                 }
 
-                doItem(term, it.constraint)
+                doItem(term, it.constraint, user)
             }
             /*
              * itemPredicates are similar to this example:
@@ -85,19 +94,18 @@ class PatientSetQueryBuilderService {
                     : (a.id - b.id)
         }
 
-        def patientSubQuery
         if (panelClauses.size() == 1) {
             def panel = panelClauses[0]
             if (!panel.invert) {
                 /* The intersect/expect is not enough for deleting duplicates
                  * because there is only one select; we must adda a group by */
-                patientSubQuery =  "$panel.select GROUP BY patient_num"
+                "$panel.select GROUP BY patient_num"
             } else {
-                patientSubQuery = "SELECT patient_num FROM patient_dimension " +
+                "SELECT patient_num FROM patient_dimension " +
                         "EXCEPT ($panel.select)"
             }
         } else {
-            patientSubQuery = panelClauses.inject("") { String acc, panel ->
+            panelClauses.inject("") { String acc, panel ->
                 acc +
                         (acc.empty
                                 ? ""
@@ -110,14 +118,15 @@ class PatientSetQueryBuilderService {
     }
 
     String buildPatientSetQuery(QtQueryResultInstance resultInstance,
-                                QueryDefinition definition)
+                                QueryDefinition definition,
+                                User user = null)
             throws InvalidRequestException {
 
         if (!resultInstance.id) {
             throw new RuntimeException('QtQueryResultInstance has not been persisted')
         }
 
-        def patientSubQuery = buildPatientIdListQuery(definition)
+        def patientSubQuery = buildPatientIdListQuery definition, user
 
         //$patientSubQuery has result set with single column: 'patient_num'
         def windowFunctionOrderBy = ''
@@ -149,10 +158,11 @@ class PatientSetQueryBuilderService {
             (GREATER_OR_EQUAL_TO): [['>=', ['E', 'GE', 'G']]]
     ]
 
-    private String doItem(AbstractQuerySpecifyingType term,
-                          ConstraintByValue constraint) {
+    private String doItem(MetadataSelectQuerySpecification term,
+                          ConstraintByValue constraint,
+                          User user) {
         /* constraint represented by the ontology term */
-        def clause = "$term.factTableColumn IN (${getQuerySql(term)})"
+        def clause = generateObservationFactConstraint(user, term)
 
         /* additional (and optional) constraint by value */
         if (!constraint) {
@@ -178,21 +188,6 @@ class PatientSetQueryBuilderService {
         }
 
         clause
-    }
-
-    /**
-     * Returns the SQL for the query that this object represents.
-     *
-     * @return raw SQL of the query that this type represents
-     */
-    private String getQuerySql(AbstractQuerySpecifyingType term) {
-        def res = "SELECT $term.factTableColumn " +
-                "FROM $term.dimensionTableName " +
-                "WHERE $term.columnName $term.operator $term.processedDimensionCode"
-        if (databasePortabilityService.databaseType == ORACLE) {
-            res += " ESCAPE '\\'"
-        }
-        res
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,
@@ -280,4 +275,48 @@ class PatientSetQueryBuilderService {
         }
     }
 
+    private String getProcessedDimensionCode(MetadataSelectQuerySpecification spec) {
+        def v = spec.dimensionCode
+        if (!v) {
+            return v
+        }
+
+        if (spec.columnDataType == 'T' && v.length() > 2) {
+            if (spec.operator.equalsIgnoreCase('like')) {
+                if (v[0] != "'" && !v[0] != '(') {
+                    if (v[-1] != '%') {
+                        if (v[-1] != '\\') {
+                            v += '\\'
+                        }
+                        v = v.asLikeLiteral() + '%'
+                    }
+                }
+            }
+
+            if (v[0] != "'") {
+                v = v.replaceAll(/'/, "''") /* escape single quotes */
+                v = "'$v'"
+            }
+
+        }
+
+        if (spec.operator.equalsIgnoreCase('in')) {
+            v = "($v)"
+        }
+
+        v
+    }
+
+    String generateObservationFactConstraint(User userInContext,
+                                             MetadataSelectQuerySpecification spec) {
+        def res = "SELECT $spec.factTableColumn " +
+                "FROM $spec.dimensionTableName " +
+                "WHERE $spec.columnName $spec.operator ${getProcessedDimensionCode(spec)}"
+        if (spec.operator.equalsIgnoreCase('like') &&
+                databasePortabilityService.databaseType == ORACLE) {
+            res += " ESCAPE '\\'"
+        }
+
+        spec.postProcessQuery "$spec.factTableColumn IN ($res)", userInContext
+    }
 }

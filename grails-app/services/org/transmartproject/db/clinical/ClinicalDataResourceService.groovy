@@ -21,6 +21,7 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
+import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -28,10 +29,11 @@ import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
-import org.transmartproject.db.dataquery.clinical.TerminalConceptVariablesDataQuery
+import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
+@Log4j
 class ClinicalDataResourceService implements ClinicalDataResource {
 
     static transactional = false
@@ -40,6 +42,9 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     @Autowired
     ClinicalVariableFactory clinicalVariableFactory
+
+    @Autowired
+    InnerClinicalTabularResultFactory innerResultFactory
 
     @Override
     ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
@@ -62,6 +67,11 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Set<Patient> patientCollection,
                                                                    List<ClinicalVariable> variables) {
 
+        if (!variables) {
+            throw new InvalidArgumentsException(
+                    'No variables passed to #retrieveData()')
+        }
+
         def session = sessionFactory.openStatelessSession()
 
         try {
@@ -72,18 +82,18 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             List<TerminalConceptVariable> flattenedVariables = []
             flattenClinicalVariables(flattenedVariables, variables)
 
-            TerminalConceptVariablesDataQuery query =
-                    new TerminalConceptVariablesDataQuery(
-                            session: session,
-                            patientIds: patientMap.keySet(),
-                            clinicalVariables: flattenedVariables)
-            query.init()
+            def intermediateResults = []
+            if (!patientCollection.empty) {
+                intermediateResults = innerResultFactory.
+                        createIntermediateResults(session,
+                                patientCollection, flattenedVariables)
+            } else {
+                log.info("No patients passed to retrieveData() with" +
+                        "variables $variables; will skip main queries")
+            }
 
             new ClinicalDataTabularResult(
-                    query.openResultSet(),
-                    variables,
-                    flattenedVariables,
-                    patientMap)
+                    session, intermediateResults, patientMap)
         } catch (Throwable t) {
             session.close()
             throw t

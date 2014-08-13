@@ -34,9 +34,9 @@ import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @TestMixin(RuleBasedIntegrationTestMixin)
-class ConceptsResourceServiceTests extends GroovyTestCase {
+class DefaultConceptsResourceTests {
 
-    ConceptsResource conceptsResourceService
+    ConceptsResource conceptsResourceService = new DefaultConceptsResource()
 
     @Before
     void setUp() {

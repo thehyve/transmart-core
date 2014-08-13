@@ -51,9 +51,33 @@ class AccessLevelTestData {
     public static final String STUDY2_SECURE_TOKEN = 'EXP:STUDY_ID_2'
     public static final String STUDY3_SECURE_TOKEN = 'EXP:STUDY_ID_3'
 
-    ConceptTestData conceptTestData = ConceptTestData.createDefault()
+    static AccessLevelTestData createDefault() {
+        def result = new AccessLevelTestData()
+        result.conceptTestData = ConceptTestData.createDefault()
+        result
+    }
 
-    List<I2b2Secure> i2b2Secures = {
+    /*
+     * The alternative concept data still has hard requirements;
+     * the study names should be a subset of STUDY_ID_{1,2,3}
+     */
+    static AccessLevelTestData createWithAlternativeConceptData(
+            ConceptTestData conceptTestData) {
+        def result = new AccessLevelTestData()
+        result.conceptTestData = conceptTestData
+        result
+    }
+
+    ConceptTestData conceptTestData
+
+    @Lazy /* private */ List<String> studies = {
+        conceptTestData.i2b2List*.cComment.collect {
+            def split = it?.split(':') as List
+            split ? split[1] : null
+        }.findAll()
+    }()
+
+    @Lazy List<I2b2Secure> i2b2Secures = {
         conceptTestData.i2b2List.collect { I2b2 i2b2 ->
             def i2b2sec = createI2b2Secure(
                     i2b2.metaClass.properties.findAll {
@@ -70,7 +94,7 @@ class AccessLevelTestData {
         }
     }()
 
-    List<SecuredObject> securedObjects = {
+    @Lazy  List<SecuredObject> securedObjects = {
         Set<String> tokens = i2b2Secures*.secureObjectToken as Set
         tokens -= 'EXP:PUBLIC'
 
@@ -169,33 +193,39 @@ class AccessLevelTestData {
      *   probably can't happen in transmart anyway).
      * 7 EVERYONE_GROUP has access to study 3
      */
-    List<SecuredObjectAccess> securedObjectAccesses = {
-        def ret = [
-                new SecuredObjectAccess( // 2
-                        principal:     groups.find { it.category == 'group_-201' },
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
-                new SecuredObjectAccess( // 3
-                        principal:     users[2],
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'OWN' }),
-                new SecuredObjectAccess( // 5
-                        principal:     users[4],
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'VIEW' }),
-                new SecuredObjectAccess( // 6 (1)
-                        principal:     users[5],
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'VIEW' }),
-                new SecuredObjectAccess( // 6 (2)
-                        principal:     users[5],
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
-                new SecuredObjectAccess( // 7
-                        principal:     groups.find { it.category == EVERYONE_GROUP_NAME },
-                        securedObject: securedObjects.find { it.bioDataUniqueId == STUDY3_SECURE_TOKEN },
-                        accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
-        ]
+    @Lazy List<SecuredObjectAccess> securedObjectAccesses = {
+        List<SecuredObjectAccess> ret = []
+        if (STUDY2 in studies) {
+            ret += [
+                    new SecuredObjectAccess( // 2
+                            principal:     groups.find { it.category == 'group_-201' },
+                            securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
+                            accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
+                    new SecuredObjectAccess( // 3
+                            principal:     users[2],
+                            securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
+                            accessLevel:   accessLevels.find { it.name == 'OWN' }),
+                    new SecuredObjectAccess( // 5
+                            principal:     users[4],
+                            securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
+                            accessLevel:   accessLevels.find { it.name == 'VIEW' }),
+                    new SecuredObjectAccess( // 6 (1)
+                            principal:     users[5],
+                            securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
+                            accessLevel:   accessLevels.find { it.name == 'VIEW' }),
+                    new SecuredObjectAccess( // 6 (2)
+                            principal:     users[5],
+                            securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
+                            accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
+            ]
+        }
+        if (STUDY3 in studies) {
+            ret += new SecuredObjectAccess( // 7
+                    principal:     groups.find { it.category == EVERYONE_GROUP_NAME },
+                    securedObject: securedObjects.find { it.bioDataUniqueId == STUDY3_SECURE_TOKEN },
+                    accessLevel:   accessLevels.find { it.name == 'EXPORT' })
+        }
+
         long id = -700L
         ret.each { it.id = --id }
         ret

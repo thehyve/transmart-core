@@ -19,118 +19,56 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import com.google.common.base.Function
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.Iterators
-import com.google.common.collect.PeekingIterator
+import com.google.common.collect.*
+import com.google.common.io.Closer
 import groovy.transform.CompileStatic
-import org.hibernate.ScrollableResults
+import groovy.transform.TypeCheckingMode
+import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
+import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
 
 @CompileStatic
-class ClinicalDataTabularResult implements TabularResult<ClinicalVariableColumn, PatientRow> {
+class ClinicalDataTabularResult implements TabularResult<TerminalClinicalVariable, PatientRow> {
 
-    private TerminalConceptVariablesTabularResult conceptVariablesTabularResult
+    private Collection<TerminalClinicalVariablesTabularResult> tabResults
 
     private SortedMap<Long, Patient> patientMap
 
-    ClinicalDataTabularResult(ScrollableResults results,
-                              List<ClinicalVariableColumn> indicesList,
-                              List<TerminalConceptVariable> flattenedIndices,
+    private SessionImplementor session
+
+    List<TerminalClinicalVariable> indicesList
+
+    Map<TerminalClinicalVariable, TerminalClinicalVariablesTabularResult> indexOwnerMap
+
+    @CompileStatic(TypeCheckingMode.PASS)
+    ClinicalDataTabularResult(SessionImplementor session,
+                              Collection<TerminalClinicalVariablesTabularResult> tabResults,
                               SortedMap<Long, Patient> patientMap) {
-        conceptVariablesTabularResult =
-                new TerminalConceptVariablesTabularResult(
-                        results, flattenedIndices)
-
-        this.indicesList = indicesList
+        this.session    = session
         this.patientMap = patientMap
-        this.flattenedIndices = flattenedIndices
-    }
 
-    List<ClinicalVariableColumn> indicesList
-    List<TerminalConceptVariable> flattenedIndices
+        def indexOwnerBuilder  = ImmutableMap.builder()
+        def indicesListBuilder = ImmutableList.builder()
+
+        tabResults.each { TerminalClinicalVariablesTabularResult tabResult ->
+            tabResult.indicesList.each { TerminalClinicalVariable variable ->
+                indexOwnerBuilder.put variable, tabResult
+                indicesListBuilder.add variable
+            }
+        }
+
+        this.tabResults    = tabResults
+        this.indexOwnerMap = indexOwnerBuilder.build()
+        this.indicesList   = indicesListBuilder.build()
+    }
 
     @Override
     Iterator<PatientRow> getRows() {
-        def idToPatientEntries = patientMap.entrySet().iterator()
-        PeekingIterator<PatientRow> conceptVariableRows =
-                Iterators.peekingIterator(wrappedPatientRowsIterator())
-
-
-        //XXX: we don't care about the patient part actually
-        //     the plain implementation of DataRow, which is what's needed here
-        //     should be moved to a different class
-        // the empty data row should have the same indices that the normal rows, and so based on flattened indices
-        def emptyDataRow = createEmptyRow(flattenedIndices)
-
-        /* patients with no data will not be in the result set returned by
-         * conceptVariablesTabularResult, so we need to add empty rows
-         * for those patients. Both patientMap and conceptVariablesTabularResult
-         * should return results sorted by patient id */
-            new AbstractIterator<PatientRow>() {
-
-                @Override
-                protected PatientRow computeNext() {
-                    if (!idToPatientEntries.hasNext()) {
-                        if (conceptVariableRows.hasNext()) {
-                            throw new UnexpectedResultException(
-                                    'Found end of patient list before end of data result set')
-                        }
-                        endOfData()
-                        return
-                    }
-
-                    Patient currentPatient = idToPatientEntries.next().value
-                    if (!conceptVariableRows.hasNext() ||
-                            currentPatient.id != conceptVariableRows.peek().patient.id) {
-                        //empty row
-                        new PatientRowImpl(
-                                patient: currentPatient,
-                                delegatingDataRow: emptyDataRow)
-                    } else {
-                        conceptVariableRows.next()
-                    }
-                }
-            }
-    }
-
-    private DataRow createEmptyRow(List<TerminalConceptVariable> indices) {
-        int i = 0
-
-        new PatientIdAnnotatedDataRow(
-                data: indices.collect { null },
-                columnToIndex: indices.collectEntries { [it, i++] })
-    }
-
-    /**
-     * Returns an iterator where each PatientRows element was wrapped in a PatientRowImpl.
-     * The PatientRowImpl is AbstractComposedVariable-aware and implements properly the method getAt
-     * @return
-     */
-    private Iterator<PatientRow> wrappedPatientRowsIterator() {
-        /* TerminalConceptVariablesTabularResult returns a different
-         * type of row, that doesn't implement PatientRow.
-         * Adapt it to a PatientRow */
-        Iterators.transform(
-                conceptVariablesTabularResult.iterator(),
-                { PatientIdAnnotatedDataRow originalRow ->
-                    Patient patient = patientMap[originalRow.patientId]
-                    if (!patient) {
-                        throw new UnexpectedResultException(
-                                "Found data for unexpected patient " +
-                                        "(id $originalRow.patientId)")
-                    }
-
-                    new PatientRowImpl(
-                            patient: patient,
-                            delegatingDataRow: originalRow)
-                } as Function<PatientIdAnnotatedDataRow, PatientRow>)
+        new ClinicalDataJoinedIterator(this)
     }
 
     @Override
@@ -138,20 +76,101 @@ class ClinicalDataTabularResult implements TabularResult<ClinicalVariableColumn,
         rows
     }
 
-    /* the rest, completely delegate to conceptVariablesTabularResult */
-
     @Override
     String getColumnsDimensionLabel() {
-        conceptVariablesTabularResult.columnsDimensionLabel
+        tabResults.first().columnsDimensionLabel
     }
 
     @Override
     String getRowsDimensionLabel() {
-        conceptVariablesTabularResult.rowsDimensionLabel
+        tabResults.first().rowsDimensionLabel
     }
 
     @Override
+    @CompileStatic(TypeCheckingMode.SKIP)
     void close() throws IOException {
-        conceptVariablesTabularResult.close()
+        Closer closer = Closer.create()
+        /* session must be last thing to be closed, so we have to add it to the
+         * the closer first */
+        closer.register(new Closeable() {
+            void close() throws IOException {
+                session.close()
+            }
+        })
+        tabResults.each { closer.register it }
+        closer.close()
+    }
+}
+
+/** grails doesn't play well with inner classes */
+@CompileStatic
+class ClinicalDataJoinedIterator extends AbstractIterator<PatientRow> {
+
+    ClinicalDataTabularResult outer
+
+    Iterator<Map.Entry<Long, Patient>> idToPatientEntries =
+            outer.patientMap.entrySet().iterator()
+
+    List<PeekingIterator<PatientIdAnnotatedDataRow>> innerIterators = []
+
+    Map<Iterator<PatientIdAnnotatedDataRow>, DataRow> emptyRows = [:]
+
+    Map<Iterator<PatientIdAnnotatedDataRow>, String> groups = [:]
+
+    @CompileStatic(TypeCheckingMode.SKIP)
+    ClinicalDataJoinedIterator(ClinicalDataTabularResult outer) {
+        this.outer = outer
+        outer.tabResults.each { tr ->
+            def newIterator = Iterators.peekingIterator(tr.iterator())
+            innerIterators << newIterator
+            emptyRows[newIterator] = createEmptyRow tr.indicesList
+            groups[newIterator] = tr.variableGroup
+        }
+    }
+
+    @Override
+    protected PatientRow computeNext() {
+        if (!idToPatientEntries.hasNext()) {
+            if (innerIterators*.hasNext().any()) {
+                throw new UnexpectedResultException(
+                        'Found end of patient list before end of data result set')
+            }
+            return endOfData()
+        }
+
+        Patient currentPatient = idToPatientEntries.next().value
+
+        /* patients with no data will not be in the result set returned by
+         * conceptVariablesTabularResult, so we need to add empty rows
+         * for those patients. Both patientMap and
+         * conceptVariablesTabularResult should return results sorted by
+         * patient id */
+
+        Map delegatingDataRows = innerIterators.collectEntries {
+            PeekingIterator<PatientIdAnnotatedDataRow> innerIt ->
+                if (!innerIt.hasNext() ||
+                        currentPatient.id != innerIt.peek().patientId) {
+                    // empty row
+                    [groups[innerIt], emptyRows[innerIt]]
+                } else {
+                    [groups[innerIt], innerIt.next()]
+                }
+        }
+
+        new PatientRowImpl(
+                patient: currentPatient,
+                flattenedIndices: outer.indicesList,
+                delegatingDataRows: delegatingDataRows)
+    }
+
+    private PatientIdAnnotatedDataRow createEmptyRow(
+            List<TerminalClinicalVariable> indices) {
+        int i = 0
+
+        // we don't need to actually fill the patient
+        // we actually use that fact to reuse the object
+        new PatientIdAnnotatedDataRow(
+                data: indices.collect { null },
+                columnToIndex: indices.collectEntries { [it, i++] })
     }
 }

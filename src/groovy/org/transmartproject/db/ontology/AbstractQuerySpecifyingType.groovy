@@ -28,6 +28,8 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
 
+import org.transmartproject.db.user.User
+
 /**
  * Properties that specify queries to be made in other tables. Used by
  * TableAccess and i2b2 metadata tables
@@ -42,43 +44,8 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       dimensionCode
 
     def patientSetQueryBuilderService
-
     def sessionFactory
-
-    /* implements (hopefully improved) transformations described here:
-     * https://community.i2b2.org/wiki/display/DevForum/Query+Building+from+Ontology
-     */
-    String getProcessedDimensionCode() {
-        def v = dimensionCode
-        if (!v) {
-            return v
-        }
-
-        if (columnDataType == 'T' && v.length() > 2) {
-            if (operator.equalsIgnoreCase('like')) {
-                if (v[0] != "'" && !v[0] != '(') {
-                    if (v[-1] != '%') {
-                        if (v[-1] != '\\') {
-                            v += '\\'
-                        }
-                        v = v.asLikeLiteral() + '%'
-                    }
-                }
-            }
-
-            if (v[0] != "'") {
-                v = v.replaceAll(/'/, "''") /* escape single quotes */
-                v = "'$v'"
-            }
-
-        }
-
-        if (operator.equalsIgnoreCase('in')) {
-            v = "($v)"
-        }
-
-        v
-    }
+    def databasePortabilityService
 
     static constraints = {
         factTableColumn      nullable:   false,   maxSize:   50
@@ -118,5 +85,10 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
             patientIdList = patientIdList.collect( {it as Long} )
         }
         PatientDimension.findAllByIdInList(patientIdList)
+    }
+
+    @Override
+    String postProcessQuery(String sql, User user) {
+        sql
     }
 }
