@@ -1,5 +1,10 @@
 <?php
 $dependencies = array (
+  'views/modifier_dimension_view' => 
+  array (
+    0 => 'modifier_dimension',
+    1 => 'modifier_metadata',
+  ),
   'set_upload_status' => 
   array (
     0 => 'set_type',
