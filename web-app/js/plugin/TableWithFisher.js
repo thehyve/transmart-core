@@ -41,8 +41,8 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     var dependentVariableEle = Ext.get("divDependentVariable");
     var independentVariableEle = Ext.get("divIndependentVariable");
 
-    var dependentVariableConceptCode = "";
-    var independentVariableConceptCode = "";
+    var dependentVariableConceptPath = "";
+    var independentVariableConceptPath = "";
 
     //If the category variable element has children, we need to parse them and concatenate their values.
     if(independentVariableEle.dom.childNodes[0])
@@ -51,10 +51,11 @@ TableWithFisherView.prototype.get_form_params = function (form) {
         for(nodeIndex = 0; nodeIndex < independentVariableEle.dom.childNodes.length; nodeIndex++)
         {
             //If we already have a value, add the seperator.
-            if(independentVariableConceptCode != '') independentVariableConceptCode += '|'
+            if(independentVariableConceptPath != '') independentVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            independentVariableConceptCode += getQuerySummaryItem(independentVariableEle.dom.childNodes[nodeIndex]).trim()
+            independentVariableConceptPath += RmodulesView.fetch_concept_path(
+                independentVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
@@ -65,10 +66,11 @@ TableWithFisherView.prototype.get_form_params = function (form) {
         for(nodeIndex = 0; nodeIndex < dependentVariableEle.dom.childNodes.length; nodeIndex++)
         {
             //If we already have a value, add the seperator.
-            if(dependentVariableConceptCode != '') dependentVariableConceptCode += '|'
+            if(dependentVariableConceptPath != '') dependentVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            dependentVariableConceptCode += getQuerySummaryItem(dependentVariableEle.dom.childNodes[nodeIndex]).trim()
+            dependentVariableConceptPath += RmodulesView.fetch_concept_path(
+                dependentVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
@@ -76,19 +78,19 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     //Validation
     //------------------------------------
     //Make sure the user entered some items into the variable selection boxes.
-    if(dependentVariableConceptCode == '' && independentVariableConceptCode == '')
+    if(dependentVariableConceptPath == '' && independentVariableConceptPath == '')
     {
         Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable and dependent variable boxes.');
         return;
     }
 
-    if(dependentVariableConceptCode == '')
+    if(dependentVariableConceptPath == '')
     {
         Ext.Msg.alert('Missing input', 'Please drag at least one concept into the dependent variable box.');
         return;
     }
 
-    if(independentVariableConceptCode == '')
+    if(independentVariableConceptPath == '')
     {
         Ext.Msg.alert('Missing input', 'Please drag at least one concept into the independent variable box.');
         return;
@@ -116,13 +118,13 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') && (dependentVariableConceptCode.indexOf("|") != -1))
+    if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') && (dependentVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Dependent input box has multiple nodes.');
         return;
     }
 
-    if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1))
+    if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Independent input box has multiple nodes.');
         return;
@@ -141,12 +143,12 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked && Ext.get('variableTypeDep').getValue() == 'Continuous' && ((dependentVariableConceptCode != "" && (!dependentNodeList[0] || dependentNodeList[0] == "null")) || (dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked && Ext.get('variableTypeDep').getValue() == 'Continuous' && ((dependentVariableConceptPath != "" && (!dependentNodeList[0] || dependentNodeList[0] == "null")) || (dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Dependent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Dependent variable box.');
         return;
     }
-    if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked && Ext.get('variableTypeIndep').getValue() == 'Continuous' && ((independentVariableConceptCode != "" && (!independentNodeList[0] || independentNodeList[0] == "null")) || (independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked && Ext.get('variableTypeIndep').getValue() == 'Continuous' && ((independentVariableConceptPath != "" && (!independentNodeList[0] || independentNodeList[0] == "null")) || (independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Independent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Independent variable box.');
         return;
@@ -184,23 +186,23 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptCode.indexOf("|") == -1)
+    if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
         return;
     }
 
-    if((!independentNodeList[0] || independentNodeList[0] == "null") && independentVariableConceptCode.indexOf("|") == -1)
+    if((!independentNodeList[0] || independentNodeList[0] == "null") && independentVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The independent box only has 1 categorical variable in it.');
         return;
     }
     //------------------------------------
 
-    var variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode;
+    var variablesConceptCode = dependentVariableConceptPath + "|" + independentVariableConceptPath;
 
-    var formParams = {dependentVariable:dependentVariableConceptCode,
-        independentVariable:independentVariableConceptCode,
+    var formParams = {dependentVariable:dependentVariableConceptPath,
+        independentVariable:independentVariableConceptPath,
         jobType:'TableWithFisher',
         variablesConceptPaths:variablesConceptCode};
 

@@ -65,8 +65,8 @@ LineGraphView.prototype.get_form_params = function (form) {
     } //
 
 
-    var dependentVariableConceptCode = "";
-    var groupByVariableConceptcode = "";
+    var dependentVariableConceptPath = "";
+    var groupByVariableConceptPath = "";
 
     //If we have multiple items in the Dependent variable box, then we have to flip the graph image.
     var flipImage = false;
@@ -80,10 +80,11 @@ LineGraphView.prototype.get_form_params = function (form) {
         //Loop through the category variables and add them to a comma seperated list.
         for (var nodeIndex = 0; nodeIndex < groupByVariableEle.dom.childNodes.length; nodeIndex++) {
             //If we already have a value, add the seperator.
-            if (groupByVariableConceptcode != '') groupByVariableConceptcode += '|'
+            if (groupByVariableConceptPath != '') groupByVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            groupByVariableConceptcode += getQuerySummaryItem(groupByVariableEle.dom.childNodes[nodeIndex]).trim()
+            groupByVariableConceptPath += RmodulesView.fetch_concept_path(
+                groupByVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
@@ -92,27 +93,28 @@ LineGraphView.prototype.get_form_params = function (form) {
         //Loop through the category variables and add them to a comma seperated list.
         for (var nodeIndex = 0; nodeIndex < dependentVariableEle.dom.childNodes.length; nodeIndex++) {
             //If we already have a value, add the seperator.
-            if (dependentVariableConceptCode != '') dependentVariableConceptCode += '|'
+            if (dependentVariableConceptPath != '') dependentVariableConceptPath += '|'
 
             //Add the concept path to the string.
-            dependentVariableConceptCode += getQuerySummaryItem(dependentVariableEle.dom.childNodes[nodeIndex]).trim()
+            dependentVariableConceptPath += RmodulesView.fetch_concept_path(
+                dependentVariableEle.dom.childNodes[nodeIndex])
         }
     }
 
     //Make sure the user entered some items into the variable selection boxes.
-    if (dependentVariableConceptCode == '') {
+    if (dependentVariableConceptPath == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the time/measurements variable box.');
         return;
     }
 
     var formParams = {
-        dependentVariable: dependentVariableConceptCode,
+        dependentVariable: dependentVariableConceptPath,
         dependentVariableCategorical: _isCategorical(dependentNodeList),
         jobType: 'LineGraph',
         plotEvenlySpaced: Ext.get("plotEvenlySpaced").dom.checked,
         projections: [ "rawIntensity" ],
         graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
-        groupByVariable: groupByVariableConceptcode,
+        groupByVariable: groupByVariableConceptPath,
         groupByVariableCategorical: _isCategorical(groupByNodeList)
     };
 

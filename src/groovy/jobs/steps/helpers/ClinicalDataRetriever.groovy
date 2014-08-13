@@ -76,21 +76,8 @@ class ClinicalDataRetriever {
 
         resultsGiven = true
 
-//        if (joinSubsets) {
-            clinicalDataResource.retrieveData(
-                    resultInstanceIdsHolder.queryResults, variables)
-//        } else {
-//            List<TabularResult> res = []
-//            try {
-//                resultInstanceIdsHolder.queryResults.each {
-//                    res << clinicalDataResource.retrieveData(it, variables)
-//                }
-//            } catch (Exception e) {
-//                res.each { it.close() }
-//                throw e
-//            }
-//            res
-//        }
+        clinicalDataResource.retrieveData(
+                resultInstanceIdsHolder.queryResults, variables)
     }
 
     void attachToTable(Table table) {

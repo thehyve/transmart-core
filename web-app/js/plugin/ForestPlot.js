@@ -57,32 +57,19 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	var independentVariableEle = Ext.get("divIndependentVariable");
 	var stratificationVariableEle = Ext.get("divStratificationVariable");
 	
-	var tempReturnArray = ""; 
-	
 	//Pull the values out of the form inputs.
-	tempReturnArray = readConceptVariables2("divDependentVariable");
-	var dependentVariableConceptCode = tempReturnArray[0];
-	var dependentVariableCode = tempReturnArray[1];	
-	
-	tempReturnArray = readConceptVariables2("divIndependentVariable");
-	var independentVariableConceptCode = tempReturnArray[0];
-	var independentVariableCode = tempReturnArray[1];
-	
-	tempReturnArray = readConceptVariables2("divReferenceVariable");
-	var referenceVariableConceptCode = tempReturnArray[0];
-	var referenceVariableCode = tempReturnArray[1];
-	
-	tempReturnArray = readConceptVariables2("divStratificationVariable");
-	var stratificationVariableConceptCode = tempReturnArray[0];
-	var stratificationVariableCode = tempReturnArray[1];	
-	
+	var dependentVariableConceptPath = readConceptVariables("divDependentVariable");
+	var independentVariableConceptPath = readConceptVariables("divIndependentVariable");
+	var referenceVariableConceptPath = readConceptVariables("divReferenceVariable");
+	var stratificationVariableConceptPath = readConceptVariables("divStratificationVariable");
+
 	//------------------------------------
 	//Validation
 	//------------------------------------
 	//Validate that these boxes have at least one value in them.
-	if(!(detectMissingInput(dependentVariableConceptCode, 'dependent'))) return;
-	if(!(detectMissingInput(independentVariableConceptCode, 'independent'))) return;
-	if(!(detectMissingInput(referenceVariableConceptCode, 'control or reference'))) return;
+	if(!(detectMissingInput(dependentVariableConceptPath, 'dependent'))) return;
+	if(!(detectMissingInput(independentVariableConceptPath, 'independent'))) return;
+	if(!(detectMissingInput(referenceVariableConceptPath, 'control or reference'))) return;
 
 	//forest plot test requires three categorical variables.
 	var depVariableType = "";
@@ -103,16 +90,16 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(!(detectMultipleNodeTypes(stratificationNodeList, 'stratification'))) return;
 
 	//For the valueicon and hleaficon nodes (Value nodes and HDD nodes), you can only put one in a given input box.
-	if(!(detectMultipleValueNodes(dependentNodeList, dependentVariableConceptCode, 'Dependent'))) return;
-	if(!(detectMultipleValueNodes(independentNodeList, independentVariableConceptCode, 'Independent'))) return;
-	if(!(detectMultipleValueNodes(referenceNodeList, referenceVariableConceptCode, 'Reference'))) return;
-	if(!(detectMultipleValueNodes(stratificationNodeList, stratificationVariableConceptCode, 'Stratification'))) return;
+	if(!(detectMultipleValueNodes(dependentNodeList, dependentVariableConceptPath, 'Dependent'))) return;
+	if(!(detectMultipleValueNodes(independentNodeList, independentVariableConceptPath, 'Independent'))) return;
+	if(!(detectMultipleValueNodes(referenceNodeList, referenceVariableConceptPath, 'Reference'))) return;
+	if(!(detectMultipleValueNodes(stratificationNodeList, stratificationVariableConceptPath, 'Stratification'))) return;
 	
 	//Detect when the dependent variable has more than 2 values and binning isn't enabled.
-	if(!(detectMultipleCategoricalNodesWithoutBinning(dependentNodeList, dependentVariableConceptCode, 'Dependent', 2, GLOBAL.Binning && document.getElementById('EnableBinningDep').checked))) return;
+	if(!(detectMultipleCategoricalNodesWithoutBinning(dependentNodeList, dependentVariableConceptPath, 'Dependent', 2, GLOBAL.Binning && document.getElementById('EnableBinningDep').checked))) return;
 	
 	//Detect when the dependent variable box has 2 values and binning isn't enabled and the checkbox is checked.
-	if(!(detectMultipleCategoricalNodesWithoutBinningAndGroupCheckboxChecked(dependentNodeList, dependentVariableConceptCode, 'Dependent', 2, GLOBAL.Binning && document.getElementById('EnableBinningDep').checked, document.getElementById('chkAssumeNonEvent').checked))) return;
+	if(!(detectMultipleCategoricalNodesWithoutBinningAndGroupCheckboxChecked(dependentNodeList, dependentVariableConceptPath, 'Dependent', 2, GLOBAL.Binning && document.getElementById('EnableBinningDep').checked, document.getElementById('chkAssumeNonEvent').checked))) return;
 				
 	//Detect when the dependent variable box has 2 bins and the checkbox is checked.
 	if(!(detectMultipleBinsWithGroupCheckboxChecked(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked, document.getElementById("txtNumberOfBinsDep").value, document.getElementById('chkAssumeNonEvent').checked))) return;
@@ -121,11 +108,11 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(!(detectOneBinGroupCheckBoxUnchecked(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked, document.getElementById("txtNumberOfBinsDep").value, document.getElementById('chkAssumeNonEvent').checked))) return;
 	
 	//Detect when either Independent or Reference variables have more than one entry but binning is not enabled.
-	if(!(detectMultipleCategoricalNodesWithoutBinning(independentNodeList, independentVariableConceptCode, 'Independent', 1, GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked))) return;
-	if(!(detectMultipleCategoricalNodesWithoutBinning(referenceNodeList, referenceVariableConceptCode, 'Reference', 1, GLOBAL.Binning && document.getElementById('EnableBinningReference').checked))) return;
+	if(!(detectMultipleCategoricalNodesWithoutBinning(independentNodeList, independentVariableConceptPath, 'Independent', 1, GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked))) return;
+	if(!(detectMultipleCategoricalNodesWithoutBinning(referenceNodeList, referenceVariableConceptPath, 'Reference', 1, GLOBAL.Binning && document.getElementById('EnableBinningReference').checked))) return;
 	
 	//Detect if only one categorical node was dragged into the stratification box.
-	if(!(detectSingleCategoricalNode(stratificationNodeList, stratificationVariableConceptCode, 'Stratification'))) return;
+	if(!(detectSingleCategoricalNode(stratificationNodeList, stratificationVariableConceptPath, 'Stratification'))) return;
 	
 	//Detect if we are binning the stratification variable input box and are only specifying one bin.
 	if(!(detectOneBinGroup(GLOBAL.Binning && document.getElementById('EnableBinningStratification').checked, document.getElementById("txtNumberOfBinsStratification").value, 'stratification'))) return;
@@ -137,10 +124,10 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(!(detectCatBinningWithoutManual(GLOBAL.Binning, 'variableTypeStratification', 'chkManualBinStratification', 'EnableBinningStratification', 'Stratification' ))) return;
 	
 	//If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningIndep', 'variableTypeIndep', independentVariableConceptCode, independentNodeList, 'divIndependentVariableSNPType', 'divIndependentVariablemarkerType', 'Independent' ))) return;
-	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningDep', 'variableTypeDep', dependentVariableConceptCode, dependentNodeList, 'divDependentVariableSNPType', 'divDependentVariablemarkerType', 'Dependent' ))) return;
-	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningReference', 'variableTypeReference', referenceVariableConceptCode, referenceNodeList, 'divReferenceVariableSNPType', 'divReferenceVariablemarkerType', 'Reference' ))) return;
-	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningStratification', 'variableTypeStratification', stratificationVariableConceptCode, stratificationNodeList, 'divStratificationVariableSNPType', 'divStratificationVariablemarkerType', 'Stratification' ))) return;
+	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningIndep', 'variableTypeIndep', independentVariableConceptPath, independentNodeList, 'divIndependentVariableSNPType', 'divIndependentVariablemarkerType', 'Independent' ))) return;
+	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningDep', 'variableTypeDep', dependentVariableConceptPath, dependentNodeList, 'divDependentVariableSNPType', 'divDependentVariablemarkerType', 'Dependent' ))) return;
+	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningReference', 'variableTypeReference', referenceVariableConceptPath, referenceNodeList, 'divReferenceVariableSNPType', 'divReferenceVariablemarkerType', 'Reference' ))) return;
+	if(!(detectCatBinnedAsCont(GLOBAL.Binning, 'EnableBinningStratification', 'variableTypeStratification', stratificationVariableConceptPath, stratificationNodeList, 'divStratificationVariableSNPType', 'divStratificationVariablemarkerType', 'Stratification' ))) return;
 	
 	//These tell us if we are binning the dependent or independent box.
 	if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked) indVariableType = "CAT"
@@ -179,14 +166,14 @@ ForestPlotView.prototype.get_form_params = function (form) {
 		return;		
 	}	
 	
-	if(stratificationVariableConceptCode != '' && !(statVariableType=="CAT"))
+	if(stratificationVariableConceptPath != '' && !(statVariableType=="CAT"))
 	{
 		Ext.Msg.alert('Wrong input', 'Forest Plot requires a categorical variable in the stratification variable box.');
 		return;		
 	}	
 	
 	//If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user. 
-	if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptCode.indexOf("|") == -1 && document.getElementById('chkAssumeNonEvent').checked == false)
+	if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptPath.indexOf("|") == -1 && document.getElementById('chkAssumeNonEvent').checked == false)
 	{
 		Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
 		return;			
@@ -213,62 +200,23 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(stratificationNodeType[0] && stratificationNodeType[0] != "null") finalNodeType.push(stratificationNodeType[0])
 	if(referenceNodeType[0] && referenceNodeType[0] != "null") finalNodeType.push(referenceNodeType[0])
 	
-	//Distinct this final list.
-	finalNodeType = finalNodeType.unique()
+
+    //Create a string of all the concept paths that we need to convert to codes.
+    variablesConceptCode = dependentVariableConceptPath + "|" + independentVariableConceptPath + "|" + referenceVariableConceptPath;
+    if(stratificationVariableConceptPath) variablesConceptCode += "|" + stratificationVariableConceptPath
+
+    //Sloppy, but for now reassign the codes if we want the correct concept path.
+    dependentVariableCode = dependentVariableConceptPath
+    independentVariableCode = independentVariableConceptPath
+    referenceVariableCode = referenceVariableConceptPath
+    stratificationVariableCode = stratificationVariableConceptPath
+	/////////////////////////////////////////
 	
-	if(finalNodeType.length > 1)
-	{
-		Ext.Msg.alert('Wrong input', 'You have selected inputs from different ontology trees, please only select nodes from the \'Navigate By Study\' or \'Across Trial\' tree.');
-		return;			
-	}
-	
-	if(finalNodeType[0] == "CONCEPT_DIMENSION")
-	{
-		codeType = "Concept"
-	}
-	
-	if(finalNodeType[0] == "MODIFIER_DIMENSION")
-	{
-		codeType = "Modifier"
-	}
-	
-	var variablesConceptCode = ""
-	
-	if(codeType == "Concept")
-	{
-		//Create a string of all the concept paths that we need to convert to codes.
-		variablesConceptCode = dependentVariableConceptCode + "|" + independentVariableConceptCode + "|" + referenceVariableConceptCode;
-		if(stratificationVariableConceptCode) variablesConceptCode += "|" + stratificationVariableConceptCode
-		
-		//Sloppy, but for now reassign the codes if we want the correct concept path.
-		dependentVariableCode = dependentVariableConceptCode
-		independentVariableCode = independentVariableConceptCode
-		referenceVariableCode = referenceVariableConceptCode
-		stratificationVariableCode = stratificationVariableConceptCode		
-		
-		GLOBAL.codeType = "Concept"
-	}
-	else if(codeType == "Modifier")
-	{
-		//Create a string of all the modifier codes so we can put them in the clinical data query.
-		variablesConceptCode = dependentVariableCode+"|"+independentVariableCode + "|" + referenceVariableCode;
-		if(stratificationVariableCode) variablesConceptCode += "|" + stratificationVariableCode
-		
-		dependentVariableCode = dependentVariableConceptCode
-		independentVariableCode = independentVariableConceptCode	
-		referenceVariableCode = referenceVariableConceptCode
-		stratificationVariableCode = stratificationVariableConceptCode			
-		
-		GLOBAL.codeType = "Modifier"
-	}	
-	/////////////////////////////////////////	
-	
-	var formParams = {dependentVariable:dependentVariableConceptCode,
-			independentVariable:independentVariableConceptCode,
-			referenceVariable:referenceVariableConceptCode,
-			stratificationVariable:stratificationVariableConceptCode,
+	var formParams = {dependentVariable:dependentVariableConceptPath,
+			independentVariable:independentVariableConceptPath,
+			referenceVariable:referenceVariableConceptPath,
+			stratificationVariable:stratificationVariableConceptPath,
 			jobType:'ForestPlot',
-			codeType : codeType,			
 			variablesConceptPaths:variablesConceptCode,
 			statisticType:statisticType,
 			nonEventCheckbox:nonEventCheckbox};
@@ -289,7 +237,7 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	{
 
 		formParams["manualBinningIndep"] = "TRUE";
-		formParams["binRangesIndep"] = "bin1" + "<>" + independentVariableConceptCode.replace("|","<>")
+		formParams["binRangesIndep"] = "bin1" + "<>" + independentVariableConceptPath.replace("|","<>")
 		formParams["variableTypeIndep"] = "Categorical";		
 		
 	}
@@ -297,7 +245,7 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(GLOBAL.Binning && document.getElementById('EnableBinningReference').checked && Ext.get("variableTypeReference").getValue() == 'Categorical')
 	{
 		formParams["manualBinningReference"] = "TRUE";
-		formParams["binRangesReference"] = "bin1" + "<>" + referenceVariableConceptCode.replace("|","<>")
+		formParams["binRangesReference"] = "bin1" + "<>" + referenceVariableConceptPath.replace("|","<>")
 		formParams["variableTypeReference"] = "Categorical";			
 	}
 	

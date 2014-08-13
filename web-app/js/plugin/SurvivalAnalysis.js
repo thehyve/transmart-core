@@ -1,3 +1,4 @@
+//# sourceURL=SurvivalAnalysis.js
 /**
  * Where everything starts
  */
@@ -42,12 +43,14 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     var categoryVariableEle = Ext.get("divCategoryVariable");
     var censoringVariableEle = Ext.get("divCensoringVariable");
 
-    var timeVariableConceptCode = "";
-    var categoryVariableConceptCode = "";
-    var censoringVariableConceptCode = "";
+    var timeVariableConceptPath = "";
+    var categoryVariableConceptPath = "";
+    var censoringVariableConceptPath = "";
 
-    if (timeVariableEle.dom.childNodes[0])
-        timeVariableConceptCode = getQuerySummaryItem(timeVariableEle.dom.childNodes[0]);
+    if (timeVariableEle.dom.childNodes[0]) {
+        timeVariableConceptPath =
+            RmodulesView.fetch_concept_path(timeVariableEle.dom.childNodes[0]);
+    }
 
     // If the category variable element has children, we need to parse them and
     // concatenate their values.
@@ -56,17 +59,19 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
         // list.
         for (var nodeIndex = 0; nodeIndex < categoryVariableEle.dom.childNodes.length; nodeIndex++) {
             // If we already have a value, add the seperator.
-            if (categoryVariableConceptCode != '')
-                categoryVariableConceptCode += '|'
+            if (categoryVariableConceptPath != '')
+                categoryVariableConceptPath += '|'
 
             // Add the concept path to the string.
-            categoryVariableConceptCode += getQuerySummaryItem(
+            categoryVariableConceptPath += RmodulesView.fetch_concept_path(
                 categoryVariableEle.dom.childNodes[nodeIndex]).trim()
         }
     }
 
-    if (censoringVariableEle.dom.childNodes[0])
-        censoringVariableConceptCode = getQuerySummaryItem(censoringVariableEle.dom.childNodes[0]);
+    if (censoringVariableEle.dom.childNodes[0]) {
+        censoringVariableConceptPath = RmodulesView.fetch_concept_path(
+            censoringVariableEle.dom.childNodes[0]);
+    }
 
 
     //------------------------------------
@@ -74,7 +79,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     //------------------------------------
 
     //Validate the input box for time.
-    if(timeVariableConceptCode == '')
+    if(timeVariableConceptPath == '')
     {
         Ext.Msg.alert('Missing input', 'Please drag at least one concept into the time variable box.');
         return;
@@ -108,21 +113,21 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((timeNodeList[0] == 'valueicon' || timeNodeList[0] == 'hleaficon') && (timeVariableConceptCode.indexOf("|") != -1))
+    if((timeNodeList[0] == 'valueicon' || timeNodeList[0] == 'hleaficon') && (timeVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into ' +
             'the input boxes. The Time input box has multiple nodes.');
         return;
     }
 
-    if((categoryNodeList[0] == 'valueicon' || categoryNodeList[0] == 'hleaficon') && (categoryVariableConceptCode.indexOf("|") != -1))
+    if((categoryNodeList[0] == 'valueicon' || categoryNodeList[0] == 'hleaficon') && (categoryVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Category input box has multiple nodes.');
         return;
     }
 
-    if((censoringNodeList[0] == 'valueicon' || censoringNodeList[0] == 'hleaficon') && (censoringVariableConceptCode.indexOf("|") != -1))
+    if((censoringNodeList[0] == 'valueicon' || censoringNodeList[0] == 'hleaficon') && (censoringVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Censoring input box has multiple nodes.');
@@ -130,7 +135,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if(GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous' && ((categoryVariableConceptCode != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) || (categoryNodeList[0] == 'hleaficon' && window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous' && ((categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) || (categoryNodeList[0] == 'hleaficon' && window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Category box, but you are trying to bin ' +
             'it as if it was continuous. Please alter your binning options or the concept in the Category box.');
@@ -149,7 +154,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     var categoryVariableType = "";
 
     //If Category is not empty, check to see if the node value is categorical.
-    if(categoryVariableConceptCode != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) categoryVariableType = "CAT";
+    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) categoryVariableType = "CAT";
 
     //We only bin on category here, so if binning is enabled the category is categorical.
     if (GLOBAL.Binning) categoryVariableType = "CAT";
@@ -174,21 +179,21 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If there is a node in the censoring box and it isn't a category, throw an error.
-    if(censoringVariableConceptCode != "" && !(!censoringNodeList[0] || censoringNodeList[0] == "null"))
+    if(censoringVariableConceptPath != "" && !(!censoringNodeList[0] || censoringNodeList[0] == "null"))
     {
         Ext.Msg.alert('Wrong input', 'Survival Analysis requires categorical variables in the "Censoring ' +
             'Variable" box.');
         return;
     }
 
-    if(categoryVariableConceptCode != "" && categoryVariableType != "CAT")
+    if(categoryVariableConceptPath != "" && categoryVariableType != "CAT")
     {
         Ext.Msg.alert('Wrong input', 'Survival Analysis requires categorical variables in the "Category" box.');
         return;
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if(categoryVariableConceptCode != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null") && categoryVariableConceptCode.indexOf("|") == -1)
+    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null") && categoryVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent ' +
             'box only has 1 categorical variable in it.');
@@ -198,14 +203,14 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     //------------------------------------
 
     //Create a string of all the concepts we need for the i2b2 data.
-    var variablesConceptCode = timeVariableConceptCode;
-    if(categoryVariableConceptCode != "") variablesConceptCode += "|" + categoryVariableConceptCode
-    if(censoringVariableConceptCode != "") variablesConceptCode += "|" + censoringVariableConceptCode
+    var variablesConceptCode = timeVariableConceptPath;
+    if(categoryVariableConceptPath != "") variablesConceptCode += "|" + categoryVariableConceptPath
+    if(censoringVariableConceptPath != "") variablesConceptCode += "|" + censoringVariableConceptPath
 
     var formParams = {
-        timeVariable : timeVariableConceptCode,
-        categoryVariable : categoryVariableConceptCode,
-        censoringVariable : censoringVariableConceptCode,
+        timeVariable : timeVariableConceptPath,
+        categoryVariable : categoryVariableConceptPath,
+        censoringVariable : censoringVariableConceptPath,
         variablesConceptPaths : variablesConceptCode,
         jobType : 'SurvivalAnalysis'
     };
@@ -358,119 +363,15 @@ SurvivalAnalysisView.prototype.submit_job = function (form) {
 
 SurvivalAnalysisView.prototype.load_high_dimensional_parameters = function (formParams) {
 
-    //These will tell tranSMART what data types we need to retrieve.
-    var mrnaData = false
-    var snpData = false
-
-    //Gene expression filters.
-    var fullGEXSampleType   = "";
-    var fullGEXTissueType   = "";
-    var fullGEXTime         = "";
-    var fullGEXGeneList     = "";
-    var fullGEXGPL          = "";
-
-    //SNP Filters.
-    var fullSNPSampleType = "";
-    var fullSNPTissueType = "";
-    var fullSNPTime = "";
-    var fullSNPGeneList = "";
-    var fullSNPGPL = "";
-
     var categoryGeneList     = document.getElementById('dependentPathway').value;
-    var categoryPlatform     = window['divCategoryVariableplatforms1'];
-    var categoryType        = window['divCategoryVariablemarkerType'];
-    var categorySampleType    = window['divCategoryVariablesamplesValues'];
-    var categoryTissueType    = window['divCategoryVariabletissuesValues'];
-    var categoryTime        = window['divCategoryVariabletimepointsValues'];
-    var categoryGPL            = window['divCategoryVariablegplValues'];
 
-    //This variable holds all the GPLs for the two subsets for each input box. We only ever have one subset per
-    // input box in the scatter plot currently. Take only the 0 indexed GPL ID.
-    if(categoryGPL)         categoryGPL = categoryGPL[0];
-    if(categorySampleType)     categorySampleType = categorySampleType[0];
-    if(categoryTissueType)     categoryTissueType = categoryTissueType[0];
-    if(categoryTime)         categoryTime = categoryTime[0];
+    var _dependentDataType = document.getElementById('dependentVarDataType').value ?
+        document.getElementById('dependentVarDataType').value : 'CLINICAL';
 
-    // console.log("categoryType", categoryType)
-
-    //If we are using High Dimensional data we need to create variables that represent genes from both independent
-    // and dependent selections (In the event they are both of a single high dimensional type).
-    //Check to see if the user selected GEX in the independent input
-    if (categoryType == "Gene Expression")
-    {
-        //The genes entered into the search box were GEX genes.
-        fullGEXGeneList     = String(categoryGeneList);
-        fullGEXSampleType     = String(categorySampleType);
-        fullGEXTissueType     = String(categoryTissueType);
-        fullGEXTime            = String(categoryTime)
-        fullGEXGPL             = String(categoryGPL);
-
-        //This flag will tell us to write the GEX text file.
-        mrnaData = true;
-
-        //Fix the platform to be something the R script expects.
-        categoryType = "MRNA";
-    }
-
-    //Check to see if the user selected SNP in the independent input.
-    if(categoryType == "SNP")
-    {
-        //The genes entered into the search box were SNP genes.
-        fullSNPGeneList     = String(categoryGeneList);
-        fullSNPSampleType     = String(categorySampleType);
-        fullSNPTissueType     = String(categoryTissueType);
-        fullSNPTime         = String(categoryTime);
-        fullSNPGPL             = String(categoryGPL);
-
-        //This flag will tell us to write the SNP text file.
-        snpData = true;
-    }
-
-    // TODO : check if no gene / pathway selected
-//    if((fullGEXGeneList == "") && (categoryType == "mrna"))
-//    {
-//        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-//        return false;
-//    }
-//
-//    if((fullSNPGeneList == "") && (categoryType == "SNP"))
-//    {
-//        Ext.Msg.alert("No Genes Selected", "Please specify Genes in the Gene/Pathway Search box.")
-//        return false;
-//    }
-
-    var _dependentDataType = document.getElementById('dependentVarDataType').value ? document.getElementById('dependentVarDataType').value : 'CLINICAL';
-
-    // console.log("categoryType", categoryType)
-    //If we don't have a platform, fill in Clinical.
-    if(categoryPlatform == null || categoryPlatform == "") categoryType = "CLINICAL"
-
-    formParams["divDependentVariabletimepoints"]             = window['divCategoryVariabletimepoints1'];
-    formParams["divDependentVariablesamples"]                = window['divCategoryVariablesamples1'];
-    formParams["divDependentVariablerbmPanels"]              = window['divCategoryVariablerbmPanels1'];
-    formParams["divDependentVariableplatforms"]              = categoryType
-    formParams["divDependentVariablegpls"]                   = window['divCategoryVariablegplsValue1'];
-    formParams["divDependentVariabletissues"]                = window['divCategoryVariabletissues1'];
-    formParams["divDependentVariableprobesAggregation"]      = window['divCategoryVariableprobesAggregation'];
-    formParams["divDependentVariableSNPType"]                = window['divCategoryVariableSNPType'];
     formParams["divDependentVariableType"]                   = _dependentDataType;
     formParams["divDependentVariablePathway"]                = categoryGeneList;
-    formParams["divDependentPathwayName"]                    = window['divCategoryVariablepathwayName'];
-    formParams["gexpathway"]                                 = fullGEXGeneList;
-    formParams["gextime"]                                    = fullGEXTime;
-    formParams["gextissue"]                                  = fullGEXTissueType;
-    formParams["gexsample"]                                  = fullGEXSampleType;
-    formParams["snppathway"]                                 = fullSNPGeneList;
-    formParams["snptime"]                                    = fullSNPTime;
-    formParams["snptissue"]                                  = fullSNPTissueType;
-    formParams["snpsample"]                                  = fullSNPSampleType;
-    formParams["mrnaData"]                                   = mrnaData;
-    formParams["snpData"]                                    = snpData;
-    formParams["gexgpl"]                                     = fullGEXGPL;
-    formParams["snpgpl"]                                     = fullSNPGPL;
 
     return true;
-
 }
 
 SurvivalAnalysisView.prototype.load_binning_parameters = function (formParams) {
