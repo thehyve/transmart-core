@@ -81,7 +81,7 @@ class StudyLoadingServiceTests {
         grailsWebRequest = GrailsWebUtil.bindMockWebRequest()
 
         /* insert test data */
-        accessLevelTestData = new AccessLevelTestData()
+        accessLevelTestData = AccessLevelTestData.createDefault()
         accessLevelTestData.saveAll()
 
         /* setup spring security service mock
