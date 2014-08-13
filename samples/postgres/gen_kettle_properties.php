@@ -1,4 +1,4 @@
-<?php require __DIR__ . '/../../lib/php/env_helper.inc.php'
+<?php require __DIR__ . '/../../lib/php/env_helper.inc.php';
 function get($key, $default) {
 	return isset($_ENV[$key]) ? $_ENV[$key] : $default;
 }
