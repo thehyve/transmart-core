@@ -54,7 +54,7 @@ class StudyLoadingServiceTests {
     StudyLoadingService testee
 
     GrailsWebRequest grailsWebRequest
-    
+
     AccessLevelTestData accessLevelTestData
 
     SpringSecurityService springSecurityServiceMock
@@ -79,7 +79,7 @@ class StudyLoadingServiceTests {
 
         /* mock web request */
         grailsWebRequest = GrailsWebUtil.bindMockWebRequest()
-        
+
         /* insert test data */
         accessLevelTestData = new AccessLevelTestData()
         accessLevelTestData.saveAll()
