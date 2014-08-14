@@ -3,4 +3,4 @@ package org.transmartproject.core.exceptions
 import groovy.transform.InheritConstructors
 
 @InheritConstructors
-class NoSuchResourceException extends RuntimeException { }
+class NoSuchResourceException extends Exception { }
