@@ -3382,29 +3382,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "BIOMART_USER",
-      "name" : "I2B2_LOAD_EQTL_TOP50"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_ASSAY_ANALYSIS"
-    }, {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_ASSAY_ANALYSIS_EQTL"
-    }, {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_ASY_ANALYSIS_EQTL_TOP50"
-    }, {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_RC_SNP_INFO"
-    } ]
-  }, {
-    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "I2B2_RELEASE"
@@ -5476,13 +5453,6 @@
       "name" : "GENE_ONTOLOGY_DATA"
     },
     "file" : "biomart_user/gene_ontology_data.sql"
-  }, {
-    "item" : {
-      "type" : "PROCEDURE",
-      "owner" : "BIOMART_USER",
-      "name" : "I2B2_LOAD_EQTL_TOP50"
-    },
-    "file" : "biomart_user/procedures/i2b2_load_eqtl_top50.sql"
   }, {
     "item" : {
       "type" : "INDEX",
