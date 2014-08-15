@@ -1,13 +1,13 @@
 --
 -- Type: FUNCTION; Owner: TM_CZ; Name: REPEAT_CHAR
 --
-  CREATE OR REPLACE EDITIONABLE FUNCTION "TM_CZ"."REPEAT_CHAR" (i_value varchar2, i_count integer, i_char VARCHAR2)
+  CREATE OR REPLACE FUNCTION "TM_CZ"."REPEAT_CHAR" (i_value varchar2, i_count integer, i_char VARCHAR2)
    return varchar2
 is
 
 --	use this function if version of Oracle does not support REPEAT string function
 	v_loop_ct	integer;
-	v_value		varchar2(4000);
+	v_value		varchar2(4000 BYTE);
 
 begin
 

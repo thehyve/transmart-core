@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_LOAD_CHROM_REGION
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_LOAD_CHROM_REGION" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_CHROM_REGION" 
 (
   platform_t in varchar2 := ''
 , genome_release in varchar2 := ''

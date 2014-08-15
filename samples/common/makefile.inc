@@ -32,13 +32,12 @@ LOAD_CLINICAL_TARGETS := $(shell php ../studies/enumerate.php load_targets clini
 LOAD_ANNOTATION_TARGETS := $(shell php ../studies/enumerate.php load_targets annotation)
 LOAD_REF_ANNOTATION_TARGETS := $(shell php ../studies/enumerate.php load_targets ref_annotation)
 LOAD_EXPRESSION_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets expression)
-LOAD_ANALYSIS_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets analysis)
 LOAD_ACGH_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets acgh)
 LOAD_PROTEOMICS_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets proteomics)
 LOAD_MIRNA_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets mirna)
 LOAD_VCF_PARAMS_TARGETS := $(patsubst ../studies/%/vcf.params,load_vcf_%, $(VCF_PARAMS_FILES))
 
-KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ANALYSIS_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
+KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
 
 $(KETTLE_TARGETS): kettle-home/kettle.properties
 #these ones are here just for autocompletion:
@@ -69,11 +68,6 @@ load_expression_%: ../studies/%/expression.params ../studies/%/expression
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/expression)" \
 			KETTLE_HOME="$(realpath kettle-home)" \
 			./load_expression.sh $<
-
-load_analysis_%: ../studies/%/analysis.params ../studies/%/analysis
-	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/analysis)" \
-			KETTLE_HOME="$(realpath kettle-home)" \
-			./load_analysis.sh $<
 
 load_acgh_%: ../studies/%/acgh.params ../studies/%/acgh
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/acgh)" \

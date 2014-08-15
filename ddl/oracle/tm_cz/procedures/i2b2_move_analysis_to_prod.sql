@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_MOVE_ANALYSIS_TO_PROD
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."I2B2_MOVE_ANALYSIS_TO_PROD" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_MOVE_ANALYSIS_TO_PROD" 
 (i_etl_id        number    := -1
 ,i_job_id        number    := null
 )
@@ -114,7 +114,7 @@ AS
                                 --        add partition to bio_assay_analysis_gwas
                                 v_sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' ||
                                                     to_char(v_bio_assay_analysis_id) || ') ' ||
-                                                   'NOLOGGING TABLESPACE "BIOMART" ';
+                                                   'NOLOGGING TABLESPACE "TRANSMART" ';
                                 execute immediate(v_sqlText);
                                 stepCt := stepCt + 1;
                                 cz_write_audit(jobID,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas '|| to_char(v_bio_assay_analysis_id),0,stepCt,'Done');

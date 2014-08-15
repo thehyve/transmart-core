@@ -1,7 +1,7 @@
 --
 -- Type: PROCEDURE; Owner: TM_CZ; Name: PARTITION_GWAS_DATA
 --
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "TM_CZ"."PARTITION_GWAS_DATA" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."PARTITION_GWAS_DATA" 
 AS
 
   sqlText                varchar2(1000);
@@ -53,7 +53,7 @@ BEGIN
 
                         sqlText := 'alter table biomart.GWAS_PARTITION add PARTITION "' || to_char(gwas_data.bio_assay_analysis_id) || '"  VALUES (' ||
                                            to_char(gwas_data.bio_assay_analysis_id) || ') ' ||
-                                                   'NOLOGGING TABLESPACE "BIOMART" ';
+                                                   'NOLOGGING TABLESPACE "TRANSMART" ';
                         execute immediate(sqlText);
                         stepCt := stepCt + 1;
                         cz_write_audit(jobId,databaseName,procedureName,'Adding partition to GWAS_PARTITION',0,stepCt,'Done');
