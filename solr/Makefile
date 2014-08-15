@@ -64,7 +64,7 @@ solr/%/conf/schema.xml: solr/% schemas/schema_%.xml
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	cp schemas/schema_$*.xml $@
 
-solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php ../../vars
+solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php ../vars
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
