@@ -76,8 +76,8 @@
     <access>Native</access>
     <database>${BIOMART_DB_NAME}</database>
     <port>${BIOMART_DB_PORT}</port>
-    <username>${BIOMART_USER}</username>
-    <password>${BIOMART_PWD}</password>
+    <username>${BIOMART_DB_USER}</username>
+    <password>${BIOMART_DB_PWD}</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -99,8 +99,8 @@
     <access>Native</access>
     <database>${DEAPP_DB_NAME}</database>
     <port>${DEAPP_DB_PORT}</port>
-    <username>${DEAPP_USER}</username>
-    <password>${DEAPP_PWD}</password>
+    <username>${DEAPP_DB_USER}</username>
+    <password>${DEAPP_DB_PWD}</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
