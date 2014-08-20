@@ -2782,6 +2782,10 @@
       "owner" : "BIOMART",
       "name" : "BIO_ANALYSIS_ATTRIBUTE"
     }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ANALYSIS_ATTRIBUTE_LINEAGE"
+    }, {
       "type" : "VIEW",
       "owner" : "SEARCHAPP",
       "name" : "SOLR_KEYWORDS_LINEAGE"
