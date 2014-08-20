@@ -2782,20 +2782,13 @@
       "owner" : "BIOMART",
       "name" : "BIO_ANALYSIS_ATTRIBUTE"
     }, {
-      "type" : "VIEW",
-      "owner" : "SEARCHAPP",
-      "name" : "SOLR_KEYWORDS_LINEAGE"
-    } ]
-  }, {
-    "child" : {
-      "type" : "TRIGGER",
-      "owner" : "BIOMART",
-      "name" : "TRG_BIO_ANALYSIS_ATT_LINEAGE"
-    },
-    "parents" : [ {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_ANALYSIS_ATTRIBUTE_LINEAGE"
+    }, {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SOLR_KEYWORDS_LINEAGE"
     } ]
   }, {
     "child" : {
@@ -5620,13 +5613,6 @@
       "name" : "TRG_BIO_ANALYSIS_ATT_BAAL"
     },
     "file" : "biomart/_cross.sql"
-  }, {
-    "item" : {
-      "type" : "TRIGGER",
-      "owner" : "BIOMART",
-      "name" : "TRG_BIO_ANALYSIS_ATT_LINEAGE"
-    },
-    "file" : "biomart/bio_analysis_attribute_lineage.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

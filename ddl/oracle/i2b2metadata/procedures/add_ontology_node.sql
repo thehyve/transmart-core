@@ -95,7 +95,7 @@ begin
 ------------------------------------------------------------
 -- add the new node into the i2b2 table
 ------------------------------------------------------------
-    insert into i2b2demodata.i2b2(
+    insert into i2b2metadata.i2b2(
     C_HLEVEL, C_FULLNAME, C_NAME
     , C_SYNONYM_CD, C_VISUALATTRIBUTES, C_TOTALNUM
     , C_BASECODE, C_METADATAXML, C_FACTTABLECOLUMN

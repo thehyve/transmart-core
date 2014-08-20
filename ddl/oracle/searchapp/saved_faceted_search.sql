@@ -53,7 +53,7 @@ before insert on searchapp.saved_faceted_search
 for each row begin
        	if inserting then
                	if :NEW.modified_dt is null then
-                       	NEW.modified_dt = sysdate;
+                       	select sysdate into :NEW.modified_dt from dual;
                	end if;
        	end if;
 end;
