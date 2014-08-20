@@ -1565,6 +1565,10 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_GENE_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
     } ]
   }, {
     "child" : {
@@ -1576,6 +1580,10 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_GENE_SOURCE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
     } ]
   }, {
     "child" : {
