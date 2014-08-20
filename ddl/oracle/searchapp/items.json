@@ -1239,7 +1239,7 @@
       "owner" : "SEARCHAPP",
       "name" : "PATHWAY_GENES"
     },
-    "file" : "searchapp/views/pathway_genes.sql"
+    "file" : "searchapp/_cross.sql"
   }, {
     "item" : {
       "type" : "TABLE",
