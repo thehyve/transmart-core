@@ -29,8 +29,15 @@ TRANSMART_LOADER=transmart-loader
 
 TRANSMART_LOADER_SNAPSHOT_NAME=loader-jar-with-dependencies.jar
 LATEST_TRANSMART_LOADER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+
+# only load the snapshot if the current one is 24 hours old (or older)
+# use FORCE_TS_LOADER_DOWNLOAD=1 to override
 $(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-snapshot/conf/log4j.properties
-	curl $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+	if test "$$(find $@/$(TRANSMART_LOADER_SNAPSHOT_NAME) -mtime +1 2> /dev/null)" \
+		-o "$$FORCE_TS_LOADER_DOWNLOAD" = 1 \
+		-o ! -f $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); then \
+		curl -L -f $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); \
+	fi
 
 TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
 $(TRANSMART_LOADER_ARCHIVE):
