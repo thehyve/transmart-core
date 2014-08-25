@@ -41,12 +41,12 @@ function test_solr {
 
   make -C solr solr_home
   make -C solr start > /tmp/solr_log 2>&1 &
-  timeout 5s bash -c 'while ! lsof -iTCP:8983 -sTCP:LISTEN; do sleep 1; done'
+  timeout 15s bash -c 'while ! lsof -iTCP:8983 -sTCP:LISTEN; do sleep 1; done'
   make -C solr browse_full_import
 
   solr_pid=%1
   kill -HUP $solr_pid
-  if ! timeout 5s bash -c "while test -d /proc/$solr_pid; do sleep 1; done"; then
+  if ! timeout 15s bash -c "while test -d /proc/$solr_pid; do sleep 1; done"; then
     echo "Solr didn't exit within 5 seconds!" >&2
     cat /tmp/solr_log
     exit 1

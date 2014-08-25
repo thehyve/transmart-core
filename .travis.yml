@@ -1,0 +1,19 @@
+language: groovy
+
+env:
+    - TEST_SUITE=main_pg
+    - TEST_SUITE=load_dump_load_pg
+    - TEST_SUITE=R
+
+before_install:
+    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
+    - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
+    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
+    - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
+    - sudo apt-get update
+
+install:
+    - sudo apt-get install -qq php5-cli php5-json subversion groovy
+    - make -C env ../vars
+
+script: ./travis-test $TEST_SUITE
