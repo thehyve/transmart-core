@@ -51,10 +51,11 @@ groovy: $(GROOVY_BIN)
 $(PHP_TARBALL):
 	curl -f '$(PHP_URL)' > $@
 
-$(PHP_SRCDIR): $(PHP_TARBALL)
-	$(TAR_COMMAND) --touch -xf '$<'
+$(PHP_SRCDIR)/.keep: $(PHP_TARBALL)
+	tar -xf '$<'
+	touch '$@'
 
-$(PHP_BIN): $(PHP_SRCDIR)
+$(PHP_BIN): $(PHP_SRCDIR)/.keep
 	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json
 	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
 
@@ -84,8 +85,11 @@ KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
-data-integration: $(KETTLE_ARCHIVE)
-	$(TAR_COMMAND) --touch -xzf $<
+data-integration: data-integration/.keep
+.PHONY: data-integration
+data-integration/.keep: $(KETTLE_ARCHIVE)
+	 tar -xzf $<
+	 touch '$@'
 
 /var/lib/postgresql/tablespaces:
 	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'
