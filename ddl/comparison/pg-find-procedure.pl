@@ -1,6 +1,6 @@
 #!/bin/perl -w
 
-$dodir="ddl/oracle";
+$dodir="../../ddl/oracle";
 opendir(ODIR,"$dodir") || die "Cannot open current directory";
 foreach $dir (readdir(ODIR)) {
     if(!(-d "$dodir/$dir")) {next}
@@ -26,7 +26,7 @@ foreach $dir (readdir(ODIR)) {
 closedir ODIR;
 
 
-$dpdir="ddl/postgres";
+$dpdir="../../ddl/postgres";
 opendir(PGDIR,"$dpdir") || die "Cannot open current directory";
 foreach $dir (readdir(PGDIR)) {
     if(!(-d "$dpdir/$dir")) {next}

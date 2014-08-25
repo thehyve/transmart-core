@@ -1718,8 +1718,8 @@ sub compareSequence($){
 $dir = getcwd();
 $dir .= "/";
 print "$dir\n";
-$oplus = "ddl/oracle";
-$pplus = "ddl/postgres";
+$oplus = "../../ddl/oracle";
+$pplus = "../../ddl/postgres";
 
 %orskip = ();
 %pgskip = ();
