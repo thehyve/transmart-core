@@ -1,4 +1,3 @@
-REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
@@ -38,13 +37,6 @@ $(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-sn
 		-o ! -f $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); then \
 		curl -L -f $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); \
 	fi
-
-TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
-$(TRANSMART_LOADER_ARCHIVE):
-	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
-
-$(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
-	$(TAR_COMMAND) --touch -xf $< -C $@
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
