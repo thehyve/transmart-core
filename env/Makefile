@@ -28,9 +28,9 @@ TRANSMART_LOADER=transmart-loader
 	&& echo "log4j.appender.console.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n" >> $@
 
 TRANSMART_LOADER_SNAPSHOT_NAME=loader-jar-with-dependencies.jar
-LATEST_TRANSMART_LAODER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+LATEST_TRANSMART_LOADER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
 $(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-snapshot/conf/log4j.properties
-	curl $(LATEST_TRANSMART_LAODER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+	curl $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME)
 
 TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
 $(TRANSMART_LOADER_ARCHIVE):
