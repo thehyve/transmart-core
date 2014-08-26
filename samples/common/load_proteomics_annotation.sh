@@ -16,9 +16,6 @@ fi
 # $KETTLE_HOME should have been set by the caller
 export KETTLE_HOME
 
-# Should define GPL_ID, ANNOTATION_TITLE
-source $1
-
 $KITCHEN -norep=Y						\
 -file="$KETTLE_JOBS/load_proteomics_annotation.kjb"		\
 -log="load_proteomics_annotation_$(date +"%Y%m%d%H%M").log"	\
