@@ -1,6 +1,8 @@
 transmart-data
 ==============
 
+[![Build Status](https://travis-ci.org/transmart/transmart-data.svg?branch=master)](https://travis-ci.org/transmart/transmart-data)
+
 Introduction
 ------------
 
