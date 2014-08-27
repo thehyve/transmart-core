@@ -26,7 +26,12 @@ CREATE UNIQUE INDEX bio_data_attribute_pk ON bio_data_attribute USING btree (bio
 CREATE FUNCTION tf_trg_bio_data_attr_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin if NEW.BIO_DATA_ATTRIBUTE_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_DATA_ATTRIBUTE_ID ;       end if; RETURN NEW;  end;
+begin
+    if NEW.BIO_DATA_ATTRIBUTE_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_DATA_ATTRIBUTE_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

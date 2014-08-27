@@ -27,7 +27,12 @@ CREATE UNIQUE INDEX bio_patient_event_attr_pk ON bio_patient_event_attr USING bt
 CREATE FUNCTION tf_trg_bio_pt_evt_attr_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin if NEW.BIO_CLINIC_TRIAL_ATTRIBUTE_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CLINIC_TRIAL_ATTRIBUTE_ID ;       end if; RETURN NEW;  end;
+begin
+    if NEW.BIO_CLINIC_TRIAL_ATTRIBUTE_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CLINIC_TRIAL_ATTRIBUTE_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

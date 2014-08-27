@@ -16,9 +16,9 @@ ALTER TABLE ONLY bio_analysis_attribute
     ADD CONSTRAINT pk_baa_id PRIMARY KEY (bio_analysis_attribute_id);
 
 --
--- Name: trg_bio_analysis_attribute_id_fun(); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: tf_trg_bio_analysis_attribute_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION trg_bio_analysis_attribute_id_fun() RETURNS trigger
+CREATE FUNCTION tf_trg_bio_analysis_attribute_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 	BEGIN
@@ -26,12 +26,12 @@ CREATE FUNCTION trg_bio_analysis_attribute_id_fun() RETURNS trigger
 			THEN
 			SELECT nextval('BIOMART.SEQ_BIO_DATA_ID') INTO NEW.BIO_ANALYSIS_ATTRIBUTE_ID;
   		END IF;
-	RETURN new;
+	RETURN NEW;
 END;
 $$;
 
 --
 -- Name: trg_bio_analysis_attribute_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-CREATE TRIGGER trg_bio_analysis_attribute_id BEFORE INSERT ON bio_analysis_attribute FOR EACH ROW EXECUTE PROCEDURE trg_bio_analysis_attribute_id_fun();
+CREATE TRIGGER trg_bio_analysis_attribute_id BEFORE INSERT ON bio_analysis_attribute FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_analysis_attribute_id();
 

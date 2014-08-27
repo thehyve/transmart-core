@@ -12,6 +12,7 @@ CREATE TABLE wt_mrna_nodes (
     node_name character varying(2000),
     concept_cd character varying(100),
     transform_method character varying(2000),
-    node_type character varying(50)
+    node_type character varying(50),
+    orig_category_cd character varying(2000)
 );
 

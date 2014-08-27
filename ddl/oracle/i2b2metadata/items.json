@@ -6,10 +6,6 @@
       "name" : "ADD_ONTOLOGY_NODE"
     },
     "parents" : [ {
-      "type" : "SYNONYM",
-      "owner" : "I2B2DEMODATA",
-      "name" : "I2B2"
-    }, {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "I2B2"
@@ -98,6 +94,28 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TRIAL_NODES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2METADATA",
+      "name" : "IDX_I2B2_FULLNAME_BASECODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    } ]
+  }, {
+    "child" : {
       "type" : "INDEX",
       "owner" : "I2B2METADATA",
       "name" : "META_APPLIED_PATH_CUSTOM_IDX"
@@ -180,6 +198,20 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "TABLE_ACCESS"
@@ -228,6 +260,21 @@
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "TRG_ONT_PS_PROCESS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_PROCESS_STATUS"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_SQ_PS_PRID"
     } ]
   } ],
   "fileAssignments" : [ {
@@ -309,6 +356,20 @@
     "file" : "i2b2metadata/i2b2_tags.sql"
   }, {
     "item" : {
+      "type" : "VIEW",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TRIAL_NODES"
+    },
+    "file" : "i2b2metadata/views/i2b2_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2METADATA",
+      "name" : "IDX_I2B2_FULLNAME_BASECODE"
+    },
+    "file" : "i2b2metadata/i2b2.sql"
+  }, {
+    "item" : {
       "type" : "INDEX",
       "owner" : "I2B2METADATA",
       "name" : "META_APPLIED_PATH_CUSTOM_IDX"
@@ -348,7 +409,7 @@
       "owner" : "I2B2METADATA",
       "name" : "ONT_SQ_PS_PRID"
     },
-    "file" : "i2b2metadata/_misc.sql"
+    "file" : "i2b2metadata/ont_process_status.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -375,6 +436,20 @@
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    },
+    "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/_misc.sql"
   }, {
@@ -412,5 +487,12 @@
       "name" : "TRG_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/i2b2_tags.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "TRG_ONT_PS_PROCESS_ID"
+    },
+    "file" : "i2b2metadata/ont_process_status.sql"
   } ]
 }

@@ -355,7 +355,7 @@ dbms_output.put_line('1');
 			--	needed to add partition to de_subject_rbm_data
 
 			sqlText := 'alter table deapp.de_subject_rbm_data add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
+						   'NOLOGGING COMPRESS TABLESPACE "TRANSMART" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to de_subject_rbm_data',0,stepCt,'Done');
@@ -1124,3 +1124,4 @@ dbms_output.put_line('sucess');
 		select 16  into rtn_code from dual;
 END;
 /
+ 

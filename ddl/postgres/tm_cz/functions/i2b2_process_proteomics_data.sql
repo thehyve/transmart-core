@@ -394,7 +394,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\','(\\){2,}', '\', 'g') 
+	       category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\','(\\){2,}', '\', 'g') 
 		  ,category_cd
 		  ,platform as platform
 		  ,tissue_type
@@ -425,7 +425,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'PLATFORM')+8)
 		  ,platform as platform
@@ -457,7 +457,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR1')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -491,7 +491,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR2')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -525,7 +525,7 @@ BEGIN
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',coalesce(tissue_type,'')),'+','\'),'_',' ') || '\',
+	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',coalesce(attribute_1, '')),'ATTR2',coalesce(attribute_2, '')),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
 		   '(\\){2,}', '\', 'g')
 		  ,substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then platform else null end as platform
@@ -724,7 +724,7 @@ BEGIN
 		inner join WT_PROTEOMICS_NODES ln
 			on a.platform = ln.platform
 			and a.category_cd=ln.category_cd
-			and coalesce(a.tissue_type,'') = coalesce(ln.tissue_type,'')
+			and a.tissue_type = ln.tissue_type
 			and coalesce(a.attribute_1,'@') = coalesce(ln.attribute_1,'@')
 			and coalesce(a.attribute_2,'@') = coalesce(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
@@ -757,7 +757,7 @@ BEGIN
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = coalesce(a2.attribute_1,'@')
 			and a2.node_type = 'ATTR2'			  
 		left outer join patient_dimension sid
-			on  regexp_replace(TrialId || ':' || coalesce(a.site_id,'') || ':' || a.subject_id || ':' || a.sample_cd,
+			on  regexp_replace(TrialId || ':S:' || coalesce(a.site_id,'') || ':' || a.subject_id || ':' || a.sample_cd,
 							  '(::){1,}', ':', 'g') = sid.sourcesystem_cd
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD

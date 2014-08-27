@@ -23,9 +23,9 @@ ALTER TABLE ONLY bio_assay_cohort
     ADD CONSTRAINT pk_bio_assay_cohort PRIMARY KEY (bio_assay_cohort_id);
 
 --
--- Name: trg_bio_assay_cohort_id_fun(); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: tf_trg_bio_assay_cohort_id(); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION trg_bio_assay_cohort_id_fun() RETURNS trigger
+CREATE FUNCTION tf_trg_bio_assay_cohort_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -33,12 +33,12 @@ BEGIN
 		THEN
 		SELECT nextval('BIOMART.SEQ_BIO_DATA_ID') INTO NEW.BIO_ASSAY_COHORT_ID;
 	END IF;
-	RETURN new;
+RETURN NEW;
 END;
 $$;
 
 --
 -- Name: trg_bio_assay_cohort_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
-CREATE TRIGGER trg_bio_assay_cohort_id BEFORE INSERT ON bio_assay_cohort FOR EACH ROW EXECUTE PROCEDURE trg_bio_assay_cohort_id_fun();
+CREATE TRIGGER trg_bio_assay_cohort_id BEFORE INSERT ON bio_assay_cohort FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_cohort_id();
 

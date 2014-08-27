@@ -1,7 +1,7 @@
 --
--- Name: bio_compound_uid(text, text, text); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: bio_compound_uid(character varying, character varying, character varying); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION bio_compound_uid(cas_registry text, jnj_number text, cnto_number text) RETURNS character varying
+CREATE FUNCTION bio_compound_uid(cas_registry character varying, jnj_number character varying, cnto_number character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $$
 BEGIN

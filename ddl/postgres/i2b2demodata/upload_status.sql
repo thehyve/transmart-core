@@ -5,7 +5,7 @@ CREATE SEQUENCE sq_uploadstatus_uploadid
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
-    MAXVALUE 9999999999999
+    NO MAXVALUE
     CACHE 1;
 
 --
@@ -23,8 +23,8 @@ CREATE TABLE upload_status (
     end_date timestamp without time zone,
     load_status character varying(100),
     message text,
-    input_file_name character varying(500),
-    log_file_name character varying(500),
+    input_file_name text,
+    log_file_name text,
     transform_name character varying(500)
 );
 

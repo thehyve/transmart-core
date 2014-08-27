@@ -65,7 +65,7 @@ CREATE TRIGGER trg_ctd2_clin_inhib_effect BEFORE INSERT ON ctd2_clin_inhib_effec
 -- Name: seq_clinical_trial_design_id; Type: SEQUENCE; Schema: biomart; Owner: -
 --
 CREATE SEQUENCE seq_clinical_trial_design_id
-    START WITH 1
+    START WITH 24181
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

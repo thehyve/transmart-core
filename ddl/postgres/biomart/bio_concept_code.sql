@@ -6,7 +6,8 @@ CREATE TABLE bio_concept_code (
     code_name character varying(200),
     code_description character varying(1000),
     code_type_name character varying(200),
-    bio_concept_code_id bigint NOT NULL
+    bio_concept_code_id bigint NOT NULL,
+    filter_flag character(1) DEFAULT 0
 );
 
 --
@@ -32,7 +33,12 @@ CREATE INDEX bio_concept_code_type_index ON bio_concept_code USING btree (code_t
 CREATE FUNCTION tf_trg_bio_concept_code_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.BIO_CONCEPT_CODE_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CONCEPT_CODE_ID ;       end if;  RETURN NEW;  end;
+begin
+    if NEW.BIO_CONCEPT_CODE_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CONCEPT_CODE_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

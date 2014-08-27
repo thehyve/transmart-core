@@ -3,13 +3,14 @@
 
 $insertionPoints = [
     'I001' => /* post-WAR-variables */ <<<EOD
-oauthEnabled = false
+//oauthEnabled = false
 EOD
 ,
     'I002' => /* end */ <<<'EOD'
-com.rwg.solr.path   = '/solr/sanofi/select/'
+com.rwg.solr.browse.path   = '/solr/browse/select/'
+com.rwg.solr.update.path = '/solr/browse/dataimport/'
 com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
-                             "${new File(com.rwg.solr.path).parent}"
+                             "${new File(com.rwg.solr.browse.path).parent}"
 
 def fileStoreDirectory = new File(System.getenv('HOME'), '.grails/transmart-filestore')
 def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transmart-fileimport')

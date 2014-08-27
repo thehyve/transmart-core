@@ -87,7 +87,7 @@ BEGIN
 			if pExists = 0 then
 				tText := 'alter table deapp.de_subject_microarray_data_new add PARTITION "' || gexStudy || ':' || gexSource || 
 						'"  VALUES (' || '''' || gexStudy || ':' || gexSource || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
+						   'NOLOGGING COMPRESS TABLESPACE "TRANSMART" ';
 				execute immediate(tText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Added ' || gexStudy || ':' || gexSource || ' partition to de_subject_microarray_data_new',0,stepCt,'Done');
@@ -166,3 +166,4 @@ BEGIN
 	
 END;
 /
+ 

@@ -2,7 +2,7 @@
 -- Name: de_subject_rbm_data; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_subject_rbm_data (
-    trial_name character varying(15),
+    trial_name character varying(100),
     antigen_name character varying(100),
     n_value bigint,
     patient_id bigint,
@@ -19,6 +19,44 @@ CREATE TABLE de_subject_rbm_data (
     stddev_intensity numeric,
     median_intensity numeric,
     zscore double precision,
-    rbm_panel character varying(50)
+    rbm_panel character varying(50),
+    unit character varying(50),
+    id bigint NOT NULL,
+    partition_id numeric
 );
+
+--
+-- Name: pk_de_subject_rbm_data; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_rbm_data
+    ADD CONSTRAINT pk_de_subject_rbm_data PRIMARY KEY (id);
+
+--
+-- Name: tf_trg_de_subj_rbm_data_id(); Type: FUNCTION; Schema: deapp; Owner: -
+--
+CREATE FUNCTION tf_trg_de_subj_rbm_data_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.ID is null then
+ select nextval('deapp.DE_SUBJECT_RBM_DATA_SEQ') into NEW.ID ;
+end if;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_de_subj_rbm_data_id; Type: TRIGGER; Schema: deapp; Owner: -
+--
+CREATE TRIGGER trg_de_subj_rbm_data_id BEFORE INSERT ON de_subject_rbm_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subj_rbm_data_id();
+
+--
+-- Name: de_subject_rbm_data_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE de_subject_rbm_data_seq
+    START WITH 1272564
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 

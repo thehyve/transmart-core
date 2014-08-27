@@ -68,14 +68,14 @@ Declare
  
 --	cursor to define the path for delete_one_node  this will delete any nodes that are hidden after i2b2_create_concept_counts
 
-  delNodes CURSOR is
+  delNodes CURSOR for
   select distinct c_fullname 
   from  i2b2
   where c_fullname like topNode || '%'
     and substr(c_visualattributes,2,1) = 'H';
     --and c_visualattributes like '_H_';
 
-    uploadI2b2 cursor is 
+    uploadI2b2 cursor for 
     select category_cd,display_value,display_label,display_unit from
     tm_lz.lt_src_mirna_display_mapping;
 
@@ -255,7 +255,7 @@ BEGIN
 	from (select distinct 'Unknown' as sex_cd,
 				 0 as age_in_years_num,
 				 null as race_cd,
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':', 'g') as sourcesystem_cd
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g') as sourcesystem_cd
 		 from LT_SRC_MIRNA_SUBJ_SAMP_MAP s
 		     ,de_gpl_info g
 		 where s.subject_id is not null
@@ -266,7 +266,7 @@ BEGIN
 		   and not exists
 			  (select 1 from patient_dimension x
 			   where x.sourcesystem_cd = 
-				 regexp_replace(TrialID || ':' || s.site_id || ':' || s.subject_id,'(::){1,}', ':', 'g'))
+				 regexp_replace(TrialID || ':' || coalesce(s.site_id,'') || ':' || s.subject_id,'(::){1,}', ':', 'g'))
 		) x;
 	exception
 	when others then
@@ -758,7 +758,7 @@ BEGIN
 		from lt_src_mirna_subj_samp_map a		
 		--Joining to Pat_dim to ensure the ID's match. If not I2B2 won't work.
 		inner join patient_dimension b
-		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':', 'g') = b.sourcesystem_cd
+		  on regexp_replace(TrialID || ':' || coalesce(a.site_id,'') || ':' || a.subject_id,'(::){1,}', ':', 'g') = b.sourcesystem_cd
 		inner join WT_QPCR_MIRNA_NODES ln
 			on a.platform = ln.platform
 			and a.category_cd=ln.category_cd
@@ -795,8 +795,7 @@ BEGIN
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = coalesce(a2.attribute_1,'@')
 			and a2.node_type = 'ATTR2'			  
 		left outer join patient_dimension sid
-			on  regexp_replace(TrialId || ':S:' || a.site_id || ':' || a.subject_id || ':' || a.sample_cd,
-							  '(::){1,}', ':', 'g') = sid.sourcesystem_cd
+			on regexp_replace(TrialID || ':' || coalesce(a.site_id,'') || ':' || a.subject_id,'(::){1,}', ':','g') = sid.sourcesystem_cd
 		where a.trial_name = TrialID
 		  and a.source_cd = sourceCD
 		  and  ln.concept_cd is not null) t;
@@ -906,10 +905,10 @@ BEGIN
 	end;
 
 	--Update I2b2 for correct data type
-	begin
 	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
 	perform cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',rowCt,stepCt,'Done');
     
+	begin
 	update i2b2 t
 	set c_columndatatype = 'T', c_metadataxml = null, c_visualattributes='FA'
 	where t.c_basecode in (select distinct x.concept_cd from WT_QPCR_MIRNA_NODES x);
@@ -923,10 +922,10 @@ BEGIN
 	end;
 		
 	 ---INSERT sample_dimension
-      begin
       stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
       perform cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',rowCt,stepCt,'Done');
       
+	  begin
       INSERT INTO I2B2DEMODATA.SAMPLE_DIMENSION(SAMPLE_CD) 
          SELECT DISTINCT SAMPLE_CD FROM 
            DEAPP.DE_SUBJECT_SAMPLE_MAPPING WHERE SAMPLE_CD NOT IN (SELECT SAMPLE_CD FROM I2B2DEMODATA.SAMPLE_DIMENSION) ;
@@ -939,18 +938,17 @@ BEGIN
 		return -16;
 	end;
 
-	begin
 	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
 	perform cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',rowCt,stepCt,'Done');
 	
 
     ---- update c_metedataxml in i2b2
-    
+ begin   
    for ul in uploadI2b2 loop
 	 update i2b2 n
-	SET n.c_columndatatype = 'T',
+	SET c_columndatatype = 'T',
       --Static XML String
-		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+		c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
                 <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
                 <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
                 <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
@@ -969,12 +967,12 @@ BEGIN
 		perform tm_cz.cz_end_audit (jobID, 'FAIL');
 		return -16;
 	end;
-
-	begin	  
+		  
 	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
 	perform cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',rowCt,stepCt,'Done');
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
+	begin
 	update i2b2 a
         set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
@@ -990,11 +988,11 @@ BEGIN
 		return -16;
 	end;
 
-	begin
 	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
 	perform cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',rowCt,stepCt,'Done');
 
-        update i2b2 a
+	begin
+    update i2b2 a
 	set c_visualattributes='FAS'
         where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
         exception

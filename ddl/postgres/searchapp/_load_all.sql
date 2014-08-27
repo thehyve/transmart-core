@@ -11,6 +11,9 @@
 \i searchapp/views/listsig_genes.sql
 \i searchapp/plugin.sql
 \i searchapp/plugin_module.sql
+\i searchapp/plugin_module_backup.sql
+\i searchapp/report.sql
+\i searchapp/report_item.sql
 \i searchapp/saved_faceted_search.sql
 \i searchapp/search_app_access_log.sql
 \i searchapp/search_auth_group.sql
@@ -39,5 +42,8 @@
 \i searchapp/views/search_taxonomy_level5.sql
 \i searchapp/views/search_taxonomy_lineage.sql
 \i searchapp/views/search_taxonomy_terms_cats.sql
+\i searchapp/search_user_feedback.sql
+\i searchapp/search_user_settings.sql
 \i searchapp/views/solr_keywords_lineage.sql
+\i searchapp/subset.sql
 \i searchapp/_misc.sql

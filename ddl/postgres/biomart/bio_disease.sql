@@ -31,7 +31,12 @@ CREATE UNIQUE INDEX bio_disease_pk ON bio_disease USING btree (bio_disease_id);
 CREATE FUNCTION tf_trg_bio_disease_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.BIO_DISEASE_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_DISEASE_ID ;       end if;   RETURN NEW; end;
+begin
+     if NEW.BIO_DISEASE_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_DISEASE_ID ;
+     end if;
+RETURN NEW;
+end;
 $$;
 
 --

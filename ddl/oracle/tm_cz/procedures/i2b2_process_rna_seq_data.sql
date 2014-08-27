@@ -308,7 +308,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 			--	needed to add partition to de_subject_RNA_data
 
 			sqlText := 'alter table deapp.de_subject_rna_data add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
+						   'NOLOGGING COMPRESS TABLESPACE "TRANSMART" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to de_subject_rna_data',0,stepCt,'Done');
@@ -1091,3 +1091,4 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 		select 166 into rtn_code from dual;
 END;
 /
+ 

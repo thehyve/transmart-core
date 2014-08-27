@@ -30,7 +30,12 @@ ALTER TABLE ONLY bio_patient
 CREATE FUNCTION tf_trg_bio_patient_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin  if NEW.BIO_PATIENT_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_PATIENT_ID ;       end if; RETURN NEW;   end;
+begin
+    if NEW.BIO_PATIENT_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_PATIENT_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

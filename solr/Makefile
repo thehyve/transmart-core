@@ -22,10 +22,10 @@ EXAMPLE_FILES=etc contexts lib logs resources solr-webapp \
 			  webapps README.txt start.jar
 
 $(ROOT_FILES): solr-$(SOLR_VERSION).tgz
-	tar xzf $< --touch --strip-components=1 solr-$(SOLR_VERSION)/$@
+	$(TAR_COMMAND) xzf $< --touch --strip-components=1 solr-$(SOLR_VERSION)/$@
 
 $(EXAMPLE_FILES): solr-$(SOLR_VERSION).tgz
-	tar xzf $< --touch --strip-components=2 solr-$(SOLR_VERSION)/example/$@
+	$(TAR_COMMAND) xzf $< --touch --strip-components=2 solr-$(SOLR_VERSION)/example/$@
 
 DRIVER=contrib/dataimporthandler/lib/$(JDBC_DRIVER)
 $(DRIVER): $(JDBC_DRIVER_PATH)
@@ -33,13 +33,13 @@ $(DRIVER): $(JDBC_DRIVER_PATH)
 	cp "$<" "$@"
 
 solr: solr-$(SOLR_VERSION).tgz
-	tar xzf $< --touch --strip-components=2 \
+	$(TAR_COMMAND) xzf $< --touch --strip-components=2 \
 		--exclude $(SOLR_VERSION)/solr/collection1 \
 		solr-$(SOLR_VERSION)/example/solr
 
 solr/collection1:
 	test -d solr || $(MAKE) solr #don't add dep because solr is touched on each run
-	tar xzf solr-$(SOLR_VERSION).tgz --touch --strip-components=3 \
+	$(TAR_COMMAND) xzf solr-$(SOLR_VERSION).tgz --touch --strip-components=3 \
 		-C solr solr-$(SOLR_VERSION)/example/solr/collection1
 	rm $@/core.properties #so solr doesn't see the dir as core
 

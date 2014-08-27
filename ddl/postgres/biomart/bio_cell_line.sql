@@ -39,7 +39,12 @@ CREATE INDEX bio_cell_line_name_idx ON bio_cell_line USING btree (cell_line_name
 CREATE FUNCTION tf_trg_bio_cell_line_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin   if NEW.BIO_CELL_LINE_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CELL_LINE_ID ;       end if; RETURN NEW;   end;
+begin
+    if NEW.BIO_CELL_LINE_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CELL_LINE_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

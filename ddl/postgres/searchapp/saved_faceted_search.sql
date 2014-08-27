@@ -25,9 +25,9 @@ ALTER TABLE ONLY saved_faceted_search
     ADD CONSTRAINT u_saved_search__user_id_name UNIQUE (user_id, name);
 
 --
--- Name: trg_saved_faceted_search_id_fun(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_saved_faceted_search_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION trg_saved_faceted_search_id_fun() RETURNS trigger
+CREATE FUNCTION tf_trg_saved_faceted_search_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -44,12 +44,12 @@ $$;
 --
 -- Name: trg_saved_faceted_search_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trg_saved_faceted_search_id BEFORE INSERT ON saved_faceted_search FOR EACH ROW EXECUTE PROCEDURE trg_saved_faceted_search_id_fun();
+CREATE TRIGGER trg_saved_faceted_search_id BEFORE INSERT ON saved_faceted_search FOR EACH ROW EXECUTE PROCEDURE tf_trg_saved_faceted_search_id();
 
 --
--- Name: trg_upd_saved_faceted_search_fun(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_upd_saved_faceted_search(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION trg_upd_saved_faceted_search_fun() RETURNS trigger
+CREATE FUNCTION tf_trg_upd_saved_faceted_search() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -63,7 +63,7 @@ $$;
 --
 -- Name: trg_upd_saved_faceted_search; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trg_upd_saved_faceted_search BEFORE UPDATE ON saved_faceted_search FOR EACH ROW EXECUTE PROCEDURE trg_upd_saved_faceted_search_fun();
+CREATE TRIGGER trg_upd_saved_faceted_search BEFORE UPDATE ON saved_faceted_search FOR EACH ROW EXECUTE PROCEDURE tf_trg_upd_saved_faceted_search();
 
 --
 -- Name: saved_faceted_search_user_id; Type: FK CONSTRAINT; Schema: searchapp; Owner: -

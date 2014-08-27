@@ -24,7 +24,7 @@ CREATE FUNCTION tf_trg_snp_data_by_patient_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-      if coalesce(NEW.SNP_DATA_BY_PATIENT_ID::text, '') = '' then
+      if NEW.SNP_DATA_BY_PATIENT_ID is null then
          select nextval('deapp.SEQ_DATA_ID') into NEW.SNP_DATA_BY_PATIENT_ID ;
   end if;
 RETURN NEW;
@@ -35,4 +35,10 @@ $$;
 -- Name: trg_snp_data_by_patient_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_snp_data_by_patient_id BEFORE INSERT ON de_snp_data_by_patient FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_data_by_patient_id();
+
+--
+-- Name: fk_snp_dataset_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_data_by_patient
+    ADD CONSTRAINT fk_snp_dataset_id FOREIGN KEY (snp_dataset_id) REFERENCES de_subject_snp_dataset(subject_snp_dataset_id);
 

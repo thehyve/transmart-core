@@ -15,9 +15,12 @@ BEGIN
         ['tm_wz', 'transmart'],
         ['i2b2demodata', 'transmart'],
         ['i2b2metadata', 'transmart'],
-        ['deapp', 'deapp'],
-        ['searchapp', 'search_app'],
-        ['biomart', 'biomart']
+        ['deapp', 'transmart'],
+        ['searchapp', 'transmart'],
+        ['biomart', 'transmart'],
+        ['galaxy', 'transmart'],
+        ['fmapp', 'transmart'],
+        ['amapp', 'transmart']
     ];
     FOREACH pair SLICE 1 IN ARRAY spec LOOP
         -- Assign tables' tablespaces

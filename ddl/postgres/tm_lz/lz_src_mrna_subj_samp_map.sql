@@ -11,7 +11,7 @@ CREATE TABLE lz_src_mrna_subj_samp_map (
     attribute_1 character varying(256),
     attribute_2 character varying(200),
     category_cd character varying(200),
-    source_cd character varying(50)
+    source_cd character varying(200)
 );
 
 --

@@ -27,7 +27,7 @@ CREATE FUNCTION tf_trg_cz_seq_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin     
-      if coalesce(NEW.SEQ_ID::text, '') = '' then          
+      if NEW.SEQ_ID is null then
         select nextval('tm_cz.SEQ_CZ_JOB_AUDIT') into NEW.SEQ_ID ;       
       end if;       
        RETURN NEW;
@@ -43,7 +43,7 @@ CREATE TRIGGER trg_cz_seq_id BEFORE INSERT ON cz_job_audit FOR EACH ROW EXECUTE 
 -- Name: seq_cz_job_audit; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_audit
-    START WITH 123843
+    START WITH 1686336
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

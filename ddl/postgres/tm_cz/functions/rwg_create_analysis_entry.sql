@@ -117,11 +117,11 @@ BEGIN
 		rwg.foldchange_cutoff,
 		pvalue_cutoff,
 		lsmean_cutoff,
-		--fold_chage, pvalue, lsmean cutoffs
+		--fold_change, pvalue, lsmean cutoffs
 		rwg.Analysis_Type,
 		rwg.Data_Type,
 		rwg.study_id || 'RWG',
-		'(Abs(fold Change) > ' || rwg.foldchange_cutoff || ' OR coalesce(fold_chage::text, '') = '')' || ' AND pvalue < ' || pvalue_cutoff || ' AND Max(LSMean) >' || lsmean_cutoff,
+		'(Abs(fold Change) > ' || rwg.foldchange_cutoff || ' OR coalesce(fold_change::text, '') = '')' || ' AND pvalue < ' || pvalue_cutoff || ' AND Max(LSMean) >' || lsmean_cutoff,
 		now(),
 		now()
 	FROM

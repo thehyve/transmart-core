@@ -25,9 +25,9 @@ AS
 
   databaseName NVARCHAR2(100);
 	errorNumber NUMBER(18,0);
-	errorMessage NVARCHAR2(1000);
-  errorStack NVARCHAR2(4000);
-  errorBackTrace NVARCHAR2(4000);
+	errorMessage VARCHAR2(1000);
+  errorStack VARCHAR2(4000);
+  errorBackTrace VARCHAR2(4000);
 	stepNo NUMBER(18,0);
 
 BEGIN
@@ -53,3 +53,4 @@ BEGIN
 
 END;
 /
+ 

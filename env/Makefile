@@ -1,4 +1,3 @@
-REMOTE_FILE_STORAGE = http://files.thehyve.net
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
@@ -28,16 +27,16 @@ TRANSMART_LOADER=transmart-loader
 	&& echo "log4j.appender.console.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n" >> $@
 
 TRANSMART_LOADER_SNAPSHOT_NAME=loader-jar-with-dependencies.jar
-LATEST_TRANSMART_LAODER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+LATEST_TRANSMART_LOADER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+
+# only load the snapshot if the current one is 24 hours old (or older)
+# use FORCE_TS_LOADER_DOWNLOAD=1 to override
 $(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-snapshot/conf/log4j.properties
-	curl $(LATEST_TRANSMART_LAODER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME)
-
-TRANSMART_LOADER_ARCHIVE = transmart-loader.tar.xz
-$(TRANSMART_LOADER_ARCHIVE):
-	curl -f $(REMOTE_FILE_STORAGE)/$@ > $@
-
-$(TRANSMART_LOADER)-from-file-server: $(TRANSMART_LOADER_ARCHIVE) $(TRANSMART_LOADER)-from-file-server/conf/log4j.properties
-	tar --touch -xf $< -C $@
+	if test "$$(find $@/$(TRANSMART_LOADER_SNAPSHOT_NAME) -mtime +1 2> /dev/null)" \
+		-o "$$FORCE_TS_LOADER_DOWNLOAD" = 1 \
+		-o ! -f $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); then \
+		curl -L -f $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); \
+	fi
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
@@ -52,10 +51,11 @@ groovy: $(GROOVY_BIN)
 $(PHP_TARBALL):
 	curl -f '$(PHP_URL)' > $@
 
-$(PHP_SRCDIR): $(PHP_TARBALL)
-	tar --touch -xf '$<'
+$(PHP_SRCDIR)/.keep: $(PHP_TARBALL)
+	tar -xf '$<'
+	touch '$@'
 
-$(PHP_BIN): $(PHP_SRCDIR)
+$(PHP_BIN): $(PHP_SRCDIR)/.keep
 	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json
 	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
 
@@ -85,8 +85,11 @@ KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
-data-integration: $(KETTLE_ARCHIVE)
-	tar --touch -xzf $<
+data-integration: data-integration/.keep
+.PHONY: data-integration
+data-integration/.keep: $(KETTLE_ARCHIVE)
+	 tar -xzf $<
+	 touch '$@'
 
 /var/lib/postgresql/tablespaces:
 	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'

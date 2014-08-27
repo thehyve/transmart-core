@@ -42,13 +42,29 @@ $permissions = [
 		'tm_cz' => 'full',
 		'biomart_user' => 'read',
 	],
+	'biomart_user' => [
+		'tm_cz' => 'full',
+		'biomart_user' => 'full',
+	],
 	'deapp' => [
+		'tm_cz' => 'full',
+		'biomart_user' => 'read',
+	],
+	'amapp' => [
+		'tm_cz' => 'full',
+		'biomart_user' => 'read',
+	],
+	'fmapp' => [
 		'tm_cz' => 'full',
 		'biomart_user' => 'read',
 	],
 	'searchapp' => [
 		'tm_cz' => 'full',
 		'biomart_user' => 'write',
+	],
+	'galaxy' => [
+		'tm_cz' => 'full',
+		'biomart_user' => 'read',
 	],
 ];
 

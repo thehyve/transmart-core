@@ -26,10 +26,6 @@ update_datasets:
 	$(MAKE) $*/$*_expression.tar.xz
 	tar -C $* -xJf $*/$*_expression.tar.xz
 
-%/analysis.params %/analysis:
-	$(MAKE) $*/$*_analysis.tar.xz
-	tar -C $* -xJf $*/$*_analysis.tar.xz
-
 %/acgh.params %/acgh:
 	$(MAKE) $*/$*_acgh.tar.xz
 	tar -C $* -xJf $*/$*_acgh.tar.xz

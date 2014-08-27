@@ -15,19 +15,23 @@ ALTER TABLE ONLY search_auth_sec_object_access
     ADD CONSTRAINT sch_sec_a_a_s_a_pk PRIMARY KEY (auth_sec_obj_access_id);
 
 --
--- Name: tf_trgi_search_au_obj_access_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_au_obj_access_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_au_obj_access_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_au_obj_access_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if coalesce(NEW.AUTH_SEC_OBJ_ACCESS_ID::text, '') = '' then          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.AUTH_SEC_OBJ_ACCESS_ID ;       end if;    RETURN NEW;
+begin
+    if NEW.AUTH_SEC_OBJ_ACCESS_ID is null then
+          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.AUTH_SEC_OBJ_ACCESS_ID ;
+    end if;
+RETURN NEW;
 end;
 $$;
 
 --
--- Name: trgi_search_au_obj_access_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_au_obj_access_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_au_obj_access_id BEFORE INSERT ON search_auth_sec_object_access FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_au_obj_access_id();
+CREATE TRIGGER trg_search_au_obj_access_id BEFORE INSERT ON search_auth_sec_object_access FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_au_obj_access_id();
 
 --
 -- Name: sch_sec_a_u_fk; Type: FK CONSTRAINT; Schema: searchapp; Owner: -

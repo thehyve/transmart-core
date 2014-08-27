@@ -42,7 +42,7 @@ CREATE TRIGGER de_parent_cd_trg BEFORE INSERT ON de_xtrial_parent_names FOR EACH
 -- Name: de_parent_cd_seq; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE de_parent_cd_seq
-    START WITH 1
+    START WITH 3801
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

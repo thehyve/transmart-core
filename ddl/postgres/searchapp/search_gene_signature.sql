@@ -42,9 +42,24 @@ CREATE TABLE search_gene_signature (
     multiple_testing_correction boolean,
     p_value_cutoff_concept_id bigint NOT NULL,
     upload_file character varying(255) NOT NULL,
-    search_gene_sig_file_schema_id bigint DEFAULT 1,
-    fold_chg_metric_concept_id bigint,
-    experiment_type_cell_line_id bigint
+    search_gene_sig_file_schema_id bigint DEFAULT 1 NOT NULL,
+    fold_chg_metric_concept_id bigint NOT NULL, --was DEFAULT NULL NOT NULL changed on test server
+    experiment_type_cell_line_id bigint,
+    qc_performed numeric(1,0),
+    qc_date date,
+    qc_info character varying(255),
+    data_source character varying(255),
+    custom_value1 character varying(255),
+    custom_name1 character varying(255),
+    custom_value2 character varying(255),
+    custom_name2 character varying(255),
+    custom_value3 character varying(255),
+    custom_name3 character varying(255),
+    custom_value4 character varying(255),
+    custom_name4 character varying(255),
+    custom_value5 character varying(255),
+    custom_name5 character varying(255),
+    version character varying(255)
 );
 
 --

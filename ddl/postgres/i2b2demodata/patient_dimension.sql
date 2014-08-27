@@ -12,7 +12,7 @@ CREATE TABLE patient_dimension (
     race_cd character varying(50),
     marital_status_cd character varying(50),
     religion_cd character varying(50),
-    zip_cd character varying(10),
+    zip_cd character varying(50),
     statecityzip_path character varying(700),
     income_cd character varying(50),
     patient_blob text,
@@ -28,6 +28,11 @@ CREATE TABLE patient_dimension (
 --
 ALTER TABLE ONLY patient_dimension
     ADD CONSTRAINT patient_dimension_pk PRIMARY KEY (patient_num);
+
+--
+-- Name: idx_pd_sourcesystemcd_pnum; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX idx_pd_sourcesystemcd_pnum ON patient_dimension USING btree (sourcesystem_cd, patient_num);
 
 --
 -- Name: patd_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
@@ -48,4 +53,33 @@ CREATE INDEX pd_idx_dates ON patient_dimension USING btree (patient_num, vital_s
 -- Name: pd_idx_statecityzip; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX pd_idx_statecityzip ON patient_dimension USING btree (statecityzip_path, patient_num);
+
+--
+-- Name: tf_trg_patient_dimension(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
+--
+CREATE FUNCTION tf_trg_patient_dimension() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+begin
+       if NEW.PATIENT_NUM is null then
+ select nextval('i2b2demodata.SEQ_PATIENT_NUM') into NEW.PATIENT_NUM ;
+end if;
+       RETURN NEW;
+end;
+$$;
+
+--
+-- Name: trg_patient_dimension; Type: TRIGGER; Schema: i2b2demodata; Owner: -
+--
+CREATE TRIGGER trg_patient_dimension BEFORE INSERT ON patient_dimension FOR EACH ROW EXECUTE PROCEDURE tf_trg_patient_dimension();
+
+--
+-- Name: seq_patient_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
+--
+CREATE SEQUENCE seq_patient_num
+    START WITH 1000384597
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 

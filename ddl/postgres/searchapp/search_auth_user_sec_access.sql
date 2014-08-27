@@ -15,21 +15,23 @@ ALTER TABLE ONLY search_auth_user_sec_access
     ADD CONSTRAINT search_sec_a_u_s_a_pk PRIMARY KEY (search_auth_user_sec_access_id);
 
 --
--- Name: tf_trgi_search_a_u_sec_access_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_a_u_sec_access_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_a_u_sec_access_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_a_u_sec_access_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.SEARCH_AUTH_USER_SEC_ACCESS_ID is null then          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_AUTH_USER_SEC_ACCESS_ID ;       end if;    RETURN NEW; end;
-
-
-
+begin
+    if NEW.SEARCH_AUTH_USER_SEC_ACCESS_ID is null then
+          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_AUTH_USER_SEC_ACCESS_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --
--- Name: trgi_search_a_u_sec_access_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_a_u_sec_access_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_a_u_sec_access_id BEFORE INSERT ON search_auth_user_sec_access FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_a_u_sec_access_id();
+CREATE TRIGGER trg_search_a_u_sec_access_id BEFORE INSERT ON search_auth_user_sec_access FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_a_u_sec_access_id();
 
 --
 -- Name: search_sec_a_u_fk; Type: FK CONSTRAINT; Schema: searchapp; Owner: -
@@ -53,7 +55,7 @@ ALTER TABLE ONLY search_auth_user_sec_access
 -- Name: seq_search_data_id; Type: SEQUENCE; Schema: searchapp; Owner: -
 --
 CREATE SEQUENCE seq_search_data_id
-    START WITH 9999999
+    START WITH 3017276
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

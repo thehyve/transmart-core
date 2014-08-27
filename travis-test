@@ -1,0 +1,114 @@
+#!/bin/bash -e
+
+set -x
+
+source vars
+
+function apt_install {
+  sudo apt-get install -qq -y "$@"
+}
+
+function minimal_ts_etl_checkout {
+  test -d env/tranSMART-ETL || svn checkout --depth immediates \
+    https://github.com/transmart/tranSMART-ETL/trunk env/tranSMART-ETL
+  svn up --set-depth infinity env/tranSMART-ETL/{Postgres,Kettle-GPL}
+}
+
+function postgres_target_deps {
+  apt_install postgresql php5-cli php5-json
+  minimal_ts_etl_checkout
+
+  sudo make -C env /var/lib/postgresql/tablespaces
+}
+
+function test_main_pg {
+  postgres_target_deps
+  apt_install rsync #solr needs it
+
+  make -j4 postgres
+
+  test_clinical_load
+  test_solr
+}
+
+function test_clinical_load {
+  make -C env data-integration
+  make -C samples/postgres load_clinical_GSE8581
+}
+
+function test_solr {
+  local solr_pid
+
+  make -C solr solr_home
+  make -C solr start > /tmp/solr_log 2>&1 &
+  timeout 15s bash -c 'while ! lsof -iTCP:8983 -sTCP:LISTEN; do sleep 1; done'
+  make -C solr browse_full_import
+
+  solr_pid=%1
+  kill -HUP $solr_pid
+  if ! timeout 15s bash -c "while test -d /proc/$solr_pid; do sleep 1; done"; then
+    echo "Solr didn't exit within 5 seconds!" >&2
+    cat /tmp/solr_log
+    exit 1
+  fi
+}
+
+function test_load_dump_load_pg {
+  postgres_target_deps
+
+  make -j4 postgres
+
+  # ddl
+  make -C ddl/postgres clean_all
+  make -C ddl/postgres dump
+  make -C ddl/postgres files_all
+
+  # data
+  make -C data/common clean_dumps
+  make -C data/postgres dump
+
+  make postgres_drop
+
+  make -j4 postgres
+
+  # ideally, there should be no diff, but...
+  git diff --shortstat ddl/postgres/ data/common/
+}
+
+function test_R {
+  apt_install libcairo-dev clang gfortran g++ libreadline-dev
+
+  export CC=clang
+  export CXX=clang++
+  export R_FLAGS=-O0
+  export TRANSMART_USER=$USER
+
+  make -C R -j3 root/bin/R
+  make -C R install_packages
+
+  sudo -E make -C R install_rserve_upstart
+
+  sudo initctl start rserve
+
+  if ! sudo initctl status rserve | grep 'start/running'; then
+    echo "Rserve not running!" >&2
+    exit 1
+  fi
+}
+
+case $1 in
+  main_pg)
+    test_main_pg
+    ;;
+  load_dump_load_pg)
+    test_load_dump_load_pg
+    ;;
+  R)
+    test_R
+    ;;
+  *)
+    echo "Unknown test suite: $1" >&2
+    ;;
+esac
+
+# vim: set ts=2 sw=2 et:

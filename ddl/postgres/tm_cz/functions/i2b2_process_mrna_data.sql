@@ -117,7 +117,7 @@ BEGIN
 		end if;
 	end if;
 
-	logBase := log_base;
+	logBase := coalesce(log_base, 2);
 	sourceCd := upper(coalesce(source_cd,'STD'));
 
 	--	Get count of records in tm_lz.lt_src_mrna_subj_samp_map
@@ -174,7 +174,7 @@ BEGIN
 	where platform in (select distinct m.platform from tm_lz.lt_src_mrna_subj_samp_map m);
 
 	if pCount = 0 then
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'No Gene Expression platforms in tm_cz.probeset_deapp',0,pCount,'Done') into rtnCd;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'No Gene Expression platforms in deapp.de_mrna_annotation',0,pCount,'Done') into rtnCd;
 		select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
 		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
 		return -16;
@@ -238,7 +238,7 @@ BEGIN
 	end if;
 
 	select c_hlevel into root_level
-	from i2b2metadata.i2b2
+	from i2b2metadata.table_access
 	where c_name = RootNode;
 
 	-- Get study name from topNode
@@ -251,7 +251,7 @@ BEGIN
 	select length(tPath) - length(replace(tPath,'\','')) into pCount;
 
 	if pCount > 2 then
-		select tm_cz.i2b2_fill_in_tree(null, tPath, jobId) into rtnCd;
+		select tm_cz.i2b2_fill_in_tree('', tPath, jobId) into rtnCd;
 	end if;
 
 	--	uppercase study_id in tm_lz.lt_src_mrna_subj_samp_map in case curator forgot
@@ -375,8 +375,10 @@ BEGIN
 		  and sm.platform = 'MRNA_AFFYMETRIX';
 	end if;
 
-	partitionName := 'deapp.de_subject_microarray_data_' || partitionId::text;
-	partitionIndx := 'de_subject_microarray_data_' || partitionId::text;
+--	partitionName := 'deapp.de_subject_microarray_data_' || partitionId::text;
+--	partitionIndx := 'de_subject_microarray_data_' || partitionId::text;
+        partitionName := 'deapp.de_subject_microarray_data';-- || partitionId::text;
+        partitionIndx := 'de_subject_microarray_data';-- || partitionId::text;
 
 	--	truncate tmp node table
 
@@ -643,6 +645,27 @@ BEGIN
 
 	END LOOP;
 
+	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
+
+	begin
+	update i2b2metadata.i2b2 b
+	set sourcesystem_cd=null,c_comment=null
+	where b.sourcesystem_cd = TrialId
+	  and length(b.c_fullname) < length(topNode);
+	get diagnostics rowCt := ROW_COUNT;
+	exception
+	when others then
+		errorNumber := SQLSTATE;
+		errorMessage := SQLERRM;
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		return -16;
+	end;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',rowCt,stepCt,'Done') into rtnCd;
+
 	--	update concept_cd for nodes, this is done to make the next insert easier
 
 	begin
@@ -668,35 +691,6 @@ BEGIN
 	end;
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Update tm_wz.wt_mrna_nodes with newly created concept_cds',rowCt,stepCt,'Done') into rtnCd;
-
-	--	delete any site/subject/samples that are not in lt_src_mrna_data for the trial on a reload
-
-	if partExists > 0 then
-	begin
-	delete from deapp.de_subject_sample_mapping sm
-	where sm.trial_name = trial_id
-	  and sm.source_cd = sourceCd
-	  and sm.platform = 'MRNA_AFFYMETRIX'
-	 and not exists
-		 (select 1 from tm_lz.lt_src_mrna_subj_samp_map x
-		  where coalesce(sm.site_id,'@') = coalesce(x.site_id,'@')
-		    and sm.subject_id = x.subject_id
-			and sm.sample_cd = x.sample_cd
-			and sm.source_cd = coalesce(x.source_cd,'STD'));
-	get diagnostics rowCt := ROW_COUNT;
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
-		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
-		return -16;
-		end;
-	end if;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete dropped site/subject/sample from de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
 
 	--Update or insert DE_SUBJECT_SAMPLE_MAPPING from wt_subject_mrna_data
 
@@ -780,8 +774,7 @@ BEGIN
 		  and pd.source_cd = sourceCD
 		  and coalesce(pd.site_id,'') = coalesce(upd.site_id,'')
 		  and pd.subject_id = upd.subject_id
-		  and pd.sample_cd = upd.sample_cd
-		  and pd.gpl_id=upd.gpl_id;
+		  and pd.sample_cd = upd.sample_cd;
 		get diagnostics rowCt := ROW_COUNT;
 		exception
 		when others then
@@ -876,6 +869,7 @@ BEGIN
 		inner join tm_wz.wt_mrna_nodes ln
 			on a.platform = ln.platform
 			and a.tissue_type = ln.tissue_type
+			and a.category_cd = ln.category_cd
 			and coalesce(a.attribute_1,'') = coalesce(ln.attribute_1,'')
 			and coalesce(a.attribute_2,'') = coalesce(ln.attribute_2,'')
 			and ln.node_type = 'LEAF'
@@ -943,10 +937,8 @@ BEGIN
 
 	begin
 	insert into i2b2demodata.observation_fact
-    (encounter_num
-        ,patient_num
+    (patient_num
 	,concept_cd
-        ,start_date
 	,modifier_cd
 	,valtype_cd
 	,tval_char
@@ -956,13 +948,10 @@ BEGIN
 	,provider_id
 	,location_cd
 	,units_cd
-        ,instance_num
     )
     select distinct m.patient_id
-                  ,m.patient_id 
 		  ,m.concept_code
-                  ,current_timestamp
-		  ,'@'
+		  ,m.trial_name
 		  ,'T' -- Text data type
 		  ,'E'  --Stands for Equals for Text Types
 		  ,m.trial_name
@@ -971,7 +960,6 @@ BEGIN
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
-                  , 0
     from  deapp.de_subject_sample_mapping m
     where m.trial_name = TrialID
 	  and m.source_cd = sourceCD
@@ -1052,29 +1040,27 @@ BEGIN
 	insert into tm_wz.wt_subject_mrna_probeset
 	(probeset_id
 	,intensity_value
-        ,patient_id 
-        ,trial_name
 	,assay_id
+	,trial_name
 	)
 	select gs.probeset_id
-		  ,avg(md.intensity_value::numeric(18,4))
-                  ,sd.patient_id
-                  ,TrialId
+		  ,avg(md.intensity_value::double precision)
 		  ,sd.assay_id
-	from deapp.de_subject_sample_mapping sd
-		,tm_lz.lt_src_mrna_data md
-		,tm_cz.probeset_deapp gs
-	where sd.sample_cd = md.expr_id
-	  and sd.platform = 'MRNA_AFFYMETRIX'
+		  ,TrialId
+	from
+	  tm_lz.lt_src_mrna_data md
+      inner join deapp.de_subject_sample_mapping sd
+        inner join tm_cz.probeset_deapp gs
+        on sd.gpl_id = gs.platform
+      on md.expr_id = sd.sample_cd and md.probeset = gs.probeset
+	where sd.platform = 'MRNA_AFFYMETRIX'
 	  and sd.trial_name = TrialId
 	  and sd.source_cd = sourceCd
-	  and sd.gpl_id = gs.platform
-	  and md.probeset = gs.probeset
 	  and case when dataType = 'R'
-			   then case when md.intensity_value::numeric(18,4) > 0 then 1 else 0 end
+			   then case when md.intensity_value > 0 then 1 else 0 end
 			   else 1 end = 1         --	take only >0 for dataType R
 	group by gs.probeset_id
-		  ,sd.patient_id,sd.assay_id;
+		  ,sd.assay_id;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -1103,13 +1089,14 @@ BEGIN
 	where table_name = partitionindx;
 	
 	if pExists = 0 then
-		sqlText := 'create table ' || partitionName || ' ( constraint mrna_' || partitionId::text || '_check check ( partition_id = ' || partitionId::text ||
-					')) inherits (deapp.de_subject_microarray_data)';
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
-		stepCt := stepCt + 1;
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
+--		sqlText := 'create table ' || partitionName || ' ( constraint mrna_' || partitionId::text || '_check check ( partition_id = ' || partitionId::text ||
+--					')) inherits (deapp.de_subject_microarray_data)';
+--		raise notice 'sqlText= %', sqlText;
+--		execute sqlText;
+--		stepCt := stepCt + 1;
+--		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
 	else
+        -- Keep this statement for backward compatibility
 		sqlText := 'drop index if exists ' || partitionIndx || '_idx1';
 		raise notice 'sqlText= %', sqlText;
 		execute sqlText;
@@ -1124,18 +1111,22 @@ BEGIN
 		execute sqlText;
 		stepCt := stepCt + 1;
 		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
-		sqlText := 'truncate table ' || partitionName;
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
+
+    sqlText := 'delete from ' || partitionName || ' where assay_id in (' ||
+     'select sm.assay_id from deapp.de_subject_sample_mapping sm, tm_lz.lt_src_mrna_subj_samp_map tsm'
+     || ' where sm.trial_name = ''' || TrialID || ''' and sm.source_cd = '''|| sourceCD || ''''
+     || ' and coalesce(sm.site_id, '''') = coalesce(tsm.site_id, '''') and sm.subject_id = tsm.subject_id and sm.sample_cd = tsm.sample_cd)';
+    raise notice 'sqlText= %', sqlText;
+    execute sqlText;
 		stepCt := stepCt + 1;
 		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Truncate ' || partitionName,1,stepCt,'Done') into rtnCd;
 	end if;
 
 	--	insert into de_subject_microarray_data when dataType is T (transformed)
 
-	if dataType = 'T' then
-		sqlText := 'insert into ' || partitionName || ' (partition_id, probeset_id, assay_id, log_intensity, patient_id, trial_name, zscore) ' ||
-				   'select ' || partitionId::text || ', probeset_id, assay_id, intensity_value, patient_id, trial_name, ' ||
+	if dataType = 'T' or dataType = 'Z' then -- Z is for compatibility with TR ETL default settings
+		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, log_intensity, zscore) ' ||
+				   'select ' || partitionId::text || ', trial_name, probeset_id, assay_id, intensity_value, ' ||
 				   'case when intensity_value < -2.5 then -2.5 when intensity_value > 2.5 then 2.5 else intensity_value end ' ||
 				   'from tm_wz.wt_subject_mrna_probeset';
 		raise notice 'sqlText= %', sqlText;
@@ -1160,17 +1151,15 @@ BEGIN
 		,assay_id
 		,raw_intensity
 		,log_intensity
-                ,patient_id 
-                ,trial_name
+		,trial_name
 		)
 		select probeset_id
 			  ,assay_id
 			  ,case when dataType = 'R' then intensity_value else 
-				    case when logBase = -1 then 0 else round(power(logBase,intensity_value),4) end
+				    case when logBase = -1 then 0 else power(logBase::double precision, intensity_value::double precision) end
 			   end
-			  ,case when dataType = 'L' then intensity_value else log(logBase,intensity_value) end
-                          ,patient_id 
-                          ,trial_name 
+			  ,case when dataType = 'L' then intensity_value else ln(intensity_value::double precision) / ln(logBase::double precision) end
+			  ,trial_name
 		from tm_wz.wt_subject_mrna_probeset;
 		get diagnostics rowCt := ROW_COUNT;
 		exception
@@ -1198,11 +1187,13 @@ BEGIN
 		,mean_intensity
 		,median_intensity
 		,stddev_intensity
+		,trial_name
 		)
 		select d.probeset_id
 			  ,avg(log_intensity)
-			  ,median(log_intensity)
+			  ,median(log_intensity::double precision)
 			  ,stddev(log_intensity)
+			  ,TrialID
 		from tm_wz.wt_subject_microarray_logs d
 		group by d.probeset_id;
 		get diagnostics rowCt := ROW_COUNT;
@@ -1225,12 +1216,12 @@ BEGIN
 
 		-- calculate zscore and insert into partition
 
-		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, raw_intensity, log_intensity, zscore, patient_id) ' ||
-				   'select ' || partitionId::text || ',d.trial_name, d.probeset_id, d.assay_id, d.raw_intensity, d.log_intensity, ' ||
+		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, raw_intensity, log_intensity, zscore) ' ||
+				   'select ' || partitionId::text || ', d.trial_name, d.probeset_id, d.assay_id, d.raw_intensity, d.log_intensity, ' ||
 				   'case when c.stddev_intensity = 0 then 0 else ' ||
 				   'case when (d.log_intensity - c.median_intensity ) / c.stddev_intensity < -2.5 then -2.5 ' ||
 				   'when (d.log_intensity - c.median_intensity ) / c.stddev_intensity > 2.5 then 2.5 else ' ||
-				   '(d.log_intensity - c.median_intensity ) / c.stddev_intensity end end, d.patient_id  ' ||
+				   '(d.log_intensity - c.median_intensity ) / c.stddev_intensity end end ' ||
 				   'from tm_wz.wt_subject_microarray_logs d ' ||
 				   ',tm_wz.wt_subject_microarray_calcs c ' ||
 				   'where d.probeset_id = c.probeset_id';
@@ -1242,10 +1233,6 @@ BEGIN
 	end if;
 
 	--	create indexes on partition
-
-	sqlText := ' create index ' || partitionIndx || '_idx1 on ' || partitionName || ' using btree (partition_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
 	sqlText := ' create index ' || partitionIndx || '_idx2 on ' || partitionName || ' using btree (assay_id) tablespace indx';
 	raise notice 'sqlText= %', sqlText;
 	execute sqlText;

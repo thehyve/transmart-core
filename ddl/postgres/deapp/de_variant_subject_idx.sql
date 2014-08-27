@@ -12,10 +12,10 @@ CREATE SEQUENCE de_variant_subject_idx_seq
 -- Name: de_variant_subject_idx; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_variant_subject_idx (
-    dataset_id character varying(50) DEFAULT nextval('de_variant_subject_idx_seq'::regclass),
+    dataset_id character varying(50),
     subject_id character varying(50),
     "position" bigint,
-    variant_subject_idx_id bigint
+    variant_subject_idx_id bigint DEFAULT nextval('de_variant_subject_idx_seq'::regclass) NOT NULL
 );
 
 --

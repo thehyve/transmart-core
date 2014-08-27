@@ -77,7 +77,7 @@ DECLARE
     dummy record;
 BEGIN
     IF NOT schema_name = ANY(ARRAY['i2b2demodata', 'i2b2metadata', 'deapp',
-            'searchapp', 'biomart']) THEN
+            'searchapp', 'galaxy', 'biomart', 'amapp', 'fmapp', 'biomart_user']) THEN
         RETURN NULL;
     END IF;
 
@@ -270,9 +270,13 @@ BEGIN
     schemas := ARRAY[
             'i2b2demodata',
             'i2b2metadata',
+            'amapp',
+            'fmapp',
             'deapp',
             'searchapp',
+            'galaxy',
             'biomart',
+            'biomart_user',
             'tm_cz',
             'tm_lz',
             'tm_wz'];

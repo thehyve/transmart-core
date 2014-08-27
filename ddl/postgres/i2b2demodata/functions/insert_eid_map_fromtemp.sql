@@ -8,9 +8,9 @@ CREATE FUNCTION insert_eid_map_fromtemp(tempeidtablename character varying, uplo
 DECLARE
  existingEncounterNum VARCHAR(32);
  maxEncounterNum NUMERIC;
- -- TYPE distinctEIdCurTyp IS REF CURSOR;
+ -- TYPE distinctEIdCurTyp IS CURSOR;
  -- distinctEidCur   distinctEIdCurTyp;
- distinctEidCur REFCURSOR;
+ distinctEidCur CURSOR;
  sql_stmt  VARCHAR(400); 
  disEncounterId VARCHAR(100); 
  disEncounterIdSource VARCHAR(100);

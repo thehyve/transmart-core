@@ -5,7 +5,7 @@ CREATE TABLE search_gene_sig_file_schema (
     search_gene_sig_file_schema_id bigint NOT NULL,
     name character varying(100) NOT NULL,
     description character varying(255),
-    number_columns bigint DEFAULT 2,
+    number_columns bigint DEFAULT 2 NOT NULL,
     supported boolean DEFAULT false
 );
 

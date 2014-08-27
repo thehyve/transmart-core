@@ -1,6 +1,8 @@
 transmart-data
 ==============
 
+[![Build Status](https://travis-ci.org/transmart/transmart-data.svg?branch=master)](https://travis-ci.org/transmart/transmart-data)
+
 Introduction
 ------------
 
@@ -201,7 +203,7 @@ should include the contents of the tarball. When finished, the tarball can be
 created with (running from the root of the project):
 
     tar -C samples/studies/<study name> \
-        -xJf <study name>_<data type>.tar.xz <data type>.params <data type>
+        -cJf <study name>_<data type>.tar.xz <data type>.params <data type>
 
 Data sets can be loaded by running a target named `load_<data type>_<study
 name>` in either `samples/oracle` or `samples/postgresql`, as appropriate.

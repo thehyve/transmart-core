@@ -16,9 +16,9 @@ ALTER TABLE ONLY search_taxonomy
     ADD CONSTRAINT search_taxonomy_pk PRIMARY KEY (term_id);
 
 --
--- Name: trg_search_taxonomy_term_id_fun(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_taxonomy_term_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION trg_search_taxonomy_term_id_fun() RETURNS trigger
+CREATE FUNCTION tf_trg_search_taxonomy_term_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -32,7 +32,7 @@ $$;
 --
 -- Name: trg_search_taxonomy_term_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trg_search_taxonomy_term_id BEFORE INSERT ON search_taxonomy FOR EACH ROW EXECUTE PROCEDURE trg_search_taxonomy_term_id_fun();
+CREATE TRIGGER trg_search_taxonomy_term_id BEFORE INSERT ON search_taxonomy FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_taxonomy_term_id();
 
 --
 -- Name: fk_search_tax_search_keyword; Type: FK CONSTRAINT; Schema: searchapp; Owner: -

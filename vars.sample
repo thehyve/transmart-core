@@ -58,6 +58,12 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 #end with /
 TSUSER_HOME=$HOME/
 
+#optional TAR commend - e.g. tar on Mac does not work; 
+# on Mac homebrew: brew install gnu-tar ; will set command gtar
+# if this is unset, then value defaults to tar (system tar command)
+#TAR_COMMAND=gtar
+#export TAR_COMMAND
+
 # {{{ DB user passwords
 #     They default to the same as the username.
 #     These are set when the database is created and they are used when

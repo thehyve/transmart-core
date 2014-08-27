@@ -5,11 +5,31 @@ CREATE AGGREGATE median(anyelement) (
     SFUNC = array_append,
     STYPE = anyarray,
     INITCOND = '{}',
-    FINALFUNC = _final_median
+    FINALFUNC = tm_cz._final_median
+);
+
+--
+-- Name: median(double precision); Type: AGGREGATE; Schema: tm_cz; Owner: -
+--
+CREATE AGGREGATE median(double precision) (
+    SFUNC = array_append,
+    STYPE = double precision[],
+    INITCOND = '{}',
+    FINALFUNC = tm_cz._final_median
 );
 
 
 SET default_with_oids = false;
+
+--
+-- Name: cz_form_layout_seq; Type: SEQUENCE; Schema: tm_cz; Owner: -
+--
+CREATE SEQUENCE cz_form_layout_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 --
 -- Name: emt_temp_seq; Type: SEQUENCE; Schema: tm_cz; Owner: -
@@ -52,36 +72,6 @@ CREATE SEQUENCE seq_child_rollup_id
     CACHE 20;
 
 --
--- Name: seq_cz_data; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_data
-    START WITH 5
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
--- Name: seq_cz_data_file; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_data_file
-    START WITH 6
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
--- Name: seq_cz_dw_version_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_dw_version_id
-    START WITH 41
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
 -- Name: seq_cz_job_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz_job_id
@@ -90,26 +80,6 @@ CREATE SEQUENCE seq_cz_job_id
     NO MINVALUE
     NO MAXVALUE
     CACHE 20;
-
---
--- Name: seq_cz_job_message; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_job_message
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
-
---
--- Name: seq_cz_test; Type: SEQUENCE; Schema: tm_cz; Owner: -
---
-CREATE SEQUENCE seq_cz_test
-    START WITH 8259
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 2;
 
 --
 -- Name: seq_cz_test_category; Type: SEQUENCE; Schema: tm_cz; Owner: -

@@ -21,10 +21,24 @@ TM_WZ_DB_USER=tm_wz
 DEAPP_DB_NAME=<?= $_ENV['PGDATABASE'] , "\n" ?>
 DEAPP_DB_PORT=<?= $_ENV['PGPORT'] , "\n" ?>
 DEAPP_DB_SERVER=<?= $host, "\n" ?>
+DEAPP_DB_PWD=<?= get('DEAPP_PWD', 'deapp'), "\n" ?>
+DEAPP_DB_USER=deapp
 DEAPP_PWD=<?= get('DEAPP_PWD', 'deapp'), "\n" ?>
 DEAPP_USER=deapp
 BIOMART_DB_NAME=<?= $_ENV['PGDATABASE'] , "\n" ?>
 BIOMART_DB_PORT=<?= $_ENV['PGPORT'] , "\n" ?>
 BIOMART_DB_SERVER=<?= $host, "\n" ?>
+BIOMART_DB_PWD=<?= get('BIOMART_PWD', 'biomart'), "\n" ?>
+BIOMART_DB_USER=biomart
 BIOMART_PWD=<?= get('BIOMART_PWD', 'biomart'), "\n" ?>
 BIOMART_USER=biomart
+BIOMART_STAGE_DB_NAME=<?= $_ENV['PGDATABASE'] , "\n" ?>
+BIOMART_STAGE_DB_PORT=<?= $_ENV['PGPORT'] , "\n" ?>
+BIOMART_STAGE_DB_SERVER=<?= $host, "\n" ?>
+BIOMART_STAGE_DB_PWD=<?= get('BIOMART_STAGE_PWD', 'biomart_stage'), "\n" ?>
+BIOMART_STAGE_DB_USER=biomart_stage
+I2B2DEMODATA_DB_NAME=<?= $_ENV['PGDATABASE'] , "\n" ?>
+I2B2DEMODATA_DB_PORT=<?= $_ENV['PGPORT'] , "\n" ?>
+I2B2DEMODATA_DB_SERVER=<?= $host, "\n" ?>
+I2B2DEMODATA_DB_PWD=<?= get('I2B2DEMODATA_PWD', 'i2b2demodata'), "\n" ?>
+I2B2DEMODATA_DB_USER=i2b2demodata

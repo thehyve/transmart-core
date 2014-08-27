@@ -1,3 +1,5 @@
+include ../makefile.inc
+
 R_MIRROR ?= http://cran-mirror.cs.uu.nl
 R_VERSION = 3.0.3
 R_SOURCE = R-$(R_VERSION)
@@ -8,7 +10,7 @@ RSERVE_CONF ?= $(realpath .)/Rserv_nodaemon.conf
 R_FLAGS ?= -O2 -march=native
 
 $(R_SOURCE):
-	curl -f $(R_MIRROR)/src/base/R-3/$@.tar.gz | tar xzf -
+	curl -f $(R_MIRROR)/src/base/R-3/$@.tar.gz | $(TAR_COMMAND) xzf -
 
 build/Makefile: $(R_SOURCE)
 	mkdir -p build && cd build && \

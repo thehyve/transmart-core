@@ -22,7 +22,8 @@ CREATE TABLE bio_assay_analysis_data_tea (
     tea_normalized_pvalue double precision,
     bio_experiment_type character varying(50),
     bio_assay_feature_group_id bigint,
-    tea_rank bigint
+    tea_rank bigint,
+    probeset_id bigint
 );
 
 --
@@ -32,49 +33,49 @@ ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_aa_data_t_pk PRIMARY KEY (bio_asy_analysis_data_id);
 
 --
--- Name: baadt_f_idx13; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_enalysis; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_f_idx13 ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_asy_analysis_data_id);
+CREATE INDEX baad_idx_tea_enalysis ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, bio_asy_analysis_data_id);
 
 --
--- Name: baadt_idex12; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_exp_analysis; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idex12 ON bio_assay_analysis_data_tea USING btree (feature_group_name, bio_asy_analysis_data_id);
+CREATE INDEX baad_idx_tea_exp_analysis ON bio_assay_analysis_data_tea USING btree (bio_experiment_id, bio_assay_analysis_id);
 
 --
--- Name: baadt_idx10; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_exp_analysis1; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idx10 ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_experiment_id);
+CREATE INDEX baad_idx_tea_exp_analysis1 ON bio_assay_analysis_data_tea USING btree (bio_experiment_id, bio_assay_analysis_id, bio_asy_analysis_data_id);
 
 --
--- Name: baadt_idx11; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_fg_experiment; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idx11 ON bio_assay_analysis_data_tea USING btree (bio_experiment_id, bio_assay_analysis_id, bio_asy_analysis_data_id);
+CREATE INDEX baad_idx_tea_fg_experiment ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_experiment_id);
 
 --
--- Name: baadt_idx17; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_probe_id; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idx17 ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, tea_rank);
+CREATE INDEX baad_idx_tea_probe_id ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_asy_analysis_data_id);
 
 --
--- Name: baadt_idx6; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_probe_name; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idx6 ON bio_assay_analysis_data_tea USING btree (bio_experiment_id, bio_assay_analysis_id);
+CREATE INDEX baad_idx_tea_probe_name ON bio_assay_analysis_data_tea USING btree (feature_group_name, bio_asy_analysis_data_id);
 
 --
--- Name: baadt_idx7; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_rank; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baadt_idx7 ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, bio_asy_analysis_data_id);
+CREATE INDEX baad_idx_tea_rank ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, tea_rank);
 
 --
--- Name: idx_baadt_fg_ad; Type: INDEX; Schema: biomart; Owner: -
+-- Name: idx_baad_idx_tea_experiment_type; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX idx_baadt_fg_ad ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_assay_analysis_id);
+CREATE INDEX idx_baad_idx_tea_experiment_type ON bio_assay_analysis_data_tea USING btree (bio_experiment_type, bio_asy_analysis_data_id);
 
 --
--- Name: idx_baadt_idx10; Type: INDEX; Schema: biomart; Owner: -
+-- Name: idx_baad_idx_tea_probe_analysis; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX idx_baadt_idx10 ON bio_assay_analysis_data_tea USING btree (bio_experiment_type, bio_asy_analysis_data_id);
+CREATE INDEX idx_baad_idx_tea_probe_analysis ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_assay_analysis_id);
 
 --
 -- Name: bio_assay_analysis_data_t_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -

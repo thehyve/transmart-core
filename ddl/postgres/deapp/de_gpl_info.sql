@@ -7,6 +7,7 @@ CREATE TABLE de_gpl_info (
     organism character varying(100),
     annotation_date timestamp without time zone,
     marker_type character varying(100),
+    genome_build character varying(20),
     release_nbr character varying(50)
 );
 

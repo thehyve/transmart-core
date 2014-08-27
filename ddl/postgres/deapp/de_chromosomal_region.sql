@@ -1,7 +1,7 @@
 --
--- Name: de_chromosomal_region_region_id_seq; Type: SEQUENCE; Schema: deapp; Owner: -
+-- Name: de_chromo_region_id_seq; Type: SEQUENCE; Schema: deapp; Owner: -
 --
-CREATE SEQUENCE de_chromosomal_region_region_id_seq
+CREATE SEQUENCE de_chromo_region_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -12,7 +12,7 @@ CREATE SEQUENCE de_chromosomal_region_region_id_seq
 -- Name: de_chromosomal_region; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_chromosomal_region (
-    region_id bigint NOT NULL,
+    region_id bigint DEFAULT nextval('de_chromo_region_id_seq'::regclass) NOT NULL,
     gpl_id character varying(50),
     chromosome character varying(2),
     start_bp bigint,
@@ -26,19 +26,14 @@ CREATE TABLE de_chromosomal_region (
 );
 
 --
--- Name: region_id; Type: DEFAULT; Schema: deapp; Owner: -
---
-ALTER TABLE ONLY de_chromosomal_region ALTER COLUMN region_id SET DEFAULT nextval('de_chromosomal_region_region_id_seq'::regclass);
-
---
 -- Name: de_chromosomal_region_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_chromosomal_region
     ADD CONSTRAINT de_chromosomal_region_pkey PRIMARY KEY (region_id);
 
 --
--- Name: de_chromosomal_region_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_chrom_region_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_chromosomal_region
-    ADD CONSTRAINT de_chromosomal_region_gpl_id_fkey FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
+    ADD CONSTRAINT de_chrom_region_gpl_id_fkey FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
 

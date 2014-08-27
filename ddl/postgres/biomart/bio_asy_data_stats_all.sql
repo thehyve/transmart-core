@@ -45,7 +45,13 @@ CREATE INDEX bio_a__d_s_f_g_idx ON bio_asy_data_stats_all USING btree (feature_g
 CREATE FUNCTION tf_trg_bio_asy_dt_stats_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin    if NEW.BIO_ASSAY_DATA_STATS_ID is null then          select nextval('biomart.SEQ_BIO_DATA_FACT_ID') into NEW.BIO_ASSAY_DATA_STATS_ID ;       end if;  RETURN NEW; end;
+begin
+	IF NEW.BIO_ASSAY_DATA_STATS_ID IS NULL
+		THEN
+		SELECT nextval('BIOMART.SEQ_BIO_DATA_FACT_ID') INTO NEW.BIO_ASSAY_DATA_STATS_ID;
+	END IF;
+RETURN NEW;
+END;
 $$;
 
 --
@@ -63,7 +69,7 @@ ALTER TABLE ONLY bio_asy_data_stats_all
 -- Name: seq_bio_data_fact_id; Type: SEQUENCE; Schema: biomart; Owner: -
 --
 CREATE SEQUENCE seq_bio_data_fact_id
-    START WITH 1
+    START WITH 26518741
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

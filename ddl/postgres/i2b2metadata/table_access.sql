@@ -2,7 +2,7 @@
 -- Name: table_access; Type: TABLE; Schema: i2b2metadata; Owner: -
 --
 CREATE TABLE table_access (
-    c_table_cd character varying(50) NOT NULL,
+    c_table_cd character varying(65) NOT NULL,
     c_table_name character varying(50) NOT NULL,
     c_protected_access character(1),
     c_hlevel numeric(22,0) NOT NULL,

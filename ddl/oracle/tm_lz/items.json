@@ -1,6 +1,13 @@
 {
   "dependencies" : [ {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "CLINICAL_TRIAL_METADATA_EXT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_LZ",
       "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
@@ -36,6 +43,31 @@
     } ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "TM_LZ",
+      "name" : "IDX_SCD_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_CLINICAL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMOSOMAL_REGION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMO_REGION_ID_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_METABOLOMIC_ANNOTATION"
@@ -67,6 +99,34 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_RNASEQ_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_CALLS_BY_GSM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_COPY_NUMBER"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_GENE_MAP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_ACGH_DATA"
     },
     "parents" : [ ]
   }, {
@@ -248,6 +308,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNASEQ_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
     },
     "parents" : [ ]
@@ -290,6 +357,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_STUDY_METADATA_AD_HOC"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_STUDY_METADATA_ORIG"
     },
     "parents" : [ ]
@@ -298,6 +372,13 @@
       "type" : "TABLE",
       "owner" : "TM_LZ",
       "name" : "LT_SRC_SUBJ_ENROLL_DATE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_ANALYSIS_METADATA"
     },
     "parents" : [ ]
   }, {
@@ -344,19 +425,168 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_STUDY_METADATA_AD_HOC"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_SUBJ_ENROLL_DATE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_DATA_EXT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_EXT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_COHORTS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_COHORTS_EXT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_SAMPLES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_SAMPLES_EXT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "SEQ_ETL_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
+      "name" : "TRG_LT_CHROMO_REGION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMOSOMAL_REGION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
+      "name" : "TRG_LZ_SRC_ANALYSIS_META_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_ANALYSIS_METADATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "SEQ_ETL_ID"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_LZ",
       "name" : "UTIL_GRANT_ALL"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "WT_SNP_NODES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "WT_SNP_NODE_VALUES"
+    },
+    "parents" : [ ]
   } ],
   "fileAssignments" : [ {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "CLINICAL_TRIAL_METADATA_EXT"
+    },
+    "file" : "tm_lz/clinical_trial_metadata_ext.sql"
+  }, {
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_LZ",
       "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
     },
     "file" : "tm_lz/procedures/i2b2_load_clinical_data_backup.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "TM_LZ",
+      "name" : "IDX_SCD_STUDY"
+    },
+    "file" : "tm_lz/lt_src_clinical_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMOSOMAL_REGION"
+    },
+    "file" : "tm_lz/lt_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "LT_CHROMO_REGION_ID_SEQ"
+    },
+    "file" : "tm_lz/lt_chromosomal_region.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -392,6 +622,34 @@
       "name" : "LT_RNASEQ_ANNOTATION"
     },
     "file" : "tm_lz/lt_rnaseq_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_CALLS_BY_GSM"
+    },
+    "file" : "tm_lz/lt_snp_calls_by_gsm.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_COPY_NUMBER"
+    },
+    "file" : "tm_lz/lt_snp_copy_number.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SNP_GENE_MAP"
+    },
+    "file" : "tm_lz/lt_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LT_SRC_ACGH_DATA"
+    },
+    "file" : "tm_lz/lt_src_acgh_data.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -571,6 +829,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_RNASEQ_DATA"
+    },
+    "file" : "tm_lz/lt_src_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_RNA_DISPLAY_MAPPING"
     },
     "file" : "tm_lz/lt_src_rna_display_mapping.sql"
@@ -613,6 +878,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "TM_LZ",
+      "name" : "LT_SRC_STUDY_METADATA_AD_HOC"
+    },
+    "file" : "tm_lz/lt_src_study_metadata_ad_hoc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
       "name" : "LT_SRC_STUDY_METADATA_ORIG"
     },
     "file" : "tm_lz/lt_src_study_metadata_orig.sql"
@@ -623,6 +895,13 @@
       "name" : "LT_SRC_SUBJ_ENROLL_DATE"
     },
     "file" : "tm_lz/lt_src_subj_enroll_date.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_ANALYSIS_METADATA"
+    },
+    "file" : "tm_lz/lz_src_analysis_metadata.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -667,10 +946,115 @@
     "file" : "tm_lz/lz_src_study_metadata.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_STUDY_METADATA_AD_HOC"
+    },
+    "file" : "tm_lz/lz_src_study_metadata_ad_hoc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_SUBJ_ENROLL_DATE"
+    },
+    "file" : "tm_lz/lz_src_subj_enroll_date.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS"
+    },
+    "file" : "tm_lz/rwg_analysis.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_DATA"
+    },
+    "file" : "tm_lz/rwg_analysis_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_DATA_EXT"
+    },
+    "file" : "tm_lz/rwg_analysis_data_ext.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_ANALYSIS_EXT"
+    },
+    "file" : "tm_lz/rwg_analysis_ext.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_COHORTS"
+    },
+    "file" : "tm_lz/rwg_cohorts.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_COHORTS_EXT"
+    },
+    "file" : "tm_lz/rwg_cohorts_ext.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_SAMPLES"
+    },
+    "file" : "tm_lz/rwg_samples.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "RWG_SAMPLES_EXT"
+    },
+    "file" : "tm_lz/rwg_samples_ext.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "SEQ_ETL_ID"
+    },
+    "file" : "tm_lz/lz_src_analysis_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
+      "name" : "TRG_LT_CHROMO_REGION_ID"
+    },
+    "file" : "tm_lz/lt_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_LZ",
+      "name" : "TRG_LZ_SRC_ANALYSIS_META_ID"
+    },
+    "file" : "tm_lz/lz_src_analysis_metadata.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_LZ",
       "name" : "UTIL_GRANT_ALL"
     },
     "file" : "tm_lz/procedures/util_grant_all.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "WT_SNP_NODES"
+    },
+    "file" : "tm_lz/wt_snp_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "WT_SNP_NODE_VALUES"
+    },
+    "file" : "tm_lz/wt_snp_node_values.sql"
   } ]
 }

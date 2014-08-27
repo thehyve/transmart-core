@@ -16,5 +16,3 @@ CREATE SCHEMA tm_lz;
 
 SET search_path = tm_lz, pg_catalog;
 
-SET default_with_oids = false;
-

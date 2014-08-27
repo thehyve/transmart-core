@@ -107,6 +107,58 @@ BEGIN
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Drop de_microarray_data_idx2',0,stepCt,'Done');
 		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX3'
+		  and owner = 'DEAPP';
+		
+		if idxExists = 1 then
+			execute immediate('drop index deapp.de_microarray_data_idx3');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Drop de_microarray_data_idx3',0,stepCt,'Done');
+		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX4'
+		  and owner = 'DEAPP';
+		
+		if idxExists = 1 then
+			execute immediate('drop index deapp.de_microarray_data_idx4');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Drop de_microarray_data_idx4',0,stepCt,'Done');
+		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX5'
+		  and owner = 'DEAPP';
+		
+		if idxExists = 1 then
+			execute immediate('drop index deapp.de_microarray_data_idx5');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Drop de_microarray_data_idx5',0,stepCt,'Done');
+		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX10'
+		  and owner = 'DEAPP';
+		
+		if idxExists = 1 then
+			execute immediate('drop index deapp.de_microarray_data_idx10');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Drop de_microarray_data_idx10',0,stepCt,'Done');
+		end if;
 						
 	else
 		--	add indexes
@@ -121,7 +173,7 @@ BEGIN
 		  and owner = 'DEAPP';
                   
 		if idxExists = 0 then                      
-                        execute immediate('create index deapp.de_microarray_data_idx1 on deapp.de_subject_microarray_data(probeset_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
+                        execute immediate('create index deapp.de_microarray_data_idx1 on deapp.de_subject_microarray_data(trial_name, assay_id, probeset_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx1',0,stepCt,'Done');
 		end if;
@@ -134,9 +186,35 @@ BEGIN
 		  and owner = 'DEAPP';
 		  
 		if idxExists = 0 then		
-			execute immediate('create index deapp.de_microarray_data_idx2 on deapp.de_subject_microarray_data(assay_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
+			execute immediate('create index deapp.de_microarray_data_idx2 on deapp.de_subject_microarray_data(assay_id, probeset_id) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx2',0,stepCt,'Done');
+		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX3'
+		  and owner = 'DEAPP';
+		  
+		if idxExists = 0 then		
+			execute immediate('create ' || bitmapVar || ' index deapp.de_microarray_data_idx3 on deapp.de_subject_microarray_data(assay_id) ' || localVar || ' nologging ' || bitmapCompress || ' tablespace "' || tableSpace || '"');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx3',0,stepCt,'Done');
+		end if;
+				
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX4'
+		  and owner = 'DEAPP';
+		  
+		if idxExists = 0 then
+			execute immediate('create ' || bitmapVar || ' index deapp.de_microarray_data_idx4 on deapp.de_subject_microarray_data(probeset_id) ' || localVar || ' nologging ' || bitmapCompress || ' tablespace "' || tableSpace || '"');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx4',0,stepCt,'Done');
 		end if;
 
 		if pExists = 0 then
@@ -156,6 +234,21 @@ BEGIN
 			end if;
 		end if;
 
+/*		not used
+	
+		select count(*) 
+		into idxExists
+		from all_indexes
+		where table_name = 'DE_SUBJECT_MICROARRAY_DATA'
+		  and index_name = 'DE_MICROARRAY_DATA_IDX10'
+		  and owner = 'DEAPP';
+		  
+		if idxExists = 0 then
+			execute immediate('create index deapp.de_microarray_data_idx10 on deapp.de_subject_microarray_data(assay_id, subject_id, probeset_id, zscore) ' || localVar || ' nologging compress tablespace "' || tableSpace || '"');
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Create de_microarray_data_idx10',0,stepCt,'Done');
+		end if;
+*/							
 	end if;
 	
 	stepCt := stepCt + 1;
@@ -180,3 +273,4 @@ end;
  
  
 /
+ 

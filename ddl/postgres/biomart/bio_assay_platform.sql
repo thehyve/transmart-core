@@ -9,7 +9,9 @@ CREATE TABLE bio_assay_platform (
     platform_array character varying(50),
     platform_accession character varying(20),
     platform_organism character varying(200),
-    platform_vendor character varying(200)
+    platform_vendor character varying(200),
+    platform_type character varying(200),
+    platform_technology character varying(200)
 );
 
 --
@@ -24,7 +26,12 @@ ALTER TABLE ONLY bio_assay_platform
 CREATE FUNCTION tf_trg_bio_assay_platform_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.BIO_ASSAY_PLATFORM_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_ASSAY_PLATFORM_ID ;       end if;  RETURN NEW;  end;
+begin
+    if NEW.BIO_ASSAY_PLATFORM_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_ASSAY_PLATFORM_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

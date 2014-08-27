@@ -1,12 +1,12 @@
 --
--- Name: biomarker_gene_uid(text); Type: FUNCTION; Schema: biomart; Owner: -
+-- Name: biomarker_gene_uid(character varying); Type: FUNCTION; Schema: biomart; Owner: -
 --
-CREATE FUNCTION biomarker_gene_uid(gene_id text) RETURNS character varying
+CREATE FUNCTION biomarker_gene_uid(gene_id character varying) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
 BEGIN
   -- $Id$
-  -- Creates uid for bio_experiment.
+  -- Creates uid for biomarker_gene
 
   RETURN 'GENE:' || coalesce(GENE_ID, 'ERROR');
 END;

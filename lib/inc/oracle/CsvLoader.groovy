@@ -40,6 +40,8 @@ class CsvLoader {
     boolean truncate
     int batchSize = DEFAULT_BATCH_SIZE
     boolean quiet = false
+    char delimiter = '\t'
+    String nullValue
 
     @Lazy MaybeLog maybeLog = new MaybeLog(quiet: quiet)
     private long skippedLines = 0
@@ -76,7 +78,7 @@ class CsvLoader {
 
     private uploadTsvFileToTable(InputStream istr) {
         CSVReader reader = new CSVReader(new InputStreamReader(istr, 'UTF-8'),
-                '\t' as char,
+                (delimiter ?: '\t') as char,
                 CSVParser.DEFAULT_QUOTE_CHARACTER,
                 CSVParser.NULL_CHARACTER)
 
@@ -117,6 +119,8 @@ class CsvLoader {
                                 "(${line.length} but expected to be ${colsNum}): ${line}; " +
                                 "continuing anyway"
                     } else {
+                        if (nullValue)
+                            line = line.collect { it == nullValue ? null : it }
                         it.addBatch dataFilter(line)
                     }
 

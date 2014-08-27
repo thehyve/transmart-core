@@ -5,7 +5,7 @@ CREATE SEQUENCE sq_up_patdim_patientnum
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
-    MAXVALUE 9999999999999
+    NO MAXVALUE
     CACHE 1;
 
 --

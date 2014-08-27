@@ -415,7 +415,7 @@ BEGIN
 */
 	--	comment out may need later
 	
-	--	change any % to Pct and & and + to ' and ' and _ to space in data_label only
+	--	change any % to Pct and ampersand and + to ' and ' and _ to space in data_label only
 	
 	update wrk_clinical_data
 	set data_label=replace(replace(replace(replace(data_label,'%',' Pct'),'&',' and '),'+',' and '),'_',' ')
@@ -1146,3 +1146,4 @@ BEGIN
 	
 end;
 /
+ 

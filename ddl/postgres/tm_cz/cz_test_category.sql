@@ -5,7 +5,8 @@ CREATE TABLE cz_test_category (
     test_category_id bigint NOT NULL,
     test_category character varying(255),
     test_sub_category1 character varying(255),
-    test_sub_category2 character varying(255)
+    test_sub_category2 character varying(255),
+    person_id bigint
 );
 
 --
@@ -32,12 +33,18 @@ $$;
 CREATE TRIGGER trg_cz_test_category_id BEFORE INSERT ON cz_test_category FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_test_category_id();
 
 --
+-- Name: cz_test_category_cz_perso_fk1; Type: FK CONSTRAINT; Schema: tm_cz; Owner: -
+--
+ALTER TABLE ONLY cz_test_category
+    ADD CONSTRAINT cz_test_category_cz_perso_fk1 FOREIGN KEY (person_id) REFERENCES cz_person(person_id);
+
+--
 -- Name: seq_cz; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
 CREATE SEQUENCE seq_cz
     START WITH 141
     INCREMENT BY 1
     NO MINVALUE
-    MAXVALUE 9999999999
+    NO MAXVALUE
     CACHE 20;
 

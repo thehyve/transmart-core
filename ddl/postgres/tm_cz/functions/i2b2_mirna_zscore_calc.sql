@@ -112,8 +112,6 @@ BEGIN
 			,assay_id
 			,log_intensity
 			,patient_id
-		--	,sample_cd
-		--	,subject_id
 			)
 			select probeset_id
 				  ,intensity_value ----UAT 154 changes done on 19/03/2014
@@ -122,8 +120,6 @@ BEGIN
                                   when intensity_value>0 then log(2,intensity_value)
                                   else 0 end),5)
 				  ,patient_id
-			--	  ,sample_cd
-			--	  ,subject_id
 			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
 		exception
@@ -140,16 +136,12 @@ BEGIN
 			,assay_id
 			,log_intensity
 			,patient_id
-		--	,sample_cd
-		--	,subject_id
 			)
-			select probeset
+			select probeset_id
 				  ,intensity_value  ----UAT 154 changes done on 19/03/2014
 				  ,assay_id 
 				  ,-(intensity_value)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
-		--		  ,sample_cd
-		--		  ,subject_id
 			from WT_SUBJECT_MIRNA_PROBESET
 			where trial_name = TrialId;
 		exception

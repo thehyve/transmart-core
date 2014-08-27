@@ -18,7 +18,7 @@ CREATE TABLE ont_process_status (
     end_date timestamp without time zone,
     process_step_cd character varying(50),
     process_status_cd character varying(50),
-    crc_upload_id numeric(38,0),
+    crc_upload_id character varying(5),
     status_cd character varying(50),
     message character varying(2000),
     entry_date timestamp without time zone,

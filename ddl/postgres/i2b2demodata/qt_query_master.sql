@@ -2,7 +2,7 @@
 -- Name: qt_sq_qm_qmid; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE qt_sq_qm_qmid
-    START WITH 1
+    START WITH 28736
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

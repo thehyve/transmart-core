@@ -2,11 +2,11 @@
 -- Name: de_subject_rnaseq_data; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_subject_rnaseq_data (
-    trial_name varchar(50),
-    region_id  bigint,
-    assay_id   bigint,
+    trial_name character varying(50),
+    region_id bigint NOT NULL,
+    assay_id bigint NOT NULL,
     patient_id bigint,
-    readcount  bigint,
+    readcount bigint,
     partition_id bigint
 );
 
@@ -27,8 +27,8 @@ CREATE INDEX de_subject_rnaseq_data_patient ON de_subject_rnaseq_data USING btre
 CREATE INDEX de_subject_rnaseq_data_region ON de_subject_rnaseq_data USING btree (region_id);
 
 --
--- Name: de_subject_rnaseq_data_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subj_rnaseq_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_rnaseq_data
-    ADD CONSTRAINT de_subject_rnaseq_data_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);
+    ADD CONSTRAINT de_subj_rnaseq_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);
 

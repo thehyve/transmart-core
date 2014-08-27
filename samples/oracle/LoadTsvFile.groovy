@@ -25,6 +25,8 @@ def parseOptions() {
     def cli = new CliBuilder(usage: "LoadTsvFile.groovy")
     cli.t 'qualified table name', required: true, longOpt: 'table', args: 1, argName: 'table'
     cli.f 'tsv file; stdin if unspecified or -', longOpt: 'file', args: 1, argName: 'file'
+    cli.d 'single character used as delimiter; tab if unspecified', longOpt: 'delimiter', args: 1, argName: 'delimiter'
+    cli.n 'string used as NULL value; no NULL detection if unspecified', longOpt: 'null', args: 1
     cli.c 'column names', longOpt: 'cols', argName: 'col1,col2,...', args: 1
     cli._ 'truncate table before', longOpt: 'truncate'
     cli.b 'batch size', longOpt: 'batch', args: 1
@@ -46,12 +48,14 @@ def sql = SqlProducer.createFromEnv()
 
 try {
     def csvLoader = new CsvLoader(
-            sql        : sql,
-            table      : options.table,
-            file       : options.file,
-            columnNames: options.c ? options.c.split(',') as List: [],
-            truncate   : options.truncate as boolean,
-            batchSize  : options.b ? options.b as int : CsvLoader.DEFAULT_BATCH_SIZE)
+            sql: sql,
+            table: options.table,
+            file: options.file,
+            columnNames: options.c ? options.c.split(',') as List : [],
+            truncate: options.truncate as boolean,
+            batchSize: options.b ? options.b as int : CsvLoader.DEFAULT_BATCH_SIZE,
+            delimiter: options.delimiter ?: '\t',
+            nullValue: options.null)
     csvLoader.prepareConnection()
     csvLoader.load()
 } catch (Exception exception) {

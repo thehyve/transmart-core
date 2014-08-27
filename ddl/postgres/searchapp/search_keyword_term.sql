@@ -22,20 +22,23 @@ ALTER TABLE ONLY search_keyword_term
 CREATE INDEX search_kw_term_skid_idx ON search_keyword_term USING btree (search_keyword_id);
 
 --
--- Name: tf_trgi_search_keyword_term_id(); Type: FUNCTION; Schema: searchapp; Owner: -
+-- Name: tf_trg_search_keyword_term_id(); Type: FUNCTION; Schema: searchapp; Owner: -
 --
-CREATE FUNCTION tf_trgi_search_keyword_term_id() RETURNS trigger
+CREATE FUNCTION tf_trg_search_keyword_term_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin     if NEW.SEARCH_KEYWORD_TERM_ID is null then          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_KEYWORD_TERM_ID ;       end if;    RETURN NEW;
+begin
+    if NEW.SEARCH_KEYWORD_TERM_ID is null then
+          select nextval('searchapp.SEQ_SEARCH_DATA_ID') into NEW.SEARCH_KEYWORD_TERM_ID ;
+    end if;
+RETURN NEW;
 end;
-
 $$;
 
 --
--- Name: trgi_search_keyword_term_id; Type: TRIGGER; Schema: searchapp; Owner: -
+-- Name: trg_search_keyword_term_id; Type: TRIGGER; Schema: searchapp; Owner: -
 --
-CREATE TRIGGER trgi_search_keyword_term_id BEFORE INSERT ON search_keyword_term FOR EACH ROW EXECUTE PROCEDURE tf_trgi_search_keyword_term_id();
+CREATE TRIGGER trg_search_keyword_term_id BEFORE INSERT ON search_keyword_term FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_keyword_term_id();
 
 --
 -- Name: search_kw_fk; Type: FK CONSTRAINT; Schema: searchapp; Owner: -

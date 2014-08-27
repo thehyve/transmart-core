@@ -27,7 +27,12 @@ CREATE UNIQUE INDEX bio_clinc_trial_pt_group_pk ON bio_clinc_trial_pt_group USIN
 CREATE FUNCTION tf_trg_bio_clin_trl_pt_grp_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin   if NEW.BIO_CLINICAL_TRIAL_P_GROUP_ID is null then          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CLINICAL_TRIAL_P_GROUP_ID ;       end if;  RETURN NEW;  end;
+begin
+    if NEW.BIO_CLINICAL_TRIAL_P_GROUP_ID is null then
+          select nextval('biomart.SEQ_BIO_DATA_ID') into NEW.BIO_CLINICAL_TRIAL_P_GROUP_ID ;
+    end if;
+RETURN NEW;
+end;
 $$;
 
 --

@@ -144,6 +144,24 @@ $dependencies = array (
   array (
     0 => 'ctd_full',
   ),
+  'views/mesh_with_parent' => 
+  array (
+    0 => 'mesh',
+  ),
+  'views/vw_faceted_search' => 
+  array (
+    0 => 'bio_assay_analysis',
+    1 => 'bio_assay_analysis_ext',
+    2 => 'bio_assay_platform',
+    3 => 'bio_asy_analysis_pltfm',
+    4 => 'bio_data_observation',
+    5 => 'bio_data_platform',
+    6 => 'bio_experiment',
+    7 => 'bio_observation',
+  ),
+  'views/vw_faceted_search_disease' => 
+  array (
+  ),
   'bio_assay_analysis_data' => 
   array (
     0 => 'bio_assay_analysis',

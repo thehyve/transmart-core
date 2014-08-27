@@ -1,0 +1,46 @@
+# The relative path to the VCF file you want to load
+VCF_FILE=somaticVcfBeta-GS000010170-ASM-T1-N1.vcf
+
+# The relative path to the subject-sample-mapping file
+# This file is a tab-separated file, with two columns, containing
+#		subject_id as known in clinical data in the first column;
+#		sample_id as known in VCF file in the second column
+SUBJECT_SAMPLE_MAPPING_FILE=subject-sample-mapping.txt
+
+# A (temp) directory where the output files from parsing the file
+# will be stored. Must be writable by the current user
+VCF_TEMP_DIR=/home/robert/projects/transmart/trait-vcf/parsed-data
+
+
+# Short textual description of the source of the data
+DATASOURCE=CompleteGenomics
+
+# Initials of the user that is loading this dataset, for future reference
+ETL_USER=RH
+
+
+# Unique identifier for the current dataset
+DATASET_ID=TraitTest
+
+# Study identifier as it is used in the clinical data. Is used to look up the subjects
+STUDY_ID=GSE8581
+
+# Concept path to store the VCF data in the clinical data tree.
+# The concept path must be specified completely, where parts of the
+# path are separated by the \ sign. The path must NOT start with a
+# slash.
+# For example: Public Studies\GSE8581\Genomic Variants
+# N.B. Use quotes around the parameter if it contains spaces and
+#      escape the slashes
+CONCEPT_PATH="Public Studies\\GSE8581\\Somatic VCF"
+
+
+# Identifier for the genome build that is used as a reference
+GENOME_BUILD=hg36
+
+# Identifier for the platform to use. A platform for VCF currently
+# only describes the genome build. If unsure, use 'VCF_<genome_build>'
+GPL_ID=VCF_$GENOME_BUILD
+
+export VCF_FILE SUBJECT_SAMPLE_MAPPING_FILE VCF_TEMP_DIR DATASOURCE ETL_USER \
+		DATASET_ID STUDY_ID CONCEPT_PATH GENOME_BUILD GPL_ID

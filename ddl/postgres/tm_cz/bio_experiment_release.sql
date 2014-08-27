@@ -14,7 +14,7 @@ CREATE TABLE bio_experiment_release (
     etl_id character varying(100),
     status character varying(100),
     overall_design character varying(2000),
-    accession character varying(100),
+    accession character varying(100) NOT NULL,
     entrydt timestamp without time zone,
     updated timestamp without time zone,
     institution character varying(100),
@@ -22,6 +22,6 @@ CREATE TABLE bio_experiment_release (
     biomarker_type character varying(255),
     target character varying(255),
     access_type character varying(100),
-    release_study character varying(100)
+    release_study character varying(100) NOT NULL
 );
 

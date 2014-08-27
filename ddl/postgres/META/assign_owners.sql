@@ -20,8 +20,23 @@ BEGIN
         ['deapp',   'de_subject_microarray_data',  'tm_cz'],
         ['deapp',   'de_subject_acgh_data',        'tm_cz'],
         ['deapp',   'de_subject_rnaseq_data',      'tm_cz'],
+        ['deapp',   'de_subject_metabolomics_data','tm_cz'],
+        ['deapp',   'de_subject_mirna_data',       'tm_cz'],
+        ['deapp',   'de_subject_proteomics_data',  'tm_cz'],
+        ['deapp',   'de_subject_rbm_data',         'tm_cz'],
+        ['deapp',   'de_subject_rna_data',         'tm_cz'],
+        ['tm_wz',   'wt_subject_metabolomics_logs','tm_cz'],
+        ['tm_wz',   'wt_subject_metabolomics_calcs','tm_cz'],
         ['tm_wz',   'wt_subject_microarray_logs',  'tm_cz'],
-        ['tm_wz',   'wt_subject_microarray_calcs', 'tm_cz']
+        ['tm_wz',   'wt_subject_microarray_calcs', 'tm_cz'],
+        ['tm_wz',   'wt_subject_mirna_logs',       'tm_cz'],
+        ['tm_wz',   'wt_subject_mirna_calcs',      'tm_cz'],
+        ['tm_wz',   'wt_subject_proteomics_logs',  'tm_cz'],
+        ['tm_wz',   'wt_subject_proteomics_calcs', 'tm_cz'],
+        ['tm_wz',   'wt_subject_rbm_logs',         'tm_cz'],
+        ['tm_wz',   'wt_subject_rbm_calcs',        'tm_cz'],
+        ['tm_wz',   'wt_subject_rna_logs',         'tm_cz'],
+        ['tm_wz',   'wt_subject_rna_calcs',        'tm_cz']
     ];
 
     -- Convert array to table
@@ -38,7 +53,11 @@ BEGIN
         'tm_wz',
         'i2b2demodata',
         'i2b2metadata',
+        'amapp',
         'deapp',
+        'fmapp',
+        'biomart_user',
+        'galaxy',
         'searchapp',
         'biomart'
     ];
@@ -67,6 +86,7 @@ BEGIN
 
             RAISE NOTICE 'The owner of % %.% is %; changing to %',
                     CASE obj_type
+                        WHEN 'T' THEN 'type'
                         WHEN 'r' THEN 'table'
                         WHEN 'S' THEN 'sequence'
                         WHEN 'v' THEN 'view'
@@ -82,6 +102,7 @@ BEGIN
             -- ALTER TABLE can be used for all the types here
             command := 'ALTER ' ||
                     CASE obj_type
+                        WHEN 'T' THEN 'TYPE'
                         WHEN 'f' THEN 'FUNCTION'
                         WHEN 'a' THEN 'AGGREGATE'
                         WHEN 's' THEN 'SCHEMA'

@@ -20,7 +20,7 @@ CREATE TABLE de_variant_population_data (
     info_index integer DEFAULT 0,
     integer_value bigint,
     float_value double precision,
-    text_value character varying(5000)
+    text_value character varying(4000)
 );
 
 --
@@ -33,4 +33,10 @@ ALTER TABLE ONLY de_variant_population_data
 -- Name: de_variant_population_data_default_idx; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_variant_population_data_default_idx ON de_variant_population_data USING btree (dataset_id, chr, pos, info_name);
+
+--
+-- Name: de_variant_population_data_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_variant_population_data
+    ADD CONSTRAINT de_variant_population_data_fk FOREIGN KEY (dataset_id) REFERENCES de_variant_dataset(dataset_id);
 

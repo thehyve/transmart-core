@@ -1,149 +1,52 @@
 <?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
-<dataSource name="ds1" driver="org.postgresql.Driver"
-			url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
-			user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" readOnly="true"
- autoCommit="false" />
+  <dataSource name="ds1" driver="org.postgresql.Driver"
+        url="jdbc:postgresql://<?= $host ?>:<?= $_ENV['PGPORT'] ?>/<?= $_ENV['PGDATABASE'] ?>"
+        user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>"
+        readOnly="true" autoCommit="false" />
+  <document>
+    <entity transformer="RegexTransformer" name="analysis" query="
+    select FACET_ID, fs.ANALYSIS_ID, STUDY, STUDY_ID, ANALYSES, DATA_TYPE, PLATFORM, PLATFORM_DESCRIPTION, PLATFORM_VENDOR, OBSERVATION, STUDY_TITLE,STUDY_DESCRIPTION,STUDY_DESIGN,STUDY_PRIMARY_INV,STUDY_CONTACT_FIELD,STUDY_OVERALL_DESIGN,STUDY_INSTITUTION,STUDY_ACCESSION,STUDY_COUNTRY,STUDY_BIOMARKER_TYPE,STUDY_TARGET,STUDY_ACCESS_TYPE,ANALYSIS_NAME,ANALYSIS_DESCRIPTION_S,ANALYSIS_DESCRIPTION_L,ANALYSIS_TYPE,ANALYSIS_ANALYST_NAME,ANALYSIS_METHOD,ANALYSIS_DATA_TYPE,ANALYSIS_QA_CRITERIA,MODEL_NAME,MODEL_DESCRIPTION,RESEARCH_UNIT from biomart.vw_faceted_search fs
+    LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assay_analysis_id
+    ">
+      <field name="FACET_ID" column="FACET_ID" />
+      <field name="ANALYSIS_ID" column="ANALYSIS_ID" />
+      <field name="STUDY" column="STUDY" />
+      <field name="STUDY_ID" column="STUDY_ID" />
+      <field name="ANALYSES" column="ANALYSES" />
+      <field name="DATA_TYPE" column="DATA_TYPE" />
+      <field name="PLATFORM" column="PLATFORM" />
+      <field name="PLATFORM_DESCRIPTION" column="PLATFORM_VENDOR" />
+      <field name="PLATFORM_VENDOR" column="PLATFORM_DESCRIPTION" />
+      <field name="PLATFORM_NAME" column="PLATFORM_NAME" />
+      <field name="OBSERVATION" column="OBSERVATION" />
+      <field column="DISEASE" splitBy="/" sourceColName="SOLR_HIERARCHY" />
 
-    <document name="terms">
-
-        <entity name="analysis"
-		query="select bio_assay_analysis_id, FOLD_CHANGE_CUTOFF, PVALUE_CUTOFF  from biomart.bio_assay_analysis b1 where exists (select 1 from biomart.bio_analysis_attribute b2 where b1.bio_assay_analysis_id=b2.bio_assay_analysis_id) "
-		deltaImportQuery="select bio_assay_analysis_id, FOLD_CHANGE_CUTOFF, PVALUE_CUTOFF  from biomart.bio_assay_analysis b1 where b1.bio_assay_analysis_id='${dataimporter.delta.bio_assay_analysis_id}'"
-
-		deltaQuery="select bio_assay_analysis_id from biomart.bio_assay_analysis b1 where exists (select 1 from biomart.bio_analysis_attribute b2 where b1.bio_assay_analysis_id=b2.bio_assay_analysis_id)
-		and (analysis_create_date &gt; to_date('${dataimporter.last_index_time}', 'yyyy-mm-dd hh24:mi:ss')
-		     OR analysis_update_date &gt; to_date('${dataimporter.last_index_time}', 'yyyy-mm-dd hh24:mi:ss'))"
-
->
-            <field name="ANALYSIS_ID" column="bio_assay_analysis_id" />
-
-			<!-- this one is for study keyword -->
-            <entity name="study" query="SELECT distinct sk.search_keyword_id SEARCH_KEYWORD_ID FROM biomart.bio_analysis_attribute baa, search_keyword sk
-                           WHERE baa.study_id  = sk.keyword AND bio_assay_analysis_id = '${analysis.bio_assay_analysis_id}'">
-				<field name="STUDY" column="search_keyword_id" />
-            </entity>
-
-			<!-- also retrieve the study ID (could be done by adding a field above, but not until keywords linked in data load -->
-            <entity name="studyid" query="select distinct study_id from bio_analysis_attribute WHERE bio_assay_analysis_id = '${analysis.bio_assay_analysis_id}'">
-				<field name="STUDY_ID" column="study_id" />
-            </entity>
-
-            <entity name="ta" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='THERAPEUTIC AREAS'">
-				<field name="THERAPEUTIC_AREAS" column="search_keyword_id" />
-            </entity>
-
-            <entity name="analyses" query="SELECT ancestor_search_keyword_id AS search_keyword_id FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='ANALYSES'">
-				<field name="ANALYSES" column="search_keyword_id" />
-            </entity>
-
-            <entity name="datatype" query="SELECT ancestor_search_keyword_id AS search_keyword_id FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='DATA TYPE'">
-				<field name="DATA_TYPE" column="search_keyword_id" />
-            </entity>
-
-            <entity name="experimentaldesign" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='EXPERIMENTAL DESIGN'">
-				<field name="EXPERIMENTAL_DESIGN" column="search_keyword_id" />
-            </entity>
-
-            <entity name="sampletype" query="SELECT ancestor_search_keyword_id search_keyword_id FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='SAMPLE TYPE'">
-				<field name="SAMPLE_TYPE" column="search_keyword_id" />
-            </entity>
-
-            <entity name="treatment" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='TREATMENT'">
-				<field name="TREATMENT" column="search_keyword_id" />
-            </entity>
-
-            <entity name="organism" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='ORGANISM'">
-				<field name="ORGANISM" column="search_keyword_id" />
-            </entity>
-
-
-            <entity name="datasource" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-                                                   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-                                                   AND sk.data_category='DATA_SOURCE'">
-                                <field name="DATA_SOURCE" column="search_keyword_id" />
-            </entity>
-
-            <entity name="platform" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='PLATFORM'">
-				<field name="PLATFORM" column="search_keyword_id" />
-            </entity>
-
-            <entity name="pathology" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='PATHOLOGY'">
-				<field name="PATHOLOGY" column="search_keyword_id" />
-            </entity>
-
-            <entity name="trial" query="select distinct search_keyword_id from search_keyword s,  bio_assay_analysis_data b where s.bio_data_id = b.bio_experiment_id
-                                        AND bio_assay_analysis_id='${analysis.bio_assay_analysis_id}' AND data_category = 'TRIAL'">
-				<field name="TRIAL" column="search_keyword_id" />
-            </entity>
-
-            <entity name="compound" query="SELECT distinct search_keyword_id
-                           FROM bio_experiment be, bio_compound bc, bio_data_compound bdc, search_keyword sk, bio_assay_analysis_data baad
-                           WHERE bdc.bio_data_id = be.bio_experiment_id
-                           AND bdc.bio_compound_id = bc.bio_compound_id
-                           AND bc.bio_compound_id=sk.bio_data_id
-                           AND sk.data_category='COMPOUND'
-                           AND be.bio_experiment_id = baad.bio_experiment_id
-                           AND bio_assay_analysis_id = ${analysis.bio_assay_analysis_id}">
-				<field name="COMPOUND" column="search_keyword_id" />
-            </entity>
-
-            <entity name="disease" query="SELECT ancestor_search_keyword_id SEARCH_KEYWORD_ID FROM bio_analysis_attribute_lineage baal, bio_analysis_attribute baa, search_keyword sk
-                           WHERE baal.bio_analysis_attribute_id=baa.bio_analysis_attribute_id AND baal.ancestor_search_keyword_id=sk.search_keyword_id
-						   AND baa.bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND sk.data_category='DISEASE'">
-				<field name="DISEASE" column="search_keyword_id" />
-            </entity>
-
-            <entity name="siggene" query="SELECT distinct search_keyword_id SEARCH_KEYWORD_ID
-                           FROM heat_map_results
-                           WHERE bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND significant=1">
-				<field name="SIGGENE" column="search_keyword_id" />
-            </entity>
-
-            <entity name="anysignificantgenes" query="SELECT case count(distinct search_keyword_id) when 0 then 0 else 1 end ANY_SIGNIFICANT_GENES
-                           FROM heat_map_results
-                           WHERE bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'
-						   AND significant=1">
-				<field name="ANY_SIGNIFICANT_GENES" column="any_significant_genes" />
-            </entity>
-
-            <entity name="allgene" query="SELECT distinct search_keyword_id SEARCH_KEYWORD_ID
-                           FROM heat_map_results
-                           WHERE bio_assay_analysis_id='${analysis.bio_assay_analysis_id}'">
-				<field name="ALLGENE" column="search_keyword_id" />
-            </entity>
-	</entity>
-    </document>
+      <field name="STUDY_TITLE" column="STUDY_TITLE" />
+      <field name="STUDY_DESCRIPTION" column="STUDY_DESCRIPTION" />
+      <field name="STUDY_DESIGN" column="STUDY_DESIGN" />
+      <field name="STUDY_PRIMARY_INV" column="STUDY_PRIMARY_INV" />
+      <field name="STUDY_CONTACT_FIELD" column="STUDY_CONTACT_FIELD" />
+      <field name="STUDY_OVERALL_DESIGN" column="STUDY_OVERALL_DESIGN" />
+      <field name="STUDY_INSTITUTION" column="STUDY_INSTITUTION" />
+      <field name="STUDY_ACCESSION" column="STUDY_ACCESSION" />
+      <field name="STUDY_COUNTRY" column="STUDY_COUNTRY" />
+      <field name="STUDY_BIOMARKER_TYPE" column="STUDY_BIOMARKER_TYPE" />
+      <field name="STUDY_TARGET" column="STUDY_TARGET" />
+      <field name="STUDY_ACCESS_TYPE" column="STUDY_ACCESS_TYPE" />
+      <field name="ANALYSIS_NAME" column="ANALYSIS_NAME" />
+      <field name="ANALYSIS_DESCRIPTION_S" column="ANALYSIS_DESCRIPTION_S" />
+      <field name="ANALYSIS_DESCRIPTION_L" column="ANALYSIS_DESCRIPTION_L" />
+      <field name="ANALYSIS_TYPE" column="ANALYSIS_TYPE" />
+      <field name="ANALYSIS_ANALYST_NAME" column="ANALYSIS_ANALYST_NAME" />
+      <field name="ANALYSIS_METHOD" column="ANALYSIS_METHOD" />
+      <field name="ANALYSIS_DATA_TYPE" column="ANALYSIS_DATA_TYPE" />
+      <field name="ANALYSIS_QA_CRITERIA" column="ANALYSIS_QA_CRITERIA" />
+      <field name="MODEL_NAME" column="MODEL_NAME" />
+      <field name="MODEL_DESCRIPTION" column="MODEL_DESCRIPTION" />
+      <field name="RESEARCH_UNIT" column="RESEARCH_UNIT" splitBy="\|" />
+    </entity>
+  </document>
 </dataConfig>
-
-
-
+<!-- vim: et tw=80 ts=2 sw=2
+-->

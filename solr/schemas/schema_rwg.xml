@@ -65,22 +65,39 @@
     <field name="ANALYSIS_ID" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="STUDY" type="string" indexed="true" stored="false" required="false"/>
     <field name="STUDY_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
-    <field name="THERAPEUTIC_AREAS" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="ANALYSES" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="DATA_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="EXPERIMENTAL_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="SAMPLE_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="TREATMENT" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="ORGANISM" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="DATA_SOURCE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="PLATFORM" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="PATHOLOGY" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="TRIAL" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="COMPOUND" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
     <field name="DISEASE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="SIGGENE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
-    <field name="ANY_SIGNIFICANT_GENES" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
-    <field name="ALLGENE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
+
+    <field name="FACET_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_VENDOR" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="OBSERVATION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_TITLE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_PRIMARY_INV" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_CONTACT_FIELD" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_OVERALL_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_INSTITUTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_ACCESSION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_COUNTRY" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_BIOMARKER_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_TARGET" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_ACCESS_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DESCRIPTION_S" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DESCRIPTION_L" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_ANALYST_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_METHOD" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DATA_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_QA_CRITERIA" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="MODEL_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="MODEL_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="RESEARCH_UNIT" type="string" indexed="true" stored="false" required="false" multiValued="true"/> 
 
 	<field name="_version_" type="long" indexed="true"  stored="true" multiValued="false"/>
   </fields>

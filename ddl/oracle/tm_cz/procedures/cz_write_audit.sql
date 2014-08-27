@@ -48,7 +48,7 @@ BEGIN
 	)
 	select
  		jobId,
-		databaseName,
+		substr(databaseName, 1, 50),
 		procedureName,
 		stepDesc,
 		recordsManipulated,
@@ -66,5 +66,5 @@ BEGIN
   COMMIT;
 
 END;
-
 /
+ 

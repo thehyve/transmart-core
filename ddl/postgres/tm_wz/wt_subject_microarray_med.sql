@@ -11,11 +11,11 @@ CREATE TABLE wt_subject_microarray_med (
     subject_id character varying(50),
     trial_name character varying(50),
     timepoint character varying(100),
-    pvalue double precision,
-    num_calls bigint,
+    pvalue double precision,	-- was set to numeric on test server but is float in oracle
+    num_calls numeric,
     mean_intensity numeric,
     stddev_intensity numeric,
     median_intensity numeric,
-    zscore double precision
+    zscore double precision	-- was set to numeric on test server but is float in oracle
 );
 

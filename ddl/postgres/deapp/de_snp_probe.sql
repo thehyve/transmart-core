@@ -28,7 +28,7 @@ CREATE FUNCTION tf_trg_de_snp_probe_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
-      if coalesce(NEW.SNP_PROBE_ID::text, '') = '' then
+      if NEW.SNP_PROBE_ID is null then
          select nextval('deapp.SEQ_DATA_ID') into NEW.SNP_PROBE_ID ;
       end if;
 RETURN NEW;
@@ -39,4 +39,10 @@ $$;
 -- Name: trg_de_snp_probe_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_snp_probe_id BEFORE INSERT ON de_snp_probe FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_snp_probe_id();
+
+--
+-- Name: fk_snp_probe_snp_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_snp_probe
+    ADD CONSTRAINT fk_snp_probe_snp_id FOREIGN KEY (snp_id) REFERENCES de_snp_info(snp_info_id);
 

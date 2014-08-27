@@ -18,7 +18,7 @@ $(DUMP_SCHEMA_TARGETS):
 dump_users:
 	$(DUMP_USER) -g $(foreach s,$(SCHEMAS),-u $(s))
 
-dump_user_objects: $(DUMP_SCHEMA_TARGETS)
+dump_user_objects: $(DUMP_SCHEMA_TARGETS) $(JDBC_DRIVER_ORA_PATH)
 
 dump:
 	$(MAKE) dump_users
@@ -59,7 +59,7 @@ $(WRITE_SYNONYM_TARGETS): _scripts/generate_synonyms.php synonyms.php
 $(WRITE_GRANT_TARGETS): _scripts/generate_grants.php grants.php
 	php $< grants.php $(patsubst %/_grants.sql,%,$@) > $@
 
-drop_users: drop_users.php
+drop_users: drop_users.php $(JDBC_DRIVER_ORA_PATH)
 	php $< $(SCHEMAS) | $(RUN_SQL) -c -j 4
 
 drop_tablespaces: drop_tablespaces.sql

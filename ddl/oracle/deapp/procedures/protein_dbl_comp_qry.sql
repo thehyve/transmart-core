@@ -239,6 +239,5 @@ SELECT COUNT(*)
   END IF;
 
 END PROTEIN_DBL_COMP_QRY;
- 
- 
 /
+ 

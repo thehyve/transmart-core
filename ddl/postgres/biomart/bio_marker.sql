@@ -18,10 +18,10 @@ ALTER TABLE ONLY bio_marker
     ADD CONSTRAINT biomarker_pk PRIMARY KEY (bio_marker_id);
 
 --
--- Name: sys_c0020430; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: biomarker_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_marker
-    ADD CONSTRAINT sys_c0020430 UNIQUE (organism, primary_external_id);
+    ADD CONSTRAINT biomarker_uk UNIQUE (organism, primary_external_id);
 
 --
 -- Name: bio_marker_pk; Type: INDEX; Schema: biomart; Owner: -

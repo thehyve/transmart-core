@@ -114,6 +114,5 @@ SELECT COUNT(*)
     END;
   END IF;
 END protein_comparison_qry;
- 
- 
 /
+ 

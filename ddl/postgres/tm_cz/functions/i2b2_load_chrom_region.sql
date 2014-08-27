@@ -1,11 +1,9 @@
 --
--- Name: i2b2_load_chrom_region(character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_chrom_region(character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-
-CREATE OR REPLACE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, genome_release character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1))
-  RETURNS numeric 
-  LANGUAGE plpgsql
-  AS $BODY$
+CREATE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, genome_release character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
 
 Declare
 	--Audit variables
@@ -46,15 +44,16 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Starting i2b2_load_chrom_region',0,stepCt,'Done') into rtnCd;
 
-	-- The data should already be in the landing zone (tm_lz.lt_chromosomal_region)
+-- The data should already be in the landing zone (tm_lz.lt_chromosomal_region)
 
-	-- We now do some basic check's:
+
+-- We now do some basic check's:
 	-- + is chromosomal_region already in deapp.de_chromosomal_region (gpl_id/region_name)
 	--   if true then remove these lines?
 	-- + ...
 
 
-	-- insert region definitions into deapp-schema
+-- insert region definitions into deapp-schema
 
 	-- First remove previous definitions for gpl_id
 	select distinct gpl_id INTO gplId FROM tm_lz.lt_chromosomal_region;
@@ -170,21 +169,27 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load chromosomal region data into deapp.de_chromosomal_region for platform: ' || gplId,rowCt,stepCt,'Done') into rtnCd;
 
-	-- update gene_id if null
+
+--	update gene_id if null
 	
 	begin
 	with upd as (select b.bio_marker_name as gene_symbol, b.organism, min(b.primary_external_id::numeric) as gene_id 
-			from biomart.bio_marker b
-			where upper(b.bio_marker_type) = 'GENE'
-			group by b.bio_marker_name, b.organism)
+			 from biomart.bio_marker b
+			 where upper(b.bio_marker_type) = 'GENE'
+			 group by b.bio_marker_name, b.organism)
 	update deapp.de_chromosomal_region a
 	set gene_id=upd.gene_id
 	from upd
 	where a.gpl_id = gplId
-	  and a.gene_id is null
-	  and a.gene_symbol is not null
-	  and a.gene_symbol = upd.gene_symbol
-	  and upper(a.organism) = upper(upd.organism);
+	      and a.gene_id is null
+	      and a.gene_symbol is not null
+	      and a.gene_symbol = upd.gene_symbol
+	      and upper(a.organism) = upper(upd.organism)
+	      and exists
+		 (select 1 from biomart.bio_marker x
+		  where a.gene_symbol = x.bio_marker_name
+			and upper(x.organism) = upper(a.organism)
+			and upper(x.bio_marker_type) = 'GENE');
 	get diagnostics rowCt := ROW_COUNT;	
 	exception
 	when others then
@@ -199,21 +204,27 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_id in de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
 
-	-- update gene_symbol if null
+
+	--	update gene_symbol if null
 	
 	begin
 	with upd as (select b.primary_external_id::numeric as gene_id, b.organism, min(b.bio_marker_name) as gene_symbol
-			from biomart.bio_marker b
-			where upper(b.bio_marker_type) = 'GENE'
-			group by b.primary_external_id, b.organism)
+			 from biomart.bio_marker b
+			 where upper(b.bio_marker_type) = 'GENE'
+			 group by b.primary_external_id, b.organism)
 	update deapp.de_chromosomal_region a
 	set gene_symbol=upd.gene_symbol
 	from upd
 	where a.gpl_id = gplId
-	  and a.gene_symbol is null
-	  and a.gene_id is not null
-	  and a.gene_id = upd.gene_id
-	  and upper(a.organism) = upper(upd.organism);
+	      and a.gene_symbol is null
+	      and a.gene_id is not null
+	      and a.gene_id = upd.gene_id
+	      and a.organism = upd.organism
+	      and exists
+		 (select 1 from biomart.bio_marker x
+		  where a.gene_id::varchar = x.primary_external_id
+			and upper(x.organism) = upper(a.organism)
+			and upper(x.bio_marker_type) = 'GENE');
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -228,11 +239,12 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Updated missing gene_symbol in de_chromosomal_region',rowCt,stepCt,'Done') into rtnCd;
 
-	-- wrapping up
+
+-- wrapping up
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_chrom_region',0,stepCt,'Done') into rtnCd;
 
-	-- Cleanup OVERALL JOB if this proc is being run standalone
+       ---Cleanup OVERALL JOB if this proc is being run standalone
 	IF newJobFlag = 1
 	THEN
 		select tm_cz.cz_end_audit (jobID, 'SUCCESS') into rtnCd;
@@ -242,4 +254,5 @@ BEGIN
 
 END;
 
-$BODY$;
+$$;
+

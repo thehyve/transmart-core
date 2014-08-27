@@ -20,14 +20,14 @@ CREATE TABLE qt_patient_enc_collection (
 );
 
 --
--- Name: qt_patient_enc_collection_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+-- Name: qt_patient_enc_coll_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY qt_patient_enc_collection
-    ADD CONSTRAINT qt_patient_enc_collection_pkey PRIMARY KEY (patient_enc_coll_id);
+    ADD CONSTRAINT qt_patient_enc_coll_pk PRIMARY KEY (patient_enc_coll_id);
 
 --
--- Name: qt_fk_pesc_ri; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+-- Name: qt_fk_pec_ri; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY qt_patient_enc_collection
-    ADD CONSTRAINT qt_fk_pesc_ri FOREIGN KEY (result_instance_id) REFERENCES qt_query_result_instance(result_instance_id);
+    ADD CONSTRAINT qt_fk_pec_ri FOREIGN KEY (result_instance_id) REFERENCES qt_query_result_instance(result_instance_id);
 

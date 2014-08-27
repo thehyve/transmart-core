@@ -46,31 +46,6 @@ BEGIN
       select distinct gpl_id into gplId from lt_protein_annotation ;
 
 	
-/*	
-	--	delete any existing data from probeset_deapp
-	
-	delete from peptide_deapp
-	where platform = idREF;
-
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from REFERENCE peptide_probeset_deapp',SQL%ROWCOUNT,stepCt,'Done');
-*/
-		
-	--	delete any existing data from peptide_annotation_deapp
-	
-	/*delete from mirna_annotation_deapp
-	where id_ref in ( select distinct id_ref from lt_qpcr_mirna_annotation);
-
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from mirna_annotation_deapp',SQL%ROWCOUNT,stepCt,'Done');*/
-        
-      /*  delete from peptide_deapp
-	where peptide in ( select distinct peptide from lt_protein_annotation);
-
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from peptide_deapp',SQL%ROWCOUNT,stepCt,'Done');
-        
-        */
         --	delete any existing data from deapp.de_protien_annotation
         delete from deapp.de_protein_annotation
 	where gpl_id =gplId;
@@ -78,48 +53,7 @@ BEGIN
 
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_protein_annotation',SQL%ROWCOUNT,stepCt,'Done');
-
-	
-
-	--	update organism for existing probesets in peptide_deapp
-	/*
-	update peptide_deapp p
-	set organism=(select distinct t.organism from lt_protein_annotation t
-				  where p.platform = t.gpl_id  
-				    and p.peptide = t.peptide
-                                    )
-	where exists
-		 (select 1 from lt_protein_annotation x
-		  where p.platform =x.gpl_id
-		    and p.peptide = x.peptide);
-	
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Update organism in peptide_deapp',SQL%ROWCOUNT,stepCt,'Done');
-		*/	 
-	--	insert any new probesets into peptide_deapp
-	
-	/*insert into peptide_deapp
-	(peptide
-	,organism
-	,platform)
-	select distinct peptide
-		  ,coalesce(organism,'Homo sapiens')
-	      ,gpl_id
-	from lt_protein_annotation t
-	where not exists
-		 (select 1 from peptide_deapp x
-		  where t.gpl_id = x.platform
-                      and   t.peptide = x.peptide
-			and coalesce(t.organism,'Homo sapiens') = coalesce(x.organism,'Homo sapiens'))
-	;
-        commit;
-     
-	--where id_ref is not null 
-	--   or gene_symbol is not null;
-	
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert new probesets into peptide_deapp',SQL%ROWCOUNT,stepCt,'Done'); */
-
+	 	
 	insert into  deapp.de_protein_annotation
 	(gpl_id
 	,peptide 
@@ -135,33 +69,11 @@ BEGIN
 	,biomart.bio_marker p
 	where d.gpl_id = gplId
         and p.primary_external_id = d.uniprot_id 
-	--  and coalesce(d.organism,'Homo sapiens') = coalesce(p.organism,'Homo sapiens')
-	 -- and (d.gpl_id is not null or d.gene_symbol is not null)
 	  ;
 	
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_protien_annotation',SQL%ROWCOUNT,stepCt,'Done');
 		
-	--	update id_ref if null
-	
-/*	update deapp.de_peptide_annotation t
-	set id_ref=(select to_number(min(b.primary_external_id)) as mirna_id
-				 from biomart.mirna_bio_marker b
-				 where t.mirna_symbol = b.bio_marker_name
-				   and upper(b.organism) = upper(t.organism)
-				   and upper(b.bio_marker_type) = 'PROTIEN')
-	where t.id_ref = idREF
-	  and t.gene_id is null 
-	  and t.gene_symbol is not null
-	  and exists
-		 (select 1 from biomart.mirna_bio_marker x
-		  where t.mirna_symbol = x.bio_marker_name
-			and upper(x.organism) = upper(t.organism)
-			and upper(x.bio_marker_type) = 'PROTEIN');
-			
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Updated missing id_ref in de_protien_annotation',SQL%ROWCOUNT,stepCt,'Done');
-	*/
 	--	update gene_symbol if null
 	
 	update deapp.de_protein_annotation t
@@ -251,3 +163,4 @@ BEGIN
 
 END;
 /
+ 

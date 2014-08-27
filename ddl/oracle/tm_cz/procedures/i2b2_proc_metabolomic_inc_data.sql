@@ -346,7 +346,7 @@ BEGIN
 			--	needed to add partition to de_subject_MIRNA_data
 
 			sqlText := 'alter table deapp.DE_SUBJECT_METABOLOMICS_DATA add PARTITION "' || TrialID || ':' || sourceCd || '"  VALUES (' || '''' || TrialID || ':' || sourceCd || '''' || ') ' ||
-						   'NOLOGGING COMPRESS TABLESPACE "DEAPP" ';
+						   'NOLOGGING COMPRESS TABLESPACE "TRANSMART" ';
 			execute immediate(sqlText);
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Adding partition to DE_SUBJECT_METABOLOMICS_DATA',0,stepCt,'Done');
@@ -1089,3 +1089,4 @@ BEGIN
 		select 16  into rtn_code from dual;
 END;
 /
+ 

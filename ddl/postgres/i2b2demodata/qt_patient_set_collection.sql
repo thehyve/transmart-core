@@ -2,7 +2,7 @@
 -- Name: qt_sq_qpr_pcid; Type: SEQUENCE; Schema: i2b2demodata; Owner: -
 --
 CREATE SEQUENCE qt_sq_qpr_pcid
-    START WITH 1
+    START WITH 4430157
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
