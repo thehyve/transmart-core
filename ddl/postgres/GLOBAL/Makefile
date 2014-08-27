@@ -27,9 +27,17 @@ $(TBDIR_TARGETS):
 	mkdir -p '$@'
 	@echo "The directory $@ was created, but I did not check whether its owner matches PostgreSQL system user"
 
-tablespace_%: $(TABLESPACES)%
+# sometimes the user can't know if the tablespace directory exists because he
+# lacks execute permissions in one of parent directories of $(TABLESPACES) (the
+# tablespaces directory). Therefore, make make look whether the directory exists
+# only if we need to create the tablespace. We accomplish this by not making
+# this rule not depend directly on $(TABLESPACES)% and instead call
+# $(MAKE) $(TABLESPACES)$* at the last moment
+tablespace_%:
 	test `$(PSQL_COMMAND) -c "select exists (select spcname from pg_tablespace where spcname = '$*')" -tA` \
-			= 't' || $(PSQL_COMMAND) -c "CREATE TABLESPACE $* LOCATION '$<'"
+			= 't' || { \
+			$(MAKE) $(TABLESPACES)$*; \
+			$(PSQL_COMMAND) -c "CREATE TABLESPACE $* LOCATION '$(TABLESPACES)$*'"; }
 
 tablespaces: $(TB_TARGETS)
 

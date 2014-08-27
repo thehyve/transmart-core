@@ -82,13 +82,13 @@ PROTEOMICS_DATA_FILE    ?= $(PROTEOMICS_DATA_PREFIX).txt
 PROTEOMICS_ANNOT_PREFIX ?= proteomics
 PROTEOMICS_ANNOT_FILE   ?= $(PROTEOMICS_ANNOT_PREFIX)_annotation.txt
 
-load_proteomics_annotation_%: ../studies/%/proteomics.params ../studies/%/proteomics/$(PROTEOMICS_ANNOT_FILE)
-	GPL_ID=$*_proteomics \
-	DATA_LOCATION="$(realpath ../studies/$*/proteomics)" \
+load_proteomics_annotation_%: ../studies/%/proteomics_annotation/$(PROTEOMICS_ANNOT_FILE)
+	GPL_ID=$* \
+	DATA_LOCATION="$(realpath ../studies/$*/proteomics_annotation)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_proteomics_annotation.sh $< \
 
-load_proteomics_%: ../studies/%/proteomics.params load_proteomics_annotation_% ../studies/%/proteomics/$(PROTEOMICS_SSM_FILE) ../studies/%/proteomics/$(PROTEOMICS_CM_FILE)
+load_proteomics_%: ../studies/%/proteomics.params ../studies/%/proteomics/$(PROTEOMICS_SSM_FILE) ../studies/%/proteomics/$(PROTEOMICS_CM_FILE)
 	MAP_FILENAME=$(PROTEOMICS_SSM_FILE) \
 	COLUMN_MAPPING_FILE=$(PROTEOMICS_CM_FILE) \
 	DATA_FILE_PREFIX=$(PROTEOMICS_DATA_PREFIX) \
