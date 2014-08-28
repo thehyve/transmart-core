@@ -390,7 +390,7 @@ class GwasSearchController {
 
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
-            def currentAnalysis = bio.BioAssayAnalysis.get(params.analysisId)
+            def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
 
             def pvalueCutoff = params.double('pvalueCutoff')
             def search = params.search
