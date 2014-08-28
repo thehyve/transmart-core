@@ -186,13 +186,16 @@
 				 -->
 				<div class='toolbar-item' onclick='collapseAllStudies();'>Collapse All Studies</div>
 				<div class='toolbar-item' onclick='expandAllStudies();'>Expand All Studies</div>
-				<g:ifPlugin name="transmart-gwas">
+<!--				<g:ifPlugin name="transmart-gwas">
                     <div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
                 </g:ifPlugin>
+-->
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
 	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
+<!--
 				<div class='toolbar-item' onclick="exportAnalysisandMail();"> Email Analysis</div>
+-->
                 <g:ifPlugin name="folder-management">
                     <div class="toolbar-item">
                         <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
