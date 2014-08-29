@@ -15,7 +15,7 @@ export NLS_TIMESTAMP_FORMAT
 dump_%:
 	NLS_DATE_FORMAT="$(NLS_DATE_FORMAT)" \
 	NLS_TIMESTAMP_FORMAT="$(NLS_TIMESTAMP_FORMAT)" \
-	groovy -cp '$(CP_ORA)' $(BASE_FOLDER)/samples/oracle/DumpTableData.groovy \
+	groovy -cp '$(CP_ORA):$(BASE_FOLDER)/samples/oracle/' $(BASE_FOLDER)/samples/oracle/DumpTableData.groovy \
 	  -t $(THIS_SCHEMA).$* \
 	  -o $(OUTDIR)/$*.tsv
 
