@@ -11,6 +11,8 @@ CREATE TABLE bio_asy_analysis_gwas_top50 (
     pvalue double precision,
     logpvalue double precision,
     extdata character varying(4000),
-    rnum bigint
+    rnum bigint,
+    intronexon character varying(10),
+    regulome character varying(10),
+    recombinationrate numeric(18,6)
 );
-

@@ -8,6 +8,7 @@
 /resources/
 /solr/
 /solr-*.tgz
+/solr-*/
 /solr-webapp/
 /webapps/
 /start.jar
