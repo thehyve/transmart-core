@@ -1,0 +1,14 @@
+<plugin name='transmart-metacore-plugin' version='0.1' grailsVersion='2.3 &gt; *'>
+  <author>Your name</author>
+  <title>Transmart Metacore Plugin Plugin</title>
+  <description>Brief summary/description of the plugin.
+</description>
+  <documentation>http://grails.org/plugin/transmart-metacore-plugin</documentation>
+  <type>TransmartMetacorePluginGrailsPlugin</type>
+  <resources>
+    <resource>com.thomsonreuters.lsps.transmart.MetacoreEnrichmentController</resource>
+    <resource>com.thomsonreuters.lsps.transmart.HttpBuilderService</resource>
+    <resource>com.thomsonreuters.lsps.transmart.MetacoreEnrichmentService</resource>
+    <resource>com.thomsonreuters.lsps.transmart.ThomsonReutersTagLib</resource>
+  </resources>
+</plugin>

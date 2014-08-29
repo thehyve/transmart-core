@@ -1,0 +1,15 @@
+target/
+target-eclipse/
+bin/
+.buildpath
+.classpath
+.settings
+.classpath
+.project
+.idea/
+*.iml
+*.ipr
+*.iws
+*.log
+.DS_Store
+System.out
