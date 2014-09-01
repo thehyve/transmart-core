@@ -1,6 +1,7 @@
 target/
 target-eclipse/
 bin/
+out/
 .buildpath
 .classpath
 .settings
