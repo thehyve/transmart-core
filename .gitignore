@@ -1,0 +1,8 @@
+/build
+/.gradle
+/.idea
+/.settings
+/.classpath
+/.project
+/bin
+/Groovy-Spring-Batch-Template.iml

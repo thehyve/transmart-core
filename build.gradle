@@ -1,0 +1,98 @@
+
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
+apply plugin:'application'
+apply plugin: 'codenarc'
+apply plugin: 'maven'
+
+repositories {
+	mavenCentral()
+	maven { url 'http://repo.spring.io/milestone' }
+}
+
+dependencies {
+
+	final SPRING_VERSION = '4.0.0.RELEASE'
+	final BATCH_VERSION = '3.0.0.M2'
+	final SPOCK_VERSION = '0.7-groovy-2.0'
+	final LOGBACK_VERSION = '1.0.13'
+	final SLF4J_VERSION = '1.7.5'
+
+	// use the indy jars (java 7 only!)
+	compile 'org.codehaus.groovy:groovy:2.2.1:indy'
+
+	compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
+
+	compile group: 'org.springframework', name: 'spring-context', version: SPRING_VERSION
+	compile group: 'org.springframework', name: 'spring-tx', version: SPRING_VERSION
+	compile group: 'org.springframework', name: 'spring-jdbc', version: SPRING_VERSION
+//	compile group: 'org.springframework', name: 'spring-orm', version: SPRING_VERSION
+//	compile group: 'org.springframework', name: 'spring-oxm', version: SPRING_VERSION
+	compile group: 'com.jolbox', name: 'bonecp-spring', version: '0.8.0.RELEASE'
+	compile group: 'com.h2database', name: 'h2', version: '1.3.174'
+	
+//	logging spring cleaning - use slf4j instead of commons-logging	
+	compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
+	compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
+	
+	testCompile group: 'org.spockframework', name: 'spock-core', version: SPOCK_VERSION
+	testCompile group: 'org.spockframework', name: 'spock-spring', version: SPOCK_VERSION
+	testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
+	testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
+}
+
+mainClassName = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
+
+run {
+	args 'example.ExampleConfiguration', 'job1'
+}
+
+task runJob(type: org.gradle.api.tasks.JavaExec) {
+    main = mainClassName
+    classpath configurations.compile, sourceSets.main.output
+    args "$jobPath", "$jobId"
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.10'
+}
+
+task createPom << {
+    pom {
+        project {
+            groupId 'org.transmartproject'
+            artifactId 'transmart-batch'
+            version '1.0-SNAPSHOT'
+
+            inceptionYear '2014'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("pom.xml")
+}
+
+codenarc {
+	configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
+	
+	// consumed by Jenkins Violations plugin
+	reportFormat = 'xml'
+	
+	// don't let codenarc violations fail the build
+	tasks.withType(CodeNarc).all { codeNarcTask ->
+		codeNarcTask.ignoreFailures = true
+	}
+}
+
+
+jacocoTestReport{
+    reports {
+            xml.enabled true
+            csv.enabled false
+            //html.destination "${buildDir}/jacocoHtml"
+    }
+}
