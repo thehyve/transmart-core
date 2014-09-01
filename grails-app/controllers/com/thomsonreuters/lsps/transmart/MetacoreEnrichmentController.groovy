@@ -1,10 +1,10 @@
 package com.thomsonreuters.lsps.transmart
 
-//import com.recomdata.transmart.data.association.RModulesService;
-
-import grails.converters.*
 import com.transmart.util.FileWriterUtil
-import java.util.UUID
+
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class MetacoreEnrichmentController {
 	
@@ -135,5 +135,29 @@ class MetacoreEnrichmentController {
 		def res = [ 'result': 'success']
 		render res as JSON
 	}
-	
+
+    def loadScripts = {
+        JSONObject result = new JSONObject()
+        JSONArray rows = new JSONArray()
+
+        ['metacoreEnrichment.js', 'metacoreEnrichmentDisplay.js'].each {
+            JSONObject aScript = new JSONObject()
+            aScript.put("path", "${servletContext.contextPath}${pluginContextPath}/js/metacore/${it}" as String)
+            aScript.put("type", "script")
+            rows.put(aScript)
+        }
+        ['metacore.css'].each {
+            JSONObject aStylesheet = new JSONObject()
+            aStylesheet.put("path", "${servletContext.contextPath}${pluginContextPath}/css/${it}" as String)
+            aStylesheet.put("type", "stylesheet")
+            rows.put(aStylesheet)
+        }
+
+        result.put("success", true)
+        result.put("totalCount", rows.size())
+        result.put("files", rows)
+
+        response.setContentType("text/json")
+        response.outputStream << result.toString()
+    }
 }
