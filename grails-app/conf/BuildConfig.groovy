@@ -38,8 +38,8 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // http-builder
-        compile('org.codehaus.groovy.modules.http-builder:http-builder:0.7') {
-            excludes 'xml-apis','xalan','groovy','commons-logging' //'xercesImpl'
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1', {
+            excludes 'groovy', 'nekohtml'
         }
         compile 'net.sf.opencsv:opencsv:2.3'
     }
