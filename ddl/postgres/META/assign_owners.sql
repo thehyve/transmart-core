@@ -18,10 +18,13 @@ BEGIN
         -- schema, object, owner
         ['biomart', 'heat_map_results',            'tm_cz'],
         ['deapp',   'de_subject_microarray_data',  'tm_cz'],
+        ['deapp',   'de_subject_microarray_med',   'tm_cz'],
+        ['deapp',   'de_subject_microarray_logs',  'tm_cz'],
         ['deapp',   'de_subject_acgh_data',        'tm_cz'],
         ['deapp',   'de_subject_rnaseq_data',      'tm_cz'],
         ['deapp',   'de_subject_metabolomics_data','tm_cz'],
         ['deapp',   'de_subject_mirna_data',       'tm_cz'],
+        ['deapp',   'de_subject_protein_data',     'tm_cz'],
         ['deapp',   'de_subject_proteomics_data',  'tm_cz'],
         ['deapp',   'de_subject_rbm_data',         'tm_cz'],
         ['deapp',   'de_subject_rna_data',         'tm_cz'],
