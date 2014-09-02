@@ -87,6 +87,9 @@ class Experiment implements IExcelProfile {
         completionDate(nullable: true)
         primaryInvestigator(nullable: true, maxSize: 800)
         institution(nullable: true)
+        bioMarkerType(nullable: true)
+        country(nullable: true)
+        accessType(nullable: true)
         target(nullable: true)
         status(nullable: true)
     }
