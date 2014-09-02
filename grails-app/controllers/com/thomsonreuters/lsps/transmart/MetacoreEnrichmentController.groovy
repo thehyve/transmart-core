@@ -140,7 +140,7 @@ class MetacoreEnrichmentController {
         JSONObject result = new JSONObject()
         JSONArray rows = new JSONArray()
 
-        ['metacoreEnrichment.js', 'metacoreEnrichmentDisplay.js'].each {
+        ['metacoreEnrichment.js', 'metacoreEnrichmentDisplay.js', 'raphael-min.js'].each {
             JSONObject aScript = new JSONObject()
             aScript.put("path", "${servletContext.contextPath}${pluginContextPath}/js/metacore/${it}" as String)
             aScript.put("type", "script")

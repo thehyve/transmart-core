@@ -421,3 +421,23 @@ var metacoreEnrichmentPanel = new Ext.Panel(
 function loadMetaCoreEnrichment(targetPanel) {
     targetPanel.add(metacoreEnrichmentPanel);
 }
+
+/**
+ * Clear the variable selection box
+ * Clear all selection stored in global variables
+ * Clear the selection display
+ * @param divName
+ */
+function clearGroupHeatmap(divName)
+{
+    //Clear the drag and drop div.
+    var qc = Ext.get(divName);
+
+    for(var i=qc.dom.childNodes.length-1;i>=0;i--)
+    {
+        var child=qc.dom.childNodes[i];
+        qc.dom.removeChild(child);
+    }
+    clearHighDimDataSelections(divName);
+    clearSummaryDisplay(divName);
+}

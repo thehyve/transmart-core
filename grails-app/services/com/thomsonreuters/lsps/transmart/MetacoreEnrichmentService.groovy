@@ -140,28 +140,6 @@ class MetacoreEnrichmentService {
                     if (json.Code == 0)
                         res = json
             }
-
-
-
-//            def limit = 50
-//            def idtype = cohortGeneLists['IdType']
-//            def id = cohortGeneLists['Data'][0][0]
-//
-//            site.request(POST) {
-//                //headers.'Expect' = ''
-//                //requestContentType = URLENC
-//                //uri.query = "limit=${limit}&idtype=${idtype}&id=${id}"
-//                //body = "limit=${limit}&idtype=${idtype}&id=${id}".toString()
-//                uri.path = baseUrl +'/enrichmentApp/enrichment'
-//                requestContentType = URLENC
-//                body = [ limit: 50, idtype: cohortGeneLists['IdType'], id: cohortGeneLists['Data'][0][0] ]
-//                headers.'Expect' = ''
-//
-//                response.success = { resp, json ->
-//                    if (json.Code == 0)
-//                        res = json
-//                }
-//            }
 		}
 		else {
 			// call API functions
