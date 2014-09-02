@@ -19,23 +19,24 @@ export KETTLE_HOME
 # Should define MAP_FILENAME, DATA_TYPE, COLUMN_MAPPING_FILE AND DATA_FILE_PREFIX
 source $1
 
-PRIVATE_STUDY=${PRIVATE_STUDY:-N}
+SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
 
-if [ $PRIVATE_STUDY = 'Y' ]; then
+if [ $SECURITY_REQUIRED = 'Y' ]; then
     TOP_NODE_PREFIX='Private Studies'
 else
     TOP_NODE_PREFIX='Public Studies'
 fi
 
-$KITCHEN -norep=Y					\
--file="$KETTLE_JOBS/load_proteomics_data.kjb"		\
+$KITCHEN -norep=Y										\
+-file="$KETTLE_JOBS/load_proteomics_data.kjb"			\
 -log="load_proteomics_data_$(date +"%Y%m%d%H%M").log"	\
--param:DATA_LOCATION="$DATA_LOCATION"			\
--param:STUDY_ID="$STUDY_ID"				\
--param:MAP_FILENAME="$MAP_FILENAME"			\
--param:DATA_TYPE="$DATA_TYPE"				\
--param:SORT_DIR=/tmp					\
+-param:DATA_LOCATION="$DATA_LOCATION"					\
+-param:STUDY_ID="$STUDY_ID"								\
+-param:MAP_FILENAME="$MAP_FILENAME"						\
+-param:DATA_TYPE="$DATA_TYPE"							\
+-param:SORT_DIR=/tmp									\
 -param:TOP_NODE='\'"$TOP_NODE_PREFIX"'\'$STUDY_ID'\'	\
--param:COLUMN_MAPPING_FILE="$COLUMN_MAPPING_FILE"	\
--param:LOAD_TYPE=I					\
--param:DATA_FILE_PREFIX="$DATA_FILE_PREFIX"
+-param:COLUMN_MAPPING_FILE="$COLUMN_MAPPING_FILE"		\
+-param:LOAD_TYPE=I										\
+-param:DATA_FILE_PREFIX="$DATA_FILE_PREFIX"				\
+-param:SECURITY_REQUIRED="$SECURITY_REQUIRED"
