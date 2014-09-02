@@ -460,18 +460,18 @@ class FmFolderService {
         }
 
         def results = [:]
-        foldersByStudy.each { entry ->
-            if (entry.key) {
+        foldersByStudy.each { FmFolder studyFolder, List<FmFolder> folders ->
+            if (studyFolder) {
                 if (isAdmin) {
-                    results += entry.value.collectEntries { [(it): 'ADMIN'] }
+                    results += folders.collectEntries { [(it): 'ADMIN'] }
                 } else {
-                    def studyId = studyFolderStudyIdMap[entry.key]
+                    def studyId = studyFolderStudyIdMap[studyFolder]
                     def token = studyTokensMap[studyId]
                     def accessLevelInfo = userAssignedTokens[token] ?: 'LOCKED'
-                    results += entry.value.collectEntries { [(it): accessLevelInfo] }
+                    results += folders.collectEntries { [(it): accessLevelInfo] }
                 }
             } else {
-                results += entry.value.collectEntries { [(it): 'NA'] }
+                results += folders.collectEntries { [(it): 'NA'] }
             }
         }
 
