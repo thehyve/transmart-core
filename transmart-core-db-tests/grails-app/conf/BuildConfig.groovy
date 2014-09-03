@@ -25,22 +25,34 @@ if (enableClover) {
     clover {
         on = true
 
-        def dirs = ['src/java', 'src/groovy', 'test/unit',
-                    'test/integration', 'grails-app']
-        srcDirs = dirs.inject dirs, { accum, cur ->
-            File dir = new File('..', cur)
-            if (dir.exists()) {
-                accum + dir.canonicalPath
-            } else {
-                accum
-            }
-        }
+        srcDirs = ['../src/java', '../src/groovy', '../grails-app',
+                    'test/unit', 'test/integration']
 
         // work around bug in compile phase in groovyc
         // see CLOV-1466 and GROOVY-7041
         excludes = [
                 '**/ClinicalDataTabularResult.*',
         ]
+
+        reporttask = { ant, binding, plugin ->
+            def reportDir = "${binding.projectTargetDir}/clover/report"
+            ant.'clover-report' {
+                ant.current(outfile: reportDir, title: 'transmart-core-db') {
+                    format(type: "html", reportStyle: 'adg')
+                    testresults(dir: 'target/test-reports', includes: '*.xml')
+                    ant.columns {
+                        lineCount()
+                        filteredElements()
+                        uncoveredElements()
+                        totalPercentageCovered()
+                    }
+                }
+                ant.current(outfile: "${reportDir}/clover.xml") {
+                    format(type: "xml")
+                    testresults(dir: 'target/test-reports', includes: '*.xml')
+                }
+            }
+        }
     }
 }
 
