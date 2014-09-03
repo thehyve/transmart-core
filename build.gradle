@@ -17,6 +17,7 @@ dependencies {
 	final SPOCK_VERSION = '0.7-groovy-2.0'
 	final LOGBACK_VERSION = '1.0.13'
 	final SLF4J_VERSION = '1.7.5'
+    final JUNIT_VERSION = '4.11'
 
 	// use the indy jars (java 7 only!)
 	compile 'org.codehaus.groovy:groovy:2.2.1:indy'
@@ -39,6 +40,8 @@ dependencies {
 	testCompile group: 'org.spockframework', name: 'spock-spring', version: SPOCK_VERSION
 	testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
 	testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
+    testCompile group: 'junit', name: 'junit', version: JUNIT_VERSION
+
 }
 
 mainClassName = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
