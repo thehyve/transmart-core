@@ -14,7 +14,6 @@ install:
     - maybe_build_maven_dep $(travis_get_owner)/transmart-core-api core-api
 
 script:
-    - "grails test-app unit: --non-interactive --stacktrace"
     - cd transmart-core-db-tests
     - grails test-app --non-interactive --stacktrace
     - cd -

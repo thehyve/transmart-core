@@ -46,18 +46,6 @@ grails.project.dependency.resolution = {
             transitive = false
             export     = false
         }
-
-        test('junit:junit:4.11') {
-            transitive = false /* don't bring hamcrest */
-            export     = false
-        }
-
-        test 'org.hamcrest:hamcrest-core:1.3',
-             'org.hamcrest:hamcrest-library:1.3'
-
-        test 'org.gmock:gmock:0.9.0-r435-hyve2', {
-            transitive = false /* don't bring groovy-all */
-        }
     }
 
     plugins {
@@ -71,9 +59,5 @@ grails.project.dependency.resolution = {
         }
 
         runtime ':hibernate:3.6.10.4'
-
-        test ":code-coverage:1.2.6", {
-            export = false
-        }
     }
 }

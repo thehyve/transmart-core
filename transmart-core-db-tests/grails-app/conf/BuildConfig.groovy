@@ -37,7 +37,7 @@ grails.project.dependency.resolution = {
             export     = false
         }
 
-        test('org.gmock:gmock:0.8.3') {
+        test('org.gmock:gmock:0.9.0-r435-hyve2') {
             transitive = false /* don't bring groovy-all */
             export     = false
         }
