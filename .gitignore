@@ -7,3 +7,5 @@
 /.project
 /.settings
 /*.zip
+*.sw[op]
+/clover_id_rsa

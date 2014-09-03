@@ -170,55 +170,52 @@ class HighDimensionResourceServiceIntegrationTests {
                     AssayConstraint.PATIENT_SET_CONSTRAINT)
         }
     }
+}
 
-    class HighDimensionResourceServiceTestData {
+class HighDimensionResourceServiceTestData {
 
-        static final String MRNA_TRIAL_NAME = 'MRNA_TRIAL_NAME'
+    static final String MRNA_TRIAL_NAME = 'MRNA_TRIAL_NAME'
 
-        static final String TRIAL_NAME = 'HIGH_DIM_RESOURCE_TRIAL'
+    static final String TRIAL_NAME = 'HIGH_DIM_RESOURCE_TRIAL'
 
-        DeGplInfo platformMrna = {
-            def p = new DeGplInfo(
-                    markerType: 'Gene Expression',
-            )
-            p.id = 'mrna-platform'
-            p
-        }()
+    DeGplInfo platformMrna = {
+        def p = new DeGplInfo(
+                markerType: 'Gene Expression',
+        )
+        p.id = 'mrna-platform'
+        p
+    }()
 
-        DeGplInfo platformFoobar = {
-            def p = new DeGplInfo(
-                    markerType: 'Foobar',
-            )
-            p.id = 'foobar-platform'
-            p
-        }()
+    DeGplInfo platformFoobar = {
+        def p = new DeGplInfo(
+                markerType: 'Foobar',
+        )
+        p.id = 'foobar-platform'
+        p
+    }()
 
-        List<PatientDimension> patientsBoth = createTestPatients(2, -2000, TRIAL_NAME)
-        List<PatientDimension> patientsFoobar = createTestPatients(3, -3000, TRIAL_NAME)
+    List<PatientDimension> patientsBoth = createTestPatients(2, -2000, TRIAL_NAME)
+    List<PatientDimension> patientsFoobar = createTestPatients(3, -3000, TRIAL_NAME)
 
-        List<DeSubjectSampleMapping> mrnaAssays =
+    List<DeSubjectSampleMapping> mrnaAssays =
             HighDimTestData.createTestAssays(patientsBoth, -4000, platformMrna, MRNA_TRIAL_NAME)
 
-        List<DeSubjectSampleMapping> foobarAssays =
+    List<DeSubjectSampleMapping> foobarAssays =
             HighDimTestData.createTestAssays(patientsBoth, -5000, platformFoobar, TRIAL_NAME) +
                     HighDimTestData.createTestAssays(patientsFoobar, -6000, platformFoobar, TRIAL_NAME)
 
-        @Lazy QtQueryMaster allPatientsQueryMaster = createQueryResult(
-                patientsBoth + patientsFoobar)
+    @Lazy QtQueryMaster allPatientsQueryMaster = createQueryResult(
+            patientsBoth + patientsFoobar)
 
-        QueryResult getAllPatientsQueryResult() {
-            getQueryResultFromMaster allPatientsQueryMaster
-        }
-
-        void saveAll() {
-            save([ platformMrna, platformFoobar ])
-            save( patientsBoth + patientsFoobar )
-            save( mrnaAssays + foobarAssays )
-            save([ allPatientsQueryMaster ])
-        }
-
+    QueryResult getAllPatientsQueryResult() {
+        getQueryResultFromMaster allPatientsQueryMaster
     }
 
-
+    void saveAll() {
+        save([ platformMrna, platformFoobar ])
+        save( patientsBoth + patientsFoobar )
+        save( mrnaAssays + foobarAssays )
+        save([ allPatientsQueryMaster ])
+    }
 
 }
