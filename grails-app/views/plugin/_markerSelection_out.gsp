@@ -19,7 +19,7 @@
         </g:if>
         <br />
         <g:if test="${grailsApplication.config.com.thomsonreuters.transmart.metacoreAnalyticsEnable}">
-            <g:render template="/metacoreEnrichment/enrichmentResult" model="[prefix: 'marker_']"/>
+            <g:metacoreEnrichmentResult/>
         </g:if>
     </div>
 
