@@ -1,8 +1,7 @@
-<plugin name='transmart-metacore-plugin' version='0.1' grailsVersion='2.3 &gt; *'>
-  <author>Your name</author>
-  <title>Transmart Metacore Plugin Plugin</title>
-  <description>Brief summary/description of the plugin.
-</description>
+<plugin name='transmart-metacore-plugin' version='1.2.1-SNAPSHOT' grailsVersion='2.3 &gt; *'>
+  <author>Valeria Hohlova</author>
+  <title>Transmart Metacore Plugin</title>
+  <description>Provides MetaCore integration</description>
   <documentation>http://grails.org/plugin/transmart-metacore-plugin</documentation>
   <type>TransmartMetacorePluginGrailsPlugin</type>
   <resources>

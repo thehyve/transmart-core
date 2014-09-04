@@ -1,6 +1,6 @@
 class TransmartMetacorePluginGrailsPlugin {
     // the plugin version
-    def version = "0.1"
+    def version = "1.2.1-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.3 > *"
     // resources that are excluded from plugin packaging
@@ -8,12 +8,11 @@ class TransmartMetacorePluginGrailsPlugin {
         "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
-    def title = "Transmart Metacore Plugin Plugin" // Headline display name of the plugin
-    def author = "Your name"
+    def title = "Transmart Metacore Plugin" // Headline display name of the plugin
+    def author = "Valeria Hohlova"
     def authorEmail = ""
     def description = '''\
-Brief summary/description of the plugin.
+Transmart MetaCore support
 '''
 
     // URL to the plugin's documentation
