@@ -28,6 +28,9 @@ class GwasWebService {
 
     def dataSource
     def grailsApplication
+    
+    //This will be used as the column delimiter in the method to write the data file below.
+    private String valueDelimiter ="\t";
 
     def final geneLimitsSqlQueryByKeyword = """
 	
