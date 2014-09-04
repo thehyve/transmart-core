@@ -22,6 +22,9 @@ package com.recomdata.grails.plugin.gwas
 
 import au.com.bytecode.opencsv.CSVWriter
 import org.transmart.searchapp.SecureObject;
+import org.transmart.searchapp.AuthUserSecureAccess;
+import org.transmart.searchapp.AuthUser;
+import org.apache.commons.io.FileUtils;
 
 class GwasWebService {
 
@@ -683,7 +686,7 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
 	{
 		String tempImageFolder = grailsApplication.config.RModules.temporaryImageFolder
 		String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${moveToDirectoryName}" + File.separator
-		def imageURL = config.RModules.imageURL
+		def imageURL = grailsApplication.config.RModules.imageURL
 		
 		//For each of the image files we find, move them to the new directory.
 		String tempImageLocation = "${tempImageJobFolder}" + File.separator + newImageFileName
