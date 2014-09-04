@@ -461,4 +461,101 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
 
 
     }
+	
+	def createTemporaryDirectory(jobName)
+	{
+		try {
+			def String tempFolderDirectory = grailsApplication.config.RModules.tempFolderDirectory
+			//Initialize the jobTmpDirectory.
+			def jobTmpDirectory = tempFolderDirectory + File.separator + "${jobName}" + File.separator
+			jobTmpDirectory = jobTmpDirectory.replace("\\","\\\\")
+			def jobTmpWorkingDirectory = jobTmpDirectory + "workingDirectory"
+			
+			//Try to make the working directory.
+			File jtd = new File(jobTmpWorkingDirectory)
+			jtd.mkdirs();
+			
+			return jobTmpDirectory
+			
+		} catch (Exception e) {
+			throw new Exception('Failed to create Temporary Directories. Please contact an administrator.', e);
+		}
+	}
+	
+	/*
+	 * Writes a file based on a passed in array of arrays.
+	 */
+	def writeDataFile(tempDirectory,dataToWrite,fileName)
+	{
+		//Construct the path to the temporary directory we will do our work in.
+		def fullDirectoryPath = tempDirectory + File.separator
+		
+		//This is the path to the file that we will return from this function.
+		def filePath = ""
+		
+		//Create a new file to write our data to.
+		def outputFile = new File(fullDirectoryPath, fileName);
+	
+		//Create the buffered writer which will write to our data file.
+		BufferedWriter bufWriter = new BufferedWriter(new FileWriter(outputFile), 1024 * 64000);
+		
+		//Initialize a CSVWriter, tab delimited.
+		def writer = new CSVWriter(bufWriter, '\t' as char);
+		def output = outputFile.newWriter(true)
+		
+		//Attempt to write the data to the file.
+		try
+		{
+			//Loop through the outside array.
+			dataToWrite.each()
+			{
+				//Loop through the inside array.
+				it.each()
+				{
+					//Write each value to the file.
+					output.write(it.toString());
+					
+					//Write the record delimiter.
+					output.write(valueDelimiter);
+				}
+				
+				//Write a new line to the file.
+				output.newLine();
+			}
+			
+		} catch(Exception e) {
+			throw new Exception('Failed when writing data to file.', e);
+		} finally {
+			output?.flush();
+			output?.close()
+			filePath = outputFile?.getAbsolutePath()
+		}
+		
+		return filePath
+	}
+	
+	/*
+	 * This moves an image file to the temporary directory so it can be rendered to the user.
+	 */
+	def moveImageFile(currentFileLocation, newImageFileName, moveToDirectoryName)
+	{
+		String tempImageFolder = grailsApplication.config.RModules.temporaryImageFolder
+		String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${moveToDirectoryName}" + File.separator
+		def imageURL = config.RModules.imageURL
+		
+		//For each of the image files we find, move them to the new directory.
+		String tempImageLocation = "${tempImageJobFolder}" + File.separator + newImageFileName
+ 
+		//Move the image to a location where we can actually render it.
+		File oldImage = new File(currentFileLocation);
+		File newImage = new File(tempImageLocation);
+		//TODO move FileUtils to Core
+		FileUtils.copyFile(oldImage,newImage)
+		
+		String currentLink = "${imageURL}${moveToDirectoryName}/${newImageFileName}"
+		
+		//Delete the old directory.
+		
+		return currentLink
+	}
 }

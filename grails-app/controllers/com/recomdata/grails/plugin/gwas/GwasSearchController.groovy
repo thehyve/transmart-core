@@ -513,12 +513,12 @@ class GwasSearchController {
             def uniqueName = "QQPlot-" + uniqueId
 
             //Create the temporary directories for processing the image.
-            def currentTempDirectory = RModulesFileWritingService.createTemporaryDirectory(uniqueName)
+            def currentTempDirectory = gwasWebService.createTemporaryDirectory(uniqueName)
 
             def currentWorkingDirectory =  currentTempDirectory + File.separator + "workingDirectory" + File.separator
 
             //Write the data file for generating the image.
-            def currentDataFile = RModulesFileWritingService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
+            def currentDataFile = gwasWebService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
 
             //Run the R script to generate the image file.
             RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
@@ -533,7 +533,7 @@ class GwasSearchController {
             else
             {
                 //Move the image to the web directory so we can render it.
-                def imageURL = RModulesOutputRenderService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
+                def imageURL = gwasWebService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
 
                 returnJSON['imageURL'] = imageURL
 
