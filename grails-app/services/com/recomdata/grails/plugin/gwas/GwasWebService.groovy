@@ -287,6 +287,96 @@ class GwasWebService {
 	}
     }
 
+    	def checkSecureStudyAccess(user, accession)
+	{
+		log.debug("checking security for the user: "+user)
+		def secObjs=getExperimentSecureStudyList()
+		if (secObjs!=null)
+		{if (!secObjs.containsKey(accession))
+			{
+					return true;
+			}
+			else
+			{
+				def cser=AuthUser.findByUsername(user)
+				if (getGWASAccess(accession, cser).equals("Locked"))
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
+			}}
+		return true;
+	}
+	
+	def getGWASAccess (study_id, user) {
+		
+		//def level=getLevelFromKey(concept_key);
+		def admin=false;
+		for (role in user.authorities)
+		{
+			if (isAdminRole(role)) {
+				admin=true;
+				return 'Admin'; //just set everything to admin and return it all
+			}
+		}
+		if(!admin) //if not admin merge the data from the two maps
+		{
+			def tokens=getSecureTokensWithAccessForUser(user);
+			//tokens.each{ k, v -> log.debug( "${k}:${v}") }
+			if(tokens.containsKey(study_id)) //null tokens are assumed to be unlocked
+			{
+					return tokens[study_id]; //found access for this token so put in access level
+			}
+			else {
+					return "Locked"; //didn't find authorization for this token
+				}
+			
+		}
+	
+		return null;
+	}
+	
+	def getExperimentSecureStudyList(){
+		
+		StringBuilder s = new StringBuilder();
+		s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
+		def t=[:];
+		//return access levels for the children of this path that have them
+		def results = SecureObject.executeQuery(s.toString());
+		for (row in results){
+			def token = row[0];
+			def dataid = row[1];
+			token=token.replaceFirst("EXP:","")
+			log.info(token+":"+dataid);
+			t.put(token,dataid);
+		}
+		return t;
+	}
+	
+	def getSecureTokensWithAccessForUser(user) {
+		StringBuilder s = new StringBuilder();
+		s.append("SELECT DISTINCT ausa.accessLevel, so.bioDataUniqueId FROM AuthUserSecureAccess ausa JOIN ausa.accessLevel JOIN ausa.secureObject so ")
+		s.append(" WHERE ausa.authUser IS NULL OR ausa.authUser.id = ").append(user.id)
+		def t=[:];
+		//return access levels for the children of this path that have them
+		def results = AuthUserSecureAccess.executeQuery(s.toString());
+		for (row in results){
+			def token = row[1];
+			def accessLevel = row[0];
+			log.trace(token+":"+accessLevel.accessLevelName);
+			t.put(token,accessLevel.accessLevelName);
+		}
+		t.put("EXP:PUBLIC","OWN");
+		return t;
+	}
+	
+	def isAdminRole(role){
+		return role.authority.equals("ROLE_ADMIN") || role.authority.equals("ROLE_DATASET_EXPLORER_ADMIN");
+	}
+
     def final analysisDataSqlQueryGwas = """
 		SELECT gwas.rs_id as rsid, gwas.bio_asy_analysis_gwas_id as resultid, gwas.bio_assay_analysis_id as analysisid, 
     	gwas.p_value as pvalue, gwas.log_p_value as logpvalue, be.accession as studyname, baa.analysis_name as analysisname, 
