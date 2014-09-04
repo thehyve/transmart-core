@@ -27,6 +27,7 @@ class GwasWebService {
     boolean transactional = true
 
     def dataSource
+	def grailsApplication
 
     def final geneLimitsSqlQueryByKeyword = """
 	
