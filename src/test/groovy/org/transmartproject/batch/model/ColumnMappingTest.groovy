@@ -18,19 +18,6 @@ class ColumnMappingTest {
     def vocabularyCode = 'CVC'
 
     @Test
-    void test() {
-        String line = "$filename\t$category\t$column\t$dataLabel\t$dataLabelSource\t$vocabularyCode"
-
-    /*
-        Map m  = [column:'1']
-        println new ColumnMapping(m)
-        println MappingHelper.asType(m, ColumnMapping.class)
-        //println DefaultGroovyMethods.asType(m, ColumnMapping.class)
-        */
-    }
-
-
-    @Test
     void testParseCompleteLine() {
 
         String line = "$filename\t$category\t$column\t$dataLabel\t$dataLabelSource\t$vocabularyCode"

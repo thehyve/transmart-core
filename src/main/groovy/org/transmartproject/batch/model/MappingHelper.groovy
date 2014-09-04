@@ -61,6 +61,4 @@ class MappingHelper {
         return result
     }
 
-
-
 }

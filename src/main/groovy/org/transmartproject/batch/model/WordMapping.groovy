@@ -1,5 +1,7 @@
 package org.transmartproject.batch.model
 
+import com.google.common.base.Function
+
 /**
  *
  */
@@ -17,6 +19,13 @@ class WordMapping {
 
     static WordMapping forLine(String line) {
         MappingHelper.parseObject(line, WordMapping.class, fields)
+    }
+
+    static Function<File, List<WordMapping>> READER = new Function<File, List<WordMapping>>() {
+        @Override
+        List<WordMapping> apply(File input) {
+            parse(input.newInputStream())
+        }
     }
 
 }

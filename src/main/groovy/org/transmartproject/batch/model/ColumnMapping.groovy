@@ -1,5 +1,6 @@
 package org.transmartproject.batch.model
 
+import com.google.common.base.Function
 import groovy.transform.ToString
 
 
@@ -21,6 +22,13 @@ class ColumnMapping {
 
     static ColumnMapping forLine(String line) {
         MappingHelper.parseObject(line, ColumnMapping.class, fields)
+    }
+
+    static Function<File, List<ColumnMapping>> READER = new Function<File, List<ColumnMapping>>() {
+        @Override
+        List<ColumnMapping> apply(File input) {
+            parse(input.newInputStream())
+        }
     }
 
 }
