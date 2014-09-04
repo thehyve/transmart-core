@@ -1,8 +1,8 @@
 package fm
 
-class FmFolderAssociation implements Serializable {
+import grails.util.Holders
 
-    def grailsApplication
+class FmFolderAssociation implements Serializable {
 
     static transients = ['bioObject']
 
@@ -53,7 +53,7 @@ class FmFolderAssociation implements Serializable {
         // This probably should come from the config file
 
         String domainClassName = this.objectType //conf.rememberMe.persistentToken.domainClassName ?: ''
-        def clazz = grailsApplication.getClassForName(domainClassName)
+        def clazz = Holders.grailsApplication.getClassForName(domainClassName)
         if (!clazz) {
             log.error "Persistent token class not found: '${domainClassName}'"
         }
