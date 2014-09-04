@@ -21,6 +21,7 @@
 package com.recomdata.grails.plugin.gwas
 
 import au.com.bytecode.opencsv.CSVWriter
+import org.transmart.searchapp.SecureObject;
 
 class GwasWebService {
 
