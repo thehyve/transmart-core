@@ -241,6 +241,51 @@ class GwasWebService {
             con?.close();
         }
     }
+    
+    def getSecureModelInfo(String type,String user) {
+	def query = modelInfoSqlQuery;
+
+	//Create objects we use to form JDBC connection.
+	def con, stmt, rs = null;
+
+	//Grab the connection from the grails object.
+	con = dataSource.getConnection()
+
+	//Prepare the SQL statement.
+	stmt = con.prepareStatement(query);
+	stmt.setString(1, type)
+
+	rs = stmt.executeQuery();
+
+	def results = []
+
+	try{
+		while(rs.next()){
+			def id = new BigInteger(rs.getString("ID"));
+			def modelName = rs.getString("MODELNAME");
+			def analysisName = rs.getString("ANALYSISNAME");
+			def studyName = rs.getString("STUDYNAME");
+			def studyId= new BigInteger(rs.getString("study_id"));
+				
+
+			
+			if (checkSecureStudyAccess(user.toLowerCase(), studyName))
+			{
+				results.push([
+					id,
+					modelName,
+					analysisName,
+					studyName
+				])
+			}
+		}
+		return results;
+	}finally{
+		rs?.close();
+		stmt?.close();
+		con?.close();
+	}
+    }
 
     def final analysisDataSqlQueryGwas = """
 		SELECT gwas.rs_id as rsid, gwas.bio_asy_analysis_gwas_id as resultid, gwas.bio_assay_analysis_id as analysisid, 
