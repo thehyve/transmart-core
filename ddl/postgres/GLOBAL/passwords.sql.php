@@ -23,7 +23,7 @@ foreach ($roles as $r) {
 		continue;
 	}
 	$hash = md5($password . $r);
-	echo "ALTER ROLE $r WITH ENCRYPTED PASSWORD 'md5$hash'\n";
+	echo "ALTER ROLE $r WITH ENCRYPTED PASSWORD 'md5$hash';\n";
 }
 if ($unspec) {
 	$roles_j = implode(', ', $unspec);
