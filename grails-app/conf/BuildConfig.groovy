@@ -78,9 +78,6 @@ grails.project.dependency.resolution = {
             exported = false
         }
 
-        // strangely needed...
-        runtime 'org.springframework:spring-test:3.2.6.RELEASE'
-
         test 'org.gmock:gmock:0.8.3', {
             transitive = false /* don't bring groovy-all */
         }
