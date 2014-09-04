@@ -20,6 +20,8 @@
 
 package com.recomdata.grails.plugin.gwas
 
+import au.com.bytecode.opencsv.CSVWriter
+
 class GwasWebService {
 
     boolean transactional = true
