@@ -44,15 +44,27 @@ class GwasSearchController {
         def jar = grailsApplication.config.com.recomdata.rwg.webstart.jar
         def mainClass = grailsApplication.config.com.recomdata.rwg.webstart.mainClass
         def gInstance = "-services="+grailsApplication.config.com.recomdata.rwg.webstart.gwavaInstance
+		def serverUrl = grailsApplication.config.com.recomdata.rwg.webstart.transmart.url
         def analysisIds = params.analysisIds
         def geneSource = params.geneSource
         def snpSource = params.snpSource
         def pvalueCutoff = params.pvalueCutoff
         def searchRegions = getWebserviceCriteria(session['solrSearchFilter'])
+		def user=springSecurityService.getPrincipal().username
         def regionStrings = []
         for (region in searchRegions) {
             regionStrings += region[0] + "," + region[1]
         }
+		
+		def sessionUserMap = new HashMap<String, String>()
+		sessionUserMap = servletContext['gwasSessionUserMap']
+		
+		if (sessionUserMap == null){
+			sessionUserMap = new HashMap<String, String>()
+		}
+		sessionUserMap.put(session.getId(), user)
+		servletContext['gwasSessionUserMap'] = sessionUserMap
+		
         def regions = regionStrings.join(";")
         //Set defaults - JNLP does not take blank arguments
         if (!regions) { regions = "0,0" }
@@ -112,6 +124,8 @@ class GwasSearchController {
 								<argument>0</argument>
 								<argument>""" + snpSource + """</argument>
 								<argument>""" + pvalueCutoff + """</argument>
+								<argument>""" + serverUrl + """</argument>
+                                <argument>""" + session.getId() + """</argument>
 							  </application-desc>
 
 							</jnlp>
