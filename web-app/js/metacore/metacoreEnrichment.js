@@ -384,6 +384,8 @@ function showMetacoreSettingsWindow() {
     metacoreSettingsWindow.show(viewport);
 }
 
+var metacoreTabActivated = false;
+var metacoreTabLoaded = false;
 var metacoreEnrichmentPanel = new Ext.Panel(
     {
         id: 'metacoreEnrichmentPanel',
@@ -402,21 +404,33 @@ var metacoreEnrichmentPanel = new Ext.Panel(
         autoLoad: {
             url: pageInfo.basePath + '/metacoreEnrichment/index',
             method: 'GET',
-            // callback: setDataAssociationAvailableFlag,
+            callback: function () {
+                metacoreTabLoaded = true;
+                if (!metacoreTabActivated) {
+                    loadMetaCoreTab();
+                }
+            },
             evalScripts: true
         },
         listeners: {
             activate: function (p) {
-                renderCohortSummaryMetaCoreEnrichment("cohortSummaryMetaCoreEnrichment");
-                initMetaCoreTab();
+                if (metacoreTabLoaded) {
+                    loadMetaCoreTab();
+                }
             },
             deactivate: function () {
-                //resultsTabPanel.tools['help help-resana-panel'].dom.style.display="none";
+               metacoreTabActivated = false;
             }
         },
         collapsible: true
     }
 );
+
+function loadMetaCoreTab() {
+    renderCohortSummaryMetaCoreEnrichment("cohortSummaryMetaCoreEnrichment");
+    initMetaCoreTab();
+    metacoreTabActivated = true;
+}
 
 function loadMetaCoreEnrichment(targetPanel) {
     targetPanel.add(metacoreEnrichmentPanel);
