@@ -265,7 +265,7 @@ class GwasWebService {
 			def modelName = rs.getString("MODELNAME");
 			def analysisName = rs.getString("ANALYSISNAME");
 			def studyName = rs.getString("STUDYNAME");
-			def studyId= new BigInteger(rs.getString("study_id"));
+			//def studyId= new BigInteger(rs.getString("study_id"));
 				
 
 			
