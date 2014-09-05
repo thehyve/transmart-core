@@ -5,7 +5,7 @@ import com.google.common.base.Function
 /**
  *
  */
-class WordMapping {
+class WordMapping implements Serializable {
     String filename
     int column
     String originalValue
@@ -24,7 +24,10 @@ class WordMapping {
     static Function<File, List<WordMapping>> READER = new Function<File, List<WordMapping>>() {
         @Override
         List<WordMapping> apply(File input) {
-            parse(input.newInputStream())
+            if (input) {
+                return parse(input.newInputStream())
+            }
+            null //no file, no results
         }
     }
 

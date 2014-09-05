@@ -14,18 +14,14 @@ class ColumnMappingTest {
     def category = 'Subjects'
     def column = 1
     def dataLabel = 'SUBJ_ID'
-    def dataLabelSource = 'DLS'
-    def vocabularyCode = 'CVC'
 
     @Test
     void testParseCompleteLine() {
 
-        String line = "$filename\t$category\t$column\t$dataLabel\t$dataLabelSource\t$vocabularyCode"
+        String line = "$filename\t$category\t$column\t$dataLabel"
         ColumnMapping map = ColumnMapping.forLine(line)
 
         assertCommonFields(map)
-        Assert.assertEquals(dataLabelSource, map.dataLabelSource)
-        Assert.assertEquals(vocabularyCode, map.vocabularyCode)
     }
 
     @Test
@@ -39,8 +35,8 @@ class ColumnMappingTest {
 
     private void assertCommonFields(ColumnMapping map) {
         Assert.assertEquals(filename, map.filename)
-        Assert.assertEquals(category, map.category)
-        Assert.assertEquals(column, map.column)
+        Assert.assertEquals(category, map.categoryCode)
+        Assert.assertEquals(column, map.columnNumber)
         Assert.assertEquals(dataLabel, map.dataLabel)
     }
 

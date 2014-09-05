@@ -1,6 +1,6 @@
 package example
 
-import org.transmartproject.batch.JobParameters
+import org.transmartproject.batch.Keys
 
 /**
  *
@@ -15,8 +15,8 @@ class RunJob {
         def jobPath = 'org.transmartproject.batch.JobConfiguration'
         def jobId = 'job'
         def args = [
-                (JobParameters.COLUMN_MAP_FILE): 'src/test/resources/clinical/E-GEOD-8581_columns.txt',
-                (JobParameters.WORD_MAP_FILE): 'src/test/resources/clinical/E-GEOD-8581_wordmap.txt'
+                (Keys.COLUMN_MAP_FILE): 'src/test/resources/clinical/E-GEOD-8581_columns.txt',
+                (Keys.WORD_MAP_FILE): 'src/test/resources/clinical/E-GEOD-8581_wordmap.txt'
         ]
         execute(jobPath, jobId, args)
     }

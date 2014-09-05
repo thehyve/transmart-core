@@ -2,24 +2,20 @@ package org.transmartproject.batch
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
-import org.springframework.batch.core.scope.context.ChunkContext
-import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.task.SimpleAsyncTaskExecutor
-import org.transmartproject.batch.model.ColumnMapping
-import org.transmartproject.batch.model.WordMapping
-import org.transmartproject.batch.tasklet.ReadFileTasklet
+import org.transmartproject.batch.tasklet.InitClinicalJobContextTasklet
+import org.transmartproject.batch.tasklet.ReadColumnMapTasklet
+import org.transmartproject.batch.tasklet.ReadWordMapTasklet
 
 @Configuration
 @Import(TransmartAppConfig.class)
@@ -33,11 +29,11 @@ class JobConfiguration {
     private StepBuilderFactory steps
 
     @Bean
-    SimpleFlow readControlFilesFlow() {
+    Flow readControlFilesFlow() {
         new FlowBuilder<SimpleFlow>('readControlFilesFlow')
-                .start(dummyStep()) //we always need an initial step, hence this dummy
+                .start(readColumnMappingsStep())
                 .split(new SimpleAsyncTaskExecutor()) //forks execution
-                .add(wrap(readColumnMappingsStep()), wrap(readWordMappingsStep()))
+                .add(wrap(readWordMappingsStep()))
                 .end()
     }
 
@@ -46,24 +42,33 @@ class JobConfiguration {
     }
 
     @Bean
-    SimpleFlow convertToStandardFormatFlow() {
+    Flow convertToStandardFormatFlow() {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
-                .start(readControlFilesFlow())
+                .start(initClinicalJobContextStep()) //initializes clinical job context
+                .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
+                //.next(gatherPatientsStep())
                 .build()
     }
 
+    @Bean
+    Step gatherPatientsStep() {
+        //discover which variables are necessary in the 1st pass
+        //read the patient id and other variables
+        //write the patient id and variables in some temporary structure
+        null
+    }
 
     @Bean
     Step readColumnMappingsStep() {
         steps.get('readColumnMappingsStep')
-                .tasklet(new ReadFileTasklet(pathParameter: JobParameters.COLUMN_MAP_FILE, reader: ColumnMapping.READER))
+                .tasklet(new ReadColumnMapTasklet())
                 .build()
     }
 
     @Bean
     Step readWordMappingsStep() {
         steps.get('readWordMappingsStep')
-                .tasklet(new ReadFileTasklet(pathParameter: JobParameters.WORD_MAP_FILE, reader: WordMapping.READER))
+                .tasklet(new ReadWordMapTasklet())
                 .build()
     }
 
@@ -76,14 +81,10 @@ class JobConfiguration {
     }
 
     @Bean
-    Step dummyStep() {
-        Tasklet tasklet = new Tasklet() {
-            @Override
-            RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                return RepeatStatus.FINISHED
-            }
-        }
-        steps.get('dummyStep').tasklet(tasklet).build()
+    Step initClinicalJobContextStep() {
+        steps.get('initClinicalJobContextStep')
+                .tasklet(new InitClinicalJobContextTasklet())
+                .build()
     }
 
 }
