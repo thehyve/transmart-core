@@ -64,8 +64,9 @@ class GwasWebController {
 					case 2: type = "EQTL"; break;
 					case 3: type = "Metabolic GWAS"; break;
 				}
-				
+
 				def sessionUserMap = servletContext['gwasSessionUserMap']
+
 				if (sessionUserMap.get(cUser)!=null) { // fetch user info existing session id
 					cUser = sessionUserMap[cUser]
 				}
