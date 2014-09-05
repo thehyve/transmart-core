@@ -81,9 +81,9 @@ class GwasWebService {
 		WHERE baa.bio_assay_data_type = ?
 	"""
     //added additional query to pull gene strand information from the annotation.
-    def final getGeneStrand = """
-		select STRAND from DEAPP.de_gene_info where gene_source_id=1 and entrez_id=?
-	"""
+    def final getGeneStrand = '''
+		select "STRAND" from DEAPP.de_gene_info where "GENE_SOURCE_ID"=1 and "ENTREZ_ID"=?
+	'''
 
     def final getRecombinationRatesForGeneQuery = """
         select position,rate
