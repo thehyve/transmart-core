@@ -31,10 +31,12 @@ class GwasWebService {
     boolean transactional = true
 
     def dataSource
+
     def grailsApplication
     
     //This will be used as the column delimiter in the method to write the data file below.
     private String valueDelimiter ="\t";
+
 
     def final geneLimitsSqlQueryByKeyword = """
 	
@@ -245,53 +247,54 @@ class GwasWebService {
             con?.close();
         }
     }
-    
-    def getSecureModelInfo(String type,String user) {
-	def query = modelInfoSqlQuery;
+	
+	def getSecureModelInfo(String type,String user) {
+		def query = modelInfoSqlQuery;
 
-	//Create objects we use to form JDBC connection.
-	def con, stmt, rs = null;
+		//Create objects we use to form JDBC connection.
+		def con, stmt, rs = null;
 
-	//Grab the connection from the grails object.
-	con = dataSource.getConnection()
+		//Grab the connection from the grails object.
+		con = dataSource.getConnection()
 
-	//Prepare the SQL statement.
-	stmt = con.prepareStatement(query);
-	stmt.setString(1, type)
+		//Prepare the SQL statement.
+		stmt = con.prepareStatement(query);
+		stmt.setString(1, type)
 
-	rs = stmt.executeQuery();
+		rs = stmt.executeQuery();
 
-	def results = []
+		def results = []
 
-	try{
-		while(rs.next()){
-			def id = new BigInteger(rs.getString("ID"));
-			def modelName = rs.getString("MODELNAME");
-			def analysisName = rs.getString("ANALYSISNAME");
-			def studyName = rs.getString("STUDYNAME");
-			//def studyId= new BigInteger(rs.getString("study_id"));
+		try{
+			while(rs.next()){
+				def id = new BigInteger(rs.getString("ID"));
+				def modelName = rs.getString("MODELNAME");
+				def analysisName = rs.getString("ANALYSISNAME");
+				def studyName = rs.getString("STUDYNAME");
+				//def studyId= new BigInteger(rs.getString("study_id"));
 				
 
 			
-			if (checkSecureStudyAccess(user.toLowerCase(), studyName))
-			{
-				results.push([
-					id,
-					modelName,
-					analysisName,
-					studyName
-				])
+				if (checkSecureStudyAccess(user.toLowerCase(), studyName))
+				{
+					results.push([
+						id,
+						modelName,
+						analysisName,
+						studyName
+					])
+				}
 			}
+			return results;
+		}finally{
+			rs?.close();
+			stmt?.close();
+			con?.close();
 		}
-		return results;
-	}finally{
-		rs?.close();
-		stmt?.close();
-		con?.close();
 	}
-    }
+	
+	def checkSecureStudyAccess(user, accession)
 
-    	def checkSecureStudyAccess(user, accession)
 	{
 		log.debug("checking security for the user: "+user)
 		def secObjs=getExperimentSecureStudyList()
