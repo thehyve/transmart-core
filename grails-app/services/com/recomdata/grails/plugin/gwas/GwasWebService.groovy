@@ -60,7 +60,7 @@ class GwasWebService {
 
 		SELECT BIO_MARKER_ID, max(snpinfo.pos) as high, min(snpinfo.pos) as low, min(snpinfo.chrom) as chrom from deapp.de_snp_gene_map gmap
 		INNER JOIN DEAPP.DE_RC_SNP_INFO snpinfo ON gmap.snp_name = snpinfo.rs_id
-	    INNER JOIN BIO_MARKER bm ON TO_CHAR(gmap.entrez_gene_id) = bm.PRIMARY_EXTERNAL_ID AND bm.PRIMARY_SOURCE_CODE = 'Entrez'
+	    INNER JOIN BIO_MARKER bm ON CAST(gmap.entrez_gene_id as varchar(200)) = bm.PRIMARY_EXTERNAL_ID AND bm.PRIMARY_SOURCE_CODE = 'Entrez'
 		WHERE gmap.entrez_gene_id = ? AND snpinfo.hg_version = ?
 	    GROUP BY BIO_MARKER_ID
 	
