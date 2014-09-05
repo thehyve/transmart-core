@@ -69,7 +69,7 @@ class GwasWebService {
     def final genePositionSqlQuery = """
 		SELECT DISTINCT BIO_MARKER_ID, ENTREZ_GENE_ID, BIO_MARKER_NAME, BIO_MARKER_DESCRIPTION FROM deapp.de_snp_gene_map gmap
 		INNER JOIN DEAPP.DE_RC_SNP_INFO snpinfo ON gmap.snp_name = snpinfo.rs_id
-		INNER JOIN BIO_MARKER bm ON bm.primary_external_id = to_char(gmap.entrez_gene_id)
+		INNER JOIN BIO_MARKER bm ON bm.primary_external_id = CAST(gmap.entrez_gene_id as varchar(200))
 		WHERE chrom = ? AND pos >= ? AND pos <= ? AND HG_VERSION = ?
 	"""
     // changed study_name to accession because GWAVA needs short name.
