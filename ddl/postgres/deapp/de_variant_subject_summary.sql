@@ -44,6 +44,11 @@ ALTER TABLE ONLY de_variant_subject_summary
     ADD CONSTRAINT variant_subject_summary_id PRIMARY KEY (variant_subject_summary_id);
 
 --
+-- Name: gen_variant_subj_summ_chr_pos; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX gen_variant_subj_summ_chr_pos ON de_variant_subject_summary USING btree (chr, pos);
+
+--
 -- Name: variant_subject_summary_uk; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE UNIQUE INDEX variant_subject_summary_uk ON de_variant_subject_summary USING btree (dataset_id, chr, pos, rs_id, subject_id);
