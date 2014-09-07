@@ -53,7 +53,7 @@
              
                 <div id="results_${analysisId}">
                     <div class='vis-toolBar' >  
-                     <g:if test="${canExport==true}">
+                     <%-- <g:if test="${canExport==true}"> --%>
                         <div id="btnResultsExport_${analysisId}" class='vis-toolbar-item'><a href="${createLink([plugin: 'transmart-gwas', controller:'gwasSearch', action:'getAnalysisResults', params:[export: true, analysisId: analysisId]])}"><img alt="" src="${resource(dir:'images',file:'internal-link.gif')}" /> Export as CSV</a></div>
                         <div id="resultsExportOpts_${analysisId}" class='menuOptList' style="display:none;">
                             <ul>
@@ -61,7 +61,7 @@
                                 <li onclick="exportResultsData('${analysisId}','image');">Export image (.png)</li>
                             </ul>
                         </div>
-    				</g:if>
+    				<%-- </g:if> --%>
                         <div id ="analysis_results_${analysisId}" class="heatmap_analysis">
                             <div id="analysis_results_table_${analysisId}_wrapper" class="dataTables_wrapper" role="grid">&nbsp;
                             </div>
