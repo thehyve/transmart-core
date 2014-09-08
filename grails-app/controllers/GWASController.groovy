@@ -634,7 +634,7 @@ class GWASController {
         String solrScheme = grailsApplication.config.com.rwg.solr.scheme
         String solrHost = grailsApplication.config.com.rwg.solr.host
         String solrPath = grailsApplication.config.com.rwg.solr.path
-        log.debug("SOLR " + solrScheme + solrHost + solrPath);
+        log.info("SOLR " + solrScheme + solrHost + solrPath);
         String solrRequestUrl = new URI(solrScheme, solrHost, solrPath, "", "").toURL()
 
         return solrRequestUrl
@@ -938,6 +938,7 @@ class GWASController {
     def searchAutoComplete = {
         def category = params.category == null ? "ALL" : params.category
         def max = params.long('max') ?: 15
+        log.info "searchKeywordService.findSearchKeywords: ${category} ${params.term}"
         render searchKeywordService.findSearchKeywords(category, params.term, max) as JSON
     }
 
