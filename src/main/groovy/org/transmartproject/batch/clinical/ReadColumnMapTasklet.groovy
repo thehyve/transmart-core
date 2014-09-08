@@ -12,7 +12,6 @@ import org.transmartproject.batch.support.Keys
  *
  */
 class ReadColumnMapTasklet implements Tasklet {
-//        extends ReadFileTasklet<ColumnMapping> {
 
     @Autowired
     ClinicalJobContext jobContext
@@ -29,7 +28,8 @@ class ReadColumnMapTasklet implements Tasklet {
         ColumnMapping.validateDataFiles(dataFiles)
         //cjc.dataFileColumnsMap = dataFiles.collectEntries { [(it): null] }  //set the data files (no columns yet)
         println("read $list")
-        jobContext.columnMappings = list
+        jobContext.variables.clear()
+        jobContext.variables.addAll(list)
         return RepeatStatus.FINISHED
     }
 

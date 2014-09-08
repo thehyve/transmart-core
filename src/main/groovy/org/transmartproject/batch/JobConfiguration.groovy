@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.transmartproject.batch.clinical.InitClinicalJobContextTasklet
 import org.transmartproject.batch.clinical.ReadColumnMapTasklet
 import org.transmartproject.batch.clinical.ReadWordMapTasklet
 
@@ -28,6 +27,7 @@ class JobConfiguration {
     private JobBuilderFactory jobs
 
     @Autowired
+
     private StepBuilderFactory steps
 
     @Bean
@@ -51,15 +51,8 @@ class JobConfiguration {
     @Bean
     Flow convertToStandardFormatFlow() {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
-                .start(initClinicalJobContextStep()) //initializes clinical job context
                 .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
-                .build()
-    }
-
-    @Bean
-    Step initClinicalJobContextStep() {
-        steps.get('initClinicalJobContextStep')
-                .tasklet(initClinicalJobContextTasklet())
+                //@todo add real data reading steps here
                 .build()
     }
 
@@ -100,11 +93,6 @@ class JobConfiguration {
     @Bean
     Tasklet readColumnMapTasklet() {
         new ReadColumnMapTasklet()
-    }
-
-    @Bean
-    Tasklet initClinicalJobContextTasklet() {
-        new InitClinicalJobContextTasklet()
     }
 
 /*

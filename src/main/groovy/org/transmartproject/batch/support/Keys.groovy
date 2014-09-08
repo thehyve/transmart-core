@@ -13,6 +13,7 @@ class Keys {
     static final String DATA_LOCATION = 'dataLocation'
 
     //static final String CLINICAL_JOB_CONTEXT = ClinicalJobContext.class.name
-
+    static final String VARIABLES = 'variables'
+    static final String WORD_MAPPINGS = 'wordMappings'
 
 }

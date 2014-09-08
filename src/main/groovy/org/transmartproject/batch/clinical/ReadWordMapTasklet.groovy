@@ -12,7 +12,6 @@ import org.transmartproject.batch.support.Keys
  *
  */
 class ReadWordMapTasklet implements Tasklet {
-        //extends ReadFileTasklet<WordMapping> {
 
     @Autowired
     ClinicalJobContext jobContext
@@ -35,7 +34,8 @@ class ReadWordMapTasklet implements Tasklet {
             list = []
         }
 
-        jobContext.wordMappings = list
+        jobContext.wordMappings.clear()
+        jobContext.wordMappings.addAll(list)
         //jobContext.wordMappingsPerFile = WordMapping.getMappings(result)
 
         return RepeatStatus.FINISHED
