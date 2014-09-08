@@ -7,6 +7,12 @@ import org.transmartproject.batch.support.MappingHelper
 @ToString
 class Variable implements Serializable {
 
+    static final String SUBJ_ID = 'SUBJ_ID'
+    static final String SITE_ID = 'SITE_ID'
+    static final String VISIT_NAME = 'VISIT_NAME'
+
+    static final List<String> RESERVED = [ SUBJ_ID, SITE_ID, VISIT_NAME ]
+
     String filename
 
     String categoryCode
@@ -49,5 +55,6 @@ class Variable implements Serializable {
     static Set<File> getDataFiles(File folder, List<Variable> list) {
         list.collect { it.filename }.toSet().collect { new File(folder, it) }
     }
+
 
 }

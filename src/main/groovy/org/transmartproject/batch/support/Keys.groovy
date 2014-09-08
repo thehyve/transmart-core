@@ -7,6 +7,7 @@ import org.transmartproject.batch.clinical.ClinicalJobContext
  */
 class Keys {
 
+    static final String STUDY_ID = 'studyId'
     static final String COLUMN_MAP_FILE = 'columnMapPath'
     static final String WORD_MAP_FILE = 'wordMapPath'
     static final String RECORD_EXCLUSION_FILE = 'recordExclusionPath'
