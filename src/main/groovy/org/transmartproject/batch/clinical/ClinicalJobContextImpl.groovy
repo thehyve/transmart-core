@@ -5,7 +5,7 @@ import org.springframework.batch.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.model.ColumnMapping
+import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.model.WordMapping
 import org.transmartproject.batch.support.Keys
 
@@ -29,7 +29,7 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
         JobSynchronizationManager.context.jobExecution.executionContext
     }
 
-    List<ColumnMapping> getVariables() {
+    List<Variable> getVariables() {
         jobExecutionContext.get(Keys.VARIABLES)
     }
 

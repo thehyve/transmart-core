@@ -1,14 +1,12 @@
 package org.transmartproject.batch.model
 
-import org.codehaus.groovy.runtime.DefaultGroovyMethods
-import org.codehaus.groovy.runtime.StringGroovyMethods
 import org.junit.Assert
 import org.junit.Test
 
 /**
  *
  */
-class ColumnMappingTest {
+class VariableTest {
 
     def filename = 'E-GEOD-8581.sdrf-rewrite.txt'
     def category = 'Subjects'
@@ -19,7 +17,7 @@ class ColumnMappingTest {
     void testParseCompleteLine() {
 
         String line = "$filename\t$category\t$column\t$dataLabel"
-        ColumnMapping map = ColumnMapping.forLine(line)
+        Variable map = Variable.forLine(line)
 
         assertCommonFields(map)
     }
@@ -28,12 +26,12 @@ class ColumnMappingTest {
     void testParseIncompleteLine() {
 
         String line = "$filename\t$category\t$column\t$dataLabel"
-        ColumnMapping map = ColumnMapping.forLine(line)
+        Variable map = Variable.forLine(line)
 
         assertCommonFields(map)
     }
 
-    private void assertCommonFields(ColumnMapping map) {
+    private void assertCommonFields(Variable map) {
         Assert.assertEquals(filename, map.filename)
         Assert.assertEquals(category, map.categoryCode)
         Assert.assertEquals(column, map.columnNumber)
@@ -43,7 +41,7 @@ class ColumnMappingTest {
     @Test
     void testParseStream() {
         InputStream input = new FileInputStream('src/test/resources/clinical/E-GEOD-8581_columns.txt')
-        List<ColumnMapping> list = ColumnMapping.parse(input)
+        List<Variable> list = Variable.parse(input)
 
         Assert.assertEquals(10, list.size())
         assertCommonFields(list[0])

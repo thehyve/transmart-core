@@ -5,7 +5,7 @@ import groovy.transform.ToString
 import org.transmartproject.batch.support.MappingHelper
 
 @ToString
-class ColumnMapping implements Serializable {
+class Variable implements Serializable {
 
     String filename
 
@@ -20,17 +20,17 @@ class ColumnMapping implements Serializable {
     //but some files dont, so we use position (not names) to identify columns
     private static fields = ['filename','categoryCode','columnNumber','dataLabel']
 
-    static List<ColumnMapping> parse(InputStream input) {
-        MappingHelper.parseObjects(input, ColumnMapping, fields)
+    static List<Variable> parse(InputStream input) {
+        MappingHelper.parseObjects(input, Variable, fields)
     }
 
-    static ColumnMapping forLine(String line) {
-        MappingHelper.parseObject(line, ColumnMapping, fields)
+    static Variable forLine(String line) {
+        MappingHelper.parseObject(line, Variable, fields)
     }
 
-    static Function<File, List<ColumnMapping>> READER = new Function<File, List<ColumnMapping>>() {
+    static Function<File, List<Variable>> READER = new Function<File, List<Variable>>() {
         @Override
-        List<ColumnMapping> apply(File input) {
+        List<Variable> apply(File input) {
             parse(input.newInputStream())
         }
     }
@@ -46,7 +46,7 @@ class ColumnMapping implements Serializable {
         }
     }
 
-    static Set<File> getDataFiles(File folder, List<ColumnMapping> list) {
+    static Set<File> getDataFiles(File folder, List<Variable> list) {
         list.collect { it.filename }.toSet().collect { new File(folder, it) }
     }
 

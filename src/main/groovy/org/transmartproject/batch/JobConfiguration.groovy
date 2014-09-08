@@ -15,8 +15,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.transmartproject.batch.clinical.ReadColumnMapTasklet
+import org.transmartproject.batch.clinical.ReadVariablesTasklet
 import org.transmartproject.batch.clinical.ReadWordMapTasklet
+import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 
 @Configuration
 @Import(TransmartAppConfig.class)
@@ -25,6 +26,7 @@ class JobConfiguration {
 
     @Autowired
     private JobBuilderFactory jobs
+
 
     @Autowired
 
@@ -58,19 +60,19 @@ class JobConfiguration {
 
     @Bean
     Flow readControlFilesFlow() {
+
         new FlowBuilder<SimpleFlow>('readControlFilesFlow')
                 .start(readColumnMappingsStep())
-                //forks execution: cannot use this because job's ExecutionContext is ThreadLocal
-                //.split(new SimpleAsyncTaskExecutor())
-                //.add(wrap(readWordMappingsStep()))
-                .next(readWordMappingsStep())
+                //forks execution
+                .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
+                .add(wrap(readWordMappingsStep()))
                 .end()
     }
 
     @Bean
     Step readColumnMappingsStep() {
-        steps.get('readColumnMappingsStep')
-                .tasklet(readColumnMapTasklet())
+        steps.get('readVariablesStep')
+                .tasklet(readVariablesTasklet())
                 .build()
     }
 
@@ -91,8 +93,8 @@ class JobConfiguration {
     }
 
     @Bean
-    Tasklet readColumnMapTasklet() {
-        new ReadColumnMapTasklet()
+    Tasklet readVariablesTasklet() {
+        new ReadVariablesTasklet()
     }
 
 /*
