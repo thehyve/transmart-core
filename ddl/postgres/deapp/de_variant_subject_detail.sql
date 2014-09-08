@@ -43,6 +43,11 @@ CREATE INDEX de_variant_sub_detail_idx2 ON de_variant_subject_detail USING btree
 CREATE INDEX de_variant_sub_dt_idx1 ON de_variant_subject_detail USING btree (dataset_id, rs_id);
 
 --
+-- Name: gen_variant_subj_det_chr_pos; Type: INDEX; Schema: deapp; Owner: -
+--
+CREATE INDEX gen_variant_subj_det_chr_pos ON de_variant_subject_detail USING btree (chr, pos);
+
+--
 -- Name: variant_subject_detail_uk; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE UNIQUE INDEX variant_subject_detail_uk ON de_variant_subject_detail USING btree (dataset_id, chr, pos, rs_id);
