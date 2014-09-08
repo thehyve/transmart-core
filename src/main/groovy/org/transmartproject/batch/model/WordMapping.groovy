@@ -1,6 +1,7 @@
 package org.transmartproject.batch.model
 
 import com.google.common.base.Function
+import org.transmartproject.batch.support.MappingHelper
 
 /**
  *

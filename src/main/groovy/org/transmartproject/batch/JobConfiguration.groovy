@@ -7,15 +7,17 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.scope.JobScope
+import org.springframework.batch.core.scope.StepScope
+import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.core.task.SimpleAsyncTaskExecutor
-import org.transmartproject.batch.tasklet.InitClinicalJobContextTasklet
-import org.transmartproject.batch.tasklet.ReadColumnMapTasklet
-import org.transmartproject.batch.tasklet.ReadWordMapTasklet
+import org.transmartproject.batch.clinical.InitClinicalJobContextTasklet
+import org.transmartproject.batch.clinical.ReadColumnMapTasklet
+import org.transmartproject.batch.clinical.ReadWordMapTasklet
 
 @Configuration
 @Import(TransmartAppConfig.class)
@@ -29,47 +31,13 @@ class JobConfiguration {
     private StepBuilderFactory steps
 
     @Bean
-    Flow readControlFilesFlow() {
-        new FlowBuilder<SimpleFlow>('readControlFilesFlow')
-                .start(readColumnMappingsStep())
-                .split(new SimpleAsyncTaskExecutor()) //forks execution
-                .add(wrap(readWordMappingsStep()))
-                .end()
-    }
-
-    private Flow wrap(Step step) {
-        new FlowBuilder<SimpleFlow>().start(step).build()
+    static StepScope stepScope() {
+        new StepScope()
     }
 
     @Bean
-    Flow convertToStandardFormatFlow() {
-        new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
-                .start(initClinicalJobContextStep()) //initializes clinical job context
-                .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
-                //.next(gatherPatientsStep())
-                .build()
-    }
-
-    @Bean
-    Step gatherPatientsStep() {
-        //discover which variables are necessary in the 1st pass
-        //read the patient id and other variables
-        //write the patient id and variables in some temporary structure
-        null
-    }
-
-    @Bean
-    Step readColumnMappingsStep() {
-        steps.get('readColumnMappingsStep')
-                .tasklet(new ReadColumnMapTasklet())
-                .build()
-    }
-
-    @Bean
-    Step readWordMappingsStep() {
-        steps.get('readWordMappingsStep')
-                .tasklet(new ReadWordMapTasklet())
-                .build()
+    static JobScope jobScope() {
+        new JobScope()
     }
 
     @Bean
@@ -81,10 +49,74 @@ class JobConfiguration {
     }
 
     @Bean
-    Step initClinicalJobContextStep() {
-        steps.get('initClinicalJobContextStep')
-                .tasklet(new InitClinicalJobContextTasklet())
+    Flow convertToStandardFormatFlow() {
+        new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
+                .start(initClinicalJobContextStep()) //initializes clinical job context
+                .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .build()
     }
+
+    @Bean
+    Step initClinicalJobContextStep() {
+        steps.get('initClinicalJobContextStep')
+                .tasklet(initClinicalJobContextTasklet())
+                .build()
+    }
+
+    @Bean
+    Flow readControlFilesFlow() {
+        new FlowBuilder<SimpleFlow>('readControlFilesFlow')
+                .start(readColumnMappingsStep())
+                //forks execution: cannot use this because job's ExecutionContext is ThreadLocal
+                //.split(new SimpleAsyncTaskExecutor())
+                //.add(wrap(readWordMappingsStep()))
+                .next(readWordMappingsStep())
+                .end()
+    }
+
+    @Bean
+    Step readColumnMappingsStep() {
+        steps.get('readColumnMappingsStep')
+                .tasklet(readColumnMapTasklet())
+                .build()
+    }
+
+    @Bean
+    Step readWordMappingsStep() {
+        steps.get('readWordMappingsStep')
+                .tasklet(readWordMapTasklet())
+                .build()
+    }
+
+    private Flow wrap(Step step) {
+        new FlowBuilder<SimpleFlow>().start(step).build()
+    }
+
+    @Bean
+    Tasklet readWordMapTasklet() {
+        new ReadWordMapTasklet()
+    }
+
+    @Bean
+    Tasklet readColumnMapTasklet() {
+        new ReadColumnMapTasklet()
+    }
+
+    @Bean
+    Tasklet initClinicalJobContextTasklet() {
+        new InitClinicalJobContextTasklet()
+    }
+
+/*
+    @Bean
+    Step readClinicalDataStep() {
+        FlatFileItemReader<Row> reader = new FlatFileItemReader<Row>()
+
+        steps.get('readClinicalData')
+                .chunk(10)
+                .reader(reader)
+                .build()
+    }
+*/
 
 }

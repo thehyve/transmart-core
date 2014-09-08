@@ -1,6 +1,6 @@
-package org.transmartproject.batch
+package org.transmartproject.batch.support
 
-import org.transmartproject.batch.model.ClinicalJobContext
+import org.transmartproject.batch.clinical.ClinicalJobContext
 
 /**
  * Constaints for job parameters
@@ -12,7 +12,7 @@ class Keys {
     static final String RECORD_EXCLUSION_FILE = 'recordExclusionPath'
     static final String DATA_LOCATION = 'dataLocation'
 
-    static final String CLINICAL_JOB_CONTEXT = ClinicalJobContext.class.name
+    //static final String CLINICAL_JOB_CONTEXT = ClinicalJobContext.class.name
 
 
 }

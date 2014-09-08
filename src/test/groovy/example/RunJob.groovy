@@ -1,6 +1,6 @@
 package example
 
-import org.transmartproject.batch.Keys
+import org.transmartproject.batch.support.Keys
 
 /**
  *
@@ -31,7 +31,6 @@ class RunJob {
         List<String> list = [jobPath, jobId]
         args.each { list.add("$it.key=$it.value") }
         org.springframework.batch.core.launch.support.CommandLineJobRunner.main(list as String[])
-
     }
 
 }

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.model
+package org.transmartproject.batch.support
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import org.codehaus.groovy.runtime.StringGroovyMethods

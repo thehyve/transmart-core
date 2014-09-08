@@ -4,5 +4,6 @@ appender("stdout", ConsoleAppender) {
   }
 }
 logger("org.springframework.batch", INFO)
+//logger("org.springframework", INFO)
 logger("example", INFO)
 root(WARN, ["stdout"])
