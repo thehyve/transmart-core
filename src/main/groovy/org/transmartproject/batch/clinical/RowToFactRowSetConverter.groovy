@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct
 /**
  *
  */
-class FactToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
+class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
     @Autowired
     ClinicalJobContext jobContext

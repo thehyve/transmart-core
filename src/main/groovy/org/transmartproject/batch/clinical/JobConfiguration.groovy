@@ -1,45 +1,42 @@
-package org.transmartproject.batch
+package org.transmartproject.batch.clinical
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.scope.JobScope
-import org.springframework.batch.core.scope.StepScope
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.batch.item.ItemReader
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
-import org.transmartproject.batch.clinical.ReadVariablesTasklet
-import org.transmartproject.batch.clinical.ReadWordMapTasklet
+import org.springframework.context.annotation.Scope
+import org.springframework.jdbc.core.JdbcTemplate
+import org.transmartproject.batch.AbstractJobConfiguration
+import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
+import org.transmartproject.batch.tasklet.DeleteTableTasklet
+
+import javax.annotation.PostConstruct
 
 @Configuration
-@Import(TransmartAppConfig.class)
-@ComponentScan("org.transmartproject.batch")
-class JobConfiguration {
-
-    @Autowired
-    private JobBuilderFactory jobs
-
-
-    @Autowired
-
-    private StepBuilderFactory steps
+//@Import(TransmartAppConfig.class)
+//@ComponentScan("org.transmartproject.batch")
+class JobConfiguration extends AbstractJobConfiguration {
 
     @Bean
-    static StepScope stepScope() {
-        new StepScope()
+    static org.springframework.batch.core.scope.StepScope stepScope() {
+        new org.springframework.batch.core.scope.StepScope()
     }
 
     @Bean
     static JobScope jobScope() {
         new JobScope()
+    }
+
+    @Bean
+    JdbcTemplate jdbcTemplate() {
+        new JdbcTemplate(getTransmartDataSource())
     }
 
     @Bean
@@ -65,39 +62,50 @@ class JobConfiguration {
                 .start(readColumnMappingsStep())
                 //forks execution
                 .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
-                .add(wrap(readWordMappingsStep()))
+                .add(flowOf(readWordMappingsStep()), flowOf(deleteInputTableStep()))
                 .end()
     }
 
     @Bean
     Step readColumnMappingsStep() {
-        steps.get('readVariablesStep')
-                .tasklet(readVariablesTasklet())
-                .build()
+        stepOf(this.&readVariablesTasklet)
     }
 
     @Bean
     Step readWordMappingsStep() {
-        steps.get('readWordMappingsStep')
-                .tasklet(readWordMapTasklet())
-                .build()
-    }
-
-    private Flow wrap(Step step) {
-        new FlowBuilder<SimpleFlow>().start(step).build()
+        stepOf(this.&readWordMapTasklet)
     }
 
     @Bean
+    Step deleteInputTableStep() {
+        stepOf(this.&deleteInputTableTasklet)
+    }
+
+    @Bean
+    @Scope('job')
     Tasklet readWordMapTasklet() {
         new ReadWordMapTasklet()
     }
 
     @Bean
+    @Scope('job')
     Tasklet readVariablesTasklet() {
         new ReadVariablesTasklet()
     }
 
+    @Bean
+    Tasklet deleteInputTableTasklet() {
+        new DeleteTableTasklet(table: 'tm_lz.lt_src_clinical_data')
+    }
+
+    @Bean
+    @Scope('step')
+    ItemReader<Row> dataRowReader() {
+        new DataRowReader()
+    }
+
 /*
+
     @Bean
     Step readClinicalDataStep() {
         FlatFileItemReader<Row> reader = new FlatFileItemReader<Row>()
@@ -108,5 +116,18 @@ class JobConfiguration {
                 .build()
     }
 */
+
+    @PostConstruct
+    void postConstruct() {
+
+        /*
+            Connection con = transmartDataSource.connection
+            try {
+                println con
+            } finally {
+                con.close()
+            }
+        */
+    }
 
 }

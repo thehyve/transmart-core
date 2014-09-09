@@ -37,8 +37,8 @@ class MappingHelper {
     }
 
     private static Map asPropertyMap(String line, List<String> props) {
-        String[] parts = line.split('\t')
-        int valueCount = Math.min(parts.length, props.size()) //we want to discard, yet allow extra columns
+        List<String> parts = parseValues(line)
+        int valueCount = Math.min(parts.size(), props.size()) //we want to discard, yet allow extra columns
         Map result = [:]
         for (int i=0; i<valueCount; i++) {
             result.put(props[i], parts[i]);
@@ -50,15 +50,22 @@ class MappingHelper {
         asType(asPropertyMap(line, props), clazz)
     }
 
-    static <T> List<T> parseObjects(InputStream input, Class<T> clazz, List<String> props) {
+    static <T> List<T> parseObjects(InputStream input, Class<T> clazz, List<String> props, LineListener listener) {
 
         List<T> result = []
         input.eachLine { line, idx ->
             if (idx > 1) {
                 result.add(parseObject(line, clazz, props))
+                if (listener) {
+                    listener.lineRead(line)
+                }
             }
         }
         return result
+    }
+
+    static List<String> parseValues(String line) {
+        line.split('\t').toList()
     }
 
 }

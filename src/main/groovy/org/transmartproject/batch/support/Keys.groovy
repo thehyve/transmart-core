@@ -1,19 +1,18 @@
 package org.transmartproject.batch.support
 
-import org.transmartproject.batch.clinical.ClinicalJobContext
-
 /**
  * Constaints for job parameters
  */
 class Keys {
 
+    //parameters
     static final String STUDY_ID = 'studyId'
-    static final String COLUMN_MAP_FILE = 'columnMapPath'
-    static final String WORD_MAP_FILE = 'wordMapPath'
-    static final String RECORD_EXCLUSION_FILE = 'recordExclusionPath'
+    static final String COLUMN_MAP_FILE = 'columnMapFile'
+    static final String WORD_MAP_FILE = 'wordMapFile'
     static final String DATA_LOCATION = 'dataLocation'
+    //static final String RECORD_EXCLUSION_FILE = 'recordExclusionPath'
 
-    //static final String CLINICAL_JOB_CONTEXT = ClinicalJobContext.class.name
+    //context
     static final String VARIABLES = 'variables'
     static final String WORD_MAPPINGS = 'wordMappings'
 

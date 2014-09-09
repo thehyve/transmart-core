@@ -2,6 +2,7 @@ package org.transmartproject.batch.model
 
 import com.google.common.base.Function
 import groovy.transform.ToString
+import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
 
 @ToString
@@ -26,19 +27,12 @@ class Variable implements Serializable {
     //but some files dont, so we use position (not names) to identify columns
     private static fields = ['filename','categoryCode','columnNumber','dataLabel']
 
-    static List<Variable> parse(InputStream input) {
-        MappingHelper.parseObjects(input, Variable, fields)
+    static List<Variable> parse(InputStream input, LineListener listener) {
+        MappingHelper.parseObjects(input, Variable, fields, listener)
     }
 
     static Variable forLine(String line) {
         MappingHelper.parseObject(line, Variable, fields)
-    }
-
-    static Function<File, List<Variable>> READER = new Function<File, List<Variable>>() {
-        @Override
-        List<Variable> apply(File input) {
-            parse(input.newInputStream())
-        }
     }
 
     static void validateDataFiles(Set<File> list) {
