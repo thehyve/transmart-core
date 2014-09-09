@@ -34,6 +34,12 @@ acgh.frequency.plot <- function
       data.info[, paste('loss.freq.', group, sep='')] <- rowSums(group.calls < 0) / ncol(group.calls)
   }
 
+  # Replace chromosome X with number 23 to get only integer column values
+  data.info$chromosome[data.info$chromosome=='X'] <- 23
+  data.info$chromosome <- as.integer(data.info$chromosome)
+  # Order by chromosome and start bp to ensure correct chromosome labels in frequency plots
+  data.info <- data.info[with(data.info,order(chromosome,start)),]
+
   # Helper function to create frequency-plot for 1 group
   FreqPlot <- function(data, group, main = 'Frequency Plot',...) 
   {
@@ -44,6 +50,12 @@ acgh.frequency.plot <- function
     chromosomes <- data$chromosome
     a.freq <- data[,paste('gain', '.freq.', group, sep='')]
     b.freq <- data[,paste('loss', '.freq.', group, sep='')]
+
+    if ('num.probes' %in% colnames(data) & !any(is.na(data$num.probes))) {
+      chromosomes <- rep(chromosomes, data$num.probes)
+      a.freq <- rep(a.freq, data$num.probes)
+      b.freq <- rep(b.freq, data$num.probes)
+    }
 
     plot(a.freq, ylim=c(-1,1), type='h', col=cols['gain'], xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
     points(-b.freq, type='h', col=cols['loss'])
