@@ -17,6 +17,14 @@ def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transm
 com.recomdata.FmFolderService.filestoreDirectory = fileStoreDirectory.absolutePath
 com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath
 
+com.recomdata.rwg.webstart.codebase = 'http://75.124.74.46:5880/gwava'
+com.recomdata.rwg.webstart.jar = './ManhattanViz2.1g.jar'
+com.recomdata.rwg.webstart.mainClass = 'com.pfizer.mrbt.genomics.Driver'
+com.recomdata.rwg.webstart.gwavaInstance='transmartstg'
+com.recomdata.rwg.webstart.transmart.url='http://75.124.74.46:5880/transmart'
+
+
+
 [fileStoreDirectory, fileImportDirectory].each {
     if (!it.exists()) {
         it.mkdir()
