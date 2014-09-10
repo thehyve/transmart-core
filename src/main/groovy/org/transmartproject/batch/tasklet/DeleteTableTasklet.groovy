@@ -21,7 +21,7 @@ class DeleteTableTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         String sql = "delete from $table"
         //println "executing $sql"
-        //jdbcTemplate.update(sql)
+        jdbcTemplate.update(sql)
         RepeatStatus.FINISHED
     }
 }

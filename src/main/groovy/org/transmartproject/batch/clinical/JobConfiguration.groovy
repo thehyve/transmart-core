@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
+import org.transmartproject.batch.support.DummyWriter
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.tasklet.DeleteTableTasklet
 
@@ -51,6 +52,7 @@ class JobConfiguration extends AbstractJobConfiguration {
     Flow convertToStandardFormatFlow() {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
                 .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
+                .next(dataProcessingFlow())
                 //@todo add real data reading steps here
                 .build()
     }
@@ -63,6 +65,8 @@ class JobConfiguration extends AbstractJobConfiguration {
                 //forks execution
                 .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
                 .add(flowOf(readWordMappingsStep()), flowOf(deleteInputTableStep()))
+                //.next(readWordMappingsStep())
+                //.next(deleteInputTableStep())
                 .end()
     }
 
@@ -103,6 +107,24 @@ class JobConfiguration extends AbstractJobConfiguration {
     ItemReader<Row> dataRowReader() {
         new DataRowReader()
     }
+
+    @Bean
+    Flow dataProcessingFlow() {
+        new FlowBuilder<SimpleFlow>('dataProcessingFlow')
+            .start(rowProcessingStep())
+            .end()
+    }
+
+    @Bean
+    Step rowProcessingStep() {
+        steps.get('rowProcessingStep')
+            .chunk(1)
+            .reader(dataRowReader())
+            .writer(new DummyWriter())
+            .build()
+    }
+
+
 
 /*
 
