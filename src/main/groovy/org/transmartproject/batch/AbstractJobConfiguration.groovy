@@ -8,10 +8,14 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.ItemProcessor
+import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
+import org.transmartproject.batch.clinical.FactRowSet
+import org.transmartproject.batch.model.Row
 
 import javax.sql.DataSource
 
@@ -43,6 +47,12 @@ abstract class AbstractJobConfiguration {
 
     Flow flowOf(Step step) {
         new FlowBuilder<SimpleFlow>().start(step).build()
+    }
+
+    ItemProcessor compositeOf(ItemProcessor ... processors) {
+        CompositeItemProcessor<Row, FactRowSet> result = new CompositeItemProcessor<Row, FactRowSet>()
+        result.setDelegates(processors.toList())
+        result
     }
 
 }

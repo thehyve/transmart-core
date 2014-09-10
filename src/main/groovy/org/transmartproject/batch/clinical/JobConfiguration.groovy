@@ -59,20 +59,12 @@ class JobConfiguration extends AbstractJobConfiguration {
         steps.get('rowProcessingStep')
                 .chunk(5)
                 .reader(dataRowReader()) //read data
-                .processor(dataProcessor())
+                .processor(compositeOf(
+                    wordReplaceProcessor(), //replace words, if such is configured
+                    rowToFactRowSetConverter(), //converts each Row to a FactRowSet
+                ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
                 .build()
-    }
-
-    @Bean
-    ItemProcessor<Row, FactRowSet> dataProcessor() {
-        List<ItemProcessor> processors = [
-                wordReplaceProcessor(), //replace words, if such is configured
-                rowToFactRowSetConverter(), //converts each Row to a FactRowSet
-        ]
-        CompositeItemProcessor<Row, FactRowSet> result = new CompositeItemProcessor<Row, FactRowSet>()
-        result.setDelegates(processors)
-        result
     }
 
     @Bean
