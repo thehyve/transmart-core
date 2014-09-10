@@ -1,19 +1,17 @@
 package org.transmartproject.batch.clinical
 
-import org.springframework.batch.item.ParseException
-import org.springframework.batch.item.UnexpectedInputException
-import org.springframework.batch.item.file.FlatFileItemReader
-import org.springframework.batch.item.file.LineMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.FileSystemResource
+import org.springframework.core.io.Resource
 import org.transmartproject.batch.model.Row
+import org.transmartproject.batch.reader.GenericRowReader
 import org.transmartproject.batch.support.MappingHelper
 
 /**
  *
  */
-class DataRowReader extends FlatFileItemReader<Row> implements LineMapper<Row> {
+class DataRowReader extends GenericRowReader<Row> {
 
     @Autowired
     ClinicalJobContext jobContext
@@ -21,32 +19,23 @@ class DataRowReader extends FlatFileItemReader<Row> implements LineMapper<Row> {
     @Value("#{jobParameters['dataLocation']}")
     String dataLocation
 
-    private List<File> dataFiles
-    private int currentFileIndex = -1
-    private boolean end = false;
-
-    DataRowReader() {
-        setLineMapper(this)
-    }
-
     @Override
-    Row read() throws Exception, UnexpectedInputException, ParseException {
-
-        if (end) {
-            return null
-        } else if (!dataFiles) {
-            init()
+    List<Resource> getResourcesToProcess() {
+        if (dataLocation == null) {
+            throw new IllegalArgumentException('Data location not defined')
         }
 
-        Row row = super.read()
-        if (!row) {
-            nextFile()
-            if (!end) {
-                row = super.read()
+        //obtains the list of data filenames
+        Set<String> filenames = jobContext.variables.collect { it.filename } as Set
+        List<Resource> resources = []
+        filenames.each {
+            File file = new File(dataLocation, it)
+            if (!file.exists()) {
+                throw new IllegalArgumentException("Data file not found: $file.absolutePath")
             }
+            resources.add(new FileSystemResource(file))
         }
-
-        row
+        resources
     }
 
     @Override
@@ -54,38 +43,11 @@ class DataRowReader extends FlatFileItemReader<Row> implements LineMapper<Row> {
         Row row
         if (line) {
             row = new Row(
-                    filename: getCurrentFilename(),
+                    filename: getCurrentResource().filename,
                     index: lineNumber,
                     values: MappingHelper.parseValues(line)
             )
         }
         row
-    }
-
-    private String getCurrentFilename() {
-        dataFiles[currentFileIndex].name
-    }
-
-    private void nextFile() {
-        currentFileIndex ++
-        end = (currentFileIndex >= dataFiles.size())
-        if (!end) {
-            setResource(new FileSystemResource(dataFiles[currentFileIndex]))
-        }
-    }
-
-    private void init() {
-        if (dataLocation == null) {
-            throw new IllegalArgumentException('Data location not defined')
-        }
-
-        Set<String> dataFilenames = jobContext.variables.collect { it.filename } as Set
-        currentFileIndex = 0
-        dataFiles =  dataFilenames.collect { new File(dataLocation, it) }
-        dataFiles.each {
-            if (!it.exists()) {
-                throw new IllegalArgumentException("Data file not found: $it.absolutePath")
-            }
-        }
     }
 }

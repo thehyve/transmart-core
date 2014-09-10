@@ -28,11 +28,7 @@ class Variable implements Serializable {
     private static fields = ['filename','categoryCode','columnNumber','dataLabel']
 
     static List<Variable> parse(InputStream input, LineListener listener) {
-        MappingHelper.parseObjects(input, Variable, fields, listener)
-    }
-
-    static Variable forLine(String line) {
-        MappingHelper.parseObject(line, Variable, fields)
+        MappingHelper.parseObjects(input, LINE_MAPPER, listener)
     }
 
     static void validateDataFiles(Set<File> list) {
@@ -50,5 +46,13 @@ class Variable implements Serializable {
         list.collect { it.filename }.toSet().collect { new File(folder, it) }
     }
 
+    static Function<String,Variable> LINE_MAPPER = new Function<String, Variable>() {
+        @Override
+        Variable apply(String input) {
+            Variable result = MappingHelper.parseObject(input, Variable.class, fields)
+            result.columnNumber-- //index is now 0 based
+            result
+        }
+    }
 
 }

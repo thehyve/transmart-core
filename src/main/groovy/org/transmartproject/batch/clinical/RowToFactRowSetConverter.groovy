@@ -9,7 +9,7 @@ import org.transmartproject.batch.support.Keys
 import javax.annotation.PostConstruct
 
 /**
- *
+ * Converts Rows into FactRowSets.
  */
 class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
@@ -29,13 +29,14 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @PostConstruct
     void init() {
         this.studyId = jobContext.getJobParameters().get(Keys.STUDY_ID)
-        //@todo init variables per file (make sure post construct is the right moment)
         Map<String,List<Variable>> map = jobContext.variables.groupBy { it.filename }
         this.variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
     }
-
 }
 
+/**
+ * Variables defined for a file
+ */
 class FileVariables {
     Variable subjectIdVariable
     Variable siteIdVariable
@@ -64,17 +65,22 @@ class FileVariables {
         new FileVariables(args)
     }
 
+    /**
+     * @param studyId
+     * @param row
+     * @return FactRowSet for given Row
+     */
     FactRowSet create(String studyId, Row row) {
         Map args = [studyId: studyId]
 
-        args.put('studyId', st)
-        args.put('subjectId': row.values.get(subjectIdVariable.columnNumber))
-        args.put('variableValueMap': otherVariables.collectEntries { [(it): row.values.get(it.columnNumber)] })
+        args.put('studyId', studyId)
+        args.put('subjectId', row.values.get(subjectIdVariable.columnNumber))
+        args.put('variableValueMap',  otherVariables.collectEntries { [(it): row.values.get(it.columnNumber)] })
         if (siteIdVariable) {
-            args.put('siteId': row.values.get(siteIdVariable.columnNumber))
+            args.put('siteId',  row.values.get(siteIdVariable.columnNumber))
         }
         if (visitNameVariable) {
-            args.put('visitName': row.values.get(visitNameVariable.columnNumber))
+            args.put('visitName',  row.values.get(visitNameVariable.columnNumber))
         }
         new FactRowSet(args)
     }

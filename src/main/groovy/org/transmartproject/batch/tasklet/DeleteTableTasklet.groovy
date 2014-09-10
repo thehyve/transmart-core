@@ -1,5 +1,6 @@
 package org.transmartproject.batch.tasklet
 
+import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -22,6 +23,9 @@ class DeleteTableTasklet implements Tasklet {
         String sql = "delete from $table"
         //println "executing $sql"
         jdbcTemplate.update(sql)
+
+        chunkContext.setComplete()
+        contribution.exitStatus = ExitStatus.COMPLETED
         RepeatStatus.FINISHED
     }
 }

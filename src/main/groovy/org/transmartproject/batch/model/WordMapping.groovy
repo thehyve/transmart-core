@@ -5,7 +5,7 @@ import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
 
 /**
- *
+ * Entry of word replacement, for a file/column/originalValue to a target newValue
  */
 class WordMapping implements Serializable {
     String filename
@@ -16,11 +16,16 @@ class WordMapping implements Serializable {
     private static fields = ['filename','column','originalValue','newValue']
 
     static List<WordMapping> parse(InputStream input, LineListener listener) {
-        MappingHelper.parseObjects(input, WordMapping.class, fields, listener)
+        MappingHelper.parseObjects(input, LINE_MAPPER, listener)
     }
 
-    static WordMapping forLine(String line) {
-        MappingHelper.parseObject(line, WordMapping.class, fields)
+    static Function<String,WordMapping> LINE_MAPPER = new Function<String, WordMapping>() {
+        @Override
+        WordMapping apply(String input) {
+            WordMapping result = MappingHelper.parseObject(input, WordMapping.class, fields)
+            result.column-- //index is now 0 based
+            result
+        }
     }
 
 }

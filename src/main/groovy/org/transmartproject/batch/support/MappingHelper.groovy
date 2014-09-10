@@ -1,5 +1,6 @@
 package org.transmartproject.batch.support
 
+import com.google.common.base.Function
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import org.codehaus.groovy.runtime.StringGroovyMethods
 
@@ -50,12 +51,12 @@ class MappingHelper {
         asType(asPropertyMap(line, props), clazz)
     }
 
-    static <T> List<T> parseObjects(InputStream input, Class<T> clazz, List<String> props, LineListener listener) {
+    static <T> List<T> parseObjects(InputStream input, Function<String, T> mapper, LineListener listener) {
 
         List<T> result = []
         input.eachLine { line, idx ->
             if (idx > 1) {
-                result.add(parseObject(line, clazz, props))
+                result.add(mapper.apply(line))
                 if (listener) {
                     listener.lineRead(line)
                 }

@@ -6,7 +6,9 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.scope.JobScope
+import org.springframework.batch.core.scope.StepScope
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,27 +20,8 @@ import org.transmartproject.batch.support.DummyWriter
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.tasklet.DeleteTableTasklet
 
-import javax.annotation.PostConstruct
-
 @Configuration
-//@Import(TransmartAppConfig.class)
-//@ComponentScan("org.transmartproject.batch")
 class JobConfiguration extends AbstractJobConfiguration {
-
-    @Bean
-    static org.springframework.batch.core.scope.StepScope stepScope() {
-        new org.springframework.batch.core.scope.StepScope()
-    }
-
-    @Bean
-    static JobScope jobScope() {
-        new JobScope()
-    }
-
-    @Bean
-    JdbcTemplate jdbcTemplate() {
-        new JdbcTemplate(getTransmartDataSource())
-    }
 
     @Bean
     Job job() {
@@ -51,9 +34,8 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow convertToStandardFormatFlow() {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
-                .next(readControlFilesFlow()) //reads control files (column map, word map, etc..)
+                .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .next(dataProcessingFlow())
-                //@todo add real data reading steps here
                 .build()
     }
 
@@ -68,6 +50,17 @@ class JobConfiguration extends AbstractJobConfiguration {
                 //.next(readWordMappingsStep())
                 //.next(deleteInputTableStep())
                 .end()
+    }
+
+    @Bean
+    Step rowProcessingStep() {
+        steps.get('rowProcessingStep')
+                .chunk(5)
+                .reader(dataRowReader()) //read data
+                .processor(wordReplaceProcessor()) //replace words, if such is configured
+                .processor(rowToFactRowSetConverter()) //converts each Row to a FactRowSet
+                .writer(new DummyWriter()) //writes the FactRowSets
+                .build()
     }
 
     @Bean
@@ -116,40 +109,30 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Step rowProcessingStep() {
-        steps.get('rowProcessingStep')
-            .chunk(1)
-            .reader(dataRowReader())
-            .writer(new DummyWriter())
-            .build()
+    @Scope('step')
+    ItemProcessor<Row,Row> wordReplaceProcessor() {
+        new WordReplaceItemProcessor()
     }
-
-
-
-/*
 
     @Bean
-    Step readClinicalDataStep() {
-        FlatFileItemReader<Row> reader = new FlatFileItemReader<Row>()
-
-        steps.get('readClinicalData')
-                .chunk(10)
-                .reader(reader)
-                .build()
+    @Scope('step')
+    ItemProcessor<Row, FactRowSet> rowToFactRowSetConverter() {
+        new RowToFactRowSetConverter()
     }
-*/
 
-    @PostConstruct
-    void postConstruct() {
+    @Bean
+    static StepScope stepScope() {
+        new StepScope()
+    }
 
-        /*
-            Connection con = transmartDataSource.connection
-            try {
-                println con
-            } finally {
-                con.close()
-            }
-        */
+    @Bean
+    static JobScope jobScope() {
+        new JobScope()
+    }
+
+    @Bean
+    JdbcTemplate jdbcTemplate() {
+        new JdbcTemplate(getTransmartDataSource())
     }
 
 }

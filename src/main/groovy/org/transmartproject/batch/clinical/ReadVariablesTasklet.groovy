@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -11,7 +12,7 @@ import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
 
 /**
- *
+ * Tasklet that reads the column map file (variables) and updates the ClinicalJobContext
  */
 class ReadVariablesTasklet implements Tasklet {
 
@@ -32,6 +33,9 @@ class ReadVariablesTasklet implements Tasklet {
         List<Variable> list = Variable.parse(file.newInputStream(), listener)
         jobContext.variables.clear()
         jobContext.variables.addAll(list)
+
+        contribution.exitStatus = ExitStatus.COMPLETED
+        chunkContext.setComplete()
         return RepeatStatus.FINISHED
     }
 

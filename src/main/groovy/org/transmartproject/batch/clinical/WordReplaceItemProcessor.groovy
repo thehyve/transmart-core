@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.WordMapping
 
+import javax.annotation.PostConstruct
+
 /**
  * ItemProcessor of Row that replaces words defined in word_mappings
  */
@@ -19,20 +21,13 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
     Row process(Row item) throws Exception {
         int count = replaceWords(item)
         if (count > 0) {
+            //println "replaced $count words"
             //@todo update StepContribution? log?
         }
         return item
     }
 
     int replaceWords(Row row) {
-
-        synchronized (this) {
-            if (!wordMappings) {
-                //lazy instantiated
-                wordMappings = getMappings(jobContext.wordMappings)
-            }
-        }
-
         List<Mapping> list = wordMappings.get(row.filename)
         int count = 0
         list.each {
@@ -42,6 +37,11 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
             }
         }
         count
+    }
+
+    @PostConstruct
+    void init() {
+        wordMappings = getMappings(jobContext.wordMappings)
     }
 
     static Map<String,List<Mapping>> getMappings(List<WordMapping> sourceList) {

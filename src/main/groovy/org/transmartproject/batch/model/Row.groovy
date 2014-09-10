@@ -1,8 +1,11 @@
 package org.transmartproject.batch.model
 
+import groovy.transform.ToString
+
 /**
- * Created by carlos on 06/09/14.
+ *
  */
+@ToString(includes=['filename','index'])
 class Row {
     String filename
     int index
