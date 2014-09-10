@@ -66,6 +66,11 @@ class GwasWebController {
 				}
 
 				def sessionUserMap = servletContext['gwasSessionUserMap']
+				
+				if (sessionUserMap == null){
+					sessionUserMap = new HashMap<String, String>()
+					servletContext['gwasSessionUserMap'] = sessionUserMap
+				}
 
 				if (sessionUserMap.get(cUser)!=null) { // fetch user info existing session id
 					cUser = sessionUserMap[cUser]
