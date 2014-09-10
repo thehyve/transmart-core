@@ -1,9 +1,3 @@
-/**
- * $Id: $
- * @author $Author: $
- * @version $Revision: 14836 $
- */
-
 
 import grails.converters.JSON
 import groovy.time.TimeCategory
@@ -12,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.*
+import groovy.util.logging.Commons
 
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
@@ -938,7 +933,7 @@ class GWASController {
     def searchAutoComplete = {
         def category = params.category == null ? "ALL" : params.category
         def max = params.long('max') ?: 15
-        log.info "searchKeywordService.findSearchKeywords: ${category} ${params.term}"
+        log.info("searchKeywordService.findSearchKeywords: ${category}")
         render searchKeywordService.findSearchKeywords(category, params.term, max) as JSON
     }
 
