@@ -1,6 +1,5 @@
 package org.transmartproject.batch.clinical
 
-import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -34,16 +33,14 @@ class ReadVariablesTasklet implements Tasklet {
         jobContext.variables.clear()
         jobContext.variables.addAll(list)
 
-        contribution.exitStatus = ExitStatus.COMPLETED
-        chunkContext.setComplete()
         return RepeatStatus.FINISHED
     }
 
     File getFile() {
-        if (dataLocation == null) {
+        if (!dataLocation) {
             throw new IllegalArgumentException('Data location not defined')
         }
-        if (columnMapFile == null) {
+        if (!columnMapFile) {
             throw new IllegalArgumentException('Column map file not defined')
         }
         new File(dataLocation, columnMapFile)

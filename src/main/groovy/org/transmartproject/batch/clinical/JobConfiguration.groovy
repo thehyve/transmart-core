@@ -10,13 +10,14 @@ import org.springframework.batch.core.scope.StepScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
+import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.support.DummyWriter
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.tasklet.DeleteTableTasklet
 
@@ -36,6 +37,7 @@ class JobConfiguration extends AbstractJobConfiguration {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
                 .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .next(dataProcessingFlow())
+                .next(callStoredProcedureStep())
                 .build()
     }
 
@@ -57,10 +59,20 @@ class JobConfiguration extends AbstractJobConfiguration {
         steps.get('rowProcessingStep')
                 .chunk(5)
                 .reader(dataRowReader()) //read data
-                .processor(wordReplaceProcessor()) //replace words, if such is configured
-                .processor(rowToFactRowSetConverter()) //converts each Row to a FactRowSet
-                .writer(new DummyWriter()) //writes the FactRowSets
+                .processor(dataProcessor())
+                .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
                 .build()
+    }
+
+    @Bean
+    ItemProcessor<Row, FactRowSet> dataProcessor() {
+        List<ItemProcessor> processors = [
+                wordReplaceProcessor(), //replace words, if such is configured
+                rowToFactRowSetConverter(), //converts each Row to a FactRowSet
+        ]
+        CompositeItemProcessor<Row, FactRowSet> result = new CompositeItemProcessor<Row, FactRowSet>()
+        result.setDelegates(processors)
+        result
     }
 
     @Bean
@@ -92,7 +104,7 @@ class JobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Tasklet deleteInputTableTasklet() {
-        new DeleteTableTasklet(table: 'tm_lz.lt_src_clinical_data')
+        new DeleteTableTasklet(table: FactRowTableWriter.TABLE) //'tm_lz.lt_src_clinical_data')
     }
 
     @Bean
@@ -118,6 +130,23 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Scope('step')
     ItemProcessor<Row, FactRowSet> rowToFactRowSetConverter() {
         new RowToFactRowSetConverter()
+    }
+
+    @Bean
+    ItemWriter<FactRowSet> factRowSetTableWriter() {
+        new FactRowTableWriter()
+    }
+
+    @Bean
+    @Scope('step')
+    Tasklet callStoredProcedureTasklet() {
+        new CallI2B2LoadClinicalDataProcTasklet()
+    }
+
+
+    @Bean
+    Step callStoredProcedureStep() {
+        stepOf(this.&callStoredProcedureTasklet)
     }
 
     @Bean

@@ -1,6 +1,5 @@
 package org.transmartproject.batch.clinical
 
-import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -44,16 +43,14 @@ class ReadWordMapTasklet implements Tasklet {
         jobContext.wordMappings.clear()
         jobContext.wordMappings.addAll(list)
 
-        chunkContext.setComplete()
-        contribution.exitStatus = ExitStatus.COMPLETED
         return RepeatStatus.FINISHED
     }
 
     File getFile() {
-        if (wordMapFile == null) {
+        if (!wordMapFile) {
             return null
         }
-        if (dataLocation == null) {
+        if (!dataLocation) {
             throw new IllegalArgumentException('Data location not defined')
         }
         new File(dataLocation, wordMapFile)

@@ -14,11 +14,12 @@ import java.sql.Timestamp
  */
 class FactRowTableWriter implements ItemWriter<FactRowSet> {
 
+    static final String TABLE = 'tm_lz.lt_src_clinical_data'
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    final static SQL = 'INSERT INTO study_id, site_id, subject_id, visit_name, data_label, modifier_cd,' +
-            'data_value, units_cd, date_timestamp, category_cd, ctrl_vocab_code VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    static final SQL = "INSERT INTO $TABLE (study_id, site_id, subject_id, visit_name, data_label, modifier_cd," +
+            "data_value, units_cd, date_timestamp, category_cd, ctrl_vocab_code) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
     @Override
     void write(List<? extends FactRowSet> items) throws Exception {
