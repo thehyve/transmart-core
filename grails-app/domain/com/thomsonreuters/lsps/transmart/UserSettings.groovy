@@ -10,7 +10,7 @@ class UserSettings {
     static mapping = {
         version false
         table 'searchapp.search_user_settings'
-        id column: 'ID'
+        id column: 'ID', generator: 'sequence', params: [sequence: 'SEARCHAPP.HIBERNATE_SEQUENCE']
         userId column: 'USER_ID'
         name column: 'SETTING_NAME'
         value column: 'SETTING_VALUE'
