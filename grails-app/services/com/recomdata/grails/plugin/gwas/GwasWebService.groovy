@@ -85,12 +85,12 @@ class GwasWebService {
 		select "STRAND" from DEAPP.de_gene_info where "GENE_SOURCE_ID"=1 and "ENTREZ_ID"=?
 	'''
 
-    def final getRecombinationRatesForGeneQuery = """
-        select position,rate
-        from biomart.bio_recombination_rates recomb,
-        (select CASE WHEN chrom_start between 0 and ? THEN 0 ELSE (chrom_start-?) END s, (chrom_stop+?) e, chrom from deapp.de_gene_info g where gene_symbol=? order by chrom_start) geneSub
-        where recomb.chromosome=(geneSub.chrom) and position between s and e order by position
-    """
+    def final getRecombinationRatesForGeneQuery = '''
+    	select position,rate 
+    	from biomart.bio_recombination_rates recomb, 
+    	(select CASE WHEN "CHROM_START" between 0 and ? THEN 0 ELSE ("CHROM_START"-?) END s, ("CHROM_STOP"+?) e, "CHROM" from deapp.de_gene_info g where "GENE_SYMBOL"=? order by "CHROM_START") geneSub 
+    	where recomb.chromosome=(geneSub."CHROM") and position between s and e order by position
+    '''
 
     def final snpSearchQuery = """
         with data_subset as
