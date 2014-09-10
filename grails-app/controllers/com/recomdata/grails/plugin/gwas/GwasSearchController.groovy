@@ -851,7 +851,8 @@ class GwasSearchController {
                 s = s.substring(5)
                 def geneIds = s.split("\\|")
                 for (geneString in geneIds) {
-                    def geneId = geneString as long
+                    def geneSearchItem = SearchKeyword.findByUniqueId(geneString)
+		    def geneId = geneSearchItem.id 
                     def limits = regionSearchService.getGeneLimits(geneId, '19', 0L)
                     regions.push([gene: geneId, chromosome: limits.get('chrom'), low: limits.get('low'), high: limits.get('high'), ver: "19"])
                 }
