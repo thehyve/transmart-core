@@ -41,6 +41,7 @@ grails.project.dependency.resolution = {
         build 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1', {
             excludes 'groovy', 'nekohtml'
         }
+        build 'org.apache.httpcomponents:httpclient:4.3.1'
         build 'net.sf.opencsv:opencsv:2.3'
     }
 
