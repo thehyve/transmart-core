@@ -47,7 +47,7 @@ def alreadyLoaded(platform) {
   sql.close()
 }
 
-def insertGlpInfo(options) {
+def insertGplInfo(options) {
   sql = DatabaseConnection.setupDatabaseConnection()
   sql.execute(
       "INSERT INTO deapp.de_gpl_info(platform, title, organism, marker_type, genome_build, release_nbr)" +
@@ -66,7 +66,7 @@ if (!options) {
 }
 
 if (!alreadyLoaded(options.platform)) {
-  insertGlpInfo(options)
+  insertGplInfo(options)
 } else {
   println "Platform ${options.platform} already loaded; skipping"
   System.exit 3
