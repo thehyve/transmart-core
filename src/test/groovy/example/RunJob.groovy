@@ -15,13 +15,7 @@ class RunJob {
     static void transmart() {
         def jobPath = JobConfiguration.class.name
         def jobId = 'job'
-        def args = [
-                (Keys.STUDY_ID): 'GSE8581',
-                (Keys.DATA_LOCATION): 'src/test/resources/clinical',
-                (Keys.COLUMN_MAP_FILE): 'E-GEOD-8581_columns.txt',
-                (Keys.WORD_MAP_FILE): 'E-GEOD-8581_wordmap.txt'
-        ]
-        execute(jobPath, jobId, args)
+        execute(jobPath, jobId, gse8581())
     }
 
     static void simpleExample() {
@@ -34,6 +28,23 @@ class RunJob {
         List<String> list = [jobPath, jobId]
         args.each { list.add("$it.key=$it.value") }
         org.springframework.batch.core.launch.support.CommandLineJobRunner.main(list as String[])
+    }
+
+    static Map gse8581() {
+        [
+                (Keys.STUDY_ID): 'GSE8581',
+                (Keys.DATA_LOCATION): 'src/test/resources/clinical/GSE8581',
+                (Keys.COLUMN_MAP_FILE): 'E-GEOD-8581_columns.txt',
+                (Keys.WORD_MAP_FILE): 'E-GEOD-8581_wordmap.txt'
+        ]
+    }
+
+    static Map gse20690() {
+        [
+                (Keys.STUDY_ID): 'GSE20690',
+                (Keys.DATA_LOCATION): 'src/test/resources/clinical/GSE20690',
+                (Keys.COLUMN_MAP_FILE): 'E-GEOD-8581_columns.txt',
+        ]
     }
 
 }

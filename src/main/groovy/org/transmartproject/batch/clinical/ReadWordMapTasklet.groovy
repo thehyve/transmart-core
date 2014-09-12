@@ -50,6 +50,10 @@ class ReadWordMapTasklet implements Tasklet {
         if (!wordMapFile) {
             return null
         }
+        if ('x'.equalsIgnoreCase(wordMapFile)) {
+            //alias for 'not defined'
+            return null
+        }
         if (!dataLocation) {
             throw new IllegalArgumentException('Data location not defined')
         }

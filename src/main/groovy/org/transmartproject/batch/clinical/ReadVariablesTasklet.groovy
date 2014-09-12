@@ -29,7 +29,7 @@ class ReadVariablesTasklet implements Tasklet {
         File file = getFile()
         LineListener listener = new LineStepContributionAdapter(contribution)
 
-        List<Variable> list = Variable.parse(file.newInputStream(), listener)
+        List<Variable> list = Variable.parse(file.newInputStream(), listener, jobContext.conceptTree)
         jobContext.variables.clear()
         jobContext.variables.addAll(list)
 

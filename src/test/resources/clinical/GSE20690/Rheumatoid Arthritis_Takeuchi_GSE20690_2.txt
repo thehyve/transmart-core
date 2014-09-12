@@ -1,0 +1,137 @@
+STUDY_ID	SUBJ_ID	VISIT_NAME	SAMPLE_ID	Blood	Cell Type	Serum	"Serum CRP Level, mg/dl"
+GSE20690	NI1	Baseline	GSM519451	Blood	Leukocytes	Serum	3.4
+GSE20690	NI10	Baseline	GSM519460	Blood	Leukocytes	Serum	0.2
+GSE20690	NI11	Baseline	GSM519461	Blood	Leukocytes	Serum	1.5
+GSE20690	NI12	Baseline	GSM519462	Blood	Leukocytes	Serum	1.5
+GSE20690	NI13	Baseline	GSM519463	Blood	Leukocytes	Serum	0.6
+GSE20690	NI14	Baseline	GSM519464	Blood	Leukocytes	Serum	0.3
+GSE20690	NI15	Baseline	GSM519465	Blood	Leukocytes	Serum	0.5
+GSE20690	NI16	Baseline	GSM519466	Blood	Leukocytes	Serum	0.2
+GSE20690	NI17	Baseline	GSM519467	Blood	Leukocytes	Serum	
+GSE20690	NI18	Baseline	GSM519468	Blood	Leukocytes	Serum	5
+GSE20690	NI19	Baseline	GSM519469	Blood	Leukocytes	Serum	2.4
+GSE20690	NI2	Baseline	GSM519452	Blood	Leukocytes	Serum	0.1
+GSE20690	NI20	Baseline	GSM519470	Blood	Leukocytes	Serum	3
+GSE20690	NI21	Baseline	GSM519471	Blood	Leukocytes	Serum	1.1
+GSE20690	NI22	Baseline	GSM519472	Blood	Leukocytes	Serum	2.4
+GSE20690	NI23	Baseline	GSM519473	Blood	Leukocytes	Serum	0.4
+GSE20690	NI24	Baseline	GSM519474	Blood	Leukocytes	Serum	4.3
+GSE20690	NI25	Baseline	GSM519475	Blood	Leukocytes	Serum	2.8
+GSE20690	NI26	Baseline	GSM519476	Blood	Leukocytes	Serum	0.3
+GSE20690	NI27	Baseline	GSM519477	Blood	Leukocytes	Serum	1.7
+GSE20690	NI28	Baseline	GSM519478	Blood	Leukocytes	Serum	3.1
+GSE20690	NI29	Baseline	GSM519493	Blood	Leukocytes	Serum	1.4
+GSE20690	NI3	Baseline	GSM519453	Blood	Leukocytes	Serum	6.1
+GSE20690	NI30	Baseline	GSM519494	Blood	Leukocytes	Serum	0.5
+GSE20690	NI31	Baseline	GSM519495	Blood	Leukocytes	Serum	3.3
+GSE20690	NI32	Baseline	GSM519496	Blood	Leukocytes	Serum	0.7
+GSE20690	NI33	Baseline	GSM519497	Blood	Leukocytes	Serum	0.4
+GSE20690	NI34	Baseline	GSM519498	Blood	Leukocytes	Serum	0.1
+GSE20690	NI35	Baseline	GSM519499	Blood	Leukocytes	Serum	0.5
+GSE20690	NI36	Baseline	GSM519500	Blood	Leukocytes	Serum	0.1
+GSE20690	NI37	Baseline	GSM519501	Blood	Leukocytes	Serum	0.8
+GSE20690	NI38	Baseline	GSM519502	Blood	Leukocytes	Serum	0.4
+GSE20690	NI39	Baseline	GSM519503	Blood	Leukocytes	Serum	2.9
+GSE20690	NI4	Baseline	GSM519454	Blood	Leukocytes	Serum	2.3
+GSE20690	NI40	Baseline	GSM519504	Blood	Leukocytes	Serum	0.3
+GSE20690	NI41	Baseline	GSM519505	Blood	Leukocytes	Serum	0.6
+GSE20690	NI42	Baseline	GSM519506	Blood	Leukocytes	Serum	2
+GSE20690	NI43	Baseline	GSM519507	Blood	Leukocytes	Serum	1.3
+GSE20690	NI5	Baseline	GSM519455	Blood	Leukocytes	Serum	0.3
+GSE20690	NI6	Baseline	GSM519456	Blood	Leukocytes	Serum	2.1
+GSE20690	NI7	Baseline	GSM519457	Blood	Leukocytes	Serum	0.8
+GSE20690	NI8	Baseline	GSM519458	Blood	Leukocytes	Serum	0.3
+GSE20690	NI9	Baseline	GSM519459	Blood	Leukocytes	Serum	2.2
+GSE20690	RI1	Baseline	GSM519479	Blood	Leukocytes	Serum	4.2
+GSE20690	RI10	Baseline	GSM519488	Blood	Leukocytes	Serum	11.1
+GSE20690	RI11	Baseline	GSM519489	Blood	Leukocytes	Serum	2.2
+GSE20690	RI12	Baseline	GSM519490	Blood	Leukocytes	Serum	0.8
+GSE20690	RI13	Baseline	GSM519491	Blood	Leukocytes	Serum	2.1
+GSE20690	RI14	Baseline	GSM519492	Blood	Leukocytes	Serum	8.1
+GSE20690	RI15	Baseline	GSM519508	Blood	Leukocytes	Serum	3.3
+GSE20690	RI16	Baseline	GSM519509	Blood	Leukocytes	Serum	7
+GSE20690	RI17	Baseline	GSM519510	Blood	Leukocytes	Serum	8
+GSE20690	RI18	Baseline	GSM519511	Blood	Leukocytes	Serum	7
+GSE20690	RI19	Baseline	GSM519512	Blood	Leukocytes	Serum	5.3
+GSE20690	RI2	Baseline	GSM519480	Blood	Leukocytes	Serum	3.5
+GSE20690	RI20	Baseline	GSM519513	Blood	Leukocytes	Serum	3.1
+GSE20690	RI21	Baseline	GSM519514	Blood	Leukocytes	Serum	2.6
+GSE20690	RI22	Baseline	GSM519515	Blood	Leukocytes	Serum	8.2
+GSE20690	RI23	Baseline	GSM519516	Blood	Leukocytes	Serum	0.4
+GSE20690	RI24	Baseline	GSM519517	Blood	Leukocytes	Serum	1
+GSE20690	RI25	Baseline	GSM519518	Blood	Leukocytes	Serum	2.2
+GSE20690	RI3	Baseline	GSM519481	Blood	Leukocytes	Serum	1.8
+GSE20690	RI4	Baseline	GSM519482	Blood	Leukocytes	Serum	2.9
+GSE20690	RI5	Baseline	GSM519483	Blood	Leukocytes	Serum	4.6
+GSE20690	RI6	Baseline	GSM519484	Blood	Leukocytes	Serum	10.9
+GSE20690	RI7	Baseline	GSM519485	Blood	Leukocytes	Serum	0.4
+GSE20690	RI8	Baseline	GSM519486	Blood	Leukocytes	Serum	0.1
+GSE20690	RI9	Baseline	GSM519487	Blood	Leukocytes	Serum	1
+GSE20690	NI1	Week 14				Serum	0.2
+GSE20690	NI10	Week 14				Serum	0
+GSE20690	NI11	Week 14				Serum	0.1
+GSE20690	NI12	Week 14				Serum	0.2
+GSE20690	NI13	Week 14				Serum	0.2
+GSE20690	NI14	Week 14				Serum	0.1
+GSE20690	NI15	Week 14				Serum	0.2
+GSE20690	NI16	Week 14				Serum	0.1
+GSE20690	NI17	Week 14				Serum	0
+GSE20690	NI18	Week 14				Serum	0.3
+GSE20690	NI19	Week 14				Serum	0.1
+GSE20690	NI2	Week 14				Serum	0.1
+GSE20690	NI20	Week 14				Serum	0.1
+GSE20690	NI21	Week 14				Serum	0.1
+GSE20690	NI22	Week 14				Serum	0.1
+GSE20690	NI23	Week 14				Serum	0.3
+GSE20690	NI24	Week 14				Serum	0.3
+GSE20690	NI25	Week 14				Serum	0.1
+GSE20690	NI26	Week 14				Serum	0.1
+GSE20690	NI27	Week 14				Serum	0.1
+GSE20690	NI28	Week 14				Serum	0.2
+GSE20690	NI29	Week 14				Serum	0.2
+GSE20690	NI3	Week 14				Serum	0.2
+GSE20690	NI30	Week 14				Serum	0.1
+GSE20690	NI31	Week 14				Serum	0.1
+GSE20690	NI32	Week 14				Serum	0.1
+GSE20690	NI33	Week 14				Serum	0
+GSE20690	NI34	Week 14				Serum	0
+GSE20690	NI35	Week 14				Serum	0.1
+GSE20690	NI36	Week 14				Serum	0.1
+GSE20690	NI37	Week 14				Serum	0.2
+GSE20690	NI38	Week 14				Serum	0.1
+GSE20690	NI39	Week 14				Serum	0.1
+GSE20690	NI4	Week 14				Serum	0.1
+GSE20690	NI40	Week 14				Serum	0.2
+GSE20690	NI41	Week 14				Serum	0.1
+GSE20690	NI42	Week 14				Serum	0.2
+GSE20690	NI43	Week 14				Serum	0.1
+GSE20690	NI5	Week 14				Serum	0.3
+GSE20690	NI6	Week 14				Serum	0.1
+GSE20690	NI7	Week 14				Serum	0.2
+GSE20690	NI8	Week 14				Serum	0.1
+GSE20690	NI9	Week 14				Serum	0.2
+GSE20690	RI1	Week 14				Serum	0.7
+GSE20690	RI10	Week 14				Serum	11.6
+GSE20690	RI11	Week 14				Serum	2.9
+GSE20690	RI12	Week 14				Serum	1.3
+GSE20690	RI13	Week 14				Serum	4.8
+GSE20690	RI14	Week 14				Serum	8.6
+GSE20690	RI15	Week 14				Serum	1.2
+GSE20690	RI16	Week 14				Serum	4.6
+GSE20690	RI17	Week 14				Serum	7.4
+GSE20690	RI18	Week 14				Serum	3.5
+GSE20690	RI19	Week 14				Serum	1.7
+GSE20690	RI2	Week 14				Serum	2.4
+GSE20690	RI20	Week 14				Serum	0.6
+GSE20690	RI21	Week 14				Serum	1.2
+GSE20690	RI22	Week 14				Serum	4.2
+GSE20690	RI23	Week 14				Serum	0.4
+GSE20690	RI24	Week 14				Serum	2.1
+GSE20690	RI25	Week 14				Serum	3.4
+GSE20690	RI3	Week 14				Serum	0.5
+GSE20690	RI4	Week 14				Serum	0.8
+GSE20690	RI5	Week 14				Serum	1.2
+GSE20690	RI6	Week 14				Serum	3.2
+GSE20690	RI7	Week 14				Serum	1.4
+GSE20690	RI8	Week 14				Serum	0.4
+GSE20690	RI9	Week 14				Serum	5.4

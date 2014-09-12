@@ -11,7 +11,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
@@ -37,7 +36,7 @@ class JobConfiguration extends AbstractJobConfiguration {
         new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
                 .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .next(dataProcessingFlow())
-                .next(callStoredProcedureStep())
+                //.next(callStoredProcedureStep())
                 .build()
     }
 
@@ -49,8 +48,6 @@ class JobConfiguration extends AbstractJobConfiguration {
                 //forks execution
                 .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
                 .add(flowOf(readWordMappingsStep()), flowOf(deleteInputTableStep()))
-                //.next(readWordMappingsStep())
-                //.next(deleteInputTableStep())
                 .end()
     }
 
@@ -126,7 +123,18 @@ class JobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     ItemWriter<FactRowSet> factRowSetTableWriter() {
-        new FactRowTableWriter()
+        new ItemWriter<FactRowSet>() {
+            @Override
+            void write(List<? extends FactRowSet> items) throws Exception {
+                items.each { FactRowSet set ->
+                    //println "writing $set"
+                    set.observationFacts.each {
+                        println "writing $it"
+                    }
+                }
+            }
+        }
+        //new FactRowTableWriter()
     }
 
     @Bean

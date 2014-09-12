@@ -2,6 +2,7 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.Keys
@@ -23,7 +24,8 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Override
     FactRowSet process(Row item) throws Exception {
         FileVariables vars = variablesMap.get(item.filename)
-        vars.create(studyId, item)
+        Patient patient = jobContext.patientSet.getPatient(vars.getPatientId(item))
+        vars.create(studyId, item, patient)
     }
 
     @PostConstruct
@@ -65,24 +67,28 @@ class FileVariables {
         new FileVariables(args)
     }
 
-    /**
-     * @param studyId
-     * @param row
-     * @return FactRowSet for given Row
-     */
-    FactRowSet create(String studyId, Row row) {
-        Map args = [studyId: studyId]
+    String getPatientId(Row row) {
+        row.values.get(subjectIdVariable.columnNumber)
+    }
 
-        args.put('studyId', studyId)
-        args.put('subjectId', row.values.get(subjectIdVariable.columnNumber))
-        args.put('variableValueMap',  otherVariables.collectEntries { [(it): row.values.get(it.columnNumber)] })
+    FactRowSet create(String studyId, Row row, Patient patient) {
+        FactRowSet result = new FactRowSet()
+        result.studyId = studyId
+        result.patient = patient
+
         if (siteIdVariable) {
-            args.put('siteId',  row.values.get(siteIdVariable.columnNumber))
+            result.siteId = row.values.get(siteIdVariable.columnNumber)
         }
         if (visitNameVariable) {
-            args.put('visitName',  row.values.get(visitNameVariable.columnNumber))
+            result.visitName= row.values.get(visitNameVariable.columnNumber)
         }
-        new FactRowSet(args)
+
+        otherVariables.each {
+            String value = row.values.get(it.columnNumber)
+            result.addValue(it, value)
+        }
+
+        result
     }
 
 }

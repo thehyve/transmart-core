@@ -10,6 +10,7 @@ class Keys {
     static final String COLUMN_MAP_FILE = 'columnMapFile'
     static final String WORD_MAP_FILE = 'wordMapFile'
     static final String DATA_LOCATION = 'dataLocation'
+    static final String TOP_NODE = 'topNode'
     //static final String RECORD_EXCLUSION_FILE = 'recordExclusionPath'
 
     //context
