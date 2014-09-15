@@ -44,19 +44,20 @@ class VcfTestData  {
     List<DeVariantSubjectSummaryCoreDb> summariesData
     List<DeVariantSubjectDetailCoreDb> detailsData
     List<DeVariantSubjectIdxCoreDb> indexData
-    
+    List<DeVariantPopulationDataCoreDb> populationData
+
     public VcfTestData() {
         // Create VCF platform and assays
         platform = new DeGplInfo(
-                    title: 'Test VCF',
-                    organism: 'Homo Sapiens',
-                    markerType: 'VCF')
+                title: 'Test VCF',
+                organism: 'Homo Sapiens',
+                markerType: 'VCF')
         platform.id = 'BOGUSGPLVCF'
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
-        
+
         // Create VCF data
         detailsData = []
         detailsData += createDetail(1, 'C', 'A', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
@@ -66,13 +67,14 @@ class VcfTestData  {
         indexData = []
         assays.eachWithIndex { assay, idx ->
             indexData << new DeVariantSubjectIdxCoreDb(
-                dataset: dataset,
-                subjectId: assay.sampleCode,
-                position: idx + 1
+                    dataset: dataset,
+                    subjectId: assay.sampleCode,
+                    position: idx + 1
             )
         }
-        
+
         summariesData = []
+        populationData = []
         detailsData.each { detail ->
             // Create VCF summary entries with the following variants:
             // 1/0, 0/1 and 1/1
@@ -83,16 +85,20 @@ class VcfTestData  {
             }
             if (detail.alt.contains(','))
                 summariesData.last().allele1=2
+
+            // Create VCF population data entry
+            populationData += createPopulationData(detail, 'GID', '7157')
+            populationData += createPopulationData(detail, 'GS', 'TP53')
         }
-        
+
         // Add also another platform and assays for those patients
         // to test whether the VCF module only returns VCF assays
         otherPlatform = new DeGplInfo(
-            title: 'Other platform',
-            organism: 'Homo Sapiens',
-            markerType: 'mrna')
+                title: 'Other platform',
+                organism: 'Homo Sapiens',
+                markerType: 'mrna')
         otherPlatform.id = 'BOGUSGPLMRNA'
-        
+
         assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
     }
 
@@ -146,7 +152,19 @@ class VcfTestData  {
             )
     }
 
-
+    def createPopulationData = {
+        DeVariantSubjectDetailCoreDb detail,
+        String infoName,
+        String textValue
+            ->
+            new DeVariantPopulationDataCoreDb(
+                    dataset: dataset,
+                    chromosome: 1,
+                    position: detail.pos,
+                    infoName: infoName,
+                    textValue: textValue
+            )
+    }
 
 
     void saveAll() {
@@ -158,5 +176,6 @@ class VcfTestData  {
         save detailsData
         save indexData
         save summariesData
+        save populationData
     }
 }

@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import grails.util.Holders
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -60,6 +61,8 @@ class VcfEndToEndRetrievalTests {
         trialNameConstraint = vcfResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
+
+        Holders.applicationContext.sessionFactory.currentSession.flush()
     }
 
     @After

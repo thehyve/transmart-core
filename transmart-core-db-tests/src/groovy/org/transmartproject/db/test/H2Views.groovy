@@ -62,6 +62,7 @@ class H2Views {
             createSuperPathwayCorrelView()
             createI2b2TrialNodes()
             createModifierDimensionView()
+            createDeVariantSubjectSummaryDetailGene()
         } finally {
             this.sql.close()
         }
@@ -396,6 +397,48 @@ class H2Views {
                 I2B2DEMODATA.MODIFIER_DIMENSION MD
                 LEFT JOIN I2B2DEMODATA.MODIFIER_METADATA MM ON (
                     MD.modifier_cd = MM.modifier_cd)'''
+    }
+
+    void createDeVariantSubjectSummaryDetailGene() {
+        if (handleCurrentState('DEAPP', 'DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE')) {
+            return
+        }
+
+        log.info 'Creating DEAPP.DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE'
+
+        sql.execute '''
+            CREATE OR REPLACE VIEW DEAPP.DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE AS
+            SELECT summary.variant_subject_summary_id,
+                summary.chr,
+                summary.pos,
+                summary.dataset_id,
+                summary.subject_id,
+                summary.rs_id,
+                summary.variant,
+                summary.variant_format,
+                summary.variant_type,
+                summary.reference,
+                summary.allele1,
+                summary.allele2,
+                summary.assay_id,
+                detail.ref,
+                detail.alt,
+                detail.qual,
+                detail.filter,
+                detail.info,
+                detail.format,
+                detail.variant_value,
+                genedata.text_value AS gene_name
+            FROM deapp.de_variant_subject_summary summary
+            JOIN deapp.de_variant_subject_detail detail ON
+                detail.dataset_id = summary.dataset_id AND
+                detail.chr = summary.chr AND
+                detail.pos = summary.pos
+            LEFT JOIN deapp.de_variant_population_data genedata ON
+                genedata.dataset_id = summary.dataset_id AND
+                genedata.chr = summary.chr AND
+                genedata.pos = summary.pos AND
+                genedata.info_name = 'GS' '''
     }
 
     enum ObjectStatus {
