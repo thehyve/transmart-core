@@ -35,6 +35,8 @@ class JobConfiguration extends AbstractJobConfiguration {
         new FlowBuilder<SimpleFlow>('mainFlow')
                 .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .next(readCurrentEntitiesFlow())
+                .next(stepOf(this.&deleteObservationFactTasklet))
+                .next(stepOf(this.&deleteConceptCountsTasklet))
                 .next(rowProcessingStep())
                 //.next(stepOf(this.&callStoredProcedureTasklet))
                 .next(stepOf(this.&insertUpdatePatientsTasklet))
@@ -149,6 +151,17 @@ class JobConfiguration extends AbstractJobConfiguration {
         new InsertUpdatePatientsTasklet()
     }
 
+    @Bean
+    @Scope('job')
+    Tasklet deleteObservationFactTasklet() {
+        new DeleteObservationFactTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet deleteConceptCountsTasklet() {
+        new DeleteConceptCountsTasklet()
+    }
 
     @Bean
     static StepScope stepScope() {

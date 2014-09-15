@@ -29,5 +29,5 @@ class Patient {
     Long code
     boolean persisted
 
-    Map<Variable,Object> demographicRelatedValues = [:]
+    Map<Variable,String> demographicRelatedValues = [:]
 }
