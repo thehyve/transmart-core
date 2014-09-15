@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import groovy.transform.ToString
 import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Variable
@@ -86,6 +87,7 @@ class FactRowSet {
     }
 }
 //to insert into observation_fact (or any temporary table for duplicate check)
+@ToString(includes=['patient_num','concept_cd','tval_char','nval_num'])
 class ObservationFact {
     Long encounter_num
     Long patient_num

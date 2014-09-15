@@ -16,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
+import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 
 import javax.sql.DataSource
 
@@ -47,6 +48,15 @@ abstract class AbstractJobConfiguration {
 
     Flow flowOf(Step step) {
         new FlowBuilder<SimpleFlow>().start(step).build()
+    }
+
+    Flow parallelFlowOf(String name, Step step, Step ... otherSteps) {
+        new FlowBuilder<SimpleFlow>(name)
+                .start(step)
+                //forks execution
+                .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
+                .add(otherSteps.collect { flowOf(it) } as Flow[])
+                .end()
     }
 
     ItemProcessor compositeOf(ItemProcessor ... processors) {

@@ -4,7 +4,6 @@ import com.google.common.base.Function
 import groovy.transform.ToString
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
-import org.transmartproject.batch.support.ModelHelper
 
 @ToString
 class Variable implements Serializable {

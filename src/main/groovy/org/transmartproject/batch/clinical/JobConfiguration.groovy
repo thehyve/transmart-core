@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.tasklet.DeleteTableTasklet
 
 @Configuration
@@ -26,29 +25,36 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Bean
     Job job() {
         jobs.get('job')
-                .start(convertToStandardFormatFlow())
+                .start(mainFlow())
                 .end()
                 .build()
     }
 
     @Bean
-    Flow convertToStandardFormatFlow() {
-        new FlowBuilder<SimpleFlow>('convertToStandardFormatFlow')
+    Flow mainFlow() {
+        new FlowBuilder<SimpleFlow>('mainFlow')
                 .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
-                .next(dataProcessingFlow())
-                //.next(callStoredProcedureStep())
+                .next(readCurrentEntitiesFlow())
+                .next(rowProcessingStep())
+                .next(stepOf(this.&callStoredProcedureTasklet))
                 .build()
+    }
+
+    @Bean
+    Flow readCurrentEntitiesFlow() {
+        new FlowBuilder<SimpleFlow>('readExistingEntitiesFlow')
+            .start(stepOf(this.&gatherCurrentPatientsTasklet))
+            .end()
     }
 
     @Bean
     Flow readControlFilesFlow() {
-
-        new FlowBuilder<SimpleFlow>('readControlFilesFlow')
-                .start(readColumnMappingsStep())
-                //forks execution
-                .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
-                .add(flowOf(readWordMappingsStep()), flowOf(deleteInputTableStep()))
-                .end()
+        parallelFlowOf(
+                'readControlFilesFlow',
+                stepOf(this.&readVariablesTasklet),
+                stepOf(this.&readWordMapTasklet),
+                stepOf(this.&deleteInputTableTasklet),
+        )
     }
 
     @Bean
@@ -65,21 +71,6 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Step readColumnMappingsStep() {
-        stepOf(this.&readVariablesTasklet)
-    }
-
-    @Bean
-    Step readWordMappingsStep() {
-        stepOf(this.&readWordMapTasklet)
-    }
-
-    @Bean
-    Step deleteInputTableStep() {
-        stepOf(this.&deleteInputTableTasklet)
-    }
-
-    @Bean
     @Scope('job')
     Tasklet readWordMapTasklet() {
         new ReadWordMapTasklet()
@@ -92,6 +83,11 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
+    Tasklet gatherCurrentPatientsTasklet() {
+        new GatherCurrentPatientsTasklet()
+    }
+
+    @Bean
     Tasklet deleteInputTableTasklet() {
         new DeleteTableTasklet(table: FactRowTableWriter.TABLE) //'tm_lz.lt_src_clinical_data')
     }
@@ -100,13 +96,6 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Scope('step')
     ItemReader<Row> dataRowReader() {
         new DataRowReader()
-    }
-
-    @Bean
-    Flow dataProcessingFlow() {
-        new FlowBuilder<SimpleFlow>('dataProcessingFlow')
-            .start(rowProcessingStep())
-            .end()
     }
 
     @Bean
@@ -143,11 +132,6 @@ class JobConfiguration extends AbstractJobConfiguration {
         new CallI2B2LoadClinicalDataProcTasklet()
     }
 
-
-    @Bean
-    Step callStoredProcedureStep() {
-        stepOf(this.&callStoredProcedureTasklet)
-    }
 
     @Bean
     static StepScope stepScope() {
