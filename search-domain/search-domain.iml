@@ -18,6 +18,7 @@
     <facet type="hibernate" name="Hibernate">
       <configuration>
         <datasource-map />
+        <naming-strategy-map />
       </configuration>
     </facet>
   </component>
