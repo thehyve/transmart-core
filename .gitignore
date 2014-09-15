@@ -7,6 +7,7 @@
 */*.tmproj
 */ivy*
 */eclipse*
+*/*.iml
 
 # eclipse generated files
 **/.settings
