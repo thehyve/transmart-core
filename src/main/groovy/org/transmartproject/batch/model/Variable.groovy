@@ -28,6 +28,8 @@ class Variable implements Serializable {
 
     VariableType type
 
+    DemographicVariable demographicVariable
+
     //the columns have fixed position, but not fixed names
     //most of the files have headers [filename, category_cd, col_nbr, data_label]
     //but some files dont, so we use position (not names) to identify columns

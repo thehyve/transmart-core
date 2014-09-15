@@ -1,5 +1,7 @@
 package org.transmartproject.batch.model
 
+import groovy.transform.ToString
+
 /**
  *
  */
@@ -21,7 +23,11 @@ class PatientSet {
 
 }
 
+@ToString(includes=['id','code'])
 class Patient {
     String id
     Long code
+    boolean persisted
+
+    Map<Variable,Object> demographicRelatedValues = [:]
 }

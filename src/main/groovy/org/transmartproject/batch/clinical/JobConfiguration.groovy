@@ -36,7 +36,8 @@ class JobConfiguration extends AbstractJobConfiguration {
                 .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
                 .next(readCurrentEntitiesFlow())
                 .next(rowProcessingStep())
-                .next(stepOf(this.&callStoredProcedureTasklet))
+                //.next(stepOf(this.&callStoredProcedureTasklet))
+                .next(stepOf(this.&insertUpdatePatientsTasklet))
                 .build()
     }
 
@@ -44,6 +45,7 @@ class JobConfiguration extends AbstractJobConfiguration {
     Flow readCurrentEntitiesFlow() {
         new FlowBuilder<SimpleFlow>('readExistingEntitiesFlow')
             .start(stepOf(this.&gatherCurrentPatientsTasklet))
+            .next(stepOf(this.&gatherCurrentConceptsTasklet))
             .end()
     }
 
@@ -83,8 +85,15 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
+    @Scope('job')
     Tasklet gatherCurrentPatientsTasklet() {
         new GatherCurrentPatientsTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet gatherCurrentConceptsTasklet() {
+        new GatherCurrentConceptsTasklet()
     }
 
     @Bean
@@ -115,12 +124,14 @@ class JobConfiguration extends AbstractJobConfiguration {
         new ItemWriter<FactRowSet>() {
             @Override
             void write(List<? extends FactRowSet> items) throws Exception {
+                /*
                 items.each { FactRowSet set ->
                     //println "writing $set"
                     set.observationFacts.each {
                         println "writing $it"
                     }
                 }
+                */
             }
         }
         //new FactRowTableWriter()
@@ -130,6 +141,12 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Scope('step')
     Tasklet callStoredProcedureTasklet() {
         new CallI2B2LoadClinicalDataProcTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet insertUpdatePatientsTasklet() {
+        new InsertUpdatePatientsTasklet()
     }
 
 

@@ -53,6 +53,7 @@ class ConceptNode {
     String name
     String path
     Long code
+    boolean persisted
     Set<String> subjects = new HashSet<>()
 
     protected Set<ConceptNode> children = new HashSet<>()
@@ -93,6 +94,15 @@ class ConceptNode {
         }
         result
     }
+
+    List<ConceptNode> getAllChildren() {
+        List<ConceptNode> result = new ArrayList<>(children)
+        children.each {
+            result.addAll(it.getAllChildren())
+        }
+        result
+    }
+
 
     int getSubjectCount() {
         deepSubjectsSet.size()

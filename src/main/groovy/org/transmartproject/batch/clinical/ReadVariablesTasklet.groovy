@@ -6,6 +6,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
@@ -32,6 +33,19 @@ class ReadVariablesTasklet implements Tasklet {
         List<Variable> list = Variable.parse(file.newInputStream(), listener, jobContext.conceptTree)
         jobContext.variables.clear()
         jobContext.variables.addAll(list)
+
+        Map<DemographicVariable, Variable> demographicVarMap = [:]
+
+        list.each {
+            DemographicVariable var = DemographicVariable.getMatching(it.dataLabel)
+            if (var) {
+                Variable old = demographicVarMap.get(var)
+                if (old) {
+                    throw new IllegalArgumentException("Found 2 different variables for demographic $var.name : $old.dataLabel and $it.dataLabel")
+                }
+                it.demographicVariable = var //sets the associated demographic variable
+            }
+        }
 
         return RepeatStatus.FINISHED
     }

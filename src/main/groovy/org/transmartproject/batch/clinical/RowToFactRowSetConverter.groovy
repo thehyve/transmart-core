@@ -2,6 +2,7 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.Variable
@@ -25,6 +26,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     FactRowSet process(Row item) throws Exception {
         FileVariables vars = variablesMap.get(item.filename)
         Patient patient = jobContext.patientSet.getPatient(vars.getPatientId(item))
+        patient.demographicRelatedValues.putAll(vars.getDemographicRelatedValues(item))
         vars.create(studyId, item, patient)
     }
 
@@ -44,10 +46,12 @@ class FileVariables {
     Variable siteIdVariable
     Variable visitNameVariable
     List<Variable> otherVariables = []
+    List<Variable> demographicRelated = []
 
     static FileVariables create(List<Variable> list) {
         def otherVariables = []
         def args = [:]
+        def demographic = []
         list.each {
             switch (it.dataLabel) {
                 case Variable.SUBJ_ID:
@@ -62,8 +66,13 @@ class FileVariables {
                 default:
                     otherVariables.add(it)
             }
+            if (it.demographicVariable) {
+                demographic.add(it)
+            }
         }
         args.put('otherVariables', otherVariables)
+        args.put('demographicRelated', demographic)
+
         new FileVariables(args)
     }
 
@@ -89,6 +98,10 @@ class FileVariables {
         }
 
         result
+    }
+
+    Map<Variable, Object> getDemographicRelatedValues(Row row) {
+        demographicRelated.collectEntries { [(it), row.values[it.columnNumber]] }
     }
 
 }
