@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
+import org.transmartproject.batch.support.SequenceReserver
 
 import javax.sql.DataSource
 
@@ -35,6 +36,9 @@ abstract class AbstractJobConfiguration {
 
     @Value('#{transmartDataSource}')
     DataSource transmartDataSource
+
+    @Autowired
+    SequenceReserver sequenceReserver
 
     Step stepOf(String name, Tasklet tasklet) {
         steps.get(name)

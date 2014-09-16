@@ -2,11 +2,14 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.Keys
+import org.transmartproject.batch.support.SequenceReserver
+import org.transmartproject.batch.support.Sequences
 
 import javax.annotation.PostConstruct
 
@@ -18,6 +21,9 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Autowired
     ClinicalJobContext jobContext
 
+    @Autowired
+    SequenceReserver sequenceReserver
+
     private String studyId
 
     private Map<String, FileVariables> variablesMap
@@ -25,16 +31,31 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Override
     FactRowSet process(Row item) throws Exception {
         FileVariables vars = variablesMap.get(item.filename)
-        Patient patient = jobContext.patientSet.getPatient(vars.getPatientId(item))
-        patient.demographicRelatedValues.putAll(vars.getDemographicRelatedValues(item))
-        vars.create(studyId, item, patient)
+        Patient patient = getPatient(item, vars)
+        vars.create(studyId, item, patient, sequenceReserver)
     }
+
 
     @PostConstruct
     void init() {
+        sequenceReserver.configureBlockSize(Sequences.PATIENT, 10)
+        sequenceReserver.configureBlockSize(Sequences.CONCEPT, 10)
+
         this.studyId = jobContext.getJobParameters().get(Keys.STUDY_ID)
         Map<String,List<Variable>> map = jobContext.variables.groupBy { it.filename }
         this.variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
+    }
+
+    private Patient getPatient(Row item, FileVariables vars) {
+        Patient patient = jobContext.patientSet.getPatient(vars.getPatientId(item))
+        patient.demographicValues.putAll(vars.getDemographicRelatedValues(item))
+
+        if (!patient.code) {
+            //new patient: reserve code
+            patient.code = sequenceReserver.getNext(Sequences.PATIENT)
+            //println "reserved patient code $patient.code"
+        }
+        patient
     }
 }
 
@@ -80,7 +101,7 @@ class FileVariables {
         row.values.get(subjectIdVariable.columnNumber)
     }
 
-    FactRowSet create(String studyId, Row row, Patient patient) {
+    FactRowSet create(String studyId, Row row, Patient patient, SequenceReserver reserver) {
         FactRowSet result = new FactRowSet()
         result.studyId = studyId
         result.patient = patient
@@ -89,12 +110,22 @@ class FileVariables {
             result.siteId = row.values.get(siteIdVariable.columnNumber)
         }
         if (visitNameVariable) {
-            result.visitName= row.values.get(visitNameVariable.columnNumber)
+            result.visitName = row.values.get(visitNameVariable.columnNumber)
         }
 
         otherVariables.each {
             String value = row.values.get(it.columnNumber)
-            result.addValue(it, value)
+            ConceptNode concept = result.addValue(it, value)
+            concept.addSubject(patient.id) //add to counter
+
+            ConceptNode tmp = concept
+            //goes up in the concept hierarchy, reserving codes until no longer necessary
+            while (tmp && !tmp.code) {
+                //new concept: reserve code
+                tmp.code = reserver.getNext(Sequences.CONCEPT)
+                println "reserved concept code $tmp.code"
+                tmp = tmp.parent //recurse to parent
+            }
         }
 
         result

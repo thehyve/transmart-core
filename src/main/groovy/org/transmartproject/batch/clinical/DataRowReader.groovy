@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.reader.GenericRowReader
+import org.transmartproject.batch.support.GenericRowReader
 import org.transmartproject.batch.support.MappingHelper
 
 /**

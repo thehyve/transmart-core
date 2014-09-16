@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.tasklet.DeleteTableTasklet
 
 @Configuration
 class JobConfiguration extends AbstractJobConfiguration {
@@ -38,7 +37,6 @@ class JobConfiguration extends AbstractJobConfiguration {
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
                 .next(rowProcessingStep())
-                //.next(stepOf(this.&callStoredProcedureTasklet))
                 .next(stepOf(this.&insertUpdatePatientsTasklet))
                 .build()
     }
@@ -57,7 +55,6 @@ class JobConfiguration extends AbstractJobConfiguration {
                 'readControlFilesFlow',
                 stepOf(this.&readVariablesTasklet),
                 stepOf(this.&readWordMapTasklet),
-                stepOf(this.&deleteInputTableTasklet),
         )
     }
 
@@ -99,11 +96,6 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Tasklet deleteInputTableTasklet() {
-        new DeleteTableTasklet(table: FactRowTableWriter.TABLE) //'tm_lz.lt_src_clinical_data')
-    }
-
-    @Bean
     @Scope('step')
     ItemReader<Row> dataRowReader() {
         new DataRowReader()
@@ -123,20 +115,7 @@ class JobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     ItemWriter<FactRowSet> factRowSetTableWriter() {
-        new ItemWriter<FactRowSet>() {
-            @Override
-            void write(List<? extends FactRowSet> items) throws Exception {
-                /*
-                items.each { FactRowSet set ->
-                    //println "writing $set"
-                    set.observationFacts.each {
-                        println "writing $it"
-                    }
-                }
-                */
-            }
-        }
-        //new FactRowTableWriter()
+        new ObservationFactTableWriter()
     }
 
     @Bean

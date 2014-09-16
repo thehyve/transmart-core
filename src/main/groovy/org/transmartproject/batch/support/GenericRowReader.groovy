@@ -1,4 +1,4 @@
-package org.transmartproject.batch.reader
+package org.transmartproject.batch.support
 
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineMapper

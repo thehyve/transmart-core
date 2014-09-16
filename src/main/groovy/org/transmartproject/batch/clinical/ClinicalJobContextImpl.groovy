@@ -51,4 +51,8 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
         jobExecutionContext.get(Keys.WORD_MAPPINGS)
     }
 
+    @Override
+    String getStudyId() {
+        return jobParameters.get(Keys.STUDY_ID)
+    }
 }

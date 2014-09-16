@@ -29,12 +29,18 @@ class ConceptTree {
         if (parts[0] != root.name) {
             throw new IllegalArgumentException("$path is out of tree: can only have one root")
         }
-        if (parts[1] != study.name) {
+        parts.remove(0) //remove root
+
+        if (parts.isEmpty()) {
+            return root
+        }
+
+        if (parts[0] != study.name) {
             throw new IllegalArgumentException("$path is out of tree: can only have one study")
         }
 
-        parts.remove(0) //remove root
         parts.remove(0) //remove study
+
         this.study.find(parts)
     }
 
@@ -145,8 +151,6 @@ class ConceptNode {
         result
 
     }
-
-
 
 }
 

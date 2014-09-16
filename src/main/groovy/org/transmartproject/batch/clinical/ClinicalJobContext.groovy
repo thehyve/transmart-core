@@ -20,5 +20,7 @@ interface ClinicalJobContext {
 
     PatientSet getPatientSet()
 
+    String getStudyId()
+
 }
 

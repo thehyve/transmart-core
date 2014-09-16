@@ -29,5 +29,15 @@ class Patient {
     Long code
     boolean persisted
 
-    Map<Variable,String> demographicRelatedValues = [:]
+    Map<Variable,String> demographicValues = [:]
+
+    Object getDemographicValue(Variable var) {
+        String str = demographicValues.get(var)
+        if (str) {
+            return var.getValue(str)
+        } else {
+            return var.demographicVariable.defaultValue
+        }
+    }
+
 }

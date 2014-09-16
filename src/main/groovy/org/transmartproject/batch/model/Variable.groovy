@@ -59,6 +59,21 @@ class Variable implements Serializable {
         }
     }
 
+    Object getValue(String source) {
+        if (!source) {
+            return null
+        }
+
+        switch (type) {
+            case VariableType.NUMERICAL:
+                return Double.valueOf(source)
+            case VariableType.CATEGORICAL:
+                return source
+            default:
+                throw new IllegalArgumentException('not supported')
+        }
+    }
+
 
     static List<Variable> parse(InputStream input, LineListener listener, ConceptTree conceptTree) {
         MappingHelper.parseObjects(input, new VariableLineMapper(tree: conceptTree), listener)

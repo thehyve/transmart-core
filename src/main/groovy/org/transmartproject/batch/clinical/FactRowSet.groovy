@@ -13,43 +13,42 @@ class FactRowSet {
     Patient patient
     String siteId
     String visitName
-    //String controlledVocabularyCode //NOT USED
 
     private Map<Variable,Entry> variableValueMap = [:]
 
-    List<FactRow> getFactRows() {
-        variableValueMap.collect {
-            new FactRow(
-                studyId: studyId,
-                subjectId: patient.id,
-                siteId: siteId,
-                visitName: visitName,
-                dataLabel: it.key.dataLabel,
-                categoryCode: it.key.categoryCode,
-                value: it.value.value,
-            )
-        }
-    }
-
-    void addValue(Variable variable, String value) {
+    /**
+     * Sets the value for a given variable, returning the value concept
+     * @param variable
+     * @param value
+     * @return value concept
+     */
+    ConceptNode addValue(Variable variable, String value) {
         ConceptNode concept = variable.getValueConcept(value)
-        concept.addSubject(patient.id)
         variableValueMap.put(variable, new Entry(variable: variable, value:value, concept: concept))
+        concept
     }
 
-    List<ObservationFact> getObservationFacts() {
-        variableValueMap.values().collect {
+    List<Map<String,Object>> getObservationFactRows() {
 
-            new ObservationFact(
+        Date dt = new Date()
+        variableValueMap.values().collect {
+            [
                     sourcesystem_cd: studyId,
                     //encounter_num: patient.code,
                     patient_num: patient.code,
                     concept_cd: it.concept.code,
-                    //start_date:
+                    //start_date: new Date(Long.MAX_VALUE), //doesn't work
                     valtype_cd: it.getValueTypeCode(),
                     tval_char: it.getStringValue(),
                     nval_num: it.getNumericValue(),
-            )
+                    import_date: dt,
+
+                    provider_id: '@',
+                    location_cd: '@',
+                    modifier_cd: '@',
+                    valueflag_cd: '@',
+                    instance_num: 1,
+            ]
         }
     }
 
@@ -85,44 +84,4 @@ class FactRowSet {
             }
         }
     }
-}
-//to insert into observation_fact (or any temporary table for duplicate check)
-@ToString(includes=['patient_num','concept_cd','tval_char','nval_num'])
-class ObservationFact {
-    Long encounter_num
-    Long patient_num
-    String concept_cd
-    final String provider_id = '@'
-    Date start_date
-    final String modifier_cd = '@'
-    final Integer instance_num = 1
-    String valtype_cd
-    String tval_char
-    Double nval_num
-    String valueflag_cd
-    Double quantity_num
-    String units_cd
-    Date end_date
-    final String location_cd = '@'
-    String observation_blob
-    Double confidence_num
-    Date update_date
-    Date download_date
-    Date import_date
-    String sourcesystem_cd
-    Long upload_id
-    String sample_cd
-}
-
-//to insert into lt_src_clinical_data (to use with the stored procedure)
-class FactRow {
-    String studyId
-    String subjectId
-    String siteId
-    String visitName
-    //String controlledVocabularyCode
-
-    String dataLabel
-    String categoryCode
-    String value
 }
