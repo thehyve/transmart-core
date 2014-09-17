@@ -84,5 +84,15 @@ grails.project.dependency.resolution = {
         compile ':quartz:1.0-RC2'
 
         runtime ':resources:1.2.1'
+
+        // support for static code analysis
+        compile ":codenarc:0.21"
+    }
+}
+
+codenarc.reports = {
+    TransmartAppReport('html') {
+        outputFile = 'CodeNarc-Rmodules-Report.html'
+        title = 'Rmodules Report'
     }
 }
