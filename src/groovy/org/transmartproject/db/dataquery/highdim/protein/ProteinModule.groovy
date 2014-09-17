@@ -62,7 +62,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
         new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                'PROTEIN', 'jAnnotation', 'uniprotId')
+                'PROTEIN', 'a', 'uniprotId')
 
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {

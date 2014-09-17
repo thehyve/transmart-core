@@ -80,7 +80,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jRegion', 'geneId')
+                        'GENE', 'region', 'geneId')
         ]
     }
 

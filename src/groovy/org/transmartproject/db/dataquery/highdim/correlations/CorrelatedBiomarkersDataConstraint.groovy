@@ -94,14 +94,28 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
 
         @Override
         String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-            Criteria associationCriteria = criteriaQuery.getCriteria(outer.entityAlias)
+            Criteria relevantCriteria =
+                    criteriaQuery.getAliasedCriteria(outer.entityAlias)
+            if (relevantCriteria == null) {
+                throw new HibernateException("Could not find Criteria with " +
+                        "alias ${outer.entityAlias}. Available aliases " +
+                        "are ${criteriaQuery.aliasCriteriaMap.keySet()}")
+            }
+
+            String entityName = criteriaQuery.getEntityName(relevantCriteria)
+            if (entityName == null) {
+                throw new HibernateException("Could not find entity name " +
+                        "for criteria ${relevantCriteria}. Map of criteria " +
+                        "entity names is " +
+                        relevantCriteria.criteriaEntityNames)
+            }
 
             // Yikes!
             String propertyColumn = Holders.applicationContext.sessionFactory.
-                    getClassMetadata(criteriaQuery.getEntityName(associationCriteria)).
+                    getClassMetadata(entityName).
                     getPropertyColumnNames(outer.propertyToRestrict)[0]
 
-            String sqlAlias = criteriaQuery.getSQLAlias(associationCriteria)
+            String sqlAlias = criteriaQuery.getSQLAlias(relevantCriteria)
             toString().replaceAll(/\{alias\}/, sqlAlias).
                     replaceAll(/\{property\}/, propertyColumn)
         }

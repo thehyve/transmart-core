@@ -70,7 +70,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'annotations', 'uniprotId'),
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'PROTEIN', 'p', 'uniprotId'),
         ]
     }
 
