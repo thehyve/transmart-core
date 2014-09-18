@@ -29,6 +29,7 @@ class DeVariantSubjectSummaryDetailGene implements Serializable {
 
     // from population data with gene info restriction
 	String geneName
+    String geneId
 
     DeVariantSubjectIdxCoreDb subjectIndex
 

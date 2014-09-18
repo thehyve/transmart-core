@@ -428,17 +428,23 @@ class H2Views {
                 detail.info,
                 detail.format,
                 detail.variant_value,
-                genedata.text_value AS gene_name
+                genesymbol.text_value AS gene_name,
+                geneid.text_value AS gene_id
             FROM deapp.de_variant_subject_summary summary
             JOIN deapp.de_variant_subject_detail detail ON
                 detail.dataset_id = summary.dataset_id AND
                 detail.chr = summary.chr AND
                 detail.pos = summary.pos
-            LEFT JOIN deapp.de_variant_population_data genedata ON
-                genedata.dataset_id = summary.dataset_id AND
-                genedata.chr = summary.chr AND
-                genedata.pos = summary.pos AND
-                genedata.info_name = 'GS' '''
+            LEFT JOIN deapp.de_variant_population_data genesymbol ON
+                genesymbol.dataset_id = summary.dataset_id AND
+                genesymbol.chr = summary.chr AND
+                genesymbol.pos = summary.pos AND
+                genesymbol.info_name = 'GS'
+            LEFT JOIN deapp.de_variant_population_data geneid ON
+                geneid.dataset_id = summary.dataset_id AND
+                geneid.chr = summary.chr AND
+                geneid.pos = summary.pos AND
+                geneid.info_name = 'GID' '''
     }
 
     enum ObjectStatus {

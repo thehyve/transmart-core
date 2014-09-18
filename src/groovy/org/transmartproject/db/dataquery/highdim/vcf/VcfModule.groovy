@@ -32,6 +32,7 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
@@ -89,8 +90,8 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
         [
             standardDataConstraintFactory,
             chromosomeSegmentConstraintFactory,
-           // new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-            //        'GENE', 'jPopulationData', 'textValue')
+            new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                    'GENE', 'summary', 'geneId')
         ]
     }
 

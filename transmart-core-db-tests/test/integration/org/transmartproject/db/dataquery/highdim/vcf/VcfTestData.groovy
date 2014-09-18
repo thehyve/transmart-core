@@ -22,12 +22,16 @@ package org.transmartproject.db.dataquery.highdim.vcf
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
+import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 
 /**
  * Created by j.hudecek on 13-3-14.
@@ -46,6 +50,10 @@ class VcfTestData  {
     List<DeVariantSubjectIdxCoreDb> indexData
     List<DeVariantPopulationDataCoreDb> populationData
 
+    QtQueryMaster allPatientsQueryResult
+
+    SampleBioMarkerTestData bioMarkerTestData
+
     public VcfTestData() {
         // Create VCF platform and assays
         platform = new DeGplInfo(
@@ -56,6 +64,7 @@ class VcfTestData  {
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
+        allPatientsQueryResult = createQueryResult(patients)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
 
         // Create VCF data
@@ -87,8 +96,10 @@ class VcfTestData  {
                 summariesData.last().allele1=2
 
             // Create VCF population data entry
-            populationData += createPopulationData(detail, 'GID', '7157')
-            populationData += createPopulationData(detail, 'GS', 'TP53')
+            if (detail.pos == 1 || detail.pos == 2) {
+                populationData += createPopulationData(detail, 'GID', '-130751')
+                populationData += createPopulationData(detail, 'GS', 'AURKA')
+            }
         }
 
         // Add also another platform and assays for those patients
@@ -100,7 +111,13 @@ class VcfTestData  {
         otherPlatform.id = 'BOGUSGPLMRNA'
 
         assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
+
+        bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
+
+    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+        bioMarkerTestData.geneSearchKeywords
+    }()
 
     def createDetail = {
         int position,
@@ -168,10 +185,13 @@ class VcfTestData  {
 
 
     void saveAll() {
+        bioMarkerTestData.saveGeneData()
+
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         assertThat otherPlatform.save(), is(notNullValue(DeGplInfo))
         save([dataset])
         save patients
+        save([ allPatientsQueryResult ])
         save assays
         save detailsData
         save indexData
