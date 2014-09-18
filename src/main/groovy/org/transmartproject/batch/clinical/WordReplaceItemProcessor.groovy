@@ -13,9 +13,6 @@ import javax.annotation.PostConstruct
  */
 class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
 
-    @Autowired
-    ClinicalJobContext jobContext
-
     @Value("#{clinicalJobContext.wordMappings}")
     List<WordMapping> wordMappings
 
@@ -45,7 +42,7 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
 
     @PostConstruct
     void init() {
-        map = getMappings(jobContext.wordMappings)
+        map = getMappings(wordMappings)
     }
 
     static Map<String,List<Mapping>> getMappings(List<WordMapping> sourceList) {
