@@ -10,8 +10,6 @@ import org.transmartproject.batch.model.WordMapping
  */
 interface ClinicalJobContext {
 
-    Map getJobParameters()
-
     List<Variable> getVariables()
 
     List<WordMapping> getWordMappings()
@@ -19,8 +17,6 @@ interface ClinicalJobContext {
     ConceptTree getConceptTree()
 
     PatientSet getPatientSet()
-
-    String getStudyId()
 
 }
 

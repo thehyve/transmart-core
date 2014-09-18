@@ -4,6 +4,7 @@ import groovy.transform.ToString
 import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Variable
+import org.transmartproject.batch.model.VariableType
 
 /**
  *
@@ -34,7 +35,7 @@ class FactRowSet {
         variableValueMap.values().collect {
             [
                     sourcesystem_cd: studyId,
-                    //encounter_num: patient.code,
+                    encounter_num: patient.code,
                     patient_num: patient.code,
                     concept_cd: it.concept.code,
                     //start_date: new Date(Long.MAX_VALUE), //doesn't work
@@ -59,27 +60,27 @@ class FactRowSet {
 
         String getValueTypeCode() {
             switch (variable.type) {
-                case Variable.VariableType.NUMERICAL:
+                case VariableType.NUMERICAL:
                     return 'N'
-                case Variable.VariableType.CATEGORICAL:
+                case VariableType.CATEGORICAL:
                     return 'T'
             }
         }
 
         String getStringValue() {
             switch (variable.type) {
-                case Variable.VariableType.NUMERICAL:
+                case VariableType.NUMERICAL:
                     return 'E' //@todo verify logic
-                case Variable.VariableType.CATEGORICAL:
+                case VariableType.CATEGORICAL:
                     return value
             }
         }
 
         Double getNumericValue() {
             switch (variable.type) {
-                case Variable.VariableType.NUMERICAL:
+                case VariableType.NUMERICAL:
                     return Double.valueOf(value)
-                case Variable.VariableType.CATEGORICAL:
+                case VariableType.CATEGORICAL:
                     return null
             }
         }

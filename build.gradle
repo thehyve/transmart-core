@@ -32,8 +32,7 @@ dependencies {
     final GMOCK_VERSION = '0.8.3'
     final POSTGRESQL_VERSION = '9.3-1102-jdbc41'
 
-	// use the indy jars (java 7 only!)
-	compile 'org.codehaus.groovy:groovy:2.2.1:indy'
+    compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
 	compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
 

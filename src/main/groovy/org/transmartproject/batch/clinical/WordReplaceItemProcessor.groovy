@@ -2,6 +2,7 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.WordMapping
 
@@ -15,7 +16,10 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
     @Autowired
     ClinicalJobContext jobContext
 
-    private Map<String,List<Mapping>> wordMappings
+    @Value("#{clinicalJobContext.wordMappings}")
+    List<WordMapping> wordMappings
+
+    private Map<String,List<Mapping>> map
 
     @Override
     Row process(Row item) throws Exception {
@@ -28,7 +32,7 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
     }
 
     int replaceWords(Row row) {
-        List<Mapping> list = wordMappings.get(row.filename)
+        List<Mapping> list = map.get(row.filename)
         int count = 0
         list.each {
             if (it.from == row.values[it.column]) {
@@ -41,7 +45,7 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
 
     @PostConstruct
     void init() {
-        wordMappings = getMappings(jobContext.wordMappings)
+        map = getMappings(jobContext.wordMappings)
     }
 
     static Map<String,List<Mapping>> getMappings(List<WordMapping> sourceList) {

@@ -1,6 +1,6 @@
 package example
 
-import org.transmartproject.batch.clinical.JobConfiguration
+import org.transmartproject.batch.clinical.ClinicalDataLoadJobConfiguration
 import org.transmartproject.batch.support.Keys
 
 /**
@@ -13,7 +13,7 @@ class RunJob {
     }
 
     static void transmart() {
-        def jobPath = JobConfiguration.class.name
+        def jobPath = ClinicalDataLoadJobConfiguration.class.name
         def jobId = 'job'
         execute(jobPath, jobId, gse8581())
     }

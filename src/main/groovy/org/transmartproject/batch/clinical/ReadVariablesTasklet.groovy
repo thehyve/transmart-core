@@ -4,8 +4,8 @@ import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.transmartproject.batch.model.ConceptTree
 import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.LineListener
@@ -16,8 +16,11 @@ import org.transmartproject.batch.support.LineStepContributionAdapter
  */
 class ReadVariablesTasklet implements Tasklet {
 
-    @Autowired
-    ClinicalJobContext jobContext
+    @Value("#{clinicalJobContext.variables}")
+    List<Variable> variables
+
+    @Value("#{clinicalJobContext.conceptTree}")
+    ConceptTree conceptTree
 
     @Value("#{jobParameters['dataLocation']}")
     String dataLocation
@@ -30,9 +33,11 @@ class ReadVariablesTasklet implements Tasklet {
         File file = getFile()
         LineListener listener = new LineStepContributionAdapter(contribution)
 
-        List<Variable> list = Variable.parse(file.newInputStream(), listener, jobContext.conceptTree)
-        jobContext.variables.clear()
-        jobContext.variables.addAll(list)
+        List<Variable> list = Variable.parse(file.newInputStream(), listener, conceptTree)
+        variables.clear()
+        variables.addAll(list)
+        //jobContext.variables.clear()
+        //jobContext.variables.addAll(list)
 
         Map<DemographicVariable, Variable> demographicVarMap = [:]
 

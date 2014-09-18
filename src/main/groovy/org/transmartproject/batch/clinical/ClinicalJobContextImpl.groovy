@@ -14,7 +14,7 @@ import org.transmartproject.batch.support.Keys
 import javax.annotation.PostConstruct
 
 @Scope('job')
-@Component
+@Component('clinicalJobContext')
 class ClinicalJobContextImpl implements ClinicalJobContext {
 
     @Value('#{jobParameters}')
@@ -51,8 +51,4 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
         jobExecutionContext.get(Keys.WORD_MAPPINGS)
     }
 
-    @Override
-    String getStudyId() {
-        return jobParameters.get(Keys.STUDY_ID)
-    }
 }

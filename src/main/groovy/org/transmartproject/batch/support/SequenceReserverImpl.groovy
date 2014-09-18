@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 
-@Scope('job')
-@Component('sequenceReserver')
+//@Scope('job')
+//@Component('sequenceReserver')
 @Slf4j
 class SequenceReserverImpl implements SequenceReserver {
 

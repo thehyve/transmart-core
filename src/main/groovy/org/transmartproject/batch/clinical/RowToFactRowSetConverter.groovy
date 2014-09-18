@@ -2,14 +2,10 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.batch.model.ConceptNode
-import org.transmartproject.batch.model.DemographicVariable
-import org.transmartproject.batch.model.Patient
-import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.model.Variable
-import org.transmartproject.batch.support.Keys
+import org.springframework.beans.factory.annotation.Value
+import org.transmartproject.batch.model.*
+import org.transmartproject.batch.support.DatabaseObject
 import org.transmartproject.batch.support.SequenceReserver
-import org.transmartproject.batch.support.Sequences
 
 import javax.annotation.PostConstruct
 
@@ -19,12 +15,16 @@ import javax.annotation.PostConstruct
 class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
     @Autowired
-    ClinicalJobContext jobContext
-
-    @Autowired
     SequenceReserver sequenceReserver
 
-    private String studyId
+    @Value("#{jobParameters['studyId']}")
+    String studyId
+
+    @Value("#{clinicalJobContext.patientSet}")
+    PatientSet patientSet
+
+    @Value("#{clinicalJobContext.variables}")
+    List<Variable> variables
 
     private Map<String, FileVariables> variablesMap
 
@@ -38,21 +38,18 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
     @PostConstruct
     void init() {
-        sequenceReserver.configureBlockSize(Sequences.PATIENT, 10)
-        sequenceReserver.configureBlockSize(Sequences.CONCEPT, 10)
 
-        this.studyId = jobContext.getJobParameters().get(Keys.STUDY_ID)
-        Map<String,List<Variable>> map = jobContext.variables.groupBy { it.filename }
+        Map<String,List<Variable>> map = variables.groupBy { it.filename }
         this.variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
     }
 
     private Patient getPatient(Row item, FileVariables vars) {
-        Patient patient = jobContext.patientSet.getPatient(vars.getPatientId(item))
+        Patient patient = patientSet.getPatient(vars.getPatientId(item))
         patient.demographicValues.putAll(vars.getDemographicRelatedValues(item))
 
         if (!patient.code) {
             //new patient: reserve code
-            patient.code = sequenceReserver.getNext(Sequences.PATIENT)
+            patient.code = sequenceReserver.getNext(DatabaseObject.Sequence.PATIENT)
             //println "reserved patient code $patient.code"
         }
         patient
@@ -116,14 +113,14 @@ class FileVariables {
         otherVariables.each {
             String value = row.values.get(it.columnNumber)
             ConceptNode concept = result.addValue(it, value)
-            concept.addSubject(patient.id) //add to counter
 
             ConceptNode tmp = concept
             //goes up in the concept hierarchy, reserving codes until no longer necessary
             while (tmp && !tmp.code) {
                 //new concept: reserve code
-                tmp.code = reserver.getNext(Sequences.CONCEPT)
-                println "reserved concept code $tmp.code"
+                tmp.code = reserver.getNext(DatabaseObject.Sequence.CONCEPT)
+                tmp.i2b2RecordId = reserver.getNext(DatabaseObject.Sequence.I2B2_RECORDID)
+                //println "reserved concept code $tmp.code"
                 tmp = tmp.parent //recurse to parent
             }
         }

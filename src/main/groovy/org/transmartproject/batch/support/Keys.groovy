@@ -15,6 +15,6 @@ class Keys {
 
     //context
     static final String VARIABLES = 'variables'
-    static final String WORD_MAPPINGS = 'wordMappings'
+    static final String WORD_MAPPINGS = 'map'
 
 }

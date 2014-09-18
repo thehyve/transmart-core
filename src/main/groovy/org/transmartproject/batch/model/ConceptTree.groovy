@@ -59,10 +59,13 @@ class ConceptNode {
     String name
     String path
     Long code
-    boolean persisted
-    Set<String> subjects = new HashSet<>()
+    Long i2b2RecordId
+    int level
+    Variable variable
 
-    protected Set<ConceptNode> children = new HashSet<>()
+    boolean isNew = true //new by default, until explicitly set otherwise
+
+    List<ConceptNode> children = []
 
     ConceptNode find(String ... pathParts) {
         String path = getJoinedPath(pathParts)
@@ -82,6 +85,7 @@ class ConceptNode {
         if (!child) {
             //creating a new node
             child = new ConceptNode(parent: this, name: first, path: "${this.path}$first$SEP")
+            child.level = level + 1
             children.add(child)
         }
 
@@ -109,17 +113,20 @@ class ConceptNode {
         result
     }
 
-
-    int getSubjectCount() {
-        deepSubjectsSet.size()
-    }
-
-    void addSubject(String subjectId) {
-        subjects.add(subjectId)
+    VariableType getType() {
+        if (variable) {
+            return variable.type
+        } else if (parent) {
+            return parent.type
+        } else {
+            return null
+        }
     }
 
     static ConceptNode createRoot(String name) {
-        new ConceptNode(name: name, path: "$SEP$name$SEP")
+        ConceptNode result = new ConceptNode(name: name, path: "$SEP$name$SEP")
+        result.level = 0
+        result
     }
 
     static String getJoinedPath(String ... parts) {

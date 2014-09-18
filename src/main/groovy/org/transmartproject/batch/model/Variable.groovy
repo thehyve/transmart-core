@@ -79,11 +79,12 @@ class Variable implements Serializable {
         MappingHelper.parseObjects(input, new VariableLineMapper(tree: conceptTree), listener)
     }
 
-    enum VariableType {
-        NUMERICAL,
-        CATEGORICAL,
-    }
 
+}
+
+enum VariableType {
+    NUMERICAL,
+    CATEGORICAL,
 }
 
 class VariableLineMapper implements Function<String,Variable> {
@@ -96,7 +97,9 @@ class VariableLineMapper implements Function<String,Variable> {
         result.columnNumber-- //index is now 0 based
         if (!Variable.RESERVED.contains(result.dataLabel)) {
             //resolve the concept
-            result.concept = tree.study.find(result.categoryCode, result.dataLabel)
+            ConceptNode concept = tree.study.find(result.categoryCode, result.dataLabel)
+            result.concept = concept
+            concept.variable = result
         }
         result
     }

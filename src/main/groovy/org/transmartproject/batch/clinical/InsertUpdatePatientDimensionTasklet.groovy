@@ -5,11 +5,13 @@ import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
+import org.transmartproject.batch.model.PatientSet
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.UpdateQueryBuilder
 
@@ -18,15 +20,21 @@ import javax.annotation.PostConstruct
 /**
  *
  */
-class InsertUpdatePatientsTasklet implements Tasklet {
+class InsertUpdatePatientDimensionTasklet implements Tasklet {
 
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    private NamedParameterJdbcTemplate namedTemplate
+    @Value("#{jobParameters['studyId']}")
+    String studyId
 
-    @Autowired
-    ClinicalJobContext jobContext
+    @Value("#{clinicalJobContext.patientSet}")
+    PatientSet patientSet
+
+    @Value("#{clinicalJobContext.variables}")
+    List<Variable> variables
+
+    private NamedParameterJdbcTemplate namedTemplate
 
     private SimpleJdbcInsert insert
 
@@ -42,7 +50,7 @@ class InsertUpdatePatientsTasklet implements Tasklet {
 
         Date now = new Date()
 
-        jobContext.patientSet.patientMap.values().each { Patient p ->
+        patientSet.patientMap.values().each { Patient p ->
 
             Map<String,Object> map = [
                     patient_num: p.code,
@@ -51,13 +59,13 @@ class InsertUpdatePatientsTasklet implements Tasklet {
             //add all the demographic values
             map.putAll(getDemographicValues(p))
 
-            if (p.persisted) {
-                toUpdate.add(map)
-            } else {
+            if (p.isNew) {
                 map.put('download_date', now)
                 map.put('import_date', now)
-                map.put('sourcesystem_cd', getSourceSystem(jobContext.studyId, p.id))
+                map.put('sourcesystem_cd', getSourceSystem(studyId, p.id))
                 toInsert.add(map)
+            } else {
+                toUpdate.add(map)
             }
         }
 
@@ -101,7 +109,7 @@ class InsertUpdatePatientsTasklet implements Tasklet {
         insert.withTableName('patient_dimension')
 
         demographicVariableMap = [:]
-        jobContext.variables.each {
+        variables.each {
             if (it.demographicVariable) {
                 demographicVariableMap.put(it.demographicVariable, it)
             }

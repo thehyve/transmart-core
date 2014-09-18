@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.transmartproject.batch.model.ConceptNode
+import org.transmartproject.batch.model.ConceptTree
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -20,32 +21,45 @@ import java.sql.Types
 class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
 
     @Autowired
-    ClinicalJobContext jobContext
-
-    @Autowired
     private JdbcTemplate jdbcTemplate
 
     @Value("#{jobParameters['studyId']}")
     String studyId
 
+    @Value("#{clinicalJobContext.conceptTree}")
+    ConceptTree conceptTree
+
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        String sql = "select c_fullname, c_basecode  from i2b2metadata.i2b2 " +
-                "where sourcesystem_cd = ? and c_hlevel > 0"
+        String rootPath = conceptTree.root.path
 
-        jdbcTemplate.query(sql, [studyId] as Object[], [Types.VARCHAR] as int[], this)
-        println "Found ${jobContext.conceptTree.root.allChildren.size()} concepts for this study"
+        String sql = "select c_fullname, c_basecode, record_id from i2b2metadata.i2b2 " +
+                "where sourcesystem_cd = ? or c_fullname = ?"
 
+        List<ConceptNode> concepts = jdbcTemplate.query(
+                sql,
+                [studyId, rootPath] as Object[],
+                [Types.VARCHAR, Types.VARCHAR] as int[],
+                this)
+
+        concepts.each {
+            contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
+        }
+
+        println contribution
         return RepeatStatus.FINISHED
     }
 
     @Override
     ConceptNode mapRow(ResultSet rs, int rowNum) throws SQLException {
         String path = rs.getString(1)
-        ConceptNode node = jobContext.conceptTree.find(path)
-        node.code = Long.parseLong(rs.getString(2))
-        node.persisted = true
+        ConceptNode node = conceptTree.find(path)
+        String code = rs.getString(2)
+        if (code) {
+            node.code = Long.parseLong(code)
+        }
+        node.isNew = false
         node
     }
 }

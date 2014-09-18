@@ -7,18 +7,16 @@ import groovy.transform.ToString
  */
 class PatientSet {
 
-    Map<String,Patient> patientMap = [:]
+    Map<String,Patient> patientMap = [:].asSynchronized()
 
     Patient getPatient(String id) {
 
-        synchronized (patientMap) {
-            Patient result = patientMap.get(id)
-            if (!result) {
-                result = new Patient(id: id)
-                patientMap.put(id, result)
-            }
-            return result
+        Patient result = patientMap.get(id)
+        if (!result) {
+            result = new Patient(id: id)
+            patientMap.put(id, result)
         }
+        return result
     }
 
 }
@@ -27,7 +25,7 @@ class PatientSet {
 class Patient {
     String id
     Long code
-    boolean persisted
+    boolean isNew = true //new by default
 
     Map<Variable,String> demographicValues = [:]
 

@@ -12,12 +12,15 @@ import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Scope
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.support.SequenceReserver
+import org.transmartproject.batch.support.SequenceReserverImpl
 
 import javax.sql.DataSource
 
@@ -37,8 +40,17 @@ abstract class AbstractJobConfiguration {
     @Value('#{transmartDataSource}')
     DataSource transmartDataSource
 
-    @Autowired
-    SequenceReserver sequenceReserver
+    @Scope('job')
+    @Bean
+    SequenceReserver sequenceReserver() {
+        SequenceReserver result = new SequenceReserverImpl()
+        configure(result)
+        result
+    }
+
+    protected void configure(SequenceReserver sequenceReserver) {
+        sequenceReserver.defaultBlockSize = 10
+    }
 
     Step stepOf(String name, Tasklet tasklet) {
         steps.get(name)

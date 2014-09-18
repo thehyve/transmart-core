@@ -19,7 +19,7 @@ import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
 
 @Configuration
-class JobConfiguration extends AbstractJobConfiguration {
+class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Job job() {
@@ -32,21 +32,17 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow mainFlow() {
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(readControlFilesFlow()) //reads control files (column map, word map, etc..)
-                .next(readCurrentEntitiesFlow())
+                .start(readControlFilesFlow())                              //reads control files (column map, word map)
+                .next(stepOf(this.&gatherCurrentPatientsTasklet))           //get patients from database
+                .next(stepOf(this.&gatherCurrentConceptsTasklet))           //get concepts from database
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
-                .next(rowProcessingStep())
-                .next(stepOf(this.&insertUpdatePatientsTasklet))
+                .next(rowProcessingStep())                                  //process rows, inserting observation_fact rows
+                .next(stepOf(this.&insertUpdatePatientDimensionTasklet))    //insert/update patient_dimension
+                .next(stepOf(this.&insertPatientTrialTasklet))              //insert patient_trial rows
+                .next(stepOf(this.&insertConceptsTasklet))                  //insert i2b2, i2b2_secure and concept_dimension rows
+                .next(stepOf(this.&insertConceptCountsTasklet))             //insert concept_counts rows
                 .build()
-    }
-
-    @Bean
-    Flow readCurrentEntitiesFlow() {
-        new FlowBuilder<SimpleFlow>('readExistingEntitiesFlow')
-            .start(stepOf(this.&gatherCurrentPatientsTasklet))
-            .next(stepOf(this.&gatherCurrentConceptsTasklet))
-            .end()
     }
 
     @Bean
@@ -126,8 +122,26 @@ class JobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @Scope('job')
-    Tasklet insertUpdatePatientsTasklet() {
-        new InsertUpdatePatientsTasklet()
+    Tasklet insertUpdatePatientDimensionTasklet() {
+        new InsertUpdatePatientDimensionTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet insertPatientTrialTasklet() {
+        new InsertPatientTrialTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet insertConceptsTasklet() {
+        new InsertConceptsTasklet()
+    }
+
+    @Bean
+    @Scope('job')
+    Tasklet insertConceptCountsTasklet() {
+        new InsertConceptCountsTasklet()
     }
 
     @Bean
@@ -143,6 +157,11 @@ class JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
+    JdbcTemplate jdbcTemplate() {
+        new JdbcTemplate(getTransmartDataSource())
+    }
+
+    @Bean
     static StepScope stepScope() {
         new StepScope()
     }
@@ -150,11 +169,6 @@ class JobConfiguration extends AbstractJobConfiguration {
     @Bean
     static JobScope jobScope() {
         new JobScope()
-    }
-
-    @Bean
-    JdbcTemplate jdbcTemplate() {
-        new JdbcTemplate(getTransmartDataSource())
     }
 
 }

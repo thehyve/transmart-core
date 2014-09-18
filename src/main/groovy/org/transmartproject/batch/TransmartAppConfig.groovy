@@ -1,16 +1,19 @@
 package org.transmartproject.batch
 
-import org.springframework.batch.core.configuration.annotation.BatchConfigurer
-import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer
+import com.jolbox.bonecp.BoneCPDataSource
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.PropertySource
-import org.transmartproject.batch.support.ConfigHelper
+import org.springframework.core.env.Environment
+import org.springframework.core.io.ResourceLoader
+import org.springframework.dao.DataAccessException
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 
 import javax.sql.DataSource
+import java.sql.SQLException
 
 @Configuration
 @EnableBatchProcessing
@@ -18,28 +21,49 @@ import javax.sql.DataSource
 class TransmartAppConfig {
 
     @Autowired
-    private ConfigHelper helper
+    private Environment env
 
-    @Primary
-    @Bean(destroyMethod="close")
-    DataSource batchDataSource() {
-        //spring batch infrastructure datasource
-        def name = 'batch'
-        def ds = helper.getDataSource(name)
-        helper.populate(ds, name)
-        ds
-    }
+    @Autowired
+    private ResourceLoader resourceLoader
+
 
     @Bean(name='transmartDataSource', destroyMethod="close")
     DataSource transmartDataSource() {
-        DataSource ds = helper.getDataSource('transmart')
+        DataSource ds = getDataSource('transmart', true)
         //ds.setLogWriter(new PrintWriter(System.out))
         ds
     }
 
-    @Bean
-    BatchConfigurer batchConfigurer() {
-        new DefaultBatchConfigurer(batchDataSource())
+    private DataSource getDataSource(String name, boolean initBatchSchema) {
+        String driverClassname = env.getProperty("${name}.jdbc.driver")
+
+
+        DataSource ds = new BoneCPDataSource(
+                driverClass: driverClassname,
+                jdbcUrl: env.getProperty("${name}.jdbc.url"),
+                username: env.getProperty("${name}.jdbc.user"),
+                password: env.getProperty("${name}.jdbc.password"))
+
+        //@TODO remove this and assume batch tables are already created once the transmart-data is updated
+        if (initBatchSchema) {
+            // initialize batch database
+            def ref = getBatchSchemaRef(driverClassname)
+            def populator = new ResourceDatabasePopulator()
+            populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-drop-${ref}.sql"))
+            populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-${ref}.sql"))
+            DatabasePopulatorUtils.execute(populator, ds)
+        }
+
+        ds
+    }
+
+    static String getBatchSchemaRef(String driverClassname) {
+        switch (driverClassname) {
+            case 'org.postgresql.Driver':
+                return 'postgresql'
+            default:
+                throw new UnsupportedOperationException("Not supported: $driverClassname")
+        }
     }
 
 }

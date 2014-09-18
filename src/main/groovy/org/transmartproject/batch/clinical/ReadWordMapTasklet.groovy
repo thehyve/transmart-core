@@ -4,7 +4,6 @@ import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.model.WordMapping
 import org.transmartproject.batch.support.LineListener
@@ -15,14 +14,14 @@ import org.transmartproject.batch.support.LineStepContributionAdapter
  */
 class ReadWordMapTasklet implements Tasklet {
 
-    @Autowired
-    ClinicalJobContext jobContext
-
     @Value("#{jobParameters['dataLocation']}")
     String dataLocation
 
     @Value("#{jobParameters['wordMapFile']}")
     String wordMapFile
+
+    @Value("#{clinicalJobContext.wordMappings}")
+    List<WordMapping> wordMappings
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -40,8 +39,8 @@ class ReadWordMapTasklet implements Tasklet {
             list = []
         }
 
-        jobContext.wordMappings.clear()
-        jobContext.wordMappings.addAll(list)
+        wordMappings.clear()
+        wordMappings.addAll(list)
 
         return RepeatStatus.FINISHED
     }

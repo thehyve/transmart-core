@@ -14,7 +14,7 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
     String sql() {
         return "delete from i2b2demodata.concept_counts " +
                "where concept_path in (select c_fullname from i2b2metadata.i2b2 " +
-               "where sourcesystem_cd = ? and c_visualattributes not like '__H')"
+               "where sourcesystem_cd = ?)"
     }
 
     @Override
