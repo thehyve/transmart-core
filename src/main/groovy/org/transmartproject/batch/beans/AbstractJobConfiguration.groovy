@@ -1,8 +1,9 @@
-package org.transmartproject.batch
+package org.transmartproject.batch.beans
 
 import org.codehaus.groovy.runtime.MethodClosure
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
@@ -15,12 +16,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Scope
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.support.SequenceReserver
-import org.transmartproject.batch.support.SequenceReserverImpl
 
 import javax.sql.DataSource
 
@@ -40,10 +39,10 @@ abstract class AbstractJobConfiguration {
     @Value('#{transmartDataSource}')
     DataSource transmartDataSource
 
-    @Scope('job')
+    @JobScope
     @Bean
     SequenceReserver sequenceReserver() {
-        SequenceReserver result = new SequenceReserverImpl()
+        SequenceReserver result = new SequenceReserver()
         configure(result)
         result
     }

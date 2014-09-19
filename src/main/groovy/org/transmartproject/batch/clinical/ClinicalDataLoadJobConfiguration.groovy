@@ -5,8 +5,6 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
-import org.springframework.batch.core.scope.JobScope
-import org.springframework.batch.core.scope.StepScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
@@ -15,7 +13,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
-import org.transmartproject.batch.AbstractJobConfiguration
+import org.transmartproject.batch.beans.AbstractJobConfiguration
+import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
 import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
@@ -70,43 +70,43 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet readWordMapTasklet() {
         new ReadWordMapTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet readVariablesTasklet() {
         new ReadVariablesTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet gatherCurrentPatientsTasklet() {
         new GatherCurrentPatientsTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet gatherCurrentConceptsTasklet() {
         new GatherCurrentConceptsTasklet()
     }
 
     @Bean
-    @Scope('step')
+    @StepScopeInterfaced
     ItemReader<Row> dataRowReader() {
         new DataRowReader()
     }
 
     @Bean
-    @Scope('step')
+    @StepScopeInterfaced
     ItemProcessor<Row,Row> wordReplaceProcessor() {
         new WordReplaceItemProcessor()
     }
 
     @Bean
-    @Scope('step')
+    @StepScopeInterfaced
     ItemProcessor<Row, FactRowSet> rowToFactRowSetConverter() {
         new RowToFactRowSetConverter()
     }
@@ -117,37 +117,37 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet insertUpdatePatientDimensionTasklet() {
         new InsertUpdatePatientDimensionTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet insertPatientTrialTasklet() {
         new InsertPatientTrialTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet insertConceptsTasklet() {
         new InsertConceptsTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet insertConceptCountsTasklet() {
         new InsertConceptCountsTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet deleteObservationFactTasklet() {
         new DeleteObservationFactTasklet()
     }
 
     @Bean
-    @Scope('job')
+    @JobScopeInterfaced
     Tasklet deleteConceptCountsTasklet() {
         new DeleteConceptCountsTasklet()
     }
@@ -156,15 +156,4 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     JdbcTemplate jdbcTemplate() {
         new JdbcTemplate(getTransmartDataSource())
     }
-
-    @Bean
-    static StepScope stepScope() {
-        new StepScope()
-    }
-
-    @Bean
-    static JobScope jobScope() {
-        new JobScope()
-    }
-
 }

@@ -10,7 +10,7 @@ class RunJob {
 
     static void main(String ... args) {
         transmart(gse8581())
-        //transmart(gse20690()) @TODO 2nd job run reuses the beans (and job parameters) of the 1st
+        transmart(gse20690()) //@TODO 2nd job run reuses the beans (and job parameters) of the 1st
     }
 
     static void transmart(Map study) {
