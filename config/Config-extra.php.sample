@@ -8,7 +8,8 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
-//oauthEnabled = false
+//oauthEnabled      = true
+//samlEnabled       = false
 EOD
 ,
     /* this is the text to be inserted at the very end of the file.

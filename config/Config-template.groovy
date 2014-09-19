@@ -21,8 +21,8 @@ def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // to expose this directory as <context path>/images/<RModules.imageURL>
 // (usually transmart/images/tempImages)
 def jobsDirectory     = "/var/tmp/jobs/"
-
-def oauthEnabled = true
+def oauthEnabled      = true
+def samlEnabled       = false
 
 // I001 – Insertion point 'post-WAR-variables'
 
@@ -247,6 +247,7 @@ grails { plugin { springsecurity {
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/js/**'                      : ['IS_AUTHENTICATED_ANONYMOUSLY'],
+            '/grails-errorhandler'        : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/images/analysisFiles/**'    : ['IS_AUTHENTICATED_REMEMBERED'],
             '/images/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/static/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
@@ -298,100 +299,120 @@ grails { plugin { springsecurity {
     }
 
 } } }
-
 /* }}} */
 
 //{{{ SAML Configuration
-org.transmart.security.samlEnabled = false
 
-if (org.transmart.security.samlEnabled) {
-    grails.plugin.springsecurity.providerNames << 'samlAuthenticationProvider'
+if (samlEnabled) {
+    // don't do assignment to grails.plugin.springsecurity.providerNames
+    // see GRAILS-11730
+    grails { plugin { springsecurity {
+        providerNames << 'samlAuthenticationProvider'
+    } } }
+    // again, because of GRAILS-11730
+    def ourPluginConfig
+    grails {
+        ourPluginConfig = plugin
+    }
 
-    org.transmart.security.ssoEnabled = "true"
-    // ID of the Service Provider
+    org { transmart { security {
+        samlEnabled = true
+        ssoEnabled  = "true"
 
+        // URL to redirect to after successful authentication
+        successRedirectHandler.defaultTargetUrl = ourPluginConfig.springsecurity.successHandler.defaultTargetUrl
+        // URL to redirect to after successful logout
+        successLogoutHandler.defaultTargetUrl = ourPluginConfig.springsecurity.logout.afterLogoutUrl
 
-    /* {{{ Service provider details (we) */
-    // URL to the IDP's metadata
-    org.transmart.security.saml.sp.id = "gustavo-transmart"
+        saml {
+            /* {{{ Service provider details (we) */
+            sp {
+                // ID of the Service Provider
+                id = "gustavo-transmart"
 
-    // URL of the service provider. This should be autodected, but it isn't
-    org.transmart.security.saml.sp.url = "http://localhost:8080/transmart"
+                // URL of the service provider. This should be autodected, but it isn't
+                url = "http://localhost:8080/transmart"
 
-    // Alias of the Service Provider
-    org.transmart.security.saml.sp.alias = "transmart"
-    /* }}} */
+                // Alias of the Service Provider
+                alias = "transmart"
 
-    // Metadata file of the provider. We insist on keeping instead of just
-    // retrieving it from the provider on startup to prevent transmart from
-    // being unable to start due to provider being down. A copy will still be
-    // periodically fetched from the provider
-    org.transmart.security.saml.idp.metadataFile="/home/gustavo/idp-metadata.xml"
-    // path to keystore which contains keys used by the Service Provider
+                // Alias of the Service Provider's signing key, see keystore details
+                signingKeyAlias = "saml-signing"
+                // Alias of the Service Provider's encryption key
+                encryptionKeyAlias = "saml-encryption"
+            }
+            /* }}} */
 
-    /* {{{ Keystore details */
-    // Location of the keystore. You can use other schemes, like classpath:resource/samlKeystore.jks
-    org.transmart.security.saml.keystore.file="file:///home/gustavo/transmart.jks"
+            // Metadata file of the provider. We insist on keeping instead of just
+            // retrieving it from the provider on startup to prevent transmart from
+            // being unable to start due to provider being down. A copy will still be
+            // periodically fetched from the provider
+            idp.metadataFile = '/home/glopes/idp-local-metadata.xml'
 
-    // keystore's storepass
-    org.transmart.security.saml.keystore.password="changeit"
+            /* {{{ Keystore details */
+            keystore {
+                // Generate with:
+                //  keytool -genkey -keyalg RSA -alias saml-{signing,encryption} \
+                //    -keystore transmart.jks -storepass changeit \
+                //    -validity 3602 -keysize 2048
+                // Location of the keystore. You can use other schemes, like classpath:resource/samlKeystore.jks
+                file = 'file:///home/glopes/transmart.jks'
 
-    // keystore's default key
-    org.transmart.security.saml.keystore.defaultKey="saml-signing"
+                // keystore's storepass
+                password="changeit"
 
-    // Alias of the encryption key in the keystore
-    org.transmart.security.saml.keystore.encryptionKey.alias="saml-encryption"
-    // Password of that the key with above alis in the keystore
-    org.transmart.security.saml.keystore.encryptionKey.password="changeit"
+                // keystore's default key
+                defaultKey="saml-signing"
 
-    // Alias of the signing key in the keystore
-    org.transmart.security.saml.keystore.signingKey.alias="saml-signing"
-    // Password of that the key with above alis in the keystore
-    org.transmart.security.saml.keystore.signingKey.password="changeit"
-    /* }}} */
+                // Alias of the encryption key in the keystore
+                encryptionKey.alias="saml-encryption"
+                // Password of that the key with above alis in the keystore
+                encryptionKey.password="changeit"
 
-    /* {{{ Creation of new users */
-    org.transmart.security.saml.createInexistentUsers = "true"
-    org.transmart.security.saml.attribute.username    = "urn:custodix:ciam:1.0:principal:username"
-    org.transmart.security.saml.attribute.firstName   = "urn:oid:2.5.4.42"
-    org.transmart.security.saml.attribute.lastName    = "urn:oid:2.5.4.4"
-    org.transmart.security.saml.attribute.email       = ""
-    /* }}} */
+                // Alias of the signing key in the keystore
+                signingKey.alias="saml-signing"
+                // Password of that the key with above alis in the keystore
+                signingKey.password="changeit"
+            }
+            /* }}} */
 
-    //
-    // Except maybe for the binding, you probably won't want to change the rest:
-    //
+            /* {{{ Creation of new users */
+            createInexistentUsers = "true"
+            attribute.username    = "urn:custodix:ciam:1.0:principal:username"
+            attribute.firstName   = "urn:oid:2.5.4.42"
+            attribute.lastName    = "urn:oid:2.5.4.4"
+            attribute.email       = ""
+            attribute.federatedId = "personPrincipalName"
+            /* }}} */
 
-    // These two keys are referenced above
-    // Alias of the Service Provider's signing key, see keystore details
-    org.transmart.security.saml.sp.signingKeyAlias = "saml-signing"
-    // Alias of the Service Provider's encryption key
-    org.transmart.security.saml.sp.encryptionKeyAlias = "saml-encryption"
+            //
+            // Except maybe for the binding, you probably won't want to change the rest:
+            //
 
-    // URL to redirect to after successful authentication
-    org.transmart.security.successRedirectHandler.defaultTargetUrl = grails.plugin.springsecurity.successHandler.defaultTargetUrl
-    // URL to redirect to after successful logout
-    org.transmart.security.successLogoutHandler.defaultTargetUrl = grails.plugin.springsecurity.logout.afterLogoutUrl
+            // Suffix of the login filter, saml authentication is initiated when user browses to this url
+            entryPoint.filterProcesses = "/saml/login"
+            // SAML Binding to be used for above entry point url.
+            entryPoint.binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+            // This property must be set otherwise the default binding is used which, in this configuration, is HTTP-ARTIFACT
+            entryPoint.defaultAssertionConsumerIndex = "1"
 
-    // Suffix of the login filter, saml authentication is initiated when user browses to this url
-    org.transmart.security.saml.entryPoint.filterProcesses = "/saml/login"
-    // SAML Binding to be used for above entry point url.
-    org.transmart.security.saml.entryPoint.binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-    // This property must be set otherwise the default binding is used which, in this configuration, is HTTP-ARTIFACT
-    org.transmart.security.saml.entryPoint.defaultAssertionConsumerIndex = "1"
+            // Suffix of the Service Provider's metadata, this url needs to be configured on IDP
+            metadata.filterSuffix = "/saml/metadata"
+            // Id of the spring security's authentication manager
+            authenticationManager = "authenticationManager"
+            // Whether sessions should be invalidated after logout
+            logout.invalidateHttpSession = "true"
+            // Id of the spring security user service that should be called to fetch users.
+            saml.userService = "org.transmart.FederatedUserDetailsService"
+        }
+    } } }
+} else { // if (!samlEnabled)
+    org { transmart { security {
+        samlEnabled = false
+    }
+}
 
-    // Suffix of the Service Provider's metadata, this url needs to be configured on IDP
-    org.transmart.security.saml.metadata.filterSuffix = "/saml/metadata"
-    // Id of the spring security's authentication manager
-    org.transmart.security.saml.authenticationManager = "authenticationManager"
-    // Whether sessions should be invalidated after logout
-    org.transmart.security.saml.logout.invalidateHttpSession = "true"
-    // Id of the spring security user service that should be called to fetch users.
-    org.transmart.security.saml.userService = "org.transmart.FederatedUserDetailsService"
-
-} //if (org.transmart.security.samlEnabled)
-
-//</editor-fold> }}}
+// }}}
 
 /* {{{ Quartz jobs configuration */
 // start delay for the sweep job
