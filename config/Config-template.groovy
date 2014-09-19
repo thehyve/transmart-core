@@ -402,6 +402,24 @@ com.recomdata.export.jobs.sweep.repeatInterval = 86400000 // d*h*m*s*1000
 com.recomdata.export.jobs.sweep.fileAge = 3
 /* }}} */
 
+/* {{{ File store and indexing configuration */
+com.rwg.solr.browse.path   = '/solr/browse/select/'
+com.rwg.solr.update.path = '/solr/browse/dataimport/'
+com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
+                             "${new File(com.rwg.solr.browse.path).parent}"
+
+def fileStoreDirectory = new File(System.getenv('HOME'), '.grails/transmart-filestore')
+def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transmart-fileimport')
+com.recomdata.FmFolderService.filestoreDirectory = fileStoreDirectory.absolutePath
+com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath
+
+[fileStoreDirectory, fileImportDirectory].each {
+    if (!it.exists()) {
+        it.mkdir()
+    }
+}
+/* }}} */
+
 // I002 – Insertion point 'end'
 
 // vim: set fdm=marker et ts=4 sw=4 filetype=groovy ai:
