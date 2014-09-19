@@ -17,7 +17,9 @@ import java.sql.SQLException
 
 @Configuration
 @EnableBatchProcessing
-@PropertySource("classpath:transmart.properties")
+//@PropertySource("classpath:transmart.properties")
+//@PropertySource("${propertySource:batchdb.properties}")
+@PropertySource('${propertySource}')
 class TransmartAppConfig {
 
     @Autowired
