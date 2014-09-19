@@ -1,0 +1,26 @@
+filename	category_cd	col_nbr	data_label
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt		1	STUDY_ID
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt		2	SUBJ_ID
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Samples_and_Timepoints	3	Dataset Type
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Samples_and_Timepoints+Dataset_Type+Validation	4	Prediction Result based on CRP
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Samples_and_Timepoints+Dataset_Type+Validation	5	Prediction Result based on EULAR (CRP)
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Treatment_Groups	6	Treatment
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Demographics	7	Sex
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Demographics	8	Race
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Demographics	9	Age
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Medical_History	10	Response to Standard MTX Treatment
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Medical_History	11	Disease
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Subjects+Medical_History	12	ACR Score (The American college of Rheumatology criteria)
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Study_Groups	13	Inflammation Status at Week 14
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Clinical_Data	14	EULAR Response based on DAS28 (CRP) at Week 14
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Clinical_Data	15	EULAR Response based on DAS28 (ESR) at Week 14
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Clinical_Data	16	3-variables EULAR Response based on DAS28 (CRP) at Week 14
+Rheumatoid Arthritis_Takeuchi_GSE20690_1.txt	Clinical_Data	17	3-variables EULAR Response based on DAS28 (ESR) at Week 14
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt		1	STUDY_ID
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt		2	SUBJ_ID
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt		3	VISIT_NAME
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt		4	OMIT
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt	Samples_and_Timepoints+Tissue_Type	5	Blood
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt	Samples_and_Timepoints	6	Cell Type
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt	Samples_and_Timepoints+Tissue_Type	7	Serum
+Rheumatoid Arthritis_Takeuchi_GSE20690_2.txt	Clinical_Data	8	"Serum CRP Level, mg/dl"

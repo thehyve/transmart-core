@@ -17,7 +17,7 @@ class VariableTest {
     void testParseCompleteLine() {
 
         String line = "$filename\t$category\t$column\t$dataLabel"
-        Variable map = Variable.forLine(line)
+        Variable map = Variable.LINE_MAPPER.apply(line)
 
         assertCommonFields(map)
     }
@@ -26,7 +26,7 @@ class VariableTest {
     void testParseIncompleteLine() {
 
         String line = "$filename\t$category\t$column\t$dataLabel"
-        Variable map = Variable.forLine(line)
+        Variable map = Variable.LINE_MAPPER.apply(line)
 
         assertCommonFields(map)
     }
@@ -34,14 +34,14 @@ class VariableTest {
     private void assertCommonFields(Variable map) {
         Assert.assertEquals(filename, map.filename)
         Assert.assertEquals(category, map.categoryCode)
-        Assert.assertEquals(column, map.columnNumber)
+        Assert.assertEquals(column, map.columnNumber + 1) //column number is 1-based in file and 0-based in bean
         Assert.assertEquals(dataLabel, map.dataLabel)
     }
 
     @Test
     void testParseStream() {
         InputStream input = new FileInputStream('src/test/resources/clinical/E-GEOD-8581_columns.txt')
-        List<Variable> list = Variable.parse(input)
+        List<Variable> list = Variable.parse(input, null)
 
         Assert.assertEquals(10, list.size())
         assertCommonFields(list[0])

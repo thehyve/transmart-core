@@ -1,5 +1,7 @@
 package org.transmartproject.batch.clinical
 
+import org.transmartproject.batch.model.ConceptTree
+import org.transmartproject.batch.model.PatientSet
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.model.WordMapping
 
@@ -8,11 +10,13 @@ import org.transmartproject.batch.model.WordMapping
  */
 interface ClinicalJobContext {
 
-    Map getJobParameters()
-
     List<Variable> getVariables()
 
     List<WordMapping> getWordMappings()
+
+    ConceptTree getConceptTree()
+
+    PatientSet getPatientSet()
 
 }
 

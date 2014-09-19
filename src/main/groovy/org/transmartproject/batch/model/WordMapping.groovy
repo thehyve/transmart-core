@@ -1,10 +1,11 @@
 package org.transmartproject.batch.model
 
 import com.google.common.base.Function
+import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
 
 /**
- *
+ * Represent a word replacement entry, as defined in a word mapping file.
  */
 class WordMapping implements Serializable {
     String filename
@@ -14,21 +15,16 @@ class WordMapping implements Serializable {
 
     private static fields = ['filename','column','originalValue','newValue']
 
-    static List<WordMapping> parse(InputStream input) {
-        MappingHelper.parseObjects(input, WordMapping.class, fields)
+    static List<WordMapping> parse(InputStream input, LineListener listener) {
+        MappingHelper.parseObjects(input, LINE_MAPPER, listener)
     }
 
-    static WordMapping forLine(String line) {
-        MappingHelper.parseObject(line, WordMapping.class, fields)
-    }
-
-    static Function<File, List<WordMapping>> READER = new Function<File, List<WordMapping>>() {
+    static Function<String,WordMapping> LINE_MAPPER = new Function<String, WordMapping>() {
         @Override
-        List<WordMapping> apply(File input) {
-            if (input) {
-                return parse(input.newInputStream())
-            }
-            null //no file, no results
+        WordMapping apply(String input) {
+            WordMapping result = MappingHelper.parseObject(input, WordMapping.class, fields)
+            result.column-- //index is now 0 based
+            result
         }
     }
 

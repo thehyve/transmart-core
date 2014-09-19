@@ -5,6 +5,16 @@ apply plugin:'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
 
+configurations {
+    compile {
+        description = 'compile classpath'
+        transitive = true
+    }
+    runtime {
+        extendsFrom compile
+    }
+}
+
 repositories {
 	mavenCentral()
 	maven { url 'http://repo.spring.io/milestone' }
@@ -20,9 +30,9 @@ dependencies {
     final GUAVA_VERSION = '18.0'
     final JUNIT_VERSION = '4.11'
     final GMOCK_VERSION = '0.8.3'
+    final POSTGRESQL_VERSION = '9.3-1102-jdbc41'
 
-	// use the indy jars (java 7 only!)
-	compile 'org.codehaus.groovy:groovy:2.2.1:indy'
+    compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
 	compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
 
@@ -38,7 +48,9 @@ dependencies {
 //	logging spring cleaning - use slf4j instead of commons-logging	
 	compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
 	compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
-	
+
+    runtime group: 'org.postgresql', name: 'postgresql', version: POSTGRESQL_VERSION
+
 	testCompile group: 'org.spockframework', name: 'spock-core', version: SPOCK_VERSION
 	testCompile group: 'org.spockframework', name: 'spock-spring', version: SPOCK_VERSION
 	testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
