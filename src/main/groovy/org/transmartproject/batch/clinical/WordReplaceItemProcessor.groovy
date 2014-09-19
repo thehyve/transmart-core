@@ -9,7 +9,7 @@ import org.transmartproject.batch.model.WordMapping
 import javax.annotation.PostConstruct
 
 /**
- * ItemProcessor of Row that replaces words defined in word_mappings
+ * ItemProcessor of Row that replaces words defined in word mappings list
  */
 class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
 

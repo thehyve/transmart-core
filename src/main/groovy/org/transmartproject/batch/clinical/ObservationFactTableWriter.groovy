@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import javax.annotation.PostConstruct
 
 /**
- *
+ * Database writer of observation facts, based on FactRowSets
  */
 class ObservationFactTableWriter implements ItemWriter<FactRowSet> {
 

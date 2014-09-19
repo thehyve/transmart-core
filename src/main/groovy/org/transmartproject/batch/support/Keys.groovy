@@ -1,7 +1,7 @@
 package org.transmartproject.batch.support
 
 /**
- * Constaints for job parameters
+ * Keys for job parameters and JobContext entries
  */
 class Keys {
 

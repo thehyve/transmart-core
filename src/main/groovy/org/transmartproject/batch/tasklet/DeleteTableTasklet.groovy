@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 
 /**
- *
+ * Generic tasklet to delete the contents of one table
  */
 class DeleteTableTasklet implements Tasklet {
 
@@ -20,8 +20,8 @@ class DeleteTableTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         String sql = "delete from $table"
-        //println "executing $sql"
-        jdbcTemplate.update(sql)
+        int count = jdbcTemplate.update(sql)
+        contribution.incrementWriteCount(count)
 
         RepeatStatus.FINISHED
     }

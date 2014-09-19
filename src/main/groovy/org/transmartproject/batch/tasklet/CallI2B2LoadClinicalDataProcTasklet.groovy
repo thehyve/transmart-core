@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical
+package org.transmartproject.batch.tasklet
 
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
@@ -10,7 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcCall
 
 /**
- *
+ * Example of a Tasklet calling a stored procedure.
+ * Not used currently
  */
 class CallI2B2LoadClinicalDataProcTasklet implements Tasklet {
 

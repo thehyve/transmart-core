@@ -17,13 +17,15 @@ import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.AbstractJobConfiguration
 import org.transmartproject.batch.model.Row
+import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
+import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
 
 @Configuration
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Job job() {
-        jobs.get('job')
+        jobs.get('ClinicalDataLoadJob')
                 .start(mainFlow())
                 .end()
                 .build()
@@ -112,12 +114,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     ItemWriter<FactRowSet> factRowSetTableWriter() {
         new ObservationFactTableWriter()
-    }
-
-    @Bean
-    @Scope('step')
-    Tasklet callStoredProcedureTasklet() {
-        new CallI2B2LoadClinicalDataProcTasklet()
     }
 
     @Bean

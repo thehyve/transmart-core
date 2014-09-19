@@ -18,7 +18,7 @@ import org.transmartproject.batch.support.UpdateQueryBuilder
 import javax.annotation.PostConstruct
 
 /**
- *
+ * Based on the PatientSet, inserts patients (if they are new), or updates their demographic values.
  */
 class InsertUpdatePatientDimensionTasklet implements Tasklet {
 

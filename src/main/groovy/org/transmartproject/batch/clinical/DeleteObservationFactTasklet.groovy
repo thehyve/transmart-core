@@ -6,7 +6,7 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 /**
- *
+ * Deletes observation facts (that are not highdim) for a study
  */
 class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
 

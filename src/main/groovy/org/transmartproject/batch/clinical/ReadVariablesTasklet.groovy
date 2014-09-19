@@ -12,7 +12,7 @@ import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
 
 /**
- * Tasklet that reads the column map file (variables) and updates the ClinicalJobContext
+ * Tasklet that reads the column map file (variables) and populates the variables list
  */
 class ReadVariablesTasklet implements Tasklet {
 

@@ -14,7 +14,7 @@ import org.transmartproject.batch.model.PatientSet
 import javax.annotation.PostConstruct
 
 /**
- *
+ * Inserts patient trial for patients that are new
  */
 class InsertPatientTrialTasklet implements Tasklet {
 

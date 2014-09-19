@@ -10,7 +10,8 @@ import org.transmartproject.batch.support.SequenceReserver
 import javax.annotation.PostConstruct
 
 /**
- * Converts Rows into FactRowSets.
+ * Converts Rows into FactRowSets</br>
+ * This includes resolving patients and concepts, reserving ids for the new ones.
  */
 class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
@@ -34,7 +35,6 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
         Patient patient = getPatient(item, vars)
         vars.create(studyId, item, patient, sequenceReserver)
     }
-
 
     @PostConstruct
     void init() {

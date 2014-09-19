@@ -1,13 +1,13 @@
 package org.transmartproject.batch.clinical
 
-import groovy.transform.ToString
 import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.model.VariableType
 
 /**
- *
+ * Contains the transformed meaningful information from one data Row</br>
+ * This includes the Patient and values for all Variables in a row of a file
  */
 class FactRowSet {
     String studyId

@@ -17,7 +17,7 @@ import org.transmartproject.batch.support.DatabaseObject
 import javax.annotation.PostConstruct
 
 /**
- *
+ * Inserts concepts (from the ConceptTree) that are new
  */
 class InsertConceptsTasklet implements Tasklet {
 

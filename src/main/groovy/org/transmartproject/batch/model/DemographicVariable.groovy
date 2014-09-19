@@ -3,7 +3,7 @@ package org.transmartproject.batch.model
 import java.util.regex.Pattern
 
 /**
- *
+ * Represent a demographic variable, that matches a column in table patient_dimension
  */
 enum DemographicVariable {
 

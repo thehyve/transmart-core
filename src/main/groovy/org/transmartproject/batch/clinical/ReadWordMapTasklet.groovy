@@ -10,7 +10,7 @@ import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
 
 /**
- * Tasklet that reads the word map file (if defined) and updates the ClinicalJobContext
+ * Tasklet that reads the word map file (if defined) and populates the word mappings list
  */
 class ReadWordMapTasklet implements Tasklet {
 

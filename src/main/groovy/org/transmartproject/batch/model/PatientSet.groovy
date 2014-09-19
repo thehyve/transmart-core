@@ -3,7 +3,7 @@ package org.transmartproject.batch.model
 import groovy.transform.ToString
 
 /**
- *
+ * Structure to hold all the patients found in database and data files, related to a study.
  */
 class PatientSet {
 

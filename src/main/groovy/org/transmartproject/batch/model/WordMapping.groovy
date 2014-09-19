@@ -5,7 +5,7 @@ import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
 
 /**
- * Entry of word replacement, for a file/column/originalValue to a target newValue
+ * Represent a word replacement entry, as defined in a word mapping file.
  */
 class WordMapping implements Serializable {
     String filename

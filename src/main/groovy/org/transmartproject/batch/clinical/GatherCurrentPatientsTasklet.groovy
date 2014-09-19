@@ -16,7 +16,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 /**
- *
+ * Gets the current patients (for the study) from database, populating the PatientSet
  */
 class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
 

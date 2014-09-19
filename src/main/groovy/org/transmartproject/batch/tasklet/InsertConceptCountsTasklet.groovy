@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical
+package org.transmartproject.batch.tasklet
 
 import org.transmartproject.batch.tasklet.GenericTableUpdateTasklet
 
@@ -6,7 +6,8 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 /**
- *
+ * Inserts the concept counts from a study, based on the already inserted observation facts</br>
+ * This will insert counts for all kinds of leaf concepts (both lowdim and highdim)
  */
 class InsertConceptCountsTasklet extends GenericTableUpdateTasklet {
 

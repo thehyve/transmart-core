@@ -13,7 +13,7 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 /**
- *
+ * Generic update of a table that is somehow realated with a study
  */
 abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSetter {
 

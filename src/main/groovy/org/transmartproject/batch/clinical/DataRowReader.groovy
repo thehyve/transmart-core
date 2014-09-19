@@ -9,7 +9,7 @@ import org.transmartproject.batch.support.GenericRowReader
 import org.transmartproject.batch.support.MappingHelper
 
 /**
- *
+ * Reader of TSV files with clinical data, producing Row elements
  */
 class DataRowReader extends GenericRowReader<Row> {
 

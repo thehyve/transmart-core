@@ -16,7 +16,7 @@ import java.sql.SQLException
 import java.sql.Types
 
 /**
- *
+ * Gets the current concepts (for the study) from database, populating the ConceptTree
  */
 class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
 

@@ -1,7 +1,7 @@
 package org.transmartproject.batch.support
 
 /**
- *
+ * Constants for schemas and sequences in database
  */
 class DatabaseObject {
 

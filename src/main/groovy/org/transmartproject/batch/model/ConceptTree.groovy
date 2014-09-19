@@ -1,7 +1,7 @@
 package org.transmartproject.batch.model
 
 /**
- *
+ * Structure to hold all the concepts found in the database and data files related to a study
  */
 class ConceptTree {
 
@@ -51,6 +51,9 @@ class ConceptTree {
 
 }
 
+/**
+ * Represents a concept, with parent, children and other relevant fields
+ */
 class ConceptNode {
 
     static final char SEP = (char)'\\'

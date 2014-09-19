@@ -5,6 +5,9 @@ import groovy.transform.ToString
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.MappingHelper
 
+/**
+ * Represents a Variable, as defined in column map file
+ */
 @ToString
 class Variable implements Serializable {
 
@@ -74,11 +77,9 @@ class Variable implements Serializable {
         }
     }
 
-
     static List<Variable> parse(InputStream input, LineListener listener, ConceptTree conceptTree) {
         MappingHelper.parseObjects(input, new VariableLineMapper(tree: conceptTree), listener)
     }
-
 
 }
 
