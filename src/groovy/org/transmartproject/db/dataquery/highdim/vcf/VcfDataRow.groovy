@@ -40,6 +40,7 @@ class VcfDataRow extends AbstractDataRow
     // Reference and alternatives for this position
     String referenceAllele
     String alternatives
+    Boolean reference
     
     // Study level properties
     String quality

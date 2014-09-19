@@ -130,6 +130,8 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 property 'chr'              ,'chr'
                 property 'pos'              ,'pos'
                 property 'rsId'             ,'rsId'
+                property 'reference'        ,'reference'
+
                 property 'ref'              ,'ref'
                 property 'alt'              ,'alt'
                 property 'quality'          ,'quality'
@@ -184,6 +186,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                             // Reference and alternatives for this position
                             referenceAllele: firstNonNullCell[0].ref,
                             alternatives: firstNonNullCell[0].alt,
+                            reference: firstNonNullCell[0].reference,
 
                             // Study level properties
                             quality: firstNonNullCell[0].quality,
