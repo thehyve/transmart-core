@@ -1,4 +1,4 @@
-package org.transmartproject.batch
+package org.transmartproject.batch.beans
 
 import com.jolbox.bonecp.BoneCPDataSource
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
@@ -32,7 +32,6 @@ class TransmartAppConfig {
     @Bean(name='transmartDataSource', destroyMethod="close")
     DataSource transmartDataSource() {
         DataSource ds = getDataSource('transmart', true)
-        //ds.setLogWriter(new PrintWriter(System.out))
         ds
     }
 
