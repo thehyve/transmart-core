@@ -90,7 +90,8 @@ class VcfTestData  {
             int mut = 0
             assays.eachWithIndex { assay, idx ->
                 mut++
-                summariesData += createSummary detail, mut & 1, (mut & 2) >> 1,  assay, indexData[idx]
+                summariesData += createSummary detail, mut & 1, (mut & 2) >> 1,
+                        assay, indexData[idx], detail.pos == 1L
             }
             if (detail.alt.contains(','))
                 summariesData.last().allele1=2
@@ -147,7 +148,8 @@ class VcfTestData  {
         int allele1,
         int allele2,
         DeSubjectSampleMapping assay,
-        DeVariantSubjectIdxCoreDb subjectIndex
+        DeVariantSubjectIdxCoreDb subjectIndex,
+        boolean reference
             ->
             // Dataset and subjectId are inserted through the
             // subjectIndex object
@@ -160,7 +162,7 @@ class VcfTestData  {
                     variantFormat: ((allele1 == 0) ? 'R':'V') + '/' +
                             ((allele2 == 0) ? 'R':'V'),
                     variantType: detail.ref.length() > 1 ? 'DIV' : 'SNV',
-                    reference: true,
+                    reference: reference,
                     allele1: allele1,
                     allele2: allele2,
                     assay: assay,

@@ -173,6 +173,7 @@ class VcfEndToEndRetrievalTests {
 
                         hasProperty('referenceAllele', equalTo("C")),
                         hasProperty('alternatives', equalTo("A")),
+                        hasProperty('reference', equalTo(true)),
 
                         hasProperty('quality', equalTo("1")),
                         hasProperty('filter', equalTo(".")),
@@ -201,6 +202,7 @@ class VcfEndToEndRetrievalTests {
 
                     hasProperty('referenceAllele', equalTo("GCCCCC")),
                     hasProperty('alternatives', equalTo("GCCCC")),
+                    hasProperty('reference', equalTo(false)),
 
                     hasProperty('geneName', equalTo("AURKA"))
                 )
@@ -210,6 +212,7 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('position', equalTo(3L)),
                         hasProperty('referenceAllele', equalTo("A")),
                         hasProperty('alternatives', equalTo("C,T")),
+                        hasProperty('reference', equalTo(false)),
 
                         hasProperty('geneName', equalTo(null))
                 )
