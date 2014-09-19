@@ -37,10 +37,9 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     }
 
     @PostConstruct
-    void init() {
-
+    void initVariablesMap() {
         Map<String,List<Variable>> map = variables.groupBy { it.filename }
-        this.variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
+        variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
     }
 
     private Patient getPatient(Row item, FileVariables vars) {

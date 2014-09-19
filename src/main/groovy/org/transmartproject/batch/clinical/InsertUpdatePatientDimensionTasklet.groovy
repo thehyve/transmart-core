@@ -101,13 +101,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
     }
 
     @PostConstruct
-    void init() {
-        namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate)
-
-        insert = new SimpleJdbcInsert(jdbcTemplate)
-        insert.withSchemaName('i2b2demodata')
-        insert.withTableName('patient_dimension')
-
+    void initDemographicVariableMap() {
         demographicVariableMap = [:]
         variables.each {
             if (it.demographicVariable) {
@@ -121,7 +115,19 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
         remaining.each {
             demographicVariableMap.put(it, null) //add remaining demographic vars
         }
+    }
 
+    @PostConstruct
+    void initInsert() {
+        namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate)
+
+        insert = new SimpleJdbcInsert(jdbcTemplate)
+        insert.withSchemaName('i2b2demodata')
+        insert.withTableName('patient_dimension')
+    }
+
+    @PostConstruct
+    void createUpdateSql() {
         UpdateQueryBuilder builder = new UpdateQueryBuilder(table: 'i2b2demodata.patient_dimension')
         builder.addKeys('patient_num')
         builder.addColumns('update_date')

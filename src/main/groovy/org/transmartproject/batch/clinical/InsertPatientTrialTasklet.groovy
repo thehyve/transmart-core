@@ -59,7 +59,7 @@ class InsertPatientTrialTasklet implements Tasklet {
     }
 
     @PostConstruct
-    void init() {
+    void initInsert() {
         insert = new SimpleJdbcInsert(jdbcTemplate)
         insert.withSchemaName('i2b2demodata')
         insert.withTableName('patient_trial')

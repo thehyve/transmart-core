@@ -41,24 +41,23 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
     }
 
     @PostConstruct
-    void init() {
+    void initMap() {
         map = getMappings(wordMappings)
     }
 
     static Map<String,List<Mapping>> getMappings(List<WordMapping> sourceList) {
-        Map<String,List<Mapping>> result
-        if (sourceList) {
-            Map<String, List<WordMapping>> map = sourceList.groupBy { it.filename }
-            result = map.collectEntries {
-                List<Mapping> mappings = it.value.collect {
-                    new Mapping(from: it.originalValue, to: it.newValue, column: it.column)
-                }
-                [(it.key): mappings]
-            }
-        } else {
-            result = [:]
+        if (!sourceList) {
+            return [:]
         }
-        result
+
+        Map<String, List<WordMapping>> map = sourceList.groupBy { it.filename }
+
+        return map.collectEntries {
+            List<Mapping> mappings = it.value.collect {
+                new Mapping(from: it.originalValue, to: it.newValue, column: it.column)
+            }
+            [(it.key): mappings]
+        }
     }
 
 }

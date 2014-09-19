@@ -31,7 +31,7 @@ class ObservationFactTableWriter implements ItemWriter<FactRowSet> {
     }
 
     @PostConstruct
-    void init() {
+    void initInsert() {
         insert = new SimpleJdbcInsert(jdbcTemplate)
         insert.withSchemaName('i2b2demodata')
         insert.withTableName('observation_fact')

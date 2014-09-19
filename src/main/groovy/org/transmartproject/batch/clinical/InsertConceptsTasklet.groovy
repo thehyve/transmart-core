@@ -146,7 +146,7 @@ class InsertConceptsTasklet implements Tasklet {
 
 
     @PostConstruct
-    void init() {
+    void initInserts() {
         dimensionInsert = new SimpleJdbcInsert(jdbcTemplate)
         dimensionInsert.withSchemaName(DatabaseObject.Schema.I2B2DEMODATA).withTableName('concept_dimension')
 
