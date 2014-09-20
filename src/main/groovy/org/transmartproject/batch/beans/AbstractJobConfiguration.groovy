@@ -1,6 +1,7 @@
 package org.transmartproject.batch.beans
 
 import org.codehaus.groovy.runtime.MethodClosure
+import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.JobScope
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
+import org.transmartproject.batch.support.DefaultJobIncrementer
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.support.SequenceReserver
 
@@ -38,6 +40,11 @@ abstract class AbstractJobConfiguration {
 
     @Value('#{transmartDataSource}')
     DataSource transmartDataSource
+
+    @Bean
+    JobParametersIncrementer jobParametersIncrementer() {
+        new DefaultJobIncrementer()
+    }
 
     @JobScope
     @Bean

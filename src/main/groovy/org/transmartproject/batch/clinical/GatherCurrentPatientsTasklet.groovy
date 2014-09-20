@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -18,6 +19,7 @@ import java.sql.SQLException
 /**
  * Gets the current patients (for the study) from database, populating the PatientSet
  */
+@Slf4j
 class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
 
     @Autowired
@@ -44,6 +46,10 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
         //no need to return or process the result, as the mapRow method will populate the PatientSet
         List<Patient> patients = jdbcTemplate.query(sql, this)
 
+        patients.each {
+            log.debug('Found existing patient {}', it)
+            contribution.incrementReadCount()
+        }
         patients.size().times { contribution.incrementReadCount() }
         println contribution
 

@@ -50,9 +50,9 @@ class TransmartAppConfig {
             // initialize batch database
             def ref = getBatchSchemaRef(driverClassname)
             def populator = new ResourceDatabasePopulator()
-            populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-drop-${ref}.sql"))
-            populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-${ref}.sql"))
-            DatabasePopulatorUtils.execute(populator, ds)
+            //populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-drop-${ref}.sql"))
+            //populator.addScript(resourceLoader.getResource("classpath:/org/springframework/batch/core/schema-${ref}.sql"))
+            //DatabasePopulatorUtils.execute(populator, ds)
         }
 
         ds

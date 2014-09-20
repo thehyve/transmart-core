@@ -1,5 +1,7 @@
 package org.transmartproject.batch.model
 
+import groovy.transform.ToString
+
 /**
  * Structure to hold all the concepts found in the database and data files related to a study
  */
@@ -54,6 +56,7 @@ class ConceptTree {
 /**
  * Represents a concept, with parent, children and other relevant fields
  */
+@ToString(includes = ['code', 'path'])
 class ConceptNode {
 
     static final char SEP = (char)'\\'

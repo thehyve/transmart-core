@@ -10,4 +10,11 @@ class Row {
     String filename
     int index
     List<String> values
+
+    String getValueAt(int index) {
+        if (index >= values.size()) {
+            return null
+        }
+        values[index]
+    }
 }

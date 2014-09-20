@@ -4,6 +4,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
@@ -25,10 +26,13 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Job job() {
-        jobs.get('ClinicalDataLoadJob')
-                .start(mainFlow())
-                .end()
-                .build()
+        FlowJob job =
+            jobs.get('ClinicalDataLoadJob')
+                    .start(mainFlow())
+                    .end()
+                    .build()
+        job.jobParametersIncrementer = jobParametersIncrementer()
+        job
     }
 
     @Bean

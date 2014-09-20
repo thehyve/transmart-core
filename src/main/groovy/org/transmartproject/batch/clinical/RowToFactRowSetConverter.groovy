@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -13,6 +14,7 @@ import javax.annotation.PostConstruct
  * Converts Rows into FactRowSets</br>
  * This includes resolving patients and concepts, reserving ids for the new ones.
  */
+@Slf4j
 class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
     @Autowired
@@ -49,7 +51,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
         if (!patient.code) {
             //new patient: reserve code
             patient.code = sequenceReserver.getNext(DatabaseObject.Sequence.PATIENT)
-            //println "reserved patient code $patient.code"
+            log.debug('New patient reserved {}', patient)
         }
         patient
     }
@@ -58,6 +60,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 /**
  * Variables defined for a file
  */
+@Slf4j
 class FileVariables {
     Variable subjectIdVariable
     Variable siteIdVariable
@@ -79,6 +82,10 @@ class FileVariables {
                     break
                 case Variable.VISIT_NAME:
                     args.put('visitNameVariable', it)
+                    break
+                case Variable.OMIT:
+                case Variable.STUDY_ID:
+                    //ignore
                     break
                 default:
                     otherVariables.add(it)
@@ -110,17 +117,20 @@ class FileVariables {
         }
 
         otherVariables.each {
-            String value = row.values.get(it.columnNumber)
-            ConceptNode concept = result.addValue(it, value)
+            //String value = row.values.get(it.columnNumber)
+            String value = row.getValueAt(it.columnNumber)
 
-            ConceptNode tmp = concept
-            //goes up in the concept hierarchy, reserving codes until no longer necessary
-            while (tmp && !tmp.code) {
-                //new concept: reserve code
-                tmp.code = reserver.getNext(DatabaseObject.Sequence.CONCEPT)
-                tmp.i2b2RecordId = reserver.getNext(DatabaseObject.Sequence.I2B2_RECORDID)
-                //println "reserved concept code $tmp.code"
-                tmp = tmp.parent //recurse to parent
+            if (value) {
+                ConceptNode concept = result.addValue(it, value)
+                ConceptNode tmp = concept
+                //goes up in the concept hierarchy, reserving codes until no longer necessary
+                while (tmp && !tmp.code) {
+                    //new concept: reserve code
+                    tmp.code = reserver.getNext(DatabaseObject.Sequence.CONCEPT)
+                    tmp.i2b2RecordId = reserver.getNext(DatabaseObject.Sequence.I2B2_RECORDID)
+                    log.debug('New concept reserved {}', tmp)
+                    tmp = tmp.parent //recurse to parent
+                }
             }
         }
 

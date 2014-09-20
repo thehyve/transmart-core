@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -18,6 +19,7 @@ import java.sql.Types
 /**
  * Gets the current concepts (for the study) from database, populating the ConceptTree
  */
+@Slf4j
 class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
 
     @Autowired
@@ -44,6 +46,7 @@ class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
                 this)
 
         concepts.each {
+            log.debug('Found existing concept {}', it)
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 

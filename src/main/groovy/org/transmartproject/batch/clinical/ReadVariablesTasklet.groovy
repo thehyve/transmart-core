@@ -32,12 +32,9 @@ class ReadVariablesTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         File file = getFile()
         LineListener listener = new LineStepContributionAdapter(contribution)
-
         List<Variable> list = Variable.parse(file.newInputStream(), listener, conceptTree)
         variables.clear()
         variables.addAll(list)
-        //jobContext.variables.clear()
-        //jobContext.variables.addAll(list)
 
         Map<DemographicVariable, Variable> demographicVarMap = [:]
 
