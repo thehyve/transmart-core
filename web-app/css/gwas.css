@@ -786,7 +786,7 @@ background-color: #DFDFDF;
 	border-bottom: 1px solid #BBB;
 	position: fixed;
 	top: 27px;
-	z-index: 900;
+	z-index: 0;
 	border-left: 1px solid #CFCFCF;
 	margin-left: -1px;
 	box-shadow: 1px 1px 6px #CCCCCC;
@@ -996,6 +996,7 @@ select.multiselect {
 
 .ui-autocomplete .ui-menu-item a {
 	font-size: 8pt;	
+	z-index:1000;
 }
 
 #table-results-div {
