@@ -1,9 +1,8 @@
 <div id="regionFilterHelp" style="float: right;">
-	<tmpl:/help/helpIcon id="1302"/>
+	<tmpl:/GWAS/helpIcon id="1302"/>
 </div>
 <div><b>Filter by:</b></div>
 <br/>
-
 <%--<div onclick="jQuery('[name=\'regionFilter\'][value=\'gene\']').attr('checked', true);">
 <g:radio name="regionFilter" value="gene"/> 
 Gene/RSID: <tmpl:/GWAS/extTagSearchField width="100" fieldName="filterGeneId" searchAction="searchAutoComplete" searchController="GWAS" />

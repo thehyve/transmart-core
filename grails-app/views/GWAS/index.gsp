@@ -223,7 +223,7 @@
 					</div>
 				</div>--%>
 						<div style="display: inline-block;">
-			 <tmpl:/help/helpIcon id="1289"/>
+			 <tmpl:/GWAS/helpIcon id="1289"/>
 		</div>
 			</div>
 		
@@ -253,7 +253,7 @@
         <div id="title-search-div" class="ui-widget-header boxtitle">
 	         <h2 style="float:left" class="title">Active Filters</h2>
 	         <div id="activeFilterHelp" style="float: right; margin: 2px">
-				<tmpl:/help/helpIcon id="1298"/>
+				<tmpl:/GWAS/helpIcon id="1298"/>
 			 </div>
 			 <h2 style="float:right; padding-right:5px;" class="title">
 			 	<%-- Save/load disabled for now
@@ -282,7 +282,7 @@
 		<div id="title-filter" class="ui-widget-header boxtitle">
 			 <h2 style="float:left" class="title">Filter Browser</h2>		
 	         <div id="filterBrowserHelp" style="float: right; margin: 2px">
-				<tmpl:/help/helpIcon id="1297"/>
+				<tmpl:/GWAS/helpIcon id="1297"/>
 			 </div>	 
 		</div>
 		<div id="side-scroll">
@@ -290,7 +290,7 @@
 		</div>
 		<button id="toggle-btn"></button>
 		<div id="searchHelp" style="position: absolute; top: 30px; left: 272px">
-			<tmpl:/help/helpIcon id="1296"/>
+			<tmpl:/GWAS/helpIcon id="1296"/>
 		</div>
 		
 		<div id="hiddenItems" style="display:none">
@@ -352,10 +352,10 @@
        <span id="ruler" style="visibility: hidden; white-space: nowrap;"></span> 
 		
 		<div id="analysisViewHelp" style="position: absolute; top: 70px; right: 20px; display: none;">
-			<tmpl:/help/helpIcon id="1358"/>
+			<tmpl:/GWAS/helpIcon id="1358"/>
 		</div>
 		<div id="tableViewHelp" style="position: absolute; top: 70px; right: 20px; display: none;">
-			<tmpl:/help/helpIcon id="1317"/>
+			<tmpl:/GWAS/helpIcon id="1317"/>
 		</div>
 
         <g:ifPlugin name="folder-management">
