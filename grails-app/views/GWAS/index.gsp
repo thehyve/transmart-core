@@ -100,11 +100,9 @@
             var popupWindowPropertiesMap = [];
 
 	        jQuery(document).ready(function() {
-		        
 		        addSelectCategories();
 		        addSearchAutoComplete();
 		        addToggleButton();
-
                 popupWindowPropertiesMap['Study'] = {'URLToUse': studyBrowseWindow, 'filteringFunction': applyPopupFiltersStudy}
                 popupWindowPropertiesMap['Analyses'] = {'URLToUse': analysisBrowseWindow, 'filteringFunction': applyPopupFiltersAnalyses}
                 popupWindowPropertiesMap['Data Type'] = {'URLToUse': dataTypeBrowseWindow, 'filteringFunction': applyPopupFiltersDataTypes}
@@ -252,7 +250,7 @@
             <input id="search-ac"/></input>                                                          
         </div>
        
-        <div id="title-search-div" class="ui-widget-header">
+        <div id="title-search-div" class="ui-widget-header boxtitle">
 	         <h2 style="float:left" class="title">Active Filters</h2>
 	         <div id="activeFilterHelp" style="float: right; margin: 2px">
 				<tmpl:/help/helpIcon id="1298"/>
@@ -281,7 +279,7 @@
 			
 		<div id="active-search-div"></div>
 	 
-		<div id="title-filter" class="ui-widget-header">
+		<div id="title-filter" class="ui-widget-header boxtitle">
 			 <h2 style="float:left" class="title">Filter Browser</h2>		
 	         <div id="filterBrowserHelp" style="float: right; margin: 2px">
 				<tmpl:/help/helpIcon id="1297"/>
