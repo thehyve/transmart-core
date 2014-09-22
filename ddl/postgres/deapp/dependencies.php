@@ -1,6 +1,6 @@
 <?php
 $dependencies = array (
-  'views/de_variant_subject_summary_detail_gene' => 
+  'views/de_variant_summary_detail_gene' => 
   array (
     0 => 'de_variant_population_data',
     1 => 'de_variant_subject_detail',

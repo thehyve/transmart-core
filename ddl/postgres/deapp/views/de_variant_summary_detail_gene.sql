@@ -1,7 +1,7 @@
 --
--- Name: de_variant_subject_summary_detail_gene; Type: VIEW; Schema: deapp; Owner: -
+-- Name: de_variant_summary_detail_gene; Type: VIEW; Schema: deapp; Owner: -
 --
-CREATE VIEW de_variant_subject_summary_detail_gene AS
+CREATE VIEW de_variant_summary_detail_gene AS
  SELECT summary.variant_subject_summary_id,
     summary.chr,
     summary.pos,
