@@ -1,9 +1,10 @@
+
 <div id="regionFilterHelp" style="float: right;">
 	<tmpl:/GWAS/helpIcon id="1302"/>
 </div>
 <div><b>Filter by:</b></div>
 <br/>
-<%--<div onclick="jQuery('[name=\'regionFilter\'][value=\'gene\']').attr('checked', true);">
+<div onclick="jQuery('[name=\'regionFilter\'][value=\'gene\']').attr('checked', true);">
 <g:radio name="regionFilter" value="gene"/> 
 Gene/RSID: <tmpl:/GWAS/extTagSearchField width="100" fieldName="filterGeneId" searchAction="searchAutoComplete" searchController="GWAS" />
 <br/><br/> <br/>
@@ -13,7 +14,7 @@ Location:
 <g:select name="filterGeneRange" from="${ranges}" optionKey="${{it.key}}" optionValue="${{it.value}}"/> <g:textField name="filterGeneBasePairs" style="width: 50px"/> base pairs</div>
 
 <br/>
-<hr/>--%>
+<hr/>
 <br/>
 
 <div onclick="jQuery('[name=\'regionFilter\'][value=\'chromosome\']').attr('checked', true);">
