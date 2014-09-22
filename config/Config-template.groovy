@@ -409,7 +409,7 @@ if (samlEnabled) {
 } else { // if (!samlEnabled)
     org { transmart { security {
         samlEnabled = false
-    }
+    } } }
 }
 
 // }}}

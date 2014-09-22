@@ -4,6 +4,7 @@ env:
     - TEST_SUITE=main_pg
     - TEST_SUITE=load_dump_load_pg
     - TEST_SUITE=R
+    - TEST_SUITE=configuration_syntax
 
 before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21

@@ -100,12 +100,23 @@ function test_R {
   fi
 }
 
+function test_configuration_syntax {
+  make -C config install
+
+  groovy -e 'new ConfigSlurper().parse(new File('\
+'System.getProperty("user.home"),'\
+'".grails/transmartConfig/Config.groovy").toURL())'
+}
+
 case $1 in
   main_pg)
     test_main_pg
     ;;
   load_dump_load_pg)
     test_load_dump_load_pg
+    ;;
+  configuration_syntax)
+    test_configuration_syntax
     ;;
   R)
     test_R
