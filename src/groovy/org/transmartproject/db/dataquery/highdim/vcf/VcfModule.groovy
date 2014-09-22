@@ -119,7 +119,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
-                createCriteriaBuilder(DeVariantSubjectSummaryDetailGene, 'summary', session)
+                createCriteriaBuilder(DeVariantSummaryDetailGene, 'summary', session)
 
         criteriaBuilder.with {
             projections {

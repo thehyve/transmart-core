@@ -62,7 +62,7 @@ class H2Views {
             createSuperPathwayCorrelView()
             createI2b2TrialNodes()
             createModifierDimensionView()
-            createDeVariantSubjectSummaryDetailGene()
+            createDeVariantSummaryDetailGene()
         } finally {
             this.sql.close()
         }
@@ -399,15 +399,15 @@ class H2Views {
                     MD.modifier_cd = MM.modifier_cd)'''
     }
 
-    void createDeVariantSubjectSummaryDetailGene() {
-        if (handleCurrentState('DEAPP', 'DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE')) {
+    void createDeVariantSummaryDetailGene() {
+        if (handleCurrentState('DEAPP', 'DE_VARIANT_SUMMARY_DETAIL_GENE')) {
             return
         }
 
-        log.info 'Creating DEAPP.DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE'
+        log.info 'Creating DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE'
 
         sql.execute '''
-            CREATE OR REPLACE VIEW DEAPP.DE_VARIANT_SUBJECT_SUMMARY_DETAIL_GENE AS
+            CREATE OR REPLACE VIEW DEAPP.DE_VARIANT_SUMMARY_DETAIL_GENE AS
             SELECT summary.variant_subject_summary_id,
                 summary.chr,
                 summary.pos,

@@ -2,7 +2,7 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
-class DeVariantSubjectSummaryDetailGene implements Serializable {
+class DeVariantSummaryDetailGene implements Serializable {
 
     // it's a view
 
