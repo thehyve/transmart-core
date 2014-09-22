@@ -8,35 +8,19 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
-//oauthEnabled = false
+//oauthEnabled      = true
+//samlEnabled       = false
 EOD
 ,
     /* this is the text to be inserted at the very end of the file.
      * You can override configuration settings defined elsewhere in the file */
-    'I002' => /* end */ <<<'EOD'
-com.rwg.solr.browse.path   = '/solr/browse/select/'
-com.rwg.solr.update.path = '/solr/browse/dataimport/'
-com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
-                             "${new File(com.rwg.solr.browse.path).parent}"
-
-def fileStoreDirectory = new File(System.getenv('HOME'), '.grails/transmart-filestore')
-def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transmart-fileimport')
-com.recomdata.FmFolderService.filestoreDirectory = fileStoreDirectory.absolutePath
-com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath
-
-com.recomdata.rwg.webstart.codebase = 'http://75.124.74.46:5880/gwava'
-com.recomdata.rwg.webstart.jar = './ManhattanViz2.1g.jar'
-com.recomdata.rwg.webstart.mainClass = 'com.pfizer.mrbt.genomics.Driver'
-com.recomdata.rwg.webstart.gwavaInstance='transmartstg'
-com.recomdata.rwg.webstart.transmart.url='http://75.124.74.46:5880/transmart'
-
-
-
-[fileStoreDirectory, fileImportDirectory].each {
-    if (!it.exists()) {
-        it.mkdir()
-    }
-}
+    'I002' => /* end */ <<<EOD
+//com.recomdata.contactUs = "mailto:support@mycompany.com"
+//com.recomdata.rwg.webstart.codebase = 'http://75.124.74.46:5880/gwava'
+//com.recomdata.rwg.webstart.jar = './ManhattanViz2.1g.jar'
+//com.recomdata.rwg.webstart.mainClass = 'com.pfizer.mrbt.genomics.Driver'
+//com.recomdata.rwg.webstart.gwavaInstance='transmartstg'
+//com.recomdata.rwg.webstart.transmart.url='http://75.124.74.46:5880/transmart'
 
 // You MUST leave this at the end
 // Do not move it up, otherwise syntax errors may not be detected
