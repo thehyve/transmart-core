@@ -56,6 +56,7 @@
 \i deapp/de_variant_subject_detail.sql
 \i deapp/de_variant_subject_idx.sql
 \i deapp/de_variant_subject_summary.sql
+\i deapp/views/de_variant_summary_detail_gene.sql
 \i deapp/de_xtrial_parent_names.sql
 \i deapp/de_xtrial_child_map.sql
 \i deapp/deapp_annotation.sql

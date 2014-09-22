@@ -1004,6 +1004,25 @@
     } ]
   }, {
     "child" : {
+      "type" : "VIEW",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUMMARY_DETAIL_GENE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    } ]
+  }, {
+    "child" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
       "name" : "DE_VAR_POPULAT_DEFAULT_IDX"
@@ -2729,6 +2748,13 @@
       "name" : "DE_VARIANT_SUB_DT_IDX1"
     },
     "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUMMARY_DETAIL_GENE"
+    },
+    "file" : "deapp/views/de_variant_summary_detail_gene.sql"
   }, {
     "item" : {
       "type" : "INDEX",
