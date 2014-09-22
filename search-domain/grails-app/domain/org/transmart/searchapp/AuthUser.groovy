@@ -1,4 +1,9 @@
 package org.transmart.searchapp
+
+import org.hibernate.SQLQuery
+import org.hibernate.classic.Session
+import org.hibernate.type.StandardBasicTypes
+
 /*************************************************************************
  * tranSMART - translational medicine data mart
  *
@@ -26,6 +31,7 @@ class AuthUser extends Principal {
     String userRealName
     String passwd
     String email
+    String federatedId
     boolean emailShow
 
     /** plain password to create a MD5 password */
@@ -45,6 +51,7 @@ class AuthUser extends Principal {
             userRealName column: 'USER_REAL_NAME'
             passwd column: 'PASSWD'
             email column: 'EMAIL'
+            String federatedId
             emailShow column: 'EMAIL_SHOW'
             authorities joinTable: [name: 'SEARCH_ROLE_AUTH_USER', key: 'AUTHORITIES_ID', column: 'PEOPLE_ID']
             groups joinTable: [name: 'SEARCH_AUTH_GROUP_MEMBER', column: 'AUTH_GROUP_ID', key: 'AUTH_USER_ID']
@@ -90,4 +97,34 @@ class AuthUser extends Principal {
     def isDseAdmin() {
         authorities.any { it.authority == Role.DS_EXPLORER_ROLE }
     }
+
+    /*
+     * Should be called with an open session and active transaction
+     */
+    static AuthUser createFederatedUser(String federatedId,
+                                        String username,
+                                        String realName,
+                                        String email,
+                                        Session session)
+    {
+//G
+        //Long id = query.uniqueResult()
+        //log.debug("New user will have id '$id'")
+
+        def ret = AuthUser.create()
+        //ret.id = id
+
+        ret.federatedId = federatedId
+        ret.username = username ?: federatedId
+        ret.userRealName = realName ?: '<NONE PROVIDED>'
+        ret.name = realName
+        ret.email = email
+        ret.passwd = 'NO_PASSWORD'
+        ret.enabled = true
+
+        ret.addToAuthorities(Role.findByAuthority(Role.SPECTATOR_ROLE))
+
+        ret
+    }
+
 }
