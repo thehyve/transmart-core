@@ -9,7 +9,7 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-	legacyResolve false
+    legacyResolve false
     repositories {
         grailsCentral()
         mavenCentral()
@@ -23,10 +23,11 @@ grails.project.dependency.resolution = {
     }
     plugins {
         compile(':transmart-java:1.2.2-SNAPSHOT')
-		build(":release:2.2.1",
-			":rest-client-builder:1.0.3") {
-		export = false
-	}
+        compile(':hibernate:3.6.10.10')
+        build(":release:2.2.1",
+              ":rest-client-builder:1.0.3") {
+            export = false
+        }
     }
 
 }
