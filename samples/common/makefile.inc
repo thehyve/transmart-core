@@ -147,7 +147,7 @@ load_mirna_%: ../studies/%/mirna.params ../studies/%/mirna load_mirna_annotation
 
 parse_vcf_%: ../studies/%/vcf.params ../studies/%/vcf
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/vcf)" \
-			../studies/_scripts/vcf/parse_vcf.sh $<
+			../common/_scripts/vcf/parse_vcf.sh $<
 
 load_vcf_%: ../studies/%/vcf.params parse_vcf_%
 	STUDY_ID=$* PSQL='$(PSQL_COMMAND) -d $(PGDATABASE)' \
