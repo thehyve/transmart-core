@@ -38,6 +38,9 @@ update_datasets:
 	$(MAKE) $*/$*_proteomics.tar.xz
 	tar -C $* -xJf $*/$*_proteomics.tar.xz
 
+%/vcf.params:
+	$(MAKE) $*/$*_vcf.tar.xz
+	tar -C $* -xJf $*/$*_vcf.tar.xz
 
 TARBALLS := $(shell test ! -f datasets || php enumerate.php tarballs)
 $(TARBALLS):
