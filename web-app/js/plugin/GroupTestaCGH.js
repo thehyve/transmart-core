@@ -456,7 +456,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view) {
+    renderResults: function (jobName, view) {
 
         var _this = this;
 
@@ -526,6 +526,8 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // finally load the data
                 store.load({params: {start: 0, limit: GEN_RESULT_GRID_LIMIT}});
+
+                _this.createResultPlotPanel(jobName, view)
             },
             failure: function (result, request) {
                 console.log('failure ....')
@@ -560,11 +562,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
     onJobFinish: function (jobName, view) {
         this.renderResults(jobName, view);
-    },
-
-    renderResults: function (jobName, view) {
-        this.generateResultGrid(jobName, view);
-        this.createResultPlotPanel(jobName, view);
     },
 
     submitGroupTestJob: function () {

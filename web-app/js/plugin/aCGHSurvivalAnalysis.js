@@ -454,7 +454,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
             this.resetResult();
 
             // submit job
-            var job = this.submitJob(formParams, this.generateResultGrid, this);
+            var job = this.submitJob(formParams, this.renderResults, this);
 
         }
     },
@@ -531,7 +531,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view) {
+    renderResults: function (jobName, view) {
 
         var _this = this;
 
