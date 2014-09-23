@@ -395,7 +395,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view, callback) {
+    renderResults: function (jobName, view) {
 
         var _this = this;
         Ext.Ajax.request({
@@ -463,11 +463,11 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
                 // finally load the data
                 store.load({params: {start: 0, limit: GEN_RESULT_GRID_LIMIT}});
-                if(callback) callback();
+
+                _this.createResultPlotPanel(jobName, view);
             },
             failure: function (result, request) {
                 console.log('failure ....');
-                if(callback) callback();
             },
             params: {
                 jobName: jobName
@@ -499,12 +499,6 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
     onJobFinish: function (jobName, view) {
         this.renderResults(jobName, view);
-    },
-
-    renderResults: function (jobName, view) {
-        view.generateResultGrid(jobName, view, function() {
-            view.createResultPlotPanel(jobName, view);
-        });
     },
 
     submitGroupTestJob: function () {

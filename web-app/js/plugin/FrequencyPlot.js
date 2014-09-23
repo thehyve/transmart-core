@@ -211,7 +211,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
         this.renderResults(jobName, view);
     },
 
-    getJobByName: function (jobName, view) {
+    renderResults: function (jobName, view) {
         var _this = this;
 
         Ext.Ajax.request({
@@ -221,6 +221,7 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             success: function (result, request) {
                 var resultJSON = JSON.parse(result.responseText);
                 _this.jobInfo = resultJSON.jobs[0];
+                _this.createResultPlotPanel(jobName, view);
             },
             failure: function (result, request) {
                 Ext.Msg.alert('Error', 'Cannot get job details.');
@@ -230,11 +231,6 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
             }
         });
 
-    },
-
-    renderResults: function (jobName, view) {
-        this.getJobByName(jobName, view);
-        this.createResultPlotPanel(jobName, view);
     },
 
     submitFrequencyPlotJob: function () {
