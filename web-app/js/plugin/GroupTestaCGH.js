@@ -287,7 +287,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                 name: 'permutation',
                 id: 'permutation',
                 width: 50,
-                value: 5
+                value: 10000
             },
             {
                 xtype: 'button',
