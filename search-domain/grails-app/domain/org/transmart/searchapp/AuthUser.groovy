@@ -63,6 +63,7 @@ class AuthUser extends Principal {
         userRealName(blank: false)
         passwd(blank: false)
         email(nullable: true, maxSize: 255)
+        federatedId(nullable: true)
     }
 
     def String toString() {
