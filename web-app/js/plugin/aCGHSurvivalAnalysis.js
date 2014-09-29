@@ -20,7 +20,7 @@ var _inputpanel_items = ['->', // '->' making it right aligned
         name: 'permutation',
         id: 'permutation',
         width: 50,
-        value: 5
+        value: 10000
     },
     {
         xtype: 'button',
@@ -454,7 +454,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
             this.resetResult();
 
             // submit job
-            var job = this.submitJob(formParams, this.generateResultGrid, this);
+            var job = this.submitJob(formParams, this.renderResults, this);
 
         }
     },
@@ -531,7 +531,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view) {
+    renderResults: function (jobName, view) {
 
         var _this = this;
 

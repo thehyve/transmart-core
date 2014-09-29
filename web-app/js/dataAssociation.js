@@ -123,7 +123,7 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
             if (isCompletedJob) {
                 switch (itemId) {
                     case 'aCGHSurvivalAnalysis' :
-                        survivalAnalysisACGHView.generateResultGrid(jobName, survivalAnalysisACGHView);
+                        survivalAnalysisACGHView.renderResults(jobName, survivalAnalysisACGHView);
                         break;
                     case 'groupTestaCGH' :
                         groupTestView.renderResults(jobName, groupTestView);
