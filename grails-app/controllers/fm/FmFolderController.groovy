@@ -1403,4 +1403,33 @@ class FmFolderController {
         }
         return true
     }
+	
+	
+	def getFolderFiles = {
+		//Get the folder ID for the study selected
+		def paramMap = params
+		def experiment = null
+		if (params.id) {
+			experiment = Experiment.get(params.id)
+		}
+		else if (params.accession) {
+			experiment = Experiment.findByAccession(params.accession)
+		}
+		def folder = fmFolderService.getFolderByBioDataObject(experiment)
+		if (params.returnJSON) {
+			def fileList = folder.getFmFiles()
+			def infoList = [:]
+			for (file in fileList) {
+				if (file.activeInd) {
+					infoList.put(file.id, [displayName: file.displayName, fileType: file.fileType])
+				}
+			}
+			render infoList as JSON
+		}
+		else {
+			render(template:'filesTable', model:[folder: folder], plugin:'folderManagement')
+		}
+	}
+	
+	
 }
