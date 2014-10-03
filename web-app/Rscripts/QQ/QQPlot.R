@@ -1,5 +1,5 @@
 
-library(snpMatrix)
+library(snpStats)
 library(Cairo)
 
 create.qq.plot <- function(inputFile)
