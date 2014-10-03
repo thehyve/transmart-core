@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -35,6 +36,7 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
@@ -49,6 +51,12 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     final String name = 'acgh'
 
     final String description = "ACGH data"
+
+    final Map<String, Class> dataProperties = typesMap(DeSubjectAcghData,
+            ['trialName', 'chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
+             'probabilityOfLoss', 'probabilityOfNormal', 'probabilityOfGain', 'probabilityOfAmplification'])
+
+    final Map<String, Class> rowProperties = [:].asImmutable()
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -71,7 +79,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
-        [ standardAssayConstraintFactory ]
+        [standardAssayConstraintFactory]
     }
 
     @Override
@@ -94,40 +102,43 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                             }
                             new AcghValuesProjection()
                         }
-                )
+                ),
+                new AllDataProjectionFactory(dataProperties, rowProperties)
         ]
     }
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
-            createCriteriaBuilder(DeSubjectAcghData, 'acgh', session)
+                createCriteriaBuilder(DeSubjectAcghData, 'acgh', session)
 
         criteriaBuilder.with {
             createAlias 'jRegion', 'region', INNER_JOIN
 
             projections {
-                property 'acgh.assay.id'
-                property 'acgh.chipCopyNumberValue'
-                property 'acgh.segmentCopyNumberValue'
-                property 'acgh.flag'
-                property 'acgh.probabilityOfLoss'
-                property 'acgh.probabilityOfNormal'
-                property 'acgh.probabilityOfGain'
-                property 'acgh.probabilityOfAmplification'
+                property 'acgh.assay.id', 'assayId'
+                property 'acgh.chipCopyNumberValue', 'chipCopyNumberValue'
+                property 'acgh.segmentCopyNumberValue', 'segmentCopyNumberValue'
+                property 'acgh.flag', 'flag'
+                property 'acgh.probabilityOfLoss', 'probabilityOfLoss'
+                property 'acgh.probabilityOfNormal', 'probabilityOfNormal'
+                property 'acgh.probabilityOfGain', 'probabilityOfGain'
+                property 'acgh.probabilityOfAmplification', 'probabilityOfAmplification'
 
-                property 'region.id'
-                property 'region.name'
-                property 'region.cytoband'
-                property 'region.chromosome'
-                property 'region.start'
-                property 'region.end'
-                property 'region.numberOfProbes'
-                property 'region.geneSymbol'
+                property 'region.id', 'id'
+                property 'region.name', 'name'
+                property 'region.cytoband', 'cytoband'
+                property 'region.chromosome', 'chromosome'
+                property 'region.start', 'start'
+                property 'region.end', 'end'
+                property 'region.numberOfProbes', 'numberOfProbes'
+                property 'region.geneSymbol', 'geneSymbol'
             }
 
             order 'region.id', 'asc'
-            order 'assay.id',  'asc' // important
+            order 'assay.id', 'asc' // important
+
+            instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         }
 
         criteriaBuilder
@@ -142,20 +153,31 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
         Map assayIndexMap = createAssayIndexMap assays
 
         new DefaultHighDimensionTabularResult(
-                rowsDimensionLabel:    'Regions',
+                rowsDimensionLabel: 'Regions',
                 columnsDimensionLabel: 'Sample codes',
-                indicesList:           assays,
-                results:               results,
-                inSameGroup:           { a, b -> a[8] == b[8] /* region.id */ },
-                finalizeGroup:         { List list -> /* list of arrays with 15 elements (1/projection) */
+                indicesList: assays,
+                results: results,
+                inSameGroup: { a, b -> a.id == b.id },
+                finalizeGroup: { List list -> /* list of arrays with 15 elements (1/projection) */
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[8..15])
-                    regionRow.assayIndexMap = assayIndexMap
+                    def cell = list.find()[0]
+                    def regionRow = new RegionRowImpl(
+                            id: cell.id,
+                            name: cell.name,
+                            cytoband: cell.cytoband,
+                            chromosome: cell.chromosome,
+                            start: cell.start,
+                            end: cell.end,
+                            numberOfProbes: cell.numberOfProbes,
+                            bioMarker: cell.geneSymbol,
+
+                            assayIndexMap: assayIndexMap
+                    )
                     regionRow.data = list.collect {
-                        projection.doWithResult(Arrays.asList(it)[0..7])
+                        projection.doWithResult(it?.getAt(0))
                     }
                     regionRow
                 }

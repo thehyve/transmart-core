@@ -34,7 +34,7 @@ class RnaSeqTestData {
 
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL_RNASEQ'
 
-    static final String REGION_PLATFORM_MARKER_TYPE = 'Chromosomal'
+    static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ-RCNT'
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(

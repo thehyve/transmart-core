@@ -33,7 +33,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
-import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
@@ -74,7 +74,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new PlatformConstraint(
+        assayConstraints << new MarkerTypeConstraint(
                 platformNames: module.platformMarkerTypes)
                                                                   
         def assayQuery = new AssayQuery(assayConstraints)

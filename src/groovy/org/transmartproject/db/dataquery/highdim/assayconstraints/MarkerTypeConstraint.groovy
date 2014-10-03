@@ -24,16 +24,16 @@ import groovy.transform.Canonical
 import org.transmartproject.core.exceptions.InvalidRequestException
 
 @Canonical
-class PlatformConstraint extends AbstractAssayConstraint {
+class MarkerTypeConstraint extends AbstractAssayConstraint {
 
-    Collection<String> gplIds
+    List platformNames
 
     @Override
     void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        if (gplIds) {
-            builder.with {
-                'in' 'platform.id', gplIds
+        builder.with {
+            platform {
+                'in' 'markerType', platformNames 
             }
         }
     }

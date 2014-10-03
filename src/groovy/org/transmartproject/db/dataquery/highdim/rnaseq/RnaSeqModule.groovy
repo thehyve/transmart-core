@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseq
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -47,7 +48,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     static final String RNASEQ_VALUES_PROJECTION = 'rnaseq_values'
 
-    final List<String> platformMarkerTypes = ['Chromosomal']
+    final List<String> platformMarkerTypes = ['RNASEQ-RCNT']
 
     final String name = 'rnaseq'
 
@@ -111,20 +112,23 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
             createAlias 'jRegion', 'region', INNER_JOIN
 
             projections {
-                property 'rnaseq.assay.id'
-                property 'rnaseq.readCount'
+                property 'rnaseq.assay.id', 'assayId'
+                property 'rnaseq.readCount', 'readCount'
 
-                property 'region.id'
-                property 'region.name'
-                property 'region.cytoband'
-                property 'region.chromosome'
-                property 'region.start'
-                property 'region.end'
-                property 'region.numberOfProbes'
+                property 'region.id', 'id'
+                property 'region.name', 'name'
+                property 'region.cytoband', 'cytoband'
+                property 'region.chromosome', 'chromosome'
+                property 'region.start', 'start'
+                property 'region.end', 'end'
+                property 'region.numberOfProbes', 'numberOfProbes'
+                property 'region.geneSymbol', 'geneSymbol'
             }
 
             order 'region.id', 'asc'
             order 'assay.id',  'asc' // important
+
+            instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         }
 
         criteriaBuilder
@@ -143,16 +147,27 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 columnsDimensionLabel: 'Sample codes',
                 indicesList:           assays,
                 results:               results,
-                inSameGroup:           { a, b -> a[2] == b[2] /* region.id */ },
+                inSameGroup:           { a, b -> a.id == b.id /* region.id */ },
                 finalizeGroup:         { List list -> /* list of arrays with 9 elements (1/projection) */
                     if (list.size() != assays.size()) {
                         throw new UnexpectedResultException(
                                 "Expected group to be of size ${assays.size()}; got ${list.size()} objects")
                     }
-                    def regionRow = new RegionRowImpl(Arrays.asList(list[0])[2..8])
-                    regionRow.assayIndexMap = assayIndexMap
+                    def cell = list.find()[0]
+                    def regionRow = new RegionRowImpl(
+                        id: cell.id,
+                        name: cell.name,
+                        cytoband: cell.cytoband,
+                        chromosome: cell.chromosome,
+                        start: cell.start,
+                        end: cell.end,
+                        numberOfProbes: cell.numberOfProbes,
+                        bioMarker: cell.geneSymbol,
+
+                        assayIndexMap: assayIndexMap
+                    )
                     regionRow.data = list.collect {
-                        projection.doWithResult(Arrays.asList(it)[0..1])
+                        projection.doWithResult(it?.getAt(0))
                     }
                     regionRow
                 }
