@@ -48,6 +48,9 @@ $(LOAD_VCF_PARAMS_TARGETS):
 kettle-home/kettle.properties: gen_kettle_properties.php ../../vars
 	php -d variables_order=E $< > $@
 
+../studies/%:
+	$(MAKE) -C ../studies $*
+
 load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/clinical)" \
 			KETTLE_HOME="$(realpath kettle-home)" \
