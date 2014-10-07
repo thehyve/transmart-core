@@ -7,6 +7,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.*
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
 import java.lang.reflect.UndeclaredThrowableException
 import java.util.regex.Matcher
@@ -406,9 +407,15 @@ class GwasSearchController {
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
             def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
-			
-			String tempImageFolder = grailsApplication.config.temporaryImageFolderFullPath
 			String qqPlotDir = grailsApplication.config.qqPlotCacheImages;
+			String explodedDeplDir = servletContext.getRealPath("/");
+			String tempImageFolder = explodedDeplDir + grailsApplication.config.temporaryImageFolder
+			
+			//get rdc-modules plugin info
+			def pluginManager = PluginManagerHolder.pluginManager
+			def plugin = pluginManager.getGrailsPlugin("rdc-rmodules")
+			String pluginDir = "rdc-rmodules-"+plugin.version;
+			pluginDir =  "${explodedDeplDir}/plugins/${pluginDir}/Rscripts/";
 			
 			def qqPlotExistingImage = qqPlotDir + File.separator + params.analysisId +  File.separator + "QQPlot.png"
 
@@ -538,7 +545,7 @@ class GwasSearchController {
             def currentDataFile = gwasWebService.writeDataFile(currentWorkingDirectory, returnedAnalysisData,"QQPlot.txt")
 
             //Run the R script to generate the image file.
-            RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')")
+			RModulesJobProcessingService.runRScript(currentWorkingDirectory,"/QQ/QQPlot.R","create.qq.plot('QQPlot.txt')", pluginDir)
 
             //Verify the image file exists.
             def imagePath = currentWorkingDirectory + File.separator + "QQPlot.png"
