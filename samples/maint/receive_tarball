@@ -42,7 +42,7 @@ final_dir = File.join subdir, file_match['study']
 FileUtils.mkdir_p final_dir, :mode => 02775
 
 FileUtils.cp tempfile.path, File.join(final_dir, file_name)
-FileUtils.chmod 0644, tempfile.path
+FileUtils.chmod 0664, tempfile.path
 
 puts "Finished successfully!"
 
