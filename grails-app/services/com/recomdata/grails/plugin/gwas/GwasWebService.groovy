@@ -687,7 +687,7 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
 	 */
 	def moveImageFile(currentFileLocation, newImageFileName, moveToDirectoryName)
    {
-	   String tempImageFolder = config.RModules.temporaryImageFolderFullPath
+	   String tempImageFolder = grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolderFullPath
 	   String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${moveToDirectoryName}" + File.separator
 	   
 	   //For each of the image files we find, move them to the new directory.
@@ -710,7 +710,7 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
 	def moveCachedImageFile(currentFileLocation, newImageFileName, moveToDirectoryName)
 	{
 
-		String tempImageJobFolder = grailsApplication.config.temporaryImageFolder
+		String tempImageJobFolder = grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolder
 		def imageURL = grailsApplication.config.imageURL
 		
 		//For each of the image files we find, move them to the new directory.
