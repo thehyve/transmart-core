@@ -3,6 +3,8 @@
 require 'tempfile'
 require 'fileutils'
 
+Dir.chdir File.dirname(__FILE__)
+
 def error(message)
   $stderr.puts message
   exit 1
