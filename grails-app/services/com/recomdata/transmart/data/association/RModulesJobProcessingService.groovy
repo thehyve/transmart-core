@@ -21,7 +21,7 @@ class RModulesJobProcessingService {
 		//Establish a connection to R Server.
 		RConnection c = new RConnection();
 		
-		String rScriptDirectory = Holders.config.com.recomdata.transmart.data.export.rScriptDirectory
+		String rScriptDirectory = grailsApplication.config.com.recomdata.transmart.data.export.rScriptDirectory
 		
 		//Set the working directory to be our temporary location.
 		log.debug("Attempting following R Command : " + "setwd('${workingDirectory}')".replace("\\","\\\\"))
