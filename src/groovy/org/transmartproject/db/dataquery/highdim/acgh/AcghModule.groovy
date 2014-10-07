@@ -53,10 +53,11 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     final String description = "ACGH data"
 
     final Map<String, Class> dataProperties = typesMap(DeSubjectAcghData,
-            ['trialName', 'chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
+            ['chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
              'probabilityOfLoss', 'probabilityOfNormal', 'probabilityOfGain', 'probabilityOfAmplification'])
 
-    final Map<String, Class> rowProperties = [:].asImmutable()
+    final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
+            ['id', 'name', 'cytoband', 'chromosome', 'start', 'end', 'numberOfProbes', 'bioMarker'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

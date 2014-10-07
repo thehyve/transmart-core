@@ -55,9 +55,9 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
     final String description = "Messenger RNA data (Sequencing)"
 
     final Map<String, Class> dataProperties = typesMap(DeSubjectRnaseqData,
-            ['trialName', 'readCount'])
+            ['readCount'])
 
-    final Map<String, Class> rowProperties = [:].asImmutable()
+    final Map<String, Class> rowProperties = typesMap(RegionRowImpl, ['bioMarker'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory

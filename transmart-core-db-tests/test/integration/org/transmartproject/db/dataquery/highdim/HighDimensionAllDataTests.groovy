@@ -29,12 +29,14 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.metabolite.MetaboliteTestData
 import org.transmartproject.db.dataquery.highdim.mirna.MirnaQpcrTestData
 import org.transmartproject.db.dataquery.highdim.mirna.MirnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
+import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -96,6 +98,19 @@ class HighDimensionAllDataTests {
             [reference:Boolean, variant:String, variantType:String],
             [chromosome:String, position:Long, rsId: String, referenceAllele:String],
             VcfTestData
+        ], [
+            'acgh',
+            [chipCopyNumberValue:Double, segmentCopyNumberValue:Double, flag:Short,
+             probabilityOfLoss:Double, probabilityOfNormal:Double, probabilityOfGain:Double,
+             probabilityOfAmplification:Double ],
+            [id: Long, name:String, cytoband:String, chromosome:String, start:Long, end:Long, numberOfProbes:Integer,
+             bioMarker: String],
+            AcghTestData
+        ], [
+            'rnaseq',
+            [readCount:Integer],
+            [bioMarker: String],
+            RnaSeqTestData
         ]
     ].collect {it.toArray()}}
 
@@ -136,7 +151,8 @@ class HighDimensionAllDataTests {
             }
             genericProjection.rowProperties.each { prop, type ->
                 assertThat firstrow, hasProperty(prop)
-                assertThat firstrow."$prop".getClass(), typeCompatibleWith(type)
+                assertThat "${owner.type.dataTypeName}: $prop is not of expected type.",
+                        firstrow."$prop".getClass(), typeCompatibleWith(type)
             }
 
             def data = firstrow[indicesList[0]]
@@ -153,7 +169,8 @@ class HighDimensionAllDataTests {
                     println('**************************************************************************************')
                 }
                 println("key: $col, value: ${data."$col"}, type: ${data."$col".getClass()}")
-                assertThat data."$col".getClass(), typeCompatibleWith(type)
+                assertThat  "${owner.type.dataTypeName}: $col is not of expected type.",
+                        data."$col".getClass(), typeCompatibleWith(type)
             }
         } finally {
             result?.close()
