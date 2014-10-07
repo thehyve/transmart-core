@@ -16,12 +16,10 @@ class RModulesJobProcessingService {
 	
 	def grailsApplication
 	
-	def runRScript(workingDirectory, scriptName, commandToRun)
+	def runRScript(workingDirectory, scriptName, commandToRun, rScriptDirectory)
 	{
 		//Establish a connection to R Server.
 		RConnection c = new RConnection();
-		
-		String rScriptDirectory = grailsApplication.config.com.recomdata.transmart.data.export.rScriptDirectory
 		
 		//Set the working directory to be our temporary location.
 		log.debug("Attempting following R Command : " + "setwd('${workingDirectory}')".replace("\\","\\\\"))
