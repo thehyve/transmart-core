@@ -100,14 +100,14 @@ load_proteomics_%: ../studies/%/proteomics.params ../studies/%/proteomics/$(PROT
 ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE):
 	$(error Copy proteomics data into $@)
 
-../studies/%/proteomics/$(PROTEOMICS_ANNOT_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../studies/generate_proteomics_annotation.groovy
-	groovy ../studies/generate_proteomics_annotation.groovy -i $< -o $@ -p $*_proteomics
+../studies/%/proteomics/$(PROTEOMICS_ANNOT_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_annotation.groovy
+	groovy ../common/generate_proteomics_annotation.groovy -i $< -o $@ -p $*_proteomics
 
-../studies/%/proteomics/$(PROTEOMICS_SSM_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../studies/generate_proteomics_subject_sample_mapping.groovy
-	groovy ../studies/generate_proteomics_subject_sample_mapping.groovy -i $< -o $@ -p $*_proteomics -t $*
+../studies/%/proteomics/$(PROTEOMICS_SSM_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_subject_sample_mapping.groovy
+	groovy ../common/generate_proteomics_subject_sample_mapping.groovy -i $< -o $@ -p $*_proteomics -t $*
 
-../studies/%/proteomics/$(PROTEOMICS_CM_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../studies/generate_proteomics_column_mapping.groovy
-	groovy ../studies/generate_proteomics_column_mapping.groovy -i $< -o $@
+../studies/%/proteomics/$(PROTEOMICS_CM_FILE): ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../common/generate_proteomics_column_mapping.groovy
+	groovy ../common/generate_proteomics_column_mapping.groovy -i $< -o $@
 
 .PHONY: load_proteomics_annotation_% load_proteomics_%
 .PRECIOUS: ../studies/%/proteomics/$(PROTEOMICS_DATA_FILE) ../studies/%/proteomics/$(PROTEOMICS_ANNOT_FILE) ../studies/%/proteomics/$(PROTEOMICS_SSM_FILE) ../studies/%/proteomics/$(PROTEOMICS_CM_FILE)
@@ -136,11 +136,11 @@ load_mirna_%: ../studies/%/mirna.params ../studies/%/mirna load_mirna_annotation
 ../studies/%/mirna:
 	$(info Copy mirna data files into $*)
 
-../studies/%/mirna/$(MIRNA_ANNOT_FILE): ../studies/%/mirna ../studies/generate_mirna_data_annot_files.groovy
-	groovy ../studies/generate_mirna_data_annot_files.groovy -i $< -a $@ -d $</$(MIRNA_DATA_FILE) -p $*_mirna
+../studies/%/mirna/$(MIRNA_ANNOT_FILE): ../studies/%/mirna ../common/generate_mirna_data_annot_files.groovy
+	groovy ../common/generate_mirna_data_annot_files.groovy -i $< -a $@ -d $</$(MIRNA_DATA_FILE) -p $*_mirna
 
-../studies/%/mirna/$(MIRNA_SSM_FILE): ../studies/%/mirna ../studies/generate_mirna_subject_sample_mapping.groovy
-	groovy ../studies/generate_mirna_subject_sample_mapping.groovy -i $< -o $@ -p $*_mirna -t $*
+../studies/%/mirna/$(MIRNA_SSM_FILE): ../studies/%/mirna ../common/generate_mirna_subject_sample_mapping.groovy
+	groovy ../common/generate_mirna_subject_sample_mapping.groovy -i $< -o $@ -p $*_mirna -t $*
 
 .PHONY: load_mirna_annotation_% load_mirna_%
 .PRECIOUS: ../studies/%/mirna/$(MIRNA_DATA_FILE) ../studies/%/mirna/$(MIRNA_ANNOT_FILE) ../studies/%/mirna/$(MIRNA_SSM_FILE)
