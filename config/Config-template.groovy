@@ -205,6 +205,12 @@ environments {
 
 grails.resources.adhoc.excludes = [ '/images' + RModules.imageURL + '**' ]
 
+// Adding properties to the Build information panel
+buildInfo { properties {
+   include = [ 'app.grails.version', 'build.groovy' ]
+   exclude = [ 'env.proc.cores' ]
+} }
+
 /* }}} */
 
 /* {{{ Spring Security configuration */
