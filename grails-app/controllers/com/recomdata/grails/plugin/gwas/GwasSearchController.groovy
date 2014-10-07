@@ -407,9 +407,9 @@ class GwasSearchController {
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
             def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
-			String qqPlotDir = grailsApplication.config.qqPlotCacheImages;
+			String qqPlotDir = grailsApplication.config.com.recomdata.rwg.qqplots.cacheImages;
 			String explodedDeplDir = servletContext.getRealPath("/");
-			String tempImageFolder = explodedDeplDir + grailsApplication.config.temporaryImageFolder
+			String tempImageFolder = explodedDeplDir + grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolder
 			
 			//get rdc-modules plugin info
 			def pluginManager = PluginManagerHolder.pluginManager
