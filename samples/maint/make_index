@@ -4,12 +4,17 @@ if (dir = ARGV.shift)
   Dir.chdir dir
 end
 
-STDOUT.reopen(File.open('datasets_index', 'w'))
+final_file     = 'datasets_index'
+temporary_file = "#{final_file}~"
+
+STDOUT.reopen(File.open(temporary_file, 'w'))
 
 Dir.glob('**/*.tar.xz').sort.each do |file_name|
   match_data = /^(.+?)_(.+)\.tar\.xz$/.match(File.basename(file_name))
   study, data_type = [match_data[1], match_data[2]]
   puts "#{study} #{data_type} #{file_name}"
-end.sort
+end
+
+File.rename temporary_file, final_file
 
 # vim: set ft=ruby et ts=2 sw=2:
