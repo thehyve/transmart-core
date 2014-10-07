@@ -13,6 +13,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import org.apache.commons.io.FileUtils;
 
 import static java.util.UUID.randomUUID
 
@@ -405,7 +406,22 @@ class GwasSearchController {
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
             def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
+			
+			String tempImageFolder = grailsApplication.config.temporaryImageFolderFullPath
+			String qqPlotDir = grailsApplication.config.qqPlotCacheImages;
+			
+			def qqPlotExistingImage = qqPlotDir + File.separator + params.analysisId +  File.separator + "QQPlot.png"
 
+			File qqPlotFile = new File(qqPlotExistingImage)
+			
+			// use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
+			if (qqPlotFile.exists()) {
+				def qqPlotImageURL = gwasWebService.moveCachedImageFile(qqPlotExistingImage,"QQPlots"+File.separator+"qqplot-"+params.analysisId + ".png",tempImageFolder)
+				returnJSON['imageURL'] = qqPlotImageURL
+				render returnJSON as JSON;
+				return;
+			}
+			
             def pvalueCutoff = params.double('pvalueCutoff')
             def search = params.search
 
@@ -435,6 +451,7 @@ class GwasSearchController {
             def transcriptGeneNames = getTranscriptGeneNames(session['solrSearchFilter'])
             def analysisIds = [currentAnalysis.id]
 
+			
             switch(currentAnalysis.assayDataType)
             {
                 case "GWAS" :
@@ -500,7 +517,7 @@ class GwasSearchController {
 
                         returnedAnalysisData.add(temporaryList)
                     }
-
+			
             println "QQPlot row count = " + returnedAnalysisData.size()
             //		for (int i = 0; i < returnedAnalysisData.size() && i < 10; i++) {
             //			println returnedAnalysisData[i]
@@ -532,19 +549,13 @@ class GwasSearchController {
             }
             else
             {
-                //Move the image to the web directory so we can render it.
-                def imageURL = gwasWebService.moveImageFile(imagePath,uniqueName + ".png","QQPlots")
 
-                returnJSON['imageURL'] = imageURL
+				FileUtils.copyFile(new File(imagePath), new File(qqPlotExistingImage));
+				def qqPlotImageURL = gwasWebService.moveCachedImageFile(qqPlotExistingImage,"QQPlots"+File.separator+"qqplot-"+params.analysisId + ".png",tempImageFolder)
+				returnJSON['imageURL'] = qqPlotImageURL
+				render returnJSON as JSON;
+				return;
 
-                //Delete the working directory.
-                def directoryToDelete = new File(currentTempDirectory)
-
-                //This isn't working. I think something is holding the directory open? We need a way to clear out the temp files.
-                directoryToDelete.deleteDir()
-
-                //Render the image URL in a JSON object so we can reference it later.
-                render returnJSON as JSON
             }
         }
         catch (Exception e) {
