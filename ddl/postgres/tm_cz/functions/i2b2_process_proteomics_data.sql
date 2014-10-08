@@ -582,23 +582,6 @@ BEGIN
 		end if;	
 	END LOOP;  
 	
-	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-
-	begin
-	update i2b2 b
-	set sourcesystem_cd=null,c_comment=null
-	where b.sourcesystem_cd = TrialId
-	  and length(b.c_fullname) < length(topNode);
-	exception
-	when others then
-		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
-		perform tm_cz.cz_end_audit (jobID, 'FAIL');
-		return -16;
-	end;
-	  	
-	stepCt := stepCt + 1;
-	get diagnostics rowCt := ROW_COUNT;
-	select cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',rowCt,stepCt,'Done') into rtnCd;
 --	update concept_cd for nodes, this is done to make the next insert easier
 
 	begin
