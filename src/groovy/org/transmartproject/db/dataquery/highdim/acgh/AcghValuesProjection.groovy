@@ -38,30 +38,27 @@ class AcghValuesProjection implements CriteriaProjection<AcghValues>, MultiValue
 
     @Override
     AcghValues doWithResult(Object object) {
-        new AcghValuesImpl(object)
+        new AcghValuesImpl(data: object)
     }
 
     class AcghValuesImpl implements AcghValues {
-        final List rowList
 
-        AcghValuesImpl(final List rowList) {
-            this.rowList = rowList
-        }
+        def data
 
-        Long getAssayId() { rowList[0] as Long }
+        Long getAssayId() { data.assayId as Long }
 
-        Double getChipCopyNumberValue() { rowList[1] as Double }
+        Double getChipCopyNumberValue() { data.chipCopyNumberValue as Double }
 
-        Double getSegmentCopyNumberValue() { rowList[2] as Double }
+        Double getSegmentCopyNumberValue() { data.segmentCopyNumberValue as Double }
 
-        CopyNumberState getCopyNumberState() { CopyNumberState.forInteger((rowList[3] as Short).intValue()) }
+        CopyNumberState getCopyNumberState() { CopyNumberState.forInteger((data.flag as Short).intValue()) }
 
-        Double getProbabilityOfLoss() { rowList[4] as Double }
+        Double getProbabilityOfLoss() { data.probabilityOfLoss as Double }
 
-        Double getProbabilityOfNormal() { rowList[5] as Double }
+        Double getProbabilityOfNormal() { data.probabilityOfNormal as Double }
 
-        Double getProbabilityOfGain() { rowList[6] as Double }
+        Double getProbabilityOfGain() { data.probabilityOfGain as Double }
 
-        Double getProbabilityOfAmplification() { rowList[7] as Double }
+        Double getProbabilityOfAmplification() { data.probabilityOfAmplification as Double }
     }
 }

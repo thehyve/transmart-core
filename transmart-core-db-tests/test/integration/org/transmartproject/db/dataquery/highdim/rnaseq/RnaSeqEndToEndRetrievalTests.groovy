@@ -176,7 +176,7 @@ class RnaSeqEndToEndRetrievalTests {
                 title:          'Another Test Region Platform',
                 organism:       'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
-                markerType:     'Chromosomal',
+                markerType:     'RNASEQ-RCNT',
                 genomeReleaseId:'hg19',
         )
         anotherPlatform.id = 'test-another-platform'
