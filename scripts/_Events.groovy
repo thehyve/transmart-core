@@ -6,7 +6,7 @@ eventCreatePluginArchiveStart = { stagingDir ->
 
 private void writeProperties(Map properties, String propertyFile) {
     Ant.propertyfile(file: propertyFile) {
-        properties.each { k,v->
+        properties.each { k, v ->
             entry(key: k, value: v)
         }
     }
@@ -14,7 +14,7 @@ private void writeProperties(Map properties, String propertyFile) {
 
 def getEnvProperties() {
     def environment = [:]
-    Ant.antProject.properties.findAll({k,v-> k.startsWith('environment')}).each { k,v->
+    Ant.antProject.properties.findAll({ k, v -> k.startsWith('environment') }).each { k, v ->
         environment[k] = v
     }
 
@@ -74,7 +74,7 @@ def getRevision() {
     // if Hudson/Jenkins env variable not found, try file system (for SVN)
     if (!scmVersion) {
         File entries = new File(basedir, '.svn/entries')
-        if (entries.exists() && entries.text.split('\n').length>3) {
+        if (entries.exists() && entries.text.split('\n').length > 3) {
             scmVersion = entries.text.split('\n')[3].trim()
         }
     }

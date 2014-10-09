@@ -43,9 +43,9 @@ class MetaDataController {
     }
 
     def searchAction =
-        {
-            redirect(action: "list", params: params)
-        }
+            {
+                redirect(action: "list", params: params)
+            }
 
     /**
      * Find the top 15 diseases with a case-insensitive LIKE
@@ -63,7 +63,7 @@ class MetaDataController {
         log.info "There are " + conceptCodes.size() + " " + params.codeTypeName + " records found in ConceptCode"
         def itemlist = [];
         for (conceptCode in conceptCodes) {
-            if(conceptCode.uniqueId != null && conceptCode.codeName != null) {
+            if (conceptCode.uniqueId != null && conceptCode.codeName != null) {
                 itemlist.add([id: conceptCode.uniqueId, keyword: conceptCode.codeName, sourceAndCode: conceptCode.uniqueId, category: "", display: ""]);
             }
         }

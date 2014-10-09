@@ -93,7 +93,7 @@ class FmFolderService {
 
         /* the lazy initialization is to avoid loading the fmFolder if there are
          * actually no files under the directory being processed */
-        def getFmFolder = {->
+        def getFmFolder = { ->
             if (fmFolder != null) {
                 return fmFolder
             }
@@ -610,12 +610,12 @@ class FmFolderService {
             } else {
                 log.info item.displayName + " not required"
             }
-            
+
             //check for unique study identifer
             if (item.codeTypeName == 'STUDY_IDENTIFIER') {
-                if (Experiment.findByAccession(values.list(item.tagItemAttr))){
+                if (Experiment.findByAccession(values.list(item.tagItemAttr))) {
                     folder.errors.rejectValue("id", "blank", [item.displayName] as String[], "{0} must be unique.")
-                }           
+                }
             }
         }
 
@@ -750,12 +750,12 @@ class FmFolderService {
     def getFolderByBioDataObject(bioDataObject) {
         def uniqueId = bioDataObject?.getUniqueId()?.uniqueId
         if (!uniqueId) {
-            log.error ("No unique ID found for bio object " + bioDataObject?.id)
+            log.error("No unique ID found for bio object " + bioDataObject?.id)
             return null
         }
         FmFolderAssociation ffa = FmFolderAssociation.findByObjectUid(uniqueId)
         if (!ffa) {
-            log.error ("No fmFolderAssociation found for unique ID " + uniqueId)
+            log.error("No fmFolderAssociation found for unique ID " + uniqueId)
         }
         return ffa?.fmFolder
     }

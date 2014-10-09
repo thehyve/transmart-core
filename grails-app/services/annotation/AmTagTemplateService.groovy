@@ -1,4 +1,3 @@
-
 package annotation
 
 class AmTagTemplateService {

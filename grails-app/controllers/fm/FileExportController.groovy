@@ -1,16 +1,16 @@
 package fm
 
+import annotation.AmTagAssociation
+import annotation.AmTagTemplate
+import annotation.AmTagValue
+import org.transmart.biomart.BioAssayPlatform
+import org.transmart.biomart.BioData
+import org.transmart.biomart.ConceptCode
 import org.transmart.biomart.Experiment
+import org.transmart.searchapp.SearchKeyword
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import annotation.AmTagTemplate
-import annotation.AmTagAssociation
-import annotation.AmTagValue
-import org.transmart.searchapp.SearchKeyword
-import org.transmart.biomart.BioData
-import org.transmart.biomart.ConceptCode
-import org.transmart.biomart.BioAssayPlatform
 
 class FileExportController {
 
@@ -34,7 +34,7 @@ class FileExportController {
         session['foldermanagement.exportlist'] = exportList;
 
         //Render back the number to display
-        render (status: 200, text: exportList.size())
+        render(status: 200, text: exportList.size())
     }
 
     def remove = {
@@ -53,7 +53,7 @@ class FileExportController {
         session['foldermanagement.exportlist'] = exportList;
 
         //Render back the number to display
-        render (status: 200, text: exportList.size())
+        render(status: 200, text: exportList.size())
     }
 
     def view = {
@@ -157,7 +157,7 @@ class FileExportController {
         catch (Exception e) {
             log.error("Error writing ZIP", e)
             render(contentType: "text/plain", text: errorResponse.join("\n") + "\nError writing ZIP: " + e.getMessage())
-        } catch (OutOfMemoryError oe ) {
+        } catch (OutOfMemoryError oe) {
             log.error("Files too large to be exported: " + exportList)
             render(contentType: "text/plain", text: "Error: Files too large to be exported.\nPlease click on the \"Previous\" button on your web browser to go back to tranSMART.")
         }
@@ -339,11 +339,10 @@ class FileExportController {
                 response.setHeader('Content-disposition', 'attachment; filename=' + exportName)
             }
             response.setHeader('Content-Type', mimeType)
-            file.withInputStream({is -> response.outputStream << is})
+            file.withInputStream({ is -> response.outputStream << is })
             response.outputStream.flush()
-        }
-        else {
-            render(status:500, text: "This file (" + fileLocation + ") was not found in the repository.")
+        } else {
+            render(status: 500, text: "This file (" + fileLocation + ") was not found in the repository.")
         }
     }
 }

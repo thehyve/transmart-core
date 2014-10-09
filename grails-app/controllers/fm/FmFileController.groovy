@@ -14,6 +14,6 @@ class FmFileController {
         }
 
         def layout = formLayoutService.getLayout('file')
-        render(plugin:"folder-management", template:"show", model:[file: file, layout: layout])
+        render(plugin: "folder-management", template: "show", model: [file: file, layout: layout])
     }
 }

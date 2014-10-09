@@ -21,7 +21,6 @@
 package annotation
 
 
-
 class AmTagValue {
 
     Long id

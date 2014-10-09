@@ -14,7 +14,6 @@ import grails.converters.XML
 import grails.validation.ValidationException
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.lang.StringUtils
-import org.slf4j.LoggerFactory
 import org.transmart.biomart.*
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
@@ -39,7 +38,7 @@ class FmFolderController {
                 new File(System.getenv('HOME'), '.mime.types'),
                 new File(System.getenv('JAVA_HOME'), 'lib/mime.types'),
                 new File('/etc/mime.types')
-        ].findResult null, {File file ->
+        ].findResult null, { File file ->
             if (file.exists()) {
                 return file
             }
@@ -67,8 +66,7 @@ class FmFolderController {
     }
 
 
-    public String serializeFoldersToXMLFile()
-    {
+    public String serializeFoldersToXMLFile() {
         def writer = new FileWriter("c:\\temp\\SerializedAsXML.xml")
 
 //		List<FmFolder> folderList = FmFolder.list()
@@ -356,13 +354,13 @@ class FmFolderController {
         analysis.assayDataType = "Browse analysis"
         analysis.dataCount = -1
         analysis.teaDataCount = -1
-		def assocStudy = FmFolderAssociation.findByFmFolder(parentFolder)
-		if (assocStudy != null) {
-			def study = assocStudy.getBioObject()
-			if (study instanceof Experiment) {
-				analysis.etlId = ((Experiment)study).accession
-			}
-		}
+        def assocStudy = FmFolderAssociation.findByFmFolder(parentFolder)
+        if (assocStudy != null) {
+            def study = assocStudy.getBioObject()
+            if (study instanceof Experiment) {
+                analysis.etlId = ((Experiment) study).accession
+            }
+        }
 
         try {
             fmFolderService.saveFolder(folder, analysis, params)
@@ -755,24 +753,21 @@ class FmFolderController {
     }
 
     //method which returns a list of folders which are the children of the folder of which the identifier is passed as parameter
-    private List<FmFolder> getChildrenFolder(String parentId)
-    {
+    private List<FmFolder> getChildrenFolder(String parentId) {
         def folder = FmFolder.get(parentId)
-        return FmFolder.executeQuery("from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl ",[fl: folder.folderLevel+1, fn:folder.folderFullName+"%"])
+        return FmFolder.executeQuery("from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl ", [fl: folder.folderLevel + 1, fn: folder.folderFullName + "%"])
     }
 
     //method which returns a list of folders which are the children of the folder of which the identifier is passed as parameter by folder types
-    private List<FmFolder> getChildrenFolderByType(Long parentId, String folderType)
-    {
+    private List<FmFolder> getChildrenFolderByType(Long parentId, String folderType) {
         def folder = FmFolder.get(parentId)
-        return FmFolder.executeQuery("from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl and upper(fd.folderType) = upper(:ft)", [fl: folder.folderLevel+1, fn:folder.folderFullName+"%", ft: folderType])
+        return FmFolder.executeQuery("from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl and upper(fd.folderType) = upper(:ft)", [fl: folder.folderLevel + 1, fn: folder.folderFullName + "%", ft: folderType])
     }
 
     //method which returns a list of folders which are the children of the folder of which the identifier is passed as parameter
-    private List getChildrenFolderTypes(Long parentId)
-    {
+    private List getChildrenFolderTypes(Long parentId) {
         def folder = FmFolder.get(parentId)
-        return FmFolder.executeQuery("select distinct(fd.folderType) from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl ", [fl: folder.folderLevel+1, fn:folder.folderFullName+"%"])
+        return FmFolder.executeQuery("select distinct(fd.folderType) from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl ", [fl: folder.folderLevel + 1, fn: folder.folderFullName + "%"])
     }
 
     private String createDataTable(Map<FmFolder, String> subFoldersAccessLevelMap, String folderType) {
@@ -796,7 +791,7 @@ class FmFolderController {
         }
 
         childMetaDataTagItems.eachWithIndex()
-                {obj, i ->
+                { obj, i ->
                     //
                     AmTagItem amTagItem = obj
                     if (amTagItem.viewInChildGrid) {
@@ -824,12 +819,12 @@ class FmFolderController {
 
                 }
 
-        folders.each {folderObject ->
+        folders.each { folderObject ->
             log.info "FOLDER::$folderObject"
 
             def bioDataObject = getBioDataObject(folderObject)
             ExportRowNew newrow = new ExportRowNew();
-            childMetaDataTagItems.eachWithIndex() {obj, i ->
+            childMetaDataTagItems.eachWithIndex() { obj, i ->
                 AmTagItem amTagItem = obj
                 if (amTagItem.viewInChildGrid) {
                     if (amTagItem.tagItemType == 'FIXED' && bioDataObject.hasProperty(amTagItem.tagItemAttr)) {
@@ -970,17 +965,17 @@ class FmFolderController {
         log.debug "FolderInstance = ${bioDataObject}"
         render template: '/fmFolder/folderDetail',
                 model: [
-                        folder: folder,
-                        bioDataObject: bioDataObject,
-                        measurements: measurements,
-                        technologies: technologies,
-                        vendors: vendors,
-                        platforms: platforms,
-                        amTagTemplate: amTagTemplate,
-                        metaDataTagItems: metaDataTagItems,
-                        jSONForGrids: jSONForGrids,
+                        folder                   : folder,
+                        bioDataObject            : bioDataObject,
+                        measurements             : measurements,
+                        technologies             : technologies,
+                        vendors                  : vendors,
+                        platforms                : platforms,
+                        amTagTemplate            : amTagTemplate,
+                        metaDataTagItems         : metaDataTagItems,
+                        jSONForGrids             : jSONForGrids,
                         subjectLevelDataAvailable: subjectLevelDataAvailable,
-                        searchHighlight: searchHighlight
+                        searchHighlight          : searchHighlight
                 ]
     }
 
@@ -1403,33 +1398,31 @@ class FmFolderController {
         }
         return true
     }
-	
-	
-	def getFolderFiles = {
-		//Get the folder ID for the study selected
-		def paramMap = params
-		def experiment = null
-		if (params.id) {
-			experiment = Experiment.get(params.id)
-		}
-		else if (params.accession) {
-			experiment = Experiment.findByAccession(params.accession)
-		}
-		def folder = fmFolderService.getFolderByBioDataObject(experiment)
-		if (params.returnJSON) {
-			def fileList = folder.getFmFiles()
-			def infoList = [:]
-			for (file in fileList) {
-				if (file.activeInd) {
-					infoList.put(file.id, [displayName: file.displayName, fileType: file.fileType])
-				}
-			}
-			render infoList as JSON
-		}
-		else {
-			render(template:'filesTable', model:[folder: folder], plugin:'folderManagement')
-		}
-	}
-	
-	
+
+
+    def getFolderFiles = {
+        //Get the folder ID for the study selected
+        def paramMap = params
+        def experiment = null
+        if (params.id) {
+            experiment = Experiment.get(params.id)
+        } else if (params.accession) {
+            experiment = Experiment.findByAccession(params.accession)
+        }
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        if (params.returnJSON) {
+            def fileList = folder.getFmFiles()
+            def infoList = [:]
+            for (file in fileList) {
+                if (file.activeInd) {
+                    infoList.put(file.id, [displayName: file.displayName, fileType: file.fileType])
+                }
+            }
+            render infoList as JSON
+        } else {
+            render(template: 'filesTable', model: [folder: folder], plugin: 'folderManagement')
+        }
+    }
+
+
 }

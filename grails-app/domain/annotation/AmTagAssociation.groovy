@@ -40,8 +40,8 @@ class AmTagAssociation implements Serializable {
 
 
     static constraints =
-        {
-        }
+            {
+            }
 
     static AmTagAssociation get(String objectUid, Long tagItemId, String subjectUid) {
         find 'from AmTagAssociation where objectUid=:objectUid and tagItemId=:tagItemId and subjectUid=:subjectUid',

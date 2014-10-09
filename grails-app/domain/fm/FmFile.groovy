@@ -19,7 +19,8 @@ class FmFile {
     Date updateDate = new Date()
     String uniqueId
 
-    static hasMany = [folders: FmFolder] //Should probably only have one, but Grails doesn't allow join table on one-many
+    static hasMany = [folders: FmFolder]
+    //Should probably only have one, but Grails doesn't allow join table on one-many
 
     static belongsTo = FmFolder
 
