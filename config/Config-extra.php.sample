@@ -21,6 +21,10 @@ EOD
 //com.recomdata.rwg.webstart.mainClass = 'com.pfizer.mrbt.genomics.Driver'
 //com.recomdata.rwg.webstart.gwavaInstance='transmartstg'
 //com.recomdata.rwg.webstart.transmart.url='http://75.124.74.46:5880/transmart'
+//com.recomdata.rwg.qqplots.cacheImages = jobsDirectory + '/cachedQQplotImages/'
+//com.recomdata.rwg.qqplots.temporaryImageFolder = '/images/tempImages/'
+//com.recomdata.rwg.qqplots.temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
+
 
 // You MUST leave this at the end
 // Do not move it up, otherwise syntax errors may not be detected
