@@ -20,9 +20,20 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.13'
         runtime 'hsqldb:hsqldb:1.8.0.10'
+        test('junit:junit:4.11') {
+            transitive = false /* don't bring hamcrest */
+            export = false
+        }
+
+        test 'org.hamcrest:hamcrest-core:1.3',
+                'org.hamcrest:hamcrest-library:1.3'
+
+        test 'org.gmock:gmock:0.9.0-r435-hyve2', {
+            transitive = false
+        }
+        test 'org.hamcrest:hamcrest-library:1.3',
+                'org.hamcrest:hamcrest-core:1.3'
     }
 
     plugins {
