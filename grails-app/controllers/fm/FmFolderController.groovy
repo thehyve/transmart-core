@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils
 import org.transmart.biomart.*
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
+import org.slf4j.LoggerFactory
 
 import javax.activation.MimetypesFileTypeMap
 
