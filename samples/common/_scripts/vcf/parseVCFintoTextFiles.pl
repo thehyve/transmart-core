@@ -142,7 +142,7 @@ chomp;
 			# Loop through all info characteristics and store the data
 			for( $j = 0; $j <= $#fields; $j++ ) {
 				# Each characteristic must be of the format key=value
-				( $key, $value ) = split( /=/, $fields[$j] );
+				( $key, $value ) = split( /=/, $fields[$j], 2 );
 				
 				# If the value starts with a ", it should end with a " as well
 				# if not, the string is split on a character in the middle of a 
