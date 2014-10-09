@@ -38,7 +38,7 @@ class FmFolderControllerTests {
         assertThat response.headers('Content-disposition'), hasSize(1)
         assertThat response.header('Content-disposition').decodeURL(),
                 equalTo("attachment; filename*=UTF-8''$originalFilename".toString())
-        assertThat response.header('Content-length'), is(equalTo(fileSize as String))
+        assertEquals response.header('Content-length'), fileSize as String
         assertEquals response.text, 'foobar'
     }
 }
