@@ -34,6 +34,7 @@ class FmFolderController {
 
     @Lazy
     static MimetypesFileTypeMap MIME_TYPES_FILES_MAP = {
+        def log = LoggerFactory.getLogger(this)
         File mimeTypesFile = [
                 new File(System.getenv('HOME'), '.mime.types'),
                 new File(System.getenv('JAVA_HOME'), 'lib/mime.types'),
