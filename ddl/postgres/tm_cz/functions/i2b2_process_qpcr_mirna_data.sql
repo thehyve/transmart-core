@@ -618,24 +618,6 @@ BEGIN
 
 	END LOOP;  
 	
-	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-	begin
-	update i2b2 b
-	set sourcesystem_cd=null,c_comment=null
-	where b.sourcesystem_cd = TrialId
-	  and length(b.c_fullname) < length(topNode);
-	exception
-	when others then
-		errorNumber := SQLSTATE;
-		errorMessage := SQLERRM;
-		perform tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage);	
-		perform tm_cz.cz_end_audit (jobID, 'FAIL');
-		return -16;
-	end;
-	
-	stepCt := stepCt + 1; get diagnostics rowCt := ROW_COUNT;
-	perform cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',rowCt,stepCt,'Done');
-
 	begin
 	update WT_QPCR_MIRNA_NODES t
 	set concept_cd=(select c.concept_cd from concept_dimension c

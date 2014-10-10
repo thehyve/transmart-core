@@ -539,17 +539,6 @@ BEGIN
 
 	END LOOP;  
 	
-	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-	
-	update i2b2 b
-	set sourcesystem_cd=null,c_comment=null
-	where b.sourcesystem_cd = TrialId
-	  and length(b.c_fullname) < length(topNode);
-	  	
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-		
 --	update concept_cd for nodes, this is done to make the next insert easier
 	
 	update WT_PROTEOMICS_NODES t

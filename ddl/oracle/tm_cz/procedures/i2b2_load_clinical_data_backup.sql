@@ -1029,17 +1029,6 @@ BEGIN
   
 	i2b2_fill_in_tree(TrialId, topNode, jobID);
 	
-	--	set sourcesystem_cd, c_comment to null if any added upper-level nodes
-		
-	update i2b2 b
-	set sourcesystem_cd=null,c_comment=null
-	where b.sourcesystem_cd = TrialId
-	  and length(b.c_fullname) < length(topNode);
-	  
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper-level nodes',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-	
 	--	set 3rd char of c_visualattributes to P for all nodes above topNode
 	
 	root_node := '\';
