@@ -1,6 +1,7 @@
 i2b2demodata	qt_query_master
 i2b2demodata	qt_query_instance
 i2b2demodata	qt_query_result_instance
+i2b2demodata	qt_patient_sample_collection
 i2b2demodata	qt_patient_set_collection
 i2b2demodata	async_job
 deapp	de_saved_comparison
