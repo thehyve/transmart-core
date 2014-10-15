@@ -27,7 +27,7 @@ Dalliance plugin can be embedded in your transmart application by include it in 
 After restarting transmartApp, dalliance-plugin will be downloaded and installed.
 
 
-###Embedding dalliance-plugin as inplace-plugin (for Development)
+### Embedding dalliance-plugin as inplace-plugin (for Development)
 
 - Clone this project
 - Add following line in transmartApp's BuildConfig.groovy  
@@ -35,3 +35,10 @@ After restarting transmartApp, dalliance-plugin will be downloaded and installed
 ```
      grails.plugin.location.'dalliance-plugin' = '/path/to/dalliance-plugin project'
 ```
+
+Changing the source files requires a build with gulp to refresh the javascript files (next section).
+
+
+### Building and deploying
+
+Before deploying, the project needs to be built using gulp. Detailed instructions can be found in the dalliance readme: https://github.com/thehyve/dalliance-plugin/blob/master/web-app/README.md. The files to build are located in web-app and the resulting files will be put in web-app/build. These files are also under version control and need to be committed before deploying.
