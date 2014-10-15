@@ -204,7 +204,7 @@ var arrNds = new Array();
                 var sources = _getTransmartDASSources(res_inst_id_1, dataType);
                 _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
                 if (res_inst_id_2) {
-                    sources.concat(_getTransmartDASSources(res_inst_id_2, dataType));
+                    sources = _getTransmartDASSources(res_inst_id_2, dataType);
                     _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
                 }
                 thisB.createAddInfoButton()
