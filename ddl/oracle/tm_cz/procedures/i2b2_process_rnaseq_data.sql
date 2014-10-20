@@ -276,7 +276,7 @@ BEGIN
 
   select count(*) into pExists
     from all_tables
-      where table_name  = 'DE_SUBJECT_MICROARRAY_DATA' and
+      where table_name  = 'DE_SUBJECT_RNASEQ_DATA' and
 	    partitioned = 'YES';
 
   if pExists = 0 then
@@ -290,7 +290,7 @@ BEGIN
 	--	Create partition in de_subject_rnaseq_data if it doesn't exist else truncate partition
 	select count(*)	into pExists
 	  from all_tab_partitions
-	    where table_name     = 'DE_SUBJECT_MICROARRAY_DATA' and
+	    where table_name     = 'DE_SUBJECT_RNASEQ_DATA' and
 		  partition_name = TrialId;
 
 	if pExists = 0 then
@@ -514,6 +514,17 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,tText,SQL%ROWCOUNT,stepCt,'Done');
 	i2b2_fill_in_tree(TrialId, r_addNodes.leaf_node, jobID);
   END LOOP;
+
+  --	set sourcesystem_cd, c_comment to null if any added upper-level nodes
+
+  update i2b2 b
+	set sourcesystem_cd=null,c_comment=null
+	where b.sourcesystem_cd = TrialId
+	  and length(b.c_fullname) < length(topNode);
+
+  stepCt := stepCt + 1;
+  cz_write_audit(jobId,databaseName,procedureName,'Set sourcesystem_cd to null for added upper level nodes',SQL%ROWCOUNT,stepCt,'Done');
+  commit;
 
   --	update concept_cd for nodes, this is done to make the next insert easier
 
@@ -842,7 +853,7 @@ BEGIN
 
   --	tag data with probeset_id from reference.probeset_deapp
 
-  execute immediate ('truncate table tm_wz.wt_subject_mrna_probeset');
+  execute immediate ('truncate table tm_wz.wt_subject_rnaseq_region');
 
   --	note: assay_id represents a unique subject/site/sample
 
@@ -875,17 +886,21 @@ BEGIN
           , patient_id
           , trial_name
           , readcount
+          , trial_source
         )
         select  region_id
               , assay_id
               , patient_id
               , trial_name
               , readcount
+	      , TrialId || ':' || sourceCd
         from tm_wz.wt_subject_rnaseq_region;
 
   stepCt := stepCt + 1;
-  cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_mrna_probeset',SQL%ROWCOUNT,stepCt,'Done');
+  cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_rnasq_region',SQL%ROWCOUNT,stepCt,'Done');
   commit;
+
+  p_exists := SQL%ROWCOUNT;
 
   if pExists = 0 then
 	raise no_probeset_recs;
