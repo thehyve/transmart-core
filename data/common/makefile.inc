@@ -67,6 +67,12 @@ load_proteomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) $(TR
 	org.transmartproject.pipeline.dictionary.UniProtDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(UNIPROT_DIC_SRC_FILE) 
 
+load_tworegion_sample: $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
+	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
+	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
+	org.transmartproject.pipeline.tworegion.TwoRegion \
+	-s example_study -c "/Public studies/example_study/cga" -d b --cgaJunctions sample/tworegion/cga_junctions.csv  --cgaEvents sample/tworegion/cga_events.tsv -i subject1 -a sample1 
+
 load_mirna_dictionary: $(DIC_SRC_FILES_FOLDER)/$(MIRNA_DIC_SRC_FOLDER) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
 	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
