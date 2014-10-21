@@ -76,6 +76,15 @@ $dependencies = array (
   array (
     0 => 'de_snp_info',
   ),
+  'de_two_region_event_gene' => 
+  array (
+    0 => 'de_two_region_event',
+  ),
+  'de_two_region_junction_event' => 
+  array (
+    0 => 'de_two_region_event',
+    1 => 'de_two_region_junction',
+  ),
   'de_variant_dataset' => 
   array (
     0 => 'de_gpl_info',
