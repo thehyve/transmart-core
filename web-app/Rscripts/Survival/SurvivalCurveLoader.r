@@ -97,7 +97,7 @@ SurvivalCurve.loader.individual <- function(dataChunk,output.name,time.field,cen
 		time <- as.numeric(time)
 	}
 	
-	status <- currentDataSubset[[censor.field]]
+	status <- !currentDataSubset[[censor.field]]
 	
 	#This is the current group we are generating the statistics for.
 	if("GROUP" %in% colnames(currentDataSubset)) 
