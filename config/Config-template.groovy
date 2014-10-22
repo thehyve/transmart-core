@@ -141,6 +141,38 @@ com.recomdata.searchengine.index = searchIndex
 /* see also com.recomdata.searchtool.smallogo in the personalization section */
 /* }}} */
 
+/* {{{ Sample Explorer configuration */
+
+// This is an object to dictate the names and 'pretty names' of the SOLR fields.
+// Optionally you can set the width of each of the columns when rendered.
+
+sampleExplorer {
+	fieldMapping = [
+		columns:[
+			[header:'Sample ID',dataIndex:'id', mainTerm: false, showInGrid: false],
+			[header:'BioBank', dataIndex:'BioBank', mainTerm: true, showInGrid: true, width:10],
+			[header:'Source Organism', dataIndex:'Source_Organism', mainTerm: true, showInGrid: true, width:10]
+			// Continue as you have fields
+		]
+	]
+	resultsGridHeight = 100
+	resultsGridWidth = 100
+	idfield = 'id'
+}
+
+edu.harvard.transmart.sampleBreakdownMap = [
+    "id":"Aliquots in Cohort"
+]
+
+// Solr configuration for the Sample Explorer
+com { recomdata { solr {
+    baseURL = 'http://127.0.0.1:5467'
+	maxNewsStories = 10
+	maxRows = 10000
+}}}
+
+/* }}} */
+
 /* {{{ Folder Management configuration */
 
 com { recomdata { FmFolderService {
