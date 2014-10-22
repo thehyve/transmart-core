@@ -96,6 +96,14 @@ environments {
 /* }}} */
 
 /* {{{ Personalization & login */
+
+// name of the supported project
+//com.recomdata.projectName = "MyProject"
+
+// name and URL of the supporter entity
+//com.recomdata.providerName = "tranSMART Foundation"
+//com.recomdata.providerURL = "http://www.transmartfoundation.org"
+
 // application logo to be used in the login page
 com.recomdata.largeLogo = "transmartlogo.jpg"
 
