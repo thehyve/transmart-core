@@ -72,7 +72,7 @@ task runJob(type: org.gradle.api.tasks.JavaExec) {
 }
 */
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = '2.1'
 }
 
 task createPom << {
