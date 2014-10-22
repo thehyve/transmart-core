@@ -133,6 +133,15 @@ com.recomdata.searchengine.index = searchIndex
 /* see also com.recomdata.searchtool.smallogo in the personalization section */
 /* }}} */
 
+/* {{{ Folder Management configuration */
+
+com { recomdata { FmFolderService {
+    importDirectory = '/data/transmart/import'
+    filestoreDirectory = '/data/transmart/filestore'
+}}}
+
+/* }}} */
+
 /* {{{ Dataset Explorer configuration */
 com { recomdata { datasetExplorer {
     // set to 'true' (quotes included) to enable gene pattern integration
