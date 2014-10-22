@@ -41,10 +41,10 @@ class CensorColumnConfigurator extends ColumnConfigurator {
                                     leafNodes: variables)),
                     [ClinicalDataRetriever.DATA_SOURCE_NAME] as Set)
         } else {
-            // if no concepts are specified, all rows result in CENSORING_TRUE
+            // if no concepts are specified, all rows result in CENSORING_FALSE
             table.addColumn(new ConstantValueColumn(
                             header: header,
-                            value: CensorColumn.CENSORING_TRUE),
+                            value: CensorColumn.CENSORING_FALSE),
                     Collections.emptySet())
         }
     }

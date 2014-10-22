@@ -115,9 +115,10 @@
             <div class="three-layout-right">
                 <fieldset class="inputFields">
                     <h3>Censoring Variable</h3>
-                    <div class="divInputLabel">Select the appropriate censoring variable and drag it into the box. For
-                    example, "Survival (Censor) -> Yes".
-                    This variable is not required.	</div>
+                    <div class="divInputLabel">
+                        Select a variable and drag it into the box.
+                        Subjects within these categories (or numerical constraints) will be censored out of the plot.
+                    </div>
                     <div id='divCensoringVariable' class="queryGroupIncludeLong divInputBox"></div>
                     <div class="highDimBtns">
                         <button type="button" onclick="survivalAnalysisView.clear_high_dimensional_input('divCensoringVariable')">Clear</button>
