@@ -1,7 +1,6 @@
-
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
-apply plugin:'application'
+apply plugin: 'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
 
@@ -16,17 +15,17 @@ configurations {
 }
 
 repositories {
-	mavenCentral()
-	maven { url 'http://repo.spring.io/milestone' }
+    mavenCentral()
+    maven { url 'http://repo.spring.io/milestone' }
 }
 
 dependencies {
 
-	final SPRING_VERSION = '4.0.5.RELEASE'
-	final BATCH_VERSION = '3.0.1.RELEASE'
-	final SPOCK_VERSION = '0.7-groovy-2.0'
-	final LOGBACK_VERSION = '1.0.13'
-	final SLF4J_VERSION = '1.7.5'
+    final SPRING_VERSION = '4.0.5.RELEASE'
+    final BATCH_VERSION = '3.0.1.RELEASE'
+    final SPOCK_VERSION = '0.7-groovy-2.0'
+    final LOGBACK_VERSION = '1.0.13'
+    final SLF4J_VERSION = '1.7.5'
     final GUAVA_VERSION = '18.0'
     final JUNIT_VERSION = '4.11'
     final GMOCK_VERSION = '0.8.3'
@@ -34,27 +33,27 @@ dependencies {
 
     compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
-	compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
+    compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
 
-	compile group: 'org.springframework', name: 'spring-context', version: SPRING_VERSION
-	compile group: 'org.springframework', name: 'spring-tx', version: SPRING_VERSION
-	compile group: 'org.springframework', name: 'spring-jdbc', version: SPRING_VERSION
+    compile group: 'org.springframework', name: 'spring-context', version: SPRING_VERSION
+    compile group: 'org.springframework', name: 'spring-tx', version: SPRING_VERSION
+    compile group: 'org.springframework', name: 'spring-jdbc', version: SPRING_VERSION
 //	compile group: 'org.springframework', name: 'spring-orm', version: SPRING_VERSION
 //	compile group: 'org.springframework', name: 'spring-oxm', version: SPRING_VERSION
-	compile group: 'com.jolbox', name: 'bonecp-spring', version: '0.8.0.RELEASE'
-	compile group: 'com.h2database', name: 'h2', version: '1.3.174'
+    compile group: 'com.jolbox', name: 'bonecp-spring', version: '0.8.0.RELEASE'
+    compile group: 'com.h2database', name: 'h2', version: '1.3.174'
     compile group: 'com.google.guava', name: 'guava', version: GUAVA_VERSION
 
 //	logging spring cleaning - use slf4j instead of commons-logging	
-	compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
-	compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
+    compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
 
     runtime group: 'org.postgresql', name: 'postgresql', version: POSTGRESQL_VERSION
 
-	testCompile group: 'org.spockframework', name: 'spock-core', version: SPOCK_VERSION
-	testCompile group: 'org.spockframework', name: 'spock-spring', version: SPOCK_VERSION
-	testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
-	testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
+    testCompile group: 'org.spockframework', name: 'spock-core', version: SPOCK_VERSION
+    testCompile group: 'org.spockframework', name: 'spock-spring', version: SPOCK_VERSION
+    testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
+    testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
     testCompile group: 'junit', name: 'junit', version: JUNIT_VERSION
     testCompile group: 'org.gmock', name: 'gmock', version: GMOCK_VERSION
 
@@ -63,7 +62,7 @@ dependencies {
 mainClassName = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
 
 run {
-	args 'example.ExampleConfiguration', 'job1'
+    args 'example.ExampleConfiguration', 'job1'
 }
 /*
 task runJob(type: org.gradle.api.tasks.JavaExec) {
@@ -73,7 +72,7 @@ task runJob(type: org.gradle.api.tasks.JavaExec) {
 }
 */
 task wrapper(type: Wrapper) {
-	gradleVersion = '1.10'
+    gradleVersion = '1.10'
 }
 
 task createPom << {
@@ -96,22 +95,22 @@ task createPom << {
 }
 
 codenarc {
-	configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
-	
-	// consumed by Jenkins Violations plugin
-	reportFormat = 'xml'
-	
-	// don't let codenarc violations fail the build
-	tasks.withType(CodeNarc).all { codeNarcTask ->
-		codeNarcTask.ignoreFailures = true
-	}
+    configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
+
+    // consumed by Jenkins Violations plugin
+    reportFormat = 'xml'
+
+    // don't let codenarc violations fail the build
+    tasks.withType(CodeNarc).all { codeNarcTask ->
+        codeNarcTask.ignoreFailures = true
+    }
 }
 
 
-jacocoTestReport{
+jacocoTestReport {
     reports {
-            xml.enabled true
-            csv.enabled false
-            //html.destination "${buildDir}/jacocoHtml"
+        xml.enabled true
+        csv.enabled false
+        //html.destination "${buildDir}/jacocoHtml"
     }
 }
