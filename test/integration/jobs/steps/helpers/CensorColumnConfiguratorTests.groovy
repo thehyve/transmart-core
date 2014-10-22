@@ -103,12 +103,12 @@ class CensorColumnConfiguratorTests {
                             contains(
                                     'subject id #1',
                                     23,
-                                    CensorColumn.CENSORING_TRUE
+                                    CensorColumn.CENSORING_FALSE
                             ),
                             contains(
                                     'subject id #2',
                                     42,
-                                    CensorColumn.CENSORING_TRUE
+                                    CensorColumn.CENSORING_FALSE
                             )
                     )
 
