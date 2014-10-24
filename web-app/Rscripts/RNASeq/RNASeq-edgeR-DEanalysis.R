@@ -74,6 +74,13 @@ function
 		countTable <- read.table(readcountfileName, header=TRUE, sep='\t', quote='"', as.is=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 		phenodata  <- read.table(phenodatafileName, header=TRUE, sep='\t', quote='"', strip.white=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 
+		# Make rownames equal to the regionname
+		if ( 'regionname' %in% colnames(countTable) ) {
+			rownames(countTable) <- countTable$regionname
+		} else {
+			stop("||FRIENDLY||Expecting readcountTable to at least have a column regionname. Please check your region variable selection and run again.")
+		}
+
 		# Filter phenodata for patients that have data in countTable
 		phenodata <- phenodata[paste("readcount.",phenodata$PATIENT_NUM,sep="") %in% colnames(countTable), ]
 
@@ -85,10 +92,27 @@ function
 		if(length(exclude) != 0)  {
 			countTable = countTable[-exclude,]
 		}
-		
+
 		# Make sure that the order of the subjects/samples in the readcount columns is consistent with the order of the subjects/samples in the phenodata rows
+		countTable = countTable[grep('^readcount.', colnames(countTable))]
+
+        # If provided data set does not contain readcount data at all, stop further processing
+        if (all(is.na(countTable))) stop("||FRIENDLY||R cannot perform edgeR analysis when NO readcount data is provided for any of the samples. Please check your variable or cohort selection and run again.")
+
+        # If provided data set has missing readcount data, find out if there is some structure in the missing data values
+        # try if removing samples (columns) or transcripts (rows) which do not contain any data (rows or columns with NA's only), leaves us a valid data subset
+        if (any(is.na(countTable))) {
+            # only keep rows which contain not only NA's (< ncol)
+            ncol = ncol(countTable)
+            countTable <- countTable[ rowSums(is.na(countTable)) != ncol , ]
+            # only keep columns which contain not only NA's (< nrow)
+            nrow = nrow(countTable)
+            countTable <- countTable[ , colSums(is.na(countTable)) != nrow ]
+        }
+        # If data set does not contain readcount data for all transcripts and samples, stop further processing
+        if (nrow(countTable)==0 | any(is.na(countTable))) stop("||FRIENDLY||R cannot perform edgeR analysis if not all readcount data is provided for all selected samples. Please check your variable or cohort selection and run again.")
+
 		# Extract sample list from RNASeq data column names for which readcounts have been observed
-		countTable = countTable[grep('readcount.', colnames(countTable))]
 		samplelist <- sub("readcount.", "" , colnames(countTable))
 
 		# Make row names equal to the sample id

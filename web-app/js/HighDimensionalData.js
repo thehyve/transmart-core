@@ -160,13 +160,18 @@ HighDimensionalData.prototype.create_pathway_search_box = function (searchInputE
         },
 
         onSelect: function (record) {
-            // Append the selected keyword to the list
-            if (GLOBAL.CurrentPathway) {
-                GLOBAL.CurrentPathway += ",";
-                GLOBAL.CurrentPathwayName += ", ";
+            // Check for duplicates
+            var ids = GLOBAL.CurrentPathway.split(",");
+            if (ids.indexOf(record.data.id.toString()) == -1) {
+
+                // Append the selected keyword to the list
+                if (GLOBAL.CurrentPathway) {
+                    GLOBAL.CurrentPathway += ",";
+                    GLOBAL.CurrentPathwayName += ", ";
+                }
+                GLOBAL.CurrentPathway += record.data.id.toString();
+                GLOBAL.CurrentPathwayName += record.data.keyword;
             }
-            GLOBAL.CurrentPathway += record.data.id;
-            GLOBAL.CurrentPathwayName += record.data.keyword;
 
             // Set the value in the text field
             var sp = Ext.get(searchInputEltName);
