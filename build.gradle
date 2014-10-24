@@ -8,16 +8,6 @@ apply plugin: 'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
 
-configurations {
-    compile {
-        description = 'compile classpath'
-        transitive = true
-    }
-    runtime {
-        extendsFrom compile
-    }
-}
-
 repositories {
     mavenCentral()
     maven { url 'https://repo.thehyve.nl/content/groups/public/' }
