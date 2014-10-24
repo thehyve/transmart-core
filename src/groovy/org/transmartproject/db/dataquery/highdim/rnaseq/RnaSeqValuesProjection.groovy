@@ -46,7 +46,12 @@ class RnaSeqValuesProjection implements CriteriaProjection<RnaSeqValues>, MultiV
 
         Long getAssayId() { data.assayId as Long }
 
-        Integer getReadCount() { data.readCount as Integer }
+        Integer getReadcount() { data.readcount as Integer }
 
+        Double getNormalizedReadcount() { data.normalizedReadcount as Double }
+
+        Double getLogNormalizedReadcount() { data.logNormalizedReadcount as Double }
+
+        Double getZscore() { data.zscore as Double }
     }
 }

@@ -34,7 +34,7 @@ class RnaSeqTestData {
 
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL_RNASEQ'
 
-    static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ-RCNT'
+    static final String REGION_PLATFORM_MARKER_TYPE = 'CHROMOSOME_REGION_RNASEQ'
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
@@ -65,7 +65,6 @@ class RnaSeqTestData {
                         end: 9999,
                         numberOfProbes: 42,
                         name: 'region 1:33-9999',
-                        geneSymbol: 'ADIRF',
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -74,7 +73,6 @@ class RnaSeqTestData {
                         end: 99,
                         numberOfProbes: 2,
                         name: 'region 2:66-99',
-                        geneSymbol: 'AURKA',
                 ),
         ]
         r[0].id = -1011L
@@ -98,7 +96,7 @@ class RnaSeqTestData {
                 region:                     region,
                 assay:                      assay,
                 patient:                    assay.patient,
-                readCount:                  readcount,
+                readcount:                  readcount,
         )
     }
 

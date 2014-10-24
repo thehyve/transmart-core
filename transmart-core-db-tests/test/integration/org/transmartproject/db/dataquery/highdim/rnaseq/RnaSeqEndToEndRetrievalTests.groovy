@@ -110,10 +110,10 @@ class RnaSeqEndToEndRetrievalTests {
         /* results are ordered (asc) by region id */
         assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
-                hasProperty('label', equalTo(testData.regions[1].cytoband)))
+                hasProperty('label', equalTo(testData.regions[1].name)))
         assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
-                hasProperty('label', equalTo(testData.regions[0].cytoband)))
+                hasProperty('label', equalTo(testData.regions[0].name)))
 
         assertThat regionRows[1][assayColumns[1]],
                 hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
@@ -176,7 +176,7 @@ class RnaSeqEndToEndRetrievalTests {
                 title:          'Another Test Region Platform',
                 organism:       'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
-                markerType:     'RNASEQ-RCNT',
+                markerType:     'CHROMOSOME_REGION_RNASEQ',
                 genomeReleaseId:'hg19',
         )
         anotherPlatform.id = 'test-another-platform'
