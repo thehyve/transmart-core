@@ -71,13 +71,39 @@ task capsule(type: ThinCapsule) {
     applicationClass mainClass
     reallyExecutable { trampoline() }
 }
-/*
-task runJob(type: org.gradle.api.tasks.JavaExec) {
-    main = mainClassName
-    classpath configurations.compile, sourceSets.main.output
-    args "$jobPath", "$jobId"
+
+sourceSets {
+    functionalTest {
+        java {
+            srcDir 'src/test-func/java'
+        }
+        groovy {
+            srcDir 'src/test-func/groovy'
+        }
+        resources {
+            srcDir 'src/test-func/resources'
+        }
+        compileClasspath += sourceSets.main.runtimeClasspath
+    }
 }
-*/
+
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath += sourceSets.functionalTest.runtimeClasspath
+    useJUnit()
+
+    doFirst {
+        setupTransmartData()
+    }
+
+    reports {
+        html.destination = file("$reports.html.destination/functional")
+        junitXml.destination = file("$reports.junitXml.destination/functional")
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
 }
