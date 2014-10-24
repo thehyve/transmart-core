@@ -137,3 +137,9 @@ jacocoTestReport {
         //html.destination "${buildDir}/jacocoHtml"
     }
 }
+
+task setupSchema(type: JavaExec) {
+    description = 'Creates the ts_batch schema.'
+    main = 'org.transmartproject.batch.support.BatchSchemaPopulator'
+    classpath = sourceSets.main.runtimeClasspath
+}
