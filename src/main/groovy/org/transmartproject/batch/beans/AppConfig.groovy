@@ -1,4 +1,4 @@
-package example
+package org.transmartproject.batch.beans
 
 import com.jolbox.bonecp.BoneCPDataSource
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
@@ -10,12 +10,13 @@ import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
+import org.transmartproject.batch.support.PerDbTypeRunner
 
 import javax.sql.DataSource
 
 @Configuration
 @EnableBatchProcessing
-@PropertySource("classpath:batch.properties")
+@PropertySource('${propertySource:file:./batchdb.properties}')
 class AppConfig {
 
     @Autowired
@@ -26,20 +27,22 @@ class AppConfig {
 
     @Bean(destroyMethod="close")
     DataSource dataSource() {
-        // create datasource
-        def ds = new BoneCPDataSource(
+        new BoneCPDataSource(
                 driverClass: env.getProperty('batch.jdbc.driver'),
-                        jdbcUrl: env.getProperty('batch.jdbc.url'),
-                        username: env.getProperty('batch.jdbc.user'),
-                        password: env.getProperty('batch.jdbc.password')
-                )
+                jdbcUrl: env.getProperty('batch.jdbc.url'),
+                username: env.getProperty('batch.jdbc.user'),
+                password: env.getProperty('batch.jdbc.password')).with {
+            config.initSQL = perDbTypeRunner().run([
+                    postgresql: { ->
+                        'SET search_path = ts_batch'
+                    }
+            ])
+            it
+        }
+    }
 
-        // initialize database
-        def populator = new ResourceDatabasePopulator()
-        populator.addScript(resourceLoader.getResource(env.getProperty('batch.schema.script')))
-        DatabasePopulatorUtils.execute(populator, ds)
-
-        // return datasource
-        ds
+    @Bean
+    PerDbTypeRunner perDbTypeRunner() {
+        new PerDbTypeRunner()
     }
 }

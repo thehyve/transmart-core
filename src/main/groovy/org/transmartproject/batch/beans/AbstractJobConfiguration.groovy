@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.Import
 import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.DefaultJobIncrementer
@@ -25,10 +24,6 @@ import org.transmartproject.batch.support.SequenceReserver
 
 import javax.sql.DataSource
 
-/**
- *
- */
-@Import(TransmartAppConfig.class)
 @ComponentScan("org.transmartproject.batch")
 abstract class AbstractJobConfiguration {
 
@@ -38,8 +33,12 @@ abstract class AbstractJobConfiguration {
     @Autowired
     StepBuilderFactory steps
 
-    @Value('#{transmartDataSource}')
-    DataSource transmartDataSource
+    /* application data source is shared with spring-batch's data source.
+     * This way JTA is not required to keep job metadata and data in sync. */
+    @Bean
+    DataSource getTransmartDataSource(@Value('#{dataSource}') DataSource ds) {
+        ds
+    }
 
     @Bean
     JobParametersIncrementer jobParametersIncrementer() {
