@@ -140,6 +140,6 @@ jacocoTestReport {
 
 task setupSchema(type: JavaExec) {
     description = 'Creates the ts_batch schema.'
-    main = 'org.transmartproject.batch.support.BatchSchemaPopulator'
+    main = 'org.transmartproject.batch.db.BatchSchemaPopulator'
     classpath = sourceSets.main.runtimeClasspath
 }

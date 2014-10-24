@@ -13,7 +13,7 @@ import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
 import org.transmartproject.batch.model.Variable
-import org.transmartproject.batch.support.UpdateQueryBuilder
+import org.transmartproject.batch.db.UpdateQueryBuilder
 
 import javax.annotation.PostConstruct
 

@@ -5,8 +5,8 @@ import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.model.*
-import org.transmartproject.batch.support.DatabaseObject
-import org.transmartproject.batch.support.SequenceReserver
+import org.transmartproject.batch.db.DatabaseObject
+import org.transmartproject.batch.db.SequenceReserver
 
 import javax.annotation.PostConstruct
 

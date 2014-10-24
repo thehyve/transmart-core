@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.db
 
 /**
  * Constants for schemas and sequences in database

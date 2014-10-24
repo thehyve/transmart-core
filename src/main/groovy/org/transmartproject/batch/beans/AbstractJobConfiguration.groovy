@@ -20,7 +20,7 @@ import org.transmartproject.batch.clinical.FactRowSet
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.DefaultJobIncrementer
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
-import org.transmartproject.batch.support.SequenceReserver
+import org.transmartproject.batch.db.SequenceReserver
 
 import javax.sql.DataSource
 

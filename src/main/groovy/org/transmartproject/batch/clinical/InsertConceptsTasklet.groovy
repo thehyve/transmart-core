@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.ConceptTree
 import org.transmartproject.batch.model.VariableType
-import org.transmartproject.batch.support.DatabaseObject
+import org.transmartproject.batch.db.DatabaseObject
 
 import javax.annotation.PostConstruct
 

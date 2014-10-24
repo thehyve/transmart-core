@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.db
 
 import com.google.common.collect.AbstractIterator
 import groovy.util.logging.Slf4j

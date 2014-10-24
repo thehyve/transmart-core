@@ -8,9 +8,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
-import org.transmartproject.batch.support.PerDbTypeRunner
+import org.transmartproject.batch.db.PerDbTypeRunner
 
 import javax.sql.DataSource
 

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.db
 
 import org.springframework.beans.factory.annotation.Value
 
