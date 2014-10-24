@@ -1,3 +1,7 @@
+plugins {
+    id "us.kirchmeier.capsule" version "0.9.0"
+}
+
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
 apply plugin: 'application'
@@ -55,10 +59,17 @@ dependencies {
 
 }
 
-mainClassName = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
+def mainClass = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
 
 run {
-    args 'example.ExampleConfiguration', 'job1'
+    mainClassName = mainClass
+}
+
+task capsule(type: ThinCapsule) {
+    description = 'Creates the capsule jar.'
+    group = 'build'
+    applicationClass mainClass
+    reallyExecutable { trampoline() }
 }
 /*
 task runJob(type: org.gradle.api.tasks.JavaExec) {
