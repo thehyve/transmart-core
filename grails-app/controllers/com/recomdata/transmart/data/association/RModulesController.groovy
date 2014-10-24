@@ -38,6 +38,8 @@ class RModulesController {
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
             "METABOLOMICS":     "metabolite",
+            "acgh":             "acgh",
+            "rnaseq":           "rnaseq",
             "Chromosomal":      "acgh",
             "CHROMOSOME_REGION_RNASEQ": "rnaseq"
     ]
