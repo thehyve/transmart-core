@@ -176,7 +176,7 @@ BEGIN
 	where not exists
 		 (select 1 from deapp.de_gpl_info gi
 		  where sm.platform = gi.platform
-		    and gi.marker_type = 'CHROMOSOME_REGION_RNASEQ'
+		    and gi.marker_type = 'RNASEQ_RCNT'
 			and gi.title is not null);
 
 	if pCount > 0 then
@@ -295,7 +295,7 @@ BEGIN
 		   and s.trial_name = TrialID
 		   and s.source_cd = sourceCD
 		   and s.platform = g.platform
-		   and upper(g.marker_type) = 'CHROMOSOME_REGION_RNASEQ'
+		   and upper(g.marker_type) = 'RNASEQ_RCNT'
 		   and not exists
 			  (select 1 from i2b2demodata.patient_dimension x
 			   where x.sourcesystem_cd =
@@ -400,7 +400,7 @@ BEGIN
 	  and coalesce(a.platform,'GPL570') = g.platform
 	  and a.source_cd = sourceCD
 	  and a.platform = g.platform
-	  and upper(g.marker_type) = 'CHROMOSOME_REGION_RNASEQ';
+	  and upper(g.marker_type) = 'RNASEQ_RCNT';
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then

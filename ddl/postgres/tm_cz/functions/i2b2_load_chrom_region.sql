@@ -104,7 +104,7 @@ BEGIN
     -- Derive marker_type from data_type argument (defaults to CHROMOSOME_REGION_ACGH)
 	if (upper(data_type) = 'RNASEQ')
 	then
-		marker_type := 'CHROMOSOME_REGION_RNASEQ';
+		marker_type := 'RNASEQ_RCNT';
 	else
 		marker_type := 'Chromosomal';
 	end if;
