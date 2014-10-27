@@ -51,7 +51,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     static final String RNASEQ_VALUES_PROJECTION = 'rnaseq_values'
 
-    final List<String> platformMarkerTypes = ['CHROMOSOME_REGION_RNASEQ']
+    final List<String> platformMarkerTypes = ['RNASEQ_RCNT']
 
     final String name = 'rnaseq'
 
