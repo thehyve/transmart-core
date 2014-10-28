@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.model.Row
@@ -8,22 +9,22 @@ import org.transmartproject.batch.model.WordMapping
 /**
  * ItemProcessor of Row that replaces words defined in word mappings list
  */
+@Slf4j
 class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
 
     @Value("#{clinicalJobContext.wordMappings}")
     List<WordMapping> wordMappings
 
     @Lazy
-    private Map<String,List<Mapping>> map = calculateMappings(wordMappings)
+    private Map<String,List<Mapping>> map = calculateMappings()
 
     @Override
     Row process(Row item) throws Exception {
         int count = replaceWords(item)
-        if (count > 0) {
-            //println "replaced $count words"
-            //@todo update StepContribution? log?
+        if (log.debugEnabled && count > 0) {
+            log.debug "Replaced $count words in row ${item.index} of ${item.filename}"
         }
-        return item
+        item
     }
 
     int replaceWords(Row row) {

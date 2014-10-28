@@ -26,7 +26,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -115,7 +115,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
         }
     }
 
-    private void initDemographicVariableMap() {
+    private Map<DemographicVariable, Variable> initDemographicVariableMap() {
         def demographicVariableMap = [:]
         variables.each {
             if (it.demographicVariable) {

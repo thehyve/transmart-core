@@ -23,7 +23,7 @@ class InsertConceptsTasklet implements Tasklet {
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.conceptTree}")

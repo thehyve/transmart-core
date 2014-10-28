@@ -14,10 +14,7 @@ import org.transmartproject.batch.support.LineStepContributionAdapter
  */
 class ReadWordMapTasklet implements Tasklet {
 
-    @Value("#{jobParameters['dataLocation']}")
-    String dataLocation
-
-    @Value("#{jobParameters['wordMapFile']}")
+    @Value("#{jobParameters['WORD_MAP_FILE']}")
     String wordMapFile
 
     @Value("#{clinicalJobContext.wordMappings}")
@@ -49,14 +46,7 @@ class ReadWordMapTasklet implements Tasklet {
         if (!wordMapFile) {
             return null
         }
-        if ('x'.equalsIgnoreCase(wordMapFile)) {
-            //alias for 'not defined'
-            return null
-        }
-        if (!dataLocation) {
-            throw new IllegalArgumentException('Data location not defined')
-        }
-        new File(dataLocation, wordMapFile)
+        new File(wordMapFile)
     }
 
 }

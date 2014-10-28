@@ -25,7 +25,7 @@ class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.conceptTree}")

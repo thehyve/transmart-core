@@ -24,7 +24,7 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")

@@ -18,7 +18,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Autowired
     SequenceReserver sequenceReserver
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -27,8 +27,11 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Value("#{clinicalJobContext.variables}")
     List<Variable> variables
 
+    /**
+     * Map between data file and the variables provided in it
+     */
     @Lazy
-    private Map<String, FileVariables> variablesMap = initVariablesMap()
+    private Map<String, FileVariables> variablesMap = generateVariablesMap()
 
     @Override
     FactRowSet process(Row item) throws Exception {
@@ -37,9 +40,9 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
         vars.create(studyId, item, patient, sequenceReserver)
     }
 
-    private void initVariablesMap() {
-        Map<String,List<Variable>> map = variables.groupBy { it.filename }
-        variablesMap = map.collectEntries {
+    private Map<String, FileVariables> generateVariablesMap() {
+        Map<String, List<Variable>> map = variables.groupBy { it.filename }
+        map.collectEntries {
             [(it.key): FileVariables.create(it.value)]
         }
     }

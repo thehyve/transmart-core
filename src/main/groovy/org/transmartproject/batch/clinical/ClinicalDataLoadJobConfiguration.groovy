@@ -26,10 +26,12 @@ import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
 @Configuration
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
+    public static final String JOB_NAME = 'ClinicalDataLoadJob'
+
     @Bean
     Job job() {
         FlowJob job =
-            jobs.get('ClinicalDataLoadJob')
+            jobs.get(JOB_NAME)
                     .start(mainFlow())
                     .end()
                     .build()
