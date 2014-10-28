@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
 
-import javax.annotation.PostConstruct
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -31,12 +30,8 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
     @Value("#{clinicalJobContext.patientSet}")
     PatientSet patientSet
 
-    String studyPrefix
-
-    @PostConstruct
-    void init() {
-        studyPrefix = "$studyId:"
-    }
+    @Lazy
+    String studyPrefix = "$studyId:"
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

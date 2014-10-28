@@ -2,6 +2,7 @@ package org.transmartproject.batch.clinical
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.FlowJob
@@ -12,11 +13,12 @@ import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Scope
-import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
+import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.UpdateQueryBuilder
+import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
 import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
@@ -98,8 +100,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @StepScopeInterfaced
-    ItemReader<Row> dataRowReader() {
+    @StepScope
+    DataRowReader dataRowReader() {
         new DataRowReader()
     }
 
@@ -154,10 +156,5 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet deleteConceptCountsTasklet() {
         new DeleteConceptCountsTasklet()
-    }
-
-    @Bean
-    JdbcTemplate jdbcTemplate() {
-        new JdbcTemplate(getTransmartDataSource())
     }
 }

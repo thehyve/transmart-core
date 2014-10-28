@@ -11,6 +11,9 @@ import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
 
+import java.nio.file.Files
+import java.nio.file.Path
+
 /**
  * Tasklet that reads the column map file (variables) and populates the variables list
  */
@@ -22,17 +25,16 @@ class ReadVariablesTasklet implements Tasklet {
     @Value("#{clinicalJobContext.conceptTree}")
     ConceptTree conceptTree
 
-    @Value("#{jobParameters['dataLocation']}")
-    String dataLocation
-
-    @Value("#{jobParameters['columnMapFile']}")
-    String columnMapFile
+    @Value("#{jobParameters['COLUMN_MAP_FILE']}")
+    Path columnMapFile
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        File file = getFile()
         LineListener listener = new LineStepContributionAdapter(contribution)
-        List<Variable> list = Variable.parse(file.newInputStream(), listener, conceptTree)
+        List<Variable> list = Variable.parse(
+                Files.newInputStream(columnMapFile),
+                listener,
+                conceptTree)
         variables.clear()
         variables.addAll(list)
 
@@ -51,15 +53,4 @@ class ReadVariablesTasklet implements Tasklet {
 
         return RepeatStatus.FINISHED
     }
-
-    File getFile() {
-        if (!dataLocation) {
-            throw new IllegalArgumentException('Data location not defined')
-        }
-        if (!columnMapFile) {
-            throw new IllegalArgumentException('Column map file not defined')
-        }
-        new File(dataLocation, columnMapFile)
-    }
-
 }

@@ -8,10 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
-
-import javax.annotation.PostConstruct
 
 /**
  * Inserts patient trial for patients that are new
@@ -27,6 +26,7 @@ class InsertPatientTrialTasklet implements Tasklet {
     @Value("#{clinicalJobContext.patientSet}")
     PatientSet patientSet
 
+    @Value(Tables.PATIENT_TRIAL)
     private SimpleJdbcInsert insert
 
     @Override
@@ -56,12 +56,5 @@ class InsertPatientTrialTasklet implements Tasklet {
         println contribution
 
         return RepeatStatus.FINISHED
-    }
-
-    @PostConstruct
-    void initInsert() {
-        insert = new SimpleJdbcInsert(jdbcTemplate)
-        insert.withSchemaName('i2b2demodata')
-        insert.withTableName('patient_trial')
     }
 }

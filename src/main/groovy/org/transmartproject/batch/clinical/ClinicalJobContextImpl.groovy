@@ -9,13 +9,21 @@ import org.transmartproject.batch.model.ConceptTree
 import org.transmartproject.batch.model.PatientSet
 import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.model.WordMapping
-import org.transmartproject.batch.support.Keys
 
 import javax.annotation.PostConstruct
+
+import static org.transmartproject.batch.clinical.ClinicalJobContextKeys.VARIABLES
+import static org.transmartproject.batch.clinical.ClinicalJobContextKeys.WORD_MAPPINGS
 
 @Scope('job')
 @Component('clinicalJobContext')
 class ClinicalJobContextImpl implements ClinicalJobContext {
+
+    @Value("#{jobParameters['STUDY_ID']}")
+    String studyId
+
+    @Value("#{jobParameters['TOP_NODE']}")
+    String topNode
 
     @Value('#{jobParameters}')
     Map jobParameters
@@ -26,13 +34,8 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
 
     @PostConstruct
     void init() {
-        jobExecutionContext.put(Keys.VARIABLES, new ArrayList())
-        jobExecutionContext.put(Keys.WORD_MAPPINGS, new ArrayList())
-
-        String topNode = jobParameters.get(Keys.TOP_NODE)
-        if (!topNode) {
-            topNode = ConceptTree.getDefaultTopNode(jobParameters.get(Keys.STUDY_ID))
-        }
+        jobExecutionContext.put(VARIABLES, new ArrayList())
+        jobExecutionContext.put(WORD_MAPPINGS, new ArrayList())
 
         conceptTree = new ConceptTree(topNode)
         patientSet = new PatientSet()
@@ -44,11 +47,11 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
     }
 
     List<Variable> getVariables() {
-        jobExecutionContext.get(Keys.VARIABLES)
+        jobExecutionContext.get(VARIABLES)
     }
 
     List<WordMapping> getWordMappings() {
-        jobExecutionContext.get(Keys.WORD_MAPPINGS)
+        jobExecutionContext.get(WORD_MAPPINGS)
     }
 
 }

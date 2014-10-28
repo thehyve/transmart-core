@@ -1,5 +1,7 @@
 package org.transmartproject.batch.support
 
+import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.item.ItemStreamException
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineMapper
 import org.springframework.batch.item.file.MultiResourceItemReader
@@ -14,7 +16,6 @@ import javax.annotation.PostConstruct
  */
 abstract class GenericRowReader<Row> extends MultiResourceItemReader<Row> implements LineMapper<Row> {
 
-    @PostConstruct
     void init() {
         List<Resource> list = getResourcesToProcess()
         setResources(list as Resource[]) //sets the resources to read
@@ -30,4 +31,9 @@ abstract class GenericRowReader<Row> extends MultiResourceItemReader<Row> implem
      */
     abstract List<Resource> getResourcesToProcess()
 
+    @Override
+    void open(ExecutionContext executionContext) throws ItemStreamException {
+        init()
+        super.open(executionContext)
+    }
 }

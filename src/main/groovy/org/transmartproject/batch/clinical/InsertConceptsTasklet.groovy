@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.model.ConceptNode
 import org.transmartproject.batch.model.ConceptTree
 import org.transmartproject.batch.model.VariableType
-import org.transmartproject.batch.db.DatabaseObject
-
-import javax.annotation.PostConstruct
 
 /**
  * Inserts concepts (from the ConceptTree) that are new
@@ -30,8 +29,13 @@ class InsertConceptsTasklet implements Tasklet {
     @Value("#{clinicalJobContext.conceptTree}")
     ConceptTree conceptTree
 
+    @Value(Tables.CONCEPT_DIMENSION)
     private SimpleJdbcInsert dimensionInsert
+
+    @Value(Tables.I2B2)
     private SimpleJdbcInsert i2b2Insert
+
+    @Value(Tables.I2B2_SECURE)
     private SimpleJdbcInsert i2b2SecureInsert
 
     @Lazy private String metadataXml = { createMetadataXml() }()
@@ -58,7 +62,7 @@ class InsertConceptsTasklet implements Tasklet {
             }
 
             int[] counts = dimensionInsert.executeBatch(rows)
-            DatabaseObject.checkUpdateCounts(counts, 'inserting conceptDimension')
+            DatabaseUtil.checkUpdateCounts(counts, 'inserting conceptDimension')
             contribution.incrementWriteCount(newConcepts.size())
         }
 
@@ -108,9 +112,9 @@ class InsertConceptsTasklet implements Tasklet {
             }
 
             int[] counts1 = i2b2Insert.executeBatch(i2b2Rows as Map[])
-            DatabaseObject.checkUpdateCounts(counts1, 'inserting i2b2')
+            DatabaseUtil.checkUpdateCounts(counts1, 'inserting i2b2')
             int[] counts2 = i2b2SecureInsert.executeBatch(i2b2SecureRows as Map[])
-            DatabaseObject.checkUpdateCounts(counts2, 'inserting i2b2_secure')
+            DatabaseUtil.checkUpdateCounts(counts2, 'inserting i2b2_secure')
             contribution.incrementWriteCount(newConcepts.size() * 2)
         }
 
@@ -132,7 +136,7 @@ class InsertConceptsTasklet implements Tasklet {
         def printer = new IndentPrinter(writer)
         printer.autoIndent = false //no indentation
 
-        def xml = new MarkupBuilder(printer).ValueMetadata {
+        new MarkupBuilder(printer).ValueMetadata {
             Version('3.02')
             CreationDateTime(now.toString())
             Oktousevalues('Y')
@@ -143,18 +147,4 @@ class InsertConceptsTasklet implements Tasklet {
 
         writer.toString()
     }
-
-
-    @PostConstruct
-    void initInserts() {
-        dimensionInsert = new SimpleJdbcInsert(jdbcTemplate)
-        dimensionInsert.withSchemaName(DatabaseObject.Schema.I2B2DEMODATA).withTableName('concept_dimension')
-
-        i2b2Insert = new SimpleJdbcInsert(jdbcTemplate)
-        i2b2Insert.withSchemaName(DatabaseObject.Schema.I2B2METADATA).withTableName('i2b2')
-
-        i2b2SecureInsert = new SimpleJdbcInsert(jdbcTemplate)
-        i2b2SecureInsert.withSchemaName(DatabaseObject.Schema.I2B2METADATA).withTableName('i2b2_secure')
-    }
-
 }

@@ -45,12 +45,6 @@ class ConceptTree {
 
         this.study.find(parts)
     }
-
-    static String getDefaultTopNode(String studyId) {
-        String path = ConceptNode.getJoinedPath('Public Studies', studyId)
-        "$ConceptNode.SEP$path"
-    }
-
 }
 
 /**

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
@@ -34,13 +35,27 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
     @Value("#{clinicalJobContext.variables}")
     List<Variable> variables
 
+    @Autowired
     private NamedParameterJdbcTemplate namedTemplate
 
+    @Value(Tables.PATIENT_DIMENSION)
     private SimpleJdbcInsert insert
 
-    private Map<DemographicVariable, Variable> demographicVariableMap
+    @Lazy
+    private Map<DemographicVariable, Variable> demographicVariableMap =
+            initDemographicVariableMap()
 
     private String updateSql
+
+    @PostConstruct
+    void createUpdateSql() {
+        UpdateQueryBuilder builder = new UpdateQueryBuilder(table: Tables.PATIENT_DIMENSION)
+        builder.addKeys('patient_num')
+        builder.addColumns('update_date')
+        builder.addColumns(DemographicVariable.values()*.column as String[])
+
+        updateSql = builder.toSQL()
+    }
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -100,9 +115,8 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
         }
     }
 
-    @PostConstruct
-    void initDemographicVariableMap() {
-        demographicVariableMap = [:]
+    private void initDemographicVariableMap() {
+        def demographicVariableMap = [:]
         variables.each {
             if (it.demographicVariable) {
                 demographicVariableMap.put(it.demographicVariable, it)
@@ -115,28 +129,10 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
         remaining.each {
             demographicVariableMap.put(it, null) //add remaining demographic vars
         }
+        demographicVariableMap
     }
 
-    @PostConstruct
-    void initInsert() {
-        namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate)
-
-        insert = new SimpleJdbcInsert(jdbcTemplate)
-        insert.withSchemaName('i2b2demodata')
-        insert.withTableName('patient_dimension')
-    }
-
-    @PostConstruct
-    void createUpdateSql() {
-        UpdateQueryBuilder builder = new UpdateQueryBuilder(table: 'i2b2demodata.patient_dimension')
-        builder.addKeys('patient_num')
-        builder.addColumns('update_date')
-        builder.addColumns(DemographicVariable.values()*.column as String[])
-
-        updateSql = builder.toSQL()
-    }
-
-    static String getSourceSystem(String study, String patientId) {
+    private static String getSourceSystem(String study, String patientId) {
         "$study:$patientId"
     }
 

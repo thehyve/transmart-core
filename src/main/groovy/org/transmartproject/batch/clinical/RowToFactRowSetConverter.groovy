@@ -4,11 +4,9 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.transmartproject.batch.model.*
-import org.transmartproject.batch.db.DatabaseObject
+import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.db.SequenceReserver
-
-import javax.annotation.PostConstruct
+import org.transmartproject.batch.model.*
 
 /**
  * Converts Rows into FactRowSets</br>
@@ -29,7 +27,8 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Value("#{clinicalJobContext.variables}")
     List<Variable> variables
 
-    private Map<String, FileVariables> variablesMap
+    @Lazy
+    private Map<String, FileVariables> variablesMap = initVariablesMap()
 
     @Override
     FactRowSet process(Row item) throws Exception {
@@ -38,10 +37,11 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
         vars.create(studyId, item, patient, sequenceReserver)
     }
 
-    @PostConstruct
-    void initVariablesMap() {
+    private void initVariablesMap() {
         Map<String,List<Variable>> map = variables.groupBy { it.filename }
-        variablesMap = map.collectEntries { [(it.key): FileVariables.create(it.value)] }
+        variablesMap = map.collectEntries {
+            [(it.key): FileVariables.create(it.value)]
+        }
     }
 
     private Patient getPatient(Row item, FileVariables vars) {
@@ -50,7 +50,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
 
         if (!patient.code) {
             //new patient: reserve code
-            patient.code = sequenceReserver.getNext(DatabaseObject.Sequence.PATIENT)
+            patient.code = sequenceReserver.getNext(Sequences.PATIENT)
             log.debug('New patient reserved {}', patient)
         }
         patient
@@ -126,8 +126,8 @@ class FileVariables {
                 //goes up in the concept hierarchy, reserving codes until no longer necessary
                 while (tmp && !tmp.code) {
                     //new concept: reserve code
-                    tmp.code = reserver.getNext(DatabaseObject.Sequence.CONCEPT)
-                    tmp.i2b2RecordId = reserver.getNext(DatabaseObject.Sequence.I2B2_RECORDID)
+                    tmp.code = reserver.getNext(Sequences.CONCEPT)
+                    tmp.i2b2RecordId = reserver.getNext(Sequences.I2B2_RECORDID)
                     log.debug('New concept reserved {}', tmp)
                     tmp = tmp.parent //recurse to parent
                 }

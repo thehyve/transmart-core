@@ -16,13 +16,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.support.ConversionServiceFactoryBean
+import org.springframework.core.convert.converter.Converter
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.clinical.FactRowSet
+import org.transmartproject.batch.db.SimpleJdbcInsertConverter
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.DefaultJobIncrementer
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
 import org.transmartproject.batch.db.SequenceReserver
 
 import javax.sql.DataSource
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @ComponentScan("org.transmartproject.batch")
 abstract class AbstractJobConfiguration {
@@ -32,13 +39,6 @@ abstract class AbstractJobConfiguration {
 
     @Autowired
     StepBuilderFactory steps
-
-    /* application data source is shared with spring-batch's data source.
-     * This way JTA is not required to keep job metadata and data in sync. */
-    @Bean
-    DataSource getTransmartDataSource(@Value('#{dataSource}') DataSource ds) {
-        ds
-    }
 
     @Bean
     JobParametersIncrementer jobParametersIncrementer() {
@@ -51,6 +51,27 @@ abstract class AbstractJobConfiguration {
         SequenceReserver result = new SequenceReserver()
         configure(result)
         result
+    }
+
+    @Bean
+    JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        new JdbcTemplate(dataSource)
+    }
+
+    @Bean
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate(
+            JdbcTemplate jdbcTemplate) {
+        new NamedParameterJdbcTemplate(jdbcTemplate)
+    }
+
+    @Bean
+    ConversionServiceFactoryBean conversionService(
+            SimpleJdbcInsertConverter simpleJdbcInsertConverter) {
+
+        new ConversionServiceFactoryBean(converters: [
+                { s -> Paths.get(s) } as StringToPathConverter,
+                simpleJdbcInsertConverter
+        ])
     }
 
     protected void configure(SequenceReserver sequenceReserver) {
@@ -85,5 +106,6 @@ abstract class AbstractJobConfiguration {
         result.setDelegates(processors.toList())
         result
     }
-
 }
+
+interface StringToPathConverter extends Converter<String, Path> {}
