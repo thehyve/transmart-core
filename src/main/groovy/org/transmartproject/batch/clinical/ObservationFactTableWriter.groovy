@@ -2,12 +2,10 @@ package org.transmartproject.batch.clinical
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.DuplicateKeyException
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-
-import javax.annotation.PostConstruct
+import org.transmartproject.batch.clinical.db.objects.Tables
 
 /**
  * Database writer of observation facts, based on FactRowSets
@@ -15,9 +13,7 @@ import javax.annotation.PostConstruct
 @Slf4j
 class ObservationFactTableWriter implements ItemWriter<FactRowSet> {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate
-
+    @Value(Tables.OBSERVATION_FACT)
     private SimpleJdbcInsert insert
 
     @Override
@@ -40,12 +36,5 @@ class ObservationFactTableWriter implements ItemWriter<FactRowSet> {
                     "please run again with logger '{}' on level DEBUG ", 'org.transmartproject.batch.clinical')
             throw ex
         }
-    }
-
-    @PostConstruct
-    void initInsert() {
-        insert = new SimpleJdbcInsert(jdbcTemplate)
-        insert.withSchemaName('i2b2demodata')
-        insert.withTableName('observation_fact')
     }
 }

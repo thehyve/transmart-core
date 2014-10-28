@@ -8,32 +8,32 @@ import org.transmartproject.batch.model.Variable
 import org.transmartproject.batch.support.GenericRowReader
 import org.transmartproject.batch.support.MappingHelper
 
+import java.nio.file.Files
+import java.nio.file.Path
+
 /**
  * Reader of TSV files with clinical data, producing Row elements
  */
 class DataRowReader extends GenericRowReader<Row> {
 
-    @Value("#{jobParameters['dataLocation']}")
-    String dataLocation
+    @Value("#{jobParameters['COLUMN_MAP_FILE']}")
+    Path columnMapFile
 
     @Value("#{clinicalJobContext.variables}")
     List<Variable> variables
 
     @Override
     List<Resource> getResourcesToProcess() {
-        if (dataLocation == null) {
-            throw new IllegalArgumentException('Data location not defined')
-        }
-
-        //obtains the list of data filenames
         Set<String> filenames = variables.collect { it.filename } as Set
+
         List<Resource> resources = []
         filenames.each {
-            File file = new File(dataLocation, it)
-            if (!file.exists()) {
-                throw new IllegalArgumentException("Data file not found: $file.absolutePath")
+            Path filePath = columnMapFile.resolveSibling(it)
+            if (!Files.isReadable(filePath) || !Files.isRegularFile(filePath)) {
+                throw new IllegalArgumentException(
+                        "Not a regular and readable file: $filePath")
             }
-            resources.add(new FileSystemResource(file))
+            resources.add(new FileSystemResource(filePath.toFile()))
         }
         resources
     }

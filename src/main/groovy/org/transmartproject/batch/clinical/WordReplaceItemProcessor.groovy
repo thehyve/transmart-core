@@ -1,12 +1,9 @@
 package org.transmartproject.batch.clinical
 
 import org.springframework.batch.item.ItemProcessor
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.model.WordMapping
-
-import javax.annotation.PostConstruct
 
 /**
  * ItemProcessor of Row that replaces words defined in word mappings list
@@ -16,7 +13,8 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
     @Value("#{clinicalJobContext.wordMappings}")
     List<WordMapping> wordMappings
 
-    private Map<String,List<Mapping>> map
+    @Lazy
+    private Map<String,List<Mapping>> map = calculateMappings(wordMappings)
 
     @Override
     Row process(Row item) throws Exception {
@@ -40,19 +38,14 @@ class WordReplaceItemProcessor implements ItemProcessor<Row, Row> {
         count
     }
 
-    @PostConstruct
-    void initMap() {
-        map = getMappings(wordMappings)
-    }
-
-    static Map<String,List<Mapping>> getMappings(List<WordMapping> sourceList) {
-        if (!sourceList) {
+    private Map<String,List<Mapping>> calculateMappings() {
+        if (!wordMappings) {
             return [:]
         }
 
-        Map<String, List<WordMapping>> map = sourceList.groupBy { it.filename }
+        Map<String, List<WordMapping>> map = wordMappings.groupBy { it.filename }
 
-        return map.collectEntries {
+        map.collectEntries {
             List<Mapping> mappings = it.value.collect {
                 new Mapping(from: it.originalValue, to: it.newValue, column: it.column)
             }
