@@ -41,7 +41,7 @@ class RModulesController {
             "acgh":             "acgh",
             "rnaseq":           "rnaseq",
             "Chromosomal":      "acgh",
-            "CHROMOSOME_REGION_RNASEQ": "rnaseq"
+            "RNASEQ_RCNT":      "rnaseq"
     ]
 
     private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
