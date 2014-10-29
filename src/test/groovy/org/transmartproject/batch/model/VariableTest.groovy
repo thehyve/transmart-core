@@ -1,11 +1,13 @@
 package org.transmartproject.batch.model
 
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 
 /**
  *
  */
+@Ignore
 class VariableTest {
 
     def filename = 'E-GEOD-8581.sdrf-rewrite.txt'
