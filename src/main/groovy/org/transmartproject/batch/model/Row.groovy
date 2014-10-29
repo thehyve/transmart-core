@@ -11,10 +11,7 @@ class Row {
     int index
     List<String> values
 
-    String getValueAt(int index) {
-        if (index >= values.size()) {
-            return null
-        }
+    String getAt(int index) {
         values[index]
     }
 }

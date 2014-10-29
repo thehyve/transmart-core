@@ -121,7 +121,7 @@ class FileVariables {
 
         otherVariables.each {
             //String value = row.values.get(it.columnNumber)
-            String value = row.getValueAt(it.columnNumber)
+            String value = row[it.columnNumber]
 
             if (value) {
                 ConceptNode concept = result.addValue(it, value)
