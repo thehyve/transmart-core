@@ -3,6 +3,8 @@ package org.transmartproject.batch.beans
 import com.jolbox.bonecp.BoneCPDataSource
 import groovy.transform.CompileStatic
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.scope.JobScope
+import org.springframework.batch.core.scope.StepScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -49,5 +51,23 @@ class AppConfig {
     @Bean
     PerDbTypeRunner perDbTypeRunner() {
         new PerDbTypeRunner()
+    }
+
+    /* override beans to fix warnings due to them not being static in
+     * org.springframework.batch.core.configuration.annotation.AbstractBatchConfiguration.ScopeConfiguration */
+    @Bean
+    static public StepScope stepScope() {
+        new StepScope().with {
+            autoProxy = false
+            it
+        }
+    }
+
+    @Bean
+    static public JobScope jobScope() {
+        new JobScope().with {
+            autoProxy = false
+            it
+        }
     }
 }
