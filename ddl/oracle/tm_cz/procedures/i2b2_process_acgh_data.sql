@@ -276,7 +276,7 @@ BEGIN
 
   select count(*) into pExists
     from all_tables
-      where table_name  = 'DE_SUBJECT_MICROARRAY_DATA' and
+      where table_name  = 'DE_SUBJECT_ACGH_DATA' and
 	    partitioned = 'YES';
 
   if pExists = 0 then
@@ -290,7 +290,7 @@ BEGIN
 	--	Create partition in de_subject_acgh_data if it doesn't exist else truncate partition
 	select count(*)	into pExists
 	  from all_tab_partitions
-	    where table_name     = 'DE_SUBJECT_MICROARRAY_DATA' and
+	    where table_name     = 'DE_SUBJECT_ACGH_DATA' and
 		  partition_name = TrialId;
 
 	if pExists = 0 then
@@ -842,7 +842,7 @@ BEGIN
 
   --	tag data with probeset_id from reference.probeset_deapp
 
-  execute immediate ('truncate table tm_wz.wt_subject_mrna_probeset');
+  execute immediate ('truncate table tm_wz.wt_subject_acgh_region');
 
   --	note: assay_id represents a unique subject/site/sample
 
@@ -894,6 +894,7 @@ BEGIN
           , probnorm
           , probgain
           , probamp
+          , trial_source
         )
         select  region_id
               , assay_id
@@ -906,11 +907,14 @@ BEGIN
               , probnorm
               , probgain
               , probamp
+              , TrialId || ':' || sourceCd
         from tm_wz.wt_subject_acgh_region;
 
   stepCt := stepCt + 1;
-  cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_mrna_probeset',SQL%ROWCOUNT,stepCt,'Done');
+  cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_acgh_region',SQL%ROWCOUNT,stepCt,'Done');
   commit;
+
+  pExists := SQL%ROWCOUNT;
 
   if pExists = 0 then
 	raise no_probeset_recs;
