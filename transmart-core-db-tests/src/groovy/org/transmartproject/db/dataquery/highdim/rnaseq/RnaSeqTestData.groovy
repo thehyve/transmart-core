@@ -64,6 +64,8 @@ class RnaSeqTestData {
                         start: 33,
                         end: 9999,
                         numberOfProbes: 42,
+                        cytoband: '1p12.1',
+                        geneSymbol: 'ERG',
                         name: 'region 1:33-9999',
                 ),
                 new DeChromosomalRegion(
@@ -72,6 +74,8 @@ class RnaSeqTestData {
                         start: 66,
                         end: 99,
                         numberOfProbes: 2,
+                        cytoband: '2q7.2',
+                        geneSymbol: 'TMPRSS',
                         name: 'region 2:66-99',
                 ),
         ]
@@ -90,22 +94,29 @@ class RnaSeqTestData {
                                                            TRIAL_NAME)
 
     DeSubjectRnaseqData createRNASEQData(Region region,
-                                     Assay assay,
-                                     readcount = 0) {
+                                         Assay assay,
+                                         readcount = 0,
+                                         normalizedreadcount = 0.0,
+                                         lognormalizedreadcount = 0.0,
+                                         zscore = 0.0
+                                        ) {
         new DeSubjectRnaseqData(
                 region:                     region,
                 assay:                      assay,
                 patient:                    assay.patient,
                 readcount:                  readcount,
+                normalizedReadcount:        normalizedreadcount,
+                logNormalizedReadcount:     lognormalizedreadcount,
+                zscore:                     zscore,
         )
     }
 
     List<DeSubjectRnaseqData> rnaseqData = {
         [
-                createRNASEQData(regions[0], assays[0], -1),
-                createRNASEQData(regions[0], assays[1], 0),
-                createRNASEQData(regions[1], assays[0], 1),
-                createRNASEQData(regions[1], assays[1], 2),
+                createRNASEQData(regions[0], assays[0], -1, -1.0, 0.0, 0.0),
+                createRNASEQData(regions[0], assays[1], 0, 0.0, 0.0, 0.0),
+                createRNASEQData(regions[1], assays[0], 1, 1.0, 0.0, -0.5),
+                createRNASEQData(regions[1], assays[1], 2, 2.0, 1.0, 0.5),
         ]
     }()
 

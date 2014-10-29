@@ -108,8 +108,8 @@ class HighDimensionAllDataTests {
             AcghTestData
         ], [
             'rnaseq',
-            [readCount:Integer],
-            [bioMarker: String],
+            [readcount:Integer, normalizedReadcount:Double, logNormalizedReadcount:Double, zscore:Double],
+            [id: Long, name:String, cytoband:String, chromosome:String, start:Long, end:Long, numberOfProbes:Integer, bioMarker: String],
             RnaSeqTestData
         ]
     ].collect {it.toArray()}}
