@@ -7,8 +7,6 @@ import org.springframework.batch.item.file.LineMapper
 import org.springframework.batch.item.file.MultiResourceItemReader
 import org.springframework.core.io.Resource
 
-import javax.annotation.PostConstruct
-
 /**
  * Reader of Row that is prepared for multiple input Resources and implements LineMapper.<br>
  * It uses internally a FlatFileItemReader which skips the header.<br>
