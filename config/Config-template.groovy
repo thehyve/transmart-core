@@ -206,7 +206,7 @@ com.recomdata.plugins.resultSize = 5000
 environments {
     // This is to target a remove Rserv. Bear in mind the need for shared network storage
     RModules.host = "127.0.0.1"
-    RModules.port = "6311"
+    RModules.port = 6311
     
     // This is not used in recent versions; the URL is always /analysisFiles/
     RModules.imageURL = "/tempImages/" //must end and start with /
