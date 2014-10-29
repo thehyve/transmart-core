@@ -46,7 +46,7 @@ dependencies {
     testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
     testCompile group: 'junit', name: 'junit', version: JUNIT_VERSION
     testCompile group: 'org.gmock', name: 'gmock', version: GMOCK_VERSION
-
+    testCompile group: 'uk.co.modular-it', name: 'hamcrest-date', version: '0.9.5'
 }
 
 def mainClass = 'org.transmartproject.batch.startup.RunJob'
