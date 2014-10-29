@@ -12,7 +12,7 @@ import java.nio.file.Paths
 
 final class RunJob {
 
-    public static final String DEFAULT_JOB_NAME = 'job'
+    public static final String DEFAULT_JOB_BEAN_NAME = 'job'
 
     private Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
             'clinical': ClinicalExternalJobParameters,
@@ -20,11 +20,15 @@ final class RunJob {
 
     OptionAccessor opts
 
+    JobParameters finalJobParameters
+
     private final static String USAGE = '''
 transmart-batch-capsule.jar -p <params file>
                             [ -d <param=value> | [ -d <param2=value2> | ... ]]
-                            [ -c <file> ] [-j <job name> ]
-                            [ -r | -s | -a | -n ]'''
+                            [ -c <file> ]
+                            (
+                              ((-r | -s | -a ) -j <job identifier>)) |
+                              [-n])'''
 
     private static CliBuilder createCliBuilder() {
         def cli = new CliBuilder(usage: USAGE)
@@ -33,7 +37,7 @@ transmart-batch-capsule.jar -p <params file>
         cli.p args: 1, argName: 'file location', 'specify params file', required: true
         cli.c longOpt: 'config', args: 1, 'location of database configuration properties file ' +
                 '(default: ~/.transmart/batchdb.properties)'
-        cli.j longOpt: 'jobName', args: 1, "an arbitrary name for the job (default: $DEFAULT_JOB_NAME)"
+        cli.j longOpt: 'jobIdentifier', args: 1, "the id or name of a job instance"
         cli.r longOpt: 'restart', 'restart the last failed execution'
         cli.s longOpt: 'stop', 'stop a running execution'
         cli.a longOpt: 'abandon', 'abandon a stopped execution'
@@ -42,7 +46,7 @@ transmart-batch-capsule.jar -p <params file>
         cli
     }
 
-    static void main(String ... args) {
+    static void main(String... args) {
         CommandLineJobRunner.presetSystemExiter(new OnErrorSystemExiter())
 
         def cliBuilder = createCliBuilder()
@@ -52,8 +56,18 @@ transmart-batch-capsule.jar -p <params file>
             System.exit 1
         }
 
-        def runJob = new RunJob(opts: opts)
+        def runJob = createInstance(args)
         runJob.run()
+    }
+
+    static RunJob createInstance(String... args) {
+        def cliBuilder = createCliBuilder()
+        OptionAccessor opts = cliBuilder.parse(args)
+        if (!opts) {
+            cliBuilder.usage()
+            System.exit 1
+        }
+        new RunJob(opts: opts)
     }
 
     void run() {
@@ -69,16 +83,22 @@ transmart-batch-capsule.jar -p <params file>
         }
 
         def runner = new CommandLineJobRunner()
+        finalJobParameters = externalJobParams as JobParameters
         runner.jobParametersConverter = new JobParametersConverter() {
             JobParameters getJobParameters(Properties properties) {
-                externalJobParams as JobParameters
+                finalJobParameters
             }
             Properties getProperties(JobParameters params) {
                 externalJobParams as Properties
             }
         }
+
+        String jobIdentifier = calculateJobIdentifier()
+        if (!jobIdentifier) {
+            System.exit 1
+        }
         runner.start(externalJobParameters.jobPath.name,
-                jobName,
+                jobIdentifier,
                 [] as String[] /* converter above takes care of params */,
                 (
                         [] +
@@ -111,8 +131,18 @@ transmart-batch-capsule.jar -p <params file>
         path
     }
 
-    String getJobName() {
-        opts.j ?: DEFAULT_JOB_NAME
+    String calculateJobIdentifier() {
+        /* CommandLineJobRunner uses -j both for a bean job name
+         * (or logical job name to be found by a JobLocator) or
+         * a JobInstance identifier or name */
+         if (opts.r || opts.s || opts.a) {
+             if (!opts.j) {
+                 System.err.println('The -j parameter must be specified ' +
+                         'when the options -n, -s or -a are used')
+             }
+         } else {
+             DEFAULT_JOB_BEAN_NAME
+         }
     }
 
     ExternalJobParameters getExternalJobParameters() {
