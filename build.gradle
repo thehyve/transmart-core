@@ -80,16 +80,11 @@ task capsule(type: ThinCapsule) {
 
 sourceSets {
     functionalTest {
-        java {
-            srcDir 'src/test-func/java'
-        }
-        groovy {
-            srcDir 'src/test-func/groovy'
-        }
-        resources {
-            srcDir 'src/test-func/resources'
-        }
-        compileClasspath += sourceSets.main.runtimeClasspath
+        java.srcDir 'src/test-func/java'
+        groovy.srcDir 'src/test-func/groovy'
+        resources.srcDir 'src/test-func/resources'
+        compileClasspath += sourceSets.main.compileClasspath
+        compileClasspath += sourceSets.test.compileClasspath
     }
 }
 
@@ -97,12 +92,9 @@ task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
     testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
     useJUnit()
-
-    doFirst {
-        setupTransmartData()
-    }
 
     reports {
         html.destination = file("$reports.html.destination/functional")
