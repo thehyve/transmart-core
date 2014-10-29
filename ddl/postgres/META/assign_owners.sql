@@ -39,7 +39,9 @@ BEGIN
         ['tm_wz',   'wt_subject_rbm_logs',         'tm_cz'],
         ['tm_wz',   'wt_subject_rbm_calcs',        'tm_cz'],
         ['tm_wz',   'wt_subject_rna_logs',         'tm_cz'],
-        ['tm_wz',   'wt_subject_rna_calcs',        'tm_cz']
+        ['tm_wz',   'wt_subject_rna_calcs',        'tm_cz'],
+        ['tm_wz',   'wt_subject_rnaseq_logs',      'tm_cz'],
+        ['tm_wz',   'wt_subject_rnaseq_calcs',     'tm_cz']
     ];
 
     -- Convert array to table

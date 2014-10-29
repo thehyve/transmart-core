@@ -7,6 +7,9 @@ CREATE TABLE de_subject_rnaseq_data (
     assay_id bigint NOT NULL,
     patient_id bigint,
     readcount bigint,
+    normalized_readcount double precision,
+    log_normalized_readcount double precision,
+    zscore double precision,
     partition_id bigint
 );
 

@@ -1,9 +1,12 @@
 --
--- Name: i2b2_process_rnaseq_data(character varying, character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_process_rnaseq_data(character varying, character varying, character varying, character varying, character varying, numeric, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_process_rnaseq_data(trial_id character varying, top_node character varying, source_cd character varying DEFAULT 'STD'::character varying, secure_study character varying DEFAULT 'N'::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+
+CREATE FUNCTION tm_cz.i2b2_process_rnaseq_data(trial_id character varying, top_node character varying, source_cd character varying DEFAULT 'STD'::character varying, secure_study character varying DEFAULT 'N'::character varying, data_type character varying DEFAULT 'R'::character varying, log_base numeric DEFAULT 2, currentjobid numeric DEFAULT (-1))
+  RETURNS numeric 
+  LANGUAGE plpgsql SECURITY DEFINER
+  AS $$
+
 /*************************************************************************
 * Copyright 2008-2012 Janssen Research & Development, LLC.
 *
@@ -107,6 +110,17 @@ BEGIN
 	topNode := REGEXP_REPLACE('\' || top_node || '\','(\\){2,}', '\','g');
 	select length(topNode)-length(replace(topNode,'\','')) into topLevel;
 
+	if data_type is null then
+		dataType := 'R';
+	else
+		if data_type in ('R','T','L') then
+			dataType := data_type;
+		else
+			dataType := 'R';
+		end if;
+	end if;
+
+	logBase := log_base;
 	sourceCd := upper(coalesce(source_cd,'STD'));
 
 	--	Get count of records in tm_lz.lt_src_mrna_subj_samp_map
@@ -1032,7 +1046,7 @@ BEGIN
 
 	--Reload Security: Inserts one record for every I2B2 record into the security table
 
-    select tm_cz.i2b2_load_security_data(jobId) into rtnCd;
+	select tm_cz.i2b2_load_security_data(jobId) into rtnCd;
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load security data',0,stepCt,'Done') into rtnCd;
 
@@ -1042,16 +1056,23 @@ BEGIN
 
 	--	note: assay_id represents a unique subject/site/sample
 
+	--	prevent that records are dropped if normalized_readcount = 0
+	update tm_lz.lt_src_rnaseq_data
+	set normalized_readcount = NULL
+	where dataType = 'R' and normalized_readcount = 0;
+
 	begin
 	insert into tm_wz.wt_subject_rnaseq_region
 	(region_id
 	,readcount
+	,normalized_readcount
 	,patient_id
 	,trial_name
 	,assay_id
 	)
 	select gs.region_id
-		  ,cast(md.readcount as bigint)
+		  ,avg(md.readcount::bigint)::bigint
+		  ,avg(md.normalized_readcount::double precision)
 		  ,sd.patient_id
 		  ,TrialId
 		  ,sd.assay_id
@@ -1064,8 +1085,11 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	  and sd.gpl_id = gs.gpl_id
 	  and md.region_name = gs.region_name
-	group by gs.region_id, md.readcount
-		  ,sd.patient_id,sd.assay_id;
+	  and case when dataType = 'R'
+			   then case when md.normalized_readcount is NULL or md.normalized_readcount > 0 then 1 else 0 end
+			   else 1 end = 1         --	take only >0 for dataType R
+	group by gs.region_id,
+		     sd.patient_id, sd.assay_id;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -1081,7 +1105,7 @@ BEGIN
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Insert into DEAPP wt_subject_rnaseq_region',rowCt,stepCt,'Done') into rtnCd;
 
 	if rowCt = 0 then
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Unable to match probesets to platform in probeset_deapp',0,rowCt,'Done') into rtnCd;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Unable to match regions to platform in region_deapp',0,rowCt,'Done') into rtnCd;
 		select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
 		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
 		return -16;
@@ -1125,18 +1149,119 @@ BEGIN
 
 	--	insert into de_subject_rnaseq_data when dataType is T (transformed)
 
-	sqlText := 'insert into ' || partitionName || ' (partition_id, region_id, assay_id, patient_id, trial_name, readcount) ' ||
-			   'select ' || partitionId::text || ', region_id, assay_id, patient_id, trial_name, readcount ' ||
-			   'from tm_wz.wt_subject_rnaseq_region';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	get diagnostics rowCt := ROW_COUNT;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted data into ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
+	if dataType = 'T' then
+		sqlText := 'insert into ' || partitionName || ' (partition_id, region_id, assay_id, patient_id, trial_name, readcount, zscore) ' ||
+				   'select ' || partitionId::text || ', region_id, assay_id, patient_id, trial_name, readcount, ' ||
+				   'case when normalized_readcount < -2.5 then -2.5 when normalized_readcount > 2.5 then 2.5 else normalized_readcount end ' ||
+				   'from tm_wz.wt_subject_rnaseq_region';
+		raise notice 'sqlText= %', sqlText;
+		execute sqlText;
+		get diagnostics rowCt := ROW_COUNT;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted data into ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
+
+	else
+		--	calculate zscore and insert to partition
+
+		execute ('drop index if exists tm_wz.wt_subject_rnaseq_logs_i1');
+		execute ('drop index if exists tm_wz.wt_subject_rnaseq_calcs_i1');
+		execute ('truncate table tm_wz.wt_subject_rnaseq_logs');
+		execute ('truncate table tm_wz.wt_subject_rnaseq_calcs');
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes and truncate zscore work tables',1,stepCt,'Done') into rtnCd;
+
+		begin
+		insert into tm_wz.wt_subject_rnaseq_logs
+			(region_id
+			,readcount
+			,assay_id
+			,raw_readcount
+			,log_readcount
+			,patient_id
+			,trial_name)
+		select   region_id
+			,readcount
+			,assay_id
+			,case when dataType = 'R'
+			   then normalized_readcount
+			   else case when logBase = -1 then 0 else power(logBase,normalized_readcount) end
+			 end
+			,case when dataType = 'L' then normalized_readcount else log(logBase,normalized_readcount::numeric) end
+			,patient_id 
+			,trial_name
+		from tm_wz.wt_subject_rnaseq_region;		
+		get diagnostics rowCt := ROW_COUNT;
+		exception
+		when others then
+			errorNumber := SQLSTATE;
+			errorMessage := SQLERRM;
+			--Handle errors.
+			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			--End Proc
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Loaded data for trial in TM_WZ wt_subject_rnaseq_logs',rowCt,stepCt,'Done') into rtnCd;
+
+		execute ('create index wt_subject_rnaseq_logs_i1 on tm_wz.wt_subject_rnaseq_logs (region_id) tablespace "indx"');
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_rnaseq_logs',0,stepCt,'Done') into rtnCd;
+
+		--	calculate mean_intensity, median_intensity, and stddev_intensity per region
+
+		begin
+		insert into tm_wz.wt_subject_rnaseq_calcs
+			(region_id
+			,mean_readcount
+			,median_readcount
+			,stddev_readcount)
+		select   d.region_id
+			,avg(log_readcount)
+			,median(log_readcount)
+			,stddev(log_readcount)
+		from tm_wz.wt_subject_rnaseq_logs d
+		group by d.region_id;
+		get diagnostics rowCt := ROW_COUNT;
+		exception
+		when others then
+			errorNumber := SQLSTATE;
+			errorMessage := SQLERRM;
+			--Handle errors.
+			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			--End Proc
+			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			return -16;
+		end;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Calculate mean, median, stddev readcounts for trial in TM_WZ wt_subject_rnaseq_calcs',rowCt,stepCt,'Done') into rtnCd;
+
+		execute ('create index wt_subject_rnaseq_calcs_i1 on tm_wz.wt_subject_rnaseq_calcs (region_id) tablespace "indx"');
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create index on TM_WZ wt_subject_rnaseq_calcs',0,stepCt,'Done') into rtnCd;
+
+		-- calculate zscore and insert into partition
+
+		sqlText := 'insert into ' || partitionName || ' (partition_id, region_id, assay_id, patient_id, trial_name, readcount, normalized_readcount, log_normalized_readcount, zscore) ' ||
+				   'select ' || partitionId::text || ', d.region_id, d.assay_id, d.patient_id, d.trial_name, d.readcount, round(d.raw_readcount::numeric,6) , round(d.log_readcount::numeric,6), ' ||
+				   'case when c.stddev_readcount = 0 then 0 else ' ||
+				   'case when (d.log_readcount - c.median_readcount ) / c.stddev_readcount < -2.5 then -2.5 ' ||
+				   'when (d.log_readcount - c.median_readcount ) / c.stddev_readcount > 2.5 then 2.5 else ' ||
+				   'round( ((d.log_readcount - c.median_readcount) / c.stddev_readcount)::numeric,6) end end ' ||
+				   'from tm_wz.wt_subject_rnaseq_logs d ' ||
+				   ',tm_wz.wt_subject_rnaseq_calcs c ' ||
+				   'where d.region_id = c.region_id';
+		raise notice 'sqlText= %', sqlText;
+		execute sqlText;
+		get diagnostics rowCt := ROW_COUNT;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Calculate Z-Score and insert into ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
+
+	end if;
 
 	--	create indexes on partition
 
-	sqlText := ' create index ' || partitionIndx || '_idx1 on ' || partitionName || ' using btree (region_id) tablespace indx';
+	sqlText := ' create index ' || partitionIndx || '_idx1 on ' || partitionName || ' using btree (partition_id) tablespace indx';
 	raise notice 'sqlText= %', sqlText;
 	execute sqlText;
 	sqlText := ' create index ' || partitionIndx || '_idx2 on ' || partitionName || ' using btree (assay_id) tablespace indx';
@@ -1164,4 +1289,5 @@ BEGIN
 END;
 
 $$;
+
 
