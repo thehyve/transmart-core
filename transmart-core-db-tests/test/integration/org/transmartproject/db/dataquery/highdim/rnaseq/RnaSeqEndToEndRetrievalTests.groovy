@@ -49,6 +49,8 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 @TestMixin(RuleBasedIntegrationTestMixin)
 class RnaSeqEndToEndRetrievalTests {
 
+    private static final double DELTA = 0.0001
+
     HighDimensionResource highDimensionResourceService
 
     HighDimensionDataTypeResource<RegionRow> rnaseqResource
@@ -61,6 +63,8 @@ class RnaSeqEndToEndRetrievalTests {
 
     RnaSeqTestData testData = new RnaSeqTestData()
 
+    AssayConstraint trialNameConstraint
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -68,7 +72,10 @@ class RnaSeqEndToEndRetrievalTests {
 
         rnaseqResource = highDimensionResourceService.getSubResourceForType 'rnaseq'
 
-        /* projection never varies in our tests */
+        trialNameConstraint = rnaseqResource.createAssayConstraint(
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                name: RnaSeqTestData.TRIAL_NAME)
+
         projection = rnaseqResource.createProjection([:], RNASEQ_VALUES_PROJECTION)
     }
 
@@ -123,6 +130,64 @@ class RnaSeqEndToEndRetrievalTests {
                 hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
         assertThat regionRows[0][assayColumns[0]],
                 hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
+
+       assertThat(regionRows[1]*.normalizedReadcount,
+                  contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
+                 )
+       assertThat(regionRows[0]*.normalizedReadcount,
+                  contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
+                 )
+    }
+
+    @Test
+    void testLogIntensityProjection() {
+        def logIntensityProjection = rnaseqResource.createProjection(
+                [:], Projection.LOG_INTENSITY_PROJECTION)
+
+        dataQueryResult = rnaseqResource.retrieveData(
+                [ trialNameConstraint ], [], logIntensityProjection)
+
+        def resultList = Lists.newArrayList(dataQueryResult)
+
+        assertThat resultList, containsInAnyOrder(
+                testData.regions.collect {
+                    getDataMatcherForRegion(it, 'logNormalizedReadcount')
+                })
+    }
+
+
+    @Test
+    void testDefaultRealProjection() {
+
+        def realProjection = rnaseqResource.createProjection(
+                [:], Projection.DEFAULT_REAL_PROJECTION)
+
+        dataQueryResult = rnaseqResource.retrieveData(
+                [ trialNameConstraint ], [], realProjection)
+
+        def resultList = Lists.newArrayList(dataQueryResult)
+
+        assertThat resultList, containsInAnyOrder(
+                testData.regions.collect {
+                    getDataMatcherForRegion(it, 'normalizedReadcount')
+                })
+    }
+
+    @Test
+    void testZscoreProjection() {
+
+        def zscoreProjection = rnaseqResource.createProjection(
+                [:], Projection.ZSCORE_PROJECTION)
+
+        dataQueryResult = rnaseqResource.retrieveData(
+                [ trialNameConstraint ], [], zscoreProjection)
+
+        def resultList = Lists.newArrayList(dataQueryResult)
+
+        assertThat resultList, containsInAnyOrder(
+                testData.regions.collect {
+                    getDataMatcherForRegion(it, 'zscore')
+                })
     }
 
     @Test
@@ -233,4 +298,11 @@ class RnaSeqEndToEndRetrievalTests {
         assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
     }
 
+    def getDataMatcherForRegion(DeChromosomalRegion region,
+                                String property) {
+        contains testData.rnaseqData.
+                findAll { it.region == region }.
+                sort    { it.assay.id }. // data is sorted by assay id
+                collect { closeTo it."$property" as Double, DELTA }
+    }
 }

@@ -96,9 +96,7 @@ class RnaSeqTestData {
     DeSubjectRnaseqData createRNASEQData(Region region,
                                          Assay assay,
                                          readcount = 0,
-                                         normalizedreadcount = 0.0,
-                                         lognormalizedreadcount = 0.0,
-                                         zscore = 0.0
+                                         normalizedreadcount = 0.0
                                         ) {
         new DeSubjectRnaseqData(
                 region:                     region,
@@ -106,17 +104,17 @@ class RnaSeqTestData {
                 patient:                    assay.patient,
                 readcount:                  readcount,
                 normalizedReadcount:        normalizedreadcount,
-                logNormalizedReadcount:     lognormalizedreadcount,
-                zscore:                     zscore,
+                logNormalizedReadcount:     Math.log(normalizedreadcount)/Math.log(2.0),
+                zscore:                     ((Math.log(normalizedreadcount)/Math.log(2.0))-0.5)/1.5,
         )
     }
 
     List<DeSubjectRnaseqData> rnaseqData = {
         [
-                createRNASEQData(regions[0], assays[0], -1, -1.0, 0.0, 0.0),
-                createRNASEQData(regions[0], assays[1], 0, 0.0, 0.0, 0.0),
-                createRNASEQData(regions[1], assays[0], 1, 1.0, 0.0, -0.5),
-                createRNASEQData(regions[1], assays[1], 2, 2.0, 1.0, 0.5),
+                createRNASEQData(regions[0], assays[0], 1, 1.0),
+                createRNASEQData(regions[0], assays[1], 10, 4.0),
+                createRNASEQData(regions[1], assays[0], 2, 0.5),
+                createRNASEQData(regions[1], assays[1], 2, 2.0),
         ]
     }()
 
