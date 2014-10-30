@@ -1,24 +1,21 @@
 package org.transmartproject.batch.beans
 
 import com.jolbox.bonecp.BoneCPDataSource
-import groovy.transform.CompileStatic
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.scope.JobScope
+import org.springframework.batch.core.scope.StepScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
-import org.springframework.context.support.ConversionServiceFactoryBean
-import org.springframework.core.convert.ConversionService
-import org.springframework.core.convert.converter.Converter
 import org.springframework.core.env.Environment
-import org.springframework.core.io.ResourceLoader
 import org.transmartproject.batch.db.PerDbTypeRunner
-import org.transmartproject.batch.db.SimpleJdbcInsertConverter
 
 import javax.sql.DataSource
-import java.nio.file.Path
-import java.nio.file.Paths
 
+/**
+ * Base Spring configuration for
+ */
 @Configuration
 @EnableBatchProcessing
 @PropertySource('${propertySource:file:./batchdb.properties}')
@@ -26,9 +23,6 @@ class AppConfig {
 
     @Autowired
     private Environment env
-
-    @Autowired
-    private ResourceLoader resourceLoader
 
     @Bean(destroyMethod = "close")
     DataSource dataSource() {
@@ -49,5 +43,23 @@ class AppConfig {
     @Bean
     PerDbTypeRunner perDbTypeRunner() {
         new PerDbTypeRunner()
+    }
+
+    /* override beans to fix warnings due to them not being static in
+     * org.springframework.batch.core.configuration.annotation.AbstractBatchConfiguration.ScopeConfiguration */
+    @Bean
+    static StepScope stepScope() {
+        new StepScope().with {
+            autoProxy = false
+            it
+        }
+    }
+
+    @Bean
+    static JobScope jobScope() {
+        new JobScope().with {
+            autoProxy = false
+            it
+        }
     }
 }

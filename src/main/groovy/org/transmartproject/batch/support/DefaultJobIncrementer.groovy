@@ -12,9 +12,15 @@ class DefaultJobIncrementer implements JobParametersIncrementer {
 
     @Override
     JobParameters getNext(JobParameters parameters) {
-        if (parameters==null || parameters.isEmpty()) {
-            return new JobParametersBuilder().addLong("run.id", 1L).toJobParameters();
+        if (parameters == null || parameters.isEmpty()) {
+            new JobParametersBuilder().
+                    addLong("run.id", 1L).
+                    toJobParameters()
+        } else {
+            long id = parameters.getLong("run.id", 1L) + 1
+            new JobParametersBuilder().
+                    addLong("run.id", id).
+                    toJobParameters()
         }
-        long id = parameters.getLong("run.id",1L) + 1;
-        return new JobParametersBuilder().addLong("run.id", id).toJobParameters();    }
+    }
 }

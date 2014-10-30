@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
 
@@ -20,7 +21,7 @@ class InsertPatientTrialTasklet implements Tasklet {
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -46,15 +47,11 @@ class InsertPatientTrialTasklet implements Tasklet {
                 ]
             }
             int[] count = insert.executeBatch(rows)
-            if (!count.every { it == 1 }) {
-                throw new RuntimeException('Update count mismatch inserting in patient_trial')
-            }
+            DatabaseUtil.checkUpdateCounts(count, 'inserting in patient_trial')
 
             contribution.incrementWriteCount(newPatients.size())
         }
 
-        println contribution
-
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 }

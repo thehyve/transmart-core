@@ -24,7 +24,7 @@ class DataRowReader extends GenericRowReader<Row> {
 
     @Override
     List<Resource> getResourcesToProcess() {
-        Set<String> filenames = variables.collect { it.filename } as Set
+        Set<String> filenames = variables*.filename as Set
 
         List<Resource> resources = []
         filenames.each {
@@ -43,7 +43,7 @@ class DataRowReader extends GenericRowReader<Row> {
         Row row
         if (line) {
             row = new Row(
-                    filename: getCurrentResource().filename,
+                    filename: currentResource.filename,
                     index: lineNumber,
                     values: MappingHelper.parseValues(line)
             )

@@ -19,7 +19,7 @@ class MappingHelper {
     ]
 
     private static boolean isNumeric(MetaProperty prop) {
-        return Number.class.isAssignableFrom(prop.getType()) || NUMERIC_TYPES.contains(prop.getType())
+        Number.isAssignableFrom(prop.type) || NUMERIC_TYPES.contains(prop.type)
     }
 
     static <T> T asType(Map map, Class<T> clazz) {
@@ -42,7 +42,7 @@ class MappingHelper {
         int valueCount = Math.min(parts.size(), props.size()) //we want to discard, yet allow extra columns
         Map result = [:]
         for (int i=0; i<valueCount; i++) {
-            result.put(props[i], parts[i]);
+            result.put(props[i], parts[i])
         }
         result
     }
@@ -62,7 +62,7 @@ class MappingHelper {
                 }
             }
         }
-        return result
+        result
     }
 
     static List<String> parseValues(String line) {

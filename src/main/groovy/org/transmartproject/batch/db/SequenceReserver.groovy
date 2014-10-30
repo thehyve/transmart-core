@@ -9,12 +9,17 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.CountDownLatch
 
+/**
+ * Component that reserves blocks of ids from database sequences and hands them
+ * out one at a time.
+ */
 @Slf4j
 class SequenceReserver {
 
-    private Map<String, Long> blockSizes = [:].asSynchronized()
+    private final Map<String, Long> blockSizes = [:].asSynchronized()
     static final String SQL = 'SELECT nextval(?) FROM generate_series(1, ?)'
 
     long defaultBlockSize = 50
@@ -25,11 +30,11 @@ class SequenceReserver {
     @Autowired
     JdbcTemplate template
 
-    private ConcurrentHashMap<String, Object> blocks = new ConcurrentHashMap()
+    private final ConcurrentMap<String, Object> blocks = new ConcurrentHashMap()
 
     // not part of the API
     @Transactional(propagation=Propagation.REQUIRES_NEW)
-    SequenceValues createBlock(String sequence) {
+    SequenceValues reserveBlock(String sequence) {
         Long blockSize = blockSizes[sequence] ?: defaultBlockSize
         List<Long> list = template.queryForList(SQL, [sequence, blockSize] as Object[], Long)
         new SequenceValues(ids: new LinkedList(list))
@@ -52,7 +57,7 @@ class SequenceReserver {
             }
             try {
                 // get the bean from the app context so we get it decorated
-                block = applicationContext.getBean(SequenceReserver).createBlock(sequence)
+                block = applicationContext.getBean(SequenceReserver).reserveBlock(sequence)
                 def ret = block.next()
                 blocks.put sequence, block
                 return ret
@@ -75,7 +80,7 @@ class SequenceReserver {
 
 
 class SequenceValues extends AbstractIterator<Long> {
-    LinkedList<Long> ids
+    Deque<Long> ids
 
     protected Long computeNext() {
         if (ids.empty) {

@@ -1,6 +1,5 @@
 package org.transmartproject.batch.model
 
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -21,15 +20,15 @@ class ConceptTreeTest {
     @Test
     void testCreateTree() {
         ConceptNode root = tree.root
-        Assert.assertNotNull(root)
-        Assert.assertNull(root.parent)
-        Assert.assertEquals(1, root.children.size())
+        assert root != null
+        assert root.parent == null
+        assert root.children.size() == 1
 
         ConceptNode study = tree.study
-        Assert.assertEquals('GSE8581', study.name)
-        Assert.assertEquals(ROOT_PATH, study.path)
-        Assert.assertEquals(root, study.parent)
-        Assert.assertEquals(0, study.children.size())
+        assert 'GSE8581' == study.name
+        assert ROOT_PATH == study.path
+        assert root == study.parent
+        assert study.children.size() == 0
     }
 
     @Test
@@ -38,10 +37,10 @@ class ConceptTreeTest {
         String path = "$ROOT_PATH$leaf$ConceptNode.SEP"
 
         ConceptNode node = tree.find(path)
-        Assert.assertEquals(leaf, node.name)
-        Assert.assertEquals(path, node.path)
-        Assert.assertEquals(tree.study, node.parent)
-        Assert.assertEquals(0, node.children.size())
+        assert leaf == node.name
+        assert path == node.path
+        assert tree.study == node.parent
+        assert node.children.size() == 0
     }
 
 

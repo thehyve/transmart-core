@@ -10,6 +10,10 @@ import org.transmartproject.batch.beans.AppConfig
 
 import javax.sql.DataSource
 
+/**
+ * Entry point for creating the ts_batch schema with the spring-batch tables
+ * inside.
+ */
 class BatchSchemaPopulator {
 
     static void main(String... args) {

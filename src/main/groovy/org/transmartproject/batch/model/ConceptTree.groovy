@@ -16,7 +16,7 @@ class ConceptTree {
         if (parts.size() != 2) {
             throw new IllegalArgumentException("Not a proper study concept path: $studyPath")
         }
-        this.root = ConceptNode.createRoot(parts[0])
+        this.root = ConceptNode.generateRoot(parts[0])
         parts.remove(0)
         this.study = root.find(parts)
     }
@@ -94,7 +94,7 @@ class ConceptNode {
         if (pathList.isEmpty()) {
             return child //shortcut
         }
-        return child.find(pathList)
+        child.find(pathList)
     }
 
     protected Set<String> getDeepSubjectsSet() {
@@ -108,22 +108,22 @@ class ConceptNode {
     List<ConceptNode> getAllChildren() {
         List<ConceptNode> result = new ArrayList<>(children)
         children.each {
-            result.addAll(it.getAllChildren())
+            result.addAll(it.allChildren)
         }
         result
     }
 
     VariableType getType() {
         if (variable) {
-            return variable.type
+            variable.type
         } else if (parent) {
-            return parent.type
+            parent.type
         } else {
-            return null
+            null
         }
     }
 
-    static ConceptNode createRoot(String name) {
+    static ConceptNode generateRoot(String name) {
         ConceptNode result = new ConceptNode(name: name, path: "$SEP$name$SEP")
         result.level = 0
         result

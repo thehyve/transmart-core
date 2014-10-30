@@ -1,6 +1,5 @@
 package org.transmartproject.batch.model
 
-import org.junit.Assert
 import org.junit.Test
 
 /**
@@ -33,11 +32,11 @@ class DemographicVariableTest {
     private void assertMatches(DemographicVariable expected, String ... names) {
         names.each {
             DemographicVariable actual = DemographicVariable.getMatching(it)
-            Assert.assertEquals("matching failed for $it", expected, actual)
+            assert expected == actual: "matching failed for $it"
         }
     }
 
     private void assertNoMatch(String name) {
-        Assert.assertNull("$name should not have a match", DemographicVariable.getMatching(name))
+        assert DemographicVariable.getMatching(name) == null: "$name should not have a match"
     }
 }

@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 
-import java.sql.PreparedStatement
-import java.sql.SQLException
-
 /**
  * Generic update of a table that is somehow realated with a study
  */
@@ -28,7 +25,6 @@ abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSe
 
         int count = jdbcTemplate.update(sql(), this)
         contribution.incrementWriteCount(count)
-        println contribution
         RepeatStatus.FINISHED
     }
 

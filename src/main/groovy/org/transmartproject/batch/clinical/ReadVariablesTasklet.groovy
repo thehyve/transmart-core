@@ -45,12 +45,14 @@ class ReadVariablesTasklet implements Tasklet {
             if (var) {
                 Variable old = demographicVarMap.get(var)
                 if (old) {
-                    throw new IllegalArgumentException("Found 2 different variables for demographic $var.name : $old.dataLabel and $it.dataLabel")
+                    throw new IllegalArgumentException(
+                            "Found 2 different variables for demographic " +
+                                    "$var.name : $old.dataLabel and $it.dataLabel")
                 }
                 it.demographicVariable = var //sets the associated demographic variable
             }
         }
 
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 }

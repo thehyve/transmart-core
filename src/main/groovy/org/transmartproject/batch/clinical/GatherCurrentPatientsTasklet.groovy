@@ -24,7 +24,7 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -46,15 +46,14 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
             contribution.incrementReadCount()
         }
         patients.size().times { contribution.incrementReadCount() }
-        println contribution
 
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 
     @Override
     Patient mapRow(ResultSet rs, int rowNum) throws SQLException {
 
-        String id = rs.getString(2).substring(studyPrefix.length())
+        String id = rs.getString(2)[studyPrefix.length()..-1]
         Patient patient = patientSet.getPatient(id) //retrieve/create the Patient
         patient.code = rs.getLong(1)
         patient.isNew = false

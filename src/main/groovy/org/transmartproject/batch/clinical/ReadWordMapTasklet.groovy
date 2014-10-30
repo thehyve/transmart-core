@@ -9,16 +9,16 @@ import org.transmartproject.batch.model.WordMapping
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter
 
+import java.nio.file.Files
+import java.nio.file.Path
+
 /**
  * Tasklet that reads the word map file (if defined) and populates the word mappings list
  */
 class ReadWordMapTasklet implements Tasklet {
 
-    @Value("#{jobParameters['dataLocation']}")
-    String dataLocation
-
-    @Value("#{jobParameters['wordMapFile']}")
-    String wordMapFile
+    @Value("#{jobParameters['WORD_MAP_FILE']}")
+    Path wordMapFile
 
     @Value("#{clinicalJobContext.wordMappings}")
     List<WordMapping> wordMappings
@@ -26,10 +26,11 @@ class ReadWordMapTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         List<WordMapping> list
-        File file = getFile()
-        if (file) {
+        if (wordMapFile) {
             LineListener listener = new LineStepContributionAdapter(contribution)
-            list = WordMapping.parse(file.newInputStream(), listener)
+            wordMapFile.withInputStream {
+                list = WordMapping.parse(Files.newInputStream(wordMapFile), listener)
+            }
             list.each {
                 if (it.newValue == 'null') {
                     it.newValue = null //we want the value null, not the string 'null'
@@ -42,21 +43,6 @@ class ReadWordMapTasklet implements Tasklet {
         wordMappings.clear()
         wordMappings.addAll(list)
 
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
-
-    File getFile() {
-        if (!wordMapFile) {
-            return null
-        }
-        if ('x'.equalsIgnoreCase(wordMapFile)) {
-            //alias for 'not defined'
-            return null
-        }
-        if (!dataLocation) {
-            throw new IllegalArgumentException('Data location not defined')
-        }
-        new File(dataLocation, wordMapFile)
-    }
-
 }

@@ -23,7 +23,7 @@ class InsertConceptsTasklet implements Tasklet {
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.conceptTree}")
@@ -38,7 +38,8 @@ class InsertConceptsTasklet implements Tasklet {
     @Value(Tables.I2B2_SECURE)
     private SimpleJdbcInsert i2b2SecureInsert
 
-    @Lazy private String metadataXml = { createMetadataXml() }()
+    @SuppressWarnings('PrivateFieldCouldBeFinal')
+    @Lazy private String metadataXml = { generateMetadataXml() }()
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -118,19 +119,18 @@ class InsertConceptsTasklet implements Tasklet {
             contribution.incrementWriteCount(newConcepts.size() * 2)
         }
 
-        println contribution
-
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 
     private String metadataXmlFor(ConceptNode concept) {
         if (VariableType.NUMERICAL == concept.type) {
-            return metadataXml
+            metadataXml
+        } else {
+            null
         }
-        null
     }
 
-    static final String createMetadataXml() {
+    static final String generateMetadataXml() {
         Date now = new Date()
         def writer = new StringWriter()
         def printer = new IndentPrinter(writer)
@@ -141,7 +141,7 @@ class InsertConceptsTasklet implements Tasklet {
             CreationDateTime(now.toString())
             Oktousevalues('Y')
             UnitValues {
-                NormalUnits ('ratio')
+                NormalUnits('ratio')
             }
         }
 

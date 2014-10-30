@@ -25,7 +25,7 @@ class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.conceptTree}")
@@ -50,8 +50,7 @@ class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 
-        println contribution
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 
     @Override

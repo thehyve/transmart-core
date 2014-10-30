@@ -18,7 +18,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Autowired
     SequenceReserver sequenceReserver
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -27,8 +27,12 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     @Value("#{clinicalJobContext.variables}")
     List<Variable> variables
 
+    /**
+     * Map between data file and the variables provided in it
+     */
+    @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy
-    private Map<String, FileVariables> variablesMap = initVariablesMap()
+    private Map<String, FileVariables> variablesMap = generateVariablesMap()
 
     @Override
     FactRowSet process(Row item) throws Exception {
@@ -37,10 +41,10 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
         vars.create(studyId, item, patient, sequenceReserver)
     }
 
-    private void initVariablesMap() {
-        Map<String,List<Variable>> map = variables.groupBy { it.filename }
-        variablesMap = map.collectEntries {
-            [(it.key): FileVariables.create(it.value)]
+    private Map<String, FileVariables> generateVariablesMap() {
+        Map<String, List<Variable>> map = variables.groupBy { it.filename }
+        map.collectEntries {
+            [(it.key): FileVariables.fromVariableList(it.value)]
         }
     }
 
@@ -68,7 +72,7 @@ class FileVariables {
     List<Variable> otherVariables = []
     List<Variable> demographicRelated = []
 
-    static FileVariables create(List<Variable> list) {
+    static FileVariables fromVariableList(List<Variable> list) {
         def otherVariables = []
         def args = [:]
         def demographic = []
@@ -104,6 +108,7 @@ class FileVariables {
         row.values.get(subjectIdVariable.columnNumber)
     }
 
+    // TODO: this method should REALLY not be here
     FactRowSet create(String studyId, Row row, Patient patient, SequenceReserver reserver) {
         FactRowSet result = new FactRowSet()
         result.studyId = studyId
@@ -118,7 +123,7 @@ class FileVariables {
 
         otherVariables.each {
             //String value = row.values.get(it.columnNumber)
-            String value = row.getValueAt(it.columnNumber)
+            String value = row[it.columnNumber]
 
             if (value) {
                 ConceptNode concept = result.addValue(it, value)

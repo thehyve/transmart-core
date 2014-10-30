@@ -46,7 +46,7 @@ dependencies {
     testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
     testCompile group: 'junit', name: 'junit', version: JUNIT_VERSION
     testCompile group: 'org.gmock', name: 'gmock', version: GMOCK_VERSION
-
+    testCompile group: 'uk.co.modular-it', name: 'hamcrest-date', version: '0.9.5'
 }
 
 def mainClass = 'org.transmartproject.batch.startup.RunJob'
@@ -80,16 +80,11 @@ task capsule(type: ThinCapsule) {
 
 sourceSets {
     functionalTest {
-        java {
-            srcDir 'src/test-func/java'
-        }
-        groovy {
-            srcDir 'src/test-func/groovy'
-        }
-        resources {
-            srcDir 'src/test-func/resources'
-        }
-        compileClasspath += sourceSets.main.runtimeClasspath
+        java.srcDir 'src/test-func/java'
+        groovy.srcDir 'src/test-func/groovy'
+        resources.srcDir 'src/test-func/resources'
+        compileClasspath += sourceSets.main.compileClasspath
+        compileClasspath += sourceSets.test.compileClasspath
     }
 }
 
@@ -97,12 +92,9 @@ task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
     testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
     useJUnit()
-
-    doFirst {
-        setupTransmartData()
-    }
 
     reports {
         html.destination = file("$reports.html.destination/functional")
@@ -137,12 +129,7 @@ codenarc {
     configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
     // consumed by Jenkins Violations plugin
-    reportFormat = 'xml'
-
-    // don't let codenarc violations fail the build
-    tasks.withType(CodeNarc).all { codeNarcTask ->
-        codeNarcTask.ignoreFailures = true
-    }
+    reportFormat = 'html'
 }
 
 

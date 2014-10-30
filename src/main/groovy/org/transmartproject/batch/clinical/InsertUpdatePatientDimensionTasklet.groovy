@@ -10,11 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.db.UpdateQueryBuilder
 import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Patient
 import org.transmartproject.batch.model.PatientSet
 import org.transmartproject.batch.model.Variable
-import org.transmartproject.batch.db.UpdateQueryBuilder
 
 import javax.annotation.PostConstruct
 
@@ -26,7 +27,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Value("#{clinicalJobContext.patientSet}")
@@ -48,7 +49,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
     private String updateSql
 
     @PostConstruct
-    void createUpdateSql() {
+    void generateUpdateSql() {
         UpdateQueryBuilder builder = new UpdateQueryBuilder(table: Tables.PATIENT_DIMENSION)
         builder.addKeys('patient_num')
         builder.addColumns('update_date')
@@ -86,24 +87,18 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
 
         if (toUpdate.size() > 0) {
             int[] result = namedTemplate.batchUpdate(updateSql, toUpdate as Map[])
-            if (!result.toList().every { it == 1 }) {
-                throw new RuntimeException('Updated rows mismatch while updating patient_dimension')
-            }
+            DatabaseUtil.checkUpdateCounts(result, 'updating patient_dimension')
             contribution.incrementWriteCount(toUpdate.size())
         }
 
         if (toInsert.size() > 0) {
             int[] result = insert.executeBatch(toInsert as Map[])
-            if (!result.toList().every { it == 1 }) {
-                throw new RuntimeException('Updated rows mismatch while inserting patient_dimension')
-            }
+            DatabaseUtil.checkUpdateCounts(result, 'inserting in patient_dimension')
 
             contribution.incrementWriteCount(toInsert.size())
         }
 
-        println contribution
-
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 
     Map<String, Object> getDemographicValues(Patient patient) {
@@ -115,7 +110,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
         }
     }
 
-    private void initDemographicVariableMap() {
+    private Map<DemographicVariable, Variable> initDemographicVariableMap() {
         def demographicVariableMap = [:]
         variables.each {
             if (it.demographicVariable) {

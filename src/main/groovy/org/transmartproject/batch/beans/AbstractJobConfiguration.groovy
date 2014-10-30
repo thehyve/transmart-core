@@ -1,6 +1,7 @@
 package org.transmartproject.batch.beans
 
 import org.codehaus.groovy.runtime.MethodClosure
+import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
@@ -13,7 +14,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.support.ConversionServiceFactoryBean
@@ -21,16 +21,20 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.clinical.FactRowSet
+import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.db.SimpleJdbcInsertConverter
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.support.DefaultJobIncrementer
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
-import org.transmartproject.batch.db.SequenceReserver
 
 import javax.sql.DataSource
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Base class for Spring context configuration classes for Jobs.
+ * Each job type should have its own configuration, extended from this class.
+ */
 @ComponentScan("org.transmartproject.batch")
 abstract class AbstractJobConfiguration {
 
@@ -39,6 +43,8 @@ abstract class AbstractJobConfiguration {
 
     @Autowired
     StepBuilderFactory steps
+
+    abstract Job job()
 
     @Bean
     JobParametersIncrementer jobParametersIncrementer() {
@@ -96,7 +102,8 @@ abstract class AbstractJobConfiguration {
         new FlowBuilder<SimpleFlow>(name)
                 .start(step)
                 //forks execution
-                .split(new JobContextAwareTaskExecutor()) //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
+                //need to use a tweaked executor. see https://jira.spring.io/browse/BATCH-2269
+                .split(new JobContextAwareTaskExecutor())
                 .add(otherSteps.collect { flowOf(it) } as Flow[])
                 .end()
     }

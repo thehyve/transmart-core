@@ -15,6 +15,17 @@ import javax.annotation.PostConstruct
 import static org.transmartproject.batch.clinical.ClinicalJobContextKeys.VARIABLES
 import static org.transmartproject.batch.clinical.ClinicalJobContextKeys.WORD_MAPPINGS
 
+/**
+ * Simplifies access to data needed throughout the job.
+ *
+ * TODO:
+ * Part of this data is exclusively kept in memory, part of it is backed in the
+ * job execution context -- although I think it is not correctly put in the
+ * execution context, I doubt that after items are written to the variables or
+ * word mappings in the respective tasklets Spring detects the change in the
+ * lists and commits them. This needs to be revisited. Preferably conceptTree
+ * and patientSet also should go to the job context.
+ */
 @Scope('job')
 @Component('clinicalJobContext')
 class ClinicalJobContextImpl implements ClinicalJobContext {
@@ -34,8 +45,8 @@ class ClinicalJobContextImpl implements ClinicalJobContext {
 
     @PostConstruct
     void init() {
-        jobExecutionContext.put(VARIABLES, new ArrayList())
-        jobExecutionContext.put(WORD_MAPPINGS, new ArrayList())
+        jobExecutionContext.put(VARIABLES, [])
+        jobExecutionContext.put(WORD_MAPPINGS, [])
 
         conceptTree = new ConceptTree(topNode)
         patientSet = new PatientSet()

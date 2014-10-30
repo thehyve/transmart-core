@@ -9,27 +9,29 @@ import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
-import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.db.UpdateQueryBuilder
-import org.transmartproject.batch.model.DemographicVariable
 import org.transmartproject.batch.model.Row
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
 import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
 
+/**
+ * Spring configuration for the clinical data job.
+ */
 @Configuration
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
+    public static final String JOB_NAME = 'ClinicalDataLoadJob'
+
     @Bean
+    @Override
     Job job() {
         FlowJob job =
-            jobs.get('ClinicalDataLoadJob')
+            jobs.get(JOB_NAME)
                     .start(mainFlow())
                     .end()
                     .build()
@@ -40,16 +42,16 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow mainFlow() {
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(readControlFilesFlow())                              //reads control files (column map, word map)
-                .next(stepOf(this.&gatherCurrentPatientsTasklet))           //get patients from database
-                .next(stepOf(this.&gatherCurrentConceptsTasklet))           //get concepts from database
+                .start(readControlFilesFlow())                           //reads control files (column map, word map)
+                .next(stepOf(this.&gatherCurrentPatientsTasklet))        //get patients from database
+                .next(stepOf(this.&gatherCurrentConceptsTasklet))        //get concepts from database
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
-                .next(rowProcessingStep())                                  //process rows, inserting observation_fact rows
-                .next(stepOf(this.&insertUpdatePatientDimensionTasklet))    //insert/update patient_dimension
-                .next(stepOf(this.&insertPatientTrialTasklet))              //insert patient_trial rows
-                .next(stepOf(this.&insertConceptsTasklet))                  //insert i2b2, i2b2_secure and concept_dimension rows
-                .next(stepOf(this.&insertConceptCountsTasklet))             //insert concept_counts rows
+                .next(rowProcessingStep())                               //process rows, inserting observation_fact rows
+                .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
+                .next(stepOf(this.&insertPatientTrialTasklet))           //insert patient_trial rows
+                .next(stepOf(this.&insertConceptsTasklet))               //insert i2b2, i2b2_secure, concept_dimension
+                .next(stepOf(this.&insertConceptCountsTasklet))          //insert concept_counts rows
                 .build()
     }
 

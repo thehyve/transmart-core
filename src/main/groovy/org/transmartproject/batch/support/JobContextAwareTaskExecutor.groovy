@@ -4,7 +4,8 @@ import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 
 /**
- * ThreadExecutor impl that makes sure the new thread's JobContext is registered and bound to the original JobExecution object
+ * ThreadExecutor impl that makes sure the new thread's JobContext is registered
+ * and bound to the original JobExecution object.
  */
 class JobContextAwareTaskExecutor extends SimpleAsyncTaskExecutor {
 

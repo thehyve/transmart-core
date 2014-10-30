@@ -16,7 +16,7 @@ class PatientSet {
             result = new Patient(id: id)
             patientMap.put(id, result)
         }
-        return result
+        result
     }
 
 }
@@ -32,9 +32,9 @@ class Patient {
     Object getDemographicValue(Variable var) {
         String str = demographicValues.get(var)
         if (str) {
-            return var.getValue(str)
+            var.getValue(str)
         } else {
-            return var.demographicVariable.defaultValue
+            var.demographicVariable.defaultValue
         }
     }
 

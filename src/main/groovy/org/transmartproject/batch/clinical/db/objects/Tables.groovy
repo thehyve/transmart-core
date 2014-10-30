@@ -1,5 +1,8 @@
 package org.transmartproject.batch.clinical.db.objects
 
+/**
+ * Constants with the serval used schema-qualified tables.
+ */
 final class Tables {
     private Tables() { }
 

@@ -1,7 +1,5 @@
 package org.transmartproject.batch.tasklet
 
-import org.transmartproject.batch.tasklet.GenericTableUpdateTasklet
-
 import java.sql.PreparedStatement
 import java.sql.SQLException
 

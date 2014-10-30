@@ -7,3 +7,4 @@
 /bin
 /*.iml
 /batchdb.properties
+*.sw[mnop]
