@@ -129,12 +129,7 @@ codenarc {
     configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
     // consumed by Jenkins Violations plugin
-    reportFormat = 'xml'
-
-    // don't let codenarc violations fail the build
-    tasks.withType(CodeNarc).all { codeNarcTask ->
-        codeNarcTask.ignoreFailures = true
-    }
+    reportFormat = 'html'
 }
 
 
