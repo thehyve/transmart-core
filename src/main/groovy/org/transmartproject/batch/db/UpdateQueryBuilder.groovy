@@ -1,15 +1,15 @@
 package org.transmartproject.batch.db
 
 /**
- *
+ * Helper to generate SQL for update statements.
  */
 class UpdateQueryBuilder {
 
     String table
 
-    private List<String> columns = []
+    private final List<String> columns = []
 
-    private List<String> keys = []
+    private final List<String> keys = []
 
     UpdateQueryBuilder addKeys(String ... keys) {
         this.keys.addAll(keys.toList())

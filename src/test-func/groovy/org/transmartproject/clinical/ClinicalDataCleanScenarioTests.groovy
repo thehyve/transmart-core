@@ -89,6 +89,7 @@ class ClinicalDataCleanScenarioTests {
                         'ts_batch.batch_job_instance cascade')
     }
 
+    @SuppressWarnings('ChainedTest')
     private boolean isJobCompletedSuccessFully() {
         try {
             testJobCompletedSuccessfully()
@@ -102,7 +103,6 @@ class ClinicalDataCleanScenarioTests {
     void testJobCompletedSuccessfully() {
         def execution = jobRepository.getLastJobExecution(
                 ClinicalDataLoadJobConfiguration.JOB_NAME, jobParameters)
-
 
         assertThat execution.endTime, allOf(
                 is(notNullValue()),

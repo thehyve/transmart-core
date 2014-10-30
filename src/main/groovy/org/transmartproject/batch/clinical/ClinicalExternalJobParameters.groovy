@@ -5,11 +5,16 @@ import groovy.transform.TypeChecked
 import org.transmartproject.batch.startup.ExternalJobParameters
 import org.transmartproject.batch.startup.InvalidParametersFileException
 
+/**
+ * Processes the clinical.params files.
+ */
 @TypeChecked
 final class ClinicalExternalJobParameters extends ExternalJobParameters {
     public final static String COLUMN_MAP_FILE = 'COLUMN_MAP_FILE'
     public final static String WORD_MAP_FILE = 'WORD_MAP_FILE'
     public final static String RECORD_EXCLUSION_FILE = 'RECORD_EXCLUSION_FILE'
+
+    final Class jobPath = ClinicalDataLoadJobConfiguration
 
     final Set<String> fileParameterKeys = ImmutableSet.of(
             COLUMN_MAP_FILE,
@@ -37,10 +42,5 @@ final class ClinicalExternalJobParameters extends ExternalJobParameters {
         } else {
             this[RECORD_EXCLUSION_FILE] = convertRelativePath RECORD_EXCLUSION_FILE
         }
-    }
-
-    @Override
-    Class getJobPath() {
-        ClinicalDataLoadJobConfiguration
     }
 }

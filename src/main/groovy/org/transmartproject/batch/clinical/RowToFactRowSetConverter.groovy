@@ -30,6 +30,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     /**
      * Map between data file and the variables provided in it
      */
+    @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy
     private Map<String, FileVariables> variablesMap = generateVariablesMap()
 
@@ -43,7 +44,7 @@ class RowToFactRowSetConverter implements ItemProcessor<Row, FactRowSet> {
     private Map<String, FileVariables> generateVariablesMap() {
         Map<String, List<Variable>> map = variables.groupBy { it.filename }
         map.collectEntries {
-            [(it.key): FileVariables.create(it.value)]
+            [(it.key): FileVariables.fromVariableList(it.value)]
         }
     }
 
@@ -71,7 +72,7 @@ class FileVariables {
     List<Variable> otherVariables = []
     List<Variable> demographicRelated = []
 
-    static FileVariables create(List<Variable> list) {
+    static FileVariables fromVariableList(List<Variable> list) {
         def otherVariables = []
         def args = [:]
         def demographic = []
@@ -107,6 +108,7 @@ class FileVariables {
         row.values.get(subjectIdVariable.columnNumber)
     }
 
+    // TODO: this method should REALLY not be here
     FactRowSet create(String studyId, Row row, Patient patient, SequenceReserver reserver) {
         FactRowSet result = new FactRowSet()
         result.studyId = studyId

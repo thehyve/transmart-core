@@ -6,6 +6,17 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 
+/**
+ * Converter to allow injecting {@link SimpleJdbcInsertConverter} objects
+ * with:
+ *
+ * <code>
+ *     @Value('i2b2demodata.patient_dimension')
+ *     SimpleJdbcInsert patientDimensionInsert
+ * </code>
+ *
+ * A bit of a hack, yes.
+ */
 @Component
 class SimpleJdbcInsertConverter implements Converter<String, SimpleJdbcInsert> {
     @Autowired

@@ -2,6 +2,10 @@ package org.transmartproject.batch.db
 
 import org.springframework.beans.factory.annotation.Value
 
+/**
+ * Helper component for running different code paths depending on the database
+ * type being used.
+ */
 class PerDbTypeRunner {
 
     public static final String DEFAULT_KEY = 'DEFAULT'
@@ -27,6 +31,7 @@ class PerDbTypeRunner {
         }
     }
 
+    @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy private String databaseKey = {
         switch (driverClassName) {
             case 'org.postgresql.Driver':

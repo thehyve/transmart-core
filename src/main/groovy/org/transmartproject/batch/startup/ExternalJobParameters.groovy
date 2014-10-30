@@ -9,7 +9,12 @@ import org.springframework.batch.core.JobParameters
 import java.nio.file.Files
 import java.nio.file.Path
 
+/**
+ * Base class for classes implementing the reading of '*.params' files, as used
+ * in transmart-data.
+ */
 @TypeChecked
+@SuppressWarnings('UnnecessaryConstructor')
 abstract class ExternalJobParameters {
 
     public static final String STUDY_ID = 'STUDY_ID'
@@ -79,6 +84,7 @@ abstract class ExternalJobParameters {
         params[index] = value as String
     }
 
+    @SuppressWarnings('EmptyMethodInAbstractClass')
     void validate() throws InvalidParametersFileException {}
 
     final void munge() throws InvalidParametersFileException {
@@ -111,6 +117,7 @@ abstract class ExternalJobParameters {
      * May be used by subclasses to change the parameter values into a canonical
      * form and add/remove parameters.
      */
+    @SuppressWarnings('EmptyMethodInAbstractClass')
     void doMunge() throws InvalidParametersFileException {}
 
     final protected Path convertRelativePath(String parameter)

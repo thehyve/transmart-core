@@ -10,11 +10,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Entry point for the application.
+ */
+@SuppressWarnings(['SystemExit', 'SystemErrPrint'])
 final class RunJob {
 
     public static final String DEFAULT_JOB_BEAN_NAME = 'job'
 
-    private Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
+    private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
             'clinical': ClinicalExternalJobParameters,
     ]
 
@@ -33,17 +37,19 @@ transmart-batch-capsule.jar -p <params file>
     private static CliBuilder createCliBuilder() {
         def cli = new CliBuilder(usage: USAGE)
         cli.writer = new PrintWriter(System.err)
-        cli.d args: 2, valueSeparator: '=', argName: 'param=value', 'override/supplement params file parameter'
-        cli.p args: 1, argName: 'file location', 'specify params file', required: true
-        cli.c longOpt: 'config', args: 1, 'location of database configuration properties file ' +
-                '(default: ~/.transmart/batchdb.properties)'
-        cli.j longOpt: 'jobIdentifier', args: 1, "the id or name of a job instance"
-        cli.r longOpt: 'restart', 'restart the last failed execution'
-        cli.s longOpt: 'stop', 'stop a running execution'
-        cli.a longOpt: 'abandon', 'abandon a stopped execution'
-        cli.n longOpt: 'next', 'start the next in a sequence according to the JobParametersIncrementer'
-        cli.h longOpt: 'help', 'show this help message'
-        cli
+        cli.with {
+            d args: 2, valueSeparator: '=', argName: 'param=value', 'override/supplement params file parameter'
+            p args: 1, argName: 'file location', 'specify params file', required: true
+            c longOpt: 'config', args: 1, 'location of database configuration properties file ' +
+                    '(default: ~/.transmart/batchdb.properties)'
+            j longOpt: 'jobIdentifier', args: 1, "the id or name of a job instance"
+            r longOpt: 'restart', 'restart the last failed execution'
+            s longOpt: 'stop', 'stop a running execution'
+            a longOpt: 'abandon', 'abandon a stopped execution'
+            n longOpt: 'next', 'start the next in a sequence according to the JobParametersIncrementer'
+            h longOpt: 'help', 'show this help message'
+            it
+        }
     }
 
     static void main(String... args) {
@@ -85,9 +91,11 @@ transmart-batch-capsule.jar -p <params file>
         def runner = new CommandLineJobRunner()
         finalJobParameters = externalJobParams as JobParameters
         runner.jobParametersConverter = new JobParametersConverter() {
+            @SuppressWarnings('UnusedMethodParameter')
             JobParameters getJobParameters(Properties properties) {
                 finalJobParameters
             }
+            @SuppressWarnings('UnusedMethodParameter')
             Properties getProperties(JobParameters params) {
                 externalJobParams as Properties
             }
@@ -105,7 +113,7 @@ transmart-batch-capsule.jar -p <params file>
                                 (opts.r ? '-restart' : []) +
                                 (opts.s ? '-stop' : []) +
                                 (opts.a ? '-abandon' : []) +
-                                (opts.n ? '-next' : [])) as Set);
+                                (opts.n ? '-next' : [])) as Set)
     }
 
     String getBatchPropertiesPath() {

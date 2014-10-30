@@ -86,7 +86,7 @@ ruleset {
 	ConfusingTernary
 	CouldBeElvis
 	HashtableIsObsolete
-	InvertedIfElse
+	// InvertedIfElse
 	LongLiteralWithLowerCaseL
 	ParameterReassignment
 	TernaryCouldBeElvis
@@ -96,7 +96,7 @@ ruleset {
 	AbstractClassWithPublicConstructor
 	AbstractClassWithoutAbstractMethod
 	BooleanMethodReturnsNull
-	BuilderMethodWithSideEffects
+	// BuilderMethodWithSideEffects
 	CloneableWithoutClone
 	CloseWithoutCloseable
 	CompareToWithoutComparable
@@ -199,15 +199,15 @@ ruleset {
 	DuplicateImport
 	ImportFromSamePackage
 	ImportFromSunPackages
-	MisorderedStaticImports
+	// MisorderedStaticImports we prefer static after
 	UnnecessaryGroovyImport
 	UnusedImport
 
 	// rulesets/jdbc.xml
 	DirectConnectionManagement
 	JdbcConnectionReference
-	JdbcResultSetReference
-	JdbcStatementReference
+	// JdbcResultSetReference
+	// JdbcStatementReference
 
 	// rulesets/junit.xml
 	ChainedTest
@@ -245,7 +245,7 @@ ruleset {
 	AbstractClassName
 	ClassName
 	ConfusingMethodName
-	FactoryMethodName
+//	FactoryMethodName
 	FieldName
 	InterfaceName
 //	MethodName

@@ -3,7 +3,7 @@ package org.transmartproject.batch.support
 /**
  *
  */
-public interface LineListener {
+interface LineListener {
 
     void lineRead(String line)
 

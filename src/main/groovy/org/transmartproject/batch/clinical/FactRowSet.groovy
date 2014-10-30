@@ -15,7 +15,7 @@ class FactRowSet {
     String siteId
     String visitName
 
-    private Map<Variable,Entry> variableValueMap = [:]
+    private final Map<Variable,Entry> variableValueMap = [:]
 
     /**
      * Sets the value for a given variable, returning the value concept
@@ -39,9 +39,9 @@ class FactRowSet {
                     patient_num: patient.code,
                     concept_cd: it.concept.code,
                     //start_date: new Date(Long.MAX_VALUE), //doesn't work
-                    valtype_cd: it.getValueTypeCode(),
-                    tval_char: it.getStringValue(),
-                    nval_num: it.getNumericValue(),
+                    valtype_cd: it.valueTypeCode,
+                    tval_char: it.stringValue,
+                    nval_num: it.numericValue,
                     import_date: dt,
 
                     provider_id: '@',

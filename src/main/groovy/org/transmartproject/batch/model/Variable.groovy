@@ -11,6 +11,8 @@ import org.transmartproject.batch.support.MappingHelper
 @ToString
 class Variable implements Serializable {
 
+    private static final long serialVersionUID = 1L
+
     static final String SUBJ_ID = 'SUBJ_ID'
     static final String STUDY_ID = 'STUDY_ID'
     static final String SITE_ID = 'SITE_ID'
@@ -18,6 +20,11 @@ class Variable implements Serializable {
     static final String OMIT = 'OMIT'
 
     static final List<String> RESERVED = [ SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, OMIT ]
+
+    //the columns have fixed position, but not fixed names
+    //most of the files have headers [filename, category_cd, col_nbr, data_label]
+    //but some files dont, so we use position (not names) to identify columns
+    static final FIELDS = ['filename','categoryCode','columnNumber','dataLabel']
 
     String filename
 
@@ -32,11 +39,6 @@ class Variable implements Serializable {
     VariableType type
 
     DemographicVariable demographicVariable
-
-    //the columns have fixed position, but not fixed names
-    //most of the files have headers [filename, category_cd, col_nbr, data_label]
-    //but some files dont, so we use position (not names) to identify columns
-    private static fields = ['filename','categoryCode','columnNumber','dataLabel']
 
     ConceptNode getValueConcept(String value) {
 
@@ -94,7 +96,7 @@ class VariableLineMapper implements Function<String,Variable> {
 
     @Override
     Variable apply(String input) {
-        Variable result = MappingHelper.parseObject(input, Variable.class, Variable.fields)
+        Variable result = MappingHelper.parseObject(input, Variable, Variable.FIELDS)
         result.columnNumber-- //index is now 0 based
         if (!Variable.RESERVED.contains(result.dataLabel)) {
             //resolve the concept

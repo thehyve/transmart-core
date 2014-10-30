@@ -13,12 +13,15 @@ final class ConceptFullName {
     final List<String> parts
 
     ConceptFullName(String path) {
-        if (path.size() == 0 || path[0] != '\\')
+        if (path.size() == 0 || path[0] != '\\') {
             throw new IllegalArgumentException('Path should start with \\')
-        if (path.size() < 2)
+        }
+        if (path.size() < 2) {
             throw new IllegalArgumentException('Path is too short')
-        if (path[-1] != '\\')
+        }
+        if (path[-1] != '\\') {
             path += '\\'
+        }
 
         this.fullPath = path
 
@@ -33,10 +36,14 @@ final class ConceptFullName {
     }
 
     def getAt(int index) {
-        if (index < 0)
-            index = parts.size() + index
+        def calculatedIndex
+        if (index < 0) {
+            calculatedIndex = parts.size() + index
+        } else {
+            calculatedIndex = index
+        }
 
-        index < parts.size() ? parts[index] : null
+        calculatedIndex < parts.size() ? parts[calculatedIndex] : null
     }
 
     def getAt(Range range) {
@@ -61,7 +68,7 @@ final class ConceptFullName {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         fullPath
     }
 }

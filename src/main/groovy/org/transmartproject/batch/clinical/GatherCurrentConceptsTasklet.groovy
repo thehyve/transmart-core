@@ -50,8 +50,7 @@ class GatherCurrentConceptsTasklet implements Tasklet, RowMapper<ConceptNode> {
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 
-        println contribution
-        return RepeatStatus.FINISHED
+        RepeatStatus.FINISHED
     }
 
     @Override

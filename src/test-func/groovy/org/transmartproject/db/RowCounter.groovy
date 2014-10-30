@@ -3,6 +3,9 @@ package org.transmartproject.db
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
+/**
+ * Counts rows in a table, subject to an optional predicate.
+ */
 class RowCounter {
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate

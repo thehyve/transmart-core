@@ -34,7 +34,7 @@ enum DemographicVariable {
                     'RACE',
                     '.*\\(RACE\\)',
             ]
-    );
+    )
 
     String column
     Object defaultValue

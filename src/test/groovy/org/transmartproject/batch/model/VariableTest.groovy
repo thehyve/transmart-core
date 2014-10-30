@@ -8,6 +8,7 @@ import org.junit.Test
  *
  */
 @Ignore
+@SuppressWarnings('JUnitStyleAssertions') // removed when not ignored
 class VariableTest {
 
     def filename = 'E-GEOD-8581.sdrf-rewrite.txt'

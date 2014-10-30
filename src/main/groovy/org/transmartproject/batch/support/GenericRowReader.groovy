@@ -15,8 +15,7 @@ import org.springframework.core.io.Resource
 abstract class GenericRowReader<Row> extends MultiResourceItemReader<Row> implements LineMapper<Row> {
 
     void init() {
-        List<Resource> list = getResourcesToProcess()
-        setResources(list as Resource[]) //sets the resources to read
+        setResources(resourcesToProcess as Resource[]) //sets the resources to read
         FlatFileItemReader<Row> reader = new FlatFileItemReader<>()
         reader.setLineMapper(this)
         reader.setLinesToSkip(1) //ignores the header

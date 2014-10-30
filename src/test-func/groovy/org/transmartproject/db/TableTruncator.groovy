@@ -6,6 +6,10 @@ import org.springframework.dao.DataAccessException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
+/**
+ * Truncates table first by trying TRUCATE and then falling back to unbounded
+ * DELETEs.
+ */
 @Slf4j
 class TableTruncator {
 
