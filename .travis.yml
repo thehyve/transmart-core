@@ -1,7 +1,27 @@
 language: groovy
 
-jdk:
-  - oraclejdk7
+addons:
+    postgresql: "9.3"
 
-install: ./gradlew -q assemble
-script: ./gradlew clean check jacocoTestReport distZip --stacktrace
+before_install:
+    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
+    - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
+    - sudo apt-get update
+
+install:
+    - sudo apt-get install -y -qq php5-cli php5-json subversion
+    - svn checkout -q https://github.com/transmart/transmart-data/trunk ~/transmart-data
+    - cd ~/transmart-data
+    - make -C env ../vars
+    - sudo make -C env /var/lib/postgresql/tablespaces
+    - source vars
+    - skip_fix_tablespaces=1 make -j3 postgres > /dev/null
+    - echo "CREATE ROLE travis_ci SUPERUSER LOGIN PASSWORD 'travis_ci'" | sudo -u postgres psql
+    - cd -
+    - cp .batchdb-travis.properties batchdb.properties
+    - ./gradlew setupSchema
+
+script:
+    - ./gradlew --info check
+    - ./gradlew --info functionalTest
+    - ./gradlew capsule
