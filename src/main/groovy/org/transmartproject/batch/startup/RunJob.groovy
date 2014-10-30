@@ -17,6 +17,7 @@ import java.nio.file.Paths
 final class RunJob {
 
     public static final String DEFAULT_JOB_BEAN_NAME = 'job'
+    public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
 
     private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
             'clinical': ClinicalExternalJobParameters,
@@ -118,8 +119,7 @@ transmart-batch-capsule.jar -p <params file>
 
     String getBatchPropertiesPath() {
         if (!opts.c) {
-            String userHome = System.getProperty('user.home')
-            "file:$userHome/.transmart/batchdb.properties"
+            DEFAULT_BATCHDB_PROPERTIES_LOCATION
         } else {
             Path path = Paths.get((String) opts.c)
             if (!Files.isReadable(path) || Files.isRegularFile(path)) {
