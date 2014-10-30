@@ -29,11 +29,11 @@ final class RunJob {
 
     private final static String USAGE = '''
 transmart-batch-capsule.jar -p <params file>
-                            [ -d <param=value> | [ -d <param2=value2> | ... ]]
-                            [ -c <file> ]
-                            (
-                              ((-r | -s | -a ) -j <job identifier>)) |
-                              [-n])'''
+    [ -d <param=value> | [ -d <param2=value2> | ... ]]
+    [ -c <file> ]
+    (
+        ((-r | -s | -a ) -j <job identifier>)) |
+        [-n])'''
 
     private static CliBuilder createCliBuilder() {
         def cli = new CliBuilder(usage: USAGE)
@@ -42,7 +42,7 @@ transmart-batch-capsule.jar -p <params file>
             d args: 2, valueSeparator: '=', argName: 'param=value', 'override/supplement params file parameter'
             p args: 1, argName: 'file location', 'specify params file', required: true
             c longOpt: 'config', args: 1, 'location of database configuration properties file ' +
-                    '(default: ~/.transmart/batchdb.properties)'
+                    "(default: $DEFAULT_BATCHDB_PROPERTIES_LOCATION)"
             j longOpt: 'jobIdentifier', args: 1, "the id or name of a job instance"
             r longOpt: 'restart', 'restart the last failed execution'
             s longOpt: 'stop', 'stop a running execution'
