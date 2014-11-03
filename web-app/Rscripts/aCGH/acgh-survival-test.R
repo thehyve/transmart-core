@@ -4,6 +4,8 @@
 # OUTPUT survival-test.txt: survival-test.txt
 # PARAMETER survival: survival TYPE METACOLUMN_SEL DEFAULT Overall survival time (Phenodata column with survival data)
 # PARAMETER status: status TYPE METACOLUMN_SEL DEFAULT Survival status (Phenodata column with patient status: alive=0, dead=1)
+# PARAMETER censor: censor TYPE METACOLUMN_SEL DEFAULT <zero length string> (Phenodata column with censor status: censored=1, not censored=0)
+#                   If non-zero length censor parameter is specified, the censor status column in Phenodata takes precedence over the status column.
 # PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
@@ -14,6 +16,7 @@ acgh.survival.test <- function
 (
   survival='Overall survival time',
   status='Survival status',
+  censor='',
   number.of.permutations=10000,
   test.aberrations=0
 )
@@ -34,6 +37,14 @@ acgh.survival.test <- function
   highdimColumnsMatchingGroupIds <- match(paste("flag.",phenodataIds,sep=""), colnames(calls))
   highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
   calls <- calls[, highdimColumnsMatchingGroupIds, drop=FALSE]
+
+  # Check if non-zero length censoring status parameter has been provided
+  if ( nchar(censor) > 0 )
+  {  # Use censor column to calculate patient status column
+     #   censor.1 (censored_yes) -> status.0 (alive)
+     #   censor.0 (censored_no ) -> status.1 (dead)
+     phenodata[,status] <- as.integer(!phenodata[,censor])
+  }
 
   # Filter for the phenodata rows that have matching calls
   phenodata <- phenodata[paste("flag.",phenodata$PATIENT_NUM,sep="") %in% colnames(calls), ]
