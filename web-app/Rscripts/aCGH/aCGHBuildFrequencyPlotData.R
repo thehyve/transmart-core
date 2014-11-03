@@ -127,7 +127,7 @@ function
 	groupData <- groupData[apply(!is.na(groupData), 1, all), ]
 
 	# Check if still patients are left that match the criteria
-	# WL # if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
+	if (nrow(groupData) < 2) stop(paste("||FRIENDLY||Not enough patients/subjects/samples (",nrow(groupData),") to form at least 2 groups",sep=""))
 
 	# Merge the observations of multiple variables into a combined observation of a single variable (cross table)
 	groupData$combinedConcepts <- do.call(paste, c(groupData[allAvailableShortConceptsOrCohort], sep = "_"))
@@ -137,7 +137,7 @@ function
 	# Check if patient are uniquely divided over the groups
 	if (nrow(groupData) != length(unique(groupData$PATIENT_NUM))) stop(paste("||FRIENDLY||Patients not uniquely divided over the groups"))
 	# Check size of groupsize on average > 1 (i.e. not as many groups as patients)
-	# WL # if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
+	if (nrow(groupData) == length(unique(groupData$combinedConcepts))) stop(paste("||FRIENDLY||Size of groups too small (as many groups as patients(",nrow(groupData),"))",sep=""))	
 
 	groupColumnNames <- c("PATIENT_NUM",output.column.group)
 	colnames(groupData) <- groupColumnNames

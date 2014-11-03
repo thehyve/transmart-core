@@ -31,17 +31,20 @@ aggregate.probes = FALSE
 )
 {
 
-	print("-------------------")
-	print("HeatmapLoader.R")
-	print("CREATING HEATMAP")
+    print("-------------------")
+    print("HeatmapLoader.R")
+    print("CREATING HEATMAP")
 
-	library(Cairo)
-	library(ggplot2)
-	library(reshape2)
-	library(gplots)
+    library(Cairo)
+    library(ggplot2)
+    library(reshape2)
+    library(gplots)
 	
-	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
+    #Pull the GEX data from the file.
+    mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
+
+    #We can't draw a heatmap if no data values are given
+    if(nrow(mRNAData)<1) stop("||FRIENDLY||R cannot plot a heatmap when NO data is provided. Please check your variable selection and run again.")
 
 	#If we have to melt and cast, do it here, otherwise we make the group column the rownames
 	if(meltData == TRUE)
