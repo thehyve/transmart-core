@@ -41,7 +41,7 @@ class HighDimResourceTests extends ResourceTestCase {
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at","1553506_at"]
 
     def expectedAcghAssays = [-3001, -3002]*.toLong()
-    def expectedAcghRowLabels = ["cytoband1", "cytoband2"]
+    def expectedAcghRowLabels = ['region 1:33-9999', 'region 2:66-99']
 
     def mrnaSupportedProjections = ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
 
