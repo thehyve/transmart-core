@@ -4,6 +4,7 @@
   CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_LOAD_CHROM_REGION" 
 (
   platform_t in varchar2 := ''
+, data_type in varchar2 := 'ACGH' -- valid values are ACGH and RNASEQ
 , genome_release in varchar2 := ''
 , currentjobid in number := NULL
 ) as
@@ -14,6 +15,7 @@
   jobID          NUMBER(18,0);
   stepCt         NUMBER(18,0);
   gplId          VARCHAR2(100);
+  marker_type    VARCHAR2(100);
   organismId     VARCHAR2(100);
   platform_title VARCHAR(500);
 
@@ -57,6 +59,15 @@ begin
   tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_gpl_info for platform: ' || gplID,SQL%ROWCOUNT,stepCt,'Done');
 
   -- Insert platform into deapp.de_gpl_info
+
+  -- Derive marker_type from data_type argument (defaults to CHROMOSOME_REGION_ACGH)
+  if (upper(data_type) = 'RNASEQ')
+  then
+    marker_type := 'RNASEQ_RCNT';
+  else
+    marker_type := 'Chromosomal';
+  end if;
+
   platform_title := platform_t;
   IF (LENGTH(platform_title) = 0) THEN
       platform_title := gplId;
@@ -78,7 +89,7 @@ begin
             platform_title,
             organismId,
             CURRENT_TIMESTAMP,
-            'Chromosomal',
+            marker_type,
             genome_release
           );
   stepCt := stepCt + 1;
