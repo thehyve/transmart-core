@@ -26,35 +26,45 @@ import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 final class RegionRowImpl extends AbstractDataRow implements RegionRow, BioMarkerDataRow {
 
-    Long id
+    Long    id
+    String  name
+    String  cytoband
+    String  chromosome
+    Long    start
+    Long    end
+    Integer numberOfProbes
+    String  bioMarker
 
-    String name
+    RegionRowImpl() {}  // Enforce that default constructor is generated along with next explicit constructor
+                        // Else map constructors will fail.
 
-    String cytoband
+    RegionRowImpl(final List rowList) {
+        this.id             = rowList[0] as Long
+        this.name           = rowList[1] as String
+        this.cytoband       = rowList[2] as String
+        this.chromosome     = rowList[3] as String
+        this.start          = rowList[4] as Long
+        this.end            = rowList[5] as Long
+        this.numberOfProbes = rowList[6] as Integer
+        this.bioMarker      = rowList[7] as String
+    }
 
     Platform getPlatform() {
         throw new UnsupportedOperationException('Getter for get platform is not implemented')
     }
 
-    String chromosome
-
-    Long start
-
-    Long end
-
-    Integer numberOfProbes
-
-    String bioMarker
-
     @Override
     String getLabel() {
-        cytoband
+        name
     }
 
     @Override
     public java.lang.String toString() {
-        return "RegionImpl{" +
-                "data=" + data +
+        return "RegionRowImpl{" +
+                "regionId=" + id +
+                ", regionName=" + name +
+                ", data=" + data.toListString() +
+                ", assayIndexMap=" + assayIndexMap.toMapString() +
                 '}';
     }
 }

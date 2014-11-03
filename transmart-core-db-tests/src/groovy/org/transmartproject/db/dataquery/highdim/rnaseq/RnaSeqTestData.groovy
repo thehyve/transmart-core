@@ -34,7 +34,7 @@ class RnaSeqTestData {
 
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL_RNASEQ'
 
-    static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ-RCNT'
+    static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ_RCNT'
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
@@ -64,8 +64,9 @@ class RnaSeqTestData {
                         start: 33,
                         end: 9999,
                         numberOfProbes: 42,
+                        cytoband: '1p12.1',
+                        geneSymbol: 'ERG',
                         name: 'region 1:33-9999',
-                        geneSymbol: 'ADIRF',
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -73,8 +74,9 @@ class RnaSeqTestData {
                         start: 66,
                         end: 99,
                         numberOfProbes: 2,
+                        cytoband: '2q7.2',
+                        geneSymbol: 'TMPRSS',
                         name: 'region 2:66-99',
-                        geneSymbol: 'AURKA',
                 ),
         ]
         r[0].id = -1011L
@@ -92,22 +94,27 @@ class RnaSeqTestData {
                                                            TRIAL_NAME)
 
     DeSubjectRnaseqData createRNASEQData(Region region,
-                                     Assay assay,
-                                     readcount = 0) {
+                                         Assay assay,
+                                         readcount = 0,
+                                         normalizedreadcount = 0.0
+                                        ) {
         new DeSubjectRnaseqData(
                 region:                     region,
                 assay:                      assay,
                 patient:                    assay.patient,
-                readCount:                  readcount,
+                readcount:                  readcount,
+                normalizedReadcount:        normalizedreadcount,
+                logNormalizedReadcount:     Math.log(normalizedreadcount)/Math.log(2.0),
+                zscore:                     ((Math.log(normalizedreadcount)/Math.log(2.0))-0.5)/1.5,
         )
     }
 
     List<DeSubjectRnaseqData> rnaseqData = {
         [
-                createRNASEQData(regions[0], assays[0], -1),
-                createRNASEQData(regions[0], assays[1], 0),
-                createRNASEQData(regions[1], assays[0], 1),
-                createRNASEQData(regions[1], assays[1], 2),
+                createRNASEQData(regions[0], assays[0], 1, 1.0),
+                createRNASEQData(regions[0], assays[1], 10, 4.0),
+                createRNASEQData(regions[1], assays[0], 2, 0.5),
+                createRNASEQData(regions[1], assays[1], 2, 2.0),
         ]
     }()
 
