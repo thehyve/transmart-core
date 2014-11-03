@@ -86,7 +86,10 @@ grails.project.dependency.resolution = {
         }
         test 'org.hamcrest:hamcrest-library:1.3'
         test 'org.hamcrest:hamcrest-core:1.3'
-        test 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
+        test 'org.codehaus.groovy.modules.http-builder:http-builder:0.6', {
+            excludes 'groovy', 'nekohtml'
+            exported = false
+        }
     }
 
     plugins {
@@ -99,7 +102,7 @@ grails.project.dependency.resolution = {
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
         runtime ':hibernate:3.6.10.6'
 
-		// tests depend on transmart-core-db-tests which is not part of the release yet
+        // tests depend on transmart-core-db-tests which is not part of the release yet
         test ':functional-test:2.0.RC1'
         test ':transmart-core:1.2.2-SNAPSHOT'
         test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
