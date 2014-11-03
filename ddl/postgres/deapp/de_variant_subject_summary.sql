@@ -17,7 +17,7 @@ CREATE TABLE de_variant_subject_summary (
     pos bigint,
     dataset_id character varying(50) NOT NULL,
     subject_id character varying(50) NOT NULL,
-    rs_id character varying(50),
+    rs_id character varying(500),
     variant character varying(1000),
     variant_format character varying(100),
     variant_type character varying(100),
