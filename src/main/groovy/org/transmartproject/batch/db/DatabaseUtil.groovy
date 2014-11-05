@@ -21,4 +21,8 @@ final class DatabaseUtil {
         }
     }
 
+    static String asLikeLiteral(String s) {
+        s.replaceAll(/[\\%_]/, '\\\\$0')
+    }
+
 }

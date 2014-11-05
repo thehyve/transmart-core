@@ -1,0 +1,102 @@
+package org.transmartproject.batch.clinical.facts
+
+import org.transmartproject.batch.clinical.patient.Patient
+import org.transmartproject.batch.clinical.xtrial.XtrialNode
+import org.transmartproject.batch.concept.ConceptNode
+import org.transmartproject.batch.concept.ConceptType
+
+/**
+ * Contains the transformed meaningful information from one data Row</br>
+ * This includes the Patient and values for all Variables in a row of a file
+ */
+class ClinicalFactsRowSet {
+    String studyId
+    Patient patient
+    String siteId
+    String visitName
+
+    Date date = new Date()
+
+    final List<ClinicalFact> clinicalFacts = []
+
+    void addValue(ConceptNode concept, XtrialNode xtrialNode, String value) {
+        if (!concept.insertable) {
+            throw new IllegalArgumentException(
+                    "Concept $concept is not insertable. Reserve ids first")
+        }
+
+        clinicalFacts << new ClinicalFact(
+                concept: concept,
+                xtrialNode: xtrialNode,
+                value: value,)
+    }
+
+    private class ClinicalFact {
+        String value
+        ConceptNode concept
+        XtrialNode xtrialNode
+
+        String getValueTypeCode() {
+            switch (concept.type) {
+                case ConceptType.NUMERICAL:
+                    return 'N'
+                case ConceptType.CATEGORICAL:
+                    return 'T'
+                default:
+                    throw new IllegalStateException("Unexpected concept " +
+                            "type: $concept.type (concept: $concept)")
+            }
+        }
+
+        String getStringValue() {
+            switch (concept.type) {
+                case ConceptType.NUMERICAL:
+                    return 'E' //@todo verify logic
+                case ConceptType.CATEGORICAL:
+                    return value
+                default:
+                    throw new IllegalStateException("Unexpected concept " +
+                            "type: $concept.type (concept: $concept)")
+            }
+        }
+
+        Double getNumericValue() {
+            switch (concept.type) {
+                case ConceptType.NUMERICAL:
+                    return Double.valueOf(value)
+                case ConceptType.CATEGORICAL:
+                    return null
+                default:
+                    throw new IllegalStateException(
+                            "Unexpected concept type: $conceptType")
+            }
+        }
+
+        /* Probably should be moved to another place (repository or insertion tasklet) */
+        Map<String,Object> getDatabaseRow() {
+            if (!concept.code) {
+                throw new IllegalStateException(
+                        "Concept should have code attributed " +
+                                "by now, but I found $concept")
+            }
+
+            [
+                    sourcesystem_cd: studyId,
+                    encounter_num: patient.code,
+                    patient_num: patient.code,
+                    concept_cd: concept.code,
+                    //start_date: new Date(Long.MAX_VALUE), //doesn't work
+                    valtype_cd: valueTypeCode,
+                    tval_char: stringValue,
+                    nval_num: numericValue,
+                    import_date: date,
+
+                    provider_id: '@',
+                    location_cd: '@',
+                    modifier_cd: xtrialNode?.code ?: '@',
+                    valueflag_cd: '@',
+                    instance_num: 1,
+            ]
+        }
+    }
+}

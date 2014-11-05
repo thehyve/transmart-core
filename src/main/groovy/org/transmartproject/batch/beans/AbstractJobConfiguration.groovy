@@ -4,28 +4,29 @@ import org.codehaus.groovy.runtime.MethodClosure
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
-import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.Import
 import org.springframework.context.support.ConversionServiceFactoryBean
 import org.springframework.core.convert.converter.Converter
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.transmartproject.batch.clinical.FactRowSet
+import org.transmartproject.batch.clinical.facts.ClinicalDataRow
+import org.transmartproject.batch.clinical.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.db.SimpleJdbcInsertConverter
-import org.transmartproject.batch.model.Row
-import org.transmartproject.batch.support.DefaultJobIncrementer
 import org.transmartproject.batch.support.JobContextAwareTaskExecutor
+import org.transmartproject.batch.support.LogCountsStepListener
 
 import javax.sql.DataSource
 import java.nio.file.Path
@@ -35,7 +36,8 @@ import java.nio.file.Paths
  * Base class for Spring context configuration classes for Jobs.
  * Each job type should have its own configuration, extended from this class.
  */
-@ComponentScan("org.transmartproject.batch")
+@Import(AppConfig)
+@ComponentScan(['org.transmartproject.batch.db', 'org.transmartproject.batch.concept'])
 abstract class AbstractJobConfiguration {
 
     @Autowired
@@ -44,12 +46,10 @@ abstract class AbstractJobConfiguration {
     @Autowired
     StepBuilderFactory steps
 
-    abstract Job job()
+    @Autowired
+    JobParametersIncrementer jobParametersIncrementer
 
-    @Bean
-    JobParametersIncrementer jobParametersIncrementer() {
-        new DefaultJobIncrementer()
-    }
+    abstract Job job()
 
     @JobScope
     @Bean
@@ -84,14 +84,24 @@ abstract class AbstractJobConfiguration {
         sequenceReserver.defaultBlockSize = 10
     }
 
-    Step stepOf(String name, Tasklet tasklet) {
-        steps.get(name)
-                .tasklet(tasklet)
+    final protected Step stepOf(MethodClosure closure) {
+        steps.get(closure.method)
+                .tasklet(closure.call())
+                .listener(showCountStepListener())
                 .build()
     }
 
-    Step stepOf(MethodClosure closure) {
-        stepOf(closure.method, closure.call())
+    final protected Step allowStartStepOf(MethodClosure closure) {
+        steps.get(closure.method)
+                .allowStartIfComplete(true)
+                .tasklet(closure.call())
+                .listener(showCountStepListener())
+                .build()
+    }
+
+    @Bean
+    StepExecutionListener showCountStepListener() {
+        new LogCountsStepListener()
     }
 
     Flow flowOf(Step step) {
@@ -109,10 +119,12 @@ abstract class AbstractJobConfiguration {
     }
 
     ItemProcessor compositeOf(ItemProcessor ... processors) {
-        CompositeItemProcessor<Row, FactRowSet> result = new CompositeItemProcessor<Row, FactRowSet>()
+        CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet> result =
+                new CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet>()
         result.setDelegates(processors.toList())
         result
     }
 }
 
+/* needed so the runtime can know the generic types */
 interface StringToPathConverter extends Converter<String, Path> {}

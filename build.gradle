@@ -88,6 +88,16 @@ sourceSets {
     }
 }
 
+task functionalTestPrepare(type: JavaExec) {
+    description = 'Prepares the database for functional testing.'
+    group = 'verification'
+    main = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
+    args 'org.transmartproject.batch.preparation.TestDatabasePrepareConfiguration',
+            'fillTablesJob'
+    classpath += sourceSets.test.runtimeClasspath
+    classpath += sourceSets.functionalTest.runtimeClasspath
+}
+
 task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
@@ -95,6 +105,7 @@ task functionalTest(type: Test) {
     classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
     useJUnit()
+    outputs.upToDateWhen { false }
 
     reports {
         html.destination = file("$reports.html.destination/functional")
