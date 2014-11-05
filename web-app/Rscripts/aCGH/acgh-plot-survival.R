@@ -4,6 +4,8 @@
 # OUTPUT survival_*.png: survival_*.png
 # PARAMETER survival: survival TYPE METACOLUMN_SEL DEFAULT survival (Phenodata column with survival data)
 # PARAMETER status: status TYPE METACOLUMN_SEL DEFAULT status (Phenodata column with patient status: alive=0, dead=1)
+# PARAMETER censor: censor TYPE METACOLUMN_SEL DEFAULT <zero length string> (Phenodata column with censor status: censored=1, not censored=0)
+#                   If non-zero length censor parameter is specified, the censor status column in Phenodata takes precedence over the status column.
 # PARAMETER aberrations: aberrations TYPE [gains: gains, losses: losses, both: both] DEFAULT both (Whether to test only for gains or losses, or both.) 
 # PARAMETER confidence.intervals: "plot confidence intervals" TYPE [yes: yes, no: no] DEFAULT no (Whether to plot the confidence intervals.) 
 
@@ -14,6 +16,7 @@ acgh.plot.survival <- function
 (
   survival='Overall survival time',
   status='Survival status',
+  censor='',
   aberrations='both',
   confidence.intervals='no'
 )
@@ -37,6 +40,14 @@ acgh.plot.survival <- function
   rownames(dat) <- c(1:nrow(dat))
 
   phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+
+  # Check if non-zero length censoring status parameter has been provided
+  if ( nchar(censor) > 0 )
+  {  # Use censor column to calculate patient status column
+     #   censor.1 (censored_yes) -> status.0 (alive)
+     #   censor.0 (censored_no ) -> status.1 (dead)
+     phenodata[,status] <- as.integer(!phenodata[,censor])
+  }
 
   # Extract sample list from aCGH data column names for which calls (flag) have been observed
 	samplelist <- sub("flag.", "" , colnames(dat)[grep('flag.', colnames(dat))] )
