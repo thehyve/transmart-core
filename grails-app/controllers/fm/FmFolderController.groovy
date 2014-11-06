@@ -14,10 +14,10 @@ import grails.converters.XML
 import grails.validation.ValidationException
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.lang.StringUtils
+import org.slf4j.LoggerFactory
 import org.transmart.biomart.*
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
-import org.slf4j.LoggerFactory
 
 import javax.activation.MimetypesFileTypeMap
 
