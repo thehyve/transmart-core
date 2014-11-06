@@ -19,7 +19,7 @@ class RModulesJobProcessingService {
 	def runRScript(workingDirectory, scriptName, commandToRun, rScriptDirectory)
 	{
 		//Establish a connection to R Server.
-		RConnection c = new RConnection();
+		RConnection c = new RConnection(Holders.config.RModules.host, Holders.config.RModules.port);
 		
 		//Set the working directory to be our temporary location.
 		log.debug("Attempting following R Command : " + "setwd('${workingDirectory}')".replace("\\","\\\\"))
