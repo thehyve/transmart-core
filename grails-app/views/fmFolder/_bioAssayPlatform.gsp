@@ -1,4 +1,4 @@
-<%! import org.transmart.biomart.* %>
+<%@ page import="org.transmart.biomart.*" %>
 
 <g:javascript>
 function addToPlatformField() {

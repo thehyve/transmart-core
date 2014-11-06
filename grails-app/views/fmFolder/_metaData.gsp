@@ -1,7 +1,4 @@
-
-<%! import annotation.* %> 
-<%! import org.transmart.biomart.* %>
-<%! import com.recomdata.util.* %> 
+<%@ page import="annotation.*; org.transmart.biomart.*; com.recomdata.util.*" %>
 
 <%
     def metaDataService = grailsApplication.classLoader.loadClass('annotation.MetaDataService').newInstance()

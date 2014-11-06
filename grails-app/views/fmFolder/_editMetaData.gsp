@@ -1,8 +1,5 @@
+<%@ page import="annotation.*; org.transmart.biomart.*; com.recomdata.util.*" %>
 
-<%! import annotation.* %> 
-<%! import org.transmart.biomart.* %>
-<%! import com.recomdata.util.* %> 
-  
 <g:form name="editMetadataForm">
 <g:hiddenField name="id" value="${folder?.id}" />
 <g:set var="objectUid" value="${folder?.uniqueId}"/>
