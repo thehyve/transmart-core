@@ -104,6 +104,9 @@ environments {
 //com.recomdata.providerName = "tranSMART Foundation"
 //com.recomdata.providerURL = "http://www.transmartfoundation.org"
 
+// bug report URL
+//com.recomdata.bugreportURL = "https://jira.transmartfoundation.org"
+
 // application logo to be used in the login page
 com.recomdata.largeLogo = "transmartlogo.jpg"
 
