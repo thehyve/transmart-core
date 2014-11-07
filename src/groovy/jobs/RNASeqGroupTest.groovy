@@ -1,12 +1,6 @@
 package jobs
 
-import jobs.steps.BuildTableResultStep
-import jobs.steps.OpenHighDimensionalDataStep
-import jobs.steps.ParametersFileStep
-import jobs.steps.RCommandsStep
-import jobs.steps.RNASeqDumpDataStep
-import jobs.steps.SimpleDumpTableResultStep
-import jobs.steps.Step
+import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.HighDimensionColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator

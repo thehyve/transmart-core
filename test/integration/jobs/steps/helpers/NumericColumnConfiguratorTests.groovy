@@ -7,12 +7,12 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
-import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.closeTo
+import static org.hamcrest.Matchers.contains
 
 @TestMixin(JobsIntegrationTestMixin)
 class NumericColumnConfiguratorTests {

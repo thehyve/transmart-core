@@ -1,10 +1,10 @@
 package com.recomdata.transmart.data.association
 
-
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.Rserve.*;
-import org.rosuda.Rserve.*;
-import grails.util.Holders;
+import grails.util.Holders
+import org.rosuda.REngine.REXP
+import org.rosuda.REngine.Rserve.RConnection
+import org.rosuda.REngine.Rserve.RserveException
+import org.rosuda.Rserve.*
 
 /**
  * This class contains methods for interacting with the R environment.

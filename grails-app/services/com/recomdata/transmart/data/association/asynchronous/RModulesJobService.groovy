@@ -17,6 +17,7 @@
 package com.recomdata.transmart.data.association.asynchronous
 
 import com.recomdata.transmart.util.RUtil
+import grails.util.Holders
 import org.apache.commons.lang.StringUtils
 import org.quartz.Job
 import org.quartz.JobExecutionContext
@@ -24,7 +25,6 @@ import org.quartz.JobExecutionException
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 import java.lang.reflect.UndeclaredThrowableException
 
@@ -33,7 +33,7 @@ class RModulesJobService implements Job {
     static transactional = true
 	static scope = 'request'
 
-    def grailsApplication = ApplicationHolder.application
+    def grailsApplication = Holders.grailsApplication
 	def ctx = grailsApplication.mainContext
 	def springSecurityService = ctx.springSecurityService
 	def jobResultsService = ctx.jobResultsService

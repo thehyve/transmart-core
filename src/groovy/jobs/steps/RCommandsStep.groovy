@@ -1,6 +1,7 @@
 package jobs.steps
 
 import com.recomdata.transmart.util.RUtil
+import grails.util.Holders
 import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Log4j
 import jobs.UserParameters
@@ -45,7 +46,7 @@ class RCommandsStep implements Step {
              */
             Map vars = [:]
 
-            params.each { k,v ->
+            params.each { k, v ->
                 vars[k] = v
             }
 

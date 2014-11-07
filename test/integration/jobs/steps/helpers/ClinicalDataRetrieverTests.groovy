@@ -9,7 +9,8 @@ import org.transmartproject.core.dataquery.clinical.ClinicalDataResource
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.sameInstance
 
 @TestMixin(JobsIntegrationTestMixin)
 class ClinicalDataRetrieverTests {
