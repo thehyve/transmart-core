@@ -62,7 +62,7 @@ function Browser(opts) {
     this.tierSelectionWrapListeners = [];
 
     this.cookieKey = 'browser';
-    this.registry = 'http://www.dasregistry.org/das/sources';
+    this.registry = '//www.dasregistry.org/das/sources';
     this.chains = {};
 
     this.pageName = 'svgHolder'
