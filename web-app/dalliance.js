@@ -135,13 +135,13 @@ var genomeBrowserPanel = new Ext.Panel(
                 },
 
                 chains: {
-                    hg18ToHg19: new Chainset(protocol + '//www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
+/*                    hg18ToHg19: new Chainset(protocol + '//www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
                         {
                             speciesName: 'Human',
                             taxon: 9606,
                             auth: 'GRCh',
                             version: 36
-                        })
+                        })*/
                 },
 
                 sources:     [{name:                 'Genome',
@@ -171,7 +171,7 @@ var genomeBrowserPanel = new Ext.Panel(
                             }
                         }
                     },
-                    {name: 'CpG',
+/*                    {name: 'CpG',
                         desc: 'CpG observed/expected ratio',
                         uri: protocol + '//www.derkholm.net:8080/das/hg19comp/',
                         // stylesheet_uri: 'http://www.derkholm.net/dalliance-test/stylesheets/cpg.xml'
@@ -186,7 +186,7 @@ var genomeBrowserPanel = new Ext.Panel(
                         stylesheet_uri:       protocol + '//www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
                         mapping:              'hg18ToHg19',
                         quantLeapThreshold: 80
-                    }
+                    }*/
                 ],
 
                 setDocumentTitle: true,
