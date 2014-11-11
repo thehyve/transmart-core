@@ -53,6 +53,7 @@
 \i tm_wz/wt_subject_rnaseq_region.sql
 \i tm_wz/wt_subject_rnaseq_calcs.sql
 \i tm_wz/wt_subject_rnaseq_logs.sql
+\i tm_wz/wt_subject_sample_mapping.sql
 \i tm_wz/wt_trial_nodes.sql
 \i tm_wz/wt_vocab_nodes.sql
 \i tm_wz/wt_xtrial_nodes.sql
