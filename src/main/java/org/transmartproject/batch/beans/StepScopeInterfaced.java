@@ -7,7 +7,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-@Scope(value = "job", proxyMode = ScopedProxyMode.INTERFACES)
+@Scope(value = "step", proxyMode = ScopedProxyMode.INTERFACES)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface StepScopeInterfaced {

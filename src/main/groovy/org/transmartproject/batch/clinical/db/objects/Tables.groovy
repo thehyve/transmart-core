@@ -12,4 +12,7 @@ final class Tables {
     public static final String PATIENT_TRIAL     = 'i2b2demodata.patient_trial'
     public static final String PATIENT_DIMENSION = 'i2b2demodata.patient_dimension'
     public static final String OBSERVATION_FACT  = 'i2b2demodata.observation_fact'
+    public static final String MODIFIER_DIM      = 'i2b2demodata.modifier_dimension'
+    public static final String MODIFIER_METADATA = 'i2b2demodata.modifier_metadata'
+    public static final String MODIFIER_DIM_VIEW = 'i2b2demodata.modifier_dimension_view'
 }

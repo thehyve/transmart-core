@@ -20,6 +20,7 @@ install:
     - cd -
     - cp .batchdb-travis.properties batchdb.properties
     - ./gradlew setupSchema
+    - ./gradlew functionalTestPrepare
 
 script:
     - ./gradlew --info check

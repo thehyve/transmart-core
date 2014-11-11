@@ -17,7 +17,7 @@ abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSe
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{jobParameters['studyId']}")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
     @Override
