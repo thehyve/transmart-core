@@ -137,13 +137,16 @@ var genomeBrowserPanel = new Ext.Panel(
                 },
 
                 chains: {
-/*                    hg18ToHg19: new Chainset(protocol + '//www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
-                        {
+                    hg18ToHg19: {
+                        coords:  {
                             speciesName: 'Human',
                             taxon: 9606,
-                            auth: 'GRCh',
+                            auth: 'NCBI',
                             version: 36
-                        })*/
+                        },
+                        uri: '//www.biodalliance.org/datasets/hg18ToHg19.bb',
+                        type: 'bigbed'
+                    }
                 },
 
                 sources:     [{name:                 'Genome',
@@ -182,13 +185,13 @@ var genomeBrowserPanel = new Ext.Panel(
                         style:                [{type: 'cpgoe',
                             style: {glyph: 'LINEPLOT',
                                 FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}]
-                    },
+                    },*/
                     {name:                 'BWG test',
                         bwgURI:               protocol + '//www.biodalliance.org/datasets/spermMethylation.bw',
                         stylesheet_uri:       protocol + '//www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
                         mapping:              'hg18ToHg19',
                         quantLeapThreshold: 80
-                    }*/
+                    }
                 ],
 
                 setDocumentTitle: true,
