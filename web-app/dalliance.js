@@ -26,13 +26,15 @@ function loadDalliance(resultsTabPanel) {
     var nodReq = new XMLHttpRequest();
     var nodUrl = pageInfo.basePath + "/Helpers/getPluginPath";
 
-    nodReq.open('POST', nodUrl, true);
+    nodReq.open('GET', nodUrl, true);
     nodReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
     nodReq.onreadystatechange = function() {
         if (nodReq.readyState == 4) {
             if (nodReq.status == 200 || nodReq.status == 206) {
-                window.dalliance_plugin_path = nodReq.responseText;
+                var origin = location.protocol + '//' + location.hostname +
+                    (location.port ? ':' + location.port : '');
+                window.dalliance_plugin_path = origin + nodReq.responseText;
                 resultsTabPanel.add(genomeBrowserPanel);
                 resultsTabPanel.doLayout();
             } else {
