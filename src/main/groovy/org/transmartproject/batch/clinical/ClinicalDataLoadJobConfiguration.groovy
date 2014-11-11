@@ -22,6 +22,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.beans.AbstractJobConfiguration
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
@@ -36,7 +37,8 @@ import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
-import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
+import org.transmartproject.batch.tasklet.oracle.OracleInsertConceptCountsTasklet
+import org.transmartproject.batch.tasklet.postgresql.PostgresInsertConceptCountsTasklet
 
 /**
  * Spring configuration for the clinical data job.
@@ -234,8 +236,10 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet insertConceptCountsTasklet() {
-        new InsertConceptCountsTasklet()
+    Tasklet insertConceptCountsTasklet(DatabaseImplementationClassPicker picker) {
+        picker.instantiateCorrectClass(
+                OracleInsertConceptCountsTasklet,
+                PostgresInsertConceptCountsTasklet)
     }
 
     @Bean

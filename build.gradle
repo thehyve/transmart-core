@@ -30,10 +30,10 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: SPRING_VERSION
     compile group: 'org.springframework', name: 'spring-tx', version: SPRING_VERSION
     compile group: 'org.springframework', name: 'spring-jdbc', version: SPRING_VERSION
-//	compile group: 'org.springframework', name: 'spring-orm', version: SPRING_VERSION
-//	compile group: 'org.springframework', name: 'spring-oxm', version: SPRING_VERSION
+//  compile group: 'org.springframework', name: 'spring-orm', version: SPRING_VERSION
+//  compile group: 'org.springframework', name: 'spring-oxm', version: SPRING_VERSION
+
     compile group: 'com.jolbox', name: 'bonecp-spring', version: '0.8.0.RELEASE'
-    compile group: 'com.h2database', name: 'h2', version: '1.3.174'
     compile group: 'com.google.guava', name: 'guava', version: GUAVA_VERSION
     compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
 
@@ -139,7 +139,6 @@ task createPom << {
 codenarc {
     configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
-    // consumed by Jenkins Violations plugin
     reportFormat = 'html'
 }
 

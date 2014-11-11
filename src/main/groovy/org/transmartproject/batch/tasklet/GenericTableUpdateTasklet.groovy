@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
 
 /**
- * Generic update of a table that is somehow realated with a study
+ * Generic update of a table that is somehow related with a study.
  */
 abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSetter {
 
@@ -22,12 +22,11 @@ abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSe
 
     @Override
     final RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-
-        int count = jdbcTemplate.update(sql(), this)
+        int count = jdbcTemplate.update(sql, this)
         contribution.incrementWriteCount(count)
         RepeatStatus.FINISHED
     }
 
-    abstract String sql()
+    abstract String getSql()
 
 }

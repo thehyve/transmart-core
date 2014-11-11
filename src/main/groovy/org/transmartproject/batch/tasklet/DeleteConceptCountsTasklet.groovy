@@ -10,7 +10,7 @@ import java.sql.SQLException
 class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
 
     @Override
-    String sql() {
+    String getSql() {
         "delete from i2b2demodata.concept_counts " +
                "where concept_path in (select c_fullname from i2b2metadata.i2b2 " +
                "where sourcesystem_cd = ?)"
