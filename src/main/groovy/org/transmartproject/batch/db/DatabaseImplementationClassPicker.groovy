@@ -26,7 +26,7 @@ class DatabaseImplementationClassPicker {
 
     @PostConstruct
     void chooseAnnotation() {
-        def driverClassName = env.getProperty('transmart.jdbc.driver')
+        def driverClassName = env.getProperty('batch.jdbc.driver')
         if (!driverClassName) {
             throw new IllegalArgumentException(
                     'Could not find value for property transmart.jdbc.driver')
