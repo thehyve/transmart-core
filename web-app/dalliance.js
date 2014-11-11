@@ -33,7 +33,7 @@ function loadDalliance(resultsTabPanel) {
         if (nodReq.readyState == 4) {
             if (nodReq.status == 200 || nodReq.status == 206) {
                 var origin = location.protocol + '//' + location.hostname +
-                    (location.port ? ':' + location.port: '');
+                    (location.port ? ':' + location.port : '');
                 window.dalliance_plugin_path = origin + nodReq.responseText;
                 resultsTabPanel.add(genomeBrowserPanel);
                 resultsTabPanel.doLayout();
