@@ -107,6 +107,10 @@ environments {
 // bug report URL
 //com.recomdata.bugreportURL = "https://jira.transmartfoundation.org"
 
+// Session timeout and heartbeat frequency (ping interval)
+//com.recomdata.sessionTimeout = 300
+//com.recomdata.heartbeatLaps = 30
+
 // application logo to be used in the login page
 com.recomdata.largeLogo = "transmartlogo.jpg"
 
