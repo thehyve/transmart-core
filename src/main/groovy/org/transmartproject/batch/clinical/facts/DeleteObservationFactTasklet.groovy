@@ -11,7 +11,7 @@ import java.sql.SQLException
 class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
 
     @Override
-    String sql() {
+    String getSql() {
         "delete from i2b2demodata.observation_fact " +
                "where sourcesystem_cd = ? and concept_cd in " +
                "(select c_basecode from i2b2metadata.i2b2 " +

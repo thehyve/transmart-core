@@ -10,7 +10,7 @@ class PerDbTypeRunner {
 
     public static final String DEFAULT_KEY = 'DEFAULT'
 
-    @Value('#{environment.getProperty(\'batch.jdbc.driver\')}')
+    @Value('#{environment.getProperty(\'transmart.jdbc.driver\')}')
     String driverClassName
 
     def run(Map<String, Closure<Object>> spec, Object... args) {
