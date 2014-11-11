@@ -14,6 +14,7 @@ import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.support.SecureObjectToken
 
 /**
  * Inserts concepts (from the ConceptTree) that are new
@@ -28,6 +29,9 @@ class InsertConceptsTasklet implements Tasklet {
 
     @Autowired
     ConceptTree conceptTree
+
+    @Autowired
+    SecureObjectToken secureObjectToken
 
     @Value(Tables.CONCEPT_DIMENSION)
     private SimpleJdbcInsert dimensionInsert
@@ -102,7 +106,7 @@ class InsertConceptsTasklet implements Tasklet {
                 ]
 
                 Map i2b2SecureRow = new HashMap(i2b2Row)
-                i2b2SecureRow.put('secure_obj_token', 'EXP:PUBLIC')
+                i2b2SecureRow.put('secure_obj_token', secureObjectToken as String)
                 i2b2SecureRow.remove('record_id')
 
                 i2b2Rows.add(i2b2Row)

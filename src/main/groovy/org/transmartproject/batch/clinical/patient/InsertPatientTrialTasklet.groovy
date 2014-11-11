@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.support.SecureObjectToken
 
 /**
  * Inserts patient trial for patients that are new
@@ -25,6 +26,9 @@ class InsertPatientTrialTasklet implements Tasklet {
     @Autowired
     PatientSet patientSet
 
+    @Autowired
+    SecureObjectToken secureObjectToken
+
     @Value(Tables.PATIENT_TRIAL)
     private SimpleJdbcInsert insert
 
@@ -35,13 +39,11 @@ class InsertPatientTrialTasklet implements Tasklet {
 
         if (newPatients.size() > 0) {
 
-            String securityToken = 'EXP:PUBLIC' //@todo is it always public?
-
             Map<String, Object>[] rows = newPatients.collect {
                 [
                         patient_num: it.code,
                         trial: studyId,
-                        secure_obj_token: securityToken,
+                        secure_obj_token: secureObjectToken as String,
                 ]
             }
             int[] count = insert.executeBatch(rows)

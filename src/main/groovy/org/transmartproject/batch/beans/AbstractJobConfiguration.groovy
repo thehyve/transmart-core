@@ -37,7 +37,11 @@ import java.nio.file.Paths
  * Each job type should have its own configuration, extended from this class.
  */
 @Import(AppConfig)
-@ComponentScan(['org.transmartproject.batch.db', 'org.transmartproject.batch.concept'])
+@ComponentScan([
+        'org.transmartproject.batch.db',
+        'org.transmartproject.batch.concept',
+        'org.transmartproject.batch.support',
+])
 abstract class AbstractJobConfiguration {
 
     @Autowired
