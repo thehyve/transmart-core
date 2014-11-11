@@ -149,12 +149,12 @@ var genomeBrowserPanel = new Ext.Panel(
                     }
                 },
 
-                sources:     [{name:                 'Genome',
-                    twoBitURI:            protocol + '//www.biodalliance.org/datasets/hg19.2bit',
-                    tier_type:            'sequence',
-                    provides_entrypoints: true,
-                    pinned: true
-                },
+                sources: [
+                    {name:'Genome',
+                        twoBitURI: protocol + '//www.biodalliance.org/datasets/hg19.2bit',
+                        tier_type: 'sequence',
+                        provides_entrypoints: true,
+                        pinned: true},
                     {name: 'GENCODE',
                         bwgURI: protocol + '//www.biodalliance.org/datasets/gencode.bb',
                         stylesheet_uri: protocol + '//www.biodalliance.org/stylesheets/gencode.xml',
