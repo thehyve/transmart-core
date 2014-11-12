@@ -15,22 +15,22 @@ import javax.annotation.PostConstruct
 @JobScope
 class SecureObjectToken {
 
-    @Value("jobContext['STUDY_ID']")
+    @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    @Value("jobContext['SECURITY_REQUIRED']")
+    @Value("#{jobParameters['SECURITY_REQUIRED']}")
     String securityRequired // should be Y or N
 
     @PostConstruct
     void checkSecurityRequiredValue() {
         if (securityRequired != 'Y' && securityRequired != 'N') {
             throw new IllegalArgumentException(
-                    "Expected security required: $securityRequired")
+                        "Unexpected SECURITY_REQUIRED value: $securityRequired")
         }
         Assert.notNull(studyId, "Study id not given")
     }
 
     String toString() {
-        securityRequired == 'Y' ? 'EXP:PUBLIC' : "EXP:$studyId"
+        securityRequired == 'Y' ? "EXP:$studyId" : 'EXP:PUBLIC'
     }
 }
