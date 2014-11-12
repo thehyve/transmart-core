@@ -28,9 +28,6 @@ EOD
 
 // Contact e-mail
 //com.recomdata.contactUs = "mailto:support@mycompany.com"
-//com.recomdata.rwg.qqplots.cacheImages = jobsDirectory + '/cachedQQplotImages/'
-//com.recomdata.rwg.qqplots.temporaryImageFolder = '/images/tempImages/'
-//com.recomdata.rwg.qqplots.temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
 // }}}
 
 
