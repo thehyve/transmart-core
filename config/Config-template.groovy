@@ -108,7 +108,7 @@ com.recomdata.largeLogo = "transmartlogo.jpg"
 com.recomdata.searchtool.smallLogo="transmartlogosmall.jpg"
 
 // contact email address
-com.recomdata.contactUs = "mailto:transmartGPLsupport@recomdata.com"
+com.recomdata.contactUs = "mailto:transmart-discuss@googlegroups.com"
 
 // application title
 com.recomdata.appTitle = "tranSMART v" + org.transmart.originalConfigBinding.appVersion
