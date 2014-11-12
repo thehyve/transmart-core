@@ -178,7 +178,6 @@ edu.harvard.transmart.sampleBreakdownMap = [
 
 // Solr configuration for the Sample Explorer
 com { recomdata { solr {
-    baseURL = 'http://127.0.0.1:5467'
     maxNewsStories = 10
     maxRows = 10000
 }}}
