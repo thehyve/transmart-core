@@ -159,17 +159,17 @@ com.recomdata.searchengine.index = searchIndex
 // Optionally you can set the width of each of the columns when rendered.
 
 sampleExplorer {
-	fieldMapping = [
-		columns:[
-			[header:'Sample ID',dataIndex:'id', mainTerm: false, showInGrid: false],
-			[header:'BioBank', dataIndex:'BioBank', mainTerm: true, showInGrid: true, width:10],
-			[header:'Source Organism', dataIndex:'Source_Organism', mainTerm: true, showInGrid: true, width:10]
-			// Continue as you have fields
-		]
-	]
-	resultsGridHeight = 100
-	resultsGridWidth = 100
-	idfield = 'id'
+    fieldMapping = [
+        columns:[
+            [header:'Sample ID',dataIndex:'id', mainTerm: false, showInGrid: false],
+            [header:'BioBank', dataIndex:'BioBank', mainTerm: true, showInGrid: true, width:10],
+            [header:'Source Organism', dataIndex:'Source_Organism', mainTerm: true, showInGrid: true, width:10]
+            // Continue as you have fields
+        ]
+    ]
+    resultsGridHeight = 100
+    resultsGridWidth = 100
+    idfield = 'id'
 }
 
 edu.harvard.transmart.sampleBreakdownMap = [
@@ -179,8 +179,8 @@ edu.harvard.transmart.sampleBreakdownMap = [
 // Solr configuration for the Sample Explorer
 com { recomdata { solr {
     baseURL = 'http://127.0.0.1:5467'
-	maxNewsStories = 10
-	maxRows = 10000
+    maxNewsStories = 10
+    maxRows = 10000
 }}}
 
 /* }}} */
@@ -219,7 +219,7 @@ environments {
     // This is to target a remove Rserv. Bear in mind the need for shared network storage
     RModules.host = "127.0.0.1"
     RModules.port = 6311
-    
+
     // This is not used in recent versions; the URL is always /analysisFiles/
     RModules.imageURL = "/tempImages/" //must end and start with /
 
