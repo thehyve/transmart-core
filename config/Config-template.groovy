@@ -135,13 +135,7 @@ com.recomdata.heartbeatLaps = 30
 
 // Not enabled by default (see Config-extra.php.sample)
 //com.recomdata.passwordstrength.pattern
-
-// Password strength criteria, please change description accordingly
-//com.recomdata.passwordstrength.pattern = ~/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W]).*$/
-
-// Password strength description, please change according to pattern
-//com.recomdata.passwordstrength.description = "It should contain a minimum of 8 characters including at least " +
-//    "1 upper and 1 lower case letter, 1 digit and 1 special character."
+//com.recomdata.passwordstrength.description
 
 // Whether to enable guest auto login.
 // If it's enabled no login is required to access tranSMART.
