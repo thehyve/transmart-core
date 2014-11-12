@@ -5,16 +5,15 @@ the Across Trials tree.
 
 ## Providing Across Trials Mapping Data
 
-For the across trials data to be loaded, an extra file is needed (henceforth "the across trials file". The path to this file
-must be provided through the `XTRIAL_FILE` parameter. This can either be provided
-through in the command line with the `-d` parameter or it can be included in the
-`clinical.params` file.
+For the across trials data to be loaded, an extra file is needed (henceforth "the across trials file". The path to this
+file must be provided through the `XTRIAL_FILE` parameter. This can either be provided through in the command line with
+the `-d` parameter or it can be included in the `clinical.params` file.
 
-The across trials file shall be a tab-delimited file with two columns. The first row will be ignored.
-The first column ("study prefix column") shall contain prefixes to concepts in the study (without the top node), while
-the second column ("across trials prefix column") shall contain prefixes to the concepts in Across Trials tree. Both
-column's values should end in `\`. If any value in either of the columns does not end in `\`, it will be implicitly
-added.
+The across trials file shall be a tab-delimited file with two columns. The first row will be ignored.  The first column
+("study prefix column") shall contain prefixes to concepts in the study (without the top node), while the second column
+("across trials prefix column") shall contain prefixes to the concepts in Across Trials tree (as in database, without
+the `\Across Trials` prefix. Both column's values should end and start with `\`. If any value in either of the columns
+does not end or start with `\`, it will be implicitly added.
 
 ## Behavior
 
@@ -28,22 +27,23 @@ For each study concept: the longest matching prefix specified in the study prefi
     - An across trials concept with this value (ignoring the initial `\Across Trials\` part) will be searched for.
         - If it is not found, a warning will be logged and no mapping will be applied to the this study concept.
         - If it is found, then the type if checked.
-            - If there is a type mismatch between the study concept and the across trials concept, an error will be logged
-              (but the job will not be aborted) and no mapping will be used.
+            - If there is a type mismatch between the study concept and the across trials concept, an error will be
+              logged (but the job will not be aborted) and no mapping will be used.
             - If the types match, the study concept in question will be mapped to the found across trials concept.
 
 ## Implementation
 
 *(this information presented in this section is subject to change without notice)*
 
-Some particularities of the data loading process (namely: it is only possible to determine the full set of
-study concepts and their types once the full data has been read). But on the other hand, when each fact is inserted,
-its across trials mapping must already be known (lest we go through an expensive update step later).
+It is only possible to determine the full set of study concepts and their types once the full data has been read, and
+therefore it's only possible to determine all the across trials nodes used then. But on the other hand, when each fact
+is inserted, its across trials mapping must already be known (lest we go through an expensive update step later). This
+means that we must either load the across trials nodes on demand, or we must preload a superset of the across trials
+nodes we're going to need. We chose the latter option because it minimizes latency.
 
-In retrospective,
-it would have been better to implement two passes on the data, when to fully determine the metadata properties (patient
-data, concepts, and so on), and another to actually insert the data. But under the current one-pass, the implementation
-for across trial will follow these lines:
+In retrospective, it would have been better to implement two passes on the data, one to fully determine the metadata
+properties (patient data, concepts, and so on), and another to actually insert the data. But under the current one-pass,
+the implementation for across trial follows these lines:
 
 - Read the across trials file at the same time as the other mapping files. Store the information in memory. This will be
   an `allowStartIfComplete` step (has to be executed on restarts).
