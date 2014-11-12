@@ -17,12 +17,10 @@ def explodedWarDir    = catalinaBase + '/webapps/transmart'
 def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
-// old versions of transmart also require an alias in tomcat or apache from
-// to expose this directory as <context path>/images/<RModules.imageURL>
-// (usually transmart/images/tempImages)
 def jobsDirectory     = "/var/tmp/jobs/"
 def oauthEnabled      = true
 def samlEnabled       = false
+def gwavaEnabled      = false
 
 // I001 – Insertion point 'post-WAR-variables'
 
@@ -472,8 +470,17 @@ if (samlEnabled) {
         samlEnabled = false
     } } }
 }
+/* }}} */
 
-// }}}
+/* {{{ gwava */
+if (gwavaEnabled) {
+    com.recomdata.rwg.webstart.codebase      = "$transmartURL/gwava"
+    com.recomdata.rwg.webstart.jar           = './ManhattanViz2.1g.jar'
+    com.recomdata.rwg.webstart.mainClass     = 'com.pfizer.mrbt.genomics.Driver'
+    com.recomdata.rwg.webstart.gwavaInstance = 'transmartstg'
+    com.recomdata.rwg.webstart.transmart.url = "$transmartURL/transmart"
+}
+/* }}} */
 
 /* {{{ Quartz jobs configuration */
 // start delay for the sweep job
