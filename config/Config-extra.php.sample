@@ -8,6 +8,7 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
+//transmartURL      = 'http://example.com/transmart/'
 //oauthEnabled      = true
 //samlEnabled       = false
 //gwavaEnabled      = false
@@ -16,6 +17,16 @@ EOD
     /* this is the text to be inserted at the very end of the file.
      * You can override configuration settings defined elsewhere in the file */
     'I002' => /* end */ <<<EOD
+
+// {{{ Personalization
+// Project name shown on the welcome page
+//com.recomdata.projectName = "MyProject"
+
+// name and URL of the supporter entity shown on the welcome page
+//com.recomdata.providerName = "tranSMART Foundation"
+//com.recomdata.providerURL = "http://www.transmartfoundation.org"
+
+// Contact e-mail
 //com.recomdata.contactUs = "mailto:support@mycompany.com"
 //com.recomdata.rwg.qqplots.cacheImages = jobsDirectory + '/cachedQQplotImages/'
 //com.recomdata.rwg.qqplots.temporaryImageFolder = '/images/tempImages/'
