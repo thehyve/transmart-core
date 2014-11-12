@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import com.google.common.collect.HashMultiset
 import com.google.common.collect.Maps
-import com.google.common.collect.Multiset
 import org.hibernate.Query
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
@@ -29,11 +27,8 @@ import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
-import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.ModifierDimensionView
-import org.transmartproject.db.user.User
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 
@@ -62,7 +57,8 @@ class AcrossTrialsDataQuery {
             throw new IllegalStateException('init() not called successfully yet')
         }
 
-        Query query = session.createQuery '''
+        def condition = new ChoppedInQueryCondition('patient.id', patientIds)
+        Query query = session.createQuery """
                 SELECT
                     patient.id,
                     modifierCd,
@@ -71,18 +67,18 @@ class AcrossTrialsDataQuery {
                     numberValue
                 FROM ObservationFact fact
                 WHERE
-                    patient.id IN (:patientIds)
+                    ${condition.queryConditionTemplate}
                 AND
                     fact.modifierCd IN (:modifierCds)
                 ORDER BY
                     patient ASC,
-                    modifierCd ASC'''
+                    modifierCd ASC"""
 
         query.cacheable = false
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        query.setParameterList 'patientIds',  patientIds
+        condition.parametersValues.each { parVal -> query.setParameterList parVal.key, parVal.value }
         query.setParameterList 'modifierCds', clinicalVariables*.modifierCode
 
         query.scroll ScrollMode.FORWARD_ONLY

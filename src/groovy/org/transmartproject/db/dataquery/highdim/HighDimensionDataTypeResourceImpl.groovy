@@ -36,6 +36,7 @@ import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 @Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
@@ -89,9 +90,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         HibernateCriteriaBuilder criteriaBuilder =
             module.prepareDataQuery(projection, openSession())
 
-        criteriaBuilder.with {
-            'in' 'assay.id', assays*.id
-        }
+        new ChoppedInQueryCondition('assay.id', assays*.id)
+            .addConstraintsToCriteria(criteriaBuilder)
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
