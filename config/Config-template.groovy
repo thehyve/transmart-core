@@ -133,6 +133,11 @@ environments { development {
 com.recomdata.sessionTimeout = 300
 com.recomdata.heartbeatLaps = 30
 
+environments { development {
+    com.recomdata.sessionTimeout = Integer.MAX_VALUE / 1000 as int /* ~24 days */
+    com.recomdata.heartbeatLaps = 900
+} }
+
 // Not enabled by default (see Config-extra.php.sample)
 //com.recomdata.passwordstrength.pattern
 //com.recomdata.passwordstrength.description
