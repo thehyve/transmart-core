@@ -27,12 +27,11 @@ final class RunJob {
 
     JobParameters finalJobParameters
 
-    private final static String USAGE = '''
-transmart-batch-capsule.jar -p <params file>
+    private final static String USAGE = '''transmart-batch-capsule.jar -p <params file>
     [ -d <param=value> | [ -d <param2=value2> | ... ]]
     [ -c <file> ]
     (
-        ((-r | -s | -a ) -j <job identifier>)) |
+        ((-r | -s | -a ) -j <job id>)) |
         [-n])'''
 
     private static CliBuilder createCliBuilder() {
@@ -48,7 +47,6 @@ transmart-batch-capsule.jar -p <params file>
             s longOpt: 'stop', 'stop a running execution'
             a longOpt: 'abandon', 'abandon a stopped execution'
             n longOpt: 'next', 'start the next in a sequence according to the JobParametersIncrementer'
-            h longOpt: 'help', 'show this help message'
             it
         }
     }
