@@ -8,23 +8,35 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
+//transmartURL      = 'http://example.com/transmart/'
 //oauthEnabled      = true
 //samlEnabled       = false
+//gwavaEnabled      = false
 EOD
 ,
     /* this is the text to be inserted at the very end of the file.
      * You can override configuration settings defined elsewhere in the file */
     'I002' => /* end */ <<<EOD
-//com.recomdata.contactUs = "mailto:support@mycompany.com"
-//com.recomdata.rwg.webstart.codebase = 'http://75.124.74.46:5880/gwava'
-//com.recomdata.rwg.webstart.jar = './ManhattanViz2.1g.jar'
-//com.recomdata.rwg.webstart.mainClass = 'com.pfizer.mrbt.genomics.Driver'
-//com.recomdata.rwg.webstart.gwavaInstance='transmartstg'
-//com.recomdata.rwg.webstart.transmart.url='http://75.124.74.46:5880/transmart'
-//com.recomdata.rwg.qqplots.cacheImages = jobsDirectory + '/cachedQQplotImages/'
-//com.recomdata.rwg.qqplots.temporaryImageFolder = '/images/tempImages/'
-//com.recomdata.rwg.qqplots.temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
 
+// {{{ Personalization
+// Project name shown on the welcome page
+//com.recomdata.projectName = "MyProject"
+
+// name and URL of the supporter entity shown on the welcome page
+//com.recomdata.providerName = "tranSMART Foundation"
+//com.recomdata.providerURL = "http://www.transmartfoundation.org"
+
+// Contact e-mail
+//com.recomdata.contactUs = "mailto:support@mycompany.com"
+// }}}
+
+// Password strength criteria, please change description accordingly
+//com.recomdata.passwordstrength.pattern = ~/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W]).*$/
+
+// Password strength description, please change according to pattern
+//com.recomdata.passwordstrength.description =
+//    'It should contain a minimum of 8 characters including at least ' +
+//    '1 upper and 1 lower case letter, 1 digit and 1 special character.'
 
 // You MUST leave this at the end
 // Do not move it up, otherwise syntax errors may not be detected
