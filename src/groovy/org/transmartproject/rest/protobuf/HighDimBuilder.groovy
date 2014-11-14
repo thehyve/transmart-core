@@ -149,7 +149,8 @@ class HighDimBuilder {
         } else {
             // Single column projection
             columnBuilder.clear()
-            columnBuilder.addAllDoubleValue(assayColumns.collect { AssayColumn col -> inputRow.getAt(col) as Double})
+            columnBuilder.addAllDoubleValue(assayColumns.collect { AssayColumn col ->
+                inputRow.getAt(col) == null ? Double.NaN : inputRow.getAt(col) as Double})
             rowBuilder.addValue(columnBuilder)
         }
 
