@@ -160,10 +160,10 @@ DASSource.prototype.sequence = function(segment, callback) {
                         while (true) {
                             var space = rawSeq.indexOf('\n', idx);
                             if (space >= 0) {
-                                segSeq += rawSeq.substring(idx, space);
+                                segSeq += rawSeq.substring(idx, space).toUpperCase();
                                 idx = space + 1;
                             } else {
-                                segSeq += rawSeq.substring(idx);
+                                segSeq += rawSeq.substring(idx).toUpperCase();
                                 break;
                             }
                         }
@@ -772,6 +772,7 @@ function doCrossDomainRequest(url, handler, credentials, custAuth) {
         if (custAuth) {
             req.setRequestHeader('X-DAS-Authorisation', custAuth);
         }
+        req.overrideMimeType('text/xml');
         req.setRequestHeader('Accept', 'application/xml,*/*');
         req.send('');
     }
@@ -815,6 +816,7 @@ function copyStylesheet(ss) {
         sh._methodRE = sh._labelRE = sh._typeRE = undefined;
         sh.style = shallowCopy(sh.style);
         sh.style.id = undefined;
+        sh.style._gradient = undefined;
     }
     return nss;
 }
@@ -829,9 +831,11 @@ if (typeof(module) !== 'undefined') {
         DASSegment: DASSegment,
         DASRegistry: DASRegistry,
         DASSequence: DASSequence,
+        DASLink: DASLink,
 
         isDasBooleanTrue: isDasBooleanTrue,
         isDasBooleanNotFalse: isDasBooleanNotFalse,
-        copyStylesheet: copyStylesheet
+        copyStylesheet: copyStylesheet,
+        coordsMatch: coordsMatch
     };
 }

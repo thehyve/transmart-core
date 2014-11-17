@@ -14,10 +14,18 @@ if (typeof(require) !== 'undefined') {
     var makeElement = utils.makeElement;
     var shallowCopy = utils.shallowCopy;
     var pushnew = utils.pushnew;
+    var miniJSONify = utils.miniJSONify;
 
     var das = require('./das');
     var DASStylesheet = das.DASStylesheet;
     var DASStyle = das.DASStyle;
+
+    var sha1 = require('./sha1');
+    var b64_sha1 = sha1.b64_sha1;
+
+    var style = require('./style');
+    var StyleFilter = style.StyleFilter;
+    var StyleFilterSet = style.StyleFilterSet;
 }
 
 var __tier_idSeed = 0;
@@ -33,9 +41,18 @@ function DasTier(browser, source, config, background)
     this.viewport = makeElement('canvas', null, 
                                 {width: '' + ((this.browser.featurePanelWidth|0) + 2000), 
                                  height: "30",
-                                 className: 'viewport'});
+                                 className: 'viewport_12_5'},
+                                {position: 'inline-block',
+                                 margin: '0px', border: '0px'});
+    this.viewportHolder = makeElement('div', this.viewport, {className: 'viewport-holder_12_5'}, 
+                                      {background: background,
+                                       position: 'absolute',
+                                       padding: '0px', margin: '0px',
+                                       border: '0px',
+                                       left: '-1000px',
+                                       minHeight: '200px'});
     this.overlay = makeElement('canvas', null,
-         {width: + ((this.browser.featurePanelWidth|0) + 2000), 
+         {width: + ((this.browser.featurePanelWidth|0)), 
           height: "30",
           className: 'viewport-overlay'});
 
@@ -55,21 +72,27 @@ function DasTier(browser, source, config, background)
     this.nameButton.appendChild(this.removeButton);
     if (source.pennant) {
         this.nameButton.appendChild(makeElement('img', null, {src: source.pennant, width: '16', height: '16'}))
+    } else if (source.mapping) {
+        var version = null;
+        if (this.browser.chains[source.mapping])
+            version = this.browser.chains[source.mapping].coords.version;
+        if (version)
+            this.nameButton.appendChild(makeElement('span', '' + version, null, {fontSize: '8pt', background: 'black', color: 'white', paddingLeft: '3px', paddingRight: '3px', paddingTop: '1px', paddingBottom: '1px', marginLeft: '2px', borderRadius: '10px'}));
     }
     this.nameElement = makeElement('span', source.name);
     this.nameButton.appendChild(makeElement('span', [this.nameElement, this.infoElement], {className: 'track-name-holder'}));
     this.nameButton.appendChild(this.bumpButton);
     this.nameButton.appendChild(this.loaderButton);
-    
+
     this.label = makeElement('span',
        [this.nameButton],
        {className: 'btn-group track-label'});
 
-
-    this.row = makeElement('div', [this.viewport,
-                                   this.overlay, 
+    var classes = 'tier' + (source.className ? ' ' + source.className : '');
+    this.row = makeElement('div', [this.viewportHolder,
+                                   this.overlay,
                                    this.quantOverlay],
-                            {className: 'tier'});
+                            {className: classes});
 
     if (!background) {
         this.row.style.background = 'none';
@@ -114,6 +137,11 @@ function DasTier(browser, source, config, background)
     this.featuresLoadedListeners = [];
 }
 
+DasTier.prototype.setBackground = function(b) {
+    this.background = b;
+    this.viewportHolder.style.background = b;
+}
+
 DasTier.prototype.toString = function() {
     return this.id;
 }
@@ -150,6 +178,7 @@ DasTier.prototype.init = function() {
                     tier.bumped = false;
                     tier.updateLabel();
                 }
+                tier._updateFromConfig();
                 tier.browser.refreshTier(tier);
             }
         });
@@ -164,6 +193,7 @@ DasTier.prototype.setStylesheet = function(ss) {
         sh.style = shallowCopy(sh.style);
         sh.style.id = 'style' + (++this.styleIdSeed);
     }
+    this.baseStylesheetValidity = b64_sha1(miniJSONify(this.baseStylesheet));
     this._updateFromConfig();
 }
 
@@ -172,40 +202,32 @@ DasTier.prototype.getSource = function() {
 }
 
 DasTier.prototype.getDesiredTypes = function(scale) {
-    var fetchTypes = [];
-    var inclusive = false;
+    var sfs = this.getActiveStyleFilters(scale);
+    if (sfs)
+        return sfs.typeList();
+}
+
+DasTier.prototype.getActiveStyleFilters = function(scale) {
     var ssScale = this.browser.zoomForCurrentScale();
 
     if (this.stylesheet) {
-        // dlog('ss = ' + miniJSONify(this.stylesheet));
+        var styles = new StyleFilterSet();
         var ss = this.stylesheet.styles;
         for (var si = 0; si < ss.length; ++si) {
             var sh = ss[si];
             if (!sh.zoom || sh.zoom == ssScale) {
-                if (!sh.type || sh.type == 'default') {
-                    inclusive = true;
-                    break;
-                } else {
-                    pushnew(fetchTypes, sh.type);
-                }
+                styles.add(new StyleFilter(sh.type, sh.method, sh.label));
             }
         }
-    } else {
-        // inclusive = true;
-        return undefined;
-    }
-
-    if (inclusive) {
-        return null;
-    } else {
-        return fetchTypes;
+        return styles;
     }
 }
 
 DasTier.prototype.needsSequence = function(scale ) {
-    if (this.dasSource.tier_type === 'sequence' && scale < 5) {
+    if (this.sequenceSource && scale < 5) {
         return true;
-    } else if ((this.dasSource.bamURI || this.dasSource.bamBlob) && scale < 20) {
+    } else if ((this.dasSource.bamURI || this.dasSource.bamBlob || this.dasSource.bwgURI || this.dasSource.bwgBlob)
+                 && scale < 20) {
         return true
     }
     return false;
@@ -230,7 +252,7 @@ DasTier.prototype.viewFeatures = function(chr, coverage, scale, features, sequen
 DasTier.prototype.draw = function() {
     var features = this.currentFeatures;
     var seq = this.currentSequence;
-    if (this.dasSource.tier_type === 'sequence') {
+    if (this.sequenceSource) {
         drawSeqTier(this, seq); 
     } else {
         drawFeatureTier(this);
@@ -286,19 +308,37 @@ DasTier.prototype.findNextFeature = function(chr, pos, dir, fedge, callback) {
                     }
                 }
                 if (bestFeature) {
-                    //                dlog('bestFeature = ' + miniJSONify(bestFeature));
                     return callback(bestFeature);
                 }
                 if (dir < 0) {
-                    pos = this.knownStart;
+                    pos = this.browser.knownSpace.min;
                 } else {
-                    pos = this.knownEnd;
+                    pos = this.browser.knownSpace.max;
                 }
             }
         }
 
-        this.featureSource.findNextFeature(chr, pos, dir, callback);
+        this.trySourceFNF(chr, pos, dir, callback);
     }
+}
+
+DasTier.prototype.trySourceFNF = function(chr, pos, dir, callback) {
+    var self = this;
+    this.featureSource.findNextFeature(chr, pos, dir, function(feature) {
+        if (!feature)
+            callback(feature);
+
+        var ss = self.browser.getSequenceSource();
+        if (!ss) // We're probably in trouble, but return anyway.
+            callback(feature)
+
+        ss.getSeqInfo(feature.segment, function(si) {
+            if (si)
+                callback(feature);
+            else
+                self.trySourceFNF(feature.segment, dir > 0 ? 10000000000 : 0, dir, callback);
+        });
+    });
 }
 
 
@@ -317,22 +357,34 @@ DasTier.prototype.updateHeight = function() {
     this.browser.updateHeight();
  }
 
+
 DasTier.prototype.drawOverlay = function() {
     var t = this;
     var b = this.browser;
     var retina = b.retina && window.devicePixelRatio > 1;
-    var g = t.overlay.getContext('2d');
     
     t.overlay.height = t.viewport.height;
-    t.overlay.width = t.viewport.width;
+    t.overlay.width = retina ? b.featurePanelWidth * 2 : b.featurePanelWidth;
+
+    var g = t.overlay.getContext('2d');
     if (retina) {
         g.scale(2, 2);
     }
     
-    var origin = b.viewStart - (1000/b.scale);
-    var visStart = b.viewStart - (1000/b.scale);
-    var visEnd = b.viewEnd + (1000/b.scale);
+    var origin = b.viewStart;
+    var visStart = b.viewStart;
+    var visEnd = b.viewEnd;
 
+    if (this.overlayLabelCanvas) {
+        var offset = ((this.glyphCacheOrigin - this.browser.viewStart)*this.browser.scale);
+        g.save();
+        g.translate(offset, 0);
+        var drawStart = -offset + 2;
+        if (this.dasSource.tierGroup)
+            drawStart += 15;
+        this.overlayLabelCanvas.draw(g, drawStart, b.featurePanelWidth-offset);
+        g.restore();
+    }
 
     for (var hi = 0; hi < b.highlights.length; ++hi) {
         var h = b.highlights[hi];
@@ -344,21 +396,18 @@ DasTier.prototype.drawOverlay = function() {
                        (h.max - h.min) * b.scale,
                        t.overlay.height);
         }
-    }
+    } 
 
-    t.oorigin = b.viewStart;
-    t.overlay.style.width = t.viewport.style.width;
+    // t.oorigin = b.viewStart;
+    t.overlay.style.width = b.featurePanelWidth;
     t.overlay.style.height = t.viewport.style.height;
-    t.overlay.style.left = '-1000px'
+    t.overlay.style.left = '0px';
 }
+
 
 DasTier.prototype.updateStatus = function(status) {
     if (status) {
         this.status = status;
-        this.currentFeatures = [];
-        this.currentSequence = null;
-        this.draw();
-        this.updateHeight();
         this._notifierToStatus();
     } else {
         if (this.status) {
@@ -411,6 +460,13 @@ DasTier.prototype.setConfig = function(config) {
     this.config = config || {};
     this._updateFromConfig();
     this.notifyTierListeners();
+}
+
+DasTier.prototype.mergeStylesheet = function(newStyle) {
+    this.mergeConfig({
+        stylesheet: newStyle, 
+        stylesheetValidity: this.baseStylesheetValidity
+    });
 }
 
 DasTier.prototype.mergeConfig = function(newConfig) {
@@ -469,7 +525,10 @@ DasTier.prototype._updateFromConfig = function() {
     }
     
     // Possible FIXME -- are there cases where style IDs need to be reassigned?
-    var stylesheet = this.config.stylesheet || this.baseStylesheet;
+    var stylesheet = null;
+    if (this.config.stylesheetValidity == this.baseStylesheetValidity)
+        stylesheet = this.config.stylesheet;
+    stylesheet = stylesheet || this.baseStylesheet;
     if (this.stylesheet !== stylesheet) {
         this.stylesheet = stylesheet;
         needsRefresh = true;
@@ -479,6 +538,27 @@ DasTier.prototype._updateFromConfig = function() {
     if (wantedPinned !== this.pinned) {
         this.pinned = wantedPinned;
         needsReorder = true;
+    }
+
+    var wantedSubtierMax = (typeof(this.config.subtierMax === 'number') ? 
+        this.config.subtierMax : this.dasSource.subtierMax || this.browser.defaultSubtierMax);
+    if (wantedSubtierMax != this.subtierMax) {
+        this.subtierMax = wantedSubtierMax;
+        needsRefresh = true;
+    }
+
+    var wantedBumped;
+    if (this.config.bumped !== undefined) {
+        wantedBumped = this.config.bumped;
+    } else if (this.dasSource.bumped !== undefined) {
+        wantedBumped = this.dasSource.bumped;
+    } else {
+        wantedBumped = this.dasSource.collapseSuperGroups ? false : true;
+    }
+    if (wantedBumped !== this.bumped) {
+        this.bumped = wantedBumped;
+        needsRefresh = true;
+        this.updateLabel();
     }
 
     if (needsRefresh)

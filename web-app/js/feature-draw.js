@@ -35,11 +35,13 @@ if (typeof(require) !== 'undefined') {
     var TooManyGlyph = g.TooManyGlyph;
     var TextGlyph = g.TextGlyph;
     var SequenceGlyph = g.SequenceGlyph;
+    var AminoAcidGlyph = g.AminoAcidGlyph;
     var TranslatedGlyph = g.TranslatedGlyph;
     var PointGlyph = g.PointGlyph;
     var GridGlyph = g.GridGlyph;
     var StarGlyph = g.StarGlyph;
     var PlimsollGlyph = g.PlimsollGlyph;
+    var OverlayLabelCanvas = g.OverlayLabelCanvas;
 
     var color = require('./color');
     var makeGradient = color.makeGradient;
@@ -60,8 +62,6 @@ if (typeof(require) !== 'undefined') {
 }
 
 var MIN_PADDING = 3;
-var DEFAULT_SUBTIER_MAX = 100;
-
 
 function SubTier() {
     this.glyphs = [];
@@ -302,8 +302,9 @@ function drawFeatureTier(tier)
     var unbumpedST = new SubTier();
     var bumpedSTs = [];
     var hasBumpedFeatures = false;
-    var subtierMax = tier.dasSource.subtierMax || DEFAULT_SUBTIER_MAX;
-    
+    var subtierMax = tier.subtierMax || tier.dasSource.subtierMax || tier.browser.defaultSubtierMax;
+    var subtiersExceeded = false;
+
   GLYPH_LOOP:
     for (var i = 0; i < glyphs.length; ++i) {
         var g = glyphs[i];
@@ -319,7 +320,7 @@ function drawFeatureTier(tier)
                 }
             }
             if (bumpedSTs.length >= subtierMax) {
-                // tier.status = 'Too many overlapping features, truncating at ' + subtierMax;
+                subtiersExceeded = true;
             } else {
                 var st = new SubTier();
                 st.add(g);
@@ -353,14 +354,13 @@ function drawFeatureTier(tier)
     tier.subtiers = bumpedSTs;
     tier.glyphCacheOrigin = tier.browser.viewStart;
 
-    var end = Date.now()|0;
-    // console.log('dft took ' + (end-start) + 'ms');
+    if (subtiersExceeded)
+        tier.updateStatus('Bumping limit exceeded, use the track editor to see more features');
+    else
+        tier.updateStatus();
 }
 
-
-
 DasTier.prototype.paint = function() {
-    var start = Date.now()|0;
     var retina = this.browser.retina && window.devicePixelRatio > 1;
 
     var subtiers = this.subtiers;
@@ -394,13 +394,12 @@ DasTier.prototype.paint = function() {
     }
     
     var tierHeight = Math.max(lh, this.browser.minTierHeight);
-    this.viewport.style.left = '-1000px';
+    this.viewportHolder.style.left = '-1000px';
     this.viewport.style.width = retina ? ('' + (fpw/2) + 'px') : ('' + fpw + 'px');
     this.viewport.style.height = '' + lh + 'px';
     this.layoutHeight =  Math.max(lh, this.browser.minTierHeight);
 
     this.updateHeight();
-    this.drawOverlay();
     this.norigin = this.browser.viewStart;
 
     var gc = this.viewport.getContext('2d');
@@ -411,6 +410,7 @@ DasTier.prototype.paint = function() {
         gc.scale(2, 2);
     }
 
+    /*
     if (this.background) {
         gc.fillStyle = this.background;
 
@@ -423,11 +423,59 @@ DasTier.prototype.paint = function() {
                 gc.fillRect(knownMin, 0, knownMax - knownMin, lh);
             }
         }
+    }*/
+
+    var drawStart =  this.browser.viewStart - 1000.0/this.browser.scale;
+    var drawEnd = this.browser.viewEnd + 1000.0/this.browser.scale;
+    var unmappedBlocks = [];
+    if (this.knownCoverage) {
+        var knownRanges = this.knownCoverage.ranges();
+        for (var ri = 0; ri < knownRanges.length; ++ri) {
+            var r = knownRanges[ri];
+            if (ri == 0) {
+                if (r.min() > drawStart) 
+                   unmappedBlocks.push({min: drawStart, max: r.min() - 1});
+            } else {
+                unmappedBlocks.push({min: knownRanges[ri-1].max() + 1, max: r.min() - 1});
+            }
+
+            if (ri == knownRanges.length - 1 && r.max() < drawEnd) {
+                unmappedBlocks.push({min: r.max() + 1, max: drawEnd});
+            } 
+        }
+    }
+    if (unmappedBlocks.length > 0) {
+        gc.fillStyle = 'gray';
+        for (var i = 0; i < unmappedBlocks.length; ++i) {
+            var b = unmappedBlocks[i];
+            var min = (b.min - this.browser.viewStart) * this.browser.scale + 1000;
+            var max = (b.max - this.browser.viewStart) * this.browser.scale + 1000;
+            gc.fillRect(min, 0, max - min, lh);
+        }
     }
 
+    var oc = new OverlayLabelCanvas();
     var offset = ((this.glyphCacheOrigin - this.browser.viewStart)*this.browser.scale)+1000;
     gc.translate(offset, this.padding);
-   
+    oc.translate(0, this.padding);
+
+    this.paintToContext(gc, oc, offset);
+
+    if (oc.glyphs.length > 0)
+        this.overlayLabelCanvas = oc;
+    else
+        this.overlayLabelCanvas = null;
+
+    gc.restore();
+    this.drawOverlay();
+    this.paintQuant();
+}
+
+DasTier.prototype.paintToContext = function(gc, oc, offset) {
+    var subtiers = this.subtiers;
+    var fpw = this.viewport.width|0;
+
+    gc.save();
     for (var s = 0; s < subtiers.length; ++s) {
         var quant = null;
         var glyphs = subtiers[s].glyphs;
@@ -435,35 +483,29 @@ DasTier.prototype.paint = function() {
             var glyph = glyphs[i];
             if (glyph.min() < fpw-offset && glyph.max() > -offset) { 
                 var glyph = glyphs[i];
-                glyph.draw(gc);
+                glyph.draw(gc, oc);
                 if (glyph.quant) {
                     quant = glyph.quant;
                 }
             }
         }
         gc.translate(0, subtiers[s].height + this.padding);
+        oc.translate(0, subtiers[s].height + this.padding);
     }
     gc.restore();
 
     if (quant && this.quantLeapThreshold && this.featureSource && this.browser.sourceAdapterIsCapable(this.featureSource, 'quantLeap')) {
-        var ry = 3 + subtiers[0].height * (1.0 - ((this.quantLeapThreshold - quant.min) / (quant.max - quant.min)));
+        var ry = subtiers[0].height * (1.0 - ((this.quantLeapThreshold - quant.min) / (quant.max - quant.min)));
 
         gc.save();
-        if (retina)
-            gc.scale(2, 2);
         gc.strokeStyle = 'red';
         gc.lineWidth = 0.3;
         gc.beginPath();
-        gc.moveTo(0, ry);
-        gc.lineTo(5000, ry);
+        gc.moveTo(-1000, ry);
+        gc.lineTo(fpw + 1000, ry);
         gc.stroke();
         gc.restore();
-    }
-
-    this.paintQuant();
-
-    var end = Date.now()|0;
-    // console.log('paint took ' + (end-start) + 'ms');
+    }    
 }
 
 DasTier.prototype.paintQuant = function() {
@@ -629,6 +671,29 @@ function glyphsForGroup(features, y, groupElement, tier, connectorType) {
 
 function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
 {
+    function getRefSeq(tier, min, max) {
+        var refSeq = null;
+        if (tier.currentSequence) {
+            var csStart = tier.currentSequence.start|0;
+            var csEnd = tier.currentSequence.end|0;
+            if (csStart <= max && csEnd >= min) {
+                var sfMin = Math.max(min, csStart);
+                var sfMax = Math.min(max, csEnd);
+
+                refSeq = tier.currentSequence.seq.substr(sfMin - csStart, sfMax - sfMin + 1);
+                while (min < sfMin) {
+                    refSeq = 'N' + refSeq;
+                    sfMin--;
+                }
+                while (max > sfMax) {
+                    refSeq = refSeq + 'N';
+                    sfMax++;
+                }
+            }
+        }
+        return refSeq;
+    }
+
     var scale = tier.browser.scale, origin = tier.browser.viewStart;
     var gtype = style.glyph || 'BOX';
     var glyph;
@@ -939,26 +1004,33 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
             }
         }
 
-        var refSeq = null;
-        if (tier.currentSequence) {
-            var csStart = tier.currentSequence.start|0;
-            var csEnd = tier.currentSequence.end|0;
-            if (csStart <= max && csEnd >= min) {
-                var sfMin = Math.max(min, csStart);
-                var sfMax = Math.min(max, csEnd);
-
-                refSeq = tier.currentSequence.seq.substr(sfMin - csStart, sfMax - sfMin + 1);
-                while (min < sfMin) {
-                    refSeq = 'N' + refSeq;
-                    sfMin--;
-                }
-                while (max > sfMax) {
-                    refSeq = refSeq + 'N';
-                    sfMax++;
-                }
-            }
+        var refSeq = getRefSeq(tier, min, max);
+        if (seq && refSeq && (style.__SEQCOLOR === 'mismatch' || style.__SEQCOLOR === 'mismatch-all')) {
+            var mismatchSeq = [];
+            var match = feature.orientation === '-' ? ',' : '.';
+            for (var i = 0; i < seq.length; ++i)
+                mismatchSeq.push(seq[i] == refSeq[i] ? match : seq[i]);
+            seq = mismatchSeq.join('');
         }
-        gg = new SequenceGlyph(tier.browser.baseColors, minPos, maxPos, height, seq, refSeq, style.__SEQCOLOR, quals);
+
+        var strandColor;
+        if (feature.orientation === '-')
+            strandColor = style._minusColor || 'lightskyblue';
+        else
+            strandColor = style._plusColor || 'lightsalmon';
+        
+        gg = new SequenceGlyph(
+            tier.browser.baseColors, 
+            strandColor, 
+            minPos, 
+            maxPos, 
+            height, 
+            seq, 
+            refSeq, 
+            style.__SEQCOLOR, 
+            quals,
+            !isDasBooleanTrue(style.__CLEARBG)
+        );
         if (insertionLabels)
             gg = new TranslatedGlyph(gg, 0, 7);
         if (indels.length > 0) {
@@ -980,7 +1052,17 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
         var fill = style.BGCOLOR || style.COLOR1 || 'green';
         if (style.BGITEM && feature.itemRgb)
             fill = feature.itemRgb;
-        gg = new BoxGlyph(minPos, 0, (maxPos - minPos), height, fill, stroke);
+        var scale = (maxPos - minPos) / (max - min);
+        if (feature.type == 'translation' &&
+            (feature.method == 'protein_coding' || feature.readframeExplicit) &&
+            (!feature.tags || feature.tags.indexOf('cds_start_NF') < 0 || feature.readframeExplicit) &&
+            (!tier.dasSource.collapseSuperGroups || tier.bumped)
+            && scale >= 0.5) {
+            var refSeq = getRefSeq(tier, min, max);
+            gg = new AminoAcidGlyph(minPos, maxPos, height, fill, refSeq, feature.orientation, feature.readframe);    
+        } else {
+            gg = new BoxGlyph(minPos, 0, (maxPos - minPos), height, fill, stroke);
+        }
         // gg.bump = true;
     }
 
@@ -1109,8 +1191,6 @@ DasTier.prototype.quantMax = function(style) {
         return style.MAX || this.currentFeaturesMaxScore || 0;
     }
 }
-
-
 
 if (typeof(module) !== 'undefined') {
     module.exports = {

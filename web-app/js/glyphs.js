@@ -16,6 +16,7 @@ if (typeof(require) !== 'undefined') {
 
     var utils = require('./utils');
     var makeElementNS = utils.makeElementNS;
+    var AMINO_ACID_TRANSLATION = utils.AMINO_ACID_TRANSLATION;
 
     var svgu = require('./svg-utils');
     var NS_SVG = svgu.NS_SVG;
@@ -212,10 +213,10 @@ GroupGlyph.prototype.drawConnectors = function(g) {
     }
 }
 
-GroupGlyph.prototype.draw = function(g) {
+GroupGlyph.prototype.draw = function(g, oc) {
     for (var i = 0; i < this.glyphs.length; ++i) {
         var gl = this.glyphs[i];
-        gl.draw(g);
+        gl.draw(g, oc);
     }
 
     g.strokeStyle = 'black';
@@ -389,7 +390,7 @@ LabelledGlyph.prototype.height = function() {
     return h;
 }
 
-LabelledGlyph.prototype.draw = function(g) {
+LabelledGlyph.prototype.draw = function(g, oc) {
     if (this.align == 'above') {
         g.save();
         g.translate(0, this.textHeight + 2);
@@ -399,6 +400,10 @@ LabelledGlyph.prototype.draw = function(g) {
         g.restore();
     }
 
+    oc.registerGlyph(this);
+}
+
+LabelledGlyph.prototype.drawOverlay = function(g, minVisible, maxVisible) {
     g.fillStyle = 'black';
     if (this.font) {
         g.save();
@@ -409,6 +414,9 @@ LabelledGlyph.prototype.draw = function(g) {
         p = (this.glyph.min() + this.glyph.max() - this.textLen) / 2;
     } else {
         p = this.glyph.min();
+        if (p < minVisible) {
+            p = Math.min(minVisible, this.glyph.max() - this.textLen);
+        }
     }
     g.fillText(this.text, p, this.align == 'above' ? this.textHeight : this.glyph.height() + 15);
     if (this.font) {
@@ -630,9 +638,9 @@ function PaddedGlyph(glyph, minp, maxp) {
     }
 }
 
-PaddedGlyph.prototype.draw = function(g) {
+PaddedGlyph.prototype.draw = function(g, oc) {
     if (this.glyph) 
-        this.glyph.draw(g);
+        this.glyph.draw(g, oc);
 }
 
 PaddedGlyph.prototype.toSVG = function() {
@@ -1004,13 +1012,149 @@ TextGlyph.prototype.toSVG = function() {
     return makeElementNS(NS_SVG, 'text', this._string, {x: this._min, y: this._height - 4});
 };
 
+function aminoTileColor(aa, start, color) {
+    var ALTERNATE_COLOR = {
+        'red': 'darkred',
+        'purple': 'mediumpurple',
+        'blue': 'darkblue',
+        'green': 'darkgreen'
+    };
+    var color2 = ALTERNATE_COLOR[color.toLowerCase()];
+    var tileColors;
+    if (!color2)
+        tileColors = ['rgb(73, 68, 149)', 'rgb(9, 0, 103)'];
+        // default to UCSC colors
+    else
+        tileColors = [color, color2];
+
+    if (aa == '?')
+        return 'black';
+    else if (aa == 'M')
+        return 'greenyellow';
+    else if (aa == '*')
+        return 'crimson';
+    else
+        return tileColors[start % 2];
+}
+
+function reverseComplement(sequence) {
+    var seq_dict = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'};
+    var rev_seq = sequence.split('').reverse().join('');
+    var rev_compl_seq = [];
+    for (var b = 0; b < rev_seq.length; ++b) {
+        var base = rev_seq.substr(b, 1).toUpperCase();
+        rev_compl_seq.push(base in seq_dict ? seq_dict[base] : 'N');
+    }
+    return rev_compl_seq.join('');
+}
+
+function AminoAcidGlyph(min, max, height, fill, seq, orientation, readframe) {
+    this._min = min;
+    this._max = max;
+    this._height = height;
+    this._fill = fill;
+    this._seq = seq;
+    this._orientation = orientation;
+    this._readframe = readframe;
+}
+
+AminoAcidGlyph.prototype.min = function() {return this._min};
+AminoAcidGlyph.prototype.max = function() {return this._max};
+AminoAcidGlyph.prototype.height = function() {return this._height};
+
+AminoAcidGlyph.prototype.draw = function(gc) {
+    var seq = this._seq;
+    var color = this._fill;
+
+    if (!seq) return;
+
+    var scale = (this._max - this._min + 1) / seq.length;
+
+    var prevOverhang = (3 - this._readframe) % 3;
+    var nextOverhang = (seq.length - prevOverhang) % 3;
+    var leftOverhang = this._orientation == '+' ? prevOverhang : nextOverhang;
+    
+    if (leftOverhang > 0) {
+        gc.fillStyle = color;
+        gc.fillRect(this._min, 0, scale * leftOverhang, this._height);
+    }
+
+    for (var p = leftOverhang; p < seq.length; p += 3) {
+        var codon = seq.substr(p, 3).toUpperCase();
+        if (this._orientation == '-')
+            codon = reverseComplement(codon);
+        var aa = codon in AMINO_ACID_TRANSLATION ? AMINO_ACID_TRANSLATION[codon] : '?';
+        color = codon.length == 3 ? aminoTileColor(aa, p, this._fill) : this._fill;
+        gc.fillStyle = color;
+        gc.fillRect(this._min + p * scale, 0, scale * codon.length, this._height);
+
+        if (scale >= 8 && codon.length == 3) {
+            gc.fillStyle = 'white';
+            gc.fillText(aa, this._min + (p+1) * scale, this._height);
+        } 
+    }
+}
+
+AminoAcidGlyph.prototype.toSVG = function() {
+    var g = makeElementNS(NS_SVG, 'g');
+    var seq = this._seq;
+    var color = this._fill;
+
+    if (!seq)
+        return g;
+
+    var scale = (this._max - this._min + 1) / seq.length;
+
+    var prevOverhang = (3 - this._readframe) % 3;
+    var nextOverhang = (seq.length - prevOverhang) % 3;
+    var leftOverhang = this._orientation == '+' ? prevOverhang : nextOverhang;
+
+    if (leftOverhang > 0) {
+        g.appendChild(
+            makeElementNS(NS_SVG, 'rect', null, {
+                x: this._min,
+                y: 0,
+                width: scale * leftOverhang,
+                height: this._height,
+                fill: color}));
+    }
+    for (var p = leftOverhang; p < seq.length; p += 3) {
+        var codon = seq.substr(p, 3).toUpperCase();
+        if (this._orientation == '-')
+            codon = reverseComplement(codon);
+        var aa = codon in AMINO_ACID_TRANSLATION ? AMINO_ACID_TRANSLATION[codon] : '?';
+        color = codon.length == 3 ? aminoTileColor(aa, p, this._fill) : this._fill;
+        g.appendChild(
+            makeElementNS(NS_SVG, 'rect', null, {
+                x: this._min + p * scale,
+                y: 0,
+                width: scale * codon.length,
+                height: this._height,
+                fill: color}));
+
+        if (scale >= 8 && codon.length == 3) {
+            g.appendChild(
+                makeElementNS(NS_SVG, 'text', aa, {
+                    x: this._min + (p+1) * scale,
+                    y: this._height,
+                    fill: 'white'}));
+        }
+    }
+    return g;
+};
+
 (function(scope) {
 
 var isRetina = window.devicePixelRatio > 1;
 var __dalliance_SequenceGlyphCache = {};
+var altPattern = new RegExp('^[ACGT-]$');
+var isCloseUp = function(scale) {
+    return scale >= 8;
+}
 
-function SequenceGlyph(baseColors, min, max, height, seq, ref, scheme, quals) {
+function SequenceGlyph(baseColors, strandColor, min, max, height, seq, ref, scheme, quals, fillbg) {
     this.baseColors = baseColors;
+    this._strandColor = strandColor;
     this._min = min;
     this._max = max;
     this._height = height;
@@ -1018,6 +1162,7 @@ function SequenceGlyph(baseColors, min, max, height, seq, ref, scheme, quals) {
     this._ref = ref;
     this._scheme = scheme;
     this._quals = quals;
+    this._fillbg = fillbg;
 }
 
 SequenceGlyph.prototype.min = function() {return this._min};
@@ -1031,36 +1176,50 @@ SequenceGlyph.prototype.alphaForQual = function(qual) {
 
 SequenceGlyph.prototype.draw = function(gc) {
     var seq = this._seq;
-    if (!seq)
-        seq = 'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN';    // FIXME       
+    var ref = this._ref;
+    var mismatch = this._scheme === 'mismatch' || this._scheme === 'mismatch-all';
+    var all = this._scheme === 'mismatch-all';
+    
+    var seqLength = seq ? seq.length : (this._max - this._min + 1);
+    var scale = (this._max - this._min + 1) / seqLength;
 
-    var scale = (this._max - this._min + 1) / seq.length;
+    if (mismatch && !isCloseUp(scale)) {
+        gc.fillStyle = this._strandColor;
+        gc.fillRect(this._min, this._height/4, this._max - this._min, this._height/2);
+    }
 
-    for (var p = 0; p < seq.length; ++p) {
-        var base = seq.substr(p, 1).toUpperCase();
-        var color = this.baseColors[base];
-        if (!color) {
-            color = 'gray';
-        }
-
-        if (this._scheme === 'mismatch' && this._ref) {
-            var refbase = this._ref.substr(p, 1).toUpperCase();
-            if (refbase === 'N') {
-                color = 'gray';
-            } else if (refbase === base) {
-                color = 'black';
-            } else {
-                color = 'red';
-            }
-        }
+    for (var p = 0; p < seqLength; ++p) {
+        var base = seq ? seq.substr(p, 1).toUpperCase() : 'N';
         
+        if (!altPattern.test(base) && !isCloseUp(scale))
+            continue;
+
+        var color = this.baseColors[base];
+
         if (this._quals) {
             var qc = this._quals.charCodeAt(p) - 33;
             var oldAlpha = gc.globalAlpha;            // NB hoisted!
             gc.globalAlpha = this.alphaForQual(qc);
         }
 
-        if (scale >= 8) {
+        if (!color) {
+            var refBase = ref ? ref.substr(p, 1).toUpperCase() : 'N';
+            if (base == 'N' || refBase == 'N')
+                color = 'gray';
+            else
+                color = this._strandColor;
+
+            if (all)
+                base = refBase;
+        }
+
+        gc.fillStyle = color;
+
+        var alt = altPattern.test(base);
+        if (this._fillbg || !isCloseUp(scale) || !alt)
+            gc.fillRect(this._min + p*scale, 0, scale, this._height);
+
+        if (isCloseUp(scale) && alt) {
             var key = color + '_' + base
             var img = __dalliance_SequenceGlyphCache[key];
             if (!img) {
@@ -1076,18 +1235,16 @@ SequenceGlyph.prototype.draw = function(gc) {
                 if (isRetina) {
                     imgGc.scale(2, 2);
                 }
-                imgGc.fillStyle = color;
-                imgGc.fillText(base, 0, 8);
+                imgGc.fillStyle = this._fillbg ? 'black' : color;
+                var w = imgGc.measureText(base).width;
+                imgGc.fillText(base, 0.5 * (8.0 - w), 8);
                 __dalliance_SequenceGlyphCache[key] = img;
             }
             if (isRetina)
-                gc.drawImage(img, this._min + p*scale, 0, 8, 10);
+                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), 0, 8, 10);
             else
-                gc.drawImage(img, this._min + p*scale, 0);
-        } else {
-            gc.fillStyle = color;
-            gc.fillRect(this._min + p*scale, 0, scale, this._height);
-        }
+                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), 0);
+        } 
 
         if (this._quals) {
             gc.globalAlpha = oldAlpha;
@@ -1097,25 +1254,25 @@ SequenceGlyph.prototype.draw = function(gc) {
 
 SequenceGlyph.prototype.toSVG = function() {
     var seq = this._seq;
+    var ref = this._ref;
+    var mismatch = this._scheme === 'mismatch' || this._scheme === 'mismatch-all';
+    var all = this._scheme === 'mismatch-all';
     var scale = (this._max - this._min + 1) / this._seq.length;
     var  g = makeElementNS(NS_SVG, 'g'); 
 
     for (var p = 0; p < seq.length; ++p) {
-        var base = seq.substr(p, 1).toUpperCase();
-        var color = baseColors[base];
-        if (!color) {
-            color = 'gray';
-        }
+        var base = seq ? seq.substr(p, 1).toUpperCase() : 'N';
+        var color = this.baseColors[base];
 
-        if (this._scheme === 'mismatch' && this._ref) {
-            var refbase = this._ref.substr(p, 1).toUpperCase();
-            if (refbase === 'N') {
+        if (!color) {
+            var refBase = ref ? ref.substr(p, 1).toUpperCase() : 'N';
+            if (base == 'N' || refBase == 'N')
                 color = 'gray';
-            } else if (refbase === base) {
-                color = 'black';
-            } else {
-                color = 'red';
-            }
+            else
+                color = this._strandColor;
+
+            if (all)
+                base = refBase;
         }
 
         var alpha = 1.0;
@@ -1124,23 +1281,26 @@ SequenceGlyph.prototype.toSVG = function() {
             alpha = this.alphaForQual(qc);
         }
 
-        if (scale >= 8) {
+        var alt = altPattern.test(base);
+        if (this._fillbg || !isCloseUp(scale) || !alt) {
             g.appendChild(
-                    makeElementNS(NS_SVG, 'text', base, {
-                        x: this._min + p*scale,
-                        y: 8,
-                        fill: color,
-                        fillOpacity: alpha}));
-        } else {
-            g.appendChild(
-                    makeElementNS(NS_SVG, 'rect', null, {
-                        x:this._min + p*scale,
-                        y: 0,
-                        width: scale,
-                        height: this._height,
-                        fill: color,
-                        fillOpacity: alpha}));
+                makeElementNS(NS_SVG, 'rect', null, {
+                    x:this._min + p*scale,
+                    y: 0,
+                    width: scale,
+                    height: this._height,
+                    fill: color,
+                    fillOpacity: alpha}));
+        }
 
+        if (isCloseUp(scale) && alt) {
+            g.appendChild(
+                makeElementNS(NS_SVG, 'text', base, {
+                    x: this._min + (0.5+p)*scale,
+                    y: 8,
+                    textAnchor: 'middle',
+                    fill: this._fillbg ? 'black' : color,
+                    fillOpacity: alpha}));
         }
     }
 
@@ -1182,10 +1342,10 @@ TranslatedGlyph.prototype.maxY = function() {
     return this._y + this.glyph.height();
 }
 
-TranslatedGlyph.prototype.draw = function(g) {
+TranslatedGlyph.prototype.draw = function(g, o) {
     g.save();
     g.translate(this._x, this._y);
-    this.glyph.draw(g);
+    this.glyph.draw(g, o);
     g.restore();
 }
 
@@ -1372,6 +1532,37 @@ PlimsollGlyph.prototype.height = function() {
     return this._height;
 }
 
+
+function OverlayLabelCanvas() {
+    this.ox = 0;
+    this.oy = 0;
+    this.glyphs = [];
+}
+
+OverlayLabelCanvas.prototype.translate = function(x, y) {
+    this.ox += x;
+    this.oy += y;
+}
+
+OverlayLabelCanvas.prototype.registerGlyph = function(g) {
+    this.glyphs.push({
+        x: this.ox,
+        y: this.oy,
+        glyph: g
+    });
+}
+
+
+OverlayLabelCanvas.prototype.draw = function(g, minVisible, maxVisible) {
+    for (var gi = 0; gi < this.glyphs.length; ++gi) {
+        var gg = this.glyphs[gi];
+        g.save();
+        g.translate(gg.x, gg.y);
+        gg.glyph.drawOverlay(g, minVisible, maxVisible);
+        g.restore();
+    }
+}
+
 if (typeof(module) !== 'undefined') {
     module.exports = {
         BoxGlyph: BoxGlyph,
@@ -1391,10 +1582,13 @@ if (typeof(module) !== 'undefined') {
         TooManyGlyph: TooManyGlyph,
         TextGlyph: TextGlyph,
         SequenceGlyph: this.SequenceGlyph,
+        AminoAcidGlyph: AminoAcidGlyph,
         TranslatedGlyph: TranslatedGlyph,
         GridGlyph: GridGlyph,
         StarGlyph: StarGlyph,
         PointGlyph: PointGlyph,
-        PlimsollGlyph: PlimsollGlyph
+        PlimsollGlyph: PlimsollGlyph,
+
+        OverlayLabelCanvas: OverlayLabelCanvas
     }
 }

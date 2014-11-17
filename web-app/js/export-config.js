@@ -59,13 +59,17 @@ Browser.prototype.exportSourceConfig = function(opts) {
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var tier = this.tiers[ti];
         var source = shallowCopy(tier.dasSource);
+
+        if (source.noPersist)
+            continue;
+
         source.coords = undefined;
         source.props = undefined;
         if (!source.disabled)
             source.disabled = undefined;
 
         if (tier.config.stylesheet) {
-            source.style = tier.config.stylesheet.styles;
+            source.style = copyStylesheet(tier.config.stylesheet).styles;
             source.stylesheet_uri = undefined;
         } else if (source.style) {
             source.style = copyStylesheet({styles: source.style}).styles;
@@ -85,6 +89,9 @@ Browser.prototype.exportSourceConfig = function(opts) {
             source.forceMinDynamic = tier.config.forceMinDynamic;
         if (tier.config.forceMax !== undefined) {
             source.forceMax = tier.config.forceMax;
+        }
+        if (tier.config.bumped !== undefined) {
+            source.bumped = tier.config.bumped;
         }
         if (tier.config.forceMaxDynamic)
             source.forceMaxDynamic = tier.config.forceMaxDynamic;

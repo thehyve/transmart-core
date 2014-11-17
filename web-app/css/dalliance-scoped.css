@@ -235,8 +235,30 @@
   background-color: blue;
   position: absolute;
   z-index: 900;
-  top: 0px;
+  top: 15px;
   /* left set by code... */
+}
+
+*.dalliance .single-base-guideline {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 899;
+  height: 100%;
+  top: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.75);
+  /* left and width set by code... */
+}
+
+*.dalliance .loc-single-base {
+  position: relative;
+  font-size: 11px;
+}
+
+*.dalliance .loc-single-base-holder {
+  display: inline-block;
+  margin-top: -4px;
+  flex-shrink: 0;
+  -webkit-flex-shrink: 0;
 }
 
 *.dalliance .powered-by {
@@ -255,6 +277,7 @@
 *.dalliance .toolbar {
   flex: none;
   -webkit-flex: none;
+  margin-bottom: 5px;
 }
 
 *.dalliance .toolbar > * {
@@ -278,12 +301,29 @@
 /* Tier stuff */
 
 *.dalliance .viewport {
+  /* NB. obsolete definition as of Dalliance 0.12.5, keeping for compatibility during 0.12.x series */
   /* Width and height set in code */
   position: absolute;
   padding: 0px;
   margin: 0px;
   border: 0px;
   left: -1000px;
+}
+
+*.dalliance .viewport_12_5 {
+  /* Width and height set in code */
+  position: inline-block;
+  margin: 0px;
+  border: 0px;
+}
+
+*.dalliance .viewport-holder_12_5 {
+  position: absolute;
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+  left: -1000px;
+  min-height: 200px;
 }
 
 *.dalliance .viewport-overlay {
@@ -303,6 +343,7 @@
   border: 0px;
   top: 0px;
   display: none;
+  pointer-events: none;
 }
 
 *.dalliance .tier-edit input {
@@ -349,4 +390,67 @@
   border-bottom: 1px solid black;
   align-items: flex-start;
   -webkit-align-items: flex-start;
+}
+
+*.dalliance .tier-group {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 15px;
+  background-color: rgb(231,214,214);
+  overflow: hidden;
+  z-index: 2000;
+}
+
+*.dalliance .tier-group-label {
+  transform: rotate(90deg);
+  display: inline-block;
+  transform-origin: 8px 55% 0;
+}
+
+
+*.dalliance .slider {
+    position: relative;
+    width: 210px;
+    height: 20px;
+}
+
+*.dalliance .slider hr.slider-track {
+    width: 200px;
+    height: 4px;
+    background-color: gray;
+    position: absolute;
+    top: 0px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 3px;
+}
+
+*.dalliance .slider hr.slider-thumb {
+    border: 1.5px solid #888888;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    margin-top: 0px;
+    left: 50px;
+    background-color: #dddddd;
+    margin-left: 1px;
+}
+
+*.dalliance .slider hr.slider-thumb.active {
+  background-color: #bbbbee;
+  z-index: 20;
+  width: 12px; height: 12px;
+  margin-left: 0px;
+  margin-top: -1px;
+}
+
+*.dalliance .slider div.slider-label {
+  top: 9px;
+  font-size: 7pt;
+  display: block;
+  position: absolute;
+  width: 50px;
+  text-align: center;
+  margin-left: -21px;
 }

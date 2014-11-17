@@ -47,9 +47,13 @@ function Chainset(conf, srcTag, destTag, coords) {
     this.chainsBySrc = {};
     this.chainsByDest = {};
     this.postFetchQueues = {};
+    this.fetchedTiles = {};
+    this.granularity = 1000000;  // size in bases of tile to fetch
 
     if (this.type == 'bigbed') {
         this.chainFetcher = new BBIChainFetcher(this.uri, this.credentials);
+    } else if (this.type == 'alias') {
+        this.chainFetcher = new AliasChainFetcher(conf);
     } else {
         this.chainFetcher = new DASChainFetcher(this.uri, this.srcTag, this.destTag);
     }
@@ -100,6 +104,66 @@ Chainset.prototype.mapPoint = function(chr, pos) {
     return null;
 }
 
+Chainset.prototype.mapSegment = function(chr, min, max) {
+    var chains = this.chainsBySrc[chr] || [];
+    var mappings = [];
+    for (var ci = 0; ci < chains.length; ++ci) {
+        var c = chains[ci];
+        if (max >= c.srcMin && min <= c.srcMax) {
+            var cmin, cmax;
+            if (c.srcOri == '-') {
+                cmin = c.srcMax - max;
+                cmax = c.srcMax - min;
+            } else {
+                cmin = min - c.srcMin;
+                cmax = max - c.srcMin;
+            }
+            var blocks = c.blocks;
+            for (var bi = 0; bi < blocks.length; ++bi) {
+                var b = blocks[bi];
+                var bSrc = b[0];
+                var bDest = b[1];
+                var bSize = b[2];
+                if (cmax >= bSrc && cmin <= (bSrc + bSize)) {
+                    var m = {
+                        segment: c.destChr,
+                        flipped: (c.srcOri == '-') ^ (c.destOri == '-')};
+
+                    if (c.destOri == '-') {
+                        if (cmin >= bSrc) {
+                            m.max = c.destMax - bDest - cmin + bSrc;
+                        } else {
+                            m.max = c.destMax - bDest;
+                            m.partialMax = bSrc - cmin;
+                        }
+                        if (cmax <= (bSrc + bSize)) {
+                            m.min = c.destMax - bDest - cmax + bSrc;
+                        } else {
+                            m.min = c.destMax - bDest - bSize;
+                            m.partialMin = cmax - bSrc - bSize;
+                        }
+                    } else {
+                        if (cmin >= bSrc) {
+                            m.min = c.destMin + bDest + cmin - bSrc;
+                        } else {
+                            m.min = c.destMin + bDest;
+                            m.partialMin = bSrc - cmin;
+                        }
+                        if (cmax <= (bSrc + bSize)) {
+                            m.max = c.destMin + bDest + cmax - bSrc;
+                        } else {
+                            m.max = c.destMin + bDest + bSize;
+                            m.partialMax = cmax - bSrc - bSize;
+                        }
+                    }
+                    mappings.push(m);
+                }
+            }
+        }
+    }
+    return mappings;
+}
+
 Chainset.prototype.unmapPoint = function(chr, pos) {
     var chains = this.chainsByDest[chr] || [];
     for (var ci = 0; ci < chains.length; ++ci) {
@@ -139,20 +203,77 @@ Chainset.prototype.unmapPoint = function(chr, pos) {
 }
 
 Chainset.prototype.sourceBlocksForRange = function(chr, min, max, callback) {
-    if (!this.chainsByDest[chr]) {
-        var fetchNeeded = !this.postFetchQueues[chr];
-        var thisCS = this;
-        pusho(this.postFetchQueues, chr, function() {
-            thisCS.sourceBlocksForRange(chr, min, max, callback);
-        });
-        if (fetchNeeded) {
-            this.chainFetcher.fetchChains(chr).then(function(chains, err) {
+    var STATE_PENDING = 1;
+    var STATE_FETCHED = 2;
+
+    var thisCS = this;
+    var minTile = (min/this.granularity)|0;
+    var maxTile = (max/this.granularity)|0;
+
+    var needsNewOrPending = false;
+    var needsNewFetch = false;
+    for (var t = minTile; t <= maxTile; ++t) {
+        var tn = chr + '_' + t;
+        if (this.fetchedTiles[tn] != STATE_FETCHED) {
+            needsNewOrPending = true;
+            if (this.fetchedTiles[tn] != STATE_PENDING) {
+                this.fetchedTiles[tn] = STATE_PENDING;
+                needsNewFetch = true;
+            }
+        }
+    }
+
+    if (needsNewOrPending) {
+        if (!this.postFetchQueues[chr]) {
+            this.chainFetcher.fetchChains(
+                chr, 
+                minTile * this.granularity, 
+                (maxTile+1) * this.granularity - 1)
+              .then(function(chains) {
                 if (!thisCS.chainsByDest)
                     thisCS.chainsByDest[chr] = [];
                 for (var ci = 0; ci < chains.length; ++ci) {
                     var chain = chains[ci];
-                    pusho(thisCS.chainsBySrc, chain.srcChr, chain);
-                    pusho(thisCS.chainsByDest, chain.destChr, chain);
+
+                    {
+                        var cbs = thisCS.chainsBySrc[chain.srcChr];
+                        if (!cbs) {
+                            thisCS.chainsBySrc[chain.srcChr] = [chain];
+                        } else {
+                            var present = false;
+                            for (var oci = 0; oci < cbs.length; ++oci) {
+                                var oc = cbs[oci];
+                                if (oc.srcMin == chain.srcMin && oc.srcMax == chain.srcMax) {
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if (!present)
+                                cbs.push(chain);
+                        }
+                    }
+
+                    {
+                        var cbd = thisCS.chainsByDest[chain.destChr];
+                        if (!cbd) {
+                            thisCS.chainsByDest[chain.destChr] = [chain];
+                        } else {
+                            var present = false;
+                            for (var oci = 0; oci < cbd.length; ++oci) {
+                                var oc = cbd[oci];
+                                if (oc.destMin == chain.destMin && oc.destMax == chain.destMax) {
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if (!present)
+                                cbd.push(chain);
+                        }
+                    }
+                }
+                for (var t = minTile; t <= maxTile; ++t) {
+                    var tn = chr + '_' + t;
+                    thisCS.fetchedTiles[tn] = STATE_FETCHED;
                 }
                 if (thisCS.postFetchQueues[chr]) {
                     var pfq = thisCS.postFetchQueues[chr];
@@ -161,8 +282,17 @@ Chainset.prototype.sourceBlocksForRange = function(chr, min, max, callback) {
                     }
                     thisCS.postFetchQueues[chr] = null;
                 }
-            });
+              }).catch(function (err) {
+                console.log(err);
+              });   
         }
+
+        pusho(this.postFetchQueues, chr, function() {
+            // Will either succeed if the tiles that are needed have already been fetched,
+            // or queue up a new fetch.
+
+            thisCS.sourceBlocksForRange(chr, min, max, callback);
+        });
     } else {
         var srcBlocks = [];
         var chains = this.chainsByDest[chr] || [];
@@ -303,13 +433,20 @@ function pi(x) {
     return parseInt(x);
 }
 
+function cleanChr(c) {
+    if (c.indexOf('chr') == 0)
+        return c.substr(3);
+    else
+        return c;
+}
+
 function bbiFeatureToChain(feature) {
     var chain = {
-        srcChr:     feature.srcChrom,
+        srcChr:     cleanChr(feature.srcChrom),
         srcMin:     parseInt(feature.srcStart),
         srcMax:     parseInt(feature.srcEnd),
         srcOri:     feature.srcOri,
-        destChr:    feature.segment,
+        destChr:    cleanChr(feature.segment),
         destMin:    feature.min - 1,     // Convert back from bigbed parser
         destMax:    feature.max,
         destOri:    feature.ori,
@@ -325,18 +462,55 @@ function bbiFeatureToChain(feature) {
     return chain;
 }
 
-BBIChainFetcher.prototype.fetchChains = function(chr, _min, _max) {
+BBIChainFetcher.prototype.fetchChains = function(chr, min, max) {
     return this.bwg.then(function(bwg, err) {
         if (!bwg)
             throw Error("No BWG");
 
         return new Promise(function(resolve, reject) {
-            bwg.getUnzoomedView().readWigData(chr, 1, 30000000000, function(feats) {
+            bwg.getUnzoomedView().readWigData(chr, min, max, function(feats) {
                 resolve(feats.map(bbiFeatureToChain));
             });
         });
     });
 };
+
+function AliasChainFetcher(conf) {
+    this.conf = conf;
+    this.forwardAliases = {};
+    var sa = conf.sequenceAliases || [];
+    for (var ai = 0; ai < sa.length; ++ai) {
+        var al = sa[ai];
+        if (al.length < 2)
+            continue;
+
+        var fa = [];
+        for (var i = 0; i < al.length - 1; ++i)
+            fa.push(al[i]);
+        this.forwardAliases[al[al.length - 1]] = fa;
+    }
+}
+
+AliasChainFetcher.prototype.fetchChains = function(chr, min, max) {
+    var resp = [];
+    var fa = this.forwardAliases[chr] || [];
+    for (var i = 0; i < fa.length; ++i) {
+        resp.push(
+            {
+                srcChr:         fa[i],
+                srcMin:         1,
+                srcMax:         1000000000,
+                srcOri:         '+',
+                destChr:        chr,
+                destMin:        1,
+                destMax:        1000000000,
+                destOri:        '+',
+                blocks: [[1, 1, 1000000000]]
+            });
+    }
+
+    return Promise.resolve(resp);
+}
 
 if (typeof(module) !== 'undefined') {
     module.exports = {

@@ -105,6 +105,7 @@ Browser.prototype.storeTierStatus = function() {
 
     localStorage['dalliance.' + this.cookieKey + '.reverse-scrolling'] = this.reverseScrolling;
     localStorage['dalliance.' + this.cookieKey + '.reverse-key-scrolling'] = this.reverseKeyScrolling;
+    localStorage['dalliance.' + this.cookieKey + '.single-base-highlight'] = this.singleBaseHighlight;
     localStorage['dalliance.' + this.cookieKey + '.ruler-location'] = this.rulerLocation;
 
     localStorage['dalliance.' + this.cookieKey + '.export-ruler'] = this.exportRuler;
@@ -137,6 +138,9 @@ Browser.prototype.restoreStatus = function() {
     var defaultSourcesByURI = {};
     for (var si = 0; si < this.sources.length; ++si) {
         var source = this.sources[si];
+        if (!source)
+            continue;
+
         var uri = sourceDataURI(source);
         var ul = defaultSourcesByURI[uri];
         if (!ul)
@@ -172,7 +176,9 @@ Browser.prototype.restoreStatus = function() {
     this.reverseScrolling = (rs && rs == 'true');
     var rks = localStorage['dalliance.' + this.cookieKey + '.reverse-key-scrolling'];
     this.reverseKeyScrolling = (rks && rks == 'true');
-
+    var sbh = localStorage['dalliance.' + this.cookieKey + '.single-base-highlight'];
+    this.singleBaseHighlight = (sbh && sbh == 'true');
+ 
     var rl = localStorage['dalliance.' + this.cookieKey + '.ruler-location'];
     if (rl)
         this.rulerLocation = rl;
@@ -197,8 +203,12 @@ Browser.prototype.restoreStatus = function() {
             for (var osi = 0; osi < ul.length; ++osi) {    
                 var oldSource = ul[osi];
                 if (sourcesAreEqual(source, oldSource)) {
-                    if (oldSource.featureInfoPlugin) {
-                        source.featureInfoPlugin = oldSource.featureInfoPlugin;
+                    for (var k in oldSource) {
+                        if (oldSource.hasOwnProperty(k) && 
+                            (typeof(oldSource[k]) === 'function' || oldSource[k] instanceof Blob))
+                        {
+                            source[k] = oldSource[k];
+                        }
                     }
                 }
             }

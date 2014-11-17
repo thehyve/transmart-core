@@ -31,7 +31,7 @@ if (typeof(require) !== 'undefined') {
 }
 
 function probeResource(source, listener, retry) {
-    var BED_REGEXP = new RegExp('^.+\t[0-9]+\t[0-9]+.*$');
+    var BED_REGEXP = new RegExp('^\\w+\\s[0-9]+\\s[0-9]+.*$');
     var KV_REGEXP=/([^=]+)=\"?([^\"]+)\"?/;
     var VCFHEAD_RE = /^##\s*fileformat=VCFv4\..+/;
 
@@ -39,7 +39,7 @@ function probeResource(source, listener, retry) {
     if (source.blob)
         fetchable = new BlobFetchable(source.blob);
     else 
-        fetchable = new URLFetchable(source.uri);
+        fetchable = new URLFetchable(source.uri, {credentials: source.credentials});
 
     fetchable.slice(0, 1<<16).salted().fetch(function(result, error) {
         if (!result) {

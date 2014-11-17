@@ -48,12 +48,10 @@ function tileSizeForScale(scale, min)
     return ts(pow);
 }
 
-function drawSeqTier(tier, seq)
-{
-	var retina = tier.browser.retina && window.devicePixelRatio > 1;
-    var scale = tier.browser.scale, knownStart = tier.browser.viewStart - (1000/scale)|0, knownEnd = tier.browser.viewEnd + (2000/scale), currentSeqMax = tier.browser.currentSeqMax;
-
-	var desiredWidth = tier.browser.featurePanelWidth + 2000;
+function drawSeqTier(tier, seq) {
+    var gc = tier.viewport.getContext('2d');
+    var retina = tier.browser.retina && window.devicePixelRatio > 1;
+    var desiredWidth = tier.browser.featurePanelWidth + 2000;
     if (retina) {
         desiredWidth *= 2;
     }
@@ -64,12 +62,12 @@ function drawSeqTier(tier, seq)
 
     var height = 50;
     if (seq && seq.seq) {
-		height += 25;
+        height += 25;
     }
 
     var canvasHeight = height;
     if (retina) 
-    	canvasHeight *= 2;
+        canvasHeight *= 2;
 
     tier.viewport.height = canvasHeight;
     tier.viewport.style.height = '' + height + 'px';
@@ -77,7 +75,7 @@ function drawSeqTier(tier, seq)
     tier.layoutHeight = height;
     tier.updateHeight();
 
-    var gc = tier.viewport.getContext('2d');
+    
     if (tier.background) {
         gc.fillStyle = tier.background;
         gc.fillRect(0, 0, fpw, tier.viewport.height);
@@ -85,6 +83,13 @@ function drawSeqTier(tier, seq)
     if (retina) {
         gc.scale(2, 2);
     }
+
+    drawSeqTierGC(tier, seq, gc);
+}
+
+function drawSeqTierGC(tier, seq, gc)
+{
+    var scale = tier.browser.scale, knownStart = tier.browser.viewStart - (1000/scale)|0, knownEnd = tier.browser.viewEnd + (2000/scale), currentSeqMax = tier.browser.currentSeqMax;
     gc.translate(1000,0);
 
     var seqTierMax = knownEnd;
@@ -127,7 +132,9 @@ function drawSeqTier(tier, seq)
 				gc.fillStyle = color;
 
 				if (scale >= 8) {
-				    gc.fillText(base, (p - origin) * scale, 52);
+                    var w = gc.measureText(base).width;
+                    // console.log(scale-w);
+				    gc.fillText(base, (p - origin) * scale + ((scale-w)*0.5) , 52);
 				} else {
 				    gc.fillRect((p - origin) * scale, 42, scale, 12); 
 				}
@@ -136,7 +143,7 @@ function drawSeqTier(tier, seq)
     } 
 
     tier.norigin = tier.browser.viewStart;
-    tier.viewport.style.left = '-1000px';
+    tier.viewportHolder.style.left = '-1000px';
 }
 
 function svgSeqTier(tier, seq) {
@@ -181,7 +188,7 @@ function svgSeqTier(tier, seq) {
     	for (var p = knownStart; p <= knownEnd; ++p) {
     	    if (p >= seq.start && p <= seq.end) {
         		var base = seq.seq.substr(p - seq.start, 1).toUpperCase();
-        		var color = baseColors[base];
+        		var color = tier.browser.baseColors[base];
         		if (!color) {
                     color = 'gray';
         		}
@@ -189,8 +196,9 @@ function svgSeqTier(tier, seq) {
         		if (scale >= 8) {
         		    g.appendChild(
         			makeElementNS(NS_SVG, 'text', base, {
-        			    x: (p-origin)*scale,
+        			    x: (0.5+p-origin)*scale,
         			    y: 52,
+                        textAnchor: 'middle',
         			    fill: color}));
         		} else {
         		    g.appendChild(
@@ -212,6 +220,7 @@ function svgSeqTier(tier, seq) {
 if (typeof(module) !== 'undefined') {
     module.exports = {
         drawSeqTier: drawSeqTier,
+        drawSeqTierGC: drawSeqTierGC,
         svgSeqTier: svgSeqTier
     };
 }

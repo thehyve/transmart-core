@@ -31,6 +31,7 @@ if (typeof(require) !== 'undefined') {
 
     var nf = require('./numformats');
     var formatQuantLabel = nf.formatQuantLabel;
+    var formatLongInt = nf.formatLongInt;
 
     var Chainset = require('./chainset').Chainset;
 
@@ -48,10 +49,11 @@ function Browser(opts) {
         opts = {};
     }
 
-    this.prefix = '//www.biodalliance.org/release-0.12/';
+    this.prefix = '//www.biodalliance.org/release-0.13/';
 
     this.sources = [];
     this.tiers = [];
+    this.tierGroups = {};
 
     this.featureListeners = [];
     this.featureHoverListeners = [];
@@ -69,8 +71,7 @@ function Browser(opts) {
     this.maxExtra = 2.5;
     this.minExtra = 0.5;
     this.zoomFactor = 1.0;
-    this.zoomMin = 10.0;
-    // this.zoomMax;       // Allow configuration for compatibility, but otherwise clobber.
+    this.maxPixelsPerBase = 10;
     this.origin = 0;
     this.targetQuantRes = 1.0;
     this.featurePanelWidth = 750;
@@ -84,6 +85,7 @@ function Browser(opts) {
     this.selectedTiers = [1];
 
     this.maxViewWidth = 500000;
+    this.defaultSubtierMax = 100;
 
     // Options.
     
@@ -93,7 +95,8 @@ function Browser(opts) {
     this.defaultHighlightAlpha = 0.3;
     this.exportHighlights = true;
     this.exportRuler = true;
-
+    this.singleBaseHighlight = true;
+    
     // Visual config.
 
     // this.tierBackgroundColors = ["rgb(245,245,245)", "rgb(230,230,250)" /* 'white' */];
@@ -103,8 +106,9 @@ function Browser(opts) {
     this.baseColors = {
         A: 'green', 
         C: 'blue', 
-        G: 'black', 
-        T: 'red'
+        G: 'orange', 
+        T: 'red',
+        '-' : 'hotpink' // deletion
     };
 
     // Registry
@@ -143,9 +147,12 @@ function Browser(opts) {
         this.prefix = opts.uiPrefix;
     }
     if (this.prefix.indexOf('//') === 0) {
-        if (window.location.prototol === 'http:' || window.location.protocol === 'https:') {
+        var proto = window.location.protocol;
+        if (proto == 'http:' || proto == 'https:') {
             // Protocol-relative URLs okay.
         } else {
+            console.log(window.location.protocol);
+            console.log('WARNING: prefix is set to a protocol-relative URL (' + this.prefix + ' when loading from a non-HTTP source');
             this.prefix = 'http:' + this.prefix;
         }
     }
@@ -172,6 +179,8 @@ Browser.prototype.resolveURL = function(url) {
 }
 
 Browser.prototype.realInit = function() {
+    var self = this;
+
     if (this.wasInitialized) {
         console.log('Attemping to call realInit on an already-initialized Dalliance instance');
         return;
@@ -179,12 +188,20 @@ Browser.prototype.realInit = function() {
 
     this.wasInitialized = true;
 
+    var ua = navigator.userAgent || 'dummy';
+    if (ua.indexOf('Trident') >= 0 && ua.indexOf('rv:11') >= 0) {
+        // console.log('Detected IE11, disabling tier pinning.');
+        this.disablePinning = true;
+    }
+
     this.defaultChr = this.chr;
     this.defaultStart = this.viewStart;
     this.defaultEnd = this.viewEnd;
     this.defaultSources = [];
     for (var i = 0; i < this.sources.length; ++i) {
-        this.defaultSources.push(this.sources[i]);
+        var s = this.sources[i];
+        if (s)
+            this.defaultSources.push(s);
     }
 
     if (this.restoreStatus) {
@@ -210,25 +227,38 @@ Browser.prototype.realInit = function() {
     this.pinnedTierHolder = makeElement('div', null, {className: 'tier-holder tier-holder-pinned'});
     this.tierHolder = makeElement('div', this.makeLoader(24), {className: 'tier-holder tier-holder-rest'});
 
-    this.tierHolderHolder = makeElement('div', [this.pinnedTierHolder, this.tierHolder], {className: 'tier-holder-holder'});
+    this.locSingleBase = makeElement('span', '', {className: 'loc-single-base'});
+    var locSingleBaseHolder = makeElement('div', this.locSingleBase,{className: 'loc-single-base-holder'}); 
+    // Add listener to update single base location
+    this.addViewListener(function(chr, minFloor, maxFloor, zoomSliderValue, zoomSliderDict, min, max) {
+        // Just setting textContent causes layout flickering in Blink.
+        // This approach means that the element is never empty.
+        var loc = Math.round((max + min) / 2);
+        self.locSingleBase.appendChild(document.createTextNode(chr + ':' + formatLongInt(loc)));
+        self.locSingleBase.removeChild(self.locSingleBase.firstChild);
+    });
+
+    if (this.disablePinning) {
+        this.tierHolderHolder = this.tierHolder;
+    } else {
+        this.tierHolderHolder = makeElement('div', [locSingleBaseHolder, this.pinnedTierHolder, this.tierHolder], {className: 'tier-holder-holder'});
+        this.svgHolder.appendChild(this.tierHolderHolder);
+    }
     this.svgHolder.appendChild(this.tierHolderHolder);
 
     this.bhtmlRoot = makeElement('div');
     if (!this.disablePoweredBy) {
         this.bhtmlRoot.appendChild(makeElement('span', ['Powered by ', makeElement('a', 'Biodalliance', {href: 'http://www.biodalliance.org/'}), ' ' + VERSION], {className: 'powered-by'}));
-        this.bhtmlRoot.appendChild(makeElement('span', [' | ', makeElement('a', 'Link to Ensembl', {href: 'http://www.ensembl.org/', id: 'enslink', target: '_newtab'}), ' ' ], {className: 'powered-by'}));
     }
     this.browserHolder.appendChild(this.bhtmlRoot);
-
+    
     window.addEventListener('resize', function(ev) {
         thisB.resizeViewer();
     }, false);
-
     this.ruler = makeElement('div', null, {className: 'guideline'})
-    this.ruler2 = makeElement('div', null, {className: 'guideline'}, {backgroundColor: 'gray', opacity: '0.5', zIndex: 899});
+    this.ruler2 = makeElement('div', null, {className: 'single-base-guideline'});
     this.tierHolderHolder.appendChild(this.ruler);
     this.tierHolderHolder.appendChild(this.ruler2);
-
     this.chainConfigs = this.chains || {};
     this.chains = {};
     for (var k in this.chainConfigs) {
@@ -281,7 +311,7 @@ Browser.prototype.realInit2 = function() {
     this.scale = this.featurePanelWidth / (this.viewEnd - this.viewStart);
     if (!this.zoomMax) {
         this.zoomMax = this.zoomExpt * Math.log(this.maxViewWidth / this.zoomBase);
-        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / 10 / this.zoomBase);
+        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / this.maxPixelsPerBase / this.zoomBase);
     }
     this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
 
@@ -361,8 +391,15 @@ Browser.prototype.realInit2 = function() {
                 thisB.zoomSliderValue = newZoom;
                 thisB.zoom(Math.exp((1.0 * newZoom) / thisB.zoomExpt));
             }
-            thisB.snapZoomLockout = true;
             ev.stopPropagation(); ev.preventDefault();      
+        } else if (ev.keyCode == 85) { // u
+            if (thisB.uiMode === 'opts') { // if the options are visible, toggle the checkbox too
+                var check = document.getElementById("singleBaseHightlightButton").checked;
+                document.getElementById("singleBaseHightlightButton").checked = !check;
+            } 
+            thisB.singleBaseHighlight = !thisB.singleBaseHighlight;
+            thisB.positionRuler();
+            ev.stopPropagation(); ev.preventDefault();
         } else if (ev.keyCode == 39) { // right arrow
             ev.stopPropagation(); ev.preventDefault();
             thisB.scrollArrowKey(ev, -1);
@@ -427,6 +464,7 @@ Browser.prototype.realInit2 = function() {
                     thisB.selectedTiers.push(ip + si);
                 }
 
+                thisB.withPreservedSelection(thisB._ensureTiersGrouped);
                 thisB.markSelectedTiers();
                 thisB.notifyTierSelection();
                 thisB.reorderTiers();
@@ -503,6 +541,9 @@ Browser.prototype.realInit2 = function() {
                     thisB.selectedTiers.push(ip + si);
                 }
 
+                thisB.withPreservedSelection(function() {
+                    thisB._ensureTiersGrouped(true);
+                });
                 thisB.markSelectedTiers();
                 thisB.notifyTierSelection();
                 thisB.reorderTiers();
@@ -548,10 +589,7 @@ Browser.prototype.realInit2 = function() {
                         if (bumpStatus === undefined) {
                             bumpStatus = !t.bumped;
                         }
-                        t.bumped = bumpStatus;
-                        t.layoutWasDone = false;
-                        t.draw();
-                        t.updateLabel();
+                        t.mergeConfig({bumped: bumpStatus});
                     }
                 }
             } else if (!ev.ctrlKey && !ev.metaKey) {
@@ -559,14 +597,12 @@ Browser.prototype.realInit2 = function() {
                 var st = thisB.getSelectedTier();
                 if (st < 0) return;
                 var t = thisB.tiers[st];
+
                 if (t.dasSource.collapseSuperGroups) {
                     if (bumpStatus === undefined) {
                         bumpStatus = !t.bumped;
                     }
-                    t.bumped = bumpStatus;
-                    t.layoutWasDone = false;
-                    t.draw();
-                    t.updateLabel();
+                    t.mergeConfig({bumped: bumpStatus});
                 }
             }
         } else if (ev.keyCode == 77 || ev.keyCode == 109) { // m
@@ -597,9 +633,6 @@ Browser.prototype.realInit2 = function() {
             // console.log('key: ' + ev.keyCode + '; char: ' + ev.charCode);
         }
     };
-    var keyUpHandler = function(ev) {
-        thisB.snapZoomLockout = false;
-    }
 
     this.browserHolder.addEventListener('focus', function(ev) {
         thisB.browserHolder.addEventListener('keydown', keyHandler, false);
@@ -617,6 +650,9 @@ Browser.prototype.realInit2 = function() {
 
     for (var t = 0; t < this.sources.length; ++t) {
         var source = this.sources[t];
+        if (!source)
+            continue;
+        
         var config = {};
         if (this.restoredConfigs) {
             config = this.restoredConfigs[t];
@@ -627,7 +663,9 @@ Browser.prototype.realInit2 = function() {
         }
     }
 
+    thisB._ensureTiersGrouped();
     thisB.arrangeTiers();
+    thisB.reorderTiers();
     thisB.refresh();
     thisB.setSelectedTier(1);
 
@@ -694,11 +732,12 @@ Browser.prototype.realInit2 = function() {
 }
 
 // 
-// iOS touch support
+// Touch event support
+//
 
 Browser.prototype.touchStartHandler = function(ev) {
-    ev.stopPropagation(); ev.preventDefault();
-    
+    // Events not consumed so they can be interpretted as clicks as well.
+
     this.touchOriginX = ev.touches[0].pageX;
     this.touchOriginY = ev.touches[0].pageY;
     if (ev.touches.length == 2) {
@@ -710,6 +749,9 @@ Browser.prototype.touchStartHandler = function(ev) {
 }
 
 Browser.prototype.touchMoveHandler = function(ev) {
+    // These events *are* consumed to ensure we never get any dragging that
+    // we don't manage ourselves.
+
     ev.stopPropagation(); ev.preventDefault();
     
     if (ev.touches.length == 1) {
@@ -731,7 +773,7 @@ Browser.prototype.touchMoveHandler = function(ev) {
             this.scale = this.zoomInitialScale * (sep/this.zoomInitialSep);
             this.viewStart = scp - (cp/this.scale)|0;
             for (var i = 0; i < this.tiers.length; ++i) {
-	           this.tiers[i].draw();
+                this.tiers[i].draw();
             }
         }
         this.zoomLastSep = sep;
@@ -739,7 +781,6 @@ Browser.prototype.touchMoveHandler = function(ev) {
 }
 
 Browser.prototype.touchEndHandler = function(ev) {
-    ev.stopPropagation(); ev.preventDefault();
 }
 
 Browser.prototype.touchCancelHandler = function(ev) {
@@ -750,6 +791,7 @@ Browser.prototype.makeTier = function(source, config) {
     try {
         return this.realMakeTier(source, config);
     } catch (e) {
+        console.log('Error initializing', source);
         console.log(e.stack || e);
     }
 }
@@ -795,8 +837,8 @@ Browser.prototype.realMakeTier = function(source, config) {
     var dragMoveHandler = function(ev) {
         ev.preventDefault(); ev.stopPropagation();
         var rx = ev.clientX;
-        if (tier.dasSource.tier_type !== 'sequence' && rx != dragMoveOrigin) {
-            thisB.move((rx - dragMoveOrigin));
+        if (rx != dragMoveOrigin) {
+            thisB.move((rx - dragMoveOrigin), true);
             dragMoveOrigin = rx;
         }
         thisB.isDragging = true;
@@ -805,6 +847,7 @@ Browser.prototype.realMakeTier = function(source, config) {
     var dragUpHandler = function(ev) {
         window.removeEventListener('mousemove', dragMoveHandler, true);
         window.removeEventListener('mouseup', dragUpHandler, true);
+        thisB.move((ev.clientX - dragMoveOrigin)); // Snap back (FIXME: consider animation)
     }
         
 
@@ -823,6 +866,13 @@ Browser.prototype.realMakeTier = function(source, config) {
     tier.viewport.addEventListener('mousemove', function(ev) {
         var br = tier.row.getBoundingClientRect();
         var rx = ev.clientX - br.left, ry = ev.clientY - br.top;
+
+        var hit = featureLookup(rx, ry);
+        if (hit && hit.length > 0) {
+            tier.row.style.cursor = 'pointer';
+        } else {
+            tier.row.style.cursor = 'default';
+        }
 
         if (hoverTimeout) {
             clearTimeout(hoverTimeout);
@@ -862,7 +912,7 @@ Browser.prototype.realMakeTier = function(source, config) {
             }
         }
 
-        if (thisB.isDragging && rx != dragOrigin && tier.dasSource.tier_type === 'sequence') {
+        if (thisB.isDragging && rx != dragOrigin && tier.sequenceSource) {
             var a = thisB.viewStart + (rx/thisB.scale);
             var b = thisB.viewStart + (dragOrigin/thisB.scale);
 
@@ -946,15 +996,10 @@ Browser.prototype.realMakeTier = function(source, config) {
         var bumpStatus;
         var t = tier;
         if (t.dasSource.collapseSuperGroups) {
-            
             if (bumpStatus === undefined) {
                 bumpStatus = !t.bumped;
             }
-            t.bumped = bumpStatus;
-            t.layoutWasDone = false;
-            t.draw();
-            
-            t.updateLabel();
+            t.mergeConfig({bumped: bumpStatus});
         }
     }, false);
 
@@ -1010,9 +1055,13 @@ Browser.prototype.realMakeTier = function(source, config) {
                     thisB.withPreservedSelection(function() {
                         thisB.tiers.splice(tierOrdinal, 1);
                         thisB.tiers.splice(ti, 0, tier);
+                        thisB._ensureTiersGrouped(ti > tierOrdinal);
                     });
 
-                    tierOrdinal = ti;
+                    for (var tix = 0; tix < thisB.tiers.length; ++tix)
+                        if (thisB.tiers[tix] == tier)
+                            tierOrdinal = tix;
+
                     yAtLastReorder = ev.clientY;
                     thisB.reorderTiers();
                     dragTierHolder.appendChild(dragLabel); // Because reorderTiers removes all children.
@@ -1040,7 +1089,7 @@ Browser.prototype.realMakeTier = function(source, config) {
             dragLabel.style.cursor = 'auto';
             dragTierHolder.removeChild(dragLabel);
             dragLabel = null;
-            label.style.visibility = null;
+            label.style.visibility = 'visible';
         }
         document.removeEventListener('mousemove', labelDragHandler, false);
         document.removeEventListener('mouseup', labelReleaseHandler, false);
@@ -1081,6 +1130,7 @@ Browser.prototype.realMakeTier = function(source, config) {
         });
     }
 
+    this.withPreservedSelection(thisB._ensureTiersGrouped);
     tier._updateFromConfig();
     this.reorderTiers();
 
@@ -1090,11 +1140,15 @@ Browser.prototype.realMakeTier = function(source, config) {
 Browser.prototype.reorderTiers = function() {
     removeChildren(this.tierHolder);
     removeChildren(this.pinnedTierHolder);
+    if (this.disablePinning) {
+        this.tierHolder.appendChild(this.ruler);
+        this.tierHolder.appendChild(this.ruler2);
+    }
     var hasPinned = false;
     var pinnedTiers = [], unpinnedTiers = [];
     for (var i = 0; i < this.tiers.length; ++i) {
         var t = this.tiers[i];
-        if (t.pinned) {
+        if (t.pinned && !this.disablePinning) {
             pinnedTiers.push(t);
             this.pinnedTierHolder.appendChild(this.tiers[i].row);
             hasPinned = true;
@@ -1141,24 +1195,103 @@ Browser.prototype.refreshTier = function(tier) {
     }
 }
 
+/* Internal use only, assumes selection is being managed elsewhere... */
+
+Browser.prototype._ensureTiersGrouped = function(down) {
+    var groupedTiers = {};
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        var t = this.tiers[ti];
+        if (t.dasSource.tierGroup) {
+            pusho(groupedTiers, t.dasSource.tierGroup, t);
+        }   
+    }
+
+    var newTiers = [];
+    if (down)
+        this.tiers.reverse();
+    for (var ti = 0; ti < this.tiers.length; ++ti) {
+        var t = this.tiers[ti];
+        if (t.dasSource.tierGroup) {
+            var nt = groupedTiers[t.dasSource.tierGroup];
+            if (nt) {
+                if (down)
+                    nt.reverse();
+                for (var nti = 0; nti < nt.length; ++nti)
+                    newTiers.push(nt[nti]);
+                groupedTiers[t.dasSource.tierGroup] = null;
+            }
+        } else {
+            newTiers.push(t);
+        }
+    }
+    if (down)
+        newTiers.reverse();
+    this.tiers.splice(0, this.tiers.length);
+    for (var nti = 0; nti < newTiers.length; ++nti)
+        this.tiers.push(newTiers[nti]);
+}
+
 Browser.prototype.arrangeTiers = function() {
     var arrangedTiers = [];
+    var groupedTiers = {};
+
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var t = this.tiers[ti];
         if (t.pinned) {
             arrangedTiers.push(t);
+            if (t.dasSource.tierGroup) {
+                pusho(groupedTiers, t.dasSource.tierGroup, t);
+            }
         }
+        
     }
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var t = this.tiers[ti];
         if (!t.pinned) {
             arrangedTiers.push(t);
+            if (t.dasSource.tierGroup) {
+                pusho(groupedTiers, t.dasSource.tierGroup, t);
+            }
         }
+    }
+
+    for (var g in groupedTiers) {
+        var tiers = groupedTiers[g];
+        var tierGroup = this.tierGroups[g];
+        if (!tierGroup) {
+            tierGroup = {
+                element: makeElement(
+                    'div',
+                    makeElement('span', g, {className: 'tier-group-label'}),
+                    {className: "tier-group"})
+            };
+            this.tierGroups[g] = tierGroup;
+        }
+
+        if (tierGroup.element.parentNode)
+            tierGroup.element.parentNode.removeChild(tierGroup.element);
+
+        var holder = tiers[0].pinned ? this.pinnedTierHolder : this.tierHolder;
+        var min = 10000000, max = 0;
+        for (var ti = 0; ti < tiers.length; ++ti) {
+            var row = tiers[ti].row;
+            min = Math.min(min, row.offsetTop);
+            max = Math.max(max, row.offsetTop + row.offsetHeight);
+        }
+        tierGroup.element.style.top = min + 'px';
+        tierGroup.element.style.left = '0px';
+        tierGroup.element.style.height = (max-min) + 'px';
+        holder.appendChild(tierGroup.element);
     }
 
     if (this.tierBackgroundColors) {
         for (var ti = 0; ti < arrangedTiers.length; ++ti) {
             var t = arrangedTiers[ti];
+            t.setBackground(this.tierBackgroundColors[ti % this.tierBackgroundColors.length]);
+            if (t.dasSource.tierGroup) 
+                t.label.style.left = '18px';
+            else
+                t.label.style.left = '2px';
             t.background = this.tierBackgroundColors[ti % this.tierBackgroundColors.length];
         }
     }
@@ -1191,6 +1324,8 @@ Browser.prototype.refresh = function() {
 
     if (!this.knownSpace || this.knownSpace.chr !== this.chr) {
         var ss = this.getSequenceSource();
+        if (this.knownSpace)
+            this.knownSpace.cancel();
         this.knownSpace = new KnownSpace(this.tiers, this.chr, outerDrawnStart, outerDrawnEnd, scaledQuantRes, ss);
     }
     
@@ -1205,6 +1340,7 @@ Browser.prototype.refresh = function() {
     
     this.knownSpace.viewFeatures(this.chr, this.drawnStart, this.drawnEnd, scaledQuantRes);
     this.drawOverlays();
+    this.positionRuler();
 }
 
 function setSources(msh, availableSources, maybeMapping) {
@@ -1272,31 +1408,24 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
 // Navigation
 //
 
-Browser.prototype.move = function(pos)
+Browser.prototype.move = function(pos, soft)
 {
     var wid = this.viewEnd - this.viewStart;
-    this.viewStart -= pos / this.scale;
-    this.viewEnd = this.viewStart + wid;
-    if (this.currentSeqMax > 0 && this.viewEnd > this.currentSeqMax) {
-        this.viewEnd = this.currentSeqMax;
-        this.viewStart = this.viewEnd - wid;
-    }
-    if (this.viewStart < 1) {
-        this.viewStart = 1;
-        this.viewEnd = this.viewStart + wid;
-    }
-    this.notifyLocation();
-    
-    var viewCenter = (this.viewStart + this.viewEnd)/2;
-    
-    for (var i = 0; i < this.tiers.length; ++i) {
-        var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
-	this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
-        var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
-        this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
+    var nStart = this.viewStart - ((1.0 * pos) / this.scale);
+    var nEnd = nStart + wid;
+
+    if (!soft) {
+        if (this.currentSeqMax > 0 && nEnd > this.currentSeqMax) {
+            nEnd = this.currentSeqMax;
+            nStart = this.viewEnd - wid;
+        }
+        if (nStart < 1) {
+            nStart = 1;
+            nEnd = nStart + wid;
+        }
     }
 
-    this.spaceCheck();
+    this.setLocation(null, nStart, nEnd, null, soft);
 }
 
 Browser.prototype.zoomStep = function(delta) {
@@ -1335,6 +1464,7 @@ Browser.prototype.zoom = function(factor) {
     
     var scaleRat = (this.scale / this.scaleAtLastRedraw);
 
+    this.notifyLocation();
     this.refresh();
 }
 
@@ -1364,7 +1494,7 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 
     if (oldFPW != this.featurePanelWidth) {
         this.zoomMax = this.zoomExpt * Math.log(this.maxViewWidth / this.zoomBase);
-        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / 10 / this.zoomBase);
+        this.zoomMin = this.zoomExpt * Math.log(this.featurePanelWidth / this.maxPixelsPerBase / this.zoomBase);   // FIXME hard-coded minimum.
         this.zoomSliderValue = this.zoomExpt * Math.log((this.viewEnd - this.viewStart + 1) / this.zoomBase);
 
         var viewWidth = this.viewEnd - this.viewStart;
@@ -1397,7 +1527,7 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 
 Browser.prototype.setFullScreenHeight = function() {
     var rest = document.body.offsetHeight - this.browserHolder.offsetHeight;
-    this.browserHolder.style.maxHeight = Math.max(1000, window.innerHeight - rest - 20) + 'px'
+    this.browserHolder.style.maxHeight = Math.max(300, window.innerHeight - rest - 20) + 'px'
 }
 
 Browser.prototype.addTier = function(conf) {
@@ -1420,6 +1550,8 @@ function sourceDataURI(conf) {
         return 'file:' + conf.bwgBlob.name;
     } else if (conf.bamBlob) {
         return 'file:' + conf.bamBlob.name;
+    } else if (conf.twoBitBlob) {
+        return 'file:' + conf.twoBitBlob.name;
     }
 
     return conf.bwgURI || conf.bamURI || conf.jbURI || conf.twoBitURI || 'http://www.biodalliance.org/magic/no_uri';
@@ -1428,10 +1560,35 @@ function sourceDataURI(conf) {
 function sourceStyleURI(conf) {
     if (conf.stylesheet_uri)
         return conf.stylesheet_uri;
-    else if (conf.tier_type == 'sequence')
+    else if (conf.tier_type == 'sequence' || conf.twoBitURI || conf.twoBitBlob)
         return 'http://www.biodalliance.org/magic/sequence'
     else
         return sourceDataURI(conf);
+}
+
+function sourcesAreEqualModuloStyle(a, b) {
+    if (sourceDataURI(a) != sourceDataURI(b))
+        return false;
+
+    if (a.mapping != b.mapping)
+        return false;
+
+    if (a.tier_type != b.tier_type)
+        return false;
+
+    if (a.overlay) {
+        if (!b.overlay || b.overlay.length != a.overlay.length)
+            return false;
+        for (var oi = 0; oi < a.overlay.length; ++oi) {
+            if (!sourcesAreEqualModuloStyle(a.overlay[oi], b.overlay[oi]))
+                return false;
+        }
+    } else {
+        if (b.overlay)
+            return false;
+    }
+
+    return true;
 }
 
 function sourcesAreEqual(a, b) {
@@ -1512,8 +1669,8 @@ Browser.prototype._getSequenceSource = function() {
 
     for (var si = 0; si < this.defaultSources.length; ++si) {
         var s = this.defaultSources[si];
-        if (s.provides_entrypoints || s.tier_type == 'sequence' || s.twoBitURI) {
-            if (s.twoBitURI) {
+        if (s.provides_entrypoints || s.tier_type == 'sequence' || s.twoBitURI || s.twoBitBlob) {
+            if (s.twoBitURI || s.twoBitBlob) {
                 return new TwoBitSequenceSource(s);
             } else {
                 return new DASSequenceSource(s);
@@ -1522,7 +1679,7 @@ Browser.prototype._getSequenceSource = function() {
     }
 }
 
-Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
+Browser.prototype.setLocation = function(newChr, newMin, newMax, callback, soft) {
     if (typeof(newMin) !== 'number') {
         throw Error('minimum must be a number (got ' + JSON.stringify(newMin) + ')');
     }
@@ -1539,8 +1696,8 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
     }
     var thisB = this;
 
-    if (!newChr || newChr == this.chr) {
-        return this._setLocation(null, newMin, newMax, null, callback);
+    if ((!newChr || newChr == this.chr) && this.currentSeqMax > 0) {
+        return this._setLocation(null, newMin, newMax, null, callback, soft);
     } else {
         var ss = this.getSequenceSource();
         if (!ss) {
@@ -1559,17 +1716,17 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback) {
                     if (!si2) {
                         return callback("Couldn't find sequence '" + newChr + "'");
                     } else {
-                        return thisB._setLocation(altChr, newMin, newMax, si2, callback);
+                        return thisB._setLocation(altChr, newMin, newMax, si2, callback, soft);
                     }
                 });
             } else {
-                return thisB._setLocation(newChr, newMin, newMax, si, callback);
+                return thisB._setLocation(newChr, newMin, newMax, si, callback, soft);
             }
         });
     }
 }
 
-Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, callback) {
+Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, callback, soft) {
     var chrChanged = false;
     if (newChr) {
         if (newChr.indexOf('chr') == 0)
@@ -1581,21 +1738,25 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
         this.currentSeqMax = newChrInfo.length;
     }
 
-    newMin|=0; newMax|=0;
+    newMin = parseFloat(newMin); newMax=parseFloat(newMax);
+
     var newWidth = Math.max(10, newMax-newMin+1);
-    if (newMin < 1) {
-        newMin = 1; newMax = newMin + newWidth - 1;
-    }
-    if (newMax > this.currentSeqMax) {
-        newMax = this.currentSeqMax;
-        newMin = Math.max(1, newMax - newWidth + 1);
+
+    if (!soft) {
+        if (newMin < 1) {
+            newMin = 1; newMax = newMin + newWidth - 1;
+        }
+        if (newMax > this.currentSeqMax) {
+            newMax = this.currentSeqMax;
+            newMin = Math.max(1, newMax - newWidth + 1);
+        }
     }
 
     this.viewStart = newMin;
     this.viewEnd = newMax;
     var newScale = Math.max(this.featurePanelWidth, 50) / (this.viewEnd - this.viewStart);
     var oldScale = this.scale;
-    var scaleChanged = (Math.abs(newScale - oldScale)) > 0.0001;
+    var scaleChanged = (Math.abs(newScale - oldScale)) > 0.000001;
     this.scale = newScale;
 
     var newZS, oldZS;
@@ -1604,7 +1765,7 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
     
     if (scaleChanged || chrChanged) {
         for (var i = 0; i < this.tiers.length; ++i) {
-            this.tiers[i].viewport.style.left = '5000px';
+            this.tiers[i].viewportHolder.style.left = '5000px';
             this.tiers[i].overlay.style.left = '5000px';
         }
 
@@ -1628,17 +1789,24 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
     
         for (var i = 0; i < this.tiers.length; ++i) {
             var offset = (this.viewStart - this.tiers[i].norigin)*this.scale;
-	        this.tiers[i].viewport.style.left = '' + ((-offset|0) - 1000) + 'px';
-            var ooffset = (this.viewStart - this.tiers[i].oorigin)*this.scale;
-            this.tiers[i].overlay.style.left = '' + ((-ooffset|0) - 1000) + 'px';
+            this.tiers[i].viewportHolder.style.left = '' + ((-offset|0) - 1000) + 'px';
+            this.tiers[i].drawOverlay();
         }
     }
+
     this.notifyLocation();
 
     this.spaceCheck();
     if (this.instrumentActivity)
         this.activityStartTime = Date.now()|0;
     return callback();
+}
+
+Browser.prototype.setCenterLocation = function(newChr, newCenterLoc) {
+    var halfWidth = (this.viewEnd - this.viewStart)/2,
+    newMin = newCenterLoc - halfWidth,
+    newMax = newCenterLoc + halfWidth;
+    this.setLocation(newChr, newMin, newMax);
 }
 
 Browser.prototype.pingActivity = function() {
@@ -1699,9 +1867,25 @@ Browser.prototype.addViewListener = function(handler, opts) {
 }
 
 Browser.prototype.notifyLocation = function() {
+    var nvs = Math.max(1, this.viewStart|0);
+    var nve = this.viewEnd|0;
+    if (this.currentSeqMax > 0 && nve > this.currentSeqMax)
+        nve = this.currentSeqMax;
+
     for (var lli = 0; lli < this.viewListeners.length; ++lli) {
         try {
-            this.viewListeners[lli](this.chr, this.viewStart|0, this.viewEnd|0, this.zoomSliderValue, {current: this.zoomSliderValue, min: this.zoomMin, max: this.zoomMax});
+            this.viewListeners[lli](
+                this.chr, 
+                nvs, 
+                nve, 
+                this.zoomSliderValue, 
+                {current: this.zoomSliderValue,
+                 alternate: (this.savedZoom+this.zoomMin) || this.zoomMin,
+                 isSnapZooming: this.isSnapZooming,
+                 min: this.zoomMin, 
+                 max: this.zoomMax},
+                 this.viewStart,
+                 this.viewEnd);
         } catch (ex) {
             console.log(ex.stack);
         }
@@ -1846,7 +2030,9 @@ Browser.prototype.markSelectedTiers = function() {
         }
     }
     if (this.selectedTiers.length > 0) {
-        this.browserHolder.focus();
+        var browserMid = this.browserHolder.offsetTop + this.browserHolder.offsetHeight/2;
+        if (browserMid > document.body.scrollTop && (browserMid + 100) < document.body.scrollTop + window.innerHeight)
+            this.browserHolder.focus();
     }
 }
 
@@ -1878,6 +2064,7 @@ Browser.prototype.notifyTierSelectionWrap = function(i) {
     }
 }
 
+
 Browser.prototype.positionRuler = function() {
     var display = 'none';
     var left = '';
@@ -1900,9 +2087,29 @@ Browser.prototype.positionRuler = function() {
     this.ruler.style.left = left;
     this.ruler.style.right = right;
 
-    this.ruler2.style.display = this.rulerLocation == 'center' ? 'none' : 'block';
+    if(this.singleBaseHighlight) {
+        this.ruler2.style.display = 'block';
+        this.ruler2.style.borderWidth = '1px';
+        if (this.scale < 1) {
+            this.ruler2.style.width = '0px';
+            this.ruler2.style.borderRightWidth = '0px' 
+        } else {
+            this.ruler2.style.width = this.scale + 'px';
+            this.ruler2.style.borderRightWidth = '1px' 
+        } 
+        // Position accompanying single base location text
+        this.locSingleBase.style.visibility = 'visible';
+        var centreOffset = this.featurePanelWidth/2 - this.locSingleBase.offsetWidth/2 + this.ruler2.offsetWidth/2; 
+        this.locSingleBase.style.left = '' + (centreOffset|0) + 'px';
+    } else {
+        this.locSingleBase.style.visibility = 'hidden';
+        this.ruler2.style.width = '1px';
+        this.ruler2.style.borderWidth = '0px';
+        this.ruler2.style.display = this.rulerLocation == 'center' ? 'none' : 'block';
+    }
+   
     this.ruler2.style.left = '' + ((this.featurePanelWidth/2)|0) + 'px';
-
+    
     for (var ti = 0; ti < this.tiers.length; ++ti) {
         var tier = this.tiers[ti];
         var q = tier.quantOverlay;
@@ -1968,6 +2175,8 @@ Browser.prototype.updateHeight = function() {
         tierTotal += (this.tiers[ti].currentHeight || 30);
     this.ruler.style.height = '' + tierTotal + 'px';
     this.ruler2.style.height = '' + tierTotal + 'px';
+    this.browserHolder.style.display = 'block';
+    this.browserHolder.style.display = 'flex';
     // this.svgHolder.style.maxHeight = '' + Math.max(tierTotal, 500) + 'px';
 }
 
@@ -1982,6 +2191,24 @@ Browser.prototype.scrollArrowKey = function(ev, dir) {
         }
 
         this.leap(dir, fedge);
+    } else if (this.scale > 1) {
+        // per-base scrolling mode, tries to perfectly center.
+        var mid = (this.viewStart + this.viewEnd)/2
+        var err = mid - Math.round(mid);
+        var n = 1;
+        if (ev.shiftKey)
+            n *= 10;
+        if (dir > 0) {
+            n = -n;
+            n -= err;
+            if (err > 0)
+                n += 1;
+        } else {
+            n -= err;
+            if (err < 0)
+                n -= 1;
+        }
+        this.setLocation(null, this.viewStart + n, this.viewEnd + n);
     } else {
         this.move(ev.shiftKey ? 100*dir : 25*dir);
     }
@@ -1990,6 +2217,11 @@ Browser.prototype.scrollArrowKey = function(ev, dir) {
 Browser.prototype.leap = function(dir, fedge) {
     var thisB = this;
     var pos=((thisB.viewStart + thisB.viewEnd + 1)/2)|0;
+    if (dir > 0 && thisB.viewStart <= 1) {
+        pos -= 100000000;
+    } else if (dir < 0 && thisB.viewEnd >= thisB.currentSeqMax) {
+        pos += 100000000;
+    }
 
     var st = thisB.getSelectedTier();
     if (st < 0) return;
@@ -2121,7 +2353,8 @@ function FetchWorker(browser, worker) {
 function makeFetchWorker(browser) {
     var wurl = browser.resolveURL(browser.workerPath);
     if (wurl.indexOf('//') == 0) {
-        if (window.location.prototype === 'https:')
+        var proto = window.location.protocol;
+        if (proto == 'https:')
             wurl = 'https:' + wurl;
         else
             wurl = 'http:' + wurl;
@@ -2165,7 +2398,6 @@ if (typeof(module) !== 'undefined') {
     // Required because they add stuff to Browser.prototype
     require('./browser-ui');
     require('./track-adder');
-    require('./track-adder-custom');
     require('./feature-popup');
     require('./tier-actions');
     require('./domui');
@@ -2188,7 +2420,7 @@ SourceCache.prototype.get = function(conf) {
     var scb = this.sourcesByURI[sourceDataURI(conf)];
     if (scb) {
         for (var si = 0; si < scb.configs.length; ++si) {
-            if (sourcesAreEqual(scb.configs[si], conf)) {
+            if (sourcesAreEqualModuloStyle(scb.configs[si], conf)) {
                 return scb.sources[si];
             }
         }
