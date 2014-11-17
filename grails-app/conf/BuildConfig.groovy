@@ -93,8 +93,12 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        build ":release:3.0.1"
-        build ':tomcat:7.0.47'
+        build ':release:3.0.1', ':rest-client-builder:2.0.1', {
+            export = false
+        }
+        build ':tomcat:7.0.47', {
+            export = false
+        }
 
         compile ':spring-security-core:2.0-RC2'
 
