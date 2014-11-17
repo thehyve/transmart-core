@@ -201,10 +201,8 @@ var genomeBrowserPanel = new Ext.Panel(
                     Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
                     UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
                     Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
-                },
+                }
 
-                // workaround for protocol-relative bwgURI not working:
-                maxWorkers: 0
             });
 
             this.genomeBrowser.hubs = [
