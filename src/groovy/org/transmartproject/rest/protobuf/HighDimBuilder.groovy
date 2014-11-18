@@ -105,7 +105,7 @@ class HighDimBuilder {
     }
 
     public static ColumnType typeForClass(Class clazz) {
-        clazz in [Double, BigDecimal] ? ColumnType.DOUBLE : ColumnType.STRING
+        clazz.superclass == Number ? ColumnType.DOUBLE : ColumnType.STRING
     }
 
     public static Map<String, Class> getDataProperties(Projection projection) {
@@ -125,18 +125,18 @@ class HighDimBuilder {
         }
 
         if (isMultiValuedProjection()) {
-            Map<String, ColumnValue.Builder> cols = (Map) dataColumns.collectEntries { col, type ->
+            Map<String, ColumnValue.Builder> cols = dataColumns.collectEntries { col, type ->
                 [(col): ColumnValue.newBuilder()]
-            }
+            } as Map<String, ColumnValue.Builder>
 
             // transpose the data row
             for (AssayColumn a : assayColumns) {
                 def obj = inputRow.getAt(a) //can be a map or some bean
 
                 dataColumns.each { String col, Class type ->
-                    def value = obj.getAt(col)
-                    if(typeForClass(type) == ColumnType.DOUBLE) {
-                        cols[col].addDoubleValue(value as Double) //we must convert explicitly to Double
+                    def value = obj?.getAt(col)
+                    if (typeForClass(type) == ColumnType.DOUBLE) {
+                        cols[col].addDoubleValue(safeDouble(value))
                     } else {
                         cols[col].addStringValue(safeString(value))
                     }
@@ -149,8 +149,20 @@ class HighDimBuilder {
         } else {
             // Single column projection
             columnBuilder.clear()
-            columnBuilder.addAllDoubleValue(assayColumns.collect { AssayColumn col ->
-                inputRow.getAt(col) == null ? Double.NaN : inputRow.getAt(col) as Double})
+            Class firstNotNullValueClass =
+                    assayColumns.findResult(String) { AssayColumn col -> inputRow.getAt(col)?.class }
+
+            if (typeForClass(firstNotNullValueClass) == ColumnType.DOUBLE) {
+                columnBuilder.addAllDoubleValue(
+                        assayColumns.collect { AssayColumn col ->
+                            safeDouble(inputRow.getAt(col))
+                        })
+            } else {
+                columnBuilder.addAllStringValue(
+                        assayColumns.collect { AssayColumn col ->
+                            safeString(inputRow.getAt(col))
+                        })
+            }
             rowBuilder.addValue(columnBuilder)
         }
 
@@ -185,8 +197,12 @@ class HighDimBuilder {
         projection instanceof MultiValueProjection
     }
 
-    public static String safeString(Object obj) {
-        (obj == null) ? '' : obj.toString()
+    static String safeString(Object obj) {
+        obj == null ? '' : obj.toString()
+    }
+
+    static Double safeDouble(Object obj) {
+        obj == null ? Double.NaN : obj as Double
     }
 
 }
