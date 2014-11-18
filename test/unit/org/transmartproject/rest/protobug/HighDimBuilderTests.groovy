@@ -29,21 +29,31 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.allOf
-import static org.hamcrest.Matchers.contains
-import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.hamcrest.Matchers.empty
-import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.hasProperty
-import static org.hamcrest.Matchers.nullValue
-import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
+import static org.hamcrest.Matchers.*
 
 class HighDimBuilderTests {
+
+    HighDimBuilder builder
+
+    def testAssays = [
+            [id: 1, patientInTrialId: 'TRIAL1', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
+            [id: 2, patientInTrialId: 'TRIAL2', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
+    ]
+
+    @Before
+    void before() {
+        builder = new HighDimBuilder(
+                projection: [] as Projection,
+                assayColumns: testAssays,
+                out: new ByteArrayOutputStream()
+        )
+    }
 
     @Test
     void "test single field projection. Double"() {
@@ -102,12 +112,6 @@ class HighDimBuilderTests {
                         hasProperty('stringValueList', contains('text1', 'text2')))))
     }
 
-    def testAssays = [
-            [id: 1, patientInTrialId: 'TRIAL1', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
-            [id: 2, patientInTrialId: 'TRIAL2', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
-    ]
-
-
     class TestProjection implements MultiValueProjection, Projection {
         Map<String, Class> dataProperties
 
@@ -144,20 +148,6 @@ class HighDimBuilderTests {
         }
 
         String bioMarker = 'test biomarker'
-    }
-
-    HighDimBuilder builder
-    def out
-
-    @Before
-    void before() {
-        out = new ByteArrayOutputStream()
-
-        builder = new HighDimBuilder(
-                projection: [] as Projection,
-                assayColumns: testAssays,
-                out: out,
-        )
     }
 
 }
