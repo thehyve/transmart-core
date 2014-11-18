@@ -105,7 +105,7 @@ class HighDimBuilder {
     }
 
     public static ColumnType typeForClass(Class clazz) {
-        clazz.superclass == Number ? ColumnType.DOUBLE : ColumnType.STRING
+        Number.isAssignableFrom(clazz) ? ColumnType.DOUBLE : ColumnType.STRING
     }
 
     public static Map<String, Class> getDataProperties(Projection projection) {
