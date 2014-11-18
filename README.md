@@ -58,6 +58,8 @@ The header message primarily contains the definition of all assays in your datas
 
 Each row message contains one `ColumnValue` item per assay, and the order is identical to the order of the assay definitions in the header. The content of this item is defined in the `highdim.proto` file under `message ColumnValue`, and it can contain multiple values (eg. z-score and log-value), for which the name and type is defined in the header (under `message ColumnSpec`).
 
+**NOTE:** If there is no measurement taken for a combination of assay and probe then `NaN` would be used as the value. This workaround was made later to avoid changing the protobuf declaration, so we could still use compressed arrays of primitive data types, but at the same time mark absence of a value.
+
 Example code for how to parse the protobuf binary stream into something sensible, please see the [transmartRClient](https://github.com/thehyve/RInterface/blob/transmartRClient/transmartRClient/R/getHighdimData.R#L50).
 
 
