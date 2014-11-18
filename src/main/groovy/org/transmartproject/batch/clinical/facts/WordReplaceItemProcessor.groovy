@@ -37,11 +37,19 @@ class WordReplaceItemProcessor implements ItemProcessor<ClinicalDataRow, Clinica
             def repl = mappingTable.get(
                     fileColumn(row.filename, (Integer) column),
                     v)
-            if (repl) {
-                log.trace "replacement on ${row.filename}[${row.index}:${column}] $v -> $repl"
-                row.values[(Integer) column] = repl
-                count++
+            if (repl == null) {
+                return
             }
+            if (repl != '') {
+                log.trace "replacement on ${row.filename}" +
+                        "[${row.index}:${column}] $v -> $repl"
+                row.values[(Integer) column] = repl
+            } else {
+                log.trace "replacement on ${row.filename}" +
+                        "[${row.index}:${column}] $v -> [DELETED OBSERVATION]"
+                row.values[(Integer) column] = (String) null
+            }
+            count++
         }
 
         count

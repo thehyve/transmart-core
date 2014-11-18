@@ -30,9 +30,10 @@ class ReadWordMapTasklet implements Tasklet {
             wordMapFile.withInputStream {
                 list = WordMapping.parse(Files.newInputStream(wordMapFile), listener)
             }
+            /* TODO: should be in the mapper... */
             list.each {
-                if (it.newValue == 'null') {
-                    it.newValue = null //we want the value null, not the string 'null'
+                if (it.newValue == null || it.newValue == 'null') {
+                    it.newValue = '' // means the fact should be omitted
                 }
             }
         } else {

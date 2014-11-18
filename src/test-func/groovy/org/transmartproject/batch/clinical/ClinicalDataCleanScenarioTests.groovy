@@ -157,7 +157,8 @@ class ClinicalDataCleanScenarioTests {
                 'sourcesystem_cd = :ss',
                 ss: STUDY_ID)
 
-        assertThat numFacts, is(NUMBER_OF_PATIENTS * NUMBER_OF_VARIABLES)
+        // we delete one fact through word mapping, hence the -1
+        assertThat numFacts, is(NUMBER_OF_PATIENTS * NUMBER_OF_VARIABLES - 1)
     }
 
     @Test
@@ -174,8 +175,7 @@ class ClinicalDataCleanScenarioTests {
 
         def r = jdbcTemplate.queryForList q, [ss: STUDY_ID]
 
-        assertThat r.size(),
-                is((int)NUMBER_OF_CATEGORICAL_VARIABLES * NUMBER_OF_PATIENTS)
+        assertThat r, is(not(empty()))
 
         assertThat r, everyItem(
                 new BaseMatcher<Map>() {
