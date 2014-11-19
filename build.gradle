@@ -168,8 +168,8 @@ uploadArchives {
         mavenDeployer {
             def credentials = [
                 // put these in ~/.gradle/gradle.properties
-                userName: mavenTheHyveUser,
-                password: mavenTheHyvePassword,
+                userName: project.ext.properties['mavenTheHyveUser'] ?: '',
+                password: project.ext.properties['mavenTheHyvePassword'] ?: '',
             ]
 
             repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
