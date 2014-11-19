@@ -5,7 +5,7 @@ if [[ -z "$NEXUS_USERNAME" || -z "$NEXUS_PASSWORD" ]]; then
   exit 0
 fi
 
-if [[ -n "$TRAVIS_PULL_REQUEST" ]]; then
+if [[ "$TRAVIS_PULL_REQUEST" != 'false' ]]; then
   echo "Pull request; skipping" >&2
   exit 0
 fi
