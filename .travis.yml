@@ -26,3 +26,6 @@ script:
     - ./gradlew --info check
     - ./gradlew --info functionalTest
     - ./gradlew capsule
+
+after_success:
+    - ./.travis_upload

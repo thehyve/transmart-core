@@ -8,6 +8,9 @@ apply plugin: 'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
 
+group 'org.transmartproject'
+version '1.0-SNAPSHOT'
+
 repositories {
     mavenCentral()
     maven { url 'https://repo.thehyve.nl/content/groups/public/' }
@@ -117,23 +120,21 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
 }
 
-task createPom << {
-    pom {
-        project {
-            groupId 'org.transmartproject'
-            artifactId 'transmart-batch'
-            version '1.0-SNAPSHOT'
-
-            inceptionYear '2014'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
+def getPomConfiguration() {
+    return {
+        name 'transmart-batch'
+        packaging 'jar'
+        description 'tranSMART pipeline alternative to Kettle + stored procedures, using Spring Batch.'
+        inceptionYear '2014'
+        url 'https://github.com/thehyve/transmart-batch'
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
             }
         }
-    }.writeTo("pom.xml")
+    }
 }
 
 codenarc {
@@ -155,4 +156,28 @@ task setupSchema(type: JavaExec) {
     description = 'Creates the ts_batch schema.'
     main = 'org.transmartproject.batch.db.BatchSchemaPopulator'
     classpath = sourceSets.main.runtimeClasspath
+}
+
+configurations.archives.artifacts.clear() //remove jar
+artifacts {
+    archives capsule
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            def credentials = [
+                // put these in ~/.gradle/gradle.properties
+                userName: mavenTheHyveUser,
+                password: mavenTheHyvePassword,
+            ]
+
+            repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
+                authentication: credentials
+            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/',
+                authentication: credentials
+
+            pom.project pomConfiguration
+        }
+    }
 }
