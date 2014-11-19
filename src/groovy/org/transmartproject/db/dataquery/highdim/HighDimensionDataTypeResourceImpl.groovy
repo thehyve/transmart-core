@@ -43,6 +43,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
     protected HighDimensionDataTypeModule module
 
+    private static final int FETCH_SIZE = 10000
+
     HighDimensionDataTypeResourceImpl(HighDimensionDataTypeModule module) {
         this.module = module
     }
@@ -102,6 +104,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         for (CriteriaDataConstraint dataConstraint in dataConstraints) {
             dataConstraint.doWithCriteriaBuilder criteriaBuilder
         }
+
+        criteriaBuilder.instance.fetchSize = FETCH_SIZE
 
         module.transformResults(
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
