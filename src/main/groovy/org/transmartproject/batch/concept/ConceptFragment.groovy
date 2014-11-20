@@ -46,7 +46,11 @@ class ConceptFragment implements Comparable<ConceptFragment> {
 
         // trim the first leading and trailing backslash for split
         path = path.replaceFirst('^\\\\', '').replaceFirst('\\\\$', '')
-        parts = Lists.newArrayList(Splitter.on('\\').split(path))
+        if (path != '') { // originally \
+            parts = Lists.newArrayList(Splitter.on('\\').split(path))
+        } else {
+            parts = []
+        }
 
         if ('' in parts) {
             throw new IllegalArgumentException(

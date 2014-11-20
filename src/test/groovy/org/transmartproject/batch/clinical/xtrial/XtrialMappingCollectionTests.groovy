@@ -107,4 +107,16 @@ class XtrialMappingCollectionTests {
         assertThat res, is(nullValue())
     }
 
+    @Test
+    void testTrivialMapping() {
+        testee.registerUserMapping(new XtrialMapping(
+                studyPrefix: new ConceptFragment('\\'),
+                xtrialPrefix: new ConceptFragment('\\')
+        ))
+
+        XtrialNode res = testee.findMappedXtrialNode(
+                TOP_NODE + '\\a\\b\\', ConceptType.CATEGORICAL)
+        assertThat res, hasProperty('path', equalTo(new ConceptFragment('\\a\\b\\')))
+    }
+
 }
