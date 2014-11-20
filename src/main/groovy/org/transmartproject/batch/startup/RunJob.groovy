@@ -61,7 +61,6 @@ final class RunJob {
         def cliBuilder = createCliBuilder()
         OptionAccessor opts = cliBuilder.parse(args)
         if (!opts) {
-            cliBuilder.usage()
             System.exit 1
         }
         new RunJob(opts: opts)
