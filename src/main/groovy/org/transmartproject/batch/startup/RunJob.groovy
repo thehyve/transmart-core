@@ -53,14 +53,6 @@ final class RunJob {
 
     static void main(String... args) {
         CommandLineJobRunner.presetSystemExiter(new OnErrorSystemExiter())
-
-        def cliBuilder = createCliBuilder()
-        OptionAccessor opts = cliBuilder.parse(args)
-        if (!opts) {
-            cliBuilder.usage()
-            System.exit 1
-        }
-
         def runJob = createInstance(args)
         runJob.run()
     }
