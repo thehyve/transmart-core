@@ -111,7 +111,7 @@ final class RunJob {
             DEFAULT_BATCHDB_PROPERTIES_LOCATION
         } else {
             Path path = Paths.get((String) opts.c)
-            if (!Files.isReadable(path) || Files.isRegularFile(path)) {
+            if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
                 System.err.println "'$path' is not a readable file"
                 return null
             }
