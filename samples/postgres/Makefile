@@ -25,3 +25,11 @@ load_parsed_vcf_data:
 load_parsed_vcf_mapping:
 	./_scripts/vcf/load_mapping_data.sh "$(VCF_TEMP_DIR)" '$(PSQL_COMMAND) -d $(PGDATABASE)'
 
+# transmart-batch:
+ifdef USE_TRANSMART_BATCH
+load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
+	$(MAKE) -C ../../env transmart-batch-capsule.jar batchdb-psql.properties
+	../../env/transmart-batch-capsule.jar \
+		-p '$(realpath ../studies/$*/clinical.params)' \
+		-c '$(realpath ../../env/batchdb-psql.properties)'
+endif

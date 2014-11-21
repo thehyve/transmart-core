@@ -89,6 +89,10 @@ TSUSER_HOME=$HOME/
 # are known not to work
 #DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #export PATH=$DIR/env:$PATH
+#
+
+# To use transmart-batch where supported
+#export USE_TRANSMART_BATCH=1
 
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
 	KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \
