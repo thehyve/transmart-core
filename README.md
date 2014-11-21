@@ -9,7 +9,7 @@ Building
 
     ./gradlew capsule
 
-Executable will now be at `build/libs/transmart-batch-capsule.jar`.
+Executable will now be at `build/libs/transmart-batch-<version>-capsule.jar`.
 
 Configuring
 -----------
@@ -50,6 +50,13 @@ the usage help for more information.
 Worthy of mention is that transmart-batch will refuse to re-run a job with the
 same parameters (which depend on the `clinical.params` file contents). Use `-n`
 to force the job to be re-run.
+
+Logging can be customized by creating a `logback.groovy` file in the working
+directory. You can copy the original `logback.groovy` and remove the part before
+the comment `CUT HERE`:
+
+    bsdtar -O -xvf transmart-batch-capsule.jar logback.groovy | \
+	  vim -c '/CUT HERE' -c '1,+1d' -c 'wq logback.groovy' -
 
 
 Development

@@ -79,6 +79,10 @@ task capsule(type: ThinCapsule) {
     group = 'build'
     applicationClass mainClass
     reallyExecutable { trampoline() }
+
+    capsuleManifest {
+        extractCapsule = false
+    }
 }
 
 sourceSets {
