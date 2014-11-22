@@ -45,7 +45,7 @@ class VcfTestData  {
     List<DeVariantSubjectDetailCoreDb> detailsData
     List<DeVariantSubjectIdxCoreDb> indexData
     
-    public VcfTestData() {
+    public VcfTestData(String conceptCode = 'bogus') {
         // Create VCF platform and assays
         platform = new DeGplInfo(
                     title: 'Test VCF',
@@ -55,7 +55,7 @@ class VcfTestData  {
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
-        assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
+        assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME, conceptCode)
         
         // Create VCF data
         detailsData = []
