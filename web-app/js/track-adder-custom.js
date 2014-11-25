@@ -83,7 +83,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
      */
     var _getTransmartDASSources = function (result_instance_id, dataType) {
 
-var arrNds = new Array();
+        var arrNds = new Array();
 
         if (dataType == 'acgh') {
             arrNds[0] = new DASSource({name: 'acgh-gain', uri: pageInfo.basePath + "/das/acgh-gain-" + result_instance_id + "/"});

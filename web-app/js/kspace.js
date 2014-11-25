@@ -31,15 +31,23 @@ if (typeof(require) !== 'undefined') {
     var union = spans.union;
     var intersection = spans.intersection;
 
-    var downsample = require('./sample').downsample;
+    var sample = require('./sample');
+    var downsample = sample.downsample;
+    var getBaseCoverage = sample.getBaseCoverage;
 
     var das = require('./das');
     var DASSequence = das.DASSequence;
+    
+    var Promise = require('es6-promise').Promise;
 }
 
 function FetchPool() {
+    var self = this;
     this.reqs = [];
     this.awaitedFeatures = {};
+    this.requestsIssued = new Promise(function(resolve, reject) {
+        self.notifyRequestsIssued = resolve;
+    });
 }
 
 FetchPool.prototype.addRequest = function(xhr) {
@@ -79,6 +87,10 @@ function KnownSpace(tierMap, chr, min, max, scale, seqSource) {
     this.latestViews = {};
 }
 
+KnownSpace.prototype.cancel = function() {
+    this.cancelled = true;
+}
+
 KnownSpace.prototype.bestCacheOverlapping = function(chr, min, max) {
     var baton = this.featureCache[this.tierMap[0]];
     if (baton) {
@@ -113,6 +125,7 @@ KnownSpace.prototype.viewFeatures = function(chr, min, max, scale) {
     this.viewCount++;
     
     this.startFetchesForTiers(this.tierMap);
+    this.pool.notifyRequestsIssued();
 }
     
 function filterFeatures(features, min, max) {
@@ -171,7 +184,12 @@ KnownSpace.prototype.startFetchesForTiers = function(tiers) {
                 needSeq = true;
             }
         } catch (ex) {
-            tiers[t].updateStatus(ex);
+            var tier = tiers[t];
+            tier.currentFeatures = [];
+            tier.currentSequence = null;
+            tier.draw();
+            tier.updateHeight();
+            tier.updateStatus(ex);
             console.log('Error fetching tier source');
             console.log(ex);
             gex = ex;
@@ -222,7 +240,10 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
     var source = tier.getSource() || new DummyFeatureSource();
     var needsSeq = tier.needsSequence(this.scale);
     var baton = thisB.featureCache[tier];
-    var wantedTypes = tier.getDesiredTypes(this.scale);
+    var styleFilters = tier.getActiveStyleFilters(this.scale);
+    var wantedTypes;
+    if (styleFilters)
+        wantedTypes = styleFilters.typeList();
     var chr = this.chr, min = this.min, max = this.max;
 
 
@@ -251,7 +272,7 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
     	    console.log('Finishing fetch ' + viewID);
 
     	var latestViewID = thisB.latestViews[tier] || -1;
-    	if (latestViewID > viewID) {
+    	if (thisB.cancelled || latestViewID > viewID) {
     	    return;
     	}
 
@@ -265,15 +286,22 @@ KnownSpace.prototype.startFetchesFor = function(tier, awaitedSeq) {
 
 	    thisB.latestViews[tier] = viewID;
         thisB.provision(tier, chr, coverage, scale, wantedTypes, features, status, needsSeq ? awaitedSeq : null);
-    });
+    }, styleFilters);
     return needsSeq;
 }
 
 KnownSpace.prototype.provision = function(tier, chr, coverage, actualScale, wantedTypes, features, status, awaitedSeq) {
+    if (status) {
+        tier.currentFeatures = [];
+        tier.currentSequence = null;
+        tier.draw();
+        tier.updateHeight();
+    }
     tier.updateStatus(status);
    
     if (!status) {
         var mayDownsample = false;
+        var needBaseComposition = false;
         var src = tier.getSource();
         while (MappedFeatureSource.prototype.isPrototypeOf(src) || CachingFeatureSource.prototype.isPrototypeOf(src) || OverlayFeatureSource.prototype.isPrototypeOf(src)) {
 	        if (OverlayFeatureSource.prototype.isPrototypeOf(src)) {
@@ -287,15 +315,23 @@ KnownSpace.prototype.provision = function(tier, chr, coverage, actualScale, want
         }
 
     	if (!src.opts || (!src.opts.forceReduction && !src.opts.noDownsample)) {
-            if ((actualScale < (this.scale/2) && features.length > 200)  ||
+            if (/* (actualScale < (this.scale/2) && features.length > 200)  || */
 		        (mayDownsample && wantedTypes && wantedTypes.length == 1 && wantedTypes.indexOf('density') >= 0))
             {
 		        features = downsample(features, this.scale);
             }
     	}
 
+        if (wantedTypes && wantedTypes.length == 1 && wantedTypes.indexOf('base-coverage') >= 0)
+        {
+            // Base-composition coverage track
+            needBaseComposition = true;
+        }
         if (awaitedSeq) {
             awaitedSeq.await(function(seq) {
+                if (needBaseComposition) {
+                    features = getBaseCoverage(features, seq, tier.browser.baseColors);
+                }
                 tier.viewFeatures(chr, coverage, actualScale, features, seq);
             });
         } else {

@@ -19,6 +19,8 @@ if (typeof(require) !== 'undefined') {
     var utils = require('./utils')
     var Awaited = utils.Awaited;
     var arrayIndexOf = utils.arrayIndexOf;
+    var shallowCopy = utils.shallowCopy;
+    var resolveUrlToPage = utils.resolveUrlToPage;
 
     var das = require('./das');
     var DASStylesheet = das.DASStylesheet;
@@ -27,6 +29,7 @@ if (typeof(require) !== 'undefined') {
     var DASSegment = das.DASSegment;
     var DASFeature = das.DASFeature;
     var DASSequence = das.DASSequence;
+    var DASLink = das.DASLink;
 
     var bin = require('./bin');
     var URLFetchable = bin.URLFetchable;
@@ -44,12 +47,18 @@ if (typeof(require) !== 'undefined') {
 
     var spans = require('./spans');
     var Range = spans.Range;
+    var union = spans.union;
 
     var parseCigar = require('./cigar').parseCigar;
 
     var OverlayFeatureSource = require('./overlay').OverlayFeatureSource;
 
     var JBrowseStore = require('./jbjson').JBrowseStore;
+
+    var Chainset = require('./chainset').Chainset;
+
+    var style = require('./style');
+    var StyleFilterSet = style.StyleFilterSet;
 }
 
 var __dalliance_sourceAdapterFactories = {};
@@ -74,20 +83,10 @@ function dalliance_makeParser(type) {
 
 DasTier.prototype.initSources = function() {
     var thisTier = this;
-    var fs = new DummyFeatureSource(), ss;
 
-    if (this.dasSource.tier_type == 'sequence') {
-        if (this.dasSource.twoBitURI) {
-            ss = new TwoBitSequenceSource(this.dasSource);
-        } else {
-            ss = new DASSequenceSource(this.dasSource);
-        }
-    } else {
-        fs = this.browser.createFeatureSource(this.dasSource);
-    }
-
-    this.featureSource = fs;
-    this.sequenceSource = ss;
+    var sources = this.browser.createSources(this.dasSource);
+    this.featureSource = sources.features || new DummyFeatureSource();
+    this.sequenceSource = sources.sequence;
 
     if (this.featureSource && this.featureSource.addChangeListener) {
         this.featureSource.addChangeListener(function() {
@@ -96,15 +95,24 @@ DasTier.prototype.initSources = function() {
     }
 }
 
-Browser.prototype.createFeatureSource = function(config) {
-    var fs = this.sourceCache.get(config);
-    if (fs) {
-        return fs;
-    }
+Browser.prototype.createSources = function(config) {
+    var sources = this.sourceCache.get(config);
+    if (sources)
+        return sources;
 
-    if (config.tier_type && __dalliance_sourceAdapterFactories[config.tier_type]) {
+    var fs, ss;
+
+    if (config.tier_type == 'sequence' || config.twoBitURI || config.twoBitBlob) {
+        if (config.twoBitURI || config.twoBitBlob) {
+            ss = new TwoBitSequenceSource(config);
+        } else {
+            ss = new DASSequenceSource(config);
+        }
+    } else if (config.tier_type && __dalliance_sourceAdapterFactories[config.tier_type]) {
         var saf = __dalliance_sourceAdapterFactories[config.tier_type];
-        fs = saf(config).features;
+        var ns = saf(config);
+        fs = ns.features;
+        ss = ns.sequence;
     } else if (config.bwgURI || config.bwgBlob) {
         var worker = this.getWorker();
         if (worker)
@@ -129,34 +137,58 @@ Browser.prototype.createFeatureSource = function(config) {
             sources.push(new CachingFeatureSource(fs));
 
         for (var oi = 0; oi < config.overlay.length; ++oi) {
-            sources.push(this.createFeatureSource(config.overlay[oi]));
+            var cs = this.createSources(config.overlay[oi]);
+            if (cs && cs.features)
+                sources.push(cs.features);
         }
         fs = new OverlayFeatureSource(sources, config);
+    }
+
+    if (config.sequenceAliases) {
+        fs = new MappedFeatureSource(fs, new Chainset({type: 'alias', sequenceAliases: config.sequenceAliases}));
     }
 
     if (config.mapping) {
         fs = new MappedFeatureSource(fs, this.chains[config.mapping]);
     }
 
-    if (config.name && !fs.name) {
+    if (config.name && fs && !fs.name) {
         fs.name = config.name;
     }
 
     if (fs != null) {
         fs = new CachingFeatureSource(fs);
-        this.sourceCache.put(config, fs);
     }
-    return fs;
+
+    if (fs != null || ss != null) {
+        sources = {
+            features: fs,
+            sequence: ss
+        };
+        this.sourceCache.put(config, sources);
+    }
+
+    return sources;
 }
 
 DasTier.prototype.fetchStylesheet = function(cb) {
     var ssSource;
-    if (this.dasSource.stylesheet_uri) {
+    // Somewhat ugly workaround for the special case of DAS sources...
+    if (this.dasSource.stylesheet_uri || (
+        !this.dasSource.tier_type &&
+        !this.dasSource.bwgURI &&
+        !this.dasSource.bwgBlob &&
+        !this.dasSource.bamURI &&
+        !this.dasSource.bamBlob &&
+        !this.dasSource.twoBitURI &&
+        !this.dasSource.twoBitBlob &&
+        !this.dasSource.jbURI &&
+        !this.dasSource.overlay))
+    {
         ssSource = new DASFeatureSource(this.dasSource);
     } else {
         ssSource = this.getSource();
     }
-    
     ssSource.getStyleSheet(cb);
 }
 
@@ -229,18 +261,44 @@ CachingFeatureSource.prototype.capabilities = function() {
     }
 }
 
-CachingFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
-    if (pool == null) {
-        throw 'pool is null...';
+CachingFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback, styleFilters) {
+    if (!pool) {
+        throw Error('Fetch pool is null');
     }
 
-    var awaitedFeatures = pool.awaitedFeatures[this.cfsid];
-    if (!awaitedFeatures) {
-        var awaitedFeatures = new Awaited();
-        pool.awaitedFeatures[this.cfsid] = awaitedFeatures;
-        this.source.fetch(chr, min, max, scale, types, pool, function(status, features, scale, coverage) {
-            if (!awaitedFeatures.res)
-                awaitedFeatures.provide({status: status, features: features, scale: scale, coverage: coverage});
+    var self = this;
+    var cacheKey = this.cfsid;
+
+    var awaitedFeatures = pool.awaitedFeatures[cacheKey];
+    if (awaitedFeatures && awaitedFeatures.started) {
+        if (awaitedFeatures.styleFilters.doesNotContain(styleFilters)) {
+            // console.log('Fetch already started with wrong parameters, skipping cache.');
+            self.source.fetch(chr, min, max, scale, types, pool, callback, styleFilters);
+            return;
+        }
+    } else if (awaitedFeatures) {
+        awaitedFeatures.styleFilters.addAll(styleFilters);
+    } else {
+        awaitedFeatures = new Awaited();
+        awaitedFeatures.styleFilters = styleFilters;
+        pool.awaitedFeatures[cacheKey] = awaitedFeatures;
+
+        pool.requestsIssued.then(function() {
+            awaitedFeatures.started = true;
+            self.source.fetch(
+                chr, 
+                min, 
+                max, 
+                scale, 
+                awaitedFeatures.styleFilters.typeList(), 
+                pool, 
+                function(status, features, scale, coverage) {
+                    if (!awaitedFeatures.res)
+                        awaitedFeatures.provide({status: status, features: features, scale: scale, coverage: coverage});
+                }, 
+                awaitedFeatures.styleFilters);
+        }).catch(function(err) {
+            console.log(err);
         });
     } 
 
@@ -385,7 +443,7 @@ DASFeatureSource.prototype.findNextFeature = this.sourceFindNextFeature = functi
     if (this.dasSource.capabilities && arrayIndexOf(this.dasSource.capabilities, 'das1:adjacent-feature') >= 0) {
         var thisB = this;
         if (this.dasAdjLock) {
-            return dlog('Already looking for a next feature, be patient!');
+            return console.log('Already looking for a next feature, be patient!');
         }
         this.dasAdjLock = true;
         var fops = {
@@ -398,7 +456,6 @@ DASFeatureSource.prototype.findNextFeature = this.sourceFindNextFeature = functi
         thisTier.dasSource.features(null, fops, function(res) {
             thisB.dasAdjLock = false;
             if (res.length > 0 && res[0] != null) {
-                dlog('DAS adjacent seems to be working...');
                 callback(res[0]);
             }
         });
@@ -446,9 +503,18 @@ function TwoBitSequenceSource(source) {
     var thisB = this;
     this.source = source;
     this.twoBit = new Awaited();
-    makeTwoBit(new URLFetchable(source.twoBitURI), function(tb, error) {
+    var data;
+    if (source.twoBitURI) {
+        data = new URLFetchable(source.twoBitURI);
+    } else if (source.twoBitBlob) {
+        data = new BlobFetchable(source.twoBitBlob);
+    } else {
+        throw Error("No twoBitURI or twoBitBlob parameter");
+    }
+
+    makeTwoBit(data, function(tb, error) {
         if (error) {
-            dlog(error);
+            console.log(error);
         } else {
             thisB.twoBit.provide(tb);
         }
@@ -578,13 +644,8 @@ BWGFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, c
             return callback(thisB.error || "Can't access binary file", null, null);
         }
 
-        // dlog('bwg: ' + bwg.name + '; want scale: ' + scale);
         var data;
-        // dlog(miniJSONify(types));
         var wantDensity = !types || types.length == 0 || arrayIndexOf(types, 'density') >= 0;
-/*        if (wantDensity) {
-            dlog('want density; scale=' + scale);
-        } */
         if (thisB.opts.clientBin) {
             wantDensity = false;
         }
@@ -600,7 +661,7 @@ BWGFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, c
             if (typeof thisB.opts.forceReduction !== 'undefined') {
                 zoom = thisB.opts.forceReduction;
             }
-           // dlog('selected zoom: ' + zoom);
+
             if (zoom < 0) {
                 data = bwg.getUnzoomedView();
             } else {
@@ -812,7 +873,7 @@ RemoteBWGFeatureSource.prototype.init = function() {
     if (blob) {
         this.worker.postCommand({command: 'connectBBI', blob: blob}, cnt);
     } else {
-        this.worker.postCommand({command: 'connectBBI', uri: uri}, cnt); 
+        this.worker.postCommand({command: 'connectBBI', uri: resolveUrlToPage(uri), credentials: this.bwgSource.credentials}, cnt); 
     }
 }
 
@@ -1122,7 +1183,7 @@ BAMFeatureSource.prototype.init = function() {
         bamF = new URLFetchable(this.bamSource.bamURI, {credentials: this.opts.credentials});
         baiF = new URLFetchable(this.bamSource.baiURI || (this.bamSource.bamURI + '.bai'), {credentials: this.opts.credentials});
     }
-    makeBam(bamF, baiF, function(bam, err) {
+    makeBam(bamF, baiF, null, function(bam, err) {
         thisB.readiness = null;
         thisB.notifyReadiness();
 
@@ -1236,9 +1297,15 @@ RemoteBAMFeatureSource.prototype.init = function() {    var thisB = this;
     };
 
     if (blob) {
-        this.worker.postCommand({command: 'connectBAM', blob: blob, indexBlob: indexBlob}, cnt /* , [blob, indexBlob] */);
+        this.worker.postCommand({command: 'connectBAM', blob: blob, indexBlob: indexBlob}, cnt);
     } else {
-        this.worker.postCommand({command: 'connectBAM', uri: uri, indexUri: indexUri}, cnt); 
+        this.worker.postCommand({
+            command: 'connectBAM', 
+            uri: resolveUrlToPage(uri), 
+            indexUri: resolveUrlToPage(indexUri),
+            credentials: this.bamSource.credentials,
+            indexChunks: this.bamSource.indexChunks},
+          cnt); 
     }
 }
 
@@ -1338,6 +1405,11 @@ MappedFeatureSource.prototype.getScales = function() {
     return this.source.getScales();
 }
 
+MappedFeatureSource.prototype.getDefaultFIPs = function(callback) {
+    if (this.source.getDefaultFIPs)
+        return this.source.getDefaultFIPs(callback);
+}
+
 MappedFeatureSource.prototype.simplifySegments = function(segs, minGap) {
     if (segs.length == 0) return segs;
 
@@ -1368,7 +1440,7 @@ MappedFeatureSource.prototype.simplifySegments = function(segs, minGap) {
     return ssegs;
 }
 
-MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
+MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback, styleFilters) {
     var thisB = this;
     var fetchLength = max - min + 1;
 
@@ -1401,31 +1473,34 @@ MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool
                             if (sn.indexOf('chr') == 0) {
                                 sn = sn.substr(3);
                             }
-                            var mmin = thisB.mapping.mapPoint(sn, f.min);
-                            var mmax = thisB.mapping.mapPoint(sn, f.max);
-                            if (!mmin || !mmax || mmin.seq != mmax.seq || mmin.seq != chr) {
-                                // Discard feature.
-                                // dlog('discarding ' + miniJSONify(f));
-                                if (f.parts && f.parts.length > 0) {    // FIXME: Ugly hack to make ASTD source map properly.
+
+                            var mappings = thisB.mapping.mapSegment(sn, f.min, f.max);
+
+                            if (mappings.length == 0) {
+                                if (f.parts && f.parts.length > 0) {
                                      mappedFeatures.push(f);
                                 }
                             } else {
-                                f.segment = mmin.seq;
-                                f.min = mmin.pos;
-                                f.max = mmax.pos;
-                                if (f.min > f.max) {
-                                    var tmp = f.max;
-                                    f.max = f.min;
-                                    f.min = tmp;
-                                }
-                                if (mmin.flipped) {
-                                    if (f.orientation == '-') {
-                                        f.orientation = '+';
-                                    } else if (f.orientation == '+') {
-                                        f.orientation = '-';
+                                for (var mi = 0; mi < mappings.length; ++mi) {
+                                    var m = mappings[mi];
+                                    var mf = shallowCopy(f);
+                                    mf.segment = m.segment;
+                                    mf.min = m.min;
+                                    mf.max = m.max;
+                                    if (m.partialMin)
+                                        mf.partialMin = m.partialMin;
+                                    if (m.partialMax)
+                                        mf.partialMax = m.partialMax;
+
+                                    if (m.flipped) {
+                                        if (f.orientation == '-') {
+                                            mf.orientation = '+';
+                                        } else if (f.orientation == '+') {
+                                            mf.orientation = '-';
+                                        }
                                     }
+                                    mappedFeatures.push(mf);
                                 }
-                                mappedFeatures.push(f);
                             }
                         }
                     }
@@ -1447,7 +1522,7 @@ MappedFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool
                         thisB.notifyActivity();
                         callback(finalStatus, mappedFeatures, fscale, mappedLoc);
                     }
-                });
+                }, styleFilters);
             });
         }
     });

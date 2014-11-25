@@ -80,7 +80,7 @@ Browser.prototype.makeSVG = function(opts) {
     	var tierBackground = makeElementNS(NS_SVG, 'rect', null, {x: 0, y: tierTopPos, width: '10000', height: 50, fill: tier.background});
     	tierSVG.appendChild(tierBackground);
 
-    	if (tier.dasSource.tier_type === 'sequence') {
+    	if (tier.sequenceSource) {
     	    var seqTrack = svgSeqTier(tier, tier.currentSequence);
     	    
     	    tierSVG.appendChild(makeElementNS(NS_SVG, 'g', seqTrack, {transform: 'translate(' + (margin) + ', ' + pos + ')'}));
@@ -177,11 +177,11 @@ Browser.prototype.makeSVG = function(opts) {
 
     var rulerPos = -1; 
     if (opts.ruler == 'center') {
-        rulerPos = margin + ((this.viewEnd - this.viewStart + 1)*this.scale) / 2;
+        rulerPos = margin + ((this.viewEnd - this.viewStart)*this.scale) / 2;
     } else if (opts.ruler == 'left') {
         rulerPos = margin;
     } else if (opts.ruler == 'right') {
-        rulerPos = margin + ((this.viewEnd - this.viewStart + 1)*this.scale);
+        rulerPos = margin + ((this.viewEnd - this.viewStart)*this.scale);
     }
     if (rulerPos >= 0) {
         tierHolder.appendChild(makeElementNS(NS_SVG, 'line', null, {x1: rulerPos, y1: 70, x2: rulerPos, y2: pos,

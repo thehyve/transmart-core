@@ -129,10 +129,14 @@ function makeElement(tag, children, attribs, styles)
         }
         for (var i = 0; i < children.length; ++i) {
             var c = children[i];
-            if (typeof c == 'string') {
-                c = document.createTextNode(c);
+            if (c) {
+                if (typeof c == 'string') {
+                    c = document.createTextNode(c);
+                } else if (typeof c == 'number') {
+                    c = document.createTextNode('' + c);
+                }
+                ele.appendChild(c);
             }
-            ele.appendChild(c);
         }
     }
     
@@ -366,6 +370,77 @@ function relativeURL(base, rel) {
     }
 }
 
+var AMINO_ACID_TRANSLATION = {
+    'TTT': 'F',
+    'TTC': 'F',
+    'TTA': 'L',
+    'TTG': 'L',
+    'CTT': 'L',
+    'CTC': 'L',
+    'CTA': 'L',
+    'CTG': 'L',
+    'ATT': 'I',
+    'ATC': 'I',
+    'ATA': 'I',
+    'ATG': 'M',
+    'GTT': 'V',
+    'GTC': 'V',
+    'GTA': 'V',
+    'GTG': 'V',
+    'TCT': 'S',
+    'TCC': 'S',
+    'TCA': 'S',
+    'TCG': 'S',
+    'CCT': 'P',
+    'CCC': 'P',
+    'CCA': 'P',
+    'CCG': 'P',
+    'ACT': 'T',
+    'ACC': 'T',
+    'ACA': 'T',
+    'ACG': 'T',
+    'GCT': 'A',
+    'GCC': 'A',
+    'GCA': 'A',
+    'GCG': 'A',
+    'TAT': 'Y',
+    'TAC': 'Y',
+    'TAA': '*',  // stop
+    'TAG': '*',  // stop
+    'CAT': 'H',
+    'CAC': 'H',
+    'CAA': 'Q',
+    'CAG': 'Q',
+    'AAT': 'N',
+    'AAC': 'N',
+    'AAA': 'K',
+    'AAG': 'K',
+    'GAT': 'D',
+    'GAC': 'D',
+    'GAA': 'E',
+    'GAG': 'E',
+    'TGT': 'C',
+    'TGC': 'C',
+    'TGA': '*',  // stop
+    'TGG': 'W',
+    'CGT': 'R',
+    'CGC': 'R',
+    'CGA': 'R',
+    'CGG': 'R',
+    'AGT': 'S',
+    'AGC': 'S',
+    'AGA': 'R',
+    'AGG': 'R',
+    'GGT': 'G',
+    'GGC': 'G',
+    'GGA': 'G',
+    'GGG': 'G'
+}
+
+function resolveUrlToPage(rel) {
+    return makeElement('a', null, {href: rel}).href;
+}
+
 //
 // Missing APIs
 // 
@@ -380,6 +455,7 @@ if (typeof(module) !== 'undefined') {
     module.exports = {
         textXHR: textXHR,
         relativeURL: relativeURL,
+        resolveUrlToPage: resolveUrlToPage,
         shallowCopy: shallowCopy,
         pusho: pusho,
         pushnew: pushnew,
@@ -394,6 +470,8 @@ if (typeof(module) !== 'undefined') {
         miniJSONify: miniJSONify,
 
         Observed: Observed,
-        Awaited: Awaited
+        Awaited: Awaited,
+
+        AMINO_ACID_TRANSLATION: AMINO_ACID_TRANSLATION
     }
 }

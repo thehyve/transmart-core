@@ -110,8 +110,6 @@ var genomeBrowserPanel = new Ext.Panel(
         // create new instance of dalliance browser
         createGenomeBrowser: function () {
 
-            var protocol = window.location.protocol;
-
             this.genomeBrowser = new Browser({
 
                 workerPath: "$$build/worker-all.js",
@@ -137,30 +135,33 @@ var genomeBrowserPanel = new Ext.Panel(
                 },
 
                 chains: {
-/*                    hg18ToHg19: new Chainset(protocol + '//www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
-                        {
+                    hg18ToHg19: {
+                        coords:  {
                             speciesName: 'Human',
                             taxon: 9606,
-                            auth: 'GRCh',
+                            auth: 'NCBI',
                             version: 36
-                        })*/
+                        },
+                        uri: '//www.biodalliance.org/datasets/hg18ToHg19.bb',
+                        type: 'bigbed'
+                    }
                 },
 
-                sources:     [{name:                 'Genome',
-                    twoBitURI:            protocol + '//www.biodalliance.org/datasets/hg19.2bit',
-                    tier_type:            'sequence',
-                    provides_entrypoints: true,
-                    pinned: true
-                },
+                sources: [
+                    {name:'Genome',
+                        twoBitURI: '//www.biodalliance.org/datasets/hg19.2bit',
+                        tier_type: 'sequence',
+                        provides_entrypoints: true,
+                        pinned: true},
                     {name: 'GENCODE',
-                        bwgURI: protocol + '//www.biodalliance.org/datasets/gencode.bb',
-                        stylesheet_uri: protocol + '//www.biodalliance.org/stylesheets/gencode.xml',
+                        bwgURI: '//www.biodalliance.org/datasets/gencode.bb',
+                        stylesheet_uri: '//www.biodalliance.org/stylesheets/gencode.xml',
                         collapseSuperGroups: true,
-                        trixURI: protocol + '//www.biodalliance.org/datasets/geneIndex.ix'},
+                        trixURI: '//www.biodalliance.org/datasets/geneIndex.ix'},
                     {name: 'Repeats',
                         desc: 'Repeat annotation from RepeatMasker',
-                        bwgURI: protocol + '//www.biodalliance.org/datasets/repeats.bb',
-                        stylesheet_uri: protocol + '//www.biodalliance.org/stylesheets/bb-repeats.xml',
+                        bwgURI: '//www.biodalliance.org/datasets/repeats.bb',
+                        stylesheet_uri: '//www.biodalliance.org/stylesheets/bb-repeats.xml',
                         forceReduction: -1},
                     {name: 'SNPs',
                         tier_type: 'ensembl',
@@ -169,26 +170,26 @@ var genomeBrowserPanel = new Ext.Panel(
                         disabled: true,
                         featureInfoPlugin: function(f, info) {
                             if (f.id) {
-                                info.add('SNP', makeElement('a', f.id, {href: protocol + '//www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id, target: '_newtab'}));
+                                info.add('SNP', makeElement('a', f.id, {href: '//www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id, target: '_newtab'}));
                             }
                         }
                     },
 /*                    {name: 'CpG',
                         desc: 'CpG observed/expected ratio',
-                        uri: protocol + '//www.derkholm.net:8080/das/hg19comp/',
+                        uri: 'http://www.derkholm.net:8080/das/hg19comp/',
                         // stylesheet_uri: 'http://www.derkholm.net/dalliance-test/stylesheets/cpg.xml'
                         quantLeapThreshold: 0.8,
                         forceReduction: -1,
                         style:                [{type: 'cpgoe',
                             style: {glyph: 'LINEPLOT',
                                 FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}]
-                    },
+                    },*/
                     {name:                 'BWG test',
-                        bwgURI:               protocol + '//www.biodalliance.org/datasets/spermMethylation.bw',
-                        stylesheet_uri:       protocol + '//www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
+                        bwgURI:               '//www.biodalliance.org/datasets/spermMethylation.bw',
+                        stylesheet_uri:       '//www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
                         mapping:              'hg18ToHg19',
                         quantLeapThreshold: 80
-                    }*/
+                    }
                 ],
 
                 setDocumentTitle: true,
@@ -201,11 +202,12 @@ var genomeBrowserPanel = new Ext.Panel(
                     UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
                     Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
                 }
+
             });
 
             this.genomeBrowser.hubs = [
-                protocol + '//www.biodalliance.org/datasets/testhub/hub.txt',
-                protocol + '//ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'
+                '//www.biodalliance.org/datasets/testhub/hub.txt',
+                '//ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'
             ];
 
             this.genomeBrowser.addFeatureInfoPlugin(function(f, info) {

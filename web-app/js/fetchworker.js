@@ -31,16 +31,17 @@ self.onmessage = function(event) {
     if (command === 'connectBAM') {
         var id = newID();
 
-        var bamF, baiF;
+        var bamF, baiF, indexChunks;
         if (d.blob) {
             bamF = new bin.BlobFetchable(d.blob);
             baiF = new bin.BlobFetchable(d.indexBlob);
         } else {
-            bamF = new bin.URLFetchable(d.uri);
-            baiF = new bin.URLFetchable(d.indexUri);
+            bamF = new bin.URLFetchable(d.uri, {credentials: d.credentials});
+            baiF = new bin.URLFetchable(d.indexUri, {credentials: d.credentials});
+            indexChunks = d.indexChunks;
         }
 
-        bam.makeBam(bamF, baiF, function(bamObj, err) {
+        bam.makeBam(bamF, baiF, indexChunks, function(bamObj, err) {
             if (bamObj) {
                 connections[id] = new BAMWorkerFetcher(bamObj);
                 postMessage({tag: tag, result: id});
@@ -54,7 +55,7 @@ self.onmessage = function(event) {
         if (d.blob) {
             bbi = new bin.BlobFetchable(d.blob);
         } else {
-            bbi = new bin.URLFetchable(d.uri);
+            bbi = new bin.URLFetchable(d.uri, {credentials: d.credentials});
         }
 
         bigwig.makeBwg(bbi, function(bwg, err) {

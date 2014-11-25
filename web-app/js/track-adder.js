@@ -49,6 +49,7 @@ if (typeof(require) !== 'undefined') {
     var DASSource = das.DASSource;
     var DASSegment = das.DASSegment;
     var DASRegistry = das.DASRegistry;
+    var coordsMatch = das.coordsMatch;
 }
 
 Browser.prototype.currentlyActive = function(source) {
@@ -124,12 +125,13 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     var makeHubButton = function(tdb) {
         var hub = tdb.hub;
-        var hubMenuButton = makeElement('i', null, {className: 'fa fa-list-alt'});
+        var hubMenuButton = makeElement('i', null, {className: 'fa fa-list-alt'}, {cursor: 'context-menu'});
         var label = hub.shortLabel || 'Unknown';
         if (tdb.mapping)
             label = label + ' (' + tdb.genome + ')';
         var hbContent = makeElement('span', [label, ' ', hubMenuButton]);
         var hubButton = thisB.makeButton(hbContent, hub.longLabel);
+        hubButton.hub = tdb;
         addModeButtons.push(hubButton);
         
         hubButton.addEventListener('click', function(ev) {
@@ -794,6 +796,24 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     function tryAddHub(curi, opts, retry) {
         opts = opts || {};
+        for (var hi = 0; hi < thisB.hubObjects.length; ++hi) {
+            var h = thisB.hubObjects[hi];
+            if (h.hub.url == curi) {
+                for (var bi = 0; bi < addModeButtons.length; ++bi) {
+                    if (addModeButtons[bi].hub == h) {
+                        activateButton(addModeButtons, addModeButtons[bi]);
+                    }
+                }
+                h.getTracks(function(tracks, err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    makeHubStab(tracks);
+                });
+                return;
+            }
+
+        }
         
         connectTrackHub(curi, function(hub, err) {
             if (err) {
@@ -968,6 +988,9 @@ Browser.prototype.showTrackAdder = function(ev) {
 
     var makeSourceConfig = function(s) {
         var nds = {name: s.name};
+        if (s.credentials)
+            nds.credentials = s.credentials;
+        
         if (s.mapping && s.mapping != '__default__')
             nds.mapping = s.mapping;
 
@@ -1065,7 +1088,7 @@ Browser.prototype.showTrackAdder = function(ev) {
         if (nds.baiBlob) {
             indexF = new BlobFetchable(nds.baiBlob);
         } else {
-            indexF = new URLFetchable(nds.bamURI + '.bai');
+            indexF = new URLFetchable(nds.bamURI + '.bai', {credentials: nds.credentials});
         }
         indexF.slice(0, 256).fetch(function(r) {
                 var hasBAI = false;

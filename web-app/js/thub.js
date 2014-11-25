@@ -91,9 +91,11 @@ TrackHubDB.prototype.getTracks = function(callback) {
                 }
             }
 
-            if (track.track && (track.type || track.container || track.view)) {
+            if (track.track && (track.type || track.container || track.view || track.bigDataUrl)) {
                 tracks.push(track);
                 tracksById[track.track] = track;
+            } else {
+                // console.log('skipping ', track);
             }
         }
         
@@ -115,7 +117,7 @@ TrackHubDB.prototype.getTracks = function(callback) {
                     if (parent)
                         top = false;
                 } else {
-                    // console.log("Couldn't find parent " + ptoks[0] + '(' + track.parent + ')');
+                    console.log("Couldn't find parent " + ptoks[0] + '(' + track.parent + ')');
                 }
                
             }
@@ -249,12 +251,20 @@ TrackHubTrack.prototype.toDallianceSource = function() {
                 }
             }
         }
-        return source;
-
-        
+        return source;       
     } else {
-        var typeToks = this.type.split(/\s+/);
-        if (typeToks[0] == 'bigBed') {
+        var type = this.type;
+        if (!type) {
+            var p = this;
+            while (p._parent && !p.type) {
+                p = p._parent;
+            }
+            type = p.type;
+        }
+        if (!type)
+            return;
+        var typeToks = type.split(/\s+/);
+        if (typeToks[0] == 'bigBed' && this.bigDataUrl) {
             var bedTokens = typeToks[1]|0
             var bedPlus = typeToks[2] == '+';
 
@@ -266,7 +276,7 @@ TrackHubTrack.prototype.toDallianceSource = function() {
             if (bedTokens >= 12 && bedPlus)
                 source.collapseSuperGroups = true;
             return source;
-        } else if (typeToks[0] == 'bigWig') {
+        } else if (typeToks[0] == 'bigWig' && this.bigDataUrl) {
             source.bwgURI = relativeURL(this._db.absURL, this.bigDataUrl);
             source.style = this.bigwigStyles();
             source.noDownsample = true;     // FIXME seems like a blunt instrument...
@@ -280,13 +290,13 @@ TrackHubTrack.prototype.toDallianceSource = function() {
             }
 
             return source;
-        } else if (typeToks[0] == 'bam') {
+        } else if (typeToks[0] == 'bam'  && this.bigDataUrl) {
             source.bamURI = relativeURL(this._db.absURL, this.bigDataUrl);
             if (this._db.credentials) {
                 source.credentials = true;
             }
             return source;
-        } else if (typeToks[0] == 'vcfTabix') {
+        } else if (typeToks[0] == 'vcfTabix' && this.bigDataUrl) {
             source.uri = relativeURL(this._db.absURL, this.bigDataUrl);
             source.tier_type = 'tabix';
             source.payload = 'vcf';
@@ -301,7 +311,18 @@ TrackHubTrack.prototype.toDallianceSource = function() {
 }
 
 TrackHubTrack.prototype.bigwigStyles = function() {
-    var typeToks = this.type.split(/\s+/);
+    var type = this.type;
+    if (!type) {
+        var p = this;
+        while (p._parent && !p.type) {
+            p = p._parent;
+        }
+        type = p.type;
+    }
+    if (!type)
+        return;
+    var typeToks = type.split(/\s+/);
+
     var min, max;
     if (typeToks.length >= 3) {
         min = 1.0 * typeToks[1];
