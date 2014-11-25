@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="tranSMART" version="1.0">
+  <fields>
+  
+	<field name="id" type="string" indexed="true" stored="true" required="true" />
+    <field name="trial_name" type="string" indexed="true" stored="true" required="true" />
+    <field name="barcode" type="string" indexed="true" stored="true" required="false" />
+    <field name="plate_id" type="string" indexed="true" stored="true" required="false" />
+    <field name="patient_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="external_id" type="string" indexed="true" stored="true" required="false" />
+    <field name="aliquot_id" type="string" indexed="true" stored="true" required="false" />
+    <field name="visit" type="string" indexed="true" stored="true" required="false" />
+    <field name="sample_type" type="string" indexed="true" stored="true" required="true" />
+    <field name="description" type="string" indexed="true" stored="true" required="false" />
+    <field name="comment" type="string" indexed="true" stored="true" required="false" />
+    <field name="location" type="string" indexed="true" stored="true" required="false" />
+    <field name="source_organism" type="string" indexed="true" stored="true" required="true" />
+	<field name="_version_" type="long" indexed="true"  stored="true" multiValued="false"/>
+
+    <dynamicField name="*" type="ignored" multiValued="true"/>
+  </fields>
+
+  <uniqueKey>id</uniqueKey>
+
+  <defaultSearchField>barcode</defaultSearchField>
+  <solrQueryParser defaultOperator="OR"/>
+
+  <!-- Text fields from SolrCell to search by default in our catch-all field -->
+  <copyField source="name" dest="text"/>
+  <copyField source="title" dest="text"/>
+  <copyField source="description" dest="text"/>
+  <copyField source="content" dest="text"/>
+
+  <types>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+
+    <!-- A general text field that has reasonable, generic
+         cross-language defaults: it tokenizes with StandardTokenizer,
+	 removes stop words from case-insensitive "stopwords.txt"
+	 (empty by default), and down cases.  At query time only, it
+	 also applies synonyms. -->
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- Just like text_general except it reverses the characters of
+	 each token, to enable more efficient leading wildcard queries. -->
+    <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true" maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- since fields of this type are by default not stored or indexed,
+         any data added to them will be ignored outright.  -->
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
+  </types>
+</schema>
