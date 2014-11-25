@@ -49,7 +49,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
 
-    @Bean
+    @Bean(name = 'ClinicalDataLoadJob')
     @Override
     Job job() {
         FlowJob job =

@@ -16,7 +16,6 @@ import java.nio.file.Paths
 @SuppressWarnings(['SystemExit', 'SystemErrPrint'])
 final class RunJob {
 
-    public static final String DEFAULT_JOB_BEAN_NAME = 'job'
     public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
 
     private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
@@ -91,7 +90,7 @@ final class RunJob {
             }
         }
 
-        String jobIdentifier = calculateJobIdentifier()
+        String jobIdentifier = calculateJobIdentifier(externalJobParameters.jobPath)
         if (!jobIdentifier) {
             System.exit 1
         }
@@ -128,17 +127,31 @@ final class RunJob {
         path
     }
 
-    String calculateJobIdentifier() {
+    String calculateJobIdentifier(Class configurationClass) {
         /* CommandLineJobRunner uses -j both for a bean job name
          * (or logical job name to be found by a JobLocator) or
-         * a JobInstance identifier or name */
+         * a JobInstance identifier or name.
+         *
+         * The job name should also match its bean name because
+         * on restarts the job name saved in the registry is
+         * used as the bean name
+         */
          if (opts.r || opts.s || opts.a) {
              if (!opts.j) {
                  System.err.println('The -j parameter must be specified ' +
                          'when the options -n, -s or -a are used')
+                 null
+             } else {
+                 opts.j
              }
          } else {
-             DEFAULT_JOB_BEAN_NAME
+             def job = configurationClass.JOB_NAME
+             if (!job) {
+                 throw new IllegalStateException("Class $configurationClass should " +
+                         "have a static property 'JOB_NAME'")
+             }
+
+             job
          }
     }
 
