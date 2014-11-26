@@ -35,7 +35,7 @@ class MrnaPlatformCleanScenarioTests {
     static final long NUMBER_OF_PROBES = 19
 
     @ClassRule
-    public final static TestRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID)
+    public final static TestRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'annotation')
 
     @Autowired
     JobRepository jobRepository

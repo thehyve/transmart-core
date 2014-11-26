@@ -11,10 +11,12 @@ import org.transmartproject.batch.startup.RunJob
  */
 class RunJobRule extends ExternalResource {
 
-    String studyId
+    private final String studyId
+    private final String dataType
 
-    RunJobRule(String studyOrPlatformId) {
+    RunJobRule(String studyOrPlatformId, String dataType) {
         this.studyId = studyOrPlatformId
+        this.dataType = dataType
     }
 
     JobParameters jobParameters
@@ -23,7 +25,7 @@ class RunJobRule extends ExternalResource {
     protected void before() throws Throwable {
         CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
         def runJob = RunJob.createInstance(
-                '-p', 'studies/' + studyId + '/annotation.params')
+                '-p', "studies/$studyId/${dataType}.params" as String)
         runJob.run()
 
         jobParameters = runJob.finalJobParameters
