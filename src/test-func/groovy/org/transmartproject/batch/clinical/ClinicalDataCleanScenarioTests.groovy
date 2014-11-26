@@ -4,13 +4,11 @@ import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.junit.AfterClass
-import org.junit.BeforeClass
+import org.junit.ClassRule
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.launch.support.CommandLineJobRunner
-import org.springframework.batch.core.launch.support.SystemExiter
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
@@ -22,14 +20,12 @@ import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.startup.RunJob
-
-import java.util.concurrent.TimeUnit
+import org.transmartproject.batch.junit.NoSkipIfJobFailed
+import org.transmartproject.batch.junit.RunJobRule
+import org.transmartproject.batch.junit.SkipIfJobFailedRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.junit.Assume.assumeTrue
-import static uk.co.it.modular.hamcrest.date.DateMatchers.within
 
 /**
  * Load clinical data for a study not loaded before.
@@ -37,10 +33,6 @@ import static uk.co.it.modular.hamcrest.date.DateMatchers.within
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
 class ClinicalDataCleanScenarioTests {
-
-    static JobParameters jobParameters
-
-    static Date endImportDate = new Date()
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -53,25 +45,24 @@ class ClinicalDataCleanScenarioTests {
 
     private static final BigDecimal DELTA = 0.005
 
+    @ClassRule
+    public final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'clinical')
+
     @Autowired
     JobRepository jobRepository
 
     @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate
-
-    @Autowired
     RowCounter rowCounter
 
-    @BeforeClass
-    static void loadStudy() {
-        CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
-        def runJob = RunJob.createInstance(
-                '-p', 'studies/' + STUDY_ID + '/clinical.params')
-        runJob.run()
+    @Autowired
+    NamedParameterJdbcTemplate jdbcTemplate
 
-        jobParameters = runJob.finalJobParameters
-        endImportDate = new Date()
-    }
+    @Rule
+    @SuppressWarnings('PublicInstanceField')
+    public final SkipIfJobFailedRule skipIfJobFailedRule = new SkipIfJobFailedRule(
+            jobRepositoryProvider: { -> jobRepository },
+            runJobRule: RUN_JOB_RULE,
+            jobName: ClinicalDataLoadJobConfiguration.JOB_NAME,)
 
     @AfterClass
     static void cleanDatabase() {
@@ -79,42 +70,24 @@ class ClinicalDataCleanScenarioTests {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
-//                        Tables.OBSERVATION_FACT,
-//                        Tables.CONCEPT_DIMENSION,
-//                        Tables.PATIENT_TRIAL,
-//                        Tables.PATIENT_DIMENSION,
-//                        Tables.I2B2,
-//                        Tables.I2B2_SECURE,
+                        Tables.OBSERVATION_FACT,
+                        Tables.CONCEPT_DIMENSION,
+                        Tables.PATIENT_TRIAL,
+                        Tables.PATIENT_DIMENSION,
+                        Tables.I2B2,
+                        Tables.I2B2_SECURE,
                         'ts_batch.batch_job_instance cascade')
     }
 
-    @SuppressWarnings('ChainedTest')
-    private boolean isJobCompletedSuccessFully() {
-        try {
-            testJobCompletedSuccessfully()
-            true
-        } catch (AssertionError ae) {
-            false
-        }
-    }
-
     @Test
+    @NoSkipIfJobFailed
     void testJobCompletedSuccessfully() {
-        def execution = jobRepository.getLastJobExecution(
-                ClinicalDataLoadJobConfiguration.JOB_NAME, jobParameters)
-
-        assertThat execution.endTime, allOf(
-                is(notNullValue()),
-                within(30, TimeUnit.SECONDS, endImportDate)
-        )
-
-        assertThat execution.status, is(equalTo(BatchStatus.COMPLETED))
+        assert skipIfJobFailedRule.jobCompletedSuccessFully,
+                'The job completed successfully'
     }
 
     @Test
     void testCorrectNumberOfPatients() {
-        assumeTrue jobCompletedSuccessFully
-
         long numPatientDim = rowCounter.count(
                 Tables.PATIENT_DIMENSION,
                 'sourcesystem_cd LIKE :pat',
@@ -132,8 +105,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testAPatientIsLoadedCorrectly() {
-        assumeTrue jobCompletedSuccessFully
-
         def q = """
             SELECT patient_num, sex_cd, age_in_years_num
             FROM ${Tables.PATIENT_DIMENSION}
@@ -150,8 +121,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testNumberOfFactsIsCorrect() {
-        assumeTrue jobCompletedSuccessFully
-
         long numFacts = rowCounter.count(
                 Tables.OBSERVATION_FACT,
                 'sourcesystem_cd = :ss',
@@ -163,8 +132,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testCategoricalVariablesMatchConceptName() {
-        assumeTrue jobCompletedSuccessFully
-
         def q = """
             SELECT C.concept_path, O.tval_char
             FROM
@@ -194,8 +161,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testNumericalValuesHaveCorrectTval() {
-        assumeTrue jobCompletedSuccessFully
-
         // all the numeric values should be loaded as having a value equal
         // (as opposed to lower than, greater than and so on) to the one
         // specified in the data file. This is represented in i2b2 by using
@@ -213,8 +178,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testFactsConstantColumns() {
-        assumeTrue jobCompletedSuccessFully
-
         def q = """
             SELECT DISTINCT
                 provider_id,
@@ -260,8 +223,6 @@ class ClinicalDataCleanScenarioTests {
         /* GSE8581GSM211865 Homo sapiens caucasian male 69 year 67 inch 71
             lung D non-small cell squamous cell carcinoma 2.13 */
 
-        assumeTrue jobCompletedSuccessFully
-
         // Test a numerical and a categorical concept
         def expected = [
                 'Endpoints\\FEV1\\': 2.13,
@@ -295,8 +256,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testI2b2AndConceptDimensionMatch() {
-        assumeTrue jobCompletedSuccessFully
-
         long numI2b2 = rowCounter.count(
                 Tables.I2B2,
                 'sourcesystem_cd = :ss',
@@ -332,8 +291,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testI2b2AndI2b2SecureMatch() {
-        assumeTrue jobCompletedSuccessFully
-
         def q = """
             SELECT *
             FROM ${Tables.I2B2} I
@@ -371,8 +328,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testI2b2SecureTokensArePublic() {
-        assumeTrue jobCompletedSuccessFully
-
         def q = """
             SELECT DISTINCT secure_obj_token
             FROM ${Tables.I2B2_SECURE} I
@@ -396,8 +351,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testMalePatientsXtrial() {
-        assumeTrue jobCompletedSuccessFully
-
         def maleCp = '\\Public Studies\\GSE8581\\Subjects\\Sex\\male\\'
         def modifierCd = 'SNOMED:F-03CE6' // modifier code for male
 
@@ -408,8 +361,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testCaucasianXtrial() {
-        assumeTrue jobCompletedSuccessFully
-
         def cauc = '\\Public Studies\\GSE8581\\Subjects\\Ethnicity\\Caucasian\\'
         def modifierCd = 'DEMO:RACE:CAUC'
 
@@ -420,8 +371,6 @@ class ClinicalDataCleanScenarioTests {
 
     @Test
     void testFEV1Xtrial() {
-        assumeTrue jobCompletedSuccessFully
-
         def fev1 = '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'
         def modifierCd = 'SNOMED:F-0320A' // modifier code for male
 

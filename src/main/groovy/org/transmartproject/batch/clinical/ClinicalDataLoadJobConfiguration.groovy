@@ -1,6 +1,5 @@
 package org.transmartproject.batch.clinical
 
-import groovy.transform.TypeChecked
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
@@ -11,18 +10,12 @@ import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.item.file.FlatFileItemReader
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
-import org.springframework.batch.item.file.mapping.DefaultLineMapper
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.beans.AbstractJobConfiguration
-import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
@@ -35,6 +28,7 @@ import org.transmartproject.batch.clinical.variable.ReadVariablesTasklet
 import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
 import org.transmartproject.batch.tasklet.oracle.OracleInsertConceptCountsTasklet
@@ -102,9 +96,10 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .allowStartIfComplete(true)
                 .chunk(5)
                 .reader(tsvFileReader(
-                        XtrialMapping,
                         xtrialFileResource(),
-                        ['study_prefix', 'xtrial_prefix']))
+                        beanClass: XtrialMapping,
+                        columnNames: ['study_prefix', 'xtrial_prefix'],
+                        linesToSkip: 1,))
                 .writer(xtrialsFileTaskletWriter())
                 .build()
 
@@ -113,28 +108,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 readVariablesTasklet,
                 readWordMapTasklet,
                 readXtrialsTasklet,
-        )
-    }
-
-    @TypeChecked
-    private <T> ItemReader<T> tsvFileReader(Class<T> beanClass,
-                                        Resource resource,
-                                        List<String> columnNames,
-                                        boolean strict = true) {
-        new FlatFileItemReader<T>(
-                lineMapper: new DefaultLineMapper<T>(
-                        lineTokenizer: new DelimitedLineTokenizer(
-                                names: columnNames as String[],
-                                delimiter: DelimitedLineTokenizer.DELIMITER_TAB,
-                        ),
-                        fieldSetMapper: new BeanWrapperFieldSetMapper(
-                                targetType: beanClass,
-                        ),
-                ),
-                linesToSkip: 1,
-
-                resource: resource,
-                strict: strict,
         )
     }
 

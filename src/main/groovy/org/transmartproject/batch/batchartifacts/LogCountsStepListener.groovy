@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.batchartifacts
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.ExitStatus

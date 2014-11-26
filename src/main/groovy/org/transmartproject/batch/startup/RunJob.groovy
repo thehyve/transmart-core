@@ -5,6 +5,7 @@ import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.springframework.batch.core.launch.support.SystemExiter
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
+import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationExternalJobParameters
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,6 +21,7 @@ final class RunJob {
 
     private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
             'clinical': ClinicalExternalJobParameters,
+            'annotation': MrnaAnnotationExternalJobParameters,
     ]
 
     OptionAccessor opts
@@ -65,7 +67,7 @@ final class RunJob {
         new RunJob(opts: opts)
     }
 
-    void run() {
+    int run() {
         def propSource = batchPropertiesPath
         if (!propSource) {
             System.exit 1
@@ -159,8 +161,8 @@ final class RunJob {
         def ds = opts.ds
         def paramOverrides = [:]
         if (ds) {
-            for (int i = 0; i < ds.length / 2; i++) {
-                paramOverrides[ds[i]] = ds[ds[i + 1]]
+            for (int i = 0; i < ds.size() / 2; i++) {
+                paramOverrides[ds[i]] = ds[i + 1]
             }
         }
 
