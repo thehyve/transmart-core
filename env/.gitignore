@@ -7,6 +7,8 @@
 /transmart-loader
 /transmart-loader-from-file-server
 /transmart-loader-latest-bamboo-snapshot
+/batchdb-psql.properties
+/transmart-batch-capsule.jar
 /mvn
 /apache-maven-*
 /php5
