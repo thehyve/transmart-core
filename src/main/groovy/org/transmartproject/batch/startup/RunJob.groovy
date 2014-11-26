@@ -65,7 +65,7 @@ final class RunJob {
         new RunJob(opts: opts)
     }
 
-    void run() {
+    int run() {
         def propSource = batchPropertiesPath
         if (!propSource) {
             System.exit 1
