@@ -17,7 +17,7 @@ import java.nio.file.Path
 @SuppressWarnings('UnnecessaryConstructor')
 abstract class ExternalJobParameters {
 
-    public static final String STUDY_ID = 'STUDY_ID'
+    public static final String STUDY_ID = 'STUDY_ID' /* can be a platform name */
     public static final String TOP_NODE = 'TOP_NODE'
     public static final String SECURITY_REQUIRED = 'SECURITY_REQUIRED'
 
