@@ -50,8 +50,6 @@ class VcfTestData  {
     List<DeVariantSubjectIdxCoreDb> indexData
     List<DeVariantPopulationDataCoreDb> populationData
 
-    QtQueryMaster allPatientsQueryResult
-
     SampleBioMarkerTestData bioMarkerTestData
 
     public VcfTestData(String conceptCode = 'bogus') {
@@ -64,7 +62,6 @@ class VcfTestData  {
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
-        allPatientsQueryResult = createQueryResult(patients)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME, conceptCode)
         
         // Create VCF data
@@ -193,7 +190,6 @@ class VcfTestData  {
         assertThat otherPlatform.save(), is(notNullValue(DeGplInfo))
         save([dataset])
         save patients
-        save([ allPatientsQueryResult ])
         save assays
         save detailsData
         save indexData

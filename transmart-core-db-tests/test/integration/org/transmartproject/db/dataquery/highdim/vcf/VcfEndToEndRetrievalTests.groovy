@@ -339,9 +339,6 @@ class VcfEndToEndRetrievalTests {
     void testWithGeneConstraint() {
         def assayConstraints = [
                 trialNameConstraint,
-                vcfResource.createAssayConstraint(
-                        AssayConstraint.PATIENT_SET_CONSTRAINT,
-                        result_instance_id: testData.allPatientsQueryResult.id),
         ]
         def dataConstraints = [
                 vcfResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
