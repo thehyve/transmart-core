@@ -81,21 +81,28 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
      * @returns {Array}
      * @private
      */
-    var _getTransmartDASSources = function (result_instance_id, dataType) {
+    var _getTransmartDASSources = function (result_instance_id, concept_key, dataType) {
 
         var arrNds = new Array();
 
+        // Result instance id and concept key will be included in uri
+        var encoded_concept_key = btoa(concept_key);
+        var das_suffix = "" + result_instance_id;
+        if (encoded_concept_key) {
+            das_suffix += "-" + encoded_concept_key;
+        }
+
         if (dataType == 'acgh') {
-            arrNds[0] = new DASSource({name: 'acgh-gain', uri: pageInfo.basePath + "/das/acgh-gain-" + result_instance_id + "/"});
-            arrNds[1] = new DASSource({name: 'acgh-loss', uri: pageInfo.basePath + "/das/acgh-loss-" + result_instance_id + "/"});
-            arrNds[2] = new DASSource({name: 'acgh-normal', uri: pageInfo.basePath + "/das/acgh-normal-" + result_instance_id + "/"});
-            arrNds[3] = new DASSource({name: 'acgh-amp', uri: pageInfo.basePath + "/das/acgh-amp-" + result_instance_id + "/"});
-            arrNds[4] = new DASSource({name: 'acgh-inv', uri: pageInfo.basePath + "/das/acgh-inv-" + result_instance_id + "/"});
+            arrNds[0] = new DASSource({name: 'acgh-gain', uri: pageInfo.basePath + "/das/acgh-gain-" + das_suffix + "/"});
+            arrNds[1] = new DASSource({name: 'acgh-loss', uri: pageInfo.basePath + "/das/acgh-loss-" + das_suffix + "/"});
+            arrNds[2] = new DASSource({name: 'acgh-normal', uri: pageInfo.basePath + "/das/acgh-normal-" + das_suffix + "/"});
+            arrNds[3] = new DASSource({name: 'acgh-amp', uri: pageInfo.basePath + "/das/acgh-amp-" + das_suffix + "/"});
+            arrNds[4] = new DASSource({name: 'acgh-inv', uri: pageInfo.basePath + "/das/acgh-inv-" + das_suffix + "/"});
         } else if (dataType == 'vcf') {
-            arrNds[0] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ result_instance_id + "/"});
-            arrNds[1] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + result_instance_id + "/"});
-            arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ result_instance_id + "/"});
-            arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ result_instance_id + "/"});
+            arrNds[0] = new DASSource({name: 'smaf', uri: pageInfo.basePath + "/das/smaf-"+ das_suffix + "/"});
+            arrNds[1] = new DASSource({name: 'qd', uri: pageInfo.basePath + "/das/qd-" + das_suffix + "/"});
+            arrNds[3] = new DASSource({name: 'gv', uri: pageInfo.basePath + "/das/gv-"+ das_suffix + "/"});
+            arrNds[4] = new DASSource({name: 'vcf', uri: pageInfo.basePath + "/das/vcf-"+ das_suffix + "/"});
         } else {
             console.log("Unknown data type", dataType);
         }
@@ -201,10 +208,10 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
             if (_isHighDimensionalNode(node)) {
                 // define features
-                var sources = _getTransmartDASSources(res_inst_id_1, dataType);
+                var sources = _getTransmartDASSources(res_inst_id_1, node.id, dataType);
                 _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
                 if (res_inst_id_2) {
-                    sources = _getTransmartDASSources(res_inst_id_2, dataType);
+                    sources = _getTransmartDASSources(res_inst_id_2, node.id, dataType);
                     _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
                 }
                 thisB.createAddInfoButton()
