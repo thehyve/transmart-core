@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.batchartifacts
 
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.core.task.SimpleAsyncTaskExecutor

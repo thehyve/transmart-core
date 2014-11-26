@@ -25,8 +25,8 @@ import org.transmartproject.batch.clinical.facts.ClinicalDataRow
 import org.transmartproject.batch.clinical.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.db.SimpleJdbcInsertConverter
-import org.transmartproject.batch.support.JobContextAwareTaskExecutor
-import org.transmartproject.batch.support.LogCountsStepListener
+import org.transmartproject.batch.batchartifacts.JobContextAwareTaskExecutor
+import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 
 import javax.sql.DataSource
 import java.nio.file.Path
