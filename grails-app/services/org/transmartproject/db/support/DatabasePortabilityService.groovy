@@ -168,7 +168,7 @@ class DatabasePortabilityService {
      */
     String getNextSequenceValueSql(String schema, String sequenceName) {
         runCorrectImplementation(
-                { "SELECT nextval('${schema}.${sequenceName})" },
+                { "SELECT nextval('${schema}.${sequenceName}')" },
                 { "SELECT ${schema}.${sequenceName}.nextval FROM DUAL" }
         )
     }

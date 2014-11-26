@@ -54,7 +54,7 @@ class VcfTestData  {
 
     SampleBioMarkerTestData bioMarkerTestData
 
-    public VcfTestData() {
+    public VcfTestData(String conceptCode = 'bogus') {
         // Create VCF platform and assays
         platform = new DeGplInfo(
                 title: 'Test VCF',
@@ -65,8 +65,8 @@ class VcfTestData  {
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
         allPatientsQueryResult = createQueryResult(patients)
-        assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME)
-
+        assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME, conceptCode)
+        
         // Create VCF data
         detailsData = []
         detailsData += createDetail(1, 'C', 'A', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')

@@ -39,6 +39,15 @@ class AssayTestData {
         res
     }()
 
+    DeGplInfo platform2 = {
+        def res = new DeGplInfo(
+                title: 'Another platform',
+                organism: 'Homo Sapiens',
+                markerTypeId: 'Gene Expression')
+        res.id = 'BOGUSANNOTH'
+        res
+    }()
+
     List<PatientDimension> patients = HighDimTestData.createTestPatients(3, -100)
 
     List<TableAccess> i2b2TopConcepts = [
@@ -49,6 +58,7 @@ class AssayTestData {
     List<I2b2> i2b2GenericConcepts = [
             createI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'bar'),
             createI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto'),
+            createI2b2(level: 1, fullName: '\\foo\\xpto2\\', name: 'xpto2'),
     ]
 
     List<ConceptDimension> dimensionConcepts = {
@@ -60,6 +70,10 @@ class AssayTestData {
                 new ConceptDimension(
                         conceptPath: '\\foo\\xpto\\',
                         conceptCode: 'CODE-XPTO'
+                ),
+                new ConceptDimension(
+                        conceptPath: '\\foo\\xpto2\\',
+                        conceptCode: 'CODE-XPTO2'
                 )
         ]
     }()
@@ -71,7 +85,9 @@ class AssayTestData {
             HighDimTestData.createTestAssays(patients, -300, platform,
                     'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCode) +
             HighDimTestData.createTestAssays(patients, -400, platform,
-                    'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCode)
+                    'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCode) +
+            HighDimTestData.createTestAssays(patients, -500, platform2,
+                     'SAMPLE_TRIAL_1', dimensionConcepts[2].conceptCode)
     }()
 
     void saveAll() {

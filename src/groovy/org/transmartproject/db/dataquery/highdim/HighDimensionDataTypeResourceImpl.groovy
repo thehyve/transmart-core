@@ -33,14 +33,17 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
-import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 @Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
     protected HighDimensionDataTypeModule module
+
+    private static final int FETCH_SIZE = 10000
 
     HighDimensionDataTypeResourceImpl(HighDimensionDataTypeModule module) {
         this.module = module
@@ -74,7 +77,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new PlatformConstraint(
+        assayConstraints << new MarkerTypeConstraint(
                 platformNames: module.platformMarkerTypes)
                                                                   
         def assayQuery = new AssayQuery(assayConstraints)
@@ -89,9 +92,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         HibernateCriteriaBuilder criteriaBuilder =
             module.prepareDataQuery(projection, openSession())
 
-        criteriaBuilder.with {
-            'in' 'assay.id', assays*.id
-        }
+        new ChoppedInQueryCondition('assay.id', assays*.id)
+            .addConstraintsToCriteria(criteriaBuilder)
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
@@ -102,6 +104,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         for (CriteriaDataConstraint dataConstraint in dataConstraints) {
             dataConstraint.doWithCriteriaBuilder criteriaBuilder
         }
+
+        criteriaBuilder.instance.fetchSize = FETCH_SIZE
 
         module.transformResults(
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),

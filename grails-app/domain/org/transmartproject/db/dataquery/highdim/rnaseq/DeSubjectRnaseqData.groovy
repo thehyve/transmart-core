@@ -28,8 +28,11 @@ import org.transmartproject.db.i2b2data.PatientDimension
 @EqualsAndHashCode(includes = [ 'assay', 'region' ])
 class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
 
-    String trialName
-    Integer readCount
+    String  trialName
+    Integer readcount
+    Double  normalizedReadcount
+    Double  logNormalizedReadcount
+    Double  zscore
 
     // see comment in mapping
     DeChromosomalRegion jRegion
@@ -49,10 +52,13 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
 
 
         /* references */
-        region    column: 'region_id'
-        assay     column: 'assay_id'
-        patient   column: 'patient_id'
-        readCount column: 'readcount'
+        region                 column: 'region_id'
+        assay                  column: 'assay_id'
+        patient                column: 'patient_id'
+        readcount              column: 'readcount'
+        normalizedReadcount    column: 'normalized_readcount'
+        logNormalizedReadcount column: 'log_normalized_readcount'
+        zscore                 column: 'zscore'
 
         // this duplicate mapping is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
@@ -64,10 +70,12 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
     }
 
     static constraints = {
-        trialName    nullable: true, maxSize: 50
-        region       nullable: true
-        assay        nullable: true
-        readCount    nullable: true
-        patient      nullable: true
-    }
+        trialName              nullable: true, maxSize: 50
+        region                 nullable: true
+        assay                  nullable: true
+        readcount              nullable: true
+        normalizedReadcount    nullable: true
+        logNormalizedReadcount nullable: true
+        zscore                 nullable: true
+        patient                nullable: true }
 }

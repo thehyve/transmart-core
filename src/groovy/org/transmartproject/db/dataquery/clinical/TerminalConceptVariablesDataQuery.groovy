@@ -30,6 +30,7 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 class TerminalConceptVariablesDataQuery {
 
@@ -53,9 +54,10 @@ class TerminalConceptVariablesDataQuery {
             throw new IllegalStateException('init() not called successfully yet')
         }
 
+        def condition = new ChoppedInQueryCondition('patient.id', patientIds)
         // see TerminalConceptVariable constants
         // see ObservationFact
-        Query query = session.createQuery '''
+        Query query = session.createQuery """
                 SELECT
                     patient.id,
                     conceptCode,
@@ -64,18 +66,18 @@ class TerminalConceptVariablesDataQuery {
                     numberValue
                 FROM ObservationFact fact
                 WHERE
-                    patient.id IN (:patientIds)
+                    ${condition.queryConditionTemplate}
                 AND
                     fact.conceptCode IN (:conceptCodes)
                 ORDER BY
                     patient ASC,
-                    conceptCode ASC'''
+                    conceptCode ASC"""
 
         query.cacheable = false
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        query.setParameterList 'patientIds',   patientIds
+        condition.parametersValues.each { parVal -> query.setParameterList parVal.key, parVal.value }
         query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
 
         query.scroll ScrollMode.FORWARD_ONLY

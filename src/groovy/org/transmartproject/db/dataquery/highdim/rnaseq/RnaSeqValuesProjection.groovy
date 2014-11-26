@@ -37,18 +37,21 @@ class RnaSeqValuesProjection implements CriteriaProjection<RnaSeqValues>, MultiV
 
     @Override
     RnaSeqValues doWithResult(Object object) {
-        new RnaSeqValuesImpl(object)
+        new RnaSeqValuesImpl(data: object)
     }
 
     class RnaSeqValuesImpl implements RnaSeqValues {
-        final List rowList
 
-        RnaSeqValuesImpl(final List rowList) {
-            this.rowList = rowList
-        }
+        def data
 
-        Long getAssayId() { rowList[0] as Long }
+        Long getAssayId() { data.assayId as Long }
 
-        Integer getReadCount() { rowList[1] as Integer }
+        Integer getReadcount() { data.readcount as Integer }
+
+        Double getNormalizedReadcount() { data.normalizedReadcount as Double }
+
+        Double getLogNormalizedReadcount() { data.logNormalizedReadcount as Double }
+
+        Double getZscore() { data.zscore as Double }
     }
 }

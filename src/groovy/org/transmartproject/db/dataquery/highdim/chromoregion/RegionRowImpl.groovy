@@ -26,42 +26,45 @@ import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
 final class RegionRowImpl extends AbstractDataRow implements RegionRow, BioMarkerDataRow {
 
-    final List rowList
+    Long    id
+    String  name
+    String  cytoband
+    String  chromosome
+    Long    start
+    Long    end
+    Integer numberOfProbes
+    String  bioMarker
+
+    RegionRowImpl() {}  // Enforce that default constructor is generated along with next explicit constructor
+                        // Else map constructors will fail.
 
     RegionRowImpl(final List rowList) {
-        this.rowList = rowList
+        this.id             = rowList[0] as Long
+        this.name           = rowList[1] as String
+        this.cytoband       = rowList[2] as String
+        this.chromosome     = rowList[3] as String
+        this.start          = rowList[4] as Long
+        this.end            = rowList[5] as Long
+        this.numberOfProbes = rowList[6] as Integer
+        this.bioMarker      = rowList[7] as String
     }
-
-    Long getId() { rowList[0] as Long }
-
-    String getName() { rowList[1] as String }
-
-    String getCytoband() { rowList[2] as String }
 
     Platform getPlatform() {
         throw new UnsupportedOperationException('Getter for get platform is not implemented')
     }
 
-    String getChromosome() { rowList[3] as String }
-
-    Long getStart() { rowList[4] as Long }
-
-    Long getEnd() { rowList[5] as Long }
-
-    Integer getNumberOfProbes() { rowList[6] as Integer }
-
-    @Override
-    String getBioMarker() { rowList[7] as String }
-
     @Override
     String getLabel() {
-        cytoband
+        name
     }
 
     @Override
     public java.lang.String toString() {
-        return "RegionImpl{" +
-                "rowList=" + rowList +
+        return "RegionRowImpl{" +
+                "regionId=" + id +
+                ", regionName=" + name +
+                ", data=" + data.toListString() +
+                ", assayIndexMap=" + assayIndexMap.toMapString() +
                 '}';
     }
 }
