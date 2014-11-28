@@ -5,7 +5,7 @@ E-GEOD-8581.sdrf-rewrite.txt	Subjects	5	Ethnicity
 E-GEOD-8581.sdrf-rewrite.txt	Subjects	8	Sex
 E-GEOD-8581.sdrf-rewrite.txt	Subjects	11	Age (year)
 E-GEOD-8581.sdrf-rewrite.txt	Subjects	13	Height (inch)
-E-GEOD-8581.sdrf-rewrite.txt	Subjects	40	Lung Disease
+E-GEOD-8581.sdrf-rewrite.txt	Subjects	40	Lung_Disease
 E-GEOD-8581.sdrf-rewrite.txt	Endpoints	41	Diagnosis
 E-GEOD-8581.sdrf-rewrite.txt	Endpoints	42	FEV1
 E-GEOD-8581.sdrf-rewrite.txt	Endpoints	16	Forced Expiratory Volume Ratio

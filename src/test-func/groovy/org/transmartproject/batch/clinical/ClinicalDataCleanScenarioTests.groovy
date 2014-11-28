@@ -398,4 +398,20 @@ class ClinicalDataCleanScenarioTests {
                 ),
         )
     }
+
+    @Test
+    void testUnderscoresAreReplacedWithSpaces() {
+        // if the column mapping file has underscores in the category_cd column,
+        // it should be replaced with spaces in the full name and name
+        def q = """
+            SELECT c_fullname, c_name
+            FROM ${Tables.I2B2} I
+            WHERE sourcesystem_cd = :study"""
+
+        def r = jdbcTemplate.queryForList(q, [study: STUDY_ID])
+
+        assertThat r, hasItem(allOf(
+                hasEntry(is('c_fullname'), endsWith('\\Lung Disease\\')),
+                hasEntry(is('c_name'), equalTo('Lung Disease'))))
+    }
 }

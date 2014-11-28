@@ -27,6 +27,8 @@ class VariableLineMapper implements Function<String,ClinicalVariable> {
     }
 
     private static String toPath(String columnMappingPathFragment) {
-        columnMappingPathFragment.replace '+', '\\'
+        columnMappingPathFragment
+                .replace('+', '\\')
+                .replace('_', ' ')
     }
 }
