@@ -5,6 +5,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.jdbc.core.JdbcTemplate
+import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 import org.transmartproject.batch.beans.AppConfig
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -45,9 +47,6 @@ class TestDatabasePrepareConfiguration {
 
     @Autowired
     StepBuilderFactory steps
-
-    @Autowired
-    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler
 
     @Bean
     JdbcTemplate jdbcTemplate(DataSource dataSource) {
@@ -101,6 +100,11 @@ class TestDatabasePrepareConfiguration {
         fieldSetJdbcWriter(Tables.MODIFIER_METADATA)
     }
 
+    @Bean
+    @StepScope
+    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler() {
+        new HeaderSavingLineCallbackHandler()
+    }
 
     private ItemStreamReader<FieldSet> tsvFileReader(Resource resource) {
         new FlatFileItemReader<FieldSet>(
@@ -112,7 +116,7 @@ class TestDatabasePrepareConfiguration {
                 ),
 
                 linesToSkip: 1,
-                skippedLinesCallback: headerSavingLineCallbackHandler,
+                skippedLinesCallback: headerSavingLineCallbackHandler(),
 
                 resource: resource,
                 strict: true,

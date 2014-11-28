@@ -2,7 +2,7 @@ package org.transmartproject.batch.clinical.variable
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import org.transmartproject.batch.clinical.patient.DemographicVariable
+import org.transmartproject.batch.patient.DemographicVariable
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.support.LineListener

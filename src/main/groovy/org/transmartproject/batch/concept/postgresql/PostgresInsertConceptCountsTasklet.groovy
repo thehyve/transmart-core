@@ -15,8 +15,10 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
           SELECT
             concept_path,
             concept_cd
-           FROM i2b2demodata.concept_dimension
-           WHERE sourcesystem_cd = ?
+          FROM i2b2demodata.concept_dimension
+          WHERE
+            concept_path LIKE (regexp_replace(?, '([\\\\_%])', '\\\\\\1', 'g') || '%') ESCAPE '\\'
+            AND sourcesystem_cd = ?
         ),
         code_patients AS (
           SELECT concept_path, concept_cd, patient_num
@@ -29,7 +31,8 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
           (
             SELECT COUNT(DISTINCT patient_num)
             FROM code_patients
-            WHERE concept_path LIKE (R.concept_path || '%') ESCAPE E'\\uFFFF'
+            WHERE concept_path LIKE (
+              regexp_replace(R.concept_path, '([\\\\_%])', '\\\\\\1', 'g') || '%') ESCAPE '\\'
           ) as count
           FROM relevant_concepts R
         """

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical.facts
+package org.transmartproject.batch.facts
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter

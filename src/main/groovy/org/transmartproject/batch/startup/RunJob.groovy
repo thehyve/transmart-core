@@ -5,6 +5,7 @@ import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.springframework.batch.core.launch.support.SystemExiter
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
+import org.transmartproject.batch.highdim.mrna.data.MrnaDataExternalJobParameters
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationExternalJobParameters
 import org.transmartproject.batch.tag.TagsLoadJobParameters
 
@@ -25,6 +26,7 @@ final class RunJob {
             'clinical': ClinicalExternalJobParameters,
             'annotation': MrnaAnnotationExternalJobParameters,
             'tags': TagsLoadJobParameters,
+            'expression': MrnaDataExternalJobParameters,
     ]
 
     OptionAccessor opts

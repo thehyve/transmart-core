@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical.patient
+package org.transmartproject.batch.patient
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepContribution
@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.stereotype.Component
+import org.transmartproject.batch.beans.JobScopeInterfaced
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -17,6 +19,8 @@ import java.sql.SQLException
  * Gets the current patients (for the study) from database, populating the PatientSet
  */
 @Slf4j
+@Component
+@JobScopeInterfaced
 class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
 
     @Autowired
@@ -41,6 +45,7 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
 
         patients.each {
             log.debug('Found existing patient {}', it)
+            patientSet << it
             contribution.incrementReadCount()
         }
 
@@ -50,10 +55,10 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
     @Override
     Patient mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(2)[studyPrefix.length()..-1]
-        Patient patient = patientSet[id] //retrieve/create the Patient
-        patient.code = rs.getLong(1)
-        patient.isNew = false
-        patient
+        new Patient(
+                id: id,
+                code: rs.getLong(1),
+                isNew: false)
     }
 
 }

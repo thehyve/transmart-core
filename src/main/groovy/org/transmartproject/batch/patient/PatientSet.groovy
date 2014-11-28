@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical.patient
+package org.transmartproject.batch.patient
 
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +29,14 @@ class PatientSet {
                     code: sequenceReserver.getNext(Sequences.PATIENT))
             patientMap[id] = result
         }
+    }
+
+    void leftShift(Patient patient) {
+        assert patient.isNew == false
+        assert patient.code != null
+        assert patient.id != null
+
+        patientMap[patient.id] = patient
     }
 
     Collection<Patient> getNewPatients() {

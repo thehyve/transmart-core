@@ -9,6 +9,8 @@ import org.springframework.batch.core.annotation.BeforeWrite
  */
 @Slf4j
 class ProgressWriteListener<T> {
+    private static final long MIN_DIFFERENCE = 1
+
     int everyNChunks = 1
 
     private long chunks = 0
@@ -42,8 +44,9 @@ class ProgressWriteListener<T> {
         def curTime = System.currentTimeMillis()
 
         def perSecondGlobal = (items + chunkItems.size()) /
-                ((curTime - start)/1000)
-        def perSecondLocal = (chunkItems.size()) / ((curTime - last)/1000)
+                (Math.max(curTime - start, MIN_DIFFERENCE)/1000)
+        def perSecondLocal = (chunkItems.size()) /
+                (Math.max(curTime - last, MIN_DIFFERENCE)/1000)
 
         items += chunkItems.size()
         last = curTime

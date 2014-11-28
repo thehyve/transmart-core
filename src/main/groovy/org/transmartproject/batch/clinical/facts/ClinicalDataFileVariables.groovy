@@ -1,7 +1,7 @@
 package org.transmartproject.batch.clinical.facts
 
 import groovy.util.logging.Slf4j
-import org.transmartproject.batch.clinical.patient.DemographicVariable
+import org.transmartproject.batch.patient.DemographicVariable
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 
 /**

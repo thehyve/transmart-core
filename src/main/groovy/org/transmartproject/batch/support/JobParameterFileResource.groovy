@@ -1,5 +1,6 @@
 package org.transmartproject.batch.support
 
+import com.google.common.base.MoreObjects
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.AbstractResource
@@ -34,6 +35,13 @@ class JobParameterFileResource implements Resource {
         } else {
             resource = new PathResource(jobParameters[parameter])
         }
+    }
+
+    @Override
+    String toString() {
+        MoreObjects.toStringHelper(this)
+                .add("delegateResource", resource)
+                .toString()
     }
 
     class InexistentResource extends AbstractResource {

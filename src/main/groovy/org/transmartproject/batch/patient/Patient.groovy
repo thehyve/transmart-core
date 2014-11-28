@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical.patient
+package org.transmartproject.batch.patient
 
 import groovy.transform.ToString
 import groovy.transform.TypeChecked

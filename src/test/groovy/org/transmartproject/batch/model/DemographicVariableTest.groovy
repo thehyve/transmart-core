@@ -1,7 +1,7 @@
 package org.transmartproject.batch.model
 
 import org.junit.Test
-import org.transmartproject.batch.clinical.patient.DemographicVariable
+import org.transmartproject.batch.patient.DemographicVariable
 
 /**
  *

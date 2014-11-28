@@ -12,6 +12,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.context.annotation.Bean
@@ -19,21 +20,22 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import org.transmartproject.batch.batchartifacts.ProgressWriteListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
-import org.transmartproject.batch.clinical.patient.GatherCurrentPatientsTasklet
 import org.transmartproject.batch.clinical.patient.InsertPatientTrialTasklet
 import org.transmartproject.batch.clinical.patient.InsertUpdatePatientDimensionTasklet
-import org.transmartproject.batch.clinical.variable.GatherCurrentConceptsTasklet
-import org.transmartproject.batch.clinical.variable.InsertConceptsTasklet
 import org.transmartproject.batch.clinical.variable.ReadVariablesTasklet
 import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
+import org.transmartproject.batch.concept.ConceptPath
+import org.transmartproject.batch.concept.InsertConceptCountsTasklet
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
+import org.transmartproject.batch.facts.DeleteObservationFactTasklet
+import org.transmartproject.batch.facts.ObservationFactTableWriter
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
@@ -44,7 +46,9 @@ import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCounts
  * Spring configuration for the clinical data job.
  */
 @Configuration
-@ComponentScan('org.transmartproject.batch.clinical')
+@ComponentScan(['org.transmartproject.batch.clinical',
+                'org.transmartproject.batch.concept',
+                'org.transmartproject.batch.patient'])
 @Import(TagsLoadJobConfiguration)
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
@@ -54,8 +58,17 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @javax.annotation.Resource(name='TagsLoadJob')
     Job tagsLoadJob
 
-    @Override
+    @javax.annotation.Resource
+    Tasklet insertConceptsTasklet
+
+    @javax.annotation.Resource
+    Tasklet gatherCurrentConceptsTasklet
+
+    @javax.annotation.Resource
+    Tasklet gatherCurrentPatientsTasklet
+
     @Bean(name = 'ClinicalDataLoadJob')
+    @Override
     Job job() {
         FlowJob job =
             jobs.get(JOB_NAME)
@@ -72,8 +85,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .start(readControlFilesFlow()) //reads control files (column map, word map, xtrial)
 
                 // read stuff from the DB
-                .next(allowStartStepOf(this.&gatherCurrentPatientsTasklet))
-                .next(allowStartStepOf(this.&gatherCurrentConceptsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentPatientsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
                 // delete data we'll be replacing
@@ -87,8 +100,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 // insertion of ancillary data
                 .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
                 .next(stepOf(this.&insertPatientTrialTasklet))           //insert patient_trial rows
-                .next(stepOf(this.&insertConceptsTasklet))               //insert i2b2, i2b2_secure, concept_dimension
-                .next(stepOf(this.&insertConceptCountsTasklet))          //insert concept_counts rows
+                .next(stepOf(this.&getInsertConceptsTasklet))            //insert i2b2, i2b2_secure, concept_dimension
+                .next(stepOf('insertConceptCounts',
+                             insertConceptCountsTasklet(null, null)))    //insert concept_counts rows
                 .build()
     }
 
@@ -153,7 +167,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                     rowToFactRowSetConverter(), //converts each Row to a FactRowSet
                 ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
-                .listener(new ProgressWriteListener())
+                .listener(progressWriteListener())
                 .build()
     }
 
@@ -174,18 +188,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet readVariablesTasklet() {
         new ReadVariablesTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet gatherCurrentPatientsTasklet() {
-        new GatherCurrentPatientsTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet gatherCurrentConceptsTasklet() {
-        new GatherCurrentConceptsTasklet()
     }
 
     @Bean
@@ -231,16 +233,15 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet insertConceptsTasklet() {
-        new InsertConceptsTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet insertConceptCountsTasklet(DatabaseImplementationClassPicker picker) {
+    Tasklet insertConceptCountsTasklet(DatabaseImplementationClassPicker picker,
+                                       @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode) {
         picker.instantiateCorrectClass(
                 OracleInsertConceptCountsTasklet,
                 PostgresInsertConceptCountsTasklet)
+        .with { InsertConceptCountsTasklet t ->
+            t.basePath = topNode
+            t
+        }
     }
 
     @Bean
@@ -251,8 +252,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteConceptCountsTasklet() {
-        new DeleteConceptCountsTasklet()
+    Tasklet deleteConceptCountsTasklet(
+            @Value("#{jobParameters['TOP_NODE']}") topNode) {
+        new DeleteConceptCountsTasklet(basePath: new ConceptPath(topNode))
     }
 
     @Bean

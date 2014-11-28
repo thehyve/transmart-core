@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.patient.PatientSet
+import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.clinical.facts.WordMapping

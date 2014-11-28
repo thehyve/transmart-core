@@ -12,6 +12,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.db.UpdateQueryBuilder
+import org.transmartproject.batch.patient.DemographicVariable
+import org.transmartproject.batch.patient.Patient
+import org.transmartproject.batch.patient.PatientSet
 
 import javax.annotation.PostConstruct
 

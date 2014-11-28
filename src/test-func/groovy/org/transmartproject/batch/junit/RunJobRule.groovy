@@ -1,5 +1,6 @@
 package org.transmartproject.batch.junit
 
+import groovy.util.logging.Slf4j
 import org.junit.rules.ExternalResource
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
@@ -9,6 +10,7 @@ import org.transmartproject.batch.startup.RunJob
 /**
  * This is a class rule.
  */
+@Slf4j
 class RunJobRule extends ExternalResource {
 
     private final String studyId

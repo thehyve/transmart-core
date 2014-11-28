@@ -7,5 +7,6 @@
 /bin
 /*.iml
 /batchdb.properties
+/batchdb-*.properties
 *.sw[mnop]
 /logback.groovy

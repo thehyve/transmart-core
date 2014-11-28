@@ -9,12 +9,15 @@ import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
+import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.file.FlatFileItemReader
+import org.springframework.batch.item.file.LineCallbackHandler
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
@@ -34,16 +37,10 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.core.io.Resource
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.transmartproject.batch.batchartifacts.*
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
-import org.transmartproject.batch.clinical.facts.ClinicalFactsRowSet
-import org.transmartproject.batch.db.DatabaseImplementationClassPicker
-import org.transmartproject.batch.db.OracleSequenceReserver
-import org.transmartproject.batch.db.PostgresSequenceReserver
-import org.transmartproject.batch.db.SequenceReserver
-import org.transmartproject.batch.db.SimpleJdbcInsertConverter
-import org.transmartproject.batch.batchartifacts.JobContextAwareTaskExecutor
-import org.transmartproject.batch.batchartifacts.LogCountsStepListener
-import org.transmartproject.batch.batchartifacts.MessageResolverSpringValidator
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
+import org.transmartproject.batch.db.*
 
 import javax.sql.DataSource
 import java.nio.file.Path
@@ -56,7 +53,6 @@ import java.nio.file.Paths
 @Import(AppConfig)
 @ComponentScan([
         'org.transmartproject.batch.db',
-        'org.transmartproject.batch.concept',
         'org.transmartproject.batch.support',
 ])
 abstract class AbstractJobConfiguration {
@@ -112,19 +108,27 @@ abstract class AbstractJobConfiguration {
         sequenceReserver.defaultBlockSize = 10
     }
 
-    final protected Step stepOf(MethodClosure closure) {
-        steps.get(closure.method - ~/^get/)
-                .tasklet(closure.call())
+    final protected Step stepOf(String name, Tasklet tasklet) {
+        steps.get(name)
+                .tasklet(tasklet)
                 .listener(showCountStepListener())
                 .build()
     }
 
-    final protected Step allowStartStepOf(MethodClosure closure) {
-        steps.get(closure.method - ~/^get/)
+    final protected Step allowStartStepOf(String name, Tasklet tasklet) {
+        steps.get(name)
                 .allowStartIfComplete(true)
-                .tasklet(closure.call())
+                .tasklet(tasklet)
                 .listener(showCountStepListener())
                 .build()
+    }
+
+    final protected Step stepOf(MethodClosure closure) {
+        stepOf(closure.method - ~/^get/, closure.call())
+    }
+
+    final protected Step allowStartStepOf(MethodClosure closure) {
+        allowStartStepOf(closure.method - ~/^get/, closure.call())
     }
 
     @Bean
@@ -153,21 +157,54 @@ abstract class AbstractJobConfiguration {
         result
     }
 
+    @Bean
+    @StepScope
+    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler() {
+        new HeaderSavingLineCallbackHandler()
+    }
+
+    @Bean
+    @StepScope
+    ProgressWriteListener progressWriteListener() {
+        new ProgressWriteListener()
+    }
+
     @TypeChecked
     protected
-    <T> ItemReader<T> tsvFileReader(Map<String, Object> options,
+    <T> ItemStreamReader<T> tsvFileReader(Map<String, Object> options,
                                     Resource resource) {
         /* options:
          * strict: true|false (default: yes)
+         * saveState: true|false (default: yes)
          * beanClass: JavaBean class
          *            (optional, o/wise use PassThroughFieldSetMapper)
-         * columnNames: names of columns, used then to map into bean properties
-         *              could be made optional in the future by reading the
-         *              first line; see test class HeaderSavingLineCallbackHandler
-         *              (List<String> or String[]))
+         * columnNames: names of columns, required if mapping into bean
+         *              properties (List<String> or String[]))
          * linesToSkip: <int> (default: 0)
+         * saveHeader: true|false|LineCallbackHandler object (default: false)
          *
          */
+        def strict = options.containsKey('strict') ?
+                (boolean) options.strict : true
+        def saveHeader = options.containsKey('saveHeader') ?
+                options.saveHeader : false
+        int linesToSkip = options.containsKey('linesToSkip') ?
+                (options.linesToSkip as int) : 0
+
+        if (linesToSkip == 0 && saveHeader) {
+            throw new IllegalArgumentException(
+                    'Cannot save header if there are no lines to skip')
+        }
+
+        LineCallbackHandler lch = null
+        if (saveHeader) {
+            if (saveHeader instanceof LineCallbackHandler) {
+                lch = (LineCallbackHandler) saveHeader
+            } else {
+                lch = headerSavingLineCallbackHandler()
+            }
+        }
+
         FieldSetMapper<T> mapper
         if (options.beanClass) {
             mapper = new BeanWrapperFieldSetMapper<T>(
@@ -178,16 +215,20 @@ abstract class AbstractJobConfiguration {
         new FlatFileItemReader<T>(
                 lineMapper: new DefaultLineMapper<T>(
                         lineTokenizer: new DelimitedLineTokenizer(
-                                names: options.columnNames as String[],
+                                names: (options.columnNames ?: []) as String[],
                                 delimiter: DelimitedLineTokenizer.DELIMITER_TAB,
                         ),
                         fieldSetMapper: mapper,
                 ),
-                linesToSkip: (int) options.linesToSkip ?: 0,
+
+                linesToSkip: linesToSkip,
+                skippedLinesCallback: lch,
+
                 recordSeparatorPolicy: new DefaultRecordSeparatorPolicy(),
                 resource: resource,
-                strict: options.containsKey('strict') ?
-                        (boolean) options.strict : true,
+                strict: strict,
+                saveState: options.containsKey('saveState') ?
+                        (boolean) options.saveState : true,
         )
     }
 
@@ -198,6 +239,13 @@ abstract class AbstractJobConfiguration {
                 defaultEncoding: 'UTF-8')
     }
 
+
+    static protected final Step wrapStepWithName(final String name,
+                                                 final Step step) {
+        /* bad hack to avoid getName() being called on a scoped proxy */
+        new OverriddenNameStep(step: step, newName: name,)
+    }
+
     protected Validator adaptValidator(org.springframework.validation.Validator springValidator) {
         new MessageResolverSpringValidator(springValidator, validationMessageSource())
     }
@@ -206,3 +254,15 @@ abstract class AbstractJobConfiguration {
 
 /* needed so the runtime can know the generic types */
 interface StringToPathConverter extends Converter<String, Path> {}
+
+class OverriddenNameStep implements Step {
+    @Delegate
+    Step step
+
+    String newName
+
+    @Override
+    String getName() {
+        newName
+    }
+}
