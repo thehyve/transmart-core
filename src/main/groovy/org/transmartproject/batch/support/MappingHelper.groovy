@@ -6,7 +6,9 @@ import org.codehaus.groovy.runtime.StringGroovyMethods
 
 /**
  *
+ * @deprecated Use something like tsvFileReader
  */
+@Deprecated
 class MappingHelper {
 
     static final Set<Class>  NUMERIC_TYPES = [

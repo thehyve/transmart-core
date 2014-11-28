@@ -48,18 +48,18 @@ class ClinicalDataFileVariables {
     }
 
     String getPatientId(ClinicalDataRow row) {
-        row.values[subjectIdVariable.columnNumber]
+        row[subjectIdVariable.columnNumber]
     }
 
     String getSiteId(ClinicalDataRow row) {
         if (siteIdVariable) {
-            row.values[siteIdVariable.columnNumber]
+            row[siteIdVariable.columnNumber]
         }
     }
 
     String getVisitName(ClinicalDataRow row) {
         if (visitNameVariable) {
-            row.values[visitNameVariable.columnNumber]
+            row[visitNameVariable.columnNumber]
         }
     }
 

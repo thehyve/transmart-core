@@ -19,6 +19,7 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper
+import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.batch.item.validator.Validator
@@ -173,7 +174,7 @@ abstract class AbstractJobConfiguration {
                         fieldSetMapper: mapper,
                 ),
                 linesToSkip: (int) options.linesToSkip ?: 0,
-
+                recordSeparatorPolicy: new DefaultRecordSeparatorPolicy(),
                 resource: resource,
                 strict: options.containsKey('strict') ?
                         (boolean) options.strict : true,

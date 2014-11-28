@@ -1,17 +1,18 @@
 package org.transmartproject.batch.clinical.facts
 
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
+import org.springframework.batch.item.file.transform.LineTokenizer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.support.GenericRowReader
-import org.transmartproject.batch.support.MappingHelper
 
 import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Reader of TSV files with clinical data, producing Row elements
+ * Reader of TSV files with clinical data, producing ClinicalDataRow elements
  */
 class ClinicalDataRowReader extends GenericRowReader<ClinicalDataRow> {
 
@@ -20,6 +21,10 @@ class ClinicalDataRowReader extends GenericRowReader<ClinicalDataRow> {
 
     @Value("#{clinicalJobContext.variables}")
     List<ClinicalVariable> variables
+
+    private final LineTokenizer tokenizer = new DelimitedLineTokenizer(
+            delimiter: DelimitedLineTokenizer.DELIMITER_TAB,
+            quoteCharacter: DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER)
 
     @Override
     List<Resource> getResourcesToProcess() {
@@ -44,7 +49,7 @@ class ClinicalDataRowReader extends GenericRowReader<ClinicalDataRow> {
             row = new ClinicalDataRow(
                     filename: currentResource.filename,
                     index: lineNumber,
-                    values: MappingHelper.parseValues(line)
+                    values: Arrays.asList(tokenizer.tokenize(line).values),
             )
         }
         row

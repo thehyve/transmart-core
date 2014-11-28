@@ -219,17 +219,8 @@ class ClinicalDataCleanScenarioTests {
         ))
     }
 
-    @Test
-    void testFactValuesForAPatient() {
-        /* GSE8581GSM211865 Homo sapiens caucasian male 69 year 67 inch 71
-            lung D non-small cell squamous cell carcinoma 2.13 */
-
-        // Test a numerical and a categorical concept
-        def expected = [
-                'Endpoints\\FEV1\\': 2.13,
-                'Subjects\\Organism\\Homo sapiens\\': 'Homo sapiens',
-        ]
-
+    // maps have keys concept_path, tval_char and nval_num
+    private List<Map<String, ?>> factsForPatient(String patient) {
         def q = """
             SELECT C.concept_path, O.tval_char, O.nval_num
             FROM
@@ -241,7 +232,21 @@ class ClinicalDataCleanScenarioTests {
                 FROM ${Tables.PATIENT_DIMENSION}
                 WHERE sourcesystem_cd = :patient)"""
 
-        def r = jdbcTemplate.queryForList q, [patient: 'GSE8581:GSE8581GSM211865']
+        jdbcTemplate.queryForList q, [patient: "GSE8581:$patient"]
+    }
+
+    @Test
+    void testFactValuesForAPatient() {
+        /* GSE8581GSM211865 Homo sapiens caucasian male 69 year 67 inch 71
+            lung D non-small cell squamous cell carcinoma 2.13 */
+
+        // Test a numerical and a categorical concept
+        def expected = [
+                'Endpoints\\FEV1\\': 2.13,
+                'Subjects\\Organism\\Homo sapiens\\': 'Homo sapiens',
+        ]
+
+        def r = factsForPatient('GSE8581GSM211865')
 
         assertThat r, hasItems(
                 expected.collect { pathEnding, value ->
@@ -413,5 +418,15 @@ class ClinicalDataCleanScenarioTests {
         assertThat r, hasItem(allOf(
                 hasEntry(is('c_fullname'), endsWith('\\Lung Disease\\')),
                 hasEntry(is('c_name'), equalTo('Lung Disease'))))
+    }
+
+    @Test
+    void testQuotesInDataFileAreStripped() {
+        // female is quoted in the data file for this patient
+        def r = factsForPatient('GSE8581GSM210193')
+
+        assertThat r, hasItem(allOf(
+                hasEntry(is('concept_path'), endsWith('\\female\\')),
+                hasEntry(is('tval_char'), is('female'))))
     }
 }
