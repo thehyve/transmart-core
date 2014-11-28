@@ -1,4 +1,4 @@
-package org.transmartproject.batch.tasklet
+package org.transmartproject.batch.db
 
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext

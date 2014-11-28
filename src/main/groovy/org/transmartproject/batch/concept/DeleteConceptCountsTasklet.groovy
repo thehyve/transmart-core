@@ -1,4 +1,6 @@
-package org.transmartproject.batch.tasklet
+package org.transmartproject.batch.concept
+
+import org.transmartproject.batch.db.GenericTableUpdateTasklet
 
 import java.sql.PreparedStatement
 import java.sql.SQLException

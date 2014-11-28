@@ -36,9 +36,9 @@ import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
-import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
-import org.transmartproject.batch.tasklet.oracle.OracleInsertConceptCountsTasklet
-import org.transmartproject.batch.tasklet.postgresql.PostgresInsertConceptCountsTasklet
+import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
+import org.transmartproject.batch.concept.oracle.OracleInsertConceptCountsTasklet
+import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
 
 /**
  * Spring configuration for the clinical data job.

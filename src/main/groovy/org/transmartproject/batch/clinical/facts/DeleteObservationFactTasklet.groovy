@@ -1,6 +1,6 @@
 package org.transmartproject.batch.clinical.facts
 
-import org.transmartproject.batch.tasklet.GenericTableUpdateTasklet
+import org.transmartproject.batch.db.GenericTableUpdateTasklet
 
 import java.sql.PreparedStatement
 import java.sql.SQLException

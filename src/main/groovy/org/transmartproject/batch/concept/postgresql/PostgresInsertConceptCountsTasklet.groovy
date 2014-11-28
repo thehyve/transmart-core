@@ -1,7 +1,7 @@
-package org.transmartproject.batch.tasklet.postgresql
+package org.transmartproject.batch.concept.postgresql
 
 import org.transmartproject.batch.beans.Postgresql
-import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
+import org.transmartproject.batch.concept.InsertConceptCountsTasklet
 
 /**
  * Insert concept counts. Postgresql version.

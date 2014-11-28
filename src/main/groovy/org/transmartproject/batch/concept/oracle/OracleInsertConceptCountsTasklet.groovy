@@ -1,7 +1,7 @@
-package org.transmartproject.batch.tasklet.oracle
+package org.transmartproject.batch.concept.oracle
 
 import org.transmartproject.batch.beans.Oracle
-import org.transmartproject.batch.tasklet.InsertConceptCountsTasklet
+import org.transmartproject.batch.concept.InsertConceptCountsTasklet
 
 /**
  * Insert concept counts, Oracle version.
