@@ -1,5 +1,6 @@
 package org.transmartproject.batch.tag
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -7,28 +8,32 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.ConceptFragment
-import org.transmartproject.batch.concept.ConceptTree
+import org.transmartproject.batch.concept.ConceptPath
 
 /**
  * Database writer of tags
  */
+@Slf4j
 class TagWriter implements ItemWriter<Tag> {
 
     @Autowired
     JdbcTemplate jdbcTemplate
 
-    @Autowired
-    ConceptTree conceptTree
+    @Value("#{jobParameters['TOP_NODE']}")
+    ConceptPath topNode
 
     @Value(Tables.I2B2_TAGS)
     SimpleJdbcInsert insert
 
     @Override
     void write(List<? extends Tag> items) throws Exception {
-        jdbcTemplate.batchUpdate("delete from ${Tables.I2B2_TAGS} where path=? and tag_type=?".toString(),
+        List<Integer> i = jdbcTemplate.batchUpdate(
+                "DELETE FROM ${Tables.I2B2_TAGS} WHERE path=? AND tag_type=?".toString(),
                 items.collect { Tag tag ->
                     [getWithPrependedStudyFolder(tag.conceptFragment), tag.tagTitle].toArray()
-                })
+                }) as List
+
+        log.info("Deleted ${i.sum()} current tag entries")
 
         insert.executeBatch(
                 items.collect { Tag tag ->
@@ -40,7 +45,7 @@ class TagWriter implements ItemWriter<Tag> {
     }
 
     private String getWithPrependedStudyFolder(ConceptFragment conceptFragment) {
-        (conceptTree.topNodePath + conceptFragment).path
+        (topNode + conceptFragment).path
     }
 
 }
