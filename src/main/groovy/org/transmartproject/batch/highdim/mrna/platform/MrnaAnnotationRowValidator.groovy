@@ -9,6 +9,8 @@ import org.transmartproject.batch.highdim.platform.Platform
 
 import javax.annotation.Resource
 
+import static org.springframework.context.i18n.LocaleContextHolder.locale
+
 /**
  * Validates {@link MrnaAnnotationRow} objects.
  */
@@ -28,7 +30,10 @@ class MrnaAnnotationRowValidator implements Validator {
     void validate(Object target, Errors errors) {
         assert target instanceof MrnaAnnotationRow
 
-        if (target.gplId != platformObject.id) {
+        /* platformObject.id should be normalized to uppercase because it comes
+         * from the normalized parameter PLATFORM, but it may be that platform
+         * name in the data file is not */
+        if (target.gplId.toUpperCase(locale) != platformObject.id) {
             errors.rejectValue 'gplId', 'expectedConstant',
                     [platformObject.id, target.gplId] as Object[], null
         }

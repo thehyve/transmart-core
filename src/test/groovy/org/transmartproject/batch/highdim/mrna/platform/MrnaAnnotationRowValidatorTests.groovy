@@ -51,7 +51,10 @@ class MrnaAnnotationRowValidatorTests {
     void testGplIdMustMatch() {
         assumeThat sampleRowPasses(), is(true)
 
-        sampleRow.gplId = 'gpl570' // lowercase
+        sampleRow.gplId = 'gpl570' // lowercase, should pass
+        assertThat callValidate().hasErrors(), is(false)
+
+        sampleRow.gplId = 'GOK580_foobar'
         Errors errors = callValidate()
 
         assertThat errors, hasProperty('fieldErrorCount', equalTo(1))

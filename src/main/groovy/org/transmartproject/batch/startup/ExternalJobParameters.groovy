@@ -5,6 +5,7 @@ import com.google.common.collect.Maps
 import groovy.transform.TypeChecked
 import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
+import org.springframework.context.i18n.LocaleContextHolder
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -111,6 +112,9 @@ abstract class ExternalJobParameters {
 
             this[TOP_NODE] = "\\$prefix\\${this[STUDY_ID]}\\"
         }
+
+        // should come last so the proper case is preserved for TOP_NODE
+        this[STUDY_ID] = this[STUDY_ID].toUpperCase(LocaleContextHolder.locale)
     }
 
     /**
@@ -118,7 +122,7 @@ abstract class ExternalJobParameters {
      * form and add/remove parameters.
      */
     @SuppressWarnings('EmptyMethodInAbstractClass')
-    void doMunge() throws InvalidParametersFileException {}
+    protected void doMunge() throws InvalidParametersFileException {}
 
     final protected Path convertRelativePath(String parameter)
             throws InvalidParametersFileException {

@@ -22,6 +22,7 @@ import org.transmartproject.batch.junit.SkipIfJobFailedRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.springframework.context.i18n.LocaleContextHolder.locale
 
 /**
  * Test mrna platform load from a clean state.
@@ -31,6 +32,7 @@ import static org.hamcrest.Matchers.*
 class MrnaPlatformCleanScenarioTests {
 
     private final static String PLATFORM_ID = 'GPL570_bogus'
+    private final static String PLATFORM_ID_NORM = 'GPL570_bogus'.toUpperCase(locale)
 
     static final long NUMBER_OF_PROBES = 19
 
@@ -77,7 +79,7 @@ class MrnaPlatformCleanScenarioTests {
                 SELECT platform, title, organism, marker_type
                 FROM ${Tables.GPL_INFO}
                 WHERE platform = :platform"""
-        def p = [platform: PLATFORM_ID]
+        def p = [platform: PLATFORM_ID_NORM]
 
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
         /* these are the values in GPL570_bogus/annotation.params */
@@ -91,7 +93,7 @@ class MrnaPlatformCleanScenarioTests {
     @Test
     void testNumberOfRowsInMrnaAnnotation() {
         def count = rowCounter.count Tables.MRNA_ANNOTATION, 'gpl_id = :gpl_id',
-                gpl_id: PLATFORM_ID
+                gpl_id: PLATFORM_ID_NORM
 
         /* + 1 because one probe has two genes */
         assertThat count, is(equalTo(NUMBER_OF_PROBES + 1L))
@@ -103,7 +105,7 @@ class MrnaPlatformCleanScenarioTests {
                 SELECT COUNT(DISTINCT probe_id)
                 FROM ${Tables.MRNA_ANNOTATION}
                 WHERE gpl_id = :platform"""
-        def p = [platform: PLATFORM_ID]
+        def p = [platform: PLATFORM_ID_NORM]
 
         def count = jdbcTemplate.queryForObject q, p, Long
 
@@ -144,7 +146,7 @@ class MrnaPlatformCleanScenarioTests {
                 SELECT DISTINCT organism
                 FROM ${Tables.MRNA_ANNOTATION}
                 WHERE gpl_id = :platform"""
-        def p = [platform: PLATFORM_ID]
+        def p = [platform: PLATFORM_ID_NORM]
 
         List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
 

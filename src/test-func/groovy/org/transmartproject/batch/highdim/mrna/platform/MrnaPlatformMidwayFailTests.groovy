@@ -22,7 +22,9 @@ import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.startup.RunJob
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.is
+import static org.springframework.context.i18n.LocaleContextHolder.locale
 
 /**
  * Test a failure midway the loading the procedure, and then restart the job
@@ -33,6 +35,7 @@ import static org.hamcrest.Matchers.*
 class MrnaPlatformMidwayFailTests {
 
     private final static String PLATFORM_ID = 'GPL570_bogus'
+    private final static String PLATFORM_ID_NORM = 'GPL570_bogus'.toUpperCase(locale)
 
     @Rule
     @SuppressWarnings('PublicInstanceField')
@@ -101,7 +104,7 @@ class MrnaPlatformMidwayFailTests {
 
         // check that we have the correct number of rows
         def count = rowCounter.count Tables.MRNA_ANNOTATION, 'gpl_id = :gpl_id',
-                gpl_id: PLATFORM_ID
+                gpl_id: PLATFORM_ID_NORM
 
         /* + 1 because one probe has two genes */
         assertThat count, is(equalTo(

@@ -1,5 +1,6 @@
 package org.transmartproject.batch.highdim.platform
 
+import org.springframework.context.i18n.LocaleContextHolder
 import org.transmartproject.batch.startup.ExternalJobParameters
 import org.transmartproject.batch.startup.InvalidParametersFileException
 
@@ -33,11 +34,13 @@ abstract class AbstractPlatformJobParameters extends ExternalJobParameters {
     abstract String getMarkerType()
 
     @Override
-    void doMunge() throws InvalidParametersFileException {
+    protected void doMunge() throws InvalidParametersFileException {
         this[ANNOTATIONS_FILE] = convertRelativePath ANNOTATIONS_FILE
 
         this[ORGANISM] = this[ORGANISM] ?: DEFAULT_ORGANISM
 
         this[MARKER_TYPE] = markerType
+
+        this[PLATFORM] = this[PLATFORM]?.toUpperCase(LocaleContextHolder.locale)
     }
 }
