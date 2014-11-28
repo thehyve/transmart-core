@@ -86,10 +86,6 @@ class LineGraph extends AbstractAnalysisJob {
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
-        steps << new ParametersFileStep(
-                temporaryDirectory: temporaryDirectory,
-                params: params)
-
         steps << new BuildTableResultStep(
                 table:         table,
                 configurators: [primaryKeyColumnConfigurator,

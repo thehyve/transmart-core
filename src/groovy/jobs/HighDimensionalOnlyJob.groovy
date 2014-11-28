@@ -16,10 +16,6 @@ abstract class HighDimensionalOnlyJob extends AbstractAnalysisJob {
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
-        steps << new ParametersFileStep(
-                temporaryDirectory: temporaryDirectory,
-                params: params)
-
         def openResultSetStep = new OpenHighDimensionalDataStep(
                 params: params,
                 dataTypeResource: highDimensionResource.getSubResourceForType(analysisConstraints['data_type']),

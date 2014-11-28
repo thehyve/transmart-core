@@ -27,10 +27,6 @@ abstract class CategoricalOrBinnedJob extends AbstractAnalysisJob implements Ini
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
-        steps << new ParametersFileStep(
-                temporaryDirectory: temporaryDirectory,
-                params: params)
-
         steps << new BuildTableResultStep(
                 table:         table,
                 configurators: [primaryKeyColumnConfigurator,
