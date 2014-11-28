@@ -1,5 +1,5 @@
 import com.google.common.collect.ImmutableMap
-import jobs.AnalysisQuartzJobAdapter
+import jobs.misc.AnalysisQuartzJobAdapter
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.stereotype.Component
 import org.transmartproject.core.users.User

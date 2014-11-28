@@ -1,6 +1,6 @@
 package jobs.steps
 
-import jobs.AnalysisConstraints
+import jobs.misc.AnalysisConstraints
 import jobs.UserParameters
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource

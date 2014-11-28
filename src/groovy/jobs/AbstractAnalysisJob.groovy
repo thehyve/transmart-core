@@ -1,5 +1,6 @@
 package jobs
 
+import jobs.misc.AnalysisConstraints
 import jobs.steps.Step
 import org.apache.log4j.Logger
 import org.quartz.JobExecutionException

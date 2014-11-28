@@ -12,7 +12,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.beans.factory.config.ConstructorArgumentValues
 import org.springframework.beans.factory.support.GenericBeanDefinition
 
-import static jobs.AnalysisQuartzJobAdapter.cleanJobBeans
+import static jobs.misc.AnalysisQuartzJobAdapter.cleanJobBeans
 import static org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer.currentApplicationContext
 
 /*

@@ -20,6 +20,8 @@ import com.google.common.collect.Maps
 import grails.converters.JSON
 import grails.util.Holders
 import jobs.*
+import jobs.misc.AnalysisConstraints
+import jobs.misc.AnalysisQuartzJobAdapter
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.quartz.JobDataMap
@@ -27,7 +29,7 @@ import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
-import static jobs.AnalysisQuartzJobAdapter.*
+import static jobs.misc.AnalysisQuartzJobAdapter.*
 
 class RModulesController {
     final static Map<String, String> lookup = [

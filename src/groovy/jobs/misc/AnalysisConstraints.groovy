@@ -1,4 +1,4 @@
-package jobs
+package jobs.misc
 
 import com.google.common.collect.Maps
 import org.springframework.context.annotation.Scope

@@ -1,4 +1,4 @@
-package jobs
+package jobs.misc
 
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.ObjectFactory
