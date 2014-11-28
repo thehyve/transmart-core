@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
@@ -42,6 +43,7 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
                 .writer(tagTsvWriter())
+                .listener(new LogCountsStepListener())
                 .build()
     }
 
