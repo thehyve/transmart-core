@@ -2,7 +2,7 @@ package org.transmartproject.batch.support
 
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.InputStreamResource
+import org.springframework.core.io.AbstractResource
 import org.springframework.core.io.PathResource
 import org.springframework.core.io.Resource
 import org.springframework.util.Assert
@@ -30,11 +30,24 @@ class JobParameterFileResource implements Resource {
         if (!jobParameters[parameter]) {
             log.info "Parameter $parameter not specified. " +
                     "Returning empty resource."
-            resource = new InputStreamResource(
-                    new ByteArrayInputStream(new byte[0]))
+            resource = new InexistentResource()
         } else {
             resource = new PathResource(jobParameters[parameter])
         }
     }
 
+    class InexistentResource extends AbstractResource {
+        final String description = "inexistent resource (parameter $parameter does not exist)"
+
+        final boolean readable = false
+
+        InputStream getInputStream() throws IOException {
+            throw new FileNotFoundException(
+                    "$description cannot be opened because it does not point to a readable resource")
+        }
+
+        boolean exists() {
+            false
+        }
+    }
 }

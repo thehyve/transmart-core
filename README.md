@@ -58,7 +58,6 @@ the comment `CUT HERE`:
     bsdtar -O -xvf transmart-batch-capsule.jar logback.groovy | \
 	  vim -c '/CUT HERE' -c '1,+1d' -c 'wq logback.groovy' -
 
-
 Development
 -----------
 
