@@ -6,6 +6,8 @@ import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.springframework.batch.core.launch.support.SystemExiter
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationExternalJobParameters
+import org.transmartproject.batch.tag.TagsLoadJobParameters
+
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -22,6 +24,7 @@ final class RunJob {
     private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
             'clinical': ClinicalExternalJobParameters,
             'annotation': MrnaAnnotationExternalJobParameters,
+            'tags': TagsLoadJobParameters,
     ]
 
     OptionAccessor opts

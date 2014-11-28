@@ -76,6 +76,7 @@ class ClinicalDataCleanScenarioTests {
                         Tables.PATIENT_DIMENSION,
                         Tables.I2B2,
                         Tables.I2B2_SECURE,
+                        Tables.I2B2_TAGS,
                         'ts_batch.batch_job_instance cascade')
     }
 
@@ -377,5 +378,24 @@ class ClinicalDataCleanScenarioTests {
         def r = modifierCodesForConceptPath fev1
 
         assertThat r, contains(hasEntry('modifier_cd', modifierCd))
+    }
+
+    @Test
+    void testTagsAreLoaded() {
+        def r = jdbcTemplate.queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
+        assertThat r, containsInAnyOrder(
+                allOf(
+                        hasEntry('path', '\\Public Studies\\GSE8581\\'),
+                        hasEntry('tag', 'Human Chronic Obstructive Pulmonary Disorder (COPD) Biomarker'),
+                        hasEntry('tag_type', 'TITLE'),
+                        hasEntry('tags_idx', 2),
+                ),
+                allOf(
+                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('tag', 'http://en.wikipedia.org/wiki/FEV1/FVC_ratio'),
+                        hasEntry('tag_type', 'WEB_REF'),
+                        hasEntry('tags_idx', 3),
+                ),
+        )
     }
 }

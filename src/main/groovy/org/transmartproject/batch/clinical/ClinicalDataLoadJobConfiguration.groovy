@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -30,6 +31,7 @@ import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.support.JobParameterFileResource
+import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 import org.transmartproject.batch.tasklet.DeleteConceptCountsTasklet
 import org.transmartproject.batch.tasklet.oracle.OracleInsertConceptCountsTasklet
 import org.transmartproject.batch.tasklet.postgresql.PostgresInsertConceptCountsTasklet
@@ -39,12 +41,16 @@ import org.transmartproject.batch.tasklet.postgresql.PostgresInsertConceptCounts
  */
 @Configuration
 @ComponentScan('org.transmartproject.batch.clinical')
+@Import(TagsLoadJobConfiguration)
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
 
-    @Bean(name = 'ClinicalDataLoadJob')
+    @javax.annotation.Resource(name='TagsLoadJob')
+    Job tagsLoadJob
+
     @Override
+    @Bean(name = 'ClinicalDataLoadJob')
     Job job() {
         FlowJob job =
             jobs.get(JOB_NAME)
@@ -71,6 +77,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
+                .next(tagsLoadJobStep())
 
                 // insertion of ancillary data
                 .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
@@ -126,13 +133,20 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step rowProcessingStep() {
         steps.get('rowProcessingStep')
-                .chunk(5)
+                .chunk(100)
                 .reader(dataRowReader()) //read data
                 .processor(compositeOf(
                     wordReplaceProcessor(), //replace words, if such is configured
                     rowToFactRowSetConverter(), //converts each Row to a FactRowSet
                 ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
+                .build()
+    }
+
+    @Bean
+    Step tagsLoadJobStep() {
+        steps.get('tagsLoadJobStep')
+                .job(tagsLoadJob)
                 .build()
     }
 
