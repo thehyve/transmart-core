@@ -17,7 +17,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
-import static jobs.steps.OpenHighDimensionalDataStep.createConceptKeyFrom
+import static jobs.misc.Hacks.createConceptKeyFrom
 
 /**
  * A configurator supporting one or more high dimensional nodes. Multiple

@@ -2,6 +2,7 @@ package jobs.steps
 
 import jobs.misc.AnalysisConstraints
 import jobs.UserParameters
+import jobs.misc.Hacks
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -39,7 +40,7 @@ class OpenHighDimensionalDataStep implements Step {
 
     private List<String> extractOntologyTerms() {
         analysisConstraints.assayConstraints.remove('ontology_term').collect {
-            createConceptKeyFrom(it.term)
+            Hacks.createConceptKeyFrom(it.term)
         }
     }
 
@@ -77,21 +78,5 @@ class OpenHighDimensionalDataStep implements Step {
                 analysisConstraints['projections'][0])
 
         dataTypeResource.retrieveData(assayConstraints, dataConstraints, projection)
-    }
-
-    /**
-     * This method takes a conceptPath provided by the frontend and turns it into a String representation of
-     * a concept key which the AssayConstraint can use. Such a string is pulled apart later in a
-     * table_access.c_table_cd part and a concept_dimension.concept_path part.
-     * The operation duplicates the first element of the conceptPath and prefixes it to the original with a double
-     * backslash.
-     * @param conceptPath
-     * @return String conceptKey
-     */
-    public static String createConceptKeyFrom(String conceptPath) {
-        // This crazy dance with slashes is "expected behaviour"
-        // as per http://groovy.codehaus.org/Strings+and+GString (search for Slashy Strings)
-        def bs = '\\\\'
-        "\\\\" + (conceptPath =~ /$bs([^$bs]+)$bs/)[0][-1] + conceptPath
     }
 }

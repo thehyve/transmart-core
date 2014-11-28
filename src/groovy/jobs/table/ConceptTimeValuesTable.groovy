@@ -1,6 +1,6 @@
 package jobs.table
 
-import jobs.steps.OpenHighDimensionalDataStep
+import jobs.misc.Hacks
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -48,7 +48,7 @@ class ConceptTimeValuesTable {
     }
 
     public static String getConceptKey(String path) {
-        OpenHighDimensionalDataStep.createConceptKeyFrom(path)
+        Hacks.createConceptKeyFrom(path)
     }
 
 }
