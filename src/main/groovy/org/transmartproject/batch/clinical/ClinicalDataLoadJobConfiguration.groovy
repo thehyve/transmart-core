@@ -19,6 +19,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.ProgressWriteListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
@@ -48,6 +49,7 @@ import org.transmartproject.batch.tasklet.postgresql.PostgresInsertConceptCounts
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
+    public static final int CHUNK_SIZE = 10000
 
     @javax.annotation.Resource(name='TagsLoadJob')
     Job tagsLoadJob
@@ -144,13 +146,14 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step rowProcessingStep() {
         steps.get('rowProcessingStep')
-                .chunk(100)
+                .chunk(CHUNK_SIZE)
                 .reader(dataRowReader()) //read data
                 .processor(compositeOf(
                     wordReplaceProcessor(), //replace words, if such is configured
                     rowToFactRowSetConverter(), //converts each Row to a FactRowSet
                 ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
+                .listener(new ProgressWriteListener())
                 .build()
     }
 
