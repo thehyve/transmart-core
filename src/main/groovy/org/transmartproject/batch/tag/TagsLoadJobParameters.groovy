@@ -30,10 +30,10 @@ final class TagsLoadJobParameters extends ExternalJobParameters {
                     .parent
                     .resolve(typeName)
                     .toFile().listFiles()
-            if (files.length == 1) {
-                new InvalidParametersFileException("""Single file is expected, but found: ${files}.
-                    NOTE: You could specify right file with ${TAGS_FILE} property in tags.param
-                """)
+            if (files.length != 1) {
+                new InvalidParametersFileException("Single file is expected, " +
+                        "but found: ${files} files. NOTE: You could specify the " +
+                        "right file with ${TAGS_FILE} property in tags.param")
             }
             this[TAGS_FILE] = files[0].toPath()
         } else {
