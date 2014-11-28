@@ -12,6 +12,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -122,7 +124,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 xtrialFileResource(),
                 beanClass: XtrialMapping,
                 columnNames: ['study_prefix', 'xtrial_prefix'],
-                linesToSkip: 1,)
+                linesToSkip: 1,
+                strict: false,
+        )
     }
 
     @Bean
@@ -246,5 +250,15 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet deleteConceptCountsTasklet() {
         new DeleteConceptCountsTasklet()
+    }
+
+    @Bean
+    static BeanFactoryPostProcessor makeTagLoadNonStrict() {
+        // tags are optional when we're not running the tag job
+        { ConfigurableListableBeanFactory beanFactory ->
+            beanFactory.getBeanDefinition('scopedTarget.tagReader')
+                    .propertyValues
+                    .addPropertyValue('strict', false)
+        } as BeanFactoryPostProcessor
     }
 }
