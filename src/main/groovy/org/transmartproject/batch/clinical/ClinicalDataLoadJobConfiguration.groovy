@@ -11,6 +11,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -102,11 +103,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
         def readXtrialsTasklet = steps.get('readXtrialsFileTasklet')
                 .allowStartIfComplete(true)
                 .chunk(5)
-                .reader(tsvFileReader(
-                        xtrialFileResource(),
-                        beanClass: XtrialMapping,
-                        columnNames: ['study_prefix', 'xtrial_prefix'],
-                        linesToSkip: 1,))
+                .reader(xtrialMappingReader())
                 .writer(xtrialsFileTaskletWriter())
                 .build()
 
@@ -116,6 +113,16 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 readWordMapTasklet,
                 readXtrialsTasklet,
         )
+    }
+
+    @Bean
+    @JobScope
+    FlatFileItemReader<XtrialMapping> xtrialMappingReader() {
+        tsvFileReader(
+                xtrialFileResource(),
+                beanClass: XtrialMapping,
+                columnNames: ['study_prefix', 'xtrial_prefix'],
+                linesToSkip: 1,)
     }
 
     @Bean

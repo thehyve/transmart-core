@@ -2,11 +2,13 @@ package org.transmartproject.batch.highdim.mrna.platform
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -76,11 +78,7 @@ class MrnaPlatformJobConfiguration extends AbstractJobConfiguration {
         /* step that reads the annotations file and writes it to the database */
         def mainStep =  steps.get('mainStep')
                 .chunk(chunkSize)
-                .reader(tsvFileReader(
-                        annotationsFileResource(),
-                        beanClass: MrnaAnnotationRow,
-                        columnNames: ['gplId', 'probeName', 'genes',
-                                      'entrezIds', 'organism']))
+                .reader(mrnaAnnotationRowReader())
                 .processor(new ValidatingItemProcessor(
                         adaptValidator(annotationRowValidator)))
                 .writer(mrnaAnnotationWriter)
@@ -97,6 +95,16 @@ class MrnaPlatformJobConfiguration extends AbstractJobConfiguration {
 
                 .next(mainStep)
                 .build()
+    }
+
+    @Bean
+    @JobScope
+    FlatFileItemReader<MrnaAnnotationRow> mrnaAnnotationRowReader() {
+        tsvFileReader(
+                annotationsFileResource(),
+                beanClass: MrnaAnnotationRow,
+                columnNames: ['gplId', 'probeName', 'genes',
+                              'entrezIds', 'organism'])
     }
 
     @Bean

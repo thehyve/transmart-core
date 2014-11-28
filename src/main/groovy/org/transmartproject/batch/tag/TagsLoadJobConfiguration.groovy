@@ -2,8 +2,10 @@ package org.transmartproject.batch.tag
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.SimpleJob
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -38,13 +40,19 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
     Step tagsLoadStep() {
         steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
-                .reader(tsvFileReader(
-                    tagsFileResource(),
-                    beanClass: Tag,
-                    columnNames: ['concept_fragment', 'tag_title', 'tag_description', 'index'],
-                    linesToSkip: 1))
+                .reader(tagReader())
                 .writer(tagTsvWriter())
                 .build()
+    }
+
+    @Bean
+    @JobScope
+    FlatFileItemReader<Tag> tagReader() {
+        tsvFileReader(
+                tagsFileResource(),
+                beanClass: Tag,
+                columnNames: ['concept_fragment', 'tag_title', 'tag_description', 'index'],
+                linesToSkip: 1)
     }
 
     @Bean
