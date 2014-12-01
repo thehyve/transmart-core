@@ -39,7 +39,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile('org.transmartproject:transmart-core-api:1.2.2-SNAPSHOT')
+        compile('org.transmartproject:transmart-core-api:1.2.2-hackathon-SNAPSHOT')
         compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 
         runtime('org.postgresql:postgresql:9.3-1100-jdbc41') {
