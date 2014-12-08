@@ -1,7 +1,8 @@
 # WCGNA is in CRAN but depends on a package not on cran (impute),
 # which is something that really should not happen on a sane repository
 # Anyway, that's why it is installed here
-required.packages <- c("WGCNA", "impute", "multtest", "CGHbase", "CGHtest", "CGHtestpar", "edgeR", "snpStats");
+required.packages <- c("WGCNA", "impute", "multtest", "CGHbase", "CGHtest",
+					   "CGHtestpar", "edgeR", "snpStats", "preprocessCore");
 missing.packages <- function(required) {
 	return(required[
 		!(required %in% installed.packages()[,"Package"])]);
@@ -11,7 +12,8 @@ if (!length(new.packages))
 	q();
 source("http://bioconductor.org/biocLite.R");
 bioclite.packages <-
-		intersect(new.packages, c("impute", "multtest", "CGHbase", "edgeR", "snpStats"));
+		intersect(new.packages, c("impute", "multtest", "CGHbase", "edgeR",
+								  "snpStats", "preprocessCore"));
 if (length(bioclite.packages))
 	biocLite(bioclite.packages);
 if (length(intersect(new.packages, c("CGHtest")))) {
