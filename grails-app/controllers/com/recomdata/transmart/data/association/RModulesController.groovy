@@ -40,10 +40,12 @@ class RModulesController {
             "PROTEOMICS":       "protein",
             "RNASEQ":           "rnaseq_cog",
             "METABOLOMICS":     "metabolite",
+            "Chromosomal":      "acgh",
             "acgh":             "acgh",
             "rnaseq":           "rnaseq",
             "Chromosomal":      "acgh",
-            "RNASEQ_RCNT":      "rnaseq"
+            "RNASEQ_RCNT":      "rnaseq",
+            "VCF":		"vcf"
     ]
 
     private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
@@ -127,6 +129,12 @@ class RModulesController {
             case 'logisticRegression':
                 jsonResult = createJob(params, LogisticRegression, false)
                 break
+            case 'geneprint':
+                jsonResult = createJob(params, Geneprint)
+                break
+            case 'histogram':
+                jsonResult = createJob(params, Histogram, false)
+                break
             case 'acghFrequencyPlot':
                 jsonResult = createJob(params, AcghFrequencyPlot)
                 break
@@ -167,14 +175,14 @@ class RModulesController {
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
-    private AnalysisConstraints createAnalysisConstraints(Map params) {
+    public static AnalysisConstraints createAnalysisConstraints(Map params) {
         Map map = validateParamAnalysisConstraints(params) as Map
         map["data_type"] = lookup[map["data_type"]]
         map = massageConstraints map
         new AnalysisConstraints(map: map)
     }
 
-    private Map massageConstraints(Map analysisConstraints) {
+    private static Map massageConstraints(Map analysisConstraints) {
         analysisConstraints["dataConstraints"].each { constraintType, value ->
             if (constraintType == 'search_keyword_ids') {
                 analysisConstraints["dataConstraints"][constraintType] = [ keyword_ids: value ]
@@ -188,7 +196,7 @@ class RModulesController {
         analysisConstraints
     }
 
-    private JSONElement validateParamAnalysisConstraints(Map params) {
+    private static JSONElement validateParamAnalysisConstraints(Map params) {
         if (!params[PARAM_ANALYSIS_CONSTRAINTS]) {
             throw new InvalidArgumentsException("No parameter $PARAM_ANALYSIS_CONSTRAINTS")
         }
