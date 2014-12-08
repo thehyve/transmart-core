@@ -174,7 +174,7 @@ function renderCohortSummary(){
 
         // get selected cohort summary
         for(var i = 1; i<=GLOBAL.NumOfSubsets; i++){
-            var currentQuery = getQuerySummary(i)
+            var currentQuery = getSubsetQuerySummary(i)
                 if(currentQuery!=""){
                     cohortsSummary += "Subset "+i+": "
                         cohortsSummary += currentQuery
