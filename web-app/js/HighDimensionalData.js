@@ -385,14 +385,16 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
       this.fetchNodeDetails( divId, function( result ) {
         _this.data = JSON.parse(result.responseText);
 
-        platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
-        var formValidator = new FormValidator(platforms);
-
-        if (formValidator.validateInputForm()) {
-          _this.display_high_dimensional_popup();
-        } else {
-          formValidator.display_errors();
-        }
+        _this.display_high_dimensional_popup();
+//        TODO: re-enable platform validation, except for geneprint:
+//        platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
+//        var formValidator = new FormValidator(platforms);
+//
+//        if (formValidator.validateInputForm()) {
+//          _this.display_high_dimensional_popup();
+//        } else {
+//          formValidator.display_errors();
+//        }
 
       });
     } else { // something is not correct in the validation
