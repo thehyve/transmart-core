@@ -32,4 +32,10 @@ load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
 	../../env/transmart-batch-capsule.jar \
 		-p '$(realpath ../studies/$*/clinical.params)' \
 		-c '$(realpath ../../env/batchdb-psql.properties)'
+
+load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
+	$(MAKE) -C ../../env transmart-batch-capsule.jar batchdb-psql.properties
+	../../env/transmart-batch-capsule.jar \
+		-p '$(realpath ../studies/$*/annotation.params)' \
+		-c '$(realpath ../../env/batchdb-psql.properties)'
 endif
