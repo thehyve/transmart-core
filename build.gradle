@@ -84,6 +84,7 @@ task capsule(type: ThinCapsule) {
 
     capsuleManifest {
         extractCapsule = false
+		repositories = ['central', 'https://repo.thehyve.nl/content/groups/public/']
     }
 }
 
