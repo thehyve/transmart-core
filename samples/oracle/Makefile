@@ -8,6 +8,7 @@ RDBMS = oracle
 JDBC_DRIVER   := $(JDBC_DRIVER_ORA_PATH)
 LIB_CLASSPATH := $(CP_ORA)
 KETTLE_JOBS   := $(KETTLE_JOBS_ORA)
+BATCH_PROPS   := batchdb-oracle.properties
 
 include ../common/makefile.inc
 

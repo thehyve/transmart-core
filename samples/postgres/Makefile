@@ -8,6 +8,7 @@ RDBMS = postgres
 JDBC_DRIVER   := $(JDBC_DRIVER_PSQL_PATH)
 LIB_CLASSPATH := $(CP_PSQL)
 KETTLE_JOBS   := $(KETTLE_JOBS_PSQL)
+BATCH_PROPS   := batchdb-psql.properties
 
 include ../common/makefile.inc
 
@@ -31,11 +32,5 @@ load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
 	$(MAKE) -C ../../env transmart-batch-capsule.jar batchdb-psql.properties
 	../../env/transmart-batch-capsule.jar \
 		-p '$(realpath ../studies/$*/clinical.params)' \
-		-c '$(realpath ../../env/batchdb-psql.properties)'
-
-load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
-	$(MAKE) -C ../../env transmart-batch-capsule.jar batchdb-psql.properties
-	../../env/transmart-batch-capsule.jar \
-		-p '$(realpath ../studies/$*/annotation.params)' \
 		-c '$(realpath ../../env/batchdb-psql.properties)'
 endif

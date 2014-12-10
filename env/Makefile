@@ -48,7 +48,10 @@ $(TRANSMART_BATCH_FILE):
 	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_BATCH_URL)'
 	@chmod +x '$@'
 
-batchdb-psql.properties: batchdb-psql.properties.php  ../vars
+batchdb-psql.properties: batchdb-psql.properties.php ../vars
+	php -d variables_order=E '$<' > '$@'
+
+batchdb-oracle.properties: batchdb-oracle.properties.php ../vars
 	php -d variables_order=E '$<' > '$@'
 
 # for redownload

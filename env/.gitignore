@@ -8,6 +8,7 @@
 /transmart-loader-from-file-server
 /transmart-loader-latest-bamboo-snapshot
 /batchdb-psql.properties
+/batchdb-oracle.properties
 /transmart-batch-capsule.jar
 /mvn
 /apache-maven-*
