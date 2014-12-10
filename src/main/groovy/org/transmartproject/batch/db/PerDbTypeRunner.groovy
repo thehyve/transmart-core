@@ -36,6 +36,8 @@ class PerDbTypeRunner {
         switch (driverClassName) {
             case 'org.postgresql.Driver':
                 return 'postgresql'
+            case 'oracle.jdbc.driver.OracleDriver':
+                return 'oracle'
             default:
                 throw new UnsupportedOperationException("Not supported: $driverClassName")
         }

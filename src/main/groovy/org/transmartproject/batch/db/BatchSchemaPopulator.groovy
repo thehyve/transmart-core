@@ -40,10 +40,16 @@ class BatchSchemaPopulator {
         private ResourceDatabasePopulator getPopulator() throws Exception {
             def populator = new ResourceDatabasePopulator()
             def ref = getBatchSchemaRef(env.getProperty('batch.jdbc.driver'))
-            populator.addScript(resourceLoader.getResource(
-                    "classpath:/org/transmartproject/batch/pre-schema-${ref}.sql"))
+
+            addResourceIfExists populator,
+                    "classpath:/org/transmartproject/batch/pre-schema-${ref}.sql"
+
             populator.addScript(resourceLoader.getResource(
                     "classpath:/org/springframework/batch/core/schema-${ref}.sql"))
+
+            addResourceIfExists populator,
+                    "classpath:/org/transmartproject/batch/post-schema-${ref}.sql"
+
             populator
         }
 
@@ -51,10 +57,19 @@ class BatchSchemaPopulator {
             DatabasePopulatorUtils.execute populator, dataSource
         }
 
+        private addResourceIfExists(ResourceDatabasePopulator populator, String script) {
+            def resource = resourceLoader.getResource(script)
+            if (resource.exists()) {
+                populator.addScript(resource)
+            }
+        }
+
         static String getBatchSchemaRef(String driverClassname) {
             switch (driverClassname) {
                 case 'org.postgresql.Driver':
                     return 'postgresql'
+                case 'oracle.jdbc.driver.OracleDriver':
+                    return 'oracle10g'
                 default:
                     throw new UnsupportedOperationException("Not supported: $driverClassname")
             }

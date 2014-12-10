@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.env.Environment
-import org.transmartproject.batch.db.PerDbTypeRunner
 import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
+import org.transmartproject.batch.db.PerDbTypeRunner
 
 import javax.sql.DataSource
 
@@ -33,11 +33,15 @@ class AppConfig {
                 jdbcUrl: env.getProperty('batch.jdbc.url'),
                 username: env.getProperty('batch.jdbc.user'),
                 password: env.getProperty('batch.jdbc.password')).with {
-            config.initSQL = perDbTypeRunner().run([
+            def initSQL = perDbTypeRunner().run([
                     postgresql: { ->
                         'SET search_path = ts_batch'
-                    }
+                    },
+                    oracle: { -> },
             ])
+            if (initSQL) {
+                config.initSQL = initSQL
+            }
             it
         }
     }

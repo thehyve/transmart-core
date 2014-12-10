@@ -4,7 +4,7 @@ import com.google.common.collect.AbstractIterator
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,31 +17,32 @@ import java.util.concurrent.CountDownLatch
  * out one at a time.
  */
 @Slf4j
-class SequenceReserver {
+abstract class SequenceReserver {
 
     private final Map<String, Long> blockSizes = [:].asSynchronized()
-    static final String SQL = 'SELECT nextval(?) FROM generate_series(1, ?)'
 
     long defaultBlockSize = 50
 
     @Autowired
-    ApplicationContext applicationContext
+    private ApplicationContext applicationContext
 
     @Autowired
-    JdbcTemplate template
+    protected NamedParameterJdbcTemplate template
 
     private final ConcurrentMap<String, Object> blocks = new ConcurrentHashMap()
+
+    abstract List<Long> getValuesFromDatabase(String sequence, long blockSize)
 
     // not part of the API
     @Transactional(propagation=Propagation.REQUIRES_NEW)
     SequenceValues reserveBlock(String sequence) {
-        Long blockSize = blockSizes[sequence] ?: defaultBlockSize
-        List<Long> list = template.queryForList(SQL, [sequence, blockSize] as Object[], Long)
+        Long blockSize = blockSizes[sequence.toLowerCase()] ?: defaultBlockSize
+        List<Long> list = getValuesFromDatabase(sequence, blockSize)
         new SequenceValues(ids: new LinkedList(list))
     }
 
     void configureBlockSize(String sequence, long blockSize) {
-        blockSizes[sequence] = blockSize
+        blockSizes[sequence.toLowerCase()] = blockSize
     }
 
     Long getNext(String sequence) {

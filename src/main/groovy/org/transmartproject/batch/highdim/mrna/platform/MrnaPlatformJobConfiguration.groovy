@@ -15,14 +15,16 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.transmartproject.batch.beans.AbstractJobConfiguration
-import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.highdim.platform.AbstractPlatformJobParameters
-import org.transmartproject.batch.highdim.platform.PlatformLoadJobConfiguration
 import org.transmartproject.batch.batchartifacts.FoundExitStatusChangeListener
-import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.batchartifacts.LineOfErrorDetectionListener
 import org.transmartproject.batch.batchartifacts.ProgressWriteListener
+import org.transmartproject.batch.beans.AbstractJobConfiguration
+import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.clinical.db.objects.Sequences
+import org.transmartproject.batch.db.SequenceReserver
+import org.transmartproject.batch.highdim.platform.AbstractPlatformJobParameters
+import org.transmartproject.batch.highdim.platform.PlatformLoadJobConfiguration
+import org.transmartproject.batch.support.JobParameterFileResource
 
 import javax.annotation.Resource
 
@@ -71,6 +73,11 @@ class MrnaPlatformJobConfiguration extends AbstractJobConfiguration {
                     .build()
         job.jobParametersIncrementer = jobParametersIncrementer
         job
+    }
+
+    @Override
+    protected void configure(SequenceReserver sequenceReserver) {
+        sequenceReserver.configureBlockSize(Sequences.PROBESET_ID, chunkSize)
     }
 
     @Bean

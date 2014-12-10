@@ -36,6 +36,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
 import org.transmartproject.batch.clinical.facts.ClinicalFactsRowSet
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.db.OracleSequenceReserver
+import org.transmartproject.batch.db.PostgresSequenceReserver
 import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.db.SimpleJdbcInsertConverter
 import org.transmartproject.batch.batchartifacts.JobContextAwareTaskExecutor
@@ -58,6 +61,8 @@ import java.nio.file.Paths
 ])
 abstract class AbstractJobConfiguration {
 
+    public static final int DEFAULT_FETCH_SIZE = 1000
+
     @Autowired
     JobBuilderFactory jobs
 
@@ -71,15 +76,20 @@ abstract class AbstractJobConfiguration {
 
     @JobScope
     @Bean
-    SequenceReserver sequenceReserver() {
-        SequenceReserver result = new SequenceReserver()
+    SequenceReserver sequenceReserver(DatabaseImplementationClassPicker picker) {
+        SequenceReserver result = picker.instantiateCorrectClass(
+                OracleSequenceReserver,
+                PostgresSequenceReserver)
         configure(result)
         result
     }
 
     @Bean
     JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        new JdbcTemplate(dataSource)
+        new JdbcTemplate(dataSource).with {
+            fetchSize = DEFAULT_FETCH_SIZE
+            it
+        }
     }
 
     @Bean
