@@ -58,7 +58,7 @@ KITCHEN=/path/to/data-integration/kitchen.sh
 #end with /
 TSUSER_HOME=$HOME/
 
-#optional TAR commend - e.g. tar on Mac does not work; 
+#optional TAR commend - e.g. tar on Mac does not work;
 # on Mac homebrew: brew install gnu-tar ; will set command gtar
 # if this is unset, then value defaults to tar (system tar command)
 #TAR_COMMAND=gtar
@@ -93,6 +93,14 @@ TSUSER_HOME=$HOME/
 
 # To use transmart-batch where supported
 #export USE_TRANSMART_BATCH=1
+
+# Oracle uses the blocking random pool by default
+# This is a bad idea because successive connections WILL exhaust the pool
+# /dev/urandom is just as secure, provided it's been seeded already
+# export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'
+#
+# If you need to proxy (you may need to combine with option above)
+# export _JAVA_OPTIONS="-Dhttp.proxyHost=$proxy_host -Dhttp.proxyPort=$proxy_port"
 
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
 	KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \

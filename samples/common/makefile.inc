@@ -166,5 +166,13 @@ clean:
 	perl ../common/_scripts/vcf/convertMappingIntoSQLFiles.pl "$(SUBJECT_SAMPLE_MAPPING_FILE)" "$(VCF_TEMP_DIR)" \
 			"$(STUDY_ID)" "$(DATASET_ID)" "$(CONCEPT_PATH)"
 
+# transmart-batch:
+ifdef USE_TRANSMART_BATCH
+load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
+	$(MAKE) -C ../../env transmart-batch-capsule.jar $(BATCH_PROPS)
+	../../env/transmart-batch-capsule.jar \
+		-p '$(realpath ../studies/$*/annotation.params)' \
+		-c '$(realpath ../../env/$(BATCH_PROPS))'
+endif
 
 # vim: ft=make :

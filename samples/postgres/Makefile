@@ -8,6 +8,7 @@ RDBMS = postgres
 JDBC_DRIVER   := $(JDBC_DRIVER_PSQL_PATH)
 LIB_CLASSPATH := $(CP_PSQL)
 KETTLE_JOBS   := $(KETTLE_JOBS_PSQL)
+BATCH_PROPS   := batchdb-psql.properties
 
 include ../common/makefile.inc
 

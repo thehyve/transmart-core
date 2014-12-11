@@ -10,10 +10,11 @@
 61	1	"K-Means Clustering"	#placeholder#	.1	Y	N		KClust	kclust	DEFAULT
 62	1	"Hierarchical Clustering"	#placeholder#	.1	Y	N		HClust	hclust	DEFAULT
 63	1	"Marker Selection"	#placeholder#	.1	Y	N		MarkerSelection	markerSelection	DEFAULT
+69	1	"Logistic Regression"	#placeholder#	.1	Y	N	null	LogisticRegression	logisticRegression	DEFAULT
 64	1	PCA	#placeholder#	.1	Y	N		PCA	pca	DEFAULT
 65	1	"aCGH Survival Analysis"	#placeholder#	.1	Y	N		aCGHSurvivalAnalysis	aCGHSurvivalAnalysis	DEFAULT
 66	1	"Group Test for aCGH"	#placeholder#	.1	Y	N		GroupTestaCGH	groupTestaCGH	DEFAULT
 67	1	"Group Test for RNASeq"	#placeholder#	.1	Y	N		GroupTestRNASeq	groupTestRNASeq	DEFAULT
 68	1	"Frequency Plot for aCGH"	#placeholder#	.1	Y	N		AcghFrequencyPlot	acghFrequencyPlot	DEFAULT
 70	1	"Forest Plot"	#placeholder#	.1	Y	N	null	ForestPlot	forestPlot	DEFAULT
-69	1	"Logistic Regression"	#placeholder#	.1	Y	N	null	LogisticRegression	logisticRegression	DEFAULT
+110	1	Geneprint		.1	Y	N		Geneprint	geneprint	DEFAULT
