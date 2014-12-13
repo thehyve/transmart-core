@@ -323,6 +323,14 @@ HighDimensionalData.prototype.generate_view = function () {
 
     if (!_view) {
         _view = _create_view();
+        _view.on('resize', function(vp, width, height) {
+            var me = this,
+                ref = jQuery("#resultsTabPanel"),
+                left = ref.offset().left + (ref.width() - me.width) / 2,
+                top = ref.offset().top + (ref.height() - me.height) / 2;
+            
+            me.setPosition(left, top);
+        }, _view);
     }
 
     return _view;
