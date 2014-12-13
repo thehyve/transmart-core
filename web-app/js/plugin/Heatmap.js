@@ -77,7 +77,7 @@ HeatMapView.prototype.get_form_params = function () {
 
         // get analysis constraints
         var constraints_json = this.get_analysis_constraints('RHeatmap');
-        constraints_json['projections'] = ["zscore"];
+        constraints_json['projections'] = ["log_intensity"];
 
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
