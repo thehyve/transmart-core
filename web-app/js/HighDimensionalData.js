@@ -276,6 +276,7 @@ HighDimensionalData.prototype.generate_view = function () {
             title: 'Compare Subsets-Pathway Selection',
             layout: 'fit',
             width: 475,
+            height: 370,
             autoHeight: true,
             closable: false,
             plain: true,
@@ -329,7 +330,7 @@ HighDimensionalData.prototype.generate_view = function () {
                 left = ref.offset().left + (ref.width() - me.width) / 2,
                 top = ref.offset().top + (ref.height() - me.height) / 2;
             
-            me.setPosition(left, top);
+            me.setPosition(left > 0 ? left : 0, top > 0 ? top : 0);
         }, _view);
     }
 
