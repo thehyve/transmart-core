@@ -186,6 +186,10 @@ aggregate.probes = FALSE
 	#Rename the first column to be "PROBE.ID".
 	colnames(finalHeatmapData)[1] <- 'PROBE.ID'
 	
+	#Performing row-wise z-score scaling
+	finalHeatmapData.zscore = t(scale(t(finalHeatmapData[,-1])))
+	finalHeatmapData.zscore = cbind(finalHeatmapData[,1], finalHeatmapData.zscore)
+	
 # 	#---------------------
  	#WRITE TO FILE
   #Before we write the CMS file we need to replace any empty genes with NA.
