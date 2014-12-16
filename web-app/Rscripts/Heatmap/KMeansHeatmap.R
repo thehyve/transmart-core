@@ -29,7 +29,8 @@ pointsize = 15,
 maxDrawNumber = Inf,
 color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE,
-calculateZscore = FALSE
+calculateZscore = FALSE,
+zscore.file = "zscores.txt"
 )
 {
     print("-------------------")
@@ -39,6 +40,7 @@ calculateZscore = FALSE
     library(Cairo)
     library(reshape2)
     library(gplots)
+    library(plyr)
 
     #Validate the number of clusters after converting to a numeric.
     clusters.number <- as.numeric(clusters.number)
@@ -61,6 +63,19 @@ calculateZscore = FALSE
     groupValues <- levels(mRNAData$GROUP)
     mRNAData$GROUP <- paste("X",as.numeric(mRNAData$GROUP),sep="")
 
+    if(calculateZscore){
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.md = median(VALUE, na.rm = TRUE))
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.sd = sd(VALUE, na.rm = TRUE))        
+      mRNAData$VALUE = with(mRNAData, ifelse(probe.sd == 0, 0,
+                                             (mRNAData$VALUE - mRNAData$probe.md) / mRNAData$probe.sd))
+      mRNAData$VALUE = with(mRNAData, ifelse(VALUE > 2.5, 2.5,
+                                             ifelse(VALUE < -2.5, -2.5, VALUE)))
+      mRNAData$VALUE = round(mRNAData$VALUE, 9)
+      mRNAData$probe.md = NULL
+      mRNAData$probe.sd = NULL
+      write.table(mRNAData,zscore.file,quote=F,sep="\t",row.names=F,col.names=T)
+    }
+    
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to K-means clustering heatmap's specific data-formats
         mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)

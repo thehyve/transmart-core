@@ -24,7 +24,8 @@ output.file ="CMS.TXT",
 numberOfPermutations = 5000,
 numberOfMarkers = 100,
 aggregate.probes = FALSE,
-calculateZscore = FALSE
+calculateZscore = FALSE,
+zscore.file = "zscores.txt"
 )
 {
 	##########################################
@@ -52,6 +53,19 @@ calculateZscore = FALSE
 	mRNAData$GENE_SYMBOL 	<- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
 	mRNAData$PATIENT.ID   	<- gsub("^\\s+|\\s+$", "",mRNAData$PATIENT.ID)
 	
+	if(calculateZscore){
+	  mRNAData = ddply(mRNAData, "PROBE.ID", transform, probe.md = median(VALUE, na.rm = TRUE))
+	  mRNAData = ddply(mRNAData, "PROBE.ID", transform, probe.sd = sd(VALUE, na.rm = TRUE))        
+	  mRNAData$VALUE = with(mRNAData, ifelse(probe.sd == 0, 0,
+	                                         (mRNAData$VALUE - mRNAData$probe.md) / mRNAData$probe.sd))
+	  mRNAData$VALUE = with(mRNAData, ifelse(VALUE > 2.5, 2.5,
+	                                         ifelse(VALUE < -2.5, -2.5, VALUE)))
+	  mRNAData$VALUE = round(mRNAData$VALUE, 9)
+	  mRNAData$probe.md = NULL
+	  mRNAData$probe.sd = NULL
+	  write.table(mRNAData,zscore.file,quote=F,sep="\t",row.names=F,col.names=T)
+	}
+  
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
         mRNAData <- MS.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)

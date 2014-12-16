@@ -30,7 +30,8 @@ color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE,
 cluster.by.rows = TRUE,
 cluster.by.columns = TRUE,
-calculateZscore = FALSE
+calculateZscore = FALSE,
+zscore.file = "zscores.txt"
 )
 {
 
@@ -42,6 +43,7 @@ calculateZscore = FALSE
     library(ggplot2)
     library(reshape2)
     library(gplots)
+    library(plyr)
 
     #Pull the GEX data from the file.
     mRNAData <- data.frame(read.delim(input.filename))
@@ -56,6 +58,19 @@ calculateZscore = FALSE
     mRNAData$GROUP[rowsToConcatenate] <- paste(mRNAData$GROUP[rowsToConcatenate], mRNAData$GENE_SYMBOL[rowsToConcatenate],sep="_")
     mRNAData$GROUP <- as.factor(mRNAData$GROUP)
 
+    if(calculateZscore){
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.md = median(VALUE, na.rm = TRUE))
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.sd = sd(VALUE, na.rm = TRUE))        
+      mRNAData$VALUE = with(mRNAData, ifelse(probe.sd == 0, 0,
+                                             (mRNAData$VALUE - mRNAData$probe.md) / mRNAData$probe.sd))
+      mRNAData$VALUE = with(mRNAData, ifelse(VALUE > 2.5, 2.5,
+                                             ifelse(VALUE < -2.5, -2.5, VALUE)))
+      mRNAData$VALUE = round(mRNAData$VALUE, 9)
+      mRNAData$probe.md = NULL
+      mRNAData$probe.sd = NULL
+      write.table(mRNAData,zscore.file,quote=F,sep="\t",row.names=F,col.names=T)
+    }
+    
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
         mRNAData <- Heatmap.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)
