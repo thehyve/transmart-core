@@ -39,7 +39,7 @@ class AnalysisFilesControllerTests {
         analysisDirectory.mkdir()
 
         controller.RModulesOutputRenderService = mock RModulesOutputRenderService
-        controller.RModulesOutputRenderService.tempImageFolder.
+        controller.RModulesOutputRenderService.tempFolderDirectory.
                 returns(temporaryDirectory.absolutePath).stub()
 
         sendFileServiceMock = mock()
@@ -136,24 +136,6 @@ class AnalysisFilesControllerTests {
     void testInexistingAnalysisName() {
         testUsername        = USER_NAME
         params.analysisName = ANALYSIS_NAME + '1'
-
-        play {
-            controller.download()
-        }
-
-        assertThat response.status, is(404)
-    }
-
-    @Test
-    void testNoSubDirectoriesAllowed() {
-        testUsername = USER_NAME
-
-        def subDirName = 'subdir'
-        def subDir = new File(analysisDirectory, subDirName)
-        assert subDir.mkdir()
-
-        def targetFile = "$subDirName/foo"
-        file = targetFile
 
         play {
             controller.download()
