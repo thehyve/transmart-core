@@ -45,8 +45,10 @@ class AnalysisFilesController {
 
         // Only expose files under the analysis directory
         File targetFile = new File(analysisDirectory, params.path)
-        String canonicalPath = targetFile.getCanonicalPath()
-        if (!canonicalPath.startsWith(analysisDirectory.getCanonicalPath())) {
+        //canonical path does not end with separator
+        if (!targetFile.canonicalPath
+                .startsWith(analysisDirectory.canonicalPath + File.separator)) {
+
             log.warn "Request for $targetFile, but it's not " +
                     "under $analysisDirectory"
             render status: 404
