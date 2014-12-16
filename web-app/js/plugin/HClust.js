@@ -51,6 +51,7 @@ HierarchicalClusteringView.prototype.get_form_params = function () {
         var maxDrawNum = inputArray[1].el.value;
         var doClusterRows = inputArray[2].el.checked;
         var doClusterColumns = inputArray[3].el.checked;
+        var calculateZscore = inputArray[4].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'RHClust';
@@ -59,11 +60,15 @@ HierarchicalClusteringView.prototype.get_form_params = function () {
         formParameters['txtMaxDrawNumber'] = maxDrawNum;
         formParameters['doClusterRows'] = doClusterRows;
         formParameters['doClusterColumns'] = doClusterColumns;
+        formParameters['calculateZscore'] = calculateZscore;
 
         //get analysis constraints
         var constraints_json = this.get_analysis_constraints('RHClust');
-        constraints_json['projections'] = ["zscore"];
-
+        if(calculateZscore){
+        	constraints_json['projections'] = ["log_intensity"];
+        }else{
+        	constraints_json['projections'] = ["zscore"];
+        }
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
     } else { // something is not correct in the validation
@@ -103,6 +108,11 @@ HierarchicalClusteringView.prototype.get_inputs = function (form_params) {
         {
             "label" : "Do cluster columns",
             "el" : document.getElementById("chkClusterColumns"),
+            "validations" : []
+        },
+        {
+            "label" : "Calculate z-score on the fly",
+            "el" : document.getElementById("chkCalculateZscore"),
             "validations" : []
         }
     ];

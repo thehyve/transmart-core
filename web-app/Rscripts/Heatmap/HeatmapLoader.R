@@ -27,7 +27,8 @@ imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
 color.range.clamps = c(-2.5,2.5),
-aggregate.probes = FALSE
+aggregate.probes = FALSE,
+calculateZscore = FALSE
 )
 {
 

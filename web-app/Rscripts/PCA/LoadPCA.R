@@ -22,7 +22,8 @@ PCA.loader <- function(
 input.filename,
 output.file ="PCA",
 aggregate.probes = FALSE,
-max.pcs.to.show = 10
+max.pcs.to.show = 10,
+calculateZscore = FALSE
 )
 {
 

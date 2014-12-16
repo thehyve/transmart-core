@@ -67,6 +67,7 @@ MarkerSelectionView.prototype.get_form_params = function () {
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var numOfMarkers = inputArray[1].el.value;
         var doGroupBySubject = inputArray[3].el.checked;
+        var calculateZscore = inputArray[4].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'MarkerSelection';
@@ -74,11 +75,16 @@ MarkerSelectionView.prototype.get_form_params = function () {
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['txtNumberOfMarkers'] = numOfMarkers;
         formParameters['doGroupBySubject'] = doGroupBySubject;
+        formParameters['calculateZscore'] = calculateZscore;
 
         // get analysis constraints
         var constraints_json = this.get_analysis_constraints('MarkerSelection');
-        constraints_json['projections'] = ["log_intensity"];
-
+        if(calculateZscore){
+        	constraints_json['projections'] = ["log_intensity"];
+        }else{
+        	constraints_json['projections'] = ["zscore"];
+        }
+        
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
     } else { // something is not correct in the validation
@@ -119,6 +125,11 @@ MarkerSelectionView.prototype.get_inputs = function (form_params) {
         {
             "label" : "Do Group by Subject",
             "el" : document.getElementById("chkGroupBySubject"),
+            "validations" : []
+        },
+        {
+            "label" : "Calculate z-score on the fly",
+            "el" : document.getElementById("chkCalculateZscore"),
             "validations" : []
         }
     ];

@@ -29,7 +29,8 @@ maxDrawNumber = Inf,
 color.range.clamps = c(-2.5,2.5),
 aggregate.probes = FALSE,
 cluster.by.rows = TRUE,
-cluster.by.columns = TRUE
+cluster.by.columns = TRUE,
+calculateZscore = FALSE
 )
 {
 

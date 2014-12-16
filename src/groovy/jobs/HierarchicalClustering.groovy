@@ -26,7 +26,8 @@ class HierarchicalClustering extends HighDimensionalOnlyJob {
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                             cluster.by.rows = '$doClusterRows' == 'true',
                             cluster.by.columns = '$doClusterColumns' == 'true',
-                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
+                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''},
+                            calculateZscore = '$calculateZscore'
                             )'''
 
         [ source, createHeatmap ]

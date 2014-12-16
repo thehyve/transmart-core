@@ -34,6 +34,10 @@
                 <input type="checkbox" id="chkUseExperimentAsVariable" name="doUseExperimentAsVariable">
                 <span>Use experiment/node as variable instead of probe (multiple nodes only)</span>
             </div>
+            <div>
+                <input type="checkbox" id="chkCalculateZscore" name="calculateZscore">
+                <span>Calculate z-score on the fly</span>
+            </div>
             <input type="button" value="Run" onClick="pcaView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
 
