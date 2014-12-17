@@ -92,6 +92,8 @@ class AnalysisFilesControllerTests {
         play {
             controller.download()
         }
+
+        assertThat response.status, is(200)
     }
 
     @Test
@@ -119,6 +121,8 @@ class AnalysisFilesControllerTests {
         play {
             controller.download()
         }
+
+        assertThat response.status, is(200)
     }
 
     @Test
@@ -141,6 +145,17 @@ class AnalysisFilesControllerTests {
             controller.download()
         }
 
+        assertThat response.status, is(404)
+    }
+
+    @Test
+    void testAccessToExternalFilesNotAllowed() {
+        testUsername        = USER_NAME
+
+        file = '../test'
+        play {
+            controller.download()
+        }
         assertThat response.status, is(404)
     }
 
