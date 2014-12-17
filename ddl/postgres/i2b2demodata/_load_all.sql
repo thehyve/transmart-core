@@ -58,7 +58,6 @@
 \i i2b2demodata/qt_patient_enc_collection.sql
 \i i2b2demodata/qt_patient_sample_collection.sql
 \i i2b2demodata/qt_patient_set_collection.sql
-\i i2b2demodata/qt_patient_sample_collection.sql
 \i i2b2demodata/qt_pdo_query_master.sql
 \i i2b2demodata/qt_privilege.sql
 \i i2b2demodata/qt_xml_result.sql
