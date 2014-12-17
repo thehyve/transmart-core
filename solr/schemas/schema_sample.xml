@@ -2,7 +2,8 @@
 <schema name="tranSMART" version="1.0">
   <fields>
   
-	<field name="id" type="string" indexed="true" stored="true" required="true" />
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+
     <field name="trial_name" type="string" indexed="true" stored="true" required="true" />
     <field name="barcode" type="string" indexed="true" stored="true" required="false" />
     <field name="plate_id" type="string" indexed="true" stored="true" required="false" />
@@ -15,7 +16,7 @@
     <field name="comment" type="string" indexed="true" stored="true" required="false" />
     <field name="location" type="string" indexed="true" stored="true" required="false" />
     <field name="source_organism" type="string" indexed="true" stored="true" required="true" />
-	<field name="_version_" type="long" indexed="true"  stored="true" multiValued="false"/>
+    <field name="_version_" type="long" indexed="true"  stored="true" multiValued="false"/>
 
     <dynamicField name="*" type="ignored" multiValued="true"/>
   </fields>
