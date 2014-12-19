@@ -153,79 +153,85 @@ aggregate.probes = FALSE
 
     rowLabels <- groupValues[as.numeric(rownames(matrixData))]
 
-    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "png")
-    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file, extension = "svg")
+    plotHeatmap(matrixData, rowLabels, patientcolors, color.range.clamps, output.file)
 }
 
-plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.file = "Heatmap", extension = "png") {
+plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.file = "Heatmap") {
     require(Cairo)
     require(gplots)
 
-    pxPerCell <- 15
+    # The Cairo graphical backend has a width and heigth resolution restriction which depends upon environment settings
+    # The number of pixels (width and heigth) for each boxplot's cell is therefore dependent on the max number of row or column cells
+    # These numbers were found experimentally to generate legible plots, but might need to be further reduced if problems occur
+    maxDim <- max(dim(data)[1], dim(data)[2])
+    if (maxDim < 250) {pxPerCell <- 30}
+    else if (maxDim < 500) {pxPerCell <- 25}
+    else if (maxDim < 1000) {pxPerCell <- 20}
+    else if (maxDim < 2000) {pxPerCell <- 15}
+    else {pxPerCell <- 10} # less than 10 pixels per cell makes the plot illegible
+
+    # all paramaters determining the sizes of elements in the heatmap scale with the set pxPerCell (eg. fontsizes, legendsizes)
     hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
-    if (nrow(data) < 30 || ncol(data) < 30) {
-        pxPerCell <- 40
-        hmPars <- list(pointSize = pxPerCell / 5, labelPointSize = pxPerCell / 10)
-    }
 
-    maxResolution <- 30000
-    if (nrow(data) > ncol(data) && nrow(data)*pxPerCell > maxResolution) {
-        pxPerCell <- maxResolution/nrow(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
-    } else if (ncol(data)*pxPerCell > maxResolution) {
-        pxPerCell <- maxResolution/ncol(data)
-        hmPars <- list(pointSize = pxPerCell / 1, labelPointSize = pxPerCell / 9)
-    }
-    mainHeight <- nrow(data) * pxPerCell
-    mainWidth <- ncol(data) * pxPerCell
+    # The heatmap is split into a grid for each of its elements to be drawn in (see lmat argument in heatmap.2 function)
+    # the heatmap plot is split in 6 columns (left border, rows-dendrogram, rowcolors (not used), heatmap, labelStarts/legends, labelOverflow)
+    # the heatmap plot is split in 6 rows (top border, columns-dendrogram, columncolors/subsetLegend, heatmap, labelStarts/colLegend, labelOverflow)
+    # first, calculate labelOverflow sizes
+    letterSizeInCells <- 0.7
+    legendSizesInCells <- 20
+    rowLabelSizeMax <- max(0, max(nchar(colnames(data))) - (legendSizesInCells / letterSizeInCells))
+    colLabelSizeMax <- max(0, max(nchar(rownames(data))) - (legendSizesInCells / letterSizeInCells))
 
-    leftMarginSize <- pxPerCell * 1
-    rightMarginSize <- pxPerCell * max(10, max(nchar(rowLabels)))
-    topMarginSize <- pxPerCell * 3
-    bottomMarginSize <- pxPerCell * max(10, max(nchar(colnames(data))))
-    topSpectrumHeight <- rightMarginSize
+    # define the heatmap's grid sizes
+    columnSizes <- c(1, 3, 0, ncol(data), legendSizesInCells, letterSizeInCells * colLabelSizeMax) * pxPerCell
+    rowSizes <- c(1, 3, 3, nrow(data), legendSizesInCells, letterSizeInCells * rowLabelSizeMax) * pxPerCell
+    totalWidth <- sum(columnSizes)
+    totalHeight <- sum(rowSizes)
+    hmCanvasColumnRatios <- columnSizes / totalWidth
+    hmCanvasRowRatios <- rowSizes / totalHeight
 
-    imageWidth <- leftMarginSize + mainWidth + rightMarginSize
-    imageHeight <- topSpectrumHeight + topMarginSize + mainHeight + bottomMarginSize
-
-    hmCanvasDiv <- list(xLeft = leftMarginSize / imageWidth, xMain = mainWidth / imageWidth, xRight = rightMarginSize / imageWidth,
-                        yTopLarge = topSpectrumHeight / imageHeight, yTopSmall = topMarginSize / imageHeight,
-                        yMain = mainHeight / imageHeight, yBottom = bottomMarginSize / imageHeight)
-
-    if (extension == "svg") {
-        CairoSVG(file = paste(output.file,".svg",sep=""), width = imageWidth/200,
-                 height = imageHeight/200, pointsize = hmPars$pointSize*0.35)
-    } else {
-        CairoPNG(file = paste(output.file,".png",sep=""), width = imageWidth,
-                 height = imageHeight, pointsize = hmPars$pointSize)
-    }
+    tryCatch(CairoPNG(file = paste(output.file, ".png", sep=""), width = totalWidth,
+                      height = totalHeight, pointsize = hmPars$pointSize, units = "px"),
+             error = function(e) {stop("Cairo graphical backend could not be created. Your plot size is likely too big.")})
 
     par(mar = c(0, 0, 0, 0))
 
+    noDifferentColors <- 800
+    plotColors <- greenred(noDifferentColors)
+
+    colorLegendPlot <- function() {
+        par(mar = c(6, 2, 6, 2))
+        sequenceOfBars <- rep(1, length(plotColors))
+        barplot(sequenceOfBars, main="Color mapping of Z score", cex.main = 2.2,
+                col = plotColors, space = 0, border = NA, axes = FALSE)
+        axis(1, at = c(1, noDifferentColors/2, noDifferentColors), labels = c(color.range.clamps[1], 0, color.range.clamps[2]), cex.axis = 3, lwd = 4, padj = 1)
+    }
+
     heatmap.2(data,
-              Rowv=NA,
-              Colv=NA,
               ColSideColors = colcolors,
-              col = greenred(800),
-              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800+1),
-              sepwidth=c(0,0),
-              margins=c(0, 0),
-              cexRow = hmPars$labelPointSize,
-              cexCol = hmPars$labelPointSize,
+              col = plotColors,
+              breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800 + 1),
+              sepwidth = c(0, 0),
+              margins = c(0, 0),
+              cexRow = 1.7, #hmPars$labelPointSize,
+              cexCol = 1.7, #hmPars$labelPointSize,
               labRow = rowLabels,
               scale = "none",
               dendrogram = "none",
-              key = TRUE,
-              keysize = 0.001,
-              density.info = "histogram", # density.info=c("histogram","density","none")
+              density.info = "none", # histogram", # density.info=c("histogram","density","none")
               trace = "none",
-              lmat = matrix(ncol = 3, byrow = TRUE, data = c( # 1 is subset color bar, 2 is heatmap, 5 is color histogram
-                  3, 5, 4,
-                  6, 1, 7,
-                  8, 2, 9,
-                  10, 11, 12)),
-              lwid = c(hmCanvasDiv$xLeft, hmCanvasDiv$xMain, hmCanvasDiv$xRight),
-              lhei = c(hmCanvasDiv$yTopLarge, hmCanvasDiv$yTopSmall, hmCanvasDiv$yMain, hmCanvasDiv$yBottom))
+              lmat = matrix(ncol = 6, byrow = TRUE, data = c(
+                  # 1 is subset column color bar, 2 is heatmap, 3 is row-clustering, 4 is column-clustering, 5 is color histogram (turned off), 6 is custom color legend
+                  -1, -1, -1, -1, -1, -1,
+                  -1,  5, -1,  4, -1, -1,
+                  -1, -1, -1,  1, -1, -1,
+                  -1,  3, -1,  2, -1, -1,
+                  -1, -1, -1, -1,  6, -1,
+                  -1, -1, -1, -1, -1, -1)),
+              lhei = hmCanvasRowRatios,
+              lwid = hmCanvasColumnRatios,
+              key = FALSE,
+              extrafun = colorLegendPlot)
 
     dev.off()
 }
