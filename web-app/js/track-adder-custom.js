@@ -358,9 +358,9 @@ Browser.prototype.createAddInfoButton= function() {
                         'Note: please remember to remove the track and add it again if you change the patient subset selection criteria',
                     'DP');
                 if (infoField != null) {
-                    that.addVCFInfoTrack(infoField, vcfs[0].id, vcfs.length>1?'-subset 1' : '');
+                    that.addVCFInfoTrack(infoField, vcfs[0].id, vcfs[0].concept, vcfs.length>1?'-subset 1' : '');
                     if (vcfs.length>1)
-                        that.addVCFInfoTrack(infoField, vcfs[1].id, '-subset 2');
+                        that.addVCFInfoTrack(infoField, vcfs[1].id, vcfs[1].concept, '-subset 2');
                 }
             }
             else {
@@ -371,40 +371,41 @@ Browser.prototype.createAddInfoButton= function() {
     })
 }
 
-Browser.prototype.addVCFInfoTrack= function(infoField, qri, nameSuffix) {
+Browser.prototype.addVCFInfoTrack= function(infoField, qri, concept, nameSuffix) {
     this.addTier(new DASSource({
         name: 'VCF-'+infoField.trim()+nameSuffix,
-        uri: pageInfo.basePath + "/das/vcfInfo-"+infoField.trim()+'-'+ qri + "/"
+        uri: pageInfo.basePath + "/das/vcfInfo-" + infoField.trim() +
+            '-' + qri + '-' + concept + "/"
     }))
 }
 
 Browser.prototype.scanCurrentTracksForVCF = function () {
-    var subset1, subset2; var subset1INFOs=[], subset2INFOs=[];
+    var subset1, subset2;
+    var subset1INFOs=[], subset2INFOs=[];
     var vcfs = [];
-    for (var i=0;i<this.sources.length;i++){
+    for (var i = 0; i < this.sources.length; i++){
         var s = this.sources[i];
         if (!s.uri) continue;
         if (s.uri.indexOf('vcf-') > -1 ||
-            s.uri.indexOf('vcfInfo-') > -1 ||
             s.uri.indexOf('smaf-') > -1 ||
             s.uri.indexOf('qd-') > -1 ||
             s.uri.indexOf('gv-') > -1) {
             //stuff between last / identifies track, numbers after last - identify QRI
-            var match = /([^\-]+)-(([^\-]+)-)?([^\/]+)\/$/.exec(s.uri)
+            var match = /([^\-]+)-([^\-]+)-([^\/]+)\/$/.exec(s.uri);
             if (match) {
-                var qri = match[4]; //QRI is fourth group
-                var info = match[3];
-                var subset = null;
-                for (var j=0;j<vcfs.length;j++)
-                    if (vcfs[j].id == qri)
-                        subset = vcfs[j];
-                if (subset == null)
-                    vcfs.push(subset = {id: qri, infos:[info], sources: [s]});
-                else {
-                    subset.infos.push(info);
-                    subset.sources.push(s);
-                }
+                var qri = match[2];
+                var concept = match[3];
 
+                var vcfEntry = null;
+                for (var j = 0; j < vcfs.length; j++) {
+                    if (vcfs[j].id == qri && vcfs[j].concept == concept) {
+                        vcfEntry = vcfs[j];
+                    }
+                }
+                if (vcfEntry == null) {
+                    vcfEntry = {id: qri, concept: concept};
+                    vcfs.push(vcfEntry);
+                }
             }
         }
     }
