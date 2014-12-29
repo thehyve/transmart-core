@@ -43,11 +43,13 @@ class AnalysisFilesController {
             return
         }
 
+        // Only expose files under the analysis directory
         File targetFile = new File(analysisDirectory, params.path)
-        //expose stuff only directory under the analysis
+        //canonical path does not end with separator
+        if (!targetFile.canonicalPath
+                .startsWith(analysisDirectory.canonicalPath + File.separator)) {
 
-        if (targetFile.parentFile != analysisDirectory) {
-            log.warn "Request for $targetFile, but it's not directly " +
+            log.warn "Request for $targetFile, but it's not " +
                     "under $analysisDirectory"
             render status: 404
             return
@@ -69,7 +71,7 @@ class AnalysisFilesController {
     }
 
     private File getJobsDirectory() {
-        new File(RModulesOutputRenderService.tempImageFolder)
+        new File(RModulesOutputRenderService.tempFolderDirectory)
     }
 
     private boolean checkPermissions(String jobName) {

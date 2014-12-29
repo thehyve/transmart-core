@@ -39,7 +39,7 @@ class AnalysisFilesControllerTests {
         analysisDirectory.mkdir()
 
         controller.RModulesOutputRenderService = mock RModulesOutputRenderService
-        controller.RModulesOutputRenderService.tempImageFolder.
+        controller.RModulesOutputRenderService.tempFolderDirectory.
                 returns(temporaryDirectory.absolutePath).stub()
 
         sendFileServiceMock = mock()
@@ -92,6 +92,8 @@ class AnalysisFilesControllerTests {
         play {
             controller.download()
         }
+
+        assertThat response.status, is(200)
     }
 
     @Test
@@ -119,6 +121,8 @@ class AnalysisFilesControllerTests {
         play {
             controller.download()
         }
+
+        assertThat response.status, is(200)
     }
 
     @Test
@@ -145,20 +149,13 @@ class AnalysisFilesControllerTests {
     }
 
     @Test
-    void testNoSubDirectoriesAllowed() {
-        testUsername = USER_NAME
+    void testAccessToExternalFilesNotAllowed() {
+        testUsername        = USER_NAME
 
-        def subDirName = 'subdir'
-        def subDir = new File(analysisDirectory, subDirName)
-        assert subDir.mkdir()
-
-        def targetFile = "$subDirName/foo"
-        file = targetFile
-
+        file = '../test'
         play {
             controller.download()
         }
-
         assertThat response.status, is(404)
     }
 
