@@ -188,8 +188,6 @@ class FmFolderController {
         def bioDataObject = new Experiment()
         def amTagTemplate = AmTagTemplate.findByTagTemplateType(FolderType.STUDY.name())
         def metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-        def title = "Create Study"
-        def templateType = "createStudyForm"
         render(template: "createStudy", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
