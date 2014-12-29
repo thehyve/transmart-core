@@ -62,25 +62,19 @@ class AmTagItemService {
     def getEditableItems(Long key) {
         log.info "Searching amTagItems for tag template " + key
 
-        def amTagItems
+        def amTagItems = []
 
         if (key) {
-            Map<String, Object> paramMap = new HashMap<Long, Object>();
+            amTagItems = AmTagItem.findAll(
+                "from AmTagItem ati where ati.amTagTemplate.id = :templateId and ati.editable = '1' order by ati.displayOrder",
+                [templateId: key])
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("from AmTagItem ati where editable= 1 ");
-            sb.append(" and ati.amTagTemplate.id = :amTagTemplateId order by displayOrder");
-            paramMap.put("amTagTemplateId", key);
-
-            amTagItems = AmTagItem.findAll(sb.toString(), paramMap);
-
-            log.info "amTagItems = " + amTagItems + " for key = " + key
+            log.info "amTagItems = ${amTagItems} for key = ${key}"
         } else {
             log.error "Unable to retrieve an amTagItems with a null key value"
         }
 
-
-        return amTagItems
+        amTagItems
     }
 
     def getRequiredItems(Long key) {
