@@ -4,6 +4,7 @@ $spec = [
     'BIOMART_USER' => [
         ['BIOMART',      '*TABLE',                    'READ', ''],
         ['BIOMART',      '*VIEW',                     'READ', ''],
+        ['BIOMART',      '*SEQUENCE',                 'READ', ''],
         ['DEAPP',        '*TABLE',                    'READ', ''],
         ['DEAPP',        '*VIEW',                     'READ', ''],
         ['I2B2DEMODATA', '*TABLE',                    'READ', ''],
