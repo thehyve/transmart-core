@@ -350,10 +350,12 @@ HighDimensionalData.prototype.get_inputs = function (divId) {
     ]
 }
 
-HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration) {
+HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration, doValidatePlatforms) {
 
     var _this = this;
     this.hideAggregration=hideAggregration;
+    doValidatePlatforms = typeof doValidatePlatforms !== 'undefined' ? doValidatePlatforms : true;
+
     /**
      * Reset global variables
      * @private
@@ -377,7 +379,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
     if (!variableDivEmpty(divId)
         && ((GLOBAL.CurrentSubsetIDs[1] == null) || (multipleSubsets() && GLOBAL.CurrentSubsetIDs[2] == null))) {
         runAllQueriesForSubsetId(function () {
-            _this.gather_high_dimensional_data(divId, hideAggregration);
+            _this.gather_high_dimensional_data(divId, hideAggregration, doValidatePlatforms);
         }, divId);
         return;
     }
@@ -394,16 +396,19 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
       this.fetchNodeDetails( divId, function( result ) {
         _this.data = JSON.parse(result.responseText);
 
-        _this.display_high_dimensional_popup();
-//        TODO: re-enable platform validation, except for geneprint:
-//        platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
-//        var formValidator = new FormValidator(platforms);
-//
-//        if (formValidator.validateInputForm()) {
-//          _this.display_high_dimensional_popup();
-//        } else {
-//          formValidator.display_errors();
-//        }
+        if (doValidatePlatforms) {
+          platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
+          var formValidator = new FormValidator(platforms);
+
+          if (formValidator.validateInputForm()) {
+            _this.display_high_dimensional_popup();
+          } else {
+            formValidator.display_errors();
+          }
+        }
+        else {
+          _this.display_high_dimensional_popup();
+        }
 
       });
     } else { // something is not correct in the validation
