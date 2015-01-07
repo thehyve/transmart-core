@@ -34,6 +34,7 @@ function test_main_pg {
 function test_clinical_load {
   make -C env data-integration
   make -C samples/postgres load_clinical_GSE8581
+  make -C samples/postgres showdblog
 }
 
 function test_solr {
