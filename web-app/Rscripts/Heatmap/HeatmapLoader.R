@@ -206,8 +206,8 @@ plotHeatmap <- function(data, colcolors, color.range.clamps, output.file = "Heat
               cexCol = 1.7, #hmPars$labelPointSize,
               scale = "none",
               dendrogram = "none",
-              Rowv = TRUE,
-              Colv = TRUE,
+              Rowv = NA,
+              Colv = NA,
               density.info = "none", # histogram", # density.info=c("histogram","density","none")
               trace = "none",
               lmat = matrix(ncol = 6, byrow = TRUE, data = c(
