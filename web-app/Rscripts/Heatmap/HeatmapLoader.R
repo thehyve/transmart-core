@@ -35,16 +35,17 @@ aggregate.probes = FALSE
     print("HeatmapLoader.R")
     print("CREATING HEATMAP")
 
-    library(Cairo)
-    library(ggplot2)
-    library(reshape2)
-    library(gplots)
+	library(Cairo)
+	library(ggplot2)
+	library(reshape2)
+	library(gplots)
 
-    #Pull the GEX data from the file.
-    mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
-
-    #We can't draw a heatmap if no data values are given
-    if(nrow(mRNAData)<1) stop("||FRIENDLY||R cannot plot a heatmap when NO data is provided. Please check your variable selection and run again.")
+	#Pull the GEX data from the file.
+	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
+	if (nrow(mRNAData) == 0) {
+        CairoPNG(file = paste(output.file,".png",sep=""), width=1200, height=600,units = "px")
+        Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
+    }
 
     # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,
     # but only if the latter does not contain a private value
@@ -293,4 +294,16 @@ function(mRNAData, collapseRow.method, collapseRow.selectFewestMissing, output.f
     write.table(finalData, file = output.file, sep = "\t", row.names = FALSE)
 
     finalData
+}
+
+Plot.error.message <- function(errorMessage) {
+    # TODO: This error handling hack is a temporary permissible quick fix:
+    # It deals with getting error messages through an already used medium (the plot image) to the end-user in certain relevant cases.
+    # It should be replaced by a system wide re-design of consistent error handling that is currently not in place. See ticket HYVE-12.
+    print(paste("Error encountered. Caught by Plot.error.message(). Details:", errorMessage))
+    tmp <- frame()
+    tmp2 <- mtext(errorMessage,cex=2)
+    print(tmp)
+    print(tmp2)
+    dev.off()
 }
