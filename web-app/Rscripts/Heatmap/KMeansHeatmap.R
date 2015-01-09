@@ -209,6 +209,8 @@ plotHeatmap <- function(data, rowLabels, colcolors, color.range.clamps, output.f
     }
 
     heatmap.2(data,
+              Rowv=NA,
+              Colv=NA,
               ColSideColors = colcolors,
               col = plotColors,
               breaks = seq(color.range.clamps[1], color.range.clamps[2], length.out = 800 + 1),
