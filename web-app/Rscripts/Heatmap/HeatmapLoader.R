@@ -75,18 +75,22 @@ aggregate.probes = FALSE
 
         #When we convert to a data frame the numeric columns get an x in front of them. Remove them here.
         colnames(mRNAData) <- sub("^X", "", colnames(mRNAData))
+        
+        #Set the name of the rows to be the names of the probes.
+        rownames(mRNAData) = mRNAData$GROUP
+        
+        #Convert data to a integer matrix.
+        mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
     } else {
         colnames(mRNAData) <- gsub("^\\s+|\\s+$", "", colnames(mRNAData))
 
         #Use only unique row names. This unique should get rid of the case where we have multiple genes per probe. The values for the probes are all the same.
         mRNAData <- unique(mRNAData)
+        
+        #Convert data to a integer matrix.
+        rownames(mRNAData) <- mRNAData$PROBE.ID
+        mRNAData <- data.matrix(subset(mRNAData, select = -c(PROBE.ID)))
     }
-
-    #Set the name of the rows to be the names of the probes.
-    rownames(mRNAData) = mRNAData$GROUP
-
-    #Convert data to a integer matrix.
-    mRNAData <- data.matrix(subset(mRNAData, select = -c(GROUP)))
 
     #We can't draw a heatmap for a matrix with no rows.
     if(nrow(mRNAData) < 1) stop("||FRIENDLY||R cannot plot a heatmap with no Gene/Probe selected. Please check your variable selection and run again.")
