@@ -24,17 +24,18 @@ class OntNodeTag {
     String tag
     String tagtype
     OntNode ontnode
-    Long tagsIdx
+    Long relativePosition
     static belongsTo = [ontnode: OntNode]
     static mapping = {
         table 'I2B2_TAGS'
         version false
         id generator: 'sequence', params: [sequence: 'SEQ_I2B2_DATA_ID']
         columns {
-            id column: 'TAG_ID'
-            tag column: 'TAG'
-            tagtype column: 'TAG_TYPE'
-            ontnode column: 'PATH'
+            id               column: 'TAG_ID'
+            tag              column: 'TAG'
+            tagtype          column: 'TAG_TYPE'
+            ontnode          column: 'PATH'
+            relativePosition column: 'TAGS_IDX'
         }
     }
     static constraints = {

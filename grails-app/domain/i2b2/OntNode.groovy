@@ -72,7 +72,7 @@ class OntNode {
             sourcesystemcd column: 'SOURCESYSTEM_CD'
             valuetypecd column: 'VALUETYPE_CD'
             securitytoken column: 'SECURE_OBJ_TOKEN'
-            tags column: 'PATH', sort: 'tagsIdx'
+            tags column: 'PATH', sort: 'relativePosition'
         }
     }
     static constraints = {
