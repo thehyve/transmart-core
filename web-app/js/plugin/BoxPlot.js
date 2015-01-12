@@ -28,27 +28,6 @@ BoxPlotView.prototype = new RmodulesView();
  */
 BoxPlotView.prototype.constructor = BoxPlotView;
 
-BoxPlotView.prototype.illegalBinning = function(independentVariables, dependentVariables) {
-  if (!GLOBAL.Binning) {
-    return false;
-  }
-
-  // I would rather have kept this function ignorant of the outside world.
-  var variableToBeBinned = Ext.get("selBinVariableSelection").getValue();
-
-  if (variableToBeBinned == "IND" && independentVariables.length > 1) {
-    Ext.Msg.alert('Illegal binning', 'More that 1 independent variable selected');
-    return true;
-  }
-
-  if (variableToBeBinned == "DEP" && dependentVariables.length > 1) {
-    Ext.Msg.alert('Illegal binning', 'More that 1 dependent variable selected');
-    return true;
-  }
-
-  return false;
-}
-
 /**
  * Get form parameters
  * TODO: Refactor the validation to define validation in FormValidator.js instead here
@@ -82,7 +61,34 @@ BoxPlotView.prototype.get_form_params = function (form) {
      */
     var _isCategorical = function (nodeTypes) {
         return (nodeTypes[0] == "null") ? true : false;
-    } //
+    }
+
+    var _isNumerical = function (nodeTypes) {
+        return (nodeTypes[0] == "valueicon") ? true : false;
+    }
+
+    if (GLOBAL.Binning) {
+        var variableToBeBinned = document.getElementById("selBinVariableSelection").value
+        var multipleNumericalVariablesToBeBinned
+
+        if (variableToBeBinned == "IND"
+            && _isNumerical(independentNodeList)
+            && independentVariableEle.dom.childNodes.length > 1) {
+
+            multipleNumericalVariablesToBeBinned = true;
+        } else if (variableToBeBinned == "DEP"
+            && _isNumerical(dependentNodeList)
+            && dependentVariableEle.dom.childNodes.length > 1) {
+
+            multipleNumericalVariablesToBeBinned = true;
+        }
+
+        if (multipleNumericalVariablesToBeBinned) {
+            Ext.Msg.alert('Illegal binning', 'More that 1 ' + (variableToBeBinned == "IND" ? 'in' : '')
+                +'dependent numerical variable selected.');
+            return;
+        }
+    }
 
     var dependentVariableConceptPath = "";
     var independentVariableConceptPath = "";
@@ -130,10 +136,6 @@ BoxPlotView.prototype.get_form_params = function (form) {
     if (independentVariableConceptPath == '') {
         Ext.Msg.alert('Missing input!', 'Please drag at least one concept into the independent variable box.');
         return;
-    }
-
-    if (this.illegalBinning(independentVariableEle.dom.childNodes, dependentVariableEle.dom.childNodes)) {
-      return;
     }
 
     var variablesConceptCode = dependentVariableConceptPath + "|" + independentVariableConceptPath;
