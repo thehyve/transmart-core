@@ -21,27 +21,24 @@
 package i2b2
 
 class OntNodeTag {
-    Long id
-    //String path
     String tag
     String tagtype
-		OntNode ontnode
+    OntNode ontnode
+    Long relativePosition
     static belongsTo = [ontnode: OntNode]
     static mapping = {
         table 'I2B2_TAGS'
         version false
-	 id generator:'sequence', params:[sequence:'SEQ_I2B2_DATA_ID']		
-	 columns {
-		//path column:'PATH'
-		id column:'TAG_ID'
-		tag column:'TAG'
-		tagtype column:'TAG_TYPE'
-		ontnode column:'PATH'
+        id generator: 'sequence', params: [sequence: 'SEQ_I2B2_DATA_ID']
+        columns {
+            id               column: 'TAG_ID'
+            tag              column: 'TAG'
+            tagtype          column: 'TAG_TYPE'
+            ontnode          column: 'PATH'
+            relativePosition column: 'TAGS_IDX'
         }
     }
     static constraints = {
-        //path(nullable:true, maxSize:400)
-        tag(nullable: true, maxSize: 400)
         //tagtype(nullable:true, maxSize:400, inList:["AREA", "DESEASE", "COMPOUND"] )
         tagtype(nullable: true, maxSize: 400)
     }
