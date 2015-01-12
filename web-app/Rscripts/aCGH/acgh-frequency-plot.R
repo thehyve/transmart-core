@@ -69,6 +69,11 @@ acgh.frequency.plot <- function
     lbl.chr <- unique(chromosomes)
     lbl.chr[lbl.chr==23] <- 'X'
 
+    # Check if chromosomes (labels) are loaded properly
+    if (length(ax) != length(lbl.chr)) {
+        stop("||FRIENDLY||There is an error in the chromosome/region data. It may not be loaded properly."); return()
+    }
+
     axis(side=1, at=ax, labels=lbl.chr, las=2)
     axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
     labels <- c(0.01, 0.05, 0.025, 0.1, 0.25, 0.5, 1)
