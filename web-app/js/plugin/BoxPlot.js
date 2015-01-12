@@ -61,7 +61,34 @@ BoxPlotView.prototype.get_form_params = function (form) {
      */
     var _isCategorical = function (nodeTypes) {
         return (nodeTypes[0] == "null") ? true : false;
-    } //
+    }
+
+    var _isNumerical = function (nodeTypes) {
+        return (nodeTypes[0] == "valueicon") ? true : false;
+    }
+
+    if (GLOBAL.Binning) {
+        var variableToBeBinned = document.getElementById("selBinVariableSelection").value
+        var multipleNumericalVariablesToBeBinned
+
+        if (variableToBeBinned == "IND"
+            && _isNumerical(independentNodeList)
+            && independentVariableEle.dom.childNodes.length > 1) {
+
+            multipleNumericalVariablesToBeBinned = true;
+        } else if (variableToBeBinned == "DEP"
+            && _isNumerical(dependentNodeList)
+            && dependentVariableEle.dom.childNodes.length > 1) {
+
+            multipleNumericalVariablesToBeBinned = true;
+        }
+
+        if (multipleNumericalVariablesToBeBinned) {
+            Ext.Msg.alert('Illegal binning', 'More that 1 ' + (variableToBeBinned == "IND" ? 'in' : '')
+                +'dependent numerical variable selected.');
+            return;
+        }
+    }
 
     var dependentVariableConceptPath = "";
     var independentVariableConceptPath = "";
