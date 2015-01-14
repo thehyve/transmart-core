@@ -116,8 +116,9 @@
                 <fieldset class="inputFields">
                     <h3>Censoring Variable</h3>
                     <div class="divInputLabel">
-                        Select a variable and drag it into the box.
-                        Subjects within these categories (or numerical constraints) will be censored out of the plot.
+                        Drag the item for which to perform censoring in the analysis into this box. For example, when
+                        performing Overall survival analysis, drag 'Survival status = alive' into this box.
+                        This variable is not obligatory.
                     </div>
                     <div id='divCensoringVariable' class="queryGroupIncludeLong divInputBox"></div>
                     <div class="highDimBtns">
