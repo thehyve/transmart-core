@@ -21,7 +21,7 @@ abstract class GenericTableUpdateTasklet implements Tasklet, PreparedStatementSe
     String studyId
 
     @Override
-    final RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         int count = jdbcTemplate.update(sql, this)
         contribution.incrementWriteCount(count)
         RepeatStatus.FINISHED

@@ -11,5 +11,6 @@ package org.transmartproject.batch.concept
 enum ConceptType {
     NUMERICAL,
     CATEGORICAL,
+    HIGH_DIMENSIONAL,
     UNKNOWN,
 }

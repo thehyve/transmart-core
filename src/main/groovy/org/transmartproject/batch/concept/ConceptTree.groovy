@@ -54,6 +54,10 @@ class ConceptTree {
         }
     }
 
+    boolean isNew(ConceptNode node) {
+        !(node.path in oldConceptPaths)
+    }
+
     Collection<ConceptNode> getAllConceptNodes() {
         nodeMap.values()
     }
@@ -86,9 +90,7 @@ class ConceptTree {
                 node.type = type
                 log.debug("Assigning type $type to concept node $node")
             } else if (type != ConceptType.UNKNOWN && node.type != type) {
-                throw new IllegalArgumentException(
-                        "Asked for node $path with type $type, " +
-                                "but the one I know has type ${node.type}")
+                throw new UnexpectedConceptTypeException(type, node.type, path)
             }
             return node
         }

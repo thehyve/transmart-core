@@ -7,7 +7,8 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.patient.Patient
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
+import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
@@ -16,7 +17,7 @@ import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 
 /**
- * Creates {@link ClinicalFactsRowSet} objects.
+ * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
  *
  * Because concepts can only be created and assigned types when the data is seen,
  * that is also done here.

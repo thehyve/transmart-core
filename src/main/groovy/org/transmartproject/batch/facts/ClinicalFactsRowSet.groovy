@@ -1,6 +1,6 @@
-package org.transmartproject.batch.clinical.facts
+package org.transmartproject.batch.facts
 
-import org.transmartproject.batch.clinical.patient.Patient
+import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptType
@@ -40,6 +40,7 @@ class ClinicalFactsRowSet {
             switch (concept.type) {
                 case ConceptType.NUMERICAL:
                     return 'N'
+                case ConceptType.HIGH_DIMENSIONAL:
                 case ConceptType.CATEGORICAL:
                     return 'T'
                 default:
@@ -51,7 +52,8 @@ class ClinicalFactsRowSet {
         String getStringValue() {
             switch (concept.type) {
                 case ConceptType.NUMERICAL:
-                    return 'E' //@todo verify logic
+                    return 'E' // value is Equal to the numeric value column
+                case ConceptType.HIGH_DIMENSIONAL:
                 case ConceptType.CATEGORICAL:
                     return value
                 default:
@@ -64,11 +66,12 @@ class ClinicalFactsRowSet {
             switch (concept.type) {
                 case ConceptType.NUMERICAL:
                     return Double.valueOf(value)
+                case ConceptType.HIGH_DIMENSIONAL:
                 case ConceptType.CATEGORICAL:
                     return null
                 default:
                     throw new IllegalStateException(
-                            "Unexpected concept type: $conceptType")
+                            "Unexpected concept type: ${concept.type}")
             }
         }
 

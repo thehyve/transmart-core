@@ -1,4 +1,4 @@
-package org.transmartproject.batch.clinical.patient
+package org.transmartproject.batch.patient
 
 import org.transmartproject.batch.concept.ConceptType
 

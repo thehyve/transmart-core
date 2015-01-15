@@ -24,7 +24,10 @@ class TsvFieldSetJdbcBatchItemWriter implements ItemWriter<FieldSet> {
 
     // key name must be in sync with HeaderSavingLineCallbackHandler.KEY
     @Value("#{stepExecutionContext['tsv.header']}")
-    List<String> columnNames /* normalized to lowercase */
+    List<String> columnNamesRaw
+
+    @Lazy
+    List<String> columnNames = columnNamesRaw*.toLowerCase()
 
     @Autowired
     JdbcTemplate jdbcTemplate

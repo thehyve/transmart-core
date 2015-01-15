@@ -21,5 +21,6 @@ final class Tables {
 
     public static final String GPL_INFO          = 'deapp.de_gpl_info'
     public static final String MRNA_ANNOTATION   = 'deapp.de_mrna_annotation'
+    public static final String MRNA_DATA         = 'deapp.de_subject_microarray_data'
     public static final String SUBJ_SAMPLE_MAP   = 'deapp.de_subject_sample_mapping'
 }

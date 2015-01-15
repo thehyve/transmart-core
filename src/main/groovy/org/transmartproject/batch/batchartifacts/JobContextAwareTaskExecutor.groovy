@@ -20,7 +20,7 @@ class JobContextAwareTaskExecutor extends SimpleAsyncTaskExecutor {
                 try {
                     task.run()
                 } finally {
-                    JobSynchronizationManager.release()
+                    JobSynchronizationManager.close()
                 }
             }
         })

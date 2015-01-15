@@ -11,7 +11,7 @@ import javax.sql.DataSource
 
 /**
  * General purpose Spring configuration for functional tests. Includes
- * helper beans for
+ * helper beans for issuing queries, count their rows and truncate tables.
  */
 @Import(AppConfig)
 class GenericFunctionalTestConfiguration {

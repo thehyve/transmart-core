@@ -1,5 +1,6 @@
-package org.transmartproject.batch.clinical.variable
+package org.transmartproject.batch.concept
 
+import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
@@ -9,16 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.stereotype.Component
+import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.concept.ConceptNode
-import org.transmartproject.batch.concept.ConceptTree
-import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.support.SecureObjectToken
 
 /**
  * Inserts concepts (from the ConceptTree) that are new
  */
+@Component
+@JobScopeInterfaced
+@Slf4j
 class InsertConceptsTasklet implements Tasklet {
 
     @Autowired
@@ -56,6 +59,8 @@ class InsertConceptsTasklet implements Tasklet {
         Date now = new Date()
 
         if (newConcepts.size() > 0) {
+            log.info("Inserting ${newConcepts.size()} new concepts " +
+                    "(concept_dimension)")
             Map<String,Object>[] rows = newConcepts.collect {
                 [
                     concept_cd: it.code,
@@ -74,12 +79,14 @@ class InsertConceptsTasklet implements Tasklet {
         }
 
         if (newConcepts.size() > 0) {
+            log.info("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
+
             String comment = "trial:$studyId"
             List<Map> i2b2Rows = []
             List<Map> i2b2SecureRows = []
 
             newConcepts.each {
-                String visualAttributes = conceptTree.childrenFor(it).isEmpty() ? 'LA' : 'FA' //@todo any extra logic?
+                String visualAttributes = visualAttributesFor(it)
 
                 Map i2b2Row = [
                         c_hlevel: it.level,
@@ -127,12 +134,19 @@ class InsertConceptsTasklet implements Tasklet {
         switch (concept.type) {
             case ConceptType.NUMERICAL:
                 return metadataXml
+            case ConceptType.HIGH_DIMENSIONAL:
             case ConceptType.CATEGORICAL:
                 return null
             default:
                 throw new IllegalStateException(
                         "Unexpected concept type: ${concept.type}")
         }
+    }
+
+    private String visualAttributesFor(ConceptNode concept) {
+        conceptTree.childrenFor(concept).isEmpty() ?
+                (concept.type == ConceptType.HIGH_DIMENSIONAL ? 'LAH' : 'LA') :
+                'FA'
     }
 
     static final String generateMetadataXml() {

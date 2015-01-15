@@ -5,7 +5,7 @@ import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Value
-import org.transmartproject.batch.clinical.patient.DemographicVariable
+import org.transmartproject.batch.patient.DemographicVariable
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.support.LineListener
 import org.transmartproject.batch.support.LineStepContributionAdapter

@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.patient.Patient
+import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.support.SecureObjectToken
 
 /**
