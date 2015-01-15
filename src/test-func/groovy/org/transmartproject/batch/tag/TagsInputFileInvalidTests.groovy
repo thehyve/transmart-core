@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class TagsInputFileWrongNumberOfColsTests {
+class TagsInputFileInvalidTests {
 
     @Autowired
     JobRepository jobRepository
@@ -72,6 +72,21 @@ class TagsInputFileWrongNumberOfColsTests {
 
         assertThat execution.stepExecutions, contains(
                 hasProperty('stepName', equalTo('tagsLoadStep')))
+    }
+
+    @Test
+    void testValuesTooLong() {
+        def execution = runJob('-p',
+                'studies/' + STUDY_ID + '/tags.params',
+                '-d', 'TAGS_FILE=corruption/tags_1_too_long.txt')
+
+
+        assertThat execution.exitStatus, allOf(
+                hasProperty('exitCode', is('FAILED')),
+                hasProperty('exitDescription', allOf(
+                        containsString('Field "tagTitle" has size 401, which exceeds the maximum size 400'),
+                        containsString('Field "tagDescription" has size 1,029, which exceeds the maximum size 1,000'),
+                )))
     }
 
 

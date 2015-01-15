@@ -11,6 +11,8 @@ import org.springframework.dao.DataAccessException
  * so it can report those numbers in case of error.
  *
  * Doesn't handle skips at this point.
+ *
+ * TODO: implement ItemStream so we can keep counting across restarts
  */
 @CompileStatic
 @Slf4j

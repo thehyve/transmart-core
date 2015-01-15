@@ -16,8 +16,6 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.FoundExitStatusChangeListener
-import org.transmartproject.batch.batchartifacts.LineOfErrorDetectionListener
-import org.transmartproject.batch.batchartifacts.ProgressWriteListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Sequences
@@ -89,8 +87,8 @@ class MrnaPlatformJobConfiguration extends AbstractJobConfiguration {
                 .processor(new ValidatingItemProcessor(
                         adaptValidator(annotationRowValidator)))
                 .writer(mrnaAnnotationWriter)
-                .listener(new LineOfErrorDetectionListener())
-                .listener(new ProgressWriteListener())
+                .listener(lineOfErrorDetectionListener())
+                .listener(progressWriteListener())
                 .build()
 
         new FlowBuilder<SimpleFlow>('mainFlow')
