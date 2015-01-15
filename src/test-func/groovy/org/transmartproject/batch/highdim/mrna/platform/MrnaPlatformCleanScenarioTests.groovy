@@ -4,7 +4,6 @@ import org.junit.AfterClass
 import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +36,7 @@ class MrnaPlatformCleanScenarioTests {
     static final long NUMBER_OF_PROBES = 19
 
     @ClassRule
-    public final static TestRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'annotation')
+    public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'annotation')
 
     @Autowired
     JobRepository jobRepository
@@ -153,6 +152,26 @@ class MrnaPlatformCleanScenarioTests {
         assertThat r, contains(
                 hasEntry('organism', 'Homo Sapiens')
         )
+    }
+
+    @Test
+    void testAnnotationDate() {
+        def q = """
+                SELECT annotation_date organism
+                FROM ${Tables.GPL_INFO}
+                WHERE platform = :platform"""
+        def p = [platform: PLATFORM_ID_NORM]
+
+        Date date = jdbcTemplate.queryForObject(q, p, Date)
+
+        def execution = jobRepository.getLastJobExecution(
+                MrnaPlatformJobConfiguration.JOB_NAME,
+                RUN_JOB_RULE.jobParameters)
+        Date expectedDate = execution.startTime
+
+        assertThat date, allOf(
+                is(notNullValue()),
+                is(expectedDate))
     }
 
 }
