@@ -25,13 +25,17 @@ class InsertGplInfoTasklet implements Tasklet {
     @Value(Tables.GPL_INFO)
     SimpleJdbcInsert jdbcInsert
 
+    @Value('#{jobExecution.startTime}')
+    Date jobStartTime
+
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         int i = jdbcInsert.execute([
-                platform: platformObject.id,
-                title: platformObject.title,
-                organism: platformObject.organism,
-                marker_type: platformObject.markerType,
+                platform:        platformObject.id,
+                title:           platformObject.title,
+                organism:        platformObject.organism,
+                marker_type:     platformObject.markerType,
+                annotation_date: jobStartTime,
         ])
         contribution.incrementWriteCount(i)
 
