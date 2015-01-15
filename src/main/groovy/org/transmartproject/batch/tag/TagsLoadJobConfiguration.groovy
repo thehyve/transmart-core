@@ -6,15 +6,21 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.SimpleJob
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
+import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
+import org.springframework.validation.Validator
+import org.transmartproject.batch.batchartifacts.DbMetadataBasedBoundsValidator
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.support.JobParameterFileResource
+
+import static org.transmartproject.batch.batchartifacts.DbMetadataBasedBoundsValidator.c
 
 /**
  * Spring configuration for the tag load job.
@@ -42,8 +48,10 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
         steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
+                .processor(new ValidatingItemProcessor(adaptValidator(tagLineValidator())))
                 .writer(tagTsvWriter())
                 .listener(new LogCountsStepListener())
+                .listener(lineOfErrorDetectionListener())
                 .build()
     }
 
@@ -55,6 +63,15 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                 beanClass: Tag,
                 columnNames: ['concept_fragment', 'tag_title', 'tag_description', 'index'],
                 linesToSkip: 1)
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Validator tagLineValidator() {
+        new DbMetadataBasedBoundsValidator(
+                Tag,
+                tagTitle: c(Tables.I2B2_TAGS, 'tag_type'),
+                tagDescription: c(Tables.I2B2_TAGS, 'tag'))
     }
 
     @Bean

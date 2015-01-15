@@ -169,6 +169,12 @@ abstract class AbstractJobConfiguration {
         new ProgressWriteListener()
     }
 
+    @Bean
+    @StepScope
+    LineOfErrorDetectionListener lineOfErrorDetectionListener() {
+        new LineOfErrorDetectionListener()
+    }
+
     @TypeChecked
     protected
     <T> ItemStreamReader<T> tsvFileReader(Map<String, Object> options,
