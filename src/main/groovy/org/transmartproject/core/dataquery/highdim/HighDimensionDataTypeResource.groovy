@@ -8,6 +8,8 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.QueryResult
 
 /**
  *
@@ -27,6 +29,8 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * A human-readable description of this data type
      */
     String getDataTypeDescription()
+
+    Set<OntologyTerm> getAllOntologyTermsForDataTypeBy(QueryResult queryResult)
 
     /**
      * Retrieves high dimensional data from the database.
