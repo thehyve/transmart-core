@@ -22,6 +22,7 @@ class RunJobRule extends ExternalResource {
     }
 
     JobParameters jobParameters
+    String jobName
     Date jobEndDate
 
     protected void before() throws Throwable {
@@ -31,6 +32,7 @@ class RunJobRule extends ExternalResource {
         runJob.run()
 
         jobParameters = runJob.finalJobParameters
+        jobName = runJob.jobName
         jobEndDate = new Date()
     }
 }

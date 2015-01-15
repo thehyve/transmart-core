@@ -2,24 +2,18 @@ package org.transmartproject.batch.highdim.mrna.data
 
 import org.junit.AfterClass
 import org.junit.ClassRule
-import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.batch.core.repository.JobRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.junit.NoSkipIfJobFailed
+import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
-import org.transmartproject.batch.junit.SkipIfJobFailedRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -30,7 +24,7 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class MrnaDataCleanScenarioTests {
+class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
     private final static String STUDY_ID = 'GSE8581'
     private final static String PLATFORM_ID = 'GPL570_bogus'
@@ -49,21 +43,9 @@ class MrnaDataCleanScenarioTests {
             new RunJobRule(STUDY_ID, 'clinical'),
     ])
 
-    @Autowired
-    JobRepository jobRepository
-
-    @Autowired
-    RowCounter rowCounter
-
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate
-
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final SkipIfJobFailedRule skipIfJobFailedRule = new SkipIfJobFailedRule(
-            jobRepositoryProvider: { -> jobRepository },
-            runJobRule: RUN_JOB_RULES.rulesStartingWithInnerMost[0],
-            jobName: MrnaDataJobConfiguration.JOB_NAME,)
+    // needed by the trait
+    public final static TestRule RUN_JOB_RULE =
+            RUN_JOB_RULES.rulesStartingWithInnerMost[0]
 
     @AfterClass
     static void cleanDatabase() {
@@ -83,13 +65,6 @@ class MrnaDataCleanScenarioTests {
                         Tables.SUBJ_SAMPLE_MAP,
                         Tables.MRNA_DATA,
                 )
-    }
-
-    @Test
-    @NoSkipIfJobFailed
-    void testJobCompletedSuccessfully() {
-        assert skipIfJobFailedRule.jobCompletedSuccessFully,
-                'The job completed successfully'
     }
 
     @Test
@@ -150,8 +125,6 @@ class MrnaDataCleanScenarioTests {
                 hasEntry(is('zscore'),
                         closeTo((105.912d - ALL_DATA_MEAN) / ALL_DATA_STD_DEV, DELTA)),
         )
-
     }
-
 
 }

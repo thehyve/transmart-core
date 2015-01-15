@@ -2,23 +2,17 @@ package org.transmartproject.batch.highdim.mrna.platform
 
 import org.junit.AfterClass
 import org.junit.ClassRule
-import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.batch.core.repository.JobRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.junit.NoSkipIfJobFailed
+import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
-import org.transmartproject.batch.junit.SkipIfJobFailedRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -29,7 +23,7 @@ import static org.springframework.context.i18n.LocaleContextHolder.locale
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class MrnaPlatformCleanScenarioTests {
+class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
 
     private final static String PLATFORM_ID = 'GPL570_bogus'
     private final static String PLATFORM_ID_NORM = 'GPL570_bogus'.toUpperCase(locale)
@@ -39,22 +33,6 @@ class MrnaPlatformCleanScenarioTests {
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'annotation')
 
-    @Autowired
-    JobRepository jobRepository
-
-    @Autowired
-    RowCounter rowCounter
-
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate
-
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final SkipIfJobFailedRule skipIfJobFailedRule = new SkipIfJobFailedRule(
-            jobRepositoryProvider: { -> jobRepository },
-            runJobRule: RUN_JOB_RULE,
-            jobName: MrnaPlatformJobConfiguration.JOB_NAME,)
-
     @AfterClass
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
@@ -63,14 +41,6 @@ class MrnaPlatformCleanScenarioTests {
                         "${Tables.GPL_INFO} CASCADE",
                         Tables.MRNA_ANNOTATION,
                         'ts_batch.batch_job_instance CASCADE')
-    }
-
-
-    @Test
-    @NoSkipIfJobFailed
-    void testJobCompletedSuccessfully() {
-        assert skipIfJobFailedRule.jobCompletedSuccessFully,
-                'The job completed successfully'
     }
 
     @Test
