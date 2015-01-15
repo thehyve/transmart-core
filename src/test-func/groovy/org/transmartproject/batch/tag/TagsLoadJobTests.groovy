@@ -2,22 +2,17 @@ package org.transmartproject.batch.tag
 
 import org.junit.AfterClass
 import org.junit.ClassRule
-import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.repository.JobRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
+import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
-import org.transmartproject.batch.junit.SkipIfJobFailedRule
 import org.transmartproject.batch.startup.RunJob
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -28,27 +23,12 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class TagsLoadJobTests {
-
-    static JobParameters jobParameters
+class TagsLoadJobTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'tags')
-
-    @Autowired
-    JobRepository jobRepository
-
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate
-
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final SkipIfJobFailedRule skipIfJobFailedRule = new SkipIfJobFailedRule(
-            jobRepositoryProvider: { -> jobRepository },
-            runJobRule: RUN_JOB_RULE,
-            jobName: TagsLoadJobConfiguration.JOB_NAME)
 
     @AfterClass
     static void cleanDatabase() {

@@ -5,24 +5,18 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.junit.AfterClass
 import org.junit.ClassRule
-import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.batch.core.repository.JobRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.ConceptFragment
-import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.junit.NoSkipIfJobFailed
+import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
-import org.transmartproject.batch.junit.SkipIfJobFailedRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -32,7 +26,7 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class ClinicalDataCleanScenarioTests {
+class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -48,22 +42,6 @@ class ClinicalDataCleanScenarioTests {
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'clinical')
 
-    @Autowired
-    JobRepository jobRepository
-
-    @Autowired
-    RowCounter rowCounter
-
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate
-
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final SkipIfJobFailedRule skipIfJobFailedRule = new SkipIfJobFailedRule(
-            jobRepositoryProvider: { -> jobRepository },
-            runJobRule: RUN_JOB_RULE,
-            jobName: ClinicalDataLoadJobConfiguration.JOB_NAME,)
-
     @AfterClass
     static void cleanDatabase() {
         // TODO: implement backout study and call it here
@@ -78,13 +56,6 @@ class ClinicalDataCleanScenarioTests {
                         Tables.I2B2_SECURE,
                         Tables.I2B2_TAGS,
                         'ts_batch.batch_job_instance cascade')
-    }
-
-    @Test
-    @NoSkipIfJobFailed
-    void testJobCompletedSuccessfully() {
-        assert skipIfJobFailedRule.jobCompletedSuccessFully,
-                'The job completed successfully'
     }
 
     @Test

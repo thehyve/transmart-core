@@ -33,6 +33,8 @@ final class RunJob {
 
     JobParameters finalJobParameters
 
+    String jobName
+
     private final static String USAGE = '''transmart-batch-capsule.jar -p <params file>
     [ -d <param=value> | [ -d <param2=value2> | ... ]]
     [ -c <file> ]
@@ -101,6 +103,8 @@ final class RunJob {
         if (!jobIdentifier) {
             System.exit 1
         }
+        jobName = externalJobParameters.jobPath.JOB_NAME
+
         runner.start(externalJobParameters.jobPath.name,
                 jobIdentifier,
                 [] as String[] /* converter above takes care of params */,

@@ -22,7 +22,6 @@ class SkipIfJobFailedRule implements TestRule {
     // we need these three to be able to fetch the execution
     Closure<JobRepository> jobRepositoryProvider
     RunJobRule runJobRule
-    String jobName
 
     Statement apply(final Statement base, final Description description) {
         if (description.annotations.any { it.annotationType() == NoSkipIfJobFailed }) {
@@ -40,7 +39,9 @@ class SkipIfJobFailedRule implements TestRule {
 
     boolean isJobCompletedSuccessFully() {
         def execution = jobRepositoryProvider().getLastJobExecution(
-                jobName, runJobRule.jobParameters)
+                runJobRule.jobName, runJobRule.jobParameters)
+
+        assert execution != null: 'Could not find execution'
 
         allOf(
                 is(notNullValue()),
