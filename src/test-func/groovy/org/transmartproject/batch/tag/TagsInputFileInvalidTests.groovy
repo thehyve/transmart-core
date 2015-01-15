@@ -1,15 +1,15 @@
 package org.transmartproject.batch.tag
 
-import org.junit.AfterClass
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.batch.core.JobExecution
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.startup.RunJob
 
@@ -26,6 +26,9 @@ class TagsInputFileInvalidTests {
 
     @Autowired
     JobRepository jobRepository
+
+    @Autowired
+    TableTruncator truncator
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -62,7 +65,6 @@ class TagsInputFileInvalidTests {
                 'studies/' + STUDY_ID + '/tags.params',
                 '-d', 'TAGS_FILE=corruption/tags_1_extra_column.txt')
 
-
         assertThat execution.exitStatus, allOf(
                 hasProperty('exitCode', is('FAILED')),
                 hasProperty('exitDescription', allOf(
@@ -80,7 +82,6 @@ class TagsInputFileInvalidTests {
                 'studies/' + STUDY_ID + '/tags.params',
                 '-d', 'TAGS_FILE=corruption/tags_1_too_long.txt')
 
-
         assertThat execution.exitStatus, allOf(
                 hasProperty('exitCode', is('FAILED')),
                 hasProperty('exitDescription', allOf(
@@ -89,11 +90,23 @@ class TagsInputFileInvalidTests {
                 )))
     }
 
+    @Test
+    void testDuplicates() {
+        def execution = runJob('-p',
+                'studies/' + STUDY_ID + '/tags.params',
+                '-d', 'TAGS_FILE=corruption/tags_1_repeated.txt')
 
-    @AfterClass
-    static void cleanBatchTables() {
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate('ts_batch.batch_job_instance CASCADE')
+        assertThat execution.exitStatus, allOf(
+                hasProperty('exitCode', is('FAILED')),
+                hasProperty('exitDescription',
+                        containsString('(key [\\, ORGANISM]) on line 5 was first seen on line 2')))
+    }
+
+
+    @After
+    void cleanBatchTables() {
+        truncator.truncate(
+                Tables.I2B2_TAGS,
+                'ts_batch.batch_job_instance CASCADE')
     }
 }
