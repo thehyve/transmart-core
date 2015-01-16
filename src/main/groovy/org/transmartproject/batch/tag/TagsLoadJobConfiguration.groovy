@@ -1,8 +1,10 @@
 package org.transmartproject.batch.tag
 
+import com.google.common.collect.Lists
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.SimpleJob
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
 import org.springframework.validation.Validator
 import org.transmartproject.batch.batchartifacts.DbMetadataBasedBoundsValidator
+import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -48,7 +51,10 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
         steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
-                .processor(new ValidatingItemProcessor(adaptValidator(tagLineValidator())))
+                .processor(compositeOf(
+                        new ValidatingItemProcessor(adaptValidator(tagLineValidator())),
+                        duplicationDetectionProcessor(),
+                ))
                 .writer(tagTsvWriter())
                 .listener(new LogCountsStepListener())
                 .listener(lineOfErrorDetectionListener())
@@ -72,6 +78,15 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                 Tag,
                 tagTitle: c(Tables.I2B2_TAGS, 'tag_type'),
                 tagDescription: c(Tables.I2B2_TAGS, 'tag'))
+    }
+
+    @Bean
+    @StepScope
+    DuplicationDetectionProcessor<Tag> duplicationDetectionProcessor() {
+        new DuplicationDetectionProcessor<Tag>(
+                calculateKey: { Tag t ->
+                    Lists.asList(t.conceptFragment, t.tagTitle)
+                })
     }
 
     @Bean
