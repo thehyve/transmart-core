@@ -29,6 +29,10 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
 
     private Map<Object, Long> seen = [:]
 
+    DuplicationDetectionProcessor() {
+        name = getClass().name
+    }
+
     @Override
     T process(T item) throws Exception {
         def key = calculateKey item

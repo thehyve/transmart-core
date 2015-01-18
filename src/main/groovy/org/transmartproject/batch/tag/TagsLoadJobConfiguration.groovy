@@ -44,7 +44,7 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Step tagsLoadStep() {
-        steps.get('tagsLoadStep')
+        TaskletStep s = steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
                 .processor(compositeOf(
@@ -55,6 +55,9 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                 .listener(new LogCountsStepListener())
                 .listener(lineOfErrorDetectionListener())
                 .build()
+
+        s.streams = duplicationDetectionProcessor()
+        s
     }
 
     @Bean
