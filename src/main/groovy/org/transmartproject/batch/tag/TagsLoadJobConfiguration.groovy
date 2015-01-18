@@ -5,7 +5,6 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
-import org.springframework.batch.core.job.SimpleJob
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
@@ -38,12 +37,9 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean(name = 'TagsLoadJob')
     @Override
     Job job() {
-        SimpleJob job =
-                jobs.get(JOB_NAME)
-                        .start(tagsLoadStep())
-                        .build()
-        job.jobParametersIncrementer = jobParametersIncrementer
-        job
+        jobs.get(JOB_NAME)
+                .start(tagsLoadStep())
+                .build()
     }
 
     @Bean

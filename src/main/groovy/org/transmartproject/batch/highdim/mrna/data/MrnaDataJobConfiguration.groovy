@@ -6,7 +6,6 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -97,13 +96,10 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
 
     @Bean(name = 'MrnaDataLoadJob')
     Job job() {
-        FlowJob job =
-                jobs.get(JOB_NAME)
-                        .start(mainFlow())
-                        .end()
-                        .build()
-        job.jobParametersIncrementer = jobParametersIncrementer
-        job
+        jobs.get(JOB_NAME)
+                .start(mainFlow())
+                .end()
+                .build()
     }
 
     private Flow mainFlow() {
