@@ -5,6 +5,8 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
+import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
@@ -28,30 +30,47 @@ import static org.transmartproject.batch.batchartifacts.DbMetadataBasedBoundsVal
  * Spring configuration for the tag load job.
  */
 @Configuration
-@ComponentScan('org.transmartproject.batch.tag')
+@ComponentScan(['org.transmartproject.batch.tag',
+                'org.transmartproject.batch.concept'])
 class TagsLoadJobConfiguration extends AbstractJobConfiguration {
 
     static final String JOB_NAME = 'TagsLoadJob'
     static final int CHUNK_SIZE = 100
 
+    @javax.annotation.Resource
+    Tasklet validateTopNodePreexistenceTasklet
+
+    @javax.annotation.Resource
+    Tasklet gatherCurrentConceptsTasklet
+
     @Bean(name = 'TagsLoadJob')
     @Override
     Job job() {
         jobs.get(JOB_NAME)
-                .start(tagsLoadStep())
+                .start(stepOf(this.&getGatherCurrentConceptsTasklet))
+                .next(stepOf(this.&getValidateTopNodePreexistenceTasklet))
+                .next(tagsLoadStep(null, null))
                 .build()
     }
 
     @Bean
-    Step tagsLoadStep() {
+    Step tagsLoadStep(TagValidator tagValidator,
+                      TagConceptExistenceValidator tagConceptExistenceValidator) {
         TaskletStep s = steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
                 .processor(compositeOf(
-                        new ValidatingItemProcessor(adaptValidator(tagLineValidator())),
+                        new ValidatingItemProcessor(adaptValidator(tagValidator)),
                         duplicationDetectionProcessor(),
+                        new ValidatingItemProcessor(tagConceptExistenceValidator),
                 ))
                 .writer(tagTsvWriter())
+                .faultTolerant()
+                .processorNonTransactional()
+                .retryLimit(0) // do not retry individual items
+                .skip(NoSuchConceptException)
+                .noRollback(NoSuchConceptException)
+                .skipLimit(Integer.MAX_VALUE)
                 .listener(new LogCountsStepListener())
                 .listener(lineOfErrorDetectionListener())
                 .build()
@@ -72,7 +91,7 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Validator tagLineValidator() {
+    Validator tagBoundsValidator() {
         new DbMetadataBasedBoundsValidator(
                 Tag,
                 tagTitle: c(Tables.I2B2_TAGS, 'tag_type'),

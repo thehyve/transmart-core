@@ -1,4 +1,3 @@
 concept_key	tag_title	tag_description	index
 \	TITLE	Human Chronic Obstructive Pulmonary Disorder Biomarker	2
-\	CODE	GSE8581	3
-\Endpoints\FEV1	NAME	FVC ratio	4
+\DOESNOTEXIST	SYNONYMS	Tiffeneau-Pinelli	5

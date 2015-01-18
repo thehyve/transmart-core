@@ -14,6 +14,7 @@ import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
+import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -40,7 +41,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule(STUDY_ID, 'expression'),
             new RunJobRule(PLATFORM_ID, 'annotation'),
-            new RunJobRule(STUDY_ID, 'clinical'),
+            new RunJobRule("${STUDY_ID}_simple", 'clinical'),
     ])
 
     // needed by the trait
@@ -52,13 +53,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
-                        Tables.OBSERVATION_FACT,
-                        Tables.CONCEPT_DIMENSION,
-                        Tables.PATIENT_TRIAL,
-                        Tables.PATIENT_DIMENSION,
-                        Tables.I2B2,
-                        Tables.I2B2_SECURE,
-                        Tables.I2B2_TAGS,
+                        *TableLists.CLINICAL_TABLES,
                         "${Tables.GPL_INFO} CASCADE",
                         Tables.MRNA_ANNOTATION,
                         'ts_batch.batch_job_instance CASCADE',

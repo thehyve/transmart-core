@@ -1,5 +1,5 @@
 concept_key	tag_title	tag_description
 \	TITLE	Human Chronic Obstructive Pulmonary Disorder Biomarker
 \	ORGANISM	Homo sapiens
-\FEV1	NAME	FEV1/FVC ratio
-\FEV1	SYNONYMS	Tiffeneau-Pinelli
+\Endpoints\FEV1	NAME	FEV1/FVC ratio
+\Endpoints\FEV1	SYNONYMS	Tiffeneau-Pinelli

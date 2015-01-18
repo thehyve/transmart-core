@@ -54,8 +54,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
     public static final int CHUNK_SIZE = 10000
 
-    @javax.annotation.Resource(name='TagsLoadJob')
-    Job tagsLoadJob
+    @javax.annotation.Resource
+    Step tagsLoadStep
 
     @javax.annotation.Resource
     Tasklet insertConceptsTasklet
@@ -91,7 +91,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
-                .next(tagsLoadJobStep())
+                .next(tagsLoadStep)
 
                 // insertion of ancillary data
                 .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
@@ -164,13 +164,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
                 .listener(progressWriteListener())
-                .build()
-    }
-
-    @Bean
-    Step tagsLoadJobStep() {
-        steps.get('tagsLoadJobStep')
-                .job(tagsLoadJob)
                 .build()
     }
 
