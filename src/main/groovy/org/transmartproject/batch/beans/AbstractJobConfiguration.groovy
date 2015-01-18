@@ -3,7 +3,7 @@ package org.transmartproject.batch.beans
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.runtime.MethodClosure
 import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersIncrementer
+import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
@@ -27,6 +27,8 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.batch.item.validator.Validator
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -39,8 +41,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.batchartifacts.*
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
-import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.db.*
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
 
 import javax.sql.DataSource
 import java.nio.file.Path
@@ -65,10 +67,22 @@ abstract class AbstractJobConfiguration {
     @Autowired
     StepBuilderFactory steps
 
-    @Autowired
-    JobParametersIncrementer jobParametersIncrementer
-
     abstract Job job()
+
+    @Bean
+    static BeanFactoryPostProcessor customizeJob() {
+        { ConfigurableListableBeanFactory beanFactory ->
+            def beanNames = beanFactory.getBeanNamesForType(Job)
+            beanNames.each { beanName ->
+                beanFactory.getBeanDefinition(beanName)
+                        .propertyValues.with {
+                    addPropertyValue('jobExecutionListeners',
+                            [new BetterExitMessageJobExecutionListener()] as JobExecutionListener[])
+                    addPropertyValue('jobParametersIncrementer', new DefaultJobIncrementer())
+                }
+            }
+        } as BeanFactoryPostProcessor
+    }
 
     @JobScope
     @Bean
