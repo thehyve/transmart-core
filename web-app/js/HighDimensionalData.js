@@ -276,6 +276,7 @@ HighDimensionalData.prototype.generate_view = function () {
             title: 'Compare Subsets-Pathway Selection',
             layout: 'fit',
             width: 475,
+            height: 370,
             autoHeight: true,
             closable: false,
             plain: true,
@@ -323,6 +324,14 @@ HighDimensionalData.prototype.generate_view = function () {
 
     if (!_view) {
         _view = _create_view();
+        _view.on('resize', function(vp, width, height) {
+            var me = this,
+                ref = jQuery("#resultsTabPanel"),
+                left = ref.offset().left + (ref.width() - me.width) / 2,
+                top = ref.offset().top + (ref.height() - me.height) / 2;
+            
+            me.setPosition(left > 0 ? left : 0, top > 0 ? top : 0);
+        }, _view);
     }
 
     return _view;
@@ -341,10 +350,12 @@ HighDimensionalData.prototype.get_inputs = function (divId) {
     ]
 }
 
-HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration) {
+HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hideAggregration, doValidatePlatforms) {
 
     var _this = this;
     this.hideAggregration=hideAggregration;
+    doValidatePlatforms = typeof doValidatePlatforms !== 'undefined' ? doValidatePlatforms : true;
+
     /**
      * Reset global variables
      * @private
@@ -368,7 +379,7 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
     if (!variableDivEmpty(divId)
         && ((GLOBAL.CurrentSubsetIDs[1] == null) || (multipleSubsets() && GLOBAL.CurrentSubsetIDs[2] == null))) {
         runAllQueriesForSubsetId(function () {
-            _this.gather_high_dimensional_data(divId, hideAggregration);
+            _this.gather_high_dimensional_data(divId, hideAggregration, doValidatePlatforms);
         }, divId);
         return;
     }
@@ -385,16 +396,19 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
       this.fetchNodeDetails( divId, function( result ) {
         _this.data = JSON.parse(result.responseText);
 
-        _this.display_high_dimensional_popup();
-//        TODO: re-enable platform validation, except for geneprint:
-//        platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
-//        var formValidator = new FormValidator(platforms);
-//
-//        if (formValidator.validateInputForm()) {
-//          _this.display_high_dimensional_popup();
-//        } else {
-//          formValidator.display_errors();
-//        }
+        if (doValidatePlatforms) {
+          platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
+          var formValidator = new FormValidator(platforms);
+
+          if (formValidator.validateInputForm()) {
+            _this.display_high_dimensional_popup();
+          } else {
+            formValidator.display_errors();
+          }
+        }
+        else {
+          _this.display_high_dimensional_popup();
+        }
 
       });
     } else { // something is not correct in the validation

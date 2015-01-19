@@ -25,7 +25,7 @@ class aCGHgroupTestController {
      * This function will return the image path
      */
     def imagePath = {
-        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/groups-test.png"
+        def imagePath = "${RModulesOutputRenderService.relativeImageURL}${params.jobName}/workingDirectory/groups-test.png"
         render imagePath
     }
 
