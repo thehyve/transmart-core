@@ -1,7 +1,7 @@
 <?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
   <dataSource driver="oracle.jdbc.driver.OracleDriver"
-              url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?>:<?= $_ENV['ORASID'] ?>"
+              url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?><?= isset($_ENV['ORASVC']) ? "/{$_ENV['ORASVC']}" : ":{$_ENV['ORASID']}" ?>"
               user="biomart_user"
               password="<?= htmlspecialchars($biomart_user_pwd) ?>" />
   <document>
