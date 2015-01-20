@@ -370,5 +370,43 @@ BoxPlotView.prototype.submit_job = function (form) {
 
 }
 
+BoxPlotView.prototype.clear_high_dimensional_input = function (div) {
+    RmodulesView.prototype.clear_high_dimensional_input.call(this, div);
+
+    // Only clear bins for corresponding variable (dependent/independent)
+    var variableToBeBinned = document.getElementById("selBinVariableSelection").value
+    if (div == "divDependentVariable" && variableToBeBinned == "DEP" ||
+        div == "divIndependentVariable" && variableToBeBinned == "IND") {
+
+        // Clear numerical bins
+        function clearTxt(txt) {
+            if (txt == null) {
+                return;
+            }
+            txt.value = "";
+        }
+        for (i = 1; i <= GLOBAL.NumberOfBins; i++) {
+            clearTxt(Ext.getDom('txtBin' + i + 'RangeLow'));
+            clearTxt(Ext.getDom('txtBin' + i + 'RangeHigh'));
+        }
+
+        // Clear categorical bins
+        function clearDiv(div) {
+            if (div == null) {
+                return;
+            }
+            for (x = div.dom.childNodes.length - 1; x >= 0; x--) {
+                var child = div.dom.childNodes[x];
+                div.dom.removeChild(child);
+            }
+        }
+        for (i = 1; i <= GLOBAL.NumberOfBins; i++) {
+            clearDiv(Ext.get('divCategoricalBin' + i));
+        }
+        // Clear categories box
+        clearDiv(Ext.get('divCategoricalItems'));
+    }
+}
+
 // instantiate table fisher instance
 var boxPlotView = new BoxPlotView();
