@@ -15,10 +15,14 @@ class RunJobRule extends ExternalResource {
 
     private final String studyId
     private final String dataType
+    private final List<String> extraArguments
 
-    RunJobRule(String studyOrPlatformId, String dataType) {
+    RunJobRule(String studyOrPlatformId,
+               String dataType,
+               String... extraArguments) {
         this.studyId = studyOrPlatformId
         this.dataType = dataType
+        this.extraArguments = extraArguments as List
     }
 
     JobParameters jobParameters
@@ -28,7 +32,8 @@ class RunJobRule extends ExternalResource {
     protected void before() throws Throwable {
         CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
         def runJob = RunJob.createInstance(
-                '-p', "studies/$studyId/${dataType}.params" as String)
+                '-p', "studies/$studyId/${dataType}.params" as String,
+                *extraArguments)
         runJob.run()
 
         jobParameters = runJob.finalJobParameters

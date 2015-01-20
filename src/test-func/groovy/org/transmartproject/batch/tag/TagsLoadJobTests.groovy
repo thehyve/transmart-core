@@ -3,6 +3,7 @@ package org.transmartproject.batch.tag
 import org.junit.AfterClass
 import org.junit.ClassRule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
@@ -14,6 +15,7 @@ import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
 import org.transmartproject.batch.startup.RunJob
+import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -27,14 +29,20 @@ class TagsLoadJobTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
+    private final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'tags')
+
     @ClassRule
-    public final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'tags')
+    public final static TestRule RUN_JOB_RULES = new RuleChain([
+            RUN_JOB_RULE,
+            new RunJobRule('GSE8581_simple', 'clinical'),
+    ])
 
     @AfterClass
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(Tables.I2B2_TAGS, 'ts_batch.batch_job_instance cascade')
+                truncate(*TableLists.CLINICAL_TABLES,
+                        'ts_batch.batch_job_instance cascade')
     }
 
     def getAllTags() {
@@ -57,13 +65,13 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                         hasEntry('tags_idx', 3),
                 ),
                 allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'FEV1/FVC ratio'),
                         hasEntry('tag_type', 'NAME'),
                         hasEntry('tags_idx', 4),
                 ),
                 allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'Tiffeneau-Pinelli'),
                         hasEntry('tag_type', 'SYNONYMS'),
                         hasEntry('tags_idx', 5),
@@ -94,13 +102,13 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                         hasEntry('tags_idx', 3),
                 ),
                 allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'FVC ratio'),
                         hasEntry('tag_type', 'NAME'),
                         hasEntry('tags_idx', 4),
                 ),
                 allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'Tiffeneau-Pinelli'),
                         hasEntry('tag_type', 'SYNONYMS'),
                         hasEntry('tags_idx', 5),

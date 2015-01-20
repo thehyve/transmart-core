@@ -6,7 +6,6 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
@@ -31,16 +30,16 @@ import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
 import org.transmartproject.batch.concept.ConceptPath
+import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
 import org.transmartproject.batch.concept.InsertConceptCountsTasklet
+import org.transmartproject.batch.concept.oracle.OracleInsertConceptCountsTasklet
+import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
 import org.transmartproject.batch.facts.ObservationFactTableWriter
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
-import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
-import org.transmartproject.batch.concept.oracle.OracleInsertConceptCountsTasklet
-import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
 
 /**
  * Spring configuration for the clinical data job.
@@ -55,8 +54,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
     public static final int CHUNK_SIZE = 10000
 
-    @javax.annotation.Resource(name='TagsLoadJob')
-    Job tagsLoadJob
+    @javax.annotation.Resource
+    Step tagsLoadStep
 
     @javax.annotation.Resource
     Tasklet insertConceptsTasklet
@@ -70,13 +69,10 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean(name = 'ClinicalDataLoadJob')
     @Override
     Job job() {
-        FlowJob job =
-            jobs.get(JOB_NAME)
-                    .start(mainFlow())
-                    .end()
-                    .build()
-        job.jobParametersIncrementer = jobParametersIncrementer
-        job
+        jobs.get(JOB_NAME)
+                .start(mainFlow())
+                .end()
+                .build()
     }
 
     @Bean
@@ -95,7 +91,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
-                .next(tagsLoadJobStep())
+                .next(tagsLoadStep)
 
                 // insertion of ancillary data
                 .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
@@ -168,13 +164,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 ))
                 .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
                 .listener(progressWriteListener())
-                .build()
-    }
-
-    @Bean
-    Step tagsLoadJobStep() {
-        steps.get('tagsLoadJobStep')
-                .job(tagsLoadJob)
                 .build()
     }
 

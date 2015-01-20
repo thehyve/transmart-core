@@ -13,6 +13,7 @@ import org.springframework.dao.DataAccessException
  * Doesn't handle skips at this point.
  *
  * TODO: implement ItemStream so we can keep counting across restarts
+ * TODO: correctly handle retries (of chunks and more fine grained operations)
  */
 @CompileStatic
 @Slf4j

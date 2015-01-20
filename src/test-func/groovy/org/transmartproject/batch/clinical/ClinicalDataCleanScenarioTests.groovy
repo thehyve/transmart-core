@@ -17,6 +17,7 @@ import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
+import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -48,13 +49,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
-                        Tables.OBSERVATION_FACT,
-                        Tables.CONCEPT_DIMENSION,
-                        Tables.PATIENT_TRIAL,
-                        Tables.PATIENT_DIMENSION,
-                        Tables.I2B2,
-                        Tables.I2B2_SECURE,
-                        Tables.I2B2_TAGS,
+                        *TableLists.CLINICAL_TABLES,
                         'ts_batch.batch_job_instance cascade')
     }
 
@@ -367,7 +362,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                         hasEntry('tags_idx', 2),
                 ),
                 allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\FEV1\\'),
+                        hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'http://en.wikipedia.org/wiki/FEV1/FVC_ratio'),
                         hasEntry('tag_type', 'WEB_REF'),
                         hasEntry('tags_idx', 3),

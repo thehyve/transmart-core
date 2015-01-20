@@ -1,7 +1,6 @@
 package org.transmartproject.batch.beans
 
 import com.jolbox.bonecp.BoneCPDataSource
-import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.scope.JobScope
 import org.springframework.batch.core.scope.StepScope
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.env.Environment
-import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
 import org.transmartproject.batch.db.PerDbTypeRunner
 
 import javax.sql.DataSource
@@ -49,11 +47,6 @@ class AppConfig {
     @Bean
     PerDbTypeRunner perDbTypeRunner() {
         new PerDbTypeRunner()
-    }
-
-    @Bean
-    JobParametersIncrementer jobParametersIncrementer() {
-        new DefaultJobIncrementer()
     }
 
     /* override beans to fix warnings due to them not being static in
