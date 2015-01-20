@@ -68,11 +68,21 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
         }
     }
 
+    // If the censoring element has children, we need to parse them and
+    // concatenate their values.
     if (censoringVariableEle.dom.childNodes[0]) {
-        censoringVariableConceptPath = RmodulesView.fetch_concept_path(
-            censoringVariableEle.dom.childNodes[0]);
-    }
+        // Loop through the censoring variables and add them to a comma seperated
+        // list.
+        for (var nodeIndex = 0; nodeIndex < censoringVariableEle.dom.childNodes.length; nodeIndex++) {
+            // If we already have a value, add the seperator.
+            if (censoringVariableConceptPath != '')
+                censoringVariableConceptPath += '|'
 
+            // Add the concept path to the string.
+            censoringVariableConceptPath += RmodulesView.fetch_concept_path(
+                censoringVariableEle.dom.childNodes[nodeIndex]).trim()
+        }
+    }
 
     //------------------------------------
     //Validation
