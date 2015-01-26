@@ -304,7 +304,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                         }
 
                     }
-                    return drawTrack(nds, coordsDetermined, quantDetermined);
+                    return drawTrack(nds);
                 },
                 function() {
                     return sqfail();
@@ -315,22 +315,10 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         /**
          * Draw new track in the swimming lane
          * @param nds
-         * @param coordsDetermined
-         * @param quantDetermined
-         * @param quantIrrelevant
          */
-        var drawTrack = function(nds, coordsDetermined, quantDetermined, quantIrrelevant) {
-
-            var dataToFinalize = nds;
-
-            var m = '__default__'; // coordinate system
-            if (m != '__default__') {
-                dataToFinalize.mapping = m;
-            } else {
-                dataToFinalize.mapping = undefined;
-            }
-            thisB.sources.push(dataToFinalize);
-            thisB.makeTier(dataToFinalize);
+        var drawTrack = function(nds) {
+            thisB.sources.push(nds);
+            thisB.makeTier(nds);
         }
 
     });
