@@ -118,7 +118,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
      * @param tryAddDASxSources
      * @private
      */
-    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources) {
+    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources, genomeReleaseId) {
 
         arr.forEach(function(nds) {
 
@@ -132,7 +132,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                     }
                 }
 
-                tryAddDASxSources(nds, nameSuffix);
+                tryAddDASxSources(nds, nameSuffix, genomeReleaseId);
 
                 return;
             });
@@ -200,19 +200,20 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         var _nodeDetails = _getNodeDetails(node, function (response) {
 
             var dataType = "";
-
-            for (var key in JSON.parse(response)) {
+            var genomeReleaseId = "";
+            var details = JSON.parse(response);
+            for (var key in details) {
                 dataType = key;
+                genomeReleaseId = details[key].platforms[0].genomeReleaseId;
             }
-
 
             if (_isHighDimensionalNode(node)) {
                 // define features
                 var sources = _getTransmartDASSources(res_inst_id_1, node.id, dataType);
-                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
+                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources, genomeReleaseId);
                 if (res_inst_id_2) {
                     sources = _getTransmartDASSources(res_inst_id_2, node.id, dataType);
-                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources, genomeReleaseId);
                 }
                 thisB.createAddInfoButton()
             } else {
@@ -227,7 +228,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
          * @param nameSuffix for distinguishing multiple subsets
          * @param retry
          */
-        function tryAddDASxSources(nds, nameSuffix, retry) {
+        function tryAddDASxSources(nds, nameSuffix, genomeReleaseId, retry) {
 
             var uri = nds.uri;
             if (retry) {
@@ -238,7 +239,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
             function sqfail() {
                 if (!retry) {
-                    return tryAddDASxSources(nds, nameSuffix, true);
+                    return tryAddDASxSources(nds, nameSuffix, genomeReleaseId, true);
                 } else {
                     return drawTrack(nds);
                 }
