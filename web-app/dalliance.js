@@ -131,7 +131,8 @@ var genomeBrowserPanel = new Ext.Panel(
                     taxon: 9606,
                     auth: 'GRCh',
                     version: '37',
-                    ucscName: 'hg19'
+                    ucscName: 'hg19',
+                    compatibleIds: ['hg19', 'GRCh37', 'hg37']
                 },
 
                 chains: {
@@ -140,7 +141,8 @@ var genomeBrowserPanel = new Ext.Panel(
                             speciesName: 'Human',
                             taxon: 9606,
                             auth: 'NCBI',
-                            version: 36
+                            version: 36,
+                            compatibleIds: ['hg18', 'NCBI36', 'hg36']
                         },
                         uri: '//www.biodalliance.org/datasets/hg18ToHg19.bb',
                         type: 'bigbed'
