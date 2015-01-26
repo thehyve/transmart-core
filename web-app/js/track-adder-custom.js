@@ -204,7 +204,8 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             var details = JSON.parse(response);
             for (var key in details) {
                 dataType = key;
-                genomeReleaseId = details[key].platforms[0].genomeReleaseId;
+                var platform = details[key].platforms[0];
+                genomeReleaseId = platform.genomeReleaseId.split(".")[0];
             }
 
             if (_isHighDimensionalNode(node)) {
