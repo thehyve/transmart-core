@@ -168,11 +168,26 @@ clean:
 
 # transmart-batch:
 ifdef USE_TRANSMART_BATCH
-load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
-	$(MAKE) -C ../../env transmart-batch-capsule.jar $(BATCH_PROPS)
+
+EXTRA_TSBATCH_ARGS ?=
+
+define TSBATCH_TEMPLATE
+ load_$(1)_%: ../studies/%/$(1).params ../studies/%/$(1)
+	$$(MAKE) -C ../../env transmart-batch-capsule.jar $$(BATCH_PROPS)
 	../../env/transmart-batch-capsule.jar \
-		-p '$(realpath ../studies/$*/annotation.params)' \
-		-c '$(realpath ../../env/$(BATCH_PROPS))'
+		-p '$$(realpath ../studies)/$$*/$(1).params' \
+		-c '$$(realpath ../../env)/$$(BATCH_PROPS)' \
+		$$(EXTRA_TSBATCH_ARGS)
+endef
+
+else
+
+TSBATCH_TEMPLATE =
+
 endif
+
+$(eval $(call TSBATCH_TEMPLATE,clinical))
+$(eval $(call TSBATCH_TEMPLATE,annotation))
+$(eval $(call TSBATCH_TEMPLATE,expression))
 
 # vim: ft=make :
