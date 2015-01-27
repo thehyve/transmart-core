@@ -102,7 +102,7 @@ class PatientSetQueryBuilderService {
                 "$panel.select GROUP BY patient_num"
             } else {
                 "SELECT patient_num FROM patient_dimension " +
-                        "EXCEPT ($panel.select)"
+                        "$databasePortabilityService.complementOperator ($panel.select)"
             }
         } else {
             panelClauses.inject("") { String acc, panel ->
