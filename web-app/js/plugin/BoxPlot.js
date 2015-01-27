@@ -60,7 +60,7 @@ BoxPlotView.prototype.get_form_params = function (form) {
      * @private
      */
     var _isCategorical = function (nodeTypes) {
-        return (nodeTypes[0] == "null") ? true : false;
+        return (nodeTypes[0] == "null" || nodeTypes[0] == "alphaicon") ? true : false;
     }
 
     var _isNumerical = function (nodeTypes) {
