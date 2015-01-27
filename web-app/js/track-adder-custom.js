@@ -283,6 +283,8 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                         // a mapping (chain) available
                         if (thisB.coordSystem.compatibleIds.indexOf(genomeReleaseId) == -1) {
                             var coordsDetermined = false;
+                            var defaultCoords = thisB.coordSystem.auth + thisB.coordSystem.version +
+                                "/" + thisB.coordSystem.ucscName;
 
                             if (thisB.chains) {
                                 for (var k in thisB.chains) {
@@ -290,14 +292,15 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                                     if (compatibleIds.indexOf(genomeReleaseId) >= 0) {
                                         nds.mapping = k;
                                         coordsDetermined = true;
+                                        alert("Track '" + nds.name + "' will be mapped from genome release '" +
+                                                genomeReleaseId + "' to '" + defaultCoords + "' using mapping '" +
+                                                k + "'");
                                     }
                                 }
                             }
 
                             // Warn if we couldn't find a coordinate mapping
                             if (!coordsDetermined) {
-                                var defaultCoords = thisB.coordSystem.auth + thisB.coordSystem.version +
-                                    "/" + thisB.coordSystem.ucscName;
                                 alert((genomeReleaseId ? "Could not find a coordinate mapping for genome release '" +
                                     genomeReleaseId + "'" : "No genome release version specified") +
                                     "; assuming the default coordinates (" + defaultCoords + ")");
