@@ -33,6 +33,7 @@ class RCommandsStep implements Step {
     final private void runRCommandList(List<String> stepList) {
         //Establish a connection to R Server.
         RConnection rConnection = new RConnection(Holders.config.RModules.host, Holders.config.RModules.port)
+        rConnection.stringEncoding = 'utf8'
 
         try {
             //Run the R command to set the working directory to our temp directory.
