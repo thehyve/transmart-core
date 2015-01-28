@@ -22,7 +22,9 @@ PCA.loader <- function(
 input.filename,
 output.file ="PCA",
 aggregate.probes = FALSE,
-max.pcs.to.show = 10
+max.pcs.to.show = 10,
+calculateZscore = FALSE,
+zscore.file = "zscores.txt"
 )
 {
 
@@ -32,7 +34,8 @@ max.pcs.to.show = 10
 
     library(reshape2)
     library(Cairo)
-	library(ggplot2)
+  	library(ggplot2)
+  	library(plyr)
 
     #Prepare the package to capture the image file.
     CairoPNG(file=paste("PCA.png",sep=""),width=400,height=400)
@@ -45,6 +48,19 @@ max.pcs.to.show = 10
 
     if (nrow(mRNAData)<1) stop("Input data is empty. Common causes: either the specified subset has no matching data in the selected node, or the gene/pathway is not present.")
 
+    if(calculateZscore){
+      mRNAData = ddply(mRNAData, "PROBE.ID", transform, probe.md = median(VALUE, na.rm = TRUE))
+      mRNAData = ddply(mRNAData, "PROBE.ID", transform, probe.sd = sd(VALUE, na.rm = TRUE))        
+      mRNAData$VALUE = with(mRNAData, ifelse(probe.sd == 0, 0,
+                                             (mRNAData$VALUE - mRNAData$probe.md) / mRNAData$probe.sd))
+      mRNAData$VALUE = with(mRNAData, ifelse(VALUE > 2.5, 2.5,
+                                             ifelse(VALUE < -2.5, -2.5, VALUE)))
+      mRNAData$VALUE = round(mRNAData$VALUE, 9)
+      mRNAData$probe.md = NULL
+      mRNAData$probe.sd = NULL
+      write.table(mRNAData,zscore.file,quote=F,sep="\t",row.names=F,col.names=T)
+    }
+    
     if (aggregate.probes) {
         # probe aggregation function adapted from dataBuilder.R to heatmap's specific data-formats
         mRNAData <- PCA.probe.aggregation(mRNAData, collapseRow.method = "MaxMean", collapseRow.selectFewestMissing = TRUE)

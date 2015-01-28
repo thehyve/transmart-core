@@ -27,7 +27,8 @@ class KMeansClustering extends HighDimensionalOnlyJob {
                             input.filename   = '$inputFileName',
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
                             clusters.number  = as.integer('$txtClusters'),
-                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
+                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''},
+                            calculateZscore = '$calculateZscore'
                             )'''
 
         [ source, createHeatmap ]

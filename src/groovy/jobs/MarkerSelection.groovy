@@ -26,7 +26,8 @@ class MarkerSelection extends HighDimensionalOnlyJob {
         String markerSelectionLoad = '''MS.loader(
                             input.filename = \'$inputFileName\',
                             numberOfMarkers = as.integer(\'$txtNumberOfMarkers\'),
-                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true')'''
+                            aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
+                            calculateZscore = '$calculateZscore')'''
         // set path to heatmap png file generator
         String sourceHeatmap = 'source(\'$pluginDirectory/Heatmap/HeatmapLoader.R\')'
         // generate the actual heatmap png picture

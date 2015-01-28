@@ -24,7 +24,8 @@ class Heatmap extends HighDimensionalOnlyJob {
         String createHeatmap = '''Heatmap.loader(
                             input.filename = '$inputFileName',
                             aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true'
-                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''}
+                            ${ txtMaxDrawNumber ? ", maxDrawNumber  = as.integer('$txtMaxDrawNumber')" : ''},
+                            calculateZscore = '$calculateZscore'
                             )'''
 
         [ source, createHeatmap ]

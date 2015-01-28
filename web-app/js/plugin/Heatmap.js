@@ -67,6 +67,7 @@ HeatMapView.prototype.get_form_params = function () {
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var maxDrawNum = inputArray[1].el.value;
         var doGroupBySubject = inputArray[2].el.checked;
+        var calculateZscore = inputArray[3].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'RHeatmap';
@@ -74,10 +75,15 @@ HeatMapView.prototype.get_form_params = function () {
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['txtMaxDrawNumber'] = maxDrawNum;
         formParameters['doGroupBySubject'] = doGroupBySubject;
+        formParameters['calculateZscore'] = calculateZscore;
 
         // get analysis constraints
         var constraints_json = this.get_analysis_constraints('RHeatmap');
-        constraints_json['projections'] = ["zscore"];
+        if(calculateZscore){
+        	constraints_json['projections'] = ["log_intensity"];
+        }else{
+        	constraints_json['projections'] = ["zscore"];
+        }
 
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
@@ -113,6 +119,11 @@ HeatMapView.prototype.get_inputs = function (form_params) {
         {
             "label" : "Do Group by Subject",
             "el" : document.getElementById("chkGroupBySubject"),
+            "validations" : []
+        },
+        {
+            "label" : "Calculate z-score on the fly",
+            "el" : document.getElementById("chkCalculateZscore"),
             "validations" : []
         }
     ];

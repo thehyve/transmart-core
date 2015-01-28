@@ -36,6 +36,10 @@
         </fieldset>
 
         <fieldset class="toolFields">
+            <div>
+                <input type="checkbox" id="chkCalculateZscore" name="calculateZscore">
+                <span>Calculate z-score on the fly</span>
+            </div>
             <input type="button" value="Run" onClick="kmeansClustering.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
 
