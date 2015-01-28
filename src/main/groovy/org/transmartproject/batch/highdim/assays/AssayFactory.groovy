@@ -39,12 +39,16 @@ class AssayFactory {
     }
 
     Assay createFromMappingRow(MappingFileRow row) {
+        /* Strange but intentional things:
+         * - sampleType is filled with tissueType column (6th col)
+         * - tissueType is filled not with tissueType but with attr1 (7th) col
+         */
         new Assay(
                 id: sequenceReserver.getNext(Sequences.ASSAY_ID),
                 patient: patientSet[row.subjectId],
                 concept: mapper[row],
                 studyId: studyId,
-                sampleType: row.sampleCd,
+                sampleType: row.tissueType,
                 sampleCode: row.sampleCd,
                 tissueType: row.attr1,
                 platform: platform,
