@@ -81,7 +81,41 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testRandomFact() {
+    void testArbitrarySample() {
+        def sampleCode = 'GSM210006'
+        def subjectId = 'GSE8581GSM210006'
+
+        def q = """
+                SELECT
+                    PD.sourcesystem_cd as pd_sourcesystem_cd,
+                    CD.concept_path as cd_concept_path,
+                    assay_id,
+                    sample_type,
+                    trial_name,
+                    tissue_type,
+                    gpl_id,
+                    sample_cd
+                FROM ${Tables.SUBJ_SAMPLE_MAP} SSM
+                LEFT JOIN ${Tables.PATIENT_DIMENSION} PD ON (SSM.patient_id = PD.patient_num)
+                LEFT JOIN ${Tables.CONCEPT_DIMENSION} CD ON (SSM.concept_code = CD.concept_cd)
+                WHERE subject_id = :subjectId"""
+
+        Map<String, Object> r = jdbcTemplate.queryForMap q, [subjectId: subjectId]
+
+        assertThat r, allOf(
+                hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
+                hasEntry('cd_concept_path', '\\Public Studies\\GSE8581\\MRNA\\Biomarker_Data\\GPL570_BOGUS\\Lung\\'),
+                hasEntry(is('assay_id'), isA(Long)),
+                hasEntry('sample_type', 'Human'),
+                hasEntry('trial_name', STUDY_ID),
+                hasEntry('tissue_type', 'Lung'),
+                hasEntry('gpl_id', 'GPL570_BOGUS'),
+                hasEntry('sample_cd', sampleCode),
+        )
+    }
+
+    @Test
+    void testArbitraryFact() {
         // (GSM210006, 121_at) -> 105.912
         def sampleName = 'GSM210006'
         def subjectId = 'GSE8581GSM210006'
