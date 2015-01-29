@@ -126,12 +126,12 @@ class VcfTestData  {
         DeSubjectSampleMapping assay,
         DeVariantSubjectIdxCoreDb subjectIndex
             ->
-            // Dataset and subjectId are inserted through the
-            // subjectIndex object
             new DeVariantSubjectSummaryCoreDb(
+                    dataset: dataset,
                     chr: 1,
                     pos: detail.pos,
                     rsId: '.',
+                    subjectId: subjectIndex.subjectId,
                     variant: ((allele1 == 0) ? detail.ref : detail.alt) + '/' +
                             ((allele2 == 0) ? detail.ref : detail.alt),
                     variantFormat: ((allele1 == 0) ? 'R':'V') + '/' +
