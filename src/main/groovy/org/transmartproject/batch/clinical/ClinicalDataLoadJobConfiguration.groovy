@@ -66,6 +66,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @javax.annotation.Resource
     Tasklet gatherCurrentPatientsTasklet
 
+    @javax.annotation.Resource
+    Tasklet createSecureStudyTasklet
+
     @Bean(name = 'ClinicalDataLoadJob')
     @Override
     Job job() {
@@ -94,6 +97,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(tagsLoadStep)
 
                 // insertion of ancillary data
+                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
                 .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
                 .next(stepOf(this.&insertPatientTrialTasklet))           //insert patient_trial rows
                 .next(stepOf(this.&getInsertConceptsTasklet))            //insert i2b2, i2b2_secure, concept_dimension

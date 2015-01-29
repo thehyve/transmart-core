@@ -16,5 +16,8 @@ class TableLists {
             Tables.I2B2,
             Tables.I2B2_SECURE,
             Tables.I2B2_TAGS,
+            "${Tables.SECURE_OBJECT} CASCADE",
+            "${Tables.BIO_EXPERIMENT} CASCADE",
+            'biomart.bio_data_uid',
     ]
 }
