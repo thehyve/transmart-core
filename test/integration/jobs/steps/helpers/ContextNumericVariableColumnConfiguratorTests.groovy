@@ -48,7 +48,6 @@ class ContextNumericVariableColumnConfiguratorTests {
         testee.keyForDataType        = 'dataType'
         testee.keyForSearchKeywordId = 'searchKeywordId'
         testee.multiConcepts         = true
-        testee.pruneConceptPath      = false
     }
 
     @Test

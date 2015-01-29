@@ -41,7 +41,6 @@ class ContextNumericVariableColumnConfigurator extends ColumnConfigurator {
      * - keyForSearchKeywordId
      * - multiRow
      * - multiConcepts
-     * - pruneConceptPath
      */
 
     @Autowired

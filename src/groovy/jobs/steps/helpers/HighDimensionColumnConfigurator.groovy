@@ -40,9 +40,6 @@ class HighDimensionColumnConfigurator extends ColumnConfigurator {
     // multiConcepts => multiRow
     boolean multiConcepts = false
 
-    // not implemented
-    //boolean pruneConceptPath = false
-
     boolean isMultiConcepts() {
         multiConcepts
     }
