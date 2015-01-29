@@ -55,7 +55,6 @@ class LineGraph extends AbstractAnalysisJob {
         measurementConfigurator.multiRow              = true
         measurementConfigurator.multiConcepts         = true
         // we do not want group name pruning for LineGraph
-        measurementConfigurator.pruneConceptPath      = false
 
         measurementConfigurator.keyForConceptPath     = 'dependentVariable'
         measurementConfigurator.keyForDataType        = 'divDependentVariableType'

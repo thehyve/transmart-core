@@ -6,16 +6,14 @@ import jobs.table.columns.MultiNumericClinicalVariableColumn
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
+import org.transmartproject.utils.ConceptUtils
 
 @Component
 @Scope('prototype')
 class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator {
 
     String keyForConceptPaths
-
-    boolean pruneConceptPath = true
 
     GroupNamesHolder groupNamesHolder
 
@@ -28,7 +26,7 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
     @Override
     protected void doAddColumn(Closure<Column> decorateColumn) {
 
-        List<ClinicalVariable> variables = getConceptPaths().collect {
+        List<String> variables = getConceptPaths().collect {
             clinicalDataRetriever.createVariableFromConceptPath it
         }
 
@@ -40,7 +38,7 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
 
         Map<ClinicalVariableColumn, String> variableToGroupName =
                 Functions.inner(variables,
-                        conceptPaths.collect { generateGroupName it },
+                        ConceptUtils.shortestUniqueTails(conceptPaths),
                         { a, b -> [a,b]}).
                         collectEntries()
 
@@ -60,12 +58,4 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
         getStringParam(keyForConceptPaths).split(/\|/) as List
     }
 
-    private String generateGroupName(String conceptPath) {
-        if (pruneConceptPath)  {
-            /* find last non-empty segment (separated by \) */
-            conceptPath.split('\\\\').findAll()[-1]
-        } else {
-            conceptPath
-        }
-    }
 }

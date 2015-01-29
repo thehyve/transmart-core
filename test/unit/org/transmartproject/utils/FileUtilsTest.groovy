@@ -1,4 +1,4 @@
-package com.transmart.utils
+package org.transmartproject.utils
 
 import grails.test.GrailsUnitTestCase
 import org.transmartproject.utils.FileUtils
