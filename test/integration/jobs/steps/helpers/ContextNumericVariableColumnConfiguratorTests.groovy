@@ -48,7 +48,6 @@ class ContextNumericVariableColumnConfiguratorTests {
         testee.keyForDataType        = 'dataType'
         testee.keyForSearchKeywordId = 'searchKeywordId'
         testee.multiConcepts         = true
-        testee.pruneConceptPath      = false
     }
 
     @Test
@@ -135,7 +134,7 @@ class ContextNumericVariableColumnConfiguratorTests {
             // no maps involved here
             assertThat Lists.newArrayList(table.result), contains(
                     contains(allOf(
-                            dot(BUNDLE_OF_CLINICAL_CONCEPT_PATH, data) { a, b -> hasEntry(a, b) })))
+                            dot(['\\var 1\\', '\\var 2\\', '\\var 3\\'], data) { a, b -> hasEntry(a, b) })))
         }
     }
 
@@ -191,7 +190,7 @@ class ContextNumericVariableColumnConfiguratorTests {
 
             // no maps involved here
             assertThat Lists.newArrayList(table.result), contains(
-                    contains([(CONCEPT_PATH_CLINICAL): 34.0]))
+                    contains([('\\variable\\'): 34.0]))
         }
     }
 }
