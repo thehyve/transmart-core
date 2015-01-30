@@ -63,6 +63,8 @@ class VcfCohortStatisticsTests {
         assertThat cohortStatistics.majorAllele, equalTo(".")
         assertThat cohortStatistics.minorAllele, equalTo(".")
         assertThat cohortStatistics.minorAlleleFrequency, closeTo(0.0 as Double, 0.001 as Double)
+        assertThat cohortStatistics.referenceAllele, equalTo("G")
+        assertThat cohortStatistics.alternativeAlleles, empty()
     }
 
     @Test
@@ -109,6 +111,9 @@ class VcfCohortStatisticsTests {
         assertThat cohortStatistics.genomicVariantTypes, hasSize(3)
         assertThat cohortStatistics.genomicVariantTypes, hasItem( equalTo( GenomicVariantType.INS ) )
         assertThat cohortStatistics.genomicVariantTypes, hasItem( equalTo( GenomicVariantType.SNP ) )
+
+        assertThat cohortStatistics.referenceAllele, equalTo("G")
+        assertThat cohortStatistics.alternativeAlleles, containsInAnyOrder("A", "TG")
     }
 
     @Test
@@ -150,6 +155,9 @@ class VcfCohortStatisticsTests {
         assertThat cohortStatistics.genomicVariantTypes, hasSize(4)
         assertThat cohortStatistics.genomicVariantTypes, hasItem( equalTo( GenomicVariantType.DEL ) )
         assertThat cohortStatistics.genomicVariantTypes, hasItem( equalTo( GenomicVariantType.DIV ) )
+
+        assertThat cohortStatistics.referenceAllele, equalTo("G")
+        assertThat cohortStatistics.alternativeAlleles, containsInAnyOrder("AT", "T", "CG")
     }
 
     @Test
@@ -193,6 +201,9 @@ class VcfCohortStatisticsTests {
         assertThat cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "G" ) ], equalTo(2)
         assertThat cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "AT" ) ], equalTo(4)
         assertThat cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "T" ) ], equalTo(1)
+
+        assertThat cohortStatistics.referenceAllele, equalTo("G")
+        assertThat cohortStatistics.alternativeAlleles, containsInAnyOrder("AT", "T")
     }
     
 }
