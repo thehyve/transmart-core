@@ -5,9 +5,12 @@ i2b2demodata	qt_patient_sample_collection
 i2b2demodata	qt_patient_set_collection
 i2b2demodata	async_job
 deapp	de_saved_comparison
+biomart	bio_assay_analysis
 biomart	bio_assay_feature_group
 biomart	bio_marker
 biomart	bio_assay_data_annotation
+biomart	bio_data_uid
+biomart	bio_experiment
 amapp	am_data_uid
 amapp	am_tag_association
 amapp	am_tag_item
