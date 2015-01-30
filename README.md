@@ -184,7 +184,7 @@ ftp-flat ftp://studies.thehyve.net/
 
 The initial public-feeds download uses a TranSMART Foundation
 host. Changing the URL in `samples/studies/public-feeds` will use an
-alterantive souirce for all data downloads.
+alternative source for all data downloads.
 
 The type `http-index` points to a plain text file that lists the available
 datasets in the format `<study> <type> <tarball relative path>`. Example:
