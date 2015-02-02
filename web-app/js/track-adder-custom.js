@@ -118,7 +118,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
      * @param tryAddDASxSources
      * @private
      */
-    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources) {
+    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources, genomeReleaseId) {
 
         arr.forEach(function(nds) {
 
@@ -132,7 +132,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                     }
                 }
 
-                tryAddDASxSources(nds, nameSuffix);
+                tryAddDASxSources(nds, nameSuffix, genomeReleaseId);
 
                 return;
             });
@@ -200,19 +200,23 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         var _nodeDetails = _getNodeDetails(node, function (response) {
 
             var dataType = "";
-
-            for (var key in JSON.parse(response)) {
+            var genomeReleaseId = "";
+            var details = JSON.parse(response);
+            for (var key in details) {
                 dataType = key;
+                var platform = details[key].platforms[0];
+                if (platform.genomeReleaseId) {
+                    genomeReleaseId = platform.genomeReleaseId.split(".")[0];
+                }
             }
-
 
             if (_isHighDimensionalNode(node)) {
                 // define features
                 var sources = _getTransmartDASSources(res_inst_id_1, node.id, dataType);
-                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources);
+                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources, genomeReleaseId);
                 if (res_inst_id_2) {
                     sources = _getTransmartDASSources(res_inst_id_2, node.id, dataType);
-                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources);
+                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources, genomeReleaseId);
                 }
                 thisB.createAddInfoButton()
             } else {
@@ -227,7 +231,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
          * @param nameSuffix for distinguishing multiple subsets
          * @param retry
          */
-        function tryAddDASxSources(nds, nameSuffix, retry) {
+        function tryAddDASxSources(nds, nameSuffix, genomeReleaseId, retry) {
 
             var uri = nds.uri;
             if (retry) {
@@ -238,7 +242,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
             function sqfail() {
                 if (!retry) {
-                    return tryAddDASxSources(nds, nameSuffix, true);
+                    return tryAddDASxSources(nds, nameSuffix, genomeReleaseId, true);
                 } else {
                     return drawTrack(nds);
                 }
@@ -262,20 +266,6 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                         }
                     }
 
-                    var coordsDetermined = false, quantDetermined = false;
-
-                    /**
-                     *
-                     * @param c1
-                     * @param c2
-                     * @returns {boolean}
-                     * @private
-                     */
-                    var _coordsMatch = function (c1, c2) {
-                        return c1.taxon == c2.taxon && c1.auth == c2.auth && c1.version == c2.version;
-                    }
-
-
                     if (fs) {
                         nds.name = fs.name+nameSuffix;
                         nds.desc = fs.desc;
@@ -287,24 +277,39 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                         if (fs.capabilities) {
                             nds.capabilities = fs.capabilities;
                         }
-                        quantDetermined = true
 
-                        if (fs.coords && fs.coords.length == 1) {
-                            var coords = fs.coords[0];
-                            if (_coordsMatch(coords, thisB.coordSystem)) {
-                                coordsDetermined = true;
-                            } else if (thisB.chains) {
+                        // If the browser's coordinate system doesn't match the genome
+                        // release that we got from the node details, check if there is
+                        // a mapping (chain) available
+                        if (thisB.coordSystem.compatibleIds.indexOf(genomeReleaseId) == -1) {
+                            var coordsDetermined = false;
+                            var defaultCoords = thisB.coordSystem.auth + thisB.coordSystem.version +
+                                "/" + thisB.coordSystem.ucscName;
+
+                            if (thisB.chains) {
                                 for (var k in thisB.chains) {
-                                    if (_coordsMatch(coords, thisB.chains[k].coords)) {
+                                    var compatibleIds = thisB.chains[k].coords.compatibleIds;
+                                    if (compatibleIds.indexOf(genomeReleaseId) >= 0) {
                                         nds.mapping = k;
                                         coordsDetermined = true;
+                                        alert("Track '" + nds.name + "' will be mapped from genome release '" +
+                                                genomeReleaseId + "' to '" + defaultCoords + "' using mapping '" +
+                                                k + "'");
                                     }
                                 }
                             }
+
+                            // Warn if we couldn't find a coordinate mapping
+                            if (!coordsDetermined) {
+                                alert((genomeReleaseId ? "Could not find a coordinate mapping for genome release '" +
+                                    genomeReleaseId + "'" : "No genome release version specified") +
+                                    "; assuming the default coordinates (" + defaultCoords + ")");
+                            }
+
                         }
 
                     }
-                    return drawTrack(nds, coordsDetermined, quantDetermined);
+                    return drawTrack(nds);
                 },
                 function() {
                     return sqfail();
@@ -315,22 +320,10 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
         /**
          * Draw new track in the swimming lane
          * @param nds
-         * @param coordsDetermined
-         * @param quantDetermined
-         * @param quantIrrelevant
          */
-        var drawTrack = function(nds, coordsDetermined, quantDetermined, quantIrrelevant) {
-
-            var dataToFinalize = nds;
-
-            var m = '__default__'; // coordinate system
-            if (m != '__default__') {
-                dataToFinalize.mapping = m;
-            } else {
-                dataToFinalize.mapping = undefined;
-            }
-            thisB.sources.push(dataToFinalize);
-            thisB.makeTier(dataToFinalize);
+        var drawTrack = function(nds) {
+            thisB.sources.push(nds);
+            thisB.makeTier(nds);
         }
 
     });
