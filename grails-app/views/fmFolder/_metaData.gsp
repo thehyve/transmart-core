@@ -28,7 +28,7 @@
 	                		<g:set var="metaDataService" bean="metaDataService"/>
 	                		<g:set var="fieldValue" value="${fieldValue(bean:bioDataObject,field:amTagItem.tagItemAttr)}"/>
                     		<g:set var="displayValues" value="${metaDataService.getViewValues(fieldValue)}"/>
-                    		<tmpl:extTagSearchField fieldName="${amTagItem.tagItemAttr}" codeTypeName="${amTagItem.codeTypeName}" searchAction="extSearch" searchController="metaData" values="${displayValues}"/>
+                    		<g:render template="extTagSearchField" plugin="folderManagement" model="${[fieldName:amTagItem.tagItemAttr, codeTypeName:amTagItem.codeTypeName, searchAction:'extSearch', searchController:'metaData', values:displayValues]}"/>
 
 						</g:elseif>
 	                	<g:elseif test="${amTagItem.tagItemSubtype == 'FREETEXT'}">
@@ -71,7 +71,7 @@
 			                	name="amTagItem_${amTagItem.id}" value="${tagValues ? tagValues[0].objectUid : ''}"  optionKey="uniqueId" optionValue="codeName"  noSelection="['':'-Select One-']" />
 						</g:elseif>
 	                	<g:elseif test="${amTagItem.tagItemSubtype == 'MULTIPICKLIST'}">
-	                	    <tmpl:extTagSearchField fieldName="amTagItem_${amTagItem.id}" codeTypeName="${amTagItem.codeTypeName}" searchAction="extSearch" searchController="metaData" values="${tagValues}"/>
+	                	    <g:render template="extTagSearchField" plugin="folderManagement" model="${[fieldName:"amTagItem_"+amTagItem.id, codeTypeName:amTagItem.codeTypeName, searchAction:'extSearch', searchController:'metaData', values:tagValues]}"/>
 						</g:elseif>
                 	</g:else>
 	           </g:elseif>

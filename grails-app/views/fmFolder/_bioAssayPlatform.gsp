@@ -56,28 +56,28 @@ function updatePlatforms() {
 	
 	<div class="textsmaller">Measurement</div>
 	<div id="measurementwrapper">
-		<tmpl:selectMeasurements measurements="${measurements}"/>
+		<g:render template="selectMeasurements" plugin="folderManagement" model="${[measurements:measurements]}"/>
 	</div>
 	</div>
 	
 	<div style="margin-right: 8px">
 	<div class="textsmaller">Technology</div>
 	<div id="technologywrapper">
-		<tmpl:selectTechnologies technologies="${technologies}"/>
+		<g:render template="selectTechnologies" plugin="folderManagement" model="${[technologies:technologies]}"/>
 	</div>
 	</div>
 	
 	<div style="margin-right: 8px">
 	<div class="textsmaller">Vendor</div>
 	<div id="vendorwrapper">
-		<tmpl:selectVendors vendors="${vendors}"/>
+		<g:render template="selectVendors" plugin="folderManagement" model="${[vendors:vendors]}"/>
 	</div>
 	</div>
 	</div>
 	<div style="margin-right: 8px">
 	<div style="fixed: left; line-height: 24px; font-style: italic; margin-right: 8px;">Add new platform: </div>
 	<div id="platformwrapper">
-		<tmpl:selectPlatforms />
+		<g:render template="selectPlatforms" plugin="folderManagement"/>
 	</div>
 	</div>
 </div>
