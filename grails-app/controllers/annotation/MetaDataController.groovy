@@ -55,7 +55,7 @@ class MetaDataController {
     }
 
     /**
-     * Find the top 15 diseases with a case-insensitive LIKE
+     * Find the top 15 compounds with a case-insensitive LIKE
      */
     def bioCompoundSearch = {
         log.info "EXT bioCompoundSearch called"
@@ -76,7 +76,7 @@ class MetaDataController {
     }
 
     /**
-     * Find the top 15 diseases with a case-insensitive LIKE
+     * Find the top 15 genes with a case-insensitive LIKE
      */
     def bioMarkerSearch = {
         log.info "EXT bioMarkerSearch called"
@@ -98,7 +98,7 @@ class MetaDataController {
     }
 
     /**
-     * Find the top 15 diseases with a case-insensitive LIKE
+     * Find the top 15 diseases, genes, pathways or observations with a case-insensitive LIKE
      */
     def programTargetSearch = {
         log.info "EXT programTargetSearch called"
