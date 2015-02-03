@@ -30,7 +30,12 @@ import static groovyx.gpars.GParsPool.withPool
 class SqlProducer {
     static Sql createFromEnv(String user = null, String password = null, Boolean enhance = false) {
         Class.forName 'oracle.jdbc.driver.OracleDriver'
-        def url = "jdbc:oracle:thin:@${getenv 'ORAHOST'}:${getenv 'ORAPORT'}:${getenv "ORASID"}"
+        def url = "jdbc:oracle:thin:@${getenv 'ORAHOST'}:${getenv 'ORAPORT'}"
+        if (getenv('ORASVC')) {
+            url += "/${getenv 'ORASVC'}"
+        } else {
+            url += ":${getenv 'ORASID'}"
+        }
 
         Connection connection = DriverManager.getConnection(url,
                 user ?: getenv('ORAUSER'),

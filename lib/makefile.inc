@@ -1,7 +1,7 @@
 JDBC_DL_PSQL     := http://files.thehyve.net
 JDBC_DRIVER_PSQL := postgresql-9.2-1003.jdbc4.jar
 JDBC_DL_ORA      := http://files.thehyve.net
-JDBC_DRIVER_ORA  := ojdbc6-12.1.0.1.0.jar
+JDBC_DRIVER_ORA  := ojdbc6-12.1.0.2.jar
 JDBC_XDB_ORA     := xdb.jar
 
 LIB_DIR          := $(dir $(lastword $(MAKEFILE_LIST)))
