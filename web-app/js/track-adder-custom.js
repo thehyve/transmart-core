@@ -301,9 +301,18 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
                             // Warn if we couldn't find a coordinate mapping
                             if (!coordsDetermined) {
-                                alert((genomeReleaseId ? "Could not find a coordinate mapping for genome release '" +
-                                    genomeReleaseId + "'" : "No genome release version specified") +
-                                    "; assuming the default coordinates (" + defaultCoords + ")");
+                                if (genomeReleaseId) {
+                                    alert("Could not find a coordinate mapping for the genome release " +
+                                        "specified in the data (" + genomeReleaseId + ") to the genome " +
+                                        "browser's coordinate system (" + defaultCoords + "). " +
+                                        "If the coordinate systems differ, displayed information will be incorrect.");
+                                }
+                                else {
+                                    alert("No genome release version specified for the selected data. " +
+                                        "Make sure it was specified correctly at upload in the platform (gpl_info). " +
+                                        "Track will be displayed as if it were in the genome browser's coordinate system " +
+                                        "(" + defaultCoords + "). The displayed information might be incorrect.");
+                                }
                             }
 
                         }
