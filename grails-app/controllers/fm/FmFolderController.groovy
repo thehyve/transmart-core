@@ -347,6 +347,8 @@ class FmFolderController {
         folder.folderType = FolderType.ANALYSIS.name()
         folder.parent = parentFolder
 
+        def parentFolderStudy = folder.findParentStudyFolder()
+
         def analysis = new BioAssayAnalysis()
         analysis.name = folder.folderName
         analysis.shortDescription = folder.description
@@ -355,7 +357,7 @@ class FmFolderController {
         analysis.assayDataType = "Browse analysis"
         analysis.dataCount = -1
         analysis.teaDataCount = -1
-        def assocStudy = FmFolderAssociation.findByFmFolder(parentFolder)
+        def assocStudy = FmFolderAssociation.findByFmFolder(parentFolderStudy)
         if (assocStudy != null) {
             def study = assocStudy.getBioObject()
             if (study instanceof Experiment) {
