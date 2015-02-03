@@ -12,7 +12,7 @@ class AmTagItemService {
 
     def getDisplayItems(Long key) {
 
-        log.info "Searching amTagItems for tag template " + key
+        log.info "getDisplayItems Searching amTagItems for tag template " + key
 
         def amTagItems
 
@@ -36,7 +36,7 @@ class AmTagItemService {
     }
 
     def getChildDisplayItems(Long key) {
-        log.info "Searching child amTagItems for tag template " + key
+        log.info "getChildDisplayItems Searching child amTagItems for tag template " + key
 
         def amTagItems
 
@@ -60,7 +60,7 @@ class AmTagItemService {
     }
 
     def getEditableItems(Long key) {
-        log.info "Searching amTagItems for tag template " + key
+        log.info "getEditableItems Searching amTagItems for tag template " + key
 
         def amTagItems = []
 
@@ -79,7 +79,7 @@ class AmTagItemService {
 
     def getRequiredItems(Long key) {
 
-        log.info "Searching amTagItems for tag template " + key
+        log.info "getRequiredItems Searching amTagItems for tag template " + key
 
         def amTagItems
 
