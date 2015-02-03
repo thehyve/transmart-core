@@ -108,6 +108,7 @@ class FmFolderController {
         folder.folderType = FolderType.ANALYSIS.name()
         def parentFolder = FmFolder.get(params.folderId)
         folder.parent = parentFolder
+
         def bioDataObject = new BioAssayAnalysis()
         def amTagTemplate = AmTagTemplate.findByTagTemplateType(FolderType.ANALYSIS.name())
         def metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
@@ -123,7 +124,7 @@ class FmFolderController {
         log.info vendors
         log.info platforms
 
-        render(template: "createAnalysis", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "createAnalysis", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def createAssay = {
@@ -151,7 +152,7 @@ class FmFolderController {
         log.info vendors
         log.info platforms
 
-        render(template: "createAssay", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "createAssay", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def createFolder = {
@@ -173,7 +174,7 @@ class FmFolderController {
         def metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
         def title = "Create Folder"
         def templateType = "createFolderForm"
-        render(template: "createFolder", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "createFolder", plugin: "folderManagement", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def createStudy = {
@@ -188,7 +189,7 @@ class FmFolderController {
         def bioDataObject = new Experiment()
         def amTagTemplate = AmTagTemplate.findByTagTemplateType(FolderType.STUDY.name())
         def metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-        render(template: "createStudy", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "createStudy", plugin: "folderManagement", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def createProgram = {
@@ -201,7 +202,7 @@ class FmFolderController {
         def bioDataObject = folder
         def amTagTemplate = AmTagTemplate.findByTagTemplateType(FolderType.PROGRAM.name())
         def metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-        render(template: "createProgram", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "createProgram", plugin: "folderManagement", model: [bioDataObject: bioDataObject, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     private createAmTagTemplateAssociation(folderType, folder) {
@@ -637,7 +638,7 @@ class FmFolderController {
                 }
             }
         }
-        render(template: 'folders', model: [folders: folderContents, folderContentsAccessLevelMap: folderContentsAccessLevelMap, folderSearchString: folderSearchString, uniqueLeavesString: uniqueLeavesString, auto: auto, nodesToExpand: nodesToExpand, displayMetadata: displayMetadata])
+        render(template: 'folders', plugin: "folderManagement", model: [folders: folderContents, folderContentsAccessLevelMap: folderContentsAccessLevelMap, folderSearchString: folderSearchString, uniqueLeavesString: uniqueLeavesString, auto: auto, nodesToExpand: nodesToExpand, displayMetadata: displayMetadata])
     }
 
     /**
@@ -919,7 +920,7 @@ class FmFolderController {
 
             if (folder) {
                 if (!folder.activeInd) {
-                    render(template: 'deletedFolder')
+                    render(template: 'deletedFolder', plugin: "folderManagement")
                     return
                 }
 
@@ -941,7 +942,6 @@ class FmFolderController {
 
                 def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
                 def subFolderTypes = fmFolderService.getChildrenFolderTypes(folder.id)
-                log.debug "subFolderTypes = subFolderTypes"
                 subFolderTypes.each {
                     log.debug "it = $it"
                     subFolders = fmFolderService.getChildrenFolderByType(folder.id, it)
@@ -963,7 +963,7 @@ class FmFolderController {
         }
 
         log.debug "FolderInstance = ${bioDataObject}"
-        render template: '/fmFolder/folderDetail',
+        render template: '/fmFolder/folderDetail', plugin: "folderManagement", 
                 model: [
                         folder                   : folder,
                         bioDataObject            : bioDataObject,
@@ -1140,7 +1140,7 @@ class FmFolderController {
                 def technologies = BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
                 def platforms = BioAssayPlatform.executeQuery("FROM BioAssayPlatform as p ORDER BY p.name")
 
-                render(template: "editMetaData", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+                render(template: "editMetaData", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
             }
 
     def updateMetaData = {
@@ -1256,7 +1256,7 @@ class FmFolderController {
         def folder = FmFolder.get(id)
         if (folder) {
             fmFolderService.deleteFolder(folder)
-            render(template: 'deletedFolder')
+            render(template: 'deletedFolder', plugin: "folderManagement")
         } else {
             render(status: 500, text: "FmFolder not found")
         }
@@ -1273,7 +1273,7 @@ class FmFolderController {
         def folder = file.getFolder()
         if (file) {
             fmFolderService.deleteFile(file)
-            render(template: 'filesTable', model: [folder: folder, hlFileIds: []])
+            render(template: 'filesTable', plugin: "folderManagement", model: [folder: folder, hlFileIds: []])
         } else {
             render(status: 404, text: "FmFile not found")
         }
@@ -1321,7 +1321,7 @@ class FmFolderController {
                 queryString = "SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformTechnology"
                 def technologies = BioAssayPlatform.executeQuery(queryString)
                 log.info queryString + " " + technologies
-                render(template: "selectTechnologies", model: [technologies: technologies, technology: params.technologyName])
+                render(template: "selectTechnologies", plugin: "folderManagement", model: [technologies: technologies, technology: params.technologyName])
             }
 
     def ajaxVendors =
@@ -1340,7 +1340,7 @@ class FmFolderController {
                 queryString = "SELECT DISTINCT vendor FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.vendor"
                 def vendors = BioAssayPlatform.executeQuery(queryString)
                 log.info queryString + " " + vendors
-                render(template: "selectVendors", model: [vendors: vendors, vendor: params.vendorName])
+                render(template: "selectVendors", plugin: "folderManagement", model: [vendors: vendors, vendor: params.vendorName])
             }
 
     def ajaxMeasurements =
@@ -1359,7 +1359,7 @@ class FmFolderController {
                 queryString = "SELECT DISTINCT platformType FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
                 def measurements = BioAssayPlatform.executeQuery(queryString)
                 log.info queryString + " " + measurements
-                render(template: "selectMeasurements", model: [measurements: measurements, measurement: params.measurementName])
+                render(template: "selectMeasurements", plugin:"folderManagement", model: [measurements: measurements, measurement: params.measurementName])
             }
 
     def ajaxPlatforms =
@@ -1382,7 +1382,7 @@ class FmFolderController {
                 queryString = "FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
                 def platforms = BioAssayPlatform.executeQuery(queryString)
                 log.info queryString + " " + platforms
-                render(template: "selectPlatforms", model: [platforms: platforms])
+                render(template: "selectPlatforms", plugin: "folderManagement", model: [platforms: platforms])
             }
 
     private boolean isAdmin() {
@@ -1420,7 +1420,7 @@ class FmFolderController {
             }
             render infoList as JSON
         } else {
-            render(template: 'filesTable', model: [folder: folder], plugin: 'folderManagement')
+            render(template: 'filesTable', plugin: "folderManagement", model: [folder: folder])
         }
     }
 
