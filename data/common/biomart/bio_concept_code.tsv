@@ -282,7 +282,7 @@
 "MAS5"	"MAS5"	"MAS5"	"NORMALIZATION_METHOD"	"169304"	"0"
 "NONE"	"None"	"None"	"NORMALIZATION_METHOD"	"169305"	"0"
 "RMA"	"RMA"	"RMA"	"NORMALIZATION_METHOD"	"169306"	"0"
-"OTHER"	"other"	"helper concept"	"OTHER"	"1"	"0"
+"OTHER"	"other"	"helper concept"	"OTHER"	"169686"	"0"
 "1_PERC"	".01"	".01"	"P_VAL_CUTOFF"	"169307"	"0"
 "5_PERC"	".05"	".05"	"P_VAL_CUTOFF"	"169308"	"0"
 "UNDEFINED"	"undefined"	"undefined"	"P_VAL_CUTOFF"	"169309"	"0"
