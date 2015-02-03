@@ -73,6 +73,14 @@ jQuery(document).ready(function() {
 		return returnElement;
 	};
 });
+function removeTag(fieldName, tag) {
+        var escapedFieldName = fieldName.replace(".", "\\.");
+        //Attribute selector here gets around spaces in ID, which shouldn't be allowed... but is
+        jQuery('[id=\'' + escapedFieldName + '-tag-' + tag + "\']").remove();
+        jQuery('#' + escapedFieldName + ' option[value="' + tag + '"]').remove();
+}
+//For all tags - when clicked, call the remove tag function (remove them from the DOM and underlying select list)
+jQuery('.tag').live('click', function(e) { removeTag(jQuery(this).parent().attr('name'), jQuery(this).attr('name')); });
 </g:javascript>
 <%-- Tag box (visual display of tags) --%>
 <div id="${fieldName}-tags" class="tagBox" name="${fieldName}">
