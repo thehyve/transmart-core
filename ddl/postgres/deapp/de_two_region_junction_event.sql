@@ -13,8 +13,8 @@ CREATE SEQUENCE de_two_rgn_junction_event_seq
 --
 CREATE TABLE de_two_region_junction_event (
     two_region_junction_event_id bigint DEFAULT nextval('de_two_rgn_junction_event_seq'::regclass) NOT NULL,
-    junction_id integer,
-    event_id integer,
+    junction_id bigint,
+    event_id bigint,
     reads_span integer,
     reads_junction integer,
     pairs_span integer,
