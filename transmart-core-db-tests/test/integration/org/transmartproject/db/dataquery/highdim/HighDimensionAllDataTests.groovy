@@ -38,7 +38,9 @@ import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
+import org.transmartproject.db.dataquery.highdim.tworegion.DeTwoRegionJunction
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
+import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -94,6 +96,11 @@ class HighDimensionAllDataTests {
             [annotationId:String, geneSymbol:String, geneId:String],
             RnaSeqCogTestData
         ], [
+            'two_region',
+            [downChromosome:String, upChromosome: String, id:Long, upEnd:Long, upPos:Long, upStrand:Character, downEnd:Long, downPos:Long, downStrand:Character, isInFrame: Boolean],
+            [:],
+            TwoRegionTestData
+        ], [
             'vcf',
             [reference:Boolean, variant:String, variantType:String],
             [chromosome:String, position:Long, rsId: String, referenceAllele:String],
@@ -141,7 +148,6 @@ class HighDimensionAllDataTests {
 
         def result = type.retrieveData([], [], genericProjection)
         try {
-            def indicesList = result.indicesList
             def firstrow = result.iterator().next()
 
             assertThat firstrow, is(notNullValue())
@@ -155,20 +161,18 @@ class HighDimensionAllDataTests {
                         firstrow."$prop".getClass(), typeCompatibleWith(type)
             }
 
-            def data = firstrow[indicesList[0]]
+            def data = firstrow.find()
 
             assertThat data, is(notNullValue())
-            assertThat data, is(instanceOf(Map))
             dataProperties.each { col, type ->
                 assertThat genericProjection.dataProperties, hasKey(col)
                 assertThat genericProjection.dataProperties[col], is((Object) type)
             }
-            genericProjection.dataProperties.each { col, type ->
-                assertThat data, hasKey(col)
-                for(int i in 1..5) {
-                    println('**************************************************************************************')
-                }
-                println("key: $col, value: ${data."$col"}, type: ${data."$col".getClass()}")
+            genericProjection.dataProperties.each { String col, Class type ->
+                assertThat data, anyOf(
+                        hasKey(col),
+                        hasProperty(col))
+
                 assertThat  "${owner.type.dataTypeName}: $col is not of expected type.",
                         data."$col".getClass(), typeCompatibleWith(type)
             }
