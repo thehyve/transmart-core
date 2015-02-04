@@ -38,7 +38,9 @@ import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
+import org.transmartproject.db.dataquery.highdim.tworegion.DeTwoRegionJunction
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
+import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -93,6 +95,11 @@ class HighDimensionAllDataTests {
             [rawIntensity:BigDecimal, logIntensity:BigDecimal, zscore:BigDecimal],
             [annotationId:String, geneSymbol:String, geneId:String],
             RnaSeqCogTestData
+        ], [
+            'two_region',
+            [downChromosome:String, upChromosome: String, id:Long, upEnd:Long, upPos:Long, upStrand:Character, downEnd:Long, downPos:Long, downStrand:Character, isInFrame: Boolean],
+            [junction:DeTwoRegionJunction],
+            TwoRegionTestData
         ], [
             'vcf',
             [reference:Boolean, variant:String, variantType:String],
