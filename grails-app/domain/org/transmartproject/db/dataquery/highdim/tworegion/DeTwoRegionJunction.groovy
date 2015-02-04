@@ -28,7 +28,6 @@ class DeTwoRegionJunction implements Serializable, Junction {
     static hasMany = [junctionEvents: DeTwoRegionJunctionEvent]
 
     static constraints = {
-        junctionEvents(nullable: true)
         upChromosome(maxSize: 50)
         downChromosome(maxSize: 50)
         upStrand(nullable: true)
@@ -55,21 +54,5 @@ class DeTwoRegionJunction implements Serializable, Junction {
         assay column: 'assay_id'
 
         version false
-    }
-
-
-    public HashMap<String, Object> toMap() {
-        def ret = new HashMap<String, Object>()
-        ret.put('id', id)
-        ret.put('upEnd', upEnd)
-        ret.put('upChromosome', upChromosome)
-        ret.put('upPos', upPos)
-        ret.put('upStrand', upStrand)
-        ret.put('downEnd', downEnd)
-        ret.put('downChromosome', downChromosome)
-        ret.put('downPos', downPos)
-        ret.put('downStrand', downStrand)
-        ret.put('isInFrame', isInFrame)
-        ret
     }
 }

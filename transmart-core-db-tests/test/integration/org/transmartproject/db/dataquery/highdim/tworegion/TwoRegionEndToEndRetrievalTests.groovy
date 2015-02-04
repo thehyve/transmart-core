@@ -24,11 +24,14 @@ import grails.test.mixin.TestMixin
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.dataquery.highdim.tworegion.Junction
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -113,11 +116,11 @@ class TwoRegionEndToEndRetrievalTests {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         assertThat resultList, hasSize(4)
-        assertThat resultList, everyItem(hasProperty('data', notNullValue()))
-        assertThat resultList, everyItem(hasProperty('assayIndexMap', notNullValue()))
-        assertThat resultList, hasItem(hasProperty('junction',
-                allOf(
+        assertThat resultList, hasItem(allOf(
+                isA(JunctionRow),
+                hasItem(allOf(
                         //junction included in 2 different events
+                        isA(Junction),
                         hasProperty('junctionEvents', hasSize(2)),
                         hasProperty('junctionEvents', hasItem(
                                 allOf(
@@ -147,15 +150,44 @@ class TwoRegionEndToEndRetrievalTests {
                         hasProperty('upPos', equalTo(12L)),
                         hasProperty('upEnd', equalTo(18L)),
                         hasProperty('isInFrame', equalTo(true))
-                ))
-        )
-        assertThat resultList, hasItem(hasProperty('junction',
-                //junction included in 0 events
-                allOf(
+                ))))
+        assertThat resultList, hasItem( // junctionRow
+                hasItem(allOf( // junction
                         hasProperty('junctionEvents', hasSize(0)),
                         hasProperty('downChromosome', equalTo('Y'))
-                )
-        ))
+                )))
+    }
+
+    @Test
+    void testAssayMappingIsCorrect() {
+        def projection = resource.createProjection [:], Projection.ALL_DATA_PROJECTION
+
+        dataQueryResult = resource.retrieveData(
+                [trialNameConstraint], [], projection)
+        List<DataRow<AssayColumn, Junction>> resultList = Lists.newArrayList(dataQueryResult)
+
+        assertThat dataQueryResult.indicesList, hasSize(equalTo(testData.assays.size()))
+        assertThat resultList, hasSize(equalTo(testData.junctions.size()))
+
+        resultList.each { DataRow<AssayColumn, Junction> row ->
+            def foundIndex
+            def foundAssayColumn
+            dataQueryResult.indicesList.eachWithIndex { AssayColumn assayColumn, int index ->
+                if (row[assayColumn] == null) {
+                    return
+                }
+
+                foundAssayColumn = assayColumn
+                foundIndex = index
+            }
+
+            assertThat foundAssayColumn, is(notNullValue())
+            assertThat foundIndex, is(notNullValue())
+            assert row[foundIndex].is(row[foundAssayColumn])
+
+            DeTwoRegionJunction j = row[foundIndex]
+            assert j.assay.id == foundAssayColumn.id
+        }
     }
 
 }

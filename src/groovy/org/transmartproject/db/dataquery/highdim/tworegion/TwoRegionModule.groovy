@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.tworegion
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -13,6 +14,9 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.chromoregion.TwoChromosomesSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+
+import static org.hibernate.criterion.CriteriaSpecification.INNER_JOIN
+import static org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
 
 /**
  * Created by j.hudecek on 4-12-2014.
@@ -29,8 +33,7 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> dataProperties = typesMap(DeTwoRegionJunction,
             ['upChromosome', 'downChromosome', 'id', 'upEnd', 'upPos', 'upStrand', 'downEnd', 'downPos', 'downStrand', 'isInFrame'])
 
-    final Map<String, Class> rowProperties = typesMap(JunctionsRow,
-            ['junction'])
+    final Map<String, Class> rowProperties = ImmutableMap.of()
 
 
     @Autowired
@@ -76,13 +79,13 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                 createCriteriaBuilder(DeTwoRegionJunction, 'junction', session)
 
         criteriaBuilder.with {
-            createAlias 'junctionEvents', 'junctionEvents', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
-            createAlias 'junctionEvents.event', 'event', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
-            createAlias 'junctionEvents.event.eventGenes', 'eventGenes', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
-            createAlias 'assay', 'assay', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
+            createAlias 'junctionEvents', 'junctionEvents', LEFT_JOIN
+            createAlias 'junctionEvents.event', 'event', LEFT_JOIN
+            createAlias 'junctionEvents.event.eventGenes', 'eventGenes', LEFT_JOIN
+            createAlias 'assay', 'assay', INNER_JOIN
 
-            order 'assay.id', 'asc' // important
             order 'id', 'asc' // important
+            // no need to order by assay because groups only contain one assay
 
             // because we're using this transformer, every column has to have an alias
             instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
@@ -94,32 +97,56 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
     @Override
     TabularResult transformResults(ScrollableResults results, List<AssayColumn> assays, Projection projection) {
 
-        Map assayIndexMap = createAssayIndexMap assays
+        Map<Long, AssayColumn> assayIdToAssayColumn = assays.collectEntries {
+            [it.id, it]
+        }
+        int i = 0
+        Map<Long, Long> assayIdToAssayIndex = assays.collectEntries {
+            [it.id, i++]
+        }
 
         new MultiTabularResult(
                 rowsDimensionLabel: 'Regions',
                 columnsDimensionLabel: 'Sample codes',
                 indicesList: assays,
                 results: results,
-                inSameGroup: {a, b -> a.junction.id == b.junction.id},
+                inSameGroup: { a, b -> a.junction.id == b.junction.id },
                 allowMissingColumns: false,
-                finalizeGroup: {List list ->
-                    for (def o in list) {
-                        Set junctionEvents = list.findAll({
-                            it.junctionEvents[0] != null && it.junctionEvents[0].junction.id == o.junction[0].id
-                        }).collect({it.junctionEvents[0]}).toSet()
-                        o.junction[0].junctionEvents = junctionEvents
-                        for (DeTwoRegionJunctionEvent je in junctionEvents) {
-                            je.event = list.find({
-                                it.event[0].id == je.event.id
-                            }).event[0]
-                            je.event.eventGenes = list.findAll({
-                                it.eventGenes[0] != null && it.eventGenes[0].event.id == je.event.id
-                            }).collect({it.eventGenes[0]})
-                        }
+                finalizeGroup : { List<Map<String, List<Object>>> rows ->
+                    // should be the same in all rows:
+                    DeTwoRegionJunction junction = rows[0].junction[0]
+
+                    List<DeTwoRegionJunctionEvent> allJunctionEvents = rows
+                            .collect { it.junctionEvents[0] }
+                            .findAll()
+
+                    List<DeTwoRegionEvent> allEvents = rows
+                            .collect { it.event[0] }
+                            .findAll()
+
+                    List<DeTwoRegionEventGene> allEventGenes = rows
+                            .collect { it.eventGenes[0] }
+                            .findAll()
+
+                    // Assign junction events to junction
+                    junction.junctionEvents = allJunctionEvents as Set
+
+                    // Assign events to junction events
+                    allJunctionEvents.each { DeTwoRegionJunctionEvent je ->
+                        je.event = allEvents.find { it.id == je.event.id }
                     }
-                    def js = new JunctionsRow(assayIndexMap, list[0].junction[0])
-                    js
+
+                    // Assign event genes to events
+                    allEvents.each { DeTwoRegionEvent event ->
+                        event.eventGenes = allEventGenes
+                                .findAll { it.event.id == event.id } as Set
+                    }
+
+                    Long assayId = rows.first().assay[0].id
+                    new JunctionRow(assayIdToAssayColumn[assayId],
+                            assayIdToAssayIndex[assayId],
+                            assays.size(),
+                            junction)
                 }
         )
     }
