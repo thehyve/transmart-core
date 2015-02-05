@@ -17,13 +17,15 @@ class MrnaStatisticsWriter extends ItemStreamSupport implements ItemStreamWriter
 
     public final static String CALCULATOR_CTX_KEY = 'calculator'
 
+    private final static double LOG_2 = Math.log(2d)
+
     // saved
     OnlineMeanAndVarianceCalculator meanAndVarianceCalculator
 
     @Override
     void write(List<? extends MrnaDataValue> items) throws Exception {
         items.each {
-            meanAndVarianceCalculator.push it.value
+            meanAndVarianceCalculator.push Math.log(it.value) / LOG_2
         }
     }
 

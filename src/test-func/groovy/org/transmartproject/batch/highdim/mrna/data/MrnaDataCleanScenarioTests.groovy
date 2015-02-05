@@ -33,9 +33,9 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS = 7
     private final static long NUMBER_OF_PROBES = 19
 
-    private final static double ALL_DATA_MEAN = 98.97085804511279
-    private final static double ALL_DATA_STD_DEV = 114.39026987889345
-    private final static double DELTA = 1e-10d
+    private final static double ALL_DATA_MEAN = 5.8194455019133628
+    private final static double ALL_DATA_STD_DEV = 1.6645581676623318
+    private final static double DELTA = 1e-12d
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
@@ -145,14 +145,15 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 [ssd: "$STUDY_ID:$subjectId".toString()],
                 Long)
 
+        double value = 105.912d
+        double logValue = Math.log(value) / Math.log(2d)
         assertThat r, allOf(
                 hasEntry('patient_id', patientCode),
                 hasEntry('subject_id', 'GSE8581GSM210006'),
-                hasEntry(is('raw_intensity'), closeTo(105.912d, DELTA)),
-                hasEntry(is('log_intensity'),
-                        closeTo(Math.log(105.912d) / Math.log(2d), DELTA)),
+                hasEntry(is('raw_intensity'), closeTo(value, DELTA)),
+                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
                 hasEntry(is('zscore'),
-                        closeTo((105.912d - ALL_DATA_MEAN) / ALL_DATA_STD_DEV, DELTA)),
+                        closeTo((logValue - ALL_DATA_MEAN) / ALL_DATA_STD_DEV, DELTA)),
         )
     }
 

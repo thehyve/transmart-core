@@ -15,7 +15,7 @@ import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEnt
 @JobScope
 class MrnaDataRowConverter {
 
-    private static final int LOG_BASE = 2
+    private static final double LOG_2 = Math.log(2d)
 
     @Value("#{jobParameters['STUDY_ID']}")
     private String studyId
@@ -50,6 +50,8 @@ class MrnaDataRowConverter {
                     patientIdAssayIdMap.keySet().sort())
         }
 
+        double logIntensity = Math.log(value.value) / LOG_2
+
         [
                 trial_name:    studyId,
                 probeset_id:   annotationEntityMap[value.probe], // validated before
@@ -57,8 +59,8 @@ class MrnaDataRowConverter {
                 patient_id:    value.patient.code,
                 subject_id:    value.patient.id,
                 raw_intensity: value.value,
-                log_intensity: Math.log(value.value)/Math.log(LOG_BASE),
-                zscore:        clamp(-2.5, 2.5, (value.value - mean)/stdDev),
+                log_intensity: logIntensity,
+                zscore:        clamp(-2.5, 2.5, (logIntensity - mean) / stdDev),
                 partition_id:  partitionId,
         ]
     }
