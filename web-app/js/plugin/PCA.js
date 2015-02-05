@@ -48,16 +48,22 @@ PCAView.prototype.get_form_params = function () {
         // get values
         var inputConceptPathVar = readConceptVariables("divIndependentVariable");
         var doUseExperimentAsVariable = inputArray[1].el.checked;
+        var calculateZscore = inputArray[2].el.checked;
 
         // assign values to form parameters
         formParameters['jobType'] = 'PCA';
         formParameters['independentVariable'] = inputConceptPathVar;
         formParameters['variablesConceptPaths'] = inputConceptPathVar;
         formParameters['doUseExperimentAsVariable'] = doUseExperimentAsVariable;
+        formParameters['calculateZscore'] = calculateZscore;
 
         //get analysis constraints
         var constraints_json = this.get_analysis_constraints('PCA');
-        constraints_json['projections'] = ["zscore"];
+        if(calculateZscore){
+        	constraints_json['projections'] = ["log_intensity"];
+        }else{
+        	constraints_json['projections'] = ["zscore"];
+        }
 
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
@@ -88,6 +94,11 @@ PCAView.prototype.get_inputs = function (form_params) {
         {
             "label" : "Do Use Experiment As Variable",
             "el" : document.getElementById("chkUseExperimentAsVariable"),
+            "validations" : []
+        },
+        {
+            "label" : "Calculate z-score on the fly",
+            "el" : document.getElementById("chkCalculateZscore"),
             "validations" : []
         }
     ];

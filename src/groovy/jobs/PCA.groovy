@@ -23,6 +23,7 @@ class PCA extends HighDimensionalOnlyJob {
                 '''PCA.loader(
                 input.filename='$inputFileName',
                 aggregate.probes = '$divIndependentVariableprobesAggregation' == 'true',
+                calculateZscore = '$calculateZscore'
                 )''' ]
 
     @Override

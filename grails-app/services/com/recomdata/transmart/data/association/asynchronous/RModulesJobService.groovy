@@ -280,7 +280,7 @@ class RModulesJobService implements Job {
 
 		//Establish a connection to R Server.
 		RConnection c = new RConnection(Holders.config.RModules.host, Holders.config.RModules.port);
-        c.setStringEncoding("utf8")
+		c.stringEncoding = 'utf8'
 
         //Set the working directory to be our temporary location.
         String workingDirectoryCommand = "setwd('" +

@@ -94,13 +94,13 @@ class BoxPlotVariableColumnConfiguratorTests {
             def res = table.result
             assertThat res, containsInAnyOrder(
                     contains(allOf(
-                            dot(['var 1', 'var 2', 'var 3'],
+                            dot(['\\var 1\\', '\\var 2\\', '\\var 3\\'],
                                     valuesForColumns[0..2], { a, b ->
                                 hasEntry(is(a), is(b))
                             }
                             ))),
                     contains(allOf(
-                            dot(['var 1', 'var 2', 'var 3'],
+                            dot(['\\var 1\\', '\\var 2\\', '\\var 3\\'],
                                     valuesForColumns[3..5], { a, b ->
                                         hasEntry(is(a), is(b))
                                     }

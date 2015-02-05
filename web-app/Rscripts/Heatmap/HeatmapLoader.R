@@ -26,8 +26,10 @@ imageWidth = 1200,
 imageHeight = 800,
 pointsize = 15,
 maxDrawNumber = Inf,
-color.range.clamps = c(-2.5, 2.5),
-aggregate.probes = FALSE
+color.range.clamps = c(-2.5,2.5),
+aggregate.probes = FALSE,
+calculateZscore = FALSE,
+zscore.file = "zscores.txt"
 )
 {
 
@@ -35,18 +37,31 @@ aggregate.probes = FALSE
     print("HeatmapLoader.R")
     print("CREATING HEATMAP")
 
-	library(Cairo)
-	library(ggplot2)
-	library(reshape2)
-	library(gplots)
-
-	#Pull the GEX data from the file.
-	mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
-	if (nrow(mRNAData) == 0) {
+    library(Cairo)
+    library(ggplot2)
+    library(reshape2)
+    library(gplots)
+    library(plyr)
+	
+    #Pull the GEX data from the file.
+    mRNAData <- data.frame(read.delim(input.filename, stringsAsFactors = FALSE))
+    if (nrow(mRNAData) == 0) {
         CairoPNG(file = paste(output.file,".png",sep=""), width=1200, height=600,units = "px")
         Plot.error.message("Your selection yielded an empty dataset,\nplease check your subset and biomarker selection."); return()
     }
 
+    if(calculateZscore){
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.md = median(VALUE, na.rm = TRUE))
+      mRNAData = ddply(mRNAData, "GROUP", transform, probe.sd = sd(VALUE, na.rm = TRUE))        
+      mRNAData$VALUE = with(mRNAData, ifelse(probe.sd == 0, 0,
+                                     (mRNAData$VALUE - mRNAData$probe.md) / mRNAData$probe.sd))
+      mRNAData$VALUE = with(mRNAData, ifelse(VALUE > 2.5, 2.5,
+                                      ifelse(VALUE < -2.5, -2.5, VALUE)))
+      mRNAData$VALUE = round(mRNAData$VALUE, 9)
+      mRNAData$probe.md = NULL
+      mRNAData$probe.sd = NULL
+      write.table(mRNAData,zscore.file,quote=F,sep="\t",row.names=F,col.names=T)
+    }
     #If we have to melt and cast, do it here, otherwise we make the group column the rownames
     if(meltData == TRUE) {
         # The GROUP column needs to have the values from GENE_SYMBOL concatenated as a suffix,

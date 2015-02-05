@@ -41,6 +41,10 @@
                 <input type="checkbox" id="chkClusterColumns" name="doClusterColumns" checked="true">
                 <span>Apply clustering for columns</span>
             </div>
+            <div>
+                <input type="checkbox" id="chkCalculateZscore" name="calculateZscore">
+                <span>Calculate z-score on the fly</span>
+            </div>
             <input type="button" value="Run" onClick="hierarchicalClusteringView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
     </form>
