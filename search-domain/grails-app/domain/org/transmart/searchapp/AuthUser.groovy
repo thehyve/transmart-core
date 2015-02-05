@@ -23,7 +23,7 @@ import org.hibernate.type.StandardBasicTypes
  *
  ******************************************************************/
 class AuthUser extends Principal {
-    static transients = ['pass', 'accountExpired', 'accountLocked', 'passwordExpired']
+    static transients = ['pass']
     static hasMany = [authorities: Role, groups: UserGroup]
     static belongsTo = [Role, UserGroup]
 
@@ -36,11 +36,6 @@ class AuthUser extends Principal {
 
     /** plain password to create a MD5 password */
     String pass = '[secret]'
-
-    // Used by Security Plugin
-    boolean accountExpired
-    boolean accountLocked
-    boolean passwordExpired
 
     static mapping = {
         table 'SEARCH_AUTH_USER'
