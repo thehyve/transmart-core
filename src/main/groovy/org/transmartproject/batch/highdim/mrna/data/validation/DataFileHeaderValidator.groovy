@@ -1,5 +1,7 @@
 package org.transmartproject.batch.highdim.mrna.data.validation
 
+import com.google.common.collect.Multiset
+import com.google.common.collect.TreeMultiset
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepExecution
@@ -35,15 +37,9 @@ class DataFileHeaderValidator implements LineCallbackHandler {
         List<String> headers = (List) stepExecution.executionContext.get(
                 HeaderSavingLineCallbackHandler.KEY)
 
-        if (headers.size() != mappingSampleCodes.size() + 1) {
-            throw new ParseException(
-                    "Got header with an unexpected number of fields: " +
-                            "${headers.size()}, expected ID_REF plus a " +
-                            "number equal to that of the number of samples " +
-                            "included in the mapping file " +
-                            "(1 + ${mappingSampleCodes.size()})")
+        if (headers.size() < 1) {
+            throw new ParseException("Got empty header. Unacceptable")
         }
-
 
         String firstHeader = headers[0]
         if (firstHeader != 'ID_REF') {
@@ -56,6 +52,16 @@ class DataFileHeaderValidator implements LineCallbackHandler {
                         "'$header' does not match one of the sample codes " +
                         "in the mapping file, the set of which is: " +
                         "$mappingSampleCodes")
+            }
+        }
+
+        Multiset<String> entriesMultiSet = TreeMultiset.create(headers[1..-1])
+        mappingSampleCodes.each { sampleCode ->
+            def count = entriesMultiSet.count(sampleCode)
+            if (count != 1) {
+                throw new ParseException("Expected a header entry " +
+                        "'$sampleCode' to be present exactly once, " +
+                        "got count $count")
             }
         }
     }

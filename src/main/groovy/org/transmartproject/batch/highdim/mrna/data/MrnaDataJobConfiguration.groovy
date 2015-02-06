@@ -121,7 +121,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
                 .next(stepOf(this.&partitionTasklet))
 
                 // first pass, calculate mean and variance as well as whatever is needed for validation
-                .next(wrapStepWithName('firstPass', firstPass(null, null, null)))
+                .next(wrapStepWithName('firstPass', firstPass(null, null)))
 
                 // delete current data
                 .next(deleteCurrentAssayData(null))
