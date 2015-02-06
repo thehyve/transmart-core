@@ -43,6 +43,7 @@ class MrnaStatisticsWriter extends ItemStreamSupport implements ItemStreamWriter
 
     @Override
     void update(ExecutionContext executionContext) {
-        executionContext.put(CALCULATOR_CTX_KEY, meanAndVarianceCalculator)
+        executionContext.put(CALCULATOR_CTX_KEY,
+                meanAndVarianceCalculator.clone())
     }
 }

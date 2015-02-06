@@ -17,6 +17,9 @@ import java.sql.SQLException
 
 /**
  * Gets the current patients (for the study) from database, populating the PatientSet
+ *
+ * Should be on a allowStartIfComplete step, as the patient set is not persisted
+ * in the job context.
  */
 @Slf4j
 @Component

@@ -1,10 +1,8 @@
 package org.transmartproject.batch.batchartifacts
 
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.*
-import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.transform.FieldSet
 import org.springframework.util.ClassUtils
 
@@ -23,12 +21,14 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         setName(ClassUtils.getShortName(getClass()))
     }
 
-    protected FieldSet currentFieldSet
-    protected int position
+    protected FieldSet currentFieldSet // saved
+    protected int position // saved
+    protected int upstreamPos
     protected ItemStreamReader<FieldSet> delegate
 
     private final static String SAVED_FIELD_SET_KEY = 'savedFieldSet'
     private final static String SAVED_POSITION = 'position'
+    private final static String SAVED_UPSTREAM_POS = 'upstreamPos'
 
     @Override
     @SuppressWarnings('CatchException')
@@ -38,7 +38,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                 currentFieldSet = fetchNextDelegateLine()
                 position = 0
             } catch (Exception e) {
-                log.error "Exception fetching line ${line} from delegate", e
+                log.error "Exception fetching ${upstreamPos + 1}-th line from delegate", e
                 throw e
             }
         }
@@ -50,8 +50,9 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         try {
             doRead()
         } catch (Exception e) {
-            log.error "Exception processing line ${line}, column $position, " +
-                    "fieldset $currentFieldSet", e
+            log.error "Exception processing ${upstreamPos}-th line gotten " +
+                    "from delegate, column $position, fieldset " +
+                    "$currentFieldSet", e
             throw e
         } finally {
             position++
@@ -60,12 +61,9 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
 
     // return null to signal end
     protected FieldSet fetchNextDelegateLine() {
-        delegate.read()
-    }
-
-    @CompileStatic(TypeCheckingMode.SKIP)
-    int getLine() {
-        delegate instanceof FlatFileItemReader ? delegate.lineCount : -1
+        def result = delegate.read()
+        upstreamPos++
+        result
     }
 
     abstract protected T doRead()
@@ -76,6 +74,8 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                 getExecutionContextKey(SAVED_POSITION))) {
             position = executionContext.getInt(
                     getExecutionContextKey(SAVED_POSITION))
+            upstreamPos = executionContext.getInt(
+                    getExecutionContextKey(SAVED_UPSTREAM_POS))
         }
         currentFieldSet = (FieldSet) executionContext.get(
                 getExecutionContextKey(SAVED_FIELD_SET_KEY))
@@ -93,11 +93,17 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         executionContext.putInt(
                 getExecutionContextKey(SAVED_POSITION),
                 position)
+        executionContext.putInt(
+                getExecutionContextKey(SAVED_UPSTREAM_POS),
+                upstreamPos)
     }
 
     @Override
     @SuppressWarnings('CloseWithoutCloseable')
     void close() throws ItemStreamException {
         log.trace("Closing $this")
+        upstreamPos = 0
+        position = 0
+        currentFieldSet = null
     }
 }

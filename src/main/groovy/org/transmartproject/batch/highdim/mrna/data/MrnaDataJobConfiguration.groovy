@@ -111,11 +111,11 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
                                 "Load platform \$ctx[$PlatformJobContextKeys.PLATFORM] before")))
                 .from(checkPlatformExists())
 
-                .next(stepOf(this.&getGatherCurrentConceptsTasklet))
-                .next(stepOf(this.&getValidateTopNodePreexistenceTasklet))
-                .next(stepOf(this.&getValidateHighDimensionalConceptsTasklet))
-                .next(stepOf(this.&getGatherCurrentPatientsTasklet))
-                .next(stepOf(this.&getValidatePatientIntersectionTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
+                .next(allowStartStepOf(this.&getValidateTopNodePreexistenceTasklet))
+                .next(allowStartStepOf(this.&getValidateHighDimensionalConceptsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentPatientsTasklet))
+                .next(allowStartStepOf(this.&getValidatePatientIntersectionTasklet))
                 .next(loadAnnotationMappings())
 
                 .next(stepOf(this.&partitionTasklet))
@@ -145,6 +145,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step checkPlatformExists() {
         steps.get('checkPlatformExists')
+                .allowStartIfComplete(true)
                 .tasklet(platformCheckTasklet())
                 .listener(new FoundExitStatusChangeListener(notifyOnFound: false /* notify on not found */))
                 .build()

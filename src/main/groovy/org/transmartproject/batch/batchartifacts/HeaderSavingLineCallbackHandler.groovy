@@ -20,18 +20,19 @@ class HeaderSavingLineCallbackHandler implements LineCallbackHandler {
 
     @Override
     void handleLine(String line) {
-        def previousValue = stepExecution.executionContext.get(KEY)
-        if (stepExecution.executionContext.get(KEY) != null) {
-            throw new IllegalStateException("Told to read skipped line with " +
-                    "content '$line', but I remember having gotten one " +
-                    "before, which I tokenized as: $previousValue")
-        }
-
-        List<String> headerNames =
+        List<String> previousHeaders = stepExecution.executionContext.get(KEY)
+        List<String> newHeaders =
                 new DelimitedLineTokenizer(
                         delimiter: DelimitedLineTokenizer.DELIMITER_TAB,
-                ).tokenize(line).values
+                ).tokenize(line).values as List
 
-        stepExecution.executionContext.put(KEY, headerNames as List)
+        if (previousHeaders && previousHeaders != newHeaders) {
+            throw new IllegalStateException("Told to read skipped line with " +
+                    "content '$line', but I remember having gotten a " +
+                    "different one before, which I tokenized as: " +
+                    "$previousHeaders")
+        }
+
+        stepExecution.executionContext.put(KEY, newHeaders)
     }
 }

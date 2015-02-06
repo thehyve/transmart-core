@@ -24,6 +24,9 @@ import java.sql.ResultSet
  * is set, then the concepts with full names in that list (and their
  * parents will be loaded). Otherwise, all the concepts for the study will be
  * loaded.
+ *
+ * This should be on an allowStartIfComplete step, as the ConceptTree is not
+ * persisted on the job context.
  */
 @Component
 @JobScopeInterfaced

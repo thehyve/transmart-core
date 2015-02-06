@@ -1,5 +1,6 @@
 package org.transmartproject.batch.batchartifacts
 
+import com.google.common.collect.ImmutableMap
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemProcessor
@@ -88,6 +89,6 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
         }
 
         executionContext.putInt(getExecutionContextKey(READ_COUNT), currentItemCount)
-        executionContext.put(getExecutionContextKey(KEYS_MAP), seen)
+        executionContext.put(getExecutionContextKey(KEYS_MAP), ImmutableMap.copyOf(seen))
     }
 }

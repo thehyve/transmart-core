@@ -56,6 +56,8 @@ class InsertConceptsTasklet implements Tasklet {
         //gets all new concepts. notice root is not included (not inserted in concept_dimension)
         List<ConceptNode> newConcepts = conceptTree.newConceptNodes
 
+        log.debug "New concepts are ${newConcepts*.path}"
+
         Date now = new Date()
 
         if (newConcepts.size() > 0) {
