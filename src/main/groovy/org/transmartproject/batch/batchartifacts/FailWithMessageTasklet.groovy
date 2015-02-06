@@ -36,7 +36,8 @@ class FailWithMessageTasklet implements Tasklet {
 
         log.error("Failing job: $w")
 
-        contribution.exitStatus = ExitStatus.FAILED
+        chunkContext.stepContext.stepExecution.exitStatus =
+                new ExitStatus('FAILED', w.toString())
 
         RepeatStatus.FINISHED
     }

@@ -108,7 +108,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
                 .next(checkPlatformExists())
                 .on('NOT FOUND').to(stepOf('platformNotFound',
                         new FailWithMessageTasklet(
-                                "Load platform \$ctx[$PlatformJobContextKeys.PLATFORM] before")))
+                                "Load platform \${ctx['$PlatformJobContextKeys.PLATFORM']} before")))
                 .from(checkPlatformExists())
 
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
