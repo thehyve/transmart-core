@@ -30,7 +30,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static String STUDY_ID = 'GSE8581'
     private final static String PLATFORM_ID = 'GPL570_bogus'
 
-    private final static long NUMBER_OF_ASSAYS = 7
+    private final static long NUMBER_OF_ASSAYS = 8
     private final static long NUMBER_OF_PROBES = 19
 
     private final static double ALL_DATA_MEAN = 5.8194455019133628
@@ -157,4 +157,27 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
         )
     }
 
+    @Test
+    void testRawZerosHaveCorrectLogIntensityAndZscore() {
+        def sampleName = 'GSM210005'
+        def q = """
+                SELECT raw_intensity, log_intensity, zscore
+                FROM
+                    ${Tables.MRNA_DATA} D
+                    INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
+                WHERE
+                    S.sample_cd = :sample_name
+                    AND D.trial_name = :study_id"""
+        def p = [study_id: STUDY_ID,
+                 sample_name: sampleName]
+
+        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+
+        assertThat r, is(not(empty()))
+        assertThat r, everyItem(allOf(
+                hasEntry(is('raw_intensity'), equalTo(0d)),
+                hasEntry(is('log_intensity'), equalTo(Double.NEGATIVE_INFINITY)),
+                hasEntry(is('zscore'), equalTo(-2.5d /* clamp */)),
+        ))
+    }
 }
