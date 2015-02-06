@@ -3,12 +3,10 @@ package org.transmartproject.batch.startup
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
-import org.springframework.batch.core.launch.support.SystemExiter
 import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataExternalJobParameters
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationExternalJobParameters
 import org.transmartproject.batch.tag.TagsLoadJobParameters
-
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -60,9 +58,13 @@ final class RunJob {
     }
 
     static void main(String... args) {
-        CommandLineJobRunner.presetSystemExiter(new OnErrorSystemExiter())
         def runJob = createInstance(args)
-        runJob.run()
+
+        def exitCode = runJob.run()
+
+        if (exitCode != 0) {
+            System.exit exitCode
+        }
     }
 
     static RunJob createInstance(String... args) {
@@ -187,14 +189,4 @@ final class RunJob {
             null
         }
     }
-
-    static class OnErrorSystemExiter implements SystemExiter {
-        @Override
-        void exit(int status) {
-            if (status != 0) {
-                System.exit(status)
-            }
-        }
-    }
-
 }
