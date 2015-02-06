@@ -51,6 +51,15 @@ Worthy of mention is that transmart-batch will refuse to re-run a job with the
 same parameters (which depend on the `clinical.params` file contents). Use `-n`
 to force the job to be re-run.
 
+To restart a job, take a note of the job execution id at the beginning of the
+failed job:
+
+    org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
+
+Then run:
+
+    ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/<type>.params -r -j <execution id>
+
 Logging can be customized by creating a `logback.groovy` file in the working
 directory. You can copy the original `logback.groovy` and remove the part before
 the comment `CUT HERE`:
