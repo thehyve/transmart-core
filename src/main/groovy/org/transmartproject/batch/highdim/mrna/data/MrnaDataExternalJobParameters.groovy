@@ -30,8 +30,9 @@ class MrnaDataExternalJobParameters extends ExternalJobParameters {
     void validate() throws InvalidParametersFileException {
         super.validate()
 
-        mandatory LOG_BASE
-        if (!this[LOG_BASE].isLong() || this[LOG_BASE] as Long != 2) {
+        if (this[LOG_BASE] == null) {
+            this[LOG_BASE] = 2
+        } else if (!this[LOG_BASE].isLong() || this[LOG_BASE] as Long != 2) {
             throw new InvalidParametersFileException("$LOG_BASE must be 2")
         }
 
