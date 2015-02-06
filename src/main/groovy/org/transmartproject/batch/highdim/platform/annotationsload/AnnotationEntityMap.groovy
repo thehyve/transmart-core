@@ -18,7 +18,7 @@ class AnnotationEntityMap {
         map[logicalName]
     }
 
-    Set<String> getProbeSet() {
+    SortedSet<String> getAnnotationNames() {
         map.keySet()
     }
 }

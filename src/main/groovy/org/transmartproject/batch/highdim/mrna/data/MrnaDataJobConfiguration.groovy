@@ -48,7 +48,7 @@ import org.transmartproject.batch.highdim.mrna.data.pass.MrnaDataRowSplitterRead
 import org.transmartproject.batch.highdim.mrna.data.pass.MrnaDataWriter
 import org.transmartproject.batch.highdim.mrna.data.pass.MrnaStatisticsWriter
 import org.transmartproject.batch.highdim.mrna.data.validation.DataFileHeaderValidator
-import org.transmartproject.batch.highdim.mrna.data.validation.VisitedProbesValidatorProcessor
+import org.transmartproject.batch.highdim.mrna.data.validation.VisitedProbesValidatingReader
 import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
 import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
@@ -244,13 +244,11 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Step firstPass(VisitedProbesValidatorProcessor visitedProbesValidatorProcessor,
-                   MrnaStatisticsWriter mrnaStatisticsWriter,
+    Step firstPass(MrnaStatisticsWriter mrnaStatisticsWriter,
                    MeanAndVariancePromoter meanAndVariancePromoter) {
         TaskletStep step = steps.get('firstPass')
                 .chunk(DATA_FILE_PASS_CHUNK_SIZE)
                 .reader(firstPassDataRowSplitterReader())
-                .processor(visitedProbesValidatorProcessor)
                 .writer(mrnaStatisticsWriter)
                 .listener(new LogCountsStepListener())
                 .listener(progressWriteListener())
@@ -258,7 +256,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
                 .build()
 
         step.streams = [firstPassTsvFileReader(null),
-                        visitedProbesValidatorProcessor]
+                        visitedProbesValidatingReader()]
 
         step
     }
@@ -275,8 +273,14 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @StepScope
+    VisitedProbesValidatingReader visitedProbesValidatingReader() {
+        new VisitedProbesValidatingReader(delegate: firstPassTsvFileReader(null))
+    }
+
+    @Bean
+    @StepScope
     MrnaDataRowSplitterReader firstPassDataRowSplitterReader() {
-        new MrnaDataRowSplitterReader(delegate: firstPassTsvFileReader(null))
+        new MrnaDataRowSplitterReader(delegate: visitedProbesValidatingReader())
     }
 
     @Bean
