@@ -32,7 +32,7 @@ import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.containsInAnyOrder
+import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
 
 class HighDimResourceTests extends ResourceTestCase {
@@ -44,6 +44,12 @@ class HighDimResourceTests extends ResourceTestCase {
     def expectedAcghRowLabels = ['region 1:33-9999', 'region 2:66-99']
 
     def mrnaSupportedProjections = ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
+    def mrnaSupportedAssayConstraints = ['patient_set', 'disjunction',
+                                         'assay_id_list', 'ontology_term',
+                                         'trial_name',]
+    def mrnaSupportedDataConstraints = ['gene_lists', 'search_keyword_ids',
+                                        'gene_signatures', 'genes',
+                                        'disjunction', 'pathways', 'proteins',]
 
     Map<String,String> indexUrlMap = [
             mrna: "/studies/study_id_1/concepts/bar/highdim",
@@ -85,7 +91,9 @@ class HighDimResourceTests extends ResourceTestCase {
         [
                 assayCount: 2,
                 name: 'mrna',
-                supportedProjections: mrnaSupportedProjections,
+                supportedProjections: hasItems(*mrnaSupportedProjections),
+                supportedAssayConstraints: hasItems(*mrnaSupportedAssayConstraints),
+                supportedDataConstraints: hasItems(*mrnaSupportedDataConstraints),
                 genomeBuildId: 'hg19'
         ]
     }

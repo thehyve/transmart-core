@@ -27,8 +27,10 @@ package org.transmartproject.rest.marshallers
 
 class HighDimSummary {
     OntologyTermWrapper conceptWrapper
-    String name
+    String name // data type name
     int assayCount
     Set<String> supportedProjections
+    Set<String> supportedAssayConstraints
+    Set<String> supportedDataConstraints
     String genomeBuildId
 }

@@ -88,12 +88,16 @@ class HighDimController {
                 highDimDataService.getAvailableHighDimResources(concept.key)
 
         resourceMap.collect {
+            HighDimensionDataTypeResource hdr, Collection<Assay> assays ->
             new HighDimSummary(
                     conceptWrapper: new OntologyTermWrapper(concept),
-                    name: it.key.dataTypeName,
-                    assayCount: it.value.size(),
-                    supportedProjections: it.key.supportedProjections,
-                    genomeBuildId: it.value[0].platform.genomeReleaseId
+                    name: hdr.dataTypeName,
+                    assayCount: assays.size(),
+                    supportedProjections: hdr.supportedProjections,
+                    supportedAssayConstraints: hdr.supportedAssayConstraints,
+                    supportedDataConstraints: hdr.supportedDataConstraints,
+                    // should be the same for all:
+                    genomeBuildId: assays.first().platform.genomeReleaseId
             )
         }
     }
