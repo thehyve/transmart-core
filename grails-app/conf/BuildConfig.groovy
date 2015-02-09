@@ -111,7 +111,7 @@ grails.project.dependency.resolution = {
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
         runtime ':hibernate:3.6.10.16'
 
-        test ':functional-test:2.0.RC1'
+        test ':functional-test:2.0.0'
 
         if (!dm) {
             runtime ':transmart-core:1.2.2-SNAPSHOT'
