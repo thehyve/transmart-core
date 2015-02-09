@@ -34,7 +34,7 @@ CREATE FUNCTION tf_trg_fm_folder_id() RETURNS trigger
 			select '\' || fm_folder_uid(NEW.folder_id) || '\' into NEW.FOLDER_FULL_NAME ;
 		else
 			select folder_full_name || fm_folder_uid(NEW.folder_id) || '\' into NEW.FOLDER_FULL_NAME 
-      from fm_folder
+      from fmapp.fm_folder
       where folder_id = NEW.parent_id;
 		end if;
       end if;
@@ -57,7 +57,7 @@ DECLARE
   rec_count bigint;
 BEGIN
   SELECT COUNT(*) INTO rec_count 
-  FROM fm_data_uid 
+  FROM fmapp.fm_data_uid 
   WHERE fm_data_id = new.folder_id;
   
   if rec_count = 0 then
