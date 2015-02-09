@@ -41,7 +41,7 @@ DECLARE
   rec_count bigint;
 BEGIN
   SELECT COUNT(*) INTO rec_count 
-  FROM am_data_uid 
+  FROM amapp.am_data_uid 
   WHERE am_data_id = new.tag_value_id;
   
   if rec_count = 0 then
