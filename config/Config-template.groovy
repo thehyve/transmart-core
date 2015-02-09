@@ -359,14 +359,6 @@ grails { plugin { springsecurity {
     // Number of bcrypt rounds
     password.bcrypt.logrounds = 14
 
-    /* {{{ Spring security – error messages */
-    errors.login.expired         = 'Your account has expired'
-    errors.login.passwordExpired = 'Your password has expired'
-    errors.login.disabled        = 'Your login has been disabled'
-    errors.login.locked          = 'Your account has been locked'
-    errors.login.fail            = 'Login has failed; check the provided credentials'
-    /* }}} */
-
     providerNames = [
         'daoAuthenticationProvider',
         'anonymousAuthenticationProvider',
