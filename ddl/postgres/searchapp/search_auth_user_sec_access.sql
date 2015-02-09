@@ -55,7 +55,7 @@ ALTER TABLE ONLY search_auth_user_sec_access
 -- Name: seq_search_data_id; Type: SEQUENCE; Schema: searchapp; Owner: -
 --
 CREATE SEQUENCE seq_search_data_id
-    START WITH 3133448
+    START WITH 3195327
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
