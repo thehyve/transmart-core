@@ -400,61 +400,65 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
         }
 
         if (this.validateInputs()) {
-            console.log('LOG: submit survival analysis acgh job');
+            var regionEl =  this.inputBar.regionPanel.getInputEl();
+            var errorMessage = "One or more of the high dimensional data nodes are not acgh data; select a copy number regions file for this analysis";
+            this.validateDataTypes(regionEl, ["acgh"], errorMessage, function() {
+                console.log('LOG: submit survival analysis acgh job');
 
-            // get concept codes
-            var variablesConceptCode = '';
-            var regionVarConceptCode = this.inputBar.regionPanel.getConceptCode();
-            var survivalVarConceptCode = this.inputBar.survivalPanel.getConceptCode();
-            var censoringVarConceptCode = this.inputBar.censoringPanel.getConceptCodes();
-            var permutationComponent = Ext.get('permutation');
-            var permutation = permutationComponent.getValue();
+                // get concept codes
+                var variablesConceptCode = '';
+                var regionVarConceptCode = _this.inputBar.regionPanel.getConceptCode();
+                var survivalVarConceptCode = _this.inputBar.survivalPanel.getConceptCode();
+                var censoringVarConceptCode = _this.inputBar.censoringPanel.getConceptCodes();
+                var permutationComponent = Ext.get('permutation');
+                var permutation = permutationComponent.getValue();
 
-            // get alteration value
-            var alterationBtnGroup = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-            var alterationVal =  alterationBtnGroup.getSelectedValue();
+                // get alteration value
+                var alterationBtnGroup = _this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+                var alterationVal = alterationBtnGroup.getSelectedValue();
 
-            // create a string of all the concepts we need for the i2b2 data.
-            variablesConceptCode = regionVarConceptCode;
-            variablesConceptCode += survivalVarConceptCode != '' ? "|" + survivalVarConceptCode : "";
-            variablesConceptCode += censoringVarConceptCode != '' ? "|" + censoringVarConceptCode : "";
+                // create a string of all the concepts we need for the i2b2 data.
+                variablesConceptCode = regionVarConceptCode;
+                variablesConceptCode += survivalVarConceptCode != '' ? "|" + survivalVarConceptCode : "";
+                variablesConceptCode += censoringVarConceptCode != '' ? "|" + censoringVarConceptCode : "";
 
-            // compose params
-            var formParams = {
-                regionVariable : regionVarConceptCode,
-                timeVariable : survivalVarConceptCode,
-                censoringVariable : censoringVarConceptCode,
-                variablesConceptPaths: variablesConceptCode,
-                aberrationType:alterationVal,
-                numberOfPermutations: permutation,
-                confidenceIntervals:'',
-                jobType: SA_JOB_TYPE,
-                analysisConstraints: JSON.stringify({
-                    "job_type": SA_JOB_TYPE,
-                    "data_type": "acgh",
-                    "assayConstraints": {
-                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-                        "assay_id_list": null,
-                        "ontology_term": [
-                            {
-                                'term': regionVarConceptCode,
-                                'options': {'type': "default"}
-                            }
-                        ],
-                        "trial_name": null
-                    },
-                    "dataConstraints": {
-                        "disjunction": null
-                    },
-                    "projections": ["acgh_values"]
-                })
-            };
+                // compose params
+                var formParams = {
+                    regionVariable: regionVarConceptCode,
+                    timeVariable: survivalVarConceptCode,
+                    censoringVariable: censoringVarConceptCode,
+                    variablesConceptPaths: variablesConceptCode,
+                    aberrationType: alterationVal,
+                    numberOfPermutations: permutation,
+                    confidenceIntervals: '',
+                    jobType: SA_JOB_TYPE,
+                    analysisConstraints: JSON.stringify({
+                        "job_type": SA_JOB_TYPE,
+                        "data_type": "acgh",
+                        "assayConstraints": {
+                            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                            "assay_id_list": null,
+                            "ontology_term": [
+                                {
+                                    'term': regionVarConceptCode,
+                                    'options': {'type': "default"}
+                                }
+                            ],
+                            "trial_name": null
+                        },
+                        "dataConstraints": {
+                            "disjunction": null
+                        },
+                        "projections": ["acgh_values"]
+                    })
+                };
 
-            // reset previous analysis result
-            this.resetResult();
+                // reset previous analysis result
+                _this.resetResult();
 
-            // submit job
-            var job = this.submitJob(formParams, this.renderResults, this);
+                // submit job
+                var job = _this.submitJob(formParams, _this.renderResults, _this);
+            });
 
         }
     },
