@@ -370,7 +370,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
         if (this.inputBar.groupPanel.getNumberOfConceptCodes() < 2) {
             Ext.MessageBox.show({
                 title: 'Incorrect number of groups',
-                msg: '[Group] input field should contain than one variables. Please add more variable.',
+                msg: '[Group] input field should contain more than one value. Please add more values.',
                 buttons: Ext.MessageBox.OK,
                 icon: Ext.MessageBox.ERROR
             });
@@ -575,53 +575,57 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
         }
 
         if (this.validateInputs()) {
+            var regionEl =  this.inputBar.regionPanel.getInputEl();
+            var errorMessage = "One or more of the high dimensional data nodes are not acgh data; select a copy number regions file for this analysis";
+            this.validateDataTypes(regionEl, ["acgh"], errorMessage, function() {
 
-            var regionVal = this.inputBar.regionPanel.getConceptCode();
-            var groupVals = this.inputBar.groupPanel.getConceptCodes();
-            var statTestComponent = this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
-            var statTestVal = statTestComponent.getSelectedValue();
-            var alternationComponent = this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
-            var alternationVal = alternationComponent.getSelectedValue();
-            var permutationComponent = Ext.get('permutation');
-            var permutation = permutationComponent.getValue();
+                var regionVal = _this.inputBar.regionPanel.getConceptCode();
+                var groupVals = _this.inputBar.groupPanel.getConceptCodes();
+                var statTestComponent = _this.inputBar.statTestPanel.getComponent('stat-test-chk-group');
+                var statTestVal = statTestComponent.getSelectedValue();
+                var alternationComponent = _this.inputBar.alterationPanel.getComponent('alteration-types-chk-group');
+                var alternationVal = alternationComponent.getSelectedValue();
+                var permutationComponent = Ext.get('permutation');
+                var permutation = permutationComponent.getValue();
 
-            this.alteration = this.translateAlteration(alternationVal);
+                _this.alteration = _this.translateAlteration(alternationVal);
 
-            // create a string of all the concepts we need for the i2b2 data.
-            var variablesConceptCode = regionVal;
-            variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
+                // create a string of all the concepts we need for the i2b2 data.
+                var variablesConceptCode = regionVal;
+                variablesConceptCode += groupVals != '' ? "|" + groupVals : "";
 
-            // compose params
-            var formParams = {
-                regionVariable: regionVal,
-                groupVariable: groupVals,
-                statisticsType: statTestVal,
-                aberrationType: alternationVal,
-                numberOfPermutations: permutation,
-                variablesConceptPaths: variablesConceptCode,
-                analysisConstraints: JSON.stringify({
-                    "job_type": _this.jobType,
-                    "data_type": "acgh",
-                    "assayConstraints": {
-                        "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
-                        "assay_id_list": null,
-                        "ontology_term": [
-                            {
-                                'term': regionVal,
-                                'options': {'type': "default"}
-                            }
-                        ],
-                        "trial_name": null
-                    },
-                    "dataConstraints": {
-                        "disjunction": null
-                    },
-                    "projections": ["acgh_values"]
-                }),
-                jobType: _this.jobType
-            };
+                // compose params
+                var formParams = {
+                    regionVariable: regionVal,
+                    groupVariable: groupVals,
+                    statisticsType: statTestVal,
+                    aberrationType: alternationVal,
+                    numberOfPermutations: permutation,
+                    variablesConceptPaths: variablesConceptCode,
+                    analysisConstraints: JSON.stringify({
+                        "job_type": _this.jobType,
+                        "data_type": "acgh",
+                        "assayConstraints": {
+                            "patient_set": [GLOBAL.CurrentSubsetIDs[1], GLOBAL.CurrentSubsetIDs[2]],
+                            "assay_id_list": null,
+                            "ontology_term": [
+                                {
+                                    'term': regionVal,
+                                    'options': {'type': "default"}
+                                }
+                            ],
+                            "trial_name": null
+                        },
+                        "dataConstraints": {
+                            "disjunction": null
+                        },
+                        "projections": ["acgh_values"]
+                    }),
+                    jobType: _this.jobType
+                };
 
-            var job = this.submitJob(formParams, this.onJobFinish, this);
+                var job = _this.submitJob(formParams, _this.onJobFinish, _this);
+            });
         }
 
     }
