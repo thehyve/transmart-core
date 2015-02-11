@@ -26,22 +26,21 @@
 package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
-import grails.rest.render.AbstractIncludeExcludeRenderer
-import grails.rest.render.AbstractRenderer
-import grails.rest.render.ContainerRenderer
-import grails.rest.render.RenderContext
-import grails.rest.render.RendererRegistry
-import grails.util.GrailsWebUtil
+import grails.rest.render.*
 import org.codehaus.groovy.grails.web.mime.MimeType
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.validation.Errors
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
+import java.util.regex.Pattern
+
 class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements InitializingBean {
 
-    String encoding = GrailsWebUtil.DEFAULT_ENCODING
+    private static final Pattern CHARSET_IN_CONTENT_TYPE_REGEXP =
+            Pattern.compile(';\\s*charset\\s*=', Pattern.CASE_INSENSITIVE)
+
+    String encoding = 'UTF-8'
 
     HalOrJsonRenderer(Class<T> clazz) {
         super(clazz, [MimeType.HAL_JSON, MimeType.JSON] as MimeType[])
@@ -50,7 +49,8 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     @Autowired
     RendererRegistry rendererRegistry
 
-    static class HalOrJsonCollectionRenderer<T> extends AbstractRenderer<Collection> implements ContainerRenderer<Collection, T> {
+    static class HalOrJsonCollectionRenderer<T> extends AbstractRenderer<Collection>
+            implements ContainerRenderer<Collection, T> {
 
         final Class<T> componentType
 
@@ -90,13 +90,22 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     void render(T object, RenderContext context) {
         def mimeType = getAcceptMimeType(context)
 
-        def contentType = GrailsWebUtil.getContentType mimeType.name, encoding
+        def contentType = getContentType mimeType.name
         context.contentType = contentType
 
         if (!(object instanceof Errors)) {
             renderJson(object, context, contentType)
         } else {
             throw new InvalidArgumentsException("Errors: $object")
+        }
+    }
+
+    private String getContentType(String name) {
+        if (name.indexOf(';') > -1 &&
+                CHARSET_IN_CONTENT_TYPE_REGEXP.matcher(name).find()) {
+            name
+        } else {
+            "$name;charset=${this.encoding}"
         }
     }
 
