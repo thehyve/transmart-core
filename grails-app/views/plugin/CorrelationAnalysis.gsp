@@ -23,11 +23,6 @@
             </div>
 
             <fieldset class="binningDiv">
-                <label for="correlationBy">Run Correlation</label>
-                <select id = "correlationBy">
-                    <option value="variable">By variable</option>
-                </select>
-
                 <label for="correlationType">Correlation Type</label>
                 <select id = "correlationType">
                     <option value="spearman">Spearman</option>
