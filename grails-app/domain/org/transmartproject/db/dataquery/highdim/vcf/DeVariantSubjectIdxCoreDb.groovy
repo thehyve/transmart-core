@@ -19,6 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class DeVariantSubjectIdxCoreDb implements Serializable {
     DeVariantDatasetCoreDb dataset
     String subjectId
