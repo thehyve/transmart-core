@@ -129,7 +129,9 @@ class HighDimDataServiceTests {
         boolean multiValued = proj instanceof MultiValueProjection
 
         //asserting header ColumnSpecs
-        Map<String,Class> dataProperties = HighDimBuilder.getDataProperties(proj)
+        Map<String,Class> dataProperties = proj instanceof  MultiValueProjection ?
+                proj.dataProperties :
+                [value: Double] // ASSUMPTION. Holds for the types currently tested
         assertThat input.header.columnSpecList, columnSpecMatcher(dataProperties)
 
         //asserting row data

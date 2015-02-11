@@ -25,6 +25,11 @@
 
 package org.transmartproject.rest.protobuf
 
+import com.google.common.base.Function
+import com.google.common.collect.ImmutableSortedMap
+import com.google.common.collect.Iterators
+import com.google.common.collect.Maps
+import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -32,12 +37,13 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.rest.protobuf.HighDimProtos.Assay
-import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType
-import org.transmartproject.rest.protobuf.HighDimProtos.Row
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue
+import org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeader
+import org.transmartproject.rest.protobuf.HighDimProtos.Row
 
 /**
  * Helper class to build HighDimTable for highdim results
@@ -46,42 +52,88 @@ import org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue
 @CompileStatic
 class HighDimBuilder {
 
-    /**
-     * The projection used (mandatory)
-     */
-    Projection projection
+    private Projection projection
 
-    List<AssayColumn> assayColumns
+    private TabularResult<AssayColumn, ?> tabularResult
 
-    OutputStream out
-
-    @Lazy private Map<String, ? extends Class> dataColumns = { getDataProperties(projection) }()
+    private PeekingIterator<DataRow<AssayColumn, ?>> rowsIterator
 
     private Row.Builder rowBuilder = Row.newBuilder()
-    private ColumnValue.Builder columnBuilder = ColumnValue.newBuilder()
+
+    @Lazy boolean multiValuedProjection = projection instanceof MultiValueProjection
+
+    // class is either Double or String
+    @Lazy private SortedMap<String, ? extends Class> dataColumns = getDataProperties(projection)
+
+    // closures that take a data row and return a column builder
+    // each closure is associated with a column
+    // the order is that of the columns as given in the sorted map dataColumns
+    @Lazy private List<Closure> columnValueBuilderCreators = {
+        dataColumns.collect { String dataProperty, Class clazz ->
+            // the builder will be reused across rows
+            def builder = ColumnValue.newBuilder()
+            if (clazz == Double) {
+                this.&columnValueBuilderSetupForDouble.curry(builder,
+                        multiValuedProjection ? dataProperty : null)
+            } else {
+                this.&columnValueBuilderSetupForString.curry(builder,
+                        multiValuedProjection ? dataProperty : null)
+            }
+        }
+    }()
+
+    HighDimBuilder(Projection projection,
+                   TabularResult<AssayColumn, ?> tabularResult) {
+        this.projection = projection
+        this.tabularResult = tabularResult
+        this.rowsIterator = Iterators.peekingIterator(tabularResult.getRows()) as PeekingIterator
+
+        if (!this.rowsIterator.hasNext()) {
+            throw new EmptySetException('No data')
+        }
+    }
+
+    private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForDouble(
+            HighDimProtos.ColumnValue.Builder builder, String dataProperty, DataRow<AssayColumn, ?> row) {
+        builder.clear()
+        builder.addAllDoubleValue tabularResult.indicesList.collect { AssayColumn col ->
+            def cell = row.getAt col
+            if (dataProperty) { // multi value projection
+                cell = cell?.getAt(dataProperty)
+            }
+            safeDouble cell
+        }
+        builder
+    }
+
+    private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForString(
+            HighDimProtos.ColumnValue.Builder builder, String dataProperty, DataRow<AssayColumn, ?> row) {
+        builder.clear()
+        builder.addAllStringValue tabularResult.indicesList.collect { AssayColumn col ->
+            def cell = row.getAt col
+            if (dataProperty) { // multi value projection
+                cell = cell?.getAt(dataProperty)
+            }
+            safeString cell
+        }
+        builder
+    }
 
     static void write(Projection projection,
-                                 TabularResult<AssayColumn, DataRow<AssayColumn,? extends Object>> tabularResult,
-                                 OutputStream out) {
+                      TabularResult<AssayColumn, DataRow<AssayColumn,? extends Object>> tabularResult,
+                      OutputStream out) {
+        def highDimBuilder = new HighDimBuilder(projection, tabularResult)
+        highDimBuilder.writeHeader out
+        highDimBuilder.writeRows out
+    }
 
-        Iterator<DataRow<AssayColumn,?>> rows = tabularResult.getRows()
-        if (!rows.hasNext()) {
-            throw new IllegalArgumentException("No results") //TODO: improve this
-        }
+    void writeHeader(OutputStream out) {
+        createHeader().writeDelimitedTo(out)
+    }
 
-        List<AssayColumn> cols = tabularResult.indicesList
-
-        HighDimBuilder builder = new HighDimBuilder(
-                projection: projection,
-                assayColumns: cols,
-                out: out,
-        )
-
-        builder.createHeader().writeDelimitedTo(out)
-
-        // Normal groovy iterator syntax doesn't seem to work in this case with CompileStatic
-        while(rows.hasNext()) {
-            builder.createRow(rows.next()).writeDelimitedTo(out)
+    void writeRows(OutputStream out) {
+        while (rowsIterator.hasNext()) {
+            createRow(rowsIterator.next()).writeDelimitedTo(out)
         }
     }
 
@@ -97,9 +149,8 @@ class HighDimBuilder {
         })
 
         Assay.Builder assayBuilder = Assay.newBuilder()
-        headerBuilder.addAllAssay( assayColumns.collect { AssayColumn col ->
-            createAssay(assayBuilder, col)
-        })
+        headerBuilder.addAllAssay(tabularResult.indicesList
+                .collect { AssayColumn col -> createAssay(assayBuilder, col) })
 
         headerBuilder.build()
     }
@@ -108,62 +159,35 @@ class HighDimBuilder {
         Number.isAssignableFrom(clazz) ? ColumnType.DOUBLE : ColumnType.STRING
     }
 
-    public static Map<String, Class> getDataProperties(Projection projection) {
+    private SortedMap<String, Class> getDataProperties(Projection projection) {
         if (projection instanceof MultiValueProjection) {
             MultiValueProjection mvp = projection as MultiValueProjection
-            return mvp.dataProperties
+            Map<String, Class> dataProperties = Maps.transformValues(
+                    mvp.dataProperties,
+                    HighDimBuilder.&decideColumnValueType as Function)
+            ImmutableSortedMap.copyOf dataProperties
         } else {
-            return [('value'): Double]
+            // find the type of the first non-value of the first row
+            ImmutableSortedMap.of 'value',
+                    decideColumnValueType(
+                            rowsIterator.peek().find().getClass())
         }
     }
 
-    private Row createRow(DataRow<AssayColumn, Object> inputRow) {
+    private static Class decideColumnValueType(Class originalClass) {
+        Number.isAssignableFrom(originalClass) ? Double : String
+    }
+
+    private Row createRow(DataRow<AssayColumn, ?> inputRow) {
         rowBuilder.clear()
-        rowBuilder.setLabel(inputRow.label)
+        rowBuilder.label = inputRow.label
         if (inputRow instanceof BioMarkerDataRow) {
-            rowBuilder.setBioMarker(safeString(((BioMarkerDataRow) inputRow).bioMarker))
+            rowBuilder.bioMarker = safeString(((BioMarkerDataRow) inputRow).bioMarker)
         }
 
-        if (isMultiValuedProjection()) {
-            Map<String, ColumnValue.Builder> cols = dataColumns.collectEntries { col, type ->
-                [(col): ColumnValue.newBuilder()]
-            } as Map<String, ColumnValue.Builder>
-
-            // transpose the data row
-            for (AssayColumn a : assayColumns) {
-                def obj = inputRow.getAt(a) //can be a map or some bean
-
-                dataColumns.each { String col, Class type ->
-                    def value = obj?.getAt(col)
-                    if (typeForClass(type) == ColumnType.DOUBLE) {
-                        cols[col].addDoubleValue(safeDouble(value))
-                    } else {
-                        cols[col].addStringValue(safeString(value))
-                    }
-                }
-            }
-
-            dataColumns.each { String col, Class type ->
-                rowBuilder.addValue(cols[col])
-            }
-        } else {
-            // Single column projection
-            columnBuilder.clear()
-            Class firstNotNullValueClass =
-                    assayColumns.findResult(String) { AssayColumn col -> inputRow.getAt(col)?.class }
-
-            if (typeForClass(firstNotNullValueClass) == ColumnType.DOUBLE) {
-                columnBuilder.addAllDoubleValue(
-                        assayColumns.collect { AssayColumn col ->
-                            safeDouble(inputRow.getAt(col))
-                        })
-            } else {
-                columnBuilder.addAllStringValue(
-                        assayColumns.collect { AssayColumn col ->
-                            safeString(inputRow.getAt(col))
-                        })
-            }
-            rowBuilder.addValue(columnBuilder)
+        columnValueBuilderCreators.each {
+                Closure<HighDimProtos.ColumnValue.Builder> builderClosure ->
+            rowBuilder.addValue builderClosure.call(inputRow)
         }
 
         rowBuilder.build()
@@ -193,16 +217,11 @@ class HighDimBuilder {
         builder.build()
     }
 
-    private boolean isMultiValuedProjection() {
-        projection instanceof MultiValueProjection
-    }
-
-    static String safeString(Object obj) {
+    private static String safeString(Object obj) {
         obj == null ? '' : obj.toString()
     }
 
-    static Double safeDouble(Object obj) {
+    private static Double safeDouble(Object obj) {
         obj == null ? Double.NaN : obj as Double
     }
-
 }

@@ -25,8 +25,9 @@
 
 package org.transmartproject.rest.protobug
 
-import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
@@ -46,19 +47,22 @@ class HighDimBuilderTests {
             [id: 2, patientInTrialId: 'TRIAL2', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
     ]
 
-    @Before
-    void before() {
+    private createBuilder(DataRow row, Projection projection = null)  {
         builder = new HighDimBuilder(
-                projection: [] as Projection,
-                assayColumns: testAssays,
-                out: new ByteArrayOutputStream()
-        )
+                projection ?: ([] as Projection),
+                [
+                        getIndicesList: { -> testAssays },
+                        getRows: {
+                            [row].iterator()
+                        }
+                ] as TabularResult)
     }
 
     @Test
     void "test single field projection. Double"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1d, 2d])
-        Row row = builder.createRow(inputDataRow)
+        createBuilder inputDataRow
+        Row row = builder.createRow inputDataRow
 
         assertThat row, allOf(
                 hasProperty('label', is('test label')),
@@ -72,6 +76,7 @@ class HighDimBuilderTests {
     @Test
     void "test single field projection. Any number"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1, 2l])
+        createBuilder inputDataRow
         Row row = builder.createRow(inputDataRow)
 
         assertThat row, allOf(
@@ -86,6 +91,7 @@ class HighDimBuilderTests {
     @Test
     void "test single field projection. String"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: ['A', 'B'])
+        createBuilder inputDataRow
         Row row = builder.createRow(inputDataRow)
 
         assertThat row, allOf(
@@ -99,9 +105,9 @@ class HighDimBuilderTests {
 
     @Test
     void "test multiple field projection."() {
-        builder.projection = new TestProjection(dataProperties: [a: Integer, b: String])
-
+        def projection = new TestProjection(dataProperties: [a: Integer, b: String])
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [[a: 1, b: 'text1'], [a: 2, b: 'text2']])
+        createBuilder inputDataRow, projection
         Row row = builder.createRow(inputDataRow)
 
         assertThat row, allOf(
