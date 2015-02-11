@@ -33,6 +33,7 @@ import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
 import org.transmartproject.rest.marshallers.HighDimSummarySerializationHelper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
+import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 import javax.annotation.Resource
@@ -59,12 +60,14 @@ class HighDimController {
 
     private void exportData(String dataType, String projection) {
         String conceptKey = getConceptKey(params.conceptId)
-        OutputStream out = response.outputStream
-        response.contentType =  'application/octet-stream'
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/octet-stream'
+                    response.outputStream
+                })
 
         try {
             highDimDataService.write(conceptKey, dataType, projection, out)
-            out.flush()
         } finally {
             out.close()
         }
