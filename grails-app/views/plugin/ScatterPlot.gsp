@@ -70,7 +70,8 @@
 
         <fieldset class="toolFields">
             <div>
-                <g:checkBox name="divIndependentVariableLog10"/> Perform log<sub>10</sub> transformation on independent variable
+                <g:checkBox name="divIndependentVariableLog10"/> Perform log<sub>10</sub> transformation on independent variable.
+                (Do not apply to high dimensional data. Negative values will be ignored.)
             </div>
             <input type="button" value="Run" onClick="scatterPlotView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>

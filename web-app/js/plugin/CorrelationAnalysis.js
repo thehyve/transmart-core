@@ -26,7 +26,7 @@ CorrelationAnalysisView.prototype.submit_job = function (form) {
     var formParams = {
         jobType:'correlationAnalysis',
         variablesConceptPaths:variablesConceptCode,
-        correlationBy:form.correlationBy.value,
+        correlationBy:"variable",
         correlationType:form.correlationType.value
     };
 
