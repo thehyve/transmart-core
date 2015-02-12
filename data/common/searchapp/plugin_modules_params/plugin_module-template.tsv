@@ -16,5 +16,5 @@
 66	1	"Group Test for aCGH"	#placeholder#	.1	Y	N		GroupTestaCGH	groupTestaCGH	DEFAULT
 67	1	"Group Test for RNASeq"	#placeholder#	.1	Y	N		GroupTestRNASeq	groupTestRNASeq	DEFAULT
 68	1	"Frequency Plot for aCGH"	#placeholder#	.1	Y	N		AcghFrequencyPlot	acghFrequencyPlot	DEFAULT
-70	1	"Forest Plot"	#placeholder#	.1	Y	N	null	ForestPlot	forestPlot	DEFAULT
+70	1	"Forest Plot"	#placeholder#	.1	N	N	null	ForestPlot	forestPlot	DEFAULT
 110	1	Geneprint	{}	.1	Y	N		Geneprint	geneprint	DEFAULT
