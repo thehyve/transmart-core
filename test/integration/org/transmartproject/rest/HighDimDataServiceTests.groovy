@@ -220,7 +220,7 @@ class HighDimDataServiceTests {
 
     HighDimResult getProtoBufResult(String dataType, String projection) {
         ByteArrayOutputStream out = new ByteArrayOutputStream()
-        svc.write(concept.key, dataType, projection, out)
+        svc.write(concept.key, dataType, projection, null, null, out)
         byte[] contents = out.toByteArray()
         out.close()
 

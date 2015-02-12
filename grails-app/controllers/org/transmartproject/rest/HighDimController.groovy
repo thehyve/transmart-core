@@ -25,9 +25,14 @@
 
 package org.transmartproject.rest
 
+import grails.converters.JSON
 import grails.rest.Link
+import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
+import org.codehaus.groovy.grails.web.json.JSONElement
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
@@ -49,16 +54,27 @@ class HighDimController {
     @Resource
     StudyLoadingService studyLoadingServiceProxy
 
-    def show(String dataType, String projection) {
-
-        if (dataType == null) {
-            index()
-        } else {
-            exportData(dataType, projection)
+    def index() {
+        if (params.dataType) {
+            // backwards compatibility
+            // preferred to use /highdim/<data type> for download
+            download params.dataType
+            return
         }
+
+        String conceptKey = getConceptKey(params.conceptId)
+        OntologyTerm concept = conceptsResourceService.getByKey(conceptKey)
+        String conceptLink = studyLoadingServiceProxy.getOntologyTermUrl(concept)
+        String selfLink = HighDimSummarySerializationHelper.getHighDimIndexUrl(conceptLink)
+
+        respond wrapList(getHighDimSummaries(concept), selfLink)
     }
 
-    private void exportData(String dataType, String projection) {
+    def download(String dataType) {
+        assert dataType != null // ensured by mapping
+        def assayConstraintsSpec = processConstraintsJson params.assayConstraints
+        def dataConstraintsSpec = processConstraintsJson params.dataConstraints
+
         String conceptKey = getConceptKey(params.conceptId)
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
@@ -67,23 +83,53 @@ class HighDimController {
                 })
 
         try {
-            highDimDataService.write(conceptKey, dataType, projection, out)
+            highDimDataService.write(conceptKey, dataType, params.projection,
+                    assayConstraintsSpec, dataConstraintsSpec, out)
         } finally {
             out.close()
         }
     }
 
-    private String getConceptKey(String concept) {
-        OntologyTermCategory.keyFromURLPart(concept, studyLoadingServiceProxy.study)
+    private Map<String, List> processConstraintsJson(String paramValue) {
+        Map<String, List> retValue = [:]
+        if (paramValue) {
+            JSONElement constraintsElement
+            try {
+                constraintsElement = JSON.parse(paramValue)
+            } catch (ConverterException ce) {
+                throw new InvalidArgumentsException(
+                        "Failed parsing as JSON: $paramValue", ce)
+            } catch (StackOverflowError se) { // *sigh*
+                throw new InvalidArgumentsException(
+                        "Failed parsing as JSON: $paramValue", se)
+            }
+
+            if (!constraintsElement instanceof JSONObject) {
+                throw new InvalidArgumentsException(
+                        'Expected constraints to be JSON map')
+            }
+
+            // normalize [constraint_name: [ param1: foo ]] to
+            //           [constraint_name: [[ param1: foo ]]] to
+            retValue = ((JSONObject) constraintsElement)
+                    .collectEntries { String name, value ->
+                if (!(value instanceof Map || value instanceof List)) {
+                    throw new InvalidArgumentsException(
+                            "Invalid parameters for contraint $name: " +
+                                    "$value (should be a list or a map)")
+                } else if (value instanceof Map) {
+                    [name, [value]]
+                } else { // List
+                    [name, value] // entry unchanged
+                }
+            }
+        }
+
+        retValue
     }
 
-    private def index() {
-        String conceptKey = getConceptKey(params.conceptId)
-        OntologyTerm concept = conceptsResourceService.getByKey(conceptKey)
-        String conceptLink = studyLoadingServiceProxy.getOntologyTermUrl(concept)
-        String selfLink = HighDimSummarySerializationHelper.getHighDimIndexUrl(conceptLink)
-
-        respond wrapList(getHighDimSummaries(concept), selfLink)
+    private String getConceptKey(String concept) {
+        OntologyTermCategory.keyFromURLPart(concept, studyLoadingServiceProxy.study)
     }
 
     private List getHighDimSummaries(OntologyTerm concept) {

@@ -25,6 +25,8 @@
 
 class RestApiUrlMappings {
 
+    // grails url-mappings-report can come handy here...
+
     static mappings = {
         '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
 
@@ -37,8 +39,14 @@ class RestApiUrlMappings {
         )
 
         "/studies/$studyId/concepts/$id**"(
-                controller: 'concept', action: 'show'
-        )
+                controller: 'concept', action: 'show', method: 'GET'
+        ) {
+            constraints {
+                // this mapping has fewer wildcards than .../highdim/<type>
+                // so it will have precedence. Add constraint so it doesn't match
+                id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
+            }
+        }
 
         "/studies/$studyId/concepts/$conceptId**/subjects"(
                 controller: 'subject', action: 'indexByConcept'
@@ -49,7 +57,11 @@ class RestApiUrlMappings {
         )
 
         "/studies/$studyId/concepts/$conceptId**/highdim"(
-                controller: 'highDim', action: 'show'
+                controller: 'highDim', action: 'index', method: 'GET'
+        )
+
+       "/studies/$studyId/concepts/$conceptId**/highdim/$dataType"(
+                controller: 'highDim', action: 'download', method: 'GET'
         )
 
         '/studies'(resources: 'study', method: 'GET') {
