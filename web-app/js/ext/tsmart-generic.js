@@ -658,9 +658,10 @@ GenericAnalysisView = Ext.extend(Object, {
                 conceptKeys: _conceptPaths
             }),
             success: function (result) {
+                var details = JSON.parse(result.responseText);
+                var isDetailsEmpty = true;
 
                 // Check if node details platforms match a valid one
-                var details = JSON.parse(result.responseText);
                 for (var key in details) {
                     // yes, the keys are the data types
                     if (validDataTypes.indexOf(key) == -1) {
@@ -672,6 +673,18 @@ GenericAnalysisView = Ext.extend(Object, {
                         });
                         return;
                     }
+                    isDetailsEmpty = false;
+                }
+
+                // Check if details are not empty
+                if (isDetailsEmpty) {
+                    Ext.MessageBox.show({
+                        title: "Validation Error",
+                        msg: "No platform information could be found for the specified data node. Please make sure the platform information was loaded correctly.",
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.ERROR
+                    });
+                    return;
                 }
 
                 callback();
