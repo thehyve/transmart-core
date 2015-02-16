@@ -6,9 +6,6 @@
 
     <h2>
         Variable Selection
-        <a href='JavaScript:D2H_ShowHelp(1513,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
-            <img src="${resource(dir: 'images', file: 'help/helpicon_white.jpg')}" alt="Help"/>
-        </a>
     </h2>
 
     <form id="analysisForm">
