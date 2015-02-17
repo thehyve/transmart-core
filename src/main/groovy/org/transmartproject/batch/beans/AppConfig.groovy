@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.env.Environment
 import org.transmartproject.batch.db.PerDbTypeRunner
+import org.transmartproject.batch.support.ExpressionResolver
 
 import javax.sql.DataSource
 
@@ -42,6 +43,11 @@ class AppConfig {
             }
             it
         }
+    }
+
+    @Bean
+    ExpressionResolver expressionResolver() {
+        new ExpressionResolver()
     }
 
     @Bean

@@ -18,4 +18,8 @@ final class Sequences {
 
     public static final String ASSAY_ID = 'deapp.seq_assay_id'
     public static final String MRNA_PARTITION_ID = 'deapp.seq_mrna_partition_id'
+
+    public static final String METAB_SUB_PATHWAY_ID = 'deapp.metabolite_sub_pth_id'
+    public static final String METAB_SUPER_PATHWAY_ID = 'deapp.metabolite_sup_pth_id'
+    public static final String METAB_ANNOT_ID = 'deapp.metabolomics_annot_id'
 }

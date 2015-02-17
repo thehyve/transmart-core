@@ -48,6 +48,8 @@ import javax.sql.DataSource
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import static org.springframework.batch.item.file.transform.DelimitedLineTokenizer.DELIMITER_TAB
+
 /**
  * Base class for Spring context configuration classes for Jobs.
  * Each job type should have its own configuration, extended from this class.
@@ -199,7 +201,9 @@ abstract class AbstractJobConfiguration {
          * beanClass: JavaBean class
          *            (optional, o/wise use PassThroughFieldSetMapper)
          * columnNames: names of columns, required if mapping into bean
-         *              properties (List<String> or String[]))
+         *              properties (List<String> or String[])). Can be
+         *              'auto' to read names from header (linesToSkip
+         *              must be 1 then)
          * linesToSkip: <int> (default: 0)
          * saveHeader: true|false|LineCallbackHandler object (default: false)
          *
@@ -210,11 +214,6 @@ abstract class AbstractJobConfiguration {
                 options.saveHeader : false
         int linesToSkip = options.containsKey('linesToSkip') ?
                 (options.linesToSkip as int) : 0
-
-        if (linesToSkip == 0 && saveHeader) {
-            throw new IllegalArgumentException(
-                    'Cannot save header if there are no lines to skip')
-        }
 
         LineCallbackHandler lch = null
         if (saveHeader) {
@@ -232,12 +231,34 @@ abstract class AbstractJobConfiguration {
         } else {
             mapper = (FieldSetMapper<T>) new PassThroughFieldSetMapper()
         }
+
+        DelimitedLineTokenizer tokenizer =  new DelimitedLineTokenizer(
+                names: ((options.columnNames && options.columnNames != 'auto') ?
+                        options.columnNames : []) as String[],
+                delimiter: DELIMITER_TAB,
+        )
+
+        /* if columnNames is 'auto', read the first line to determine
+         * the identity of the columns */
+        if (options.columnNames == 'auto') {
+            def originalLch = lch
+            lch = { String line ->
+                if (originalLch) {
+                    originalLch.handleLine line
+                }
+                tokenizer.names = new DelimitedLineTokenizer(DELIMITER_TAB)
+                        .tokenize(line).values
+            }
+        }
+
+        if (linesToSkip == 0 && lch) {
+            throw new IllegalArgumentException(
+                    'Cannot look at header is there are no lines to skip')
+        }
+
         new FlatFileItemReader<T>(
                 lineMapper: new DefaultLineMapper<T>(
-                        lineTokenizer: new DelimitedLineTokenizer(
-                                names: (options.columnNames ?: []) as String[],
-                                delimiter: DelimitedLineTokenizer.DELIMITER_TAB,
-                        ),
+                        lineTokenizer: tokenizer,
                         fieldSetMapper: mapper,
                 ),
 

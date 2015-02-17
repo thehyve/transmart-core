@@ -3,6 +3,7 @@ package org.transmartproject.batch.support
 /**
  *
  */
+@Deprecated
 interface LineListener {
 
     void lineRead(String line)
