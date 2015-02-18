@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.mapping
+package org.transmartproject.batch.highdim.i2b2
 
 import com.google.common.collect.Sets
 import groovy.util.logging.Slf4j
@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct
 @Slf4j
 class ValidatePatientIntersectionTasklet implements Tasklet {
 
-    @Value('#{mrnaMappings.allSubjectCodes}')
+    @Value('#{assayMappingsRowStore.allSubjectCodes}')
     Set<String> mappingSubjectCodes
 
     @Autowired

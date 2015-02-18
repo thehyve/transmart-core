@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.mapping
+package org.transmartproject.batch.highdim.assays
 
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepExecution
@@ -12,16 +12,16 @@ import org.transmartproject.batch.concept.GatherCurrentConceptsTasklet
 import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
 
 /**
- * Reads the platform and concepts from {@link MrnaMappings} and concepts and
+ * Reads the platform and concepts from {@link MappingsFileRowStore} and concepts and
  * writes them in the execution context.
  * This is need for other beans that assume such keys to be there.
  */
 @Component
 @JobScope
-class MrnaMappingContextPromoterListener implements StepExecutionListener {
+class PlatformAndConceptsContextPromoterListener implements StepExecutionListener {
 
     @Autowired
-    MrnaMappings mrnaMappings
+    AssayMappingsRowStore assayMappingsRowStore
 
     @Value('#{jobExecution.executionContext}')
     ExecutionContext executionContext
@@ -32,8 +32,8 @@ class MrnaMappingContextPromoterListener implements StepExecutionListener {
     @Override
     ExitStatus afterStep(StepExecution stepExecution) {
         executionContext.putString(PlatformJobContextKeys.PLATFORM,
-                mrnaMappings.platform)
+                assayMappingsRowStore.platform)
         executionContext.put(GatherCurrentConceptsTasklet.LIST_OF_CONCEPTS_KEY,
-                mrnaMappings.allConceptPaths)
+                assayMappingsRowStore.allConceptPaths)
     }
 }

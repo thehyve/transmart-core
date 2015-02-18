@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.pass
+package org.transmartproject.batch.highdim.compute
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -6,16 +6,16 @@ import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemStreamSupport
 import org.springframework.batch.item.ItemStreamWriter
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.support.OnlineMeanAndVarianceCalculator
 
 /**
- * For the first pass, just uses the data to compute a global mean
- * and variance.
+ * For the first pass. Calculates the mean and variance of the log2 of the
+ * data point.
  */
 @Component
 @StepScope
 @Slf4j
-class MrnaStatisticsWriter extends ItemStreamSupport implements ItemStreamWriter<MrnaDataValue> {
+class DataPointLogStatisticsWriter extends ItemStreamSupport
+        implements ItemStreamWriter<DataPoint> {
 
     public final static String CALCULATOR_CTX_KEY = 'calculator'
 
@@ -25,7 +25,7 @@ class MrnaStatisticsWriter extends ItemStreamSupport implements ItemStreamWriter
     OnlineMeanAndVarianceCalculator meanAndVarianceCalculator
 
     @Override
-    void write(List<? extends MrnaDataValue> items) throws Exception {
+    void write(List<? extends DataPoint> items) throws Exception {
         items.each {
             if (it.value <= 0d) {
                 log.info("Ignored value $it for mean/variance calculation")

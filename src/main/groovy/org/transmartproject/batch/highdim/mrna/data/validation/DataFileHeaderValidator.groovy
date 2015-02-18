@@ -21,7 +21,7 @@ import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 @CompileStatic
 @Slf4j
 class DataFileHeaderValidator implements LineCallbackHandler {
-    @Value('#{mrnaMappings.allSampleCodes}')
+    @Value('#{assayMappingsRowStore.allSampleCodes}')
     private Set<String> mappingSampleCodes
 
     @Value('#{stepExecution}')

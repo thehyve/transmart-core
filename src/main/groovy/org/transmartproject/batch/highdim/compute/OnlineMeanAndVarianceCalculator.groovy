@@ -1,4 +1,4 @@
-package org.transmartproject.batch.support
+package org.transmartproject.batch.highdim.compute
 
 import com.google.common.base.MoreObjects
 import groovy.transform.AutoClone

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.dummyfacts
+package org.transmartproject.batch.highdim.i2b2
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.beans.factory.annotation.Autowired

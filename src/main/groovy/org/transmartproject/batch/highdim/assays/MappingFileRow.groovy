@@ -5,8 +5,9 @@ import org.springframework.context.i18n.LocaleContextHolder
 import org.transmartproject.batch.concept.ConceptFragment
 
 /**
- * A row in the mRNA data mapping file. Here because it can probably be generalized.
- * Columns: study_id, site_id, subject_id, sample_cd, platform, tissuetype, attr1, attr2, category_cd
+ * A row in a high dimensional data mapping file.
+ * Columns: study_id, site_id, subject_id, sample_cd, platform, tissuetype,
+ * attr1, attr2, category_cd
  */
 @ToString(includes = 'subjectId,sampleCd')
 class MappingFileRow {

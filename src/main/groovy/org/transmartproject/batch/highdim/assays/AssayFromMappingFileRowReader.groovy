@@ -1,34 +1,34 @@
-package org.transmartproject.batch.highdim.mrna.data.mapping
+package org.transmartproject.batch.highdim.assays
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.highdim.assays.Assay
-import org.transmartproject.batch.highdim.assays.AssayFactory
 
 /**
- * Reads {@link Assay}s from {@link MrnaMappings}.
+ * Reads {@link Assay}s from {@link MappingsFileRowStore}. Transforms the
+ * {@link MappingFileRow}s into {@link Assay}s
  */
 @Component
 @JobScopeInterfaced
 @Slf4j
-class MrnaMappingAssayReader extends AbstractItemCountingItemStreamItemReader<Assay> {
+class AssayFromMappingFileRowReader extends AbstractItemCountingItemStreamItemReader<Assay> {
+
     @Autowired
-    private MrnaMappings mrnaMappings
+    private MappingsFileRowStore mappingsFileRowStore
 
     @Autowired
     private AssayFactory assayFactory
 
-    MrnaMappingAssayReader() {
+    AssayFromMappingFileRowReader() {
         name = getClass().simpleName
     }
 
     @Override
     protected Assay doRead() throws Exception {
         int pos = currentItemCount
-        def currentRow = mrnaMappings.rows[pos - 1]
+        def currentRow = mappingsFileRowStore.rows[pos - 1]
         Assay assay = assayFactory.createFromMappingRow(currentRow)
         log.debug("Will return assay $assay for position $pos")
 
@@ -42,7 +42,7 @@ class MrnaMappingAssayReader extends AbstractItemCountingItemStreamItemReader<As
 
     @Override
     protected void doOpen() throws Exception {
-        maxItemCount = mrnaMappings.rows.size()
+        maxItemCount = mappingsFileRowStore.rows.size()
     }
 
     @Override

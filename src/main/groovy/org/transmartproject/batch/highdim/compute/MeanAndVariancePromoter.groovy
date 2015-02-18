@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.pass
+package org.transmartproject.batch.highdim.compute
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.ExitStatus
@@ -7,7 +7,6 @@ import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.support.OnlineMeanAndVarianceCalculator
 
 /**
  * Writes the mean and variance calculations into the context.
@@ -29,7 +28,7 @@ class MeanAndVariancePromoter implements StepExecutionListener {
         ExecutionContext stepExecutionContext = stepExecution.executionContext
         ExecutionContext jobExecutionContext = stepExecution.jobExecution.executionContext
         OnlineMeanAndVarianceCalculator calculator = stepExecutionContext.get(
-                MrnaStatisticsWriter.CALCULATOR_CTX_KEY)
+                DataPointLogStatisticsWriter.CALCULATOR_CTX_KEY)
         log.info("Saving calculated statistics: $calculator")
         jobExecutionContext.putDouble(CALCULATED_MEAN, calculator.mean)
         jobExecutionContext.putDouble(CALCULATED_VARIANCE, calculator.variance)

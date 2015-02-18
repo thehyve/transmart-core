@@ -13,6 +13,7 @@ import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.support.CompositeItemWriter
+import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -39,14 +40,14 @@ import org.transmartproject.batch.facts.ObservationFactTableWriter
 import org.transmartproject.batch.highdim.assays.Assay
 import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
 import org.transmartproject.batch.highdim.assays.MappingFileRow
+import org.transmartproject.batch.highdim.assays.MappingsFileRowValidator
 import org.transmartproject.batch.highdim.assays.SaveAssayIdListener
-import org.transmartproject.batch.highdim.mrna.data.mapping.MrnaMappingContextPromoterListener
-import org.transmartproject.batch.highdim.mrna.data.mapping.MrnaMappings
-import org.transmartproject.batch.highdim.mrna.data.mapping.MrnaMappingsWriter
-import org.transmartproject.batch.highdim.mrna.data.pass.MeanAndVariancePromoter
+import org.transmartproject.batch.highdim.assays.PlatformAndConceptsContextPromoterListener
+import org.transmartproject.batch.highdim.assays.MappingsFileRowStore
+import org.transmartproject.batch.highdim.compute.MeanAndVariancePromoter
 import org.transmartproject.batch.highdim.mrna.data.pass.MrnaDataRowSplitterReader
 import org.transmartproject.batch.highdim.mrna.data.pass.MrnaDataWriter
-import org.transmartproject.batch.highdim.mrna.data.pass.MrnaStatisticsWriter
+import org.transmartproject.batch.highdim.compute.DataPointLogStatisticsWriter
 import org.transmartproject.batch.highdim.mrna.data.validation.DataFileHeaderValidator
 import org.transmartproject.batch.highdim.mrna.data.validation.VisitedProbesValidatingReader
 import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
@@ -55,7 +56,7 @@ import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEnt
 import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
 import org.transmartproject.batch.startup.ExternalJobParameters
 import org.transmartproject.batch.support.JobParameterFileResource
-import org.transmartproject.batch.support.OnlineMeanAndVarianceCalculator
+import org.transmartproject.batch.highdim.compute.OnlineMeanAndVarianceCalculator
 
 import javax.annotation.Resource
 
@@ -65,7 +66,8 @@ import javax.annotation.Resource
 @Configuration
 @ComponentScan(['org.transmartproject.batch.highdim.mrna.data',
                 'org.transmartproject.batch.highdim.assays',
-                'org.transmartproject.batch.highdim.dummyfacts',
+                'org.transmartproject.batch.highdim.compute',
+                'org.transmartproject.batch.highdim.i2b2',
                 'org.transmartproject.batch.concept',
                 'org.transmartproject.batch.patient',])
 class MrnaDataJobConfiguration extends AbstractJobConfiguration {
@@ -104,7 +106,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
 
     private Flow mainFlow() {
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(readMappingFile(null, null))
+                .start(readMappingFile(null, null, null))
                 .next(checkPlatformExists())
                 .on('NOT FOUND').to(stepOf('platformNotFound',
                         new FailWithMessageTasklet(
@@ -158,8 +160,9 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Step readMappingFile(MrnaMappingsWriter mrnaMappingsWriter,
-                         MrnaMappingContextPromoterListener platformContextPromoterListener) {
+    Step readMappingFile(MappingsFileRowStore assayMappings,
+                         MappingsFileRowValidator mappingFileRowValidator,
+                         PlatformAndConceptsContextPromoterListener platformContextPromoterListener) {
         def reader = tsvFileReader(
                 mappingFileResource(),
                 beanClass: MappingFileRow,
@@ -174,7 +177,10 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
                 .allowStartIfComplete(true)
                 .chunk(1)
                 .reader(reader)
-                .writer(mrnaMappingsWriter)
+                .processor(new ValidatingItemProcessor(
+                        adaptValidator(mappingFileRowValidator)))
+                .writer(new PutInBeanWriter(bean: assayMappings))
+                .stream(mappingFileRowValidator)
                 .listener(new LogCountsStepListener())
                 .listener(platformContextPromoterListener)
                 .build()
@@ -237,14 +243,14 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteObservationFactTasklet(MrnaMappings mappings) {
+    Tasklet deleteObservationFactTasklet(MappingsFileRowStore mappings) {
         new DeleteObservationFactTasklet(
                 highDim: true,
                 basePaths: mappings.allConceptPaths)
     }
 
     @Bean
-    Step firstPass(MrnaStatisticsWriter mrnaStatisticsWriter,
+    Step firstPass(DataPointLogStatisticsWriter mrnaStatisticsWriter,
                    MeanAndVariancePromoter meanAndVariancePromoter) {
         TaskletStep step = steps.get('firstPass')
                 .chunk(DATA_FILE_PASS_CHUNK_SIZE)
@@ -316,11 +322,11 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step writeAssaysStep(
             ItemWriter<Assay> assayWriter,
-            ItemStreamReader<Assay> mrnaMappingAssayReader,
+            ItemStreamReader<Assay> assayFromMappingFileRowReader,
             SaveAssayIdListener saveAssayIdListener) {
         steps.get('writeAssays')
                 .chunk(WRITE_ASSAY_CHUNK_SIZE)
-                .reader(mrnaMappingAssayReader)
+                .reader(assayFromMappingFileRowReader)
                 .writer(assayWriter)
                 .listener(new LogCountsStepListener())
                 .listener(saveAssayIdListener)

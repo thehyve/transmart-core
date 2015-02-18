@@ -7,8 +7,8 @@ import org.springframework.batch.item.file.transform.FieldSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
+import org.transmartproject.batch.highdim.assays.AssayMappingsRowStore
 import org.transmartproject.batch.highdim.assays.MappingFileRow
-import org.transmartproject.batch.highdim.mrna.data.mapping.MrnaMappings
 import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.patient.PatientSet
 
@@ -20,7 +20,7 @@ import org.transmartproject.batch.patient.PatientSet
 class MrnaDataRowSplitterReader extends AbstractSplittingItemReader<MrnaDataValue> {
 
     @Autowired
-    private MrnaMappings mrnaMappings
+    private AssayMappingsRowStore mrnaMappings
 
     @Autowired
     private PatientSet patientSet
