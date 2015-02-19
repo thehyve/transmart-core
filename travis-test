@@ -15,7 +15,7 @@ function minimal_ts_etl_checkout {
 }
 
 function postgres_target_deps {
-  apt_install postgresql php5-cli php5-json
+  apt_install php5-cli php5-json
   minimal_ts_etl_checkout
 
   sudo make -C env /var/lib/postgresql/tablespaces

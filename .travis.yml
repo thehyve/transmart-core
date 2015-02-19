@@ -6,6 +6,9 @@ env:
     - TEST_SUITE=R
     - TEST_SUITE=configuration_syntax
 
+addons:
+    postgresql: "9.4"
+
 before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
     - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
@@ -14,7 +17,6 @@ before_install:
     - sudo apt-get update
 
 install:
-    - sudo apt-get remove -qq --purge postgresql-common
     - sudo apt-get install -qq php5-cli php5-json subversion groovy
     - make -C env ../vars
 
