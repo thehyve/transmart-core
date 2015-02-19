@@ -154,7 +154,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     @JobScopeInterfaced
     Resource xtrialFileResource() {
-        new JobParameterFileResource(parameter: ClinicalExternalJobParameters.XTRIAL_FILE)
+        new JobParameterFileResource(parameter: ClinicalJobSpecification.XTRIAL_FILE)
     }
 
     @Bean

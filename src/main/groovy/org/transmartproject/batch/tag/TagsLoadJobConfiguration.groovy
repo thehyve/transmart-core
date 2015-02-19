@@ -20,7 +20,7 @@ import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
+import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.support.JobParameterFileResource
 
@@ -116,7 +116,8 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     @JobScopeInterfaced
     Resource tagsFileResource() {
-        new JobParameterFileResource(parameter: ClinicalExternalJobParameters.TAGS_FILE)
+        new JobParameterFileResource(
+                parameter: ClinicalJobSpecification.TAGS_FILE)
     }
 
 }

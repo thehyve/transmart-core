@@ -44,7 +44,7 @@ class PlatformCheckTasklet implements Tasklet {
         if (!result) {
             throw new IllegalStateException('Expected platform to be found ' +
                     'either in the job parameters (key ' +
-                    "$AbstractPlatformJobParameters.PLATFORM) or job context " +
+                    "$AbstractPlatformJobSpecification.PLATFORM) or job context " +
                     "(key $PlatformJobContextKeys.PLATFORM).")
         }
 

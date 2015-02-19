@@ -64,16 +64,16 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScope
     Platform platformObject(@Value('#{jobParameters}') Map<String, Object> parameters) {
         new Platform(
-                id: parameters[AbstractPlatformJobParameters.PLATFORM],
-                title: parameters[AbstractPlatformJobParameters.TITLE],
-                organism: parameters[AbstractPlatformJobParameters.ORGANISM],
-                markerType: parameters[AbstractPlatformJobParameters.MARKER_TYPE])
+                id: parameters[AbstractPlatformJobSpecification.PLATFORM],
+                title: parameters[AbstractPlatformJobSpecification.TITLE],
+                organism: parameters[AbstractPlatformJobSpecification.ORGANISM],
+                markerType: parameters[AbstractPlatformJobSpecification.MARKER_TYPE])
     }
 
     @Bean
     @JobScopeInterfaced
     org.springframework.core.io.Resource annotationsFileResource() {
-        new JobParameterFileResource(parameter: AbstractPlatformJobParameters.ANNOTATIONS_FILE)
+        new JobParameterFileResource(parameter: AbstractPlatformJobSpecification.ANNOTATIONS_FILE)
     }
 
     @Bean

@@ -54,7 +54,7 @@ import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
 import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
-import org.transmartproject.batch.startup.ExternalJobParameters
+import org.transmartproject.batch.startup.StudyJobParametersModule
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.highdim.compute.OnlineMeanAndVarianceCalculator
 
@@ -292,7 +292,8 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     @Bean
     @JobScopeInterfaced
     org.springframework.core.io.Resource dataFileResource() {
-        new JobParameterFileResource(parameter: MrnaDataExternalJobParameters.DATA_FILE)
+        new JobParameterFileResource(
+                parameter: MrnaDataJobSpecification.DATA_FILE)
     }
 
     @Bean
@@ -305,7 +306,7 @@ class MrnaDataJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet partitionTasklet() {
         String studyId = JobSynchronizationManager.context
-                .jobParameters[ExternalJobParameters.STUDY_ID]
+                .jobParameters[StudyJobParametersModule.STUDY_ID]
         assert studyId != null
         new PostgresPartitionTasklet(
                 tableName: Tables.MRNA_DATA,

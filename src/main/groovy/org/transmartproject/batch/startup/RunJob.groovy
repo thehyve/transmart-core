@@ -3,11 +3,11 @@ package org.transmartproject.batch.startup
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
-import org.transmartproject.batch.clinical.ClinicalExternalJobParameters
-import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationExternalJobParameters
-import org.transmartproject.batch.highdim.mrna.data.MrnaDataExternalJobParameters
-import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationExternalJobParameters
-import org.transmartproject.batch.tag.TagsLoadJobParameters
+import org.transmartproject.batch.clinical.ClinicalJobSpecification
+import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
+import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
+import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
+import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,12 +21,12 @@ final class RunJob {
 
     public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
 
-    private final Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap = [
-            'clinical': ClinicalExternalJobParameters,
-            'annotation': MrnaAnnotationExternalJobParameters,
-            'tags': TagsLoadJobParameters,
-            'expression': MrnaDataExternalJobParameters,
-            'metabolomics': MetabolomicsAnnotationExternalJobParameters,
+    private final Map<String, Class<? extends JobSpecification>> parametersTypeMap = [
+            'clinical': ClinicalJobSpecification,
+            'annotation': MrnaAnnotationJobSpecification,
+            'tags': TagsLoadJobSpecification,
+            'expression': MrnaDataJobSpecification,
+            'metabolomics': MetabolomicsAnnotationJobSpecification,
     ]
 
     OptionAccessor opts

@@ -3,9 +3,9 @@ package org.transmartproject.batch.startup
 import com.google.common.base.Function
 import com.google.common.collect.Maps
 import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
-import org.springframework.context.i18n.LocaleContextHolder
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,23 +15,24 @@ import java.nio.file.Path
  * in transmart-data.
  */
 @TypeChecked
-@SuppressWarnings('UnnecessaryConstructor')
-abstract class ExternalJobParameters {
+final class ExternalJobParameters {
 
-    public static final String STUDY_ID = 'STUDY_ID' /* can be a platform name */
-    public static final String TOP_NODE = 'TOP_NODE'
-    public static final String SECURITY_REQUIRED = 'SECURITY_REQUIRED'
+    private final Map<String, String> params = Maps.newHashMap()
 
-    protected Map<String, String> params = Maps.newHashMap()
+    private Path filePath
 
-    protected ExternalJobParameters() { }
+    private String typeName
 
-    protected Path filePath
+    private List<? extends ExternalJobParametersModule> modules
 
-    protected String typeName
+    private Set<String> fileParameterKeys
+
+    Class<?> jobPath
+
+    private ExternalJobParameters() { }
 
     static ExternalJobParameters fromFile(
-            Map<String, Class<? extends ExternalJobParameters>> parametersTypeMap,
+            Map<String, Class<? extends JobSpecification>> parametersTypeMap,
             Path filePath,
             Map<String, String> overrides = [:]) throws InvalidParametersFileException {
 
@@ -46,9 +47,15 @@ abstract class ExternalJobParameters {
                     "The type $typeName is not recognized")
         }
 
-        def instance = parametersTypeMap[typeName].newInstance()
+        JobSpecification spec = parametersTypeMap[typeName].newInstance()
+        ExternalJobParameters instance = new ExternalJobParameters()
         instance.filePath = filePath
         instance.typeName = typeName
+        instance.modules = spec.jobParametersModules
+        instance.fileParameterKeys =
+                ((List<ExternalJobParametersModule>) spec.jobParametersModules)
+                        .collectMany { it.supportedParameters } as Set<String>
+        instance.jobPath = spec.jobPath
 
         filePath.eachLine { line ->
             if (line =~ /\A\s+\z/ || line =~ /\A\s*#/) {
@@ -68,86 +75,41 @@ abstract class ExternalJobParameters {
 
         instance.validate()
         instance.munge()
+        instance.checkForExtraParameters()
         instance
     }
-
-    /**
-     * Subclasses should implement this to describe the keys that the parameters
-     * file can have.
-     */
-    abstract protected Set<String> getFileParameterKeys()
 
     String getAt(String index) {
         params[index]
     }
 
     void putAt(String index, Object value) {
-        params[index] = value as String
+        if (value != null) {
+            params[index] = value as String
+        } else {
+            params.remove(index)
+        }
     }
 
-    @SuppressWarnings('EmptyMethodInAbstractClass')
-    void validate() throws InvalidParametersFileException {}
+    @TypeChecked(TypeCheckingMode.SKIP)
+    @SuppressWarnings('UnusedPrivateMethod')
+    private void validate() throws InvalidParametersFileException {
+        modules.each { it.validate(internalInterface) }
+    }
 
-    final void munge() throws InvalidParametersFileException {
-        doMunge()
+    @TypeChecked(TypeCheckingMode.SKIP)
+    @SuppressWarnings('UnusedPrivateMethod')
+    private void munge() throws InvalidParametersFileException {
+        modules.each { it.munge(internalInterface) }
+    }
 
-        if (!this[STUDY_ID]) {
-            def absolutePath = filePath.toAbsolutePath()
-            def count = absolutePath.nameCount
-            if (count < 2) {
-                throw new InvalidParametersFileException("Could not " +
-                        "determine study id from path ${absolutePath}")
+    @SuppressWarnings('UnusedPrivateMethod')
+    private void checkForExtraParameters() throws InvalidParametersFileException {
+        params.keySet().each { String paramName ->
+            if (!fileParameterKeys.contains(paramName)) {
+                throw new InvalidParametersFileException(
+                        "Parameter '$paramName' not recognized.")
             }
-            this[STUDY_ID] = absolutePath.subpath(count - 2, count - 1)
-        }
-
-        if (this[SECURITY_REQUIRED] == null) {
-            this[SECURITY_REQUIRED] = 'N'
-        }
-
-        if (!this[TOP_NODE]) {
-            def prefix = this[SECURITY_REQUIRED] == 'Y' ?
-                    'Private Studies' :
-                    'Public Studies'
-
-            this[TOP_NODE] = "\\$prefix\\${this[STUDY_ID]}\\"
-        }
-
-        // should come last so the proper case is preserved for TOP_NODE
-        this[STUDY_ID] = this[STUDY_ID].toUpperCase(LocaleContextHolder.locale)
-    }
-
-    /**
-     * May be used by subclasses to change the parameter values into a canonical
-     * form and add/remove parameters.
-     */
-    @SuppressWarnings('EmptyMethodInAbstractClass')
-    protected void doMunge() throws InvalidParametersFileException {}
-
-    final protected Path convertRelativePath(String parameter)
-            throws InvalidParametersFileException {
-        def fileName = this[parameter]
-        if (fileName == null) {
-            return
-        }
-
-        def absolutePath = filePath.toAbsolutePath()
-        def dir = absolutePath.parent.resolve(typeName)
-        def file = dir.resolve(fileName)
-        if (!Files.isRegularFile(file) ||
-                !Files.isReadable(file)) {
-            throw new  InvalidParametersFileException(
-                    "Parameter $parameter references $fileName, but " +
-                            "$file is not regular readable file")
-        }
-
-        file
-    }
-
-    final protected void mandatory(String parameter) {
-        if (this[parameter] == null) {
-            throw new  InvalidParametersFileException(
-                    "Parameter $parameter mandatory but not defined")
         }
     }
 
@@ -166,5 +128,49 @@ abstract class ExternalJobParameters {
         }
     }
 
-    abstract Class getJobPath()
+    private ExternalJobParametersInternalInterface getInternalInterface() {
+        new ExternalJobParametersInternalInterface() {
+            String getAt(String index) {
+                ExternalJobParameters.this[index]
+            }
+
+            void putAt(String index, Object value) {
+                ExternalJobParameters.this.putAt(index, value)
+            }
+
+            Path getFilePath() {
+                ExternalJobParameters.this.filePath
+            }
+
+            String getTypeName() {
+                ExternalJobParameters.this.typeName
+            }
+
+            Path convertRelativePath(String parameter) {
+                def fileName = this[parameter]
+                if (fileName == null) {
+                    return
+                }
+
+                def absolutePath = filePath.toAbsolutePath()
+                def dir = absolutePath.parent.resolve(typeName)
+                def file = dir.resolve(fileName)
+                if (!Files.isRegularFile(file) ||
+                        !Files.isReadable(file)) {
+                    throw new  InvalidParametersFileException(
+                            "Parameter $parameter references $fileName, but " +
+                                    "$file is not regular readable file")
+                }
+
+                file
+            }
+
+            void mandatory(String parameter) throws InvalidParametersFileException {
+                if (this[parameter] == null) {
+                    throw new  InvalidParametersFileException(
+                            "Parameter $parameter mandatory but not defined")
+                }
+            }
+        }
+    }
 }
