@@ -7,7 +7,7 @@ env:
     - TEST_SUITE=configuration_syntax
 
 addons:
-    postgresql: "9.4"
+    postgresql: "9.3"
 
 before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
