@@ -1,5 +1,6 @@
 package org.transmartproject.batch.highdim.assays
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.StepExecutionListener
@@ -18,6 +19,7 @@ import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
  */
 @Component
 @JobScope
+@Slf4j
 class PlatformAndConceptsContextPromoterListener implements StepExecutionListener {
 
     @Autowired
@@ -29,11 +31,25 @@ class PlatformAndConceptsContextPromoterListener implements StepExecutionListene
     @Override
     void beforeStep(StepExecution stepExecution) {}
 
+    @SuppressWarnings('CatchException')
     @Override
     ExitStatus afterStep(StepExecution stepExecution) {
-        executionContext.putString(PlatformJobContextKeys.PLATFORM,
-                assayMappingsRowStore.platform)
-        executionContext.put(GatherCurrentConceptsTasklet.LIST_OF_CONCEPTS_KEY,
-                assayMappingsRowStore.allConceptPaths)
+        if (stepExecution.exitStatus != ExitStatus.COMPLETED) {
+            log.warn("Step status was ${stepExecution.exitStatus}; " +
+                    "will not promote anything")
+            return stepExecution.exitStatus
+        }
+
+        try {
+            executionContext.putString(PlatformJobContextKeys.PLATFORM,
+                    assayMappingsRowStore.platform)
+            executionContext.put(GatherCurrentConceptsTasklet.LIST_OF_CONCEPTS_KEY,
+                    assayMappingsRowStore.allConceptPaths)
+            stepExecution.exitStatus
+        } catch (Exception e) {
+            log.error('Error in platform and concepts context promoter; ' +
+                    'failing step', e)
+            ExitStatus.FAILED
+        }
     }
 }
