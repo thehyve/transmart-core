@@ -15,8 +15,6 @@ import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.support.JobParameterFileResource
 
-import javax.annotation.Resource
-
 /**
  * Beans common to jobs that load annotations.
  *
@@ -34,9 +32,6 @@ import javax.annotation.Resource
  */
 @ComponentScan('org.transmartproject.batch.highdim.platform')
 abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
-
-    @Resource
-    StepExecutionListener showCountsStepListener
 
     abstract Step mainStep()
 
@@ -91,7 +86,7 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
                                  Tasklet deleteGplInfoTasklet) {
         Step platformDataCheckStep =  steps.get('checkPlatformDataExists')
                 .tasklet(platformDataCheckTasklet)
-                .listener(showCountsStepListener)
+                .listener(logCountsStepListener())
                 .listener(new FoundExitStatusChangeListener())
                 .build()
 

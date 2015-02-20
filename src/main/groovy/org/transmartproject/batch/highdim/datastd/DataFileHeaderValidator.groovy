@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.validation
+package org.transmartproject.batch.highdim.datastd
 
 import com.google.common.collect.Multiset
 import com.google.common.collect.TreeMultiset

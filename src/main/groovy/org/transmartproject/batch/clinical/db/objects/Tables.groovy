@@ -1,12 +1,20 @@
 package org.transmartproject.batch.clinical.db.objects
 
 /**
- * Constants with the serval used schema-qualified tables.
+ * Constants with the several used schema-qualified tables.
  *
  * TODO: move this class
  */
 final class Tables {
     private Tables() { }
+
+    static String tableName(String qualifiedTableName) {
+        qualifiedTableName.split(/\./, 2)[1]
+    }
+
+    static String schemaName(String qualifiedTableName) {
+        qualifiedTableName.split(/\./, 2)[0]
+    }
 
     public static final String CONCEPT_DIMENSION = 'i2b2demodata.concept_dimension'
     public static final String I2B2              = 'i2b2metadata.i2b2'

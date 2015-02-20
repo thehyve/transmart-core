@@ -120,7 +120,7 @@ class MetabolomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration 
                 .processor(processor)
                 .writer(writer)
                 .listener(progressWriteListener())
-                .listener(showCountStepListener())
+                .listener(logCountsStepListener())
                 .build()
     }
 

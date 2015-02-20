@@ -17,7 +17,6 @@ import org.springframework.core.io.Resource
 import org.springframework.validation.Validator
 import org.transmartproject.batch.batchartifacts.DbMetadataBasedBoundsValidator
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
-import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
@@ -71,7 +70,7 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                 .skip(NoSuchConceptException)
                 .noRollback(NoSuchConceptException)
                 .skipLimit(Integer.MAX_VALUE)
-                .listener(new LogCountsStepListener())
+                .listener(logCountsStepListener())
                 .listener(lineOfErrorDetectionListener())
                 .build()
 

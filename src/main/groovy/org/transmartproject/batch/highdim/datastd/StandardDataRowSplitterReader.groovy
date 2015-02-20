@@ -1,7 +1,8 @@
-package org.transmartproject.batch.highdim.mrna.data.pass
+package org.transmartproject.batch.highdim.datastd
 
 import groovy.transform.CompileStatic
 import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ParseException
 import org.springframework.batch.item.file.transform.FieldSet
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,14 +14,16 @@ import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.patient.PatientSet
 
 /**
- * Spits an mrna data file row into several {@link MrnaDataValue}s.
- * Needs to have the delegate set.
+ * Splits a standard data file row into several {@link StandardDataValue}s.
+ * Needs to have the delegate set manually (no autowiring).
+ *
+ * Should be step-scoped.
  */
 @CompileStatic
-class MrnaDataRowSplitterReader extends AbstractSplittingItemReader<MrnaDataValue> {
+class StandardDataRowSplitterReader extends AbstractSplittingItemReader<StandardDataValue> {
 
     @Autowired
-    private AssayMappingsRowStore mrnaMappings
+    private AssayMappingsRowStore assayMappings
 
     @Autowired
     private PatientSet patientSet
@@ -34,13 +37,13 @@ class MrnaDataRowSplitterReader extends AbstractSplittingItemReader<MrnaDataValu
         stepExecutionContext.get('tsv.header')
     })()
 
-    private String lastProbeName
+    private String lastAnnotationName
 
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     private List<Patient> patients = (List<Patient>) ({ ->
         columnNames.subList(1, columnNames.size()).collect { String sampleName ->
-            MappingFileRow mapping = mrnaMappings.getBySampleName(sampleName)
+            MappingFileRow mapping = assayMappings.getBySampleName(sampleName)
             assert mapping != null
             Patient p = patientSet[mapping.subjectId]
             assert p != null
@@ -60,24 +63,28 @@ class MrnaDataRowSplitterReader extends AbstractSplittingItemReader<MrnaDataValu
     }
 
     @Override
-    protected MrnaDataValue doRead() {
+    protected StandardDataValue doRead() {
         if (position == 0) {
             // skip position 0
             position++
-            lastProbeName = null
+            lastAnnotationName = null
             return doRead()
         }
 
-        if (lastProbeName == null) {
-            lastProbeName = currentFieldSet.readString(0)
+        if (lastAnnotationName == null) {
+            lastAnnotationName = currentFieldSet.readString(0)
         }
 
         // has to be provided
         Double value = currentFieldSet.readDouble(position)
 
-        new MrnaDataValue(
+        new StandardDataValue(
                 patient: patients[position - 1],
-                probe: lastProbeName,
+                annotation: lastAnnotationName,
                 value: value)
+    }
+
+    void setDelegate(ItemStreamReader<FieldSet> innerReader) {
+        super.delegate = innerReader
     }
 }

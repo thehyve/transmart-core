@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.pass
+package org.transmartproject.batch.highdim.mrna.data
 
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ItemWriter
@@ -9,13 +9,17 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.highdim.datastd.StandardDataValue
+
+import static org.transmartproject.batch.clinical.db.objects.Tables.schemaName
+import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
 
 /**
  * Writes the mrna data to de_subject_microarray_data.
  */
 @Component
 @JobScope
-class MrnaDataWriter implements ItemWriter<MrnaDataValue> {
+class MrnaDataWriter implements ItemWriter<StandardDataValue> {
 
     @Autowired
     private MrnaDataRowConverter mrnaDataRowConverter
@@ -30,26 +34,19 @@ class MrnaDataWriter implements ItemWriter<MrnaDataValue> {
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     private SimpleJdbcInsert jdbcInsert = {
         new SimpleJdbcInsert(jdbcTemplate)
-                .withSchemaName(schemaName)
-                .withTableName(tableName)
+                .withSchemaName(schemaName(qualifiedTableName))
+                .withTableName(tableName(qualifiedTableName))
     }()
 
     @Override
-    void write(List<? extends MrnaDataValue> items) throws Exception {
+    void write(List<? extends StandardDataValue> items) throws Exception {
         int[] result = jdbcInsert.executeBatch(items.collect(
                 mrnaDataRowConverter.&convertMrnaDataValue) as Map[])
-        DatabaseUtil.checkUpdateCounts(result, "inserting mRNA data in $tableName")
+        DatabaseUtil.checkUpdateCounts(result,
+                "inserting mRNA data in $qualifiedTableName")
     }
 
     private String getQualifiedTableName() {
         Tables.MRNA_DATA + '_' + partitionId
-    }
-
-    private String getTableName() {
-        qualifiedTableName.split(/\./, 2)[1]
-    }
-
-    private String getSchemaName() {
-        qualifiedTableName.split(/\./, 2)[0]
     }
 }

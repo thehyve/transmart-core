@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.mrna.data.validation
+package org.transmartproject.batch.highdim.datastd
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.ImmutableBiMap
@@ -11,15 +11,19 @@ import org.springframework.batch.item.validator.ValidationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.util.ClassUtils
+import org.transmartproject.batch.highdim.compute.DataPoint
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 
 import javax.annotation.PostConstruct
 
 /**
- * Validates that are no repeated probes and that all probes can be found.
+ * Validates that are no unknown or repeated annotations and that all platform
+ * annotations can be found.
+ * The reason this is a reader is that it needs to look at the rows before
+ * they are split into {@link DataPoint}s.
  */
 @Slf4j
-class VisitedProbesValidatingReader extends ItemStreamSupport implements ItemStreamReader<FieldSet> {
+class VisitedAnnotationsReadingValidator extends ItemStreamSupport implements ItemStreamReader<FieldSet> {
     {
         name = ClassUtils.getShortName(getClass())
     }
@@ -32,12 +36,12 @@ class VisitedProbesValidatingReader extends ItemStreamSupport implements ItemStr
     @Autowired
     private AnnotationEntityMap annotationEntityMap
 
-    private final static String SEEN_PROBES_KEY = 'seenProbes'
+    private final static String SEEN_ANNOTATIONS_KEY = 'seenAnnotations'
 
-    private BiMap<String, Integer> probeToIndex
+    private BiMap<String, Integer> annotationToIndex
 
     // saved
-    private BitSet seenProbeIndexes
+    private BitSet seenAnnotationIndexes
 
     @PostConstruct
     void init() {
@@ -48,27 +52,26 @@ class VisitedProbesValidatingReader extends ItemStreamSupport implements ItemStr
             builder.put entry, i
         }
 
-        probeToIndex = builder.build()
+        annotationToIndex = builder.build()
     }
 
     @Override
     void update(ExecutionContext executionContext) {
         executionContext.put(
-                getExecutionContextKey(SEEN_PROBES_KEY),
-                seenProbeIndexes.clone())
+                getExecutionContextKey(SEEN_ANNOTATIONS_KEY),
+                seenAnnotationIndexes.clone())
     }
 
     @Override
     void open(ExecutionContext executionContext) {
-        seenProbeIndexes = executionContext.get(
-                getExecutionContextKey(SEEN_PROBES_KEY)) ?:
+        seenAnnotationIndexes = executionContext.get(
+                getExecutionContextKey(SEEN_ANNOTATIONS_KEY)) ?:
                 new BitSet(annotationEntityMap.annotationNames.size())
     }
 
     @Override
     @SuppressWarnings('CloseWithoutCloseable')
     void close() {
-
         if (stepExecution.exitStatus != ExitStatus.COMPLETED) {
             log.warn("Skipping final validation in order to " +
                     "avoid hiding earlier problems")
@@ -79,18 +82,18 @@ class VisitedProbesValidatingReader extends ItemStreamSupport implements ItemStr
 
     @SuppressWarnings('UnnecessarySemicolon') // codenarc bug
     private void finalValidation() {
-        def missingProbes = [] as Set
-        for (int i = seenProbeIndexes.nextClearBit(0);
-             i < probeToIndex.size();
-             i = seenProbeIndexes.nextClearBit(i)) {
-            missingProbes << probeToIndex.inverse().get(i)
+        def missingAnnotations = [] as Set
+        for (int i = seenAnnotationIndexes.nextClearBit(0);
+             i < annotationToIndex.size();
+             i = seenAnnotationIndexes.nextClearBit(i)) {
+            missingAnnotations << annotationToIndex.inverse().get(i)
             i++
         }
 
-        if (missingProbes) {
-            throw new ValidationException('The set of seen probes is ' +
+        if (missingAnnotations) {
+            throw new ValidationException('The set of seen annotations is ' +
                     'smaller than that specified in the annotation file. ' +
-                    "Missing probes: $missingProbes")
+                    "Missing annotations: $missingAnnotations")
         }
     }
 
@@ -115,17 +118,17 @@ class VisitedProbesValidatingReader extends ItemStreamSupport implements ItemStr
         fieldSet
     }
 
-    private void process(String probe) throws Exception {
-        int probeIndex = probeToIndex[probe]
-        if (probeIndex == null) {
+    private void process(String annotation) throws Exception {
+        int annotationIndex = annotationToIndex[annotation]
+        if (annotationIndex == null) {
             throw new ValidationException(
-                    "Probe $probe is not in this platform")
+                    "Annotation $annotation is not in this platform")
         }
 
-        boolean seen = seenProbeIndexes.get(probeIndex)
+        boolean seen = seenAnnotationIndexes.get(annotationIndex)
         if (seen) {
-            throw new ValidationException("Repeated data for probe $probe")
+            throw new ValidationException("Repeated data for annotation $annotation")
         }
-        seenProbeIndexes.set(probeIndex, true)
+        seenAnnotationIndexes.set(annotationIndex, true)
     }
 }
