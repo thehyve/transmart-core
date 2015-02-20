@@ -4,6 +4,7 @@ import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
+import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
@@ -27,6 +28,7 @@ final class RunJob {
             'tags': TagsLoadJobSpecification,
             'expression': MrnaDataJobSpecification,
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
+            'metabolomics': MetabolomicsDataJobSpecification,
     ]
 
     OptionAccessor opts
