@@ -26,7 +26,7 @@ final class RunJob {
             'annotation': MrnaAnnotationJobSpecification,
             'tags': TagsLoadJobSpecification,
             'expression': MrnaDataJobSpecification,
-            'metabolomics': MetabolomicsAnnotationJobSpecification,
+            'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
     ]
 
     OptionAccessor opts

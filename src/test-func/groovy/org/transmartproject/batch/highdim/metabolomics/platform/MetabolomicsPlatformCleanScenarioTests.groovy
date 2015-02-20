@@ -31,7 +31,8 @@ class MetabolomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
     static final long NUMBER_OF_BIOCHEMICALS_WITH_SUB_PATHWAYS = 7
 
     @ClassRule
-    public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'metabolomics')
+    public final static RunJobRule RUN_JOB_RULE =
+            new RunJobRule(PLATFORM_ID, 'metabolomics_annotation')
 
     @AfterClass
     static void cleanDatabase() {
