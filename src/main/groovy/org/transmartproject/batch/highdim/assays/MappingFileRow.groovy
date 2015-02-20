@@ -42,7 +42,7 @@ class MappingFileRow {
             } else {
                 it
             }
-        }
+        }.findAll() // remove empty segments
 
         new ConceptFragment(parts)
     }
