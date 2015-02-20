@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableBiMap
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepExecution
+import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.item.*
 import org.springframework.batch.item.file.transform.FieldSet
 import org.springframework.batch.item.validator.ValidationException
@@ -23,7 +24,9 @@ import javax.annotation.PostConstruct
  * they are split into {@link DataPoint}s.
  */
 @Slf4j
-class VisitedAnnotationsReadingValidator extends ItemStreamSupport implements ItemStreamReader<FieldSet> {
+class VisitedAnnotationsReadingValidator extends ItemStreamSupport
+        implements ItemStreamReader<FieldSet>, StepExecutionListener {
+
     {
         name = ClassUtils.getShortName(getClass())
     }
@@ -67,17 +70,6 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport implements It
         seenAnnotationIndexes = executionContext.get(
                 getExecutionContextKey(SEEN_ANNOTATIONS_KEY)) ?:
                 new BitSet(annotationEntityMap.annotationNames.size())
-    }
-
-    @Override
-    @SuppressWarnings('CloseWithoutCloseable')
-    void close() {
-        if (stepExecution.exitStatus != ExitStatus.COMPLETED) {
-            log.warn("Skipping final validation in order to " +
-                    "avoid hiding earlier problems")
-        } else {
-            finalValidation()
-        }
     }
 
     @SuppressWarnings('UnnecessarySemicolon') // codenarc bug
@@ -130,5 +122,25 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport implements It
             throw new ValidationException("Repeated data for annotation $annotation")
         }
         seenAnnotationIndexes.set(annotationIndex, true)
+    }
+
+    @Override
+    void beforeStep(StepExecution stepExecution) {}
+
+    @Override
+    ExitStatus afterStep(StepExecution stepExecution) {
+        if (stepExecution.exitStatus != ExitStatus.COMPLETED) {
+            log.warn("Skipping final validation in order to " +
+                    "avoid hiding earlier problems")
+            stepExecution.exitStatus
+        } else {
+            try {
+                finalValidation()
+                stepExecution.exitStatus
+            } catch (ValidationException exc) {
+                log.error 'Failed validation after annotations reading', exc
+                ExitStatus.FAILED
+            }
+        }
     }
 }
