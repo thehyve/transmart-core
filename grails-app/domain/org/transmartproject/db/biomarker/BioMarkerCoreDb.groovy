@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.biomarker
 
-class BioMarkerCoreDb {
+import org.transmartproject.core.biomarker.BioMarker
+
+class BioMarkerCoreDb implements BioMarker {
 
     String name
     String description
