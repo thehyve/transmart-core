@@ -123,4 +123,15 @@ class AuthUser extends Principal {
         ret
     }
 
+    static void removeAll(Role role) {
+        def usersWithRole = AuthUser.withCriteria {
+            authorities {
+                eq('id', role.id)
+            }
+        }
+        usersWithRole.each { AuthUser user ->
+            user.removeFromAuthorities(role)
+        }
+    }
+
 }
