@@ -12,6 +12,7 @@ import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
+import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -39,12 +40,7 @@ class MetabolomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
-                        "${Tables.GPL_INFO} CASCADE",
-                        "${Tables.METAB_ANNOT_SUB}, " +
-                                "${Tables.METAB_ANNOTATION}, " +
-                                "${Tables.METAB_SUB_PATH}, " +
-                                "${Tables.METAB_SUPER_PATH}, " +
-                                "${Tables.METAB_DATA}",
+                        *TableLists.METABOLOMICS_TABLES,
                         'ts_batch.batch_job_instance CASCADE')
     }
 

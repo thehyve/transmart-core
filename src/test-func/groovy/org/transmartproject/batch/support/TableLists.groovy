@@ -20,4 +20,14 @@ class TableLists {
             "${Tables.BIO_EXPERIMENT} CASCADE",
             'biomart.bio_data_uid',
     ]
+
+    public static final List<String> METABOLOMICS_TABLES = [
+            "${Tables.GPL_INFO} CASCADE",
+            Tables.SUBJ_SAMPLE_MAP,
+            "${Tables.METAB_ANNOT_SUB}, " +
+                    "${Tables.METAB_ANNOTATION}, " +
+                    "${Tables.METAB_SUB_PATH}, " +
+                    "${Tables.METAB_SUPER_PATH}, " +
+                    "${Tables.METAB_DATA}",
+    ]
 }
