@@ -92,7 +92,7 @@ load_metabolomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FOLDE
 	org.transmartproject.pipeline.dictionary.HMDBDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FOLDER)/Metabolite.tsv
 
-.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_mirna_dictionary
+.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_tworegion_sample load_mirna_dictionary load_metabolomics_dictionary
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
 
 
