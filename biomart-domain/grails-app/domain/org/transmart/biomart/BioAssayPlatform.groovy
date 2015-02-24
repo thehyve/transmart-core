@@ -58,12 +58,11 @@ class BioAssayPlatform {
                     uniqueId = data.uniqueId
                     return data.uniqueId;
                 }
-                return null;
+                return "BAP:"+accession;
             } else {
                 return null;
             }
         } else {
-
             return uniqueId;
         }
     }
