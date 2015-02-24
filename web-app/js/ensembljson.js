@@ -22,7 +22,7 @@ if (typeof(require) !== 'undefined') {
 
 function EnsemblFeatureSource(source) {
     this.source = source;
-    this.base = source.uri || 'http://rest.ensembl.org';
+    this.base = source.uri || '//rest.ensembl.org';
     this.species = source.species || 'human';
 
     this.activityListeners = [];
