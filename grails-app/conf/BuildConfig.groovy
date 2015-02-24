@@ -22,9 +22,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-import grails.util.Environment
-
 grails.servlet.version = '3.0'
 
 def defaultVMSettings = [
@@ -41,11 +38,15 @@ grails.project.fork = [
     console: defaultVMSettings
 ]
 
-// prefer to add this to ~/.grails/transmartConfig/BuildConfig-rest-api.groovy
-// to avoid committing changes here by accident
-//grails.plugin.location.'transmart-core-db' = '../transmart-core-db/'
-//grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
-//grails.plugin.location.'transmart-core-db-tests' = '../transmart-core-db/transmart-core-db-tests/'
+def dm, dmClass
+try {
+    dmClass = new GroovyClassLoader().parseClass(
+            new File('../transmart-dev/DependencyManagement.groovy'))
+} catch (Exception e) {
+}
+if (dmClass) {
+    dm = dmClass.newInstance()
+}
 
 grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
@@ -55,11 +56,16 @@ grails.project.dependency.resolution = {
     }
     log 'warn'
 
-    repositories {
-        mavenLocal()
-        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
-        mavenRepo 'https://repo.thehyve.nl/content/groups/public/'
-        inherits false // inherit repository definitions from plugins (default true)
+    if (!dm) {
+        repositories {
+            grailsCentral()
+            mavenCentral()
+
+            mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
+            mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
+        }
+    } else {
+        dm.configureRepositories delegate
     }
 
     dependencies {
@@ -102,43 +108,27 @@ grails.project.dependency.resolution = {
 
         compile ':spring-security-core:2.0-RC2'
 
-        runtime ':transmart-core:1.2.2-SNAPSHOT'
         // core-db doesn't export hibernate as dep as it was builtin in 2.2.4
-        runtime ':hibernate:3.6.10.6'
+        runtime ':hibernate:3.6.10.16'
 
-        // tests depend on transmart-core-db-tests which is not part of the release yet
-        test ':functional-test:2.0.RC1'
-        test ':transmart-core:1.2.2-SNAPSHOT'
-        test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
-    }
-}
+        test ':functional-test:2.0.0'
 
-def buildConfigFile = new File(
-        "${userHome}/.grails/transmartConfig/BuildConfig-rest-api.groovy")
-if (buildConfigFile.exists()) {
-    println "[INFO] Processing external build config at $buildConfigFile"
+        if (!dm) {
+            runtime ':transmart-core:1.2.2-SNAPSHOT'
 
-    def slurpedBuildConfig = new ConfigSlurper(Environment.current.name).
-            parse(buildConfigFile.toURL())
-
-    slurpedBuildConfig.grails.plugin.location.each { String k, v ->
-        if (!new File(v).exists()) {
-            println "[WARNING] Cannot load in-place plugin from ${v} as that " +
-                    "directory does not exist."
+            test ':transmart-core:1.2.2-SNAPSHOT'
+            test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
         } else {
-            println "[INFO] Loading in-place plugin $k from $v"
-            grails.plugin.location."$k" = v
+            dm.internalDependencies delegate
         }
-        if (grailsSettings.projectPluginsDir?.exists()) {
-            grailsSettings.projectPluginsDir.eachDir { dir ->
-                // remove optional version from inline definition
-                def dirPrefix = k.replaceFirst(/:.+/, '') + '-'
-                if (dir.name.startsWith(dirPrefix)) {
-                    println "[WARNING] Found a plugin directory at $dir that is a " +
-                            "possible conflict and may prevent grails from using " +
-                            "the in-place $k plugin."
-                }
-            }
-        }
+
     }
 }
+
+dm?.with {
+    configureInternalPlugin 'runtime', 'transmart-core'
+    configureInternalPlugin 'test', 'transmart-core'
+    configureInternalPlugin 'test', 'transmart-core-db-tests'
+}
+
+dm?.inlineInternalDependencies grails, grailsSettings

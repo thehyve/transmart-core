@@ -25,14 +25,20 @@
 
 package org.transmartproject.rest
 
+import grails.converters.JSON
 import grails.rest.Link
+import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
+import org.codehaus.groovy.grails.web.json.JSONElement
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.marshallers.CollectionResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
 import org.transmartproject.rest.marshallers.HighDimSummarySerializationHelper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
+import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 import javax.annotation.Resource
@@ -48,33 +54,14 @@ class HighDimController {
     @Resource
     StudyLoadingService studyLoadingServiceProxy
 
-    def show(String dataType, String projection) {
-
-        if (dataType == null) {
-            index()
-        } else {
-            exportData(dataType, projection)
+    def index() {
+        if (params.dataType) {
+            // backwards compatibility
+            // preferred to use /highdim/<data type> for download
+            download params.dataType
+            return
         }
-    }
 
-    private void exportData(String dataType, String projection) {
-        String conceptKey = getConceptKey(params.conceptId)
-        OutputStream out = response.outputStream
-        response.contentType =  'application/octet-stream'
-
-        try {
-            highDimDataService.write(conceptKey, dataType, projection, out)
-            out.flush()
-        } finally {
-            out.close()
-        }
-    }
-
-    private String getConceptKey(String concept) {
-        OntologyTermCategory.keyFromURLPart(concept, studyLoadingServiceProxy.study)
-    }
-
-    private def index() {
         String conceptKey = getConceptKey(params.conceptId)
         OntologyTerm concept = conceptsResourceService.getByKey(conceptKey)
         String conceptLink = studyLoadingServiceProxy.getOntologyTermUrl(concept)
@@ -83,17 +70,83 @@ class HighDimController {
         respond wrapList(getHighDimSummaries(concept), selfLink)
     }
 
+    def download(String dataType) {
+        assert dataType != null // ensured by mapping
+        def assayConstraintsSpec = processConstraintsJson params.assayConstraints
+        def dataConstraintsSpec = processConstraintsJson params.dataConstraints
+
+        String conceptKey = getConceptKey(params.conceptId)
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/octet-stream'
+                    response.outputStream
+                })
+
+        try {
+            highDimDataService.write(conceptKey, dataType, params.projection,
+                    assayConstraintsSpec, dataConstraintsSpec, out)
+        } finally {
+            out.close()
+        }
+    }
+
+    private Map<String, List> processConstraintsJson(String paramValue) {
+        Map<String, List> retValue = [:]
+        if (paramValue) {
+            JSONElement constraintsElement
+            try {
+                constraintsElement = JSON.parse(paramValue)
+            } catch (ConverterException ce) {
+                throw new InvalidArgumentsException(
+                        "Failed parsing as JSON: $paramValue", ce)
+            } catch (StackOverflowError se) { // *sigh*
+                throw new InvalidArgumentsException(
+                        "Failed parsing as JSON: $paramValue", se)
+            }
+
+            if (!constraintsElement instanceof JSONObject) {
+                throw new InvalidArgumentsException(
+                        'Expected constraints to be JSON map')
+            }
+
+            // normalize [constraint_name: [ param1: foo ]] to
+            //           [constraint_name: [[ param1: foo ]]] to
+            retValue = ((JSONObject) constraintsElement)
+                    .collectEntries { String name, value ->
+                if (!(value instanceof Map || value instanceof List)) {
+                    throw new InvalidArgumentsException(
+                            "Invalid parameters for contraint $name: " +
+                                    "$value (should be a list or a map)")
+                } else if (value instanceof Map) {
+                    [name, [value]]
+                } else { // List
+                    [name, value] // entry unchanged
+                }
+            }
+        }
+
+        retValue
+    }
+
+    private String getConceptKey(String concept) {
+        OntologyTermCategory.keyFromURLPart(concept, studyLoadingServiceProxy.study)
+    }
+
     private List getHighDimSummaries(OntologyTerm concept) {
         Map<HighDimensionDataTypeResource, Collection<Assay>> resourceMap =
                 highDimDataService.getAvailableHighDimResources(concept.key)
 
         resourceMap.collect {
+            HighDimensionDataTypeResource hdr, Collection<Assay> assays ->
             new HighDimSummary(
                     conceptWrapper: new OntologyTermWrapper(concept),
-                    name: it.key.dataTypeName,
-                    assayCount: it.value.size(),
-                    supportedProjections: it.key.supportedProjections,
-                    genomeBuildId: it.value[0].platform.genomeReleaseId
+                    name: hdr.dataTypeName,
+                    assayCount: assays.size(),
+                    supportedProjections: hdr.supportedProjections,
+                    supportedAssayConstraints: hdr.supportedAssayConstraints,
+                    supportedDataConstraints: hdr.supportedDataConstraints,
+                    // should be the same for all:
+                    genomeBuildId: assays.first().platform.genomeReleaseId
             )
         }
     }

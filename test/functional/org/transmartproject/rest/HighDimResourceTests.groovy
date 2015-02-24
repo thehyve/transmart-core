@@ -32,7 +32,7 @@ import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.containsInAnyOrder
+import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
 
 class HighDimResourceTests extends ResourceTestCase {
@@ -44,6 +44,12 @@ class HighDimResourceTests extends ResourceTestCase {
     def expectedAcghRowLabels = ['region 1:33-9999', 'region 2:66-99']
 
     def mrnaSupportedProjections = ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
+    def mrnaSupportedAssayConstraints = ['patient_set', 'disjunction',
+                                         'assay_id_list', 'ontology_term',
+                                         'trial_name',]
+    def mrnaSupportedDataConstraints = ['gene_lists', 'search_keyword_ids',
+                                        'gene_signatures', 'genes',
+                                        'disjunction', 'pathways', 'proteins',]
 
     Map<String,String> indexUrlMap = [
             mrna: "/studies/study_id_1/concepts/bar/highdim",
@@ -81,26 +87,6 @@ class HighDimResourceTests extends ResourceTestCase {
         assertThat result, mapWith(expected)
     }
 
-    private Map getExpectedMrnaSummary() {
-        [
-                assayCount: 2,
-                name: 'mrna',
-                supportedProjections: mrnaSupportedProjections,
-                genomeBuildId: 'hg19'
-        ]
-    }
-
-    Map getExpectedMrnaHalLinks() {
-        String selfDataLink = getHighDimUrl('mrna')
-        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it):("${selfDataLink}&projection=${it}")] }
-        expectedLinks.put('self', selfDataLink)
-
-        expectedLinks.collectEntries {
-            String tempUrl = "${it.value}"
-            [(it.key): ([href: tempUrl])]
-        }
-    }
-
     void testMrna() {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
@@ -128,12 +114,78 @@ class HighDimResourceTests extends ResourceTestCase {
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, dataColumns)
     }
 
-    private String getHighDimUrl(String dataType) {
-        "${indexUrlMap[dataType]}?dataType=${dataType}"
+    void testAssayConstraints() {
+        def assayConstraints = '{assay_id_list: { ids: [-3002] }}'
+        HighDimResult result = getAsHighDim(
+                getHighDimUrl('acgh', null, assayConstraints))
+
+        assertThat result.header.assayList, contains(
+                hasProperty('assayId', equalTo(-3002L))
+        )
     }
 
-    private String getHighDimUrl(String dataType, String projection) {
-        "${indexUrlMap[dataType]}?dataType=${dataType}&projection=${projection}"
+    void testMultipleAssayConstraintsOfTheSameType() {
+        def assayConstraints =
+                '{ assay_id_list: [ { ids: [-3001, -3002] }, { ids: [-3002] } ] }'
+
+        HighDimResult result = getAsHighDim(
+                getHighDimUrl('acgh', null, assayConstraints))
+
+        assertThat result.header.assayList, contains(
+                hasProperty('assayId', equalTo(-3002L))
+        )
+    }
+
+    void testDataConstraint() {
+        def dataConstraints = '{ genes: [ { names: ["ADIRF"] } ] }'
+
+        HighDimResult result = getAsHighDim(
+                getHighDimUrl('acgh', null, null, dataConstraints))
+
+        assertThat result.rows, contains(
+                hasProperty('bioMarker', equalTo('ADIRF'))
+        )
+    }
+
+    private String getHighDimUrl(String dataType,
+                                 String projection = null,
+                                 String assayConstraints = null,
+                                 String dataConstraints = null) {
+        def ret = "${indexUrlMap[dataType]}?dataType=${dataType}"
+        if (projection) {
+            ret += "&projection=${projection}"
+        }
+        if (assayConstraints) {
+            ret += '&assayConstraints='
+            ret += URLEncoder.encode(assayConstraints, 'UTF-8')
+        }
+        if (dataConstraints) {
+            ret += '&dataConstraints='
+            ret += URLEncoder.encode(dataConstraints, 'UTF-8')
+        }
+        ret
+    }
+
+    private Map getExpectedMrnaSummary() {
+        [
+                assayCount: 2,
+                name: 'mrna',
+                supportedProjections: hasItems(*mrnaSupportedProjections),
+                supportedAssayConstraints: hasItems(*mrnaSupportedAssayConstraints),
+                supportedDataConstraints: hasItems(*mrnaSupportedDataConstraints),
+                genomeBuildId: 'hg19'
+        ]
+    }
+
+    private Map getExpectedMrnaHalLinks() {
+        String selfDataLink = getHighDimUrl('mrna')
+        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it):("${selfDataLink}&projection=${it}")] }
+        expectedLinks.put('self', selfDataLink)
+
+        expectedLinks.collectEntries {
+            String tempUrl = "${it.value}"
+            [(it.key): ([href: tempUrl])]
+        }
     }
 
     /**

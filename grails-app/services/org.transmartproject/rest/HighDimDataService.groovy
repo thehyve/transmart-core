@@ -30,6 +30,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.rest.protobuf.HighDimBuilder
 
@@ -48,7 +49,12 @@ class HighDimDataService {
      * @param projectionName name of projection (or null for the default)
      * @param out output stream to write protobuf to
      */
-    void write(String conceptKey, String dataType, String projectionName, OutputStream out) {
+    void write(String conceptKey,
+               String dataType,
+               String projectionName,
+               Map assayConstraintsSpec,
+               Map dataConstraintsSpec,
+               OutputStream out) {
 
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
@@ -57,10 +63,25 @@ class HighDimDataService {
 
         Projection projection = typeResource.createProjection(proj)
 
-        AssayConstraint assayConstraint =
-                typeResource.createAssayConstraint(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT, concept_key: conceptKey)
+        List<AssayConstraint> assayConstraints = [
+                typeResource.createAssayConstraint(
+                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                        concept_key: conceptKey)] +
+                assayConstraintsSpec.collect { String type, List instances ->
+                    instances.collect { Map params ->
+                        typeResource.createAssayConstraint(params, type)
+                    }
+                }.flatten()
 
-        TabularResult tabularResult =  typeResource.retrieveData([assayConstraint], [], projection)
+        List<DataConstraint> dataConstraints = dataConstraintsSpec.collect {
+                String type, List instances ->
+            instances.collect { Map params ->
+                typeResource.createDataConstraint(params, type)
+            }
+        }.flatten()
+
+        TabularResult tabularResult = typeResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
 
         if (resultTransformer) {
             tabularResult = resultTransformer(tabularResult)
