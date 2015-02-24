@@ -59,6 +59,7 @@ class Experiment implements IExcelProfile {
             title column: 'TITLE'
             description column: 'DESCRIPTION'
             design column: 'DESIGN'
+            status column: 'STATUS'
             startDate column: 'START_DATE'
             completionDate column: 'COMPLETION_DATE'
             overallDesign column: 'OVERALL_DESIGN'
