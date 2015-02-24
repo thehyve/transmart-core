@@ -115,6 +115,7 @@ class MetabolomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration 
         steps.get(name)
                 .chunk(chunkSize)
                 .reader(new IterableItemReader(
+                saveState: false,
                 expressionResolver: expressionResolver,
                 expression: "@metabolomicsBiochemicalsPile.$pileProperty"))
                 .processor(processor)

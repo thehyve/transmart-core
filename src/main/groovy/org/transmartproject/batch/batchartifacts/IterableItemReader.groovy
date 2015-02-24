@@ -1,7 +1,7 @@
 package org.transmartproject.batch.batchartifacts
 
 import groovy.transform.CompileStatic
-import org.springframework.batch.item.ItemReader
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.expression.EvaluationException
 import org.transmartproject.batch.support.ExpressionResolver
 
@@ -10,7 +10,7 @@ import org.transmartproject.batch.support.ExpressionResolver
  * This iterable object can either be assigned directly or through an expression.
  */
 @CompileStatic
-class IterableItemReader<T> implements ItemReader<T>{
+class IterableItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> {
 
     Iterable<T> iterable
 
@@ -21,14 +21,15 @@ class IterableItemReader<T> implements ItemReader<T>{
     private Iterator<T> iterator
 
     @Override
-    T read() {
-        if (iterator == null) {
-            iterator = fetchIterator()
-        }
-
+    protected T doRead() throws Exception {
         if (iterator.hasNext()) {
-            return iterator.next()
+            iterator.next()
         } // else null
+    }
+
+    @Override
+    protected void doOpen() throws Exception {
+        fetchIterator()
     }
 
     private Iterator<T> fetchIterator() {
@@ -40,6 +41,13 @@ class IterableItemReader<T> implements ItemReader<T>{
             }
         }
 
-        iterable.iterator()
+        iterator = iterable.iterator()
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+        if (iterator instanceof Closeable) {
+            ((Closeable) iterator).close()
+        }
     }
 }
