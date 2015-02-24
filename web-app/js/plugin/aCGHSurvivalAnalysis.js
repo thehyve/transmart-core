@@ -569,7 +569,7 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
                     // load using script tags for cross domain, if the data in on the same domain as
                     // this page, an HttpProxy would be better
                     proxy: new Ext.data.HttpProxy({
-                        url: "../SurvivalAnalysisResult/list"
+                        url: pageInfo.basePath + "/SurvivalAnalysisResult/list"
                     })
 
                 });
