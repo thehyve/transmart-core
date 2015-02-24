@@ -70,6 +70,8 @@ class BatchSchemaPopulator {
                     return 'postgresql'
                 case 'oracle.jdbc.driver.OracleDriver':
                     return 'oracle10g'
+                case 'org.h2.Driver':
+                    return 'h2'
                 default:
                     throw new UnsupportedOperationException("Not supported: $driverClassname")
             }

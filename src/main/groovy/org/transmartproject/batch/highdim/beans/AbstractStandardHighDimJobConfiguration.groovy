@@ -331,8 +331,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
                 .listener(meanAndVariancePromoter)
                 .build()
 
-        step.streams = [firstPassTsvFileReader(null),
-                        visitedProbesValidatingReader()]
+        step.streams = [visitedProbesValidatingReader()]
 
         step
     }
@@ -378,17 +377,13 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
     @Bean
     Step secondPass() {
-        TaskletStep step = steps.get('secondPass')
+        steps.get('secondPass')
                 .chunk(DATA_FILE_PASS_CHUNK_SIZE)
                 .reader(secondPassDataRowSplitterReader())
                 .writer(dataPointWriter())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
-
-        step.streams = [secondPassTsvFileReader()]
-
-        step
     }
 
     abstract ItemWriter<? extends DataPoint> dataPointWriter()

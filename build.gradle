@@ -30,6 +30,7 @@ dependencies {
     final GMOCK_VERSION = '0.8.3'
     final POSTGRESQL_VERSION = '9.3-1102-jdbc41'
     final ORACLE_VERSION = '11.2.0.3.0'
+    final H2_VERSION = '1.4.185'
 
     compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
@@ -56,6 +57,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: JUNIT_VERSION
     testCompile group: 'org.gmock', name: 'gmock', version: GMOCK_VERSION
     testCompile group: 'uk.co.modular-it', name: 'hamcrest-date', version: '0.9.5'
+
+    testCompile group: 'com.h2database', name: 'h2', version: H2_VERSION
 }
 
 def mainClass = 'org.transmartproject.batch.startup.RunJob'

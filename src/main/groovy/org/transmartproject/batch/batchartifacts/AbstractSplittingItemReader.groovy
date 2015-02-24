@@ -1,5 +1,6 @@
 package org.transmartproject.batch.batchartifacts
 
+import com.google.common.collect.Lists
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.*
@@ -10,8 +11,6 @@ import org.springframework.util.ClassUtils
  * Takes input from another {@link ItemStreamReader} and breaks its items into
  * several items.
  *
- * Do not forget to register the delegate stream! See
- * {@url http://docs.spring.io/spring-batch/reference/html/configureStep.html#registeringItemStreams}.
  */
 @Slf4j
 @CompileStatic
@@ -22,50 +21,109 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
     }
 
     protected FieldSet currentFieldSet // saved
-    protected int position // saved
-    protected int upstreamPos
-    protected ItemStreamReader<FieldSet> delegate
+    protected int position             // saved
+    protected int upstreamPos          // saved
+    private Queue<T> cachedValues      // saved, only if eagerLineProcessor
+
+    // to be configured
+    protected ItemStreamReader<FieldSet> delegate // should not be registered as stream
+    EagerLineListener<T> eagerLineListener
 
     private final static String SAVED_FIELD_SET_KEY = 'savedFieldSet'
     private final static String SAVED_POSITION = 'position'
     private final static String SAVED_UPSTREAM_POS = 'upstreamPos'
+    private final static String SAVED_CACHED_ITEMS = 'cachedItems'
 
     @Override
-    @SuppressWarnings('CatchException')
     T read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        if (currentFieldSet == null || position >= currentFieldSet.fieldCount) {
+        if (eagerLineListener) {
+            cachedRead()
+        } else {
+            uncachedRead()
+        }
+    }
+
+    @SuppressWarnings('CatchException')
+    private T cachedRead() {
+        if (!cachedValues) { // empty or null
+            assert needsDelegateFetch()
+            wrappedDelegateLineFetch()
+
+            cachedValues = new LinkedList()
+            while (!needsDelegateFetch()) {
+                def value = uncachedRead()
+                if (value != null) {
+                    cachedValues << value
+                } else {
+                    // we'll break out next:
+                    assert needsDelegateFetch()
+                }
+            }
+
+            if (!cachedValues) {
+                return null
+            }
+
             try {
-                currentFieldSet = fetchNextDelegateLine()
-                position = 0
+                eagerLineListener.onLine(currentFieldSet, cachedValues)
             } catch (Exception e) {
-                log.error "Exception fetching ${upstreamPos + 1}-th line from delegate", e
+                log.error "Exception calling eager line listener on " +
+                        "${upstreamPos}-th line gotten from delegate, " +
+                        "fieldset '$currentFieldSet', items '$cachedValues'", e
                 throw e
             }
         }
+
+        cachedValues.remove()
+    }
+
+    @SuppressWarnings('CatchException')
+    private T uncachedRead() {
+        if (needsDelegateFetch())  {
+            wrappedDelegateLineFetch()
+        }
+
         if (currentFieldSet == null) {
+            // signals the end of the delegate
             log.debug("Delegate $delegate returned null to $this")
             return null
         }
 
         try {
-            doRead()
+            T result = doRead()
+            position++
+            result
         } catch (Exception e) {
             log.error "Exception processing ${upstreamPos}-th line gotten " +
                     "from delegate, column $position, fieldset " +
                     "$currentFieldSet", e
             throw e
-        } finally {
-            position++
         }
+    }
+
+    private void wrappedDelegateLineFetch() {
+        try {
+            currentFieldSet = fetchNextDelegateLine()
+            upstreamPos++
+            position = 0
+        } catch (Exception e) {
+            log.error "Exception fetching ${upstreamPos + 1}-th line from delegate", e
+            throw e
+        }
+    }
+
+    private boolean needsDelegateFetch() {
+        currentFieldSet == null || position >= currentFieldSet.fieldCount
     }
 
     // return null to signal end
     protected FieldSet fetchNextDelegateLine() {
-        def result = delegate.read()
-        upstreamPos++
-        result
+        delegate.read()
     }
 
+    /**
+     * Can't return null.
+     */
     abstract protected T doRead()
 
     @Override
@@ -79,9 +137,14 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         }
         currentFieldSet = (FieldSet) executionContext.get(
                 getExecutionContextKey(SAVED_FIELD_SET_KEY))
+        cachedValues = (Queue) executionContext.get(
+                getExecutionContextKey(SAVED_CACHED_ITEMS))
+
+        delegate.open(executionContext)
+        eagerLineListener?.open(executionContext)
 
         log.debug "Opened $this, got position $position " +
-                "on fieldset $currentFieldSet"
+                "on fieldset $currentFieldSet, cached values $cachedValues"
     }
 
     @Override
@@ -96,6 +159,12 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         executionContext.putInt(
                 getExecutionContextKey(SAVED_UPSTREAM_POS),
                 upstreamPos)
+        executionContext.put(
+                getExecutionContextKey(SAVED_CACHED_ITEMS),
+                cachedValues ? Lists.newLinkedList(cachedValues) : null)
+
+        delegate.update(executionContext)
+        eagerLineListener?.update(executionContext)
     }
 
     @Override
@@ -105,5 +174,12 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         upstreamPos = 0
         position = 0
         currentFieldSet = null
+
+        delegate.close()
+        eagerLineListener?.close()
+    }
+
+    static interface EagerLineListener<T> extends ItemStream {
+        void onLine(FieldSet fieldSet, Collection<T> items)
     }
 }

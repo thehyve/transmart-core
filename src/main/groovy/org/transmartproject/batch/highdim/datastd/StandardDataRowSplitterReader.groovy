@@ -56,7 +56,9 @@ class StandardDataRowSplitterReader extends AbstractSplittingItemReader<Standard
         def result = super.fetchNextDelegateLine()
         if (result && result.fieldCount != patients.size() + 1) {
             throw new ParseException("Expected a row with " +
-                    "${patients.size() + 1} fields, got ${result.fieldCount}")
+                    "${patients.size() + 1} fields (ID_REF plus " +
+                    "${patients.size()} patients/assays), " +
+                    "got ${result.fieldCount}")
         }
 
         result
