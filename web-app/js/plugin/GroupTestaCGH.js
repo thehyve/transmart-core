@@ -490,7 +490,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
                     // load using script tags for cross domain, if the data in on the same domain as
                     // this page, an HttpProxy would be better
                     proxy: new Ext.data.HttpProxy({
-                        url: "../aCGHgroupTest/resultTable"
+                        url: pageInfo.basePath + "/aCGHgroupTest/resultTable"
                     })
 
                 });
