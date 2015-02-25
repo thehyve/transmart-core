@@ -39,6 +39,11 @@ class StandardDataRowSplitterReader extends AbstractSplittingItemReader<Standard
 
     private String lastAnnotationName
 
+    // to be configured
+    // to avoid instantiating a new object in the processor to convert
+    // from standard to triple data
+    Class<? extends StandardDataValue> dataPointClass = StandardDataValue
+
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     private List<Patient> patients = (List<Patient>) ({ ->
@@ -80,7 +85,7 @@ class StandardDataRowSplitterReader extends AbstractSplittingItemReader<Standard
         // has to be provided
         Double value = currentFieldSet.readDouble(position)
 
-        new StandardDataValue(
+        dataPointClass.newInstance(
                 patient: patients[position - 1],
                 annotation: lastAnnotationName,
                 value: value)

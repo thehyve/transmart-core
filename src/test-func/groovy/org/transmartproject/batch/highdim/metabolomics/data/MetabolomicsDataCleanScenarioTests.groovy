@@ -33,8 +33,6 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS = 10
     private final static long NUMBER_OF_METABOLITES = 8
 
-    private final static double ALL_DATA_MEAN = 15.08005460532591
-    private final static double ALL_DATA_STD_DEV = 1.9109326388793457
     private final static double DELTA = 1e-14d
 
     @ClassRule
@@ -103,9 +101,11 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
 
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
+        double xylitolLog2Mean = 16.7066526621115
+        double xylitolLog2StdDev = 2.0594359285213115
         double rawValue = 205043.3d
         double logValue = Math.log(205043.3d) / Math.log(2d)
-        double zscore = (logValue - ALL_DATA_MEAN) / ALL_DATA_STD_DEV
+        double zscore = (logValue - xylitolLog2Mean) / xylitolLog2StdDev
 
         assertThat r, allOf(
                 hasEntry('trial_name', STUDY_ID),

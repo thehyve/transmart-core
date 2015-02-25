@@ -32,13 +32,7 @@ import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
 import org.transmartproject.batch.facts.ObservationFactTableWriter
 import org.transmartproject.batch.highdim.assays.*
-import org.transmartproject.batch.highdim.compute.DataPoint
-import org.transmartproject.batch.highdim.compute.DataPointLogStatisticsWriter
-import org.transmartproject.batch.highdim.compute.MeanAndVariancePromoter
-import org.transmartproject.batch.highdim.compute.OnlineMeanAndVarianceCalculator
-import org.transmartproject.batch.highdim.datastd.DataFileHeaderValidator
-import org.transmartproject.batch.highdim.datastd.StandardDataRowSplitterReader
-import org.transmartproject.batch.highdim.datastd.VisitedAnnotationsReadingValidator
+import org.transmartproject.batch.highdim.datastd.*
 import org.transmartproject.batch.highdim.jobparams.StandardAssayParametersModule
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
 import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
@@ -58,6 +52,7 @@ import org.transmartproject.batch.support.JobParameterFileResource
                 'org.transmartproject.batch.highdim.i2b2',
                 'org.transmartproject.batch.concept',
                 'org.transmartproject.batch.patient', ])
+@SuppressWarnings('MethodCount')
 abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfiguration {
 
     public static final int LOAD_ANNOTATION_CHUNK_SIZE = 5000
@@ -98,8 +93,8 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
         }
 
         flowBuilder
-                // first pass, calculate mean and variance as well as whatever is needed for validation
-                .next(wrapStepWithName('firstPass', firstPass(null, null)))
+                // first pass, do validation
+                .next(wrapStepWithName('firstPass', firstPass()))
 
                 // delete current data
                 .next(deleteCurrentAssayData(null))
@@ -320,18 +315,18 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
      **************/
 
     @Bean
-    Step firstPass(DataPointLogStatisticsWriter dataPointStatisticsWriter,
-                   MeanAndVariancePromoter meanAndVariancePromoter) {
+    Step firstPass() {
         TaskletStep step = steps.get('firstPass')
                 .chunk(DATA_FILE_PASS_CHUNK_SIZE)
                 .reader(firstPassDataRowSplitterReader())
-                .writer(dataPointStatisticsWriter)
+                .processor(warningNonPositiveDataPointToNaNProcessor())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
-                .listener(meanAndVariancePromoter)
                 .build()
 
-        step.streams = [visitedProbesValidatingReader()]
+        // visitedProbesValidatingReader() doesn't need to be registered
+        // (StandardDataRowSplitterReader calls its ItemStream methods)
+        step.streams = [firstPassTsvFileReader(null)]
 
         step
     }
@@ -355,7 +350,10 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     @Bean
     @StepScope
     StandardDataRowSplitterReader firstPassDataRowSplitterReader() {
-        new StandardDataRowSplitterReader(delegate: visitedProbesValidatingReader())
+        new StandardDataRowSplitterReader(
+                delegate: visitedProbesValidatingReader(),
+                dataPointClass: TripleStandardDataValue,
+                eagerLineListener: checkNumberOfValuesValidatingListener())
     }
 
     @Bean
@@ -367,8 +365,14 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
     @Bean
     @JobScope
-    OnlineMeanAndVarianceCalculator onlineMeanAndVarianceCalculator() {
-        new OnlineMeanAndVarianceCalculator()
+    CheckNumberOfValuesValidatingListener checkNumberOfValuesValidatingListener() {
+        new CheckNumberOfValuesValidatingListener()
+    }
+
+    @Bean
+    @JobScope
+    NonPositiveDataPointWarningProcessor warningNonPositiveDataPointToNaNProcessor() {
+        new NonPositiveDataPointWarningProcessor()
     }
 
     /***************
@@ -377,13 +381,16 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
     @Bean
     Step secondPass() {
-        steps.get('secondPass')
+        TaskletStep step = steps.get('secondPass')
                 .chunk(DATA_FILE_PASS_CHUNK_SIZE)
-                .reader(secondPassDataRowSplitterReader())
+                .reader(secondPassReader())
                 .writer(dataPointWriter())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
+
+        step.streams = [secondPassDataRowSplitterReader()]
+        step
     }
 
     abstract ItemWriter<? extends DataPoint> dataPointWriter()
@@ -399,8 +406,22 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     }
 
     @Bean
+    TripleDataValueWrappingReader secondPassReader() {
+        new TripleDataValueWrappingReader(delegate: secondPassDataRowSplitterReader())
+    }
+
+    @Bean
     @StepScope
     StandardDataRowSplitterReader secondPassDataRowSplitterReader() {
-        new StandardDataRowSplitterReader(delegate: secondPassTsvFileReader())
+        new StandardDataRowSplitterReader(
+                delegate: secondPassTsvFileReader(),
+                dataPointClass: TripleStandardDataValue,
+                eagerLineListener: perDataRowLog2StatisticsListener())
+    }
+
+    @Bean
+    @JobScope
+    PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener() {
+        new PerDataRowLog2StatisticsListener()
     }
 }

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.compute
+package org.transmartproject.batch.highdim.datastd
 
 /**
  * A data point that can be fed to the

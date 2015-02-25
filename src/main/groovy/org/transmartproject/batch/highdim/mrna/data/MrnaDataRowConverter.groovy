@@ -4,8 +4,8 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.highdim.compute.StandardValuesCalculator
 import org.transmartproject.batch.highdim.datastd.StandardDataValue
+import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 
 /**
@@ -22,9 +22,6 @@ class MrnaDataRowConverter {
     @Autowired
     private AnnotationEntityMap annotationEntityMap
 
-    @Autowired
-    StandardValuesCalculator standardValuesCalculator
-
     /**
      * @see MrnaDataJobContextItems#getPatientIdAssayIdMap()
      */
@@ -37,7 +34,7 @@ class MrnaDataRowConverter {
     @Value('#{mrnaDataJobContextItems.partitionId}')
     Long partitionId
 
-    Map<String, Object> convertMrnaDataValue(StandardDataValue value) {
+    Map<String, Object> convertMrnaDataValue(TripleStandardDataValue value) {
         Long assayId = patientIdAssayIdMap[value.patient.id]
         if (!assayId) {
             throw new IllegalArgumentException("Passed mrna data value with " +
@@ -52,7 +49,9 @@ class MrnaDataRowConverter {
                 patient_id:    value.patient.code,
                 subject_id:    value.patient.id,
                 partition_id:  partitionId,
-                *:             standardValuesCalculator.getValueTriplet(value)
+                raw_intensity: value.value,
+                log_intensity: value.logValue,
+                zscore:        value.zscore,
         ]
     }
 }

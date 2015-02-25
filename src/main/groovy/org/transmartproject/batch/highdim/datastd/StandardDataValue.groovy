@@ -1,7 +1,6 @@
 package org.transmartproject.batch.highdim.datastd
 
 import groovy.transform.Canonical
-import org.transmartproject.batch.highdim.compute.DataPoint
 import org.transmartproject.batch.patient.Patient
 
 /**

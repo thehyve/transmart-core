@@ -25,7 +25,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.transmartproject.batch.highdim.compute.OnlineMeanAndVarianceCalculator
+import org.transmartproject.batch.highdim.datastd.OnlineMeanAndVarianceCalculator
 
 import javax.sql.DataSource
 
@@ -106,6 +106,9 @@ class AbstractSplittingItemReaderTests {
         @Bean
         @Scope('prototype')
         FailOnNItemSink<Double> failOnNItemSink() {
+            // ATTENTION: we can only do the wrapping at the writer level
+            // because the chunk size aligns with the size of the inner reader
+            // field sets (chunk size is 2 and the field sets have size 4)
             new FailOnNItemSink() {
                 void leftShift(Double o) {
                     super.leftShift(o / meanListener().mean)

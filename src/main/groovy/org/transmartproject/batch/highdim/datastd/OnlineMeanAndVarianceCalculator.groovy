@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.compute
+package org.transmartproject.batch.highdim.datastd
 
 import com.google.common.base.MoreObjects
 import groovy.transform.AutoClone
@@ -15,6 +15,11 @@ class OnlineMeanAndVarianceCalculator implements Serializable {
     private double meanOld, meanNew, varOld, varNew
 
     private final static long serialVersionUID = 1L
+
+    void reset() {
+        n = 0
+        meanOld = meanNew = varOld = varNew = 0d
+    }
 
     void push(double x) {
         n++

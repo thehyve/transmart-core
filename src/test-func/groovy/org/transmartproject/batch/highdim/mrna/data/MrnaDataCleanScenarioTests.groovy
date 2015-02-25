@@ -33,8 +33,6 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS = 8
     private final static long NUMBER_OF_PROBES = 19
 
-    private final static double ALL_DATA_MEAN = 5.8194455019133628
-    private final static double ALL_DATA_STD_DEV = 1.6645581676623318
     private final static double DELTA = 1e-12d
 
     @ClassRule
@@ -147,18 +145,21 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
         double value = 105.912d
         double logValue = Math.log(value) / Math.log(2d)
+        def meanOfLog2 = 7.09228579296992
+        def stdDevOfLog2 = 0.2730897449882774
+
         assertThat r, allOf(
                 hasEntry('patient_id', patientCode),
                 hasEntry('subject_id', 'GSE8581GSM210006'),
                 hasEntry(is('raw_intensity'), closeTo(value, DELTA)),
                 hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
                 hasEntry(is('zscore'),
-                        closeTo((logValue - ALL_DATA_MEAN) / ALL_DATA_STD_DEV, DELTA)),
+                        closeTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
         )
     }
 
     @Test
-    void testRawZerosHaveCorrectLogIntensityAndZscore() {
+    void testRawZerosNANsAndNegativesHaveCorrectValues() {
         def sampleName = 'GSM210005'
         def q = """
                 SELECT raw_intensity, log_intensity, zscore
@@ -175,9 +176,9 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, is(not(empty()))
         assertThat r, everyItem(allOf(
-                hasEntry(is('raw_intensity'), equalTo(0d)),
-                hasEntry(is('log_intensity'), equalTo(Double.NEGATIVE_INFINITY)),
-                hasEntry(is('zscore'), equalTo(-2.5d /* clamp */)),
+                hasEntry(is('raw_intensity'), equalTo(Double.NaN)),
+                hasEntry(is('log_intensity'), equalTo(Double.NaN)),
+                hasEntry(is('zscore'), equalTo(Double.NaN)),
         ))
     }
 }

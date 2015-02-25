@@ -77,21 +77,25 @@ Empty cells are not allowed. NaN are not allowed. Zeros and negative values
 Processing details
 ------------------
 
-The data will be scanned twice. The first pass will validate the data set and
-calculate the mean and standard deviation of the log2 of the raw values.
-Non-positive raw values will be ignored for this purpose.
+The data will be scanned twice. The first pass will only validate the data set.
 
-On the second pass, the data will be inserted to the database. `raw_intensity`
-will be populated with the raw values (converted to a double precision floating
-point), `log_intensity` with `log2(raw_intensity)` (no transformation is made,
-negative raw values will turn into `NaN`s and zeros into `-∞`).
+On the second pass, the data will be inserted in the database. `raw_intensity`
+will be populated with the original values (converted to double precision
+floating points) if the original value is positive and `NaN` otherwise,
+`log_intensity` with `log2(raw_intensity)` (will be `NaN` is `raw_intensity` is
+`NaN`).
 
 The `zscore` column will be calculated as:
 
-    clamp(-2.5, 2.5, (logIntensity - mean) / stdDev)
+    clamp(-2.5, 2.5, (log_intensity - mean) / stdDev)
 
-where `mean` and `stdDev` are the values calculated on the first pass and
-`clamp`  is:
+where `mean` and `stdDev` are values calculated over the `log_intensity` values
+of all the values included in the same row (for the same probe). `NaN`s are
+excluded from the calculation of these statistics. This means each row must have
+at least two positive numbers, otherwise the standard deviation cannot be
+calculated.
+
+Finally, `clamp` is defined as
 
     double clamp(double lowerBound, double upperBound, double value) {
         Math.min(upperBound, Math.max(lowerBound, value))

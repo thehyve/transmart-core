@@ -49,7 +49,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
             assert needsDelegateFetch()
             wrappedDelegateLineFetch()
 
-            cachedValues = new LinkedList()
+            cachedValues = [] as Queue
             while (!needsDelegateFetch()) {
                 def value = uncachedRead()
                 if (value != null) {
@@ -101,6 +101,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         }
     }
 
+    @SuppressWarnings('CatchException')
     private void wrappedDelegateLineFetch() {
         try {
             currentFieldSet = fetchNextDelegateLine()

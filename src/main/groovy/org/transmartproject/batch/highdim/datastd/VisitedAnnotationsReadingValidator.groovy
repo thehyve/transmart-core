@@ -12,7 +12,6 @@ import org.springframework.batch.item.validator.ValidationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.util.ClassUtils
-import org.transmartproject.batch.highdim.compute.DataPoint
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 
 import javax.annotation.PostConstruct
