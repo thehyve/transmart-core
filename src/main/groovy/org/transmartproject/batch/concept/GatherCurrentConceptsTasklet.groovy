@@ -72,7 +72,7 @@ class GatherCurrentConceptsTasklet implements Tasklet {
             }
             params['fullNames'] = fullNames
             log.debug('Concept path list given, will look for {} (those ' +
-                    'given in {} plus their parents', fullNames, conceptPaths)
+                    'given in {} plus their parents)', fullNames, conceptPaths)
         } else {
             sql += 'sourcesystem_cd = :study'
             params['study'] = studyId

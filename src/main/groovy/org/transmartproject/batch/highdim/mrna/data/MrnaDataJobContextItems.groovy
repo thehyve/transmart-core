@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.highdim.assays.SaveAssayIdListener
-import org.transmartproject.batch.highdim.mrna.data.pass.MeanAndVariancePromoter
+import org.transmartproject.batch.highdim.compute.MeanAndVariancePromoter
 import org.transmartproject.batch.highdim.platform.Platform
 import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
 

@@ -16,6 +16,10 @@ repositories {
     maven { url 'https://repo.thehyve.nl/content/groups/public/' }
 }
 
+compileGroovy {
+    options.incremental = true
+}
+
 dependencies {
     final SPRING_VERSION = '4.0.5.RELEASE'
     final BATCH_VERSION = '3.0.1.RELEASE'

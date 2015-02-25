@@ -27,13 +27,13 @@ class SaveAssayIdListener {
     @Value('#{stepExecution.jobExecution.executionContext}')
     ExecutionContext jobExecutionContext
 
-    @AfterStep
+    @AfterStep // non-transactional
     @SuppressWarnings('UnusedMethodParameter')
     ExitStatus afterStep(StepExecution stepExecution) {
         jobExecutionContext.put(MAPPINGS_CONTEXT_KEY, patientIdAssayIdMap)
     }
 
-    @AfterWrite
+    @AfterWrite // transactional
     void afterWrite(List<? extends Assay> items) {
         def assayMappings = patientIdAssayIdMap
         items.each { Assay assay ->

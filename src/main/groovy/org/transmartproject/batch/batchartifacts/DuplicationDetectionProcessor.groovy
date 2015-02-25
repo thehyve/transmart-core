@@ -23,6 +23,8 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
 
     boolean throwOnRepeated = true
 
+    boolean ignoreNullKeys = true
+
     Closure calculateKey = Closure.IDENTITY
 
     /* private fields */
@@ -39,6 +41,10 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
         def key = calculateKey item
         currentItemCount++
 
+        if (ignoreNullKeys && key == null) {
+            return item
+        }
+
         if (seen.containsKey(key)) {
             seenBefore(item, key, seen[key])
         } else {
@@ -49,7 +55,7 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
     }
 
     private void seenBefore(T item, Object key, Long previousLine) {
-        def message = "Item ${item} (key $key) on line $currentItemCount " +
+        def message = "Item ${item} (key '$key') on line $currentItemCount " +
                 "was first seen on line $previousLine"
 
         if (throwOnRepeated) {

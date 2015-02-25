@@ -1,0 +1,4 @@
+DATA_FILE=metabolomics_sample.tsv
+DATA_TYPE=R
+LOG_BASE=2
+MAP_FILENAME=metabolomics_sub_sam_data.tsv

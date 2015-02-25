@@ -5,6 +5,7 @@ import org.springframework.batch.core.StepContribution
 /**
  *
  */
+@Deprecated
 class LineStepContributionAdapter implements LineListener {
 
     final StepContribution contribution

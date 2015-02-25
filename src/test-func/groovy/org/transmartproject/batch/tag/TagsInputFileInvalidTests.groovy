@@ -106,7 +106,7 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
         assertThat execution.exitStatus, allOf(
                 hasProperty('exitCode', is('FAILED')),
                 hasProperty('exitDescription',
-                        containsString('(key [\\, ORGANISM]) on line 5 was first seen on line 2')))
+                        containsString("(key '[\\, ORGANISM]') on line 5 was first seen on line 2")))
     }
 
     @Test

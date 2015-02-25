@@ -18,7 +18,7 @@ if (Files.isRegularFile(overrideFile)) {
 
 appender("stdout", ConsoleAppender) {
   encoder(PatternLayoutEncoder) {
-    pattern = "%d [%thread] [%level] %logger - %msg%n"
+    pattern = "%d [%thread] [%level] %logger{20} - %msg%n"
   }
 }
 
