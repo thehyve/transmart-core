@@ -116,9 +116,10 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
      * @param nameSuffix
      * @param testSegment
      * @param tryAddDASxSources
+     * @param mapping
      * @private
      */
-    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources, genomeReleaseId) {
+    var _addDasSource = function (arr, nameSuffix, testSegment, tryAddDASxSources, mapping) {
 
         arr.forEach(function(nds) {
 
@@ -132,7 +133,11 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                     }
                 }
 
-                tryAddDASxSources(nds, nameSuffix, genomeReleaseId);
+                if (mapping) {
+                    nds.mapping = mapping;
+                }
+
+                tryAddDASxSources(nds, nameSuffix);
 
                 return;
             });
@@ -167,6 +172,43 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
     };
 
+    var _getGenomeBuildMapping = function (genomeReleaseId) {
+        // If the browser's coordinate system doesn't match the genome
+        // release that we got from the node details, check if there is
+        // a mapping (chain) available
+        if (thisB.coordSystem.compatibleIds.indexOf(genomeReleaseId) == -1) {
+            var defaultCoords = thisB.coordSystem.auth + thisB.coordSystem.version +
+                "/" + thisB.coordSystem.ucscName;
+
+            if (thisB.chains) {
+                for (var mapping in thisB.chains) {
+                    var compatibleIds = thisB.chains[mapping].coords.compatibleIds;
+                    if (compatibleIds.indexOf(genomeReleaseId) >= 0) {
+                        alert("The newly added tracks will be mapped from genome release '" +
+                            genomeReleaseId + "' to '" + defaultCoords + "' using mapping '" +
+                            mapping + "'");
+                        return mapping;
+                    }
+                }
+            }
+
+            // Warn if we couldn't find a coordinate mapping
+            if (genomeReleaseId) {
+                alert("Could not find a coordinate mapping for the genome release " +
+                    "specified in the data (" + genomeReleaseId + ") to the genome " +
+                    "browser's coordinate system (" + defaultCoords + "). " +
+                    "If the coordinate systems differ, displayed information will be incorrect.");
+            }
+            else {
+                alert("No genome release version specified for the selected data. " +
+                    "Make sure it was specified correctly at upload in the platform (gpl_info). " +
+                    "Newly added tracks will be displayed as if they were in the genome browser's coordinate system " +
+                    "(" + defaultCoords + "). The displayed information might be incorrect.");
+            }
+        }
+        return "";
+    }
+
     // get result instance id as representative of cohort selection
     // in Comparison tab
     runAllQueries(function () {
@@ -199,6 +241,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
 
         var _nodeDetails = _getNodeDetails(node, function (response) {
 
+            // Get datatype and genome release id
             var dataType = "";
             var genomeReleaseId = "";
             var details = JSON.parse(response);
@@ -211,12 +254,15 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
 
             if (_isHighDimensionalNode(node)) {
+                // Get the mapping to apply and show warnings if appropriate
+                var mapping = _getGenomeBuildMapping(genomeReleaseId);
+
                 // define features
                 var sources = _getTransmartDASSources(res_inst_id_1, node.id, dataType);
-                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources, genomeReleaseId);
+                _addDasSource(sources, res_inst_id_2 ? '-subset 1' : '', testSegment, tryAddDASxSources, mapping);
                 if (res_inst_id_2) {
                     sources = _getTransmartDASSources(res_inst_id_2, node.id, dataType);
-                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources, genomeReleaseId);
+                    _addDasSource(sources, '-subset 2', testSegment, tryAddDASxSources, mapping);
                 }
                 thisB.createAddInfoButton()
             } else {
@@ -231,7 +277,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
          * @param nameSuffix for distinguishing multiple subsets
          * @param retry
          */
-        function tryAddDASxSources(nds, nameSuffix, genomeReleaseId, retry) {
+        function tryAddDASxSources(nds, nameSuffix, retry) {
 
             var uri = nds.uri;
             if (retry) {
@@ -242,7 +288,7 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
             }
             function sqfail() {
                 if (!retry) {
-                    return tryAddDASxSources(nds, nameSuffix, genomeReleaseId, true);
+                    return tryAddDASxSources(nds, nameSuffix, true);
                 } else {
                     return drawTrack(nds);
                 }
@@ -276,45 +322,6 @@ Browser.prototype.addTrackByNode = function (node, result_instance_id_1, result_
                         }
                         if (fs.capabilities) {
                             nds.capabilities = fs.capabilities;
-                        }
-
-                        // If the browser's coordinate system doesn't match the genome
-                        // release that we got from the node details, check if there is
-                        // a mapping (chain) available
-                        if (thisB.coordSystem.compatibleIds.indexOf(genomeReleaseId) == -1) {
-                            var coordsDetermined = false;
-                            var defaultCoords = thisB.coordSystem.auth + thisB.coordSystem.version +
-                                "/" + thisB.coordSystem.ucscName;
-
-                            if (thisB.chains) {
-                                for (var k in thisB.chains) {
-                                    var compatibleIds = thisB.chains[k].coords.compatibleIds;
-                                    if (compatibleIds.indexOf(genomeReleaseId) >= 0) {
-                                        nds.mapping = k;
-                                        coordsDetermined = true;
-                                        alert("Track '" + nds.name + "' will be mapped from genome release '" +
-                                                genomeReleaseId + "' to '" + defaultCoords + "' using mapping '" +
-                                                k + "'");
-                                    }
-                                }
-                            }
-
-                            // Warn if we couldn't find a coordinate mapping
-                            if (!coordsDetermined) {
-                                if (genomeReleaseId) {
-                                    alert("Could not find a coordinate mapping for the genome release " +
-                                        "specified in the data (" + genomeReleaseId + ") to the genome " +
-                                        "browser's coordinate system (" + defaultCoords + "). " +
-                                        "If the coordinate systems differ, displayed information will be incorrect.");
-                                }
-                                else {
-                                    alert("No genome release version specified for the selected data. " +
-                                        "Make sure it was specified correctly at upload in the platform (gpl_info). " +
-                                        "Track will be displayed as if it were in the genome browser's coordinate system " +
-                                        "(" + defaultCoords + "). The displayed information might be incorrect.");
-                                }
-                            }
-
                         }
 
                     }
