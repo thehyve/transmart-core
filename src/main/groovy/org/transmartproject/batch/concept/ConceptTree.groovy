@@ -101,7 +101,7 @@ class ConceptTree {
 
         node =  new ConceptNode(path)
         node.type = type
-        log.debug("Generated new concept node: $node")
+        log.debug("Generated new concept node: $path")
         nodeMap[path] = node
     }
 

@@ -9,8 +9,10 @@ import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
+import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
+import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -19,13 +21,16 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
+import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
 import org.transmartproject.batch.clinical.patient.InsertPatientTrialTasklet
 import org.transmartproject.batch.clinical.patient.InsertUpdatePatientDimensionTasklet
-import org.transmartproject.batch.clinical.variable.ReadVariablesTasklet
+import org.transmartproject.batch.clinical.variable.ClinicalVariable
+import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
 import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
@@ -108,17 +113,23 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     Flow readControlFilesFlow() {
-        def readVariablesTasklet = steps.get('readVariablesTasklet')
+        Step readVariablesStep = steps.get('readVariables')
                 .allowStartIfComplete(true)
-                .tasklet(readVariablesTasklet())
+                .chunk(5)
+                .reader(clinicalVariablesReader(null, null))
+                .processor(compositeOf(
+                    duplicateClinicalVariableDetector(),
+                    duplicateDemographicVariablesDetector(),
+                    duplicateConceptPathDetector()))
+                .writer(saveClinicalVariableList(null))
                 .build()
 
-        def readWordMapTasklet = steps.get('readWordMapTasklet')
+        Step readWordMapStep = steps.get('readWordMap')
                 .allowStartIfComplete(true)
                 .tasklet(readWordMapTasklet())
                 .build()
 
-        def readXtrialsTasklet = steps.get('readXtrialsFileTasklet')
+        Step readXtrialsStep = steps.get('readXtrialsFile')
                 .allowStartIfComplete(true)
                 .chunk(5)
                 .reader(xtrialMappingReader())
@@ -127,10 +138,56 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
         parallelFlowOf(
                 'readControlFilesFlow',
-                readVariablesTasklet,
-                readWordMapTasklet,
-                readXtrialsTasklet,
-        )
+                readVariablesStep,
+                readWordMapStep,
+                readXtrialsStep,)
+    }
+
+    @Bean
+    ItemStreamReader<ClinicalVariable> clinicalVariablesReader(
+            FieldSetMapper<ClinicalVariable> clinicalVariableFieldMapper,
+            ColumnMappingFileHeaderHandler columnMappingFileHeaderValidatingHandler) {
+        tsvFileReader(
+                columnMapFileResource(),
+                mapper: clinicalVariableFieldMapper,
+                saveHeader: columnMappingFileHeaderValidatingHandler,
+                allowMissingTrailingColumns: true,
+                linesToSkip: 1,)
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Resource columnMapFileResource() {
+        new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
+    }
+
+    @Bean
+    @JobScope
+    DuplicationDetectionProcessor<ClinicalVariable> duplicateClinicalVariableDetector() {
+        // equality of ClinicalVariables are based on file and column number
+        new DuplicationDetectionProcessor<ClinicalVariable>(saveState: false)
+    }
+
+    @Bean
+    @JobScope
+    DuplicationDetectionProcessor<ClinicalVariable> duplicateDemographicVariablesDetector() {
+        new DuplicationDetectionProcessor<ClinicalVariable>(
+                saveState: false,
+                calculateKey: { ClinicalVariable it -> it.demographicVariable })
+    }
+
+    @Bean
+    @JobScope
+    DuplicationDetectionProcessor<ClinicalVariable> duplicateConceptPathDetector() {
+        new DuplicationDetectionProcessor<ClinicalVariable>(
+                saveState: false,
+                calculateKey: { ClinicalVariable it -> it.conceptPath })
+    }
+
+    @Bean
+    @JobScope
+    ItemWriter<ClinicalVariable> saveClinicalVariableList(ClinicalJobContext ctx) {
+        new PutInBeanWriter<ClinicalVariable>(bean: ctx.variables)
     }
 
     @Bean
@@ -175,12 +232,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet readWordMapTasklet() {
         new ReadWordMapTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet readVariablesTasklet() {
-        new ReadVariablesTasklet()
     }
 
     @Bean

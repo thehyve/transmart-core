@@ -29,6 +29,7 @@ import org.transmartproject.batch.support.SecureObjectToken
 class CreateSecureStudyTasklet implements Tasklet {
 
     public static final String CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE = 'BIO_CLINICAL_TRIAL'
+
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptPath topNodePath
 

@@ -27,14 +27,10 @@ import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.core.io.Resource
-import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
-import org.transmartproject.batch.batchartifacts.JobContextAwareTaskExecutor
-import org.transmartproject.batch.batchartifacts.LineOfErrorDetectionListener
-import org.transmartproject.batch.batchartifacts.LogCountsStepListener
-import org.transmartproject.batch.batchartifacts.MessageResolverSpringValidator
-import org.transmartproject.batch.batchartifacts.ProgressWriteListener
+import org.transmartproject.batch.batchartifacts.*
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
+import org.transmartproject.batch.support.TokenizerColumnsReplacingHeaderHandler
 
 import static org.springframework.batch.item.file.transform.DelimitedLineTokenizer.DELIMITER_TAB
 
@@ -131,62 +127,98 @@ trait StepBuildingConfigurationTrait {
         new OverriddenNameStep(step: step, newName: name,)
     }
 
+    private LineCallbackHandler toLineCallbackHandler(
+            TokenizerColumnsReplacingHeaderHandler tokenizerColumnsReplacingHeaderHandler,
+            DelimitedLineTokenizer tokenizer) {
+        { String line ->
+            def originalNames = new DelimitedLineTokenizer(DELIMITER_TAB)
+                    .tokenize(line).values as List<String>
+            tokenizer.names = tokenizerColumnsReplacingHeaderHandler
+                    .handleLine(originalNames)
+        } as LineCallbackHandler
+    }
+
+    /**
+     * Options:
+     * strict: true|false (default: yes)
+     * allowMissingTrailingColumns: true|false (default: no)
+     * saveState: true|false (default: yes)
+     * beanClass: JavaBean class
+     *            (optional, o/wise use PassThroughFieldSetMapper)
+     * mapper: FieldSetMapper to use (optional, exclusive with beanClass)
+     * columnNames: names of columns, required if mapping into bean
+     *              properties (List<String> or String[])). Can be
+     *              'auto' to read names from header (linesToSkip
+     *              must be 1 then)
+     * linesToSkip: <int> (default: 0)
+     * saveHeader: true|false|LineCallbackHandler|
+     *             TokenizerColumnsReplacingHeaderHandler object
+     *             (default: false)
+     */
     @TypeChecked
     <T> ItemStreamReader<T> tsvFileReader(Map<String, Object> options,
                                           Resource resource) {
-        /* options:
-         * strict: true|false (default: yes)
-         * saveState: true|false (default: yes)
-         * beanClass: JavaBean class
-         *            (optional, o/wise use PassThroughFieldSetMapper)
-         * columnNames: names of columns, required if mapping into bean
-         *              properties (List<String> or String[])). Can be
-         *              'auto' to read names from header (linesToSkip
-         *              must be 1 then)
-         * linesToSkip: <int> (default: 0)
-         * saveHeader: true|false|LineCallbackHandler object (default: false)
-         *
-         */
         def strict = options.containsKey('strict') ?
                 (boolean) options.strict : true
+        def allowMissingTrailingColumns = options
+                .containsKey('allowMissingTrailingColumns') ?
+                (boolean) options.allowMissingTrailingColumns : false
         def saveHeader = options.containsKey('saveHeader') ?
                 options.saveHeader : false
         int linesToSkip = options.containsKey('linesToSkip') ?
                 (options.linesToSkip as int) : 0
 
+        DelimitedLineTokenizer tokenizer =  new DelimitedLineTokenizer(
+                names: ((options.columnNames && options.columnNames != 'auto') ?
+                        options.columnNames : []) as String[],
+                delimiter: DELIMITER_TAB,
+                strict: !allowMissingTrailingColumns,
+        )
+
         LineCallbackHandler lch = null
         if (saveHeader) {
             if (saveHeader instanceof LineCallbackHandler) {
                 lch = (LineCallbackHandler) saveHeader
+            } else if (saveHeader
+                    instanceof TokenizerColumnsReplacingHeaderHandler) {
+                lch = toLineCallbackHandler(
+                        (TokenizerColumnsReplacingHeaderHandler) saveHeader,
+                        tokenizer)
             } else {
                 lch = headerSavingLineCallbackHandler()
             }
         }
 
         FieldSetMapper<T> mapper
-        if (options.beanClass) {
+        if (options.mapper != null) {
+            if (options.beanClass) {
+                throw new IllegalArgumentException(
+                        'Cannot specify both beanClass and mapper')
+            }
+            if (!(options.mapper instanceof FieldSetMapper)) {
+                throw new IllegalArgumentException('Expected mapper option, ' +
+                        'if provided, to be FieldSetMapper')
+            }
+            mapper = (FieldSetMapper<T>) options.mapper
+        } else if (options.beanClass) {
             mapper = new BeanWrapperFieldSetMapper<T>(
                     targetType: (Class<? extends T>) options.beanClass)
         } else {
             mapper = (FieldSetMapper<T>) new PassThroughFieldSetMapper()
         }
 
-        DelimitedLineTokenizer tokenizer =  new DelimitedLineTokenizer(
-                names: ((options.columnNames && options.columnNames != 'auto') ?
-                        options.columnNames : []) as String[],
-                delimiter: DELIMITER_TAB,
-        )
-
         /* if columnNames is 'auto', read the first line to determine
          * the identity of the columns */
         if (options.columnNames == 'auto') {
             LineCallbackHandler originalLch = lch
             lch = { String line ->
+                tokenizer.names = new DelimitedLineTokenizer(DELIMITER_TAB)
+                        .tokenize(line).values
+                // allow a chance to originalLch to still customize tokenizer
+                // (see metaclass below) among whatever else it wants to do
                 if (originalLch) {
                     originalLch.handleLine line
                 }
-                tokenizer.names = new DelimitedLineTokenizer(DELIMITER_TAB)
-                        .tokenize(line).values
             } as LineCallbackHandler
         }
 
