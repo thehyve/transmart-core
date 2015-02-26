@@ -70,8 +70,8 @@ data file must match exactly the set of probes for the platform.
 The subsequent rows are the sample names, whose set must match that of those in
 the `SAMPLE_CD` column in the mapping file. Again, the order is not important.
 
-Empty cells are not allowed. NaN are not allowed. Zeros and negative values
-*are* allowed (but see below).
+Empty cells are not allowed. Zeros, negative values and NaNs (input as U+FFFD)
+*are* allowed and have the same effect (see below).
 
 
 Processing details
