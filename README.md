@@ -1,6 +1,8 @@
 tranSMART Batch
 ============================
 
+[![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
+
 tranSMART pipeline alternative to ETL, using Spring Batch.
 
 
