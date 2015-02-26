@@ -64,7 +64,8 @@ BEGIN
         'biomart_user',
         'galaxy',
         'searchapp',
-        'biomart'
+        'biomart',
+        'ts_batch'
     ];
 
     FOREACH schema_name IN ARRAY spec LOOP

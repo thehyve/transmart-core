@@ -279,7 +279,8 @@ BEGIN
             'biomart_user',
             'tm_cz',
             'tm_lz',
-            'tm_wz'];
+            'tm_wz',
+            'ts_batch'];
 
     RAISE NOTICE 'Started assigning permissions';
 
