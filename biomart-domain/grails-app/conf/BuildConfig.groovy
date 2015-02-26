@@ -2,6 +2,7 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.dependency.resolver = "maven"
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -24,7 +25,7 @@ grails.project.dependency.resolution = {
     plugins {
         compile(':transmart-java:1.2.2-SNAPSHOT')
         compile(':hibernate:3.6.10.10')
-        build(":release:2.2.1",
+        build(":release:3.0.1",
               ":rest-client-builder:1.0.3") {
             export = false
         }
