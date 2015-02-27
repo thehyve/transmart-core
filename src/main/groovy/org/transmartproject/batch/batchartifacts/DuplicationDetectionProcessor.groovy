@@ -1,6 +1,7 @@
 package org.transmartproject.batch.batchartifacts
 
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.Maps
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemProcessor
@@ -83,8 +84,8 @@ class DuplicationDetectionProcessor<T> extends ItemStreamSupport implements Item
                     getExecutionContextKey(READ_COUNT))
         }
         if (executionContext.containsKey(getExecutionContextKey(KEYS_MAP))) {
-            seen = executionContext.get(
-                    getExecutionContextKey(KEYS_MAP))
+            seen = Maps.newHashMap(executionContext.get(
+                    getExecutionContextKey(KEYS_MAP)))
         }
     }
 
