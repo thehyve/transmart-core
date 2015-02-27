@@ -28,6 +28,7 @@ function test_main_pg {
   make -j4 postgres
 
   test_clinical_load
+  test_clinical_load_tsbatch
   test_solr
 }
 
@@ -35,6 +36,10 @@ function test_clinical_load {
   make -C env data-integration
   make -C samples/postgres load_clinical_GSE8581
   make -C samples/postgres showdblog
+}
+
+function test_clinical_load_tsbatch {
+  USE_TRANSMART_BATCH=1 make -C samples/postgres load_clinical_GSE27831
 }
 
 function test_solr {
