@@ -17,7 +17,7 @@ Parameters
   directory of the parameters file. However, unlike `STUDY_ID`, it is not
   inferred.
 - `TITLE` -- Mandatory. A human readable title for the annotation.
-- `ANNOTATIONS_FILE` -- Required. Either a full path to a TSV file or the name
+- `ANNOTATIONS_FILE` -- Mandatory. Either a full path to a TSV file or the name
   of TSV file under a directory that is a sibling of the parameters file and has
   the same name as the parameters file, minus its extension.
 - `ORGANISM` -- The scientific name of the species the annotation is associated

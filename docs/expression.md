@@ -2,7 +2,7 @@ mRNA
 ==================
 
 For historical reasons, the parameters file for mRNA data is called
-`expression.md`.
+`expression.params`.
 
 Available parameters
 --------------------
