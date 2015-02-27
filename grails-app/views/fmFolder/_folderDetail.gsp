@@ -10,6 +10,14 @@
      
 
      });
+    function openInAnalyze(accession, datasetExplorerPath) {
+        var searchParam = {id: accession,
+            display: 'Accession',
+            keyword: accession,
+            category: 'ACCESSION'};
+
+        addSearchTerm(searchParam, false, true, datasetExplorerPath);
+    }
 </script>
 
 <g:set var="overlayDiv" value="metaData_div" />
@@ -78,7 +86,12 @@
     </g:elseif>
 
     <g:if test="${subjectLevelDataAvailable}">
-        <center><div class="messagebox">Subject-level data is available for this study. <a href="${createLink(controller:'datasetExplorer', action:'index')}?accession=${bioDataObject.accession}">Open in Analyze view</a></div></center>
+        <center><div
+                class="messagebox">Subject-level data is available for this study. <a
+                    href="#"
+                    onclick="openInAnalyze('${bioDataObject.accession}', '${createLink(controller:'datasetExplorer', action:'index')}');">Open in Analyze view</a>
+                </div>
+            </center>
         <br/><br/>
     </g:if>
 
@@ -171,7 +184,7 @@
         <div class="dataTables_wrapper">
             <div class="gridTitle">Associated Files</div>
             <div id="files-table">
-                <tmpl:filesTable folder="${folder}" />
+                <g:render template="filesTable" plugin="folderManagement" model="[folder:folder]"/>
             </div>
         </div>
     </g:if>
