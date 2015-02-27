@@ -19,7 +19,6 @@ install:
     - echo "CREATE ROLE travis_ci SUPERUSER LOGIN PASSWORD 'travis_ci'" | sudo -u postgres psql
     - cd -
     - cp .batchdb-travis.properties batchdb.properties
-    - ./gradlew setupSchema
     - ./gradlew functionalTestPrepare
 
 script:
