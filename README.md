@@ -29,11 +29,14 @@ You can override this behavior with the `-c` option.
 Preparation of the Database
 ---------------------------
 
-This needs to be done only once per database. It creates the spring-batch
-schema. Running it with the capsule executable is probably possible, but not
-supported. Run:
+*This step is no longer needed in new PostgreSQL instances*. Transmart-data
+already creates the necessary tables for spring-batch.
 
-    ./gradlew setupSchema
+On old databases (or Oracle), this needs to be done only once per database. It
+creates the spring-batch schema. Running it with the capsule executable is
+probably possible, but not supported. Run:
+
+	./gradlew setupSchema
 
 Specifying an alternative config file can be done with the Java system property
 `propertySource`.
@@ -81,13 +84,12 @@ Before committing, run:
     ./gradlew check
 
 To run the functional tests, you need to have a dedicated PostgreSQL database
-setup. After setting it up with transmart-data, besides running the
-`setupSchema` target, you will also need to run the `functionalTestPrepare`
-target. So:
+setup. After setting it up with transmart-data, you will also need to run the
+`functionalTestPrepare` target. So:
 
     // only once
-	make -j8 postgres // in transmart-data
-    ./gradlew setupSchema functionalTestPrepare
+    make -j8 postgres // in transmart-data
+    ./gradlew functionalTestPrepare
 
-	// everytime one wants to run the tests
+    // everytime one wants to run the tests
     ./gradlew functionalTest
