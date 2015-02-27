@@ -41,7 +41,8 @@ var defaults = {
         min_two_nodes: 'The {0} must be more than one nodes.',
         min_two_subsets: 'Marker Selection requires two subsets of cohorts to be selected. Please use the Comparison ' +
             'Tab and select the cohorts',
-        identical_elements: 'The {0} are not all the same'
+        identical_elements: 'The {0} are not all the same',
+        missing_elements: 'No matching {0} found'
     },
     callback: function(errors) {
 
@@ -192,7 +193,16 @@ FormValidator.prototype.identical_elements = function (el, label) {
     return this.indexOf(value) === index;
   }
 
-  if (el.filter(onlyUnique, el).length != 1) {
+  var nUnique = el.filter(onlyUnique, el).length;
+
+  console.log("identical_elements nUnique: "+nUnique);
+
+  if (nUnique < 1) {
+    this.push_error(defaults.messages.missing_elements, [label]);
+    returnValue = false;
+  }
+
+  if (nUnique > 1) {
     this.push_error(defaults.messages.identical_elements, [label]);
     returnValue = false;
   }
