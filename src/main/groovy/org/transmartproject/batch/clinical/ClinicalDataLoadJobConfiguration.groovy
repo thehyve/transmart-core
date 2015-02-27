@@ -6,6 +6,7 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
@@ -77,10 +78,17 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean(name = 'ClinicalDataLoadJob')
     @Override
     Job job() {
+        /* Unfortunately the job is not restartable at this point.
+         * The concepts for categorical variables that were created up to the
+         * point were the job failed are not recovered on subsequent runs.
+         * Ditto for the demographic values of patients.
+         * This will need to be solved with either putting PatientSet and the
+         * ConceptTree on the context or, better, with two passes */
         jobs.get(JOB_NAME)
                 .start(mainFlow())
                 .end()
                 .build()
+                .with { FlowJob job ->job.restartable = false; job }
     }
 
     @Bean
