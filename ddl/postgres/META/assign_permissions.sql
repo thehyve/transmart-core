@@ -225,7 +225,7 @@ BEGIN
                 COUNT(*)
             FROM
                 (
-                    SELECT
+                    SELECT DISTINCT
                         (R.rec).grantee,
                         (R.rec).privilege_type
                     FROM
@@ -233,7 +233,7 @@ BEGIN
 
                     UNION ALL
 
-                    SELECT
+                    SELECT DISTINCT
                         (R.rec).grantee,
                         (R.rec).privilege_type
                     FROM
