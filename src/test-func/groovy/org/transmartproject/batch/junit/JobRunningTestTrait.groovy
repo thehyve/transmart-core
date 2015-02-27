@@ -34,9 +34,7 @@ trait JobRunningTestTrait {
                     "${owner.getClass()} to have a static property 'RUN_JOB_RULE'")
         }
 
-        new SkipIfJobFailedRule(
-                jobRepositoryProvider: { -> jobRepository },
-                runJobRule: owner.getClass().RUN_JOB_RULE)
+        new SkipIfJobFailedRule(runJobRule: owner.getClass().RUN_JOB_RULE)
     }()
 
     @Test

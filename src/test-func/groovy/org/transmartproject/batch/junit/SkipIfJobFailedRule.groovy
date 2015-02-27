@@ -2,16 +2,10 @@ package org.transmartproject.batch.junit
 
 import groovy.transform.Canonical
 import org.junit.internal.AssumptionViolatedException
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.repository.JobRepository
-
-import java.util.concurrent.TimeUnit
-
-import static org.hamcrest.Matchers.*
-import static uk.co.it.modular.hamcrest.date.DateMatchers.within
 
 /**
  * To be used together with {@link RunJobRule}.
@@ -19,9 +13,7 @@ import static uk.co.it.modular.hamcrest.date.DateMatchers.within
 @Canonical
 class SkipIfJobFailedRule implements TestRule {
 
-    // we need these three to be able to fetch the execution
-    Closure<JobRepository> jobRepositoryProvider
-    RunJobRule runJobRule
+    TestRule runJobRule
 
     Statement apply(final Statement base, final Description description) {
         if (description.annotations.any { it.annotationType() == NoSkipIfJobFailed }) {
@@ -38,15 +30,16 @@ class SkipIfJobFailedRule implements TestRule {
     }
 
     boolean isJobCompletedSuccessFully() {
-        def execution = jobRepositoryProvider().getLastJobExecution(
-                runJobRule.jobName, runJobRule.jobParameters)
-
-        assert execution != null: 'Could not find execution'
-
-        allOf(
-                is(notNullValue()),
-                within(30, TimeUnit.SECONDS, runJobRule.jobEndDate)
-        ).matches(execution.endTime) &&
-                equalTo(BatchStatus.COMPLETED).matches(execution.status)
+        if (runJobRule instanceof RunJobRule) {
+            runJobRule.result == 0
+        } else if (runJobRule instanceof RuleChain) {
+            runJobRule.rulesStartingWithInnerMost.every {
+                assert it instanceof RunJobRule
+                it.result == 0
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    'Expected RunJobRule or RuleChain, got ' + runJobRule)
+        }
     }
 }

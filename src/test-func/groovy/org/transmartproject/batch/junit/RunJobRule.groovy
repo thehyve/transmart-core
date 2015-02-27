@@ -28,13 +28,14 @@ class RunJobRule extends ExternalResource {
     JobParameters jobParameters
     String jobName
     Date jobEndDate
+    int result = -1
 
     protected void before() throws Throwable {
         CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
         def runJob = RunJob.createInstance(
                 '-p', "studies/$studyId/${dataType}.params" as String,
                 *extraArguments)
-        runJob.run()
+        result = runJob.run()
 
         jobParameters = runJob.finalJobParameters
         jobName = runJob.jobName

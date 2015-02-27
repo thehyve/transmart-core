@@ -2,15 +2,8 @@ package org.transmartproject.batch.highdim.mrna.platform
 
 import com.google.common.io.Files
 import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.launch.support.CommandLineJobRunner
-import org.springframework.batch.core.launch.support.SystemExiter
-import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
@@ -19,7 +12,7 @@ import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.startup.RunJob
+import org.transmartproject.batch.junit.FileCorruptingTestTrait
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
@@ -32,22 +25,10 @@ import static org.springframework.context.i18n.LocaleContextHolder.locale
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class MrnaPlatformMidwayFailTests {
+class MrnaPlatformMidwayFailTests implements FileCorruptingTestTrait {
 
     private final static String PLATFORM_ID = 'GPL570_bogus'
     private final static String PLATFORM_ID_NORM = 'GPL570_bogus'.toUpperCase(locale)
-
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder()
-
-    @BeforeClass
-    static void beforeClass() {
-        CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
-    }
-
-    @Autowired
-    JobRepository repository
 
     @Autowired
     RowCounter rowCounter
@@ -70,37 +51,18 @@ class MrnaPlatformMidwayFailTests {
         MrnaPlatformJobConfiguration.chunkSize = 2
 
         // copy data and corrupt it
-        File dataFile = temporaryFolder.newFile()
-        List<String> lines = linesForFile(originalFile)
-        lines[11] = lines[11][0..<-1] + '_"'
-        dataFile.withWriter { w ->
-            lines.each { w.write it + '\n' }
-        }
+        File dataFile =
+                corruptFile(originalFile, 11, 4, 'Homo Sapiens BAD BATA')
 
         // first execution
-        def runJob = RunJob.createInstance(
+        def params = [
                 '-p', 'studies/' + PLATFORM_ID + '/annotation.params',
-                '-d', 'ANNOTATIONS_FILE=' + dataFile.absolutePath)
-        def intResult = runJob.run()
-        assertThat intResult, is(1)
+                '-d', 'ANNOTATIONS_FILE=' + dataFile.absolutePath]
+        firstExecution(params)
 
-        JobParameters jobParameters = runJob.finalJobParameters
-
-        // fix the file
+        // second execution
         Files.copy(originalFile, dataFile)
-
-        // get last execution id
-        def execution = repository.getLastJobExecution(
-                MrnaPlatformJobConfiguration.JOB_NAME, jobParameters)
-
-        // restart it
-        runJob = RunJob.createInstance(
-                '-p', 'studies/' + PLATFORM_ID + '/annotation.params',
-                '-d', 'ANNOTATIONS_FILE=' + dataFile.absolutePath,
-                '-r', '-j', execution.id as String)
-        intResult = runJob.run()
-
-        assertThat intResult, is(0)
+        secondExecution(params)
 
         // check that we have the correct number of rows
         def count = rowCounter.count Tables.MRNA_ANNOTATION, 'gpl_id = :gpl_id',
@@ -109,11 +71,5 @@ class MrnaPlatformMidwayFailTests {
         /* + 1 because one probe has two genes */
         assertThat count, is(equalTo(
                 MrnaPlatformCleanScenarioTests.NUMBER_OF_PROBES + 1L))
-    }
-
-    private List<String> linesForFile(File file) {
-        def out = []
-        file.eachLine { out << it }
-        out
     }
 }

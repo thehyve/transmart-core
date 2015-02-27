@@ -58,7 +58,8 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     public static final int LOAD_ANNOTATION_CHUNK_SIZE = 5000
     public static final int DELETE_DATA_CHUNK_SIZE = 50
     public static final int WRITE_ASSAY_CHUNK_SIZE = 50
-    public static final int DATA_FILE_PASS_CHUNK_SIZE = 10000
+
+    static int dataFilePassChunkSize = 10000 // non final for testing
 
     final protected Flow mainFlow() {
         mainFlow(null, null, null, null, null, null)
@@ -317,7 +318,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     @Bean
     Step firstPass() {
         TaskletStep step = steps.get('firstPass')
-                .chunk(DATA_FILE_PASS_CHUNK_SIZE)
+                .chunk(dataFilePassChunkSize)
                 .reader(firstPassDataRowSplitterReader())
                 .processor(warningNonPositiveDataPointToNaNProcessor())
                 .listener(logCountsStepListener())
@@ -382,7 +383,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     @Bean
     Step secondPass() {
         TaskletStep step = steps.get('secondPass')
-                .chunk(DATA_FILE_PASS_CHUNK_SIZE)
+                .chunk(dataFilePassChunkSize)
                 .reader(secondPassReader())
                 .writer(dataPointWriter())
                 .listener(logCountsStepListener())

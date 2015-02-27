@@ -1,5 +1,6 @@
 package org.transmartproject.batch.support
 
+import com.sun.org.apache.xpath.internal.operations.String
 import org.transmartproject.batch.clinical.db.objects.Tables
 
 /**
@@ -29,5 +30,12 @@ class TableLists {
                     "${Tables.METAB_SUB_PATH}, " +
                     "${Tables.METAB_SUPER_PATH}, " +
                     "${Tables.METAB_DATA}",
+    ]
+
+    public static final List<String> MRNA_TABLES = [
+            "${Tables.GPL_INFO} CASCADE",
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.MRNA_DATA,
+            Tables.MRNA_ANNOTATION,
     ]
 }

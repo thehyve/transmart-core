@@ -52,12 +52,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
                         *TableLists.CLINICAL_TABLES,
-                        "${Tables.GPL_INFO} CASCADE",
-                        Tables.MRNA_ANNOTATION,
-                        'ts_batch.batch_job_instance CASCADE',
-                        Tables.SUBJ_SAMPLE_MAP,
-                        Tables.MRNA_DATA,
-                )
+                        *TableLists.MRNA_TABLES,
+                        'ts_batch.batch_job_instance CASCADE',)
     }
 
     @Test
