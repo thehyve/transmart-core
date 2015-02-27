@@ -1274,8 +1274,9 @@ class FmFolderController {
         def file = FmFile.get(id)
         def folder = file.getFolder()
         if (file) {
+            log.info("deleting file ${file} in folder ${folder}")
             fmFolderService.deleteFile(file)
-            render(template: 'filesTable', plugin: "folderManagement", model: [folder: folder, hlFileIds: []])
+            render(template: '/fmFolder/filesTable', plugin: "folderManagement", model: [folder: folder, hlFileIds: []])
         } else {
             render(status: 404, text: "FmFile not found")
         }
@@ -1406,6 +1407,7 @@ class FmFolderController {
         //Get the folder ID for the study selected
         def paramMap = params
         def experiment = null
+        log.info("getFolderFiles id ${params.id} accession ${params.accession} returnJSON ${params.returnJSON}")
         if (params.id) {
             experiment = Experiment.get(params.id)
         } else if (params.accession) {
@@ -1422,7 +1424,8 @@ class FmFolderController {
             }
             render infoList as JSON
         } else {
-            render(template: 'filesTable', plugin: "folderManagement", model: [folder: folder])
+            log.info("rendering filesTable folder ${folder}")
+            render(template: '/fmFolder/filesTable', plugin: "folderManagement", model: [folder: folder])
         }
     }
 
