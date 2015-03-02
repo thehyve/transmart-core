@@ -42,6 +42,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
+import org.transmartproject.rest.misc.CurrentUser
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
@@ -77,6 +78,10 @@ class StudyLoadingServiceTests {
         // post-processor based autowiring
         beanFactory.autowireBean(testee)
 
+        // the injected bean has scope request, which won't do
+        testee.currentUser = new CurrentUser()
+        beanFactory.autowireBean(testee.currentUser)
+
         /* mock web request */
         grailsWebRequest = GrailsWebUtil.bindMockWebRequest()
 
@@ -87,7 +92,7 @@ class StudyLoadingServiceTests {
         /* setup spring security service mock
          * maybe we could also use http://grails.org/plugin/spring-security-mock */
         springSecurityServiceMock = mock(SpringSecurityService)
-        testee.springSecurityService = springSecurityServiceMock
+        testee.currentUser.springSecurityService = springSecurityServiceMock
 
         /* spring security is disabled in test env; activate it because the
          * testee skips the whole thing otherwise */
@@ -154,7 +159,7 @@ class StudyLoadingServiceTests {
     void testGrantAccessWhenNoSpringSecurityService() {
         studyInRequest = AccessLevelTestData.STUDY2
 
-        testee.springSecurityService = null
+        testee.currentUser.springSecurityService = null
 
         assertThat testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
