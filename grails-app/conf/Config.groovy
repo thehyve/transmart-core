@@ -137,6 +137,12 @@ log4j = {
     trace 'org.springframework.security',
             'grails.plugin.springsecurity'
 
+    environments {
+        test {
+            error 'org.transmartproject.rest.misc.CurrentUser'
+        }
+    }
+
     root {
         info('stdout')
     }
@@ -144,6 +150,8 @@ log4j = {
 
 grails.converters.json.pretty.print = true
 grails.plugin.springsecurity.active = false
+
+grails.mime.disable.accept.header.userAgents = false
 
 environments {
     production {

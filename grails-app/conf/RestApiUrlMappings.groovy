@@ -60,7 +60,7 @@ class RestApiUrlMappings {
                 controller: 'highDim', action: 'index', method: 'GET'
         )
 
-       "/studies/$studyId/concepts/$conceptId**/highdim/$dataType"(
+        "/studies/$studyId/concepts/$conceptId**/highdim/$dataType"(
                 controller: 'highDim', action: 'download', method: 'GET'
         )
 
@@ -73,6 +73,8 @@ class RestApiUrlMappings {
                 '/observations'(controller: 'observation', action:'indexBySubject')
             }
         }
+
+        '/patient_sets'(resources: 'patientSet',  include:['index', 'show', 'save'])
 
     }
 }
