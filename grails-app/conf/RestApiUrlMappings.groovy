@@ -74,5 +74,7 @@ class RestApiUrlMappings {
             }
         }
 
+        '/patient_sets'(resources: 'patientSet',  include:['index', 'show', 'save'])
+
     }
 }

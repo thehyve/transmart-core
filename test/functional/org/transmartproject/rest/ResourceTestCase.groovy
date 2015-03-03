@@ -30,8 +30,7 @@ import org.codehaus.groovy.grails.web.json.JSONElement
 import org.hamcrest.Matcher
 
 import static org.hamcrest.Matchers.*
-
-import static org.thehyve.commons.test.FastMatchers.*
+import static org.thehyve.commons.test.FastMatchers.mapWith
 
 abstract class ResourceTestCase extends APITestCase {
 
@@ -43,14 +42,17 @@ abstract class ResourceTestCase extends APITestCase {
         JSON
     }
 
-    /**
-     * @param path
-     * @return JSON result from HAL response
-     */
-    JSONElement getAsHal(String path) {
+    JSONElement postAsHal(String path, Closure paramSetup = null) {
+        doAsHal 'post', path, paramSetup
+    }
+
+    JSONElement getAsHal(String path, Closure paramSetup = null) {
+        doAsHal 'get', path
+    }
+
+    JSONElement doAsHal(String method, String path, Closure paramSetup = null) {
         client.setStickyHeader('Accept', contentTypeForHAL)
-        get(path)
-        assertContentType contentTypeForHAL
+        "$method"(path, paramSetup)
 
         //cannot use client.responseAsString, as HAL is considered binary and is trimmed (no parsing is possible)
         //grails.converters.JSON.parse(client.responseAsString)

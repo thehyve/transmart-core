@@ -20,6 +20,8 @@ The return message's body will contain JSON with additional HAL format, with the
 | get subjects with concept | GET `/studies/{studyId}/concepts/{conceptPath}/subjects` | returns the subjects which have data for this concept |
 | get all observations | GET `/studies/{studyId}/observations` | returns all clinical observation values for a study |
 | get observations for single concept | GET `/studies/{studyId}/concepts/{conceptPath}/observations` | returns clinical observation values for one concept for a study |
+| create patient set | POST `/patient_sets` | body should be query definition in a subset of i2b2's XML schema. Response is the same as for GET `/patient_sets/{result_instance_id}`  |
+| get single patient set | GET `/patient_sets/{resultInstanceId}` | returns information a previously created patient set |
 | get index of highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections for this highdim concept for a study |
 | get highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}` | returns highdim data of a specific dataType and projection for one concept of a study |
 

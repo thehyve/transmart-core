@@ -36,9 +36,6 @@ import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropert
 
 class PatientSerializationHelper implements HalOrJsonSerializationHelper<Patient> {
 
-    @Resource
-    StudyLoadingService studyLoadingServiceProxy
-
     final Class targetType = Patient
 
     final String collectionName = 'subjects'
@@ -49,7 +46,7 @@ class PatientSerializationHelper implements HalOrJsonSerializationHelper<Patient
 
     @Override
     Collection<Link> getLinks(Patient patient) {
-        def studyName = studyLoadingServiceProxy.studyLowercase.encodeAsURL()
+        def studyName = patient.trial.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
         //TODO add more relationships (for instance, the parent study)
         [new Link(RELATIONSHIP_SELF, "/studies/$studyName/subjects/$patient.id")]
