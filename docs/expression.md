@@ -107,9 +107,6 @@ Finally, `clamp` is defined as
 Clamping may not be a good idea, but it was implemented in this fashion in order
 to match the value in the Kettle + stored procedure pipeline.
 
-This implies that the `zscore` value for negative inputs will be `NaN`, and for
-zero raw intensity values will be `-2.5`.
-
   [1]: https://jira.thehyve.nl/browse/JE-52
 
 <!-- vim: tw=80 et ft=markdown spell:
