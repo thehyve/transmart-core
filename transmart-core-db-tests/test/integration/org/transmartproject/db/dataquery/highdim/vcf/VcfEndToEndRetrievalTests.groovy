@@ -28,6 +28,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.test.Matchers
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
@@ -273,6 +274,47 @@ class VcfEndToEndRetrievalTests {
                 // as the assayId is decreased while creating the assays
                 contains( "A/A", "C/A", "A/C" )
         ))
+    }
+
+    @Test
+    void testNonUniquePosChrEntries() {
+        // Add other DeVariantSubjectDetailCoreDb with same chr, pos as existing
+        def detail = testData.createDetail(3, 'A', 'G', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
+        detail.rsId = 'dummyId'
+
+        int mut = 0
+        def summariesData = []
+        testData.indexData.eachWithIndex { summaryIndex, idx ->
+            mut++
+            def summary = testData.createSummary(detail, mut & 1, (mut & 2) >> 1, testData.assays[idx], summaryIndex)
+            summary.rsId = detail.rsId
+            summariesData += summary
+        }
+        detail.save()
+        TestDataHelper.save(summariesData)
+
+
+        List dataConstraints = [vcfResource.createDataConstraint(
+                DataConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [chromosome: "1", start: 3, end: 3]
+                ]
+        )]
+        def projection = vcfResource.createProjection [:], 'cohort'
+
+        dataQueryResult = vcfResource.retrieveData(
+                [], dataConstraints, projection)
+
+        def resultList = dataQueryResult.rows.toList()
+        assertThat(resultList, hasSize(2))
+        assertThat(resultList, hasItem(allOf(
+                hasProperty('referenceAllele', equalTo('A')),
+                hasProperty('alternatives', equalTo('C,T'))
+        )))
+        assertThat(resultList, hasItem(allOf(
+                hasProperty('referenceAllele', equalTo('A')),
+                hasProperty('alternatives', equalTo('G'))
+        )))
     }
 
     @Test

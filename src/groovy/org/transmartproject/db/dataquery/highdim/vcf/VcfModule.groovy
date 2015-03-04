@@ -140,6 +140,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
             }
             order 'chr',  'asc'
             order 'pos',  'asc'
+            order 'rsId', 'asc'
             order 'assayId',  'asc' // important
 
             // because we're using this transformer, every column has to have an alias
@@ -162,7 +163,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 assayIdFromRow:        { it[0].assayId } ,
-                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos },
+                inSameGroup:           { a, b -> a[0].chr == b[0].chr && a[0].pos == b[0].pos && a[0].rsId == b[0].rsId },
                 finalizeGroup:         { List list -> /* list of all the results belonging to a group defined by inSameGroup */
                     /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
