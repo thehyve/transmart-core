@@ -26,6 +26,7 @@
 package org.transmartproject.rest
 
 import com.google.common.collect.AbstractIterator
+import grails.web.RequestParameter
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.*
@@ -34,6 +35,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.querytool.QueriesResource
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.rest.marshallers.ObservationWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
@@ -47,6 +50,7 @@ class ObservationController {
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource patientsResourceService
     ConceptsResource conceptsResourceService
+    QueriesResource queriesResourceService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of observations for study XXX
@@ -57,6 +61,91 @@ class ObservationController {
         TabularResult<ClinicalVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(
                         study.patients, variables)
+        try {
+            respond wrapObservations(observations, variables)
+        } finally {
+            observations.close()
+        }
+    }
+
+    /**
+     * GET /observations
+     * Not bound to a study.
+     *
+     * Parameters: patient_sets  => list of result instance ids or
+     *                              single patient set id (integer)
+     *                              Cannot be combined with patients
+     *             patients      => list of patient ids or
+     *                              single patient id (integer)
+     *                              Cannot be combined with patient_sets.
+     *                              Avoid specifying a large list for
+     *                              performance reasons
+     *             concept_paths => list of concepts paths or
+     *                              single concept path (string).
+     *                              Mandatory
+     *
+     *             variable_type => the type of clinical variable to create.
+     *                              Defaults to 'normalized_leafs_variable'
+     *
+     * List
+     */
+    def indexStandalone(@RequestParameter('variable_type') String variableType) {
+        List<Long> resultInstanceIds
+        List<Long> patientIds
+        List<String> conceptPaths
+        wrapException(NumberFormatException) {
+            resultInstanceIds = params.getList('patient_sets')
+                    .collect { it as Long }
+            patientIds = params.getList('patients').collect { it as Long }
+            conceptPaths = params.getList('concept_paths')
+        }
+
+        if (resultInstanceIds && patientIds) {
+            throw new InvalidArgumentsException('patient_sets and patients ' +
+                    'cannot be given simultaneously')
+        }
+        if (!resultInstanceIds && !patientIds) {
+            throw new InvalidArgumentsException(
+                    'Either patient_sets or patients must be given')
+        }
+        if (!conceptPaths) {
+            throw new InvalidArgumentsException(
+                    'At least one concept path must be given')
+        }
+
+        List<ClinicalVariable> variables
+        wrapException(IllegalArgumentException) {
+            variables = conceptPaths.collect {
+                clinicalDataResourceService.createClinicalVariable(
+                        variableType ?: NORMALIZED_LEAFS_VARIABLE,
+                        concept_path: it)
+            }
+        }
+
+        TabularResult<ClinicalVariable, PatientRow> observations
+
+        if (resultInstanceIds) {
+            List<QueryResult> queryResults
+            wrapException(NoSuchResourceException) {
+                queryResults = resultInstanceIds.collect {
+                    queriesResourceService.getQueryResultFromId(it)
+                }
+            }
+
+            observations = clinicalDataResourceService.retrieveData(
+                    queryResults, variables)
+        } else {
+            Set<Patient> patients
+            wrapException(NoSuchResourceException) {
+                patients = patientIds.collect {
+                    patientsResourceService.getPatientById(it)
+                }
+            }
+
+            observations = clinicalDataResourceService.retrieveData(
+                    patients, variables)
+        }
+
         try {
             respond wrapObservations(observations, variables)
         } finally {
@@ -184,6 +273,19 @@ class ObservationController {
                         subject: currentRow.patient,
                         label: currentVar.label,
                         value: value)
+            }
+        }
+    }
+
+    private static void wrapException(Class<? extends Exception> exceptionType,
+                                      Closure<Void> code) {
+        try {
+            code.call()
+        } catch (Exception e) {
+            if (exceptionType.isAssignableFrom(e.getClass())) {
+                throw new InvalidArgumentsException(e)
+            } else {
+                throw e
             }
         }
     }
