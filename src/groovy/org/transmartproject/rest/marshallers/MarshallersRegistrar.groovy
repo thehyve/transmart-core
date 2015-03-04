@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AssignableTypeFilter
 
+import static org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration.DEFAULT_PRIORITY
 import static org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerBeanDefinition
 
 /**
@@ -44,12 +45,17 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * a new renderer on the application context and we must also register the
  * JSON Marshaller so that {@link grails.converters.JSON} knows what to do
  * when it find <code>foo as JSON</code>.
+ *
+ * Also register the {@link IteratorMarshaller}.
  */
 @Log4j
 public class MarshallersRegistrar implements FactoryBean {
 
     @Autowired
     ApplicationContext ctx
+
+    @Autowired
+    IteratorMarshaller iteratorMarshaller
 
     String packageName
 
@@ -103,10 +109,15 @@ public class MarshallersRegistrar implements FactoryBean {
         original[0].toLowerCase(Locale.ENGLISH) + original.substring(1)
     }
 
+    private void registerMiscMarshallers() {
+        JSON.registerObjectMarshaller iteratorMarshaller, DEFAULT_PRIORITY - 10
+    }
+
     @Override
     Object getObject() throws Exception {
         scanForClasses()
-        null /* we would have need this for the side effects */
+        registerMiscMarshallers()
+        null /* we only this factory bean for the side effects */
     }
 
     final Class<?> objectType = null

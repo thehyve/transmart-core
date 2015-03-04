@@ -91,4 +91,18 @@ class ObservationsResourceTests extends ResourceTestCase {
 
         assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
     }
+
+    void testVariablesAreNormalized() {
+        get("/studies/study_id_2/concepts/sex/observations")
+        assertStatus 200
+
+        assertThat JSON, allOf(
+                hasSize(2),
+                everyItem(
+                        hasEntry('label', '\\foo\\study2\\sex\\'),
+                ),
+                containsInAnyOrder(
+                                hasEntry('value', 'male'),
+                                hasEntry('value', 'female')))
+    }
 }

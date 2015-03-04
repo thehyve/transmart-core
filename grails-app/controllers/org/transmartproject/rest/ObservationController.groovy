@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import com.google.common.collect.AbstractIterator
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.*
@@ -35,6 +36,8 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.marshallers.ObservationWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
+
+import static org.transmartproject.core.dataquery.clinical.ClinicalVariable.NORMALIZED_LEAFS_VARIABLE
 
 class ObservationController {
 
@@ -50,11 +53,12 @@ class ObservationController {
      */
     def index() {
         def study = studyLoadingServiceProxy.study
+        def variables = [createClinicalVariable(study.ontologyTerm)]
         TabularResult<ClinicalVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study.patients,
-                        [createClinicalVariable(study.ontologyTerm)])
+                clinicalDataResourceService.retrieveData(
+                        study.patients, variables)
         try {
-            respond wrapObservations(observations)
+            respond wrapObservations(observations, variables)
         } finally {
             observations.close()
         }
@@ -64,11 +68,12 @@ class ObservationController {
      *  This will return the list of observations for study XXX and concept YYY
      */
     def indexByConcept() {
+        def variables = [createClinicalVariable(concept)]
         TabularResult<ClinicalVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData(study.patients,
-                        [createClinicalVariable(concept)])
+                clinicalDataResourceService.retrieveData(
+                        study.patients, variables)
         try {
-            respond wrapObservations(observations)
+            respond wrapObservations(observations, variables)
         } finally {
             observations.close()
         }
@@ -78,11 +83,12 @@ class ObservationController {
      *  This will return the list of observations for study XXX and subject YYY
      */
     def indexBySubject() {
+        def variables = [createClinicalVariable(study.ontologyTerm)]
         TabularResult<ClinicalVariable, PatientRow> observations =
-                clinicalDataResourceService.retrieveData([patient] as Set,
-                        [createClinicalVariable(study.ontologyTerm)])
+                clinicalDataResourceService.retrieveData(
+                        [patient] as Set, variables)
         try {
-            respond wrapObservations(observations)
+            respond wrapObservations(observations, variables)
         } finally {
             observations.close()
         }
@@ -90,7 +96,7 @@ class ObservationController {
 
     private ClinicalVariable createClinicalVariable(OntologyTerm term) {
         clinicalDataResourceService.createClinicalVariable(
-                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
+                NORMALIZED_LEAFS_VARIABLE,
                 concept_path: term.fullName)
     }
 
@@ -124,30 +130,61 @@ class ObservationController {
         patient
     }
 
-    private static List<ObservationWrapper> wrapObservations(
-            TabularResult<ClinicalVariable, PatientRow> tabularResult) {
-        List<ObservationWrapper> observations = []
-        def variableColumns = tabularResult.getIndicesList()
-        tabularResult.getRows().each { row ->
-            variableColumns.each { ClinicalVariableColumn topVar ->
-                def value = row.getAt(topVar)
+    private static Iterator<ObservationWrapper> wrapObservations(
+            TabularResult<ClinicalVariable, PatientRow> tabularResult,
+            List<ClinicalVariable> originalVariables) {
+        new TabularResultObservationsIterator(
+                originalRowIterator: tabularResult.getRows(),
+                clinicalVariables: originalVariables,)
+    }
 
-                if (value instanceof Map) {
-                    value.each { ClinicalVariableColumn var, Object obj ->
-                        observations << new ObservationWrapper(
-                                subject: row.patient,
-                                label: var.label,
-                                value: obj)
-                    }
+    static class TabularResultObservationsIterator
+            extends AbstractIterator<ObservationWrapper> {
+
+        Iterator<PatientRow> originalRowIterator
+        List<ClinicalVariable> clinicalVariables
+
+        private PatientRow currentRow
+        private Iterator<ClinicalVariableColumn> clinicalVariableIterator
+        private Iterator<Map.Entry<ClinicalVariableColumn, Object>> complexCellIterator
+
+        @Override
+        protected ObservationWrapper computeNext() {
+            if (complexCellIterator) {
+                if (complexCellIterator.hasNext()) {
+                    Map.Entry<ClinicalVariableColumn, Object> entry =
+                            complexCellIterator.next()
+
+                    return new ObservationWrapper(
+                            subject: currentRow.patient,
+                            label: entry.key.label,
+                            value: entry.value)
                 } else {
-                    observations << new ObservationWrapper(
-                            subject: row.patient,
-                            label: topVar.label,
-                            value: value)
-                    }
+                    complexCellIterator = null
+                }
+            }
+
+            if (!clinicalVariableIterator?.hasNext()) {
+                if (!originalRowIterator.hasNext()) {
+                    return endOfData()
+                }
+
+                currentRow = originalRowIterator.next()
+                clinicalVariableIterator = clinicalVariables.iterator()
+            }
+
+            def currentVar = clinicalVariableIterator.next()
+            def value = currentRow.getAt(currentVar)
+
+            if (value instanceof Map) {
+                complexCellIterator = value.iterator()
+                computeNext()
+            } else {
+                new ObservationWrapper(
+                        subject: currentRow.patient,
+                        label: currentVar.label,
+                        value: value)
             }
         }
-
-        observations
     }
 }
