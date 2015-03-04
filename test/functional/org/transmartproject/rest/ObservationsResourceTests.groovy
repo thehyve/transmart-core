@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import static org.codehaus.groovy.grails.web.json.JSONObject.NULL
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
@@ -90,5 +91,80 @@ class ObservationsResourceTests extends ResourceTestCase {
         assertStatus 200
 
         assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
+    }
+
+    void testVariablesAreNormalized() {
+        get("/studies/study_id_2/concepts/sex/observations")
+        assertStatus 200
+
+        assertThat JSON, allOf(
+                hasSize(2),
+                everyItem(
+                        hasEntry('label', '\\foo\\study2\\sex\\'),
+                ),
+                containsInAnyOrder(
+                                hasEntry('value', 'male'),
+                                hasEntry('value', 'female')))
+    }
+
+    void testIndexStandalonePatientSet() {
+        get('/observations') {
+            patient_sets = '1'
+            concept_paths = '\\foo\\study1\\bar\\'
+        }
+
+        assertStatus 200
+
+        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
+    }
+
+    void testIndexStandalone() {
+        get('/observations') {
+            patients = -101
+            concept_paths = '\\foo\\study1\\bar\\'
+        }
+
+        assertStatus 200
+
+        assertThat JSON, contains(
+                hasEntry(is('subject'),
+                        hasEntry('id', -101)))
+    }
+
+    void testIndexStandaloneDefaultIsNormalizedLeaves() {
+        get(('/observations' +
+                '?patients=-201' +
+                '&patients=-202' +
+                '&concept_paths=\\foo\\study2\\sex\\')
+                .replaceAll('\\\\', '%5C'))
+
+        assertStatus 200
+
+        // should be normalized
+        assertThat JSON, allOf(
+                hasSize(2),
+                containsInAnyOrder(
+                        allOf(
+                                hasEntry('label', '\\foo\\study2\\sex\\'),
+                                hasEntry('value', 'male')),
+                        allOf(
+                                hasEntry('label', '\\foo\\study2\\sex\\'),
+                                hasEntry('value', 'female'))))
+    }
+
+    void testIndexStandaloneDifferentVariableType() {
+        get(('/observations?variable_type=terminal_concept_variable' +
+                '&patients=-201' +
+                '&patients=-202' +
+                '&concept_paths=\\foo\\study2\\sex\\')
+                .replaceAll('\\\\', '%5C'))
+
+        assertStatus 200
+
+        assertThat JSON, allOf(
+                hasSize(2),
+                everyItem(allOf(
+                        hasEntry('label', '\\foo\\study2\\sex\\'),
+                        hasEntry(is('value'), is(NULL)))))
     }
 }
