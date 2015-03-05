@@ -110,7 +110,7 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
     }
 
     private void process(String annotation) throws Exception {
-        int annotationIndex = annotationToIndex[annotation]
+        Integer annotationIndex = annotationToIndex[annotation]
         if (annotationIndex == null) {
             throw new ValidationException(
                     "Annotation $annotation is not in this platform")
