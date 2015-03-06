@@ -176,7 +176,7 @@ final class RunJob {
         def ds = opts.ds
         def paramOverrides = [:]
         if (ds) {
-            for (int i = 0; i < ds.size() / 2; i++) {
+            for (int i = 0; i < ds.size(); i += 2) {
                 paramOverrides[ds[i]] = ds[i + 1]
             }
         }

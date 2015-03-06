@@ -3,6 +3,7 @@ package org.transmartproject.batch.highdim.mrna.data
 import com.google.common.io.Files
 import org.junit.After
 import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -64,8 +65,14 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
 
     File originalFile = new File('studies/GSE8581/expression/GSE8581_series_matrix.txt')
 
+    @BeforeClass
+    static void beforeClass() {
+        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
+    }
+
     @AfterClass
     static void cleanDatabase() {
+        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 10000
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(
@@ -90,8 +97,6 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
     @Test
     @SuppressWarnings('JUnitTestMethodWithoutAssert')
     void testFailMidwayFirstStep() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
-
         File dataFile = corruptFile(originalFile, 9, 3, 'CORRUPTION')
 
         def params = [
@@ -110,8 +115,6 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
 
     @Test
     void testFailMidwaySecondStep() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
-
         def params = [
                 '-p', 'studies/' + STUDY_ID + '/expression.params',
                 '-d', 'DATA_FILE_PREFIX=' + originalFile.absolutePath]

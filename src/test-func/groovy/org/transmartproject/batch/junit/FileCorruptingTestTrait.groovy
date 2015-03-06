@@ -1,5 +1,7 @@
 package org.transmartproject.batch.junit
 
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.FromString
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.springframework.batch.core.JobExecution
@@ -46,10 +48,19 @@ trait FileCorruptingTestTrait {
 
     File corruptFile(File originalFile, int line, int column, String newValue) {
         // copy data and corrupt it
+        alterFile(originalFile) {
+            it[line][column] = newValue
+            null
+        }
+    }
+
+    File alterFile(File originalFile,
+                   @ClosureParams(value = FromString, options = ['List<List<String>>']) Closure<Void> closure) {
+        // copy data and modify it
         File corruptedFile = temporaryFolder.newFile()
 
         List<List<String>> fileContent = parseFile(originalFile)
-        fileContent[line][column] = newValue
+        closure.call(fileContent)
         writeFile(corruptedFile, fileContent)
 
         corruptedFile

@@ -38,6 +38,8 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
     @Autowired
     private AnnotationEntityMap annotationEntityMap
 
+    private boolean allowMissingAnnotations // see related setter below
+
     private final static String SEEN_ANNOTATIONS_KEY = 'seenAnnotations'
 
     private BiMap<String, Integer> annotationToIndex
@@ -55,6 +57,11 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
         }
 
         annotationToIndex = builder.build()
+    }
+
+    @Value("#{jobParameters['ALLOW_MISSING_ANNOTATIONS']}")
+    void setAllowMissingAnnotations(String value) {
+        allowMissingAnnotations = value == 'Y'
     }
 
     @Override
@@ -82,9 +89,15 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
         }
 
         if (missingAnnotations) {
-            throw new ValidationException('The set of seen annotations is ' +
+            def msg = 'The set of seen annotations is ' +
                     'smaller than that specified in the annotation file. ' +
-                    "Missing annotations: $missingAnnotations")
+                    "Missing annotations: $missingAnnotations"
+
+            if (allowMissingAnnotations) {
+                log.info(msg)
+            } else {
+                throw new ValidationException(msg)
+            }
         }
     }
 
