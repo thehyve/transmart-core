@@ -22,7 +22,6 @@ package org.transmartproject.db.dataquery.highdim.correlations
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.util.logging.Log4j
-import org.codehaus.groovy.grails.orm.hibernate.query.AbstractHibernateCriteriaBuilder
 import org.hibernate.Criteria
 import org.hibernate.HibernateException
 import org.hibernate.criterion.CriteriaQuery
