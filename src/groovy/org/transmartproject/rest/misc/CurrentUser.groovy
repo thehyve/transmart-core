@@ -1,5 +1,6 @@
 package org.transmartproject.rest.misc
 
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +24,8 @@ class CurrentUser implements User {
     @Autowired
     private UsersResource usersResourceService
 
-    def springSecurityService
+    @Autowired(required = false)
+    SpringSecurityService springSecurityService
 
     @Lazy
     private User delegate = { ->
