@@ -181,6 +181,7 @@ class MetabolomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration 
     ItemProcessor duplicateHmdbProcessor() {
         new DuplicationDetectionProcessor(
                 saveState: false,
+                throwOnRepeated: false, // only warn
                 calculateKey: { MetabolomicsAnnotationRow row ->
                     row.hmdbId
                 })
