@@ -6,7 +6,7 @@
 	 for each row begin
 	 if inserting then
 	 if :NEW."CONCEPT_CD" is null then
-	 select TM_CZ.CONCEPT_ID.nextval into :NEW."CONCEPT_CD" from dual;
+	 select CONCEPT_ID.nextval into :NEW."CONCEPT_CD" from dual;
 	 end if;
 	 end if;
 	 end;
