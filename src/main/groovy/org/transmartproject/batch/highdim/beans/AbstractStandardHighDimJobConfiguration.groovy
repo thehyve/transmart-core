@@ -112,7 +112,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
                 .next(stepOf('insertConceptCountsTasklet', insertConceptCountsTasklet(null, null)))
 
                 // second pass, write
-                .next(secondPass())
+                .next(secondPass(null))
 
                 .build()
     }
@@ -381,11 +381,12 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
      ***************/
 
     @Bean
-    Step secondPass() {
+    Step secondPass(FilterNaNsItemProcessor filterNaNsItemProcessor) {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(secondPassReader())
                 .writer(dataPointWriter())
+                .processor(filterNaNsItemProcessor)
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()

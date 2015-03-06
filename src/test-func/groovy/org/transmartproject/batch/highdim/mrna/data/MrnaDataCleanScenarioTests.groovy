@@ -31,6 +31,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static String PLATFORM_ID = 'GPL570_bogus'
 
     private final static long NUMBER_OF_ASSAYS = 8
+    // the first assay only has zeros, negative numbers and NaNs
+    private final static long NUMBER_OF_ASSAYS_WITH_VALID_DATA = 7
     private final static long NUMBER_OF_PROBES = 19
 
     private final static double DELTA = 1e-12d
@@ -71,7 +73,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 'trial_name = :study_id',
                 study_id: STUDY_ID
 
-        assertThat count, is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES))
+        assertThat count,
+                is(equalTo(NUMBER_OF_ASSAYS_WITH_VALID_DATA * NUMBER_OF_PROBES))
     }
 
     @Test
@@ -155,7 +158,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testRawZerosNANsAndNegativesHaveCorrectValues() {
+    void testRawZerosNANsAndNegativesAreOmitted() {
         def sampleName = 'GSM210005'
         def q = """
                 SELECT raw_intensity, log_intensity, zscore
@@ -170,11 +173,6 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
         List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
 
-        assertThat r, is(not(empty()))
-        assertThat r, everyItem(allOf(
-                hasEntry(is('raw_intensity'), equalTo(Double.NaN)),
-                hasEntry(is('log_intensity'), equalTo(Double.NaN)),
-                hasEntry(is('zscore'), equalTo(Double.NaN)),
-        ))
+        assertThat r, is(empty())
     }
 }

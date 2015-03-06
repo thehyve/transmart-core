@@ -27,6 +27,8 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_ASSAYS_WITH_VALID_DATA
+import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_PROBES
 
 /**
  * For mRNA, test a failure midway the first pass, and then restart the job with
@@ -38,9 +40,6 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
 
     private final static String STUDY_ID = 'GSE8581'
     private final static String PLATFORM_ID = 'GPL570_bogus'
-
-    private final static long NUMBER_OF_ASSAYS = 8
-    private final static long NUMBER_OF_PROBES = 19
 
     private final static double DELTA = 1e-12d
 
@@ -168,6 +167,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         def count = rowCounter.count Tables.MRNA_DATA, 'trial_name = :study_id',
                 study_id: STUDY_ID
 
-        assertThat count, is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES))
+        assertThat count,
+                is(equalTo(NUMBER_OF_ASSAYS_WITH_VALID_DATA * NUMBER_OF_PROBES))
     }
 }
