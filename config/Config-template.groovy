@@ -28,7 +28,6 @@ ui {
     tabs {
         //Search was not part of 1.2. It's not working properly. You need to set `show` to `true` to see it on UI
         search.show = false
-        
         browse.hide = false
         //Note: analyze tab is always shown
         sampleExplorer.hide = false
@@ -393,7 +392,7 @@ if (samlEnabled) {
     }
 
     org { transmart { security {
-        samlEnabled = true
+        setProperty('samlEnabled', true) // clashes with local variable
         ssoEnabled  = "true"
 
         // URL to redirect to after successful authentication
@@ -485,7 +484,7 @@ if (samlEnabled) {
     } } }
 } else { // if (!samlEnabled)
     org { transmart { security {
-        samlEnabled = false
+        setProperty('samlEnabled', false) // clashes with local variable
     } } }
 }
 /* }}} */

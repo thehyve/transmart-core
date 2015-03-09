@@ -33,6 +33,19 @@ EOD
 // Password strength criteria, please change description accordingly
 //com.recomdata.passwordstrength.pattern = ~/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W]).*$/
 
+// Password strength regex that is used to test user's passwords that are entered by themselves.
+// Take care to change org.transmartproject.app.user.ChangePasswordCommand.newPassword.lowPasswordStrength
+// variable inside messages.properties file of web app.
+/*
+user.password.strength.regex = '''(?x)
+^
+(?=.*[A-Z])      #Ensure string has an uppercase letter.
+(?=.*[!@\\#$&*]) #Ensure string has one special case letter.
+(?=.*[0-9])      #Ensure string has a digit.
+.{8,}            #Ensure string length is not less then 8.
+$'''
+*/
+
 // Password strength description, please change according to pattern
 //com.recomdata.passwordstrength.description =
 //    'It should contain a minimum of 8 characters including at least ' +

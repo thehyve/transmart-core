@@ -6,7 +6,7 @@
     AS $$
 BEGIN
 	 if NEW.CONCEPT_CD is null then
-	 select nextval('tm_cz.CONCEPT_ID') into NEW.CONCEPT_CD;
+	 select nextval('CONCEPT_ID') into NEW.CONCEPT_CD;
 	 end if;
 	 RETURN NEW;
 	 end;
