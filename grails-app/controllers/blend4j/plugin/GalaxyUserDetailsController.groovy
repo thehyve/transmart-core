@@ -75,7 +75,6 @@ class GalaxyUserDetailsController {
         }
 
         Boolean isSaved = galaxyUserDetailsService.saveNewGalaxyUser(params.username, params.galaxyKey, params.mailAddress)
-        System.err.println(isSaved);
         if (isSaved) {
             flash.message = 'User Created'
 
