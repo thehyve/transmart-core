@@ -64,8 +64,15 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
             stats.push Math.log(it.value) // unscaled
         }
 
-        log.debug("Annotation ${fieldSet.readString(0)}: mean=$mean, " +
+
+        def annotationName = fieldSet.readString(0)
+        log.debug("Annotation $annotationName: mean=$mean, " +
                 "stddev=$standardDeviation n=${stats.n} ignored=$ignoredCount")
+
+        if (standardDeviation == 0.0d && stats.n > 0) {
+            log.warn("Values for annotation $annotationName have zero " +
+                    "standard deviation; their zscore will be NaN!")
+        }
     }
 
     @Override
