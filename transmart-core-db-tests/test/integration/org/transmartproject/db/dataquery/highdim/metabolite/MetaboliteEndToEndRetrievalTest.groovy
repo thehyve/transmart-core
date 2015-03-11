@@ -237,4 +237,24 @@ class MetaboliteEndToEndRetrievalTest {
         )
     }
 
+    @Test
+    void testNaNInZscore() {
+        // with the current impl of the loading job in transmart-batch,
+        // zscore can be NaN if the std dev is 0
+        def dataPoint = testData.data[0]
+        dataPoint.zscore = Double.NaN
+        dataPoint.save(flush: true)
+
+        def assayConstraint = highDimensionResourceService.
+                createAssayConstraint(AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
+                        ids: [dataPoint.assay.id])
+
+        result = metaboliteResource.retrieveData(
+                [assayConstraint], [], projection)
+
+        def res = Lists.newArrayList(result)
+
+        assertThat res, hasItem(contains(Double.NaN))
+    }
+
 }
