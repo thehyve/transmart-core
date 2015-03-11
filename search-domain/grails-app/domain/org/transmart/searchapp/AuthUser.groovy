@@ -33,6 +33,7 @@ class AuthUser extends Principal {
     String email
     String federatedId
     boolean emailShow
+    Boolean changePassword
 
     /** plain password to create a MD5 password */
     String pass = '[secret]'
@@ -50,6 +51,7 @@ class AuthUser extends Principal {
             emailShow column: 'EMAIL_SHOW'
             authorities joinTable: [name: 'SEARCH_ROLE_AUTH_USER', key: 'AUTHORITIES_ID', column: 'PEOPLE_ID']
             groups joinTable: [name: 'SEARCH_AUTH_GROUP_MEMBER', column: 'AUTH_GROUP_ID', key: 'AUTH_USER_ID']
+            changePassword column: 'CHANGE_PASSWD'
         }
     }
 
@@ -58,6 +60,7 @@ class AuthUser extends Principal {
         userRealName(blank: false)
         passwd(blank: false)
         email(nullable: true, maxSize: 255)
+        changePassword(nullable: true)
         federatedId(nullable: true)
     }
 
