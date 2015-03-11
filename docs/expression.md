@@ -77,7 +77,7 @@ The subsequent rows are the sample names, whose set must match that of those in
 the `SAMPLE_CD` column in the mapping file. Again, the order is not important.
 
 Empty cells are not allowed. Zeros, negative values and NaNs (input as U+FFFD)
-*are* allowed and have the same effect (see below).
+*are* allowed and have the same effect among each other (see below).
 
 
 Processing details
@@ -85,21 +85,22 @@ Processing details
 
 The data will be scanned twice. The first pass will only validate the data set.
 
-On the second pass, the data will be inserted in the database. `raw_intensity`
-will be populated with the original values (converted to double precision
-floating points) if the original value is positive and `NaN` otherwise,
-`log_intensity` with `log2(raw_intensity)` (will be `NaN` is `raw_intensity` is
-`NaN`).
+n the second pass, the data will be inserted in the database. Zeros, negative
+values and NaNs in the data file will *not* be inserted into the database.
+
 
 The `zscore` column will be calculated as:
 
     clamp(-2.5, 2.5, (log_intensity - mean) / stdDev)
 
 where `mean` and `stdDev` are values calculated over the `log_intensity` values
-of all the values included in the same row (for the same probe). `NaN`s are
-excluded from the calculation of these statistics. This means each row must have
-at least two positive numbers, otherwise the standard deviation cannot be
-calculated.
+of all the values included in the same row (for the same probe). If the original
+value (before the log calculation) was a non-positive number or `NaN`s, then it
+will be excluded from the calculation of these statistics. This means each row
+must have at least two positive numbers, otherwise the standard deviation cannot
+be calculated. If the standard deviation is zero, the resulting zscore for all
+the values in the row will be NaN. This NaN value *will be inserted* into the
+database.
 
 Finally, `clamp` is defined as
 
