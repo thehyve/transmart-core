@@ -38,9 +38,8 @@ import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
-import org.transmartproject.db.dataquery.highdim.tworegion.DeTwoRegionJunction
-import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
 import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
+import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -62,7 +61,7 @@ class HighDimensionAllDataTests {
     static Collection<Object[]> getParameters() { return [
         [
             'metabolite',
-            [rawIntensity: BigDecimal, logIntensity: BigDecimal, zscore: BigDecimal],
+            [rawIntensity: double, logIntensity: double, zscore: double],
             [hmdbId:String, biochemicalName:String],
             MetaboliteTestData
         ], [
@@ -173,8 +172,21 @@ class HighDimensionAllDataTests {
                         hasKey(col),
                         hasProperty(col))
 
+                def targetType = type
+                if (type.isPrimitive()) {
+                    // groovy will box the primitive next, so convert the type
+                    // to the boxed one
+                    switch (type) {
+                        case Double.TYPE:
+                            targetType = Double
+                            break
+                        default:
+                            throw new UnsupportedOperationException()
+                    }
+                }
+
                 assertThat  "${owner.type.dataTypeName}: $col is not of expected type.",
-                        data."$col".getClass(), typeCompatibleWith(type)
+                        data."$col".getClass(), typeCompatibleWith(targetType)
             }
         } finally {
             result?.close()
