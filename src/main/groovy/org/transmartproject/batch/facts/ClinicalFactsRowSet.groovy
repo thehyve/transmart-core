@@ -15,7 +15,9 @@ class ClinicalFactsRowSet {
     String siteId
     String visitName
 
-    Date date = new Date()
+    private final static Date BOGUS_START_DATE = new GregorianCalendar(1970, 0, 1).time
+
+    private final Date date = new Date()
 
     final List<ClinicalFact> clinicalFacts = []
 
@@ -92,6 +94,7 @@ class ClinicalFactsRowSet {
                     valtype_cd: valueTypeCode,
                     tval_char: stringValue,
                     nval_num: numericValue,
+                    start_date: BOGUS_START_DATE, // in i2b2 schema, part of PK
                     import_date: date,
 
                     provider_id: '@',

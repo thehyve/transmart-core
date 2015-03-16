@@ -9,13 +9,15 @@ import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.step.tasklet.CallableTaskletAdapter
+import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemStreamReader
-import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.file.transform.FieldSet
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -24,12 +26,14 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 import org.transmartproject.batch.beans.AppConfig
-import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.TableTruncator
 
 import javax.sql.DataSource
+import java.util.concurrent.Callable
 
 /**
  * Context for job that prepares the database for functional tests.
@@ -54,19 +58,43 @@ class TestDatabasePrepareConfiguration {
     }
 
     @Bean
-    Job fillTablesJob() {
-        jobs.get('fillTablesJob')
-                .start(fillTablesFlow())
+    Job testDatabasePrepareJob() {
+        jobs.get('testDatabasePrepareJob')
+                .start(flow(null))
                 .end()
                 .build()
     }
 
     @Bean
-    Flow fillTablesFlow() {
-        new FlowBuilder<SimpleFlow>('fillTablesFlow')
-                .start(loadModifierDimension())
-                .next(loadModifierMetadata())
+    Flow flow(ObservationFactPKFixupTasklet observationFactPKFixupTasklet) {
+        def fixupObservationFactPKStep = steps
+                .get('fixupObservationFact')
+                .tasklet(observationFactPKFixupTasklet)
                 .build()
+
+        def truncateCodeLookupStep = steps
+                .get('truncatCodeLookup')
+                .tasklet(truncateCodeLookupTasklet(null))
+                .build()
+
+        new FlowBuilder<SimpleFlow>('fillTablesFlow')
+                .start(fixupObservationFactPKStep)
+                .next(truncateCodeLookupStep)
+                .next(loadModifierDimension())
+                .next(loadModifierMetadata())
+                .next(loadTableAccess())
+                .next(loadCodeLookup())
+                .build()
+    }
+
+    @Bean
+    Tasklet truncateCodeLookupTasklet(JdbcTemplate jdbcTemplate) {
+        new CallableTaskletAdapter(callable: { ->
+            new TableTruncator(
+                    jdbcTemplate: new NamedParameterJdbcTemplate(jdbcTemplate)
+            ).truncate(Tables.CODE_LOOKUP)
+            RepeatStatus.FINISHED
+        } as Callable<RepeatStatus>)
     }
 
     @Bean
@@ -79,8 +107,8 @@ class TestDatabasePrepareConfiguration {
     }
 
     @Bean
-    @StepScopeInterfaced
-    ItemWriter<FieldSet> modifierPathWriter() {
+    @StepScope
+    TsvFieldSetJdbcBatchItemWriter modifierPathWriter() {
         fieldSetJdbcWriter(Tables.MODIFIER_DIM)
     }
 
@@ -95,9 +123,39 @@ class TestDatabasePrepareConfiguration {
     }
 
     @Bean
-    @StepScopeInterfaced
-    ItemWriter<FieldSet> modifierMetadataWriter() {
+    @StepScope
+    TsvFieldSetJdbcBatchItemWriter modifierMetadataWriter() {
         fieldSetJdbcWriter(Tables.MODIFIER_METADATA)
+    }
+
+    @Bean
+    Step loadTableAccess() {
+        steps.get('loadTableAccess')
+                .chunk(CHUNK_SIZE)
+                .reader(tsvFileReader(new ClassPathResource('i2b2/table_access.tsv')))
+                .writer(tableAccessWriter())
+                .build()
+    }
+
+    @Bean
+    @StepScope
+    TsvFieldSetJdbcBatchItemWriter tableAccessWriter() {
+        fieldSetJdbcWriter(Tables.TABLE_ACCESS)
+    }
+
+    @Bean
+    @StepScope
+    TsvFieldSetJdbcBatchItemWriter codeLookupWriter() {
+        fieldSetJdbcWriter(Tables.CODE_LOOKUP)
+    }
+
+    @Bean
+    Step loadCodeLookup() {
+        steps.get('loadCodeLookup')
+                .chunk(CHUNK_SIZE)
+                .reader(tsvFileReader(new ClassPathResource('i2b2/code_lookup.tsv')))
+                .writer(codeLookupWriter())
+                .build()
     }
 
     @Bean
@@ -124,7 +182,7 @@ class TestDatabasePrepareConfiguration {
     }
 
     // has to be bean!
-    private ItemWriter<FieldSet> fieldSetJdbcWriter(String table) {
+    private TsvFieldSetJdbcBatchItemWriter fieldSetJdbcWriter(String table) {
         new TsvFieldSetJdbcBatchItemWriter(table: table)
     }
 

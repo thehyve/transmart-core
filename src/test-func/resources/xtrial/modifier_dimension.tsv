@@ -11,3 +11,4 @@ modifier_path	modifier_cd	name_char	modifier_blob	update_date	download_date	impo
 \Findings\Laboratory Tests\	CLABORATORYTESTS	Laboratory Tests							1	F
 \Findings\Laboratory Tests\Forced Expiratory Volume (FEV1)\	SNOMED:F-0320A	Forced Expiratory Volume (FEV1)							2	L
 \Demographics\Age\	SNOMED:F-08101	Age							0	L
+\Principal Diagnosis\	1	Principal Diagnosis	""	2011-04-14 00:55:00		2011-04-14 00:55:00	DEMO		0	L

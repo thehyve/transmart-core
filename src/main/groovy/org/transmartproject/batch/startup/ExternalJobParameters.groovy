@@ -171,6 +171,16 @@ final class ExternalJobParameters {
                             "Parameter $parameter mandatory but not defined")
                 }
             }
+
+            void mungeBoolean(String parameter, boolean defaultValue) {
+                if (this[parameter] == null) {
+                    this[parameter] = defaultValue ? 'Y' : 'N'
+                } else if (this[parameter] in ['0', 'false', 'N']) {
+                    this[parameter] = 'N'
+                } else {
+                    this[parameter] = 'Y'
+                }
+            }
         }
     }
 }

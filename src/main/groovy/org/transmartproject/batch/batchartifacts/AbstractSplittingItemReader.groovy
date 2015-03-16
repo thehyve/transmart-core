@@ -104,11 +104,11 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
     @SuppressWarnings('CatchException')
     private void wrappedDelegateLineFetch() {
         try {
-            currentFieldSet = fetchNextDelegateLine()
             upstreamPos++
+            currentFieldSet = fetchNextDelegateLine()
             position = 0
         } catch (Exception e) {
-            log.error "Exception fetching ${upstreamPos + 1}-th line from delegate", e
+            log.error "Exception fetching ${upstreamPos}-th line from delegate", e
             throw e
         }
     }

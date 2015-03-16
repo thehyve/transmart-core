@@ -16,4 +16,8 @@ class RowCounter {
                 "SELECT COUNT(*) FROM $table$whereClause",
                 params, Long)
     }
+
+    long count(String table, String where = '') {
+        count([:], table, where)
+    }
 }

@@ -2,6 +2,7 @@ package org.transmartproject.batch.beans
 
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.runtime.MethodClosure
+import org.slf4j.LoggerFactory
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
@@ -11,9 +12,9 @@ import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineCallbackHandler
+import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
@@ -151,13 +152,14 @@ trait StepBuildingConfigurationTrait {
      *              'auto' to read names from header (linesToSkip
      *              must be 1 then)
      * linesToSkip: <int> (default: 0)
+     * emptyStringsToNull: true|false (default: false)
      * saveHeader: true|false|LineCallbackHandler|
      *             TokenizerColumnsReplacingHeaderHandler object
      *             (default: false)
      */
     @TypeChecked
-    <T> ItemStreamReader<T> tsvFileReader(Map<String, Object> options,
-                                          Resource resource) {
+    <T> ResourceAwareItemReaderItemStream<T> tsvFileReader(
+            Map<String, Object> options, Resource resource) {
         def strict = options.containsKey('strict') ?
                 (boolean) options.strict : true
         def allowMissingTrailingColumns = options
@@ -168,12 +170,17 @@ trait StepBuildingConfigurationTrait {
         int linesToSkip = options.containsKey('linesToSkip') ?
                 (options.linesToSkip as int) : 0
 
-        DelimitedLineTokenizer tokenizer =  new DelimitedLineTokenizer(
-                names: ((options.columnNames && options.columnNames != 'auto') ?
-                        options.columnNames : []) as String[],
-                delimiter: DELIMITER_TAB,
-                strict: !allowMissingTrailingColumns,
-        )
+        if (!allowMissingTrailingColumns && !options.columnNames &&
+                !saveHeader) {
+            // TODO: change default of allowMissingTrailingColumns to true
+            LoggerFactory.getLogger(StepBuildingConfigurationTrait).warn(
+                    'allowMissingTrailingColumns: false will have no effect')
+        }
+
+        DelimitedLineTokenizer tokenizer = createTsvTokenizer(
+                options.emptyStringsToNull,
+                options.columnNames,
+                allowMissingTrailingColumns)
 
         LineCallbackHandler lch = null
         if (saveHeader) {
@@ -242,6 +249,22 @@ trait StepBuildingConfigurationTrait {
                 saveState: options.containsKey('saveState') ?
                         (boolean) options.saveState : true,
         )
+    }
+
+    private DelimitedLineTokenizer createTsvTokenizer(emptyStringsToNull,
+                                                      columnNames,
+                                                      allowMissingTrailingColumns) {
+        def tokenizerClass = DelimitedLineTokenizer
+        if (emptyStringsToNull) {
+            tokenizerClass = EmptyStringsToNullLineTokenizer
+        }
+
+        tokenizerClass.newInstance(
+                names: ((columnNames && columnNames != 'auto') ?
+                        columnNames : []) as String[],
+                delimiter: DELIMITER_TAB,
+                strict: !allowMissingTrailingColumns,)
+
     }
 
     Validator adaptValidator(

@@ -8,6 +8,7 @@ import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobS
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
+import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
@@ -29,6 +30,7 @@ final class RunJob {
             'expression': MrnaDataJobSpecification,
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
             'metabolomics': MetabolomicsDataJobSpecification,
+            'i2b2': I2b2JobSpecification,
     ]
 
     OptionAccessor opts
