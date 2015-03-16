@@ -46,6 +46,30 @@ user.password.strength.regex = '''(?x)
 $'''
 */
 
+//Alternative color scheme for aCGH BED tracks.
+//Current colors are captured from cghCall R package.
+//Although do not correspond exactly.
+/*
+dataExport {
+    bed {
+        acgh {
+            rgbColorScheme {
+                //white
+                invalid       = [255, 255, 255]
+                //red
+                loss          = [205,   0,   0]
+                //dark
+                normal        = [ 10,  10,  10]
+                //green
+                gain          = [  0, 255,   0]
+                //dark green
+                amplification = [  0, 100,   0]
+            }
+        }
+    }
+}
+*/
+
 // Password strength description, please change according to pattern
 //com.recomdata.passwordstrength.description =
 //    'It should contain a minimum of 8 characters including at least ' +
