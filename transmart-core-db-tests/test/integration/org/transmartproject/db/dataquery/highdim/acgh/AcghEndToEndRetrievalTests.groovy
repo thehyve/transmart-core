@@ -111,11 +111,30 @@ class AcghEndToEndRetrievalTests {
         assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].name)),
-                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)))
+                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
+                hasProperty('platform', allOf(
+                        hasProperty('id', equalTo(testData.regionPlatform.id)),
+                        hasProperty('title', equalTo(testData.regionPlatform.title)),
+                        hasProperty('organism', equalTo(testData.regionPlatform.organism)),
+                        hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
+                        hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
+                        hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
+                )),
+        )
+
         assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
-                hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)))
+                hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)),
+                hasProperty('platform', allOf(
+                        hasProperty('id', equalTo(testData.regionPlatform.id)),
+                        hasProperty('title', equalTo(testData.regionPlatform.title)),
+                        hasProperty('organism', equalTo(testData.regionPlatform.organism)),
+                        hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
+                        hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
+                        hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
+                )),
+        )
 
         assertThat regionRows[1][assayColumns[1]],
                 hasSameInterfaceProperties(AcghValues, testData.acghData[0])

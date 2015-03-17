@@ -32,6 +32,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
@@ -115,6 +116,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
         criteriaBuilder.with {
             createAlias 'jRegion', 'region', INNER_JOIN
+            createAlias 'jRegion.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'acgh.assay.id', 'assayId'
@@ -134,6 +136,13 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 property 'region.end', 'end'
                 property 'region.numberOfProbes', 'numberOfProbes'
                 property 'region.geneSymbol', 'geneSymbol'
+
+                property 'platform.id', 'platformId'
+                property 'platform.title', 'platformTitle'
+                property 'platform.organism', 'platformOrganism'
+                property 'platform.annotationDate', 'platformAnnotationDate'
+                property 'platform.markerType', 'platformMarkerType'
+                property 'platform.genomeReleaseId', 'platformGenomeReleaseId'
             }
 
             order 'region.id', 'asc'
@@ -174,6 +183,17 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                             end: cell.end,
                             numberOfProbes: cell.numberOfProbes,
                             bioMarker: cell.geneSymbol,
+                            platform: new PlatformImpl(
+                                    id:              cell.platformId,
+                                    title:           cell.platformTitle,
+                                    organism:        cell.platformOrganism,
+                                    //It converts timestamp to date
+                                    annotationDate:  cell.platformAnnotationDate ?
+                                            new Date(cell.platformAnnotationDate.getTime())
+                                            : null,
+                                    markerType:      cell.platformMarkerType,
+                                    genomeReleaseId: cell.platformGenomeReleaseId
+                            ),
 
                             assayIndexMap: assayIndexMap
                     )
