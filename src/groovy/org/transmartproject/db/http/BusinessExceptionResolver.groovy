@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.http
 
-import grails.util.Holders
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.web.mapping.DefaultUrlMappingInfo
 import org.codehaus.groovy.grails.web.mapping.UrlMappingData
@@ -31,10 +30,11 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 import org.springframework.web.servlet.ModelAndView
 import org.transmartproject.core.exceptions.*
 
-import javax.annotation.PostConstruct
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+
+import static javax.servlet.http.HttpServletResponse.*
 
 class BusinessExceptionResolver implements ServletContextAware,
         HandlerExceptionResolver, Ordered {
@@ -46,14 +46,7 @@ class BusinessExceptionResolver implements ServletContextAware,
 
     String controllerName = 'businessException'
     String actionName = 'index'
-
-    Boolean oldUrlMappings
-
-    @PostConstruct
-    void init() {
-        oldUrlMappings = Holders.pluginManager.
-                getGrailsPlugin('urlMappings').version ==~ /2\.2\..+/
-    }
+    boolean handleAll = false
 
     private final ModelAndView EMPTY_MV = new ModelAndView()
 
@@ -63,16 +56,13 @@ class BusinessExceptionResolver implements ServletContextAware,
             '.transmartproject.db.http.BusinessExceptionResolver.EXCEPTION'
 
     static statusCodeMappings = [
-            /* we may want to make this list dynamic in future, for instance by
-             * marking the relevant exceptions with an annotation
-             */
-            (NoSuchResourceException):        HttpServletResponse.SC_NOT_FOUND,
-            (InvalidRequestException):        HttpServletResponse.SC_BAD_REQUEST,
-            (InvalidArgumentsException):      HttpServletResponse.SC_BAD_REQUEST,
-            (EmptySetException):              HttpServletResponse.SC_NOT_FOUND,
-            (UnsupportedByDataTypeException): HttpServletResponse.SC_BAD_REQUEST,
-            (UnexpectedResultException):      HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-            (AccessDeniedException):          HttpServletResponse.SC_FORBIDDEN,
+            (NoSuchResourceException):        SC_NOT_FOUND,
+            (InvalidRequestException):        SC_BAD_REQUEST,
+            (InvalidArgumentsException):      SC_BAD_REQUEST,
+            (EmptySetException):              SC_NOT_FOUND,
+            (UnsupportedByDataTypeException): SC_BAD_REQUEST,
+            (UnexpectedResultException):      SC_INTERNAL_SERVER_ERROR,
+            (AccessDeniedException):          SC_FORBIDDEN,
     ]
 
     private Throwable resolveCause(Throwable t) {
@@ -107,15 +97,19 @@ class BusinessExceptionResolver implements ServletContextAware,
             e = resolveCause(e)
         }
 
+        if (!exceptionPlusStatus && handleAll) {
+            exceptionPlusStatus = [
+                    (REQUEST_ATTRIBUTE_EXCEPTION): ex,
+                    (REQUEST_ATTRIBUTE_STATUS): SC_INTERNAL_SERVER_ERROR
+            ]
+        }
+
         /* we know this exception */
         if (exceptionPlusStatus) {
             log.debug("BusinessExceptionResolver will handle exception ${e}")
             Map model = exceptionPlusStatus
 
-            UrlMappingInfo info
-
-            if (!oldUrlMappings) {
-                info = new DefaultUrlMappingInfo(
+            UrlMappingInfo info = new DefaultUrlMappingInfo(
                     (Object) null, /* redirectInfo */
                     controllerName,
                     actionName,
@@ -127,11 +121,7 @@ class BusinessExceptionResolver implements ServletContextAware,
                     [:],           /* params */
                     (UrlMappingData) null,
                     servletContext)
-            } else {
-                info = new DefaultUrlMappingInfo(controllerName,
-                        actionName, (Object) null, (Object) null, [:],
-                        (UrlMappingData) null, servletContext)
-            }
+
             WebUtils.forwardRequestForUrlMappingInfo(
                     request, response, info, model, true)
 

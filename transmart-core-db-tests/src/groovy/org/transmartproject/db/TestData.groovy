@@ -30,6 +30,7 @@ class TestData {
 
     ConceptTestData conceptData
     I2b2Data i2b2Data
+    I2b2Data secondI2b2Data // yeah...
     ClinicalTestData clinicalData
     MrnaTestData mrnaData
     AcghTestData acghData
@@ -37,8 +38,22 @@ class TestData {
 
     static TestData createDefault() {
         def conceptData = ConceptTestData.createDefault()
-        def i2b2Data = I2b2Data.createDefault()
+        def i2b2Data = I2b2Data.createDefault() // study 1
+
+        def study2Patients =  I2b2Data.createTestPatients 2, -200, 'STUDY_ID_2'
+        def i2b2DataStudy2 = new I2b2Data(
+                trialName: 'STUDY_ID_2',
+                patients: study2Patients,
+                patientTrials: I2b2Data.createPatientTrialLinks(study2Patients, 'STUDY_ID_2'))
+        def extraFacts = ClinicalTestData.createDiagonalCategoricalFacts(
+                2,
+                [conceptData.i2b2List.find { it.name == 'male'}, // on study 2
+                 conceptData.i2b2List.find { it.name == 'female'}],
+                study2Patients)
+
         def clinicalData = ClinicalTestData.createDefault(conceptData.i2b2List, i2b2Data.patients)
+
+        clinicalData.facts += extraFacts
 
         def bioMarkerTestData = new SampleBioMarkerTestData()
         def mrnaData = new MrnaTestData('2', bioMarkerTestData) //concept code '2'
@@ -47,6 +62,7 @@ class TestData {
         new TestData(
                 conceptData: conceptData,
                 i2b2Data: i2b2Data,
+                secondI2b2Data: i2b2DataStudy2,
                 clinicalData: clinicalData,
                 mrnaData:  mrnaData,
                 acghData: acghData,
@@ -57,6 +73,7 @@ class TestData {
     void saveAll() {
         conceptData?.saveAll()
         i2b2Data?.saveAll()
+        secondI2b2Data?.saveAll()
         clinicalData?.saveAll()
         bioMarkerTestData?.saveAll()
         mrnaData?.saveAll()

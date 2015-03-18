@@ -47,10 +47,10 @@ class VcfCohortStatistics implements VcfCohortInfo {
     List<Double> getAlleleFrequency() {
         alleleCount.collect {  it / totalAlleleCount }
     }
-    
+
     @Override
     String getReferenceAllele() {
-        majorAllele
+        dataRow.referenceAllele
     }
 
     @Override
@@ -68,10 +68,11 @@ class VcfCohortStatistics implements VcfCohortInfo {
             return
 
         // Store generic allele distribution
+        //TODO the order of keys and values is predictable and corresponds implicitly in this case (LinkedHashMap).
         alleles = new ArrayList<String>(numAlleles.keySet())
         alleleCount = new ArrayList<Integer>(numAlleles.values())
         totalAlleleCount = alleleCount.sum()
-        
+
         // Find the most frequent and second most frequent alleles
         majorAllele = numAlleles.max { it.value }?.key
         minorAllele = numAlleles.findAll { it.key != majorAllele }.max { it.value }?.key ?: "."

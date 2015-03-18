@@ -80,12 +80,9 @@ A runtime dependency for tranSMART that implements the Core API
 
         businessExceptionResolver(BusinessExceptionResolver)
 
-        accessControlChecks(AccessControlChecks)
-
         clinicalVariableFactory(ClinicalVariableFactory) {
             disableAcrossTrials = !haveAcrossTrials
         }
-        innerClinicalTabularResultFactory(InnerClinicalTabularResultFactory)
 
         if (haveAcrossTrials) {
             conceptsResourceService(AcrossTrialsConceptsResourceDecorator) {
@@ -101,7 +98,7 @@ A runtime dependency for tranSMART that implements the Core API
                     expression: AbstractHighDimensionDataTypeModule.canonicalName)
         }
 
-        context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {
+        context.'component-scan'('base-package': 'org.transmartproject.db') {
             context.'include-filter'(
                     type:       'annotation',
                     expression: Component.canonicalName)

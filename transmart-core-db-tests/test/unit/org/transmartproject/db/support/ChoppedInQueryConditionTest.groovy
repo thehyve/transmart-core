@@ -19,11 +19,14 @@
 
 package org.transmartproject.db.support
 
+import grails.orm.HibernateCriteriaBuilder
+import org.gmock.WithGMock
 import org.junit.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@WithGMock
 class ChoppedInQueryConditionTest {
 
     @Test
@@ -31,6 +34,29 @@ class ChoppedInQueryConditionTest {
         def condition = new ChoppedInQueryCondition('patient_num', [1, 2, 3])
         assertThat condition.parametersValues, hasEntry(is('_0'), contains(1, 2, 3))
         assertThat condition.queryConditionTemplate, equalTo("(patient_num IN (:_0))")
+        assertThat condition.populatedQueryCondition, equalTo("(patient_num IN ('1','2','3'))")
+
+        def capturedClosure
+        def delegateMock = new CheckInCalls()
+        HibernateCriteriaBuilder builder = mock(HibernateCriteriaBuilder)
+        builder.or(match { capturedClosure = it; it instanceof Closure })
+
+
+        play {
+            condition.addConstraintsToCriteria(builder)
+            assertThat capturedClosure, is(not(nullValue()))
+            capturedClosure.delegate = delegateMock
+            capturedClosure.call()
+        }
+
+        assertThat delegateMock.arguments, contains(contains(is('patient_num'), contains(1,2,3)))
+    }
+
+    private static class CheckInCalls {
+        List arguments = []
+        void 'in'(String a, List b) {
+            arguments << [a, b]
+        }
     }
 
     @Test
@@ -46,6 +72,25 @@ class ChoppedInQueryConditionTest {
                 startsWith("(patient_num IN ('1','2','3',"),
                 containsString("'1000') OR patient_num IN ('1001','1002','1003',"),
                 containsString("'2000') OR patient_num IN ('2001','2002','2003',"), endsWith(",'2498','2499','2500'))")
+        )
+
+        def capturedClosure
+        def delegateMock = new CheckInCalls()
+        HibernateCriteriaBuilder builder = mock(HibernateCriteriaBuilder)
+        builder.or(match { capturedClosure = it; it instanceof Closure })
+
+
+        play {
+            condition.addConstraintsToCriteria(builder)
+            assertThat capturedClosure, is(not(nullValue()))
+            capturedClosure.delegate = delegateMock
+            capturedClosure.call()
+        }
+
+        assertThat delegateMock.arguments, contains(
+                contains(is('patient_num'), contains(*(1..1000))),
+                contains(is('patient_num'), contains(*(1001..2000))),
+                contains(is('patient_num'), contains(*(2001..2500))),
         )
     }
 

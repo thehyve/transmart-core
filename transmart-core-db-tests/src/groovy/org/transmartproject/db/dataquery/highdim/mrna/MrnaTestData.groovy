@@ -89,8 +89,8 @@ class MrnaTestData {
     List<PatientDimension> patients =
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
-    List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode)
+    @Lazy List<DeSubjectSampleMapping> assays = {
+        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode) }()
 
     @Lazy List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [
@@ -140,6 +140,5 @@ class MrnaTestData {
         //making sure BigDecimals use the scale specified in the db (otherwise toString() will yield different results)
         Holders.applicationContext.sessionFactory.currentSession.flush()
         microarrayData.each { it.refresh() }
-
     }
 }

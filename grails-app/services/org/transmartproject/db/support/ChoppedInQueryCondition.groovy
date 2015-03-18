@@ -47,11 +47,9 @@ class ChoppedInQueryCondition {
     }()
 
     void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        builder.with {
-            or {
-                parametersValues.collect { parVal ->
-                    'in' fieldName, parVal.value
-                }
+        builder.or {
+            parametersValues.collect { parVal ->
+                'in' fieldName, parVal.value
             }
         }
     }

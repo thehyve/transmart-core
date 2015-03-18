@@ -30,6 +30,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
+import org.transmartproject.db.user.User
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
@@ -328,7 +329,8 @@ class QueriesResourceServiceTests {
         queriesResourceService.patientSetQueryBuilderService = [
                 buildPatientSetQuery: {
                     QtQueryResultInstance resultInstance,
-                    QueryDefinition definition ->
+                    QueryDefinition definition,
+                    User user = null ->
                     'fake query'
                 }
         ] as PatientSetQueryBuilderService
@@ -340,7 +342,6 @@ class QueriesResourceServiceTests {
         } finally {
             queriesResourceService.patientSetQueryBuilderService = orig
         }
-
     }
 
 
@@ -352,7 +353,8 @@ class QueriesResourceServiceTests {
         queriesResourceService.patientSetQueryBuilderService = [
                 buildPatientSetQuery: {
                     QtQueryResultInstance resultInstance,
-                    QueryDefinition definition ->
+                    QueryDefinition definition,
+                    User user = null ->
                         throw new RuntimeException('foo bar')
                 }
         ] as PatientSetQueryBuilderService
