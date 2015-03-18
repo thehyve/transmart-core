@@ -25,7 +25,7 @@ SELECT summary.variant_subject_summary_id,
   genesymbol.text_value AS gene_name,
   geneid.text_value AS gene_id
  FROM deapp.de_variant_subject_summary summary
- JOIN deapp.de_variant_subject_detail detail ON detail.dataset_id = summary.dataset_id AND detail.chr = summary.chr AND detail.pos = summary.pos
+ JOIN deapp.de_variant_subject_detail detail ON detail.dataset_id = summary.dataset_id AND detail.chr = summary.chr AND detail.pos = summary.pos AND detail.rs_id = summary.rs_id
  LEFT JOIN deapp.de_variant_population_data genesymbol ON genesymbol.dataset_id = summary.dataset_id AND genesymbol.chr = summary.chr AND genesymbol.pos = summary.pos AND genesymbol.info_name = 'GS'
  LEFT JOIN deapp.de_variant_population_data geneid ON geneid.dataset_id = summary.dataset_id AND geneid.chr = summary.chr AND geneid.pos = summary.pos AND geneid.info_name = 'GID';
 
