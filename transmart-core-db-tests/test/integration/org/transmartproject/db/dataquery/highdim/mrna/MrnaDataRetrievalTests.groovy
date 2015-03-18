@@ -168,7 +168,7 @@ class MrnaDataRetrievalTests {
 
     private CriteriaDataConstraint createGenesDataConstraint(List skIds) {
         SearchKeywordDataConstraint.createForSearchKeywordIds(
-                entityAlias:        'jProbe',
+                entityAlias:        'p',
                 propertyToRestrict: 'geneId',
                 correlationTypes:
                         correlationTypesRegistry.getCorrelationTypesForTargetType('GENE'),

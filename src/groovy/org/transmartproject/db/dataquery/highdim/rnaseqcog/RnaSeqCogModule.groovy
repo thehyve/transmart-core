@@ -140,7 +140,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jAnnotation', 'geneId') ]
+                        'GENE', 'ann', 'geneId') ]
     }
 
     @Override

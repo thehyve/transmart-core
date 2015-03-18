@@ -22,12 +22,16 @@ package org.transmartproject.db.dataquery.highdim.vcf
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
+import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 
 /**
  * Created by j.hudecek on 13-3-14.
@@ -44,13 +48,16 @@ class VcfTestData  {
     List<DeVariantSubjectSummaryCoreDb> summariesData
     List<DeVariantSubjectDetailCoreDb> detailsData
     List<DeVariantSubjectIdxCoreDb> indexData
-    
+    List<DeVariantPopulationDataCoreDb> populationData
+
+    SampleBioMarkerTestData bioMarkerTestData
+
     public VcfTestData(String conceptCode = 'bogus') {
         // Create VCF platform and assays
         platform = new DeGplInfo(
-                    title: 'Test VCF',
-                    organism: 'Homo Sapiens',
-                    markerType: 'VCF')
+                title: 'Test VCF',
+                organism: 'Homo Sapiens',
+                markerType: 'VCF')
         platform.id = 'BOGUSGPLVCF'
         dataset = new DeVariantDatasetCoreDb(genome:'human')
         dataset.id = 'BOGUSDTST'
@@ -66,35 +73,49 @@ class VcfTestData  {
         indexData = []
         assays.eachWithIndex { assay, idx ->
             indexData << new DeVariantSubjectIdxCoreDb(
-                dataset: dataset,
-                subjectId: assay.sampleCode,
-                position: idx + 1
+                    dataset: dataset,
+                    subjectId: assay.sampleCode,
+                    position: idx + 1
             )
         }
-        
+
         summariesData = []
+        populationData = []
         detailsData.each { detail ->
             // Create VCF summary entries with the following variants:
             // 1/0, 0/1 and 1/1
             int mut = 0
             assays.eachWithIndex { assay, idx ->
                 mut++
-                summariesData += createSummary detail, mut & 1, (mut & 2) >> 1,  assay, indexData[idx]
+                summariesData += createSummary detail, mut & 1, (mut & 2) >> 1,
+                        assay, indexData[idx], detail.pos == 1L
             }
             if (detail.alt.contains(','))
                 summariesData.last().allele1=2
+
+            // Create VCF population data entry
+            if (detail.pos == 1 || detail.pos == 2) {
+                populationData += createPopulationData(detail, 'GID', '-130751')
+                populationData += createPopulationData(detail, 'GS', 'AURKA')
+            }
         }
-        
+
         // Add also another platform and assays for those patients
         // to test whether the VCF module only returns VCF assays
         otherPlatform = new DeGplInfo(
-            title: 'Other platform',
-            organism: 'Homo Sapiens',
-            markerType: 'mrna')
+                title: 'Other platform',
+                organism: 'Homo Sapiens',
+                markerType: 'mrna')
         otherPlatform.id = 'BOGUSGPLMRNA'
-        
+
         assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
+
+        bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
+
+    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+        bioMarkerTestData.geneSearchKeywords
+    }()
 
     def createDetail = {
         int position,
@@ -124,7 +145,8 @@ class VcfTestData  {
         int allele1,
         int allele2,
         DeSubjectSampleMapping assay,
-        DeVariantSubjectIdxCoreDb subjectIndex
+        DeVariantSubjectIdxCoreDb subjectIndex,
+        boolean reference
             ->
             new DeVariantSubjectSummaryCoreDb(
                     dataset: dataset,
@@ -137,7 +159,7 @@ class VcfTestData  {
                     variantFormat: ((allele1 == 0) ? 'R':'V') + '/' +
                             ((allele2 == 0) ? 'R':'V'),
                     variantType: detail.ref.length() > 1 ? 'DIV' : 'SNV',
-                    reference: true,
+                    reference: reference,
                     allele1: allele1,
                     allele2: allele2,
                     assay: assay,
@@ -146,10 +168,24 @@ class VcfTestData  {
             )
     }
 
-
+    def createPopulationData = {
+        DeVariantSubjectDetailCoreDb detail,
+        String infoName,
+        String textValue
+            ->
+            new DeVariantPopulationDataCoreDb(
+                    dataset: dataset,
+                    chromosome: 1,
+                    position: detail.pos,
+                    infoName: infoName,
+                    textValue: textValue
+            )
+    }
 
 
     void saveAll() {
+        bioMarkerTestData.saveGeneData()
+
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         assertThat otherPlatform.save(), is(notNullValue(DeGplInfo))
         save([dataset])
@@ -158,5 +194,6 @@ class VcfTestData  {
         save detailsData
         save indexData
         save summariesData
+        save populationData
     }
 }

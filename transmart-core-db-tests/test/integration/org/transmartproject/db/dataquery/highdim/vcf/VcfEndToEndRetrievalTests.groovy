@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.vcf
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import grails.util.Holders
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -28,6 +29,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.test.Matchers
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -51,6 +53,8 @@ class VcfEndToEndRetrievalTests {
 
     AssayConstraint trialNameConstraint
 
+    def sessionFactory
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -61,6 +65,8 @@ class VcfEndToEndRetrievalTests {
         trialNameConstraint = vcfResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
+
+        Holders.applicationContext.sessionFactory.currentSession.flush()
     }
 
     @After
@@ -170,6 +176,7 @@ class VcfEndToEndRetrievalTests {
 
                         hasProperty('referenceAllele', equalTo("C")),
                         hasProperty('alternatives', equalTo("A")),
+                        hasProperty('reference', equalTo(true)),
 
                         hasProperty('quality', equalTo("1")),
                         hasProperty('filter', equalTo(".")),
@@ -187,8 +194,9 @@ class VcfEndToEndRetrievalTests {
                                 hasEntry(equalTo('DP4'),equalTo('0,0,80,0')),
                                 hasEntry(equalTo('MQ'),equalTo('60')),
                                 hasEntry(equalTo('FQ'),equalTo('-268')),
+                        )),
 
-                        ))
+                        hasProperty('geneName', equalTo("AURKA"))
                 )
         )
         assertThat resultList, hasItem(
@@ -197,7 +205,9 @@ class VcfEndToEndRetrievalTests {
 
                     hasProperty('referenceAllele', equalTo("GCCCCC")),
                     hasProperty('alternatives', equalTo("GCCCC")),
+                    hasProperty('reference', equalTo(false)),
 
+                    hasProperty('geneName', equalTo("AURKA"))
                 )
         )
         assertThat resultList, hasItem(
@@ -205,7 +215,9 @@ class VcfEndToEndRetrievalTests {
                         hasProperty('position', equalTo(3L)),
                         hasProperty('referenceAllele', equalTo("A")),
                         hasProperty('alternatives', equalTo("C,T")),
+                        hasProperty('reference', equalTo(false)),
 
+                        hasProperty('geneName', equalTo(null))
                 )
         )
     }
@@ -286,12 +298,13 @@ class VcfEndToEndRetrievalTests {
         def summariesData = []
         testData.indexData.eachWithIndex { summaryIndex, idx ->
             mut++
-            def summary = testData.createSummary(detail, mut & 1, (mut & 2) >> 1, testData.assays[idx], summaryIndex)
+            def summary = testData.createSummary(detail, mut & 1, (mut & 2) >> 1, testData.assays[idx], summaryIndex, false)
             summary.rsId = detail.rsId
             summariesData += summary
         }
         detail.save()
         TestDataHelper.save(summariesData)
+        sessionFactory.currentSession.flush()
 
 
         List dataConstraints = [vcfResource.createDataConstraint(
@@ -366,4 +379,35 @@ class VcfEndToEndRetrievalTests {
             }
         }
     }
+
+    @Test
+    void testWithGeneConstraint() {
+        def assayConstraints = [
+                trialNameConstraint,
+        ]
+        def dataConstraints = [
+                vcfResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
+                                                                         find({ it.keyword == 'AURKA' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = vcfResource.createProjection([:], Projection.ALL_DATA_PROJECTION)
+
+        dataQueryResult = vcfResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
+
+        def resultList = Lists.newArrayList dataQueryResult
+
+        assertThat resultList, contains(
+                allOf(
+                        hasProperty('position', equalTo(1L)),
+                        hasProperty('bioMarker', equalTo('AURKA'))
+                ),
+                allOf(
+                        hasProperty('position', equalTo(2L)),
+                        hasProperty('bioMarker', equalTo('AURKA'))
+                )
+        )
+    }
+
 }

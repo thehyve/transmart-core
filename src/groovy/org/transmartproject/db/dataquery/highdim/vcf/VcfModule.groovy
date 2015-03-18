@@ -31,11 +31,11 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 class VcfModule extends AbstractHighDimensionDataTypeModule {
 
@@ -72,6 +72,9 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     ChromosomeSegmentConstraintFactory chromosomeSegmentConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
         [ standardAssayConstraintFactory ]
@@ -79,15 +82,16 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        chromosomeSegmentConstraintFactory.segmentPrefix = 'jDetail.'
+        chromosomeSegmentConstraintFactory.segmentPrefix           = 'summary.'
         chromosomeSegmentConstraintFactory.segmentChromosomeColumn = 'chr'
         chromosomeSegmentConstraintFactory.segmentStartColumn      = 'pos'
         chromosomeSegmentConstraintFactory.segmentEndColumn        = 'pos'
         //customize the segment constraint factory to produce constraints targeting the right DeVariantSubjectSummaryCoreDb columns
         [
             standardDataConstraintFactory,
-            chromosomeSegmentConstraintFactory
-            //TODO: implement constraint on dataset
+            chromosomeSegmentConstraintFactory,
+            new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                    'GENE', 'summary', 'geneId')
         ]
     }
 
@@ -115,29 +119,32 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
-                createCriteriaBuilder(DeVariantSubjectSummaryCoreDb, 'summary', session)
+                createCriteriaBuilder(DeVariantSummaryDetailGene, 'summary', session)
 
         criteriaBuilder.with {
-            createAlias 'jDetail', 'detail', INNER_JOIN
             projections {
                 // These fields are needed to fill the VcfDataRow
                 // Fields describing the actual data are added by
                 // the projections
-                property 'detail.dataset.id'       ,'dataset_id'
-                property 'detail.chr'              ,'chr'
-                property 'detail.pos'              ,'pos'
-                property 'detail.rsId'             ,'rsId'
-                property 'detail.ref'              ,'ref'
-                property 'detail.alt'              ,'alt'
-                property 'detail.quality'          ,'quality'
-                property 'detail.filter'           ,'filter'
-                property 'detail.info'             ,'info'
-                property 'detail.format'           ,'format'
-                property 'detail.variant'          ,'variants'
+                property 'dataset.id'       ,'dataset_id'
+                property 'chr'              ,'chr'
+                property 'pos'              ,'pos'
+                property 'rsId'             ,'rsId'
+                property 'reference'        ,'reference'
 
-                property 'assay.id'                ,'assayId'
+                property 'ref'              ,'ref'
+                property 'alt'              ,'alt'
+                property 'quality'          ,'quality'
+                property 'filter'           ,'filter'
+                property 'info'             ,'info'
+                property 'format'           ,'format'
+                property 'variantValue'     ,'variants'
 
+                property 'assay.id'         ,'assayId'
+
+                property 'geneName'         ,'geneName'
             }
+
             order 'chr',  'asc'
             order 'pos',  'asc'
             order 'rsId', 'asc'
@@ -180,6 +187,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                             // Reference and alternatives for this position
                             referenceAllele: firstNonNullCell[0].ref,
                             alternatives: firstNonNullCell[0].alt,
+                            reference: firstNonNullCell[0].reference,
 
                             // Study level properties
                             quality: firstNonNullCell[0].quality,
@@ -187,6 +195,8 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                             info:  firstNonNullCell[0].info,
                             format: firstNonNullCell[0].format,
                             variants: firstNonNullCell[0].variants,
+
+                            geneName: firstNonNullCell[0].geneName,
 
                             assayIndexMap: assayIndexMap,
                             data: list.collect {

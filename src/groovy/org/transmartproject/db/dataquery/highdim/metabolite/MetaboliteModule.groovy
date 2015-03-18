@@ -98,7 +98,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'METABOLITE', 'jAnnotation', 'hmdbId')]
+                        'METABOLITE', 'a', 'hmdbId')]
     }
 
     @Override

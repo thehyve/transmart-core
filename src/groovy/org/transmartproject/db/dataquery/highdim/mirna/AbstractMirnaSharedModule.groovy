@@ -76,7 +76,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
 
     @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
         new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                'MIRNA', 'jProbe', 'mirnaId')
+                'MIRNA', 'p', 'mirnaId')
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {

@@ -151,7 +151,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jProbe', 'geneId') ]
+                        'GENE', 'p', 'geneId') ]
     }
 
     @Override
