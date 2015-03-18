@@ -40,7 +40,7 @@ class DeVariantSummaryDetailGene implements Serializable {
 
     static mapping = {
         table schema: 'deapp'
-        id column: 'variant_subjectSummary_id'
+        id column: 'variant_subject_summary_id'
 
         quality column: 'qual'
 

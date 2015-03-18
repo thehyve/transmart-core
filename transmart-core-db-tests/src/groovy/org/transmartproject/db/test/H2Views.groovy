@@ -434,7 +434,8 @@ class H2Views {
             JOIN deapp.de_variant_subject_detail detail ON
                 detail.dataset_id = summary.dataset_id AND
                 detail.chr = summary.chr AND
-                detail.pos = summary.pos
+                detail.pos = summary.pos AND
+                detail.rs_id = summary.rs_id
             LEFT JOIN deapp.de_variant_population_data genesymbol ON
                 genesymbol.dataset_id = summary.dataset_id AND
                 genesymbol.chr = summary.chr AND
