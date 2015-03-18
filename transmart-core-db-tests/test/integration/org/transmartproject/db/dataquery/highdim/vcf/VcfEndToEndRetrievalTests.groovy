@@ -53,6 +53,8 @@ class VcfEndToEndRetrievalTests {
 
     AssayConstraint trialNameConstraint
 
+    def sessionFactory
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -302,6 +304,7 @@ class VcfEndToEndRetrievalTests {
         }
         detail.save()
         TestDataHelper.save(summariesData)
+        sessionFactory.currentSession.flush()
 
 
         List dataConstraints = [vcfResource.createDataConstraint(
