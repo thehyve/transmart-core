@@ -48,6 +48,22 @@ GeneprintView.prototype.submit_job = function () {
     var job = this;
 
     var actualSubmit = function() {
+        // At this point, we will have the node details loaded,
+        // so we'll check for matching data types
+        var validDataTypes = ['mrna', 'protein', 'acgh', 'vcf'];
+        for (var key in highDimensionalData.data) {
+            // yes, the keys are the data types
+            if (validDataTypes.indexOf(key) == -1) {
+                Ext.MessageBox.show({
+                    title: "Validation Error",
+                    msg: "One of the data types is " + key + ", but Geneprint only supports [" + validDataTypes.join(", ") + "]",
+                    buttons: Ext.MessageBox.OK,
+                    icon: Ext.MessageBox.ERROR
+                });
+                return;
+            }
+        }
+
         // get formParams
         var formParams = job.get_form_params();
 
