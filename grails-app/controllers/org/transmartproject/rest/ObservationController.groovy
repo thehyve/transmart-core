@@ -38,6 +38,7 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.rest.marshallers.ObservationWrapper
+import org.transmartproject.rest.misc.ComponentIndicatingContainer
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 import static org.transmartproject.core.dataquery.clinical.ClinicalVariable.NORMALIZED_LEAFS_VARIABLE
@@ -228,7 +229,10 @@ class ObservationController {
     }
 
     static class TabularResultObservationsIterator
-            extends AbstractIterator<ObservationWrapper> {
+            extends AbstractIterator<ObservationWrapper>
+            implements ComponentIndicatingContainer {
+
+        final Class<?> componentType = ObservationWrapper
 
         Iterator<PatientRow> originalRowIterator
         List<ClinicalVariable> clinicalVariables

@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.beans.factory.config.BeanDefinitionHolder
 import org.springframework.beans.factory.support.BeanDefinitionBuilder
-import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AssignableTypeFilter
@@ -46,7 +45,8 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * JSON Marshaller so that {@link grails.converters.JSON} knows what to do
  * when it find <code>foo as JSON</code>.
  *
- * Also register the {@link IteratorMarshaller}.
+ * Also register the {@link IteratorMarshaller} so that
+ * {@link grails.converters.JSON} knows how to handle them.
  */
 @Log4j
 public class MarshallersRegistrar implements FactoryBean {

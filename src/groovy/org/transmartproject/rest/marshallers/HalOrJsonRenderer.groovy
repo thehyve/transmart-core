@@ -86,6 +86,7 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     void afterPropertiesSet() throws Exception {
         rendererRegistry.addRenderer this
         rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this, Collection)
+        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this, Iterator)
     }
 
     @Override
