@@ -44,7 +44,6 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
 
     @Override
     Collection<Link> getLinks(OntologyTermWrapper obj) {
-        OntologyTerm term = obj.delegate
         String url = studyLoadingServiceProxy.getOntologyTermUrl(obj.delegate)
 
         Link datalink
