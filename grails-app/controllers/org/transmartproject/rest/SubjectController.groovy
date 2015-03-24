@@ -31,7 +31,7 @@ import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.rest.marshallers.CollectionResponseWrapper
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class SubjectController {
@@ -97,8 +97,8 @@ class SubjectController {
 
     private def wrapSubjects(Object source, String selfLink) {
 
-        new CollectionResponseWrapper(
-                collection: source,
+        new ContainerResponseWrapper(
+                container: source,
                 componentType: Patient,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,

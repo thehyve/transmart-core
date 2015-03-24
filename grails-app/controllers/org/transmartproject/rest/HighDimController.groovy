@@ -34,7 +34,7 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.rest.marshallers.CollectionResponseWrapper
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
 import org.transmartproject.rest.marshallers.HighDimSummarySerializationHelper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
@@ -153,8 +153,8 @@ class HighDimController {
 
     private def wrapList(List source, String selfLink) {
 
-        new CollectionResponseWrapper(
-                collection: source,
+        new ContainerResponseWrapper(
+                container: source,
                 componentType: HighDimSummary,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF, selfLink),
