@@ -106,6 +106,8 @@
 \i tm_cz/functions/parse_nth_value.sql
 \i tm_cz/functions/rdc_init_cap.sql
 \i tm_cz/functions/rdc_reload_mrna_data.sql
+\i tm_cz/functions/remove_table_keys.sql
+\i tm_cz/functions/remove_table_indexes.sql
 \i tm_cz/functions/rename_program.sql
 \i tm_cz/functions/rename_study.sql
 \i tm_cz/functions/rwg_add_search_term.sql

@@ -23,3 +23,4 @@ ALTER TABLE ONLY de_rbm_data_annotation_join
 --
 ALTER TABLE ONLY de_rbm_data_annotation_join
     ADD CONSTRAINT de_rbm_data_ann_jn_data_id_fk FOREIGN KEY (data_id) REFERENCES de_subject_rbm_data(id) ON DELETE CASCADE;
+

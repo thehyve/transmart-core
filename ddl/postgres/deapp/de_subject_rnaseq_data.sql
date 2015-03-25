@@ -35,3 +35,9 @@ CREATE INDEX de_subject_rnaseq_data_region ON de_subject_rnaseq_data USING btree
 ALTER TABLE ONLY de_subject_rnaseq_data
     ADD CONSTRAINT de_subj_rnaseq_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);
 
+--
+-- Name: de_subject_rnaseq_data_assay_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_rnaseq_data
+    ADD CONSTRAINT de_subject_rnaseq_data_assay_id_fk FOREIGN KEY (assay_id) REFERENCES de_subject_sample_mapping(assay_id) ON DELETE CASCADE;
+

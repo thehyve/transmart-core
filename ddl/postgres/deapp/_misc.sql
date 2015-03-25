@@ -39,6 +39,16 @@ CREATE SEQUENCE seq_assay_id
     CACHE 20;
 
 --
+-- Name: seq_de_mrna_annotation_id; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE seq_de_mrna_annotation_id
+    START WITH 263161
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
 -- Name: seq_metabolomics_partition_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_metabolomics_partition_id

@@ -24,8 +24,8 @@
 \i i2b2demodata/async_job.sql
 \i i2b2demodata/cd.sql
 \i i2b2demodata/code_lookup.sql
-\i i2b2demodata/concept_counts.sql
 \i i2b2demodata/concept_dimension.sql
+\i i2b2demodata/concept_counts.sql
 \i i2b2demodata/counter.sql
 \i i2b2demodata/crc_db_lookup.sql
 \i i2b2demodata/datamart_report.sql
@@ -42,8 +42,8 @@
 \i i2b2demodata/modifier_metadata.sql
 \i i2b2demodata/views/modifier_dimension_view.sql
 \i i2b2demodata/news_updates.sql
-\i i2b2demodata/observation_fact.sql
 \i i2b2demodata/patient_dimension.sql
+\i i2b2demodata/observation_fact.sql
 \i i2b2demodata/patient_mapping.sql
 \i i2b2demodata/patient_trial.sql
 \i i2b2demodata/provider_dimension.sql

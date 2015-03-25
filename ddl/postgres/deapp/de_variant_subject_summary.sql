@@ -54,6 +54,12 @@ CREATE INDEX gen_variant_subj_summ_chr_pos ON de_variant_subject_summary USING b
 CREATE UNIQUE INDEX variant_subject_summary_uk ON de_variant_subject_summary USING btree (dataset_id, chr, pos, rs_id, subject_id);
 
 --
+-- Name: de_variant_subject_summary_assay_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_variant_subject_summary
+    ADD CONSTRAINT de_variant_subject_summary_assay_id_fk FOREIGN KEY (assay_id) REFERENCES de_subject_sample_mapping(assay_id) ON DELETE CASCADE;
+
+--
 -- Name: variant_subject_summary_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_summary

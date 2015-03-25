@@ -51,6 +51,12 @@ $$;
 CREATE TRIGGER trg_de_subj_rbm_data_id BEFORE INSERT ON de_subject_rbm_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subj_rbm_data_id();
 
 --
+-- Name: de_subject_rbm_data_assay_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_rbm_data
+    ADD CONSTRAINT de_subject_rbm_data_assay_id_fk FOREIGN KEY (assay_id) REFERENCES de_subject_sample_mapping(assay_id) ON DELETE CASCADE;
+
+--
 -- Name: de_subject_rbm_data_seq; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE de_subject_rbm_data_seq

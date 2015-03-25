@@ -27,3 +27,9 @@ CREATE TABLE de_protein_annotation (
 ALTER TABLE ONLY de_protein_annotation
     ADD CONSTRAINT de_protein_annotation_pkey PRIMARY KEY (id);
 
+--
+-- Name: de_protein_annotation_gpl_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_protein_annotation
+    ADD CONSTRAINT de_protein_annotation_gpl_id_fk FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform) ON DELETE CASCADE;
+

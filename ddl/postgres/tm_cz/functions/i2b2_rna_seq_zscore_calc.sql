@@ -75,18 +75,8 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
 	else
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx1';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx2';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx3';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx4';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
+	select tm_cz.remove_table_keys('deapp', replace(partitionName, 'deapp.', ''));
+	select tm_cz.remove_table_indexes('deapp', replace(partitionName, 'deapp.', ''));
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
 	sqlText := 'truncate table ' || partitionName;
@@ -336,20 +326,16 @@ BEGIN
    	stepCt := stepCt + 1;
 	select cz_write_audit(jobId,databaseName,procedureName,'Truncate work tables in TM_WZ',0,stepCt,'Done') into rtnCd;
 	
-		-- create indexes on partition
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_pk primary key (assay_id, probeset_id);';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
 
-	sqlText := ' create index ' || partitionIndx || '_idx1 on ' || partitionName || ' using btree (partition_id) tablespace indx';
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_assay_id_fk foreign key (assay_id) references deapp.de_subject_sample_mapping(assay_id) on delete cascade;';
 	raise notice 'sqlText= %', sqlText;
 	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx2 on ' || partitionName || ' using btree (assay_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx3 on ' || partitionName || ' using btree (probeset_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx4 on ' || partitionName || ' using btree (assay_id, probeset_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
+
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Created keys for ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
     
     ---Cleanup OVERALL JOB if this proc is being run standalone
   IF newJobFlag = 1
