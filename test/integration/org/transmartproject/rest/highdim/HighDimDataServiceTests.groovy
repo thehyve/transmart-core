@@ -334,13 +334,15 @@ class HighDimResultRowsMatcher extends DiagnosingMatcher<HighDimResult> {
             Row gottenRow = result.rows[i]
 
             if (expectedRow instanceof BioMarkerDataRow) {
-                def matcher = hasProperty('bioMarker', is(expectedRow.bioMarker))
+                // protobuf representation of null bioMarker is empty string
+                def expectedBioMarker = expectedRow.bioMarker ?: ''
+                def matcher = hasProperty('bioMarker', is(expectedBioMarker))
                 if (!matcher.matches(gottenRow)) {
                     mismatchDescription
                             .appendText("on row $i expected ")
                             .appendDescriptionOf(matcher)
                             .appendText(' but: ')
-                    matcher.describeMismatch(result, mismatchDescription)
+                    matcher.describeMismatch(gottenRow, mismatchDescription)
                     return false
                 }
             }

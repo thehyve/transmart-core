@@ -26,8 +26,9 @@
 package org.transmartproject.rest
 
 import grails.rest.Link
+import groovy.transform.TypeChecked
 import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.rest.marshallers.CollectionResponseWrapper
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
@@ -64,9 +65,9 @@ class ConceptController {
      * @param source
      * @return CollectionResponseWrapper so we can provide a proper HAL response
      */
-    def wrapConcepts(Object source) {
-        new CollectionResponseWrapper(
-                collection: source,
+    private ContainerResponseWrapper wrapConcepts(List<OntologyTermWrapper> source) {
+        new ContainerResponseWrapper(
+                container: source,
                 componentType: OntologyTermWrapper,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,

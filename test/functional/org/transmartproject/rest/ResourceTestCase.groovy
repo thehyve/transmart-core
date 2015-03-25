@@ -47,7 +47,7 @@ abstract class ResourceTestCase extends APITestCase {
     }
 
     JSONElement getAsHal(String path, Closure paramSetup = null) {
-        doAsHal 'get', path
+        doAsHal 'get', path, paramSetup
     }
 
     JSONElement doAsHal(String method, String path, Closure paramSetup = null) {

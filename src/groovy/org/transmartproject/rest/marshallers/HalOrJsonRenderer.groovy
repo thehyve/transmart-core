@@ -49,30 +49,32 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     @Autowired
     RendererRegistry rendererRegistry
 
-    static class HalOrJsonCollectionRenderer<T> extends AbstractRenderer<Collection>
-            implements ContainerRenderer<Collection, T> {
+    static class HalOrJsonCollectionRenderer<C, T> extends AbstractRenderer<C>
+            implements ContainerRenderer<C, T> {
 
         final Class<T> componentType
 
-        final Class<Collection> targetType = Collection
+        final Class<C> targetType
 
         final AbstractIncludeExcludeRenderer<T> renderer
 
-        HalOrJsonCollectionRenderer(AbstractIncludeExcludeRenderer<T> renderer) {
-            super(Collection, renderer.mimeTypes)
+        HalOrJsonCollectionRenderer(AbstractIncludeExcludeRenderer<T> renderer,
+                                    Class<C> containerType) {
+            super(containerType, renderer.mimeTypes)
             componentType = renderer.getTargetType()
             this.renderer = renderer
+            this.targetType = containerType
         }
 
         @Override
-        void render(Collection object, RenderContext context) {
+        void render(C object, RenderContext context) {
             def mimeType = context.acceptMimeType ?: mimeTypes[0]
             def newObject = object
 
             if (mimeType.name == MimeType.HAL_JSON.name) {
-                newObject = new CollectionResponseWrapper(
+                newObject = new ContainerResponseWrapper(
                         componentType: componentType,
-                        collection: object)
+                        container: object)
             }
 
             renderer.render newObject, context
@@ -83,7 +85,8 @@ class HalOrJsonRenderer<T> extends AbstractIncludeExcludeRenderer<T> implements 
     @Override
     void afterPropertiesSet() throws Exception {
         rendererRegistry.addRenderer this
-        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this)
+        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this, Collection)
+        rendererRegistry.addRenderer new HalOrJsonCollectionRenderer(this, Iterator)
     }
 
     @Override

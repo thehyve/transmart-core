@@ -29,12 +29,12 @@ import grails.rest.Link
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 
-class CollectionResponseWrapperSerializationHelper implements HalOrJsonSerializationHelper<CollectionResponseWrapper> {
+class ContainerResponseWrapperSerializationHelper implements HalOrJsonSerializationHelper<ContainerResponseWrapper> {
 
     @Autowired
     ApplicationContext ctx
 
-    final Class<CollectionResponseWrapper> targetType = CollectionResponseWrapper
+    final Class<ContainerResponseWrapper> targetType = ContainerResponseWrapper
 
     final String collectionName = 'collection'
 
@@ -46,20 +46,20 @@ class CollectionResponseWrapperSerializationHelper implements HalOrJsonSerializa
     }
 
     @Override
-    Collection<Link> getLinks(CollectionResponseWrapper object) {
+    Collection<Link> getLinks(ContainerResponseWrapper object) {
         object.links
     }
 
     @Override
-    Map<String, Object> convertToMap(CollectionResponseWrapper object) {
+    Map<String, Object> convertToMap(ContainerResponseWrapper object) {
         String key = getKeyForObjectType(object.componentType)
         [
-                (key): object.collection
+                (key): object.container
         ]
     }
 
     @Override
-    Set<String> getEmbeddedEntities(CollectionResponseWrapper object) {
+    Set<String> getEmbeddedEntities(ContainerResponseWrapper object) {
         [getKeyForObjectType(object.componentType)] as Set
     }
 

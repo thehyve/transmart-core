@@ -29,6 +29,7 @@ import static org.codehaus.groovy.grails.web.json.JSONObject.NULL
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
+import static org.thehyve.commons.test.FastMatchers.mapWith
 
 class ObservationsResourceTests extends ResourceTestCase {
 
@@ -166,5 +167,27 @@ class ObservationsResourceTests extends ResourceTestCase {
                 everyItem(allOf(
                         hasEntry('label', '\\foo\\study2\\sex\\'),
                         hasEntry(is('value'), is(NULL)))))
+    }
+
+    void testHalStandalone() {
+        getAsHal('/observations') {
+            patients = -101
+            concept_paths = '\\foo\\study1\\bar\\'
+        }
+
+        assertStatus 200
+
+        allOf(
+                hasLinks([:]),
+                hasEntry(
+                        is('_embedded'),
+                        hasEntry(
+                                is('observations'),
+                                contains(
+                                        mapWith(
+                                               label: '\\foo\\study1\\bar\\',
+                                                value: BigDecimal.valueOf(10.00000),
+                                        )))))
+
     }
 }

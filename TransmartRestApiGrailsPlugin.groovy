@@ -23,9 +23,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+import org.grails.plugins.web.rest.render.DefaultRendererRegistry
 import org.springframework.aop.scope.ScopedProxyFactoryBean
 import org.springframework.stereotype.Component
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
+import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 
 class TransmartRestApiGrailsPlugin {
     def version = "1.2.2-SNAPSHOT"
@@ -65,6 +68,11 @@ class TransmartRestApiGrailsPlugin {
 
         marshallersRegistrar(MarshallersRegistrar) {
             packageName = 'org.transmartproject.rest.marshallers'
+        }
+
+        // override bean
+        rendererRegistry(TransmartRendererRegistry) { bean ->
+            modelSuffix = application.flatConfig.get('grails.scaffolding.templates.domainSuffix') ?: ''
         }
     }
 
