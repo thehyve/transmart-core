@@ -580,6 +580,20 @@ class FmFolderService {
      */
     private void validateFolder(FmFolder folder, Object object, List items, Map values) {
 
+        if ((object instanceof Experiment) && (object.id)) {
+            def existingFolder = FmFolder.executeQuery("select ff from " +
+                    "BioData bdu, " +
+                    "FmFolderAssociation fla, " +
+                    "FmFolder ff " +
+                    "where " +
+                    "fla.objectUid = bdu.uniqueId and " +
+                    "fla.fmFolder = ff.id " +
+                    "and bdu.id = ? " +
+                    "and ff.activeInd = TRUE", [object.id])
+            if (!existingFolder.isEmpty() && (existingFolder[0] != folder)) {
+                folder.errors.rejectValue("id", "blank", ['StudyId'] as String[], "{0} must be unique.")
+            }
+        }
         // Validate folder specific fields, if there is no business object
         if (folder == object) {
             List fields = [[displayName: "Name", fieldName: "folderName"],
@@ -613,7 +627,8 @@ class FmFolderService {
 
             //check for unique study identifer
             if (item.codeTypeName == 'STUDY_IDENTIFIER') {
-                if (Experiment.findByAccession(values.list(item.tagItemAttr))) {
+                def experiment = Experiment.findByAccession(values.list(item.tagItemAttr));
+                if ((experiment != null) && (object == experiment)) {
                     folder.errors.rejectValue("id", "blank", [item.displayName] as String[], "{0} must be unique.")
                 }
             }

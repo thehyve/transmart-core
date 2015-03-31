@@ -270,7 +270,8 @@ class FmFolderController {
         folder.folderType = FolderType.STUDY.name()
         folder.parent = parentFolder
 
-        def experiment = new Experiment()
+        def experiment = Experiment.findOrCreateByAccession(params.accession)
+
         experiment.title = folder.folderName
         experiment.description = folder.description
         experiment.type = "Experiment"
