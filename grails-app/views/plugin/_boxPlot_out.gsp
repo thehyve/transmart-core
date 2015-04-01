@@ -47,8 +47,12 @@
 		${ANOVAData}
 		
 		<br />
-		
-		<a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
+
+        <g:if test="${zipLink}">
+            <div>
+                <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+            </div>
+        </g:if>
 		
 	</form>
 </body>

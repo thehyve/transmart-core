@@ -12,8 +12,8 @@
         </a>
     </g:each>
 
-    <div>
-        <a href="${resource(file: zipLink)}" class="downloadLink">Download raw R data</a>
-    </div>
+    <g:if test="${zipLink}">
+        <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+    </g:if>
 </p>
 

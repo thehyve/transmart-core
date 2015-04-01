@@ -16,14 +16,14 @@
 
 package com.recomdata.transmart.data.association
 
-import org.apache.commons.io.FileUtils
-
 class RModulesOutputRenderService {
 
 	static scope         = "request"
 
 	def grailsApplication
 	def zipService
+    def asyncJobService
+    def currentUserBean
 	def tempDirectory = ""
 	def jobName = ""
 	def jobTypeName = ""
@@ -98,13 +98,19 @@ class RModulesOutputRenderService {
             linksArray.add(currentLink)
         }
 
-        // Zip the working directory
-        String zipLocation = "${analysisDirectory}zippedData.zip"
-        if (!new File(zipLocation).isFile()) {
-            zipService.zipFolder(tempDirectory, zipLocation)
+        try {
+            boolean isAllowedToExport = asyncJobService.isUserAllowedToExportResults(currentUserBean, jobName)
+            if (isAllowedToExport) {
+                // Zip the working directory
+                String zipLocation = "${analysisDirectory}zippedData.zip"
+                if (!new File(zipLocation).isFile()) {
+                    zipService.zipFolder(tempDirectory, zipLocation)
+                }
+                this.zipLink = "${imageURL}${jobName}/zippedData.zip"
+            }
+        } catch (Exception e) {
+            log.error(e)
         }
-        this.zipLink = "${imageURL}${jobName}/zippedData.zip"
-
     }
 	
 	def String fileParseLoop(tempDirectoryFile, fileNamePattern,

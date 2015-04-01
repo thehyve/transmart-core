@@ -5,7 +5,7 @@
         <g:img file="${location}" class="img-result-size"></g:img> <br/>
     </g:each>
 
-    <div>
-        <a class='AnalysisLink' href="${resource(file: zipLink)}">Download raw R data</a>
-    </div>
+    <g:if test="${zipLink}">
+        <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+    </g:if>
 </p>
