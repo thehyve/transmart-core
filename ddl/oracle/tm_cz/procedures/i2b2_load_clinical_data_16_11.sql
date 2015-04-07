@@ -650,11 +650,11 @@ BEGIN
      race_cd
     )
 	select a.usubjid,
-	      nvl(max(case when upper(a.data_label) = 'AGE'
-					   then case when is_number(a.data_value) = 1 then 0 else to_number(a.data_value) end
-		               when upper(a.data_label) like '%(AGE)' 
-					   then case when is_number(a.data_value) = 1 then 0 else to_number(a.data_value) end
-					   else null end),0) as age,
+	      max(case when upper(a.data_label) = 'AGE'
+				   then case when is_number(a.data_value) = 1 then null else to_number(a.data_value) end
+	               when upper(a.data_label) like '%(AGE)' 
+				   then case when is_number(a.data_value) = 1 then null else to_number(a.data_value) end
+				   else null end) as age,
 		  --nvl(max(decode(upper(a.data_label),'AGE',data_value,null)),0) as age,
 		  nvl(max(case when upper(a.data_label) = 'SEX' then a.data_value
 		           when upper(a.data_label) like '%(SEX)' then a.data_value
