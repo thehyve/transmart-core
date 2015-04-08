@@ -88,7 +88,7 @@ function _getBaiRefLength(uncba, offset) {
 }
 
 
-function makeBam(data, bai, indexChunks, callback) {
+function makeBam(data, bai, indexChunks, callback, attempted) {
     var bam = new BamFile();
     bam.data = data;
     bam.bai = bai;
@@ -180,7 +180,17 @@ function makeBam(data, bai, indexChunks, callback) {
         bam.bai.fetch(function(header) {   // Do we really need to fetch the whole thing? :-(
             var result = parseBai(header);
             if (result !== true) {
-              callback(null, result);
+                if (bam.bai.url && typeof(attempted) === "undefined") {
+                    // Already attempted x.bam.bai not there so now trying x.bai
+                    bam.bai.url = bam.data.url.replace(new RegExp('.bam$'), '.bai');
+                    
+                     // True lets us know we are making a second attempt
+                    makeBam(data, bam.bai, indexChunks, callback, true);
+                }
+                else {
+                    // We've attempted x.bam.bai & x.bai and nothing worked
+                    callback(null, result);
+                }
             } else {
               bam.data.slice(0, minBlockIndex).fetch(parseBamHeader);
             }
@@ -287,7 +297,7 @@ BamFile.prototype.blocksForRange = function(refId, min, max) {
         }
         mergedChunks.push(cur);
     }
-    // dlog('mergedChunks = ' + miniJSONify(mergedChunks));
+    // console.log('mergedChunks = ' + miniJSONify(mergedChunks));
 
     return mergedChunks;
 }
@@ -328,6 +338,7 @@ BamFile.prototype.fetch = function(chr, min, max, callback, opts) {
             var c = chunks[index];
             var fetchMin = c.minv.block;
             var fetchMax = c.maxv.block + (1<<16); // *sigh*
+            // console.log('fetching ' + fetchMin + ':' + fetchMax);
             thisB.data.slice(fetchMin, fetchMax - fetchMin).fetch(function(r) {
                 data = unbgzf(r, c.maxv.block - c.minv.block + 1);
                 return tramp();
@@ -357,7 +368,7 @@ BamFile.prototype.readBamRecords = function(ba, offset, sink, min, max, chrId, o
         var blockSize = readInt(ba, offset);
         var blockEnd = offset + blockSize + 4;
         if (blockEnd >= ba.length) {
-            return sink;
+            return false;
         }
 
         var record = new BamRecord();

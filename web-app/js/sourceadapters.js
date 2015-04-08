@@ -59,6 +59,8 @@ if (typeof(require) !== 'undefined') {
 
     var style = require('./style');
     var StyleFilterSet = style.StyleFilterSet;
+
+    var EncodeFetchable = require('./encode').EncodeFetchable;
 }
 
 var __dalliance_sourceAdapterFactories = {};
@@ -599,8 +601,14 @@ BWGFeatureSource.prototype = Object.create(FeatureSourceBase.prototype);
 BWGFeatureSource.prototype.init = function() {
     var thisB = this;
     var arg;
-    if (this.bwgSource.bwgURI) {
-        arg = new URLFetchable(this.bwgSource.bwgURI, {credentials: this.opts.credentials});
+
+    var uri = this.bwgSource.uri || this.bwgSource.bwgURI;
+    if (uri) {
+        if (this.bwgSource.transport === 'encode') {
+            arg = new EncodeFetchable(uri, {credentials: this.opts.credentials});
+        } else {
+            arg = new URLFetchable(uri, {credentials: this.opts.credentials});
+        }
     } else {
         arg = new BlobFetchable(this.bwgSource.bwgBlob);
     }
@@ -836,10 +844,12 @@ BWGFeatureSource.prototype.getStyleSheet = function(callback) {
 function RemoteBWGFeatureSource(bwgSource, worker) {
     FeatureSourceBase.call(this);
 
+    var thisB = this;
     this.worker = worker;
     this.readiness = 'Connecting';
     this.bwgSource = this.opts = bwgSource;
     this.keyHolder = new Awaited();
+
     this.init();
 }
 
@@ -847,7 +857,7 @@ RemoteBWGFeatureSource.prototype = Object.create(FeatureSourceBase.prototype);
 
 RemoteBWGFeatureSource.prototype.init = function() {
     var thisB = this;
-    var uri = this.bwgSource.uri || this.bwgSource.bwgURI;
+    var uri = this.uri || this.bwgSource.uri || this.bwgSource.bwgURI;
     var blob = this.bwgSource.blob || this.bwgSource.bwgBlob;
 
     var cnt = function(key, err) {
@@ -873,7 +883,12 @@ RemoteBWGFeatureSource.prototype.init = function() {
     if (blob) {
         this.worker.postCommand({command: 'connectBBI', blob: blob}, cnt);
     } else {
-        this.worker.postCommand({command: 'connectBBI', uri: resolveUrlToPage(uri), credentials: this.bwgSource.credentials}, cnt); 
+        this.worker.postCommand({
+            command: 'connectBBI', 
+            uri: resolveUrlToPage(uri), 
+            transport: this.bwgSource.transport,
+            credentials: this.bwgSource.credentials}, 
+          cnt); 
     }
 }
 
