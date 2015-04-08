@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.*
 class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
+    public static final String STUDY_BASE_FOLDER = '\\Public Studies\\GSE8581\\'
 
     public static final NUMBER_OF_PATIENTS = 58L
 
@@ -395,4 +396,46 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry(is('concept_path'), endsWith('\\female\\')),
                 hasEntry(is('tval_char'), is('female'))))
     }
+
+    @Test
+    void testConceptCountsRefConsistence() {
+        List mismatches = jdbcTemplate.queryForList("""
+            select cc.concept_path as counts_table, cd.concept_path as dim_table
+            from ${Tables.CONCEPT_COUNTS} cc
+            full outer join ${Tables.CONCEPT_DIMENSION} cd on cd.concept_path = cc.concept_path
+            where cc.concept_path like :path escape '\'
+            and (cc.concept_path is null or cd.concept_path is null)
+            """, [path: STUDY_BASE_FOLDER + '%'])
+
+        assertThat mismatches, hasSize(0)
+    }
+
+    @Test
+    void testConceptCountsCorrectness() {
+        List rows = jdbcTemplate.queryForList("""
+            select concept_path, patient_count
+            from ${Tables.CONCEPT_COUNTS}
+            where concept_path like :path escape '\'
+            """, [path: STUDY_BASE_FOLDER + '%'])
+
+        assertThat rows, allOf(
+            hasItem(allOf(
+                hasEntry(is('concept_path'), equalTo(STUDY_BASE_FOLDER)),
+                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+            )),
+            hasItem(allOf(
+                hasEntry(is('concept_path'), endsWith("\\Endpoints\\")),
+                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+            )),
+            hasItem(allOf(
+                hasEntry(is('concept_path'), endsWith("\\Endpoints\\Diagnosis\\")),
+                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+            )),
+            hasItem(allOf(
+                hasEntry(is('concept_path'), endsWith("\\Endpoints\\Diagnosis\\carcinoid\\")),
+                hasEntry(is('patient_count'), equalTo(3L))
+            )),
+        )
+    }
+
 }

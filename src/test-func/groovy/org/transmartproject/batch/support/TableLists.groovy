@@ -12,6 +12,7 @@ class TableLists {
     public static final List<String> CLINICAL_TABLES = [
             Tables.OBSERVATION_FACT,
             Tables.CONCEPT_DIMENSION,
+            Tables.CONCEPT_COUNTS,
             Tables.PATIENT_TRIAL,
             Tables.PATIENT_DIMENSION,
             Tables.I2B2,

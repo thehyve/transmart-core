@@ -1,6 +1,7 @@
 package org.transmartproject.batch.concept.postgresql
 
 import org.transmartproject.batch.beans.Postgresql
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.InsertConceptCountsTasklet
 
 /**
@@ -10,7 +11,7 @@ import org.transmartproject.batch.concept.InsertConceptCountsTasklet
 class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
     final String sql =
         """
-        WITH
+        WITH RECURSIVE
         relevant_concepts AS (
           SELECT
             concept_path,
@@ -21,19 +22,26 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             AND sourcesystem_cd = ?
         ),
         code_patients AS (
-          SELECT concept_path, concept_cd, patient_num
+          SELECT
+            concept_path::text,
+            substring(concept_path from '#"%\\#"%\\' for '#') as parent_concept_path,
+            patient_num
           FROM
             i2b2demodata.observation_fact
             NATURAL INNER JOIN relevant_concepts
+          UNION
+          SELECT
+            code_patients.parent_concept_path as concept_path,
+            substring(code_patients.parent_concept_path from '#"%\\#"%\\' for '#') AS parent_concept_path,
+            patient_num
+          FROM code_patients WHERE code_patients.parent_concept_path != ?
         )
-        insert into i2b2demodata.concept_counts (concept_path,parent_concept_path,patient_count) SELECT R.concept_path,
-          substring(R.concept_path from '#"%\\#"%\\' for '#') AS parent,
-          (
-            SELECT COUNT(DISTINCT patient_num)
-            FROM code_patients
-            WHERE concept_path LIKE (
-              regexp_replace(R.concept_path, '([\\\\_%])', '\\\\\\1', 'g') || '%') ESCAPE '\\'
-          ) as count
-          FROM relevant_concepts R
+        INSERT INTO ${Tables.CONCEPT_COUNTS} (concept_path, parent_concept_path, patient_count)
+        SELECT
+            concept_path,
+            parent_concept_path,
+            count(distinct patient_num)
+        FROM code_patients
+        GROUP BY concept_path, parent_concept_path
         """
 }
