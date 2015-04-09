@@ -1551,8 +1551,8 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 }
 
 Browser.prototype.setFullScreenHeight = function() {
-    var rest = document.body.offsetHeight - this.browserHolder.offsetHeight;
-    this.browserHolder.style.maxHeight = Math.max(1000, window.innerHeight - rest - 20) + 'px'
+    var browserRect = this.browserHolder.getBoundingClientRect();
+    this.browserHolder.style.maxHeight = Math.max(100, window.innerHeight - browserRect.top - 12) + 'px';
 }
 
 Browser.prototype.addTier = function(conf) {
