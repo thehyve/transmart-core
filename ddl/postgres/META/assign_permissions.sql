@@ -225,7 +225,7 @@ BEGIN
                 COUNT(*)
             FROM
                 (
-                    SELECT
+                    SELECT DISTINCT
                         (R.rec).grantee,
                         (R.rec).privilege_type
                     FROM
@@ -233,7 +233,7 @@ BEGIN
 
                     UNION ALL
 
-                    SELECT
+                    SELECT DISTINCT
                         (R.rec).grantee,
                         (R.rec).privilege_type
                     FROM
@@ -279,7 +279,8 @@ BEGIN
             'biomart_user',
             'tm_cz',
             'tm_lz',
-            'tm_wz'];
+            'tm_wz',
+            'ts_batch'];
 
     RAISE NOTICE 'Started assigning permissions';
 

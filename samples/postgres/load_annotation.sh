@@ -9,6 +9,7 @@ ALREADY_LOADED=`$PSQL_COMMAND -c "select exists \
 		 (select platform from deapp.de_gpl_info where platform = '$PLATFORM')" -tA`
 if [ $ALREADY_LOADED = 't' ]; then
 	echo -e "\e[33mWARNING\e[m: Platform $PLATFORM already loaded; skipping" >&2
+	exit 0
 else
 
 $PSQL_COMMAND -c "COPY deapp.de_gpl_info(platform, title, organism, marker_type) FROM STDIN" <<HEREDOC

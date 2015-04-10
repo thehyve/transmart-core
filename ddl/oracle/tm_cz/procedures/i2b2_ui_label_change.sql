@@ -1,7 +1,7 @@
 --
--- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_UI_LABEL_CHANGE_BK
+-- Type: PROCEDURE; Owner: TM_CZ; Name: I2B2_UI_LABEL_CHANGE
 --
-  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_UI_LABEL_CHANGE_BK" 
+  CREATE OR REPLACE PROCEDURE "TM_CZ"."I2B2_UI_LABEL_CHANGE" 
 (path IN  VARCHAR2
 ,old_label IN VARCHAR2
 , new_label IN VARCHAR2
@@ -90,16 +90,16 @@ BEGIN
  EXCEPTION
  
     when missing_path then
-   dbms_output.put_line('please provide the correct full path name or check this path id correct or not='||fullPath);
+   dbms_output.put_line('please provide the correct full path name or check this path is correct or not='||fullPath);
    select 11 into rtn_code from dual;
    when multiple_path then 
-   dbms_output.put_line('please provide the correct full path name ,given name may not correct='||fullPath);
+   dbms_output.put_line('please provide the correct full path name, given name may not be correct='||fullPath);
    select 12 into rtn_code from dual;
    when no_label then 
-   dbms_output.put_line('please provide the correct Label name ,given name may not correct='||oldLabel);
+   dbms_output.put_line('please provide the correct Label name, given name may not be correct='||oldLabel);
    select 13 into rtn_code from dual;
    when others then    
-   dbms_output.put_line('please check the parameters which you have provide');
+   dbms_output.put_line('please check the parameters which you have provided');
   select 14 into rtn_code from dual;
     
  

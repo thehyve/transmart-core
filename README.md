@@ -14,13 +14,13 @@ This repository is a set of make files and scripts for:
 * generating the SQL scripts and dependency metadata necessary for the two
   points above, from a clean database;
 * fixing permissions and tablespace assignments;
-* importing some example data – these are intended for development, the targets
+* importing some example data - these are intended for development, the targets
   are not robust enough to be generally applicable;
 * running the Solr cores for Faceted Search and the Sample Explorer;
 * generating configuration files for tranSMART.
 
 The current schema is the one necessary to support the
-[`master` branch][master] on The Hyve's fork.
+[`master` branch][master] of transmart (release 1.2) for Oracle and Postgres
 
 This goal is to have this project displace `transmart-DB` by providing a better
 way to manage the tranSMART database.
@@ -28,6 +28,10 @@ way to manage the tranSMART database.
 This project does not handle database upgrades and is therefore more adequate
 for development. Using [Liquibase][liquibase] here or some other more ad hoc
 solution for that problem is being studied.
+
+A script is available that can compare dumps from two databases,
+intended for an installed copy to be compared to the latest
+transmart-data.
 
 Requirements
 ------------
@@ -42,7 +46,7 @@ The following are required:
 * An up-to-date checkout of the [`tranSMART-ETL` repository][ts_etl]. Revision
   e712fcd7 is necessary for Faceted Search support (ETL only)
 * Groovy (>= 2.1). Can be installed with `make -C env groovy` and updating the
-  `PATH` (Oracle and some secondary functionaly only)
+  `PATH` (Oracle and some secondary functionality only)
 * [Kettle][kettle] (ETL only)
 * rsync (Solr only)
 * Java environment (JDK 7)
@@ -177,6 +181,10 @@ Examples:
 http-index http://studies.thehyve.net/datasets_index
 ftp-flat ftp://studies.thehyve.net/
 ```
+
+The initial public-feeds download uses a TranSMART Foundation
+host. Changing the URL in `samples/studies/public-feeds` will use an
+alternative source for all data downloads.
 
 The type `http-index` points to a plain text file that lists the available
 datasets in the format `<study> <type> <tarball relative path>`. Example:
@@ -320,7 +328,7 @@ This part still needs some work, but it goes more or less like this:
 Note that pg\_dump does not output the data in any specific order; after a
 table is modified, it will dump the old data out of order. This results in a
 larger changeset than necessary and obfuscates the actual changes made to the
-tableʼs data. A target is included that attempts to remedy this problem by
+table's data. A target is included that attempts to remedy this problem by
 changing the modified files so that the old rows are kept at the top of the
 modified file in the same order (but with the removed rows left out):
 
@@ -341,7 +349,7 @@ action; better to edit the files in
 
 ### Generating new import files from model database (Oracle)
 
-For Oracle, only schema dumping a loading is supported:
+For Oracle, only schema dumping and loading is supported:
 
     make -C ddl/oracle dump
 	make -C ddl/oracle load
@@ -349,7 +357,7 @@ For Oracle, only schema dumping a loading is supported:
 A separate branch exists that supports loading data from the TSV files dumped
 by PostgreSQL.
 
-  [master]: https://github.com/thehyve/transmartApp/tree/master
+  [master]: https://github.com/transmart/transmartApp/tree/master
   [liquibase]: http://www.liquibase.com/
-  [ts_etl]: https://github.com/thehyve/tranSMART-ETL
+  [ts_etl]: https://github.com/transmart/tranSMART-ETL
   [kettle]: http://kettle.pentaho.com/

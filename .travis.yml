@@ -6,15 +6,20 @@ env:
     - TEST_SUITE=R
     - TEST_SUITE=configuration_syntax
 
+addons:
+    postgresql: "9.4"
+
 before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
     - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
     - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
     - sudo apt-get update
+    - sudo apt-get install -y tk-dev # while colorspace 1.2-6 is not out
 
 install:
     - sudo apt-get install -qq php5-cli php5-json subversion groovy
     - make -C env ../vars
+    - sed -i 's@PGSQL_BIN=.*@PGSQL_BIN="sudo -E -u postgres /usr/lib/postgresql/9.4/bin/"@' vars
 
 script: ./travis-test $TEST_SUITE

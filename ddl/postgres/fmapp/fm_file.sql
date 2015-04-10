@@ -51,7 +51,7 @@ DECLARE
   rec_count bigint;
 BEGIN
   SELECT COUNT(*) INTO rec_count 
-  FROM fm_data_uid 
+  FROM fmapp.fm_data_uid 
   WHERE fm_data_id = new.file_id;
   
   if rec_count = 0 then

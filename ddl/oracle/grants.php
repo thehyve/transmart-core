@@ -2,8 +2,9 @@
 
 $spec = [
     'BIOMART_USER' => [
-        ['BIOMART',      '*TABLE',                    'READ', ''],
+        ['BIOMART',      '*TABLE',                    'WRITE', ''],
         ['BIOMART',      '*VIEW',                     'READ', ''],
+        ['BIOMART',      '*SEQUENCE',                 'READ', ''],
         ['DEAPP',        '*TABLE',                    'READ', ''],
         ['DEAPP',        '*VIEW',                     'READ', ''],
         ['I2B2DEMODATA', '*TABLE',                    'READ', ''],
@@ -14,7 +15,9 @@ $spec = [
         ['SEARCHAPP',    '*VIEW',                     'READ', ''],
         ['SEARCHAPP',    '*SEQUENCE',                 'READ', ''],
         ['FMAPP',        '*TABLE',                    'WRITE', ''],
+        ['FMAPP',        '*SEQUENCE',                 'READ', ''],
         ['AMAPP',        '*TABLE',                    'WRITE', ''],
+        ['AMAPP',        '*SEQUENCE',                 'READ', ''],
         ['I2B2DEMODATA', 'QT_QUERY_MASTER',           'WRITE', ''],
         ['I2B2DEMODATA', 'QT_QUERY_INSTANCE',         'WRITE', ''],
         ['I2B2DEMODATA', 'QT_QUERY_RESULT_INSTANCE',  'WRITE', ''],

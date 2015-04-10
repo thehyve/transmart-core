@@ -49,6 +49,10 @@
 \i deapp/de_subject_rna_data.sql
 \i deapp/de_subject_rnaseq_data.sql
 \i deapp/de_subject_sample_mapping.sql
+\i deapp/de_two_region_event.sql
+\i deapp/de_two_region_junction.sql
+\i deapp/de_two_region_event_gene.sql
+\i deapp/de_two_region_junction_event.sql
 \i deapp/de_variant_dataset.sql
 \i deapp/de_variant_metadata.sql
 \i deapp/de_variant_population_data.sql

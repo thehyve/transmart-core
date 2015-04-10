@@ -18,7 +18,8 @@ BEGIN
         'searchapp',
         'tm_cz',
         'tm_lz',
-        'tm_wz'
+        'tm_wz',
+        'ts_batch'
     ];
 
     FOREACH role IN ARRAY spec LOOP

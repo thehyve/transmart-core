@@ -166,5 +166,30 @@ clean:
 	perl ../common/_scripts/vcf/convertMappingIntoSQLFiles.pl "$(SUBJECT_SAMPLE_MAPPING_FILE)" "$(VCF_TEMP_DIR)" \
 			"$(STUDY_ID)" "$(DATASET_ID)" "$(CONCEPT_PATH)"
 
+# transmart-batch:
+ifdef USE_TRANSMART_BATCH
+
+EXTRA_TSBATCH_ARGS ?=
+
+define TSBATCH_TEMPLATE
+ load_$(1)_%: ../studies/%/$(1).params ../studies/%/$(1)
+	$$(MAKE) -C ../../env transmart-batch-capsule.jar $$(BATCH_PROPS)
+	../../env/transmart-batch-capsule.jar \
+		-p '$$(realpath ../studies)/$$*/$(1).params' \
+		-c '$$(realpath ../../env)/$$(BATCH_PROPS)' \
+		$$(EXTRA_TSBATCH_ARGS)
+endef
+
+else
+
+TSBATCH_TEMPLATE =
+
+endif
+
+$(eval $(call TSBATCH_TEMPLATE,clinical))
+$(eval $(call TSBATCH_TEMPLATE,annotation))
+$(eval $(call TSBATCH_TEMPLATE,expression))
+$(eval $(call TSBATCH_TEMPLATE,metabolomics_annotation))
+$(eval $(call TSBATCH_TEMPLATE,metabolomics))
 
 # vim: ft=make :

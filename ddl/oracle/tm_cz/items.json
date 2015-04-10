@@ -9381,7 +9381,7 @@
     "child" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
-      "name" : "I2B2_UI_LABEL_CHANGE_BK"
+      "name" : "I2B2_UI_LABEL_CHANGE"
     },
     "parents" : [ {
       "type" : "SYNONYM",
@@ -14357,9 +14357,9 @@
     "item" : {
       "type" : "PROCEDURE",
       "owner" : "TM_CZ",
-      "name" : "I2B2_UI_LABEL_CHANGE_BK"
+      "name" : "I2B2_UI_LABEL_CHANGE"
     },
-    "file" : "tm_cz/procedures/i2b2_ui_label_change_bk.sql"
+    "file" : "tm_cz/procedures/i2b2_ui_label_change.sql"
   }, {
     "item" : {
       "type" : "INDEX",

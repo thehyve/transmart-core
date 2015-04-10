@@ -20,7 +20,8 @@ BEGIN
         ['biomart', 'transmart'],
         ['galaxy', 'transmart'],
         ['fmapp', 'transmart'],
-        ['amapp', 'transmart']
+        ['amapp', 'transmart'],
+        ['ts_batch', 'transmart']
     ];
     FOREACH pair SLICE 1 IN ARRAY spec LOOP
         -- Assign tables' tablespaces

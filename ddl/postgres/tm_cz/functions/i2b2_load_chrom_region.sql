@@ -1,7 +1,11 @@
 --
--- Name: i2b2_load_chrom_region(character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
+-- Name: i2b2_load_chrom_region(character varying, character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying, genome_release character varying DEFAULT ''::character varying, currentjobid numeric DEFAULT (-1)) RETURNS numeric
+CREATE FUNCTION i2b2_load_chrom_region(platform_title character varying DEFAULT ''::character varying,
+                                       data_type      character varying DEFAULT 'ACGH'::character varying,  -- valid values are ACGH and RNASEQ
+                                       genome_release character varying DEFAULT ''::character varying,
+                                       currentjobid numeric DEFAULT (-1))
+RETURNS numeric
     LANGUAGE plpgsql
     AS $$
 
@@ -14,10 +18,11 @@ Declare
 	stepCt 			numeric(18,0);
 	rowCt			numeric(18,0);
 	errorNumber		character varying;
-	errorMessage		character varying;
+	errorMessage	character varying;
 	rtnCd			integer;
 
 	gplId			character varying;
+    marker_type		character varying;
 	organismId		character varying;
 	sqlText			varchar(1000);
 
@@ -32,7 +37,6 @@ BEGIN
 	procedureName := 'I2B2_LOAD_CHROM_REGION';
 
 	--Audit JOB Initialization
-	--If Job ID does not exist, then this is a sinde_gle procedure run and we need to create it
 	--If Job ID does not exist, then this is a single procedure run and we need to create it
 
 	IF(jobID IS NULL or jobID < 1)
@@ -95,11 +99,20 @@ BEGIN
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from deapp.de_gpl_info for platform: ' || gplID,rowCt,stepCt,'Done') into rtnCd;
 
 
-        -- Insert platform into deapp.de_gpl_info
+    -- Insert platform into deapp.de_gpl_info
+
+    -- Derive marker_type from data_type argument (defaults to CHROMOSOME_REGION_ACGH)
+	if (upper(data_type) = 'RNASEQ')
+	then
+		marker_type := 'RNASEQ_RCNT';
+	else
+		marker_type := 'Chromosomal';
+	end if;
+
 	if (length(platform_title) = 0)
 	then
 		platform_title = gplId;
-        end if;
+	end if;
 
 	select distinct organism INTO organismId FROM tm_lz.lt_chromosomal_region;
 	begin
@@ -110,9 +123,9 @@ BEGIN
 		, organism
 		, annotation_date
 		, marker_type
-                , release_nbr
+		, release_nbr
 	)
-	values (gplId, platform_title, organismId, current_timestamp, 'Chromosomal', genome_release);
+	values (gplId, platform_title, organismId, current_timestamp, marker_type, genome_release);
 	get diagnostics rowCt := ROW_COUNT;	
 	exception
 	when others then

@@ -1,7 +1,9 @@
 KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
-				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev
+				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev \
+				libxt-dev libpango1.0-dev texlive-fonts-recommended tex-gyre \
+				fonts-dejavu-core
 
 GROOVY_VERSION=2.1.9
 
@@ -18,6 +20,10 @@ PHP_URL=http://nl1.php.net/distributions/php-$(PHP_VERSION).tar.gz
 PHP_BIN=php5/bin/php
 
 TRANSMART_LOADER=transmart-loader
+
+TRANSMART_BATCH_VERSION=1.0-SNAPSHOT
+TRANSMART_BATCH_FILE=transmart-batch-capsule.jar
+TRANSMART_BATCH_URL=https://repo.thehyve.nl/content/repositories/snapshots/org/transmartproject/transmart-batch/$(TRANSMART_BATCH_VERSION)/transmart-batch-$(TRANSMART_BATCH_VERSION)-capsule.jar
 
 %/conf/log4j.properties:
 	mkdir -p $*/conf \
@@ -37,6 +43,21 @@ $(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-sn
 		-o ! -f $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); then \
 		curl -L -f $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); \
 	fi
+
+# do a conditional request here.
+# We could also skip if we checked in the last hour or so (see ts-loader) below
+$(TRANSMART_BATCH_FILE):
+	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_BATCH_URL)'
+	@chmod +x '$@'
+
+batchdb-psql.properties: batchdb-psql.properties.php ../vars
+	php -d variables_order=E '$<' > '$@'
+
+batchdb-oracle.properties: batchdb-oracle.properties.php ../vars
+	php -d variables_order=E '$<' > '$@'
+
+# for redownload
+.PHONY: $(TRANSMART_BATCH_FILE)
 
 $(GROOVY_ZIP):
 	curl -f "$(GROOVY_URL)" > $@
