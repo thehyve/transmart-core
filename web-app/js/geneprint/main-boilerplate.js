@@ -62,10 +62,6 @@ var MainBoilerplate = function(Oncoprint, utils) {
                 }
             })
 
-            // Close progress dialog
-            $('.runAnalysisBtn')[0].disabled = false;
-            destroyWorkflowStatus();
-
             // Set up oncoprint
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: geneData,
@@ -79,6 +75,20 @@ var MainBoilerplate = function(Oncoprint, utils) {
             oncoprint.sortBy(sortBy.val(), cases);
 
             zoom = reset_zoom();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.log(textStatus);
+            Ext.MessageBox.show({
+                title: "Error",
+                msg: textStatus.statusText,
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+        },
+        complete: function() {
+            // Close progress dialog
+            $('.runAnalysisBtn')[0].disabled = false;
+            destroyWorkflowStatus();
         }
     });
 
