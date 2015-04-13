@@ -87,6 +87,7 @@ FormValidator.prototype.validateInputForm = function () {
         // initialize
         var _isRequired = false;
         var _isInteger = false;
+        var _isDecimal = false;
         var _isHighDimensional = false;
         var _isTwoSubsets = false;
 
@@ -105,6 +106,12 @@ FormValidator.prototype.validateInputForm = function () {
                         if (_el.value !== null && _el.value !== '') {
                             _isInteger = this.valid_integer(_el, _label, _validations[j]);
                             _isValid = _isValid && _isInteger;
+                        }
+                        break;
+                    case 'DECIMAL' :
+                        if (_el.value !== null && _el.value !== '') {
+                            _isDecimal = this.valid_decimal(_el, _label, _validations[j]);
+                            _isValid = _isValid && _isDecimal;
                         }
                         break;
                     case 'HIGH_DIMENSIONAL' :
@@ -157,6 +164,24 @@ FormValidator.prototype.required = function (el, label) {
 
 }
 
+FormValidator.prototype.valid_range = function (el, label, validator) {
+    var retVal = true;
+    if (typeof validator.min !== 'undefined' && typeof validator.max !== 'undefined') {
+        var isWithinRange = (el.value >= validator.min) && (el.value <= validator.max) ? true : false;
+        retVal = retVal && isWithinRange;
+        if (!retVal)  this.push_error(defaults.messages.integer_range, [label, validator.min, validator.max]);
+    } else if (typeof validator.min !== 'undefined' && typeof validator.max === 'undefined') {
+        var isGreaterThanEqual = (el.value >= validator.min) ? true : false;
+        retVal = retVal && isGreaterThanEqual;
+        if (!retVal)  this.push_error(defaults.messages.integer_min, [label, validator.min]);
+    } else if (typeof validator.min === 'undefined' && typeof validator.max !== 'undefined') {
+        var isLessThanEqual = (el.value <= validator.min) ? true : false;
+        retVal = retVal && isLessThanEqual;
+        if (!retVal)  this.push_error(defaults.messages.integer_max, [label, validator.max]);
+    }
+    return retVal;
+}
+
 FormValidator.prototype.valid_integer = function (el, label, validator) {
 
     var retVal = integerRegex.test(el.value);
@@ -164,23 +189,23 @@ FormValidator.prototype.valid_integer = function (el, label, validator) {
     if (!retVal) {
         this.push_error(defaults.messages.integer, [label]);
     } else {
-        if (validator.min && validator.max) {
-            var isWithinRange = (el.value >= validator.min) && (el.value <= validator.max) ? true : false;
-            retVal = retVal && isWithinRange;
-            if (!retVal)  this.push_error(defaults.messages.integer_range, [label, validator.min, validator.max]);
-        } else if (validator.min && !validator.max) {
-            var isGreaterThanEqual = (el.value >= validator.min) ? true : false;
-            retVal = retVal && isGreaterThanEqual;
-            if (!retVal)  this.push_error(defaults.messages.integer_min, [label, validator.min]);
-        } else if (!validator.min &&  validator.max) {
-            var isLessThanEqual = (el.value <= validator.min) ? true : false;
-            retVal = retVal && isLessThanEqual;
-            if (!retVal)  this.push_error(defaults.messages.integer_max, [label, validator.max]);
-        }
+        retVal = retVal && this.valid_range(el, label, validator);
     }
     return retVal;
 }
 
+FormValidator.prototype.valid_decimal = function (el, label, validator) {
+
+    var retVal = decimalRegex.test(el.value);
+
+    if (!retVal) {
+        this.push_error(defaults.messages.decimal, [label]);
+    } else {
+        console.log("flag");
+        retVal = retVal && this.valid_range(el, label, validator);
+    }
+    return retVal;
+}
 
 // Custom validations
 // -------------------------------------------------
