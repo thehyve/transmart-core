@@ -77,7 +77,6 @@ var MainBoilerplate = function(Oncoprint, utils) {
             zoom = reset_zoom();
         },
         error: function(xhr, textStatus, errorThrown) {
-            console.log(textStatus);
             Ext.MessageBox.show({
                 title: "Error",
                 msg: textStatus.statusText,

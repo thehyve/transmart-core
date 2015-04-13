@@ -201,7 +201,6 @@ FormValidator.prototype.valid_decimal = function (el, label, validator) {
     if (!retVal) {
         this.push_error(defaults.messages.decimal, [label]);
     } else {
-        console.log("flag");
         retVal = retVal && this.valid_range(el, label, validator);
     }
     return retVal;
