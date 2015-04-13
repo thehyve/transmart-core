@@ -24,6 +24,12 @@
             %{--Display independent variable--}%
             <div id="displaydivIndependentVariable" class="independentVars"></div>
 
+            %{--Z-score thresholds--}%
+            <label for="txtMrnaThreshold">mRNA expression z-score threshold:</label>
+            <input type="text" id="txtMrnaThreshold" value="1.5"/>
+            <label for="txtProteinThreshold">Protein expression z-score threshold:</label>
+            <input type="text" id="txtProteinThreshold" value="1.5"/>
+
         </fieldset>
 
         <fieldset class="toolFields">

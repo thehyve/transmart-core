@@ -26,6 +26,9 @@ class GeneprintController {
 
     AnalysisConstraints analysisConstraints
 
+    double mrnaThreshold;
+    double proteinThreshold;
+
     List<Map> geneprintEntries = []
 
     @Autowired
@@ -46,6 +49,8 @@ class GeneprintController {
         //return
 
         analysisConstraints = RModulesController.createAnalysisConstraints(params)
+        mrnaThreshold = Double.parseDouble(analysisConstraints['mrnaThreshold'])
+        proteinThreshold = Double.parseDouble(analysisConstraints['proteinThreshold'])
 
         List<String> ontologyTerms = extractOntologyTerms()
         List<Integer> searchKeywordIds = extractSearchKeywordIds()
@@ -114,10 +119,10 @@ class GeneprintController {
     }
 
     private void processMrna(Double value, geneprintEntry) {
-        if (value > 1.0) {
+        if (value > mrnaThreshold) {
             geneprintEntry["mrna"] = "UPREGULATED"
         }
-        if (value < -1.0) {
+        if (value < -mrnaThreshold) {
             geneprintEntry["mrna"] = "DOWNREGULATED"
         }
     }
@@ -140,10 +145,10 @@ class GeneprintController {
     }
 
     private void processProtein(Double value, geneprintEntry) {
-        if (value > 1.0) {
+        if (value > proteinThreshold) {
             geneprintEntry["rppa"] = "UPREGULATED"
         }
-        if (value < -1.0) {
+        if (value < -proteinThreshold) {
             geneprintEntry["rppa"] = "DOWNREGULATED"
         }
     }

@@ -129,6 +129,8 @@ GeneprintView.prototype.get_form_params = function () {
         // get analysis constraints
         var constraints_json = this.get_analysis_constraints('Geneprint');
         constraints_json['projections'] = ["all_data"];
+        constraints_json['mrnaThreshold'] = inputArray[1].el.value;
+        constraints_json['proteinThreshold'] = inputArray[2].el.value;
 
         formParameters['analysisConstraints'] = JSON.stringify(constraints_json);
 
@@ -155,6 +157,16 @@ GeneprintView.prototype.get_inputs = function (form_params) {
                     high_dimensional_pathway:form_params["divIndependentVariablePathway"]
                 }
             ]
+        },
+        {
+            "label" : "mRNA expression z-score threshold",
+            "el" : document.getElementById("txtMrnaThreshold"),
+            "validations" : [{type:"DECIMAL", min:0.0}]
+        },
+        {
+            "label" : "Protein expression z-score threshold",
+            "el" : document.getElementById("txtProteinThreshold"),
+            "validations" : [{type:"DECIMAL", min:0.0}]
         }
     ];
 }
