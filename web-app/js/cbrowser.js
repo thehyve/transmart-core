@@ -103,13 +103,6 @@ function Browser(opts) {
     this.tierBackgroundColors = ["rgb(245,245,245)", 'white'];
     this.minTierHeight = 20;
     this.noDefaultLabels = false;
-    this.baseColors = {
-        A: 'green', 
-        C: 'blue', 
-        G: 'orange', 
-        T: 'red',
-        '-' : 'hotpink' // deletion
-    };
 
     // Registry
 
@@ -133,6 +126,19 @@ function Browser(opts) {
 
     this.initListeners = [];
 
+    if (opts.baseColors) {
+        this.baseColors = opts.baseColors
+    } else {
+        this.baseColors = {
+            A: 'green',
+            C: 'blue',
+            G: 'orange',
+            T: 'red',
+            '-' : 'hotpink', // deletion
+            'I' : 'red' // insertion
+        };
+    }
+
     if (opts.viewStart !== undefined && typeof(opts.viewStart) !== 'number') {
         throw Error('viewStart must be an integer');
     }
@@ -145,6 +151,11 @@ function Browser(opts) {
     }
     if (typeof(opts.uiPrefix) === 'string' && typeof(opts.prefix) !== 'string') {
         this.prefix = opts.uiPrefix;
+    }
+    // If the prefix only starts with a single '/' this is relative to the current
+    // site, so we need to prefix the prefix with //{hostname}
+    if (this.prefix.indexOf('//') < 0 && this.prefix.indexOf('/') === 0) {
+        this.prefix = '//'+window.location.hostname+this.prefix;
     }
     if (this.prefix.indexOf('//') === 0) {
         var proto = window.location.protocol;
@@ -288,11 +299,15 @@ Browser.prototype.realInit = function() {
     }, function(v) {
         console.log('Failed to boot workers', v);
     }).then(function() {
-        if (window.getComputedStyle(thisB.browserHolderHolder).display != 'none') {
+        if (window.getComputedStyle(thisB.browserHolderHolder).display != 'none' &&
+            thisB.tierHolder.getBoundingClientRect().width > 0)
+        {
             setTimeout(function() {thisB.realInit2()}, 1);
         } else {
             var pollInterval = setInterval(function() {
-                if (window.getComputedStyle(thisB.browserHolderHolder).display != 'none') {
+                if (window.getComputedStyle(thisB.browserHolderHolder).display != 'none' &&
+                    thisB.tierHolder.getBoundingClientRect().width > 0)
+                {
                     clearInterval(pollInterval);
                     thisB.realInit2();
                 } 
@@ -676,7 +691,10 @@ Browser.prototype.realInit2 = function() {
     var ss = this.getSequenceSource();
     if (ss) {
         ss.getSeqInfo(this.chr, function(si) {
-            thisB.currentSeqMax = si.length;
+            if (si)
+                thisB.currentSeqMax = si.length;
+            else
+                thisB.currentSeqMax = -1;
         });
     }
 
@@ -1381,8 +1399,14 @@ Browser.prototype.queryRegistry = function(maybeMapping, tryCache) {
             }
         }
     }
-            
-    new DASRegistry(this.registry).sources(function(sources) {
+
+    var rurl = this.registry;
+    if (rurl.indexOf('//') == 0) {
+        var proto = window.location.protocol;
+        if (proto != 'https:' && proto != 'http:')
+            rurl = 'http:' + rurl;
+    }
+    new DASRegistry(rurl).sources(function(sources) {
         var availableSources = [];
         for (var s = 0; s < sources.length; ++s) {
             var source = sources[s];
@@ -1527,8 +1551,8 @@ Browser.prototype.resizeViewer = function(skipRefresh) {
 }
 
 Browser.prototype.setFullScreenHeight = function() {
-    var rest = document.body.offsetHeight - this.browserHolder.offsetHeight;
-    this.browserHolder.style.maxHeight = Math.max(1000, window.innerHeight - rest - 20) + 'px'
+    var browserRect = this.browserHolder.getBoundingClientRect();
+    this.browserHolder.style.maxHeight = Math.max(100, window.innerHeight - browserRect.top - 12) + 'px';
 }
 
 Browser.prototype.addTier = function(conf) {
@@ -1688,6 +1712,14 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback, soft)
         throw Error('maximum must be a number (got ' + JSON.stringify(newMax) + ')');
     }
 
+    if (newMin > newMax) {
+        var oldNewMin = newMin;
+        newMin = newMax;
+        newMax = oldNewMin;
+    } else if (newMin === newMax) {
+        newMax += 1;
+    }
+
     if (!callback) {
         callback = function(err) {
             if (err) {
@@ -1705,17 +1737,20 @@ Browser.prototype.setLocation = function(newChr, newMin, newMax, callback, soft)
             return callback('Need a sequence source');
         }
 
-        ss.getSeqInfo(newChr, function(si) {
+        var findChr = newChr || this.chr;
+        ss.getSeqInfo(findChr, function(si) {
             if (!si) {
                 var altChr;
-                if (newChr.indexOf('chr') == 0) {
-                    altChr = newChr.substr(3);
+                if (findChr.indexOf('chr') == 0) {
+                    altChr = findChr.substr(3);
                 } else {
-                    altChr = 'chr' + newChr;
+                    altChr = 'chr' + findChr;
                 }
                 ss.getSeqInfo(altChr, function(si2) {
-                    if (!si2) {
+                    if (!si2 && newChr) {
                         return callback("Couldn't find sequence '" + newChr + "'");
+                    } else if (!si2) {
+                        return thisB._setLocation(null, newMin, newMax, null, callback, soft);
                     } else {
                         return thisB._setLocation(altChr, newMin, newMax, si2, callback, soft);
                     }
@@ -1744,11 +1779,14 @@ Browser.prototype._setLocation = function(newChr, newMin, newMax, newChrInfo, ca
     var newWidth = Math.max(10, newMax-newMin+1);
 
     if (!soft) {
+        var csm = this.currentSeqMax;
+        if (csm <= 0)
+            csm = 1000000000000;
         if (newMin < 1) {
             newMin = 1; newMax = newMin + newWidth - 1;
         }
-        if (newMax > this.currentSeqMax) {
-            newMax = this.currentSeqMax;
+        if (newMax > csm) {
+            newMax = csm;
             newMin = Math.max(1, newMax - newWidth + 1);
         }
     }

@@ -870,11 +870,11 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
 
         if (gtype === 'HISTOGRAM') {
             if (relScore >= relOrigin) {
-                height = Math.max(1, (relScore - relOrigin) * requiredHeight);
-                y = y + ((1.0 - relOrigin) * requiredHeight) - height;
+                height = (relScore - Math.max(0, relOrigin)) * requiredHeight;
+                y = y + ((1.0 - Math.max(0, relOrigin)) * requiredHeight) - height;
             } else {
-                height = Math.max(1, (relOrigin - relScore) * requiredHeight);
-                y = y + ((1.0 - relOrigin) * requiredHeight);
+                height = (Math.max(0, relOrigin) - relScore) * requiredHeight;
+                y = y + ((1.0 - Math.max(0, relOrigin)) * requiredHeight);
             }
             quant = {min: smin, max: smax};
         }
@@ -906,6 +906,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
         }
 
         gg = new BoxGlyph(minPos, y, (maxPos - minPos), height, fill, stroke, alpha);
+        gg = new TranslatedGlyph(gg, 0, 0, requiredHeight);
     } else if (gtype === 'HIDDEN') {
         gg = new PaddedGlyph(null, minPos, maxPos);
         noLabel = true;
@@ -989,7 +990,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
                     }
                 } else if (co.op == 'I') {
                     var inseq =  rawseq.substr(cursor, co.cnt);
-                    var ig = new TriangleGlyph(minPos + (seq.length*scale), 5, 'S', 5, 'red');
+                    var ig = new TriangleGlyph(minPos + (seq.length*scale), 5, 'S', 5, tier.browser.baseColors['I']);
                     if (insertionLabels)
                         ig = new LabelledGlyph(GLOBAL_GC, ig, inseq, false, 'center', 'above', '7px sans-serif');
                     ig.feature = {label: 'Insertion: ' + inseq, type: 'insertion', method: 'insertion'};
@@ -1018,6 +1019,9 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
             strandColor = style._minusColor || 'lightskyblue';
         else
             strandColor = style._plusColor || 'lightsalmon';
+
+        if (style.__disableQuals)
+            quals = false;
         
         gg = new SequenceGlyph(
             tier.browser.baseColors, 
@@ -1038,7 +1042,7 @@ function glyphForFeature(feature, y, style, tier, forceHeight, noLabel)
             gg = new GroupGlyph(indels);
         }
     } else if (gtype === '__INSERTION') {
-        var ig = new TriangleGlyph(minPos, 5, 'S', 5, 'red');
+        var ig = new TriangleGlyph(minPos, 5, 'S', 5, tier.browser.baseColors['I']);
         gg = new LabelledGlyph(GLOBAL_GC, ig, feature.insertion || feature.altAlleles[0], false, 'center', 'above', '7px sans-serif');
         if ((maxPos - minPos) > 1) {
             var fill = style.BGCOLOR || style.COLOR1 || 'green';
