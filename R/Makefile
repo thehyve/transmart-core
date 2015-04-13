@@ -1,6 +1,6 @@
 include ../makefile.inc
 
-R_MIRROR ?= http://cran-mirror.cs.uu.nl
+R_MIRROR ?= http://cran.xl-mirror.nl
 R_VERSION = 3.1.2
 R_SOURCE = R-$(R_VERSION)
 R_PREFIX ?= $(realpath .)/root
