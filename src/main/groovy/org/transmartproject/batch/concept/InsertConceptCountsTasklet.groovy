@@ -23,6 +23,7 @@ abstract class InsertConceptCountsTasklet extends GenericTableUpdateTasklet {
     void setValues(PreparedStatement ps) throws SQLException {
         ps.setString(1, basePath.toString())
         ps.setString(2, studyId)
+        ps.setString(3, basePath.parent.toString())
     }
 
     /**
