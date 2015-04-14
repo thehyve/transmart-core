@@ -2,6 +2,7 @@
 //
 // Gideon Dresdner July 2013
 var MainBoilerplate = function(Oncoprint, utils) {
+    var boilerplate = {};
 
     // This is for the moustache-like templates
     // prevents collisions with JSP tags
@@ -46,7 +47,7 @@ var MainBoilerplate = function(Oncoprint, utils) {
     var inner_loader_img = $('#oncoprint #inner_loader_img');
 
     var geneDataColl = new GeneDataColl();
-    geneDataColl.fetch({
+    boilerplate.xhr = geneDataColl.fetch({
         type: "GET",
         data: window.formParams,
         success: function(data) {
@@ -207,4 +208,6 @@ var MainBoilerplate = function(Oncoprint, utils) {
             return;
         });
     });
+
+    return boilerplate;
 };

@@ -29,7 +29,7 @@ function loadGeneprintOutput() {
     };
 
     var oncoprint = OncoprintCore(OncoprintUtils, MemoSort);
-    MainBoilerplate(oncoprint, OncoprintUtils);
+    geneprintView.boilerplate = MainBoilerplate(oncoprint, OncoprintUtils);
 }
 
 // constructor
@@ -71,8 +71,8 @@ GeneprintView.prototype.submit_job = function () {
             //submitJob(formParams);
 
             // Set up progress dialog
-            $('.runAnalysisBtn')[0].disabled = true;
-            createWorkflowStatus($j('#dataAssociationBody'), true);
+            $j('.runAnalysisBtn')[0].disabled = true;
+            job.showProgress($j('#dataAssociationBody'), true);
 
             window.formParams = formParams;
 
@@ -169,6 +169,78 @@ GeneprintView.prototype.get_inputs = function (form_params) {
             "validations" : [{type:"DECIMAL", min:0.0}]
         }
     ];
+}
+
+GeneprintView.prototype.showProgress = function(parentElem, noTitleBar) {
+    destroyWorkflowStatus();
+
+    var maskDiv = $j(document.createElement('div')).attr({id: 'mask'});
+    maskDiv.css('z-index', 10000);
+    $j('#dataAssociationBody').append(maskDiv);
+
+
+    //Add new modal-dialog
+    var progressBarDiv = $j(document.createElement('div')).attr({id: 'progress-bar'});
+    var progressStatusSpan = $j(document.createElement('span')).attr({id: 'progress-status'});
+    progressStatusSpan.html('Running analysis');
+    var progressStatusImg = $j(document.createElement('div')).attr({id: 'progress-img'});
+    var progressTextDiv = $j(document.createElement('div')).attr({id: 'progress-text'});
+    progressTextDiv.append(progressStatusImg);
+    progressTextDiv.append(progressStatusSpan);
+
+    var modalDialogDiv = $j(document.createElement('div')).attr({id: 'dialog-modal'});
+    modalDialogDiv.append(progressBarDiv);
+    modalDialogDiv.append(progressTextDiv);
+
+    parentElem.append(modalDialogDiv);
+    $j("#progress-img").attr('class', 'progress-spinner');
+
+    $j("#mask").fadeTo(500, 0.25);
+
+    var d = $j("#dialog-modal").dialog({
+        height: 130,
+        minHeight: 130,
+        maxHeight: 130,
+        width: 300,
+        minWidth: 250,
+        maxWidth: 350,
+        closeOnEscape: false,
+        show: { effect: 'drop', direction: "up" },
+        hide: { effect: 'fade', duration: 200 },
+        dialogClass: 'dialog-modal',
+        title: 'Workflow Status',
+        position: {
+            my: 'left top',
+            at: 'center',
+            of: parentElem
+        },
+        buttons: {
+            "Stop Analysis": this.cancelJob
+        },
+        //To hide the header of the dialog
+        create: function (event, ui) {
+            if (noTitleBar) $j(".ui-widget-header", $(ui)).hide();
+        },
+        close: function (event, ui) {
+            $j("#mask").hide();
+            $j("#mask").remove();
+            $j("#dialog-modal").dialog('destroy');
+            //$j('#mask').remove();
+        },
+        zIndex: 10001,
+        //modal: true,
+        autoOpen: false
+    });
+    d.parent('.ui-dialog').appendTo($j('#dataAssociationBody'));
+    $j("#dialog-modal").dialog('open');
+
+    $j("#progress-bar").progressbar({
+        value: 5
+    });
+}
+
+GeneprintView.prototype.cancelJob = function() {
+    geneprintView.boilerplate.xhr.abort();
 }
 
 // init geneprint view instance
