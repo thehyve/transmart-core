@@ -38,18 +38,6 @@ var _inputpanel_items = ['->', // '->' making it right aligned
  * @private
  */
 var _resultgrid_items = [
-    '-',
-    {
-        xtype: 'button',
-        text: 'Download Result',
-        scale: 'medium',
-        iconCls: 'downloadbutton',
-        handler: function (b, e) {
-            // get job name
-            var jobName = survivalAnalysisACGHView.intermediateResultGrid.jobName;
-            return survivalAnalysisACGHView.intermediateResultGrid.downloadIntermediateResult(jobName);
-        }
-    },
     {
         xtype: 'button',
         text: 'Show Survival Plot',
@@ -575,37 +563,68 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
                 });
                 store.setDefaultSort('chromosome', 'asc');
 
+                var finishRendering = function(menuButtons) {
+                    // create paging bar with related store
+                    var pagingbar = new Ext.PagingToolbar({
+                        pageSize: GEN_RESULT_GRID_LIMIT,
+                        store: store,
+                        displayInfo: true,
+                        displayMsg: 'Displaying topics {0} - {1} of {2}',
+                        emptyMsg: "No topics to display",
+                        items: menuButtons
+                    });
 
-                // create paging bar with related store
-                var pagingbar = new Ext.PagingToolbar({
-                    pageSize: GEN_RESULT_GRID_LIMIT,
-                    store: store,
-                    displayInfo: true,
-                    displayMsg: 'Displaying topics {0} - {1} of {2}',
-                    emptyMsg: "No topics to display",
-                    items: _resultgrid_items
+                    // make sure no instance from previous job
+                    Ext.destroy(Ext.get('intermediateGridPanel'));
+
+                    // create new grid and render it
+                    view.intermediateResultGrid  = new IntermediateResultGrid({
+                        id: 'intermediateGridPanel',
+                        title: 'Intermediate Result - Job Name: ' + jobName ,
+                        renderTo: 'intermediateResultWrapper',
+                        trackMouseOver:false,
+                        loadMask: true,
+                        columns: _resultgrid_columns,
+                        store: store,
+                        bbar: pagingbar,
+                        jobName: jobName
+                    });
+
+                    view.intermediateResultGrid.render();
+
+                    // finally load the data
+                    store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
+                }
+
+                jQuery.ajax({
+                        url: pageInfo.basePath + '/dataExport/isCurrentUserAllowedToExport',
+                        type: 'GET',
+                        data: {
+                            result_instance_id1: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id1,
+                            result_instance_id2: survivalAnalysisACGHView.jobInfo.jobInputsJson.result_instance_id2
+                        },
+                        success: function(data) {
+                            var menuButtons = _resultgrid_items
+                            if (data.result) {
+                                menuButtons = menuButtons.concat({
+                                    xtype: 'button',
+                                    text: 'Download Result',
+                                    scale: 'medium',
+                                    iconCls: 'downloadbutton',
+                                    handler: function (b, e) {
+                                        // get job name
+                                        var jobName = survivalAnalysisACGHView.intermediateResultGrid.jobName;
+                                        return survivalAnalysisACGHView.intermediateResultGrid.downloadIntermediateResult(jobName);
+                                    }
+                                });
+                            }
+
+                            finishRendering(menuButtons);
+                        },
+                        fail: function(data) {
+                            finishRendering(_resultgrid_items);
+                        }
                 });
-
-                // make sure no instance from previous job
-                Ext.destroy(Ext.get('intermediateGridPanel'));
-
-                // create new grid and render it
-                view.intermediateResultGrid  = new IntermediateResultGrid({
-                    id: 'intermediateGridPanel',
-                    title: 'Intermediate Result - Job Name: ' + jobName ,
-                    renderTo: 'intermediateResultWrapper',
-                    trackMouseOver:false,
-                    loadMask: true,
-                    columns: _resultgrid_columns,
-                    store: store,
-                    bbar: pagingbar,
-                    jobName: jobName
-                });
-
-                view.intermediateResultGrid.render();
-
-                // finally load the data
-                store.load({params:{start:0, limit:GEN_RESULT_GRID_LIMIT}});
             },
             failure: function (result, request) {
                 console.log('failure ....')

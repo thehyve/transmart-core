@@ -375,15 +375,23 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                 // generate template
                 groupTestRNASeqPlotTpl.overwrite(Ext.get('rgtPlotWrapper'), region);
 
-                // generate download button
-                var exportBtn = new Ext.Button({
-                    text: 'Download Result',
-                    iconCls: 'downloadbutton',
-                    renderTo: 'downloadBtn',
-                    handler: function () {
-                        _this.downloadRNASeqGroupTestResult(jobName);
-                    }
-                });
+                jQuery.get(pageInfo.basePath + '/dataExport/isCurrentUserAllowedToExport',
+                    {
+                        result_instance_id1: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id1,
+                        result_instance_id2: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id2
+                    },
+                    function(data) {
+                        if (data.result) {
+                            new Ext.Button({
+                                text: 'Download Result',
+                                iconCls: 'downloadbutton',
+                                renderTo: 'downloadBtn',
+                                handler: function () {
+                                    _this.downloadRNASeqGroupTestResult(jobName);
+                                }
+                            });
+                        }
+                    });
             },
             params: {
                 jobName: jobName

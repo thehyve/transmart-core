@@ -33,6 +33,7 @@ class RModulesOutputRenderServiceTests {
         workingDirectory.mkdir()
 
         service.zipService = mock()
+        service.asyncJobService = mock()
 
         createDummyFile(workingDirectory, "Heatmap&*.png")
         createDummyFile(workingDirectory, "Heatmap.svg")

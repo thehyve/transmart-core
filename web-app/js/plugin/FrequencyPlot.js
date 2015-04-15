@@ -169,15 +169,23 @@ var FrequencyPlotView = Ext.extend(GenericAnalysisView, {
                 // generate template
                 frequencyPlotTpl.overwrite(Ext.get('freq_plot_wrapper'), region);
 
-                // generate download button
-                var exportBtn = new Ext.Button({
-                    text: 'Download Result',
-                    iconCls: 'downloadbutton',
-                    renderTo: 'downloadBtn',
-                    handler: function () {
-                        _this.downloadFrequencyPlotResult(jobName);
-                    }
-                });
+                jQuery.get(pageInfo.basePath + '/dataExport/isCurrentUserAllowedToExport',
+                    {
+                        result_instance_id1: frequencyPlotView.jobInfo.jobInputsJson.result_instance_id1,
+                        result_instance_id2: frequencyPlotView.jobInfo.jobInputsJson.result_instance_id2
+                    },
+                    function(data) {
+                        if (data.result) {
+                            new Ext.Button({
+                                text: 'Download Result',
+                                iconCls: 'downloadbutton',
+                                renderTo: 'downloadBtn',
+                                handler: function () {
+                                    _this.downloadFrequencyPlotResult(jobName);
+                                }
+                            });
+                        }
+                    });
             },
             params: {
                 jobName: jobName

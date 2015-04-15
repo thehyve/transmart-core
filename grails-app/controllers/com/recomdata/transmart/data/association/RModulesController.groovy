@@ -132,9 +132,6 @@ class RModulesController {
             case 'geneprint':
                 jsonResult = createJob(params, Geneprint)
                 break
-            case 'histogram':
-                jsonResult = createJob(params, Histogram, false)
-                break
             case 'acghFrequencyPlot':
                 jsonResult = createJob(params, AcghFrequencyPlot)
                 break
@@ -151,6 +148,8 @@ class RModulesController {
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
         }
+
+        asyncJobService.updateJobInputs(params.jobName, params)
 
         response.setContentType("text/json")
         response.outputStream << jsonResult.toString()

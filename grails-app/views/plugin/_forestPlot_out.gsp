@@ -91,7 +91,9 @@
 			</tr>			
 			<tr>
 				<td>
-					<a class='AnalysisLink' href="${zipLink}">Download raw R data</a>
+					<g:if test="${zipLink}">
+						<a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+					</g:if>
 				</td>
 			</tr>	
 			<tr>
