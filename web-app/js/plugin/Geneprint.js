@@ -64,6 +64,17 @@ GeneprintView.prototype.submit_job = function () {
             }
         }
 
+        // Check if gene(s) have been selected; this is required for geneprint
+        if (!GLOBAL.CurrentPathway) {
+            Ext.MessageBox.show({
+                title: "Validation Error",
+                msg: "Please select genes for the high dimensional data",
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+            return;
+        }
+
         // get formParams
         var formParams = job.get_form_params();
 
