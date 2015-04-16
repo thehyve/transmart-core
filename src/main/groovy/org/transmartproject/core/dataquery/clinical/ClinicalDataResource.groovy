@@ -4,6 +4,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.doc.Experimental
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 
 /**
@@ -66,6 +67,18 @@ public interface ClinicalDataResource {
      * @return the result set
      */
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Set<Patient> patients,
+                                                                   List<ClinicalVariable> ontologyTerms)
+
+    /**
+     * Retrieves the data for passed variables for the patients included in the passed
+     * study.
+     *
+     * @param study name of a study that returns patients for
+     * @param variables the list of variables to include in the result (columns)
+     * @throws InvalidArgumentsException if no variables are specified
+     * @return the result set
+     */
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Study study,
                                                                    List<ClinicalVariable> ontologyTerms)
 
     /**
