@@ -23,8 +23,8 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QueryResultData
 
@@ -54,13 +54,11 @@ class DefaultPatientSetConstraintTests {
 
     @Test
     void basicTest() {
-        AssayQuery assayQuery = new AssayQuery([
+        List<AssayColumn> assays = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
                 new DefaultPatientSetConstraint(
                         queryResult: firstPatientResult
                 )
-        ])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+        ]).list()
 
         assertThat assays, allOf(
                 everyItem(
@@ -78,14 +76,12 @@ class DefaultPatientSetConstraintTests {
 
     @Test
     void testPatientSetConstraintSupportsDisjunctions() {
-        AssayQuery assayQuery = new AssayQuery([
+        List<AssayColumn> assays = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
                 new DisjunctionAssayConstraint(constraints: [
                         new DefaultTrialNameConstraint(trialName: 'bad name'),
                         new DefaultPatientSetConstraint(
                                 queryResult: firstPatientResult
-                        )])])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+                        )])]).list()
 
         assertThat assays, hasSize(4) /* see basic test */
     }

@@ -23,15 +23,15 @@ import static org.transmartproject.db.TestDataHelper.save
 
 class I2b2Data {
 
+    final static String DEFAULT_TRIAL_NAME = 'STUDY_ID_1'
     String trialName
     List<PatientDimension> patients
     List<PatientTrialCoreDb> patientTrials
 
     static I2b2Data createDefault() {
-        String trialName = 'STUDY_ID_1'
-        List<PatientDimension> patients = createTestPatients(3, -100, trialName)
-        List<PatientTrialCoreDb> patientTrials = createPatientTrialLinks(patients, trialName)
-        new I2b2Data(trialName: trialName, patients: patients, patientTrials: patientTrials)
+        List<PatientDimension> patients = createTestPatients(3, -100, DEFAULT_TRIAL_NAME)
+        List<PatientTrialCoreDb> patientTrials = createPatientTrialLinks(patients, DEFAULT_TRIAL_NAME)
+        new I2b2Data(trialName: DEFAULT_TRIAL_NAME, patients: patients, patientTrials: patientTrials)
     }
 
     static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {

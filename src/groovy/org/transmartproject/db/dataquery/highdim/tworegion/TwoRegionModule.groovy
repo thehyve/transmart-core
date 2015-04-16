@@ -15,6 +15,7 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.TwoChromosomesSegm
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.hibernate.criterion.CriteriaSpecification.INNER_JOIN
 import static org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
 

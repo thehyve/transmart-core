@@ -35,6 +35,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
@@ -71,7 +72,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
             createAlias 'jProbe', 'p', INNER_JOIN
 
             projections {
-                property 'assay',        'assay'
+                property 'assay.id',     'assayId'
 
                 property 'p.id',         'probeId'
                 property 'p.probeId',    'probeName'
@@ -105,7 +106,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assay.id },
+                assayIdFromRow:        { it[0].assayId },
                 inSameGroup:           { a, b -> a.probeId == b.probeId && a.geneSymbol == b.geneSymbol },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,

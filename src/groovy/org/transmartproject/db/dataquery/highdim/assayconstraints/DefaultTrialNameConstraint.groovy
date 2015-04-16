@@ -19,9 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.Canonical
-import org.transmartproject.core.exceptions.InvalidRequestException
+import org.grails.datastore.mapping.query.api.Criteria
 
 @Canonical
 class DefaultTrialNameConstraint extends AbstractAssayConstraint {
@@ -29,10 +28,8 @@ class DefaultTrialNameConstraint extends AbstractAssayConstraint {
     String trialName
 
     @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
+    void addConstraintsToCriteria(Criteria criteria) {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        builder.with {
-            eq 'trialName', trialName
-        }
+        criteria.eq 'trialName', trialName
     }
 }

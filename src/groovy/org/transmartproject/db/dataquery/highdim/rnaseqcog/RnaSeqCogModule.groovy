@@ -34,6 +34,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
 /**

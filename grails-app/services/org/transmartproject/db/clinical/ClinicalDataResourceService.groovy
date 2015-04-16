@@ -20,18 +20,21 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
-import com.google.common.collect.Sets
+import grails.gorm.DetachedCriteria
 import groovy.util.logging.Log4j
+import org.grails.datastore.mapping.query.Query
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
+import org.transmartproject.db.i2b2data.PatientDimension
 
 @Log4j
 class ClinicalDataResourceService implements ClinicalDataResource {
@@ -47,24 +50,27 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     InnerClinicalTabularResultFactory innerResultFactory
 
     @Override
-    ClinicalDataTabularResult retrieveData(List<QueryResult> queryResults,
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        Set<Patient> patients
-        if (queryResults.size() == 1) {
-            patients = queryResults[0].patients
-        } else {
-            patients = Sets.newTreeSet(
-                    { a, b -> a.id <=> b.id } as Comparator)
-            queryResults.each {
-                patients.addAll it.patients
-            }
-        }
+        def patientSetQueryIterable = PatientDimension.getPatientSetDetachedCriteria(queryResults)
+        retrieveDataImpl(patientSetQueryIterable, variables)
+    }
 
-        retrieveData(patients, variables)
+    @Override
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Study study,
+                                                                   List<ClinicalVariable> variables) {
+
+        def studyPatientsQueryIterable = PatientDimension.getStudyPatientsDetachedCriteria(study)
+        retrieveDataImpl(studyPatientsQueryIterable, variables)
     }
 
     @Override
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Set<Patient> patientCollection,
+                                                                   List<ClinicalVariable> variables) {
+        retrieveDataImpl(patientCollection, variables)
+    }
+
+    private TabularResult<ClinicalVariableColumn, PatientRow> retrieveDataImpl(Iterable<PatientDimension> patients,
                                                                    List<ClinicalVariable> variables) {
 
         if (!variables) {
@@ -77,16 +83,16 @@ class ClinicalDataResourceService implements ClinicalDataResource {
         try {
             def patientMap = Maps.newTreeMap()
 
-            patientCollection.each { patientMap[it.id] = it }
+            patients.each { patientMap[it.id] = it }
 
             List<TerminalConceptVariable> flattenedVariables = []
             flattenClinicalVariables(flattenedVariables, variables)
 
             def intermediateResults = []
-            if (!patientCollection.empty) {
+            if (patientMap) {
                 intermediateResults = innerResultFactory.
                         createIntermediateResults(session,
-                                patientCollection, flattenedVariables)
+                                patients, flattenedVariables)
             } else {
                 log.info("No patients passed to retrieveData() with" +
                         "variables $variables; will skip main queries")
@@ -114,6 +120,8 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(QueryResult patientSet,
                                                                    List<ClinicalVariable> variables) {
+        assert patientSet
+
         retrieveData([patientSet], variables)
     }
 

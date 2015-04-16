@@ -22,8 +22,8 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.containsInAnyOrder
@@ -44,13 +44,13 @@ class AssayIdListConstraintTests {
             it.id == -201 || it.id == -301
         }
 
-        AssayQuery assayQuery = new AssayQuery([
+        def result = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
                 new AssayIdListConstraint(
                         ids: wantedAssays*.id
                 )
-        ])
+        ]).list()
 
-        assertThat assayQuery.retrieveAssays(), containsInAnyOrder(
+        assertThat result, containsInAnyOrder(
                 wantedAssays.collect {
                     hasSameInterfaceProperties(Assay, it)
                 })

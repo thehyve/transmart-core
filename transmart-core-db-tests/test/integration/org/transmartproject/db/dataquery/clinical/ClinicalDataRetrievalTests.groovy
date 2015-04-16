@@ -295,7 +295,8 @@ class ClinicalDataRetrievalTests {
                     })
         }
 
-        assertThat Lists.newArrayList(results), createMatcher()
+        def resultList = Lists.newArrayList(results)
+        assertThat resultList, createMatcher()
         results.close()
 
         /* now with variables reversed */
@@ -414,7 +415,7 @@ class ClinicalDataRetrievalTests {
 
     @Test
     void testRetrieveDataNullQueryResultVariantQueryResult() {
-        shouldFail NullPointerException, {
+        shouldFail AssertionError, {
             clinicalDataResourceService.retrieveData((QueryResult) null, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
         }
@@ -422,7 +423,7 @@ class ClinicalDataRetrievalTests {
 
     @Test
     void testRetrieveDataWithoutPatientsVariantQueryResultList() {
-        results = clinicalDataResourceService.retrieveData([], [
+        results = clinicalDataResourceService.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
         assertThat results, is(iterableWithSize(0))

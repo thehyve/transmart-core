@@ -19,9 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.Canonical
-import org.transmartproject.core.exceptions.InvalidRequestException
+import org.grails.datastore.mapping.query.api.Criteria
 
 @Canonical
 class PlatformConstraint extends AbstractAssayConstraint {
@@ -29,12 +28,10 @@ class PlatformConstraint extends AbstractAssayConstraint {
     Collection<String> gplIds
 
     @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
+    void addConstraintsToCriteria(Criteria criteria) {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
         if (gplIds) {
-            builder.with {
-                'in' 'platform.id', gplIds
-            }
+            criteria.in 'platform.id', gplIds
         }
     }
 }

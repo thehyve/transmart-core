@@ -19,19 +19,17 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.orm.HibernateCriteriaBuilder
+import org.grails.datastore.mapping.query.api.Criteria
 
 class DisjunctionAssayConstraint extends AbstractAssayConstraint {
 
     List<AbstractAssayConstraint> constraints
 
     @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder criteria) {
-        criteria.with {
-            or {
-                constraints.each { AbstractAssayConstraint subConstraint ->
-                    subConstraint.addConstraintsToCriteria criteria
-                }
+    void addConstraintsToCriteria(Criteria criteria) {
+        criteria.or {
+            constraints.each { AbstractAssayConstraint subConstraint ->
+                subConstraint.addConstraintsToCriteria criteria
             }
         }
     }

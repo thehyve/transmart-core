@@ -24,7 +24,7 @@ import org.hibernate.Query
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.db.dataquery.highdim.AssayQuery
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 
 /**
@@ -32,18 +32,19 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceIm
  */
 @InheritConstructors
 class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
+
     List<ChromosomalSegment> retrieveChromosomalSegments(
             List<AssayConstraint> assayConstraints) {
 
-        def criteriaBuilder = new AssayQuery(assayConstraints).
-                prepareCriteriaWithConstraints()
-        criteriaBuilder.with {
+        def assayQuery = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria(assayConstraints)
+        assayQuery.with {
             projections {
-                groupProperty 'platform.id'
+                distinct 'platform.id'
+                id()
             }
         }
 
-        def platformIds = criteriaBuilder.instance.list().collect { it }
+        def platformIds = assayQuery.list().collect { it[0] } as Set
 
         if (platformIds.empty) {
             throw new EmptySetException(

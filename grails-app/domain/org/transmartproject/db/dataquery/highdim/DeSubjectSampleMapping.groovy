@@ -19,10 +19,12 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.gorm.DetachedCriteria
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
 import org.transmartproject.core.dataquery.assay.TissueType
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AbstractAssayConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
 
 class DeSubjectSampleMapping implements Assay {
@@ -128,5 +130,16 @@ class DeSubjectSampleMapping implements Assay {
         new TissueType(code: tissueTypeCd, label: tissueTypeName)
     }
 //  endregion
+
+    static DetachedCriteria<DeSubjectSampleMapping> getOrderedAssaysDetachedCriteria(
+            Iterable<AbstractAssayConstraint> constraints) {
+
+        where {
+            constraints.each { AbstractAssayConstraint assayConstraint ->
+                assayConstraint.addConstraintsToCriteria(it)
+            }
+            order 'id'
+        }
+    }
 
 }

@@ -35,6 +35,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 import javax.annotation.PostConstruct
 
@@ -120,7 +121,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
             createAlias 'jAnnotation', 'a', INNER_JOIN
 
             projections {
-                property 'assay',             'assay'
+                property 'assay.id',          'assayId'
                 property 'a.id',              'annotationId'
                 property 'a.hmdbId',          'hmdbId'
                 property 'a.biochemicalName', 'biochemicalName'
@@ -145,7 +146,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assay.id },
+                assayIdFromRow:        { it[0].assayId },
                 inSameGroup:           { a, b -> a.annotationId == b.annotationId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()

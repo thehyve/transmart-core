@@ -33,6 +33,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 import javax.annotation.PostConstruct
 
@@ -102,7 +103,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
             createAlias 'jProbe', 'p', INNER_JOIN
 
             projections {
-                property 'assay',      'assay'
+                property 'assay.id',   'assayId'
 
                 property 'p.id',       'probeId'
                 property 'p.mirnaId',  'mirna'
@@ -132,7 +133,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assay.id },
+                assayIdFromRow:        { it[0].assayId },
                 inSameGroup:           { a, b -> a.probeId == b.probeId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
