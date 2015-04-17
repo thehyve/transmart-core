@@ -23,6 +23,16 @@ class TableLists {
             'biomart.bio_data_uid',
     ]
 
+    public static final List<String> I2B2_TABLES = [
+            Tables.OBSERVATION_FACT,
+            Tables.CONCEPT_DIMENSION,
+            Tables.PATIENT_DIMENSION,
+            Tables.PATIENT_MAPPING,
+            Tables.VISIT_DIMENSION,
+            Tables.ENCOUNTER_MAPPING,
+            Tables.PROV_DIMENSION,
+     ]
+
     public static final List<String> METABOLOMICS_TABLES = [
             "${Tables.GPL_INFO} CASCADE",
             Tables.SUBJ_SAMPLE_MAP,

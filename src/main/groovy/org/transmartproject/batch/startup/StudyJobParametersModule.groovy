@@ -25,9 +25,7 @@ final class StudyJobParametersModule implements ExternalJobParametersModule {
             ejp[STUDY_ID] = absolutePath.subpath(count - 2, count - 1)
         }
 
-        if (ejp[SECURITY_REQUIRED] == null) {
-            ejp[SECURITY_REQUIRED] = 'N'
-        }
+        ejp.mungeBoolean(SECURITY_REQUIRED, false)
 
         if (!ejp[TOP_NODE]) {
             def prefix = ejp[SECURITY_REQUIRED] == 'Y' ?

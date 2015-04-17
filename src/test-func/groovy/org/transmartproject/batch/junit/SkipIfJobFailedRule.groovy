@@ -34,6 +34,10 @@ class SkipIfJobFailedRule implements TestRule {
             runJobRule.result == 0
         } else if (runJobRule instanceof RuleChain) {
             runJobRule.rulesStartingWithInnerMost.every {
+                if (it instanceof LoadTablesRule) {
+                    // this just throws if it fails
+                    return true
+                }
                 assert it instanceof RunJobRule
                 it.result == 0
             }

@@ -91,7 +91,7 @@ task capsule(type: ThinCapsule) {
 
     capsuleManifest {
         extractCapsule = false
-		repositories = ['central', 'https://repo.thehyve.nl/content/groups/public/']
+        repositories = ['central', 'https://repo.thehyve.nl/content/groups/public/']
     }
 }
 
@@ -110,7 +110,7 @@ task functionalTestPrepare(type: JavaExec) {
     group = 'verification'
     main = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
     args 'org.transmartproject.batch.preparation.TestDatabasePrepareConfiguration',
-            'fillTablesJob'
+            'testDatabasePrepareJob'
     classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
 }
@@ -118,6 +118,7 @@ task functionalTestPrepare(type: JavaExec) {
 task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
+    systemProperties = ['user.timezone': 'GMT']
     testClassesDir = sourceSets.functionalTest.output.classesDir
     classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath

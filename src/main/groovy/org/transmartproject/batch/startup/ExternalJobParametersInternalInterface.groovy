@@ -39,4 +39,14 @@ interface ExternalJobParametersInternalInterface {
      * Throws if the parameter is not present.
      */
     void mandatory(String parameter) throws InvalidParametersFileException
+
+    /**
+     * Munges a boolean parameter, which will be stored not as a boolean
+     * parameter but as Y/N. For historical reasons, of course.
+     *
+     * Any value different from 0, false and N will be interpreted as Y.
+     * @param parameter
+     * @param defaultValue if not provided, whether to use Y (true) or F (false)
+     */
+    void mungeBoolean(String parameter, boolean defaultValue)
 }

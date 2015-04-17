@@ -7,6 +7,7 @@ final class Sequences {
     private Sequences() {}
 
     public static final String PATIENT = 'i2b2demodata.seq_patient_num'
+    public static final String VISIT = 'i2b2demodata.seq_encounter_num'
     public static final String CONCEPT = 'i2b2demodata.concept_id'
     public static final String I2B2_RECORDID = 'i2b2metadata.i2b2_record_id_seq'
 
