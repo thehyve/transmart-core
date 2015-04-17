@@ -104,7 +104,7 @@ trait FileCorruptingTestTrait {
     void firstExecution(List<String> params) {
         def runJob = RunJob.createInstance(*params)
         def intResult = runJob.run()
-        assertThat intResult, is(1)
+        assertThat 'first execution is unsuccessful', intResult, is(1)
 
         lastRunParameters = runJob.finalJobParameters
         lastExecution = repository.getLastJobExecution(
@@ -115,6 +115,6 @@ trait FileCorruptingTestTrait {
         def runJob = RunJob.createInstance(*params,
                 '-r', '-j', lastExecution.id as String)
         def intResult = runJob.run()
-        assertThat intResult, is(0)
+        assertThat 'second execution is successful', intResult, is(0)
     }
 }

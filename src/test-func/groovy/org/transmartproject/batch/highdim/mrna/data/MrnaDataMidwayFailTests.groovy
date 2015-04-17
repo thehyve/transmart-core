@@ -32,7 +32,7 @@ import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenario
 
 /**
  * For mRNA, test a failure midway the first pass, and then restart the job with
- * the problem fixed.
+ * the problem fixed. Then the same for the second pass.
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)

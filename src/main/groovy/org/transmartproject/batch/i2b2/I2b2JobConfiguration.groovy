@@ -50,10 +50,11 @@ import static org.transmartproject.batch.i2b2.variable.VisitDimensionI2b2Variabl
 class I2b2JobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'I2b2Job'
-    public static final int CHUNK_SIZE_FIRST_PASS = 50000
-    public static final int CHUNK_SIZE_FIND_DIMENSIONS = 1000 - 1 /* higher is problematic for oracle */
-    public static final int CHUNK_SIZE_INSERT_DIMENSIONS = 5000
-    public static final int CHUNK_SIZE_SECOND_PASS = 10000
+
+    static int firstPassChunkSize = 50000
+    static int findDimensionsChunkSize = 1000 - 1 /* higher is problematic for oracle */
+    static int insertDimensionsChunkSize = 5000
+    static int secondPassChunkSize = 10000
 
     private final static String DIMENSIONS_STORE_JOB_KEY = 'dimensionsStore'
     public static final String COMPLETED_NEXT_INCREMENTAL = 'COMPLETED PROCEED INCREMENTAL'
@@ -262,7 +263,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
     Step firstPass(VariableAndDataPointValidator variableAndDataPointValidator,
                    SnapshotDimensionsStoreItemStream snapshotDimensionsStoreItemStream) {
         steps.get('firstPass')
-                .chunk(CHUNK_SIZE_FIRST_PASS)
+                .chunk(firstPassChunkSize)
                 .reader(firstPassReader(null))
                 .processor(compositeOf(
                         new ValidatingItemProcessor(adaptValidator(variableAndDataPointValidator)),
@@ -357,7 +358,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                                                  ItemWriter<String> writer) {
 
         steps.get("findCurrentDimensions-$dimensionKey")
-                .chunk(CHUNK_SIZE_FIND_DIMENSIONS)
+                .chunk(findDimensionsChunkSize)
                 .reader(reader)
                 .writer(writer)
                 .listener(logCountsStepListener())
@@ -380,7 +381,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                                     ItemWriter<DimensionsStoreEntry> insertPatientsWriter,
                                     ItemWriter<DimensionsStoreEntry> insertVisitsWriter) {
         def insertProvidersStep = steps.get('insertProviders')
-                .chunk(CHUNK_SIZE_INSERT_DIMENSIONS)
+                .chunk(insertDimensionsChunkSize)
                 .reader(new DimensionsStoreEntryReader(
                         name: 'insertProvidersReader',
                         dimensionsStore: dimensionsStore,
@@ -391,7 +392,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                 .build()
 
         def insertPatientsStep = steps.get('insertPatients')
-                .chunk(CHUNK_SIZE_INSERT_DIMENSIONS)
+                .chunk(insertDimensionsChunkSize)
                 .reader(new DimensionsStoreEntryReader(
                         name: 'insertPatientsReader',
                         dimensionsStore: dimensionsStore,
@@ -402,7 +403,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                 .build()
 
         def insertVisitsStep = steps.get('insertVisits')
-                .chunk(CHUNK_SIZE_INSERT_DIMENSIONS)
+                .chunk(insertDimensionsChunkSize)
                 .reader(new DimensionsStoreEntryReader(
                         name: 'insertVisitsReader',
                         dimensionsStore: dimensionsStore,
@@ -435,7 +436,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                 delegate: secondPassInnerReader())
 
         steps.get('secondPass')
-                .chunk(CHUNK_SIZE_SECOND_PASS)
+                .chunk(secondPassChunkSize)
                 .reader(reader)
                 .writer(new CompositeItemWriter(delegates: [
                         observationFactWriter,
