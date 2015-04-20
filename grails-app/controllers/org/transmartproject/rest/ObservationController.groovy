@@ -61,7 +61,7 @@ class ObservationController {
         def variables = [createClinicalVariable(study.ontologyTerm)]
         TabularResult<ClinicalVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(
-                        study.patients, variables)
+                        study, variables)
         try {
             respond wrapObservations(observations, variables)
         } finally {
@@ -161,7 +161,7 @@ class ObservationController {
         def variables = [createClinicalVariable(concept)]
         TabularResult<ClinicalVariable, PatientRow> observations =
                 clinicalDataResourceService.retrieveData(
-                        study.patients, variables)
+                        study, variables)
         try {
             respond wrapObservations(observations, variables)
         } finally {
