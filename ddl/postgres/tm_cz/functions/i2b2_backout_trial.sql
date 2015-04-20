@@ -77,7 +77,7 @@ BEGIN
 
 	-- retrieve topNode for study with given trial id (trialid)
 	begin
-	select c_fullname from i2b2metadata.i2b2 where sourcesystem_cd = trialid and c_hlevel = 1 into topNode;
+	select c_fullname from i2b2metadata.i2b2 where sourcesystem_cd = trialid order by c_hlevel asc limit 1 into topNode;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
