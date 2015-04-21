@@ -24,8 +24,6 @@ class GeneprintController {
             "vcf":      Projection.ALL_DATA_PROJECTION
     ]
 
-    AnalysisConstraints analysisConstraints
-
     List<Map> geneprintEntries = []
 
     @Autowired
@@ -45,10 +43,12 @@ class GeneprintController {
         //render geneprintEntries as JSON
         //return
 
-        analysisConstraints = RModulesController.createAnalysisConstraints(params)
+        def analysisConstraints = RModulesController.createAnalysisConstraints(params)
+        double mrnaThreshold = Double.parseDouble(analysisConstraints['mrnaThreshold'])
+        double proteinThreshold = Double.parseDouble(analysisConstraints['proteinThreshold'])
 
-        List<String> ontologyTerms = extractOntologyTerms()
-        List<Integer> searchKeywordIds = extractSearchKeywordIds()
+        List<String> ontologyTerms = extractOntologyTerms(analysisConstraints)
+        List<Integer> searchKeywordIds = extractSearchKeywordIds(analysisConstraints)
         TabularResult tabularResult;
 
         Map<String, HighDimensionDataTypeResource> highDimDataTypeResourceCache = [:]
@@ -57,12 +57,14 @@ class GeneprintController {
         }
 
         try {
-            extractPatientSets().each { resultInstanceId ->
+            extractPatientSets(analysisConstraints).each { resultInstanceId ->
                 searchKeywordIds.each { searchKeywordId ->
                     def searchKeyword = [symbol: null]
                     highDimDataTypeResourceCache.each { ontologyTerm, dataTypeResource ->
-                        tabularResult = fetchData(resultInstanceId, searchKeywordId, ontologyTerm, dataTypeResource)
-                        processResult(tabularResult, searchKeyword, dataTypeResource.dataTypeName)
+                        tabularResult = fetchData(resultInstanceId, searchKeywordId, ontologyTerm,
+                                dataTypeResource, analysisConstraints)
+                        processResult(tabularResult, searchKeyword, dataTypeResource.dataTypeName,
+                                mrnaThreshold, proteinThreshold)
                         tabularResult.close()
                     }
                 }
@@ -79,7 +81,8 @@ class GeneprintController {
         render("[]")
     }
 
-    private void processResult(TabularResult tabularResult, searchKeyword, String dataType) {
+    private void processResult(TabularResult tabularResult, searchKeyword, String dataType,
+                               double mrnaThreshold, double proteinThreshold) {
         def assayList = tabularResult.indicesList
         tabularResult.each { DataRow row ->
             if (searchKeyword.symbol == null) {
@@ -97,13 +100,13 @@ class GeneprintController {
 
                 switch (dataType) {
                 case 'mrna':
-                    processMrna(value, geneprintEntry)
+                    processMrna(value, geneprintEntry, mrnaThreshold)
                     break
                 case 'acgh':
                     processAcgh(value.getCopyNumberState(), geneprintEntry)
                     break
                 case 'protein':
-                    processProtein(value, geneprintEntry)
+                    processProtein(value, geneprintEntry, proteinThreshold)
                     break
                 case 'vcf':
                     processVcf(value.reference, geneprintEntry)
@@ -113,11 +116,11 @@ class GeneprintController {
         }
     }
 
-    private void processMrna(Double value, geneprintEntry) {
-        if (value > 1.0) {
+    private void processMrna(Double value, geneprintEntry, mrnaThreshold) {
+        if (value > mrnaThreshold) {
             geneprintEntry["mrna"] = "UPREGULATED"
         }
-        if (value < -1.0) {
+        if (value < -mrnaThreshold) {
             geneprintEntry["mrna"] = "DOWNREGULATED"
         }
     }
@@ -139,11 +142,11 @@ class GeneprintController {
         }
     }
 
-    private void processProtein(Double value, geneprintEntry) {
-        if (value > 1.0) {
+    private void processProtein(Double value, geneprintEntry, proteinThreshold) {
+        if (value > proteinThreshold) {
             geneprintEntry["rppa"] = "UPREGULATED"
         }
-        if (value < -1.0) {
+        if (value < -proteinThreshold) {
             geneprintEntry["rppa"] = "DOWNREGULATED"
         }
     }
@@ -214,22 +217,22 @@ class GeneprintController {
         return dataTypeResource
     }
 
-    private List<String> extractOntologyTerms() {
+    private List<String> extractOntologyTerms(analysisConstraints) {
         analysisConstraints.assayConstraints.remove('ontology_term').collect {
             Hacks.createConceptKeyFrom(it.term)
         }
     }
 
-    private List<Integer> extractSearchKeywordIds() {
+    private List<Integer> extractSearchKeywordIds(analysisConstraints) {
         analysisConstraints.dataConstraints.remove('search_keyword_ids').keyword_ids
     }
 
-    private List<Integer> extractPatientSets() {
+    private List<Integer> extractPatientSets(analysisConstraints) {
         analysisConstraints.assayConstraints.remove("patient_set").grep()
     }
 
     private TabularResult fetchData(Integer patientSetId, String searchKeywordId, String ontologyTerm,
-                                    HighDimensionDataTypeResource dataTypeResource) {
+                                    HighDimensionDataTypeResource dataTypeResource, analysisConstraints) {
 
         List<DataConstraint> dataConstraints = analysisConstraints['dataConstraints'].
                 collect { String constraintType, values ->
