@@ -6,6 +6,7 @@
   platform_t in varchar2 := ''
 , data_type in varchar2 := 'ACGH' -- valid values are ACGH and RNASEQ
 , genome_release in varchar2 := ''
+, gene_annotation_id in varchar2 := ''
 , currentjobid in number := NULL
 ) as
  --Audit variables
@@ -81,7 +82,8 @@ begin
             organism ,
             annotation_date ,
             marker_type ,
-            release_nbr
+            genome_build ,
+            gene_annotation_id
           )
           VALUES
           (
@@ -90,7 +92,8 @@ begin
             organismId,
             CURRENT_TIMESTAMP,
             marker_type,
-            genome_release
+            genome_release,
+            gene_annotation_id
           );
   stepCt := stepCt + 1;
   tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Load platform info into deapp.de_gpl_info for platform: ' || gplID,SQL%ROWCOUNT,stepCt,'Done');

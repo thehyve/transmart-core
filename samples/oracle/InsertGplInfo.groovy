@@ -21,13 +21,13 @@ import groovy.sql.Sql
 import DatabaseConnection
 
 def parseOptions() {
-  def cli = new CliBuilder(usage: "InsertGplInfo.groovy -p platform -t title -o organism")
+  def cli = new CliBuilder(usage: "InsertGplInfo.groovy -p platform -t title -o organism -m marker_type")
   cli.p('which platform', required: true, longOpt: "platform", args: 1)
   cli.t('which title', required: true, longOpt: "title", args: 1)
   cli.o('which organism', required: true, longOpt: "organism", args: 1)
   cli.m('which marker_type', required: true, longOpt: "marker_type", args: 1)
   cli.g('which genome_build; defaults to NULL', longOpt: "genome_build", args: 1)
-  cli.r('which release number; defaults to NULL', longOpt: "release_number", args: 1)
+  cli.a('which gene annotation id; defaults to NULL', longOpt: "gene_annotation_id", args: 1)
   def options = cli.parse(args)
   options
 }
@@ -50,12 +50,12 @@ def alreadyLoaded(platform) {
 def insertGplInfo(options) {
   sql = DatabaseConnection.setupDatabaseConnection()
   sql.execute(
-      "INSERT INTO deapp.de_gpl_info(platform, title, organism, marker_type, genome_build, release_nbr)" +
-      " VALUES (:platform, :title, :organism, :marker_type, :genome_build, :release_number)",
+      "INSERT INTO deapp.de_gpl_info(platform, title, organism, marker_type, genome_build, gene_annotation_id)" +
+      " VALUES (:platform, :title, :organism, :marker_type, :genome_build, :gene_annotation_id)",
       [platform: options.platform, title: options.title,
               organism: options.organism, marker_type: options.marker_type,
               genome_build: options.genome_build ?: null,
-              release_number: options.release_number ?: null ]
+              gene_annotation_id: options.gene_annotation_id ?: null ]
   )
   sql.close()
 }
