@@ -118,6 +118,7 @@ class RnaSeqEndToEndRetrievalTests {
         assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].name)),
+                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
                 hasProperty('platform', allOf(
                     hasProperty('id', equalTo(testData.regionPlatform.id)),
                     hasProperty('title', equalTo(testData.regionPlatform.title)),
@@ -130,6 +131,7 @@ class RnaSeqEndToEndRetrievalTests {
         assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
+                hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)),
                 hasProperty('platform', allOf(
                         hasProperty('id', equalTo(testData.regionPlatform.id)),
                         hasProperty('title', equalTo(testData.regionPlatform.title)),
@@ -315,6 +317,37 @@ class RnaSeqEndToEndRetrievalTests {
         assertThat dataQueryResult, hasProperty('indicesList', is(not(empty())))
         assertThat Lists.newArrayList(dataQueryResult.rows), is(empty())
     }
+
+
+    @Test
+    void testWithGeneConstraint() {
+        def assayConstraints = [
+                rnaseqResource.createAssayConstraint(
+                        AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
+                rnaseqResource.createAssayConstraint(
+                        AssayConstraint.PATIENT_SET_CONSTRAINT,
+                        result_instance_id: testData.allPatientsQueryResult.id),
+        ]
+        def dataConstraints = [
+                rnaseqResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
+                        find({ it.keyword == 'AURKA' }).id]],
+                        DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
+                )
+        ]
+        def projection = rnaseqResource.createProjection([:], RNASEQ_VALUES_PROJECTION)
+
+        dataQueryResult = rnaseqResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
+
+        def resultList = Lists.newArrayList dataQueryResult
+
+        assertThat resultList, allOf(
+                hasSize(1),
+                everyItem(hasProperty('data', hasSize(2))),
+                contains(hasProperty('bioMarker', equalTo('AURKA')))
+        )
+    }
+
 
     def getDataMatcherForRegion(DeChromosomalRegion region,
                                 String property) {
