@@ -163,14 +163,14 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     @Override
     Set<OntologyTerm> getAllOntologyTermsForDataTypeBy(QueryResult queryResult) {
         I2b2.executeQuery '''
-            select
-                distinct t
-            from QtPatientSetCollection ps, I2b2 t, DeSubjectSampleMapping ssm
-            inner join ssm.platform as p
-            where p.markerType in (:markerTypes)
-                and ssm.conceptCode = t.code
-                and ssm.patient = ps.patient
-                and ps.resultInstance.id = :resultInstanceId
+            from I2b2 where code in
+                (select
+                    distinct ssm.conceptCode
+                from QtPatientSetCollection ps, DeSubjectSampleMapping ssm
+                inner join ssm.platform as p
+                where p.markerType in (:markerTypes)
+                    and ssm.patient = ps.patient
+                    and ps.resultInstance.id = :resultInstanceId)
         ''', [markerTypes : module.platformMarkerTypes, resultInstanceId: queryResult.id]
     }
 }
