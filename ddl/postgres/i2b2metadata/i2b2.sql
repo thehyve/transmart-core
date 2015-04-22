@@ -38,14 +38,13 @@ CREATE TABLE i2b2 (
     c_path character varying(700),
     c_symbol character varying(50),
     i2b2_id bigint,
-    record_id integer DEFAULT nextval('i2b2_record_id_seq'::regclass) NOT NULL
+    record_id integer NOT NULL
 );
 
 --
--- Name: i2b2_c_fullname_uq; Type: CONSTRAINT; Schema: i2b2metadata; Owner: -
+-- Name: record_id; Type: DEFAULT; Schema: i2b2metadata; Owner: -
 --
-ALTER TABLE ONLY i2b2
-    ADD CONSTRAINT i2b2_c_fullname_uq UNIQUE (c_fullname);
+ALTER TABLE ONLY i2b2 ALTER COLUMN record_id SET DEFAULT nextval('i2b2_record_id_seq'::regclass);
 
 --
 -- Name: i2b2_c_comment_char_length_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
