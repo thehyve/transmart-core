@@ -1114,20 +1114,10 @@ BEGIN
 		stepCt := stepCt + 1;
 		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
 	else
-		sqlText := 'drop index if exists ' || partitionIndx || '_idx1';
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
-		sqlText := 'drop index if exists ' || partitionIndx || '_idx2';
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
-		sqlText := 'drop index if exists ' || partitionIndx || '_idx3';
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
-		sqlText := 'drop index if exists ' || partitionIndx || '_idx4';
-		raise notice 'sqlText= %', sqlText;
-		execute sqlText;
+		select tm_cz.remove_table_keys('deapp', replace(partitionName, 'deapp.', ''));
+		select tm_cz.remove_table_indexes('deapp', replace(partitionName, 'deapp.', ''));
 		stepCt := stepCt + 1;
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop keys and indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
 		sqlText := 'truncate table ' || partitionName;
 		raise notice 'sqlText= %', sqlText;
 		execute sqlText;
@@ -1146,20 +1136,19 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Inserted data into ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
 
-	--	create indexes on partition
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_pk primary key (assay_id, region_id);';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
 
-	sqlText := ' create index ' || partitionIndx || '_idx1 on ' || partitionName || ' using btree (region_id) tablespace indx';
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_assay_id_fk foreign key (assay_id) references deapp.de_subject_sample_mapping(assay_id) on delete cascade;';
 	raise notice 'sqlText= %', sqlText;
 	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx2 on ' || partitionName || ' using btree (assay_id) tablespace indx';
+
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_region_id_fk foreign key (region_id) references deapp.de_chromosomal_region(region_id);';
 	raise notice 'sqlText= %', sqlText;
 	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx3 on ' || partitionName || ' using btree (region_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := ' create index ' || partitionIndx || '_idx4 on ' || partitionName || ' using btree (assay_id, region_id) tablespace indx';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Created keys for ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
     ---Cleanup OVERALL JOB if this proc is being run standalone
 
 	stepCt := stepCt + 1;

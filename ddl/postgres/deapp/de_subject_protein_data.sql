@@ -3,18 +3,30 @@
 --
 CREATE TABLE de_subject_protein_data (
     trial_name character varying(50),
-    protein_annotation_id bigint,
+    protein_annotation_id bigint NOT NULL,
     component character varying(100),
     patient_id numeric(38,0),
     gene_symbol character varying(100),
-    gene_id character varying(200), --defined as NUMBER(10,0) in oracle
-    assay_id numeric,
+    gene_id character varying(200),
+    assay_id bigint NOT NULL,
     subject_id character varying(100),
     intensity numeric,
     zscore numeric,
     log_intensity numeric,
     partition_id numeric
 );
+
+--
+-- Name: de_subject_protein_data_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_protein_data
+    ADD CONSTRAINT de_subject_protein_data_pk PRIMARY KEY (assay_id, protein_annotation_id);
+
+--
+-- Name: de_subject_protein_data_assay_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_protein_data
+    ADD CONSTRAINT de_subject_protein_data_assay_id_fk FOREIGN KEY (assay_id) REFERENCES de_subject_sample_mapping(assay_id) ON DELETE CASCADE;
 
 --
 -- Name: fk_protein_annotation_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -

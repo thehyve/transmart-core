@@ -39,12 +39,7 @@ ALTER TABLE ONLY observation_fact
 CREATE INDEX fact_modifier_patient ON observation_fact USING btree (modifier_cd, patient_num);
 
 --
--- Name: idx_fact_patient_num; Type: INDEX; Schema: i2b2demodata; Owner: -
---
-CREATE INDEX idx_fact_patient_num ON observation_fact USING btree (patient_num);
-
---
--- Name: idx_fact_concept Type: INDEX; Schema: i2b2demodata; Owner: -
+-- Name: idx_fact_concept; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
 
@@ -52,6 +47,11 @@ CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
 -- Name: idx_fact_cpe; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX idx_fact_cpe ON observation_fact USING btree (concept_cd, patient_num, encounter_num);
+
+--
+-- Name: idx_fact_patient_num; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX idx_fact_patient_num ON observation_fact USING btree (patient_num);
 
 --
 -- Name: tf_trg_encounter_num(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
@@ -71,6 +71,24 @@ $$;
 -- Name: trg_encounter_num; Type: TRIGGER; Schema: i2b2demodata; Owner: -
 --
 CREATE TRIGGER trg_encounter_num BEFORE INSERT ON observation_fact FOR EACH ROW EXECUTE PROCEDURE tf_trg_encounter_num();
+
+--
+-- Name: observation_fact_concept_cd_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY observation_fact
+    ADD CONSTRAINT observation_fact_concept_cd_fk FOREIGN KEY (concept_cd) REFERENCES concept_dimension(concept_cd) ON DELETE CASCADE;
+
+--
+-- Name: observation_fact_modifier_cd_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY observation_fact
+    ADD CONSTRAINT observation_fact_modifier_cd_fk FOREIGN KEY (modifier_cd) REFERENCES modifier_dimension(modifier_cd) ON DELETE CASCADE;
+
+--
+-- Name: observation_fact_patient_num_fk; Type: FK CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY observation_fact
+    ADD CONSTRAINT observation_fact_patient_num_fk FOREIGN KEY (patient_num) REFERENCES patient_dimension(patient_num) ON DELETE CASCADE;
 
 --
 -- Name: seq_encounter_num; Type: SEQUENCE; Schema: i2b2demodata; Owner: -

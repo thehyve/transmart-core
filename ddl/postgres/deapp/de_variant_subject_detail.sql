@@ -21,7 +21,7 @@ CREATE TABLE de_variant_subject_detail (
     alt character varying(500),
     qual character varying(100),
     filter character varying(50),
-    info character varying(10000), --changed from text ... CLOB in oracle
+    info character varying(10000),
     format character varying(500),
     variant_value text
 );

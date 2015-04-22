@@ -15,3 +15,9 @@ CREATE TABLE de_metabolite_annotation (
 ALTER TABLE ONLY de_metabolite_annotation
     ADD CONSTRAINT de_metabolite_annotation_pk PRIMARY KEY (id);
 
+--
+-- Name: de_metabolite_annotation_gpl_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_metabolite_annotation
+    ADD CONSTRAINT de_metabolite_annotation_gpl_id_fk FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform) ON DELETE CASCADE;
+

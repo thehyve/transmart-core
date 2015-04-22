@@ -1107,25 +1107,15 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Create partition ' || partitionName,1,stepCt,'Done') into rtnCd;
 	else
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx1';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx2';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx3';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	sqlText := 'drop index if exists ' || partitionIndx || '_idx4';
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
-	sqlText := 'truncate table ' || partitionName;
-	raise notice 'sqlText= %', sqlText;
-	execute sqlText;
-	stepCt := stepCt + 1;
-	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Truncate ' || partitionName,1,stepCt,'Done') into rtnCd;
+		select tm_cz.remove_table_keys('deapp', replace(partitionName, 'deapp.', ''));
+		select tm_cz.remove_table_indexes('deapp', replace(partitionName, 'deapp.', ''));
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop keys and indexes on ' || partitionName,1,stepCt,'Done') into rtnCd;
+		sqlText := 'truncate table ' || partitionName;
+		raise notice 'sqlText= %', sqlText;
+		execute sqlText;
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Truncate ' || partitionName,1,stepCt,'Done') into rtnCd;
 	end if;
 	
 	--	insert into de_subject_mirna_data when dataType is T (transformed)
@@ -1171,6 +1161,20 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 	
 	end if;
 
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_pk primary key (assay_id, metabolite_annotation_id);';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_assay_id_fk foreign key (assay_id) references deapp.de_subject_sample_mapping(assay_id) on delete cascade;';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+
+	sqlText := ' alter table ' || partitionName || ' add constraint ' || partitionIndx || '_metabolite_annotation_id_fk foreign key (metabolite_annotation_id) references deapp.de_metabolite_annotation(id);';
+	raise notice 'sqlText= %', sqlText;
+	execute sqlText;
+	stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Created keys for ' || partitionName,rowCt,stepCt,'Done') into rtnCd;
+	
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;

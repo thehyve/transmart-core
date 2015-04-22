@@ -32,7 +32,19 @@ CREATE TABLE i2b2_secure (
 );
 
 --
+-- Name: i2b2_secure_c_fullname_uq; Type: CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_secure
+    ADD CONSTRAINT i2b2_secure_c_fullname_uq UNIQUE (c_fullname);
+
+--
 -- Name: idx_i2b2_secure_fullname; Type: INDEX; Schema: i2b2metadata; Owner: -
 --
 CREATE INDEX idx_i2b2_secure_fullname ON i2b2_secure USING btree (c_fullname);
+
+--
+-- Name: i2b2_secure_c_fullname_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_secure
+    ADD CONSTRAINT i2b2_secure_c_fullname_fk FOREIGN KEY (c_fullname) REFERENCES i2b2(c_fullname) ON DELETE CASCADE;
 

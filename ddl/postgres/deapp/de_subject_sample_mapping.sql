@@ -6,7 +6,7 @@ CREATE TABLE de_subject_sample_mapping (
     site_id character varying(100),
     subject_id character varying(100),
     subject_type character varying(100),
-    concept_code character varying(1000),
+    concept_code character varying(50),
     assay_id bigint NOT NULL,
     patient_uid character varying(50),
     sample_type character varying(100),
@@ -33,6 +33,12 @@ CREATE TABLE de_subject_sample_mapping (
 );
 
 --
+-- Name: de_subject_sample_mapping_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_sample_mapping
+    ADD CONSTRAINT de_subject_sample_mapping_pk PRIMARY KEY (assay_id);
+
+--
 -- Name: de_subject_smpl_mpng_idx1; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_subject_smpl_mpng_idx1 ON de_subject_sample_mapping USING btree (timepoint, patient_id, trial_name);
@@ -46,4 +52,10 @@ CREATE INDEX de_subject_smpl_mpng_idx2 ON de_subject_sample_mapping USING btree 
 -- Name: idx_de_subj_smpl_trial_ccode; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX idx_de_subj_smpl_trial_ccode ON de_subject_sample_mapping USING btree (trial_name, concept_code);
+
+--
+-- Name: de_subject_sample_mapping_gpl_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_sample_mapping
+    ADD CONSTRAINT de_subject_sample_mapping_gpl_id_fk FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
 

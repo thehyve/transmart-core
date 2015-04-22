@@ -16,6 +16,12 @@ ALTER TABLE ONLY i2b2_tags
     ADD CONSTRAINT i2b2_tags_path_tag_type_key UNIQUE (path, tag_type);
 
 --
+-- Name: i2b2_tags_pk; Type: CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_tags
+    ADD CONSTRAINT i2b2_tags_pk PRIMARY KEY (tag_id);
+
+--
 -- Name: tf_trg_i2b2_tag_id(); Type: FUNCTION; Schema: i2b2metadata; Owner: -
 --
 CREATE FUNCTION tf_trg_i2b2_tag_id() RETURNS trigger
@@ -36,6 +42,12 @@ SET default_with_oids = false;
 -- Name: trg_i2b2_tag_id; Type: TRIGGER; Schema: i2b2metadata; Owner: -
 --
 CREATE TRIGGER trg_i2b2_tag_id BEFORE INSERT ON i2b2_tags FOR EACH ROW EXECUTE PROCEDURE tf_trg_i2b2_tag_id();
+
+--
+-- Name: i2b2_tags_path_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_tags
+    ADD CONSTRAINT i2b2_tags_path_fk FOREIGN KEY (path) REFERENCES i2b2(c_fullname) ON DELETE CASCADE;
 
 --
 -- Name: seq_i2b2_data_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -

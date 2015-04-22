@@ -16,6 +16,12 @@ CREATE TABLE modifier_dimension (
 );
 
 --
+-- Name: modifier_dimension_modifier_cd_uq; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE ONLY modifier_dimension
+    ADD CONSTRAINT modifier_dimension_modifier_cd_uq UNIQUE (modifier_cd);
+
+--
 -- Name: modifier_dimension_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY modifier_dimension

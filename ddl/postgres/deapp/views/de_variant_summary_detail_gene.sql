@@ -25,7 +25,7 @@ CREATE VIEW de_variant_summary_detail_gene AS
     genesymbol.text_value AS gene_name,
     geneid.text_value AS gene_id
    FROM (((de_variant_subject_summary summary
-   JOIN de_variant_subject_detail detail ON ((((((detail.dataset_id)::text = (summary.dataset_id)::text) AND ((detail.chr)::text = (summary.chr)::text)) AND (detail.pos = summary.pos)) AND ((detail.rs_id)::text = (summary.rs_id)::text))))
-   LEFT JOIN de_variant_population_data genesymbol ON ((((((genesymbol.dataset_id)::text = (summary.dataset_id)::text) AND ((genesymbol.chr)::text = (summary.chr)::text)) AND (genesymbol.pos = summary.pos)) AND ((genesymbol.info_name)::text = 'GS'::text))))
-   LEFT JOIN de_variant_population_data geneid ON ((((((geneid.dataset_id)::text = (summary.dataset_id)::text) AND ((geneid.chr)::text = (summary.chr)::text)) AND (geneid.pos = summary.pos)) AND ((geneid.info_name)::text = 'GID'::text))));
+     JOIN de_variant_subject_detail detail ON ((((((detail.dataset_id)::text = (summary.dataset_id)::text) AND ((detail.chr)::text = (summary.chr)::text)) AND (detail.pos = summary.pos)) AND ((detail.rs_id)::text = (summary.rs_id)::text))))
+     LEFT JOIN de_variant_population_data genesymbol ON ((((((genesymbol.dataset_id)::text = (summary.dataset_id)::text) AND ((genesymbol.chr)::text = (summary.chr)::text)) AND (genesymbol.pos = summary.pos)) AND ((genesymbol.info_name)::text = 'GS'::text))))
+     LEFT JOIN de_variant_population_data geneid ON ((((((geneid.dataset_id)::text = (summary.dataset_id)::text) AND ((geneid.chr)::text = (summary.chr)::text)) AND (geneid.pos = summary.pos)) AND ((geneid.info_name)::text = 'GID'::text))));
 

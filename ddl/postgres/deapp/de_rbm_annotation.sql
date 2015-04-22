@@ -37,6 +37,12 @@ $$;
 CREATE TRIGGER rbm_id_trigger BEFORE INSERT ON de_rbm_annotation FOR EACH ROW EXECUTE PROCEDURE tf_rbm_id_trigger();
 
 --
+-- Name: de_rbm_annotation_gpl_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_rbm_annotation
+    ADD CONSTRAINT de_rbm_annotation_gpl_id_fk FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform) ON DELETE CASCADE;
+
+--
 -- Name: rbm_annotation_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE rbm_annotation_id

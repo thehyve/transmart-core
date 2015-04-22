@@ -20,3 +20,9 @@ ALTER TABLE ONLY de_metabolite_sub_pathways
 ALTER TABLE ONLY de_metabolite_sub_pathways
     ADD CONSTRAINT de_met_sub_pw_sup_pw_id_fkey FOREIGN KEY (super_pathway_id) REFERENCES de_metabolite_super_pathways(id);
 
+--
+-- Name: de_metabolite_sub_pathways_gpl_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_metabolite_sub_pathways
+    ADD CONSTRAINT de_metabolite_sub_pathways_gpl_id_fk FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
+

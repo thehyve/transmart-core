@@ -53,3 +53,9 @@ CREATE INDEX de_subject_acgh_data_region ON de_subject_acgh_data USING btree (re
 ALTER TABLE ONLY de_subject_acgh_data
     ADD CONSTRAINT de_subj_acgh_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);
 
+--
+-- Name: de_subject_acgh_data_assay_id_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_subject_acgh_data
+    ADD CONSTRAINT de_subject_acgh_data_assay_id_fk FOREIGN KEY (assay_id) REFERENCES de_subject_sample_mapping(assay_id) ON DELETE CASCADE;
+
