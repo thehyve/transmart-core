@@ -32,6 +32,9 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.clinical.ClinicalDataTabularResult
 import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
+import org.transmartproject.db.dataquery.clinical.PatientQuery
+import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint
+import org.transmartproject.db.dataquery.clinical.patientconstraints.StudyPatientsConstraint
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.PatientDimension
@@ -52,16 +55,20 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     @Override
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(List<QueryResult> queryResults,
                                            List<ClinicalVariable> variables) {
-        def patientSetQueryIterable = PatientDimension.getPatientSetDetachedCriteria(queryResults)
-        retrieveDataImpl(patientSetQueryIterable, variables)
+        def patientQuery = new PatientQuery([
+                new PatientSetsConstraint(queryResults)
+        ])
+        retrieveDataImpl(patientQuery, variables)
     }
 
     @Override
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(Study study,
                                                                    List<ClinicalVariable> variables) {
 
-        def studyPatientsQueryIterable = PatientDimension.getStudyPatientsDetachedCriteria(study)
-        retrieveDataImpl(studyPatientsQueryIterable, variables)
+        def studyPatientsQuery = new PatientQuery([
+                new StudyPatientsConstraint(study)
+        ])
+        retrieveDataImpl(studyPatientsQuery, variables)
     }
 
     @Override

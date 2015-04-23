@@ -21,16 +21,12 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.grails.datastore.mapping.query.api.Criteria
 
-class DisjunctionAssayConstraint extends AbstractAssayConstraint {
+class AssayIdListCriteriaConstraint implements AssayCriteriaConstraint {
 
-    List<AbstractAssayConstraint> constraints
+    List<Long> ids
 
     @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        criteria.or {
-            constraints.each { AbstractAssayConstraint subConstraint ->
-                subConstraint.addConstraintsToCriteria criteria
-            }
-        }
+    void addToCriteria(Criteria criteria) {
+        criteria.in 'id', ids
     }
 }

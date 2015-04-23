@@ -18,20 +18,27 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
-
 import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.db.i2b2data.ConceptDimension
 
 @Canonical
-class MarkerTypeConstraint extends AbstractAssayConstraint {
+class DefaultOntologyTermCriteriaConstraint implements AssayCriteriaConstraint {
 
-    List platformNames
+    OntologyTerm term
 
     @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        criteria.platform {
-            'in' 'markerType', platformNames
-        }
+    void addToCriteria(Criteria criteria) {
+        criteria.in('conceptCode',
+            ConceptDimension.where {
+                projections {
+                    property 'conceptCode'
+                }
+
+                eq 'conceptPath', term.fullName
+            }
+        )
     }
+
 }

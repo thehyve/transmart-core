@@ -19,19 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import groovy.transform.Canonical
-import org.grails.datastore.mapping.query.api.Criteria
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.db.dataquery.CriteriaConstraint
 
-@Canonical
-class PlatformConstraint extends AbstractAssayConstraint {
-
-    Collection<String> gplIds
-
-    @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        if (gplIds) {
-            criteria.in 'platform.id', gplIds
-        }
-    }
-}
+interface AssayCriteriaConstraint extends AssayConstraint, CriteriaConstraint {}

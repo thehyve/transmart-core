@@ -17,29 +17,30 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.assayconstraints
-import groovy.transform.Canonical
-import org.grails.datastore.mapping.query.api.Criteria
-import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.i2b2data.ConceptDimension
+package org.transmartproject.db.dataquery.clinical
 
-@Canonical
-class DefaultOntologyTermConstraint extends AbstractAssayConstraint {
+import grails.gorm.DetachedCriteria
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.db.dataquery.AbstractEntityQuery
+import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientConstraint
+import org.transmartproject.db.i2b2data.PatientDimension
 
-    OntologyTerm term
+class PatientQuery extends AbstractEntityQuery<Patient> {
+
+    private final DetachedCriteria<PatientDimension> criteria
+
+    PatientQuery(List<PatientConstraint> constraints) {
+        this.criteria =
+            PatientDimension.where {
+                constraints.each { PatientConstraint assayConstraint ->
+                    assayConstraint.addToCriteria(it)
+                }
+            }
+    }
 
     @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        criteria.in('conceptCode',
-            ConceptDimension.where {
-                projections {
-                    property 'conceptCode'
-                }
-
-                eq 'conceptPath', term.fullName
-            }
-        )
+    DetachedCriteria<Patient> forEntities() {
+        criteria
     }
 
 }

@@ -37,9 +37,9 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
-import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListCriteriaConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameCriteriaConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
@@ -75,8 +75,8 @@ class MrnaDataRetrievalTests {
 
     MrnaTestData testData = new MrnaTestData()
 
-    DefaultTrialNameConstraint trialNameConstraint =
-            new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+    DefaultTrialNameCriteriaConstraint trialNameConstraint =
+            new DefaultTrialNameCriteriaConstraint(trialName: MrnaTestData.TRIAL_NAME)
 
     SimpleRealProjection rawIntensityProjection =
             new SimpleRealProjection(property: 'rawIntensity')
@@ -99,7 +99,7 @@ class MrnaDataRetrievalTests {
 
     @Test
     void basicTest() {
-        trialNameConstraint = new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+        trialNameConstraint = new DefaultTrialNameCriteriaConstraint(trialName: MrnaTestData.TRIAL_NAME)
         List assayConstraints = [trialNameConstraint]
         List dataConstraints = []
 
@@ -199,9 +199,9 @@ class MrnaDataRetrievalTests {
     @Test
     void testWithDisjunctionAssayConstraint() {
         List assayConstraints = [
-                new DisjunctionAssayConstraint(constraints: [
-                        new AssayIdListConstraint(ids: [testData.assays[0].id]),
-                        new AssayIdListConstraint(ids: [testData.assays[1].id])])]
+                new DisjunctionAssayCriteriaConstraint(constraints: [
+                        new AssayIdListCriteriaConstraint(ids: [testData.assays[0].id]),
+                        new AssayIdListCriteriaConstraint(ids: [testData.assays[1].id])])]
 
         dataQueryResult =
                 resource.retrieveData assayConstraints, [], rawIntensityProjection
@@ -333,7 +333,7 @@ class MrnaDataRetrievalTests {
                             '0')
                     """
 
-            trialNameConstraint = new DefaultTrialNameConstraint(trialName: MrnaTestData.TRIAL_NAME)
+            trialNameConstraint = new DefaultTrialNameCriteriaConstraint(trialName: MrnaTestData.TRIAL_NAME)
             List assayConstraints = [trialNameConstraint]
             List dataConstraints = []
 

@@ -17,19 +17,12 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.assayconstraints
+package org.transmartproject.db.dataquery
 
-import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
 
-@Canonical
-class DefaultTrialNameConstraint extends AbstractAssayConstraint {
+interface CriteriaConstraint {
 
-    String trialName
+    void addToCriteria(Criteria criteria)
 
-    @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        criteria.eq 'trialName', trialName
-    }
 }

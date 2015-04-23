@@ -19,10 +19,11 @@
 
 package org.transmartproject.db.querytool
 
-import com.google.common.collect.Sets
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.dataquery.clinical.PatientQuery
+import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
 
 class QtQueryResultInstance implements QueryResult {
@@ -80,8 +81,9 @@ class QtQueryResultInstance implements QueryResult {
 
     @Override
     Set<Patient> getPatients() {
-        Sets.newLinkedHashSet(
-            PatientDimension.getPatientSetDetachedCriteria(this))
+        new PatientQuery([
+                new PatientSetsConstraint([this])
+        ]).list() as Set
     }
 
     @Override

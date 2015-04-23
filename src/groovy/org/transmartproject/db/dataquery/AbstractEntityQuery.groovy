@@ -17,13 +17,28 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.assayconstraints
+package org.transmartproject.db.dataquery
 
-import org.grails.datastore.mapping.query.api.Criteria
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import grails.gorm.DetachedCriteria
+import org.transmartproject.core.dataquery.assay.Assay
 
-abstract class AbstractAssayConstraint implements AssayConstraint {
+abstract class AbstractEntityQuery<T> implements Iterable<T> {
 
-    abstract void addConstraintsToCriteria(Criteria criteria)
+    abstract DetachedCriteria<T> forEntities()
+
+    DetachedCriteria<Long> forIds() {
+        forEntities().where {
+            projections { id() }
+        }
+    }
+
+    List<T> list() {
+        forEntities().list()
+    }
+
+    @Override
+    Iterator<Assay> iterator() {
+        list().iterator()
+    }
 
 }

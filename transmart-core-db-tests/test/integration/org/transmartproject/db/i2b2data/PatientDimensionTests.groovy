@@ -19,13 +19,11 @@
 
 package org.transmartproject.db.i2b2data
 
-import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.highdim.SampleHighDimTestData
-import org.transmartproject.db.ontology.StudyImpl
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -73,19 +71,6 @@ class PatientDimensionTests {
                                 hasProperty('patientInTrialId', equalTo('SUBJ_ID_1')),
                         ),
                 ))
-        )
-    }
-
-    @Test
-    void testGetStudyPatientsSelectQuery() {
-        def select = PatientDimension
-                .getStudyPatientsDetachedCriteria(new StudyImpl(id: SampleHighDimTestData.TRIAL_NAME))
-
-        List<PatientDimension> resultList = Lists.newArrayList select
-
-        assertThat resultList, allOf (
-                hasSize(testData.patients.size()),
-                everyItem(isA(PatientDimension))
         )
     }
 

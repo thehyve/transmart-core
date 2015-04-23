@@ -19,12 +19,27 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
+import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.querytool.QtPatientSetCollection
 
-class NoopAssayConstraint extends AbstractAssayConstraint {
+@Canonical
+class DefaultPatientSetCriteriaConstraint implements AssayCriteriaConstraint {
+
+    QueryResult queryResult
 
     @Override
-    void addConstraintsToCriteria(Criteria criteria) {
-        // purposefully left empty
+    void addToCriteria(Criteria criteria) {
+        criteria.in('patient.id',
+            QtPatientSetCollection.where {
+                projections {
+                    property 'patient.id'
+                }
+
+                eq 'resultInstance', queryResult
+            }
+        )
     }
+
 }

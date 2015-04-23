@@ -19,11 +19,11 @@
 
 package org.transmartproject.db.ontology
 
-import com.google.common.collect.Sets
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.dataquery.clinical.PatientQuery
+import org.transmartproject.db.dataquery.clinical.patientconstraints.StudyPatientsConstraint
 
 class StudyImpl implements Study {
 
@@ -32,8 +32,9 @@ class StudyImpl implements Study {
 
     @Override
     Set<Patient> getPatients() {
-        Sets.newLinkedHashSet(
-            PatientDimension.getStudyPatientsDetachedCriteria(this))
+        new PatientQuery([
+                new StudyPatientsConstraint(this)
+        ]).list() as Set
     }
 
     boolean equals(o) {

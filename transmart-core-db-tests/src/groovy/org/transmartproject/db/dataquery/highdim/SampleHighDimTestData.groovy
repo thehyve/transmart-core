@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.i2b2data.PatientTrialCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 /**
@@ -32,35 +30,26 @@ class SampleHighDimTestData {
 
     public static final String TRIAL_NAME = 'GENERIC_SAMPLE_TRIAL'
 
-    DeGplInfo platform
-
-    List<PatientDimension> patients
-
-    List<PatientTrialCoreDb> patientTrialLinks
-
-    List<DeSubjectSampleMapping> assays
-
-    SampleHighDimTestData() {
-        platform = new DeGplInfo(
+    DeGplInfo platform = {
+        def p = new DeGplInfo(
                 title: 'Test Generic Platform',
                 organism: 'Homo Sapiens',
                 markerType: 'generic',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
                 genomeReleaseId: 'hg18',
         )
-        platform.id = 'test-generic-platform'
+        p.id = 'test-generic-platform'
+        p
+    }()
 
-        patients =  I2b2Data.createTestPatients(2, -2000, TRIAL_NAME)
+    List<PatientDimension> patients = createTestPatients(2, -2000, TRIAL_NAME)
 
-        patientTrialLinks = I2b2Data.createPatientTrialLinks(patients, TRIAL_NAME)
-
-        assays = createTestAssays(patients, -3000L, platform, TRIAL_NAME)
-    }
+    List<DeSubjectSampleMapping> assays = createTestAssays(
+            patients, -3000L, platform, TRIAL_NAME)
 
     void saveAll() {
         save([ platform ])
         save patients
-        save patientTrialLinks
         save assays
     }
 

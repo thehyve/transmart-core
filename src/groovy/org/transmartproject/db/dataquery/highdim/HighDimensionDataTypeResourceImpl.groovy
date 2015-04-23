@@ -33,7 +33,7 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
@@ -79,10 +79,10 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new MarkerTypeConstraint(
+        assayConstraints << new MarkerTypeCriteriaConstraint(
                 platformNames: module.platformMarkerTypes)
 
-        def assaysQuery = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria(assayConstraints)
+        def assaysQuery = new AssayQuery(assayConstraints)
 
         def assays = assaysQuery.list()
         if (!assays) {
@@ -95,7 +95,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
-        criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.where { projections { id() } }))
+        criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {

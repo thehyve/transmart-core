@@ -21,9 +21,9 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -39,8 +39,8 @@ class PlatformConstraintTests {
 
     @Test
     void basicTest() {
-        List<AssayColumn> assays = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
-                new PlatformConstraint(gplIds: [ 'BOGUSANNOTH' ])
+        List<Assay> assays = new AssayQuery([
+                new PlatformCriteriaConstraint(gplIds: [ 'BOGUSANNOTH' ])
         ]).list()
 
         assertThat assays, allOf(
@@ -58,9 +58,7 @@ class PlatformConstraintTests {
 
     @Test
     void testIgnoreOnEmptyIdCollection() {
-        List<AssayColumn> assays = DeSubjectSampleMapping
-                .getOrderedAssaysDetachedCriteria([new PlatformConstraint(gplIds: [])])
-                .list()
+        List<Assay> assays =new AssayQuery([new PlatformCriteriaConstraint(gplIds: [])]).list()
 
         assertThat assays, hasSize(12)
     }

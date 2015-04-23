@@ -21,10 +21,10 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -42,8 +42,8 @@ class DefaultOntologyTermConstraintTests {
 
     @Test
     void basicTest() {
-        List<AssayColumn> assays = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
-                new DefaultOntologyTermConstraint(
+        List<Assay> assays = new AssayQuery([
+                new DefaultOntologyTermCriteriaConstraint(
                         term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
                 )
         ]).list()
@@ -60,10 +60,10 @@ class DefaultOntologyTermConstraintTests {
 
     @Test
     void testOntologyTermConstraintSupportsDisjunctions() {
-        List<AssayColumn> assays = DeSubjectSampleMapping.getOrderedAssaysDetachedCriteria([
-                new DisjunctionAssayConstraint(constraints: [
-                        new DefaultTrialNameConstraint(trialName: 'bad name'),
-                        new DefaultOntologyTermConstraint(
+        List<Assay> assays = new AssayQuery([
+                new DisjunctionAssayCriteriaConstraint(constraints: [
+                        new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),
+                        new DefaultOntologyTermCriteriaConstraint(
                                 term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
                         )])]).list()
 

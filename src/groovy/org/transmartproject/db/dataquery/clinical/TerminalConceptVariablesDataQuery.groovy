@@ -70,9 +70,9 @@ class TerminalConceptVariablesDataQuery {
             order 'conceptCode'
         }
 
-        if (patients instanceof DetachedCriteria) {
+        if (patients instanceof PatientQuery) {
             criteriaBuilder.add(getHibernateInCriterion('patient.id',
-                    ((DetachedCriteria) patients).where { projections { id() } }))
+                    patients.forIds()))
         } else {
             criteriaBuilder.in('patient',  Lists.newArrayList(patients))
         }

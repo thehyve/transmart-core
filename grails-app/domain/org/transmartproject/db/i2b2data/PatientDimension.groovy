@@ -19,14 +19,9 @@
 
 package org.transmartproject.db.i2b2data
 
-import grails.gorm.DetachedCriteria
-import org.hibernate.SessionFactory
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
-import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
-import org.transmartproject.db.querytool.QtPatientSetCollection
 
 class PatientDimension implements Patient {
 
@@ -111,37 +106,4 @@ class PatientDimension implements Patient {
         Sex.fromString sexCd
     }
 
-    static DetachedCriteria<PatientDimension> getStudyPatientsDetachedCriteria(final Study study) {
-        assert study
-        assert study.id
-
-        where {
-            'in' 'id', PatientTrialCoreDb.where {
-                projections {
-                    property 'patient.id'
-                }
-                eq('study', study.id)
-            }
-        }
-    }
-
-    static DetachedCriteria<PatientDimension> getPatientSetDetachedCriteria(final QueryResult queryResult) {
-        assert queryResult
-        assert queryResult.id
-
-        getPatientSetDetachedCriteria([ queryResult ])
-    }
-
-    static DetachedCriteria<PatientDimension> getPatientSetDetachedCriteria(final Iterable<QueryResult> queryResults) {
-        assert queryResults
-
-        where {
-            'in' 'id', QtPatientSetCollection.where {
-                projections {
-                    property 'patient.id'
-                }
-                'in'('resultInstance.id', queryResults*.id)
-            }
-        }
-    }
 }
