@@ -54,6 +54,7 @@ class BioMarkerResourceServiceTests {
         BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, hasSize(19)
     }
 
@@ -64,6 +65,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, hasSize(19)
     }
 
@@ -74,6 +76,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, contains(
                 hasProperty('id', equalTo(-1101L))
         )
@@ -86,6 +89,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, hasSize(5)
     }
 
@@ -96,6 +100,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, containsInAnyOrder(
                 hasProperty('id', equalTo(-1101L)),
                 hasProperty('id', equalTo(-1102L))
@@ -109,6 +114,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, hasSize(19)
     }
 
@@ -120,6 +126,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, contains(
                 hasProperty('name', equalTo('Adiponectin'))
         )
@@ -133,6 +140,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, containsInAnyOrder(
                 hasProperty('primaryExternalId', equalTo('Q15848')),
                 hasProperty('primaryExternalId', equalTo('Q15849')),
@@ -148,6 +156,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, containsInAnyOrder(
                 hasProperty('primaryExternalId', equalTo('Q15848')),
                 hasProperty('primaryExternalId', equalTo('Q15849')),
@@ -165,6 +174,7 @@ class BioMarkerResourceServiceTests {
         ])
 
         def resultList = Lists.newArrayList result
+        result.close()
         assertThat resultList, contains(
                 hasProperty('name', equalTo('BOGUSCPO'))
         )
