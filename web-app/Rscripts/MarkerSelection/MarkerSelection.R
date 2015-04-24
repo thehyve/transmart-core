@@ -48,6 +48,16 @@ zscore.file = "zscores.txt"
 	#Pull the GEX data from the file.
 	mRNAData <- data.frame(read.delim(input.filename))
 
+	# Check for a single probe
+	if(length(unique(mRNAData$PROBE.ID)) == 1) {
+	  stop("Marker selection is not available for a single probe. If you would like to see the heatmap, please use the Heatmap tool instead.")
+	}
+
+	# Check for a single gene and probe aggregation
+	if(length(unique(mRNAData$GENE_SYMBOL)) == 1 && aggregate.probes) {
+	  stop("You selected probe aggregation on a single gene. Marker Selection is not available for a single probe. If you would like to see the heatmap, please use the Heatmap tool instead.")
+	}
+
 	#Trim the probe.id field.
 	mRNAData$PROBE.ID 		<- gsub("^\\s+|\\s+$", "",mRNAData$PROBE.ID)
 	mRNAData$GENE_SYMBOL 	<- gsub("^\\s+|\\s+$", "",mRNAData$GENE_SYMBOL)
