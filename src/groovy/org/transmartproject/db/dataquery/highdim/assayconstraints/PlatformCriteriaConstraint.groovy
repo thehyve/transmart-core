@@ -19,20 +19,19 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.Canonical
+import org.grails.datastore.mapping.query.api.Criteria
 
-class DisjunctionAssayConstraint extends AbstractAssayConstraint {
+@Canonical
+class PlatformCriteriaConstraint implements AssayCriteriaConstraint {
 
-    List<AbstractAssayConstraint> constraints
+    Collection<String> gplIds
 
     @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder criteria) {
-        criteria.with {
-            or {
-                constraints.each { AbstractAssayConstraint subConstraint ->
-                    subConstraint.addConstraintsToCriteria criteria
-                }
-            }
+    void addToCriteria(Criteria criteria) {
+        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
+        if (gplIds) {
+            criteria.in 'platform.id', gplIds
         }
     }
 }

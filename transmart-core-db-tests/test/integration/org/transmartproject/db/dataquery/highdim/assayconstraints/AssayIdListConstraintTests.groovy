@@ -44,13 +44,13 @@ class AssayIdListConstraintTests {
             it.id == -201 || it.id == -301
         }
 
-        AssayQuery assayQuery = new AssayQuery([
-                new AssayIdListConstraint(
+        def result = new AssayQuery([
+                new AssayIdListCriteriaConstraint(
                         ids: wantedAssays*.id
                 )
-        ])
+        ]).list()
 
-        assertThat assayQuery.retrieveAssays(), containsInAnyOrder(
+        assertThat result, containsInAnyOrder(
                 wantedAssays.collect {
                     hasSameInterfaceProperties(Assay, it)
                 })

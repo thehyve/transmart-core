@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 
@@ -39,11 +39,9 @@ class DefaultTrialNameConstraintTests {
 
     @Test
     void basicTest() {
-        AssayQuery assayQuery = new AssayQuery([
-                new DefaultTrialNameConstraint(trialName: 'SAMPLE_TRIAL_2')
-        ])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+        List<Assay> assays = new AssayQuery([
+                new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')
+        ]).list()
 
         assertThat assays, allOf(
                 everyItem(

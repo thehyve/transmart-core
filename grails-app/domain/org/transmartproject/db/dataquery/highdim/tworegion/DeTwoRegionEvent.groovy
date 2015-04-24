@@ -2,7 +2,6 @@ package org.transmartproject.db.dataquery.highdim.tworegion
 
 import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.dataquery.highdim.tworegion.Event
-import org.transmartproject.core.dataquery.highdim.tworegion.EventGene
 
 /**
  * Created by j.hudecek on 4-12-2014.

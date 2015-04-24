@@ -17,6 +17,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 
 import static org.hibernate.criterion.CriteriaSpecification.INNER_JOIN
 import static org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Created by j.hudecek on 4-12-2014.

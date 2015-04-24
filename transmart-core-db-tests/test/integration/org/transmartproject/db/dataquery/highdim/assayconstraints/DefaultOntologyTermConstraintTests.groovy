@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
@@ -42,13 +42,11 @@ class DefaultOntologyTermConstraintTests {
 
     @Test
     void basicTest() {
-        AssayQuery assayQuery = new AssayQuery([
-                new DefaultOntologyTermConstraint(
+        List<Assay> assays = new AssayQuery([
+                new DefaultOntologyTermCriteriaConstraint(
                         term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
                 )
-        ])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+        ]).list()
 
         /* We should have gotten the assays in the -200 range.
          * Those in the other ranges are assigned to another concept
@@ -62,14 +60,12 @@ class DefaultOntologyTermConstraintTests {
 
     @Test
     void testOntologyTermConstraintSupportsDisjunctions() {
-        AssayQuery assayQuery = new AssayQuery([
-                new DisjunctionAssayConstraint(constraints: [
-                        new DefaultTrialNameConstraint(trialName: 'bad name'),
-                        new DefaultOntologyTermConstraint(
+        List<Assay> assays = new AssayQuery([
+                new DisjunctionAssayCriteriaConstraint(constraints: [
+                        new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),
+                        new DefaultOntologyTermCriteriaConstraint(
                                 term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
-                        )])])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+                        )])]).list()
 
         assertThat assays, hasSize(3) /* see basic test */
     }

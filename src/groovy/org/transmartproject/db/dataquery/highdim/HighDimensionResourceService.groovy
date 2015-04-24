@@ -29,7 +29,7 @@ import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.db.dataquery.highdim.assayconstraints.AbstractAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 
 @Component
@@ -80,8 +80,8 @@ class HighDimensionResourceService implements HighDimensionResource {
                 // fetch platforms
             }
 
-            assayConstraints.each { AbstractAssayConstraint constraint ->
-                constraint.addConstraintsToCriteria owner.delegate
+            assayConstraints.each { AssayCriteriaConstraint constraint ->
+                constraint.addToCriteria owner.delegate
             }
 
             isNotNull 'platform'

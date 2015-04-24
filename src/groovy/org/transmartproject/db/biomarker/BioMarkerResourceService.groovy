@@ -16,7 +16,7 @@ class BioMarkerResourceService implements BioMarkerResource {
         constraints.each { BioMarkerCriteriaConstraint c ->
             c.doWithCriteriaBuilder(criteria)
         }
-        new BioMarkerScrollableResultsWrappingIterator(criteria.scroll())
+        new BioMarkerScrollableResultsWrappingIterable(criteria.scroll())
     }
 
     @Override

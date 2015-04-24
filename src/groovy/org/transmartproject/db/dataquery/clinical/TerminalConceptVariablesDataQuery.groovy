@@ -20,9 +20,9 @@
 package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.HashMultiset
+import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Multiset
-import org.hibernate.Query
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -30,15 +30,17 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
+
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 class TerminalConceptVariablesDataQuery {
 
-    private static final int FETCH_SIZE = 10000
-
     List<TerminalConceptVariable> clinicalVariables
 
-    Collection<Long> patientIds
+    Iterable<PatientDimension> patients
 
     SessionImplementor session
 
@@ -54,33 +56,29 @@ class TerminalConceptVariablesDataQuery {
             throw new IllegalStateException('init() not called successfully yet')
         }
 
-        def condition = new ChoppedInQueryCondition('patient.id', patientIds)
-        // see TerminalConceptVariable constants
-        // see ObservationFact
-        Query query = session.createQuery """
-                SELECT
-                    patient.id,
-                    conceptCode,
-                    valueType,
-                    textValue,
-                    numberValue
-                FROM ObservationFact fact
-                WHERE
-                    ${condition.queryConditionTemplate}
-                AND
-                    fact.conceptCode IN (:conceptCodes)
-                ORDER BY
-                    patient ASC,
-                    conceptCode ASC"""
+        def criteriaBuilder = createCriteriaBuilder(ObservationFact, 'obs', session)
+        criteriaBuilder.with {
+            projections {
+                property 'patient.id'
+                property 'conceptCode'
+                property 'valueType'
+                property 'textValue'
+                property 'numberValue'
+            }
+            order 'patient.id'
+            order 'conceptCode'
+        }
 
-        query.cacheable = false
-        query.readOnly  = true
-        query.fetchSize = FETCH_SIZE
+        if (patients instanceof PatientQuery) {
+            criteriaBuilder.add(getHibernateInCriterion('patient.id',
+                    patients.forIds()))
+        } else {
+            criteriaBuilder.in('patient',  Lists.newArrayList(patients))
+        }
 
-        condition.parametersValues.each { parVal -> query.setParameterList parVal.key, parVal.value }
-        query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
+        criteriaBuilder.in('conceptCode', clinicalVariables*.code)
 
-        query.scroll ScrollMode.FORWARD_ONLY
+        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInTerminalConceptVariables() {

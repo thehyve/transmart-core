@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.highdim.AssayColumn
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 
@@ -39,11 +39,9 @@ class PlatformConstraintTests {
 
     @Test
     void basicTest() {
-        AssayQuery assayQuery = new AssayQuery([
-                new PlatformConstraint(gplIds: [ 'BOGUSANNOTH' ])
-        ])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+        List<Assay> assays = new AssayQuery([
+                new PlatformCriteriaConstraint(gplIds: [ 'BOGUSANNOTH' ])
+        ]).list()
 
         assertThat assays, allOf(
                 everyItem(
@@ -60,11 +58,7 @@ class PlatformConstraintTests {
 
     @Test
     void testIgnoreOnEmptyIdCollection() {
-        AssayQuery assayQuery = new AssayQuery([
-                new PlatformConstraint(gplIds: [])
-        ])
-
-        List<AssayColumn> assays = assayQuery.retrieveAssays()
+        List<Assay> assays =new AssayQuery([new PlatformCriteriaConstraint(gplIds: [])]).list()
 
         assertThat assays, hasSize(12)
     }

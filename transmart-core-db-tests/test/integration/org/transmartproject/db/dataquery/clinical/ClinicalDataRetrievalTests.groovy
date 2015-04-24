@@ -44,7 +44,6 @@ import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
-import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
@@ -295,7 +294,8 @@ class ClinicalDataRetrievalTests {
                     })
         }
 
-        assertThat Lists.newArrayList(results), createMatcher()
+        def resultList = Lists.newArrayList(results)
+        assertThat resultList, createMatcher()
         results.close()
 
         /* now with variables reversed */
@@ -414,7 +414,7 @@ class ClinicalDataRetrievalTests {
 
     @Test
     void testRetrieveDataNullQueryResultVariantQueryResult() {
-        shouldFail NullPointerException, {
+        shouldFail AssertionError, {
             clinicalDataResourceService.retrieveData((QueryResult) null, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
         }
@@ -422,7 +422,7 @@ class ClinicalDataRetrievalTests {
 
     @Test
     void testRetrieveDataWithoutPatientsVariantQueryResultList() {
-        results = clinicalDataResourceService.retrieveData([], [
+        results = clinicalDataResourceService.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
         assertThat results, is(iterableWithSize(0))

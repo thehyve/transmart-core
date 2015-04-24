@@ -74,7 +74,7 @@ class TestDataHelper {
         List result = objects*.save()
         result.eachWithIndex { def entry, int i ->
             if (entry == null) {
-                throw new RuntimeException("Could not save ${objects[i]}. Errors: ${objects[i].errors}")
+                throw new RuntimeException("Could not save ${objects[i]}. Errors: ${objects[i]?.errors}")
             }
         }
 

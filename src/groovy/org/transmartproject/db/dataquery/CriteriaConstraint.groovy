@@ -17,14 +17,12 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.assayconstraints
+package org.transmartproject.db.dataquery
 
-import grails.orm.HibernateCriteriaBuilder
-import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.exceptions.InvalidRequestException
+import org.grails.datastore.mapping.query.api.Criteria
 
-abstract class AbstractAssayConstraint implements AssayConstraint {
+interface CriteriaConstraint {
 
-    abstract void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException
+    void addToCriteria(Criteria criteria)
 
 }

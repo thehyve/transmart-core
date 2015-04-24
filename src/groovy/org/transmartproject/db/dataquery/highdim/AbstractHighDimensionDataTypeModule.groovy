@@ -19,13 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.orm.HibernateCriteriaBuilder
-
-import javax.annotation.PostConstruct
-
 import org.hibernate.SessionFactory
-import org.hibernate.engine.SessionImplementor
-import org.hibernate.impl.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -33,6 +27,8 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+
+import javax.annotation.PostConstruct
 
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
@@ -149,30 +145,6 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
         throw new UnsupportedByDataTypeException("The data type ${this.name} " +
                 "does not support the projection $name")
-    }
-
-    final protected HibernateCriteriaBuilder createCriteriaBuilder(
-            Class targetClass, String alias, SessionImplementor session) {
-
-        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, sessionFactory)
-
-        /* we have to write a private here */
-        if (session) {
-            //force usage of a specific session (probably stateless)
-            builder.criteria = new CriteriaImpl(targetClass.canonicalName,
-                                                alias,
-                                                session)
-            builder.criteriaMetaClass = GroovySystem.metaClassRegistry.
-                    getMetaClass(builder.criteria.getClass())
-        } else {
-            builder.createCriteriaInstance()
-        }
-
-        /* builder.instance.is(builder.criteria) */
-        builder.instance.readOnly = true
-        builder.instance.cacheable = false
-
-        builder
     }
 
     final protected Map createAssayIndexMap(List assays) {

@@ -21,11 +21,9 @@ package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Log4j
-
 import org.hibernate.ScrollMode
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -35,11 +33,12 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.support.ChoppedInQueryCondition
+
+import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 @Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
@@ -80,14 +79,13 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new MarkerTypeConstraint(
+        assayConstraints << new MarkerTypeCriteriaConstraint(
                 platformNames: module.platformMarkerTypes)
-                                                                  
-        def assayQuery = new AssayQuery(assayConstraints)
-        List<AssayColumn> assays
 
-        assays = assayQuery.retrieveAssays()
-        if (assays.empty) {
+        def assaysQuery = new AssayQuery(assayConstraints)
+
+        def assays = assaysQuery.list()
+        if (!assays) {
             throw new EmptySetException(
                     'No assays satisfy the provided criteria')
         }
@@ -95,8 +93,9 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         HibernateCriteriaBuilder criteriaBuilder =
             module.prepareDataQuery(projection, openSession())
 
-        new ChoppedInQueryCondition('assay.id', assays*.id)
-            .addConstraintsToCriteria(criteriaBuilder)
+        //We have to specify projection explicitly because of the grails bug
+        //https://jira.grails.org/browse/GRAILS-12107
+        criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
@@ -112,7 +111,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
         module.transformResults(
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
-                assays,
+                assays.collect { new AssayColumnImpl(it) },
                 projection)
     }
 

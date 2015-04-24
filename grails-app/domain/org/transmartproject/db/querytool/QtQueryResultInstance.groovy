@@ -19,13 +19,11 @@
 
 package org.transmartproject.db.querytool
 
-import com.google.common.collect.Sets
-import org.hibernate.ScrollMode
-import org.hibernate.ScrollableResults
-import org.hibernate.classic.Session
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.db.dataquery.clinical.PatientQuery
+import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
 
 class QtQueryResultInstance implements QueryResult {
@@ -83,40 +81,9 @@ class QtQueryResultInstance implements QueryResult {
 
     @Override
     Set<Patient> getPatients() {
-        /**
-         * The many-to-many mapping in patients_ does not serve us because
-         * it only fetches the ids of the patients from the db.
-         * If there is a way to fetch the properties of the patients when
-         * calling qtQueryResultInstance.patientsA, I have not yet found it.
-         * (Not the problem is not about fetching the association eagerly;
-         * that can be done with fetchMode; we do not need that. We just
-         * need that when the association is fetched a join with the
-         * patients table be made and the patient properties be fetched).
-         */
-        def res = Sets.newTreeSet({ PatientDimension p1, PatientDimension p2 ->
-            p1.id <=> p2.id
-        } as Comparator)
-
-        PatientDimension.withSession { Session session ->
-            def query = session.createQuery '''
-                 FROM PatientDimension p
-                 WHERE
-                     p.id IN (
-                         SELECT pset.patient.id
-                         FROM QtPatientSetCollection pset
-                         WHERE pset.resultInstance = :queryResult)
-            '''
-            query.cacheable = false
-            query.readOnly = true
-            query.setParameterList 'queryResult', owner
-
-            ScrollableResults results = query.scroll ScrollMode.FORWARD_ONLY
-            while (results.next()) {
-                res << results.get()[0]
-            }
-        }
-
-        res
+        new PatientQuery([
+                new PatientSetsConstraint([this])
+        ]).list() as Set
     }
 
     @Override

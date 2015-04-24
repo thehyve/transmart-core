@@ -17,34 +17,29 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim
+package org.transmartproject.db.dataquery.clinical
 
 import grails.gorm.DetachedCriteria
-import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.AbstractEntityQuery
-import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayCriteriaConstraint
+import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientConstraint
+import org.transmartproject.db.i2b2data.PatientDimension
 
-/**
- * Collaborator for HighDimensionDataTypeResourceImpl.
- *
- * Takes care of issuing the query for assays.
- */
-class AssayQuery extends AbstractEntityQuery<Assay> {
+class PatientQuery extends AbstractEntityQuery<Patient> {
 
-    private final DetachedCriteria<DeSubjectSampleMapping> criteria
+    private final DetachedCriteria<PatientDimension> criteria
 
-    AssayQuery(List<AssayCriteriaConstraint> constraints) {
+    PatientQuery(List<PatientConstraint> constraints) {
         this.criteria =
-            DeSubjectSampleMapping.where {
-                constraints.each { AssayCriteriaConstraint assayConstraint ->
+            PatientDimension.where {
+                constraints.each { PatientConstraint assayConstraint ->
                     assayConstraint.addToCriteria(it)
                 }
-                order 'id'
             }
     }
 
     @Override
-    DetachedCriteria<Assay> forEntities() {
+    DetachedCriteria<Patient> forEntities() {
         criteria
     }
 

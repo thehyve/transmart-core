@@ -68,7 +68,7 @@ class StandardAssayConstraintFactoryTests {
             def result = testee.createOntologyTermConstraint concept_key: conceptKey
 
             assertThat result, allOf(
-                    isA(DefaultOntologyTermConstraint),
+                    isA(DefaultOntologyTermCriteriaConstraint),
                     hasProperty('term', allOf(
                             isA(I2b2),
                             hasProperty('fullName', equalTo('\\bar\\'))
@@ -118,7 +118,7 @@ class StandardAssayConstraintFactoryTests {
             ])
 
             assertThat result, allOf(
-                    isA(DefaultPatientSetConstraint),
+                    isA(DefaultPatientSetCriteriaConstraint),
                     hasProperty('queryResult', is(sameInstance(queryResult)))
             )
         }
@@ -137,7 +137,7 @@ class StandardAssayConstraintFactoryTests {
                     result_instance_id: queryResultId)
 
                     assertThat result, allOf(
-                    isA(DefaultPatientSetConstraint),
+                    isA(DefaultPatientSetCriteriaConstraint),
                     hasProperty('queryResult', is(sameInstance(queryResult)))
             )
         }
@@ -174,7 +174,7 @@ class StandardAssayConstraintFactoryTests {
         def result = testee.createTrialNameConstraint name: trialName
 
         assertThat result, allOf(
-                isA(DefaultTrialNameConstraint),
+                isA(DefaultTrialNameCriteriaConstraint),
                 hasProperty('trialName', equalTo(trialName))
         )
     }
@@ -205,7 +205,7 @@ class StandardAssayConstraintFactoryTests {
     void testCreateAssayIdListConstraint() {
         AssayConstraint constraint = testee.createAssayIdListConstraint(ids: [0, '001'])
         assertThat constraint, allOf(
-                isA(AssayIdListConstraint),
+                isA(AssayIdListCriteriaConstraint),
                 hasProperty('ids', contains(
                         is(0L), is(1L)))
         )
@@ -234,14 +234,14 @@ class StandardAssayConstraintFactoryTests {
                 ])
 
         assertThat constraint, allOf(
-                isA(DisjunctionAssayConstraint),
+                isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', containsInAnyOrder(
                         allOf(
-                                isA(DefaultTrialNameConstraint),
+                                isA(DefaultTrialNameCriteriaConstraint),
                                 hasProperty('trialName', is(trialName))
                         ),
                         allOf(
-                                isA(AssayIdListConstraint),
+                                isA(AssayIdListCriteriaConstraint),
                                 hasProperty('ids', contains(0L))
                         ))))
     }
@@ -258,11 +258,11 @@ class StandardAssayConstraintFactoryTests {
                                 [name: trialNames[1]]]])
 
         assertThat constraint, allOf(
-                isA(DisjunctionAssayConstraint),
+                isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', containsInAnyOrder(
                         trialNames.collect {
                             allOf(
-                                    isA(DefaultTrialNameConstraint),
+                                    isA(DefaultTrialNameCriteriaConstraint),
                                     hasProperty('trialName', is(it))
                             )
                         })))
@@ -292,13 +292,13 @@ class StandardAssayConstraintFactoryTests {
 
 
         assertThat constraint, allOf(
-                isA(DisjunctionAssayConstraint),
+                isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', allOf(
-                        everyItem(isA(DisjunctionAssayConstraint)),
+                        everyItem(isA(DisjunctionAssayCriteriaConstraint)),
                         hasSize(2),
                         everyItem(
                                 hasProperty('constraints', allOf(
-                                        everyItem(isA(DefaultTrialNameConstraint)),
+                                        everyItem(isA(DefaultTrialNameCriteriaConstraint)),
                                         hasSize(2)))))))
     }
 
@@ -313,7 +313,7 @@ class StandardAssayConstraintFactoryTests {
                                 name: trialName]])
 
         assertThat constraint, allOf(
-                isA(DefaultTrialNameConstraint),
+                isA(DefaultTrialNameCriteriaConstraint),
                 hasProperty('trialName', equalTo(trialName)))
     }
 }

@@ -45,7 +45,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
     QueriesResource queriesResource
 
     private DisjunctionConstraintFactory disjunctionConstraintFactory =
-            new DisjunctionConstraintFactory(DisjunctionAssayConstraint, NoopAssayConstraint)
+            new DisjunctionConstraintFactory(DisjunctionAssayCriteriaConstraint, NoopAssayCriteriaConstraint)
 
     @ProducerFor(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
     AssayConstraint createOntologyTermConstraint(Map<String, Object> params) {
@@ -62,7 +62,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
             throw new InvalidArgumentsException(nse)
         }
 
-        new DefaultOntologyTermConstraint(term: term)
+        new DefaultOntologyTermCriteriaConstraint(term: term)
     }
 
     @ProducerFor(AssayConstraint.PATIENT_SET_CONSTRAINT)
@@ -81,7 +81,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
             throw new InvalidArgumentsException(nse)
         }
 
-        new DefaultPatientSetConstraint(queryResult: result)
+        new DefaultPatientSetCriteriaConstraint(queryResult: result)
     }
 
     @ProducerFor(AssayConstraint.TRIAL_NAME_CONSTRAINT)
@@ -90,7 +90,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         validateParameterNames(['name'], params)
         def name = getParam params, 'name', String
 
-        new DefaultTrialNameConstraint(trialName: name)
+        new DefaultTrialNameCriteriaConstraint(trialName: name)
     }
 
     @ProducerFor(AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
@@ -98,7 +98,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         validateParameterNames(['ids'], params)
         def ids = processLongList 'ids', params.ids
 
-        new AssayIdListConstraint(ids: ids)
+        new AssayIdListCriteriaConstraint(ids: ids)
     }
 
     @ProducerFor(AssayConstraint.DISJUNCTION_CONSTRAINT)

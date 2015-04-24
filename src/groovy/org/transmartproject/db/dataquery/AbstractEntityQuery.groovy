@@ -17,24 +17,28 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.assayconstraints
+package org.transmartproject.db.dataquery
 
-import grails.orm.HibernateCriteriaBuilder
-import groovy.transform.Canonical
-import org.transmartproject.core.exceptions.InvalidRequestException
+import grails.gorm.DetachedCriteria
+import org.transmartproject.core.dataquery.assay.Assay
 
-@Canonical
-class PlatformConstraint extends AbstractAssayConstraint {
+abstract class AbstractEntityQuery<T> implements Iterable<T> {
 
-    Collection<String> gplIds
+    abstract DetachedCriteria<T> forEntities()
 
-    @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        if (gplIds) {
-            builder.with {
-                'in' 'platform.id', gplIds
-            }
+    DetachedCriteria<Long> forIds() {
+        forEntities().where {
+            projections { id() }
         }
     }
+
+    List<T> list() {
+        forEntities().list()
+    }
+
+    @Override
+    Iterator<Assay> iterator() {
+        list().iterator()
+    }
+
 }

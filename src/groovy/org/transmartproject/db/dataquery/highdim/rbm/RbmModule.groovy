@@ -37,6 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class RbmModule extends AbstractHighDimensionDataTypeModule {
 
@@ -93,7 +94,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
             createAlias 'annotations', 'p', INNER_JOIN
 
             projections {
-                property 'assay', 'assay'
+                property 'assay.id', 'assayId'
                 property 'p.id', 'annotationId'
                 property 'p.antigenName', 'antigenName'
                 property 'p.uniprotName', 'uniprotName'
@@ -119,7 +120,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assay.id },
+                assayIdFromRow: { it[0].assayId },
                 inSameGroup: {a, b -> a.annotationId == b.annotationId && a.uniprotId == b.uniprotId },
                 finalizeGroup: {List list ->
                     def firstNonNullCell = list.find()

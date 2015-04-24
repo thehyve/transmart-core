@@ -19,18 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.orm.HibernateCriteriaBuilder
-import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.db.dataquery.CriteriaConstraint
 
-class AssayIdListConstraint extends AbstractAssayConstraint {
-
-    List<Long> ids
-
-    @Override
-    void addConstraintsToCriteria(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        new ChoppedInQueryCondition('id', ids)
-            .addConstraintsToCriteria(builder)
-    }
-}
+interface AssayCriteriaConstraint extends AssayConstraint, CriteriaConstraint {}

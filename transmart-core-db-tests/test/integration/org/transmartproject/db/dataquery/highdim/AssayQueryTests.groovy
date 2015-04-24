@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameCriteriaConstraint
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -33,8 +33,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
  */
 class AssayQueryTests {
 
-    private AssayQuery testee
-
     AssayTestData testData = new AssayTestData()
 
     @Before
@@ -44,11 +42,7 @@ class AssayQueryTests {
 
     @Test
     void testPrepareCriteriaWithConstraints() {
-        testee = new AssayQuery([
-                new DefaultTrialNameConstraint(trialName: 'SAMPLE_TRIAL_2')
-        ])
-        def criteriaBuilder = testee.prepareCriteriaWithConstraints()
-        List results = criteriaBuilder.instance.list()
+        List results = new AssayQuery([new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')]).list()
 
         assertThat results, containsInAnyOrder(
                 testData.assays[6],
@@ -58,11 +52,7 @@ class AssayQueryTests {
 
     @Test
     void testRetrieveAssays() {
-        testee = new AssayQuery([
-                new DefaultTrialNameConstraint(trialName: 'SAMPLE_TRIAL_2')
-        ])
-
-        List results = testee.retrieveAssays()
+        List results = new AssayQuery([new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')]).list()
 
         assertThat results, allOf(
                 everyItem(isA(Assay)),
