@@ -22,8 +22,6 @@ package org.transmartproject.db.dataquery.highdim
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel

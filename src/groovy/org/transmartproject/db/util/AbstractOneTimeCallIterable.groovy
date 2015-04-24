@@ -1,7 +1,6 @@
 package org.transmartproject.db.util
 
 import groovy.util.logging.Log4j
-import org.hibernate.ScrollableResults
 
 @Log4j
 abstract class AbstractOneTimeCallIterable<T> implements Iterable<T> {

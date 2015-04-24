@@ -20,9 +20,7 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
-import grails.gorm.DetachedCriteria
 import groovy.util.logging.Log4j
-import org.grails.datastore.mapping.query.Query
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult

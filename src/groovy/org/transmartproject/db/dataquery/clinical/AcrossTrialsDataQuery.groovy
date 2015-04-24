@@ -21,7 +21,6 @@ package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
-import grails.gorm.DetachedCriteria
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -32,8 +31,8 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.ModifierDimensionView
 
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 /**

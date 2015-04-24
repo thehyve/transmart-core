@@ -33,11 +33,11 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /*
  * Mirna QPCR and Mirna SEQ are different data types (according to the user), but they have basically the same

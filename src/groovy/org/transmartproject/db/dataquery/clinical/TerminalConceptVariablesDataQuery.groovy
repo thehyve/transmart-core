@@ -23,7 +23,6 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Multiset
-import grails.gorm.DetachedCriteria
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
@@ -34,8 +33,8 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 class TerminalConceptVariablesDataQuery {
 

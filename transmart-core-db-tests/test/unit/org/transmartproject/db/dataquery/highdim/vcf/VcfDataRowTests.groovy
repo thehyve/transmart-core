@@ -23,8 +23,8 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import org.junit.Test
 
-import static org.hamcrest.Matchers.*
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 
 @TestMixin(GrailsUnitTestMixin)
 class VcfDataRowTests {

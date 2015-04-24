@@ -19,8 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import javax.annotation.PostConstruct
-
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -29,6 +27,8 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+
+import javax.annotation.PostConstruct
 
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
