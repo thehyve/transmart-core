@@ -17,12 +17,11 @@ class StudyPatientsConstraint implements PatientConstraint {
 
     @Override
     void addToCriteria(Criteria criteria) {
-        String studyId = study.id
         criteria.in 'id', PatientTrialCoreDb.where {
             projections {
                 property 'patient.id'
             }
-            eq('study', studyId)
+            eq('study', this.study.id)
         }
     }
 

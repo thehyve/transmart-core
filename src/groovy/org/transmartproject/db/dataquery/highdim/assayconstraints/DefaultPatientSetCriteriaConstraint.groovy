@@ -37,7 +37,7 @@ class DefaultPatientSetCriteriaConstraint implements AssayCriteriaConstraint {
                     property 'patient.id'
                 }
 
-                eq 'resultInstance', queryResult
+                eq 'resultInstance', this.queryResult
             }
         )
     }

@@ -36,7 +36,7 @@ class DefaultOntologyTermCriteriaConstraint implements AssayCriteriaConstraint {
                     property 'conceptCode'
                 }
 
-                eq 'conceptPath', term.fullName
+                eq 'conceptPath', this.term.fullName
             }
         )
     }

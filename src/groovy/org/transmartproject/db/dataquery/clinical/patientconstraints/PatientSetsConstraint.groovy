@@ -20,7 +20,7 @@ class PatientSetsConstraint implements PatientConstraint {
             projections {
                 property 'patient.id'
             }
-            'in'('resultInstance.id', queryResults*.id)
+            'in'('resultInstance.id', this.queryResults*.id)
         }
     }
 
