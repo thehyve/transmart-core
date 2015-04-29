@@ -98,20 +98,15 @@ GeneprintView.prototype.submit_job = function () {
         }
     }
 
-    // Check whether we have the node details for the HD node already
-    // If not, we should fetch them first
-    if (typeof GLOBAL.HighDimDataType !== "undefined" && GLOBAL.HighDimDataType) {
-        actualSubmit();
-    } else {
-        var divId = 'divIndependentVariable';
-        runAllQueriesForSubsetId(function () {
-            highDimensionalData.fetchNodeDetails(divId, function( result ) {
-                highDimensionalData.data = JSON.parse(result.responseText);
-                highDimensionalData.populate_data();
-                actualSubmit();
-            });
-        }, divId);
-    }
+    // Fetch the node details for the high dimensional data
+    var divId = 'divIndependentVariable';
+    runAllQueriesForSubsetId(function () {
+        highDimensionalData.fetchNodeDetails(divId, function( result ) {
+            highDimensionalData.data = JSON.parse(result.responseText);
+            highDimensionalData.populate_data();
+            actualSubmit();
+        });
+    }, divId);
 }
 
 // get form params
