@@ -23,7 +23,10 @@ class ColumnMappingFileHeaderHandler
                     "Expected these to be ${ ClinicalVariable.FIELDS[0..3]}")
         } else if (values.size() == 6) {
             log.warn("Column mapping file's header has 6 columns. This is " +
-                    "accepted, but the last two columns will be ignored")
+                    "accepted, but the 5th and 6th columns will be ignored")
+        } else if (values.size() == 7) {
+            log.warn("Column mapping file's header has 7 columns. This is " +
+                    "accepted, but the 5th and 6th columns will be ignored")
         } else {
             throw new ParseException("Expected the column mapping file " +
                     "header to have either 4 or 6 columns. " +

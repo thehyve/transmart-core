@@ -28,6 +28,7 @@ import org.transmartproject.batch.concept.ConceptType
 @TypeChecked
 class ClinicalFactsRowSetFactory {
 
+    public static final int MAX_STRING_LENGTH = 255
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
@@ -56,11 +57,19 @@ class ClinicalFactsRowSetFactory {
                 return
             }
 
+            if (value.length() > MAX_STRING_LENGTH) {
+                value = value.take(MAX_STRING_LENGTH)
+                log.warn "Found value longer than allowed 255 chars: '${value}'. " +
+                        'It will be truncated. ' +
+                        "Variable: $var, line ${row.index} of ${row.filename}}"
+            }
+
             processVariableValue result, var, value
         }
 
         result
     }
+
 
     private void processVariableValue(ClinicalFactsRowSet result,
                                       ClinicalVariable var,
@@ -69,24 +78,36 @@ class ClinicalFactsRowSetFactory {
          * Concepts are created and assigned types and ids
          */
 
-        boolean curValIsNumerical = value.isDouble()
-
-        /* we infer the conceptType once we see the first value.
-         * Kind of dangerous */
         ConceptType conceptType
         ConceptNode concept = tree[var.conceptPath]
-        if (!concept || concept.type == ConceptType.UNKNOWN) {
-            conceptType = curValIsNumerical ? ConceptType.NUMERICAL : ConceptType.CATEGORICAL
+
+        // if the concept doesn't yet exist (ie first record)
+        if (!concept) {
+            conceptType = getConceptTypeFromColumnsFile(var)
+            if (conceptType == ConceptType.UNKNOWN) {
+                // if no conceptType is set in the column mapping file,
+                // try to detect the conceptType from the first record
+
+                conceptType = value.isDouble() ?
+                        ConceptType.NUMERICAL : ConceptType.CATEGORICAL
+            }
+
             // has the side-effect of assigning type if it's unknown and
             // creating the concept from scratch if it doesn't exist at all
             concept = tree.getOrGenerate(var.conceptPath, conceptType)
-        } else {
+        } else { // the concept does already exist (ie not first record)
             conceptType = concept.type
-        }
 
-        if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
-            throw new IllegalArgumentException("Variable $var inferred " +
-                    "numerical, but got value '$value'")
+            //if the conceptType is detected here (not specified in columns file )check if the current conceptType is the same as the one detected on the first record
+            if(var.conceptType == null)
+            {
+            boolean curValIsNumerical = value.isDouble()
+
+            if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
+                    throw new IllegalArgumentException("Variable $var inferred " +
+                            "numerical, but got value '$value'" + String.valueOf(value.length()) +"patient " +  String.valueOf(result.patient.id) + var.dataLabel)
+            }
+        }
         }
 
         // we need a subnode if the variable is categorical
@@ -98,6 +119,35 @@ class ClinicalFactsRowSetFactory {
 
         result.addValue concept, getXtrialNodeFor(concept), value
     }
+
+    private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {
+        ConceptType conceptType
+
+        switch (var.conceptType) {
+            case ClinicalVariable.CONCEPT_TYPE_CATEGORICAL:
+                conceptType = ConceptType.CATEGORICAL
+                break
+
+            case ClinicalVariable.CONCEPT_TYPE_NUMERICAL:
+                conceptType = ConceptType.NUMERICAL
+                break
+
+            case null:
+            case '':
+                conceptType = ConceptType.UNKNOWN
+                break
+
+            default:
+                throw new IllegalStateException(
+                        "Invalid value for concept type column: $var.conceptType. This " +
+                                'should never happen (ought to have been validated)')
+                break
+        }
+
+        conceptType
+    }
+
+
 
     XtrialNode getXtrialNodeFor(ConceptNode conceptNode) {
         if (conceptXtrialMap.containsKey(conceptNode)) {
