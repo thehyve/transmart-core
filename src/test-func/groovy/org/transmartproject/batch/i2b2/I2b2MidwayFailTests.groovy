@@ -54,8 +54,7 @@ class I2b2MidwayFailTests implements FileCorruptingTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(*TableLists.I2B2_TABLES,
-                        'ts_batch.batch_job_instance cascade')
+                truncate(TableLists.I2B2_TABLES + 'ts_batch.batch_job_instance')
     }
 
     @Test

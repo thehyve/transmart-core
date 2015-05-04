@@ -30,8 +30,6 @@ import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
-import org.transmartproject.batch.clinical.patient.InsertPatientTrialTasklet
-import org.transmartproject.batch.clinical.patient.InsertUpdatePatientDimensionTasklet
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
 import org.transmartproject.batch.clinical.variable.ColumnMappingValidator
@@ -46,19 +44,19 @@ import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCounts
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
-import org.transmartproject.batch.facts.ObservationFactTableWriter
-import org.transmartproject.batch.patient.GatherCurrentPatientsReader
-import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
+import org.transmartproject.batch.patient.GatherCurrentPatientsReader
+import org.transmartproject.batch.patient.PatientSet
 
 /**
  * Spring configuration for the clinical data job.
  */
 @Configuration
 @ComponentScan(['org.transmartproject.batch.clinical',
-                'org.transmartproject.batch.concept',
-                'org.transmartproject.batch.patient'])
+        'org.transmartproject.batch.concept',
+        'org.transmartproject.batch.patient',
+        'org.transmartproject.batch.facts'])
 @Import(TagsLoadJobConfiguration)
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
@@ -70,15 +68,21 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @javax.annotation.Resource
     Tasklet insertTableAccessTasklet
-
-    @javax.annotation.Resource
-    Tasklet insertConceptsTasklet
-
+    
     @javax.annotation.Resource
     Tasklet gatherCurrentConceptsTasklet
 
     @javax.annotation.Resource
     Tasklet createSecureStudyTasklet
+
+    @javax.annotation.Resource
+    ItemWriter<ClinicalFactsRowSet> patientDimensionTableWriter
+
+    @javax.annotation.Resource
+    ItemWriter<ClinicalFactsRowSet> conceptsTablesWriter
+
+    @javax.annotation.Resource
+    ItemWriter<ClinicalFactsRowSet> observationFactTableWriter
 
     @Bean(name = 'ClinicalDataLoadJob')
     @Override
@@ -117,12 +121,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
                 // insertion of ancillary data
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
-                .next(stepOf(this.&insertUpdatePatientDimensionTasklet)) //insert/update patient_dimension
-                .next(stepOf(this.&insertPatientTrialTasklet))           //insert patient_trial rows
-                .next(stepOf(this.&getInsertTableAccessTasklet))         //insert table_access
-                .next(stepOf(this.&getInsertConceptsTasklet))            //insert i2b2, i2b2_secure, concept_dimension
+                .next(stepOf(this.&getInsertTableAccessTasklet))
                 .next(stepOf('insertConceptCounts',
-                             insertConceptCountsTasklet(null, null)))    //insert concept_counts rows
+                             insertConceptCountsTasklet(null, null)))    //patientDimensionInsert concept_counts rows
                 .build()
     }
 
@@ -252,7 +253,11 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                     wordReplaceProcessor(), //replace words, if such is configured
                     rowToFactRowSetConverter(), //converts each Row to a FactRowSet
                 ))
-                .writer(factRowSetTableWriter()) //writes the FactRowSets in lt_src_clinical_data
+                .writer(compositeOf(
+                    patientDimensionTableWriter,
+                    conceptsTablesWriter,
+                    observationFactTableWriter
+                ))
                 .listener(progressWriteListener())
                 .build()
     }
@@ -285,23 +290,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @StepScopeInterfaced
     ItemProcessor<ClinicalDataRow, ClinicalFactsRowSet> rowToFactRowSetConverter() {
         new ClinicalDataRowProcessor()
-    }
-
-    @Bean
-    ItemWriter<ClinicalFactsRowSet> factRowSetTableWriter() {
-        new ObservationFactTableWriter()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet insertUpdatePatientDimensionTasklet() {
-        new InsertUpdatePatientDimensionTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet insertPatientTrialTasklet() {
-        new InsertPatientTrialTasklet()
     }
 
     @Bean

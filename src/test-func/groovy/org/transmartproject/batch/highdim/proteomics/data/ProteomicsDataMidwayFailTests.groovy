@@ -71,16 +71,13 @@ class ProteomicsDataMidwayFailTests implements FileCorruptingTestTrait {
         AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 10000
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        *TableLists.CLINICAL_TABLES,
-                        "${Tables.PROTEOMICS_ANNOTATION} CASCADE",
-                        "${Tables.GPL_INFO} CASCADE",
-                        'ts_batch.batch_job_instance CASCADE',)
+                truncate(TableLists.CLINICAL_TABLES + Tables.PROTEOMICS_ANNOTATION
+                        + [Tables.GPL_INFO, 'ts_batch.batch_job_instance'])
     }
 
     @After
     void cleanData() {
-        truncator.truncate(Tables.PROTEOMICS_DATA, Tables.SUBJ_SAMPLE_MAP)
+        truncator.truncate([Tables.PROTEOMICS_DATA, Tables.SUBJ_SAMPLE_MAP])
     }
 
     @Test

@@ -126,14 +126,13 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
 
     @After
     void cleanBatchTables() {
-        truncator.truncate(Tables.I2B2_TAGS,)
+        truncator.truncate(Tables.I2B2_TAGS)
     }
 
     @AfterClass
     static void afterClass() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator)
-                .truncate(*TableLists.CLINICAL_TABLES,
-                'ts_batch.batch_job_instance CASCADE')
+                .truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
     }
 }

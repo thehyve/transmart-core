@@ -36,10 +36,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        "${Tables.GPL_INFO} CASCADE",
-                        Tables.MRNA_ANNOTATION,
-                        'ts_batch.batch_job_instance CASCADE')
+                truncate([Tables.GPL_INFO, Tables.MRNA_ANNOTATION, 'ts_batch.batch_job_instance'])
     }
 
     @Test

@@ -11,16 +11,17 @@ class TableLists {
 
     public static final List<String> CLINICAL_TABLES = [
             Tables.OBSERVATION_FACT,
+            Tables.CONCEPT_COUNTS,
             Tables.CONCEPT_DIMENSION,
             Tables.CONCEPT_COUNTS,
             Tables.PATIENT_TRIAL,
             Tables.PATIENT_DIMENSION,
             Tables.TABLE_ACCESS,
-            Tables.I2B2,
-            Tables.I2B2_SECURE,
             Tables.I2B2_TAGS,
-            "${Tables.SECURE_OBJECT} CASCADE",
-            "${Tables.BIO_EXPERIMENT} CASCADE",
+            Tables.I2B2_SECURE,
+            Tables.I2B2,
+            Tables.SECURE_OBJECT,
+            Tables.BIO_EXPERIMENT,
             Tables.BIO_DATA_UID,
     ]
 
@@ -35,26 +36,26 @@ class TableLists {
      ]
 
     public static final List<String> METABOLOMICS_TABLES = [
-            "${Tables.GPL_INFO} CASCADE",
+            Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,
-            "${Tables.METAB_ANNOT_SUB}, " +
-                    "${Tables.METAB_ANNOTATION}, " +
-                    "${Tables.METAB_SUB_PATH}, " +
-                    "${Tables.METAB_SUPER_PATH}, " +
-                    "${Tables.METAB_DATA}",
+            Tables.METAB_ANNOT_SUB,
+            Tables.METAB_ANNOTATION,
+            Tables.METAB_SUB_PATH,
+            Tables.METAB_SUPER_PATH,
+            Tables.METAB_DATA
     ]
 
     public static final List<String> MRNA_TABLES = [
-            "${Tables.GPL_INFO} CASCADE",
+            Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,
             Tables.MRNA_DATA,
             Tables.MRNA_ANNOTATION,
     ]
 
     public static final List<String> PROTEOMICS_TABLES = [
-            "${Tables.GPL_INFO} CASCADE",
+            Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,
             Tables.PROTEOMICS_DATA,
-            "${Tables.PROTEOMICS_ANNOTATION} CASCADE",
+            Tables.PROTEOMICS_ANNOTATION,
     ]
 }

@@ -48,16 +48,13 @@ class MrnaSpecialConditionsTests
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        *TableLists.CLINICAL_TABLES,
-                        Tables.MRNA_ANNOTATION,
-                        "${Tables.GPL_INFO} CASCADE",
-                        'ts_batch.batch_job_instance CASCADE',)
+                truncate(TableLists.CLINICAL_TABLES + [Tables.MRNA_ANNOTATION,
+                        Tables.GPL_INFO, 'ts_batch.batch_job_instance'])
     }
 
     @After
     void cleanData() {
-        truncator.truncate(Tables.MRNA_DATA, Tables.SUBJ_SAMPLE_MAP)
+        truncator.truncate([Tables.MRNA_DATA, Tables.SUBJ_SAMPLE_MAP])
     }
 
     File originalFile = new File('studies/GSE8581/expression/GSE8581_series_matrix.txt')

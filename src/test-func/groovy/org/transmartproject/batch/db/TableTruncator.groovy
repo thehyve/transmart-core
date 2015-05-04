@@ -16,10 +16,10 @@ class TableTruncator {
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate
 
-    void truncate(String table) {
+    void truncate(String table, boolean cascade = true) {
         try {
             log.info "About to truncate table $table"
-            jdbcTemplate.update("TRUNCATE TABLE $table", [:])
+            jdbcTemplate.update("TRUNCATE TABLE ${table}${cascade ? ' CASCADE' : ''}", [:])
         } catch (DataIntegrityViolationException sqlException) {
             // cannot truncate due to foreign keys
             log.warn "Truncation of $table failed. Trying delete..."
@@ -37,9 +37,9 @@ class TableTruncator {
         }
     }
 
-    void truncate(String... tables) {
+    void truncate(Iterable<String> tables, boolean cascade = true) {
         tables.each {
-            truncate it
+            truncate it, cascade
         }
     }
 }

@@ -54,4 +54,6 @@ class MetabolomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigu
     MetabolomicsDataWriter dataPointWriter() {
         metabolomicsDataWriter
     }
+
+    //TODO Create partition table
 }

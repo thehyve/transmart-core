@@ -58,6 +58,6 @@ class LoadTablesRule extends ExternalResource {
     }
 
     protected void after() {
-        tableTruncator.truncate(*(tableFileMap.keySet() as List))
+        tableTruncator.truncate(tableFileMap.keySet())
     }
 }

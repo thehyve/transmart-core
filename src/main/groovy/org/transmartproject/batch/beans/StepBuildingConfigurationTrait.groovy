@@ -12,6 +12,7 @@ import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
+import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineCallbackHandler
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
@@ -22,6 +23,7 @@ import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.support.CompositeItemProcessor
+import org.springframework.batch.item.support.CompositeItemWriter
 import org.springframework.batch.item.validator.Validator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
@@ -120,6 +122,13 @@ trait StepBuildingConfigurationTrait {
         CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet> result =
                 new CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet>()
         result.setDelegates(processors.toList())
+        result
+    }
+
+    ItemWriter compositeOf(ItemWriter... writers) {
+        CompositeItemWriter result =
+                new CompositeItemWriter()
+        result.setDelegates(writers.toList())
         result
     }
 

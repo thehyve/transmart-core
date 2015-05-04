@@ -1,10 +1,6 @@
 language: php # to have .travis installing the php version we indicate
 sudo: false
 
-addons:
-    apt:
-        packages:
-            - subversion
 php:
     - 5.6
 cache:
@@ -15,6 +11,7 @@ cache:
 before_install:
     - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
     - source ~/ts-travis/postgresql_cluster.sh
+    - source ~/ts-travis/init.sh
 
 install:
     - install_pg 9.4.4
@@ -22,7 +19,7 @@ install:
 
 before_script:
     - start_cluster
-    - svn checkout -q https://github.com/transmart/transmart-data/trunk ~/transmart-data
+    - checkout_project_branch_with_fallback transmart/transmart-data master ~/transmart-data
     - cd ~/transmart-data
     - make -C env ../vars
     # put tablespaces somewhere we can write instead

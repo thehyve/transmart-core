@@ -50,10 +50,7 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        *TableLists.CLINICAL_TABLES,
-                        *TableLists.METABOLOMICS_TABLES,
-                        'ts_batch.batch_job_instance CASCADE',)
+                truncate(TableLists.CLINICAL_TABLES + TableLists.METABOLOMICS_TABLES + 'ts_batch.batch_job_instance')
     }
 
     @Test

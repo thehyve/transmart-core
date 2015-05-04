@@ -34,10 +34,9 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        "${Tables.GPL_INFO} CASCADE",
-                        "${Tables.PROTEOMICS_ANNOTATION} CASCADE",
-                        'ts_batch.batch_job_instance CASCADE')
+                truncate([Tables.GPL_INFO,
+                        Tables.PROTEOMICS_ANNOTATION,
+                        'ts_batch.batch_job_instance'])
     }
 
     @Test

@@ -113,8 +113,6 @@ class ClinicalFactsRowSetFactory {
             concept = tree.getOrGenerate(var.conceptPath + value, ConceptType.CATEGORICAL)
         }
 
-        tree.reserveIdsFor concept
-
         result.addValue concept, getXtrialNodeFor(concept), value
     }
 
