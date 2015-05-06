@@ -83,7 +83,7 @@ PROTEOMICS_ANNOT_PREFIX ?= proteomics
 PROTEOMICS_ANNOT_FILE   ?= $(PROTEOMICS_ANNOT_PREFIX)_annotation.txt
 
 load_proteomics_annotation_%: ../studies/%/proteomics_annotation/$(PROTEOMICS_ANNOT_FILE)
-	GPL_ID=$* \
+	GPL_ID=$*_proteomics \
 	DATA_LOCATION="$(realpath ../studies/$*/proteomics_annotation)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_proteomics_annotation.sh $< \
