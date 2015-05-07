@@ -18,6 +18,7 @@ package com.recomdata.transmart.data.association.asynchronous
 
 import com.recomdata.transmart.util.RUtil
 import grails.util.Holders
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
 import org.quartz.Job
 import org.quartz.JobExecutionContext
@@ -82,6 +83,10 @@ class RModulesJobService implements Job {
 			//Initialize the jobTmpDirectory which will be used during bundling in ZipUtil
 			jobTmpDirectory = grailsApplication.config.RModules.tempFolderDirectory + File.separator + "${jobDataMap.jobName}" + File.separator
 			jobTmpDirectory = jobTmpDirectory.replace("\\","\\\\")
+			if (new File(jobTmpDirectory).exists()) {
+				log.warn("The job folder ${jobTmpDirectory} already exists. It's going to be overwritten.")
+				FileUtils.deleteDirectory(new File(jobTmpDirectory))
+			}
 			jobTmpWorkingDirectory = jobTmpDirectory + "workingDirectory"
 
 			//Try to make the working directory.
