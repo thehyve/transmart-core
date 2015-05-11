@@ -2,6 +2,7 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.dependency.resolver = "maven"
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -12,11 +13,9 @@ grails.project.dependency.resolution = {
     repositories {
         grailsCentral()
         mavenCentral()
-        mavenLocal()
-        mavenRepo([
-                name: 'repo.transmartfoundation.org-public',
-                root: 'https://repo.transmartfoundation.org/content/repositories/public/'
-        ])
+
+        mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
+        mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -45,10 +44,6 @@ grails.project.dependency.resolution = {
         compile(':spring-security-core:2.0-RC2')
         //compile ':spring-security-ldap:2.0-RC2')
         compile(':quartz:1.0-RC2')
-        build(":release:2.2.1",
-                ":rest-client-builder:1.0.3") {
-            export = false
-        }
-
+        build(":release:3.1.1")
     }
 }
