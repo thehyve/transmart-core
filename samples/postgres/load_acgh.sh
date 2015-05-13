@@ -1,75 +1,60 @@
 #!/bin/bash
 
-# This script load the aCGH data for a specific study.
-  set -x
-  set -e
+#set -x
+set -e
 
-# Check if environment is set
-  if [ -z "$KETTLE_HOME" ]; then
-        echo "KETTLE_HOME is not set"
-        exit 1
-  fi
+# General optional parameters:
+#   DATA_LOCATION, STUDY_NAME, STUDY_ID
+# Specific mandatory parameters for this upload script:
+#   DATA_FILE_PREFIX, MAP_FILENAME
+# Specific optional parameters for this upload script:
+#   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD 
 
-# $KETTLE_HOME should have been set by the caller
-  export KETTLE_HOME
+# locate this shell script, and source a generic shell script to process all params related settings
+UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
+UPLOAD_DATA_TYPE="acgh"
+source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
-# Should define DATA_FILE_PREFIX, MAP_FILENAME
-# SOURCE_CD is optional
-  source $1
+# Check if mandatory parameter values are provided
 
-  SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
+if [ -z "$STUDY_ID" ] || [ -z "$DATA_FILE_PREFIX" ] || [ -z "$MAP_FILENAME" ] ; then
+        echo "Following variables need to be set:"
+	echo "    STUDY_ID=$STUDY_ID"
+	echo "    DATA_FILE_PREFIX=$DATA_FILE_PREFIX"
+	echo "    MAP_FILENAME=$MAP_FILENAME"
+    exit 1
+fi
 
-  if [ $SECURITY_REQUIRED = 'Y' ]; then
+SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
+if [ -z "$TOP_NODE_PREFIX" ]; then
+    if [ $SECURITY_REQUIRED = 'Y' ]; then
         TOP_NODE_PREFIX='Private Studies'
-  else
+    else
         TOP_NODE_PREFIX='Public Studies'
-  fi
+    fi
+fi
+TOP_NODE="\\${TOP_NODE_PREFIX}\\${STUDY_NAME}\\"
 
-  TOP_NODE='\'$TOP_NODE_PREFIX'\'$STUDY_ID'\'$NODE_NAME
+TEMPDIR=$(mktemp -d -t load_acgh_XXXXXX)
+trap 'rm -rf $TEMPDIR' EXIT
 
-
-# Get PLATFORM_ID and ORGANISM
-  if [ $REGION_PLATFORM_FILE ]; then
-	AWK_RESULT=`awk -F'\t' 'NR == 2 { print $1"$"$10 }' $DATA_LOCATION/$REGION_PLATFORM_FILE`
-	PLATFORM_ID=`echo $AWK_RESULT | cut -d$ -f1`
-	ORGANISM=`echo $AWK_RESULT | cut -d$ -f2`
-  fi
-
-# Insert Chromosomal region into the landing-zone
-  if [ $PLATFORM_ID ]; then
-	echo "Putting Chromosomal region data into tm_lz.lt_chromosomal_region (truncate first)"
-	$PSQL_COMMAND << _END
-truncate tm_lz.lt_chromosomal_region;
-\copy tm_lz.lt_chromosomal_region (GPL_ID, REGION_NAME, CHROMOSOME, START_BP, END_BP, NUM_PROBES, CYTOBAND, GENE_SYMBOL, GENE_ID, ORGANISM) from '$DATA_LOCATION/$REGION_PLATFORM_FILE' with (FORMAT csv, DELIMITER E'\t', NULL '', HEADER);
-_END
-  fi
-
-
-# Transfer chromosomal region defintion from landing-zone into deapp-tables
-  echo "Transfer chromosomal region data tot the deapp tables"
-  $PSQL_COMMAND << _END
-        select tm_cz.i2b2_load_chrom_region('$PLATFORM_TITLE');
-_END
-
-  TEMPDIR=$(mktemp -d -t load_acgh_XXXXXX)
-  trap 'rm -rf $TEMPDIR' EXIT
-
+if [ ! -d logs ] ; then mkdir logs; fi
 
 # Opload the chromosomal data
   echo "Uploading the chromosomal data"
-  $KITCHEN -norep=Y                                                  \
+  $KITCHEN -norep=Y                                                        \
 	-file=$KETTLE_JOBS/load_acgh_data.kjb                              \
 	-log='logs/load_'$STUDY_ID'_acgh_data_'$(date +"%Y%m%d%H%M")'.log' \
-	-param:DATA_FILE_PREFIX=$DATA_FILE_PREFIX                          \
-	-param:DATA_LOCATION=$DATA_LOCATION                                \
+	-param:DATA_FILE_PREFIX="$DATA_FILE_PREFIX"                        \
+	-param:DATA_LOCATION="$DATA_LOCATION"                              \
 	-param:FilePivot_LOCATION=$KETTLE_JOBS'../'                        \
 	-param:LOAD_TYPE=I                                                 \
 	-param:SAMPLE_REMAP_FILENAME=NOSAMPLEREMAP                         \
 	-param:SAMPLE_SUFFIX=.chip                                         \
-	-param:MAP_FILENAME=$MAP_FILENAME                                  \
+	-param:MAP_FILENAME="$MAP_FILENAME"                                \
 	-param:SECURITY_REQUIRED=$SECURITY_REQUIRED                        \
-	-param:SORT_DIR=$TEMPDIR                                           \
+	-param:SORT_DIR="$TEMPDIR"                                         \
 	-param:SOURCE_CD="${SOURCE_CD:-STD}"                               \
-	-param:STUDY_ID=$STUDY_ID                                          \
-	"-param:TOP_NODE=$TOP_NODE"
+	-param:STUDY_ID=$STUDY_ID					   \
+	-param:TOP_NODE="$TOP_NODE"
 
