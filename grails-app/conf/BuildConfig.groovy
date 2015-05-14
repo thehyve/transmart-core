@@ -13,6 +13,7 @@ grails.project.dependency.resolution = {
     repositories {
         grailsCentral()
         mavenCentral()
+        mavenLocal()
 
         mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
         mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
@@ -20,6 +21,10 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         runtime 'hsqldb:hsqldb:1.8.0.10'
+        build 'org.codehaus.groovy.modules.http-builder:http-builder:0.6', {
+            excludes 'groovy', 'nekohtml'
+        }
+        build 'org.apache.httpcomponents:httpclient:4.3.1'
         test('junit:junit:4.11') {
             transitive = false /* don't bring hamcrest */
             export = false
@@ -44,6 +49,9 @@ grails.project.dependency.resolution = {
         compile(':spring-security-core:2.0-RC2')
         //compile ':spring-security-ldap:2.0-RC2')
         compile(':quartz:1.0-RC2')
-        build(":release:3.1.1")
+        build(":release:3.1.1",
+              ":rest-client-builder:2.1.1") {
+            export = false
+        }
     }
 }

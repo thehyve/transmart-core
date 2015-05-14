@@ -9,6 +9,7 @@ import com.recomdata.export.ExportRowNew
 import com.recomdata.export.ExportTableNew
 import com.recomdata.util.FolderType
 import de.DeMrnaAnnotation
+import org.transmart.mongo.MongoUtils;
 import grails.converters.JSON
 import grails.converters.XML
 import grails.validation.ValidationException
@@ -20,6 +21,18 @@ import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
 
 import javax.activation.MimetypesFileTypeMap
+
+import javax.activation.MimetypesFileTypeMap
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import com.mongodb.Mongo
+import com.mongodb.DB
+import com.mongodb.MongoClient
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSDBFile;
+import groovyx.net.http.ContentType;
+import groovyx.net.http.HTTPBuilder;
+import groovyx.net.http.Method;
 
 class FmFolderController {
 
@@ -71,16 +84,16 @@ class FmFolderController {
     public String serializeFoldersToXMLFile() {
         def writer = new FileWriter("c:\\temp\\SerializedAsXML.xml")
 
-//		List<FmFolder> folderList = FmFolder.list()
+//      List<FmFolder> folderList = FmFolder.list()
         def fmFolderInstance = FmFolder.get(8)
 
 
         def builder = new StreamingMarkupBuilder().bind {
-            //	mkp.xmlDeclaration()
+//          mkp.xmlDeclaration()
             unescaped << '<fmFolders>'
-//		folderList.each {folder ->
+//          folderList.each {folder ->
             out << fmFolderInstance
-//		}
+//          }
             unescaped << '</fmFolders>'
         }
         writer << builder
@@ -418,7 +431,9 @@ class FmFolderController {
             render result as JSON
         }
 
+
     }
+
 
     def showStudy = {
         def fmFolderInstance = FmFolder.get(params.id)
@@ -952,7 +967,7 @@ class FmFolderController {
                         def subFoldersAccessLevelMap = fmFolderService.getAccessLevelInfoForFolders(user, subFolders)
                         String gridTitle = "Associated " + StringUtils.capitalize(subFolders[0].pluralFolderTypeName.toLowerCase())
                         String gridData = createDataTable(subFoldersAccessLevelMap, gridTitle)
-                        //	log.info gridData
+                        //         log.info gridData
                         jSONForGrids.add(gridData)
                         log.debug "ADDING JSON GRID"
                     }
@@ -965,6 +980,7 @@ class FmFolderController {
         }
 
         log.debug "FolderInstance = ${bioDataObject}"
+        def useMongo=grailsApplication.config.transmartproject.mongoFiles.enableMongo
         render template: '/fmFolder/folderDetail', plugin: "folderManagement", 
                 model: [
                         folder                   : folder,
@@ -977,7 +993,8 @@ class FmFolderController {
                         metaDataTagItems         : metaDataTagItems,
                         jSONForGrids             : jSONForGrids,
                         subjectLevelDataAvailable: subjectLevelDataAvailable,
-                        searchHighlight          : searchHighlight
+                        searchHighlight          : searchHighlight,
+                        useMongo                 : useMongo
                 ]
     }
 
@@ -1106,44 +1123,43 @@ class FmFolderController {
         return bioDataObject
     }
 
-    def editMetaData =
-            {
-                log.info "editMetaData called"
-                log.info "params = " + params
+    def editMetaData = {
+        log.info "editMetaData called"
+        log.info "params = " + params
 
 
-                if (!isAdmin()) {
-                    return
-                };
+        if (!isAdmin()) {
+            return
+        };
 
-                //log.info "** action: expDetail called!"
-                def folderId = params.folderId
+        //log.info "** action: expDetail called!"
+        def folderId = params.folderId
 
-                def folder
-                def bioDataObject
-                def amTagTemplate
-                def metaDataTagItems
-                if (folderId) {
-                    folder = FmFolder.get(folderId)
-                    if (folder) {
-                        bioDataObject = getBioDataObject(folder)
-                        metaDataTagItems = getMetaDataItems(folder, true)
-                    } else {
-                        log.error "Unable to find folder for folder Id = " + folderId
-                    }
-
-                }
-
-                def title = "Edit Meta Data"
-                def templateType = "editMetadataForm"
-
-                def measurements = BioAssayPlatform.executeQuery("SELECT DISTINCT platformType FROM BioAssayPlatform as p ORDER BY p.platformType")
-                def vendors = BioAssayPlatform.executeQuery("SELECT DISTINCT vendor FROM BioAssayPlatform as p ORDER BY p.vendor")
-                def technologies = BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
-                def platforms = BioAssayPlatform.executeQuery("FROM BioAssayPlatform as p ORDER BY p.name")
-
-                render(template: "editMetaData", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        def folder
+        def bioDataObject
+        def amTagTemplate
+        def metaDataTagItems
+        if (folderId) {
+            folder = FmFolder.get(folderId)
+            if (folder) {
+                bioDataObject = getBioDataObject(folder)
+                metaDataTagItems = getMetaDataItems(folder, true)
+            } else {
+                log.error "Unable to find folder for folder Id = " + folderId
             }
+
+        }
+
+        def title = "Edit Meta Data"
+        def templateType = "editMetadataForm"
+
+        def measurements = BioAssayPlatform.executeQuery("SELECT DISTINCT platformType FROM BioAssayPlatform as p ORDER BY p.platformType")
+        def vendors = BioAssayPlatform.executeQuery("SELECT DISTINCT vendor FROM BioAssayPlatform as p ORDER BY p.vendor")
+        def technologies = BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
+        def platforms = BioAssayPlatform.executeQuery("FROM BioAssayPlatform as p ORDER BY p.name")
+
+        render(template: "editMetaData", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+    }
 
     def updateMetaData = {
         log.info "updateMetaData called"
@@ -1193,34 +1209,33 @@ class FmFolderController {
 
     }
 
-    def subFolders =
-            {
-                ExportTableNew table;
+    def subFolders = {
+        ExportTableNew table;
 
-                //Keep this if you want to cache the grid data
-                //ExportTableNew table=(ExportTableNew)request.getSession().getAttribute("gridtable");
+        //Keep this if you want to cache the grid data
+        //ExportTableNew table=(ExportTableNew)request.getSession().getAttribute("gridtable");
 
-                if (table == null) {
-                    table = new ExportTableNew();
-                }
+        if (table == null) {
+            table = new ExportTableNew();
+        }
 
-                table.putColumn("ident", new ExportColumn("ident", "ID", "", "String", 50));
-                table.putColumn("name", new ExportColumn("name", "Name", "", "String", 50));
-                table.putColumn("description", new ExportColumn("description", "Description", "", "String", 50));
+        table.putColumn("ident", new ExportColumn("ident", "ID", "", "String", 50));
+        table.putColumn("name", new ExportColumn("name", "Name", "", "String", 50));
+        table.putColumn("description", new ExportColumn("description", "Description", "", "String", 50));
 
-                ExportRowNew newrow = new ExportRowNew();
-                newrow.put("ident", "foo.id");
-                newrow.put("name", "foo.name");
-                newrow.put("description", "foo.description");
-                table.putRow("somerow", newrow);
+        ExportRowNew newrow = new ExportRowNew();
+        newrow.put("ident", "foo.id");
+        newrow.put("name", "foo.name");
+        newrow.put("description", "foo.description");
+        table.putRow("somerow", newrow);
 
-                def jSONToReturn = table.toJSON_DataTables("").toString(5);
+        def jSONToReturn = table.toJSON_DataTables("").toString(5);
 
-                request.getSession().setAttribute("gridtable", table);
+        request.getSession().setAttribute("gridtable", table);
 
-                [jSONForGrid: jSONToReturn]
+        [jSONForGrid: jSONToReturn]
 
-            }
+    }
 
     /**
      * Calls service to import files into tranSMART filestore and index them with SOLR
@@ -1305,88 +1320,112 @@ class FmFolderController {
                             '%' + String.format('%02x', it)
                         }.join('')
         response.addHeader 'Content-length', fmFile.fileSize.toString()
-        def file = fmFolderService.getFile fmFile
-        file.newInputStream().withStream {
-            response.outputStream << it
+
+        def useMongo=grailsApplication.config.transmartproject.mongoFiles.enableMongo
+        if(!useMongo){
+            def file = fmFolderService.getFile fmFile
+            file.newInputStream().withStream {
+                response.outputStream << it
+            }
+        }else{
+            if(grailsApplication.config.transmartproject.mongoFiles.useDriver){
+                MongoClient mongo = new MongoClient(grailsApplication.config.transmartproject.mongoFiles.dbServer, grailsApplication.config.transmartproject.mongoFiles.dbPort)
+                DB db = mongo.getDB( grailsApplication.config.transmartproject.mongoFiles.dbName)
+                GridFS gfs = new GridFS(db)
+                GridFSDBFile gfsFile = gfs.findOne(fmFile.filestoreName)
+                fileReponse.outputStream << gfsFile.getInputStream()
+                mongo.close()
+            }else {
+                def apiURL=grailsApplication.config.transmartproject.mongoFiles.apiURL
+                def apiKey=grailsApplication.config.transmartproject.mongoFiles.apiKey
+                def http = new HTTPBuilder(apiURL+fmFile.filestoreName+"/fsfile")
+                http.request( Method.GET, ContentType.BINARY) { req ->
+                    headers.'apikey' = MongoUtils.hash(apiKey)
+                    response.success = { resp, binary ->
+                        assert resp.statusLine.statusCode == 200
+                        fileReponse.outputStream << binary
+                    }
+                    response.failure = { resp ->
+                        log.error("Problem during connection to API: "+resp.status)
+                        render(contentType: "text/plain", text: "Error writing ZIP: File not found")
+                    }
+                }
+            }
         }
     }
 
-    def ajaxTechnologies =
-            {
-                def queryString = " where 1=1"
-                if (params.measurementName != null && params.measurementName != 'null') {
-                    queryString += " and platformType = '" + params.measurementName + "'"
-                }
-                if (params.vendorName != null && params.vendorName != 'null') {
-                    queryString += " and vendor = '" + params.vendorName + "'"
-                }
+    def ajaxTechnologies = {
+        def queryString = " where 1=1"
+        if (params.measurementName != null && params.measurementName != 'null') {
+            queryString += " and platformType = '" + params.measurementName + "'"
+        }
+        if (params.vendorName != null && params.vendorName != 'null') {
+            queryString += " and vendor = '" + params.vendorName + "'"
+        }
 
-                queryString = "SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformTechnology"
-                def technologies = BioAssayPlatform.executeQuery(queryString)
-                log.info queryString + " " + technologies
-                render(template: "selectTechnologies", plugin: "folderManagement", model: [technologies: technologies, technology: params.technologyName])
-            }
+        queryString = "SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformTechnology"
+        def technologies = BioAssayPlatform.executeQuery(queryString)
+        log.info queryString + " " + technologies
+        render(template: "selectTechnologies", plugin: "folderManagement", model: [technologies: technologies, technology: params.technologyName])
+    }
 
-    def ajaxVendors =
-            {
-                log.info params
-                def queryString = " where 1=1"
+    def ajaxVendors = {
+        log.info params
+        def queryString = " where 1=1"
 
-                if (params.technologyName != null && params.technologyName != 'null') {
-                    queryString += " and platformTechnology = '" + params.technologyName + "'"
-                }
+        if (params.technologyName != null && params.technologyName != 'null') {
+            queryString += " and platformTechnology = '" + params.technologyName + "'"
+        }
 
-                if (params.measurementName != null && params.measurementName != 'null') {
-                    queryString += " and platformType = '" + params.measurementName + "'"
-                }
+        if (params.measurementName != null && params.measurementName != 'null') {
+            queryString += " and platformType = '" + params.measurementName + "'"
+        }
 
-                queryString = "SELECT DISTINCT vendor FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.vendor"
-                def vendors = BioAssayPlatform.executeQuery(queryString)
-                log.info queryString + " " + vendors
-                render(template: "selectVendors", plugin: "folderManagement", model: [vendors: vendors, vendor: params.vendorName])
-            }
+        queryString = "SELECT DISTINCT vendor FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.vendor"
+        def vendors = BioAssayPlatform.executeQuery(queryString)
+        log.info queryString + " " + vendors
+        render(template: "selectVendors", plugin: "folderManagement", model: [vendors: vendors, vendor: params.vendorName])
+    }
 
-    def ajaxMeasurements =
-            {
-                log.info params
-                def queryString = " where 1=1"
+    def ajaxMeasurements = {
+        log.info params
+        def queryString = " where 1=1"
 
-                if (params.technologyName != null && params.technologyName != 'null') {
-                    queryString += " and platformTechnology = '" + params.technologyName + "'"
-                }
+        if (params.technologyName != null && params.technologyName != 'null') {
+            queryString += " and platformTechnology = '" + params.technologyName + "'"
+        }
 
-                if (params.vendorName != null && params.vendorName != 'null') {
-                    queryString += " and vendor = '" + params.vendorName + "'"
-                }
+        if (params.vendorName != null && params.vendorName != 'null') {
+            queryString += " and vendor = '" + params.vendorName + "'"
+        }
 
-                queryString = "SELECT DISTINCT platformType FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
-                def measurements = BioAssayPlatform.executeQuery(queryString)
-                log.info queryString + " " + measurements
-                render(template: "selectMeasurements", plugin:"folderManagement", model: [measurements: measurements, measurement: params.measurementName])
-            }
+        queryString = "SELECT DISTINCT platformType FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
+        def measurements = BioAssayPlatform.executeQuery(queryString)
+        log.info queryString + " " + measurements
+        render(template: "selectMeasurements", plugin:"folderManagement", model: [measurements: measurements, measurement: params.measurementName])
+    }
 
-    def ajaxPlatforms =
-            {
-                log.info params
-                def queryString = " where 1=1"
+    def ajaxPlatforms = {
+        log.info params
+        def queryString = " where 1=1"
 
-                if (params.measurementName != null && params.measurementName != 'null') {
-                    queryString += " and platformType = '" + params.measurementName + "'"
-                }
+        if (params.measurementName != null && params.measurementName != 'null') {
+            queryString += " and platformType = '" + params.measurementName + "'"
+        }
 
-                if (params.technologyName != null && params.technologyName != 'null') {
-                    queryString += " and platformTechnology = '" + params.technologyName + "'"
-                }
+        if (params.technologyName != null && params.technologyName != 'null') {
+            queryString += " and platformTechnology = '" + params.technologyName + "'"
+        }
 
-                if (params.vendorName != null && params.vendorName != 'null') {
-                    queryString += " and vendor = '" + params.vendorName + "'"
-                }
+        if (params.vendorName != null && params.vendorName != 'null') {
+            queryString += " and vendor = '" + params.vendorName + "'"
+        }
 
-                queryString = "FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
-                def platforms = BioAssayPlatform.executeQuery(queryString)
-                log.info queryString + " " + platforms
-                render(template: "selectPlatforms", plugin: "folderManagement", model: [platforms: platforms])
-            }
+        queryString = "FROM BioAssayPlatform as p " + queryString + "  ORDER BY p.platformType"
+        def platforms = BioAssayPlatform.executeQuery(queryString)
+        log.info queryString + " " + platforms
+        render(template: "selectPlatforms", plugin: "folderManagement", model: [platforms: platforms])
+    }
 
     private boolean isAdmin() {
         if ("anonymousUser" != springSecurityService.getPrincipal()) {
@@ -1428,6 +1467,5 @@ class FmFolderController {
             render(template: '/fmFolder/filesTable', plugin: "folderManagement", model: [folder: folder])
         }
     }
-
 
 }

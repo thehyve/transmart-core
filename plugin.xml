@@ -3,8 +3,8 @@
     <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
     <title>Folder Management and Annotation for tranSMART</title>
     <description>\
-        Adds folder management features to tranSMART, allowing files to be attached to studies and analyses. Also
-        contains annotation domain and controller
+        Adds folder management features to tranSMART, allowing files to be attached to studies and analyses.
+        Also contains annotation domain and controller.
     </description>
     <type>FolderManagementGrailsPlugin</type>
     <resources>
@@ -12,6 +12,7 @@
         <resource>fm.FileExportController</resource>
         <resource>fm.FmFileController</resource>
         <resource>fm.FmFolderController</resource>
+        <resource>fm.UploadFilesController</resource>
         <resource>annotation.AmData</resource>
         <resource>annotation.AmTagAssociation</resource>
         <resource>annotation.AmTagDisplayValue</resource>
@@ -25,9 +26,11 @@
         <resource>fm.FmFile</resource>
         <resource>fm.FmFolder</resource>
         <resource>fm.FmFolderAssociation</resource>
+        <resource>fm.FmFolderJob</resource>
         <resource>annotation.AmTagItemService</resource>
         <resource>annotation.AmTagTemplateService</resource>
         <resource>annotation.MetaDataService</resource>
         <resource>fm.FmFolderService</resource>
+        <resource>fm.UploadFilesService</resource>
     </resources>
 </plugin>
