@@ -21,9 +21,8 @@ grails.project.dependency.resolution = {
         mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
     }
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.13'
+    	// needed to support folder-management
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
     }
     plugins {
 		compile(':resources:1.2.1')
