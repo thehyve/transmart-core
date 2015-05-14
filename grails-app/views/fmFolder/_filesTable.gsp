@@ -3,9 +3,9 @@
         <thead>
             <tr>
                 <th class="columnheader">File Name</th>
-                <th class="columnheader" style="width: 100px">Created on</th>
-                <th class="columnheader" style="width: 100px">Updated on</th>
-                <th class="columnheader" style="width: 100px">&nbsp;</th>
+                <th class="columnheader" style="width: 70px">Created on</th>
+                <th class="columnheader" style="width: 70px">Updated on</th>
+                <th class="columnheader" style="width: 160px">&nbsp;</th>
             </tr>
         </thead>
         <tfoot>
@@ -31,9 +31,9 @@
                     </td>
                     <td class="columnvalue textsmall">
                         <div>
-                            <span class="exportaddspan foldericon addcart link" name="${fmFile.id}">&nbsp;</span>
+                            <span class="exportaddspan foldericon addcart link" name="${fmFile.id}">Add to export</span>
                             <sec:ifAnyGranted roles="ROLE_ADMIN">
-                                <span class="deletefilespan foldericon deletefile link" name="${fmFile.id}">&nbsp;</span>
+                                <span class="deletefilespan foldericon deletefile link" name="${fmFile.id}"> Delete</span>
                             </sec:ifAnyGranted>
                         </div>
                     </td>

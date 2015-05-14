@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery.loadmask.css')}">
         <link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}">
         <link rel="stylesheet" href="${resource(dir:'css', file:'rwg.css')}">
+        <link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin:'folder-management')}">
         <link rel="stylesheet" href="${resource(dir:'css', file:'colorbox.css')}">
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/simpleModal.css')}">
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/multiselect/ui.multiselect.css')}">

@@ -1,3 +1,5 @@
+<g:logMsg>folderDetail page</g:logMsg>
+
 <%@ page import="annotation.*; org.transmart.biomart.*; com.recomdata.util.*; org.apache.commons.lang.StringUtils" %>
 
 <script type="text/javascript">
@@ -47,6 +49,10 @@
                     <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name()) &&
                                   folder.parent?.folderType.equalsIgnoreCase(FolderType.STUDY.name())}">
                         <span name="${folder.id}" class="greybutton buttonicon addanalysis">Add new analysis</span>
+                    </g:if>
+                    <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name())}">
+                        <g:logMsg>Upload files button</g:logMsg>
+                        <span name="${folder.id}" class="greybutton buttonicon uploadfiles">Upload files</span>
                     </g:if>
                     <span name="${folder.id}" class="greybutton buttonicon addfolder">Add new folder</span>
                     <span name="${folder.id}" data-parent="${folder.parent?.id}" class="greybutton buttonicon deletefolder">
@@ -117,7 +123,7 @@
                         <!-- TODO: If active -->
             
                             <td valign="top" align="right" class="columnname" width="20%">${amTagItem.displayName}</td>
-                            <td valign="top" align="left" class="columnvalue" width="60%">
+                            <td valign="top" align="left" class="columnvalue" width="30%">
             
                                 <!-- FIXED -->
                                 <g:if test="${amTagItem.tagItemType == 'FIXED'  &&
