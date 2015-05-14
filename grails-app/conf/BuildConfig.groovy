@@ -21,7 +21,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         runtime 'hsqldb:hsqldb:1.8.0.10'
-        build 'org.codehaus.groovy.modules.http-builder:http-builder:0.6', {
+        build 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1', {
             excludes 'groovy', 'nekohtml'
         }
         build 'org.apache.httpcomponents:httpclient:4.3.1'
