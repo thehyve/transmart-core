@@ -23,8 +23,8 @@ The return message's body will contain JSON with additional HAL format, with the
 | get observations for single concept | GET `/studies/{studyId}/concepts/{conceptPath}/observations` | returns clinical observation values for one concept for a study |
 | create patient set | POST `/patient_sets` | body should be query definition in a subset of i2b2's XML schema. Response is the same as for GET `/patient_sets/{result_instance_id}`  |
 | get single patient set | GET `/patient_sets/{resultInstanceId}` | returns information a previously created patient set |
-| get index of highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections for this highdim concept for a study |
-| get highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}` | returns highdim data of a specific dataType and projection for one concept of a study |
+| get index of highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections, assay constraints and data constraints for this highdim concept for a study |
+| get highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}&assayConstraints={assayConstraints}&dataConstraints={dataConstraints}` | returns highdim data of a specific dataType and projection for one concept of a study |
 
 
 #### Explanation of URI variables
@@ -35,6 +35,8 @@ The return message's body will contain JSON with additional HAL format, with the
 | {subjectId} | A unique subject identifier, as returned by `/studies/{studyId}/subjects` call. |
 | {dataType} | High dimensional concepts can be of several types, depending on what your tranSMART version supports. Possible data type options are contained in the highdim index returned by the `/studies/{studyId}/concepts/{conceptPath}/highdim` call. |
 | {projectionType} | High dimensional data can have values stored in a variety of projections. Possible projection options are contained in the highdim index returned by the `/studies/{studyId}/concepts/{conceptPath}/highdim` call. |
+| {assayConstraints} | Assay constraints limit the assays included in the response. This is a urlencoded JSON object. The keys are the names of the constraints and each value is either 1) an object where the keys are the corresponding constraint's parameters and the values are the parameters' values or 2) an array of such objects. The parameters for the constraints are not described in the API. Look at core-api's documentation; for the standard constraints, see the [`AssayConstraint`](https://github.com/transmart/transmart-core-api/blob/master/src/main/groovy/org/transmartproject/core/dataquery/highdim/assayconstraints/AssayConstraint.groovy) class. |
+| {dataConstraints} | Analogous to {assayConstraints}, except it limits the rows in the high dimensional result. For the standard data constraints, see [`DataConstraint`](https://github.com/transmart/transmart-core-api/blob/master/src/main/groovy/org/transmartproject/core/dataquery/highdim/dataconstraints/DataConstraint.groovy) |
 
 #### HTTP exchange details
 Each of the above GET requests needs two header fields set:
