@@ -115,11 +115,11 @@ if [ -z $STUDY_NAME ]; then
 fi
 
 if [ -z $STUDY_ID ] ; then
-    STUDY_ID=${STUDY_NAME^^}
+    STUDY_ID=$(echo ${STUDY_NAME} | tr 'a-z' 'A-Z')
     echo "Info $(basename $0): assuming STUDY_ID=${STUDY_ID}"
 fi
 # Because not all upload (pre-processing) scripts handle STUDY_ID in the same way
 # (Kettle e.g. capitalizes study id's, R does not and SQL procedure only capitalizes the procedure argument, not the study_id column in the landingzone)
 # STUDY_ID is always capitalized
-STUDY_ID=${STUDY_ID^^}
+STUDY_ID=$(echo ${STUDY_ID} | tr 'a-z' 'A-Z')
 
