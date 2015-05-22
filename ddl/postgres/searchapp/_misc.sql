@@ -6,7 +6,7 @@ CREATE SEQUENCE hibernate_sequence
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 20;
+    CACHE 1;
 
 
 SET default_with_oids = false;
