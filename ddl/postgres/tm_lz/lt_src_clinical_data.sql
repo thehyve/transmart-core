@@ -4,7 +4,7 @@
 CREATE TABLE lt_src_clinical_data (
     study_id character varying(25),
     site_id character varying(50),
-    subject_id character varying(20),
+    subject_id character varying(30),
     visit_name character varying(100),
     sample_type character varying(100),
     data_label character varying(500),
