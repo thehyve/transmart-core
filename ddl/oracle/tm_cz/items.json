@@ -2085,7 +2085,21 @@
     "child" : {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
-      "name" : "CZ_FORM_LAYOUT_SEQ"
+      "name" : "SEQ_CZ_FORM_LAYOUT_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_REQUIRED_UPLOAD_FIELD"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_REQUIRED_UPLOAD_FIELD_ID"
     },
     "parents" : [ ]
   }, {
@@ -11691,7 +11705,7 @@
     "child" : {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
-      "name" : "SEQ_FORM_LAYOUT_ID"
+      "name" : "SEQ_CZ_FORM_LAYOUT_ID"
     },
     "parents" : [ ]
   }, {
@@ -12193,7 +12207,22 @@
     }, {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
-      "name" : "SEQ_FORM_LAYOUT_ID"
+      "name" : "SEQ_CZ_FORM_LAYOUT_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
+      "name" : "TRG_CZ_REQ_UPLOAD_FIELD_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_REQUIRED_UPLOAD_FIELD"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_REQUIRED_UPLOAD_FIELD_ID"
     } ]
   }, {
     "child" : {
@@ -14700,7 +14729,7 @@
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "TM_CZ",
-      "name" : "SEQ_FORM_LAYOUT_ID"
+      "name" : "SEQ_CZ_FORM_LAYOUT_ID"
     },
     "file" : "tm_cz/cz_form_layout.sql"
   }, {
