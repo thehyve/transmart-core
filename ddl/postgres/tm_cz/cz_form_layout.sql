@@ -25,8 +25,8 @@ CREATE FUNCTION tf_trg_cz_form_layout_id() RETURNS trigger
     AS $$
 begin
        if NEW.FORM_LAYOUT_ID is null then
- select nextval('tm_cz.SEQ_FORM_LAYOUT_ID') into NEW.FORM_LAYOUT_ID ;
-if;
+ select nextval('tm_cz.SEQ_CZ_FORM_LAYOUT_ID') into NEW.FORM_LAYOUT_ID ;
+ end if;
        RETURN NEW;
 end;
 $$;
@@ -37,9 +37,9 @@ $$;
 CREATE TRIGGER trg_cz_form_layout_id BEFORE INSERT ON cz_form_layout FOR EACH ROW EXECUTE PROCEDURE tf_trg_cz_form_layout_id();
 
 --
--- Name: seq_form_layout_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
+-- Name: seq_cz_form_layout_id; Type: SEQUENCE; Schema: tm_cz; Owner: -
 --
-CREATE SEQUENCE seq_form_layout_id
+CREATE SEQUENCE seq_cz_form_layout_id
     START WITH 41
     INCREMENT BY 1
     NO MINVALUE

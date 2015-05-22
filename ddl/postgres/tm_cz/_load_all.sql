@@ -165,6 +165,7 @@
 \i tm_cz/cz_job_error.sql
 \i tm_cz/cz_job_master.sql
 \i tm_cz/cz_job_message.sql
+\i tm_cz/cz_required_upload_field.sql
 \i tm_cz/cz_rwg_invalid_terms.sql
 \i tm_cz/cz_test_result.sql
 \i tm_cz/cz_test_severity.sql
