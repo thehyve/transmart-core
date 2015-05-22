@@ -209,7 +209,7 @@ BEGIN
 	select distinct d.gpl_id
 	,d.probe_id
 	,d.gene_symbol
-	,case when d.gene_id is null then null else d.gene_id::numeric end as gene_id
+	,case when d.gene_id is null then null when d.gene_id='' then null else d.gene_id::numeric end as gene_id
 	,p.probeset_id
 	,coalesce(d.organism,'Homo sapiens')
 	from tm_lz.lt_src_deapp_annot d
