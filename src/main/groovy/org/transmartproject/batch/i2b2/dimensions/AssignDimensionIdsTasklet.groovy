@@ -8,8 +8,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.db.SequenceReserver
+import org.transmartproject.batch.i2b2.database.I2b2Sequences
 
 import static org.transmartproject.batch.i2b2.variable.PatientDimensionI2b2Variable.PATIENT_DIMENSION_KEY
 import static org.transmartproject.batch.i2b2.variable.VisitDimensionI2b2Variable.VISITS_DIMENSION_KEY
@@ -22,10 +22,10 @@ import static org.transmartproject.batch.i2b2.variable.VisitDimensionI2b2Variabl
 @Slf4j
 class AssignDimensionIdsTasklet implements Tasklet {
 
-    private final Map<String /* dimension key */, String /* sequences */> sequences =
+    private final Map<String /* dimension key */, String /* sequence property */> sequenceMap =
             ImmutableMap.of(
-                    PATIENT_DIMENSION_KEY, Sequences.PATIENT,
-                    VISITS_DIMENSION_KEY, Sequences.VISIT,)
+                    PATIENT_DIMENSION_KEY, 'patient',
+                    VISITS_DIMENSION_KEY, 'visit',)
 
     @Autowired
     private DimensionsStore dimensionsStore
@@ -33,11 +33,15 @@ class AssignDimensionIdsTasklet implements Tasklet {
     @Autowired
     private SequenceReserver sequenceReserver
 
+    @Autowired
+    private I2b2Sequences sequences
+
     @Override
     RepeatStatus execute(StepContribution contribution,
                          ChunkContext chunkContext) throws Exception {
-        sequences.each { String dimensionKey, String sequence ->
+        sequenceMap.each { String dimensionKey, String sequenceKey ->
             log.info "Assigning keys for dimensions of type $dimensionKey"
+            String sequence = sequences."$sequenceKey"
 
             def externalIdIterator = dimensionsStore
                     .getExternalIdsWithoutAssociatedInternalIds(dimensionKey)

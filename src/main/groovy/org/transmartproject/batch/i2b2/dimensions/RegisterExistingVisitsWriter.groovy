@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Tables
 
 import static org.transmartproject.batch.i2b2.variable.VisitDimensionI2b2Variable.VISITS_DIMENSION_KEY
 
@@ -40,6 +39,9 @@ class RegisterExistingVisitsWriter implements ItemWriter<String> {
     @Autowired
     private DimensionsStore dimensionsStore
 
+    @Value('#{tables.encounterMapping}')
+    private String encounterMappingTable
+
     @Override
     void write(List<? extends String> items) throws Exception {
         Object[] params = new Object[items.size() + 1]
@@ -55,7 +57,7 @@ class RegisterExistingVisitsWriter implements ItemWriter<String> {
                     $VISIT_INTERNAL_ID_COLUMN,
                     $PATIENT_EXTERNAL_ID_COLUMN,
                     $PATIENT_EXTERNAL_ID_SOURCE_COLUMN
-                FROM ${Tables.ENCOUNTER_MAPPING}
+                FROM ${encounterMappingTable}
                 WHERE
                     $VISIT_EXTERNAL_ID_COLUMN IN (${items.collect { '?' }.join ', '})
                     AND $VISIT_EXTERNAL_ID_SOURCE_COLUMN = ?""",

@@ -10,7 +10,7 @@ trait DimensionI2b2Variable implements I2b2Variable {
         false
     }
 
-    String dimensionTable
+    String dimensionTable /* unqualified */
 
     String dimensionColumn
 

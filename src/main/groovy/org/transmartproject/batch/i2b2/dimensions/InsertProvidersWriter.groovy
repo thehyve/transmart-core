@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.i2b2.misc.I2b2ControlColumnsHelper
 
 /**
@@ -19,7 +18,7 @@ class InsertProvidersWriter implements ItemWriter<DimensionsStoreEntry> {
     @Value("#{jobParameters['PROVIDER_PATH']}")
     private String providerPath
 
-    @Value(Tables.PROV_DIMENSION)
+    @Value('#{tables.providerDimension}')
     private SimpleJdbcInsert providerDimensionInsert
 
     @Autowired

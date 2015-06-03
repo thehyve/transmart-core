@@ -1,8 +1,6 @@
 package org.transmartproject.batch.i2b2.variable
 
-import org.transmartproject.batch.clinical.db.objects.Tables
-
-import static org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable.I2b2DimensionVariableType.*
+import static org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable.I2b2DimensionVariableType.STRING
 
 /**
  * Columns of the provider dimension table.
@@ -20,7 +18,7 @@ enum ProviderDimensionI2b2Variable implements DimensionI2b2Variable {
         this.parameters      = parameters
         this.variableType    = type
         this.dimensionKey    = PROVIDER_DIMENSION_KEY
-        this.dimensionTable  = Tables.PROV_DIMENSION
+        this.dimensionTable  = 'provider_dimension'
         this.dimensionColumn = column
     }
 

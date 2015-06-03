@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.i2b2.misc.I2b2ControlColumnsHelper
 
@@ -19,10 +18,10 @@ import static org.transmartproject.batch.i2b2.variable.PatientDimensionI2b2Varia
 @JobScopeInterfaced
 class InsertVisitsWriter implements ItemWriter<DimensionsStoreEntry> {
 
-    @Value(Tables.VISIT_DIMENSION)
+    @Value('#{tables.visitDimension}')
     private SimpleJdbcInsert visitDimensionInsert
 
-    @Value(Tables.ENCOUNTER_MAPPING)
+    @Value('#{tables.encounterMapping}')
     private SimpleJdbcInsert encounterMappingInsert
 
     @Value("#{jobParameters['VISIT_IDE_SOURCE']}")
@@ -58,7 +57,7 @@ class InsertVisitsWriter implements ItemWriter<DimensionsStoreEntry> {
                 } as Map[])
 
         DatabaseUtil.checkUpdateCounts(res,
-                "inserting into $Tables.VISIT_DIMENSION")
+                "inserting into $visitDimensionInsert.tableName")
 
         res = encounterMappingInsert.executeBatch(
                 items.collect { [
@@ -71,6 +70,6 @@ class InsertVisitsWriter implements ItemWriter<DimensionsStoreEntry> {
                 ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,
-                "inserting into $Tables.ENCOUNTER_MAPPING")
+                "inserting into $encounterMappingInsert.tableName")
     }
 }

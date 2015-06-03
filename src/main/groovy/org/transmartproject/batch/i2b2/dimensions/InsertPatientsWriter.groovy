@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.i2b2.misc.I2b2ControlColumnsHelper
 
@@ -17,10 +16,10 @@ import org.transmartproject.batch.i2b2.misc.I2b2ControlColumnsHelper
 @JobScopeInterfaced
 class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
 
-    @Value(Tables.PATIENT_DIMENSION)
+    @Value('#{tables.patientDimension}')
     private SimpleJdbcInsert patientDimensionInsert
 
-    @Value(Tables.PATIENT_MAPPING)
+    @Value('#{tables.patientMapping}')
     private SimpleJdbcInsert patientMappingInsert
 
     @Value("#{jobParameters['PATIENT_IDE_SOURCE']}")
@@ -40,7 +39,7 @@ class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
                     ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,
-                "inserting into $Tables.PATIENT_DIMENSION")
+                "inserting into $patientDimensionInsert.tableName")
 
         res = patientMappingInsert.executeBatch(
                 items.collect { [
@@ -51,6 +50,6 @@ class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
                     ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,
-                "inserting into $Tables.PATIENT_MAPPING")
+                "inserting into $patientMappingInsert.tableName")
     }
 }

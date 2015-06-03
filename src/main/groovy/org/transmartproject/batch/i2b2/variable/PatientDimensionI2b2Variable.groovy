@@ -1,6 +1,5 @@
 package org.transmartproject.batch.i2b2.variable
 
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.support.ConfigurableLengthSemanticsTrait
 
 import static org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable.I2b2DimensionVariableType.*
@@ -32,7 +31,7 @@ enum PatientDimensionI2b2Variable implements DimensionI2b2Variable, Configurable
         this.parameters      = parameters
         this.variableType    = type
         this.dimensionKey    = PATIENT_DIMENSION_KEY
-        this.dimensionTable  = Tables.PATIENT_DIMENSION
+        this.dimensionTable  = 'patient_dimension'
         this.dimensionColumn = column
     }
 }

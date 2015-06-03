@@ -1,12 +1,12 @@
 package org.transmartproject.batch.i2b2.secondpass
 
 import groovy.util.logging.Slf4j
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.i2b2.fact.FactGroup
 import org.transmartproject.batch.i2b2.fact.FactValue
@@ -18,13 +18,14 @@ import org.transmartproject.batch.i2b2.variable.ModifierI2b2Variable
  * Writes the facts on a {@link I2b2SecondPassRow} to observation_fact.
  */
 @Component
+@JobScope
 @Slf4j
 class I2b2ObservationFactWriter implements ItemWriter<I2b2SecondPassRow> {
 
     @Autowired
     private I2b2ControlColumnsHelper controlColumnsHelper
 
-    @Value(Tables.OBSERVATION_FACT)
+    @Value('#{tables.observationFact}')
     private SimpleJdbcInsert inserter
 
     @Override
@@ -46,7 +47,7 @@ class I2b2ObservationFactWriter implements ItemWriter<I2b2SecondPassRow> {
 
         int[] counts = inserter.executeBatch(rows as Map[])
         DatabaseUtil.checkUpdateCounts(counts,
-                "inserting in ${Tables.OBSERVATION_FACT}")
+                "inserting in $inserter.tableName")
     }
 
     private Map<String, Object> factToRow(I2b2SecondPassRow row,

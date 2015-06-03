@@ -9,7 +9,7 @@ import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.util.Assert
-import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.i2b2.database.I2b2Tables
 import org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable
 
 import javax.annotation.PostConstruct
@@ -29,6 +29,9 @@ class CodeLookupLoadingTasklet implements Tasklet {
 
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate
+
+    @Autowired
+    private I2b2Tables tables
 
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
@@ -53,19 +56,18 @@ class CodeLookupLoadingTasklet implements Tasklet {
             return RepeatStatus.CONTINUABLE
         }
 
-        def unqualifiedTable = (var.dimensionTable - ~/\Ai2b2demodata\./)
-                .toUpperCase(Locale.ENGLISH)
-        assert !unqualifiedTable.contains('.')
+        def table = var.dimensionTable.toUpperCase(Locale.ENGLISH)
+        assert !table.contains('.')
         def column = var.dimensionColumn.toUpperCase(Locale.ENGLISH)
 
         def res = jdbcTemplate.queryForList """
-                SELECT code_cd FROM $Tables.CODE_LOOKUP
+                SELECT code_cd FROM $tables.codeLookup
                 WHERE table_cd = :table AND column_cd = :column""",
-                [table: unqualifiedTable, column: column], String
+                [table: table, column: column], String
 
         if (res.size() == 0) {
             log.error("Found no codes in i2b2demodata.code_lookup for $var (" +
-                    "table = $unqualifiedTable, column = " +
+                    "table = $table, column = " +
                     "$var.dimensionColumn). Fill the enumeration values in " +
                     "code_lookup first.")
             throw new UnexpectedJobExecutionException(

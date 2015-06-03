@@ -22,12 +22,14 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
     public static final String DATE_FORMAT        = 'DATE_FORMAT'
     public static final String DOWNLOAD_DATE      = 'DOWNLOAD_DATE'
     public static final String INCREMENTAL        = 'INCREMENTAL'
+    public static final String CRC_SCHEMA         = 'CRC_SCHEMA'
 
     public static final int MAX_SIZE_OF_SOURCE_SYSTEM = 50
     public static final int MAX_SIZE_OF_IDE_SOURCE = 50
     public static final int MAX_SIZE_OF_PROVIDER_PATH = 700
 
     public static final String DUMMY_IDE_SOURCE = 'UNSPECIFIED'
+    private static final String DEFAULT_CRC_SCHEMA = 'i2b2demodata'
 
     final Set<String> supportedParameters = ImmutableSet.of(
             COLUMN_MAP_FILE,
@@ -39,6 +41,7 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
             DATE_FORMAT,
             DOWNLOAD_DATE,
             INCREMENTAL,
+            CRC_SCHEMA,
     )
 
     @Override
@@ -95,6 +98,10 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
 
         if (ejp[PROVIDER_PATH] == null) {
             ejp[PROVIDER_PATH] = '/'
+        }
+
+        if (ejp[CRC_SCHEMA] == null) {
+            ejp[CRC_SCHEMA] = DEFAULT_CRC_SCHEMA
         }
 
         ejp.mungeBoolean(INCREMENTAL, false)

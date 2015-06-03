@@ -8,6 +8,7 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter
 import org.springframework.beans.factory.BeanNameAware
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -36,6 +37,9 @@ abstract class AbstractDimensionUpdateWriter
 
     @Autowired
     protected I2b2ControlColumnsHelper controlColumnsHelper
+
+    @Value('#{tables.crcSchema}')
+    protected String crcSchema
 
     protected abstract Class<? extends DimensionI2b2Variable> getEnumClass()
 
@@ -75,7 +79,7 @@ abstract class AbstractDimensionUpdateWriter
         jdbcBatchItemWriter = new JdbcBatchItemWriter().with {
             it.jdbcTemplate = owner.jdbcTemplate
             UpdateQueryBuilder builder = new UpdateQueryBuilder(
-                    table: enumClass.values().first().dimensionTable)
+                    table: crcSchema + '.' + enumClass.values().first().dimensionTable)
             builder.addColumns(*columns)
             builder.addKeys(*keys)
             sql = builder.toSQL()

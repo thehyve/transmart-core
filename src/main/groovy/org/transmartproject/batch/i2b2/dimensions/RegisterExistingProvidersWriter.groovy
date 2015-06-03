@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Tables
 
 import static org.transmartproject.batch.i2b2.variable.ProviderDimensionI2b2Variable.PROVIDER_DIMENSION_KEY
 
@@ -32,6 +31,9 @@ class RegisterExistingProvidersWriter implements ItemWriter<String> {
     @Autowired
     private DimensionsStore dimensionsStore
 
+    @Value('#{tables.providerDimension}')
+    private String providerDimensionTable
+
     @Override
     void write(List<? extends String> items) throws Exception {
         Object[] params = new Object[items.size() + 1]
@@ -43,7 +45,7 @@ class RegisterExistingProvidersWriter implements ItemWriter<String> {
 
         List<Map<String, Object>> result = jdbcTemplate.queryForList """
                 SELECT $PROVIDER_ID_COLUMN
-                FROM ${Tables.PROV_DIMENSION}
+                FROM ${providerDimensionTable}
                 WHERE provider_id IN (${items.collect { '?' }.join ', '})
                         AND provider_path = ?""",
                 params

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Tables
 
 import static org.transmartproject.batch.i2b2.variable.PatientDimensionI2b2Variable.PATIENT_DIMENSION_KEY
 
@@ -34,6 +33,9 @@ class RegisterExistingPatientsWriter implements ItemWriter<String> {
     @Autowired
     private DimensionsStore dimensionsStore
 
+    @Value('#{tables.patientMapping}')
+    private String patientMappingTable
+
     @Override
     void write(List<? extends String> items) throws Exception {
         Object[] params = new Object[items.size() + 1]
@@ -47,7 +49,7 @@ class RegisterExistingPatientsWriter implements ItemWriter<String> {
                 SELECT
                     $PATIENT_EXTERNAL_ID_COLUMN,
                     $PATIENT_INTERNAL_ID_COLUMN
-                FROM ${Tables.PATIENT_MAPPING}
+                FROM $patientMappingTable
                 WHERE
                     $PATIENT_EXTERNAL_ID_COLUMN IN (${items.collect { '?' }.join ', '})
                     AND $PATIENT_EXTERNAL_ID_SOURCE_COLUMN = ?""",

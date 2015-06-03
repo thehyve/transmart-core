@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.i2b2.database.I2b2Tables
 
 import javax.annotation.PostConstruct
 
@@ -32,6 +32,9 @@ class DeleteI2b2DataTasklet implements Tasklet {
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
 
+    @Autowired
+    private I2b2Tables tables
+
     @PostConstruct
     void init() {
         Assert.notNull(sourceSystem)
@@ -40,12 +43,12 @@ class DeleteI2b2DataTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         def tables = [
-                Tables.OBSERVATION_FACT,
-                Tables.PATIENT_MAPPING,
-                Tables.ENCOUNTER_MAPPING,
-                Tables.PATIENT_DIMENSION,
-                Tables.VISIT_DIMENSION,
-                Tables.PROV_DIMENSION,
+                tables.observationFact,
+                tables.patientMapping,
+                tables.encounterMapping,
+                tables.patientDimension,
+                tables.visitDimension,
+                tables.providerDimension,
         ]
 
         tables.each { t ->

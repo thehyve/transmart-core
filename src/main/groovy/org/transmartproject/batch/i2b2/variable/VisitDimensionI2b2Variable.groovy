@@ -1,7 +1,5 @@
 package org.transmartproject.batch.i2b2.variable
 
-import org.transmartproject.batch.clinical.db.objects.Tables
-
 import static org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable.I2b2DimensionVariableType.*
 
 /**
@@ -30,7 +28,7 @@ enum VisitDimensionI2b2Variable implements DimensionI2b2Variable {
         this.parameters   = parameters
         this.variableType = type
         this.dimensionKey     = VISITS_DIMENSION_KEY
-        this.dimensionTable = Tables.VISIT_DIMENSION
+        this.dimensionTable = 'visit_dimension'
         this.dimensionColumn = column
     }
 }
