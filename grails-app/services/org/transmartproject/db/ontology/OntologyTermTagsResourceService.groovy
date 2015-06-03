@@ -13,11 +13,13 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
         }
 
         def orderedTags = I2b2Tag.createCriteria().list {
-            ontologyTerms.each { OntologyTerm term ->
-                if (includeDescendantsTags) {
-                    like 'ontologyTermFullName', (term.fullName.asLikeLiteral() + '%')
-                } else {
-                    eq 'ontologyTermFullName', term.fullName
+            or {
+                ontologyTerms.each { OntologyTerm term ->
+                    if (includeDescendantsTags) {
+                        like 'ontologyTermFullName', (term.fullName.asLikeLiteral() + '%')
+                    } else {
+                        eq 'ontologyTermFullName', term.fullName
+                    }
                 }
             }
             order 'ontologyTermFullName'
