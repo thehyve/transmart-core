@@ -26,7 +26,8 @@ class I2b2ControlColumnsHelper {
 
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
-    private Date downloadDate = dateConverter?.parse(downloadDateString)
+    private Date downloadDate = downloadDateString ?
+            dateConverter?.parse(downloadDateString) : null
 
     @Value('#{jobExecution.startTime}')
     private Date jobStartTime
