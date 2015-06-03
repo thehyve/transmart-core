@@ -60,16 +60,22 @@ class TestDatabasePrepareConfiguration {
     @Bean
     Job testDatabasePrepareJob() {
         jobs.get('testDatabasePrepareJob')
-                .start(flow(null))
+                .start(flow(null, null))
                 .end()
                 .build()
     }
 
     @Bean
-    Flow flow(ObservationFactPKFixupTasklet observationFactPKFixupTasklet) {
+    Flow flow(ObservationFactPKFixupTasklet observationFactPKFixupTasklet,
+              MappingTablesFixupTasklet mappingTablesFixupTasklet) {
         def fixupObservationFactPKStep = steps
                 .get('fixupObservationFact')
                 .tasklet(observationFactPKFixupTasklet)
+                .build()
+
+        def mappingTablesFixupStep = steps
+                .get('mappingTablesFixup')
+                .tasklet(mappingTablesFixupTasklet)
                 .build()
 
         def truncateCodeLookupStep = steps
@@ -79,6 +85,7 @@ class TestDatabasePrepareConfiguration {
 
         new FlowBuilder<SimpleFlow>('fillTablesFlow')
                 .start(fixupObservationFactPKStep)
+                .next(mappingTablesFixupStep)
                 .next(truncateCodeLookupStep)
                 .next(loadModifierDimension())
                 .next(loadModifierMetadata())

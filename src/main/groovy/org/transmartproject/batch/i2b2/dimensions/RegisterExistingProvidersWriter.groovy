@@ -41,7 +41,7 @@ class RegisterExistingProvidersWriter implements ItemWriter<String> {
         items.eachWithIndex { String item, int index ->
             params[index] = item
         }
-        params[1] = providerPath
+        params[-1] = providerPath
 
         List<Map<String, Object>> result = jdbcTemplate.queryForList """
                 SELECT $PROVIDER_ID_COLUMN

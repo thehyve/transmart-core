@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  */
 @Component(value = 'tables')
 @JobScope
-public class I2b2Tables {
+class I2b2Tables {
 
     @Value("#{jobParameters['CRC_SCHEMA']}")
     private String crcSchema

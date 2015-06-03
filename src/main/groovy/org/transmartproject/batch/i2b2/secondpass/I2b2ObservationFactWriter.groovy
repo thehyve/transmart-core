@@ -28,11 +28,13 @@ class I2b2ObservationFactWriter implements ItemWriter<I2b2SecondPassRow> {
     @Value('#{tables.observationFact}')
     private SimpleJdbcInsert inserter
 
+    private boolean configured
+
     @Override
     void write(List<? extends I2b2SecondPassRow> items) throws Exception {
         log.trace("Inserting ${items.size()} rows")
 
-        List rows = []
+        List<Map<String, Object>> rows = []
         items.each { row ->
             row.factGroups.each { factGroup ->
                 rows << factToRow(row, factGroup, factGroup.conceptFact)
@@ -45,6 +47,12 @@ class I2b2ObservationFactWriter implements ItemWriter<I2b2SecondPassRow> {
             }
         }
 
+        // make sure it doesn't include not null columns with default values
+        // that we're not specifying
+        if (!configured) {
+            inserter.usingColumns(*(rows.first().keySet() as List))
+            configured = true
+        }
         int[] counts = inserter.executeBatch(rows as Map[])
         DatabaseUtil.checkUpdateCounts(counts,
                 "inserting in $inserter.tableName")

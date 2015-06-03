@@ -25,6 +25,9 @@ class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
     @Value("#{jobParameters['PATIENT_IDE_SOURCE']}")
     private String patientIdeSource
 
+    @Value("#{jobParameters['PROJECT_ID']}")
+    private String projectId
+
     @Autowired
     private I2b2ControlColumnsHelper i2b2ControlColumnsHelper
 
@@ -43,6 +46,7 @@ class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
 
         res = patientMappingInsert.executeBatch(
                 items.collect { [
+                        project_id: projectId,
                         patient_ide: it.externalId,
                         patient_ide_source: patientIdeSource,
                         patient_num: it.internalId as Long,

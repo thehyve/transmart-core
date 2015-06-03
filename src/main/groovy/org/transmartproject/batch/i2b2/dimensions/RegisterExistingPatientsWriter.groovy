@@ -20,12 +20,16 @@ import static org.transmartproject.batch.i2b2.variable.PatientDimensionI2b2Varia
 @Slf4j
 class RegisterExistingPatientsWriter implements ItemWriter<String> {
 
+    public static final String PROJECT_ID_COLUMN = 'project_id'
     public static final String PATIENT_EXTERNAL_ID_COLUMN = 'patient_ide'
     public static final String PATIENT_EXTERNAL_ID_SOURCE_COLUMN = 'patient_ide_source'
     public static final String PATIENT_INTERNAL_ID_COLUMN = 'patient_num'
 
     @Value("#{jobParameters['PATIENT_IDE_SOURCE']}")
     private String patientIdeSource
+
+    @Value("#{jobParameters['PROJECT_ID']}")
+    private String projectId
 
     @Autowired
     private JdbcTemplate jdbcTemplate
@@ -38,12 +42,13 @@ class RegisterExistingPatientsWriter implements ItemWriter<String> {
 
     @Override
     void write(List<? extends String> items) throws Exception {
-        Object[] params = new Object[items.size() + 1]
+        Object[] params = new Object[items.size() + 2]
 
         items.eachWithIndex { String item, int index ->
             params[index] = item
         }
-        params[-1] = patientIdeSource
+        params[-2] = patientIdeSource
+        params[-1] = projectId
 
         List<Map<String, Object>> result = jdbcTemplate.queryForList """
                 SELECT
@@ -52,7 +57,8 @@ class RegisterExistingPatientsWriter implements ItemWriter<String> {
                 FROM $patientMappingTable
                 WHERE
                     $PATIENT_EXTERNAL_ID_COLUMN IN (${items.collect { '?' }.join ', '})
-                    AND $PATIENT_EXTERNAL_ID_SOURCE_COLUMN = ?""",
+                    AND $PATIENT_EXTERNAL_ID_SOURCE_COLUMN = ?
+                    AND $PROJECT_ID_COLUMN = ?""",
                 params
 
         log.debug("Patient mappings: from ${items.size()} items, " +

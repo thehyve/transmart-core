@@ -21,6 +21,7 @@ import static org.transmartproject.batch.i2b2.variable.VisitDimensionI2b2Variabl
 @Slf4j
 class RegisterExistingVisitsWriter implements ItemWriter<String> {
 
+    public static final String PROJECT_ID_COLUMN = 'project_id'
     public static final String VISIT_EXTERNAL_ID_COLUMN = 'encounter_ide'
     public static final String VISIT_EXTERNAL_ID_SOURCE_COLUMN = 'encounter_ide_source'
     public static final String VISIT_INTERNAL_ID_COLUMN = 'encounter_num'
@@ -33,6 +34,9 @@ class RegisterExistingVisitsWriter implements ItemWriter<String> {
     @Value("#{jobParameters['PATIENT_IDE_SOURCE']}")
     private String patientIdeSource
 
+    @Value("#{jobParameters['PROJECT_ID']}")
+    private String projectId
+
     @Autowired
     private JdbcTemplate jdbcTemplate
 
@@ -44,12 +48,13 @@ class RegisterExistingVisitsWriter implements ItemWriter<String> {
 
     @Override
     void write(List<? extends String> items) throws Exception {
-        Object[] params = new Object[items.size() + 1]
+        Object[] params = new Object[items.size() + 2]
 
         items.eachWithIndex { String item, int index ->
             params[index] = item
         }
-        params[1] = visitIdeSource
+        params[-2] = visitIdeSource
+        params[-1] = projectId
 
         List<Map<String, Object>> result = jdbcTemplate.queryForList """
                 SELECT
@@ -60,7 +65,8 @@ class RegisterExistingVisitsWriter implements ItemWriter<String> {
                 FROM ${encounterMappingTable}
                 WHERE
                     $VISIT_EXTERNAL_ID_COLUMN IN (${items.collect { '?' }.join ', '})
-                    AND $VISIT_EXTERNAL_ID_SOURCE_COLUMN = ?""",
+                    AND $VISIT_EXTERNAL_ID_SOURCE_COLUMN = ?
+                    AND $PROJECT_ID_COLUMN = ?""",
                 params
 
         log.debug("Visit mappings: from ${items.size()} items, " +

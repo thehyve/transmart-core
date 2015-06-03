@@ -52,6 +52,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     private final Date downloadDate = sdf.parse('2014-03-30 18:00:00')
 
+    private static final String PROJECT_ID = 'test_project'
     private static final String PATIENT_IDE_SOURCE = 'Test data patient source'
 
     @ClassRule
@@ -84,7 +85,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
     void testPatientValues() {
         Map<String, Object> result = jdbcTemplate.queryForMap(
                 "SELECT patient_ide_source, sex_cd, religion_cd, " +
-                        "statecityzip_path, patient_blob, " +
+                        "statecityzip_path, patient_blob, project_id, " +
                         "${adminColumns.collect { "M.$it AS $it" }.join ', '} " +
                         "FROM ${Tables.PATIENT_MAPPING} M " +
                         "INNER JOIN ${Tables.PATIENT_DIMENSION} D ON (D.patient_num = M.patient_num) " +
@@ -92,6 +93,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
                 [patientIde: 'patient 1'])
 
         assertThat result, allOf(
+                hasEntry('project_id', PROJECT_ID),
                 hasEntry('patient_ide_source', PATIENT_IDE_SOURCE),
                 hasEntry('sex_cd', 'DEM|SEX:m'),
                 hasEntry('religion_cd', 'DEM|RELIGION:agnostic'),
@@ -113,7 +115,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
     @Test
     void testVisitValues() {
         Map<String, Object> result = jdbcTemplate.queryForMap(
-                "SELECT encounter_ide_source, patient_ide, patient_ide_source, " +
+                "SELECT encounter_ide_source, project_id, patient_ide, patient_ide_source, " +
                         "active_status_cd, start_date, end_date, length_of_stay, visit_blob, " +
                         "${adminColumns.collect { "M.$it AS $it" }.join ', '} " +
                         "FROM ${Tables.ENCOUNTER_MAPPING} M " +
@@ -123,6 +125,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
         assertThat result, allOf(
                 hasEntry('encounter_ide_source', ENCOUNTER_IDE_SOURCE),
+                hasEntry('project_id', PROJECT_ID),
                 hasEntry('patient_ide', 'patient 1'),
                 hasEntry('patient_ide_source', PATIENT_IDE_SOURCE),
                 hasEntry('active_status_cd', 'F'),

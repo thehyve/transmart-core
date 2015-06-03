@@ -23,13 +23,16 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
     public static final String DOWNLOAD_DATE      = 'DOWNLOAD_DATE'
     public static final String INCREMENTAL        = 'INCREMENTAL'
     public static final String CRC_SCHEMA         = 'CRC_SCHEMA'
+    public static final String PROJECT_ID         = 'PROJECT_ID'
 
     public static final int MAX_SIZE_OF_SOURCE_SYSTEM = 50
     public static final int MAX_SIZE_OF_IDE_SOURCE = 50
     public static final int MAX_SIZE_OF_PROVIDER_PATH = 700
+    public static final int MAX_SIZE_OF_PROJECT_ID = 50
 
     public static final String DUMMY_IDE_SOURCE = 'UNSPECIFIED'
     private static final String DEFAULT_CRC_SCHEMA = 'i2b2demodata'
+    private static final String DEFAULT_PROJECT_ID = 'default'
 
     final Set<String> supportedParameters = ImmutableSet.of(
             COLUMN_MAP_FILE,
@@ -42,6 +45,7 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
             DOWNLOAD_DATE,
             INCREMENTAL,
             CRC_SCHEMA,
+            PROJECT_ID,
     )
 
     @Override
@@ -51,6 +55,7 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
         checkSize(ejp, VISIT_IDE_SOURCE, MAX_SIZE_OF_IDE_SOURCE)
         checkSize(ejp, PATIENT_IDE_SOURCE, MAX_SIZE_OF_IDE_SOURCE)
         checkSize(ejp, PROVIDER_PATH, MAX_SIZE_OF_PROVIDER_PATH)
+        checkSize(ejp, PROJECT_ID, MAX_SIZE_OF_PROJECT_ID)
 
         if (ejp[DATE_FORMAT] != null) {
             try {
@@ -102,6 +107,10 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
 
         if (ejp[CRC_SCHEMA] == null) {
             ejp[CRC_SCHEMA] = DEFAULT_CRC_SCHEMA
+        }
+
+        if (ejp[PROJECT_ID] == null) {
+            ejp[PROJECT_ID] = DEFAULT_PROJECT_ID
         }
 
         ejp.mungeBoolean(INCREMENTAL, false)
