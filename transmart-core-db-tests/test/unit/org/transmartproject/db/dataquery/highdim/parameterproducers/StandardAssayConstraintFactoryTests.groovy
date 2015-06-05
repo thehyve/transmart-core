@@ -25,13 +25,13 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryResultInstance

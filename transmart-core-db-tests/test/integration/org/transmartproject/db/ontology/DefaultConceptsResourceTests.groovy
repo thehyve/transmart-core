@@ -22,9 +22,9 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat

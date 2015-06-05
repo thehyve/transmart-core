@@ -25,7 +25,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.core.concept.ConceptKey
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
 abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
