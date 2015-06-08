@@ -20,7 +20,7 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.core.concept.ConceptKey
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.FOLDER
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF

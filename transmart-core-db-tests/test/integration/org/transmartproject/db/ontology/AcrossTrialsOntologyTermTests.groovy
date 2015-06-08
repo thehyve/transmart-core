@@ -23,8 +23,8 @@ import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
 import org.thehyve.commons.test.FastMatchers
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
