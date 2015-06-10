@@ -1,6 +1,6 @@
 package org.transmartproject.core.dataquery.clinical
 
-import org.transmartproject.core.doc.Experimental
+import org.transmartproject.core.concept.ConceptKey
 
 public interface ClinicalVariable {
 
@@ -84,4 +84,10 @@ public interface ClinicalVariable {
      * or {@link BigDecimal}.
      */
     public final static String NORMALIZED_LEAFS_VARIABLE = 'normalized_leafs_variable'
+
+    /**
+     * @return the concept key. See {@link org.transmartproject.core.ontology.OntologyTerm#getKey()}
+     */
+    public ConceptKey getKey()
+
 }
