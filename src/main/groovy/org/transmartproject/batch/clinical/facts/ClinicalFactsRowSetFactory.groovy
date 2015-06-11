@@ -16,6 +16,7 @@ import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 
+
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
  *
@@ -98,16 +99,14 @@ class ClinicalFactsRowSetFactory {
         } else { // the concept does already exist (ie not first record)
             conceptType = concept.type
 
-            //if the conceptType is detected here (not specified in columns file )check if the current conceptType is the same as the one detected on the first record
-            if(var.conceptType == null)
-            {
             boolean curValIsNumerical = value.isDouble()
 
             if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
-                    throw new IllegalArgumentException("Variable $var inferred " +
-                            "numerical, but got value '$value'" + String.valueOf(value.length()) +"patient " +  String.valueOf(result.patient.id) + var.dataLabel)
+                throw new IllegalArgumentException("Variable $var inferred or specified " +
+                        "numerical, but got value '$value'. Patient id: " +
+                        "${result.patient.id}.")
             }
-        }
+
         }
 
         // we need a subnode if the variable is categorical

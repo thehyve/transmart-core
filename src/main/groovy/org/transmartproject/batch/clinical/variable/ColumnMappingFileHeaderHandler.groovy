@@ -29,7 +29,7 @@ class ColumnMappingFileHeaderHandler
                     "accepted, but the 5th and 6th columns will be ignored")
         } else {
             throw new ParseException("Expected the column mapping file " +
-                    "header to have either 4 or 6 columns. " +
+                    "header to have either 4, 6 or 7 columns. " +
                     "Got ${values} (size ${values.size()})")
         }
 
