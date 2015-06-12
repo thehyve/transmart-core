@@ -3,7 +3,7 @@ package org.transmartproject.rest.marshallers
 import grails.rest.Link
 
 /**
- *
+ * Abstract impl of HalOrJsonSerializationHelper, just to implement common defaults and absorb future interface changes
  */
 abstract class AbstractHalOrJsonSerializationHelper<T> implements HalOrJsonSerializationHelper<T> {
 

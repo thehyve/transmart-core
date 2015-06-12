@@ -60,7 +60,11 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
         json.value mapRepresentation
     }
 
-    Map<String, Object> getLinks(Object object) {
+    /**
+     * @param object
+     * @return map of relationship to link value. Value is either a Link (simple) or a List<Link> (aggregated)
+     */
+    private Map<String, Object> getLinks(Object object) {
 
         Map<String, Object> result = [:]
         Map<String, List<Link>> grouped = serializationHelper.getLinks(object).groupBy { it.rel }
@@ -78,7 +82,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
         result
     }
 
-    Map<String, Object> convertLink(Link link) {
+    private Map<String, Object> convertLink(Link link) {
         def res = [(HREF_ATTRIBUTE): link.href]
         if (link.hreflang) {
             res[HREFLANG_ATTRIBUTE] = link.hreflang
@@ -98,7 +102,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
         res
     }
 
-    void segregateEmbedded(Map<String, Object> map, Object originalObject) {
+    private void segregateEmbedded(Map<String, Object> map, Object originalObject) {
         def embedded = serializationHelper.
                 getEmbeddedEntities(originalObject).
                 collectEntries {

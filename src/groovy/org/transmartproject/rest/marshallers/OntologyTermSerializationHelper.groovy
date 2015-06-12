@@ -26,6 +26,8 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.StudyLoadingService
@@ -82,8 +84,9 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
         if (term.level < 2) {
             return null
         }
-        def idx = term.key.lastIndexOf(term.name) - 1
-        def key = term.key.substring(0, idx)
+
+        def currentKey = new ConceptKey(term.key)
+        def key = new ConceptKey(currentKey.tableCode, new ConceptFullName(term.fullName).parent.toString()).toString()
         conceptsResourceService.getByKey(key)
     }
 
