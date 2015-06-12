@@ -214,7 +214,11 @@ class NavigationLinksMatcher extends DiagnosingMatcher<JSONObject> {
 
         boolean result = selfLinkMatcher.matches(self, mismatchDescription)
 
-        if (result && parentLinkMatcher) {
+        if (!result) {
+            return false
+        }
+
+        if (parentLinkMatcher) {
             JSONObject parent = links.getJSONObject('parent')
             if (!parent) {
                 mismatchDescription.appendText("no 'parent' was found")
@@ -224,21 +228,23 @@ class NavigationLinksMatcher extends DiagnosingMatcher<JSONObject> {
             }
         }
 
-        if (result) {
-            def hasChildren = links.has('children')
+        if (!result) {
+            return false
+        }
 
-            if (childrenMatcher) {
-                if (hasChildren) {
-                    JSONArray children = links.getJSONArray('children')
-                    result = childrenMatcher.matches(children)
-                } else {
-                    mismatchDescription.appendText("no 'children' was found")
-                    result = false
-                }
-            } else if (hasChildren) {
-                mismatchDescription.appendText("not expected 'children' was found")
+        def hasChildren = links.has('children')
+
+        if (childrenMatcher) {
+            if (hasChildren) {
+                JSONArray children = links.getJSONArray('children')
+                result = childrenMatcher.matches(children)
+            } else {
+                mismatchDescription.appendText("no 'children' was found")
                 result = false
             }
+        } else if (hasChildren) {
+            mismatchDescription.appendText("not expected 'children' was found")
+            result = false
         }
 
         return result
