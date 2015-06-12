@@ -33,7 +33,7 @@ import javax.annotation.Resource
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
-class HighDimSummarySerializationHelper implements HalOrJsonSerializationHelper<HighDimSummary> {
+class HighDimSummarySerializationHelper extends AbstractHalOrJsonSerializationHelper<HighDimSummary> {
 
     @Resource
     StudyLoadingService studyLoadingServiceProxy
@@ -58,11 +58,6 @@ class HighDimSummarySerializationHelper implements HalOrJsonSerializationHelper<
     @Override
     Map<String, Object> convertToMap(HighDimSummary object) {
         getPropertySubsetForSuperType(object, HighDimSummary, ['conceptWrapper','class'] as Set)
-    }
-
-    @Override
-    Set<String> getEmbeddedEntities(HighDimSummary object) {
-        return [] as Set
     }
 
     static String getHighDimIndexUrl(String conceptUrl) {

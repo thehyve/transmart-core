@@ -53,15 +53,29 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
                 serializationHelper.convertToMap(object)
 
         if (json.contentType.contains('hal')) {
-            mapRepresentation[LINKS_ATTRIBUTE] =
-                    serializationHelper.getLinks(object).collectEntries {
-                        [it.rel, convertLink(it)]
-                    }
-
+            mapRepresentation[LINKS_ATTRIBUTE] = getLinks(object)
             segregateEmbedded mapRepresentation, object
         }
 
         json.value mapRepresentation
+    }
+
+    Map<String, Object> getLinks(Object object) {
+
+        Map<String, Object> result = [:]
+        Map<String, List<Link>> grouped = serializationHelper.getLinks(object).groupBy { it.rel }
+
+        grouped.each {
+            key, list ->
+                if (serializationHelper.aggregatedLinkRelations.contains(key)) {
+                    result.put(key, list.collect { convertLink(it)} )
+                } else {
+                    //only the first element will be picked. Its not supposed to have more than one anyway
+                    result.put(key, convertLink(list.get(0)))
+                }
+        }
+
+        result
     }
 
     Map<String, Object> convertLink(Link link) {

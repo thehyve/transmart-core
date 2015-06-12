@@ -25,9 +25,7 @@
 
 package org.transmartproject.rest.marshallers
 
-import grails.rest.Link
-
-class ObservationSerializationHelper implements HalOrJsonSerializationHelper<ObservationWrapper> {
+class ObservationSerializationHelper extends AbstractHalOrJsonSerializationHelper<ObservationWrapper> {
 
     final Class targetType = ObservationWrapper
 
@@ -45,11 +43,6 @@ class ObservationSerializationHelper implements HalOrJsonSerializationHelper<Obs
     @Override
     Set<String> getEmbeddedEntities(ObservationWrapper observation) {
         ['subject'] as Set
-    }
-
-    @Override
-    Collection<Link> getLinks(ObservationWrapper observation) {
-        [] as Collection
     }
 
     static String getObservationsIndexUrl(String baseUrl) {

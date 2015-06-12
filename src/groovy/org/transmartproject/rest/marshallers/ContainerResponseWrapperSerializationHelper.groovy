@@ -29,7 +29,7 @@ import grails.rest.Link
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 
-class ContainerResponseWrapperSerializationHelper implements HalOrJsonSerializationHelper<ContainerResponseWrapper> {
+class ContainerResponseWrapperSerializationHelper extends AbstractHalOrJsonSerializationHelper<ContainerResponseWrapper> {
 
     @Autowired
     ApplicationContext ctx

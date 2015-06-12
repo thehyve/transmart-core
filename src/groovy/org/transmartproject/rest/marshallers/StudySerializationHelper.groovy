@@ -30,7 +30,7 @@ import org.transmartproject.core.ontology.Study
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
-class StudySerializationHelper implements HalOrJsonSerializationHelper<Study> {
+class StudySerializationHelper extends AbstractHalOrJsonSerializationHelper<Study> {
 
     final Class targetType = Study
 

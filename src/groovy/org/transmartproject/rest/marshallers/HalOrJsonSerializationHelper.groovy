@@ -33,6 +33,8 @@ interface HalOrJsonSerializationHelper<T> {
 
     Collection<Link> getLinks(T object)
 
+    Set<String> getAggregatedLinkRelations()
+
     Map<String, Object> convertToMap(T object)
 
     Set<String> getEmbeddedEntities(T object)
