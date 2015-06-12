@@ -324,8 +324,8 @@ grails { plugin { springsecurity {
     } else {
         securityConfigType = 'InterceptUrlMap'
         def oauthEndpoints = [
-            '/oauth/authorize.dispatch'   : ['IS_AUTHENTICATED_REMEMBERED'],
-            '/oauth/token.dispatch'       : ['IS_AUTHENTICATED_REMEMBERED'],
+              '/oauth/authorize.dispatch': ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"],
+              '/oauth/token.dispatch':     ["isFullyAuthenticated() and request.getMethod().equals('POST')"],
         ]
         interceptUrlMap = [
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
@@ -367,9 +367,68 @@ grails { plugin { springsecurity {
     if (oauthEnabled) {
         providerNames << 'clientCredentialsAuthenticationProvider'
 
+        def securedResourcesFilters = [
+                'JOINED_FILTERS',
+                '-securityContextPersistenceFilter',
+                '-logoutFilter',
+                '-rememberMeAuthenticationFilter',
+                '-basicAuthenticationFilter',
+                '-exceptionTranslationFilter',
+        ].join(',')
+
+        filterChain.chainMap = [
+                '/oauth/token': [
+                        'JOINED_FILTERS',
+                        '-oauth2ProviderFilter',
+                        '-securityContextPersistenceFilter',
+                        '-logoutFilter',
+                        '-rememberMeAuthenticationFilter',
+                        '-exceptionTranslationFilter',
+                ].join(','),
+                '/studies/**': securedResourcesFilters,
+                '/observations/**': securedResourcesFilters,
+                '/patient_sets/**': securedResourcesFilters,
+                '/oauth/inspectToken': securedResourcesFilters,
+                '/**': [
+                        'JOINED_FILTERS',
+                        '-statelessSecurityContextPersistenceFilter',
+                        '-oauth2ProviderFilter',
+                        '-clientCredentialsTokenEndpointFilter',
+                        '-basicAuthenticationFilter',
+                        '-oauth2ExceptionTranslationFilter'
+                ].join(','),
+        ]
+
+        grails.exceptionresolver.params.exclude = ['password', 'client_secret']
+
+        def glowingBearRedirectUris = [
+                transmartURL - ~/transmart\/$/ + '#/login',
+        ]
+        if (transmartURL.startsWith('http://localhost:')) {
+            // for dev, node reverse proxy runs on 8001
+            glowingBearRedirectUris << 'http://localhost:8001/#/login'
+        }
         oauthProvider {
+            authorization.requireRegisteredRedirectUri = true
+            authorization.requireScope = false
+
             clients = [
-                    [clientId: 'api-client', clientSecret: 'api-client']
+                    [
+                        clientId: 'api-client',
+                        clientSecret: 'api-client',
+                        authorities: ['ROLE_CLIENT'],
+                        scopes: ['read', 'write'],
+                        authorizedGrantTypes: ['authorization_code', 'refresh_token'],
+                        redirectUris: [transmartURL + 'oauth/verify']
+                    ],
+                    [
+                        clientId: 'glowingbear-js',
+                        clientSecret: '',
+                        authorities: ['ROLE_CLIENT'],
+                        scopes: ['read', 'write'],
+                        authorizedGrantTypes: ['implicit', 'password'],
+                        redirectUris: glowingBearRedirectUris,
+                    ],
             ]
         }
     }
