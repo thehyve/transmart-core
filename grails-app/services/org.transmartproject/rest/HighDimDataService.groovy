@@ -32,6 +32,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.rest.protobuf.HighDimBuilder
 
 class HighDimDataService {
@@ -59,7 +60,10 @@ class HighDimDataService {
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
-        String proj = projectionName ?: getDefaultProjectionFor(dataType, typeResource.supportedProjections)
+        String proj = projectionName ?: getDefaultProjectionFor(typeResource.supportedProjections)
+        if (!proj) {
+            throw new InvalidArgumentsException("Projection needs to be specified for $dataType")
+        }
 
         Projection projection = typeResource.createProjection(proj)
 
@@ -109,12 +113,12 @@ class HighDimDataService {
      * @param supportedProjections
      * @return
      */
-    private static String getDefaultProjectionFor(String dataType, Set<String> supportedProjections) {
+    private static String getDefaultProjectionFor(Set<String> supportedProjections) {
         if (Projection.DEFAULT_REAL_PROJECTION in supportedProjections) {
-            return Projection.DEFAULT_REAL_PROJECTION
-        } else {
-            return supportedProjections.first()
-        }
+            Projection.DEFAULT_REAL_PROJECTION
+        } else if (Projection.ALL_DATA_PROJECTION in supportedProjections) {
+            Projection.ALL_DATA_PROJECTION
+        } // else null
     }
 
     Projection getProjection(String dataType, String name) {
