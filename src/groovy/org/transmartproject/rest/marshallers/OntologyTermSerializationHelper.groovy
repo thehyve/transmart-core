@@ -26,6 +26,9 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.StudyLoadingService
 
@@ -33,18 +36,26 @@ import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
-class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<OntologyTermWrapper> {
+class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelper<OntologyTermWrapper> {
 
     @Resource
     StudyLoadingService studyLoadingServiceProxy
+
+    @Resource
+    ConceptsResource conceptsResourceService
 
     final Class targetType = OntologyTermWrapper
 
     final String collectionName = 'ontology_terms'
 
+    public static final RELATIONSHIP_CHILDREN = "children"
+
     @Override
     Collection<Link> getLinks(OntologyTermWrapper obj) {
         String url = studyLoadingServiceProxy.getOntologyTermUrl(obj.delegate)
+
+        List<Link> result = []
+        result.add(new Link(RELATIONSHIP_SELF, url))
 
         Link datalink
         if (obj.isHighDim()) {
@@ -53,11 +64,30 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
             datalink = new Link('observations', ObservationSerializationHelper.getObservationsIndexUrl(url))
         }
 
-        [
-                // TODO add other relationships (children, parent, ...)
-                new Link(RELATIONSHIP_SELF, url),
-                datalink
-        ]
+        result.add(datalink)
+
+        OntologyTerm concept = obj.delegate
+        for (OntologyTerm ot: concept.children) {
+            Link link = new Link(RELATIONSHIP_CHILDREN, studyLoadingServiceProxy.getOntologyTermUrl(ot))
+            link.setTitle(ot.name)
+            result.add(link)
+        }
+
+        def parent = getParent(concept)
+        if (parent) {
+            result.add(new Link("parent", studyLoadingServiceProxy.getOntologyTermUrl(parent)))
+        }
+        result
+    }
+
+    private OntologyTerm getParent(OntologyTerm term) {
+        if (term.level < 2) {
+            return null
+        }
+
+        def currentKey = new ConceptKey(term.key)
+        def key = new ConceptKey(currentKey.tableCode, new ConceptFullName(term.fullName).parent.toString()).toString()
+        conceptsResourceService.getByKey(key)
     }
 
     @Override
@@ -71,8 +101,9 @@ class OntologyTermSerializationHelper implements HalOrJsonSerializationHelper<On
     }
 
     @Override
-    Set<String> getEmbeddedEntities(OntologyTermWrapper object) {
-        [] as Set
+    Set<String> getAggregatedLinkRelations() {
+        [RELATIONSHIP_CHILDREN] as Set
     }
+
 
 }

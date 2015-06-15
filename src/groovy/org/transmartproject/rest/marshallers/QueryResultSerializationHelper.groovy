@@ -9,7 +9,7 @@ import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropert
 /**
  * Serialization of {@link QueryResult} objects.
  */
-class QueryResultSerializationHelper implements HalOrJsonSerializationHelper<QueryResult> {
+class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelper<QueryResult> {
 
     final Class<QueryResult> targetType = QueryResult
 

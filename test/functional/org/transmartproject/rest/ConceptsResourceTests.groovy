@@ -25,6 +25,10 @@
 
 package org.transmartproject.rest
 
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
+import org.hamcrest.Description
+import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -50,8 +54,8 @@ class ConceptsResourceTests extends ResourceTestCase {
 
     def longConceptName = 'with%some$characters_'
     def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
-    def longConceptKey  = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl  = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_'
+    def longConceptKey = "\\\\i2b2 main$longConceptPath"
+    def longConceptUrl = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_'
 
     def study2ConceptListUrl = '/studies/study_id_2/concepts'
 
@@ -60,7 +64,7 @@ class ConceptsResourceTests extends ResourceTestCase {
         assertStatus 200
 
         assertThat result, hasEntry(is('ontology_terms'),
-            contains(jsonConceptResponse())
+                contains(jsonConceptResponse())
         )
     }
 
@@ -75,7 +79,7 @@ class ConceptsResourceTests extends ResourceTestCase {
                                 halConceptResponse()
                         )]
 
-        )
+                )
     }
 
     void testShowAsJson() {
@@ -101,7 +105,7 @@ class ConceptsResourceTests extends ResourceTestCase {
         def result = getAsHal rootConceptUrl
         assertStatus 200
 
-       assertThat result, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
+        assertThat result, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
     }
 
     void testPathOfLongConcept() {
@@ -119,11 +123,23 @@ class ConceptsResourceTests extends ResourceTestCase {
 
         assertStatus 200
         assertThat result, is(halConceptResponse(
-                                longConceptKey,
-                                longConceptName,
-                                longConceptPath,
-                                longConceptUrl,
-                                false))
+                longConceptKey,
+                longConceptName,
+                longConceptPath,
+                longConceptUrl,
+                false))
+    }
+
+    void testNavigableConceptRoot() {
+        def result = getAsHal rootConceptUrl
+        assertStatus 200
+        assertThat result, NavigationLinksMatcher.hasNavigationLinks(rootConceptUrl, null, 'bar')
+    }
+
+    void testNavigableConceptLeaf() {
+        def result = getAsHal conceptUrl
+        assertStatus 200
+        assertThat result, NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,
@@ -153,6 +169,143 @@ class ConceptsResourceTests extends ResourceTestCase {
                 jsonConceptResponse(key, name, fullName),
                 hasLinks(links),
         )
+    }
+
+}
+
+class NavigationLinksMatcher extends DiagnosingMatcher<JSONObject> {
+
+    Matcher selfLinkMatcher
+    Matcher parentLinkMatcher
+    Matcher childrenMatcher
+
+    static NavigationLinksMatcher hasNavigationLinks(String selfLink,
+                                                     String parentLink,
+                                                     String... children) {
+
+        def slm = LinkMatcher.hasLink(selfLink, null)
+        def plm = parentLink ? LinkMatcher.hasLink(parentLink, null) : null
+
+        def baseUrl = selfLink.endsWith('ROOT') ? selfLink.substring(0, selfLink.indexOf('/ROOT')) : selfLink
+        List<Matcher> childrenMatchers = children.collect {
+            LinkMatcher.hasLink("$baseUrl/$it", it)
+        }
+
+        def cm = childrenMatchers.isEmpty() ? null : containsInAnyOrder(childrenMatchers.collect { it })
+
+        new NavigationLinksMatcher(selfLinkMatcher: slm, parentLinkMatcher: plm, childrenMatcher: cm)
+    }
+
+    @Override
+    protected boolean matches(Object item, Description mismatchDescription) {
+
+        JSONObject obj = item
+        if (!obj.has('_links')) {
+            mismatchDescription.appendText("no '_links' was found")
+            return false
+        }
+        JSONObject links = obj.getJSONObject('_links')
+
+        JSONObject self = links.getJSONObject('self')
+        if (!self) {
+            mismatchDescription.appendText("no 'self' was found")
+            return false
+        }
+
+        boolean result = selfLinkMatcher.matches(self, mismatchDescription)
+
+        if (!result) {
+            return false
+        }
+
+        if (parentLinkMatcher) {
+            JSONObject parent = links.getJSONObject('parent')
+            if (!parent) {
+                mismatchDescription.appendText("no 'parent' was found")
+                result = false
+            } else {
+                result = parentLinkMatcher.matches(parent, mismatchDescription)
+            }
+        }
+
+        if (!result) {
+            return false
+        }
+
+        def hasChildren = links.has('children')
+
+        if (childrenMatcher) {
+            if (hasChildren) {
+                JSONArray children = links.getJSONArray('children')
+                result = childrenMatcher.matches(children)
+            } else {
+                mismatchDescription.appendText("no 'children' was found")
+                result = false
+            }
+        } else if (hasChildren) {
+            mismatchDescription.appendText("not expected 'children' was found")
+            result = false
+        }
+
+        return result
+    }
+
+    @Override
+    void describeTo(Description description) {
+        description.appendText("'self' with ")
+        selfLinkMatcher.describeTo(description)
+        if (parentLinkMatcher) {
+            description.appendText(" and 'parent' with ")
+            parentLinkMatcher.describeTo(description)
+        }
+        if (childrenMatcher) {
+            description.appendText(" and 'children' with ")
+            childrenMatcher.describeTo(description)
+        }
+    }
+}
+
+class LinkMatcher extends DiagnosingMatcher<JSONObject> {
+
+    String expectedUrl
+    String expectedTitle
+
+    static LinkMatcher hasLink(String url, String title) {
+        new LinkMatcher(expectedUrl: url, expectedTitle: title)
+    }
+
+    @Override
+    protected boolean matches(Object item, Description mismatchDescription) {
+
+        JSONObject obj = item
+        String url = obj.get('href')
+
+        if (expectedUrl != url) {
+            mismatchDescription.appendText("link href did not match:")
+            mismatchDescription.appendText(" expecting ").appendValue(expectedUrl)
+            mismatchDescription.appendText(" was ").appendValue(url)
+            return false
+        }
+
+        if (expectedTitle) {
+            String title = obj.get('title')
+            if (expectedTitle != title) {
+                mismatchDescription.appendText("link title did not match:")
+                mismatchDescription.appendText(" expecting ").appendValue(expectedTitle)
+                mismatchDescription.appendText(" was ").appendValue(title)
+                return false
+            }
+        }
+
+        return true
+    }
+
+    @Override
+    void describeTo(Description description) {
+        description.appendText('link with href ').appendValue(expectedUrl)
+        if (expectedTitle) {
+            description.appendText(' and with title ').appendValue(expectedTitle)
+        }
     }
 
 }

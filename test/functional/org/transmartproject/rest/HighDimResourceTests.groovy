@@ -108,7 +108,7 @@ class HighDimResourceTests extends ResourceTestCase {
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, dataColumns)
     }
 
-    void testAcgh() {
+    void ignored_testAcgh() {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh'))
         Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, dataColumns)

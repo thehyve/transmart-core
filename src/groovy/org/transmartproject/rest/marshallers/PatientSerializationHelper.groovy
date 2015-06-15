@@ -27,14 +27,11 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.rest.StudyLoadingService
-
-import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
-class PatientSerializationHelper implements HalOrJsonSerializationHelper<Patient> {
+class PatientSerializationHelper extends AbstractHalOrJsonSerializationHelper<Patient> {
 
     final Class targetType = Patient
 
@@ -59,8 +56,4 @@ class PatientSerializationHelper implements HalOrJsonSerializationHelper<Patient
         result
     }
 
-    @Override
-    Set<String> getEmbeddedEntities(Patient patient) {
-        [] as Set
-    }
 }

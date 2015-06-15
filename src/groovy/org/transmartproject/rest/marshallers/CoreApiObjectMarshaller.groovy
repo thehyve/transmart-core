@@ -53,18 +53,36 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
                 serializationHelper.convertToMap(object)
 
         if (json.contentType.contains('hal')) {
-            mapRepresentation[LINKS_ATTRIBUTE] =
-                    serializationHelper.getLinks(object).collectEntries {
-                        [it.rel, convertLink(it)]
-                    }
-
+            mapRepresentation[LINKS_ATTRIBUTE] = getLinks(object)
             segregateEmbedded mapRepresentation, object
         }
 
         json.value mapRepresentation
     }
 
-    Map<String, Object> convertLink(Link link) {
+    /**
+     * @param object
+     * @return map of relationship to link value. Value is either a Link (simple) or a List<Link> (aggregated)
+     */
+    private Map<String, Object> getLinks(Object object) {
+
+        Map<String, Object> result = [:]
+        Map<String, List<Link>> grouped = serializationHelper.getLinks(object).groupBy { it.rel }
+
+        grouped.each {
+            key, list ->
+                if (serializationHelper.aggregatedLinkRelations.contains(key)) {
+                    result.put(key, list.collect { convertLink(it)} )
+                } else {
+                    //only the first element will be picked. Its not supposed to have more than one anyway
+                    result.put(key, convertLink(list.get(0)))
+                }
+        }
+
+        result
+    }
+
+    private Map<String, Object> convertLink(Link link) {
         def res = [(HREF_ATTRIBUTE): link.href]
         if (link.hreflang) {
             res[HREFLANG_ATTRIBUTE] = link.hreflang
@@ -84,7 +102,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
         res
     }
 
-    void segregateEmbedded(Map<String, Object> map, Object originalObject) {
+    private void segregateEmbedded(Map<String, Object> map, Object originalObject) {
         def embedded = serializationHelper.
                 getEmbeddedEntities(originalObject).
                 collectEntries {
