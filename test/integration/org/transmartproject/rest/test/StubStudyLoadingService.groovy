@@ -49,7 +49,10 @@ class StubStudyLoadingService extends StudyLoadingService {
                             getFullName: { -> '\\' + getComponents(key, 3, -1) + '\\' },
                             getKey: { -> key },
                             getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)},
-                            getStudy: { -> study }
+                            getStudy: { -> study },
+                            getChildren: { -> [] },
+                            getLevel: { -> 0 } //just to make sure we have no parent
+                            //getLevel: { -> key.split('\\\\').length }
                     ] as OntologyTerm
                 }
         ] as Study
