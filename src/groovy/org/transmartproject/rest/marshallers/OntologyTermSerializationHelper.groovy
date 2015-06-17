@@ -30,6 +30,8 @@ import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermTag
+import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.rest.StudyLoadingService
 
 import javax.annotation.Resource
@@ -43,6 +45,9 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
 
     @Resource
     ConceptsResource conceptsResourceService
+
+    @Resource
+    OntologyTermTagsResource tagsResource
 
     final Class targetType = OntologyTermWrapper
 
@@ -93,11 +98,21 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
     @Override
     Map<String, Object> convertToMap(OntologyTermWrapper obj) {
         OntologyTerm term = obj.delegate
-        [
+        def result =
+            [
                 name:     term.name,
                 key:      term.key,
                 fullName: term.fullName,
-        ]
+            ]
+
+        Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags([term] as Set, false)
+        List<OntologyTermTag> tags = map.get(term)
+
+        if (tags && tags.size() > 0) {
+            result.put('metadata', tags.collectEntries { [(it.name): it.description ] })
+        }
+
+        result
     }
 
     @Override
