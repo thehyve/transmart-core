@@ -27,8 +27,8 @@
                             </g:if>
                             <g:elseif test="${amTagItem.tagItemSubtype == 'MULTIPICKLIST'}">
                                 <g:set var="metaDataService" bean="metaDataService"/>
-                                <g:set var="fieldValue" value="${fieldValue(bean:bioDataObject,field:amTagItem.tagItemAttr)}"/>
-                                <g:set var="displayValues" value="${metaDataService.getViewValues(fieldValue)}"/>
+                                <g:set var="fValue" value="${fieldValue(bean:bioDataObject,field:amTagItem.tagItemAttr)}"/>
+                                <g:set var="displayValues" value="${metaDataService.getViewValues(fValue)}"/>
                                 <g:render template="extTagSearchField" plugin="folderManagement"
                                           model="${[fieldName:amTagItem.tagItemAttr, codeTypeName:amTagItem.codeTypeName,
                                                     searchAction:'extSearch', searchController:'metaData', values:displayValues]}"/>
