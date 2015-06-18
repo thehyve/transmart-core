@@ -91,10 +91,9 @@ class StudyLoadingService {
 
     /**
      * @param term ontology term
-     * @return url for given ontology term and current study
+     * @return url for given ontology term and request study or concept study
      */
     String getOntologyTermUrl(OntologyTerm term) {
-        //this gets tricky. We may be rendering this as part of the /studies response
         String studyId
         def pathPart
 
@@ -104,12 +103,16 @@ class StudyLoadingService {
                 pathPart = term.encodeAsURLPart study
             }
         } catch (InvalidArgumentsException iae) {
-            /* studyId not in params; so we are handling a study, which
-             * is mapped to $id (can we rename the param to $studyId
-             * for consistency?)
-             */
+            //studyId not in params: either /studies or a study controller
             studyId = term.study.id
-            pathPart = 'ROOT'
+            if (term.level == 1) {
+                //we are handling a study, which is mapped to $id (can we rename the param to $studyId for consistency?)
+                pathPart = 'ROOT'
+            } else {
+                use (OntologyTermCategory) {
+                    pathPart = term.encodeAsURLPart term.study
+                }
+            }
         }
         studyId = studyId.toLowerCase(Locale.ENGLISH).encodeAsURL()
         "/studies/$studyId/concepts/$pathPart"

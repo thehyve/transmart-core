@@ -25,12 +25,13 @@
 
 package org.transmartproject.rest
 
-import com.grailsrocks.functionaltest.APITestCase
-
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class StudiesResourceTests extends APITestCase {
+class StudiesResourceTests extends ResourceTestCase {
+
+    def childLinkHrefPath = '_embedded.ontologyTerm._links.children[0].href'
+    def expectedChildLinkHrefValue = '/studies/study_id_1/concepts/bar'
 
     void testListAllStudies() {
         get("${baseURL}studies")
@@ -78,6 +79,20 @@ class StudiesResourceTests extends APITestCase {
                 ))
         )
     }
+
+    void testListStudiesChildLink() {
+        def path = "_embedded.studies[0].$childLinkHrefPath"
+        def result = getAsHal '/studies'
+        assertStatus 200
+        assertThat result, JsonMatcher.matching(path, is(expectedChildLinkHrefValue))
+    }
+
+    void testGetStudyChildLink() {
+        def result = getAsHal '/studies/study_id_1'
+        assertStatus 200
+        assertThat result, JsonMatcher.matching(childLinkHrefPath, is(expectedChildLinkHrefValue))
+    }
+
 
     /*FIXME Response contains null as content
     void testGetNonExistentStudy() {
