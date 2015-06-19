@@ -41,4 +41,13 @@ environments {
     }
 }
 
+// for old versions that don't specify this in the in-tree one
+if (hibernate.cache.region.factory_class != 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory') {
+    hibernate {
+        cache.use_query_cache        = true
+        cache.use_second_level_cache = true
+        cache.provider_class         = 'org.hibernate.cache.EhCacheProvider'
+    }
+}
+
 // vim: set ts=4 sw=4 et:
