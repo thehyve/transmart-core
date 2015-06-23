@@ -20,6 +20,7 @@ class GWASController {
     def searchKeywordService
     def springSecurityService
     //def i2b2HelperService
+    def gwasWebService
 
     def index = {
         //render(view: "index", plugin: "transmartGwas")
@@ -945,8 +946,8 @@ class GWASController {
 
         def studyWithResultsFound = false
         def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
-        //   def secObjs=i2b2HelperService.getExperimentSecureStudyList()
-        //  secObjs.each{ k, v -> log.debug( "${k}:${v}") }
+        def secObjs=getExperimentSecureStudyList()
+        //secObjs.each{ k, v -> log.debug( "${k}:${v}") }
         for (studyId in studyCounts.keys().sort()) {
 
             def c = studyCounts[studyId].toInteger()
@@ -964,19 +965,19 @@ class GWASController {
                 if (experiment == null) {
                     log.warn "Unable to find an experiment for ${expNumber}"
                 } else {
-/*				  if(secObjs.containsKey(experiment.accession)){
-					  if(!i2b2HelperService.getGWASAccess(experiment.accession, user).equals("Locked")){
-						  exprimentAnalysis.put((experiment), c)
-     					   total += c
-					  }
-				   else {
-					   log.warn "Restrict access for ${expNumber}"
-				   }
-				  }
-				  else{*/
-                    exprimentAnalysis.put((experiment), c)
-                    total += c
-                    //}
+                    if(secObjs.containsKey(experiment.accession)){
+                        if(!i2b2HelperService.getGWASAccess(experiment.accession, user).equals("Locked")){ // evaluate if user has access rights to this private study
+                            exprimentAnalysis.put((experiment), c)
+                            total += c
+                        }
+                        else {
+                            log.warn "Restrict access for ${expNumber}"
+                        }
+                    }
+                    else{
+                        exprimentAnalysis.put((experiment), c)
+                        total += c
+                    }
                 }
 
                 /*
@@ -1006,6 +1007,29 @@ class GWASController {
         }
 
         return html
+    }
+
+    /***
+     * 
+     * Returns list of secure Gwas analyses.
+     * 
+     */
+
+    def getExperimentSecureStudyList(){
+
+        StringBuilder s = new StringBuilder();
+        s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
+        def t=[:];
+        //return access levels for the children of this path that have them
+        def results = SecureObject.executeQuery(s.toString());
+        for (row in results){
+            def token = row[0];
+            def dataid = row[1];
+            token=token.replaceFirst("EXP:","")
+            log.info(token+":"+dataid);
+            t.put(token,dataid);
+        }
+        return t;
     }
 
     // Load the trial analysis for the given trial
