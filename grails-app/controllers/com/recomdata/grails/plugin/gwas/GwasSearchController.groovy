@@ -692,8 +692,19 @@ class GwasSearchController {
         if (search != null) { filter.search = search }
 
         def analysisIds = session['solrAnalysisIds']
+        // following code will limit analysis ids to ones that the user is allowed to access
+        def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+        def secObjs=getExperimentSecureStudyList()
+        def analyses = BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b order by b.name")
+        analyses=analyses.findAll{!secObjs.containsKey(it[2]) || !gwasWebService.getGWASAccess(it[2], user).equals("Locked") }
+        analyses=analyses.findAll {analysisIds.contains(it[0])} // get intersection of all analyses id and allowed ids
 
-        session['filterTableView'] = filter
+        def allowedAnalysisIds = [] // will be used to his temporary list
+
+        analyses.each { allowedAnalysisIds.add(it[0])} // fill list with ids from analyses object
+        analysisIds = allowedAnalysisIds // replace all analysis ids with intersection ids
+
+        //session['filterTableView'] = filter
 
 /*		if (analysisIds.size() >= 100) {
 			render(text: "<p>The table view cannot be used with more than 100 analyses (${analysisIds.size()} analyses in current search results). Narrow down your results by adding filters.</p>")
