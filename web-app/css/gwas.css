@@ -786,7 +786,7 @@ background-color: #DFDFDF;
 	border-bottom: 1px solid #BBB;
 	position: fixed;
 	top: 27px;
-	z-index: 0;
+	z-index: 1;
 	border-left: 1px solid #CFCFCF;
 	margin-left: -1px;
 	box-shadow: 1px 1px 6px #CCCCCC;
