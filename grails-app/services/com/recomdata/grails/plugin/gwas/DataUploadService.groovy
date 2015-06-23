@@ -364,7 +364,7 @@ public class DataUploadService{
 	
 		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome FROM biomart.BIO_ASY_ANALYSIS_GWAS_TOP50
 		WHERE analysis = ?
-		ORDER BY pvalue
+		ORDER BY logpvalue desc
 	
 	"""
 	// changed ORDER BY rnum by pvalue
@@ -372,7 +372,7 @@ public class DataUploadService{
 	
 		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome, gene FROM biomart.BIO_ASY_ANALYSIS_EQTL_TOP50
 		WHERE analysis = ?
-		ORDER BY pvalue
+		ORDER BY logpvalue desc
 	
 	"""
 	def quickQueryGwasIdx = """

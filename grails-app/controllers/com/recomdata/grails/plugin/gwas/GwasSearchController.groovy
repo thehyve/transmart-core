@@ -286,7 +286,7 @@ class GwasSearchController {
         }
         else {
             //Otherwise, run the query and recache the returned data
-			if (sortField.equals('null')) {sortField = 'data.p_value';}
+			if (sortField.equals('null')) {sortField = 'data.log_p_value'; order='desc';}
             queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, transcriptGeneNames, true)
             analysisData = queryResult.results
             totalCount = queryResult.total
@@ -1012,9 +1012,9 @@ class GwasSearchController {
         analysisArr.push(analysisId)
         def query
         if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS" || analysis.assayDataType == "GWAS Fail") {
-            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,transcriptGeneNames,false)
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.log_p_value", "desc", null, "gwas", geneNames,transcriptGeneNames,false)
         } else {
-            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,transcriptGeneNames,false)
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.log_p_value", "desc", null, "eqtl", geneNames,transcriptGeneNames,false)
         }
 		log.debug("Before the result")
         def dataset = query.results
