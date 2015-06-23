@@ -130,7 +130,7 @@ class GwasWebService {
             if(rs.next()){
                 def high = rs.getLong("HIGH");
                 def low = rs.getLong("LOW");
-                def chrom = rs.getLong("CHROM")
+                def chrom = rs.getString("CHROM")
                 return [low, high, chrom]
             }
         }finally{
@@ -553,7 +553,7 @@ class GwasWebService {
         def results = []
         try{
             while(rs.next()){
-                results.push([rs.getString("RS_ID"), rs.getLong("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME"),
+                results.push([rs.getString("RS_ID"), rs.getString("CHROM"), rs.getLong("POS"), rs.getDouble("LOG_P_VALUE"), rs.getString("ANALYSIS_NAME"),
                 rs.getString("gene"), rs.getString("exon_intron"), rs.getDouble("recombination_rate"), rs.getString("regulome_score")])
             }
             return results
