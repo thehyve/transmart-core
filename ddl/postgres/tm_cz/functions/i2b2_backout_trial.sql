@@ -1,7 +1,7 @@
 --
 -- Name: i2b2_backout_trial(character varying, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_backout_trial(trialid character varying, path_string character varying, currentjobid numeric) RETURNS integer
+CREATE FUNCTION i2b2_backout_trial(trialid character varying, path_string character varying, currentjobId numeric) RETURNS integer
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 
@@ -27,12 +27,13 @@ Declare
 	sqlTxt			character varying;
 	topNode			character varying;
 	v_partition_id		text;
+	secureObjId		bigint;
 
 	--Audit variables
 	newJobFlag		integer;
 	databaseName		VARCHAR(100);
 	procedureName		VARCHAR(100);
-	jobID 			numeric(18,0);
+	jobId 			numeric(18,0);
 	stepCt 			numeric(18,0);
 	rowCt			numeric(18,0);
 	errorNumber		character varying;
@@ -45,18 +46,29 @@ BEGIN
 	
 	--Set Audit Parameters
 	newJobFlag := 0; -- False (Default)
-	jobID := currentJobID;
+	jobId := currentjobId;
 
 	databaseName := 'TM_CZ';
 	procedureName := 'I2b2_back_out_trial';
 	
 	--Audit JOB Initialization
 	--If Job ID does not exist, then this is a single procedure run and we need to create it
-	IF(jobID IS NULL or jobID < 1)
+	IF(jobId IS NULL or jobId < 1)
 	THEN
 		newJobFlag := 1; -- True
 		select tm_cz.cz_start_audit (procedureName, databaseName) into jobId;
 	END IF;
+
+	if (trialid is null OR length(trialid) = 0)
+	then
+		errorNumber := '';
+		errorMessage := 'Invalid value for trialid argument';
+		--Handle errors.
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
+		--End Proc
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
+		return -16;
+	end if;
 
 	-- trial id's are stored in upper case in the database
 	trialid := upper(trialid);
@@ -77,18 +89,30 @@ BEGIN
 
 	-- retrieve topNode for study with given trial id (trialid)
 	begin
-	select c_fullname from i2b2metadata.i2b2 where sourcesystem_cd = trialid order by c_hlevel asc limit 1 into topNode;
+	select c_fullname from i2b2metadata.i2b2 where sourcesystem_cd = trialid and c_hlevel = 1 into topNode;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
 		errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end;
+
+	-- check validity of topNode value
+	rowCt := 0;
+	stepCt := stepCt + 1;
+	if (topNode is null OR length(topNode) = 0)
+	then
+        -- Either due to erroneous trailid or inconsistent database content
+        -- In case of erroneous trialid, the database does not contain any data associated with this trialid (trying to remove does not harm)
+        -- In case of inconsistencies in the database, we still might try to remove data associate with this trialid.
+		auditMessage := 'Not able to retrieve top node associated with trial id: ' || trialid;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,auditMessage,rowCt,stepCt,'Done') into rtnCd;
+	end if;
 
 	-- check consistency between topNode and path_string
 	rowCt := 0;
@@ -98,9 +122,9 @@ BEGIN
 		errorNumber := '';
 		errorMessage := 'Discrepancy between path_string argument value ('||path_string||') and value found in database ('||topNode||')';
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end if;
 
@@ -132,9 +156,9 @@ BEGIN
 		errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -154,9 +178,9 @@ BEGIN
 		errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -173,9 +197,9 @@ BEGIN
 		errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -190,9 +214,9 @@ BEGIN
 		errorNumber := SQLSTATE;
 		errorMessage := SQLERRM;
 		--Handle errors.
-		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+		select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 		--End Proc
-		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 		return -16;
 	end;
 	stepCt := stepCt + 1;
@@ -229,9 +253,9 @@ BEGIN
 			errorNumber := SQLSTATE;
 			errorMessage := SQLERRM;
 			--Handle errors.
-			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 			--End Proc
-			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 			return -16;
 		end;
 		stepCt := stepCt + 1;
@@ -270,9 +294,9 @@ BEGIN
 			errorNumber := SQLSTATE;
 			errorMessage := SQLERRM;
 			--Handle errors.
-			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 			--End Proc
-			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 			return -16;
 		end;
 		stepCt := stepCt + 1;
@@ -311,9 +335,9 @@ BEGIN
 			errorNumber := SQLSTATE;
 			errorMessage := SQLERRM;
 			--Handle errors.
-			select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+			select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 			--End Proc
-			select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+			select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 			return -16;
 		end;
 		stepCt := stepCt + 1;
@@ -321,11 +345,43 @@ BEGIN
 		
 	end if;
 
+	-- delete from search_secure_object
+
+	select count(*) into pExists
+	from searchapp.search_secure_object
+	where bio_data_unique_id = 'EXP:' || TrialId;
+
+	if pExists > 0 then
+
+		-- delete possible access right related to this secure object(s)
+		delete from searchapp.search_auth_sec_object_access
+		where secure_object_id in
+		( select search_secure_object_id from searchapp.search_secure_object
+		  where bio_data_unique_id = 'EXP:' || TrialId
+		);
+
+		-- delete the secure object(s)
+		delete from searchapp.search_secure_object
+		where bio_data_unique_id = 'EXP:' || TrialId;
+
+		stepCt := stepCt + 1;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Delete trial from search_secure_object',rowCt,stepCt,'Done') into rtnCd;
+
+	end if;
+
+	-- Report potential erroneous value for trialid because topNode could not be found
+	if (topNode is null OR length(topNode) = 0)
+	then
+		auditMessage := 'trialid argument possibly contained erroneous value ' || trialid;
+		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,auditMessage,rowCt,stepCt,'Done') into rtnCd;
+		select tm_cz.cz_end_audit (jobId, 'WARNING') into rtnCd;
+		return -1;
+	end if;
 
       ---Cleanup OVERALL JOB if this proc is being run standalone
 	IF newJobFlag = 1
 	THEN
-		select tm_cz.cz_end_audit (jobID, 'SUCCESS') into rtnCD;
+		select tm_cz.cz_end_audit (jobId, 'SUCCESS') into rtnCD;
 	END IF;
 
 	return 1;
@@ -335,9 +391,9 @@ WHEN OTHERS THEN
 	errorNumber := SQLSTATE;
 	errorMessage := SQLERRM;
 	--Handle errors.
-	select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
+	select tm_cz.cz_error_handler (jobId, procedureName, errorNumber, errorMessage) into rtnCd;
 	--End Proc
-	select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
+	select tm_cz.cz_end_audit (jobId, 'FAIL') into rtnCd;
 	return -16;
 END;
 
