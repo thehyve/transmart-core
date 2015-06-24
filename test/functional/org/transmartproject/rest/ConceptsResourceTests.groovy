@@ -59,6 +59,11 @@ class ConceptsResourceTests extends ResourceTestCase {
 
     def study2ConceptListUrl = '/studies/study_id_2/concepts'
 
+    def study1RootConceptTags = [
+            "1 name 1": "1 description 1",
+            "1 name 2": "1 description 2",
+    ]
+
     void testIndexAsJson() {
         def result = getAsJson conceptListUrl
         assertStatus 200
@@ -140,6 +145,18 @@ class ConceptsResourceTests extends ResourceTestCase {
         def result = getAsHal conceptUrl
         assertStatus 200
         assertThat result, NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
+    }
+
+    void testMetadataTagsAsJson() {
+        def result = getAsJson rootConceptUrl
+        assertStatus 200
+        assertThat result, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+    }
+
+    void testMetadataTagsAsHal() {
+        def result = getAsHal rootConceptUrl
+        assertStatus 200
+        assertThat result, MetadataTagsMatcher.hasTags(study1RootConceptTags)
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,
@@ -308,4 +325,45 @@ class LinkMatcher extends DiagnosingMatcher<JSONObject> {
         }
     }
 
+}
+
+class MetadataTagsMatcher extends DiagnosingMatcher<JSONObject> {
+    Map<String, String> expectedTags
+
+    static MetadataTagsMatcher hasTags(Map<String, String> tags) {
+        new MetadataTagsMatcher(expectedTags: tags)
+    }
+
+    @Override
+    protected boolean matches(Object item, Description mismatchDescription) {
+
+        JSONObject obj = item
+        def hasMetadata = obj.has('metadata')
+
+        if (expectedTags.isEmpty()) {
+            if (hasMetadata) {
+                mismatchDescription.appendText(" was not expecting any metadata tags, but got them")
+                return false
+            } else {
+                return true
+            }
+        }
+
+        JSONObject md = obj.getJSONObject('metadata')
+
+        Map map = md as Map
+        if (map != expectedTags) {
+            mismatchDescription.appendText(" tags did not match")
+            mismatchDescription.appendText(" expecting ").appendValue(expectedTags)
+            mismatchDescription.appendText(" was ").appendValue(map)
+            return false
+        }
+
+        return true
+    }
+
+    @Override
+    void describeTo(Description description) {
+        description.appendText(' concept with metadata tags ').appendValue(expectedTags)
+    }
 }
