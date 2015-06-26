@@ -24,6 +24,7 @@ import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -43,6 +44,7 @@ import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriteri
 @Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
+    HighDimensionResource highDimensionResource
     protected HighDimensionDataTypeModule module
 
     private static final int FETCH_SIZE = 10000
@@ -170,6 +172,22 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 where p.markerType in (:markerTypes)
                     and ssm.patient = ps.patient
                     and ps.resultInstance.id = :resultInstanceId)
-        ''', [markerTypes : module.platformMarkerTypes, resultInstanceId: queryResult.id]
+        ''', [markerTypes: module.platformMarkerTypes, resultInstanceId: queryResult.id]
+    }
+
+    @Override
+    HighDimensionDataTypeResource getHighDimDataTypeResourceFromConcept(String conceptKey) {
+        def constraints = []
+
+        constraints << createAssayConstraint(
+                AssayConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [concept_key: conceptKey]])
+
+        def assayMultiMap = highDimensionResource.getSubResourcesAssayMultiMap(constraints)
+
+        HighDimensionDataTypeResource dataTypeResource = assayMultiMap.keySet()[0]
+        return dataTypeResource
     }
 }

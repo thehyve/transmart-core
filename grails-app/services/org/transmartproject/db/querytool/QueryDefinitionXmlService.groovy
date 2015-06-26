@@ -57,6 +57,25 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                 }
             }
 
+            if (item.constrain_by_omics_value.size()) {
+                try {
+                    def constrain = item.constrain_by_omics_value
+                    data.constraintByOmicsValue = new ConstraintByOmicsValue(
+                            omicsType: ConstraintByOmicsValue.OmicsType.valueOf(
+                                    constrain.omics_value_type?.toString()),
+                            operator: ConstraintByOmicsValue.Operator.forValue(
+                                    constrain.omics_value_operator.toString()),
+                            projectionType: ConstraintByOmicsValue.ProjectionType.valueOf(
+                                    constrain.omics_projection_type?.toString()),
+                            selector: constrain.omics_selector?.toString(),
+                            constraint: constrain.omics_value_constraint?.toString()
+                    )
+                } catch (err) {
+                    throw new InvalidRequestException(
+                            'Invalid XML query definition omics value constraint', err)
+                }
+            }
+
             new Item(data)
         }
         def panels = xml.panel.collect { panel ->
@@ -104,6 +123,17 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                     value_operator itemArg.constraint.operator.value
                                     value_constraint itemArg.constraint.constraint
                                     value_type itemArg.constraint.valueType.name()
+                                }
+                            }
+
+                            if (itemArg.constraintByOmicsValue) {
+                                def constrain = itemArg.constraintByOmicsValue
+                                constrain_by_omics_value {
+                                    omics_value_operator constrain.operator.value
+                                    omics_value_constraint constrain.constraint
+                                    omics_value_type constrain.omicsType.name()
+                                    omics_selector constrain.selector
+                                    omics_projection_type constrain.projectionType.name()
                                 }
                             }
                         }

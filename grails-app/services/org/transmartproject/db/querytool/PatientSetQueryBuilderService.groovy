@@ -23,6 +23,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -62,7 +63,7 @@ class PatientSetQueryBuilderService {
                             "$it.conceptKey", nsr)
                 }
 
-                doItem(term, it.constraint, user)
+                doItem(term, it, user)
             }
             /*
              * itemPredicates are similar to this example:
@@ -159,34 +160,82 @@ class PatientSetQueryBuilderService {
     ]
 
     private String doItem(MetadataSelectQuerySpecification term,
-                          ConstraintByValue constraint,
+                          Item item,
                           User user) {
         /* constraint represented by the ontology term */
         def clause = generateObservationFactConstraint(user, term)
-
+        def conceptcd_subclause = clause
         /* additional (and optional) constraint by value */
-        if (!constraint) {
-            return clause
-        }
-        if (constraint.valueType == ConstraintByValue.ValueType.NUMBER) {
-            def spec = NUMBER_QUERY_MAPPING[constraint.operator]
-            def constraintValue = doConstraintNumber(constraint.operator,
-                    constraint.constraint)
+        def constraint = item.constraint
+        def omics_value_constraint = item.constraintByOmicsValue
+        if (constraint) {
+            if (constraint.valueType == ConstraintByValue.ValueType.NUMBER) {
+                def spec = NUMBER_QUERY_MAPPING[constraint.operator]
+                def constraintValue = doConstraintNumber(constraint.operator,
+                        constraint.constraint)
 
-            def predicates = spec.collect {
-                "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
-                        "tval_char " + (it[1].size() == 1
-                                        ? "= '${it[1][0]}'"
-                                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
+                def predicates = spec.collect {
+                    "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
+                            "tval_char " + (it[1].size() == 1
+                            ? "= '${it[1][0]}'"
+                            : "IN (${it[1].collect { "'$it'" }.join ', '})")
+                }
+
+                clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
+            } else if (constraint.valueType == ConstraintByValue.ValueType.FLAG) {
+                clause += " AND (valueflag_cd = ${doConstraintFlag(constraint.constraint)})"
             }
-
-            clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
-        } else if (constraint.valueType == ConstraintByValue.ValueType.FLAG) {
-            clause += " AND (valueflag_cd = ${doConstraintFlag(constraint.constraint)})"
-        } else {
-            throw new InvalidRequestException('Unexpected value constraint type')
         }
-
+        if (omics_value_constraint) {
+            if (omics_value_constraint.omicsType == ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION) {
+                log.info "Gene expression type detected in ConstraintByValue"
+                log.info "$omics_value_constraint.selector $omics_value_constraint.operator $omics_value_constraint.constraint"
+                def ordering = omics_value_constraint.operator.value == 'LT' ? 'ASC' : 'DESC'
+                clause += """ AND patient_num IN (
+                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
+                    (
+                    select assay_id from (
+                    select assay_id, avg($omics_value_constraint.projectionType) as score from deapp.de_subject_microarray_data where
+                    probeset_id in (
+                    select probeset_id from deapp.de_mrna_annotation where gpl_id=(select gpl_id from deapp.de_subject_sample_mapping where concept_code=(
+                    SELECT CONCEPT_CD FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
+                    limit 1
+                    )
+                    limit 1) and gene_symbol='$omics_value_constraint.selector'
+                    )
+                    and assay_id in
+                    (
+                    select assay_id from deapp.de_subject_sample_mapping where patient_id in (
+                    SELECT patient_num FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
+                    )
+                    )
+                    group by assay_id
+                    ) A where """
+                if (omics_value_constraint.operator.value == 'LT') {
+                    clause += "score < $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'LE') {
+                    clause += "score <= $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'EQ') {
+                    clause += "score = $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'GT') {
+                    clause += "score > $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'GE') {
+                    clause += "score >= $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'BETWEEN') {
+                    def values = omics_value_constraint.constraint.split(":")
+                    clause += "score >= ${values[0]} AND score <= ${values[1]}"
+                }
+                clause += "))"
+                log.info "Current clause: $clause"
+            } else {
+                throw new InvalidRequestException("Unexpected value constraint type: $omics_value_constraint.omicsType")
+            }
+        }
         clause
     }
 
