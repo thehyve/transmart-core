@@ -14,4 +14,9 @@ class Item {
      * The constraint, or null.
      */
     ConstraintByValue constraint
+
+    /**
+     * The omics value constraint, or null.
+     */
+    ConstraintByOmicsValue constraintByOmicsValue
 }

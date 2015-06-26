@@ -1,0 +1,66 @@
+package org.transmartproject.core.querytool
+
+import groovy.transform.Immutable
+
+@Immutable
+class ConstraintByOmicsValue {
+
+    /**
+     * The operator that will be used to compare the value with the constraint.
+     */
+    Operator operator
+
+    /**
+     * The second operand in the constraint.
+     */
+    String constraint
+
+    /**
+     * The omics data type
+     */
+    OmicsType omicsType
+
+    /**
+     * String to represent what part of omics data to check. This can hold e.g. a gene symbol
+     */
+    String selector
+
+    /**
+     * The projection
+     */
+    ProjectionType projectionType
+
+    enum Operator {
+
+        LOWER_THAN          ('LT'),
+        LOWER_OR_EQUAL_TO   ('LE'),
+        EQUAL_TO            ('EQ'),
+        BETWEEN             ('BETWEEN'),
+        GREATER_THAN        ('GT'),
+        GREATER_OR_EQUAL_TO ('GE');
+
+        final String value
+
+        protected Operator(String value) {
+            this.value = value
+        }
+
+        static Operator forValue(String value) {
+            values().find { value == it.value } ?:
+                { throw new IllegalArgumentException("No operator for value $value") }()
+        }
+    }
+
+    enum OmicsType {
+        GENE_EXPRESSION,
+        RNASEQ,
+        VCF
+    }
+
+    enum ProjectionType {
+        RAW_INTENSITY,
+        LOG_INTENSITY,
+        ZSCORE
+    }
+
+}
