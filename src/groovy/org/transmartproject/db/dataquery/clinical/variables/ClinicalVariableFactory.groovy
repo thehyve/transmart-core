@@ -28,7 +28,7 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm

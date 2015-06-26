@@ -25,10 +25,10 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.I2b2Data

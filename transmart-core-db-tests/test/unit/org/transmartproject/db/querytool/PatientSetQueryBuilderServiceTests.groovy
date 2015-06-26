@@ -26,13 +26,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.db.concept.ConceptKey
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.support.DatabasePortabilityService
 

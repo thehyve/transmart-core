@@ -28,6 +28,7 @@ class ConceptTestData {
 
     List<TableAccess> tableAccesses
     List<I2b2> i2b2List
+    List<I2b2Tag> i2b2TagsList
     List<ConceptDimension> conceptDimensions
 
     static ConceptTestData createDefault() {
@@ -58,7 +59,13 @@ class ConceptTestData {
 
         def conceptDimensions = createConceptDimensions(i2b2List)
 
-        new ConceptTestData(tableAccesses: tableAccesses, i2b2List: i2b2List, conceptDimensions: conceptDimensions)
+        def i2b2Tags = createI2b2Tags(i2b2List, 2)
+
+        new ConceptTestData(
+                tableAccesses: tableAccesses,
+                i2b2List: i2b2List,
+                conceptDimensions: conceptDimensions,
+                i2b2TagsList: i2b2Tags)
     }
 
     static numericXml = '''<ValueMetadata>
@@ -89,6 +96,7 @@ class ConceptTestData {
     void saveAll() {
         save tableAccesses
         save i2b2List
+        save i2b2TagsList
         save conceptDimensions
     }
 
@@ -184,6 +192,20 @@ class ConceptTestData {
         list.collect {
             assert it.code != null
             new ConceptDimension(conceptPath: it.fullName, conceptCode: it.code)
+        }
+    }
+
+    static List<I2b2Tag> createI2b2Tags(List<I2b2> list, int number = 2) {
+        list.collectMany { I2b2 i2b2 ->
+            (1..number).collect { iteration ->
+                new I2b2Tag(
+                        ontologyTermFullName: i2b2.fullName,
+                        name: "${i2b2.code} name ${iteration}",
+                        description: "${i2b2.code} description ${iteration}",
+                        //for reverse order
+                        position: number - iteration + 1
+                )
+            }
         }
     }
 
