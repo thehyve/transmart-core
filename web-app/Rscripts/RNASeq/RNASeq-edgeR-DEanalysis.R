@@ -112,11 +112,16 @@ function
         # If data set does not contain readcount data for all transcripts and samples, stop further processing
         if (nrow(countTable)==0 | any(is.na(countTable))) stop("||FRIENDLY||R cannot perform edgeR analysis if not all readcount data is provided for all selected samples. Please check your variable or cohort selection and run again.")
 
-		# Extract sample list from RNASeq data column names for which readcounts have been observed
-		samplelist <- sub("readcount.", "" , colnames(countTable))
-
 		# Make row names equal to the sample id
 		rownames(phenodata) <- phenodata[,"PATIENT_NUM"]
+
+		# Extract sample list from RNASeq data column names for which readcounts have been observed
+		samplelist <- sub("readcount.", "" , colnames(countTable))
+		# Find out if readcounts are available for samples for which no group information is available. Ignore the readcounts for those samples.
+		countTable <- countTable[ , samplelist %in% rownames(phenodata) ]
+		# Update sample list
+		samplelist <- sub("readcount.", "" , colnames(countTable))
+		
 		# Reorder phenodata rows to match the order in the RNASeq data columns
 		phenodata <- phenodata[samplelist,,drop=FALSE]		
 
