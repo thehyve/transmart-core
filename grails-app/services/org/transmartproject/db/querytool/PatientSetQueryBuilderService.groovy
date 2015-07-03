@@ -197,11 +197,48 @@ class PatientSetQueryBuilderService {
                     select assay_id from (
                     select assay_id, avg($omics_value_constraint.projectionType) as score from deapp.de_subject_microarray_data where
                     probeset_id in (
-                    select probeset_id from deapp.de_mrna_annotation where gpl_id=(select gpl_id from deapp.de_subject_sample_mapping where concept_code=(
-                    SELECT CONCEPT_CD FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
-                    limit 1
+                    select probeset_id from deapp.de_mrna_annotation where gene_symbol='$omics_value_constraint.selector'
                     )
-                    limit 1) and gene_symbol='$omics_value_constraint.selector'
+                    and assay_id in
+                    (
+                    select assay_id from deapp.de_subject_sample_mapping where patient_id in (
+                    SELECT patient_num FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
+                    )
+                    )
+                    group by assay_id
+                    ) A where """
+                if (omics_value_constraint.operator.value == 'LT') {
+                    clause += "score < $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'LE') {
+                    clause += "score <= $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'EQ') {
+                    clause += "score = $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'GT') {
+                    clause += "score > $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'GE') {
+                    clause += "score >= $omics_value_constraint.constraint"
+                }
+                else if (omics_value_constraint.operator.value == 'BETWEEN') {
+                    def values = omics_value_constraint.constraint.split(":")
+                    clause += "score >= ${values[0]} AND score <= ${values[1]}"
+                }
+                clause += "))"
+                log.info "Current clause: $clause"
+            } else if (omics_value_constraint.omicsType == ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT) {
+                log.info "RNASEQ read count type detected in ConstraintByValue"
+                log.info "$omics_value_constraint.selector $omics_value_constraint.operator $omics_value_constraint.constraint"
+                def ordering = omics_value_constraint.operator.value == 'LT' ? 'ASC' : 'DESC'
+                clause += """ AND patient_num IN (
+                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
+                    (
+                    select assay_id from (
+                    select assay_id, avg($omics_value_constraint.projectionType) as score from deapp.de_subject_rnaseq_data where
+                    region_id in (
+                    select region_id from deapp.de_chromosomal_region where gene_symbol='$omics_value_constraint.selector'
                     )
                     and assay_id in
                     (
@@ -233,7 +270,7 @@ class PatientSetQueryBuilderService {
                 clause += "))"
                 log.info "Current clause: $clause"
             } else {
-                throw new InvalidRequestException("Unexpected value constraint type: $omics_value_constraint.omicsType")
+                throw new InvalidRequestException("Unexpected omics constraint type: $omics_value_constraint.omicsType")
             }
         }
         clause
