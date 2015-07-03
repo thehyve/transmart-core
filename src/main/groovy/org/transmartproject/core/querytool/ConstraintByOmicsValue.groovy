@@ -53,14 +53,16 @@ class ConstraintByOmicsValue {
 
     enum OmicsType {
         GENE_EXPRESSION,
-        RNASEQ,
+        RNASEQ_RCNT,
         VCF
     }
 
     enum ProjectionType {
         RAW_INTENSITY,
         LOG_INTENSITY,
-        ZSCORE
+        ZSCORE,
+        READCOUNT,
+        LOG_READCOUNT
     }
 
 }
