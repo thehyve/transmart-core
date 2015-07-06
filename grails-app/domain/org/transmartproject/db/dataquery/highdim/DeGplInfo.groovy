@@ -34,7 +34,7 @@ class DeGplInfo implements Platform {
         table         schema: 'deapp'
 
         id              column: 'platform',   generator: 'assigned'
-        genomeReleaseId column: 'release_nbr'
+        genomeReleaseId column: 'genome_build'
 
         version      false
     }
