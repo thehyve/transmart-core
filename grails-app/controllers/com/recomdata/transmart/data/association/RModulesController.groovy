@@ -48,8 +48,6 @@ class RModulesController {
             "VCF":		"vcf"
     ]
 
-    private static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
-
     def springSecurityService
     def asyncJobService
     def currentUserBean
