@@ -87,6 +87,10 @@ class RModulesController {
             throw new IllegalStateException('Cannot schedule job; it has not been created')
         }
 
+        // has to come before and flush the new state, otherwise the
+        // sessionFactory running on the quartz thread may get stale values
+        asyncJobService.updateJobInputs(params.jobName, params)
+
         switch (params['analysis']) {
             case 'heatmap':
                 jsonResult = createJob(params, Heatmap)
@@ -146,8 +150,6 @@ class RModulesController {
                 jsonResult = RModulesService.scheduleJob(
                         springSecurityService.principal.username, params)
         }
-
-        asyncJobService.updateJobInputs(params.jobName, params)
 
         response.setContentType("text/json")
         response.outputStream << jsonResult.toString()
