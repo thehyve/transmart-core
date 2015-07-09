@@ -89,7 +89,6 @@ class TestDatabasePrepareConfiguration {
                 .next(truncateCodeLookupStep)
                 .next(loadModifierDimension())
                 .next(loadModifierMetadata())
-                .next(loadTableAccess())
                 .next(loadCodeLookup())
                 .build()
     }
@@ -133,21 +132,6 @@ class TestDatabasePrepareConfiguration {
     @StepScope
     TsvFieldSetJdbcBatchItemWriter modifierMetadataWriter() {
         fieldSetJdbcWriter(Tables.MODIFIER_METADATA)
-    }
-
-    @Bean
-    Step loadTableAccess() {
-        steps.get('loadTableAccess')
-                .chunk(CHUNK_SIZE)
-                .reader(tsvFileReader(new ClassPathResource('i2b2/table_access.tsv')))
-                .writer(tableAccessWriter())
-                .build()
-    }
-
-    @Bean
-    @StepScope
-    TsvFieldSetJdbcBatchItemWriter tableAccessWriter() {
-        fieldSetJdbcWriter(Tables.TABLE_ACCESS)
     }
 
     @Bean
