@@ -47,4 +47,8 @@ final class Tables {
     public static final String METAB_SUPER_PATH  = 'deapp.de_metabolite_super_pathways'
     public static final String METAB_ANNOT_SUB   = 'deapp.de_metabolite_sub_pway_metab'
     public static final String METAB_DATA        = 'deapp.de_subject_metabolomics_data'
+
+    public static final String PROTEOMICS_ANNOTATION   = 'deapp.de_protein_annotation'
+    public static final String PROTEOMICS_DATA         = 'deapp.de_subject_protein_data'
+
 }

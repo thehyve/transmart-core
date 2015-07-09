@@ -8,6 +8,8 @@ import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobS
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
+import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpecification
+import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
@@ -31,6 +33,8 @@ final class RunJob {
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
             'metabolomics': MetabolomicsDataJobSpecification,
             'i2b2': I2b2JobSpecification,
+            'proteomics_annotation': ProteomicsAnnotationJobSpecification,
+            'proteomics': ProteomicsDataJobSpecification,
     ]
 
     OptionAccessor opts
