@@ -32,13 +32,18 @@ class ClinicalVariable implements Serializable {
     public static final String FIELD_DATA_LABEL = 'dataLabel'
     public static final String FIELD_DATA_LABEL_SOURCE = 'dataLabelSource'           // ignored
     public static final String FIELD_CONTROL_VOCAB_CODE = 'controlledVocabularyCode' // ignored
+    public static final String FIELD_CONCEPT_TYPE = 'conceptType'
 
     static final FIELDS = [FIELD_FILENAME,
                            FIELD_CATEGORY_CODE,
                            FIELD_COLUMN_NUMBER,
                            FIELD_DATA_LABEL,
                            FIELD_DATA_LABEL_SOURCE,
-                           FIELD_CONTROL_VOCAB_CODE]
+                           FIELD_CONTROL_VOCAB_CODE,
+                           FIELD_CONCEPT_TYPE]
+
+    public static final String CONCEPT_TYPE_CATEGORICAL = 'CATEGORICAL'
+    public static final String CONCEPT_TYPE_NUMERICAL   = 'NUMERICAL'
 
     /* can be filled directly from fields */
     String filename
@@ -52,6 +57,8 @@ class ClinicalVariable implements Serializable {
     }
 
     String dataLabel
+
+    String conceptType
 
     /**
      * These are to be calculated

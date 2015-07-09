@@ -12,6 +12,6 @@ class ClinicalDataRow {
     List<String> values
 
     String getAt(int index) {
-        values[index]
+        values[index]?.trim()
     }
 }

@@ -66,6 +66,8 @@ def mainClass = 'org.transmartproject.batch.startup.RunJob'
 run {
     mainClassName = mainClass
 
+    maxHeapSize = '4g'
+
     if (project.hasProperty('args')) {
         def collectedArgs = []
         def matcher = project.args =~ '''(?x)

@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.mapping.FieldSetMapper
+import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -32,6 +33,7 @@ import org.transmartproject.batch.clinical.patient.InsertPatientTrialTasklet
 import org.transmartproject.batch.clinical.patient.InsertUpdatePatientDimensionTasklet
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
+import org.transmartproject.batch.clinical.variable.ColumnMappingValidator
 import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
@@ -94,7 +96,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow mainFlow() {
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(readControlFilesFlow()) //reads control files (column map, word map, xtrial)
+                .start(readControlFilesFlow(null)) //reads control files (column map, word map, xtrial)
 
                 // read stuff from the DB
                 .next(allowStartStepOf(this.&getGatherCurrentPatientsTasklet))
@@ -120,7 +122,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Flow readControlFilesFlow() {
+    Flow readControlFilesFlow(ColumnMappingValidator columnMappingValidator) {
         Step readVariablesStep = steps.get('readVariables')
                 .allowStartIfComplete(true)
                 .chunk(5)
@@ -128,7 +130,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .processor(compositeOf(
                     duplicateClinicalVariableDetector(),
                     duplicateDemographicVariablesDetector(),
-                    duplicateConceptPathDetector()))
+                    duplicateConceptPathDetector(),
+                    new ValidatingItemProcessor(adaptValidator(columnMappingValidator))))
                 .writer(saveClinicalVariableList(null))
                 .build()
 
