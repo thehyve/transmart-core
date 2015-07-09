@@ -27,7 +27,7 @@ final class Patient {
                         "replacing ${demographicValues[var]} with $value"
             }
             demographicValues[var] =  var.type == ConceptType.NUMERICAL ?
-                    value as Long :
+                    (value ?: null) as Long :
                     value
         }
     }
