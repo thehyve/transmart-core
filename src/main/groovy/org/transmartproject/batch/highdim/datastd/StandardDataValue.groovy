@@ -9,6 +9,7 @@ import org.transmartproject.batch.patient.Patient
 @Canonical
 class StandardDataValue implements DataPoint {
     String annotation
+    String sampleCode
     Patient patient
     Double value
 }

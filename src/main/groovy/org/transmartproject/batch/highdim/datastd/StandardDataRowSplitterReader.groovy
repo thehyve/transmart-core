@@ -87,6 +87,7 @@ class StandardDataRowSplitterReader extends AbstractSplittingItemReader<Standard
 
         dataPointClass.newInstance(
                 patient: patients[position - 1],
+                sampleCode: columnNames[position],
                 annotation: lastAnnotationName,
                 value: value)
     }
