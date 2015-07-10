@@ -34,6 +34,8 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
     @Autowired
     private MappingFileRowToConceptMapper mapper
 
+    private Collection<List<MappingFileRow>> subjectConceptMappingFileRows
+
     @Override
     protected void jumpToItem(int itemIndex) throws Exception {
         currentItemCount = itemIndex
@@ -45,7 +47,8 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
 
     @Override
     protected ClinicalFactsRowSet doRead() throws Exception {
-        MappingFileRow row = mappingsFileRowStore.rows[currentItemCount - 1]
+        //create a dummy fact per a subject-concept pair
+        MappingFileRow row = subjectConceptMappingFileRows[currentItemCount - 1][0]
         assert row != null
 
         ConceptNode concept = mapper[row]
@@ -62,7 +65,13 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
 
     @Override
     protected void doOpen() throws Exception {
-        maxItemCount = mappingsFileRowStore.rows.size()
+        subjectConceptMappingFileRows = mappingsFileRowStore
+            .rows
+            .groupBy { [it.subjectId, it.conceptFragment] }
+            .sort { it.key }
+            .values()
+
+        maxItemCount = subjectConceptMappingFileRows.size()
     }
 
     @Override

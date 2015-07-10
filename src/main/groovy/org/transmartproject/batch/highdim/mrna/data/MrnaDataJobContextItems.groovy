@@ -24,7 +24,7 @@ class MrnaDataJobContextItems {
         jobExecutionContext.getInt(PostgresPartitionTasklet.PARTITION_ID_JOB_CONTEXT_KEY)
     }
 
-    Map<String, Long> getPatientIdAssayIdMap() {
+    Map<String, Long> getSampleCodeAssayIdMap() {
         jobExecutionContext.get(SaveAssayIdListener.MAPPINGS_CONTEXT_KEY)
     }
 

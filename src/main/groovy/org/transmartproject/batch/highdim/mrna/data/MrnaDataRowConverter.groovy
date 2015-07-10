@@ -23,10 +23,10 @@ class MrnaDataRowConverter {
     private AnnotationEntityMap annotationEntityMap
 
     /**
-     * @see MrnaDataJobContextItems#getPatientIdAssayIdMap()
+     * @see MrnaDataJobContextItems#getSampleCodeAssayIdMap()
      */
-    @Value("#{mrnaDataJobContextItems.patientIdAssayIdMap}")
-    Map<String, Long> patientIdAssayIdMap
+    @Value("#{mrnaDataJobContextItems.sampleCodeAssayIdMap}")
+    Map<String, Long> sampleCodeAssayIdMap
 
     /**
      * @see MrnaDataJobContextItems#getPartitionId()
@@ -35,11 +35,11 @@ class MrnaDataRowConverter {
     Long partitionId
 
     Map<String, Object> convertMrnaDataValue(TripleStandardDataValue value) {
-        Long assayId = patientIdAssayIdMap[value.patient.id]
+        Long assayId = sampleCodeAssayIdMap[value.sampleCode]
         if (!assayId) {
             throw new IllegalArgumentException("Passed mrna data value with " +
-                    "unknown patient id (${value.patient.id}). Known ids are " +
-                    patientIdAssayIdMap.keySet().sort())
+                    "unknown sample code (${value.sampleCode}). Known codes are " +
+                    sampleCodeAssayIdMap.keySet().sort())
         }
 
         [

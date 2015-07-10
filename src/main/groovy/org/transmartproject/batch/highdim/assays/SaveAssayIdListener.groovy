@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 /**
- * Listener that saves associations between patient ids and assay ids in the
+ * Listener that saves associations between sample codes and assay ids in the
  * context (after each write in the step context and after the step in the
  * job context).
  */
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
 @StepScope
 class SaveAssayIdListener {
 
-    public static final MAPPINGS_CONTEXT_KEY = 'patientIdAssayIdMap'
+    public static final MAPPINGS_CONTEXT_KEY = 'sampleCodeAssayIdMap'
 
     @Value('#{stepExecution.executionContext}')
     ExecutionContext stepExecutionContext
@@ -30,19 +30,19 @@ class SaveAssayIdListener {
     @AfterStep // non-transactional
     @SuppressWarnings('UnusedMethodParameter')
     ExitStatus afterStep(StepExecution stepExecution) {
-        jobExecutionContext.put(MAPPINGS_CONTEXT_KEY, patientIdAssayIdMap)
+        jobExecutionContext.put(MAPPINGS_CONTEXT_KEY, sampleCodeAssayIdMap)
     }
 
     @AfterWrite // transactional
     void afterWrite(List<? extends Assay> items) {
-        def assayMappings = patientIdAssayIdMap
+        def assayMappings = sampleCodeAssayIdMap
         items.each { Assay assay ->
-            assayMappings.put assay.patient.id, assay.id
+            assayMappings.put assay.sampleCode, assay.id
         }
         stepExecutionContext.put(MAPPINGS_CONTEXT_KEY, assayMappings)
     }
 
-    Map<String, Long> getPatientIdAssayIdMap() {
+    Map<String, Long> getSampleCodeAssayIdMap() {
         stepExecutionContext.get(MAPPINGS_CONTEXT_KEY) ?:
                 Maps.newHashMap()
     }

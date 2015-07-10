@@ -27,11 +27,11 @@ class MetabolomicsDataConverter {
     /**
      * @see SaveAssayIdListener#MAPPINGS_CONTEXT_KEY
      */
-    @Value("#{jobExecutionContext['patientIdAssayIdMap']}")
-    Map<String, Long> patientIdAssayIdMap
+    @Value("#{jobExecutionContext['sampleCodeAssayIdMap']}")
+    Map<String, Long> sampleCodeAssayIdMap
 
     Map<String, Object> convertMetabolomicsDataValue(TripleStandardDataValue value) {
-        Long assayId = patientIdAssayIdMap[value.patient.id]
+        Long assayId = sampleCodeAssayIdMap[value.sampleCode]
         assert assayId != null // should have been validated before
 
         Long metaboliteId = annotationEntityMap[value.annotation]
