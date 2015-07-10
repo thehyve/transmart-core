@@ -134,7 +134,7 @@ task functionalTest(type: Test) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.1'
+    gradleVersion = '2.5'
 }
 
 def getPomConfiguration() {
