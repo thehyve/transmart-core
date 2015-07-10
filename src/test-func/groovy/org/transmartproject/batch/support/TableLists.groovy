@@ -15,6 +15,7 @@ class TableLists {
             Tables.CONCEPT_COUNTS,
             Tables.PATIENT_TRIAL,
             Tables.PATIENT_DIMENSION,
+            Tables.TABLE_ACCESS,
             Tables.I2B2,
             Tables.I2B2_SECURE,
             Tables.I2B2_TAGS,

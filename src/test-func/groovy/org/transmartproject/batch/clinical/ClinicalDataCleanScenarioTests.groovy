@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.ConceptFragment
+import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
@@ -438,4 +439,44 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         )
     }
 
+    @Test
+    void testTableAccess() {
+        ConceptPath path = new ConceptPath('\\Public Studies\\')
+        String name = 'Public Studies'
+
+        Map row = jdbcTemplate.queryForMap("""
+            select
+                c_table_cd,
+                c_table_name,
+                c_protected_access,
+                c_hlevel,
+                c_name,
+                c_synonym_cd,
+                c_visualattributes,
+                c_facttablecolumn,
+                c_dimtablename,
+                c_columnname,
+                c_columndatatype,
+                c_operator,
+                c_dimcode
+            from ${Tables.TABLE_ACCESS}
+            where c_fullname = :fullName
+            """, [fullName: path.toString()])
+
+        assertThat row, allOf(
+                hasEntry('c_table_cd', 'Public Studies'),
+                hasEntry('c_table_name', 'I2B2'),
+                hasEntry('c_protected_access', 'N'),
+                hasEntry('c_hlevel', new BigDecimal('0')),
+                hasEntry('c_name', name),
+                hasEntry('c_synonym_cd', 'N'),
+                hasEntry('c_visualattributes', 'CAE'),
+                hasEntry('c_facttablecolumn', 'concept_cd'),
+                hasEntry('c_dimtablename', 'concept_dimension'),
+                hasEntry('c_columnname', 'concept_path'),
+                hasEntry('c_columndatatype', 'T'),
+                hasEntry('c_operator', 'LIKE'),
+                hasEntry('c_dimcode', path.toString()),
+        )
+    }
 }
