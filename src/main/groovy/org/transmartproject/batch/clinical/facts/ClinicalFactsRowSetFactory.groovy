@@ -140,7 +140,6 @@ class ClinicalFactsRowSetFactory {
                 throw new IllegalStateException(
                         "Invalid value for concept type column: $var.conceptType. This " +
                                 'should never happen (ought to have been validated)')
-                break
         }
 
         conceptType
