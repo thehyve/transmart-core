@@ -1,30 +1,49 @@
-language: groovy
+language: php # to have .travis installing the php version we indicate
+sudo: false
 
 addons:
-    postgresql: "9.3"
+    apt:
+        packages:
+            - subversion
+php:
+    - 5.6
+cache:
+    directories:
+        - $HOME/.gradle
+        - $HOME/pg
 
 before_install:
-    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
-    - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
-    - sudo apt-get update
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/postgresql_cluster.sh
 
 install:
-    - sudo apt-get install -y -qq php5-cli php5-json subversion
+    - install_pg 9.4.4
+    - create_cluster
+
+before_script:
+    - start_cluster
     - svn checkout -q https://github.com/transmart/transmart-data/trunk ~/transmart-data
     - cd ~/transmart-data
     - make -C env ../vars
-    - sudo make -C env /var/lib/postgresql/tablespaces
+    # put tablespaces somewhere we can write instead
+    - echo TABLESPACES=~/tablespaces/ >> vars
+    - echo PGSQL_BIN=$HOME/pg/bin/ >> vars
+    - echo PGPORT=5433 >> vars
+    - echo PGUSER=travis >> vars
     - source vars
+    - ~/pg/bin/psql -c "ALTER USER travis PASSWORD 'travis'" -d template1
+    - mkdir -p $TABLESPACES/{biomart,deapp,indx,search_app,transmart}
+    - PGDATABASE=template1 make -C ddl/postgres/GLOBAL tablespaces
     - skip_fix_tablespaces=1 make -j3 postgres > /dev/null
-    - echo "CREATE ROLE travis_ci SUPERUSER LOGIN PASSWORD 'travis_ci'" | sudo -u postgres psql
     - cd -
     - cp .batchdb-travis.properties batchdb.properties
-    - ./gradlew functionalTestPrepare
+    - ./gradlew --console plain functionalTestPrepare
 
 script:
-    - ./gradlew --info check
-    - ./gradlew --info functionalTest
-    - ./gradlew capsule
+    - ./gradlew --info --console plain clean
+    - ./gradlew --info --console plain check
+    - ./gradlew --info --console plain functionalTest
+    - ./gradlew --console plain capsule
 
 after_success:
     - ./.travis_upload
