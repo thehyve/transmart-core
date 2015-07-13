@@ -59,6 +59,16 @@ CREATE SEQUENCE seq_mrna_partition_id
     CACHE 1;
 
 --
+-- Name: seq_proteomics_partition_id; Type: SEQUENCE; Schema: deapp; Owner: -
+--
+CREATE SEQUENCE seq_proteomics_partition_id
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
 -- Name: seq_rbm_partition_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE seq_rbm_partition_id
