@@ -19,6 +19,8 @@ import static org.springframework.context.i18n.LocaleContextHolder.locale
 @Slf4j
 class ProteomicsAnnotationRowValidator implements Validator {
 
+    public static final String VALID_CHR_REGEX = /[0-9]+|[XYM]/
+
     @Resource
     Platform platformObject
 
@@ -51,5 +53,48 @@ class ProteomicsAnnotationRowValidator implements Validator {
                     ['probesetId'] as Object[], null
         }
 
+        if (!target.uniprotId) {
+            errors.rejectValue 'uniprotId', 'required',
+                    ['uniprotId'] as Object[], null
+        }
+
+        //if entry has any chromosomal position information
+        if (target.chromosome || target.startBp || target.endBp) {
+
+            def chrErrArg = ['chromosome'] as Object[]
+
+            if (!target.chromosome) {
+                errors.rejectValue 'chromosome', 'required',
+                        chrErrArg, null
+            }
+
+            if (!(target.chromosome ==~ VALID_CHR_REGEX)) {
+                errors.rejectValue 'chromosome', 'invalidChromosome',
+                        chrErrArg, null
+            }
+
+            def startBpErrArg = ['startBp'] as Object[]
+
+            if (!target.startBp) {
+                errors.rejectValue 'startBp', 'required',
+                        startBpErrArg, null
+            }
+
+            if (target.startBp < 0) {
+                errors.rejectValue 'startBp', 'connotBeNegative',
+                        startBpErrArg, null
+            }
+
+            if (!target.endBp) {
+                errors.rejectValue 'endBp', 'required',
+                        ['endBp'] as Object[], null
+            }
+
+            if (target.startBp > target.endBp) {
+                errors.rejectValue 'endBp', 'invalidRange',
+                        ['startBp', 'endBp'] as Object[], null
+            }
+
+        }
     }
 }
