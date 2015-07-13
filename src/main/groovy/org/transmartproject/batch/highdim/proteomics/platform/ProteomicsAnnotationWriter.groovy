@@ -47,14 +47,16 @@ class ProteomicsAnnotationWriter implements ItemWriter<ProteomicsAnnotationRow> 
 
     Map<String, Object> doItem(ProteomicsAnnotationRow row) {
         [
-                id        : sequenceReserver.getNext(Sequences.PROTEOMICS_ANNOTATION_ID),
-                gpl_id    : platform.id,
-                peptide   : row.probesetId,
-                uniprot_id: row.uniprotId,
-                organism  : platform.organism,
-                chromosome: row.chromosome,
-                start_bp  : row.startBp,
-                end_bp    : row.endBp
+                id          : sequenceReserver.getNext(Sequences.PROTEOMICS_ANNOTATION_ID),
+                gpl_id      : platform.id,
+                peptide     : row.probesetId,
+                uniprot_id  : row.uniprotId,
+                //TODO Fill in this field from the prot. dictionary. See FT-1453
+                uniprot_name: row.uniprotId,
+                organism    : platform.organism,
+                chromosome  : row.chromosome,
+                start_bp    : row.startBp,
+                end_bp      : row.endBp
         ]
     }
 }
