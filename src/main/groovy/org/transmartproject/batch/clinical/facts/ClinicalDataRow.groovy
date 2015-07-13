@@ -5,7 +5,7 @@ import groovy.transform.ToString
 /**
  * Represents a row of a clinical data file.
  */
-@ToString(includes=['filename','index'])
+@ToString(includes = ['filename', 'index'])
 class ClinicalDataRow {
     String filename
     int index

@@ -59,7 +59,7 @@ class MetabolomicsAnnotationRowValidator implements
             if (superPathwayLen > MAX_LENGTH_OF_SUPER_PATHWAY) {
                 errors.rejectValue 'superPathway', 'maxSizeExceeded',
                         ['superPathway', superPathwayLen,
-                        MAX_LENGTH_OF_SUPER_PATHWAY] as Object[], null
+                         MAX_LENGTH_OF_SUPER_PATHWAY] as Object[], null
             }
         }
 

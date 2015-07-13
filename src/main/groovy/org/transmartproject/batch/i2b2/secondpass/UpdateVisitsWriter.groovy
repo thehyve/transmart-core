@@ -31,7 +31,7 @@ class UpdateVisitsWriter extends AbstractDimensionUpdateWriter {
     protected Map<String, ?> keyValuesFromRow(I2b2SecondPassRow row) {
         [
                 (ENCOUNTER_NUM): row.encounterNum,
-                (PATIENT_NUM): row.patientNum
+                (PATIENT_NUM)  : row.patientNum
         ]
     }
 

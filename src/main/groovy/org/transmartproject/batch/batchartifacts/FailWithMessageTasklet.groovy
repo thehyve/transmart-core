@@ -29,7 +29,7 @@ class FailWithMessageTasklet implements Tasklet {
 
         SimpleTemplateEngine engine = new SimpleTemplateEngine()
         Map binding = [
-                ctx: jobContext.jobExecutionContext,
+                ctx   : jobContext.jobExecutionContext,
                 params: jobContext.jobParameters,
         ]
         Writable w = engine.createTemplate(messageTemplate).make(binding)

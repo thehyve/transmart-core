@@ -54,8 +54,8 @@ class InsertVisitsWriter implements ItemWriter<DimensionsStoreEntry> {
 
                     [
                             encounter_num: it.internalId as Long,
-                            patient_num: patientNum,
-                            *: i2b2ControlColumnsHelper.controlValues,
+                            patient_num  : patientNum,
+                            *            : i2b2ControlColumnsHelper.controlValues,
                     ]
                 } as Map[])
 
@@ -63,15 +63,16 @@ class InsertVisitsWriter implements ItemWriter<DimensionsStoreEntry> {
                 "inserting into $visitDimensionInsert.tableName")
 
         res = encounterMappingInsert.executeBatch(
-                items.collect { [
-                        project_id: projectId,
-                        encounter_ide: it.externalId,
-                        encounter_ide_source: visitIdeSource,
-                        encounter_num: it.internalId as Long,
-                        patient_ide: it.extraData,
-                        patient_ide_source: patientIdeSource,
-                        *: i2b2ControlColumnsHelper.controlValues,
-                ]
+                items.collect {
+                    [
+                            project_id          : projectId,
+                            encounter_ide       : it.externalId,
+                            encounter_ide_source: visitIdeSource,
+                            encounter_num       : it.internalId as Long,
+                            patient_ide         : it.extraData,
+                            patient_ide_source  : patientIdeSource,
+                            *                   : i2b2ControlColumnsHelper.controlValues,
+                    ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,
                 "inserting into $encounterMappingInsert.tableName")

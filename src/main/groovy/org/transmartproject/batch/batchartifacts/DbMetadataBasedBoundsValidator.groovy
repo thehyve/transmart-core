@@ -75,7 +75,7 @@ class DbMetadataBasedBoundsValidator implements Validator {
         def c = DataSourceUtils.getConnection(dataSource)
         try {
             processedConfig = config.collectEntries { String property,
-                                              ColumnSpecification spec ->
+                                                      ColumnSpecification spec ->
                 [property, processColumnSpecification(c.metaData, spec)]
             }
         } finally {
@@ -98,8 +98,8 @@ class DbMetadataBasedBoundsValidator implements Validator {
         }
 
         def r = [
-                maxSize:  rs.getInt('COLUMN_SIZE'), // in UTF-16 code units
-                                                    // will have to be improved for oracle
+                maxSize : rs.getInt('COLUMN_SIZE'), // in UTF-16 code units
+                // will have to be improved for oracle
                 nullable: rs.getInt('NULLABLE') as boolean,
         ]
         log.debug("Found for column $spec constraints $r")

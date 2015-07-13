@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.highdim.assays.SaveAssayIdListener
-import org.transmartproject.batch.highdim.platform.Platform
-import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
 
 /**
  * Account for values stored in the job execution context.
@@ -28,7 +26,4 @@ class ProteomicsDataJobContextItems {
         jobExecutionContext.get(SaveAssayIdListener.MAPPINGS_CONTEXT_KEY)
     }
 
-    Platform getPlatformObject() {
-        jobExecutionContext.get(PlatformCheckTasklet.PLATFORM_OBJECT_CTX_KEY)
-    }
 }

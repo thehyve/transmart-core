@@ -57,7 +57,7 @@ class NonPositiveDataPointWarningProcessor
                     "until a maximum of $MAX_VIOLATORS_STORED")
         }
 
-        if (violatorsCount <= MAX_VIOLATORS_STORED)  {
+        if (violatorsCount <= MAX_VIOLATORS_STORED) {
             violators << item
         }
 

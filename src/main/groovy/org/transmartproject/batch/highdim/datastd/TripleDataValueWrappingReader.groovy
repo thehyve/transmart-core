@@ -23,7 +23,6 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
     private PerDataRowLog2StatisticsListener statisticsListener
 
 
-
     private double clamp(double lowerBound, double upperBound, double value) {
         Math.min(upperBound, Math.max(lowerBound, value))
     }

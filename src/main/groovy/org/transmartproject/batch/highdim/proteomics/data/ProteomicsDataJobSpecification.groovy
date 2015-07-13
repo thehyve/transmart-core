@@ -11,7 +11,7 @@ import org.transmartproject.batch.startup.StudyJobParametersModule
  * External parameters for main proteomics data.
  */
 @TypeChecked
-class ProteomicsDataJobSpecification implements JobSpecification{
+class ProteomicsDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),

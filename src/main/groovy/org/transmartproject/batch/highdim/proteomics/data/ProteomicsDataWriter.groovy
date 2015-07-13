@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
-import org.transmartproject.batch.highdim.datastd.StandardDataValue
+import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 
 import static org.transmartproject.batch.clinical.db.objects.Tables.schemaName
 import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
@@ -19,10 +19,10 @@ import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
  */
 @Component
 @JobScope
-class ProteomicsDataWriter implements ItemWriter<StandardDataValue> {
+class ProteomicsDataWriter implements ItemWriter<TripleStandardDataValue> {
 
     @Autowired
-    private org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataRowConverter proteomicsDataRowConverter
+    private ProteomicsDataRowConverter proteomicsDataRowConverter
 
     @Autowired
     private JdbcTemplate jdbcTemplate
@@ -39,7 +39,7 @@ class ProteomicsDataWriter implements ItemWriter<StandardDataValue> {
     }()
 
     @Override
-    void write(List<? extends StandardDataValue> items) throws Exception {
+    void write(List<? extends TripleStandardDataValue> items) throws Exception {
         int[] result = jdbcInsert.executeBatch(items.collect(
                 proteomicsDataRowConverter.&convertProteomicsDataValue) as Map[])
         DatabaseUtil.checkUpdateCounts(result,

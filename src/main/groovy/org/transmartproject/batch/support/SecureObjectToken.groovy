@@ -25,7 +25,7 @@ class SecureObjectToken {
     void checkSecurityRequiredValue() {
         if (securityRequired != 'Y' && securityRequired != 'N') {
             throw new IllegalArgumentException(
-                        "Unexpected SECURITY_REQUIRED value: $securityRequired")
+                    "Unexpected SECURITY_REQUIRED value: $securityRequired")
         }
         Assert.notNull(studyId, "Study id not given")
     }

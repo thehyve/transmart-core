@@ -38,19 +38,20 @@ class InsertPatientsWriter implements ItemWriter<DimensionsStoreEntry> {
                 items.collect {
                     [
                             patient_num: it.internalId as Long,
-                            *: i2b2ControlColumnsHelper.controlValues,
+                            *          : i2b2ControlColumnsHelper.controlValues,
                     ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,
                 "inserting into $patientDimensionInsert.tableName")
 
         res = patientMappingInsert.executeBatch(
-                items.collect { [
-                        project_id: projectId,
-                        patient_ide: it.externalId,
-                        patient_ide_source: patientIdeSource,
-                        patient_num: it.internalId as Long,
-                        *: i2b2ControlColumnsHelper.controlValues,
+                items.collect {
+                    [
+                            project_id        : projectId,
+                            patient_ide       : it.externalId,
+                            patient_ide_source: patientIdeSource,
+                            patient_num       : it.internalId as Long,
+                            *                 : i2b2ControlColumnsHelper.controlValues,
                     ]
                 } as Map[])
         DatabaseUtil.checkUpdateCounts(res,

@@ -31,10 +31,10 @@ class ProteomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration {
     Tasklet deleteProteomicsAnnotationTasklet
 
     @Autowired
-    org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationRowValidator annotationRowValidator
+    ProteomicsAnnotationRowValidator annotationRowValidator
 
     @Autowired
-    org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationWriter proteomicsAnnotationWriter
+    ProteomicsAnnotationWriter proteomicsAnnotationWriter
 
     @Bean(name = 'ProteomicsPlatformLoadJob' /* JOB_NAME */)
     @Override

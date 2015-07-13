@@ -31,10 +31,10 @@ class InsertGplInfoTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         int i = jdbcInsert.execute([
-                platform:        platformObject.id,
-                title:           platformObject.title,
-                organism:        platformObject.organism,
-                marker_type:     platformObject.markerType,
+                platform       : platformObject.id,
+                title          : platformObject.title,
+                organism       : platformObject.organism,
+                marker_type    : platformObject.markerType,
                 annotation_date: jobStartTime,
         ])
         contribution.incrementWriteCount(i)

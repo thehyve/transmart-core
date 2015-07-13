@@ -45,11 +45,11 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
 
                 // if found we have an extra flow
                 .on('FOUND')
-                    .to(removePlatformMaybeFlow(null, null))
-                    .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
+                .to(removePlatformMaybeFlow(null, null))
+                .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
 
                 .from(checkPlatformExists(null, null))
-                    .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
+                .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
 
                 .next(mainStep()) // provided by subclass
                 .build()
@@ -84,7 +84,7 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow removePlatformMaybeFlow(Tasklet platformDataCheckTasklet,
                                  Tasklet deleteGplInfoTasklet) {
-        Step platformDataCheckStep =  steps.get('checkPlatformDataExists')
+        Step platformDataCheckStep = steps.get('checkPlatformDataExists')
                 .tasklet(platformDataCheckTasklet)
                 .listener(logCountsStepListener())
                 .listener(new FoundExitStatusChangeListener())

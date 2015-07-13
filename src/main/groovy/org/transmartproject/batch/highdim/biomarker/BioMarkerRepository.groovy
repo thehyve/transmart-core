@@ -2,11 +2,8 @@ package org.transmartproject.batch.highdim.biomarker
 
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.RowCallbackHandler
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
-
-import java.sql.ResultSet
 
 /**
  * Retrieves biomarker information from the database.

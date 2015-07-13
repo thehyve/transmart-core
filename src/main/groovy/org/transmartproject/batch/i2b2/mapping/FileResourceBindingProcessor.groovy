@@ -15,7 +15,7 @@ import java.nio.file.Path
 @Component
 @JobScopeInterfaced
 @TypeChecked
-class FileResourceBindingProcessor implements ItemProcessor<I2b2MappingEntry, I2b2MappingEntry>  {
+class FileResourceBindingProcessor implements ItemProcessor<I2b2MappingEntry, I2b2MappingEntry> {
 
     @Value("#{jobParameters['COLUMN_MAP_FILE']}")
     Path columnMapFile

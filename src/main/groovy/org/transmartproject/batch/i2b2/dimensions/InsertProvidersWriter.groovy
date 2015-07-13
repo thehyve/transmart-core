@@ -28,9 +28,10 @@ class InsertProvidersWriter implements ItemWriter<DimensionsStoreEntry> {
     void write(List<? extends DimensionsStoreEntry> items) throws Exception {
         providerDimensionInsert.executeBatch(items.collect {
             [
-                    provider_id: it.externalId,
+                    provider_id  : it.externalId,
                     provider_path: providerPath,
-                    *: i2b2ControlColumnsHelper.controlValues,
-            ]} as Map[])
+                    *            : i2b2ControlColumnsHelper.controlValues,
+            ]
+        } as Map[])
     }
 }

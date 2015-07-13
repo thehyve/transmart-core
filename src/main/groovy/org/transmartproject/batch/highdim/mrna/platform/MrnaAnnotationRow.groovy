@@ -17,7 +17,6 @@ class MrnaAnnotationRow {
     String entrezIds
     String organism
 
-
     /* genes are originally separated by ' /// '
      * We accept separation by , or 2-3 /'s, with or without whitespace
      */

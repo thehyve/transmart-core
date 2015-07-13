@@ -34,7 +34,7 @@ abstract class SequenceReserver {
     abstract List<Long> getValuesFromDatabase(String sequence, long blockSize)
 
     // not part of the API
-    @Transactional(propagation=Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     SequenceValues reserveBlock(String sequence) {
         Long blockSize = blockSizes[sequence.toLowerCase()] ?: defaultBlockSize
         List<Long> list = getValuesFromDatabase(sequence, blockSize)

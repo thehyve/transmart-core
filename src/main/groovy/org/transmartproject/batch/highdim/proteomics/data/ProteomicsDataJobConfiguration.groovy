@@ -28,6 +28,7 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
     @Autowired
     ProteomicsDataWriter proteomicsDataWriter
 
+    @Override
     @Bean(name = 'ProteomicsDataLoadJob')
     Job job() {
         jobs.get(JOB_NAME)
@@ -66,6 +67,7 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
     }
 
 
+    @Override
     @Bean
     DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
         new DeleteByColumnValueWriter<Long>(
@@ -74,7 +76,7 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
                 entityName: 'proteomics data points')
     }
 
-    @Override // job scoped bean
+    @Override
     ProteomicsDataWriter dataPointWriter() {
         proteomicsDataWriter
     }

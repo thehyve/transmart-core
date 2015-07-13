@@ -16,7 +16,7 @@ import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
  * Writes the metabolomics data to {@link Tables#METAB_DATA}.
  */
 @Component
-class MetabolomicsDataWriter implements ItemWriter<TripleStandardDataValue>  {
+class MetabolomicsDataWriter implements ItemWriter<TripleStandardDataValue> {
     @Autowired
     private MetabolomicsDataConverter metabolomicsDataConverter
 

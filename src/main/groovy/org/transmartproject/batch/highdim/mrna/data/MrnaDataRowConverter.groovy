@@ -4,12 +4,11 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.highdim.datastd.StandardDataValue
 import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 
 /**
- * Converts an {@link StandardDataValue} into a row ready for insertion into the
+ * Converts an {@link TripleStandardDataValue} into a row ready for insertion into the
  * database
  */
 @Component
@@ -43,15 +42,15 @@ class MrnaDataRowConverter {
         }
 
         [
-                trial_name:    studyId,
-                probeset_id:   annotationEntityMap[value.annotation], // validated before
-                assay_id:      assayId,
-                patient_id:    value.patient.code,
-                subject_id:    value.patient.id,
-                partition_id:  partitionId,
+                trial_name   : studyId,
+                probeset_id  : annotationEntityMap[value.annotation], // validated before
+                assay_id     : assayId,
+                patient_id   : value.patient.code,
+                subject_id   : value.patient.id,
+                partition_id : partitionId,
                 raw_intensity: value.value,
                 log_intensity: value.logValue,
-                zscore:        value.zscore,
+                zscore       : value.zscore,
         ]
     }
 }

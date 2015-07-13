@@ -65,7 +65,7 @@ abstract class AbstractDimensionUpdateWriter
         def ret = [:]
         columns.each { c -> ret[c] = null }
         controlColumnsHelper.controlValues.each { c, v ->
-            ret[c] =  v
+            ret[c] = v
         }
         ret
     }()

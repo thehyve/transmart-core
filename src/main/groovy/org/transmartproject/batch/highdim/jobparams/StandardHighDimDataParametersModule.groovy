@@ -16,8 +16,8 @@ class StandardHighDimDataParametersModule
 
     public final static String DATA_FILE = 'DATA_FILE' /* final destination for DATA_FILE_PREFIX */
     public final static String DATA_TYPE = 'DATA_TYPE'
-    public final static String LOG_BASE  = 'LOG_BASE'
-    public final static String ALLOW_MISSING_ANNOTATIONS  = 'ALLOW_MISSING_ANNOTATIONS'
+    public final static String LOG_BASE = 'LOG_BASE'
+    public final static String ALLOW_MISSING_ANNOTATIONS = 'ALLOW_MISSING_ANNOTATIONS'
 
     Set<String> supportedParameters = ImmutableSet.of(
             DATA_FILE_PREFIX,

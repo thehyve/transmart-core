@@ -20,7 +20,7 @@ class SubPathwaysWriter extends AbstractMetabolomicsWriter<SuperPathway> {
         VALUES (?, ?, ?, ?)
     """
 
-    final Closure preparedStatementSetter = {  SubPathway item, PreparedStatement ps ->
+    final Closure preparedStatementSetter = { SubPathway item, PreparedStatement ps ->
         ps.with {
             setLong(1, item.id)
             setString(2, platform.id)

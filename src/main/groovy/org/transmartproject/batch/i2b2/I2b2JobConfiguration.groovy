@@ -88,12 +88,12 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                 .next(allowStartStepOf(this.&loadCodeLookupsTasklet))
                 .next(firstPassStep)
                 .next(incrementalDecider())
-                        .on(COMPLETED_NEXT_INCREMENTAL)
-                        .to(findCurrentDimensionsStep)                       // 5.b
-                        .next(assignDimensionIdsStep)
+                .on(COMPLETED_NEXT_INCREMENTAL)
+                .to(findCurrentDimensionsStep)                       // 5.b
+                .next(assignDimensionIdsStep)
                 .from(incrementalDecider())
-                        .on(ExitStatus.COMPLETED.exitCode)
-                        .to(stepOf('deleteI2b2Data', deleteI2b2DataTasklet)) // 5.a
+                .on(ExitStatus.COMPLETED.exitCode)
+                .to(stepOf('deleteI2b2Data', deleteI2b2DataTasklet)) // 5.a
                 .next(assignDimensionIdsStep)
                 .next(insertDimensionObjectsFlow(null, null, null, null, null))
                 .next(secondPassStep)
@@ -116,7 +116,7 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
     @JobScope
     DimensionsStore dimensionsStore(
             @Value('#{jobExecution.executionContext}') ExecutionContext jobExecutionContext) {
-        if (jobExecutionContext.get(DIMENSIONS_STORE_JOB_KEY) == null){
+        if (jobExecutionContext.get(DIMENSIONS_STORE_JOB_KEY) == null) {
             def newObject = new DimensionsStore()
             jobExecutionContext.put(DIMENSIONS_STORE_JOB_KEY, newObject)
         }
@@ -295,7 +295,6 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
      * 5. a) (non-incremental only) Delete everything
      */
     // auto-configured
-
 
     /*
      * 5. b) (incremental only) Identify current ids of patients and visits (if any);

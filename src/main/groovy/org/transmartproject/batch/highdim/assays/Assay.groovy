@@ -24,28 +24,28 @@ class Assay {
 
     Map<String, Object> toDatabaseRow() {
         [
-                patient_id: patient.code,
+                patient_id  : patient.code,
                 // site_id irrelevant
-                subject_id: patient.id,
+                subject_id  : patient.id,
                 // subject_type irrelevant
                 concept_code: concept.code,
-                assay_id: id,
+                assay_id    : id,
                 // patient_uid irrelevant
-                sample_type: sampleType,
+                sample_type : sampleType,
                 // assay_uid irrelevant
-                trial_name: studyId,
+                trial_name  : studyId,
                 // timepoint irrelevant
                 // timepoint_cd irrelevant
                 // sample_type_cd irelevant
                 // tissue_type_cd irrelevant
                 // platform irrelevant
                 // platform_cd irrelevant
-                tissue_type: tissueType,
+                tissue_type : tissueType,
                 // data_uid irrelevant
-                gpl_id: platform.id,
+                gpl_id      : platform.id,
                 // rbm_panel irrelevant
                 // sample_id irrelevant
-                sample_cd: sampleCode,
+                sample_cd   : sampleCode,
                 // category_cd irrelevant
                 // source_cd irrelevant
                 // omic_source_study irrelevant

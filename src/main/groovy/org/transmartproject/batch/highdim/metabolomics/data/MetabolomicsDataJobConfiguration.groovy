@@ -36,8 +36,8 @@ class MetabolomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigu
     @JobScopeInterfaced
     GatherAnnotationEntityIdsReader annotationsReader() {
         new GatherAnnotationEntityIdsReader(
-                table:      Tables.METAB_ANNOTATION,
-                idColumn:   'id',
+                table: Tables.METAB_ANNOTATION,
+                idColumn: 'id',
                 nameColumn: 'biochemical_name',
         )
     }
@@ -45,8 +45,8 @@ class MetabolomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigu
     @Bean
     DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
         new DeleteByColumnValueWriter<Long>(
-                table:      Tables.METAB_DATA,
-                column:     'assay_id',
+                table: Tables.METAB_DATA,
+                column: 'assay_id',
                 entityName: 'metabolomics data points')
     }
 

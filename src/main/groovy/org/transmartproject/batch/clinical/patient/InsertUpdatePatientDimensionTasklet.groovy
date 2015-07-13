@@ -60,7 +60,7 @@ class InsertUpdatePatientDimensionTasklet implements Tasklet {
 
         patientSet.allPatients.each { Patient p ->
 
-            Map<String,Object> map = [
+            Map<String, Object> map = [
                     patient_num: p.code,
                     update_date: now,
             ]

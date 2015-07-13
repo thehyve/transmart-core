@@ -17,7 +17,7 @@ class PatientSet {
     @Autowired
     SequenceReserver sequenceReserver
 
-    private final Map<String,Patient> patientMap = [:]
+    private final Map<String, Patient> patientMap = [:]
 
     Patient getAt(String id) {
         Patient result = patientMap.get(id)

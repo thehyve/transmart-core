@@ -22,10 +22,12 @@ class ProteomicsAnnotationRowValidator implements Validator {
     @Resource
     Platform platformObject
 
+    @Override
     boolean supports(Class<?> clazz) {
         clazz == ProteomicsAnnotationRow
     }
 
+    @Override
     @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof ProteomicsAnnotationRow

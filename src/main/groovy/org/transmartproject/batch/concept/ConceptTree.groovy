@@ -42,7 +42,7 @@ class ConceptTree {
         getOrGenerate(topNodePath, ConceptType.CATEGORICAL) // for collaterals
     }
 
-    void loadExisting(Collection<ConceptNode> nodes)  {
+    void loadExisting(Collection<ConceptNode> nodes) {
         nodes.each { n ->
             if (log.traceEnabled &&
                     nodeMap.containsKey(n.path)) {
@@ -99,7 +99,7 @@ class ConceptTree {
             getOrGenerate(p, ConceptType.CATEGORICAL) /* for the collaterals */
         }
 
-        node =  new ConceptNode(path)
+        node = new ConceptNode(path)
         node.type = type
         log.debug("Generated new concept node: $path")
         nodeMap[path] = node

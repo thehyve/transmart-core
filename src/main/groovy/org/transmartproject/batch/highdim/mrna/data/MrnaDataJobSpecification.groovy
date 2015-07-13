@@ -11,7 +11,7 @@ import org.transmartproject.batch.startup.StudyJobParametersModule
  * External parameters for main mrna data.
  */
 @TypeChecked
-class MrnaDataJobSpecification implements JobSpecification{
+class MrnaDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),

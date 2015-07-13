@@ -47,7 +47,7 @@ class LineOfErrorDetectionListener<T> {
     }
 
     @OnWriteError
-    @CompileStatic(value=TypeCheckingMode.SKIP)
+    @CompileStatic(value = TypeCheckingMode.SKIP)
     void onWriteError(Exception e, List<? extends T> items) {
         log.warn("Write error occurred on after $read items have been " +
                 "read, $processed processed; chunk of ${items.size()} was being written")

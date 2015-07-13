@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  */
 enum DemographicVariable {
 
-    AGE (
+    AGE(
             column: 'age_in_years_num',
             defaultValue: 0,
             type: ConceptType.NUMERICAL,
@@ -20,7 +20,7 @@ enum DemographicVariable {
             ]
     ),
 
-    GENDER (
+    GENDER(
             column: 'sex_cd',
             defaultValue: 'Unknown',
             type: ConceptType.CATEGORICAL,
@@ -31,7 +31,7 @@ enum DemographicVariable {
             ]
     ),
 
-    RACE (
+    RACE(
             column: 'race_cd',
             defaultValue: null,
             type: ConceptType.CATEGORICAL,

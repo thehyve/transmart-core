@@ -38,14 +38,14 @@ class MetabolomicsDataConverter {
         assert metaboliteId != null // should have been validated before
 
         [
-                trial_name:               studyId,
+                trial_name              : studyId,
                 metabolite_annotation_id: metaboliteId,
-                assay_id:                 assayId,
-                patient_id:               value.patient.code,
-                subject_id:               value.patient.id,
-                raw_intensity:            value.value,
-                log_intensity:            value.logValue,
-                zscore:                   value.zscore,
+                assay_id                : assayId,
+                patient_id              : value.patient.code,
+                subject_id              : value.patient.id,
+                raw_intensity           : value.value,
+                log_intensity           : value.logValue,
+                zscore                  : value.zscore,
         ]
     }
 

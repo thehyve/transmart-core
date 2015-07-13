@@ -45,7 +45,7 @@ class OnlineMeanAndVarianceCalculator implements Serializable {
     }
 
     double getVariance() {
-        (n > 1) ? varNew/(n - 1) : 0.0d
+        (n > 1) ? varNew / (n - 1) : 0.0d
     }
 
     double getStandardDeviation() {

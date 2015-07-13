@@ -51,12 +51,12 @@ class MrnaAnnotationWriter implements ItemWriter<MrnaAnnotationRow> {
 
         row.geneList.size().times { i ->
             out << [
-                    gpl_id: platform.id,
-                    probe_id: row.probeName,
+                    gpl_id     : platform.id,
+                    probe_id   : row.probeName,
                     probeset_id: probesetId,
                     gene_symbol: row.geneList[i],
-                    gene_id: row.entrezIdList[i],
-                    organism: platform.organism]
+                    gene_id    : row.entrezIdList[i],
+                    organism   : platform.organism]
         }
         out
     }

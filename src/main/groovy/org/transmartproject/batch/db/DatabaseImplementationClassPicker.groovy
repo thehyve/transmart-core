@@ -15,7 +15,7 @@ import java.lang.annotation.Annotation
 @Component
 class DatabaseImplementationClassPicker {
     private static final Map<String, Class<? extends Annotation>> KNOWN_ANNOTATIONS = [
-            'org.postgresql.Driver': Postgresql,
+            'org.postgresql.Driver'          : Postgresql,
             'oracle.jdbc.driver.OracleDriver': Oracle,
     ]
 

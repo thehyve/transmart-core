@@ -46,7 +46,8 @@ class InsertConceptsTasklet implements Tasklet {
     private SimpleJdbcInsert i2b2SecureInsert
 
     @SuppressWarnings('PrivateFieldCouldBeFinal')
-    @Lazy private String metadataXml = { generateMetadataXml() }()
+    @Lazy
+    private String metadataXml = { generateMetadataXml() }()
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -63,15 +64,15 @@ class InsertConceptsTasklet implements Tasklet {
         if (newConcepts.size() > 0) {
             log.info("Inserting ${newConcepts.size()} new concepts " +
                     "(concept_dimension)")
-            Map<String,Object>[] rows = newConcepts.collect {
+            Map<String, Object>[] rows = newConcepts.collect {
                 [
-                    concept_cd: it.code,
-                    concept_path: it.path.toString(),
-                    name_char: it.name,
-                    update_date: now,
-                    download_date: now,
-                    import_date: now,
-                    sourcesystem_cd: studyId,
+                        concept_cd     : it.code,
+                        concept_path   : it.path.toString(),
+                        name_char      : it.name,
+                        update_date    : now,
+                        download_date  : now,
+                        import_date    : now,
+                        sourcesystem_cd: studyId,
                 ]
             }
 
@@ -91,27 +92,27 @@ class InsertConceptsTasklet implements Tasklet {
                 String visualAttributes = visualAttributesFor(it)
 
                 Map i2b2Row = [
-                        c_hlevel: it.level,
-                        c_fullname: it.path.toString(),
-                        c_basecode: it.code,
-                        c_name: it.name,
-                        c_synonym_cd: 'N',
+                        c_hlevel          : it.level,
+                        c_fullname        : it.path.toString(),
+                        c_basecode        : it.code,
+                        c_name            : it.name,
+                        c_synonym_cd      : 'N',
                         c_visualattributes: visualAttributes,
-                        c_metadataxml: metadataXmlFor(it),
-                        c_facttablecolumn: 'CONCEPT_CD',
-                        c_tablename: 'CONCEPT_DIMENSION',
-                        c_columnname: 'CONCEPT_PATH',
-                        c_columndatatype: 'T',
-                        c_operator: 'LIKE',
-                        c_dimcode: it.path.toString(),
-                        c_comment: comment,
-                        c_tooltip: it.path.toString(),
-                        m_applied_path: '@',
-                        update_date: now,
-                        download_date: now,
-                        import_date: now,
-                        sourcesystem_cd: conceptTree.isStudyNode(it) ? studyId : null,
-                        record_id: it.i2b2RecordId,
+                        c_metadataxml     : metadataXmlFor(it),
+                        c_facttablecolumn : 'CONCEPT_CD',
+                        c_tablename       : 'CONCEPT_DIMENSION',
+                        c_columnname      : 'CONCEPT_PATH',
+                        c_columndatatype  : 'T',
+                        c_operator        : 'LIKE',
+                        c_dimcode         : it.path.toString(),
+                        c_comment         : comment,
+                        c_tooltip         : it.path.toString(),
+                        m_applied_path    : '@',
+                        update_date       : now,
+                        download_date     : now,
+                        import_date       : now,
+                        sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
+                        record_id         : it.i2b2RecordId,
                 ]
 
                 Map i2b2SecureRow = new HashMap(i2b2Row)

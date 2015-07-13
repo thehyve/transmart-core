@@ -8,7 +8,7 @@ import org.transmartproject.batch.concept.ConceptType
 /**
  * Unsurprisingly, represents a patient.
  */
-@ToString(includes=['id','code'])
+@ToString(includes = ['id', 'code'])
 @Slf4j
 @TypeChecked
 final class Patient {
@@ -26,7 +26,7 @@ final class Patient {
                 log.warn "For patient $id, and demo variable $var, " +
                         "replacing ${demographicValues[var]} with $value"
             }
-            demographicValues[var] =  var.type == ConceptType.NUMERICAL ?
+            demographicValues[var] = var.type == ConceptType.NUMERICAL ?
                     (value ?: null) as Long :
                     value
         }

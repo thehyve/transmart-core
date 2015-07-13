@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
-import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.concept.ConceptNode
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.highdim.assays.MappingFileRow
 import org.transmartproject.batch.highdim.assays.MappingFileRowToConceptMapper
 import org.transmartproject.batch.highdim.assays.MappingsFileRowStore
@@ -66,14 +66,14 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
     @Override
     protected void doOpen() throws Exception {
         subjectConceptMappingFileRows = mappingsFileRowStore
-            .rows
-            .groupBy { [it.subjectId, it.conceptFragment] }
-            .sort { it.key }
-            .values()
+                .rows
+                .groupBy { [it.subjectId, it.conceptFragment] }
+                .sort { it.key }
+                .values()
 
         maxItemCount = subjectConceptMappingFileRows.size()
     }
 
     @Override
-    protected void doClose() throws Exception { }
+    protected void doClose() throws Exception {}
 }
