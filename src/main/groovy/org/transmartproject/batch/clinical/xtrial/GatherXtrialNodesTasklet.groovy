@@ -28,12 +28,12 @@ class GatherXtrialNodesTasklet implements Tasklet {
         mappingCollection.disjunctXtrialPrefixes
                 .collate(fetchSize)
                 .each { List<ConceptFragment> fragmentBlock ->
-                    List<XtrialNode> nodes = repository.getSubTree(*fragmentBlock)
-                    nodes.each {
-                        mappingCollection.registerTrialNode it
-                        contribution.incrementReadCount()
-                    }
-                }
+            List<XtrialNode> nodes = repository.getSubTree(*fragmentBlock)
+            nodes.each {
+                mappingCollection.registerTrialNode it
+                contribution.incrementReadCount()
+            }
+        }
 
         RepeatStatus.FINISHED
     }

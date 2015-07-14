@@ -171,11 +171,11 @@ class I2b2SecondPassInnerReader implements ResourceAwareItemReaderItemStream<I2b
         }
 
         // dimension values
-        r.patientDimensionValues = this.<PatientDimensionI2b2Variable>getDimensionValues(
+        r.patientDimensionValues = this.<PatientDimensionI2b2Variable> getDimensionValues(
                 patientDimensionEntries, fs)
-        r.visitDimensionValues = this.<VisitDimensionI2b2Variable>getDimensionValues(
+        r.visitDimensionValues = this.<VisitDimensionI2b2Variable> getDimensionValues(
                 visitDimensionEntries, fs)
-        r.providerDimensionValues = this.<ProviderDimensionI2b2Variable>getDimensionValues(
+        r.providerDimensionValues = this.<ProviderDimensionI2b2Variable> getDimensionValues(
                 providerDimensionEntries, fs)
 
         // facts

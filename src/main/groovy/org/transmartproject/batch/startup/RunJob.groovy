@@ -8,6 +8,8 @@ import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobS
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
+import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpecification
+import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
@@ -24,13 +26,15 @@ final class RunJob {
     public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
 
     private final Map<String, Class<? extends JobSpecification>> parametersTypeMap = [
-            'clinical': ClinicalJobSpecification,
-            'annotation': MrnaAnnotationJobSpecification,
-            'tags': TagsLoadJobSpecification,
-            'expression': MrnaDataJobSpecification,
+            'clinical'               : ClinicalJobSpecification,
+            'annotation'             : MrnaAnnotationJobSpecification,
+            'tags'                   : TagsLoadJobSpecification,
+            'expression'             : MrnaDataJobSpecification,
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
-            'metabolomics': MetabolomicsDataJobSpecification,
-            'i2b2': I2b2JobSpecification,
+            'metabolomics'           : MetabolomicsDataJobSpecification,
+            'i2b2'                   : I2b2JobSpecification,
+            'proteomics_annotation'  : ProteomicsAnnotationJobSpecification,
+            'proteomics'             : ProteomicsDataJobSpecification,
     ]
 
     OptionAccessor opts
@@ -101,6 +105,7 @@ final class RunJob {
             JobParameters getJobParameters(Properties properties) {
                 finalJobParameters
             }
+
             @SuppressWarnings('UnusedMethodParameter')
             Properties getProperties(JobParameters params) {
                 externalJobParams as Properties
@@ -155,23 +160,23 @@ final class RunJob {
          * on restarts the job name saved in the registry is
          * used as the bean name
          */
-         if (opts.r || opts.s || opts.a) {
-             if (!opts.j) {
-                 System.err.println('The -j parameter must be specified ' +
-                         'when the options -n, -s or -a are used')
-                 null
-             } else {
-                 opts.j
-             }
-         } else {
-             def job = configurationClass.JOB_NAME
-             if (!job) {
-                 throw new IllegalStateException("Class $configurationClass should " +
-                         "have a static property 'JOB_NAME'")
-             }
+        if (opts.r || opts.s || opts.a) {
+            if (!opts.j) {
+                System.err.println('The -j parameter must be specified ' +
+                        'when the options -n, -s or -a are used')
+                null
+            } else {
+                opts.j
+            }
+        } else {
+            def job = configurationClass.JOB_NAME
+            if (!job) {
+                throw new IllegalStateException("Class $configurationClass should " +
+                        "have a static property 'JOB_NAME'")
+            }
 
-             job
-         }
+            job
+        }
     }
 
     ExternalJobParameters getExternalJobParameters() {

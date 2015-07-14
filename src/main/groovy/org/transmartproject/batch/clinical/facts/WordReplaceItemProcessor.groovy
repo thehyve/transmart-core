@@ -60,7 +60,7 @@ class WordReplaceItemProcessor implements ItemProcessor<ClinicalDataRow, Clinica
             return ImmutableTable.of()
         }
 
-        def builder = ImmutableTable.<FileColumn, String, String>builder()
+        def builder = ImmutableTable.<FileColumn, String, String> builder()
         wordMappings.each { WordMapping mapping ->
             builder.put(
                     fileColumn(mapping.filename, mapping.column),

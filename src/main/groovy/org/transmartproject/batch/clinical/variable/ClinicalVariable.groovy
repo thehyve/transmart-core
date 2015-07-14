@@ -9,7 +9,7 @@ import org.transmartproject.batch.patient.DemographicVariable
  * Represents a Variable, as defined in column map file
  */
 @ToString
-@EqualsAndHashCode(includes = ['filename','columnNumber'])
+@EqualsAndHashCode(includes = ['filename', 'columnNumber'])
 class ClinicalVariable implements Serializable {
 
     private static final long serialVersionUID = 1L
@@ -43,7 +43,7 @@ class ClinicalVariable implements Serializable {
                            FIELD_CONCEPT_TYPE]
 
     public static final String CONCEPT_TYPE_CATEGORICAL = 'CATEGORICAL'
-    public static final String CONCEPT_TYPE_NUMERICAL   = 'NUMERICAL'
+    public static final String CONCEPT_TYPE_NUMERICAL = 'NUMERICAL'
 
     /* can be filled directly from fields */
     String filename
@@ -64,7 +64,7 @@ class ClinicalVariable implements Serializable {
      * These are to be calculated
      * @see ClinicalVariableFieldMapper */
 
-     /** */
+    /** */
     ConceptPath conceptPath
 
     DemographicVariable demographicVariable

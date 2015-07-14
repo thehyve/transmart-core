@@ -36,7 +36,7 @@ class AppConfig {
                     postgresql: { ->
                         'SET search_path = ts_batch'
                     },
-                    oracle: { -> },
+                    oracle    : { -> },
             ])
             if (initSQL) {
                 config.initSQL = initSQL
@@ -57,6 +57,7 @@ class AppConfig {
 
     /* override beans to fix warnings due to them not being static in
      * org.springframework.batch.core.configuration.annotation.AbstractBatchConfiguration.ScopeConfiguration */
+
     @Bean
     static StepScope stepScope() {
         new StepScope().with {

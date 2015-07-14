@@ -41,7 +41,7 @@ class UpdateProvidersWriter extends AbstractDimensionUpdateWriter {
     @Override
     protected Map<String, ?> keyValuesFromRow(I2b2SecondPassRow row) {
         [
-                (PROVIDER_ID): row.providerId,
+                (PROVIDER_ID)  : row.providerId,
                 (PROVIDER_PATH): providerPath,
         ]
     }

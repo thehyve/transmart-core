@@ -10,7 +10,7 @@ import org.springframework.batch.core.JobExecutionListener
  * causes.
  */
 @Slf4j
-class BetterExitMessageJobExecutionListener implements JobExecutionListener{
+class BetterExitMessageJobExecutionListener implements JobExecutionListener {
 
     @Override
     void beforeJob(JobExecution jobExecution) {

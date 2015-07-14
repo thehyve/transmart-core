@@ -12,7 +12,7 @@ class ColumnMappingValidator implements Validator {
 
     @Override
     boolean supports(Class<?> clazz) {
-       clazz == ClinicalVariable
+        clazz == ClinicalVariable
     }
 
     @Override

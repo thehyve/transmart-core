@@ -48,7 +48,7 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
         ps.setString(1, studyId)
-        basePaths.eachWithIndex{ ConceptPath basePath, int i ->
+        basePaths.eachWithIndex { ConceptPath basePath, int i ->
             ps.setString(i + 2, StringUtils.escapeForLike(basePath.toString()))
         }
     }

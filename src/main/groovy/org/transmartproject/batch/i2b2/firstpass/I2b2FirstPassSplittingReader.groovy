@@ -125,8 +125,8 @@ class I2b2FirstPassSplittingReader extends
         cachedEntries = new TreeMap<Integer, I2b2MappingEntry>(
                 cachedEntriesLocal)
         eidVariableEntries = cachedEntries.values().findAll {
-                    it.i2b2Variable instanceof DimensionExternalIdI2b2Variable
-                } as Set
+            it.i2b2Variable instanceof DimensionExternalIdI2b2Variable
+        } as Set
         fileFactEntriesSchema =
                 mappingStore.geFileFactEntriesSchemaFor(lastSeenResource)
         hasFacts = cachedEntries.values().find {
@@ -145,14 +145,14 @@ class I2b2FirstPassSplittingReader extends
         log.debug("Entries: $cachedEntries, external id variables: " +
                 "$eidVariableEntries, has facts: $hasFacts")
 
-        assert !cachedEntries.empty :
+        assert !cachedEntries.empty:
                 "there are entries for ${typedDelegate.currentResource}"
     }
 
     @Override
     protected I2b2FirstPassDataPoint doRead() {
         I2b2MappingEntry entry = cachedEntries[position]
-        assert entry != null : "There is an entry for position $position"
+        assert entry != null: "There is an entry for position $position"
 
         String data = currentFieldSet.readString(position) ?: null
         data = mappingStore.applyWordMapping(entry, data)
@@ -315,9 +315,9 @@ class I2b2FirstPassSplittingReader extends
             assert startDateColumnNumber != null
             String dateString = fieldSet.readString(
                     startDateColumnNumber - 1) ?: null
-            assert (dateString as boolean) :
+            assert (dateString as boolean):
                     "we have a date when generating the visit identifier"
-            assert externalIds[PATIENT_DIMENSION_KEY] != null :
+            assert externalIds[PATIENT_DIMENSION_KEY] != null:
                     "we have a patient id when generating the visit id"
 
             try {

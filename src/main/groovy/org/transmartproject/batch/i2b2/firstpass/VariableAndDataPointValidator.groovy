@@ -126,7 +126,7 @@ class VariableAndDataPointValidator implements Validator, ConfigurableLengthSema
                 if (precision > MAX_SUPPORTED_INTEGER_PRECISION) {
                     errors.reject 'integerPrecisionTooLarge',
                             [entry.columnNumber, entry.filename,
-                            precision, MAX_SUPPORTED_INTEGER_PRECISION] as Object[],
+                             precision, MAX_SUPPORTED_INTEGER_PRECISION] as Object[],
                             null
                 }
                 break
@@ -162,7 +162,7 @@ class VariableAndDataPointValidator implements Validator, ConfigurableLengthSema
                 break
 
             default:
-                assert false : 'should not get here'
+                assert false: 'should not get here'
         }
     }
 

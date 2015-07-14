@@ -50,4 +50,11 @@ class TableLists {
             Tables.MRNA_DATA,
             Tables.MRNA_ANNOTATION,
     ]
+
+    public static final List<String> PROTEOMICS_TABLES = [
+            "${Tables.GPL_INFO} CASCADE",
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.PROTEOMICS_DATA,
+            "${Tables.PROTEOMICS_ANNOTATION} CASCADE",
+    ]
 }

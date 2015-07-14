@@ -9,6 +9,6 @@ class UnexpectedConceptTypeException extends Exception {
                                    ConceptType gotten,
                                    ConceptPath path) {
         super("Asked for node $path with type $expected, " +
-                        "but the one I know has type $gotten")
+                "but the one I know has type $gotten")
     }
 }

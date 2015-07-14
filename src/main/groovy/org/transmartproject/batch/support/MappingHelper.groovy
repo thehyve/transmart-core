@@ -11,13 +11,13 @@ import org.codehaus.groovy.runtime.StringGroovyMethods
 @Deprecated
 class MappingHelper {
 
-    static final Set<Class>  NUMERIC_TYPES = [
-        Long.TYPE,
-        Integer.TYPE,
-        Short.TYPE,
-        Byte.TYPE,
-        Double.TYPE,
-        Float.TYPE,
+    static final Set<Class> NUMERIC_TYPES = [
+            Long.TYPE,
+            Integer.TYPE,
+            Short.TYPE,
+            Byte.TYPE,
+            Double.TYPE,
+            Float.TYPE,
     ]
 
     private static boolean isNumeric(MetaProperty prop) {
@@ -43,7 +43,7 @@ class MappingHelper {
         List<String> parts = parseValues(line)
         int valueCount = Math.min(parts.size(), props.size()) //we want to discard, yet allow extra columns
         Map result = [:]
-        for (int i=0; i<valueCount; i++) {
+        for (int i = 0; i < valueCount; i++) {
             result.put(props[i], parts[i])
         }
         result

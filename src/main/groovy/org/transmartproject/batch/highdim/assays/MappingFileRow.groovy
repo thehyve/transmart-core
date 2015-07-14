@@ -28,10 +28,10 @@ class MappingFileRow {
     }
 
     private final Map<String, Closure<String>> replacements = [
-            PLATFORM: { -> platform },
+            PLATFORM  : { -> platform },
             TISSUETYPE: { -> tissueType },
-            ATTR1: { -> attr1 },
-            ATTR2: { -> attr2 },
+            ATTR1     : { -> attr1 },
+            ATTR2     : { -> attr2 },
     ]
 
     ConceptFragment getConceptFragment() {

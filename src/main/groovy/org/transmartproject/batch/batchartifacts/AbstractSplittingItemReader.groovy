@@ -79,7 +79,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
 
     @SuppressWarnings('CatchException')
     private T uncachedRead() {
-        if (needsDelegateFetch())  {
+        if (needsDelegateFetch()) {
             wrappedDelegateLineFetch()
         }
 

@@ -51,7 +51,7 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
     void init() {
         assert delegate != null
 
-        def builder = ImmutableBiMap.<String, Integer>builder()
+        def builder = ImmutableBiMap.<String, Integer> builder()
         annotationEntityMap.annotationNames.eachWithIndex { entry, i ->
             builder.put entry, i
         }

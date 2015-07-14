@@ -22,10 +22,12 @@ class MrnaAnnotationRowValidator implements Validator {
     @Resource
     Platform platformObject
 
+    @Override
     boolean supports(Class<?> clazz) {
         clazz == MrnaAnnotationRow
     }
 
+    @Override
     @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof MrnaAnnotationRow
@@ -68,8 +70,10 @@ class MrnaAnnotationRowValidator implements Validator {
         } else {
             def combined = [target.geneList, target.entrezIdList].transpose()
 
-            if (combined.any { it[0] == null && it[1] != null ||
-                    it[1] == null && it[0] != null }) {
+            if (combined.any {
+                it[0] == null && it[1] != null ||
+                        it[1] == null && it[0] != null
+            }) {
                 log.warn("Found gene without entrez id or vice-versa. " +
                         "Gene list: ${target.geneList}, " +
                         "entrez id list: ${target.entrezIdList}. I'll allow it.")

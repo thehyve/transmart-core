@@ -2,12 +2,7 @@ package org.transmartproject.batch.i2b2.dimensions
 
 import com.google.common.base.Function
 import com.google.common.base.Predicate
-import com.google.common.collect.ImmutableSet
-import com.google.common.collect.Iterators
-import com.google.common.collect.Lists
-import com.google.common.collect.Table
-import com.google.common.collect.Tables
-import com.google.common.collect.TreeBasedTable
+import com.google.common.collect.*
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.ExitStatus
@@ -40,8 +35,8 @@ class DimensionsStore {
 
     /* this needs to be compact because this class is serialized */
     Table<String /* dimension key */,
-          String /* external id */,
-          List /* internal id (String), sawData (boolean), knownAsExisting (boolean) */> table =
+            String /* external id */,
+            List /* internal id (String), sawData (boolean), knownAsExisting (boolean) */> table =
             TreeBasedTable.create()
 
     void restore(DimensionsStore other) {
@@ -104,7 +99,7 @@ class DimensionsStore {
                                String extraData) {
         List list = table.get(dimensionKey, externalId)
         assert list != null
-9
+        9
         list[INTERNAL_ID_INDEX] = internalId
         list[KNOWN_AS_EXISTING_INDEX] = true
         if (extraData == null) {
@@ -162,15 +157,15 @@ class DimensionsStore {
     Iterator<DimensionsStoreEntry> getEntriesForDimensionKey(String dimensionKey) {
         Iterators.transform(
                 table.row(dimensionKey).entrySet().iterator(),
-                { Map.Entry<String,  List> entry ->
+                { Map.Entry<String, List> entry ->
                     String externalId = entry.key
                     List data = entry.value
                     new DimensionsStoreEntry(
-                            externalId:      externalId,
-                            internalId:      data[INTERNAL_ID_INDEX] as String,
-                            sawData:         (boolean) data[SAW_DATA_INDEX],
+                            externalId: externalId,
+                            internalId: data[INTERNAL_ID_INDEX] as String,
+                            sawData: (boolean) data[SAW_DATA_INDEX],
                             knownAsExisting: (boolean) data[KNOWN_AS_EXISTING_INDEX],
-                            extraData:       data[EXTRA_DATA_INDEX],
+                            extraData: data[EXTRA_DATA_INDEX],
                     )
                 } as Function<Map.Entry<String, List>, DimensionsStoreEntry>)
     }
@@ -193,10 +188,10 @@ class DimensionsStore {
         Iterators.transform(
                 Iterators.filter(
                         table.row(dimensionKey).entrySet().iterator(),
-                        { Map.Entry<String, List>  entry ->
-                            entry.value /* data */ [INTERNAL_ID_INDEX] == null
+                        { Map.Entry<String, List> entry ->
+                            entry.value /* data */[INTERNAL_ID_INDEX] == null
                         } as Predicate<Map.Entry<String, List>>),
-                { Map.Entry<String, List>  entry ->
+                { Map.Entry<String, List> entry ->
                     entry.key /* external id */
                 } as Function<Map.Entry<String, List>, String>)
     }

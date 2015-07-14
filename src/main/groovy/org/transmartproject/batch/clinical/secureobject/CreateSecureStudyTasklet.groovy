@@ -95,9 +95,9 @@ class CreateSecureStudyTasklet implements Tasklet {
 
             bioExperimentInsert.execute(
                     bio_experiment_id: id,
-                    title:             'Metadata not available',
-                    accession:         studyId,
-                    etl_id:            "METADATA:$studyId" as String
+                    title: 'Metadata not available',
+                    accession: studyId,
+                    etl_id: "METADATA:$studyId" as String
             )
             log.debug("Created new bio_experiment with id $id")
 
@@ -127,10 +127,10 @@ class CreateSecureStudyTasklet implements Tasklet {
             Long id = sequenceReserver.getNext(Sequences.SEARCH_SEQ_DATA_ID)
             retVal = [
                     search_secure_object_id: id,
-                    bio_data_unique_id: secureObjectToken.toString(),
-                    data_type: CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE,
-                    display_name: displayName,
-                    bio_data_id: experimentId,]
+                    bio_data_unique_id     : secureObjectToken.toString(),
+                    data_type              : CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE,
+                    display_name           : displayName,
+                    bio_data_id            : experimentId,]
             secureObjectInsert.execute(retVal)
 
             retVal

@@ -7,7 +7,7 @@ import static org.transmartproject.batch.i2b2.variable.DimensionI2b2Variable.I2b
  */
 enum VisitDimensionI2b2Variable implements DimensionI2b2Variable {
 
-    ACTIVE_STATUS (ENUMERATION, 'active_status_cd', values: [
+    ACTIVE_STATUS(ENUMERATION, 'active_status_cd', values: [
             'F', // final
             'P', // preliminary
             'A', // active (no end date)
@@ -25,10 +25,10 @@ enum VisitDimensionI2b2Variable implements DimensionI2b2Variable {
     VisitDimensionI2b2Variable(Map<String, Object> parameters,
                                DimensionI2b2Variable.I2b2DimensionVariableType type,
                                String column) {
-        this.parameters   = parameters
-        this.variableType = type
-        this.dimensionKey     = VISITS_DIMENSION_KEY
-        this.dimensionTable = 'visit_dimension'
+        this.parameters      = parameters
+        this.variableType    = type
+        this.dimensionKey    = VISITS_DIMENSION_KEY
+        this.dimensionTable  = 'visit_dimension'
         this.dimensionColumn = column
     }
 }

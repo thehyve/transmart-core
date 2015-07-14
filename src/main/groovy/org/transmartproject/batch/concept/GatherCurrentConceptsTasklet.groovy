@@ -81,9 +81,9 @@ class GatherCurrentConceptsTasklet implements Tasklet {
         }
 
         List<ConceptNode> concepts = jdbcTemplate.query(
-            sql,
-            params,
-            GatherCurrentConceptsTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
+                sql,
+                params,
+                GatherCurrentConceptsTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
 
         concepts.each {
             log.debug('Found existing concept {}', it)

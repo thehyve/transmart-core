@@ -100,6 +100,7 @@ abstract class AbstractJobConfiguration implements StepBuildingConfigurationTrai
 }
 
 /* needed so the runtime can know the generic types */
+
 interface StringToPathConverter extends Converter<String, Path> {}
 
 class OverriddenNameStep implements Step {

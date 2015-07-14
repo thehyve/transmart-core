@@ -16,14 +16,14 @@ class WordMapping implements Serializable {
     String originalValue
     String newValue
 
-    private final static FIELDS = ['filename','column','originalValue','newValue']
+    private final static FIELDS = ['filename', 'column', 'originalValue', 'newValue']
 
     static List<WordMapping> parse(InputStream input, LineListener listener) {
         MappingHelper.parseObjects(input, LINE_MAPPER, listener)
     }
 
     @SuppressWarnings('FieldName')
-    final static Function<String,WordMapping> LINE_MAPPER = new Function<String, WordMapping>() {
+    final static Function<String, WordMapping> LINE_MAPPER = new Function<String, WordMapping>() {
         @Override
         WordMapping apply(String input) {
             WordMapping result = MappingHelper.parseObject(input, WordMapping, FIELDS)

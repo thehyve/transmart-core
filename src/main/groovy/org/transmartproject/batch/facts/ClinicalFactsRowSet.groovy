@@ -1,9 +1,9 @@
 package org.transmartproject.batch.facts
 
-import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptType
+import org.transmartproject.batch.patient.Patient
 
 /**
  * Contains the transformed meaningful information from one data Row</br>
@@ -78,7 +78,8 @@ class ClinicalFactsRowSet {
         }
 
         /* Probably should be moved to another place (repository or insertion tasklet) */
-        Map<String,Object> getDatabaseRow() {
+
+        Map<String, Object> getDatabaseRow() {
             if (!concept.code) {
                 throw new IllegalStateException(
                         "Concept should have code attributed " +
@@ -87,21 +88,21 @@ class ClinicalFactsRowSet {
 
             [
                     sourcesystem_cd: studyId,
-                    encounter_num: patient.code,
-                    patient_num: patient.code,
-                    concept_cd: concept.code,
+                    encounter_num  : patient.code,
+                    patient_num    : patient.code,
+                    concept_cd     : concept.code,
                     //start_date: new Date(Long.MAX_VALUE), //doesn't work
-                    valtype_cd: valueTypeCode,
-                    tval_char: stringValue,
-                    nval_num: numericValue,
-                    start_date: BOGUS_START_DATE, // in i2b2 schema, part of PK
-                    import_date: date,
+                    valtype_cd     : valueTypeCode,
+                    tval_char      : stringValue,
+                    nval_num       : numericValue,
+                    start_date     : BOGUS_START_DATE, // in i2b2 schema, part of PK
+                    import_date    : date,
 
-                    provider_id: '@',
-                    location_cd: '@',
-                    modifier_cd: xtrialNode?.code ?: '@',
-                    valueflag_cd: '@',
-                    instance_num: 1,
+                    provider_id    : '@',
+                    location_cd    : '@',
+                    modifier_cd    : xtrialNode?.code ?: '@',
+                    valueflag_cd   : '@',
+                    instance_num   : 1,
             ]
         }
     }

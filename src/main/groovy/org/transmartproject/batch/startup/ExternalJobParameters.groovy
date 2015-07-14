@@ -29,7 +29,7 @@ final class ExternalJobParameters {
 
     Class<?> jobPath
 
-    private ExternalJobParameters() { }
+    private ExternalJobParameters() {}
 
     static ExternalJobParameters fromFile(
             Map<String, Class<? extends JobSpecification>> parametersTypeMap,
@@ -114,11 +114,11 @@ final class ExternalJobParameters {
     }
 
     Object asType(Class type) {
-        switch(type) {
+        switch (type) {
             case JobParameters:
                 return new JobParameters(Maps.transformValues(params, {
                     new JobParameter((String) it)
-                } as Function<String, JobParameter>) )
+                } as Function<String, JobParameter>))
             case Properties:
                 def p = new Properties()
                 p.putAll params
@@ -157,7 +157,7 @@ final class ExternalJobParameters {
                 def file = dir.resolve(fileName)
                 if (!Files.isRegularFile(file) ||
                         !Files.isReadable(file)) {
-                    throw new  InvalidParametersFileException(
+                    throw new InvalidParametersFileException(
                             "Parameter $parameter references $fileName, but " +
                                     "$file is not regular readable file")
                 }
@@ -167,7 +167,7 @@ final class ExternalJobParameters {
 
             void mandatory(String parameter) throws InvalidParametersFileException {
                 if (this[parameter] == null) {
-                    throw new  InvalidParametersFileException(
+                    throw new InvalidParametersFileException(
                             "Parameter $parameter mandatory but not defined")
                 }
             }

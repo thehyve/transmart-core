@@ -18,7 +18,7 @@ import org.transmartproject.batch.concept.ConceptType
 @Slf4j
 @Component
 @JobScope
-class XtrialMappingCollection  {
+class XtrialMappingCollection {
 
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptFragment topNode

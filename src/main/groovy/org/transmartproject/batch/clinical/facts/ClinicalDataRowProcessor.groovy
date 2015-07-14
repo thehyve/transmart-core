@@ -4,10 +4,10 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.patient.PatientSet
-import org.transmartproject.batch.clinical.variable.ClinicalVariable
 
 /**
  * Converts Rows into FactRowSets</br>

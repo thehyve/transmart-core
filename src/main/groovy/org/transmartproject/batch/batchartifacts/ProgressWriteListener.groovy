@@ -44,9 +44,9 @@ class ProgressWriteListener<T> {
         def curTime = System.currentTimeMillis()
 
         def perSecondGlobal = (items + chunkItems.size()) /
-                (Math.max(curTime - start, MIN_DIFFERENCE)/1000)
+                (Math.max(curTime - start, MIN_DIFFERENCE) / 1000)
         def perSecondLocal = (chunkItems.size()) /
-                (Math.max(curTime - last, MIN_DIFFERENCE)/1000)
+                (Math.max(curTime - last, MIN_DIFFERENCE) / 1000)
 
         items += chunkItems.size()
         last = curTime

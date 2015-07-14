@@ -19,13 +19,13 @@ class ObservationFactTableWriter implements ItemWriter<ClinicalFactsRowSet> {
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
 
-        List<Map<String,Object[]>> rows = []
+        List<Map<String, Object[]>> rows = []
 
         items.each {
             rows.addAll it.clinicalFacts*.databaseRow
         }
 
-        Map<String,Object>[] array = rows as Map<String,Object>[]
+        Map<String, Object>[] array = rows as Map<String, Object>[]
         try {
             insert.executeBatch(array)
         } catch (DuplicateKeyException ex) {

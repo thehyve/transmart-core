@@ -92,9 +92,9 @@ class PostgresPartitionTasklet implements Tasklet {
 
         List<String> result = jdbcTemplate.queryForList(q,
                 [
-                        comment_key: commentKey,
+                        comment_key      : commentKey,
                         unqualified_table: unqualifiedTable,
-                        schema: schema,
+                        schema           : schema,
                 ],
                 String)
 

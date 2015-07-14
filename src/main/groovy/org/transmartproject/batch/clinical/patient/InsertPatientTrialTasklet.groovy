@@ -43,8 +43,8 @@ class InsertPatientTrialTasklet implements Tasklet {
 
             Map<String, Object>[] rows = newPatients.collect {
                 [
-                        patient_num: it.code,
-                        trial: studyId,
+                        patient_num     : it.code,
+                        trial           : studyId,
                         secure_obj_token: secureObjectToken as String,
                 ]
             }

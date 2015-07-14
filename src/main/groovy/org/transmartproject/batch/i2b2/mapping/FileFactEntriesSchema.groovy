@@ -31,7 +31,7 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
                                   Map<I2b2MappingEntry, List<I2b2MappingEntry>> map,
                                   IdentityHashMap<ConceptI2b2Variable, I2b2MappingEntry> conceptEntryMapping) {
         def builder = ImmutableMap
-                .<I2b2MappingEntry,  ImmutableList<I2b2MappingEntry>>builder()
+                .<I2b2MappingEntry, ImmutableList<I2b2MappingEntry>> builder()
         map.each { I2b2MappingEntry conceptEntry,
                    List<I2b2MappingEntry> modifierEntries ->
             builder.put(conceptEntry, ImmutableList.copyOf(modifierEntries))
@@ -82,7 +82,7 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
                                        List<I2b2MappingEntry> modifierEntries ->
             Set<String> repeatedModifiers = modifierEntries.countBy {
                 I2b2MappingEntry modifierEntry ->
-                    ((ModifierI2b2Variable)modifierEntry.i2b2Variable).modifierCode
+                    ((ModifierI2b2Variable) modifierEntry.i2b2Variable).modifierCode
             }.findAll { String modifierCode, Integer count ->
                 count > 1
             }.keySet()
@@ -128,19 +128,19 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
                 counts
                         .findAll { Set<Tuple> tuples, Integer c -> c > 1 }
                         .each { Set<Tuple> tuples, Integer c ->
-                            throw new ValidationException("The concept code $code is read multiple times " +
-                                    "from the column $col and, for this combination, a set of " +
-                                    "(modifier, column from which the modifier is read) is repeated " +
-                                    "(this set being $tuples)")
+                    throw new ValidationException("The concept code $code is read multiple times " +
+                            "from the column $col and, for this combination, a set of " +
+                            "(modifier, column from which the modifier is read) is repeated " +
+                            "(this set being $tuples)")
                 }
 
                 // the more benign case
                 LoggerFactory.getLogger(FileFactEntriesSchema).info(
                         "The concept code $code is read multiple times from " +
-                        "column $col. This is allowed because the set of " +
-                         "(modifier, column from which of the modifier is " +
-                         "read) is different in each case; just make sure " +
-                         "it's intentional.")
+                                "column $col. This is allowed because the set of " +
+                                "(modifier, column from which of the modifier is " +
+                                "read) is different in each case; just make sure " +
+                                "it's intentional.")
             }
         }
     }
@@ -149,8 +149,8 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
         conceptVarToEntryMap.keySet()
                 .countBy { ConceptI2b2Variable it -> it.conceptCode }
                 .findAll { concept, count ->
-                    count > 1
-                }.keySet()
+            count > 1
+        }.keySet()
     }
 
     // column can be repeated
@@ -161,7 +161,7 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
     private List<Integer> findRepeatedColumnAssociationsForConcept(String conceptCode) {
         getColumnAssociationsForConcept(conceptCode)
                 .countBy(Closure.IDENTITY)
-                .findAll { column, count -> count > 1}
+                .findAll { column, count -> count > 1 }
                 .keySet() as List<Integer>
     }
 

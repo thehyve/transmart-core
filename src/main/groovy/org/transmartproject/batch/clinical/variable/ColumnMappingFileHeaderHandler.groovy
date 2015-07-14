@@ -20,7 +20,7 @@ class ColumnMappingFileHeaderHandler
     List<String> handleLine(List<String> values) {
         if (values.size() == 4) {
             log.debug("Column mapping file's header has 4 columns, OK. " +
-                    "Expected these to be ${ ClinicalVariable.FIELDS[0..3]}")
+                    "Expected these to be ${ClinicalVariable.FIELDS[0..3]}")
         } else if (values.size() == 6) {
             log.warn("Column mapping file's header has 6 columns. This is " +
                     "accepted, but the 5th and 6th columns will be ignored")

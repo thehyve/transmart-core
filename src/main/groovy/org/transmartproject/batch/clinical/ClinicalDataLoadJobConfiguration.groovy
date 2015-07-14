@@ -93,7 +93,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .start(mainFlow())
                 .end()
                 .build()
-                .with { FlowJob job ->job.restartable = false; job }
+                .with { FlowJob job -> job.restartable = false; job }
     }
 
     @Bean
@@ -263,7 +263,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @StepScopeInterfaced
-    ItemProcessor<ClinicalDataRow,ClinicalDataRow> wordReplaceProcessor() {
+    ItemProcessor<ClinicalDataRow, ClinicalDataRow> wordReplaceProcessor() {
         new WordReplaceItemProcessor()
     }
 
@@ -297,7 +297,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
         picker.instantiateCorrectClass(
                 OracleInsertConceptCountsTasklet,
                 PostgresInsertConceptCountsTasklet)
-        .with { InsertConceptCountsTasklet t ->
+                .with { InsertConceptCountsTasklet t ->
             t.basePath = topNode
             t
         }

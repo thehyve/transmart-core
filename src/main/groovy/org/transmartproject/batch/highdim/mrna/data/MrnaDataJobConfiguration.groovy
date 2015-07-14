@@ -28,6 +28,7 @@ class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
     @Autowired
     MrnaDataWriter mrnaDataWriter
 
+    @Override
     @Bean(name = 'MrnaDataLoadJob')
     Job job() {
         jobs.get(JOB_NAME)
@@ -66,7 +67,7 @@ class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
                 ])
     }
 
-
+    @Override
     @Bean
     DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
         new DeleteByColumnValueWriter<Long>(
@@ -75,7 +76,7 @@ class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
                 entityName: 'mrna data points')
     }
 
-    @Override // job scoped bean
+    @Override
     MrnaDataWriter dataPointWriter() {
         mrnaDataWriter
     }
