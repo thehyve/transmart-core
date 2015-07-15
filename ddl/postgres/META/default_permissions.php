@@ -64,7 +64,7 @@ $permissions = [
 	],
 	'galaxy' => [
 		'tm_cz' => 'full',
-		'biomart_user' => 'read',
+		'biomart_user' => 'full',
 	],
 ];
 
