@@ -3,8 +3,12 @@
 include ../../../makefile.inc
 OUTDIR := ../../common/$(THIS_SCHEMA)
 
+export PSQL_COMMAND
+
 dump_%:
-	$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* TO STDOUT \
+	$(PSQL_COMMAND) -c "COPY \
+			(SELECT $$(../colspec.sh $(THIS_SCHEMA) $*) FROM $(THIS_SCHEMA).$*) \
+			TO STDOUT \
 			CSV DELIMITER E'\t' FORCE QUOTE *" > $(OUTDIR)/$*.tsv
 
 load_%:
@@ -14,3 +18,5 @@ load_%:
 		$(PSQL_COMMAND) -c "COPY $(THIS_SCHEMA).$* FROM STDIN \
 			CSV DELIMITER E'\t'" < $(OUTDIR)/$*.tsv; \
 	fi
+
+# vim: set ft=make:
