@@ -2,7 +2,7 @@
 <dataConfig>
 <dataSource driver="oracle.jdbc.driver.OracleDriver"
             url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?><?= isset($_ENV['ORASVC']) ? "/{$_ENV['ORASVC']}" : ":{$_ENV['ORASID']}" ?>"
-            user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>">
+            user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" />
     <document>
         <entity name="I2B2" query="select SAMPLE_ID,TRIAL_NAME,DISEASE,TISSUE_TYPE,DATA_TYPES,BIOBANK,SOURCE_ORGANISM,SAMPLE_TREATMENT,SUBJECT_TREATMENT from i2b2DemoData.sample_categories">
             <field name="id" column="SAMPLE_ID" />

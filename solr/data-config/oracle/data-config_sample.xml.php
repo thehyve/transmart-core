@@ -1,8 +1,8 @@
 <?php require __DIR__ . '/../../../lib/php/env_helper.inc.php'; ?>
 <dataConfig>
 <dataSource driver="oracle.jdbc.driver.OracleDriver"
-            url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?>:<?= $_ENV['ORASID'] ?>"
-            user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>">
+            url="jdbc:oracle:thin:@<?= $_ENV['ORAHOST'] ?>:<?= $_ENV['ORAPORT'] ?><?= isset($_ENV['ORASVC']) ? "/{$_ENV['ORASVC']}" : ":{$_ENV['ORASID']}" ?>"
+            user="biomart_user" password="<?= htmlspecialchars($biomart_user_pwd) ?>" />
     <document>
         <entity name="Samples" query="select sample_id,trial_name,field1,field2,field3,field4,field5,field6,field7,field8,field9,field10,source_organism from i2b2DemoData.sample_categories">
             <field name="id" column="sample_id"/>
