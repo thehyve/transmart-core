@@ -28,10 +28,14 @@ class BetterExitMessageJobExecutionListener implements JobExecutionListener {
 
         def messages = []
         def seenThrowables = [] as Set
-        jobExecution.allFailureExceptions.each {
-            for (Throwable t = it; t != null; t = t.cause) {
+        def allFailures = jobExecution.allFailureExceptions
+        while (allFailures) {
+            for (Throwable t = allFailures.pop(); t != null; t = t.cause) {
                 if (t in seenThrowables) {
                     return
+                }
+                if (t.hasProperty('nextException')) {
+                    allFailures << t.nextException
                 }
                 seenThrowables << t
                 messages << "${t.getClass().simpleName}: ${t.message}"
