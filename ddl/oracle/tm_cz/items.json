@@ -2090,7 +2090,7 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "SEQUENCE",
+      "type" : "TABLE",
       "owner" : "TM_CZ",
       "name" : "CZ_REQUIRED_UPLOAD_FIELD"
     },
@@ -14830,6 +14830,27 @@
       "name" : "TMP_TRIAL_NODES"
     },
     "file" : "tm_cz/tmp_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_REQUIRED_UPLOAD_FIELD"
+    },
+    "file" : "tm_cz/cz_required_upload_field.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "TM_CZ",
+      "name" : "TRG_CZ_REQ_UPLOAD_FIELD_ID"
+    },
+    "file" : "tm_cz/cz_required_upload_field.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "TM_CZ",
+      "name" : "SEQ_REQUIRED_UPLOAD_FIELD_ID"
+    },
+    "file" : "tm_cz/cz_required_upload_field.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",
