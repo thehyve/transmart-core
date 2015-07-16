@@ -23,3 +23,5 @@ fmapp	fm_folder
 fmapp	fm_folder_association
 fmapp	fm_file
 fmapp	fm_folder_file_association
+galaxy	status_of_export_job
+galaxy	users_details_for_export_gal
