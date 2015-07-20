@@ -1,4 +1,4 @@
-# Requires that the DATATYPE parameter is set and not empty
+# Requires that the UPLOAD_DATA_TYPE parameter is set and not empty
 # Optionally expecting values for the following parameters:
 #   DATA_LOCATION, STUDY_NAME, STUDY_ID, SECURITY_REQUIRED, TOP_NODE_PREFIX
 
