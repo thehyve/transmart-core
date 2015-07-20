@@ -139,7 +139,7 @@ class HighDimController {
         resourceMap.collect {
             HighDimensionDataTypeResource hdr, Collection<Assay> assays ->
             new HighDimSummary(
-                    conceptWrapper: new OntologyTermWrapper(concept),
+                    conceptWrapper: new OntologyTermWrapper(concept, false),
                     name: hdr.dataTypeName,
                     assayCount: assays.size(),
                     supportedProjections: hdr.supportedProjections,

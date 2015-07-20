@@ -44,7 +44,7 @@ class ConceptController {
     */
     def index() {
         def concepts = studyLoadingServiceProxy.study.ontologyTerm.allDescendants
-        def conceptWrappers = OntologyTermWrapper.wrap(concepts)
+        def conceptWrappers = concepts.collect { new OntologyTermWrapper(it, false) }
         respond wrapConcepts(conceptWrappers)
     }
 
@@ -57,7 +57,8 @@ class ConceptController {
         use (OntologyTermCategory) {
             String key = id.keyFromURLPart studyLoadingServiceProxy.study
             def concept = conceptsResourceService.getByKey(key)
-            respond new OntologyTermWrapper(concept)
+            respond new OntologyTermWrapper(concept,
+                    id == OntologyTermCategory.ROOT_CONCEPT_PATH)
         }
     }
 

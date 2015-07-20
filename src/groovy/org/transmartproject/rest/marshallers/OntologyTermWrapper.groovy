@@ -27,25 +27,43 @@ package org.transmartproject.rest.marshallers
 
 import org.transmartproject.core.ontology.OntologyTerm
 
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
+
 /**
  * Wraps an OntologyTerm for serialization.
  * Marshallers/Serializers have a static registry where the class is the key, and transSMART already
  * has its own serializer for OntologyTerm, so we use this class to wrap the OntologyTerm and pick the right Serializer
- * for REST API
+ * for REST API.
+ *
+ * We also use it for some helper methods.
  */
 class OntologyTermWrapper {
 
     OntologyTerm delegate
 
-    OntologyTermWrapper(OntologyTerm term) {
-        this.delegate = term
-    }
+    private boolean root = false
 
-    static List<OntologyTermWrapper> wrap(List<OntologyTerm> source) {
-        source.collect { new OntologyTermWrapper(it) }
+    OntologyTermWrapper(OntologyTerm term, boolean root) {
+        this.delegate = term
+        this.root = root
     }
 
     boolean isHighDim() {
-        OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL in this.delegate.visualAttributes
+        HIGH_DIMENSIONAL in delegate.visualAttributes
+    }
+
+    ApiOntologyTermType getApiOntologyTermType() {
+        if (highDim) {
+            ApiOntologyTermType.HIGH_DIMENSIONAL
+        } else if (root) {
+            ApiOntologyTermType.STUDY
+        } else if (delegate.metadata?.okToUseValues) {
+            ApiOntologyTermType.NUMERIC
+        } else if (LEAF in delegate.visualAttributes) {
+            ApiOntologyTermType.CATEGORICAL_OPTION
+        } else {
+            ApiOntologyTermType.UNKNOWN
+        }
     }
 }
