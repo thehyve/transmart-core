@@ -57,6 +57,9 @@ class ConceptsResourceTests extends ResourceTestCase {
     def longConceptKey = "\\\\i2b2 main$longConceptPath"
     def longConceptUrl = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_'
 
+    def sexConceptUrl = '/studies/study_id_2/concepts/sex'
+    def femaleConceptUrl = '/studies/study_id_2/concepts/sex/female'
+
     def study2ConceptListUrl = '/studies/study_id_2/concepts'
 
     def study1RootConceptTags = [
@@ -157,6 +160,40 @@ class ConceptsResourceTests extends ResourceTestCase {
         def result = getAsHal rootConceptUrl
         assertStatus 200
         assertThat result, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+    }
+
+    void testDataTypeStudy() {
+        // unfortunately the test data has no concept with the study
+        // visual attribute. This is detected as a study because the ontology
+        // term is the same as the one studyLoadingService.study.ot returns
+        // See OntologyTermWrapper
+        def result = getAsJson rootConceptUrl
+        assertStatus 200
+        assertThat result, hasEntry('type', 'STUDY')
+    }
+
+    void testDataTypeHighDimensional() {
+        def result = getAsJson conceptUrl //study 1/bar
+        assertStatus 200
+        assertThat result, hasEntry('type', 'HIGH_DIMENSIONAL')
+    }
+
+    void testDataTypeNumeric() {
+        def result = getAsJson longConceptUrl
+        assertStatus 200
+        assertThat result, hasEntry('type', 'NUMERIC')
+    }
+
+    void testDataTypeCategoricalOption() {
+        def result = getAsJson femaleConceptUrl
+        assertStatus 200
+        assertThat result, hasEntry('type', 'CATEGORICAL_OPTION')
+    }
+
+    void testDataTypeUnknown() {
+        def result = getAsJson sexConceptUrl
+        assertStatus 200
+        assertThat result, hasEntry('type', 'UNKNOWN')
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,

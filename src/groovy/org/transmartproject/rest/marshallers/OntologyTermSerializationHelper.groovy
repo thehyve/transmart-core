@@ -100,9 +100,10 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
         OntologyTerm term = obj.delegate
         def result =
             [
-                name:     term.name,
-                key:      term.key,
-                fullName: term.fullName,
+                    name:     term.name,
+                    key:      term.key,
+                    fullName: term.fullName,
+                    type:     obj.apiOntologyTermType.name(),
             ]
 
         Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags([term] as Set, false)
