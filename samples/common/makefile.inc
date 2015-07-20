@@ -82,8 +82,8 @@ PROTEOMICS_DATA_FILE    ?= $(PROTEOMICS_DATA_PREFIX).txt
 PROTEOMICS_ANNOT_PREFIX ?= proteomics
 PROTEOMICS_ANNOT_FILE   ?= $(PROTEOMICS_ANNOT_PREFIX)_annotation.txt
 
+load_proteomics_annotation_%: GPL_ID ?= $*_proteomics
 load_proteomics_annotation_%: ../studies/%/proteomics_annotation/$(PROTEOMICS_ANNOT_FILE)
-	GPL_ID=$*_proteomics \
 	DATA_LOCATION="$(realpath ../studies/$*/proteomics_annotation)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_proteomics_annotation.sh $< \
@@ -118,8 +118,8 @@ MIRNA_DATA_FILE    ?= $(MIRNA_DATA_PREFIX).txt
 MIRNA_ANNOT_PREFIX ?= mirna
 MIRNA_ANNOT_FILE   ?= $(MIRNA_ANNOT_PREFIX)_annotation.txt
 
+load_mirna_annotation_%: GPL_ID ?= $*_mirna
 load_mirna_annotation_%: ../studies/%/mirna.params ../studies/%/mirna ../studies/%/mirna/$(MIRNA_ANNOT_FILE)
-	GPL_ID=$*_mirna \
 	DATA_LOCATION="$(realpath ../studies/$*/mirna)" \
 	KETTLE_HOME="$(realpath kettle-home)" \
 	./load_mirna_annotation.sh $< \
