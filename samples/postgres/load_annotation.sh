@@ -3,25 +3,31 @@
 #set -x
 set -e
 
+# General optional parameters:
+#   DATA_LOCATION, STUDY_NAME, STUDY_ID
+# Mandatory parameters specific for this upload script:
+#   ANNOTATIONS_FILE
+# Optional parameter(s) specific for this upload script:
+#   PLATFORM_ID, PLATFORM_TITLE, GENOME_RELEASE
+
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="annotation"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
-# Check if mandetory variables are set
+# Check if mandatory variables are set
 if [ -z "$ANNOTATIONS_FILE" ]; then
         echo "Following variables need to be set:"
         echo "    ANNOTATIONS_FILE=$ANNOTATIONS_FILE"
         exit -1
 fi
 
-
 # Check if mandatory parameter values are provided
 PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${ANNOTATIONS_FILE} | sort -u)
 if [ ! -z "$PLATFORM_ID" ]; then
 	if [[ "$PLATFORM" != "$PLATFORM_ID" ]]
 	then
-    		echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params doesnot equal PLATFORM=$PLATFORM defined in $PLATFORM_FILE"
+    		echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in $PLATFORM_FILE"
     		exit 1
 	fi
 fi
@@ -36,7 +42,7 @@ fi
 
 ORGANISM=$(awk -F'\t' 'BEGIN{getline}{print $NF}' ${ANNOTATIONS_FILE} | sort -u)
 PLATFORM_TITLE=${PLATFORM_TITLE:-${PLATFORM}}
-$PGSQL_BIN/psql -c "COPY deapp.de_gpl_info(platform, title, organism, marker_type, release_nbr) FROM STDIN" <<HEREDOC
+$PGSQL_BIN/psql -c "COPY deapp.de_gpl_info(platform, title, organism, marker_type, genome_build) FROM STDIN" <<HEREDOC
 $PLATFORM	$PLATFORM_TITLE	$ORGANISM	Gene Expression	$GENOME_RELEASE
 HEREDOC
 
