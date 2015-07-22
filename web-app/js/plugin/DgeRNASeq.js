@@ -3,7 +3,7 @@
  * @type {number}
  */
 
-var rnaSeqDgeView;
+var dgeRnaSeqView;
 
 /**
  * Buttons for Input Panel
@@ -15,11 +15,11 @@ var rgtInputBarBtnList = ['->', {  // '->' making it right aligned
     scale: 'medium',
     iconCls: 'runbutton',
     handler: function () {
-        rnaSeqDgeView.submitDgeJob();
+        dgeRnaSeqView.submitDgeJob();
     }
 }];
 
-var RNASeqDgeInputWidget = Ext.extend(GenericAnalysisInputBar, {
+var DgeRNASeqInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
     rnaseqPanel: null,
     groupPanel: null,
@@ -31,7 +31,7 @@ var RNASeqDgeInputWidget = Ext.extend(GenericAnalysisInputBar, {
     ],
 
     constructor: function (config) {
-        RNASeqDgeInputWidget.superclass.constructor.apply(this, arguments);
+        DgeRNASeqInputWidget.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -93,7 +93,7 @@ var RNASeqDgeInputWidget = Ext.extend(GenericAnalysisInputBar, {
  * @type {Array}
  * @private
  */
-var _rnaseqdgegrid_columns = [
+var _dgernaseq_grid_columns = [
     {
         id: 'genes', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
         header: "genes",
@@ -133,12 +133,12 @@ var _rnaseqdgegrid_columns = [
  * This object represents the intermediate result grid
  * @type {*|Object}
  */
-var RNASeqDgeResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+var DgeRNASeqResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
     jobName: '',
 
     constructor: function (config) {
-        RNASeqDgeResultGrid.superclass.constructor.apply(this, arguments);
+        DgeRNASeqResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -172,12 +172,12 @@ var RNASeqDgeResultGrid = Ext.extend(GenericAnalysisResultGrid, {
     }
 });
 
-var RNASeqDgeResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+var DgeRNASeqResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
     jobName: '',
 
     constructor: function (config) {
-        RNASeqDgeResultGrid.superclass.constructor.apply(this, arguments);
+        DgeRNASeqResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -219,7 +219,7 @@ var RNASeqDgeResultGrid = Ext.extend(GenericAnalysisResultGrid, {
  * This class represents the whole Group Test view
  * @type {*|Object}
  */
-var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
+var DgeRNASeqView = Ext.extend(GenericAnalysisView, {
 
     // input panel
     inputBar: null,
@@ -228,7 +228,7 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
     resultPanel: null,
 
     // job type
-    jobType: 'RNASeqDge',
+    jobType: 'DgeRNASeq',
 
     // job info
     jobInfo: null,
@@ -244,7 +244,7 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
         this.resetAll();
 
         // draw input panel
-        this.inputBar = new RNASeqDgeInputWidget({
+        this.inputBar = new DgeRNASeqInputWidget({
             id: 'rgtInputPanel',
             title: 'Input Parameters',
             iconCls: 'newbutton',
@@ -342,7 +342,7 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
 
         // get image path
         Ext.Ajax.request({
-            url: pageInfo.basePath + "/RNASeqDge/imagePath",
+            url: pageInfo.basePath + "/DgeRNASeq/imagePath",
             method: 'POST',
             success: function (result, request) {
 
@@ -357,8 +357,48 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
                     defaults: {autoScroll: true}
                 });
 
-                _this.renderResultArea();
-                _this.renderDownloadButton(jobName, view);
+                // Getting the template as blue print for survival curve plot.
+                // Template is defined in GroupTestRNASeq.gsp
+
+                var dgeRNASeqPlotTpl = Ext.Template.from('template-dge-rnaseq-plot');
+
+                var groupVariable = dgeRnaSeqView.jobInfo.jobInputsJson.groupVariable;
+                var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
+                // create data instance
+                var region = {
+                    jobName: dgeRnaSeqView.jobInfo.name,
+                    startDate: dgeRnaSeqView.jobInfo.startDate,
+                    runTime: dgeRnaSeqView.jobInfo.runTime,
+                    inputRNASeqVariable: dgeRnaSeqView.jobInfo.jobInputsJson.RNASeqVariable,
+                    inputGroupVariable: groupVariableHtml,
+                    inputAnalysisType: dgeRnaSeqView.jobInfo.jobInputsJson.contrast,
+                    inputCohort1: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id1,
+                    inputCohort2: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id2
+                };
+
+                if (imagePath) {
+                    region.filename = imagePath
+                }
+                // generate template
+                dgeRNASeqPlotTpl.overwrite(Ext.get('rgtPlotWrapper'), region);
+
+                jQuery.get(pageInfo.basePath + '/dataExport/isCurrentUserAllowedToExport',
+                    {
+                        result_instance_id1: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id1,
+                        result_instance_id2: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id2
+                    },
+                    function (data) {
+                        if (data.result) {
+                            new Ext.Button({
+                                text: 'Download Result',
+                                iconCls: 'downloadbutton',
+                                renderTo: 'downloadBtn',
+                                handler: function () {
+                                    _this.downloadDgeRNASeqResult(jobName);
+                                }
+                            });
+                        }
+                    });
             },
             params: {
                 jobName: jobName
@@ -366,46 +406,12 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
         });
     },
 
-    renderResultArea: function(imagePath) {
-        var dgeRNASeqPlotTpl = Ext.Template.from('template-dge-rnaseq-plot');
-
-        var groupVariable = rnaSeqDgeView.jobInfo.jobInputsJson.groupVariable;
-        var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
-        // create data instance
-        var region = {
-            jobName: rnaSeqDgeView.jobInfo.name,
-            startDate: rnaSeqDgeView.jobInfo.startDate,
-            runTime: rnaSeqDgeView.jobInfo.runTime,
-            inputRNASeqVariable: rnaSeqDgeView.jobInfo.jobInputsJson.RNASeqVariable,
-            inputGroupVariable: groupVariableHtml,
-            inputAnalysisType: rnaSeqDgeView.jobInfo.jobInputsJson.contrast,
-            inputCohort1: rnaSeqDgeView.jobInfo.jobInputsJson.result_instance_id1,
-            inputCohort2: rnaSeqDgeView.jobInfo.jobInputsJson.result_instance_id2
-        };
-
-        if(imagePath) {
-            region.filename = imagePath
-        }
-        // generate template
-        dgeRNASeqPlotTpl.overwrite(Ext.get('rgtPlotWrapper'), region);
-    },
-
-    renderDownloadButton: function(jobName, view) {
-        new Ext.Button({
-            text: 'Download Result',
-            iconCls: 'downloadbutton',
-            renderTo: 'downloadBtn',
-            handler: function () {
-                view.downloadRNASeqDgeResult(jobName);
-            }
-        });
-    },
 
     /**
      * generates intermediate result in grid panel
      * @param data
      */
-    generateResultGrid: function (jobName, view) {
+    renderResults: function (jobName, view) {
 
         var _this = this;
 
@@ -438,7 +444,7 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
                     // load using script tags for cross domain, if the data in on the same domain as
                     // this page, an HttpProxy would be better
                     proxy: new Ext.data.HttpProxy({
-                        url: "../RNASeqDge/resultTable"
+                        url: "../DgeRNASeq/resultTable"
                     })
 
                 });
@@ -458,13 +464,13 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
                 Ext.destroy(Ext.get('intermediateGridPanel'));
 
                 // create new grid and render it
-                view.intermediateResultGrid = new RNASeqDgeResultGrid({
+                view.intermediateResultGrid = new DgeRNASeqResultGrid({
                     id: 'intermediateGridPanel',
                     title: 'Intermediate Result - Job Name: ' + jobName,
                     renderTo: 'intermediateResultWrapper',
                     trackMouseOver: false,
                     loadMask: true,
-                    columns: _rnaseqdgegrid_columns,
+                    columns: _dgernaseq_grid_columns,
                     store: store,
                     bbar: pagingbar,
                     jobName: jobName
@@ -474,6 +480,8 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
 
                 // finally load the data
                 store.load({params: {start: 0, limit: GEN_RESULT_GRID_LIMIT}});
+
+                _this.createResultPlotPanel(jobName, view);
             },
             failure: function (result, request) {
                 console.log('failure ....')
@@ -485,7 +493,7 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
 
     },
 
-    downloadRNASeqDgeResult: function (jobName) {
+    downloadDgeRNASeqResult: function (jobName) {
 
         // clean up
         try {
@@ -508,31 +516,6 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
 
     onJobFinish: function (jobName, view) {
         this.renderResults(jobName, view);
-    },
-
-    renderResults: function (jobName, view) {
-        //this.generateResultGrid(jobName, view);
-        //this.createResultPlotPanel(jobName, view);
-
-        //Just to show download button
-        var _this = this;
-        Ext.Ajax.request({
-            // retrieve information about the job (status, inputs, run-time, etc)
-            url: pageInfo.basePath + "/asyncJob/getjobbyname",
-            method: 'GET',
-            success: function (result, request) {
-                var resultJSON = JSON.parse(result.responseText);
-                _this.jobInfo = resultJSON.jobs[0];
-                view.renderResultArea();
-                view.renderDownloadButton(jobName, view);
-            },
-            failure: function (result, request) {
-                console.log('failure ....')
-            },
-            params: {
-                jobName: jobName
-            }
-        })
     },
 
     submitDgeJob: function () {
@@ -595,5 +578,5 @@ var RNASeqDgeView = Ext.extend(GenericAnalysisView, {
  * Invoked when user selects the analysis from combo box
  */
 function loadDgeRNASeqView() {
-    rnaSeqDgeView = new RNASeqDgeView();
+    dgeRnaSeqView = new DgeRNASeqView();
 }

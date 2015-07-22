@@ -136,6 +136,9 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
                     case 'acghFrequencyPlot' :
                         frequencyPlotView.renderResults(jobName, frequencyPlotView);
                         break;
+                    case 'DgeRNASeq' :
+                        dgeRnaSeqView.renderResults(jobName, dgeRnaSeqView);
+                        break;
                 }
             }
         }

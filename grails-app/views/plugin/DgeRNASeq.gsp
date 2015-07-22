@@ -13,6 +13,9 @@
 %{-- template --}%
 <div id="template-dge-rnaseq-plot" class="x-hidden">
 	<div id="plotResultContainer" class="plotResultContainer">
+        %{--Image--}%
+        <g:img file="{filename}" class="freq-plot"></g:img>
+        <hr class="separator"/>
 		%{--Download button --}%
 		<div class="resultToolBar">
 			<div id="downloadBtn"></div>
