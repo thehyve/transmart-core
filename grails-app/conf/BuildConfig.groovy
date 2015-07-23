@@ -39,6 +39,7 @@ grails.project.dependency.resolution = {
             transitive = false
             export = false
         }
+        compile('com.github.jmchilton.blend4j:blend4j:0.1.2')
     }
 
     plugins {
