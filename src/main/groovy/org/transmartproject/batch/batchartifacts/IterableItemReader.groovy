@@ -37,7 +37,7 @@ class IterableItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> 
             iterable = expressionResolver.resolve(expression, Iterable)
             if (iterable == null) {
                 throw new EvaluationException(
-                        "Expression '$expression' yold a null")
+                        "Expression '$expression' yielded a null")
             }
         }
 
