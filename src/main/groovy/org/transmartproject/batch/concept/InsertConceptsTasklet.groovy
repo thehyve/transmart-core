@@ -30,6 +30,9 @@ class InsertConceptsTasklet implements Tasklet {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
+    @Value("#{jobParameters['TOP_NODE']}")
+    ConceptPath topNode
+
     @Autowired
     ConceptTree conceptTree
 
@@ -147,9 +150,15 @@ class InsertConceptsTasklet implements Tasklet {
     }
 
     private String visualAttributesFor(ConceptNode concept) {
-        conceptTree.childrenFor(concept).isEmpty() ?
+        def res = conceptTree.childrenFor(concept).isEmpty() ?
                 (concept.type == ConceptType.HIGH_DIMENSIONAL ? 'LAH' : 'LA') :
                 'FA'
+        if (res == 'FA' && concept.path == topNode) {
+            // add the study modifier for the top node
+            res = 'FAS'
+        }
+
+        res
     }
 
     static final String generateMetadataXml() {

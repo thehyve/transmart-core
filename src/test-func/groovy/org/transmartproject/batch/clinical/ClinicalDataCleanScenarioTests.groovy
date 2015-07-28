@@ -479,4 +479,16 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('c_dimcode', path.toString()),
         )
     }
+
+    @Test
+    void testTopNodeHasStudyVisualAttribute() {
+        def q = """
+            SELECT c_visualattributes
+            FROM ${Tables.I2B2} I
+            WHERE c_fullname = :topnode"""
+
+        def r = jdbcTemplate.queryForObject(q, [topnode: STUDY_BASE_FOLDER], String)
+
+        assertThat r, is(equalTo('FAS'))
+    }
 }
