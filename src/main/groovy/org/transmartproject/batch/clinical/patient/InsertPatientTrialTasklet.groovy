@@ -12,7 +12,7 @@ import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.patient.PatientSet
-import org.transmartproject.batch.support.SecureObjectToken
+import org.transmartproject.batch.secureobject.SecureObjectToken
 
 /**
  * Inserts patient trial for patients that are new

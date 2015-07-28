@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
-import org.transmartproject.batch.batchartifacts.JobParameterBasedDecider
+import org.transmartproject.batch.batchartifacts.StringTemplateBasedDecider
 import org.transmartproject.batch.batchartifacts.NullWriter
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
@@ -63,14 +63,15 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
     @Override
     Job job() {
         jobs.get(JOB_NAME)
-                .start(mainFlow(null, null))
+                .start(mainFlow(null, null, null))
                 .end()
                 .build()
     }
 
     @Bean
     Flow mainFlow(Tasklet deleteI2b2DataTasklet,
-                  Tasklet assignDimensionIdsTasklet) {
+                  Tasklet assignDimensionIdsTasklet,
+                  JobExecutionDecider incrementalDecider) {
         def readVariablesStep = wrapStepWithName('readVariables',
                 readVariablesStep(null, null, null, null))
         def firstPassStep = wrapStepWithName('firstPass',
@@ -87,11 +88,11 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
                 .next(readWordMappingsStep(null, null))
                 .next(allowStartStepOf(this.&loadCodeLookupsTasklet))
                 .next(firstPassStep)
-                .next(incrementalDecider())
+                .next(incrementalDecider)
                 .on(COMPLETED_NEXT_INCREMENTAL)
                 .to(findCurrentDimensionsStep)                       // 5.b
                 .next(assignDimensionIdsStep)
-                .from(incrementalDecider())
+                .from(incrementalDecider)
                 .on(ExitStatus.COMPLETED.exitCode)
                 .to(stepOf('deleteI2b2Data', deleteI2b2DataTasklet)) // 5.a
                 .next(assignDimensionIdsStep)
@@ -101,10 +102,9 @@ class I2b2JobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @JobScope
     JobExecutionDecider incrementalDecider() {
-        new JobParameterBasedDecider(
-                '${INCREMENTAL == "Y" ? ' +
+        new StringTemplateBasedDecider(
+                '${params.INCREMENTAL == "Y" ? ' +
                         "'$COMPLETED_NEXT_INCREMENTAL' : " +
                         "'${ExitStatus.COMPLETED.exitCode}'}")
     }

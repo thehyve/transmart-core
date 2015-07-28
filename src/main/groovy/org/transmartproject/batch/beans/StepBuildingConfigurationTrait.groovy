@@ -28,6 +28,7 @@ import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.core.io.Resource
+import org.springframework.util.Assert
 import org.transmartproject.batch.batchartifacts.*
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
@@ -124,6 +125,9 @@ trait StepBuildingConfigurationTrait {
 
     static Step wrapStepWithName(final String name,
                                  final Step step) {
+        Assert.notNull(name, 'name must be given')
+        Assert.notNull(step, 'step must be given')
+
         /* bad hack to avoid getName() being called on a scoped proxy */
         new OverriddenNameStep(step: step, newName: name,)
     }

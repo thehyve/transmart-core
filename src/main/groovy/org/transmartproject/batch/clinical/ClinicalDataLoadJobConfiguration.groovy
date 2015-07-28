@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
+import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -46,6 +47,8 @@ import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
 import org.transmartproject.batch.facts.ObservationFactTableWriter
+import org.transmartproject.batch.patient.GatherCurrentPatientsReader
+import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 
@@ -75,9 +78,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     Tasklet gatherCurrentConceptsTasklet
 
     @javax.annotation.Resource
-    Tasklet gatherCurrentPatientsTasklet
-
-    @javax.annotation.Resource
     Tasklet createSecureStudyTasklet
 
     @Bean(name = 'ClinicalDataLoadJob')
@@ -102,7 +102,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .start(readControlFilesFlow(null)) //reads control files (column map, word map, xtrial)
 
                 // read stuff from the DB
-                .next(allowStartStepOf(this.&getGatherCurrentPatientsTasklet))
+                .next(wrapStepWithName('gatherCurrentPatients',
+                        gatherCurrentPatientsStep(null, null)))
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
@@ -227,6 +228,19 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Resource xtrialFileResource() {
         new JobParameterFileResource(parameter: ClinicalJobSpecification.XTRIAL_FILE)
+    }
+
+    @Bean
+    @JobScope
+    Step gatherCurrentPatientsStep(GatherCurrentPatientsReader reader,
+                                   PatientSet patientSet) {
+        steps.get('gatherPatientsStep')
+                .chunk(CHUNK_SIZE)
+                .reader(reader)
+                .writer(new PutInBeanWriter(bean: patientSet))
+                .listener(new LogCountsStepListener())
+                .allowStartIfComplete(true)
+                .build()
     }
 
     @Bean

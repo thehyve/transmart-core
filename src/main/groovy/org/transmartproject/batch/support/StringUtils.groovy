@@ -8,6 +8,10 @@ import java.util.regex.Pattern
  */
 class StringUtils {
 
+    static String escapeForSQLString(String s) {
+        s.replaceAll(/'/, "''")
+    }
+
     static String escapeForLike(String s, char escapeChar = '\\') {
         s.replaceAll(/[${Pattern.quote(escapeChar as String)}_%]/,
                 "${Matcher.quoteReplacement(escapeChar as String)}\$0")
