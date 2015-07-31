@@ -22,24 +22,16 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
     final String sql = '''
         DELETE
         FROM i2b2demodata.concept_counts
-        WHERE concept_path IN (
-            SELECT c_fullname
-            FROM i2b2metadata.i2b2
-            WHERE
-                sourcesystem_cd = ?
-                AND c_fullname LIKE ? ESCAPE '\\'
-            )
-        '''
+        WHERE concept_path LIKE ? ESCAPE '\\\''''
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("About to delete concept counts for study $studyId, base node $basePath")
+        log.info("About to delete concept counts with base node $basePath")
         super.execute(contribution, chunkContext)
     }
 
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
-        ps.setString(1, studyId)
-        ps.setString(2, StringUtils.escapeForLike(basePath.toString()))
+        ps.setString(1, StringUtils.escapeForLike(basePath.toString()) + '%')
     }
 }

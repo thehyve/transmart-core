@@ -42,4 +42,24 @@ class ConceptPath extends ConceptFragment {
     ConceptPath plus(String otherPathFragment) {
         new ConceptPath(super.plus(otherPathFragment))
     }
+
+    ConceptPath commonParent(ConceptPath otherPath) {
+        def myParents = this.allParents
+        def itsParents = otherPath.allParents
+        def commonParents = myParents.intersect(itsParents)
+
+        if (!commonParents) {
+            null
+        } else {
+            commonParents.max { it.parts.size() }
+        }
+    }
+
+    Set<ConceptPath> getAllParents() {
+        def res = [] as Set
+        for (ConceptPath p = this; p != null; p = p.parent) {
+            res << p
+        }
+        res
+    }
 }

@@ -27,8 +27,8 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             substring(concept_path from '#"%\\#"%\\' for '#') as parent_concept_path,
             patient_num
           FROM
-            i2b2demodata.observation_fact
-            NATURAL INNER JOIN relevant_concepts
+            relevant_concepts
+            NATURAL LEFT JOIN i2b2demodata.observation_fact -- LEFT for concepts with 0 facts
           UNION
           SELECT
             code_patients.parent_concept_path as concept_path,

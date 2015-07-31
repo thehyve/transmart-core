@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.transmartproject.batch.batchartifacts.FailWithMessageTasklet
 import org.transmartproject.batch.batchartifacts.FoundExitStatusChangeListener
+import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -39,6 +40,8 @@ import org.transmartproject.batch.highdim.platform.PlatformCheckTasklet
 import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntity
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
+import org.transmartproject.batch.patient.GatherCurrentPatientsReader
+import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
@@ -56,6 +59,7 @@ import org.transmartproject.batch.support.JobParameterFileResource
 abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfiguration {
 
     public static final int LOAD_ANNOTATION_CHUNK_SIZE = 5000
+    public static final int LOAD_PATIENTS_CHUNK_SIZE = 512
     public static final int DELETE_DATA_CHUNK_SIZE = 50
     public static final int WRITE_ASSAY_CHUNK_SIZE = 50
 
@@ -69,7 +73,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     Flow mainFlow(Tasklet gatherCurrentConceptsTasklet,
                   Tasklet validateTopNodePreexistenceTasklet,
                   Tasklet validateHighDimensionalConceptsTasklet,
-                  Tasklet gatherCurrentPatientsTasklet,
+                  Step gatherCurrentPatientsStep,
                   Tasklet validatePatientIntersectionTasklet,
                   Tasklet insertConceptsTasklet) {
 
@@ -84,7 +88,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
                 .next(allowStartStepOf('gatherCurrentConcepts',           gatherCurrentConceptsTasklet))
                 .next(allowStartStepOf('validateTopNodePreexistence',     validateTopNodePreexistenceTasklet))
                 .next(allowStartStepOf('validateHighDimensionalConcepts', validateHighDimensionalConceptsTasklet))
-                .next(allowStartStepOf('gatherCurrentPatients',           gatherCurrentPatientsTasklet))
+                .next(wrapStepWithName('gatherCurrentPatients',           gatherCurrentPatientsStep))
                 .next(allowStartStepOf('validatePatientIntersection',     validatePatientIntersectionTasklet))
 
                 .next(loadAnnotationMappings())
@@ -172,6 +176,22 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     @JobScopeInterfaced
     Tasklet platformCheckTasklet() {
         new PlatformCheckTasklet()
+    }
+
+    /*******************
+     * Patient loading *
+     *******************/
+    @Bean
+    @JobScopeInterfaced
+    Step gatherCurrentPatientsStep(GatherCurrentPatientsReader reader,
+                                   PatientSet patientSet) {
+        steps.get('gatherPatientsStep')
+                .chunk(LOAD_PATIENTS_CHUNK_SIZE)
+                .reader(reader)
+                .writer(new PutInBeanWriter(bean: patientSet))
+                .listener(new LogCountsStepListener())
+                .allowStartIfComplete(true)
+                .build()
     }
 
     /********************

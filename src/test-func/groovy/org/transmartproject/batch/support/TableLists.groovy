@@ -21,7 +21,7 @@ class TableLists {
             Tables.I2B2_TAGS,
             "${Tables.SECURE_OBJECT} CASCADE",
             "${Tables.BIO_EXPERIMENT} CASCADE",
-            'biomart.bio_data_uid',
+            Tables.BIO_DATA_UID,
     ]
 
     public static final List<String> I2B2_TABLES = [

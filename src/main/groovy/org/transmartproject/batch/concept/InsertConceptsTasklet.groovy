@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
-import org.transmartproject.batch.support.SecureObjectToken
+import org.transmartproject.batch.secureobject.SecureObjectToken
 
 /**
  * Inserts concepts (from the ConceptTree) that are new

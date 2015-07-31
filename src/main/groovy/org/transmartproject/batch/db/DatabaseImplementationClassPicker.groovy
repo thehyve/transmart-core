@@ -71,7 +71,8 @@ class DatabaseImplementationClassPicker {
         ret[0]
     }
 
-    def instantiateCorrectClass(Class... candidates) {
+    @SuppressWarnings('UnnecessaryPublicModifier') // actually needed
+    public <T> T instantiateCorrectClass(Class<? extends T>... candidates) {
         pickClass(candidates).newInstance()
     }
 }
