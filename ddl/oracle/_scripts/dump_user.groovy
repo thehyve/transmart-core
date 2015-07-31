@@ -18,6 +18,7 @@
  */
 
 import inc.oracle.BasicItem
+import inc.oracle.GrantItem
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
 import inc.oracle.Item
 import inc.oracle.ItemRepository
@@ -84,7 +85,7 @@ def writeToFileHierarchy = { Set seenFiles, Item item, ItemRepository repos ->
                 /* ignore self references */
                 return false
             }
-            if (parent.owner != it.owner) {
+            if (parent.owner != it.owner && it.type != 'GRANT') {
                 Log.warn "Cross schema dependency: ${(stack + parent).join(' -> ')}"
                 return true
             }
@@ -154,7 +155,7 @@ def writeToFileHierarchy = { Set seenFiles, Item item, ItemRepository repos ->
 
     try {
         writer << "--\n-- Type: ${item.type}; Owner: ${item.owner}; Name: ${item.name}\n--"
-        writer << item.data.stripIndent()
+        writer << item.data.stripIndent().replaceAll(/(?m)[ \t]+$/, '')
         writer << '\n'
     } finally {
         writer.close()
@@ -304,7 +305,10 @@ class DDLFetcher {
     private static SQL_LOGGER = Logger.getLogger(Sql.class.name)
 
     String getNamedObjectDDL(Item item) {
-	if(item.type == 'NON-EXISTENT') return ''
+        if (item.type == 'NON-EXISTENT') {
+            return ''
+        }
+
         def res = sql.firstRow "SELECT DBMS_METADATA.GET_DDL($item.type, $item.name, $item.owner) FROM DUAL"
         Clob clob = res[0]
         clob.characterStream.text

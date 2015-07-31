@@ -97,23 +97,43 @@ class ItemRepository {
         result
     }
 
+    Map<Item /* child */, Set<Item> /* parents */> getCrossDependencies() {
+        def result = dependencies.findAll { Item child, Set<Item> parents ->
+            parents.any { parent ->
+                child.owner != parent.owner &&
+                        child.type != 'SYNONYM'
+            }
+        }.collectEntries { Item child, Set<Item> parents ->
+            [
+                    child,
+                    parents.findAll { parent -> child.owner != parent.owner }
+            ]
+        }
+
+        result
+    }
+
     Set<Item> getParents(Item item) {
         dependencies[item]
     }
 
     void writeSequential(Writer writer) {
         writeWithSorter { Item item, ignore ->
-            writer.write "--\n-- Type: ${item.type}; Owner: ${item.owner}; Name: ${item.name}\n--\n"
-            writer.write item.data
-            writer.write "\n"
+            writeItem(item, writer)
         }
     }
 
-    void writeWithSorter(Closure sorter) {
+    static void writeItem(Item item, Writer writer) {
+        writer.write "--\n-- Type: ${item.type}; Owner: ${item.owner}; Name: ${item.name}\n--\n"
+        writer.write item.data
+        writer.write "\n"
+    }
+
+    void writeWithSorter(Closure<Void> doWithItem) {
         def seen = new HashSet()
         def stack = new Stack()
         for (entry in dependencies.entrySet()) {
-            doWriteItem seen, stack, entry.key, entry.value, sorter
+            doWriteItem seen, stack, entry.key, entry.value, doWithItem
         }
     }
 
@@ -147,5 +167,28 @@ class ItemRepository {
         }
 
         result.fileAssignments = this.fileAssignments + other.fileAssignments
+        result
+    }
+
+    void addGrantsForCrossDependencies() {
+        crossDependencies.each { Item child, Set<Item> crossParents ->
+            crossParents.each { parent -> addGrantForCrossDependency(child, parent) }
+        }
+    }
+
+    private void addGrantForCrossDependency(Item childItem, Item parentItem) {
+        assert childItem.owner != parentItem.owner
+
+        def grantItem = grantItemForItem(parentItem, childItem.owner)
+        if (grantItem) {
+            addDependency parentItem, grantItem
+            addDependency grantItem, childItem
+        }
+    }
+
+    private GrantItem grantItemForItem(Item item, String grantee) {
+        if (item.type == 'TABLE' || item.type == 'VIEW' || item.type == 'SEQUENCE') {
+            new GrantItem(item, 'SELECT', grantee)
+        }
     }
 }

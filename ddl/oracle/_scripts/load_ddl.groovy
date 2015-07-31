@@ -16,17 +16,21 @@
  * You should have received a copy of the GNU General Public License along with
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 @Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
 import groovy.sql.Sql
 import groovyx.gpars.dataflow.DataflowVariable
 import inc.oracle.*
+import jsr166y.ForkJoinPool
 import org.codehaus.jackson.map.ObjectReader
 
+import java.sql.ResultSet
 import java.sql.SQLException
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicInteger
 
+import static groovyx.gpars.GParsPool.withExistingPool
 import static groovyx.gpars.GParsPool.withPool
 import static groovyx.gpars.dataflow.Dataflow.whenAllBound
 
@@ -39,6 +43,9 @@ cli._ 'Do not load synonym files (_synonyms.sql)', longOpt: 'no-synonyms'
 cli._ 'Do not load grant files (_grants.sql)', longOpt: 'no-grants'
 cli._ 'Do not load procedures', longOpt: 'no-procedures'
 cli._ 'Do not load cross files (_cross.sql)', longOpt: 'no-cross'
+cli._ 'Do not compile schemas', longOpt: 'no-compile'
+cli._ 'Do not refresh views', longOpt: 'no-refresh-views'
+cli._ 'Do not check for errors at the end', longOpt: 'no-final-error-check'
 
 def options = cli.parse args
 if (!options) {
@@ -68,64 +75,46 @@ Integer loadFile(Sql sql, File file) {
             }
         }
     }
-    System.out.println "Loaded $file ($i)"
+    Log.out "Loaded $file ($i)"
 
     i
 }
 
-/* we'll be loading each schema inside a transaction for consistency/
- * Consequently, we cannot distribute the DDL statements in a uniform
- * fashion between the threads/connections.
- *
- * Each connection will handle only one schema (at a time) and only one
- * connection will handle one schema.
- *
- * XXX:
- * This approach is actually useless because oracle cannot rollback
- * DDL statements and implicitly commits after each one is issued.
- * So we might as well use loadMultiSchemaObjects to load the
- * these objects as well since it will distribute the statements between
- * the connections better and finish sooner.
- */
-Closure loadSchemaNoCrossClosure(BlockingQueue<Sql> sqls,
-                                 String owner /* uppercase */,
-                                 FileDependencies fileDependencies,
-                                 Boolean doProcedures) {
-    { ->
-        Sql sql = sqls.take()
-        sql.setCurrentSchema owner
+def takeSql(BlockingQueue<Sql> sqls, Closure closure) {
+    def sql = sqls.take()
+    try {
+        closure.call(sql)
+    } finally {
+        sqls.offer sql
+    }
 
-        try {
-            fileDependencies.traverseDepthFirst { File file ->
-                if (file.parentFile.name == 'procedures' && !doProcedures) {
-                    return
-                }
-                if (file.name == '_cross.sql') {
-                    if (fileDependencies.getChildrenFor(file)) {
-                        Log.warn "_cross.sql won't be loaded but apparently it has dependent objects!"
-                        Log.warn "This should not happen. Things may very well fail!"
+}
+
+Integer loadFileParallel(ForkJoinPool pool, BlockingQueue<Sql> sqls, File file) {
+    AtomicInteger i = new AtomicInteger(0)
+    withExistingPool(pool) {
+        file.withReader 'UTF-8', { reader ->
+            def allStatements = []
+            new SqlSplitter(reader).each { statement ->
+                allStatements << statement
+            }
+            allStatements.eachParallel { statement ->
+                i.incrementAndGet()
+                takeSql(sqls) { Sql sql ->
+                    try {
+                        sql.executeAndPrintWarnings statement
+                    } catch (SQLException exception) {
+                        Log.err "Failed loading statement $statement from $file"
+                        throw exception
                     }
-                    return
                 }
-
-                loadFile sql, file
+                Log.print '.'
             }
-            sql.commit()
-            return true
-        } catch (exception) {
-            try {
-                sql.rollback()
-            } catch (rollbackException) {
-                Log.err "User $owner: error rolling back transaction: $rollbackException"
-            }
-            Log.err "User $owner: error loading DDL: $exception\n"
-
-            return false
-        } finally {
-            sql.restoreCurrentSchema()
-            sqls.offer sql //give it back
         }
     }
+    System.out.println " Loaded $file ($i)"
+
+    i.toInteger()
 }
 
 Closure createLoadFileInTransactionClosure(BlockingQueue<Sql> sqls) {
@@ -220,54 +209,86 @@ List<File> loadPerUserFile(BlockingQueue<Sql>sqls, List<String> users, String fi
     }
 }
 
+/* Generate the cross_grants.sql file */
+void generateCrossGrantsFile(ItemRepository repos, File file) {
+    repos.addGrantsForCrossDependencies()
+
+    file.withWriter { writer ->
+        repos.writeWithSorter { Item item, ItemRepository theRepo ->
+            if (item.type == 'GRANT') {
+                def anyCrossParent = theRepo.getParents(item).any { Item parent ->
+                    theRepo.fileAssignments[parent]?.endsWith('/_cross.sql')
+                }
+
+                if (!anyCrossParent) {
+                    ItemRepository.writeItem(item, writer)
+                }
+            }
+        }
+    }
+}
+
 /* go */
 def sqls = new LinkedBlockingQueue(SqlProducer.createMultipleFromEnv(nConn, null, null, true))
 List users = options.us.collect { it.toUpperCase(Locale.ENGLISH) }
 
-withPool nConn, {
-    def runClosuresFromProducer = {
-        Closure closureProducer,
-        Map<String, List> argumentsList -> /* user: list of arguments */
-
-        List<String> failedUsers = argumentsList.collectEntries { user, args ->
-            DataflowVariable resultVar = closureProducer(*args).asyncFun().call()
-            [ (user): resultVar ]
-        }.inject([]) { List list, String user, DataflowVariable variable ->
-            variable.get() ?
-                    list /* success */ :
-                    list + user /* failure */
-        }
-
-        failedUsers
-    }
-
+withPool nConn, { pool ->
     ObjectReader objectReader = JacksonMapperProducer.mapper.reader ItemRepository
 
-    def fileDependencies = new HashMap<String, FileDependencies>()
+    def fileDependencies = new ConcurrentHashMap<String, FileDependencies>()
 
-    List argumentsList = users.collectParallel { String user ->
+    // Calculate file dependencies and cross schema grants
+    def repositories = new Vector<ItemRepository>()
+
+    users.collectParallel { String user ->
         File userDir = new File(user.toLowerCase(Locale.ENGLISH))
         File itemsFile = new File(userDir, 'items.json')
 
         ItemRepository repository = objectReader.readValue itemsFile
-        fileDependencies[user] = new FileDependencies()
-        fileDependencies[user].makeFileDependencies repository, user
+        repositories << repository
 
-        [
-                sqls,
-                user,
-                fileDependencies[user],
-                false
-        ]
+        FileDependencies fileDeps = new FileDependencies()
+        fileDeps.makeFileDependencies repository, user
+        fileDependencies[user] = fileDeps
     }
+    def joinedRepository = repositories.inject(new ItemRepository(), { accum, it ->
+        accum + it
+    })
+
+    FileDependencies joinedFileDependencies =
+            fileDependencies.values().inject {
+                FileDependencies accum, FileDependencies deps ->
+                    accum + deps
+            }
+
+    Closure getFailedFiles = { Map<File, DataflowVariable> filePromiseMap ->
+        filePromiseMap.inject([]) { List accum, File file, DataflowVariable resultVar ->
+            resultVar.get() ? accum : accum + file
+        }
+    }
+
 
     /* 1. all elements without cross-schema dependencies; no procedures */
     if (!options."no-regular") {
-        List<String> failedUsers = runClosuresFromProducer(
-                this.&loadSchemaNoCrossClosure,
-                argumentsList.collectEntries { [ (it[1]): it ] })
-        if (failedUsers) {
-            Log.err "Failed loading regular objects for one or more users: $failedUsers"
+        List<File> failed = getFailedFiles(
+                loadMultiSchemaObjects(sqls,
+                        joinedFileDependencies,
+                        { File sqlFile ->
+                            if (sqlFile.parentFile.name == 'procedures') {
+                                return false
+                            }
+                            if (sqlFile.name == '_cross.sql') {
+                                if (joinedFileDependencies.getChildrenFor(sqlFile)) {
+                                    Log.warn "$sqlFile won't be loaded but apparently it has dependent objects!"
+                                    Log.warn "This should not happen. Things may very well fail!"
+                                }
+                                return false
+                            }
+                            true
+                        }))
+
+        if (failed) {
+            Log.err "Failed loading failes: $failed"
             System.exit 1
         }
     }
@@ -281,24 +302,21 @@ withPool nConn, {
         }
     }
 
-    /* 3. load grants */
+    /* 3. load cross grants */
     if (!options."no-grants") {
-        def failedFiles = loadPerUserFile sqls, users, '_grants.sql'
-        if (failedFiles) {
-            Log.err "Failed loading one or more grant files: $failedFiles"
+        def file = new File('cross_grants.sql')
+        try {
+            generateCrossGrantsFile(joinedRepository, file)
+            Log.out("Generated $file")
+            def n = loadFileParallel(pool, sqls, file)
+        } catch (SQLException sqlException) {
+            Log.err "Failed loading cross grants file: $sqlException.message"
             System.exit 1
         }
     }
 
     /* 4. load procedures and cross */
     if (!(options."no-procedures" && options."no-cross")) {
-        FileDependencies joinedFileDependencies =
-            fileDependencies.values().inject {
-                FileDependencies accum, FileDependencies deps ->
-
-                accum + deps
-            }
-
         Map<File, DataflowVariable> filePromiseMap =
             loadMultiSchemaObjects(sqls,
                     joinedFileDependencies,
@@ -307,9 +325,7 @@ withPool nConn, {
                                 !options."no-cross" && sqlFile.name == '_cross.sql'
                     })
 
-        List failedFiles = filePromiseMap.inject([]) { List accum, File file, DataflowVariable resultVar ->
-            resultVar.get() ? accum : accum + file
-        }
+        List failedFiles = getFailedFiles filePromiseMap
 
         if (failedFiles) {
             Log.err "Failed loading one or more procedure or _cross.sql files: $failedFiles"
@@ -317,6 +333,71 @@ withPool nConn, {
         }
     }
 
+    /* 5. load explicit grants */
+    if (!options."no-grants") {
+        def failedFiles = loadPerUserFile sqls, users, '_grants.sql'
+        if (failedFiles) {
+            Log.err "Failed loading one or more grant files: $failedFiles"
+            System.exit 1
+        }
+    }
+
+    /* 6. recompile schemas */
+    if (!options."no-compile") {
+        Log.print 'Compiling schemas'
+        // eachParallel causes errors sometimes:
+        // ORA-20000: Unable to set values for index UTL_RECOMP_SORT_IDX1: does not exist or insufficient privileges
+        users.each { String user ->
+            takeSql(sqls) { Sql sql ->
+                try {
+                    sql.call "{call dbms_utility.compile_schema($user)}"
+                    Log.print '.'
+                } catch (SQLException exception) {
+                    Log.err "Failed compiling schema for $user"
+                    throw exception
+                }
+            }
+        }
+        Log.out ' Done.'
+    }
+
+    /* 7. refresh views */
+    if (!options."no-refresh-views") {
+        def statement = """
+            BEGIN
+                FOR the_view IN
+                  (SELECT owner, mview_name
+                    FROM DBA_MVIEWS
+                     WHERE owner IN (${users.collect { "'$it'" }.join(', ')})
+                     AND staleness <> 'FRESH')
+                LOOP
+                  DBMS_MVIEW.REFRESH(
+                    the_view.owner || '.' || the_view.mview_name, method => '?');
+                END LOOP;
+            END;"""
+        Log.print 'Refreshing views...'
+        takeSql(sqls) { Sql sql ->
+            sql.executeAndPrintWarnings statement.toString()
+        }
+        Log.out ' Done.'
+    }
+
+    /* 8. Report objects with errors */
+    if (!options."no-final-error-check") {
+        def statement = """
+            SELECT DISTINCT type, owner, name
+            FROM DBA_ERRORS
+            WHERE owner IN (${users.collect { "'$it'" }.join(', ')})
+            AND attribute = 'ERROR'""".toString()
+
+        Log.out 'Checking for errors...'
+        takeSql(sqls) { Sql sql ->
+            sql.eachRow(statement) { ResultSet rs ->
+                Log.warn "${rs.getString(1)} " +
+                        "${rs.getString(2)}.${rs.getString(3)} has errors"
+            }
+        }
+    }
 }
 
-Log.out 'Done'
+Log.out 'All done.'

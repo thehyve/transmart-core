@@ -1042,17 +1042,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "SYNONYM",
-      "owner" : "BIOMART_USER",
-      "name" : "BIRN"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "I2B2METADATA",
-      "name" : "BIRN"
-    } ]
-  }, {
-    "child" : {
       "type" : "VIEW",
       "owner" : "BIOMART_USER",
       "name" : "BROWSE_ANALYSES_VIEW"
