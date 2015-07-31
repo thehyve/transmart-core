@@ -36,6 +36,11 @@ acgh.frequency.plot <- function
 
   # Replace chromosome X with number 23 to get only integer column values
   data.info$chromosome[data.info$chromosome=='X'] <- 23
+  data.info$chromosome[data.info$chromosome=='XY'] <- 24
+  data.info$chromosome[data.info$chromosome=='Y'] <- 25
+  data.info$chromosome[data.info$chromosome=='M'] <- 26
+  data.info$chromosome[data.info$chromosome=='[:alpha:]'] <- 0
+  data.info$chromosome[data.info$chromosome==''] <- 0
   data.info$chromosome <- as.integer(data.info$chromosome)
   # Order by chromosome and start bp to ensure correct chromosome labels in frequency plots
   data.info <- data.info[with(data.info,order(chromosome,start)),]
@@ -67,7 +72,11 @@ acgh.frequency.plot <- function
 
     ax <- (cs.chr + c(0,cs.chr[-length(cs.chr)])) / 2
     lbl.chr <- unique(chromosomes)
+    lbl.chr[lbl.chr==0] <- 'U'
     lbl.chr[lbl.chr==23] <- 'X'
+    lbl.chr[lbl.chr==24] <- 'XY'
+    lbl.chr[lbl.chr==25] <- 'Y'
+    lbl.chr[lbl.chr==26] <- 'M'
 
     # Check if chromosomes (labels) are loaded properly
     if (length(ax) != length(lbl.chr)) {

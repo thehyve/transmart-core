@@ -90,7 +90,12 @@ acgh.group.test <- function
   }
 
   # Replace chromosome X with number 23 to get only integer column values
-  fdrs$chromosome[fdrs$chromosome=='X'] <- 23
+  fdrs$chromosome[fdrs$chromosome=='X']         <- 23
+  fdrs$chromosome[fdrs$chromosome=='XY']        <- 24
+  fdrs$chromosome[fdrs$chromosome=='Y']         <- 25
+  fdrs$chromosome[fdrs$chromosome=='M']         <- 26
+  fdrs$chromosome[fdrs$chromosome=='[:alpha:]'] <- 0
+  fdrs$chromosome[fdrs$chromosome=='']          <- 0
   fdrs$chromosome <- as.integer(fdrs$chromosome)
   # Order by chromosome and start bp to ensure correct chromosome labels in frequency plots
   fdrs <- fdrs[with(fdrs,order(chromosome,start)),]
@@ -127,7 +132,11 @@ acgh.group.test <- function
       
     ax <- (cs.chr + c(0,cs.chr[-length(cs.chr)])) / 2
     lbl.chr <- unique(chromosomes)
+    lbl.chr[lbl.chr==0]  <- 'U'
     lbl.chr[lbl.chr==23] <- 'X'
+    lbl.chr[lbl.chr==24] <- 'XY'
+    lbl.chr[lbl.chr==25] <- 'Y'
+    lbl.chr[lbl.chr==26] <- 'M'
     
     axis(side=1, at=ax, labels=lbl.chr, las=2)
     axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
