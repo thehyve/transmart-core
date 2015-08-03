@@ -37,7 +37,7 @@ public class AccessLog {
         id column: 'id'
         username column: 'USER_NAME'
         event column: 'EVENT'
-        eventmessage column: 'EVENT_MESSAGE'
+        eventmessage column: 'EVENT_MESSAGE', type: 'text'
         requestURL column: 'REQUEST_URL'
         accesstime column: 'ACCESS_TIME'
     }
