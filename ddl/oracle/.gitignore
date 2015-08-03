@@ -3,3 +3,4 @@
 */_grants.sql
 /GLOBAL/tablespaces.sql
 /runsql.sh
+/cross_grants.sql
