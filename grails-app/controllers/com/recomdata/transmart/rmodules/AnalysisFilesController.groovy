@@ -61,8 +61,6 @@ class AnalysisFilesController {
             return
         }
 
-        log.info("${springSecurityService.principal?.username} (IP: ${request.remoteAddr}) downloads ${targetFile}.")
-
         sendFileService.sendFile servletContext, request, response, targetFile
     }
 
