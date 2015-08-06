@@ -19,9 +19,13 @@ package org.transmart.searchapp
  ******************************************************************/
 
 /**
- * Provides access to the logging table
+ * Provides access to the logging table. Deprecated.
+ *  Use core api classes instead:
+ *  - @see org.transmartproject.core.log.AccessLogEntry
+ *  - @see org.transmartproject.core.log.AccessLogEntryResource
  */
 
+@Deprecated
 public class AccessLog {
     Long id
     String username;
