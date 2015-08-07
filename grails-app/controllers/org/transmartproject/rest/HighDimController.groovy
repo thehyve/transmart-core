@@ -51,7 +51,6 @@ class HighDimController {
 
     def conceptsResourceService
 
-    @Resource
     StudyLoadingService studyLoadingServiceProxy
 
     def index() {
