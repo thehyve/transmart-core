@@ -13,7 +13,7 @@ class AuditLogFilters {
                 def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
 
                 accessLogService.report(currentUserBean, 'REST API Data Retrieval',
-                        eventMessage:  "User got low dim. data with ${fullUrl}",
+                        eventMessage:  "User (IP: ${request.remoteAddr}) got low dim. data with ${fullUrl}",
                         requestURL: fullUrl)
             }
         }
@@ -23,7 +23,7 @@ class AuditLogFilters {
                 def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
 
                 accessLogService.report(currentUserBean, 'REST API Data Retrieval',
-                        eventMessage:  "User got high dim. data with ${fullUrl}",
+                        eventMessage:  "User (IP: ${request.remoteAddr}) got high dim. data with ${fullUrl}",
                         requestURL: fullUrl)
             }
         }
