@@ -8,6 +8,7 @@ import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -29,6 +30,9 @@ class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBe
 
     @Autowired
     CensorColumnConfigurator censoringConfigurator
+
+    @Autowired
+    MessageSource messageSource
 
     @Autowired
     Table table
@@ -54,6 +58,11 @@ class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBe
 
     protected List<Step> prepareSteps() {
         List<Step> steps = []
+
+        steps << new WriteFileStep(
+                temporaryDirectory: temporaryDirectory,
+                fileName: 'README.txt',
+                fileContent: messageSource.getMessage("jobs.SurvivalAnalysis.readmeFileContent", null, null, null))
 
         steps << new BuildTableResultStep(
                 table:         table,
