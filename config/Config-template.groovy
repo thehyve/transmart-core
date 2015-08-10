@@ -310,6 +310,13 @@ grails { plugin { springsecurity {
               '/oauth/authorize.dispatch': ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"],
               '/oauth/token.dispatch':     ["isFullyAuthenticated() and request.getMethod().equals('POST')"],
         ]
+
+        // This looks dangerous and it possibly is (would need to check), but
+        // reflects the instructions I got from the developer.
+        def gwavaMappings = [
+             '/gwasWeb/**'                : ['IS_AUTHENTICATED_ANONYMOUSLY'],
+        ]
+
         interceptUrlMap = [
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
@@ -331,6 +338,7 @@ grails { plugin { springsecurity {
             '/userGroup/**'               : ['ROLE_ADMIN'],
             '/secureObjectAccess/**'      : ['ROLE_ADMIN'],
             *                             : (oauthEnabled ?  oauthEndpoints : [:]),
+            *                             : (gwavaEnabled ?  gwavaMappings : [:]),
             '/**'                         : ['IS_AUTHENTICATED_REMEMBERED'], // must be last
         ]
         rejectIfNoRule = true
@@ -533,11 +541,18 @@ if (samlEnabled) {
 
 /* {{{ gwava */
 if (gwavaEnabled) {
-    com.recomdata.rwg.webstart.codebase      = "$transmartURL/gwava"
-    com.recomdata.rwg.webstart.jar           = './ManhattanViz2.1g.jar'
-    com.recomdata.rwg.webstart.mainClass     = 'com.pfizer.mrbt.genomics.Driver'
-    com.recomdata.rwg.webstart.gwavaInstance = 'transmartstg'
-    com.recomdata.rwg.webstart.transmart.url = "$transmartURL/transmart"
+    // assume deployment alongside transmart
+    com { recomdata { rwg { webstart {
+        def url       = new URL(transmartURL)
+        codebase      = "$url.protocol://$url.host${url.port ? ":$url.port" : ''}/"
+        jar           = './ManhattanViz2.1g.jar'
+        mainClass     = 'com.pfizer.mrbt.genomics.Driver'
+        gwavaInstance = 'transmartstg'
+        transmart.url = transmartURL - ~'\\/$'
+   } } } }
+   com { recomdata { rwg { qqplots {
+       cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
+   } } } }
 }
 /* }}} */
 
