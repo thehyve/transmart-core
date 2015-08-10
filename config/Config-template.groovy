@@ -240,27 +240,9 @@ environments {
         // The working direcotry for R scripts, where the jobs get created and
         // output files get generated
         RModules.tempFolderDirectory = jobsDirectory
-
-        // Whether to copy the images from the jobs directory to another
-        // directory from which they can be served. Should be false for
-        // performance reasons. Files will be served from the
-        // tempFolderDirectory instead, which should be exposed as
-        // <context path>/analysisFiles (formerly: <context path>/tempImages)
-        RModules.transferImageFile = false
-
-        // Copy inside the exploded WAR. In actual production, we don't want this
-        // The web server should be able to serve static files from this
-        // directory via the logical name specified in the imageUrl config entry
-        // Not needed because transferImageFile is false
-        //Rmodules.temporaryImageFolder = explodedWarDir + '/images/tempImages/'
     }
     development {
         RModules.tempFolderDirectory = "/tmp"
-
-        // we have stuff in _Events.groovy to make available the contens in
-        // the tempFolderDirectory
-        RModules.transferImageFile = false
-
         /* we don't need to specify temporaryImageDirectory, because we're not copying */
     }
 
