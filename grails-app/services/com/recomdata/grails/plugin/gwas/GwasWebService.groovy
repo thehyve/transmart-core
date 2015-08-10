@@ -566,10 +566,18 @@ class GwasWebService {
     }
 
     def recombinationRateBySnpQuery = """
+WITH snp_info AS (
+    SELECT DISTINCT
+      pos - ? as low,
+      pos + ? as high,
+      chrom
+    FROM DEAPP.DE_RC_SNP_INFO
+    WHERE RS_ID=? and hg_version=?
+)
 SELECT chromosome, position, rate, map FROM BIOMART.BIO_RECOMBINATION_RATES
-WHERE POSITION > (SELECT (pos-?) as low FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
-AND POSITION < (SELECT (pos+?) as high FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?)
-AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_version=?) order by position
+WHERE POSITION > (SELECT low FROM snp_info)
+AND POSITION < (SELECT high FROM snp_info)
+AND CHROMOSOME = (SELECT chrom FROM snp_info) order by position
 """
 
     def getRecombinationRateBySnp(snp, range, hgVersion) {
@@ -584,13 +592,9 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
         //Prepare the SQL statement.
         stmt = con.prepareStatement(query);
         stmt.setLong(1, range)
-        stmt.setString(2, snp)
-        stmt.setString(3, hgVersion)
-        stmt.setLong(4, range)
-        stmt.setString(5, snp)
-        stmt.setString(6, hgVersion)
-        stmt.setString(7, snp)
-        stmt.setString(8, hgVersion)
+        stmt.setLong(2, range)
+        stmt.setString(3, snp)
+        stmt.setString(4, hgVersion)
 
         rs = stmt.executeQuery();
 
@@ -680,55 +684,5 @@ AND CHROMOSOME = (SELECT chrom FROM DEAPP.DE_RC_SNP_INFO WHERE RS_ID=? and hg_ve
 		}
 		
 		return filePath
-	}
-	
-	/*
-	 * This moves an image file to the temporary directory so it can be rendered to the user.
-	 */
-	def moveImageFile(currentFileLocation, newImageFileName, moveToDirectoryName)
-   {
-	   String tempImageFolder = grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolderFullPath
-	   String tempImageJobFolder = "${tempImageFolder}" + File.separator + "${moveToDirectoryName}" + File.separator
-	   
-	   //For each of the image files we find, move them to the new directory.
-	   String tempImageLocation = "${tempImageJobFolder}" + File.separator + newImageFileName
-
-	   //Move the image to a location where we can actually render it.
-	   File oldImage = new File(currentFileLocation);
-	   File newImage = new File(tempImageLocation);
-	   //TODO move FileUtils to Core
-	   FileUtils.copyFile(oldImage,newImage)
-	   
-	   String currentLink = "${imageURL}${moveToDirectoryName}/${newImageFileName}"
-	   
-	   //Delete the old directory.
-	   
-	   return currentLink
-   }
-	
-	
-	def moveCachedImageFile(currentFileLocation, newImageFileName, moveToDirectoryName)
-	{
-
-		String tempImageJobFolder = grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolder
-		def imageURL = grailsApplication.config.imageURL
-		
-		//For each of the image files we find, move them to the new directory.
-		String tempImageLocation = moveToDirectoryName+File.separator + newImageFileName
-		//Move the image to a location where we can actually render it.
-		File oldImage = new File(currentFileLocation);
-		File newImage = new File(tempImageLocation);
- 
-		if (!newImage.exists()) {
-		
-			FileUtils.copyFile(oldImage,newImage)
-			
-		}
-		
-		String currentLink = "../${tempImageJobFolder}/${newImageFileName}"
-		
-		//Delete the old directory.
-		
-		return currentLink
 	}
 }
