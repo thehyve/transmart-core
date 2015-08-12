@@ -52,13 +52,13 @@ class GwasWebController {
         def results = gwasWebService.getModelInfo(type)
         renderDataSet(results)
     }
-	
-	def getSecureModelInfoByDataType = {
-		
+
+	def getSecureModelInfoByDataType() {
+
 				def type = "NONE"
 				def typeId = params.long('dataType')
 				def cUser = params.user
-		
+
 				switch (typeId) {
 					case 1: type = "GWAS"; break;
 					case 2: type = "EQTL"; break;
@@ -66,7 +66,7 @@ class GwasWebController {
 				}
 
 				def sessionUserMap = servletContext['gwasSessionUserMap']
-				
+
 				if (sessionUserMap == null){
 					sessionUserMap = new HashMap<String, String>()
 					servletContext['gwasSessionUserMap'] = sessionUserMap
@@ -78,7 +78,7 @@ class GwasWebController {
 				else {
 					cUser = null;
 				}
-		
+
 				def results = gwasWebService.getSecureModelInfo(type,cUser)
 				renderDataSet(results)
 			}

@@ -4,6 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.mapping.LinkGenerator
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.*
@@ -27,6 +28,8 @@ class GwasSearchController {
     def RModulesOutputRenderService
     def springSecurityService
     def gwasSearchService
+    def sendFileService
+    LinkGenerator grailsLinkGenerator
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
@@ -399,6 +402,42 @@ class GwasSearchController {
 
     }
 
+    private String getCachedImageDir() {
+        grailsApplication.config.com.recomdata.rwg.qqplots.cacheImages
+    }
+
+    private File cachedImagePathFor(Long analysisId) {
+        new File(new File(cachedImageDir, analysisId as String), 'QQPlot.png')
+    }
+
+    private String imageUrlFor(Long analysisId) {
+        grailsLinkGenerator.link(
+                controller: 'gwasSearch',
+                action: 'downloadQQPlotImage',
+                absolute: true,
+                params: [analysisId: analysisId])
+    }
+
+    def downloadQQPlotImage() {
+        // Should probably check access
+
+        def analysisId = params.getLong('analysisId')
+        if (!analysisId) {
+            log.warn "Request without analysisId"
+            render status: 404
+            return
+        }
+
+        def targetFile = cachedImagePathFor(analysisId)
+
+        if (!targetFile.isFile()) {
+            log.warn "Request for $targetFile, but such file does not exist"
+            render status: 404
+            return
+        }
+
+        sendFileService.sendFile servletContext, request, response, targetFile
+    }
 
     def getQQPlotImage = {
 
@@ -407,24 +446,17 @@ class GwasSearchController {
         try {
             //We need to determine the data type of this analysis so we know where to pull the data from.
             def currentAnalysis = BioAssayAnalysis.get(params.analysisId)
-			String qqPlotDir = grailsApplication.config.com.recomdata.rwg.qqplots.cacheImages;
 			String explodedDeplDir = servletContext.getRealPath("/");
-			String tempImageFolder = explodedDeplDir + grailsApplication.config.com.recomdata.rwg.qqplots.temporaryImageFolder
-			
-			//get rdc-modules plugin info
-			def pluginManager = PluginManagerHolder.pluginManager
-			def plugin = pluginManager.getGrailsPlugin("rdc-rmodules")
-			String pluginDir = "rdc-rmodules-"+plugin.version;
-			pluginDir =  "${explodedDeplDir}/plugins/${pluginDir}/Rscripts/";
-			
-			def qqPlotExistingImage = qqPlotDir + File.separator + params.analysisId +  File.separator + "QQPlot.png"
+			String tempImageFolder = grailsApplication.config.com.recomdata.plugins.tempFolderDirectory
 
-			File qqPlotFile = new File(qqPlotExistingImage)
+            //get rdc-modules plugin info
+			String pluginDir =  grailsApplication.config.RModules.pluginScriptDirectory;
+
+			File cachedQqPlotFile = cachedImagePathFor(params.getLong('analysisId'))
 			
 			// use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
-			if (qqPlotFile.exists()) {
-				def qqPlotImageURL = gwasWebService.moveCachedImageFile(qqPlotExistingImage,"QQPlots"+File.separator+"qqplot-"+params.analysisId + ".png",tempImageFolder)
-				returnJSON['imageURL'] = qqPlotImageURL
+			if (cachedQqPlotFile.exists()) {
+				returnJSON['imageURL'] = imageUrlFor(params.getLong('analysisId'))
 				render returnJSON as JSON;
 				return;
 			}
@@ -556,13 +588,10 @@ class GwasSearchController {
             }
             else
             {
-
-				FileUtils.copyFile(new File(imagePath), new File(qqPlotExistingImage));
-				def qqPlotImageURL = gwasWebService.moveCachedImageFile(qqPlotExistingImage,"QQPlots"+File.separator+"qqplot-"+params.analysisId + ".png",tempImageFolder)
-				returnJSON['imageURL'] = qqPlotImageURL
+				FileUtils.copyFile(new File(imagePath), cachedQqPlotFile);
+				returnJSON['imageURL'] = imageUrlFor(currentAnalysis.id)
 				render returnJSON as JSON;
 				return;
-
             }
         }
         catch (Exception e) {
