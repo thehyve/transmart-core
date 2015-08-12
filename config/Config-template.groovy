@@ -240,27 +240,9 @@ environments {
         // The working direcotry for R scripts, where the jobs get created and
         // output files get generated
         RModules.tempFolderDirectory = jobsDirectory
-
-        // Whether to copy the images from the jobs directory to another
-        // directory from which they can be served. Should be false for
-        // performance reasons. Files will be served from the
-        // tempFolderDirectory instead, which should be exposed as
-        // <context path>/analysisFiles (formerly: <context path>/tempImages)
-        RModules.transferImageFile = false
-
-        // Copy inside the exploded WAR. In actual production, we don't want this
-        // The web server should be able to serve static files from this
-        // directory via the logical name specified in the imageUrl config entry
-        // Not needed because transferImageFile is false
-        //Rmodules.temporaryImageFolder = explodedWarDir + '/images/tempImages/'
     }
     development {
         RModules.tempFolderDirectory = "/tmp"
-
-        // we have stuff in _Events.groovy to make available the contens in
-        // the tempFolderDirectory
-        RModules.transferImageFile = false
-
         /* we don't need to specify temporaryImageDirectory, because we're not copying */
     }
 
@@ -328,6 +310,13 @@ grails { plugin { springsecurity {
               '/oauth/authorize.dispatch': ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"],
               '/oauth/token.dispatch':     ["isFullyAuthenticated() and request.getMethod().equals('POST')"],
         ]
+
+        // This looks dangerous and it possibly is (would need to check), but
+        // reflects the instructions I got from the developer.
+        def gwavaMappings = [
+             '/gwasWeb/**'                : ['IS_AUTHENTICATED_ANONYMOUSLY'],
+        ]
+
         interceptUrlMap = [
             '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
             '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
@@ -349,6 +338,7 @@ grails { plugin { springsecurity {
             '/userGroup/**'               : ['ROLE_ADMIN'],
             '/secureObjectAccess/**'      : ['ROLE_ADMIN'],
             *                             : (oauthEnabled ?  oauthEndpoints : [:]),
+            *                             : (gwavaEnabled ?  gwavaMappings : [:]),
             '/**'                         : ['IS_AUTHENTICATED_REMEMBERED'], // must be last
         ]
         rejectIfNoRule = true
@@ -551,11 +541,18 @@ if (samlEnabled) {
 
 /* {{{ gwava */
 if (gwavaEnabled) {
-    com.recomdata.rwg.webstart.codebase      = "$transmartURL/gwava"
-    com.recomdata.rwg.webstart.jar           = './ManhattanViz2.1g.jar'
-    com.recomdata.rwg.webstart.mainClass     = 'com.pfizer.mrbt.genomics.Driver'
-    com.recomdata.rwg.webstart.gwavaInstance = 'transmartstg'
-    com.recomdata.rwg.webstart.transmart.url = "$transmartURL/transmart"
+    // assume deployment alongside transmart
+    com { recomdata { rwg { webstart {
+        def url       = new URL(transmartURL)
+        codebase      = "$url.protocol://$url.host${url.port ? ":$url.port" : ''}/"
+        jar           = './ManhattanViz2.1g.jar'
+        mainClass     = 'com.pfizer.mrbt.genomics.Driver'
+        gwavaInstance = 'transmartstg'
+        transmart.url = transmartURL - ~'\\/$'
+   } } } }
+   com { recomdata { rwg { qqplots {
+       cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
+   } } } }
 }
 /* }}} */
 
