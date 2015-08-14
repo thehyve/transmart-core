@@ -78,10 +78,10 @@ grails.project.dependency.resolution = {
         compile 'com.google.protobuf:protobuf-java:2.5.0'
 
         runtime 'org.postgresql:postgresql:9.3-1100-jdbc41', {
-            exported = false
+            export = false
         }
-        runtime 'com.oracle:ojdbc6:11.2.0.3.0', {
-            exported = false
+        runtime 'com.oracle:ojdbc7:12.1.0.1', {
+            export = false
         }
 
         test 'org.gmock:gmock:0.8.3', {
