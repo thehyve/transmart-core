@@ -11,7 +11,7 @@ class AuditLogFilters {
         download(controller: 'analysisFiles', action:'download') {
             after = { model ->
                 if (params.path.toLowerCase().endsWith('.zip')) {
-                    def ip = request.getHeaders('X-FORWARDED-FOR') ?: request.remoteAddr
+                    def ip = request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr
                     accessLogService.report(currentUserBean, 'Raw R Data Export',
                             eventMessage: "User (IP: ${ip}) downloaded ${params.path} for ${params.analysisName}",
                             requestURL: "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}")
