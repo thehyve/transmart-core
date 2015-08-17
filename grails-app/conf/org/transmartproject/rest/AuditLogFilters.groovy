@@ -11,9 +11,10 @@ class AuditLogFilters {
         lowDim(controller: 'observation', action:'*') {
             after = { model ->
                 def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
+                def ip = request.getHeaders('X-FORWARDED-FOR') ?: request.remoteAddr
 
                 accessLogService.report(currentUserBean, 'REST API Data Retrieval',
-                        eventMessage:  "User (IP: ${request.remoteAddr}) got low dim. data with ${fullUrl}",
+                        eventMessage:  "User (IP: ${ip}) got low dim. data with ${fullUrl}",
                         requestURL: fullUrl)
             }
         }
@@ -21,9 +22,10 @@ class AuditLogFilters {
         highDim(controller: 'highDim', action:'*') {
             after = { model ->
                 def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
+                def ip = request.getHeaders('X-FORWARDED-FOR') ?: request.remoteAddr
 
                 accessLogService.report(currentUserBean, 'REST API Data Retrieval',
-                        eventMessage:  "User (IP: ${request.remoteAddr}) got high dim. data with ${fullUrl}",
+                        eventMessage:  "User (IP: ${ip}) got high dim. data with ${fullUrl}",
                         requestURL: fullUrl)
             }
         }
