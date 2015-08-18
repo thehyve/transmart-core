@@ -10,7 +10,7 @@ GROOVY_VERSION=2.1.9
 ONDREJ_KEY=E5267A6C
 
 GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
-GROOVY_URL=http://dist.groovy.codehaus.org/distributions/$(GROOVY_ZIP)
+GROOVY_URL=http://dl.bintray.com/groovy/maven/$(GROOVY_ZIP)
 GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
 
 PHP_VERSION=5.5.13
@@ -60,7 +60,7 @@ batchdb-oracle.properties: batchdb-oracle.properties.php ../vars
 .PHONY: $(TRANSMART_BATCH_FILE)
 
 $(GROOVY_ZIP):
-	curl -f "$(GROOVY_URL)" > $@
+	curl -L "$(GROOVY_URL)" > $@
 
 $(GROOVY_BIN): $(GROOVY_ZIP)
 	unzip $<
