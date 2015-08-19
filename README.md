@@ -226,6 +226,9 @@ For instance:
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.
 
+### For MacOSX
+The loading scripts use the -e option from the  function readlink. This is a function that is not in the readlink that is installed on Mac OSX, to bypass this problem you are required to install greadlink (stands for GNU readlink). After installing greadlink edit ~/transmart-data/samples/postgres/process_params.inc and on change readlink to greadlink (line 20). Save the changes and the upload should work.
+
 ### Starting Solr
 
 To start a Solr instance with one core for Faceted Search and another for the
