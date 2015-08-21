@@ -50,10 +50,20 @@ ORACLE_TABLESPACES_DIR=/home/oracle/app/oracle/oradata
 # }}}
 
 # Only needed for ETL
+ETL_SCRIPTS=/path/to/transmart-data/samples/postgres
+export PATH=$ETL_SCRIPTS:$PATH
+
+# export KETTLE_HOME=$HOME ## kettle.properties file is expected in .kettle subdirectory of KETTLE_HOME
+
 # End with /
-KETTLE_JOBS_PSQL=/path/to/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+KETTLE_JOBS_PSQL=/path/to/tranSMART-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+R_JOBS_PSQL=/path/to/tranSMART-ETL/Postgres/GPL-1.0/R
+
 # End with /
-KETTLE_JOBS_ORA=/path/to/transmart-ETL/Kettle-GPL/Kettle-ETL/
+KETTLE_JOBS_ORA=/path/to/tranSMART-ETL/Kettle-GPL/Kettle-ETL/
+
+# if load scripts are not executed via "make", the KETTLE_JOBS parameter needs to be set
+KETTLE_JOBS=$KETTLE_JOBS_PSQL # or $KETTLE_JOBS_ORA
 
 KITCHEN=/path/to/data-integration/kitchen.sh
 
@@ -106,7 +116,7 @@ TSUSER_HOME=$HOME/
 # export _JAVA_OPTIONS="-Dhttp.proxyHost=$proxy_host -Dhttp.proxyPort=$proxy_port"
 
 export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
-	KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \
+	KETTLE_JOBS KETTLE_JOBS_PSQL KETTLE_JOBS_ORA R_JOBS_PSQL KITCHEN TSUSER_HOME ORAHOST ORAPORT \
 	ORASID ORASVC ORAUSER ORAPASSWORD ORACLE_MANAGE_TABLESPACES \
 	ORACLE_TABLESPACES_DIR
 

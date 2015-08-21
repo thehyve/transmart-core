@@ -1221,6 +1221,7 @@ BEGIN
 			,median(log_readcount)
 			,stddev(log_readcount)
 		from tm_wz.wt_subject_rnaseq_logs d
+		where log_readcount is not null -- remove null values because median function cannot handle (returns null)
 		group by d.region_id;
 		get diagnostics rowCt := ROW_COUNT;
 		exception
