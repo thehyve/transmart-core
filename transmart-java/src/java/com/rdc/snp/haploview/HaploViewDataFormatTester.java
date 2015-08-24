@@ -35,10 +35,10 @@ public class HaploViewDataFormatTester {
     /**
      * @param args
      */
-    public static void main (String args []) throws SQLException
-    {
-        ArrayList <String> hmpLine = new ArrayList <String>();         
-        DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
+    public static void main (String args []) throws SQLException, ClassNotFoundException {
+        ArrayList <String> hmpLine = new ArrayList <String>();
+
+		Class.forName("oracle.jdbc.driver.OracleDriver");
 	       
         Connection conn = DriverManager.getConnection
          ("jdbc:oracle:thin:@machineName:port:SID", "userid", "password");
