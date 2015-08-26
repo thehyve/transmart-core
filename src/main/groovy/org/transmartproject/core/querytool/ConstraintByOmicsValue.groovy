@@ -57,12 +57,16 @@ class ConstraintByOmicsValue {
         VCF
     }
 
+    // ProjectionType names should correspond to an existing column in the table holding the omics data
     enum ProjectionType {
+        // Gene expression types
         RAW_INTENSITY,
         LOG_INTENSITY,
         ZSCORE,
-        READCOUNT,
-        LOG_READCOUNT
+
+        // RNASEQ types (Zscore already specified)
+        NORMALIZED_READCOUNT,
+        LOG_NORMALIZED_READCOUNT
     }
 
 }
