@@ -101,6 +101,14 @@ are not the same AND the tablespace directories do not already exist, then
 manual intervention is necessary for creating all the tablespaces' directories
 and assigning them the correct owner.
 
+### Oracle-specific notes
+
+This install script assumes SYSDBA privileges in order to create the users that the application will use. 
+
+You will need to create the tablespaces `TRANSMART` and `INDX` (sic) manually before creating the database. The install script can do this automatically if you set `ORACLE_MANAGE_TABLESPACES=1`, but in that case you will need to set `ORACLE_TABLESPACES_DIR` to a directory name (on the database server) where Oracle can automatically create the files to store the new tablespaces and other database objects.
+
+Transmart requires the 'Partitioning' feature of the database, so make sure that feature has not been disabled in the Oracle database. 'Partitioning' is (as of Oracle Database 12) only supported in Oracle Database Enterprise Edition, so Transmart will not run against a lower level edition of Oracle.
+
 ### Drop the database
 
     make postgres_drop
