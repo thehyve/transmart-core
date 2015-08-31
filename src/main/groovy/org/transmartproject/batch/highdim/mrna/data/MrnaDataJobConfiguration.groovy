@@ -60,11 +60,7 @@ class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
                 partitionByColumn: 'trial_name',
                 partitionByColumnValue: studyId,
                 sequence: Sequences.MRNA_PARTITION_ID,
-                indexes: [
-                        ['assay_id'],
-                        ['probeset_id'],
-                        ['patient_id'],
-                ])
+                primaryKey: ['assay_id', 'probeset_id'])
     }
 
     @Override

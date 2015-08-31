@@ -48,6 +48,17 @@ class PostgresPartitionTasklet implements Tasklet {
     String sequence
 
     /**
+     * The primary keys to create on new partitions. List of column names.
+     */
+    List<String> primaryKey
+
+    /**
+     * The foreign keys to create on new partitions.
+     * format: [fk_column: [table: table_name, column: referenced_column, onDelete: 'CASCADE']]
+     */
+    Map<String, Map<String, String>> foreignKeys
+
+    /**
      * The indexes to create on new partitions. List of lists of column names.
      */
     List<List<String>> indexes
@@ -63,6 +74,10 @@ class PostgresPartitionTasklet implements Tasklet {
     }
 
     private String getUnqualifiedTable() {
+        getUnqualifiedTable(tableName)
+    }
+
+    private String getUnqualifiedTable(String tableName) {
         tableName.replaceFirst(/.+\./, '')
     }
 
@@ -132,6 +147,7 @@ class PostgresPartitionTasklet implements Tasklet {
             partitionId = matcher[0] as int
         }
 
+        //FIXME Where we delete data if table already exists
         savePartitionId chunkContext, partitionId
 
         RepeatStatus.FINISHED
@@ -150,8 +166,27 @@ class PostgresPartitionTasklet implements Tasklet {
         jdbcTemplate.update("COMMENT ON TABLE $partitionTable IS " +
                 "'${commentKey.replaceAll("'", "''")}'", [:])
 
+        if (primaryKey) {
+            log.info "Creating primary key on column(s): ${primaryKey}"
+            jdbcTemplate.update """
+                ALTER TABLE ${partitionTable}
+                ADD CONSTRAINT ${getUnqualifiedTable(partitionTable)}_pk PRIMARY KEY (${primaryKey.join(', ')})
+            """, [:]
+        }
+
+        foreignKeys.each { String fkColumn, Map<String, String> refDetails ->
+            log.info "Creating foreign key: ${fkColumn} refers to ${refDetails.table}.${refDetails.column}" +
+                    " ${refDetails.onDelete ? '(CASCADED)' : ''}"
+            jdbcTemplate.update """
+                ALTER TABLE ${partitionTable}
+                ADD CONSTRAINT ${getUnqualifiedTable(partitionTable)}_${fkColumn}_fk FOREIGN KEY (${fkColumn})
+                REFERENCES ${refDetails.table}($refDetails.column)
+                ${refDetails.onDelete ? ' ON DELETE ' + refDetails.onDelete : ''}
+            """, [:]
+        }
+
         indexes.eachWithIndex { List<String> columns, i ->
-            def indexName = "${partitionTable.replaceFirst(/.+\./, '')}_${i + 1}"
+            def indexName = "${getUnqualifiedTable(partitionTable)}_${i + 1}"
             log.info "Creating index $indexName on columns $columns"
 
             jdbcTemplate.update """

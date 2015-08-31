@@ -43,7 +43,7 @@ class CurrentAssayIdsReader implements ItemStreamReader<Long> {
         conceptPaths
                 .collect { conceptTree[it] } /* ConceptNodes */
                 .findAll { it.type == ConceptType.HIGH_DIMENSIONAL }
-                .findAll { !conceptTree.isNew(it) }
+                .findAll { !it.isNew() }
     }()
 
     @Delegate

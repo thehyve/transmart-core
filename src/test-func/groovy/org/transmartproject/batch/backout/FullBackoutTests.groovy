@@ -47,9 +47,7 @@ class FullBackoutTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(
-                        *TableLists.CLINICAL_TABLES,
-                        'ts_batch.batch_job_instance cascade')
+                truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
     }
 
     @Test

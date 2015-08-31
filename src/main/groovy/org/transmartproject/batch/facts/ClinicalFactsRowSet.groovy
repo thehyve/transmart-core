@@ -22,11 +22,6 @@ class ClinicalFactsRowSet {
     final List<ClinicalFact> clinicalFacts = []
 
     void addValue(ConceptNode concept, XtrialNode xtrialNode, String value) {
-        if (!concept.insertable) {
-            throw new IllegalArgumentException(
-                    "Concept $concept is not insertable. Reserve ids first")
-        }
-
         clinicalFacts << new ClinicalFact(
                 concept: concept,
                 xtrialNode: xtrialNode,

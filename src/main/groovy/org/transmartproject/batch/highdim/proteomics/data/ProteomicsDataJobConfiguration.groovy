@@ -60,10 +60,7 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
                 partitionByColumn: 'trial_name',
                 partitionByColumnValue: studyId,
                 sequence: Sequences.PROTEOMICS_PARTITION_ID,
-                indexes: [
-                        ['assay_id'],
-                        ['protein_annotation_id'],
-                ])
+                primaryKey: ['assay_id', 'protein_annotation_id'])
     }
 
 

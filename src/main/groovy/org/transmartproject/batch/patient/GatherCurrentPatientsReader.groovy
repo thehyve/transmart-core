@@ -66,8 +66,7 @@ class GatherCurrentPatientsReader implements ItemStreamReader<Patient> {
         String id = rs.getString(2)["$studyId:".length()..-1]
         new Patient(
                 id: id,
-                code: rs.getLong(1),
-                isNew: false)
+                code: rs.getLong(1))
     }
 
 }
