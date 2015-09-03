@@ -61,12 +61,12 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                 try {
                     def constrain = item.constrain_by_omics_value
                     data.constraintByOmicsValue = new ConstraintByOmicsValue(
-                            omicsType: ConstraintByOmicsValue.OmicsType.valueOf(
+                            omicsType: ConstraintByOmicsValue.OmicsType.forValue(
                                     constrain.omics_value_type?.toString()),
                             operator: ConstraintByOmicsValue.Operator.forValue(
                                     constrain.omics_value_operator.toString()),
                             projectionType: ConstraintByOmicsValue.ProjectionType.valueOf(
-                                    constrain.omics_projection_type?.toString()),
+                                    constrain.omics_projection_type?.toString().toUpperCase()),
                             selector: constrain.omics_selector?.toString(),
                             constraint: constrain.omics_value_constraint?.toString()
                     )
@@ -131,7 +131,7 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                 constrain_by_omics_value {
                                     omics_value_operator constrain.operator.value
                                     omics_value_constraint constrain.constraint
-                                    omics_value_type constrain.omicsType.name()
+                                    omics_value_type constrain.omicsType.value
                                     omics_selector constrain.selector
                                     omics_projection_type constrain.projectionType.name()
                                 }

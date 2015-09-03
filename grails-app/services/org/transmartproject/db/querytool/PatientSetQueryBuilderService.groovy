@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.querytool
 
+import org.apache.commons.lang.StringEscapeUtils
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -37,7 +38,6 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
 class PatientSetQueryBuilderService {
 
     def conceptsResourceService
-
     def databasePortabilityService
 
     String buildPatientIdListQuery(QueryDefinition definition,
@@ -159,6 +159,15 @@ class PatientSetQueryBuilderService {
             (GREATER_OR_EQUAL_TO): [['>=', ['E', 'GE', 'G']]]
     ]
 
+    private static final def OMICS_NUMBER_QUERY_MAPPING = [
+            (ConstraintByOmicsValue.Operator.LOWER_THAN) : '<',
+            (ConstraintByOmicsValue.Operator.LOWER_OR_EQUAL_TO) : '<=',
+            (ConstraintByOmicsValue.Operator.EQUAL_TO) : '=',
+            (ConstraintByOmicsValue.Operator.GREATER_OR_EQUAL_TO) : '>=',
+            (ConstraintByOmicsValue.Operator.GREATER_THAN) : '>',
+            (ConstraintByOmicsValue.Operator.BETWEEN) : 'BETWEEN'
+    ]
+
     private String doItem(MetadataSelectQuerySpecification term,
                           Item item,
                           User user) {
@@ -186,94 +195,64 @@ class PatientSetQueryBuilderService {
                 clause += " AND (valueflag_cd = ${doConstraintFlag(constraint.constraint)})"
             }
         }
+
         if (omics_value_constraint) {
-            if (omics_value_constraint.omicsType == ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION) {
-                log.info "Gene expression type detected in ConstraintByValue"
-                log.info "$omics_value_constraint.selector $omics_value_constraint.operator $omics_value_constraint.constraint"
-                def ordering = omics_value_constraint.operator.value == 'LT' ? 'ASC' : 'DESC'
-                clause += """ AND patient_num IN (
-                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
-                    (
-                    select assay_id from (
-                    select assay_id, avg($omics_value_constraint.projectionType) as score from deapp.de_subject_microarray_data where
-                    probeset_id in (
-                    select probeset_id from deapp.de_mrna_annotation where gene_symbol='$omics_value_constraint.selector'
-                    )
-                    and assay_id in
-                    (
-                    select assay_id from deapp.de_subject_sample_mapping where patient_id in (
-                    SELECT patient_num FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
-                    )
-                    )
-                    group by assay_id
-                    ) A where """
-                if (omics_value_constraint.operator.value == 'LT') {
-                    clause += "score < $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'LE') {
-                    clause += "score <= $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'EQ') {
-                    clause += "score = $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'GT') {
-                    clause += "score > $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'GE') {
-                    clause += "score >= $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'BETWEEN') {
-                    def values = omics_value_constraint.constraint.split(":")
-                    clause += "score >= ${values[0]} AND score <= ${values[1]}"
-                }
-                clause += "))"
-                log.info "Current clause: $clause"
-            } else if (omics_value_constraint.omicsType == ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT) {
-                log.info "RNASEQ read count type detected in ConstraintByValue"
-                log.info "$omics_value_constraint.selector $omics_value_constraint.operator $omics_value_constraint.constraint"
-                def ordering = omics_value_constraint.operator.value == 'LT' ? 'ASC' : 'DESC'
-                clause += """ AND patient_num IN (
-                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
-                    (
-                    select assay_id from (
-                    select assay_id, avg($omics_value_constraint.projectionType) as score from deapp.de_subject_rnaseq_data where
-                    region_id in (
-                    select region_id from deapp.de_chromosomal_region where gene_symbol='$omics_value_constraint.selector'
-                    )
-                    and assay_id in
-                    (
-                    select assay_id from deapp.de_subject_sample_mapping where patient_id in (
-                    SELECT patient_num FROM i2b2demodata.observation_fact WHERE ($conceptcd_subclause)
-                    )
-                    )
-                    group by assay_id
-                    ) A where """
-                if (omics_value_constraint.operator.value == 'LT') {
-                    clause += "score < $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'LE') {
-                    clause += "score <= $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'EQ') {
-                    clause += "score = $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'GT') {
-                    clause += "score > $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'GE') {
-                    clause += "score >= $omics_value_constraint.constraint"
-                }
-                else if (omics_value_constraint.operator.value == 'BETWEEN') {
-                    def values = omics_value_constraint.constraint.split(":")
-                    clause += "score >= ${values[0]} AND score <= ${values[1]}"
-                }
-                clause += "))"
-                log.info "Current clause: $clause"
-            } else {
-                throw new InvalidRequestException("Unexpected omics constraint type: $omics_value_constraint.omicsType")
+            def omicstype = omics_value_constraint.omicsType.value
+            def info = ConstraintByOmicsValue.getMarkerInfo(omicstype)
+            if (info == null) {
+                log.error "Invalid omics type: $omicstype"
+                return clause
             }
+            log.info "$omicstype type detected in ConstraintByValue"
+
+            // since we are building the query here and need to return a regular String, we can not use
+            // GString, prepared statements, named parameters, ... for protection against sql injection
+            // so lets escape the input and put quotes around it
+            String selector = "'" + StringEscapeUtils.escapeSql(omics_value_constraint.selector) + "'"
+            clause += """ AND patient_num IN (
+                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
+                    (
+                    select assay_id from (
+                    select assay_id, avg(${omics_value_constraint.projectionType.name()}) as score from $info.data_table where
+                    $info.id_column in (
+                    select $info.annotation_id_column from $info.annotation_table where $info.selector_column=$selector
+                    )
+                    and assay_id in
+                    (
+                      select assay_id from deapp.de_subject_sample_mapping WHERE (${conceptcd_subclause.replaceFirst("CONCEPT_CD","CONCEPT_CODE")})
+                    )
+                    group by assay_id
+                    ) A where score """ + OMICS_NUMBER_QUERY_MAPPING[omics_value_constraint.operator] + " " +
+                    doOmicsConstraintNumber(omics_value_constraint.operator, omics_value_constraint.constraint) + "))"
         }
         clause
+    }
+
+    private String doOmicsConstraintNumber(ConstraintByOmicsValue.Operator operator, String value) {
+        try {
+            if (operator == ConstraintByOmicsValue.Operator.BETWEEN) {
+                def matcher = value =~
+                        /([+-]?[0-9]+(?:\.[0-9]*)?)(?i:\:)([+-]?[0-9]+(?:\.[0-9]*)?)/
+                if (matcher.matches()) {
+                    return Double.parseDouble(matcher.group(1).toString()) +
+                           ' AND ' +
+                           Double.parseDouble(matcher.group(2).toString())
+                }
+            } else {
+                if (value =~ /[+-]?[0-9]+(?:\.[0-9]*)?/) {
+                    return Double.parseDouble(value).toString()
+                }
+            }
+        } catch (NumberFormatException nfe) {
+            /* may fail because the number is too large, for instance.
+             * We'd rather fail here than failing when the SQL statement is
+             * compiled. */
+            throw new InvalidRequestException("Error parsing " +
+                    "constraint value: $nfe.message", nfe)
+        }
+
+        throw new InvalidRequestException("The value '$value' is an " +
+                "invalid number constraint value for the operator $operator")
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,
