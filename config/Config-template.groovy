@@ -544,7 +544,7 @@ if (gwavaEnabled) {
     // assume deployment alongside transmart
     com { recomdata { rwg { webstart {
         def url       = new URL(transmartURL)
-        codebase      = "$url.protocol://$url.host${url.port != -1 ? ":$url.port" : ''}/"
+        codebase      = "$url.protocol://$url.host${url.port != -1 ? ":$url.port" : ''}/gwava"
         jar           = './ManhattanViz2.1g.jar'
         mainClass     = 'com.pfizer.mrbt.genomics.Driver'
         gwavaInstance = 'transmartstg'
