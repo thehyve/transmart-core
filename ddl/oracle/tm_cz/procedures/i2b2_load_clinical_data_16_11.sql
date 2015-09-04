@@ -656,10 +656,10 @@ BEGIN
 				   then case when is_number(a.data_value) = 1 then null else to_number(a.data_value) end
 				   else null end) as age,
 		  --nvl(max(decode(upper(a.data_label),'AGE',data_value,null)),0) as age,
-		  nvl(max(case when upper(a.data_label) = 'SEX' then a.data_value
+		  max(case when upper(a.data_label) = 'SEX' then a.data_value
 		           when upper(a.data_label) like '%(SEX)' then a.data_value
 				   when upper(a.data_label) = 'GENDER' then a.data_value
-				   else null end),'Unknown') as sex,
+				   else null end) as sex,
 		  --max(decode(upper(a.data_label),'SEX',data_value,'GENDER',data_value,null)) as sex,
 		  max(case when upper(a.data_label) = 'RACE' then a.data_value
 		           when upper(a.data_label) like '%(RACE)' then a.data_value

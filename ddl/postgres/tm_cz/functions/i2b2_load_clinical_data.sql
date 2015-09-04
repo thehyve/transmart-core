@@ -788,10 +788,10 @@ BEGIN
 		           when upper(a.data_label) like '%(AGE)' 
 				   then case when tm_cz.is_numeric(a.data_value) = 1 then null else round(a.data_value::numeric) end
 				   else null end) as age,
-		  coalesce(max(case when upper(a.data_label) = 'SEX' then a.data_value
+		  max(case when upper(a.data_label) = 'SEX' then a.data_value
 		           when upper(a.data_label) like '%(SEX)' then a.data_value
 				   when upper(a.data_label) = 'GENDER' then a.data_value
-				   else null end),'Unknown') as sex,
+				   else null end) as sex,
 		  max(case when upper(a.data_label) = 'RACE' then a.data_value
 		           when upper(a.data_label) like '%(RACE)' then a.data_value
 				   else null end) as race
