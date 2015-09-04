@@ -20,15 +20,15 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 /**
- * Tests for patients demographics data update
+ * Tests that patient demographics get reset when clinical file does not contain demographics columns
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class DemographicsReuploadTests implements JobRunningTestTrait {
+class DemographicsResetTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RuleChain([
-            new RunJobRule('CLUC_changed_demographics', 'clinical', '-d', 'STUDY_ID=CLUC', '-n'),
+            new RunJobRule('CLUC_wo_demographics', 'clinical', '-d', 'STUDY_ID=CLUC', '-n'),
             new RunJobRule('CLUC', 'clinical'),
     ])
 
@@ -40,7 +40,7 @@ class DemographicsReuploadTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testPatientDemographicsUpdatedCorrectly() {
+    void testPatientDemographicsReset() {
         List<Map<String, Object>> r =
                 jdbcTemplate.queryForList("""
                     SELECT sourcesystem_cd, race_cd, sex_cd, age_in_years_num
@@ -56,9 +56,9 @@ class DemographicsReuploadTests implements JobRunningTestTrait {
                 ),
                 allOf(
                         hasEntry('sourcesystem_cd', 'CLUC:SW1398'),
-                        hasEntry('race_cd', 'Caucasoid'),
-                        hasEntry('sex_cd', 'Female'),
-                        hasEntry('age_in_years_num', BigDecimal.valueOf(66)),
+                        hasEntry('race_cd', null),
+                        hasEntry('sex_cd', 'Unknown'),
+                        hasEntry('age_in_years_num', BigDecimal.ZERO),
                 ),
         )
     }

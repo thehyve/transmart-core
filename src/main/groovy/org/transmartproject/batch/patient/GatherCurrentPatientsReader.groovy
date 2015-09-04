@@ -56,12 +56,7 @@ class GatherCurrentPatientsReader implements ItemStreamReader<Patient> {
         """
                 SELECT
                     patient_num,
-                    sourcesystem_cd,
-
-                    race_cd,
-                    sex_cd,
-                    age_in_years_num
-
+                    sourcesystem_cd
                 FROM $Tables.PATIENT_DIMENSION
                 WHERE sourcesystem_cd like '$studyPrefixEscaped'"""
     }
@@ -69,17 +64,9 @@ class GatherCurrentPatientsReader implements ItemStreamReader<Patient> {
     @SuppressWarnings('UnusedPrivateMethodParameter')
     private Patient mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(2)["$studyId:".length()..-1]
-        def patient = new Patient(
+        new Patient(
                 id: id,
                 code: rs.getLong(1))
-
-        patient.putDemographicValues([
-                (DemographicVariable.RACE): rs.getString('race_cd'),
-                (DemographicVariable.GENDER): rs.getString('sex_cd'),
-                (DemographicVariable.AGE): rs.getObject('age_in_years_num'),
-        ])
-
-        patient
     }
 
 }
