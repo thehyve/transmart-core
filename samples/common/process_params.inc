@@ -88,7 +88,7 @@ if [ ! -z "$params" ]; then
     echo "Info $(basename $0): Sourced params file $params"
 fi
 
-if [ -z $STUDY_NAME ]; then
+if [ -z "$STUDY_NAME" ]; then
     # If no study name is provided, use STUDY_ID (if available) or derive from study directory name
     if [ -z $STUDY_ID ] ; then
         # assume that study data is organized in data type specific subdirectories and
