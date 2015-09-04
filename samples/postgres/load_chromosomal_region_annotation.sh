@@ -4,29 +4,28 @@ set -e
 
 # General optional parameters:
 #   DATA_LOCATION, STUDY_NAME, STUDY_ID
-# Mandatory parameters specific for this upload script:
-#   PLATFORM_FILE, PLATFORM_DATATYPE [Chromosomal, RNASEQ], GENOME_RELEASE
-# Optional parameter(s) specific for this upload script:
-#   PLATFORM_ID, PLATFORM_TITLE
+# Specific mandatory parameters for this upload script:
+#   PLATFORM_FILE, PLATFORM_ID, PLATFORM_TITLE, PLATFORM_DATATYPE
 
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="annotation"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
-# Check if mandatory variables are set
+# Check if mandetory variables are set
 if [ -z "$PLATFORM_FILE" ] || [ -z "$PLATFORM_DATATYPE" ] || [ -z "$GENOME_RELEASE" ]; then
         echo "Following variables need to be set:"
         echo "    PLATFORM_FILE=$PLATFORM_FILE"
         echo "    PLATFORM_DATATYPE=$PLATFORM_DATATYPE"
-        echo "    GENOME_RELEASE=$GENOME_RELEASE"
+	echo "    GENOME_RELEASE=$GENOME_RELEASE"
         exit -1
 fi
+
 
 PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${PLATFORM_FILE} | sort -u)
 if [ ! -z "$PLATFORM_ID" ]; then
 	if [[ "$PLATFORM" != "$PLATFORM_ID" ]]; then
-    		echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in $PLATFORM_FILE"
+    		echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params doesnot equal PLATFORM=$PLATFORM defined in$PLATFORM_FILE"
     		exit 1
 	fi
 fi
