@@ -70,29 +70,4 @@ Example code for how to parse the protobuf binary stream into something sensible
 
 ### Authentication with OAuth
 
-The RESTful API supports authentication with OAuth 2.0. The client application needs to be registered with the OAuth server, after which each end-user of that client can authenticate with the OAuth server to allow the client access to all of tranSMART's resources on the end-user's behalve. This is done via the following steps:
-
-1. End-users need to be redirected to the following OAuth URI to be visited in a web browser. Here they can authenticate themselves for this client application:
-`{oauthServer}/oauth/authorize?response_type=code&client_id={clientId}&client_secret={clientSecret}&redirect_uri={oauthServer}/oauth/verify`
-
-2. After the end-user has succesfuly authenticated at this URI, a request token is supplied, which the end-user needs to copy and paste as input to your client.
-
-3. Your client needs to exchange this request token for a semi-permanent access token, using the following HTTP request: GET `{oauthServer}/oauth/token?grant_type=authorization_code&client_id={clientId}&client_secret={clientSecret}&code={requestToken}&redirect_uri={oauthServer}/oauth/verify`
-
-The response of step 3 will be JSON containing the access token, in addition to its type, a refresh token (not yet supported), and when the access token will expire in seconds:
-
-    {
-        "access_token" : "12345-abcde",
-        "token_type" : "bearer",
-        "refresh_token" : "67890-fghij",
-        "expires_in" : 99999 
-    }
-
-#### Explanation of URI variables
-
-| variable  | explanation |
-| --- | --- |
-| {oauthServer} | The URI of the OAuth server to be used. By default this will be identical to the URI of your tranSMART server. |
-| {clientId} | The client id assigned to your client application after registering it with the OAuth server. |
-| {clientSe****cret} | The client secret assigned to your client application after registering it with the OAuth server. |
-| {requestToken} | The temporary token received by your end-user after authenticating, and which needs to be exchanged by your client for an access token. |
+This plugin does not implement any authentication scheme. However, it is usually deployed together with `transmartApp` with configuration that secures this plugin's resources with the [OAuth2 Spring Security provider](https://grails.org/plugin/spring-security-oauth2-provider). The best workflow to use will depend on the type of client.
