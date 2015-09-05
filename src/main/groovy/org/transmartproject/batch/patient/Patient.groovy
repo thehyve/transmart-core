@@ -17,7 +17,7 @@ final class Patient {
 
     private final Map<DemographicVariable, Object> demographicValues = [:]
 
-    void putDemographicValues(Map<DemographicVariable, Object> values) {
+    void putDemographicValues(Map<DemographicVariable, String> values) {
         values.each { DemographicVariable var, Object value ->
             if (demographicValues.containsKey(var)) {
                 log.warn "For patient $id, and demo variable $var, " +
