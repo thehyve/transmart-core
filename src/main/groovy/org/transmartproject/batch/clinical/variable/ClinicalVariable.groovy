@@ -19,8 +19,16 @@ class ClinicalVariable implements Serializable {
     public static final String SITE_ID = 'SITE_ID'
     public static final String VISIT_NAME = 'VISIT_NAME'
     public static final String OMIT = 'OMIT'
+    public static final String DATA_LABEL = 'DATA_LABEL'
+    public static final String TEMPLATE = '\\'
 
-    public static final List<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, OMIT]
+    //Template placeholders. Note that they do not have underscore in it.
+    //We have to support exactly these names for placeholders as legacy.
+    public static final String SITE_ID_PLACEHOLDER = SITE_ID.replace('_', '')
+    public static final String VISIT_NAME_PLACEHOLDER = VISIT_NAME.replace('_', '')
+    public static final String DATA_LABEL_PLACEHOLDER = DATA_LABEL.replace('_', '')
+
+    public static final List<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, OMIT, TEMPLATE, DATA_LABEL]
 
     /* The columns have fixed position, but not fixed names.
      * Most of the files have headers [filename, category_cd, col_nbr, data_label]
@@ -30,7 +38,7 @@ class ClinicalVariable implements Serializable {
     public static final String FIELD_CATEGORY_CODE = 'categoryCode'
     public static final String FIELD_COLUMN_NUMBER = 'columnNumber'
     public static final String FIELD_DATA_LABEL = 'dataLabel'
-    public static final String FIELD_DATA_LABEL_SOURCE = 'dataLabelSource'           // ignored
+    public static final String FIELD_DATA_LABEL_SOURCE = 'dataLabelSource'
     public static final String FIELD_CONTROL_VOCAB_CODE = 'controlledVocabularyCode' // ignored
     public static final String FIELD_CONCEPT_TYPE = 'conceptType'
 
@@ -58,6 +66,12 @@ class ClinicalVariable implements Serializable {
 
     String dataLabel
 
+    Integer dataLabelSource
+
+    void setDataLabelSource(Integer dataLabelSource) {
+        this.dataLabelSource = dataLabelSource ? dataLabelSource - 1 : null /* to make it 0-based */
+    }
+
     String conceptType
 
     /**
@@ -71,6 +85,12 @@ class ClinicalVariable implements Serializable {
 
     boolean isDemographic() {
         demographicVariable != null
+    }
+
+    static String toPath(String columnMappingPathFragment) {
+        columnMappingPathFragment
+            .replace('+', '\\')
+            .replace('_', ' ')
     }
 
 }

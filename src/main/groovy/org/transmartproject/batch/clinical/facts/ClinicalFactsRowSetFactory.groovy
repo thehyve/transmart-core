@@ -11,6 +11,7 @@ import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
+import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
@@ -27,6 +28,9 @@ import org.transmartproject.batch.patient.PatientSet
 @Slf4j
 @TypeChecked
 class ClinicalFactsRowSetFactory {
+
+    @Value("#{jobParameters['TOP_NODE']}")
+    ConceptPath topNodePath
 
     public static final int MAX_STRING_LENGTH = 255
     @Value("#{jobParameters['STUDY_ID']}")
@@ -91,7 +95,8 @@ class ClinicalFactsRowSetFactory {
          */
 
         ConceptType conceptType
-        ConceptNode concept = tree[var.conceptPath]
+        ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
+        ConceptNode concept = tree[conceptPath]
         String value = row[var.columnNumber]
 
         // if the concept doesn't yet exist (ie first record)
@@ -107,7 +112,7 @@ class ClinicalFactsRowSetFactory {
 
             // has the side-effect of assigning type if it's unknown and
             // creating the concept from scratch if it doesn't exist at all
-            concept = tree.getOrGenerate(var.conceptPath, conceptType)
+            concept = tree.getOrGenerate(conceptPath, conceptType)
         } else { // the concept does already exist (ie not first record)
             conceptType = concept.type
 
@@ -123,10 +128,49 @@ class ClinicalFactsRowSetFactory {
 
         // we need a subnode if the variable is categorical
         if (conceptType == ConceptType.CATEGORICAL) {
-            concept = tree.getOrGenerate(var.conceptPath + value, ConceptType.CATEGORICAL)
+            concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
         }
 
         concept
+    }
+
+    private ConceptPath getOrGenerateConceptPath(ClinicalDataFileVariables variables,
+                                       ClinicalVariable var,
+                                       ClinicalDataRow row) {
+        if (var.conceptPath) {
+            return var.conceptPath
+        }
+
+        assert var.dataLabel == ClinicalVariable.TEMPLATE
+
+        def relConceptPath = ClinicalVariable.toPath(var.categoryCode)
+
+        if (relConceptPath.contains(ClinicalVariable.SITE_ID_PLACEHOLDER)) {
+            def replaceValue = variables.getSiteId(row) ?: ''
+            relConceptPath = relConceptPath.replace(ClinicalVariable.SITE_ID_PLACEHOLDER, replaceValue)
+        }
+
+        if (relConceptPath.contains(ClinicalVariable.VISIT_NAME_PLACEHOLDER)) {
+            def replaceValue = variables.getVisitName(row) ?: ''
+            relConceptPath = relConceptPath.replace(ClinicalVariable.VISIT_NAME_PLACEHOLDER, replaceValue)
+        }
+
+        ClinicalVariable referencedDataLabelVariable = null
+        if (var.dataLabelSource) {
+            referencedDataLabelVariable = variables.dataLabelsColumnNumberIndex.get(var.dataLabelSource)
+        } else {
+            referencedDataLabelVariable = variables.dataLabelsColumnNumberIndex.values().first()
+        }
+        if (referencedDataLabelVariable) {
+            String dataLabelValue = row[referencedDataLabelVariable.columnNumber] ?: ''
+            if (relConceptPath.contains(ClinicalVariable.DATA_LABEL_PLACEHOLDER)) {
+                relConceptPath = relConceptPath.replace(ClinicalVariable.DATA_LABEL_PLACEHOLDER, dataLabelValue)
+            } else if (dataLabelValue) {
+                return topNodePath + relConceptPath + dataLabelValue
+            }
+        }
+
+        topNodePath + relConceptPath
     }
 
     private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {

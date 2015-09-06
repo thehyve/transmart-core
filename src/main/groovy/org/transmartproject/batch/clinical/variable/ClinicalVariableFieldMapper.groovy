@@ -25,7 +25,7 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
     private final FieldSetMapper<ClinicalVariable> delegate =
             new BeanWrapperFieldSetMapper<>(
                     targetType: ClinicalVariable,
-                    strict: false /* allow unmappable columns 5 and 6 */)
+                    strict: false /* allow unmappable columns 5, 6 and 7 */)
 
     @Override
     ClinicalVariable mapFieldSet(FieldSet fieldSet) throws BindException {
@@ -36,8 +36,8 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
     private ClinicalVariable process(ClinicalVariable item) throws Exception {
         if (!ClinicalVariable.RESERVED.contains(item.dataLabel)) {
             ConceptPath path = topNodePath +
-                    toPath(item.categoryCode) +
-                    toPath(item.dataLabel)
+                    ClinicalVariable.toPath(item.categoryCode) +
+                    ClinicalVariable.toPath(item.dataLabel)
 
             item.conceptPath = path
         }
@@ -48,9 +48,5 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
         item
     }
 
-    private static String toPath(String columnMappingPathFragment) {
-        columnMappingPathFragment
-                .replace('+', '\\')
-                .replace('_', ' ')
-    }
+
 }
