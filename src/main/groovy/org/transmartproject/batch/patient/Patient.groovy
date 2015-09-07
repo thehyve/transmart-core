@@ -30,7 +30,7 @@ final class Patient {
     }
 
     Object getDemographicValue(DemographicVariable var) {
-        demographicValues[var] ?: var.defaultValue
+        demographicValues[var]
     }
 
     boolean isNew() {

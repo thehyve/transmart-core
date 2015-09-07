@@ -51,8 +51,8 @@ class DemographicsReuploadTests implements JobRunningTestTrait {
                 allOf(
                         hasEntry('sourcesystem_cd', 'CLUC:CACO2'),
                         hasEntry('race_cd', null),
-                        hasEntry('sex_cd', 'Unknown'),
-                        hasEntry('age_in_years_num', BigDecimal.ZERO),
+                        hasEntry('sex_cd', null),
+                        hasEntry('age_in_years_num', null),
                 ),
                 allOf(
                         hasEntry('sourcesystem_cd', 'CLUC:SW1398'),

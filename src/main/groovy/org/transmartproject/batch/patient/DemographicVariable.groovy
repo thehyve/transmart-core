@@ -11,7 +11,6 @@ enum DemographicVariable {
 
     AGE(
             column: 'age_in_years_num',
-            defaultValue: 0,
             type: ConceptType.NUMERICAL,
             matchers: [
                     'AGE',
@@ -22,7 +21,6 @@ enum DemographicVariable {
 
     GENDER(
             column: 'sex_cd',
-            defaultValue: 'Unknown',
             type: ConceptType.CATEGORICAL,
             matchers: [
                     'GENDER',
@@ -33,7 +31,6 @@ enum DemographicVariable {
 
     RACE(
             column: 'race_cd',
-            defaultValue: null,
             type: ConceptType.CATEGORICAL,
             matchers: [
                     'RACE',
@@ -42,7 +39,6 @@ enum DemographicVariable {
     )
 
     String column
-    Object defaultValue
     ConceptType type
     List<String> matchers
 
