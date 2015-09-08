@@ -30,7 +30,7 @@ $(EXAMPLE_FILES): solr-$(SOLR_VERSION).tgz
 DRIVER=contrib/dataimporthandler/lib/$(JDBC_DRIVER)
 $(DRIVER): $(JDBC_DRIVER_PATH)
 	test -d contrib || $(MAKE) contrib
-	cp "$<" "$@"
+	cp --reflink=auto "$<" "$@"
 
 solr: solr-$(SOLR_VERSION).tgz
 	$(TAR_COMMAND) xzf $< --touch --strip-components=2 \

@@ -109,8 +109,8 @@ $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
 KETTLE_ORACLE_DRIVER=data-integration/libext/JDBC/$(JDBC_DRIVER_ORA)
-$(KETTLE_ORACLE_DRIVER): data-integration/.keep
-	curl -f $(JDBC_DL_ORA)/$(JDBC_DRIVER_ORA) > $@
+$(KETTLE_ORACLE_DRIVER): $(JDBC_DRIVER_ORA_PATH) data-integration/.keep
+	cp --reflink=auto "$<" "$@"
 
 data-integration: data-integration/.keep $(KETTLE_ORACLE_DRIVER)
 .PHONY: data-integration
