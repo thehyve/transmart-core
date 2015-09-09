@@ -198,32 +198,38 @@ class PatientSetQueryBuilderService {
 
         if (omics_value_constraint) {
             def omicstype = omics_value_constraint.omicsType.value
-            def info = ConstraintByOmicsValue.getMarkerInfo(omicstype)
+            def info = ConstraintByOmicsValue.markerInfo[omicstype]
             if (info == null) {
                 log.error "Invalid omics type: $omicstype"
                 return clause
             }
-            log.info "$omicstype type detected in ConstraintByValue"
 
-            // since we are building the query here and need to return a regular String, we can not use
-            // GString, prepared statements, named parameters, ... for protection against sql injection
-            // so lets escape the input and put quotes around it
-            String selector = "'" + StringEscapeUtils.escapeSql(omics_value_constraint.selector) + "'"
-            clause += """ AND patient_num IN (
-                    select patient_id from deapp.de_subject_sample_mapping where assay_id in
-                    (
-                    select assay_id from (
-                    select assay_id, avg(${omics_value_constraint.projectionType.name()}) as score from $info.data_table where
-                    $info.id_column in (
-                    select $info.annotation_id_column from $info.annotation_table where $info.selector_column=$selector
-                    )
-                    and assay_id in
-                    (
-                      select assay_id from deapp.de_subject_sample_mapping WHERE (${conceptcd_subclause.replaceFirst("CONCEPT_CD","CONCEPT_CODE")})
-                    )
-                    group by assay_id
-                    ) A where score """ + OMICS_NUMBER_QUERY_MAPPING[omics_value_constraint.operator] + " " +
-                    doOmicsConstraintNumber(omics_value_constraint.operator, omics_value_constraint.constraint) + "))"
+            switch (info.filter_type) {
+                case ConstraintByOmicsValue.FilterType.SINGLE_NUMERIC:
+                    // since we are building the query here and need to return a regular String, we can not use
+                    // GString, prepared statements, named parameters, ... for protection against sql injection
+                    // so lets escape the input and put quotes around it
+                    String selector = "'" + StringEscapeUtils.escapeSql(omics_value_constraint.selector) + "'"
+                    clause += """ AND patient_num IN (
+                            select patient_id from deapp.de_subject_sample_mapping where assay_id in
+                            (
+                            select assay_id from (
+                            select assay_id, avg(${omics_value_constraint.projectionType.name()}) as score from $info.data_table where
+                            $info.id_column in (select $info.annotation_id_column from $info.annotation_table where $info.selector_column=$selector)
+                            and assay_id in
+                            (select assay_id from deapp.de_subject_sample_mapping WHERE (${conceptcd_subclause.replaceFirst("CONCEPT_CD", "CONCEPT_CODE")})
+                            )
+                            group by assay_id
+                            ) A where score """ + OMICS_NUMBER_QUERY_MAPPING[omics_value_constraint.operator] + " " +
+                            doOmicsConstraintNumber(omics_value_constraint.operator, omics_value_constraint.constraint) + "))"
+                    break
+                case ConstraintByOmicsValue.FilterType.ACGH:
+                    // parse the selector and write the query
+                    break
+                case ConstraintByOmicsValue.FilterType.VCF:
+                    // parse the selector and write the query
+                    break
+            }
         }
         clause
     }
