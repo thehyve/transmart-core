@@ -1,4 +1,4 @@
-<plugin name='folder-management' version='1.2.5-SNAPSHOT' grailsVersion='2.3.7 &gt; *'>
+<plugin name='folder-management' version='1.2.2-SNAPSHOT' grailsVersion='2.3.7 &gt; *'>
   <author>Florian Guitton</author>
   <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
   <title>Folder Management and Annotation for tranSMART</title>
