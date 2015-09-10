@@ -3,6 +3,7 @@ grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.dependency.resolver = "maven"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -21,10 +22,14 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         runtime 'hsqldb:hsqldb:1.8.0.10'
-        build 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1', {
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1', {
             excludes 'groovy', 'nekohtml'
         }
         build 'org.apache.httpcomponents:httpclient:4.3.1'
+        build 'org.mongodb:mongo-java-driver:2.10.1'
+        build 'org.apache.httpcomponents:httpcore:4.3.1'
+        build 'org.apache.httpcomponents:httpmime:4.4'
+        build 'org.apache.james:apache-mime4j:0.6'
         test('junit:junit:4.11') {
             transitive = false /* don't bring hamcrest */
             export = false

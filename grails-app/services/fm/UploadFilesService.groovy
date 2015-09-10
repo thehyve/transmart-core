@@ -17,7 +17,6 @@ import org.transmart.mongo.MongoUtils;
 import groovyx.net.http.HTTPBuilder;
 import groovyx.net.http.Method;
 
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.content.InputStreamBody
