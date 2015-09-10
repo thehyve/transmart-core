@@ -18,7 +18,7 @@ final class Patient {
     private final Map<DemographicVariable, Object> demographicValues = [:]
 
     void putDemographicValues(Map<DemographicVariable, String> values) {
-        values.each { DemographicVariable var, String value ->
+        values.each { DemographicVariable var, Object value ->
             if (demographicValues.containsKey(var)) {
                 log.warn "For patient $id, and demo variable $var, " +
                         "replacing ${demographicValues[var]} with $value"
@@ -30,7 +30,7 @@ final class Patient {
     }
 
     Object getDemographicValue(DemographicVariable var) {
-        demographicValues[var] ?: var.defaultValue
+        demographicValues[var]
     }
 
     boolean isNew() {

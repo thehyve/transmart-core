@@ -29,7 +29,7 @@ column is located
 - `Category Code` Path which contains the file
 - `Column Number` Index of the column from the left beginning from 0
 - `Data Label`  Label visible inside tranSMART after upload
-- `Data Label Source` IGNORED skip if you don't need Concept Type Column
+- `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
 - `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
 - `Concept Type`  Use this concept type instead of inferring it from the first row
 

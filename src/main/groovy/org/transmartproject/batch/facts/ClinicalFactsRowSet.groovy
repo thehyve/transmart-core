@@ -28,7 +28,7 @@ class ClinicalFactsRowSet {
                 value: value,)
     }
 
-    private class ClinicalFact {
+    class ClinicalFact {
         String value
         ConceptNode concept
         XtrialNode xtrialNode

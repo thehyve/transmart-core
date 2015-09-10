@@ -4,13 +4,17 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
+import org.transmartproject.batch.db.UpdateQueryBuilder
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.secureobject.SecureObjectToken
+
+import javax.annotation.PostConstruct
 
 /**
  * Database writer of patient rows, based on FactRowSets
@@ -22,6 +26,9 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Value(Tables.PATIENT_DIMENSION)
     private SimpleJdbcInsert patientDimensionInsert
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedTemplate
 
     @Value(Tables.PATIENT_TRIAL)
     private SimpleJdbcInsert patientTrialInsert
@@ -35,23 +42,54 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    @Override
-    void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        List<Patient> newPatients = patientSet.newPatients
+    private String updateSql
 
-        log.debug "About to save following patients: ${newPatients}"
-        patientSet.reserveIdsFor(newPatients)
-        insertPatientDimension(studyId, newPatients)
-        insertPatientTrials(studyId, newPatients, secureObjectToken.toString())
+    @PostConstruct
+    void generateUpdateSql() {
+        UpdateQueryBuilder builder = new UpdateQueryBuilder(table: Tables.PATIENT_DIMENSION)
+        builder.addKeys('patient_num')
+        builder.addColumns('update_date')
+        builder.addColumns(DemographicVariable.values()*.column as String[])
+
+        updateSql = builder.toSQL()
     }
 
-    private int[] insertPatientDimension(String studyId, Collection<Patient> newPatients, Date now = new Date()) {
+    @Override
+    void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
+        def (newPatients, savedPatients) = items*.patient.split { it.new }
+
+        log.debug "About to save following patients: ${newPatients}"
+        def now = new Date()
+        patientSet.reserveIdsFor(newPatients)
+        insertPatientDimension(newPatients, now)
+        insertPatientTrials(newPatients, secureObjectToken.toString())
+
+        updatePatientDimension(savedPatients, now)
+    }
+
+    private int[] updatePatientDimension(Collection<Patient> patients, Date now) {
+        if (!patients) {
+            return new int[0]
+        }
+
+        int[] result = namedTemplate.batchUpdate(updateSql, toPatientDimensionMapArray(patients, now))
+        DatabaseUtil.checkUpdateCounts(result, 'updating patient_dimension')
+        result
+    }
+
+    private int[] insertPatientDimension(Collection<Patient> newPatients, Date now) {
         if (!newPatients) {
             return new int[0]
         }
 
         log.info("Inserting ${newPatients.size()} new patients (patient_dimension)")
-        List<Map> patientDimensionRows = newPatients.collect { Patient patient ->
+        int[] counts = patientDimensionInsert.executeBatch(toPatientDimensionMapArray(newPatients, now))
+        DatabaseUtil.checkUpdateCounts(counts, 'inserting patient_dimension')
+        counts
+    }
+
+    private Map[] toPatientDimensionMapArray(Collection<Patient> patients, Date now) {
+        patients.collect { Patient patient ->
             Map<String, Object> map = [
                     patient_num    : patient.code,
                     update_date    : now,
@@ -65,14 +103,10 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
             }
 
             map
-        }
-
-        int[] counts = patientDimensionInsert.executeBatch(patientDimensionRows as Map[])
-        DatabaseUtil.checkUpdateCounts(counts, 'inserting patient_dimension')
-        counts
+        } as Map[]
     }
 
-    private int[] insertPatientTrials(String studyId, Collection<Patient> newPatients, String secureObjectTokenString) {
+    private int[] insertPatientTrials(Collection<Patient> newPatients, String secureObjectTokenString) {
         if (!newPatients) {
             return new int[0]
         }

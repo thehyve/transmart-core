@@ -11,10 +11,11 @@ import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
+import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
-import org.transmartproject.batch.patient.Patient
+import org.transmartproject.batch.patient.PatientSet
 
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
@@ -28,6 +29,9 @@ import org.transmartproject.batch.patient.Patient
 @TypeChecked
 class ClinicalFactsRowSetFactory {
 
+    @Value("#{jobParameters['TOP_NODE']}")
+    ConceptPath topNodePath
+
     public static final int MAX_STRING_LENGTH = 255
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
@@ -36,19 +40,30 @@ class ClinicalFactsRowSetFactory {
     ConceptTree tree
 
     @Autowired
+    PatientSet patientSet
+
+    @Autowired
     XtrialMappingCollection xtrialMapping
+
+    @Value("#{clinicalJobContext.variables}")
+    List<ClinicalVariable> variables
+
+    @Lazy
+    Map<String, ClinicalDataFileVariables> fileVariablesMap = generateVariablesMap()
 
     private final Map<ConceptNode, XtrialNode> conceptXtrialMap = Maps.newHashMap()
 
-    ClinicalFactsRowSet create(ClinicalDataFileVariables fileVariables,
-                               ClinicalDataRow row,
-                               Patient patient) {
+    ClinicalFactsRowSet create(ClinicalDataRow row) {
+        ClinicalDataFileVariables fileVariables = fileVariablesMap[row.filename]
+
         ClinicalFactsRowSet result = new ClinicalFactsRowSet()
         result.studyId = studyId
-
-        result.patient = patient
         result.siteId = fileVariables.getSiteId(row)
         result.visitName = fileVariables.getVisitName(row)
+
+        def patient = patientSet[fileVariables.getPatientId(row)]
+        patient.putDemographicValues(fileVariables.getDemographicVariablesValues(row))
+        result.patient = patient
 
         fileVariables.otherVariables.each { ClinicalVariable var ->
             String value = row[var.columnNumber]
@@ -64,22 +79,25 @@ class ClinicalFactsRowSetFactory {
                         "Variable: $var, line ${row.index} of ${row.filename}}"
             }
 
-            processVariableValue result, var, value
+            def conceptNode = getOrGenerateConceptNode fileVariables, var, row
+            def xtrialNode = getXtrialNodeFor(conceptNode)
+            result.addValue conceptNode, xtrialNode, value
         }
 
         result
     }
 
-
-    private void processVariableValue(ClinicalFactsRowSet result,
-                                      ClinicalVariable var,
-                                      String value) {
+    private ConceptNode getOrGenerateConceptNode(ClinicalDataFileVariables variables,
+                                                 ClinicalVariable var,
+                                                 ClinicalDataRow row) {
         /*
          * Concepts are created and assigned types and ids
          */
 
         ConceptType conceptType
-        ConceptNode concept = tree[var.conceptPath]
+        ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
+        ConceptNode concept = tree[conceptPath]
+        String value = row[var.columnNumber]
 
         // if the concept doesn't yet exist (ie first record)
         if (!concept) {
@@ -94,7 +112,7 @@ class ClinicalFactsRowSetFactory {
 
             // has the side-effect of assigning type if it's unknown and
             // creating the concept from scratch if it doesn't exist at all
-            concept = tree.getOrGenerate(var.conceptPath, conceptType)
+            concept = tree.getOrGenerate(conceptPath, conceptType)
         } else { // the concept does already exist (ie not first record)
             conceptType = concept.type
 
@@ -103,17 +121,56 @@ class ClinicalFactsRowSetFactory {
             if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
                 throw new IllegalArgumentException("Variable $var inferred or specified " +
                         "numerical, but got value '$value'. Patient id: " +
-                        "${result.patient.id}.")
+                        "${variables.getPatientId(row)}.")
             }
 
         }
 
         // we need a subnode if the variable is categorical
         if (conceptType == ConceptType.CATEGORICAL) {
-            concept = tree.getOrGenerate(var.conceptPath + value, ConceptType.CATEGORICAL)
+            concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
         }
 
-        result.addValue concept, getXtrialNodeFor(concept), value
+        concept
+    }
+
+    private ConceptPath getOrGenerateConceptPath(ClinicalDataFileVariables variables,
+                                       ClinicalVariable var,
+                                       ClinicalDataRow row) {
+        if (var.conceptPath) {
+            return var.conceptPath
+        }
+
+        assert var.dataLabel == ClinicalVariable.TEMPLATE
+
+        def relConceptPath = ClinicalVariable.toPath(var.categoryCode)
+
+        if (relConceptPath.contains(ClinicalVariable.SITE_ID_PLACEHOLDER)) {
+            def replaceValue = variables.getSiteId(row) ?: ''
+            relConceptPath = relConceptPath.replace(ClinicalVariable.SITE_ID_PLACEHOLDER, replaceValue)
+        }
+
+        if (relConceptPath.contains(ClinicalVariable.VISIT_NAME_PLACEHOLDER)) {
+            def replaceValue = variables.getVisitName(row) ?: ''
+            relConceptPath = relConceptPath.replace(ClinicalVariable.VISIT_NAME_PLACEHOLDER, replaceValue)
+        }
+
+        ClinicalVariable referencedDataLabelVariable = null
+        if (var.dataLabelSource) {
+            referencedDataLabelVariable = variables.dataLabelsColumnNumberIndex.get(var.dataLabelSource)
+        } else {
+            referencedDataLabelVariable = variables.dataLabelsColumnNumberIndex.values().first()
+        }
+        if (referencedDataLabelVariable) {
+            String dataLabelValue = row[referencedDataLabelVariable.columnNumber] ?: ''
+            if (relConceptPath.contains(ClinicalVariable.DATA_LABEL_PLACEHOLDER)) {
+                relConceptPath = relConceptPath.replace(ClinicalVariable.DATA_LABEL_PLACEHOLDER, dataLabelValue)
+            } else if (dataLabelValue) {
+                return topNodePath + relConceptPath + dataLabelValue
+            }
+        }
+
+        topNodePath + relConceptPath
     }
 
     private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {
@@ -142,7 +199,6 @@ class ClinicalFactsRowSetFactory {
         conceptType
     }
 
-
     XtrialNode getXtrialNodeFor(ConceptNode conceptNode) {
         if (conceptXtrialMap.containsKey(conceptNode)) {
             conceptXtrialMap[conceptNode]
@@ -150,6 +206,13 @@ class ClinicalFactsRowSetFactory {
             conceptXtrialMap[conceptNode] = xtrialMapping.findMappedXtrialNode(
                     conceptNode.path,
                     conceptNode.type)
+        }
+    }
+
+    private Map<String, ClinicalDataFileVariables> generateVariablesMap() {
+        Map<String, List<ClinicalVariable>> map = variables.groupBy { it.filename }
+        map.collectEntries {
+            [(it.key): ClinicalDataFileVariables.fromVariableList(it.value)]
         }
     }
 

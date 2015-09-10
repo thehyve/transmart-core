@@ -1,0 +1,20 @@
+Cell line name	Organism
+CACO2	Homo sapiens
+CACO2_AURKA	Homo sapiens
+COLO205	Homo sapiens
+COLO320	Homo sapiens
+HCT15	Homo sapiens
+HCT116	Homo sapiens
+HCT116_MLH1	Homo sapiens
+HT29	Homo sapiens
+LS174T	Homo sapiens
+LIM1863	Homo sapiens
+LS513	Homo sapiens
+SW1398	Homo sapiens
+SW48	Homo sapiens
+SW480	Homo sapiens
+SW480_AURKA	Homo sapiens
+RKO	Caucasoid	Homo sapiens
+PC346c	Homo sapiens
+VCaP	Homo sapiens
+DLD1	Homo sapiens
