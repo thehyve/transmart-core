@@ -1,34 +1,58 @@
-Template category code for producing dynamic concept paths that based on data
+Concept Path Templating Based on Data
 =============================================================================
 
-Below is an example on how you could use template columns.
+Some columns of the data file can have their cell values be used not to insert
+facts but rather to build concept paths for the facts in the other columns of
+the same data file row. This is done through two separate types of entries in
+the column mapping file. One of these are entries that represent facts and have
+a `Category Code` which includes certain placeholders and the other ones are
+entries that that point to the columns in the data file where the values for
+these placeholders should be found.
+
+The three placeholders are `DATALABEL`, `VISITNAME`, and `SITEID`. `DATALABEL`
+More than one column of the same data file may be associated with the
+`DATALABEL` placeholder. Therefore, whenever the `DATALABEL` placeholder is
+referenced in the `Category Code` template, this reference must be
+disambiguated.
+
+Below is an example and some further explanation.
 
 Column mapping file
 -------------------
 
-|Filename|Category Code                          |Column Number|Data Label|Data Label Source|
-|--------|---------------------------------------|-------------|----------|-----------------|
-|data.txt|                                       |   4         |DATA_LABEL|                 |
-|data.txt|                                       |   5         |DATA_LABEL|                 |
-|data.txt|                                       |   6         |VISIT_NAME|                 |
-|data.txt|                                       |   7         |SITE_ID   |                 |
-|data.txt|Characteristics+DATALABEL+VISITNAME+BMI|   8         |\         |   5             |
-|data.txt|Characteristics+SITEID                 |   9         |\         |   4             |
+|Filename|Category Code                          |Column Number|Data Label |Data Label Source|
+|--------|---------------------------------------|-------------|-----------|-----------------|
+|data.txt|                                       |   4         |DATA\_LABEL|                 |
+|data.txt|                                       |   5         |DATA\_LABEL|                 |
+|data.txt|                                       |   6         |VISIT\_NAME|                 |
+|data.txt|                                       |   7         |SITE\_ID   |                 |
+|data.txt|Characteristics+DATALABEL+VISITNAME+BMI|   8         |\          |   5             |
+|data.txt|Characteristics+SITEID                 |   9         |\          |   4             |
 
-- `\` in `Data Label` column indicate that this column is a template.
-- `Category Code` of a template could contain placeholders. There are 3 placeholders supported so far: `DATALABEL`,
-`VISITNAME`, `SITEID`.  Note that unlike corespondant column data labels placeholders do not have underscore in it.
-We have to support exactly these names for placeholders for legacy reasons.
-- `Data Label Source` column points to a column with a data label. Unlike `VISIT_NAME` and `SITE_ID`
-there could be multiple `DATA_LABEL` column declaration for one file.
+- Entries that define placeholder values have the respective placeholder name in
+  the `Data Label` column. The `Category Code` should be empty for these
+  entries, as values for the respective column in the data file will not be
+  inserted as facts.
+- `\` in the `Data Label` column indicates that the `Category Code` column
+  contains a template.
+- There are 3 placeholders supported so far: `DATALABEL`, `VISITNAME`, `SITEID`.
+  Note that, unlike their corespondent `Data Label` values, placeholders do not
+  have an underscore.  We have to support these exact names for placeholders for
+  legacy reasons.
+- The `Data Label Source` column points to a data file column associated with
+  `DATA_LABEL` placeholder values. Unlike `VISIT_NAME` and `SITE_ID`, there can
+  be multiple `DATA_LABEL` declarations for the same file.
 
-Consider below row from the `data.txt`.
+Consider the following row from the data file `data.txt`.
 
 |...| 4             | 5       | 6      | 7          | 8 | 9         |
 |---|---------------|---------|--------|------------|---|-----------|
 |...|Side effects   |Treatment|Baseline|FOO Hospital|26 |No mutation|
 
-- Template column `8` from the column mapping file would produce following concept path:
-`...\Characteristics\Treatment\Baseline\BMI\`.
-- Template column `9` from the column mapping file would produce following concept path:
-`...\Characteristics\FOO Hospital\Side effects\`. Note that data label, if not specified, is added to the end.
+- Template column `8` from the column mapping file will produce following
+  concept path:  
+  `...\Characteristics\Treatment\Baseline\BMI\`.
+- Template column `9` from the column mapping file would produce following
+  concept path:  
+  `...\Characteristics\FOO Hospital\Side effects\`. Note that the data label,
+  if not specified in the `Category Code` template, is added to the end.
