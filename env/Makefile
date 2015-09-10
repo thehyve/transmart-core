@@ -25,6 +25,8 @@ TRANSMART_BATCH_VERSION=1.0-SNAPSHOT
 TRANSMART_BATCH_FILE=transmart-batch-capsule.jar
 TRANSMART_BATCH_URL=https://repo.thehyve.nl/content/repositories/snapshots/org/transmartproject/transmart-batch/$(TRANSMART_BATCH_VERSION)/transmart-batch-$(TRANSMART_BATCH_VERSION)-capsule.jar
 
+include ../lib/makefile.inc
+
 %/conf/log4j.properties:
 	mkdir -p $*/conf \
 	&& echo "log4j.rootLogger=INFO, console" > $@ \
@@ -106,7 +108,11 @@ KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
 $(KETTLE_ARCHIVE):
 	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
 
-data-integration: data-integration/.keep
+KETTLE_ORACLE_DRIVER=data-integration/libext/JDBC/$(JDBC_DRIVER_ORA)
+$(KETTLE_ORACLE_DRIVER): $(JDBC_DRIVER_ORA_PATH) data-integration/.keep
+	cp --reflink=auto "$<" "$@"
+
+data-integration: data-integration/.keep $(KETTLE_ORACLE_DRIVER)
 .PHONY: data-integration
 data-integration/.keep: $(KETTLE_ARCHIVE)
 	 tar -xzf $<

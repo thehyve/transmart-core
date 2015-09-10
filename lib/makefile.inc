@@ -15,6 +15,7 @@ JDBC_XDB_ORA_PATH     := $(LIB_DIR)$(JDBC_XDB_ORA)
 $(JDBC_DRIVER_PSQL_PATH):
 	curl -f $(JDBC_DL_PSQL)/$(JDBC_DRIVER_PSQL) > $@
 
+# For correctness, the dependency on XDB should be split off since some uses of this rule don't need XCB, but it doesn't matter a lot.
 $(JDBC_DRIVER_ORA_PATH): $(JDBC_XDB_ORA_PATH)
 	curl -f $(JDBC_DL_ORA)/$(JDBC_DRIVER_ORA) > $@
 
