@@ -9,11 +9,10 @@ a `Category Code` which includes certain placeholders and the other ones are
 entries that that point to the columns in the data file where the values for
 these placeholders should be found.
 
-The three placeholders are `DATALABEL`, `VISITNAME`, and `SITEID`. `DATALABEL`
-More than one column of the same data file may be associated with the
-`DATALABEL` placeholder. Therefore, whenever the `DATALABEL` placeholder is
-referenced in the `Category Code` template, this reference must be
-disambiguated.
+The three placeholders are `DATALABEL`, `VISITNAME`, and `SITEID`.  More than
+one column of the same data file may be associated with the `DATALABEL`
+placeholder. Therefore, whenever the `DATALABEL` placeholder is referenced in
+the `Category Code` template, this reference must be disambiguated.
 
 Below is an example and some further explanation.
 
@@ -49,10 +48,10 @@ Consider the following row from the data file `data.txt`.
 |---|---------------|---------|--------|------------|---|-----------|
 |...|Side effects   |Treatment|Baseline|FOO Hospital|26 |No mutation|
 
-- Template column `8` from the column mapping file will produce following
+- Template column `8` from the column mapping file will produce the following
   concept path:  
   `...\Characteristics\Treatment\Baseline\BMI\`.
-- Template column `9` from the column mapping file would produce following
+- Template column `9` from the column mapping file would produce the following
   concept path:  
   `...\Characteristics\FOO Hospital\Side effects\`. Note that the data label,
   if not specified in the `Category Code` template, is added to the end.
