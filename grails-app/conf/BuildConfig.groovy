@@ -25,11 +25,11 @@ grails.project.dependency.resolution = {
         compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1', {
             excludes 'groovy', 'nekohtml'
         }
-        build 'org.apache.httpcomponents:httpclient:4.3.1'
-        build 'org.mongodb:mongo-java-driver:2.10.1'
-        build 'org.apache.httpcomponents:httpcore:4.3.1'
-        build 'org.apache.httpcomponents:httpmime:4.4'
-        build 'org.apache.james:apache-mime4j:0.6'
+        compile 'org.apache.httpcomponents:httpclient:4.3.1'
+        compile 'org.mongodb:mongo-java-driver:2.10.1'
+        compile 'org.apache.httpcomponents:httpcore:4.3.1'
+        compile 'org.apache.httpcomponents:httpmime:4.4'
+        compile 'org.apache.james:apache-mime4j:0.6'
         test('junit:junit:4.11') {
             transitive = false /* don't bring hamcrest */
             export = false
