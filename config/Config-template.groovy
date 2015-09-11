@@ -53,7 +53,7 @@ ui {
 
 environments { production {
     if (transmartURL.startsWith('http://localhost:')) {
-        println "[WARN] transmartURL not overriden. Some settings (e.g. help page) may be wrong"
+        println "[WARN] transmartURL not overridden. Some settings (e.g. help page) may be wrong"
     }
 } }
 
@@ -127,9 +127,9 @@ com.recomdata.contactUs = "mailto:transmart-discuss@googlegroups.com"
 // application title
 com.recomdata.appTitle = "tranSMART v" + org.transmart.originalConfigBinding.appVersion
 
-// Location of the help pages
-// Currently, these are distribution with transmart, so it can also point to
-// that location copy. Should be an absolute URL
+// Location of the help pages. Should be an absolute URL.
+// Currently, these are distribution with transmart,
+// so it can also point to that location copy.
 com.recomdata.adminHelpURL = "$transmartURL/help/adminHelp/default.htm"
 
 environments { development {
@@ -161,9 +161,9 @@ environments { development {
 com.recomdata.guestAutoLogin = false
 environments { development { com.recomdata.guestAutoLogin = true } }
 
-// Guest account user name – if guestAutoLogin is true, this is the username of
+// Guest account user name - if guestAutoLogin is true, this is the username of
 // the account that tranSMART will automatically authenticate users as. This will
-// control the level of access anonymous users will have (the access will be match
+// control the level of access anonymous users will have (the access will match
 // that of the account specified here).
 com.recomdata.guestUserName = 'guest'
 /* }}} */
@@ -237,7 +237,7 @@ environments {
     RModules.imageURL = "/tempImages/" //must end and start with /
 
     production {
-        // The working direcotry for R scripts, where the jobs get created and
+        // The working directory for R scripts, where the jobs get created and
         // output files get generated
         RModules.tempFolderDirectory = jobsDirectory
     }
@@ -399,6 +399,7 @@ grails { plugin { springsecurity {
             // for dev, node reverse proxy runs on 8001
             glowingBearRedirectUris << 'http://localhost:8001/#/login'
         }
+
         oauthProvider {
             authorization.requireRegisteredRedirectUri = true
             authorization.requireScope = false
@@ -492,12 +493,12 @@ if (samlEnabled) {
 
                 // Alias of the encryption key in the keystore
                 encryptionKey.alias="saml-encryption"
-                // Password of that the key with above alis in the keystore
+                // Password of the key with above alias in the keystore
                 encryptionKey.password="changeit"
 
                 // Alias of the signing key in the keystore
                 signingKey.alias="saml-signing"
-                // Password of that the key with above alis in the keystore
+                // Password of the key with above alias in the keystore
                 signingKey.password="changeit"
             }
             /* }}} */
