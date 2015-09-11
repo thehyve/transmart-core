@@ -33,9 +33,9 @@ ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_aa_data_t_pk PRIMARY KEY (bio_asy_analysis_data_id);
 
 --
--- Name: baad_idx_tea_enalysis; Type: INDEX; Schema: biomart; Owner: -
+-- Name: baad_idx_tea_analysis; Type: INDEX; Schema: biomart; Owner: -
 --
-CREATE INDEX baad_idx_tea_enalysis ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, bio_asy_analysis_data_id);
+CREATE INDEX baad_idx_tea_analysis ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, bio_asy_analysis_data_id);
 
 --
 -- Name: baad_idx_tea_exp_analysis; Type: INDEX; Schema: biomart; Owner: -
