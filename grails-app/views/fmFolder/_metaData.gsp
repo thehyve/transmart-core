@@ -55,10 +55,9 @@
                             not editable CUSTOM
                         </g:if>
                         <g:else>
-                            <g:set var="tagValues" value="${[]}" />
                             <g:if test="${folder.uniqueId && amTagItem.id}">
                                 <g:set var="tagValues" value="${AmTagDisplayValue.findAll('from AmTagDisplayValue a where a.subjectUid=? and a.amTagItem.id=?',
-                                                                                          [folder.uniqueId, amTagItem.id])}"/>
+                                                                  [folder.uniqueId, amTagItem.id])}"/>
                             </g:if>
                             <g:if test="${amTagItem.tagItemSubtype == 'FREETEXT'}">
                                 <g:if test="${(tagValues ? tagValues[0].displayValue : '')?.length()<100}">
@@ -79,12 +78,11 @@
                             <g:elseif test="${amTagItem.tagItemSubtype == 'MULTIPICKLIST'}">
                                 <g:render template="extTagSearchField" plugin="folderManagement"
                                           model="${[fieldName:"amTagItem_"+amTagItem.id, codeTypeName:amTagItem.codeTypeName,
-                                                    searchAction:'extSearch', searchController:'metaData', values:tagValues]}"/>
+                                          searchAction:'extSearch', searchController:'metaData', values:tagValues]}"/>
                             </g:elseif>
                         </g:else>
                     </g:elseif>
                     <g:else>
-                        <g:set var="tagValues" value="${[]}" />
                         <g:if test="${folder.uniqueId && amTagItem.id}">
                             <g:set var="tagValues" value="${AmTagDisplayValue.findAll('from AmTagDisplayValue a where a.subjectUid=? and a.amTagItem.id=?',
                                                                                       [folder.uniqueId, amTagItem.id])}"/>
@@ -92,17 +90,18 @@
                         <g:if test="${amTagItem.tagItemSubtype == 'COMPOUNDPICKLIST'}">
                             <g:render template="${amTagItem.guiHandler}" plugin="folderManagement"
                                       model="${[measurements:measurements, technologies:technologies, vendors:vendors, platforms:platforms,
-                                                fieldName:'amTagItem_' + amTagItem.id,searchAction:amTagItem.guiHandler + 'Search',
-                                                searchController:'metaData', values:tagValues]}" />
+                                               fieldName:'amTagItem_' + amTagItem.id,searchAction:amTagItem.guiHandler + 'Search',
+                                               searchController:'metaData', values:tagValues]}" />
                         </g:if>
-                        <g:else>
-                            <g:render template="extBusinessObjSearch" plugin="folderManagement"
-                                       model="${[fieldName:'amTagItem_' + amTagItem.id,searchAction:amTagItem.guiHandler + 'Search',
-                                                 searchController:'metaData', values:tagValues]}" />
-                        </g:else>
+                    <g:else>
+                        <g:render template="extBusinessObjSearch" plugin="folderManagement"
+                                  model="${[fieldName:'amTagItem_' + amTagItem.id,searchAction:amTagItem.guiHandler + 'Search',
+                                           searchController:'metaData', values:tagValues]}" />
                     </g:else>
-                </td>
+                </g:else>
+            </td>
             </tr>
         </g:each>
     </g:if>
 </div>
+
