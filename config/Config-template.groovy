@@ -583,6 +583,42 @@ com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath
 }
 /* }}} */
 
+/* {{{ Sample Explorer configuration */
+
+sampleExplorer {
+    fieldMapping = [
+        columns:[
+            [header:'ID', dataIndex:'id', mainTerm: true, showInGrid: true, width:20],
+            [header:'trial name', dataIndex:'trial_name', mainTerm: true, showInGrid: true, width:20],
+            [header:'barcode', dataIndex:'barcode', mainTerm: true, showInGrid: true, width:20],
+            [header:'plate id', dataIndex:'plate_id', mainTerm: true, showInGrid: true, width:20],
+            [header:'patient id', dataIndex:'patient_id', mainTerm: true, showInGrid: true, width:20],
+            [header:'external id', dataIndex:'external_id', mainTerm: true, showInGrid: true, width:20],
+            [header:'aliquot id', dataIndex:'aliquot_id', mainTerm: true, showInGrid: true, width:20],
+            [header:'visit', dataIndex:'visit', mainTerm: true, showInGrid: true, width:20],
+            [header:'sample type', dataIndex:'sample_type', mainTerm: true, showInGrid: true, width:20],
+            [header:'description', dataIndex:'description', mainTerm: true, showInGrid: true, width:20],
+            [header:'comment', dataIndex:'comment', mainTerm: true, showInGrid: true, width:20],
+            [header:'location', dataIndex:'location', mainTerm: true, showInGrid: true, width:20],
+            [header:'organism', dataIndex:'source_organism', mainTerm: true, showInGrid: true, width:20]
+        ]
+    ]
+    resultsGridHeight = 100
+    resultsGridWidth = 100
+    idfield = 'id'
+}
+
+edu.harvard.transmart.sampleBreakdownMap = [
+    "aliquot_id":"Aliquots in Cohort"
+]
+
+com { recomdata { solr {
+    maxNewsStories = 10
+    maxRows = 10000
+}}}
+
+/* }}} */
+
 // I002 – Insertion point 'end'
 
 // vim: set fdm=marker et ts=4 sw=4 filetype=groovy ai:
