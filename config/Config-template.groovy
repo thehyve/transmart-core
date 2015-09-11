@@ -119,10 +119,13 @@ environments {
 com.recomdata.largeLogo = "transmartlogo.jpg"
 
 // application logo to be used in the search page
-com.recomdata.searchtool.smallLogo="transmartlogosmall.jpg"
+com.recomdata.smallLogo="transmartlogosmall.jpg"
 
 // contact email address
-com.recomdata.contactUs = "mailto:transmart-discuss@googlegroups.com"
+com.recomdata.contactUs = "transmart-discuss@googlegroups.com"
+
+// site administrator contact email address
+com.recomdata.adminEmail = "transmart-discuss@googlegroups.com"
 
 // application title
 com.recomdata.appTitle = "tranSMART v" + org.transmart.originalConfigBinding.appVersion
@@ -173,7 +176,6 @@ com.recomdata.guestUserName = 'guest'
 // Lucene index location for documentation search
 com.recomdata.searchengine.index = searchIndex
 
-/* see also com.recomdata.searchtool.smallogo in the personalization section */
 /* }}} */
 
 /* {{{ Sample Explorer configuration */
