@@ -1107,13 +1107,13 @@ class FmFolderController {
         def bioDataObject
         log.info "getBioDataObject::folder = " + folder
 
-        def folderAssociation = FmFolderAssociation.findByFmFolder(folder)
+        def folderAssociation = FmFolderAssociation.findByFmFolder(folder.findParentStudyFolder())
 
         if (folderAssociation) {
             log.info "getBioDataObject::folderAssociation = " + folderAssociation
             bioDataObject = folderAssociation.getBioObject()
         } else {
-            log.error "Unable to find folderAssociation for folder Id = " + folder.id
+            log.error "Unable to find folderAssociation for folder Id = " + folder.findParentStudyFolder().id
         }
 
         if (!bioDataObject) {
