@@ -28,14 +28,14 @@ class PatientEventAttribute {
     Long bioPatientAttributeId
     Long bioPatientEventId
     static mapping = {
-        table 'BIO_PATIENT_EVENT_ATTRIBUTE'
+        table 'BIO_PATIENT_EVENT_ATTR'
         version false
-        id generator: 'sequence', params: [sequence: 'SEQ_BIO_PATIENT_EVENT_ATTRIBUTE_ID']
+        id generator: 'sequence', params: [sequence: 'SEQ_BIO_DATA_ID']
         columns {
             bioPatientAttrCode column: 'BIO_PATIENT_ATTR_CODE'
             attributeTextValue column: 'ATTRIBUTE_TEXT_VALUE'
             attributeNumericValue column: 'ATTRIBUTE_NUMERIC_VALUE'
-            bioClinicTrialAttributeId column: 'BIO_CLINIC_TRIAL_ATTRIBUTE_ID'
+            bioClinicTrialAttributeId column: 'BIO_CLINIC_TRIAL_ATTR_ID'
             bioPatientAttributeId column: 'BIO_PATIENT_ATTRIBUTE_ID'
             bioPatientEventId column: 'BIO_PATIENT_EVENT_ID'
         }

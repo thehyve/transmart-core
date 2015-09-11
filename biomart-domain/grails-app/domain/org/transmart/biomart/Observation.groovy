@@ -42,9 +42,9 @@ class Observation {
 		type column: 'OBS_TYPE'
 		codeSource column: 'OBS_CODE_SOURCE'
 		
-		experiments joinTable:[name:'BIO_DATA_OBS', key:'BIO_OBSERVATION_ID']
-		literatures joinTable:[name:'BIO_DATA_OBS', key:'BIO_OBSERVATION_ID']
-		analyses joinTable:[name:'BIO_DATA_OBS', key:'BIO_OBSERVATION_ID']
+		experiments joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_OBSERVATION_ID']
+		literatures joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_OBSERVATION_ID']
+		analyses joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_OBSERVATION_ID']
 		}
 	}
 
