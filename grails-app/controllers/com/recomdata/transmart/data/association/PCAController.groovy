@@ -19,7 +19,7 @@ class PCAController {
 
         String tempDirectory = RModulesOutputRenderService.tempDirectory
 
-        //Traverse the temporary directory for the LinearRegression files.
+        //Traverse the temporary directory for the generated image files.
         def tempDirectoryFile = new File(tempDirectory)
 
         Map<Integer, File> componentsFileMap = constructComponentFileMap(tempDirectoryFile)
