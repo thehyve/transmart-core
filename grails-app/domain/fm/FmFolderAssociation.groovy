@@ -53,6 +53,9 @@ class FmFolderAssociation implements Serializable {
         // This probably should come from the config file
 
         String domainClassName = this.objectType //conf.rememberMe.persistentToken.domainClassName ?: ''
+
+ 	if (domainClassName == 'bio.Experiment' ) domainClassName='org.transmart.biomart.Experiment'       
+ 		
         def clazz = Holders.grailsApplication.getClassForName(domainClassName)
         if (!clazz) {
             log.error "Persistent token class not found: '${domainClassName}'"
