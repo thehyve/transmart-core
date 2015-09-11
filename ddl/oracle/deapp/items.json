@@ -1863,7 +1863,7 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "DEAPP",
-      "name" : "TRG_SNP_DATA_BY_PPROBE_ID"
+      "name" : "TRG_SNP_DATA_BY_PROBE_ID"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -3249,7 +3249,7 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "DEAPP",
-      "name" : "TRG_SNP_DATA_BY_PPROBE_ID"
+      "name" : "TRG_SNP_DATA_BY_PROBE_ID"
     },
     "file" : "deapp/de_snp_data_by_probe.sql"
   }, {
