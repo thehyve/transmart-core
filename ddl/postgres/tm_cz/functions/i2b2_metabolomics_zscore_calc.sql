@@ -515,7 +515,7 @@ select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) 
 		
 		if idxExists = 0 then
 			stepCt := stepCt + 1;
-			select cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in de_subject_rbm_data - procedure exiting'
+			select cz_write_audit(jobId,databaseName,procedureName,'No data for TrialId in de_subject_metabolomics_data - procedure exiting'
 ,0,stepCt,'Done') into rtnCd;
 		select tm_cz.cz_error_handler (jobID, procedureName, errorNumber, errorMessage) into rtnCd;
 		select cz_end_audit (jobId,'FAIL') into rtnCd;

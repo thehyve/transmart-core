@@ -50,7 +50,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
-        --	delete any existing data from deapp.de_protien_annotation
+        --	delete any existing data from deapp.de_protein_annotation
         begin
 		delete from deapp.de_protein_annotation
 		where gpl_id =gplId;
@@ -63,7 +63,7 @@ BEGIN
 
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
-	select cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_protien_annotation',rowCt,stepCt,'Done') into rtnCd;
+	select cz_write_audit(jobId,databaseName,procedureName,'Load annotation data into DEAPP de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
 	begin
 	insert into  deapp.de_protein_annotation
 	(gpl_id
@@ -92,7 +92,7 @@ BEGIN
 		
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
-	select cz_write_audit(jobId,databaseName,procedureName,'Updated missing uniprot_id in de_protien_annotation',rowCt,stepCt,'Done') into rtnCd;
+	select cz_write_audit(jobId,databaseName,procedureName,'Updated missing uniprot_id in de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
 
 	begin
         update DEAPP.DE_PROTEIN_ANNOTATION set uniprot_name = (select bio_marker_name
