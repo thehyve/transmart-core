@@ -56,6 +56,7 @@ class AsyncJob {
     static constraints = {
         jobName(nullable: true)
         jobStatus(nullable: true)
+        lastRunOn(nullable: true)
         jobStatusTime(nullable: true)
         viewerURL(nullable: true)
         altViewerURL(nullable: true)
@@ -74,6 +75,7 @@ class AsyncJob {
         if (this.jobStatus == jobStatus) {
             return
         }
+
         this.jobStatusTime = new Date()
         this.jobStatus = jobStatus
     }
