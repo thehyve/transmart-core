@@ -259,6 +259,25 @@ environments {
 com.recomdata.dataUpload.appTitle="Upload data to tranSMART"
 com.recomdata.dataUpload.stageScript="run_analysis_stage"
 
+# Directory path of com.recomdata.dataUpload.stageScript
+def gwasEtlDirectory = new File(System.getenv('HOME'), '.grails/transmart-gwasetl')
+
+# Directory to hold GWAS file uploads
+def gwasUploadsDirectory = new File(System.getenv('HOME'), '.grails/transmart-datauploads')
+
+# Directory to preload with template files with names <type>-template.txt
+def gwasTemplatesDirectory = new File(System.getenv('HOME'), '.grails/transmart-templates')
+
+com.recomdata.dataUpload.templates.dir = gwasTemplatesDirectory.absolutePath
+com.recomdata.dataUpload.uploads.dir = gwasUploadsDirectory.absolutePath
+com.recomdata.dataUpload.etl.dir = gwasEtlDirectory.absolutePath
+
+[gwasTemplatesDirectory, gwasUploadsDirectory, gwasEtlDirectory].each {
+    if (!it.exists()) {
+        it.mkdir()
+    }
+}
+
 /* }}} */
 
 /* {{{ Misc Configuration */
