@@ -27,7 +27,8 @@ EOD
 //com.recomdata.providerURL = "http://www.transmartfoundation.org"
 
 // Contact e-mail
-//com.recomdata.contactUs = "mailto:support@mycompany.com"
+//com.recomdata.contactUs = "support@mycompany.com"
+//com.recomdata.adminEmail = "support@mycompany.com"
 // }}}
 
 // Password strength criteria, please change description accordingly
