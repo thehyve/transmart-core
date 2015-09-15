@@ -14,5 +14,3 @@ biomart	bio_disease	r	amapp	r
 biomart	bio_compound	r	amapp	r
 biomart	bio_marker	r	amapp	r
 biomart	bio_observation	r	amapp	r
-tm_cz	cz_form_layout	r	biomart_user	r
-tm_cz	cz_required_upload_field	r	biomart_user	r

@@ -11692,13 +11692,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "SEQUENCE",
-      "owner" : "TM_CZ",
-      "name" : "SEQ_CZ_FORM_LAYOUT_ID"
-    },
-    "parents" : [ ]
-  }, {
-    "child" : {
       "type" : "SYNONYM",
       "owner" : "TM_CZ",
       "name" : "SEQ_I2B2_DATA_ID"

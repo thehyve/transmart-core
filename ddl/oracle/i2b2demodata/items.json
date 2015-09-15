@@ -861,6 +861,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_SAMPLE_COLLECTION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "QT_PATIENT_SET_COLLECTION"
     },
     "parents" : [ {
@@ -2106,6 +2113,13 @@
       "name" : "QT_PATIENT_ENC_COLLECTION"
     },
     "file" : "i2b2demodata/qt_patient_enc_collection.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_SAMPLE_COLLECTION"
+    },
+    "file" : "i2b2demodata/qt_patient_sample_collection.sql"
   }, {
     "item" : {
       "type" : "TABLE",

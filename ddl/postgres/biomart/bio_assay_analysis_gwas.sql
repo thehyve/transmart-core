@@ -12,3 +12,10 @@ CREATE TABLE bio_assay_analysis_gwas (
     log_p_value double precision
 );
 
+--
+-- Name: bio_asy_analysis_gwas_id; Type: CONSTRAINT; Schema: biomart; Owner: -
+--
+ALTER TABLE ONLY bio_assay_analysis_gwas
+    ADD CONSTRAINT bio_asy_analysis_gwas_id PRIMARY KEY (bio_asy_analysis_gwas_id);
+
+

@@ -53,6 +53,7 @@
 \i biomart/bio_assay_data_stats.sql
 \i biomart/bio_assay_sample.sql
 \i biomart/bio_asy_analysis_data_idx.sql
+\i biomart/bio_asy_analysis_data_ext.sql
 \i biomart/bio_asy_analysis_dataset.sql
 \i biomart/bio_asy_analysis_eqtl_top50.sql
 \i biomart/bio_asy_analysis_gwas_top50.sql
