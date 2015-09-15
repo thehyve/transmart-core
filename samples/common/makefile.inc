@@ -76,7 +76,7 @@ load_acgh_%: ../studies/%/acgh.params ../studies/%/acgh
 			./load_acgh.sh $<
 
 PROTEOMICS_SSM_FILE     ?= proteomics_subject_sample_mapping.txt
-PROTEOMICS_CM_FILE      ?= proteomics_columns_mapping.txt
+PROTEOMICS_CM_FILE      ?= proteomics_column_mapping.txt
 PROTEOMICS_DATA_PREFIX  ?= proteomics_data
 PROTEOMICS_DATA_FILE    ?= $(PROTEOMICS_DATA_PREFIX).txt
 PROTEOMICS_ANNOT_PREFIX ?= proteomics

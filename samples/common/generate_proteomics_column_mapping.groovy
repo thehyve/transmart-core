@@ -22,7 +22,7 @@ import au.com.bytecode.opencsv.CSVWriter
 import au.com.bytecode.opencsv.CSVReader
 
 def parseOptions() {
-	def cli = new CliBuilder(usage: "generate_proteomics_annotation.groovy")
+	def cli = new CliBuilder(usage: "generate_proteomics_column_mapping.groovy")
 	cli.i 'tsv input file', longOpt: 'input', args: 1, argName: 'file'
 	cli.o 'tsv output file; stdout if unspecified', longOpt: 'output', args: 1, argName: 'file'
 	def options = cli.parse(args)
@@ -37,9 +37,10 @@ if (!options) {
 CSVWriter writer = new CSVWriter(new OutputStreamWriter(options.o ? new FileOutputStream(options.o) : System.out, 'UTF-8'), '\t' as char, '\u0000' as char)
 inputFile = new File(options.i)
 CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputFile), 'UTF-8'), '\t' as char)
+Integer ifile = 0
 try {
 	String[] inLine = reader.readNext()
-	writer.writeNext(['file_names', 'intensity_start_value', 'intensity_end_value'] as String[])
+	writer.writeNext(['file_names', 'peptide_identifier', 'intensity_start_value', 'intensity_end_value'] as String[])
 	Integer startIndx = null, endIndx
 	inLine.eachWithIndex { val, indx ->
 		if(val ==~ /(?i)^LFQ\.intensity\.(.+)_.+$/) {
@@ -47,7 +48,7 @@ try {
 			endIndx = indx
 		}
 	}
-	writer.writeNext([inputFile.name, startIndx, endIndx ] as String[])
+	writer.writeNext([inputFile.name, ++ifile, startIndx, endIndx ] as String[])
 } finally {
 	reader.close()
 	writer.close()

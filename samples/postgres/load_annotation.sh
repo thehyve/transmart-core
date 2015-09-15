@@ -23,27 +23,39 @@ if [ -z "$ANNOTATIONS_FILE" ]; then
 fi
 
 # Check if mandatory parameter values are provided
-PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${ANNOTATIONS_FILE} | sort -u)
+# Read platform from first line, first column
+PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${ANNOTATIONS_FILE} | head -n 1)
 if [ ! -z "$PLATFORM_ID" ]; then
-	if [[ "$PLATFORM" != "$PLATFORM_ID" ]]
-	then
-    		echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in $PLATFORM_FILE"
-    		exit 1
-	fi
+    if [[ "$PLATFORM" != "$PLATFORM_ID" ]]
+    then
+        echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in $ANNOTATIONS_FILE"
+        exit 1
+    fi
 fi
 
 # Is the platform already uploaded?
 ALREADY_LOADED=`$PGSQL_BIN/psql -c "select exists \
-		 (select platform from deapp.de_gpl_info where platform = '$PLATFORM')" -tA`
+                (select platform from deapp.de_gpl_info where platform = '$PLATFORM')" -tA`
 if [ $ALREADY_LOADED = 't' ]; then
-	echo -e "\e[33mWARNING\e[m: Platform $PLATFORM already loaded; skipping" >&2
-	exit 0
+    echo -e "\e[33mWARNING\e[m: Platform $PLATFORM already loaded; skipping" >&2
+    exit 0
 fi
 
-ORGANISM=$(awk -F'\t' 'BEGIN{getline}{print $NF}' ${ANNOTATIONS_FILE} | sort -u)
+# Read organism from first line, last column (must not have DOS line endings)
+READ_ORGANISM=$(awk -F'\t' 'BEGIN{getline}{print $NF}' ${ANNOTATIONS_FILE} | head -n 1)
+if [ ! -z "$ORGANISM" ]; then
+    if [[ "$READ_ORGANISM" != "$ORGANISM" ]]
+    then
+        echo "Error: ORGANISM=$ORGANISM defined in annotation.params differs from ORGANISM=$READ_ORGANISM defined in $ANNOTATIONS_FILE"
+        exit 1
+    fi
+fi
+
+
+
 PLATFORM_TITLE=${PLATFORM_TITLE:-${PLATFORM}}
 $PGSQL_BIN/psql -c "COPY deapp.de_gpl_info(platform, title, organism, marker_type, genome_build) FROM STDIN" <<HEREDOC
-$PLATFORM	$PLATFORM_TITLE	$ORGANISM	Gene Expression	$GENOME_RELEASE
+$PLATFORM	$PLATFORM_TITLE	$READ_ORGANISM	Gene Expression	$GENOME_RELEASE
 HEREDOC
 
 # Upload platform definition
@@ -59,6 +71,6 @@ echo "Number of rows uploaded: $(($nlines - 4))"
 RESULT=`$PGSQL_BIN/psql -c "SELECT TM_CZ.i2b2_load_annotation_deapp()" -tA`
 #i2b2_load_annotation_deapp() returns 1 on success
 if [ $RESULT -ne 1  ]; then
-	echo "Call to load function failed; check error/audit tables"
-	exit 1
+    echo "Call to load function failed; check error/audit tables"
+    exit 1
 fi
