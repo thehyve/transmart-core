@@ -37,7 +37,7 @@ class ForestPlotController {
 		
 		String tempDirectory = RModulesOutputRenderService.tempDirectory
 		
-		//Traverse the temporary directory for the LinearRegression files.
+		//Traverse the temporary directory for the generated image files.
 		def tempDirectoryFile = new File(tempDirectory)
 		
 		//These strings represent the HTML of the data and formatting we pull from the R output files.

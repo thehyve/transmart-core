@@ -26,7 +26,7 @@ class JobSpringScope implements Scope {
 
     @Override
     void registerDestructionCallback(String name, Runnable callback) {
-        log.warn('Destruction callbacks are not suppported')
+        log.warn('Destruction callbacks are not supported')
     }
 
     @Override

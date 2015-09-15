@@ -25,9 +25,9 @@
                     %{--Independent variable--}%
                     <div class="highDimContainer">
                         <h3>Independent Variable</h3>
-                        <span class="hd-notes">Select a variable  from the Data Set Explorer Tree and drag it into the box.
-                        At least one of the variables selected should be a continuous variable (ex. Age) and one should be a
-                        categorical variable (ex. Tumor Stage).  A continuous variable can be categorized using the binning
+                        <span class="hd-notes">Select a variable from the Data Set Explorer Tree and drag it into the box.
+                        At least one of the variables selected should be a continuous variable (e.g. Age) and one should be a
+                        categorical variable (e.g. Tumor Stage).  A continuous variable can be categorized using the binning
                         option below.</span>
                         <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
@@ -113,8 +113,8 @@
                     <div class="highDimContainer">
                         <h3>Dependent Variable</h3>
                         <span class="hd-notes">Select a variable  from the Data Set Explorer Tree and drag it into the
-                        box.  At least one of the variables selected should be a continuous variable (ex. Age) and one
-                        should be a categorical variable (ex. Tumor Stage).  A continuous variable can be categorized
+                        box.  At least one of the variables selected should be a continuous variable (e.g. Age) and one
+                        should be a categorical variable (e.g. Tumor Stage).  A continuous variable can be categorized
                         using the binning option below.</span>
                         <div id='divDependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
                         <div class="highDimBtns">
