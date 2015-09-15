@@ -18,9 +18,9 @@ ALTER TABLE ONLY de_snp_data_by_probe
     ADD CONSTRAINT sys_c0020601 PRIMARY KEY (snp_data_by_probe_id);
 
 --
--- Name: tf_trg_snp_data_by_pprobe_id(); Type: FUNCTION; Schema: deapp; Owner: -
+-- Name: tf_trg_snp_data_by_probe_id(); Type: FUNCTION; Schema: deapp; Owner: -
 --
-CREATE FUNCTION tf_trg_snp_data_by_pprobe_id() RETURNS trigger
+CREATE FUNCTION tf_trg_snp_data_by_probe_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
@@ -32,9 +32,9 @@ end;
 $$;
 
 --
--- Name: trg_snp_data_by_pprobe_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: trg_snp_data_by_probe_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
-CREATE TRIGGER trg_snp_data_by_pprobe_id BEFORE INSERT ON de_snp_data_by_probe FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_data_by_pprobe_id();
+CREATE TRIGGER trg_snp_data_by_probe_id BEFORE INSERT ON de_snp_data_by_probe FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_data_by_probe_id();
 
 --
 -- Name: fk_snp_by_probe_probe_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -

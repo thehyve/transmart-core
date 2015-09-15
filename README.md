@@ -255,7 +255,7 @@ sample explorer:
 
 Once it is running, you can run full imports with:
 
-	make -C solr rwg_full_import sample_full_import
+	make -C solr browse_full_import rwg_full_import sample_full_import
 
 The Faceted Search core also supports delta imports:
 
