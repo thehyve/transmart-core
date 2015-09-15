@@ -26,6 +26,7 @@
 package org.transmartproject.rest
 
 import grails.rest.Link
+import grails.rest.render.util.AbstractLinkingRenderer
 
 import javax.annotation.Resource
 
@@ -56,16 +57,12 @@ class StudyController {
         respond studiesResourceService.getStudyById(id)
     }
     
-    private def wrapStudies(Object source) {
-        
-        new ContainerResponseWrapper(
-                container: source,
-                componentType: Study,
-                links: [
-                        new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
-                                "/studies"
-                        )
-                ]
+    private wrapStudies(Object source) {
+        new ContainerResponseWrapper
+        (
+            container: source,
+            componentType: Study,
+            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/studies") ]
         )
     }
     
