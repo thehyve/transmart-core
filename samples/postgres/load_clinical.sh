@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #set -x
 set -e
 
@@ -14,7 +15,7 @@ UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="clinical"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
-# Check if mandetory variables are set
+# Check if mandatory variables are set
 if [ -z "$STUDY_ID" ] || [ -z "$COLUMN_MAP_FILE" ]; then
 	echo "Following variables need to be set:"
 	echo "    STUDY_ID=$STUDY_ID"
