@@ -255,6 +255,34 @@
     } ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_FORM_LAYOUT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_REQUIRED_UPLOAD_FIELD"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_FORM_LAYOUT_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_REQ_UPLOAD_FIELD_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "INDEX",
       "owner" : "SEARCHAPP",
       "name" : "SCH_KWD_DT_CAT_IDX"
@@ -1015,6 +1043,36 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_FORM_LAYOUT_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_FORM_LAYOUT"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_FORM_LAYOUT_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SRCH_REQ_UPLOAD_FIELD_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_REQUIRED_UPLOAD_FIELD"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_REQ_UPLOAD_FIELD_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
       "name" : "TRG_SEARCH_KEYWORD_ID"
     },
     "parents" : [ {
@@ -1212,6 +1270,20 @@
       "name" : "HIBERNATE_SEQUENCE"
     },
     "file" : "searchapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_FORM_LAYOUT"
+    },
+    "file" : "searchapp/search_form_layout.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_REQUIRED_UPLOAD_FIELD"
+    },
+    "file" : "searchapp/search_required_upload_field.sql"
   }, {
     "item" : {
       "type" : "INDEX",
@@ -1674,6 +1746,34 @@
       "name" : "SEQ_SEARCH_DATA_ID"
     },
     "file" : "searchapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_FORM_LAYOUT_ID"
+    },
+    "file" : "searchapp/search_form_layout.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_REQ_UPLOAD_FIELD_ID"
+    },
+    "file" : "searchapp/search_required_upload_field.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SRCH_REQ_UPLOAD_FIELD_ID"
+    },
+    "file" : "searchapp/search_required_upload_field.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "SEARCHAPP",
+      "name" : "TRG_SEARCH_FORM_LAYOUT_ID"
+    },
+    "file" : "searchapp/search_form_layout.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",

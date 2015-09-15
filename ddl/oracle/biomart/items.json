@@ -245,6 +245,17 @@
     } ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_EXT_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_EXT"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_AD_HOC_PROPERTY"
@@ -452,6 +463,17 @@
       "name" : "BIO_ASSAY_ANALYSIS_GWAS"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_EXT"
+    },
+      "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_GWAS"
+      } ]
   }, {
     "child" : {
       "type" : "FUNCTION",
@@ -1862,6 +1884,20 @@
       "owner" : "BIOMART",
       "name" : "BIO_PATIENT_EVENT"
     } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_RECOMBINATION_RATES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_REGULOME_SCORE"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -3844,6 +3880,13 @@
     "file" : "biomart/gwas_partition.sql"
   }, {
     "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_EXT_FK"
+    },
+    "file" : "biomart/bio_asy_analysis_data_ext.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_AD_HOC_PROPERTY"
@@ -3958,6 +4001,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_GWAS"
+    },
+    "file" : "biomart/bio_assay_analysis_gwas.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
       "name" : "BIO_ASSAY_ANALYSIS_EXT"
     },
     "file" : "biomart/bio_assay_analysis_ext.sql"
@@ -3968,13 +4018,6 @@
       "name" : "BIO_ASSAY_ANALYSIS_EXT_IDX1"
     },
     "file" : "biomart/bio_assay_analysis_ext.sql"
-  }, {
-    "item" : {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_ASSAY_ANALYSIS_GWAS"
-    },
-    "file" : "biomart/bio_assay_analysis_gwas.sql"
   }, {
     "item" : {
       "type" : "FUNCTION",
@@ -4101,6 +4144,13 @@
       "name" : "BIO_ASY_ANALYSIS_DATA_IDX"
     },
     "file" : "biomart/bio_asy_analysis_data_idx.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_EXT"
+    },
+    "file" : "biomart/bio_asy_analysis_data_ext.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -4793,7 +4843,7 @@
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
     },
-    "file" : "biomart/_cross.sql"
+    "file" : "biomart/views/bio_marker_exp_analysis_mv.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
@@ -4913,6 +4963,20 @@
       "name" : "BIO_PT_EVENT_BIO_TRL_TP_FK"
     },
     "file" : "biomart/bio_patient_event.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_RECOMBINATION_RATES"
+    },
+    "file" : "biomart/bio_recombination_rates.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_REGULOME_SCORE"
+    },
+    "file" : "biomart/bio_regulome_score.sql"
   }, {
     "item" : {
       "type" : "TABLE",
