@@ -98,7 +98,7 @@ assigned the correct owner (i.e., the user PostgreSQL runs as), then the
 install target will run into problems when attempting to create the
 tablespaces. If the user PostgreSQL runs as and the user running the targets
 are not the same AND the tablespace directories do not already exist, then
-manual intervention is necessary for creating all the tablespaces' directories
+manual intervention is necessary for creating all the tablespace directories
 and assigning them the correct owner.
 
 ### Oracle-specific notes
@@ -261,7 +261,7 @@ The Faceted Search core also supports delta imports:
 
     make -C solr rwg_delta_import
 
-Due to different functionality in tranSMART versions targetting each RDBMS,
+Due to different functionality in tranSMART versions targeting each RDBMS,
 there's a separate Solr core for Oracle:
 
     ORACLE=1 make -C solr start
@@ -308,9 +308,9 @@ the configuration may have to be changed, but even if it doesn't, some
 directories described in the configuration will need to be created.
 
 If you need to change configuration parameters, you can change the files in
-`~/.grails/transmartConfig` that are createdi by the `install` target, but they
+`~/.grails/transmartConfig` that are created by the `install` target, but they
 will be overwritten (after being backed up) the next time you install the
-configuration again using the same target. Therefore, it is preferrable to copy
+configuration again using the same target. Therefore, it is preferable to copy
 `config/Config-extra.php.sample` into `config/Config-extra.php` and edit the new
 file. In this file, you can edit two blocks of text which will be inserted into
 two different points in the configuration template, allowing you override any
@@ -336,8 +336,8 @@ This part still needs some work, but it goes more or less like this:
 * (If you want to regenerate all the schemas, you can replace the last three
   steps with `make clean_all dump files_all`).
 * If you have data changes, go to `data/postgres`. If you need to dump data from
-  a table no data was being dumped before, add that table to one of the `<schema
-  name>_list` files.
+  a table no data was being dumped from before, add that table to one of the
+  `<schema name>_list` files.
 * Run `make dump`. You can run `make clean_dumps` to delete all the dumps, which
   might be useful e.g. if you deleted tables from the lists of tables that
   should be dumped.
