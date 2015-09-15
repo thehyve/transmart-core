@@ -5,22 +5,14 @@
 # General optional parameters:
 #   DATA_LOCATION, STUDY_NAME, STUDY_ID
 # Specific mandatory parameters for this upload script:
-#   RNASEQ_DATA_FILE, SUBJECT_SAMPLE_MAPPING, R_JOBS_PSQL
+#   RNASEQ_DATA_FILE, SUBJECT_SAMPLE_MAPPING, R_JOBS_PSQL or KETTLE_JOBS_PSQL
 # Specific optional parameters for this upload script:
-#   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD 
+#   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD
 
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="rnaseq"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
-
-# Check if mandatory variables are set
-if [ -z "$STUDY_ID" ] || [ -z "$RNASEQ_DATA_FILE" ]; then
-	echo "Following variables need to be set:"
-	echo "    STUDY_ID=$STUDY_ID"
-	echo "    RNASEQ_DATA_FILE=$RNASEQ_DATA_FILE"
-	exit -1
-fi
 
 if [ -z "$R_JOBS_PSQL" ]; then
     if [ -z "$KETTLE_JOBS_PSQL" ]; then
@@ -42,10 +34,28 @@ fi
 
 # Check if mandatory parameter values are provided
 if [ -z "$RNASEQ_DATA_FILE" ] || [ -z "$SUBJECT_SAMPLE_MAPPING" ] ; then
-        echo "Following variables need to be set:"
-	echo "    RNASEQ_DATA_FILE=$RNASEQ_DATA_FILE"
-	echo "    SUBJECT_SAMPLE_MAPPING=$SUBJECT_SAMPLE_MAPPING"
-    	exit 1
+    echo "Following variables need to be set:"
+    echo "    RNASEQ_DATA_FILE=$RNASEQ_DATA_FILE"
+    echo "    SUBJECT_SAMPLE_MAPPING=$SUBJECT_SAMPLE_MAPPING"
+    exit 1
+fi
+
+# Extract STUDY_ID from subject sample mapping file
+STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${SUBJECT_SAMPLE_MAPPING} | sort -u | tr 'a-z' 'A-Z')
+if [ -z "$STUDY_ID_FROM_SSM" ]; then
+    echo "Error $0: No STUDY_ID provided in first column of subject sample mapping file $SUBJECT_SAMPLE_MAPPING"
+    exit 1
+fi
+
+# Check consistent use of STUDY_ID (if provided both as a parameter and in the subject sample mapping file)
+if [ -z "$STUDY_ID" ]; then
+    STUDY_ID=$STUDY_ID_FROM_SSM
+else
+    if [[ "$STUDY_ID" != "$STUDY_ID_FROM_SSM" ]]
+    then
+        echo "Error $0: STUDY_ID=$STUDY_ID defined in params differs from STUDY_ID=$STUDY_ID_FROM_SSM defined in $SUBJECT_SAMPLE_MAPPING"
+        exit 1
+    fi
 fi
 
 SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
@@ -61,13 +71,13 @@ TOP_NODE="\\${TOP_NODE_PREFIX}\\${STUDY_NAME}\\"
 SOURCE_CD=${SOURCE_CD:-STD}
 
 # The unpivoted-file which will be loaded into the database
-RNASEQ_DATA_FILE_UPLOAD=${RNASEQ_DATA_FILE}.upload
+RNASEQ_DATA_FILE_UPLOAD="${RNASEQ_DATA_FILE}".upload
 
 # Create the unpivoted file to be loaded into the database.
 echo "Start re-arranging input..."
 ${RSCRIPT} ${R_JOBS_PSQL}/RNASeq/unpivot_RNASeq_data.R studyID=${STUDY_ID} \
-                                                       RNASeqFile=${RNASEQ_DATA_FILE} \
-                                                       dataOUT=${RNASEQ_DATA_FILE_UPLOAD}
+                                                       RNASeqFile="${RNASEQ_DATA_FILE}" \
+                                                       dataOUT="${RNASEQ_DATA_FILE_UPLOAD}"
 
 echo "unpivoted input stored in file: ${RNASEQ_DATA_FILE_UPLOAD}"
 echo ""
@@ -82,7 +92,7 @@ echo ""
 _END
 
 # Upload data-file into the landing-zone
-  echo "Entering data from: ${RNASEQ_DATA_FILE_UPLOAD} into the landing-zone"
+  echo "Entering data from: '${RNASEQ_DATA_FILE_UPLOAD}' into the landing-zone"
   $PGSQL_BIN/psql <<_END
     truncate TABLE tm_lz.lt_src_rnaseq_data;
     \copy tm_lz.lt_src_rnaseq_data \
