@@ -27,7 +27,6 @@ package org.transmartproject.rest
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import groovy.json.JsonBuilder;
 
 class StudiesResourceTests extends ResourceTestCase {
 
