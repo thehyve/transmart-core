@@ -2,6 +2,7 @@ plugin
 search_auth_group
 search_auth_principal
 search_auth_user
+search_form_layout
 search_gene_sig_file_schema
 search_keyword
 search_keyword_term

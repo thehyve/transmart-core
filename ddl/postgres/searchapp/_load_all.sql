@@ -4,10 +4,12 @@
 \i searchapp/functions/refresh_search_bio_mkr_correl_fast_mv.sql
 \i searchapp/search_auth_principal.sql
 \i searchapp/search_auth_user.sql
+\i searchapp/search_form_layout.sql
 \i searchapp/search_gene_sig_file_schema.sql
 \i searchapp/search_gene_signature.sql
 \i searchapp/search_gene_signature_item.sql
 \i searchapp/search_keyword.sql
+\i searchapp/search_required_upload_field.sql
 \i searchapp/views/listsig_genes.sql
 \i searchapp/plugin.sql
 \i searchapp/plugin_module.sql

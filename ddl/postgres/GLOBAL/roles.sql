@@ -24,5 +24,5 @@ CREATE ROLE tm_wz;
 ALTER ROLE tm_wz WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION PASSWORD 'md5ecb88cc49310482090fe9243436fc73b';
 CREATE ROLE ts_batch;
 ALTER ROLE ts_batch WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION;
-ALTER ROLE biomart_user SET search_path TO biomart_user, searchapp, biomart, deapp, i2b2demodata, i2b2metadata, amapp, fmapp, galaxy, tm_cz, public;
+ALTER ROLE biomart_user SET search_path TO biomart_user, searchapp, biomart, deapp, i2b2demodata, i2b2metadata, amapp, fmapp, galaxy, public;
 ALTER ROLE tm_cz SET search_path TO "$user", tm_wz, tm_lz, deapp, i2b2metadata, i2b2demodata, deapp, biomart, ts_batch;
