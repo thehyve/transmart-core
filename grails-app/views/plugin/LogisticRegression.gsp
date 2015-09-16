@@ -18,17 +18,23 @@
             %{-- ************************************************************************************************* --}%
             <div class="left">
                 <fieldset class="inputFields">
-                    <h3>Independent Variable</h3>
-                    <span class="hd-notes">
-                        Drag a <b>numerical</b> concept from the tree into the box below. The concept must come from a
-                        data node (Biomarker Data or Clinical Data).  <br><br><br><br><br><br><br>
-                    </span>
-                    <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
-                    <div class="highDimBtns">
-                        <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
+                    <div class="highDimContainer">
+                        <h3>Independent Variable</h3>
+                        <span class="hd-notes">
+                            Drag a <b>numerical</b> or <b>high dimensional</b> concept from the Data Set Explorer Tree into the box below.
+                            <br><br><br><br><br><br><br><br>
+                        </span>
+                        <div id='divIndependentVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                        <div class="highDimBtns">
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divIndependentVariable', true)">High Dimensional Data</button>
+                            <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divIndependentVariable')">Clear</button>
+                        </div>
+                        <input type="hidden" id="independentVarDataType">
+                        <input type="hidden" id="independentPathway">
                     </div>
 
-
+                    %{--Display independent variable--}%
+                    <div id="displaydivIndependentVariable" class="independentVariable"></div>
                 </fieldset>
             </div>
 
@@ -38,20 +44,28 @@
 
             <div class="right">
                 <fieldset class="inputFields">
-                    <h3>Outcome</h3>
-                    <span class="hd-notes">
-                        For the binary response, among two possible outcomes (Commonly the generic terms success and
-                        failure are used for these two outcomes). Drag the two related <b>categorical concepts</b>
-                        from the tree into the box below (for example, Subjects with Malignant Vs. Subjects with
-                        Benign Tumors). A folder may be dragged in to include the two leaf nodes under that folder.
-                        <br> <i>NOTE: The top concept will always be designated a value of 1 and the other a
-                        value of 0.</i>
-                    </span>
-                    <div id='divGroupByVariable' class="queryGroupIncludeSmall highDimBox"></div>
-                    <div class="highDimBtns">
-                        <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divGroupByVariable')">Clear</button>
+                    <div class="highDimContainer">
+                        <h3>Outcome</h3>
+                        <span class="hd-notes">
+                            For the binary response, among two possible outcomes (Commonly the generic terms success and
+                            failure are used for these two outcomes). Drag the two related <b>categorical concepts</b>
+                            from the tree into the box below (for example, Subjects with Malignant Vs. Subjects with
+                            Benign Tumors). A folder may be dragged in to include the two leaf nodes under that folder.
+                            Or a continuous of high dimensional variable may be selected and categorized using the binning option below.
+                            <br> <i>NOTE: The top concept or the first bin will always be designated a value of 1 (success) and
+                            the other a value of 0 (failure).</i>
+                        </span>
+                        <div id='divGroupByVariable' class="queryGroupIncludeSmall highDimBox"></div>
+                        <div class="highDimBtns">
+                            <button type="button" onclick="highDimensionalData.gather_high_dimensional_data('divGroupByVariable', true)">High Dimensional Data</button>
+                            <button type="button" onclick="logisticRegressionView.clear_high_dimensional_input('divGroupByVariable')">Clear</button>
+                        </div>
+                        <input type="hidden" id="groupByVarDataType">
+                        <input type="hidden" id="groupByPathway">
                     </div>
 
+                    %{--Display group variable--}%
+                    <div id="displaydivGroupByVariable" class="groupByVariable"></div>
                     %{--Binning options--}%
                     <fieldset class="binningDiv">
 

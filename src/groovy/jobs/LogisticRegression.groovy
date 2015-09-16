@@ -14,6 +14,8 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import javax.annotation.PostConstruct
 
+import static jobs.steps.AbstractDumpStep.DEFAULT_OUTPUT_FILE_NAME
+
 @Component
 @Scope('job')
 class LogisticRegression extends AbstractAnalysisJob {
@@ -41,16 +43,18 @@ class LogisticRegression extends AbstractAnalysisJob {
 
     private void configureIndependentVariableConfigurator() {
         independentVariableConfigurator.header = 'Y'
-        independentVariableConfigurator.alwaysClinical = true
         independentVariableConfigurator.setKeys('independent')
+        independentVariableConfigurator.projection = Projection.LOG_INTENSITY_PROJECTION
+        independentVariableConfigurator.multiRow   = true
     }
 
     private void configureOutcomeVariableConfigurator() {
+
         outcomeVariableConfigurator.header = 'X'
         outcomeVariableConfigurator.setKeys('groupBy')
-        outcomeVariableConfigurator.projection          = Projection.DEFAULT_REAL_PROJECTION
+        outcomeVariableConfigurator.projection          = Projection.LOG_INTENSITY_PROJECTION
         outcomeVariableConfigurator.multiRow            = true
-
+        outcomeVariableConfigurator.binningConfigurator.setKeys('')
         def binningConfigurator = outcomeVariableConfigurator.binningConfigurator
         binningConfigurator.keyForDoBinning           = 'binning'
         binningConfigurator.keyForManualBinning       = 'manualBinning'
@@ -68,21 +72,21 @@ class LogisticRegression extends AbstractAnalysisJob {
         steps << new BuildTableResultStep(
                 table:         table,
                 configurators: [primaryKeyColumnConfigurator,
-                        outcomeVariableConfigurator,
-                        independentVariableConfigurator])
+                                outcomeVariableConfigurator,
+                                independentVariableConfigurator])
 
-        steps << new SimpleDumpTableResultStep(
+        steps << new MultiRowAsGroupDumpTableResultsStep(
                 table:              table,
-                temporaryDirectory: temporaryDirectory
-        )
+                temporaryDirectory: temporaryDirectory,
+                outputFileName:     DEFAULT_OUTPUT_FILE_NAME)
 
         steps << new RCommandsStep(
                 temporaryDirectory: temporaryDirectory,
                 scriptsDirectory:   scriptsDirectory,
                 rStatements:        RStatements,
                 studyName:          studyName,
-                params:             params
-        )
+                params:             params,
+                extraParams:        [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
 
         steps
     }
@@ -92,7 +96,7 @@ class LogisticRegression extends AbstractAnalysisJob {
         [
             '''source('$pluginDirectory/LogisticRegression/LogisticRegressionLoader.R')''',
             '''LogisticRegressionData.loader(input.filename='outputfile.txt',
-                        concept.dependent='$dependentVariable',
+                        concept.dependent='$groupByVariable',
                         concept.independent='$independentVariable',
                         binning.enabled='FALSE',
                         binning.variable='')'''

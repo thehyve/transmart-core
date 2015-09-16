@@ -49,10 +49,10 @@ LogisticRegressionView.prototype.toggle_binning = function () {
  */
 LogisticRegressionView.prototype.get_form_params = function (form) {
 
-    var dependentVariableConceptCode = readConceptVariables("divIndependentVariable");
+    var dependentVariableConceptCode = readConceptVariables("divDependentVariable");
     var independentVariableConceptCode = readConceptVariables("divIndependentVariable");
     var groupByVariableConceptCode = readConceptVariables("divGroupByVariable");
-    var variablesConceptCode = dependentVariableConceptCode+"|"+groupByVariableConceptCode;
+    var variablesConceptCode = independentVariableConceptCode+"|"+groupByVariableConceptCode;
 
     var formParams = {
         jobType: 'LogisticRegression',
@@ -64,26 +64,24 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
 
 ///////////////////////////////////////  VALIDATION
 
-    if(dependentVariableConceptCode == '')
+    if(independentVariableConceptCode == '')
     {
-        Ext.Msg.alert('Missing input!', 'Please drag one concept into the Numeric variable box.');
+        Ext.Msg.alert('Missing input!', 'Please drag one concept into the Independent Variable box.');
         return;
     }
 
-    var variableEle = Ext.get("divGroupByVariable");
-    var numericalVariableEle = Ext.get("divIndependentVariable");
-
-
+    var groupByVariableEle = Ext.get("divGroupByVariable");
+    var independentVariableEle = Ext.get("divIndependentVariable");
 
     //This will tell us the type of nodes drag into Probability box
-    var categoryNodeList = createNodeTypeArrayFromDiv(variableEle,"setnodetype")
-    var numericNodeList = createNodeTypeArrayFromDiv(numericalVariableEle,"setnodetype")
+    var categoryNodeList = createNodeTypeArrayFromDiv(groupByVariableEle,"setnodetype")
+    var numericNodeList = createNodeTypeArrayFromDiv(independentVariableEle,"setnodetype")
 
     //Across Trial/Navigate by study validation.
     //This will tell us which table the nodes came from. This is important because it tells us if they are modifier
     //nodes or regular concept codes. We use this information for validation and for passing to the jobs functions.
-    var categoryNodeType = createNodeTypeArrayFromDiv(variableEle,"concepttablename")
-    var numericNodeType = createNodeTypeArrayFromDiv(numericalVariableEle,"concepttablename")
+    var categoryNodeType = createNodeTypeArrayFromDiv(groupByVariableEle,"concepttablename")
+    var numericNodeType = createNodeTypeArrayFromDiv(independentVariableEle,"concepttablename")
 
     if (categoryNodeType.length > 1) {
         Ext.Msg.alert('Wrong input', 'The Category input box has nodes from both the \'Navigate By Study\' tree ' +
@@ -117,26 +115,26 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
     }
 
     if ((categoryNodeList[0] == 'valueicon' || categoryNodeList[0] == 'hleaficon') && (groupByVariableConceptCode.indexOf("|") != -1)) {
-        Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes. ' +
-            'The Probability input box has multiple nodes.');
+        Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes and enabe binning to define two outcomes. ' +
+            'The Outcome variable input box has multiple nodes.');
         return;
     }
 
-    if ((numericNodeList[0] == 'valueicon' || numericNodeList[0] == 'hleaficon') && (dependentVariableConceptCode.indexOf("|") != -1)) {
+    if ((numericNodeList[0] == 'valueicon' || numericNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1)) {
         Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes. ' +
-            'The Numeric input box has multiple nodes.');
+            'The Independent variable input box has multiple nodes.');
         return;
     }
 
     //If its categorical value than make sure you have atleast 2 values
-    if (groupByVariableConceptCode == '' || (  categoryNodeList[0] != 'valueicon' && variableEle.dom.childNodes.length < 2)) {
+    if (groupByVariableConceptCode == '' || (  categoryNodeList[0] != 'valueicon' && categoryNodeList[0] != 'hleaficon' && groupByVariableEle.dom.childNodes.length < 2)) {
         Ext.Msg.alert('Missing input!', 'If categorical concept, than please drag at least two categorical ' +
-            'concept into the Probability  Concepts variable box.');
+            'concept into the Outcome variable input box.');
         return;
     }
 
     //If its categorical value and its more than 2 values, than make sure they are binned manually
-    if (categoryNodeList[0] != 'valueicon' && variableEle.dom.childNodes.length > 2 && !GLOBAL.Binning) {
+    if (categoryNodeList[0] != 'valueicon' && groupByVariableEle.dom.childNodes.length > 2 && !GLOBAL.Binning) {
         Ext.Msg.alert('Wrong input!', 'For more than 2 categorical concepts,  please enable binning and use manual ' +
             'binning to group the concepts into 2 groups');
         return;
@@ -149,7 +147,7 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if (categoryNodeList[0] != 'valueicon' && GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous') {
+    if ((categoryNodeList[0] != 'valueicon' && categoryNodeList[0] != 'hleaficon') && GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous') {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Category box, but you are trying to ' +
             'bin it as if it was continuous. Please alter your binning options or the concept in the Category box.');
         return;
@@ -166,8 +164,29 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
             'your binning options or the concept in the Probablity input  box.');
         return;
     }
-
+    if(!this.load_high_dimensional_parameters(formParams)) return false;
     this.load_binning_parameters(formParams);
+
+    //------------------------------------
+    //More Validation
+    //------------------------------------
+    //If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
+    if(categoryNodeList[0] == 'hleaficon' && formParams["divGroupByVariableType"] == "CLINICAL")
+    {
+        Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the outcome variable box but ' +
+            'did not select any filters. Please click the "High Dimensional Data" button and select filters. ' +
+            'Apply the filters by clicking "Apply Selections".');
+        return;
+    }
+    if(numericNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
+    {
+        Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable ' +
+            'box but did not select any filters. Please click the "High Dimensional Data" button and select ' +
+            'filters. Apply the filters by clicking "Apply Selections".');
+        return;
+    }
+    //------------------------------------
+
 
     return formParams;
 }
@@ -272,6 +291,24 @@ LogisticRegressionView.prototype.manage_bins = function (newNumberOfBins) {
     this.update_manual_binning();
 }
 
+LogisticRegressionView.prototype.load_high_dimensional_parameters = function (formParams) {
+
+    var _independentGeneList = document.getElementById('independentPathway').value;
+    var _independentDataType = document.getElementById('independentVarDataType').value ?
+        document.getElementById('independentVarDataType').value : 'CLINICAL';
+
+    formParams["divIndependentVariableType"]     = _independentDataType;
+    formParams["divIndependentVariablePathway"]  = _independentGeneList;
+
+    var _groupByGeneList = document.getElementById('groupByPathway').value;
+    var _groupByDataType = document.getElementById('groupByVarDataType').value ?
+        document.getElementById('groupByVarDataType').value : 'CLINICAL';
+
+    formParams["divGroupByVariableType"]         = _groupByDataType;
+    formParams["divGroupByVariablePathway"]      = _groupByGeneList;
+
+    return true;
+}
 
 LogisticRegressionView.prototype.load_binning_parameters = function (formParams) {
     //These default to FALSE
