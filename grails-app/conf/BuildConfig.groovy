@@ -27,14 +27,14 @@ grails.project.dependency.resolution = {
     plugins {
 		compile(':resources:1.2.1')
 		//// already included in biomart-domain
-                //compile(':transmart-java:1.2.2-SNAPSHOT')
+                //compile(':transmart-java:1.2.5-Beta-SNAPSHOT')
 		//// already included in search-domain
-                //compile(':biomart-domain:1.2.2-SNAPSHOT')
+                //compile(':biomart-domain:1.2.5-Beta-SNAPSHOT')
 		//// already included in folder-management
-                //compile(':search-domain:1.2.2-SNAPSHOT')
-		compile(':folder-management:1.2.2-SNAPSHOT')
+                //compile(':search-domain:1.2.5-Beta-SNAPSHOT')
+		compile(':folder-management:1.2.5-Beta-SNAPSHOT')
 		//// already included in folder-management
-                //compile(':transmart-legacy-db:1.2.2-SNAPSHOT')
+                //compile(':transmart-legacy-db:1.2.5-Beta-SNAPSHOT')
 		compile(':spring-security-core:2.0-RC2')
 		compile(':quartz:1.0-RC2')
         compile(':mail:1.0')
