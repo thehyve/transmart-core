@@ -25,9 +25,14 @@
 
 package org.transmartproject.rest
 
-import org.transmartproject.core.ontology.StudiesResource
+import grails.rest.Link
+import grails.rest.render.util.AbstractLinkingRenderer
 
 import javax.annotation.Resource
+
+import org.transmartproject.core.ontology.StudiesResource
+import org.transmartproject.core.ontology.Study
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 
 class StudyController {
 
@@ -40,7 +45,7 @@ class StudyController {
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        respond studiesResourceService.studySet
+        respond wrapStudies(studiesResourceService.studySet)
     }
 
     /** GET request on /studies/${id}
@@ -51,4 +56,14 @@ class StudyController {
     def show(String id) {
         respond studiesResourceService.getStudyById(id)
     }
+    
+    private wrapStudies(Object source) {
+        new ContainerResponseWrapper
+        (
+            container: source,
+            componentType: Study,
+            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/studies") ]
+        )
+    }
+    
 }

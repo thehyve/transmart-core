@@ -37,7 +37,7 @@ class StudiesResourceTests extends ResourceTestCase {
         get("${baseURL}studies")
         assertStatus 200
 
-        assertThat JSON, contains(
+        assertThat JSON, hasEntry(is('studies'), contains(
                 allOf(
                         hasEntry('id', 'STUDY_ID_1'),
                         hasEntry(is('ontologyTerm'), allOf(
@@ -62,7 +62,50 @@ class StudiesResourceTests extends ResourceTestCase {
                                 hasEntry('key', '\\\\i2b2 main\\foo\\study3\\'),
                         ))
                 )
-        )
+        ))
+    }
+
+    void testListAllStudiesAsHal() {
+        def result = getAsHal("${baseURL}studies")
+        
+        //log.info "testListAllStudiesAsHal:\n" + result.toString(2) 
+        
+        assertStatus 200
+
+        assertThat result, halIndexResponse('/studies', ['studies': 
+            contains(
+                allOf(
+                        hasEntry('id', 'STUDY_ID_1'),
+                        halIndexResponse('/studies/study_id_1', ['ontologyTerm':
+                            allOf(
+                                hasEntry('name', 'study1'),
+                                hasEntry('fullName', '\\foo\\study1\\'),
+                                hasEntry('key', '\\\\i2b2 main\\foo\\study1\\'),
+                            )
+                        ])
+                ),
+                allOf(
+                        hasEntry('id', 'STUDY_ID_2'),
+                        halIndexResponse('/studies/study_id_2', ['ontologyTerm':
+                            allOf(
+                                hasEntry('name', 'study2'),
+                                hasEntry('fullName', '\\foo\\study2\\'),
+                                hasEntry('key', '\\\\i2b2 main\\foo\\study2\\'),
+                            )
+                        ])
+                ),
+                allOf(
+                        hasEntry('id', 'STUDY_ID_3'),
+                        halIndexResponse('/studies/study_id_3', ['ontologyTerm':
+                            allOf(
+                                hasEntry('name', 'study3'),
+                                hasEntry('fullName', '\\foo\\study3\\'),
+                                hasEntry('key', '\\\\i2b2 main\\foo\\study3\\'),
+                            )
+                        ])
+                )
+            )
+        ])
     }
 
     void testGetStudy() {
@@ -80,6 +123,25 @@ class StudiesResourceTests extends ResourceTestCase {
         )
     }
 
+    void testGetStudyAsHal() {
+        def studyId = 'STUDY_ID_1'
+        def result = getAsHal("${baseURL}studies/${studyId}")
+        assertStatus 200
+
+        //log.info "testGetStudyAsHal:\n" + result.toString(2)
+        
+        assertThat result, allOf(
+            hasEntry('id', 'STUDY_ID_1'),
+            halIndexResponse("/studies/${studyId}".toLowerCase(), [
+                'ontologyTerm': allOf(
+                    hasEntry('name', 'study1'),
+                    hasEntry('fullName', '\\foo\\study1\\'),
+                    hasEntry('key', '\\\\i2b2 main\\foo\\study1\\'),
+                )
+            ])
+        )
+    }
+    
     void testListStudiesChildLink() {
         def path = "_embedded.studies[0].$childLinkHrefPath"
         def result = getAsHal '/studies'
