@@ -71,3 +71,11 @@ Example code for how to parse the protobuf binary stream into something sensible
 ### Authentication with OAuth
 
 This plugin does not implement any authentication scheme. However, it is usually deployed together with `transmartApp` with configuration that secures this plugin's resources with the [OAuth2 Spring Security provider](https://grails.org/plugin/spring-security-oauth2-provider). The best workflow to use will depend on the type of client.
+
+### Changelog
+
+#### Structure of the result of `/studies` (10 Sept 2015)
+
+As of commit [00df0c0](https://github.com/transmart/transmart-rest-api/commit/00df0c06c6ef89a6fcf9055d41401ceb99d3ec98), the structure of the JSON output of `/studies` has changed
+from a plain list of studies `[ ... ]` to the object `{ "studies": [ ... ] }`.
+This makes the result of `/studies` consistent with the result for other resource lists.
