@@ -41,6 +41,7 @@ The parameters file should be named `metabolomics.params`.
 
 The [information provided for mRNA](expression.md) is applicable, with only some
 nomenclature changes.
+[Read more on how HD data are processed.](hd-data-processing-details.md)
 
 <!-- vim: tw=80 et ft=markdown spell:
 -->
