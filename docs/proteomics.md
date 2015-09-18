@@ -14,7 +14,7 @@ The recommended order is `probesetID`, `uniprotID`,
 
 Constraints:
 
-- The only mandatory column are `probesetID` and `uniprotID`.
+- The only mandatory columns are `probesetID` and `uniprotID`.
 - All gene region columns (`chromosome`, `start` and `end`) are required if at least one is provided. That is, either all or none of the gene information columns must be included.
 
 Example file:
@@ -37,7 +37,7 @@ information about annotation loading jobs, including their parameters.
 Subject-Sample Mapping
 ----------------------
 
-Here is subject-sample mapping example file:
+Here is a subject-sample mapping example file:
 
 | trial_name | site_id | subject_id | sample_cd               | platform   | tissue_type | attr1 | attr2 | cat_cd                                                                                                              | src_cd | 
 |------------|---------|------------|-------------------------|------------|-------------|-------|-------|---------------------------------------------------------------------------------------------------------------------|--------| 
