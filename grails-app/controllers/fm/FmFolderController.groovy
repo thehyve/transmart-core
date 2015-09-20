@@ -163,7 +163,7 @@ class FmFolderController {
         log.info measurements
         log.info technologies
         log.info vendors
-        log.info platforms
+        log.info "platforms total: ${platforms.size()}"
 
         render(template: "createAssay", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
@@ -1105,15 +1105,24 @@ class FmFolderController {
 
     private Object getBioDataObject(folder) {
         def bioDataObject
+        def folderAssociation
+
         log.info "getBioDataObject::folder = " + folder
 
-        def folderAssociation = FmFolderAssociation.findByFmFolder(folder.findParentStudyFolder())
+        if(folder.folderType == 'PROGRAM') {
+            bioDataObject = folder
+            return bioDataObject
+        }
+
+        folderAssociation = FmFolderAssociation.findByFmFolder(folder)
+        //for PROGRAM this would be
+            //folderAssociation = FmFolderAssociation.findByFmFolder(folder)
 
         if (folderAssociation) {
             log.info "getBioDataObject::folderAssociation = " + folderAssociation
             bioDataObject = folderAssociation.getBioObject()
         } else {
-            log.error "Unable to find folderAssociation for folder Id = " + folder.findParentStudyFolder().id
+            log.error "Unable to find folderAssociation for folder Id = " + folder.id
         }
 
         if (!bioDataObject) {
@@ -1130,10 +1139,10 @@ class FmFolderController {
 
 
         if (!isAdmin()) {
+            log.info "Not an admin: ignore"
             return
         };
 
-        //log.info "** action: expDetail called!"
         def folderId = params.folderId
 
         def folder
@@ -1159,7 +1168,9 @@ class FmFolderController {
         def technologies = BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
         def platforms = BioAssayPlatform.executeQuery("FROM BioAssayPlatform as p ORDER BY p.name")
 
-        render(template: "editMetaData", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "editMetaData", plugin: "folderManagement",
+            model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms,
+                    folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def updateMetaData = {
