@@ -163,7 +163,7 @@ class FmFolderController {
         log.info measurements
         log.info technologies
         log.info vendors
-        log.info platforms
+        log.info "platforms total: ${platforms.size()}"
 
         render(template: "createAssay", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
@@ -1009,6 +1009,8 @@ class FmFolderController {
                 geneFilter = geneFilter.substring(5).split("::")[0].replace("|", "/").split("/")
             }
 
+            log.info "analysisTable id ${analysisId} geneFilter '${geneFilter}'"
+
             //For each gene (ignore pathways), add the gene name and any synonyms to the list to match against
             for (item in geneFilter) {
                 if (item.startsWith("GENE")) {
@@ -1021,14 +1023,23 @@ class FmFolderController {
                 }
             }
 
+            log.info "geneCount ${genes.size()}"
+
             def criteriaParams = [:]
             if (!params.boolean('full')) {
                 criteriaParams.put('max', 1000)
+                log.info "not full... limit to 1000 rows"
             }
+
+            log.info "criteriaParams '${criteriaParams}'"
+            log.info "fetch BioAssayAnalysisData for analysisId ${analysisId}"
+
             def rows = BioAssayAnalysisData.createCriteria().list(criteriaParams) {
                 eq('analysis', BioAssayAnalysis.get(analysisId))
                 order('rawPvalue', 'asc')
             }
+
+            log.info "rowCount ${rows.getTotalCount()}"
 
             ExportTableNew table = new ExportTableNew()
             table.putColumn("probe", new ExportColumn("probe", "Probe", "", 'String'));
@@ -1040,18 +1051,24 @@ class FmFolderController {
 
             rows.each {
                 def rowGenes = (DeMrnaAnnotation.findAll("from DeMrnaAnnotation as a where a.probesetId=? and geneSymbol is not null", [it.probesetId]))*.geneSymbol
-                def lowerGenes = []
-                for (gene in rowGenes) {
-                    lowerGenes.push(gene.toLowerCase())
-                }
                 def foundGene = false
-                for (gene in genes) {
-                    if (gene.toLowerCase() in lowerGenes) {
-                        foundGene = true
-                        break
+
+                log.info "row probesetId ${it.probesetId} rowGenes '${rowGenes}'"
+
+                if(genes) {
+    
+                    def lowerGenes = []
+                    for (gene in rowGenes) {
+                        lowerGenes.push(gene.toLowerCase())
+                    }
+                    for (gene in genes) {
+                        if (gene.toLowerCase() in lowerGenes) {
+                            foundGene = true
+                            break
+                        }
                     }
                 }
-
+                
                 if (foundGene || !genes) {
                     ExportRowNew newrow = new ExportRowNew()
                     newrow.put("probe", it.probeset);
@@ -1105,15 +1122,24 @@ class FmFolderController {
 
     private Object getBioDataObject(folder) {
         def bioDataObject
+        def folderAssociation
+
         log.info "getBioDataObject::folder = " + folder
 
-        def folderAssociation = FmFolderAssociation.findByFmFolder(folder.findParentStudyFolder())
+        if(folder.folderType == 'PROGRAM') {
+            bioDataObject = folder
+            return bioDataObject
+        }
+
+        folderAssociation = FmFolderAssociation.findByFmFolder(folder)
+        //for PROGRAM this would be
+            //folderAssociation = FmFolderAssociation.findByFmFolder(folder)
 
         if (folderAssociation) {
             log.info "getBioDataObject::folderAssociation = " + folderAssociation
             bioDataObject = folderAssociation.getBioObject()
         } else {
-            log.error "Unable to find folderAssociation for folder Id = " + folder.findParentStudyFolder().id
+            log.error "Unable to find folderAssociation for folder Id = " + folder.id
         }
 
         if (!bioDataObject) {
@@ -1130,10 +1156,10 @@ class FmFolderController {
 
 
         if (!isAdmin()) {
+            log.info "Not an admin: ignore"
             return
         };
 
-        //log.info "** action: expDetail called!"
         def folderId = params.folderId
 
         def folder
@@ -1159,7 +1185,9 @@ class FmFolderController {
         def technologies = BioAssayPlatform.executeQuery("SELECT DISTINCT platformTechnology FROM BioAssayPlatform as p ORDER BY p.platformTechnology")
         def platforms = BioAssayPlatform.executeQuery("FROM BioAssayPlatform as p ORDER BY p.name")
 
-        render(template: "editMetaData", plugin: "folderManagement", model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms, folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
+        render(template: "editMetaData", plugin: "folderManagement",
+            model: [bioDataObject: bioDataObject, measurements: measurements, technologies: technologies, vendors: vendors, platforms: platforms,
+                    folder: folder, amTagTemplate: amTagTemplate, metaDataTagItems: metaDataTagItems]);
     }
 
     def updateMetaData = {
