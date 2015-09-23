@@ -232,16 +232,19 @@ BEGIN
 	  and coalesce(omic_source_study,trial_name) = TrialId;
 
 	if pExists > 0 then
-		select distinct partition_id::text into v_partition_id
-		from deapp.de_subject_sample_mapping
-		where trial_name = TrialId
-		  and platform = 'MRNA_AFFYMETRIX'
-		  and coalesce(omic_source_study,trial_name) = TrialId;
-		  
-		sqlTxt := 'drop table if exists deapp.de_subject_microarray_data_' || v_partition_id;
-		execute sqlTxt;
-		stepCt := stepCt + 1;
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_microarray_data',rowCt,stepCt,'Done') into rtnCd;
+
+		for v_partition_id in
+			select distinct partition_id::text
+			from deapp.de_subject_sample_mapping
+				where trial_name = TrialId
+				and platform = 'MRNA_AFFYMETRIX'
+				and coalesce(omic_source_study,trial_name) = TrialId
+		loop
+			sqlTxt := 'drop table if exists deapp.de_subject_microarray_data_' || v_partition_id;
+			execute sqlTxt;
+			stepCt := stepCt + 1;
+			select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_microarray_data',rowCt,stepCt,'Done') into rtnCd;
+		end loop;
 		
 		begin
 		delete from deapp.de_subject_sample_mapping
@@ -273,16 +276,19 @@ BEGIN
 	  and coalesce(omic_source_study,trial_name) = TrialId;
 
 	if pExists > 0 then
-		select distinct partition_id::text into v_partition_id
-		from deapp.de_subject_sample_mapping
-		where trial_name = TrialId
-		  and platform = 'ACGH'
-		  and coalesce(omic_source_study,trial_name) = TrialId;
-		  
-		sqlTxt := 'drop table if exists deapp.de_subject_acgh_data_' || v_partition_id;
-		execute sqlTxt;
-		stepCt := stepCt + 1;
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_acgh_data',rowCt,stepCt,'Done') into rtnCd;
+
+		for v_partition_id in
+			select distinct partition_id::text
+			from deapp.de_subject_sample_mapping
+				where trial_name = TrialId
+				and platform = 'ACGH'
+				and coalesce(omic_source_study,trial_name) = TrialId
+		loop
+			sqlTxt := 'drop table if exists deapp.de_subject_acgh_data_' || v_partition_id;
+			execute sqlTxt;
+			stepCt := stepCt + 1;
+			select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_acgh_data',rowCt,stepCt,'Done') into rtnCd;
+		end loop;
 		
 		begin
 		delete from deapp.de_subject_sample_mapping
@@ -314,16 +320,18 @@ BEGIN
 	  and coalesce(omic_source_study,trial_name) = TrialId;
 
 	if pExists > 0 then
-		select distinct partition_id::text into v_partition_id
-		from deapp.de_subject_sample_mapping
-		where trial_name = TrialId
-		  and platform = 'RNASEQ'
-		  and coalesce(omic_source_study,trial_name) = TrialId;
-		  
-		sqlTxt := 'drop table if exists deapp.de_subject_rnaseq_data_' || v_partition_id;
-		execute sqlTxt;
-		stepCt := stepCt + 1;
-		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_rnaseq_data',rowCt,stepCt,'Done') into rtnCd;
+		for v_partition_id in
+			select distinct partition_id::text
+			from deapp.de_subject_sample_mapping
+				where trial_name = TrialId
+				and platform = 'RNASEQ'
+				and coalesce(omic_source_study,trial_name) = TrialId
+		loop
+			sqlTxt := 'drop table if exists deapp.de_subject_rnaseq_data_' || v_partition_id;
+			execute sqlTxt;
+			stepCt := stepCt + 1;
+			select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Drop partition table for de_subject_rnaseq_data',rowCt,stepCt,'Done') into rtnCd;
+		end loop;
 		
 		begin
 		delete from deapp.de_subject_sample_mapping
