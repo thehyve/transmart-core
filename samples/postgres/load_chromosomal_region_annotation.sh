@@ -4,8 +4,10 @@ set -e
 
 # General optional parameters:
 #   DATA_LOCATION, STUDY_NAME, STUDY_ID
-# Specific mandatory parameters for this upload script:
-#   PLATFORM_FILE, PLATFORM_ID, PLATFORM_TITLE, PLATFORM_DATATYPE
+# Mandatory parameters specific for this upload script:
+#   PLATFORM_FILE, PLATFORM_DATATYPE [Chromosomal, RNASEQ], GENOME_RELEASE
+# Optional parameter(s) specific for this upload script:
+#   PLATFORM_ID, PLATFORM_TITLE
 
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")

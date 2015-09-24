@@ -17,7 +17,7 @@ fi
 
 # Before changing to the data location directory determine absolute path name of params file (optional first argument)
 if [ ! -z "$1" ]; then
-    params=$(readlink -e "$1")
+    params=$( cd "$( dirname "$1" )" && echo "$(pwd)/$(basename "$1")" )
     if [ ! -f "$params" ]; then
         echo "Error $(basename $0): params file ($params) could not be found"
         exit 1
@@ -88,7 +88,7 @@ if [ ! -z "$params" ]; then
     echo "Info $(basename $0): Sourced params file $params"
 fi
 
-if [ -z $STUDY_NAME ]; then
+if [ -z "$STUDY_NAME" ]; then
     # If no study name is provided, use STUDY_ID (if available) or derive from study directory name
     if [ -z $STUDY_ID ] ; then
         # assume that study data is organized in data type specific subdirectories and
@@ -122,4 +122,57 @@ fi
 # (Kettle e.g. capitalizes study id's, R does not and SQL procedure only capitalizes the procedure argument, not the study_id column in the landingzone)
 # STUDY_ID is always capitalized
 STUDY_ID=$(echo ${STUDY_ID} | tr 'a-z' 'A-Z')
+
+#
+# Inspect the presence of some parameters and/or set dependent parameters
+#
+
+# First determine the path to transmart-data (assuming this file is part of the transmart-data structure)
+THISFILEPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ ! -z "${THISFILEPATH%%*/transmart-data/*}" ] ; then
+    echo "Error $(basename $0): Loading scripts are not part of a directory structure with transmart-data in the directory path"
+    exit 1
+else
+    PATH_TO_TRANSMARTDATA=${THISFILEPATH%/transmart-data/*}/transmart-data  
+fi
+
+# Determine database type: postgres or oracle
+DBTYPE="postgres"
+if [ "$ORACLE" == "1" ] ; then DBTYPE="oracle" ; fi
+
+# Set KETTLE_HOME parameter
+if [ -z "$KETTLE_HOME" ] ; then
+    KETTLE_HOME=${PATH_TO_TRANSMARTDATA}/samples/${DBTYPE}
+    echo "Info $(basename $0): KETTLE_HOME parameter set to ${KETTLE_HOME}"
+
+fi
+
+# Set KETTLE_JOBS parameter
+if [ -z "$KETTLE_JOBS" ] ; then
+    if [ $DBTYPE == "postgres" ] ; then
+        if [ -z "$KETTLE_JOBS_PSQL" ] ; then
+            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_PSQL parameter has not been set"
+        else
+            KETTLE_JOBS=$KETTLE_JOBS_PSQL
+            echo "Info $(basename $0): KETTLE_JOBS parameter set to ${KETTLE_JOBS}"
+        fi
+    else
+        if [ -z "$KETTLE_JOBS_ORA" ] ; then
+            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_ORA parameter has not been set"
+        else
+            KETTLE_JOBS=$KETTLE_JOBS_ORA
+            echo "Info $(basename $0): KETTLE_JOBS parameter set to ${KETTLE_JOBS}"
+        fi
+    fi
+fi
+
+# Set R_JOBS_PSQL parameter
+if [ -z "$R_JOBS_PSQL" ] ; then
+     if [ -z "$KETTLE_JOBS_PSQL" ] ; then
+         echo "Warning $(basename $0): Neither R_JOBS_PSQL nor KETTLE_JOBS_PSQL parameter has been set"
+     else
+         R_JOBS_PSQL="$(cd "${KETTLE_JOBS_PSQL}/../../R" && pwd)"
+         echo "Info $(basename $0): R_JOBS_PSQL parameter set to ${R_JOBS_PSQL}"
+     fi
+fi
 
