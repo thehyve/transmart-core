@@ -24,7 +24,7 @@ if [ -z "$PLATFORM_FILE" ] || [ -z "$PLATFORM_DATATYPE" ] || [ -z "$GENOME_RELEA
 fi
 
 
-PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${PLATFORM_FILE} | sort -u)
+PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${PLATFORM_FILE}" | sort -u)
 if [ ! -z "$PLATFORM_ID" ]; then
     if [[ "$PLATFORM" != "$PLATFORM_ID" ]]; then
     	echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in$PLATFORM_FILE"

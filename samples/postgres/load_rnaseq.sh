@@ -41,7 +41,7 @@ if [ -z "$RNASEQ_DATA_FILE" ] || [ -z "$SUBJECT_SAMPLE_MAPPING" ] ; then
 fi
 
 # Extract STUDY_ID from subject sample mapping file
-STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${SUBJECT_SAMPLE_MAPPING} | sort -u | tr 'a-z' 'A-Z')
+STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${SUBJECT_SAMPLE_MAPPING}" | sort -u | tr 'a-z' 'A-Z')
 if [ -z "$STUDY_ID_FROM_SSM" ]; then
     echo "Error $0: No STUDY_ID provided in first column of subject sample mapping file $SUBJECT_SAMPLE_MAPPING"
     exit 1
