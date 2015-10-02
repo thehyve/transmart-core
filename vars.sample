@@ -48,6 +48,7 @@ ORAPASSWORD=mypassword
 # by transmart-data. In that case, you must also specify an oracle owned
 # directory that will be used to set the system param DB_CREATE_FILE_DEST
 ORACLE_MANAGE_TABLESPACES=0
+# Comment the line below when you use an Oracle Database instance from Amazon RDS.
 ORACLE_TABLESPACES_DIR=/home/oracle/app/oracle/oradata
 # }}}
 
