@@ -29,7 +29,7 @@ class ValidateTopNodePreexistenceTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         ConceptNode node = conceptTree[topNode]
-        if (!node || node.isNew()) {
+        if (!node || !conceptTree.isSavedNode(node)) {
             throw new IllegalStateException(
                     "The specified top node $topNode either doesn't exist already " +
                             "or doesn't belong to the study $studyId")

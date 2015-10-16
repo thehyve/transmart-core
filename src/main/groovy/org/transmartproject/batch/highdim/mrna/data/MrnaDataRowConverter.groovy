@@ -27,12 +27,6 @@ class MrnaDataRowConverter {
     @Value("#{mrnaDataJobContextItems.sampleCodeAssayIdMap}")
     Map<String, Long> sampleCodeAssayIdMap
 
-    /**
-     * @see MrnaDataJobContextItems#getPartitionId()
-     */
-    @Value('#{mrnaDataJobContextItems.partitionId}')
-    Long partitionId
-
     Map<String, Object> convertMrnaDataValue(TripleStandardDataValue value) {
         Long assayId = sampleCodeAssayIdMap[value.sampleCode]
         if (!assayId) {
@@ -47,7 +41,6 @@ class MrnaDataRowConverter {
                 assay_id     : assayId,
                 patient_id   : value.patient.code,
                 subject_id   : value.patient.id,
-                partition_id : partitionId,
                 raw_intensity: value.value,
                 log_intensity: value.logValue,
                 zscore       : value.zscore,

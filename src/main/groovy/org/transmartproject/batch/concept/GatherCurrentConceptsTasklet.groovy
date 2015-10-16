@@ -51,8 +51,7 @@ class GatherCurrentConceptsTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         String sql = '''
-                SELECT c_fullname, c_hlevel, c_name, c_basecode,
-                       record_id, c_metadataxml, c_visualattributes
+                SELECT c_fullname, c_hlevel, c_name, c_basecode, c_metadataxml, c_visualattributes
                 FROM i2b2metadata.i2b2
                 WHERE c_fullname IN (:rootPathFullNames) OR '''
 
@@ -111,7 +110,6 @@ class GatherCurrentConceptsTasklet implements Tasklet {
                 path: path,
                 name: rs.getString('c_name'),
                 code: rs.getString('c_basecode'),
-                i2b2RecordId: rs.getLong('record_id'),
                 type: typeFor(rs),
         )
     }

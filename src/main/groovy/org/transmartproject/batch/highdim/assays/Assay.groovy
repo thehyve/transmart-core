@@ -20,8 +20,6 @@ class Assay {
     String tissueType
     Platform platform
 
-    Integer partitionId
-
     Map<String, Object> toDatabaseRow() {
         [
                 patient_id  : patient.code,
@@ -51,7 +49,7 @@ class Assay {
                 // omic_source_study irrelevant
                 // omic_patient_num irrelevant
                 // omic_patient_id irrelevant
-                partition_id: partitionId
+                //partition_id irrelevant
         ]
     }
 

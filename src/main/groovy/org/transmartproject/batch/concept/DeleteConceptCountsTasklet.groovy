@@ -19,10 +19,10 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
 
     ConceptPath basePath
 
-    final String sql = '''
+    final String sql = """
         DELETE
         FROM i2b2demodata.concept_counts
-        WHERE concept_path LIKE ? ESCAPE '\\\''''
+        WHERE concept_path LIKE ? ESCAPE '\\'"""
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -32,6 +32,6 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
 
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
-        ps.setString(1, StringUtils.escapeForLike(basePath.toString()) + '%')
+        ps.setString(1, StringUtils.escapeForLike(basePath.toString(), '\\') + '%')
     }
 }

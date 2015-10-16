@@ -93,7 +93,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
                 .next(loadAnnotationMappings())
 
-        if (partitionTasklet()) {
+        if (partitionTasklet(null)) {
             flowBuilder.next(stepOf(this.&partitionTasklet))
         }
 
@@ -221,8 +221,8 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
      * partitioning step (optional) *
      ********************************/
 
-    @SuppressWarnings('EmptyMethodInAbstractClass')
-    Tasklet partitionTasklet() {
+    @SuppressWarnings(['EmptyMethodInAbstractClass', 'UnusedMethodParameter'])
+    Tasklet partitionTasklet(DatabaseImplementationClassPicker picker) {
         null
     }
 
