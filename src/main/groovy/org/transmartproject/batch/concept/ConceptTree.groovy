@@ -40,6 +40,9 @@ class ConceptTree {
 
     void loadExisting(Collection<ConceptNode> nodes) {
         nodes.each { n ->
+            if (n.new) {
+                throw new IllegalArgumentException("Passed concept node is not expected to be new: $n")
+            }
             if (log.traceEnabled &&
                     nodeMap.containsKey(n.path)) {
                 log.trace "Replacing ${nodeMap[n.path]} with $n"
