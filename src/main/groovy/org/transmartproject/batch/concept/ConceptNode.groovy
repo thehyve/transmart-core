@@ -34,7 +34,13 @@ class ConceptNode {
         this(new ConceptPath(path))
     }
 
+    /**
+     * When a node is new then it means that it is not stored to a db yet.
+     * NOTE: We use {@code i2b2RecordId} instead {@code code} as some concept nodes
+     * (e.g. "\Private Studies\", "\Public Studies\") in a database might not have {@code code} filled in.
+     * @return {@code true} if a node is new and {@code false} otherwise.
+     */
     boolean isNew() {
-        code == null
+        i2b2RecordId == null
     }
 }
