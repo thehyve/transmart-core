@@ -175,7 +175,12 @@ class HighDimBuilder {
     }
 
     private static Class decideColumnValueType(Class originalClass) {
-        Number.isAssignableFrom(originalClass) ? Double : String
+        if (originalClass in [double, float, long, int, short, byte] ||
+                Number.isAssignableFrom(originalClass)) {
+            return Double
+        } else {
+            return String
+        }
     }
 
     private Row createRow(DataRow<AssayColumn, ?> inputRow) {
