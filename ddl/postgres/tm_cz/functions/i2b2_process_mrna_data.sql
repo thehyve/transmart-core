@@ -769,7 +769,7 @@ BEGIN
 		
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Update existing data in de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
-	pcount := rowCt;	--	set counter to check that all subject_sample mapping records were added/updated
+	pCount := rowCt;	--	set counter to check that all subject_sample mapping records were added/updated
 	--	insert any site/subject/samples that are not in de_subject_sample_mapping
 
 	begin
@@ -906,8 +906,8 @@ BEGIN
 	
 	--	check if all records from lt_src_mrna_subj_samp_map were added/updated
 	
-	if scount <> pCount then
-		stepCt := stepCt + 1;
+	if sCount <> pCount then
+	stepCt := stepCt + 1;
 		select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Not all records in lt_src_mrna_subj_samp_map inserted/updated in de_subject_sample_mapping',0,stepCt,'Done') into rtnCd;
 		select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
 		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;

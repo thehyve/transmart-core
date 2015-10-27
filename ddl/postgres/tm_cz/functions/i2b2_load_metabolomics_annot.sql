@@ -1,7 +1,10 @@
 --
 -- Name: i2b2_load_metabolomics_annot(numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_load_metabolomics_annot(currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
+
+SET search_path = tm_cz, pg_catalog;
+
+CREATE OR REPLACE FUNCTION i2b2_load_metabolomics_annot(currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 /*************************************************************************
@@ -38,17 +41,24 @@ BEGIN
 	END IF;
 	
     stepCt := stepCt + 1;
-    perform cz_write_audit(jobId,databaseName,procedureName,'Starting I2B2_LOAD_METABOLOMICS_ANNOTTATION',0,stepCt,'Done');
+    perform cz_write_audit(jobId,databaseName,procedureName,'Starting I2B2_LOAD_METABOLOMICS_ANNOTATION',0,stepCt,'Done');
 
     --    get  id_ref  from external table
     
 	select distinct gpl_id into gplId from tm_lz.lt_metabolomic_annotation;
       
-  --    delete any existing data from de_metabolite_super_pathways
-    
+	--    delete any existing data from de_metabolite_sub_pway_metab
 	begin
-    delete from deapp.de_metabolite_super_pathways
-    where gpl_id = gplId;
+	delete from deapp.de_metabolite_sub_pway_metab where not exists (select id from de_metabolite_sub_pathways where de_metabolite_sub_pathways.id = de_metabolite_sub_pway_metab.sub_pathway_id) ;
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
+
+	begin
+	delete from deapp.de_metabolite_sub_pway_metab where sub_pathway_id in (select id from  de_metabolite_sub_pathways where gpl_id = gplId) ;
 	exception
 	when others then
 		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
@@ -58,8 +68,8 @@ BEGIN
 
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
-        
-    perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_super_pathways',rowCt,stepCt,'Done');
+
+	perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pway_metab',rowCt,stepCt,'Done');
 
 	--    delete any existing data from de_metabolite_sub_pathways
 	begin
@@ -74,11 +84,13 @@ BEGIN
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
 
-    perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pathways',rowCt,stepCt,'Done');
-        
-	--    delete any existing data from de_metabolite_sub_pway_metab
+	perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pathways',rowCt,stepCt,'Done');
+
+  --    delete any existing data from de_metabolite_super_pathways
+
 	begin
-	delete from deapp.de_metabolite_sub_pway_metab where not exists (select id from de_metabolite_sub_pathways where de_metabolite_sub_pathways.id = de_metabolite_sub_pway_metab.sub_pathway_id) ;
+    delete from deapp.de_metabolite_super_pathways
+    where gpl_id = gplId;
 	exception
 	when others then
 		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
@@ -88,8 +100,8 @@ BEGIN
 
 	stepCt := stepCt + 1;
 	get diagnostics rowCt := ROW_COUNT;
-	
-    perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_sub_pway_metab',rowCt,stepCt,'Done');
+
+	perform cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_metabolite_super_pathways',rowCt,stepCt,'Done');
 
     --    delete any existing data from deapp.de_metabolite_annotation
 	begin

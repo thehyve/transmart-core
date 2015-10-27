@@ -1,7 +1,8 @@
 --
 -- Name: i2b2_process_proteomics_data(character varying, character varying, character varying, character varying, numeric, character varying, numeric); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_process_proteomics_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
+SET search_path = tm_cz, pg_catalog;
+CREATE OR REPLACE FUNCTION i2b2_process_proteomics_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_cd character varying DEFAULT 'STD'::character varying, log_base numeric DEFAULT 2, secure_study character varying DEFAULT NULL::character varying, currentjobid numeric DEFAULT NULL::numeric) RETURNS numeric
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 /*************************************************************************
@@ -325,7 +326,7 @@ BEGIN
 	where trial_name = TrialID 
 	  and coalesce(ssm.source_cd,'STD') = sourceCd
 	  and platform = 'PROTEIN'
-	; --Making sure only miRNA data is deleted
+	; --Making sure only proteomics data is deleted
 	exception
 	when others then
 		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
@@ -779,7 +780,7 @@ BEGIN
 		  ,'@'
 		  ,'T' -- Text data type
 		  ,'E'  --Stands for Equals for Text Types
-		  ,null::numeric	--	not numeric for qpcr_mirna
+		  ,null::numeric
 		  ,m.trial_name
 		  ,now()
 		  ,'@'
@@ -826,7 +827,7 @@ BEGIN
 		  ,m.trial_name
 		  ,'T' -- Text data type
 		  ,'E'  --Stands for Equals for Text Types
-		  ,null::numeric	--	not numeric for miRNA
+		  ,null::numeric
 		  ,m.trial_name
 		  ,now()
 		  ,'@'
@@ -887,9 +888,9 @@ BEGIN
         loop
         begin
 	 update i2b2 n
-	SET n.c_columndatatype = 'T',
+	SET c_columndatatype = 'T',
       --Static XML String
-		n.c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
+		c_metadataxml =  ('<?xml version="1.0"?><ValueMetadata><Version>3.02</Version><CreationDateTime>08/14/2008 01:22:59</CreationDateTime><TestID></TestID><TestName></TestName><DataType>PosFloat</DataType><CodeType></CodeType><Loinc></Loinc><Flagstouse></Flagstouse><Oktousevalues>Y</Oktousevalues><MaxStringLength></MaxStringLength><LowofLowValue>0</LowofLowValue>
                 <HighofLowValue>0</HighofLowValue><LowofHighValue>100</LowofHighValue>100<HighofHighValue>100</HighofHighValue>
                 <LowofToxicValue></LowofToxicValue><HighofToxicValue></HighofToxicValue>
                 <EnumValues></EnumValues><CommentsDeterminingExclusion><Com></Com></CommentsDeterminingExclusion>
@@ -947,7 +948,7 @@ BEGIN
   
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
-  -- a unique top-level node for miRNA data
+  -- a unique top-level node for proteomics data
   
     select i2b2_create_concept_counts(topNode ,jobID ) into rtnCd;
 	stepCt := stepCt + 1;
@@ -1011,7 +1012,7 @@ BEGIN
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
-	--  and md.peptide =p.peptide-- gs.mirna_id
+	--  and md.peptide =p.peptide
 	 and CASE WHEN dataType = 'R' THEN sign(md.intensity_value::numeric) ELSE 1 END <> -1   --UAT 154 changes done on 19/03/2014
 	 and sd.subject_id in (select subject_id from lt_src_proteomics_sub_sam_map) 
 	group by md.peptide ,subject_id
@@ -1038,7 +1039,7 @@ BEGIN
 		return 165;
 	end if;
 
-	--	insert into de_subject_mirna_data when dataType is T (transformed)
+	--	insert into de_subject_protein_data when dataType is T (transformed)
 
 	if dataType = 'T' then
 
@@ -1090,7 +1091,7 @@ BEGIN
 		select cz_write_audit(jobId,databaseName,procedureName,'Insert transformed into DEAPP DE_SUBJECT_PROTEIN_DATA',rowCt,stepCt,'Done') into rtnCd;
 	else
 		
-	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
+	--	Calculate ZScores and insert data into de_subject_protein_data.  The 'L' parameter indicates that the proteomics data will be selected from
 	--	WT_SUBJECT_PROTEOMICS_PROBESET as part of a Load.  
 
 		if dataType = 'R' or dataType = 'L' then
