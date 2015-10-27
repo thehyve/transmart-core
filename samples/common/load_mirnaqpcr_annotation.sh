@@ -3,7 +3,7 @@
 #set -x
 set -e
 
-echo "running load_mirna_annotation.sh $1"
+echo "running load_mirnaqpcr_annotation.sh $1"
 
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
@@ -17,6 +17,11 @@ if [ -z "$GPL_ID" ] || [ -z "$ANNOTATION_TITLE" ] ||  [ -z "$MIRNA_TYPE" ]; then
 	echo "    ANNOTATION_TITLE=$ANNOTATION_TITLE"
 	echo "    MIRNA_TYPE=$MIRNA_TYPE"
     	exit 1
+fi
+
+if [ "$MIRNA_TYPE" != "MIRNA_QPCR" ]; then
+    echo "mirnaqpcr annotation value of \$MIRNA_TYPE '$MIRNA_TYPE' expected 'MIRNA_QPCR'"
+    exit 1
 fi
 
 if [ ! -d logs ] ; then mkdir logs; fi

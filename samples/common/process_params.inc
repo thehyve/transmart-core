@@ -8,7 +8,7 @@ if [ -z "$UPLOAD_DATA_TYPE" ]; then
 fi
 
 # Check UPLOAD_DATA_TYPE value
-MOLECULAR_DATA_TYPES="rnaseq acgh expression mirna proteomics vcf"
+MOLECULAR_DATA_TYPES="rnaseq acgh expression mirna mirnaqpcr mirnaseq proteomics msproteomics metabolomics rbm vcf"
 SUPPORTED_DATA_TYPES="study clinical $MOLECULAR_DATA_TYPES annotation"
 if [ $(echo $SUPPORTED_DATA_TYPES | grep -c -w $UPLOAD_DATA_TYPE) -ne 1 ] ; then
     echo "Error process_params.inc: this UPLOAD_DATA_TYPE ($UPLOAD_DATA_TYPE) is not supported"
@@ -17,9 +17,10 @@ fi
 
 # Before changing to the data location directory determine absolute path name of params file (optional first argument)
 if [ ! -z "$1" ]; then
-    params=$( cd "$( dirname "$1" )" && echo "$(pwd)/$(basename "$1")" )
-    if [ ! -f "$params" ]; then
-        echo "Error $(basename $0): params file ($params) could not be found"
+    PARAMS_FILENAME=$( cd "$( dirname "$1" )" && echo "$(pwd)/$(basename "$1")" )
+    echo "Processing file $1 \$PARAMS_FILENAME $PARAMS_FILENAME"
+    if [ ! -f "$PARAMS_FILENAME" ]; then
+        echo "Error $(basename $0): params file ($PARAMS_FILENAME) could not be found"
         exit 1
     fi
 fi
@@ -75,6 +76,7 @@ fi
 
 # If a local optional $UPLOAD_DATA_TYPE.params file exists, also source this one
 # It may contain parameter values which only apply locally (not study global).
+
 localparams="./$UPLOAD_DATA_TYPE.params"
 if [ -f "$localparams" ] ; then
     source $localparams
@@ -83,9 +85,9 @@ fi
 
 # If a params file name is passed as an argument to this script, source it last,
 # as its content should overrule default parameter values found in the optional parameter files
-if [ ! -z "$params" ]; then
-    source "$params"
-    echo "Info $(basename $0): Sourced params file $params"
+if [ ! -z "$PARAMS_FILENAME" ]; then
+    source "$PARAMS_FILENAME"
+    echo "Info $(basename $0): Sourced params file $PARAMS_FILENAME"
 fi
 
 if [ -z "$STUDY_NAME" ]; then
@@ -101,7 +103,7 @@ if [ -z "$STUDY_NAME" ]; then
                 echo 'Error: Expecting either'
                 echo '       - the study name parameter (STUDY_NAME) to be set, or'
                 echo '       - the study id parameter (STUDY_ID) to be set, or'
-                echo '       - the $UPLOAD_DATA_TYPE study data to be organized in a subdirectory named "$UPLOAD_DATA_TYPE"'
+                echo "       - the \$UPLOAD_DATA_TYPE ($UPLOAD_DATA_TYPE) study data to be organized in a subdirectory named '$UPLOAD_DATA_TYPE'"
                 exit 1
 	    fi
         else
@@ -151,14 +153,14 @@ fi
 if [ -z "$KETTLE_JOBS" ] ; then
     if [ $DBTYPE == "postgres" ] ; then
         if [ -z "$KETTLE_JOBS_PSQL" ] ; then
-            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_PSQL parameter has not been set"
+            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_PSQL parameter has been set"
         else
             KETTLE_JOBS=$KETTLE_JOBS_PSQL
             echo "Info $(basename $0): KETTLE_JOBS parameter set to ${KETTLE_JOBS}"
         fi
     else
         if [ -z "$KETTLE_JOBS_ORA" ] ; then
-            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_ORA parameter has not been set"
+            echo "Warning $(basename $0): Neither KETTLE_JOBS nor KETTLE_JOBS_ORA parameter has been set"
         else
             KETTLE_JOBS=$KETTLE_JOBS_ORA
             echo "Info $(basename $0): KETTLE_JOBS parameter set to ${KETTLE_JOBS}"
@@ -168,11 +170,13 @@ fi
 
 # Set R_JOBS_PSQL parameter
 if [ -z "$R_JOBS_PSQL" ] ; then
-     if [ -z "$KETTLE_JOBS_PSQL" ] ; then
-         echo "Warning $(basename $0): Neither R_JOBS_PSQL nor KETTLE_JOBS_PSQL parameter has been set"
-     else
-         R_JOBS_PSQL="$(cd "${KETTLE_JOBS_PSQL}/../../R" && pwd)"
-         echo "Info $(basename $0): R_JOBS_PSQL parameter set to ${R_JOBS_PSQL}"
-     fi
+    if [ $DBTYPE == "postgres" ] ; then
+        if [ -z "$KETTLE_JOBS_PSQL" ] ; then
+            echo "Warning $(basename $0): Neither R_JOBS_PSQL nor KETTLE_JOBS_PSQL parameter has been set"
+        else
+            R_JOBS_PSQL="$(cd "${KETTLE_JOBS_PSQL}/../../R" && pwd)"
+            echo "Info $(basename $0): R_JOBS_PSQL parameter set to ${R_JOBS_PSQL}"
+	fi
+    fi
 fi
 
