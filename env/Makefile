@@ -21,9 +21,8 @@ PHP_BIN=php5/bin/php
 
 TRANSMART_LOADER=transmart-loader
 
-TRANSMART_BATCH_VERSION=1.0-SNAPSHOT
 TRANSMART_BATCH_FILE=transmart-batch-capsule.jar
-TRANSMART_BATCH_URL=https://repo.thehyve.nl/content/repositories/snapshots/org/transmartproject/transmart-batch/$(TRANSMART_BATCH_VERSION)/transmart-batch-$(TRANSMART_BATCH_VERSION)-capsule.jar
+TRANSMART_BATCH_URL=https://repo.thehyve.nl/service/local/artifact/maven/content?r=snapshots&g=org.transmartproject&a=transmart-batch&c=capsule&v=LATEST
 
 include ../lib/makefile.inc
 
