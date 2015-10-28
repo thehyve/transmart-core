@@ -39,21 +39,17 @@ class PDFController {
 		// parse our markup into an xml Document
 		try {
 			String htmlStr = params.htmlStr
-			String pathStr =  grailsApplication.config.RModules.pdf.applicationPath
-			String css = pathStr+"css/datasetExplorer.css";
+			String pathStr =  request.getSession().getServletContext().getRealPath("")
+			String css = "file://" + pathStr + "/css/datasetExplorer.css";
 			StringBuffer buf = new StringBuffer();
 			buf.append("<html><head><link rel='stylesheet' type='text/css' href='")
 			.append(css).append("' media='print'/></head><body>").append(htmlStr)
 			.append("</body></html>");
 			
-			String html = null;
-			if (StringUtils.isNotEmpty(pathStr)) {
-				html = StringUtils.replace(buf.toString(), '/transmart/images/analysisFiles', "file://"+pathStr+'images/tempImages')
-				log.info "generatePDF replacing '"+buf.toString()+"' ==> '${html}'"
-			} else {
-				html = buf.toString()
-			}
-			
+			String html = StringUtils.replace(buf.toString(), '/transmart/images/analysisFiles',
+					'file://' + grailsApplication.config.RModules.tempFolderDirectory)
+			log.info "generatePDF replacing '"+buf.toString()+"' ==> '${html}'"
+
 			//TODO Check if the htmlStr is a Well-Formatted XHTML string
 			if (StringUtils.isNotEmpty(htmlStr)) {
 				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
