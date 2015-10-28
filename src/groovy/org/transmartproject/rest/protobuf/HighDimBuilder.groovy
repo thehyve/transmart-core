@@ -175,8 +175,7 @@ class HighDimBuilder {
     }
 
     private static Class decideColumnValueType(Class originalClass) {
-        if (originalClass in [double, float, long, int, short, byte] ||
-                Number.isAssignableFrom(originalClass)) {
+        if (originalClass in [double, float, long, int, short, byte] || originalClass in Number) {
             return Double
         } else {
             // Anything that is not a number is serialized as string
