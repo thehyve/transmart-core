@@ -179,6 +179,7 @@ class HighDimBuilder {
                 Number.isAssignableFrom(originalClass)) {
             return Double
         } else {
+            // Anything that is not a number is serialized as string
             return String
         }
     }

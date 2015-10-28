@@ -118,6 +118,23 @@ class HighDimBuilderTests {
                         hasProperty('stringValueList', contains('text1', 'text2')))))
     }
 
+    @Test
+    void "test column type choice."() {
+        assertThat HighDimBuilder.decideColumnValueType(String), sameInstance(String)
+        assertThat HighDimBuilder.decideColumnValueType(Object), sameInstance(String)
+        assertThat HighDimBuilder.decideColumnValueType(HighDimBuilder), sameInstance(String)
+
+        assertThat HighDimBuilder.decideColumnValueType(double), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(byte), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(int), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(float), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(Double), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(Float), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(BigDecimal), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(Number), sameInstance(Double)
+        assertThat HighDimBuilder.decideColumnValueType(BigInteger), sameInstance(Double)
+    }
+
     class TestProjection implements MultiValueProjection, Projection {
         Map<String, Class> dataProperties
 
