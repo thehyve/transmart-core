@@ -73,7 +73,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
              'likelyAllele1', 'likelyAllele2', 'minorAlleleDose'])
 
     final Map<String, Class> rowProperties = typesMap(SnpLzRow,
-            ['snpName', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
+            ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
              'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count',
              'a2a2Count', 'noCallCount'])
 
@@ -111,7 +111,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                  (SNPS_CONSTRAINT_NAME): { Map<String, Object> params ->
                      validateParameterNames(['names'], params)
                      new PropertyDataConstraint(
-                             property: 'ann.snpName',
+                             property: 'snpInfo.name',
                              values:    processStringList('names', params.names))
                  },
                  (DataConstraint.GENES_CONSTRAINT): { Map<String, Object> params ->
@@ -150,6 +150,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
         criteriaBuilder.with {
             createAlias 'genotypeProbeAnnotation', 'ann',       INNER_JOIN
+            createAlias 'snpInfo',                 'snpInfo',   INNER_JOIN
             createAlias 'jRcSnpInfo',              'rcSnpInfo', LEFT_OUTER_JOIN
 
             projections {
@@ -171,7 +172,11 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'snp.trialName',              'trialName'
 
                 property 'ann.geneInfo',               'geneInfo'
-                property 'ann.snpName',                'snpName'
+                //property 'ann.snpName',                'snpName'
+
+                property 'snpInfo.name',               'snpName'
+                property 'snpInfo.chromosome',         'chromosome'
+                property 'snpInfo.pos',                'position'
             }
 
             /* We need to add this restriction, otherwise we get duplicated rows

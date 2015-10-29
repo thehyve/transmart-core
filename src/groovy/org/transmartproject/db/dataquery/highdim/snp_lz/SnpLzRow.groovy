@@ -140,10 +140,18 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
     }
 
     @Override
-    Iterator<? super SnpLzRow> iterator() {
+    Iterator<? super SnpLzCell> iterator() {
         Iterators.transform(
                 orderedAssayPatientIndex.values().iterator(),
-                { int i -> getAtPatientIndex(i) } as Function<Integer, SnpLzRow>)
+                { int i -> getAtPatientIndex(i) } as Function<Integer, SnpLzCell>)
+    }
+
+    String getChromosome() {
+        (String) probeData.chromosome
+    }
+
+    Integer getPosition() {
+        (Integer) probeData.position
     }
 
     String getSnpName() {
@@ -175,7 +183,7 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
             case 'A1':
                 return MinorAllele.A1
             case 'A2':
-                return MinorAllele.A1
+                return MinorAllele.A2
         }
     }
 
