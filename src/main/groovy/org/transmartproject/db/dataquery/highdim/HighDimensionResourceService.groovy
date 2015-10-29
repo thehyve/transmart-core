@@ -87,6 +87,8 @@ class HighDimensionResourceService implements HighDimensionResource {
             }
 
             isNotNull 'platform'
+
+            join 'patient'
         } /* one row per assay */
 
         HashMultimap multiMap = HashMultimap.create()

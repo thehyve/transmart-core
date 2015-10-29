@@ -145,7 +145,9 @@ class SnpLzEndToEndRetrievalTest {
         contains(
                 orderedSnpData.collect { SnpDataByProbeCoreDb snpData ->
                     allOf(
-                            hasProperty('snpName', is(snpData.genotypeProbeAnnotation.snpName)),
+                            hasProperty('snpName', is(snpData.snpInfo.name)),
+                            hasProperty('chromosome', is(snpData.snpInfo.chromosome)),
+                            hasProperty('position', is(snpData.snpInfo.pos)),
                             contains(
                                     orderedSampleCodes.collect { sampleCode ->
                                         def gps = testData.sampleGps
