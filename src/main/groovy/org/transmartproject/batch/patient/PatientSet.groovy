@@ -53,9 +53,7 @@ class PatientSet {
         patient.code = sequenceReserver.getNext(Sequences.PATIENT)
     }
 
-    void reserveIdsFor(Collection<Patient> patients) {
-        for(Patient patient: patients) {
-            reserveIdsFor(patient)
-        }
+    void reserveIdsFor(Set<Patient> patients) {
+        patients.each { reserveIdsFor it }
     }
 }

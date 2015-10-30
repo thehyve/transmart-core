@@ -56,9 +56,10 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        def (newPatients, savedPatients) = items*.patient.split { it.new }
+        def (newPatients, savedPatients) =
+                items*.patient.split { it.new }.collect { it as Set }
 
-        log.debug "About to save following patients: ${newPatients}"
+        log.debug "About to save following ${newPatients.size()} patients: ${newPatients}"
         def now = new Date()
         patientSet.reserveIdsFor(newPatients)
         insertPatientDimension(newPatients, now)
@@ -67,7 +68,7 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
         updatePatientDimension(savedPatients, now)
     }
 
-    private int[] updatePatientDimension(Collection<Patient> patients, Date now) {
+    private int[] updatePatientDimension(Set<Patient> patients, Date now) {
         if (!patients) {
             return new int[0]
         }
@@ -77,7 +78,7 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
         result
     }
 
-    private int[] insertPatientDimension(Collection<Patient> newPatients, Date now) {
+    private int[] insertPatientDimension(Set<Patient> newPatients, Date now) {
         if (!newPatients) {
             return new int[0]
         }
@@ -106,7 +107,7 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
         } as Map[]
     }
 
-    private int[] insertPatientTrials(Collection<Patient> newPatients, String secureObjectTokenString) {
+    private int[] insertPatientTrials(Set<Patient> newPatients, String secureObjectTokenString) {
         if (!newPatients) {
             return new int[0]
         }
