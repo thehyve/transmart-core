@@ -32,8 +32,8 @@ Column mapping file
   the `Data Label` column. The `Category Code` should be empty for these
   entries, as values for the respective column in the data file will not be
   inserted as facts.
-- `\` in the `Data Label` column indicates that the `Category Code` column
-  contains a template.
+- **IMPORTANT**: `\` in the `Data Label` column must be present when placeholders are used
+  in the `Category Code`. It indicates that the `Category Code` column contains a template.
 - There are 3 placeholders supported so far: `DATALABEL`, `VISITNAME`, `SITEID`.
   Note that, unlike their corespondent `Data Label` values, placeholders do not
   have an underscore.  We have to support these exact names for placeholders for
@@ -51,7 +51,11 @@ Consider the following row from the data file `data.txt`.
 - Template column `8` from the column mapping file will produce the following
   concept path:  
   `...\Characteristics\Treatment\Baseline\BMI\`.
+  Instead of adding the value of the datalabel to the `Data label` column you
+  can add it to the `Category Code` by appending a + with the data label.
 - Template column `9` from the column mapping file would produce the following
   concept path:  
   `...\Characteristics\FOO Hospital\Side effects\`. Note that the data label,
   if not specified in the `Category Code` template, is added to the end.
+
+For an example study please look at the [TreeStudy](https://github.com/thehyve/transmart-batch/tree/master/studies).
