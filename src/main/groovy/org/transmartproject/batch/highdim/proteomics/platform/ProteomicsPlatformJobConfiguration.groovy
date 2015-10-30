@@ -52,7 +52,7 @@ class ProteomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration {
 
     @Bean
     Step mainStep() {
-        steps.get('mainStep')
+        steps.get('insertIntoBioAssayAnalysisGwasStep')
                 .chunk(chunkSize)
                 .reader(proteomicsAnnotationRowReader(null))
                 .processor(new ValidatingItemProcessor(adaptValidator(annotationRowValidator)))

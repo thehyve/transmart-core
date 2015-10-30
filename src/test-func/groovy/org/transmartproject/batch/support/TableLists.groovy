@@ -58,4 +58,12 @@ class TableLists {
             Tables.PROTEOMICS_DATA,
             Tables.PROTEOMICS_ANNOTATION,
     ]
+
+    public static final List<String> GWAS_TABLE_LISTS = [
+            Tables.BIO_ASSAY_ANALYSIS,
+            Tables.BIO_ASSAY_ANALYSIS_EXT,
+            Tables.BIO_DATA_UID,
+            Tables.BIO_ASSAY_ANALYSIS_GWAS,
+            Tables.BIO_ASY_ANAL_GWAS_TOP500,
+    ]
 }

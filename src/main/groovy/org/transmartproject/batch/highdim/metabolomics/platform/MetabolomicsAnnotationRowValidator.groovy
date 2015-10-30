@@ -66,7 +66,7 @@ class MetabolomicsAnnotationRowValidator implements
         def hmdbIdLen = row.hmdbId ? lengthOf(row.hmdbId) : 0
         if (hmdbIdLen > MAX_LENGTH_OF_HMDB) {
             errors.rejectValue 'superPathway', 'maxSizeExceeded',
-                    ['hmdbId', hmdbIdLen, MAX_LENGTH_OF_HMDB] as Object[], null
+                    ['superPathway', hmdbIdLen, MAX_LENGTH_OF_HMDB] as Object[], null
         }
     }
 }

@@ -11,11 +11,21 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 @CompileStatic
 class EmptyStringsToNullLineTokenizer extends DelimitedLineTokenizer {
 
+    private static final Function<String, String> TRANSFORMATION_FUNCTION =
+            new EmptyStringToNullFunction()
+
     @Override
     protected List<String> doTokenize(String line) {
         List<String> superResult = super.doTokenize(line)
-        Lists.transform(superResult, { String s ->
-            s.empty ? null : s
-        } as Function<String, String>)
+        Lists.transform(superResult, TRANSFORMATION_FUNCTION)
+    }
+
+    @CompileStatic
+    static class EmptyStringToNullFunction implements Function<String, String> {
+
+        @Override
+        String apply(String input) {
+            input.empty ? null : input
+        }
     }
 }
