@@ -136,17 +136,17 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(GLOBAL.Binning && document.getElementById('EnableBinningStratification').checked) statVariableType = "CAT"
 		
 	//If there is a categorical variable in either box (This means either of the lists are empty)
-	if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
-	if(!independentNodeList[0] || independentNodeList[0] == "null") indVariableType = "CAT";
-	if(!referenceNodeList[0] || referenceNodeList[0] == "null") refVariableType = "CAT";
-	if(!stratificationNodeList[0] || stratificationNodeList[0] == "null") statVariableType = "CAT";
+	if(this.isCategorical(dependentNodeList)) depVariableType = "CAT";
+	if(this.isCategorical(independentNodeList)) indVariableType = "CAT";
+	if(this.isCategorical(referenceNodeList)) refVariableType = "CAT";
+	if(this.isCategorical(stratificationNodeList)) statVariableType = "CAT";
 
 	//The last type of category is if we have high dim data, using SNP(Genotype).
-	if(dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP') depVariableType = "CAT";
-	if(independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP') indVariableType = "CAT";
-	if(referenceNodeList[0] == 'hleaficon' && window['divReferenceVariableSNPType'] == "Genotype" && window['divReferenceVariablemarkerType'] == 'SNP') refVariableType = "CAT";
-	if(stratificationNodeList[0] == 'hleaficon' && window['divStratificationVariableSNPType'] == "Genotype" && window['divStratificationVariablemarkerType'] == 'SNP') statVariableType = "CAT";
-	
+	if(this.isHd(dependentNodeList) && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP') depVariableType = "CAT";
+	if(this.isHd(independentNodeList) && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP') indVariableType = "CAT";
+	if(this.isHd(referenceNodeList) && window['divReferenceVariableSNPType'] == "Genotype" && window['divReferenceVariablemarkerType'] == 'SNP') refVariableType = "CAT";
+	if(this.isHd(stratificationNodeList) && window['divStratificationVariableSNPType'] == "Genotype" && window['divStratificationVariablemarkerType'] == 'SNP') statVariableType = "CAT";
+
 	//Check to make sure we have two categorical values.
 	if(!(depVariableType=="CAT"))
 	{
@@ -169,11 +169,11 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	if(stratificationVariableConceptPath != '' && !(statVariableType=="CAT"))
 	{
 		Ext.Msg.alert('Wrong input', 'Forest Plot requires a categorical variable in the stratification variable box.');
-		return;		
-	}	
-	
-	//If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user. 
-	if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptPath.indexOf("|") == -1 && document.getElementById('chkAssumeNonEvent').checked == false)
+		return;
+	}
+
+	//If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
+	if(this.isCategorical(dependentNodeList) && dependentVariableConceptPath.indexOf("|") == -1 && document.getElementById('chkAssumeNonEvent').checked == false)
 	{
 		Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
 		return;			
@@ -253,12 +253,12 @@ ForestPlotView.prototype.get_form_params = function (form) {
 	//More Validation
 	//------------------------------------	
 	//If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-	if(dependentNodeList[0] == 'hleaficon' && formParams["divDependentVariableType"] == "CLINICAL")
+	if(this.isHd(dependentNodeList) && formParams["divDependentVariableType"] == "CLINICAL")
 	{
 		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the dependent variable box but did not select any filters. Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
 		return;			
 	}
-	if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
+	if(this.isHd(independentNodeList) && formParams["divIndependentVariableType"] == "CLINICAL")
 	{
 		Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable box but did not select any filters. Please click the "High Dimensional Data" button and select filters. Apply the filters by clicking "Apply Selections".');
 		return;			

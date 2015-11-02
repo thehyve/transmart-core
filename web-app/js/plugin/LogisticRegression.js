@@ -114,40 +114,40 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
         return;
     }
 
-    if ((categoryNodeList[0] == 'valueicon' || categoryNodeList[0] == 'hleaficon') && (groupByVariableConceptCode.indexOf("|") != -1)) {
+    if ((this.isNumerical(categoryNodeList) || this.isHd(categoryNodeList)) && (groupByVariableConceptCode.indexOf("|") != -1)) {
         Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes and enabe binning to define two outcomes. ' +
             'The Outcome variable input box has multiple nodes.');
         return;
     }
 
-    if ((numericNodeList[0] == 'valueicon' || numericNodeList[0] == 'hleaficon') && (independentVariableConceptCode.indexOf("|") != -1)) {
+    if ((this.isNumerical(numericNodeList) || this.isHd(numericNodeList)) && (independentVariableConceptCode.indexOf("|") != -1)) {
         Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes. ' +
             'The Independent variable input box has multiple nodes.');
         return;
     }
 
     //If its categorical value than make sure you have atleast 2 values
-    if (groupByVariableConceptCode == '' || (  categoryNodeList[0] != 'valueicon' && categoryNodeList[0] != 'hleaficon' && groupByVariableEle.dom.childNodes.length < 2)) {
+    if (groupByVariableConceptCode == '' || (this.isCategorical(categoryNodeList) && groupByVariableEle.dom.childNodes.length < 2)) {
         Ext.Msg.alert('Missing input!', 'If categorical concept, than please drag at least two categorical ' +
             'concept into the Outcome variable input box.');
         return;
     }
 
     //If its categorical value and its more than 2 values, than make sure they are binned manually
-    if (categoryNodeList[0] != 'valueicon' && groupByVariableEle.dom.childNodes.length > 2 && !GLOBAL.Binning) {
+    if (this.isCategorical(categoryNodeList) && groupByVariableEle.dom.childNodes.length > 2 && !GLOBAL.Binning) {
         Ext.Msg.alert('Wrong input!', 'For more than 2 categorical concepts,  please enable binning and use manual ' +
             'binning to group the concepts into 2 groups');
         return;
     }
 
     //If its continuous value, than make sure they are binned
-    if (categoryNodeList[0] == 'valueicon' && !GLOBAL.Binning) {
+    if (this.isNumerical(categoryNodeList) && !GLOBAL.Binning) {
         Ext.Msg.alert('Wrong input!', 'For continuous data,  please enable binning and bin the concepts into 2 groups');
         return;
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if ((categoryNodeList[0] != 'valueicon' && categoryNodeList[0] != 'hleaficon') && GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous') {
+    if (this.isCategorical(categoryNodeList) && GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous') {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Category box, but you are trying to ' +
             'bin it as if it was continuous. Please alter your binning options or the concept in the Category box.');
         return;
@@ -159,7 +159,7 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
         return;
     }
     //If binning is enabled and the user is trying to categorically bin a continuous variable, alert them.
-    if (GLOBAL.Binning && Ext.get('variableType').getValue() != 'Continuous' && (categoryNodeList[0] == 'valueicon')) {
+    if (GLOBAL.Binning && Ext.get('variableType').getValue() != 'Continuous' && this.isNumerical(categoryNodeList)) {
         Ext.Msg.alert('Wrong input', 'You cannot use categorical binning with a continuous variable. Please alter ' +
             'your binning options or the concept in the Probablity input  box.');
         return;
@@ -171,14 +171,14 @@ LogisticRegressionView.prototype.get_form_params = function (form) {
     //More Validation
     //------------------------------------
     //If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-    if(categoryNodeList[0] == 'hleaficon' && formParams["divGroupByVariableType"] == "CLINICAL")
+    if(this.isHd(categoryNodeList) && formParams["divGroupByVariableType"] == "CLINICAL")
     {
         Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the outcome variable box but ' +
             'did not select any filters. Please click the "High Dimensional Data" button and select filters. ' +
             'Apply the filters by clicking "Apply Selections".');
         return;
     }
-    if(numericNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
+    if(this.isHd(numericNodeList) && formParams["divIndependentVariableType"] == "CLINICAL")
     {
         Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable ' +
             'box but did not select any filters. Please click the "High Dimensional Data" button and select ' +

@@ -64,7 +64,7 @@ function submitIC50Job(form){
 	}	
 	
 	//If something was entered into the cell variable box, but we have something in the node list, that means the item dragged in wasn't categorical.
-	if(!(!cellNodeList[0] || cellNodeList[0] == "null"))
+	if(!this.isCategorical(cellNodeList))
 	{
 		Ext.Msg.alert('Wrong input', 'You may only use categorical variables in the Cell Line input box.');
 		return;		
