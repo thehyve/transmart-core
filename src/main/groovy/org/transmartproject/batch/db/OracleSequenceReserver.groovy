@@ -1,12 +1,8 @@
-package org.transmartproject.batch.db.oracle
-
-import org.transmartproject.batch.beans.Oracle
-import org.transmartproject.batch.db.SequenceReserver
+package org.transmartproject.batch.db
 
 /**
  * Implementation of {@link SequenceReserver} for PostgreSQL.
  */
-@Oracle
 class OracleSequenceReserver extends SequenceReserver {
 
     private static final SQL_TEMPLATE = 'SELECT %s.nextval FROM DUAL CONNECT BY LEVEL <= :blockSize'

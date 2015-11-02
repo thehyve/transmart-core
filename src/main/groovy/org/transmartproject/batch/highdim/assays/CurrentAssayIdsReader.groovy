@@ -43,7 +43,7 @@ class CurrentAssayIdsReader implements ItemStreamReader<Long> {
         conceptPaths
                 .collect { conceptTree[it] } /* ConceptNodes */
                 .findAll { it.type == ConceptType.HIGH_DIMENSIONAL }
-                .findAll { conceptTree.isSavedNode(it) }
+                .findAll { !it.isNew() }
     }()
 
     @Delegate
@@ -58,7 +58,7 @@ class CurrentAssayIdsReader implements ItemStreamReader<Long> {
             log.debug('Nothing to do, no old high dim nodes ' +
                     'related to current job')
 
-            wherePart = '1=2'
+            wherePart = 'FALSE'
             parameters = []
         } else {
             log.info('Will delete assays and data related with concepts: ' +

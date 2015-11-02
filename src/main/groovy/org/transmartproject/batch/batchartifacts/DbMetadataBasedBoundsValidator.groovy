@@ -83,25 +83,14 @@ class DbMetadataBasedBoundsValidator implements Validator {
         }
     }
 
-    private String getIdentifier(DatabaseMetaData meta, String name) {
-        if (meta.storesUpperCaseIdentifiers()) {
-            name.toUpperCase()
-        } else if (meta.storesLowerCaseIdentifiers()) {
-            name.toLowerCase()
-        } else {
-            name
-        }
-    }
-
     private Map processColumnSpecification(DatabaseMetaData meta,
                                            ColumnSpecification spec) {
-
-        String escSymbol = meta.searchStringEscape
+        // TODO: check which character oracle uses to escape the like expressions
         ResultSet rs = meta.getColumns(
                 null,
-                StringUtils.escapeForLike(getIdentifier(meta, spec.schema), escSymbol),
-                StringUtils.escapeForLike(getIdentifier(meta, spec.table), escSymbol),
-                StringUtils.escapeForLike(getIdentifier(meta, spec.column), escSymbol))
+                StringUtils.escapeForLike(spec.schema),
+                StringUtils.escapeForLike(spec.table),
+                StringUtils.escapeForLike(spec.column),)
 
         if (!rs.next()) {
             throw new IllegalArgumentException(
