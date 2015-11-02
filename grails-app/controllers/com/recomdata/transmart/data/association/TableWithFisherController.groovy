@@ -34,10 +34,10 @@ class TableWithFisherController {
 		
 		String tempDirectory = RModulesOutputRenderService.tempDirectory
 		
-		//Traverse the temporary directory for the LinearRegression files.
+		//Traverse the temporary directory for the generated image files.
 		def tempDirectoryFile = new File(tempDirectory)
 		
-		//This string will be the HTML that represents our Linear Regression data.
+		//This string will be the HTML that represents our Fisher table data.
 		String fisherTableCountData = ""
 		String fisherTableTestData = ""
 		
@@ -63,7 +63,7 @@ class TableWithFisherController {
 				fisherTableCountData += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
 			}
 			
-			//Create objects for the linear regression output files.
+			//Create objects for the fisher table output files.
 			File countFile = new File(it);
 			
 			//Parse the output files.
@@ -95,7 +95,7 @@ class TableWithFisherController {
 				fisherTableTestData += "<br /><br /><span class='AnalysisHeader'>${matcher[0][1]}</span><hr />"
 			}
 			
-			//Create objects for the linear regression output files.
+			//Create objects for the fisher table output files.
 			File statsFile = new File(it);
 			
 			//Parse the output files.

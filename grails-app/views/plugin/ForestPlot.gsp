@@ -19,7 +19,7 @@
 					<span class='AnalysisHeader'>Independent Variable</span>
 					<br />
 					<br />
-					Select <b>one</b> categorical variable from the Data Set Explorer Tree and drag it into the box. (ex. Treatment Arm). A continuous variable may be categorized by enabling "Binning" below. 					
+					Select <b>one</b> categorical variable from the Data Set Explorer Tree and drag it into the box. (e.g. Treatment Arm). A continuous variable may be categorized by enabling "Binning" below. 					
 				</td>
 				<td id="subsetdivider" rowspan="21" valign="center" align="center" height="100%">
 					<div style="margin: 15px; border: 1px solid black; background: black; width: 1px; height: 150px"></div>
@@ -28,7 +28,7 @@
 					<span class='AnalysisHeader'>Dependent Variable</span>
 					<br />
 					<br />
-					Select <b>two categorical variables</b> variables from the Data Set Explorer Tree and drag them into the box. (ex. Metastasis vs. No Metastasis ). A continuous variable may be categorized by enabling "Binning" below.
+					Select <b>two categorical variables</b> variables from the Data Set Explorer Tree and drag them into the box. (e.g. Metastasis vs. No Metastasis ). A continuous variable may be categorized by enabling "Binning" below.
 				</td>	
 				<td id="subsetdivider" rowspan="21" valign="center" align="center" height="100%">
 				<div style="margin: 15px; border: 1px solid black; background: black; width: 1px; height: 150px"></div>
@@ -37,7 +37,7 @@
 					<span class='AnalysisHeader'>Stratification Variable (Optional)</span>
 					<br />
 					<br />
-					Select <b>one or more categorical variables</b> from the Data Set Explorer Tree and drag them into the box (ex. Race). A continuous variable may be categorized by enabling "Binning" below.
+					Select <b>one or more categorical variables</b> from the Data Set Explorer Tree and drag them into the box (e.g. Race). A continuous variable may be categorized by enabling "Binning" below.
 				</td>							
 			</tr>
 	
@@ -51,7 +51,7 @@
 					<span class='AnalysisHeader' style='text-align:center;'>Control or Reference</span>
 					<br />
 					<br />
-					Select <b>one</b> categorical variable from the Data Set Explorer Tree and drag it into the box. (ex. Placebo Arm). A continuous variable may be categorized by enabling "Binning" below. 
+					Select <b>one</b> categorical variable from the Data Set Explorer Tree and drag it into the box. (e.g. Placebo Arm). A continuous variable may be categorized by enabling "Binning" below. 
 					<br />		
 					<br />								
 					<input style="font: 9pt tahoma;float:right;" type="button" onclick="forestPlotView.clear_high_dimensional_input('divReferenceVariable')" value="X" /> <br />

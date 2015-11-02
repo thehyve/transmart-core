@@ -40,7 +40,7 @@
                     <div class="highDimContainer">
                         <h3>Category</h3>
                         <div class="divInputLabel">Select a variable on which you would like to sort the cohort and
-                        drag it into the box. For example, "Cancer Stage".  If this variable is continuous (ex. Age),
+                        drag it into the box. For example, "Cancer Stage".  If this variable is continuous (e.g. Age),
                         then it should be "binned" using the option below.
                         This variable is not required.</div>
                         <div id='divCategoryVariable' class="queryGroupIncludeLong divInputBox"></div>
