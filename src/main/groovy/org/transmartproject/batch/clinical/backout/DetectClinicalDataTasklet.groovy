@@ -41,7 +41,7 @@ class DetectClinicalDataTasklet implements Tasklet {
         def irrelevantNodes = fetchIrrelevantNodes()
 
         Set<ConceptNode> clinicalRelatedNodes = Sets.difference(
-                conceptTree.allConceptNodes,
+                conceptTree.allConceptNodes as Set,
                 irrelevantNodes)
 
         log.debug("Found ${irrelevantNodes.size()} concepts between " +

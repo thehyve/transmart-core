@@ -98,7 +98,7 @@ class TestDatabasePrepareConfiguration {
         new CallableTaskletAdapter(callable: { ->
             new TableTruncator(
                     jdbcTemplate: new NamedParameterJdbcTemplate(jdbcTemplate)
-            ).truncate(Tables.CODE_LOOKUP, false)
+            ).truncate(Tables.CODE_LOOKUP)
             RepeatStatus.FINISHED
         } as Callable<RepeatStatus>)
     }

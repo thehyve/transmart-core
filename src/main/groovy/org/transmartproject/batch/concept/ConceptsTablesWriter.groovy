@@ -24,7 +24,7 @@ class ConceptsTablesWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        Set<ConceptNode> newConcepts = conceptTree.newConceptNodes
+        List<ConceptNode> newConcepts = conceptTree.newConceptNodes
 
         insertConceptsService.insert(newConcepts)
 

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 
@@ -26,8 +27,8 @@ class ProteomicsDataWriter implements ItemWriter<TripleStandardDataValue> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{proteomicsDataJobContextItems.partitionTableName}")
-    private String qualifiedTableName
+    @Value("#{proteomicsDataJobContextItems.partitionId}")
+    private int partitionId
 
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
@@ -45,4 +46,7 @@ class ProteomicsDataWriter implements ItemWriter<TripleStandardDataValue> {
                 "inserting proteomics data in $qualifiedTableName")
     }
 
+    private String getQualifiedTableName() {
+        Tables.PROTEOMICS_DATA + '_' + partitionId
+    }
 }

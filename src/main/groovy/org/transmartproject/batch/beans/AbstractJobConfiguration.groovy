@@ -19,8 +19,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.batchartifacts.BetterExitMessageJobExecutionListener
 import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
 import org.transmartproject.batch.db.*
-import org.transmartproject.batch.db.oracle.OracleSequenceReserver
-import org.transmartproject.batch.db.postgres.PostgresSequenceReserver
 
 import javax.sql.DataSource
 import java.nio.file.Path
