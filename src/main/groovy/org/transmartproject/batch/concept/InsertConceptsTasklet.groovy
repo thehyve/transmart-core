@@ -27,7 +27,7 @@ class InsertConceptsTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         //gets all new concepts. notice root is not included (not inserted in concept_dimension)
-        List<ConceptNode> newConcepts = conceptTree.newConceptNodes
+        Set<ConceptNode> newConcepts = conceptTree.newConceptNodes
 
         insertConceptsService.insert(newConcepts)
 

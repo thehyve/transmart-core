@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 
@@ -27,8 +26,8 @@ class MrnaDataWriter implements ItemWriter<TripleStandardDataValue> {
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{mrnaDataJobContextItems.partitionId}")
-    private int partitionId
+    @Value("#{mrnaDataJobContextItems.partitionTableName}")
+    private String qualifiedTableName
 
     @Lazy
     @SuppressWarnings('PrivateFieldCouldBeFinal')
@@ -46,7 +45,4 @@ class MrnaDataWriter implements ItemWriter<TripleStandardDataValue> {
                 "inserting mRNA data in $qualifiedTableName")
     }
 
-    private String getQualifiedTableName() {
-        Tables.MRNA_DATA + '_' + partitionId
-    }
 }

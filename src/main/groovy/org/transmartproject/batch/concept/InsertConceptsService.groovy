@@ -44,12 +44,13 @@ class InsertConceptsService {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    List<ConceptNode> insert(List<ConceptNode> newConcepts) throws Exception {
+    Collection<ConceptNode> insert(Collection<ConceptNode> newConcepts) throws Exception {
         log.debug "New concepts are ${newConcepts*.path}"
 
         conceptTree.reserveIdsFor(newConcepts)
         insertConceptDimension(studyId, newConcepts)
         insertI2b2(studyId, newConcepts)
+        conceptTree.addToSavedNodes(newConcepts)
         newConcepts
     }
 
@@ -88,7 +89,6 @@ class InsertConceptsService {
                     download_date     : now,
                     import_date       : now,
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
-                    record_id         : it.i2b2RecordId,
             ]
 
             Map i2b2SecureRow = new HashMap(i2b2Row)

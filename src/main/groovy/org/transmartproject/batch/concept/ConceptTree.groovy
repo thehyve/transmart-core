@@ -1,6 +1,7 @@
 package org.transmartproject.batch.concept
 
 import com.google.common.collect.Maps
+import com.google.common.collect.Sets
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
@@ -31,6 +32,8 @@ class ConceptTree {
     private final NavigableMap<ConceptPath, ConceptNode> nodeMap =
             Maps.newTreeMap()
 
+    private final Set savedNodes = []
+
     @PostConstruct
     void generateStudyNode() {
         // automatically creates nodes up until topNodePath
@@ -40,24 +43,22 @@ class ConceptTree {
 
     void loadExisting(Collection<ConceptNode> nodes) {
         nodes.each { n ->
-            if (n.new) {
-                throw new IllegalArgumentException("Passed concept node is not expected to be new: $n")
-            }
             if (log.traceEnabled &&
                     nodeMap.containsKey(n.path)) {
                 log.trace "Replacing ${nodeMap[n.path]} with $n"
             }
 
             nodeMap[n.path] = n
+            savedNodes << n
         }
     }
 
-    Collection<ConceptNode> getNewConceptNodes() {
-        nodeMap.values().findAll { it.isNew() }
+    Set<ConceptNode> getNewConceptNodes() {
+        Sets.difference(allConceptNodes, savedNodes)
     }
 
-    Collection<ConceptNode> getAllConceptNodes() {
-        nodeMap.values()
+    Set<ConceptNode> getAllConceptNodes() {
+        nodeMap.values().toSet()
     }
 
     ConceptNode parentFor(ConceptNode child) {
@@ -112,20 +113,25 @@ class ConceptTree {
                 .values()
     }
 
+    boolean isSavedNode(ConceptNode node) {
+        node in savedNodes
+    }
+
     void reserveIdsFor(ConceptNode node) {
-        if (!node.isNew()) {
+        if (isSavedNode(node)) {
             log.warn("Could not rewrite id for node that already has one (${node.code}).")
             return
         }
 
         node.code = reserver.getNext(Sequences.CONCEPT)
-        node.i2b2RecordId = reserver.getNext(Sequences.I2B2_RECORDID)
     }
 
     void reserveIdsFor(Collection<ConceptNode> nodes) {
-        for (ConceptNode node: nodes) {
-            reserveIdsFor(node)
-        }
+        nodes.each { reserveIdsFor(it) }
+    }
+
+    void addToSavedNodes(Collection<ConceptNode> nodes) {
+        savedNodes.addAll(nodes)
     }
 
     boolean isStudyNode(ConceptNode node) {

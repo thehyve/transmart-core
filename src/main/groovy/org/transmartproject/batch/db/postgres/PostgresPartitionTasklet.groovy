@@ -1,46 +1,24 @@
-package org.transmartproject.batch.db
+package org.transmartproject.batch.db.postgres
 
 import groovy.util.logging.Slf4j
-import org.springframework.batch.core.StepContribution
-import org.springframework.batch.core.UnexpectedJobExecutionException
-import org.springframework.batch.core.scope.context.ChunkContext
-import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.IncorrectResultSizeDataAccessException
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-
-import java.util.regex.Pattern
+import org.transmartproject.batch.beans.Postgresql
+import org.transmartproject.batch.db.AbstractPartitionTasklet
+import org.transmartproject.batch.db.SequenceReserver
 
 /**
  * Partitions a table, if necessary, and fills a job context parameter with the
  * number of the partition.
  */
 @Slf4j
-class PostgresPartitionTasklet implements Tasklet {
-
-    public final static String PARTITION_ID_JOB_CONTEXT_KEY = 'partitionId'
-
-    /**
-     * The table to partition, qualified with schema.
-     */
-    String tableName
+@Postgresql
+class PostgresPartitionTasklet extends AbstractPartitionTasklet {
 
     /**
      * The column to partition on.
      */
     String partitionByColumn
-
-    /**
-     * The value of the partition column.
-     */
-    String partitionByColumnValue
-
-    /**
-     * The column where to store the partition id.
-     */
-    String partitionIdColumn = 'partition_id'
 
     /**
      * The sequence from which to extract the partition id.
@@ -64,25 +42,10 @@ class PostgresPartitionTasklet implements Tasklet {
     List<List<String>> indexes
 
     @Autowired
-    private NamedParameterJdbcTemplate jdbcTemplate
-
-    @Autowired
     private SequenceReserver sequenceReserver
 
     private String getCommentKey() {
         "$partitionByColumn = $partitionByColumnValue"
-    }
-
-    private String getUnqualifiedTable() {
-        getUnqualifiedTable(tableName)
-    }
-
-    private String getUnqualifiedTable(String tableName) {
-        tableName.replaceFirst(/.+\./, '')
-    }
-
-    private String getSchema() {
-        (tableName =~ /[^.]+/)[0]
     }
 
     private String currentPartition() {
@@ -127,34 +90,9 @@ class PostgresPartitionTasklet implements Tasklet {
 
     }
 
-    @Override
-    RepeatStatus execute(StepContribution contribution,
-                         ChunkContext chunkContext) throws Exception {
-
-        String partitionTable = currentPartition() // qualified
-        int partitionId
-
-        if (!partitionTable) {
-            partitionId = sequenceReserver.getNext(sequence)
-            partitionTable = createPartition(partitionId)
-        } else {
-            def matcher = partitionTable =~ "(?<=${Pattern.quote(tableName)}_)\\d+\\z"
-            if (!matcher) {
-                throw new UnexpectedJobExecutionException(
-                        "Got a partition table name from which a partition " +
-                                "id could not be extracted")
-            }
-            partitionId = matcher[0] as int
-        }
-
-        //FIXME Where we delete data if table already exists
-        savePartitionId chunkContext, partitionId
-
-        RepeatStatus.FINISHED
-    }
-
     private String createPartition(int partitionId) {
         String partitionTable = "${tableName}_${partitionId}"
+        String unqualifiedPartitionTable = "${unqualifiedTable}_${partitionId}"
 
         log.info "Creating table $partitionTable"
         jdbcTemplate.update """
@@ -170,7 +108,7 @@ class PostgresPartitionTasklet implements Tasklet {
             log.info "Creating primary key on column(s): ${primaryKey}"
             jdbcTemplate.update """
                 ALTER TABLE ${partitionTable}
-                ADD CONSTRAINT ${getUnqualifiedTable(partitionTable)}_pk PRIMARY KEY (${primaryKey.join(', ')})
+                ADD CONSTRAINT ${unqualifiedPartitionTable}_pk PRIMARY KEY (${primaryKey.join(', ')})
             """, [:]
         }
 
@@ -179,14 +117,14 @@ class PostgresPartitionTasklet implements Tasklet {
                     " ${refDetails.onDelete ? '(CASCADED)' : ''}"
             jdbcTemplate.update """
                 ALTER TABLE ${partitionTable}
-                ADD CONSTRAINT ${getUnqualifiedTable(partitionTable)}_${fkColumn}_fk FOREIGN KEY (${fkColumn})
+                ADD CONSTRAINT ${unqualifiedPartitionTable}_${fkColumn}_fk FOREIGN KEY (${fkColumn})
                 REFERENCES ${refDetails.table}($refDetails.column)
                 ${refDetails.onDelete ? ' ON DELETE ' + refDetails.onDelete : ''}
             """, [:]
         }
 
         indexes.eachWithIndex { List<String> columns, i ->
-            def indexName = "${getUnqualifiedTable(partitionTable)}_${i + 1}"
+            def indexName = "${unqualifiedPartitionTable}_${i + 1}"
             log.info "Creating index $indexName on columns $columns"
 
             jdbcTemplate.update """
@@ -198,11 +136,15 @@ class PostgresPartitionTasklet implements Tasklet {
         partitionTable
     }
 
-    void savePartitionId(ChunkContext context, Integer partitionId) {
-        log.info "Will use partition id $partitionId"
-        ExecutionContext jobExecutionContext =
-                context.stepContext.stepExecution.jobExecution.executionContext
+    @Override
+    protected String createPartitionIfNeeded() {
+        String partitionTable = currentPartition() // qualified
 
-        jobExecutionContext.putInt(PARTITION_ID_JOB_CONTEXT_KEY, partitionId)
+        if (!partitionTable) {
+            int partitionId = sequenceReserver.getNext(sequence)
+            partitionTable = createPartition(partitionId)
+        }
+
+        partitionTable
     }
 }

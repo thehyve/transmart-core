@@ -23,6 +23,6 @@ class StringUtilsTest {
         def input = '\\aa*_%\\ds'
         def expected = '\\aa***_*%\\ds'
 
-        assertThat StringUtils.escapeForLike(input, '*' as char), is(expected)
+        assertThat StringUtils.escapeForLike(input, '*'), is(expected)
     }
 }

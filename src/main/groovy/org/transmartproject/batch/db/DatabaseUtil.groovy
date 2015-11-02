@@ -18,9 +18,15 @@ final class DatabaseUtil {
     }
 
     static void checkUpdateCounts(List<Integer> counts, String operation) {
-        if (!counts.every { it == 1 }) {
-            throw new IncorrectResultSizeDataAccessException(
-                    "Updated rows mismatch while $operation")
+        /**
+         * Oracle Doc: For a prepared statement batch, it is not possible to know the number of rows affected in
+         * the database by each individual statement in the batch. Therefore, all array elements have a value of -2.
+         * According to the JDBC 2.0 specification, a value of -2 indicates that the operation was successful
+         * but the number of rows affected is unknown.
+         * http://docs.oracle.com/cd/B28359_01/java.111/b31224/oraperf.htm
+         */
+        if (!counts.every { it == 1 || it == -2 }) {
+            throw new IncorrectResultSizeDataAccessException("Updated rows mismatch while $operation", 1)
         }
     }
 
