@@ -123,7 +123,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((this.isNumerical(timeNodeList) || isHd(timeNodeList)) && (timeVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(timeNodeList) || this.isHd(timeNodeList)) && (timeVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into ' +
             'the input boxes. The Time input box has multiple nodes.');
