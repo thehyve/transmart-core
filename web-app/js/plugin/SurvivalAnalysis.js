@@ -164,7 +164,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     var categoryVariableType = "";
 
     //If Category is not empty, check to see if the node value is categorical.
-    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) categoryVariableType = "CAT";
+    if(categoryVariableConceptPath != "" && this.isCategorical(categoryNodeList)) categoryVariableType = "CAT";
 
     //We only bin on category here, so if binning is enabled the category is categorical.
     if (GLOBAL.Binning) categoryVariableType = "CAT";
@@ -189,7 +189,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If there is a node in the censoring box and it isn't a category, throw an error.
-    if(censoringVariableConceptPath != "" && !(!censoringNodeList[0] || censoringNodeList[0] == "null"))
+    if(censoringVariableConceptPath != "" && !this.isCategorical(censoringNodeList))
     {
         Ext.Msg.alert('Wrong input', 'Survival Analysis requires categorical variables in the "Censoring ' +
             'Variable" box.');
@@ -203,7 +203,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null") && categoryVariableConceptPath.indexOf("|") == -1)
+    if(categoryVariableConceptPath != "" && this.isCategorical(categoryNodeList) && categoryVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent ' +
             'box only has 1 categorical variable in it.');
