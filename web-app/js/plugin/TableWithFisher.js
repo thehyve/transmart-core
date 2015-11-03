@@ -186,7 +186,7 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptPath.indexOf("|") == -1)
+    if(this.isCategorical(dependentNodeList) && dependentVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
         return;
