@@ -53,31 +53,17 @@ BoxPlotView.prototype.get_form_params = function (form) {
         return;
     }
 
-    /**
-     * To check if node is categorical or not
-     * @param nodeTypes
-     * @returns {boolean}
-     * @private
-     */
-    var _isCategorical = function (nodeTypes) {
-        return (nodeTypes[0] == "null" || nodeTypes[0] == "alphaicon") ? true : false;
-    }
-
-    var _isNumerical = function (nodeTypes) {
-        return (nodeTypes[0] == "valueicon") ? true : false;
-    }
-
     if (GLOBAL.Binning) {
         var variableToBeBinned = document.getElementById("selBinVariableSelection").value
         var multipleNumericalVariablesToBeBinned
 
         if (variableToBeBinned == "IND"
-            && _isNumerical(independentNodeList)
+            && this.isNumerical(independentNodeList)
             && independentVariableEle.dom.childNodes.length > 1) {
 
             multipleNumericalVariablesToBeBinned = true;
         } else if (variableToBeBinned == "DEP"
-            && _isNumerical(dependentNodeList)
+            && this.isNumerical(dependentNodeList)
             && dependentVariableEle.dom.childNodes.length > 1) {
 
             multipleNumericalVariablesToBeBinned = true;
@@ -96,7 +82,7 @@ BoxPlotView.prototype.get_form_params = function (form) {
     var flipImage = false;
 
     // Flip if dependent variable is categorical
-    if (_isCategorical(dependentNodeList) ||
+    if (this.isCategorical(dependentNodeList) ||
         (GLOBAL.Binning && document.getElementById("selBinVariableSelection").value == "DEP")) {
         flipImage = true;
     }
@@ -142,9 +128,9 @@ BoxPlotView.prototype.get_form_params = function (form) {
 
     var formParams = {
         dependentVariable: dependentVariableConceptPath,
-        dependentVariableCategorical: _isCategorical(dependentNodeList),
+        dependentVariableCategorical: this.isCategorical(dependentNodeList),
         independentVariable: independentVariableConceptPath,
-        independentVariableCategorical: _isCategorical(independentNodeList),
+        independentVariableCategorical: this.isCategorical(independentNodeList),
         jobType: 'BoxPlot',
         variablesConceptPaths: variablesConceptCode
     };
