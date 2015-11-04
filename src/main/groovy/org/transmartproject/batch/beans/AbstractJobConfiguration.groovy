@@ -32,6 +32,7 @@ import java.nio.file.Paths
 @ComponentScan([
         'org.transmartproject.batch.db',
         'org.transmartproject.batch.secureobject',
+        'org.transmartproject.batch.biodata',
 ])
 abstract class AbstractJobConfiguration implements StepBuildingConfigurationTrait {
 

@@ -5,6 +5,7 @@ import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.transmartproject.batch.backout.BackoutJobSpecification
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
+import org.transmartproject.batch.gwas.GwasJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
@@ -36,6 +37,7 @@ final class RunJob {
             'i2b2'                   : I2b2JobSpecification,
             'proteomics_annotation'  : ProteomicsAnnotationJobSpecification,
             'proteomics'             : ProteomicsDataJobSpecification,
+            'gwas'                   : GwasJobSpecification,
             'backout'                : BackoutJobSpecification,
     ]
 

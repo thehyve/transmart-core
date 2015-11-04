@@ -53,4 +53,10 @@ final class Tables {
     public static final String PROTEOMICS_ANNOTATION    = 'deapp.de_protein_annotation'
     public static final String PROTEOMICS_DATA          = 'deapp.de_subject_protein_data'
 
+    public static final String RC_SNP_INFO              = 'deapp.de_rc_snp_info'
+    public static final String BIO_ASSAY_ANALYSIS       = 'biomart.bio_assay_analysis'
+    public static final String BIO_ASSAY_ANALYSIS_EXT   = 'biomart.bio_assay_analysis_ext'
+    public static final String BIO_ASSAY_ANALYSIS_GWAS  = 'biomart.bio_assay_analysis_gwas'
+    public static final String BIO_ASY_ANAL_GWAS_TOP500 = 'biomart.bio_asy_analysis_gwas_top50'
+
 }

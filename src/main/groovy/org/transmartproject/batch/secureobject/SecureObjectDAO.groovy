@@ -4,12 +4,12 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.backout.BackoutComponent
+import org.transmartproject.batch.biodata.BioExperimentDAO
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.SequenceReserver
@@ -28,20 +28,20 @@ class SecureObjectDAO {
     @Autowired
     private SequenceReserver sequenceReserver
 
-    @Value(Tables.BIO_EXPERIMENT)
-    private SimpleJdbcInsert bioExperimentInsert
-
     @Value(Tables.SECURE_OBJECT)
     private SimpleJdbcInsert secureObjectInsert
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
 
+    @Autowired
+    private BioExperimentDAO bioExperimentDAO
+
     void createSecureObject(String displayName,
                             String studyId,
                             SecureObjectToken token) {
 
-        long bioExperimentId = findOrCreateBioExperiment(studyId)
+        long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(studyId)
         Map secureObjectValues = findOrCreateSecureObject(
                 bioExperimentId, displayName, token)
 
@@ -130,32 +130,6 @@ class SecureObjectDAO {
         }
 
         affected
-    }
-
-    private Long findOrCreateBioExperiment(String studyId) {
-        try {
-            def id = jdbcTemplate.queryForObject """
-                    SELECT bio_experiment_id
-                    FROM ${Tables.BIO_EXPERIMENT}
-                    WHERE accession = :study""",
-                    [study: studyId],
-                    Long
-
-            log.info "Found existing bio_experiment with id $id"
-            id
-        } catch (EmptyResultDataAccessException erdae) {
-            Long id = sequenceReserver.getNext(Sequences.BIO_DATA_ID)
-
-            bioExperimentInsert.execute(
-                    bio_experiment_id: (Object) id,
-                    title: 'Metadata not available',
-                    accession: studyId,
-                    etl_id: "METADATA:$studyId" as String
-            )
-            log.debug("Created new bio_experiment with id $id")
-
-            id
-        }
     }
 
     private Map findSecureObject(SecureObjectToken secureObjectToken) {

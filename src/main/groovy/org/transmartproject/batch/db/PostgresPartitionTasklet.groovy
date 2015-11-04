@@ -38,11 +38,6 @@ class PostgresPartitionTasklet implements Tasklet {
     String partitionByColumnValue
 
     /**
-     * The column where to store the partition id.
-     */
-    String partitionIdColumn = 'partition_id'
-
-    /**
      * The sequence from which to extract the partition id.
      */
     String sequence

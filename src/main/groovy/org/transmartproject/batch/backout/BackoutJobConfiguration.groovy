@@ -168,5 +168,6 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
 @ComponentScan([
         'org.transmartproject.batch.backout',
         'org.transmartproject.batch.secureobject',
+        'org.transmartproject.batch.biodata',
         'org.transmartproject.batch.concept'])
 abstract class BackoutJobConfigurationParent extends AbstractJobConfiguration { }

@@ -90,6 +90,7 @@ class TestDatabasePrepareConfiguration {
                 .next(loadModifierDimension())
                 .next(loadModifierMetadata())
                 .next(loadCodeLookup())
+                .next(loadDeRcSnpInfo())
                 .build()
     }
 
@@ -146,6 +147,21 @@ class TestDatabasePrepareConfiguration {
                 .chunk(CHUNK_SIZE)
                 .reader(tsvFileReader(new ClassPathResource('i2b2/code_lookup.tsv')))
                 .writer(codeLookupWriter())
+                .build()
+    }
+
+    @Bean
+    @StepScope
+    TsvFieldSetJdbcBatchItemWriter loadDeRcSnpInfoWriter() {
+        fieldSetJdbcWriter(Tables.RC_SNP_INFO)
+    }
+
+    @Bean
+    Step loadDeRcSnpInfo() {
+        steps.get('loadDeRcSnpInfo')
+                .chunk(CHUNK_SIZE)
+                .reader(tsvFileReader(new ClassPathResource('gwas/de_rc_snp_info.tsv')))
+                .writer(loadDeRcSnpInfoWriter())
                 .build()
     }
 

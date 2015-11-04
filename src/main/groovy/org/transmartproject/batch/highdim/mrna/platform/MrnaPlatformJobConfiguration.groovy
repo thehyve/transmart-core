@@ -52,7 +52,7 @@ class MrnaPlatformJobConfiguration extends PlatformLoadJobConfiguration {
 
     @Bean
     Step mainStep() {
-        steps.get('mainStep')
+        steps.get('insertIntoBioAssayAnalysisGwasStep')
                 .chunk(chunkSize)
                 .reader(mrnaAnnotationRowReader(null))
                 .processor(new ValidatingItemProcessor(

@@ -24,6 +24,7 @@ import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolic
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.batch.item.support.CompositeItemWriter
+import org.springframework.batch.item.validator.SpringValidator
 import org.springframework.batch.item.validator.Validator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.core.io.Resource
 import org.springframework.util.Assert
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import org.transmartproject.batch.batchartifacts.*
 import org.transmartproject.batch.clinical.facts.ClinicalDataRow
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
@@ -60,6 +62,16 @@ trait StepBuildingConfigurationTrait {
         new ResourceBundleMessageSource(
                 basename: 'org.transmartproject.batch.validation_messages',
                 defaultEncoding: 'UTF-8')
+    }
+
+    @Bean
+    LocalValidatorFactoryBean jsr303ValidatorRaw() {
+        new LocalValidatorFactoryBean(validationMessageSource: validationMessageSource())
+    }
+
+    @Bean
+    Validator jsr303Validator() {
+        new SpringValidator(validator: jsr303ValidatorRaw())
     }
 
     @Bean

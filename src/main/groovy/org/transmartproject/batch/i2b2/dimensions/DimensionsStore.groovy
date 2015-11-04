@@ -235,6 +235,7 @@ class DimensionsStore {
             if (log.isInfoEnabled()) {
                 logStatus(includeKnownAsExisting)
             }
+            stepExecution.exitStatus
         }
     }
 }
