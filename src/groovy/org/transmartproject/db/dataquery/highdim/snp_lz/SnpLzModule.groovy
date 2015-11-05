@@ -60,7 +60,13 @@ import static org.transmartproject.db.dataquery.highdim.parameterproducers.Bindi
 class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     private static final int SNP_PATIENTS_FETCH_SIZE = 5000
-    public static final String SNPS_CONSTRAINT_NAME = 'snps'
+
+    private static final String SNPS_CONSTRAINT_NAME = 'snps'
+
+    private static final String ALLELES_PROJECTION = 'alleles'
+    private static final String PROBABILITIES_PROJECTION = 'probabilities'
+    private static final String DOSE_PROJECTION = 'dose'
+
 
     final String name = 'snp_lz'
 
@@ -68,14 +74,14 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['SNP']
 
-    final Map<String, Class> dataProperties = typesMap(SnpLzCell,
+    final Map<String, Class> dataProperties = typesMap(SnpLzAllDataCell,
             ['probabilityA1A1', 'probabilityA1A2', 'probabilityA2A2',
              'likelyAllele1', 'likelyAllele2', 'minorAlleleDose'])
 
     final Map<String, Class> rowProperties = typesMap(SnpLzRow,
-            ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
-             'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count',
-             'a2a2Count', 'noCallCount'])
+            ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality',
+             'GTProbabilityThreshold', 'minorAlleleFrequency', 'minorAllele',
+             'a1a1Count', 'a1a2Count', 'a2a2Count', 'noCallCount'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -131,16 +137,21 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createProjectionFactories() {
-        [
-                new MapBasedParameterFactory(
-                        (ALL_DATA_PROJECTION): { Map<String, Object> params ->
-                            if (!params.isEmpty()) {
-                                throw new InvalidArgumentsException('Expected no parameters here')
-                            }
-                            new SnpLzAllDataProjection()
-                        }
-                ),
-        ]
+        def map = [
+                (ALL_DATA_PROJECTION):      SnpLzAllDataProjection,
+                (ALLELES_PROJECTION):       SnpLzAllelesProjection,
+                (PROBABILITIES_PROJECTION): SnpLzProbabilitiesProjection,
+                (DOSE_PROJECTION):          SnpLzDoseProjection,
+        ].collectEntries { k, v ->
+            [k, { Map<String, Object> params ->
+                if (!params.isEmpty()) {
+                    throw new InvalidArgumentsException('Expected no parameters here')
+                }
+                v.newInstance()
+            }]
+        }
+
+        [new MapBasedParameterFactory(map)]
     }
 
     @Override
@@ -159,9 +170,6 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'snp.a1Clob',                 'a1Clob'
                 property 'snp.a2Clob',                 'a2Clob'
                 property 'snp.imputeQuality',          'imputeQuality'
-                property 'snp.gpsByProbeBlob',         'gpsByProbeBlob'
-                property 'snp.gtsByProbeBlob',         'gtsByProbeBlob'
-                property 'snp.doseByProbeBlob',        'doseByProbeBlob'
                 property 'snp.gtProbabilityThreshold', 'gtProbabilityThreshold'
                 property 'snp.maf',                    'maf'
                 property 'snp.minorAllele',            'minorAllele'
@@ -172,7 +180,6 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'snp.trialName',              'trialName'
 
                 property 'ann.geneInfo',               'geneInfo'
-                //property 'ann.snpName',                'snpName'
 
                 property 'snpInfo.name',               'snpName'
                 property 'snpInfo.chromosome',         'chromosome'
@@ -250,7 +257,8 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                             "${assaysNotFound.size()} assays: $assaysNotFound")
         }
 
-        def transformer = new SnpLzRowTransformer(sssList.size(), assayIndexMap)
+        def transformer = new SnpLzRowTransformer(
+                sssList.size(), assayIndexMap, projection)
 
         new SimpleTabularResult(
                 rowsDimensionLabel:    'SNPs',
@@ -265,15 +273,18 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         private int numPatientsInTrial
         private LinkedHashMap<AssayColumn, Integer> assayIndexMap
         private int[] resultIndexPatientIndex
+        Projection projection
 
         SnpLzRowTransformer(
                 int numPatientsInTrial,
-                LinkedHashMap<AssayColumn, Integer> orderedAssayPatientIndex) {
+                LinkedHashMap<AssayColumn, Integer> orderedAssayPatientIndex,
+                Projection projection) {
 
             this.numPatientsInTrial = numPatientsInTrial
             this.assayIndexMap = orderedAssayPatientIndex
             this.resultIndexPatientIndex =
                     orderedAssayPatientIndex.values() as int[]
+            this.projection = projection
         }
 
         SnpLzRow transformDbRow(Object[] rawRow) {
@@ -283,7 +294,8 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                     probeData,
                     numPatientsInTrial,
                     assayIndexMap,
-                    resultIndexPatientIndex)
+                    resultIndexPatientIndex,
+                    projection)
         }
     }
 

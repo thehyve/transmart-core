@@ -19,29 +19,54 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.ProjectionList
+import org.hibernate.criterion.Projections
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
-import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionImpl
+import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 /**
  * Implements {@link AllDataProjection} for the snp_lz module.
  * {@link AllDataProjectionImpl} is not appropriate because it tries to add
  * projections to the Hibernate query based on the value of dataProperties.
  */
-class SnpLzAllDataProjection implements AllDataProjection {
+class SnpLzAllDataProjection implements
+        AllDataProjection, CriteriaProjection<Map<String, Object>> {
 
-    final Map<String, Class> dataProperties = SnpLzCell
+    private static final ArrayList<String> DOMAIN_CLASS_PROPERTIES_FETCHED =
+            ['gpsByProbeBlob', 'gtsByProbeBlob', 'doseByProbeBlob']
+
+    final Map<String, Class> dataProperties = SnpLzAllDataCell
             .metaClass
             .properties
-            .findAll { it.name != 'class' }
+            .findAll { it.name != 'class' && it.name != 'empty' }
             .collectEntries { [it.name, it.type] }
 
     final Map<String, Class> rowProperties =
             ['snpName', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
              'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count',
              'a2a2Count', 'noCallCount'].collectEntries {
-                def p = SnpLzCell.metaClass.getProperty(it)
+                def p = SnpLzRow.metaClass.properties.find { n -> n.name == it }
                 [p.name, p.type]
             }
+
+    @Override
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
+        def projection = builder.instance.projection
+
+        assert projection instanceof ProjectionList
+
+        DOMAIN_CLASS_PROPERTIES_FETCHED.each { field ->
+            assert SnpDataByProbeCoreDb.metaClass
+                    .properties.find { it.name == field }
+
+            // add an alias to make this ALIAS_TO_ENTITY_MAP-friendly
+            projection.add(
+                    Projections.alias(
+                            Projections.property(field),
+                            field))
+        }
+    }
 
     @Override
     Map<String, Object> doWithResult(Object object) {

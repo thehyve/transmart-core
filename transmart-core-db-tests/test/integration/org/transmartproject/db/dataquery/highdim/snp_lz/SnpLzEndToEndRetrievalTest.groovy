@@ -53,7 +53,7 @@ class SnpLzEndToEndRetrievalTest {
             AssayConstraint.TRIAL_NAME_CONSTRAINT,
             name: SnpLzTestData.TRIAL_NAME)
 
-    @Lazy Projection projection = snpLzResource.createProjection([:],
+    @Lazy Projection allDataProjection = snpLzResource.createProjection([:],
             Projection.ALL_DATA_PROJECTION)
 
     TabularResult<AssayColumn, SnpLzRow> result
@@ -74,7 +74,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void fetchAllDataTestSizes() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], projection)
+                [trialConstraint], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -82,14 +82,17 @@ class SnpLzEndToEndRetrievalTest {
                 hasSize(testData.annotations.size()),
                 everyItem(allOf(
                         isA(SnpLzRow),
-                        contains(isA(SnpLzCell), isA(SnpLzCell), isA(SnpLzCell)),
+                        contains(
+                                isA(SnpLzAllDataCell),
+                                isA(SnpLzAllDataCell),
+                                isA(SnpLzAllDataCell)),
                 )))
     }
 
     @Test
     void fetchAllDataTestRows() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], projection)
+                [trialConstraint], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -122,9 +125,8 @@ class SnpLzEndToEndRetrievalTest {
                                     hasProperty('GTProbabilityThreshold',
                                             closeTo(snpData.gtProbabilityThreshold, DELTA)),
                                     hasProperty('minorAlleleFrequency', closeTo(snpData.maf, DELTA)),
-                                    hasProperty('minorAllele',
-                                            is(SnpLzRow.MinorAllele.values().find { "$it" == snpData.minorAllele })),
-                                    hasProperty('a1a1Count', is(snpData.getCA1A1() as Long)),
+                                    hasProperty('minorAllele', is(snpData.minorAllele)),
+                                            hasProperty('a1a1Count', is(snpData.getCA1A1() as Long)),
                                     hasProperty('a1a2Count', is(snpData.getCA1A2() as Long)),
                                     hasProperty('a2a2Count', is(snpData.getCA2A2() as Long)),
                                     hasProperty('noCallCount', is(snpData.getCNocall() as Long)),
@@ -133,6 +135,7 @@ class SnpLzEndToEndRetrievalTest {
         )
     }
 
+    // for all data projection only
     private Matcher dataMatcherFor(annotations, assays) {
         def orderedSampleCodes = assays.sort { a ->
             testData.sortedSubjects.find { it.subjectId == a.sampleCode }.patientPosition
@@ -178,7 +181,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void fetchAllDataTestCells() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], projection)
+                [trialConstraint], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -188,7 +191,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void testIndexingByNumber() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], projection)
+                [trialConstraint], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -201,7 +204,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void testIndexingByAssay() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], projection)
+                [trialConstraint], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -219,7 +222,7 @@ class SnpLzEndToEndRetrievalTest {
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
                 ids: [selectedAssay.id])
         result = snpLzResource.retrieveData(
-                [trialConstraint, assayConstraint], [], projection)
+                [trialConstraint, assayConstraint], [], allDataProjection)
 
         assertThat result.indicesList,
                 contains(hasSameInterfaceProperties(Assay, selectedAssay))
@@ -237,7 +240,7 @@ class SnpLzEndToEndRetrievalTest {
         def dataConstraint = snpLzResource.createDataConstraint(
                 'snps', names: [selectedSnpName])
         result = snpLzResource.retrieveData(
-                [trialConstraint], [dataConstraint], projection)
+                [trialConstraint], [dataConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -253,7 +256,7 @@ class SnpLzEndToEndRetrievalTest {
         def dataConstraint = snpLzResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT, names: [gene])
         result = snpLzResource.retrieveData(
-                [trialConstraint], [dataConstraint], projection)
+                [trialConstraint], [dataConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -266,7 +269,7 @@ class SnpLzEndToEndRetrievalTest {
                 DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT,
                 chromosome: '1', start: 4100, end: 4250)
         result = snpLzResource.retrieveData(
-                [trialConstraint], [locationConstraint], projection)
+                [trialConstraint], [locationConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -290,6 +293,60 @@ class SnpLzEndToEndRetrievalTest {
                             hasSameInterfaceProperties(Assay, it)
                         }
                 )
+        )
+    }
+
+    private List otherProjectionsCommon(String projectionName) {
+        def projection = snpLzResource.createProjection(projectionName)
+        def assay = testData.assays[0]
+        def assaySampleCode = assay.sampleCode
+        def rsId = testData.annotations[0].snpName
+
+        def assayConstraint = snpLzResource.createAssayConstraint(
+                AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
+                ids: [assay.id])
+
+        result = snpLzResource.retrieveData(
+                [assayConstraint], [], projection)
+
+        List rows = Lists.newArrayList result.rows
+
+        assertThat rows, hasItem(hasProperty('snpName', is(rsId)))
+
+        def relevantRow = rows.find { it.snpName == rsId }
+        assert relevantRow != null
+
+        [relevantRow, assaySampleCode, rsId]
+    }
+
+    @Test
+    void testAllelesProjection() {
+        def (relevantRow, assaySampleCode, rsId) =
+                otherProjectionsCommon('alleles')
+
+        assertThat relevantRow, contains(
+                is(testData.sampleGts.get(assaySampleCode, rsId).replace(' ', ''))
+        )
+    }
+
+    @Test
+    void testProbabilitiesProjection() {
+        def (relevantRow, assaySampleCode, rsId) =
+                otherProjectionsCommon('probabilities')
+
+        assertThat relevantRow, contains(
+                is(testData.sampleGps.get(assaySampleCode, rsId).
+                        split(' ').collect { it as double } as double[])
+        )
+    }
+
+    @Test
+    void testDoseProjection() {
+        def (relevantRow, assaySampleCode, rsId) =
+        otherProjectionsCommon('dose')
+
+        assertThat relevantRow, contains(
+                is(testData.sampleDoses.get(assaySampleCode, rsId) as double)
         )
     }
 }

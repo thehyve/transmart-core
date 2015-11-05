@@ -22,9 +22,11 @@ package org.transmartproject.db.dataquery.highdim.snp_lz
 import com.google.common.base.Function
 import com.google.common.collect.Iterators
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.TypeCheckingMode
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import java.sql.Blob
 import java.sql.Clob
@@ -33,13 +35,9 @@ import java.sql.Clob
  * The data row type returned by the snp_lz data type.
  * Only supports one row.
  */
+@EqualsAndHashCode(includes=['probeData', 'orderedAssayPatientIndex', 'projection'])
 @CompileStatic
-class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
-
-    enum MinorAllele {
-        A1,
-        A2
-    }
+class SnpLzRow<T> implements BioMarkerDataRow<T> {
 
     private Map<String, Object> probeData
 
@@ -60,10 +58,13 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
      */
     private int[] resultIndexPatientIndex
 
-
+    private Projection<? extends T> projection
 
     @Lazy
     double[] gpsByProbe = {
+        if (probeData.gpsByProbeBlob == null) {
+            return
+        }
         new GzipFieldTokenizer(
                 (Blob) probeData.gpsByProbeBlob,
                 numberOfPatientsInTrial * 3).asDoubleArray()
@@ -71,6 +72,9 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
 
     @Lazy
     char[] gtsByProbe = {
+        if (probeData.gtsByProbeBlob == null) {
+            return
+        }
         new GzipFieldTokenizer(
                 (Blob) probeData.gtsByProbeBlob,
                 numberOfPatientsInTrial * 2).asCharArray()
@@ -78,6 +82,9 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
 
     @Lazy
     double[] doseByProbe = {
+        if (probeData.doseByProbeBlob == null) {
+            return
+        }
         new GzipFieldTokenizer(
                 (Blob) probeData.doseByProbeBlob,
                 numberOfPatientsInTrial * 1).asDoubleArray()
@@ -86,11 +93,13 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
     SnpLzRow(Map<String, Object> probeData,
              int numberOfPatientsInTrial,
              LinkedHashMap<AssayColumn, Integer> orderedAssayPatientIndex,
-             int[] resultIndexPatientIndex) {
+             int[] resultIndexPatientIndex,
+             Projection<? extends T> projection) {
         this.probeData = probeData
         this.numberOfPatientsInTrial = numberOfPatientsInTrial
         this.orderedAssayPatientIndex = orderedAssayPatientIndex
         this.resultIndexPatientIndex = resultIndexPatientIndex
+        this.projection = projection
     }
 
     @Override
@@ -112,38 +121,34 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
         snpName
     }
 
-    private SnpLzCell getAtPatientIndex(int i) {
+    private SnpLzAllDataCell getAtPatientIndex(int i) {
         if (i >= numberOfPatientsInTrial || i < 0) {
             throw new ArrayIndexOutOfBoundsException(
                     "Invalid patient index $i, there are " +
                             "$numberOfPatientsInTrial in the trial")
         }
 
-        new SnpLzCell(
-                gpsByProbe[i * 3],
-                gpsByProbe[i * 3 + 1],
-                gpsByProbe[i * 3 + 2],
-                gtsByProbe[i * 2],
-                gtsByProbe[i * 2 + 1],
-                doseByProbe[i])
+        new SnpLzAllDataCell(
+                gpsByProbe, gtsByProbe, doseByProbe, i)
     }
 
     @Override
-    SnpLzCell getAt(int i) {
-        getAtPatientIndex(resultIndexPatientIndex[i])
+    T getAt(int i) {
+        projection.doWithResult(
+            getAtPatientIndex(resultIndexPatientIndex[i]))
     }
 
     @Override
-    SnpLzCell getAt(AssayColumn assayColumn) {
+    T getAt(AssayColumn assayColumn) {
         Integer i = orderedAssayPatientIndex[assayColumn]
-        getAtPatientIndex(i)
+        projection.doWithResult(getAtPatientIndex(i))
     }
 
     @Override
-    Iterator<? super SnpLzCell> iterator() {
+    Iterator<T> iterator() {
         Iterators.transform(
                 orderedAssayPatientIndex.values().iterator(),
-                { int i -> getAtPatientIndex(i) } as Function<Integer, SnpLzCell>)
+                { int i -> projection.doWithResult(getAtPatientIndex(i)) } as Function<Integer, T>)
     }
 
     String getChromosome() {
@@ -178,13 +183,8 @@ class SnpLzRow implements BioMarkerDataRow<SnpLzCell> {
         (BigDecimal) probeData.maf
     }
 
-    MinorAllele getMinorAllele() {
-        switch (probeData.minorAllele) {
-            case 'A1':
-                return MinorAllele.A1
-            case 'A2':
-                return MinorAllele.A2
-        }
+    String getMinorAllele() {
+        probeData.minorAllele.toString()
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
