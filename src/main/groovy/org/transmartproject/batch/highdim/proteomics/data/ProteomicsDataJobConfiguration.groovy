@@ -12,6 +12,7 @@ import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.db.PostgresPartitionTasklet
+import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
 import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
 import org.transmartproject.batch.startup.StudyJobParametersModule
@@ -55,12 +56,23 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
         String studyId = JobSynchronizationManager.context
                 .jobParameters[StudyJobParametersModule.STUDY_ID]
         assert studyId != null
-        new PostgresPartitionTasklet(
-                tableName: Tables.PROTEOMICS_DATA,
-                partitionByColumn: 'trial_name',
-                partitionByColumnValue: studyId,
-                sequence: Sequences.PROTEOMICS_PARTITION_ID,
-                primaryKey: ['assay_id', 'protein_annotation_id'])
+
+        switch (picker.pickClass(PostgresPartitionTasklet, OraclePartitionTasklet)) {
+            case PostgresPartitionTasklet:
+                return new PostgresPartitionTasklet(
+                        tableName: Tables.PROTEOMICS_DATA,
+                        partitionByColumn: 'trial_name',
+                        partitionByColumnValue: studyId,
+                        sequence: Sequences.PROTEOMICS_PARTITION_ID,
+                        primaryKey: ['assay_id', 'protein_annotation_id'])
+            case OraclePartitionTasklet:
+                return new OraclePartitionTasklet(
+                        tableName: Tables.PROTEOMICS_DATA,
+                        partitionByColumnValue: studyId)
+            default:
+                return null
+        }
+
     }
 
 

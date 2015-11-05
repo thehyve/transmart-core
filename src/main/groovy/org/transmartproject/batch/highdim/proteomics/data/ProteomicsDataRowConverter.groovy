@@ -27,12 +27,6 @@ class ProteomicsDataRowConverter {
     @Value("#{proteomicsDataJobContextItems.patientIdAssayIdMap}")
     Map<String, Long> patientIdAssayIdMap
 
-    /**
-     * @see ProteomicsDataJobContextItems#getPartitionId()
-     */
-    @Value('#{proteomicsDataJobContextItems.partitionId}')
-    Long partitionId
-
     Map<String, Object> convertProteomicsDataValue(TripleStandardDataValue value) {
         Long assayId = patientIdAssayIdMap[value.sampleCode]
         if (!assayId) {
@@ -47,7 +41,6 @@ class ProteomicsDataRowConverter {
                 assay_id             : assayId,
                 patient_id           : value.patient.code,
                 subject_id           : value.patient.id,
-                partition_id         : partitionId,
                 intensity            : value.value,
                 log_intensity        : value.logValue,
                 zscore               : value.zscore,

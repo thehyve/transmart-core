@@ -27,6 +27,7 @@ import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.SequenceReserver
+import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.gwas.analysisdata.AssayAnalysisGwasWriter
 import org.transmartproject.batch.gwas.analysisdata.DeleteCurrentGwasAnalysisDataTasklet
 import org.transmartproject.batch.gwas.analysisdata.GwasAnalysisRow
@@ -210,12 +211,24 @@ class GwasJobConfiguration extends AbstractJobConfiguration {
     Tasklet databasePartitionTasklet(
             @Value("#{currentGwasAnalysisContext.bioAssayAnalysisId}") Long analysisId) {
         assert analysisId != null
-        new PostgresPartitionTasklet(
-                tableName: Tables.BIO_ASSAY_ANALYSIS_GWAS,
-                partitionByColumn: 'bio_assay_analysis_id',
-                partitionByColumnValue: analysisId,
-                sequence: Sequences.BIO_DATA_ID,
-                indexes: [['rs_id']])
+
+        switch (picker.pickClass(PostgresPartitionTasklet, OraclePartitionTasklet)) {
+            case PostgresPartitionTasklet:
+                return new PostgresPartitionTasklet(
+                        tableName: Tables.BIO_ASSAY_ANALYSIS_GWAS,
+                        partitionByColumn: 'bio_assay_analysis_id',
+                        partitionByColumnValue: analysisId,
+                        sequence: Sequences.BIO_DATA_ID,
+                        indexes: [['rs_id']])
+            case OraclePartitionTasklet:
+                return new OraclePartitionTasklet(
+                        tableName: Tables.BIO_ASSAY_ANALYSIS_GWAS,
+                        partitionByColumnValue: analysisId)
+            default:
+                return null
+        }
+
+
     }
 
     @Bean

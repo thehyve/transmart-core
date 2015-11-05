@@ -221,7 +221,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
      * partitioning step (optional) *
      ********************************/
 
-    @SuppressWarnings('EmptyMethodInAbstractClass')
+    @SuppressWarnings(['EmptyMethodInAbstractClass'])
     Tasklet partitionTasklet() {
         null
     }

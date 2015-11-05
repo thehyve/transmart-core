@@ -23,7 +23,7 @@ class MappingTablesFixupTasklet implements Tasklet {
             /* visit mapping */
             execute """
                 ALTER TABLE $Tables.ENCOUNTER_MAPPING
-                ADD COLUMN project_id varchar(50) NOT NULL"""
+                ADD project_id varchar(50) NOT NULL"""
 
             execute """
                 ALTER TABLE $Tables.ENCOUNTER_MAPPING
@@ -37,7 +37,7 @@ class MappingTablesFixupTasklet implements Tasklet {
             /* patient mapping */
             execute """
                 ALTER TABLE $Tables.PATIENT_MAPPING
-                ADD COLUMN project_id varchar(50) NOT NULL"""
+                ADD project_id varchar(50) NOT NULL"""
 
             execute """
                 ALTER TABLE $Tables.PATIENT_MAPPING

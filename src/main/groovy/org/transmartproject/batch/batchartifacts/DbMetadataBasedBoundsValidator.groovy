@@ -1,18 +1,13 @@
 package org.transmartproject.batch.batchartifacts
 
-import groovy.transform.Immutable
 import groovy.util.logging.Slf4j
 import org.springframework.beans.BeanWrapperImpl
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
-import org.transmartproject.batch.support.StringUtils
-
-import javax.sql.DataSource
-import java.sql.DatabaseMetaData
-import java.sql.ResultSet
+import org.transmartproject.batch.db.ColumnSpecification
+import org.transmartproject.batch.db.DatabaseMetaDataService
 
 /**
  * Validates sizes of strings based on the sizes of columns retrieved from
@@ -31,7 +26,7 @@ class DbMetadataBasedBoundsValidator implements Validator {
     String nestedPath
 
     @Autowired
-    DataSource dataSource
+    DatabaseMetaDataService databaseMetaDataService
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -72,50 +67,12 @@ class DbMetadataBasedBoundsValidator implements Validator {
             return
         }
 
-        def c = DataSourceUtils.getConnection(dataSource)
-        try {
-            processedConfig = config.collectEntries { String property,
-                                                      ColumnSpecification spec ->
-                [property, processColumnSpecification(c.metaData, spec)]
-            }
-        } finally {
-            DataSourceUtils.releaseConnection(c, dataSource)
+        processedConfig = config.collectEntries { String property,
+                                                  ColumnSpecification spec ->
+            def columnDeclaration = databaseMetaDataService.getColumnDeclaration(spec)
+
+            [property, columnDeclaration]
         }
-    }
-
-    private Map processColumnSpecification(DatabaseMetaData meta,
-                                           ColumnSpecification spec) {
-        // TODO: check which character oracle uses to escape the like expressions
-        ResultSet rs = meta.getColumns(
-                null,
-                StringUtils.escapeForLike(spec.schema),
-                StringUtils.escapeForLike(spec.table),
-                StringUtils.escapeForLike(spec.column),)
-
-        if (!rs.next()) {
-            throw new IllegalArgumentException(
-                    "No column ${spec.column} for table ${spec.schema}.${spec.table}")
-        }
-
-        def r = [
-                maxSize : rs.getInt('COLUMN_SIZE'), // in UTF-16 code units
-                // will have to be improved for oracle
-                nullable: rs.getInt('NULLABLE') as boolean,
-        ]
-        log.debug("Found for column $spec constraints $r")
-
-        r
-    }
-
-    @Immutable
-    static class ColumnSpecification {
-        String schema
-        String table
-        String column
-    }
-
-    static ColumnSpecification c(String schema, String table, String column) {
-        new ColumnSpecification(schema: schema, table: table, column: column)
     }
 
     static ColumnSpecification c(String qualifiedTable, String column) {
@@ -123,6 +80,6 @@ class DbMetadataBasedBoundsValidator implements Validator {
         assert split.size() == 2
         def schema = split[0]
         def table = split[1]
-        c(schema, table, column)
+        new ColumnSpecification(schema, table, column)
     }
 }
