@@ -66,8 +66,7 @@ class InsertTableAccessTasklet implements Tasklet {
     }
 
     private boolean exists(ConceptPath rootNode) {
-        jdbcTemplate.queryForObject("SELECT EXISTS " +
-                "(SELECT * FROM $Tables.TABLE_ACCESS WHERE c_fullname = :fullName)",
-                [fullName: rootNode.toString()], Boolean)
+        jdbcTemplate.queryForList("SELECT c_fullname FROM $Tables.TABLE_ACCESS WHERE c_fullname = :fullName",
+                [fullName: rootNode.toString()], String).size() > 0
     }
 }

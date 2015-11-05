@@ -5,11 +5,16 @@ import groovy.xml.MarkupBuilder
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Lazy
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.ColumnSpecification
+import org.transmartproject.batch.db.DatabaseMetaDataService
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.secureobject.SecureObjectToken
+
+import javax.annotation.PostConstruct
 
 /**
  * Service for inserting the concepts
@@ -44,12 +49,18 @@ class InsertConceptsService {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    List<ConceptNode> insert(List<ConceptNode> newConcepts) throws Exception {
+    @Autowired
+    DatabaseMetaDataService databaseMetaDataService
+
+    boolean recordId
+
+    Collection<ConceptNode> insert(Collection<ConceptNode> newConcepts) throws Exception {
         log.debug "New concepts are ${newConcepts*.path}"
 
         conceptTree.reserveIdsFor(newConcepts)
         insertConceptDimension(studyId, newConcepts)
         insertI2b2(studyId, newConcepts)
+        conceptTree.addToSavedNodes(newConcepts)
         newConcepts
     }
 
@@ -88,8 +99,11 @@ class InsertConceptsService {
                     download_date     : now,
                     import_date       : now,
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
-                    record_id         : it.i2b2RecordId,
             ]
+
+            if (recordId) {
+                i2b2Row.record_id = -1
+            }
 
             Map i2b2SecureRow = new HashMap(i2b2Row)
             i2b2SecureRow.put('secure_obj_token', secureObjectToken as String)
@@ -172,4 +186,11 @@ class InsertConceptsService {
 
         writer.toString()
     }
+
+    @PostConstruct
+    void init() {
+        recordId = databaseMetaDataService.getColumnDeclaration(
+                new ColumnSpecification(schema: 'i2b2metadata', table: 'i2b2', column: 'record_id'))
+    }
+
 }

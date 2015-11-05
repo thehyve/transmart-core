@@ -58,7 +58,7 @@ class GatherCurrentPatientsReader implements ItemStreamReader<Patient> {
                     patient_num,
                     sourcesystem_cd
                 FROM $Tables.PATIENT_DIMENSION
-                WHERE sourcesystem_cd like '$studyPrefixEscaped'"""
+                WHERE sourcesystem_cd like '$studyPrefixEscaped' ESCAPE '\\'"""
     }
 
     @SuppressWarnings('UnusedPrivateMethodParameter')

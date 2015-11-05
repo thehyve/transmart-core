@@ -1,6 +1,7 @@
-package org.transmartproject.batch.db
+package org.transmartproject.batch.db.postgres
 
 import org.transmartproject.batch.beans.Postgresql
+import org.transmartproject.batch.db.SequenceReserver
 
 /**
  * Implementation of {@link SequenceReserver} for PostgreSQL.

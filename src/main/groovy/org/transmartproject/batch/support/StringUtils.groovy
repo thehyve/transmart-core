@@ -12,8 +12,8 @@ class StringUtils {
         s.replaceAll(/'/, "''")
     }
 
-    static String escapeForLike(String s, char escapeChar = '\\') {
-        s.replaceAll(/[${Pattern.quote(escapeChar as String)}_%]/,
-                "${Matcher.quoteReplacement(escapeChar as String)}\$0")
+    static String escapeForLike(String s, String escapeChar = '\\') {
+        s.replaceAll(/(?:${Pattern.quote(escapeChar)}|[_%])/,
+                "${Matcher.quoteReplacement(escapeChar)}\$0")
     }
 }
