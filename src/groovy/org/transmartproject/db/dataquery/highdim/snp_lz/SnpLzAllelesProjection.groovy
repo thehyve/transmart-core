@@ -50,9 +50,6 @@ class SnpLzAllelesProjection implements CriteriaProjection<String> {
     @Override
     String doWithResult(Object o) {
         assert o instanceof SnpLzAllDataCell
-        char[] res = new char[2]
-        res[0] = ((SnpLzAllDataCell) o).likelyAllele1
-        res[1] = ((SnpLzAllDataCell) o).likelyAllele2
-        new String(res)
+        ((SnpLzAllDataCell) o).likelyGenotype
     }
 }

@@ -57,12 +57,20 @@ class SnpLzAllDataCell implements Map<String, Object> {
         this.i = i
     }
 
-    char getLikelyAllele1() {
+    private char getLikelyAllele1() {
         gtsByProbe[i * 2]
     }
 
-    char getLikelyAllele2() {
+    private char getLikelyAllele2() {
         gtsByProbe[i * 2 + 1]
+    }
+
+    String getLikelyGenotype() {
+        def charArray = new char[3]
+        charArray[0] = likelyAllele1
+        charArray[1] = 0x5F /* _ */
+        charArray[2] = likelyAllele2
+        new String(charArray)
     }
 
     double getProbabilityA1A1() {

@@ -167,8 +167,7 @@ class SnpLzEndToEndRetrievalTest {
                                                 hasProperty('probabilityA1A2', closeTo(gps[1] as Double, DELTA)),
                                                 hasProperty('probabilityA2A2', closeTo(gps[2] as Double, DELTA)),
 
-                                                hasProperty('likelyAllele1', is(gts[0] as char)),
-                                                hasProperty('likelyAllele2', is(gts[1] as char)),
+                                                hasProperty('likelyGenotype', is("${gts[0]}_${gts[1]}" as String)),
 
                                                 hasProperty('minorAlleleDose', closeTo(doses as Double, DELTA)),
                                         )
@@ -325,7 +324,7 @@ class SnpLzEndToEndRetrievalTest {
                 otherProjectionsCommon('alleles')
 
         assertThat relevantRow, contains(
-                is(testData.sampleGts.get(assaySampleCode, rsId).replace(' ', ''))
+                is(testData.sampleGts.get(assaySampleCode, rsId).replace(' ', '_'))
         )
     }
 

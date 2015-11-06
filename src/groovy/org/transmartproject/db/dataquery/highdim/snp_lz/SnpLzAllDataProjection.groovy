@@ -39,7 +39,7 @@ class SnpLzAllDataProjection implements
     final Map<String, Class> dataProperties = SnpLzAllDataCell
             .metaClass
             .properties
-            .findAll { it.name != 'class' && it.name != 'empty' }
+            .findAll { !(it.name in ['class', 'likelyAllele1', 'likelyAllele2', 'empty']) }
             .collectEntries { [it.name, it.type] }
 
     final Map<String, Class> rowProperties =
