@@ -334,8 +334,8 @@ class SnpLzEndToEndRetrievalTest {
                 otherProjectionsCommon('probabilities')
 
         assertThat relevantRow, contains(
-                is(testData.sampleGps.get(assaySampleCode, rsId).
-                        split(' ').collect { it as double } as double[])
+                is(testData.sampleGps.get(assaySampleCode, rsId).split(' ').collect { it as double }
+                        as SnpLzProbabilitiesCell)
         )
     }
 

@@ -19,11 +19,16 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 import groovy.transform.TypeCheckingMode
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 /**
@@ -31,9 +36,12 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
  * *
  */
 @CompileStatic
-class SnpLzProbabilitiesProjection implements CriteriaProjection<double[]> {
+class SnpLzProbabilitiesProjection implements MultiValueProjection, CriteriaProjection<SnpLzProbabilitiesCell> {
 
     private static final String DOMAIN_CLASS_PROPERTY = 'gpsByProbeBlob'
+
+    final Map<String, Class> dataProperties = ['probabilityA1A1', 'probabilityA1A2', 'probabilityA2A2']
+            .collectEntries { [it, Double] }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     @Override
@@ -48,12 +56,18 @@ class SnpLzProbabilitiesProjection implements CriteriaProjection<double[]> {
     }
 
     @Override
-    double[] doWithResult(Object o) {
+    SnpLzProbabilitiesCell doWithResult(Object o) {
         assert o instanceof SnpLzAllDataCell
-        char[] res = new double[3]
-        res[0] = ((SnpLzAllDataCell) o).probabilityA1A1
-        res[1] = ((SnpLzAllDataCell) o).probabilityA1A2
-        res[2] = ((SnpLzAllDataCell) o).probabilityA2A2
-        res
+        SnpLzAllDataCell cell = (SnpLzAllDataCell) o
+        return new SnpLzProbabilitiesCell(
+                cell.probabilityA1A1,
+                cell.probabilityA1A2,
+                cell.probabilityA2A2)
     }
 }
+
+@CompileStatic
+@EqualsAndHashCode
+@ToString
+@TupleConstructor
+class SnpLzProbabilitiesCell {double probabilityA1A1, probabilityA1A2, probabilityA2A2}
