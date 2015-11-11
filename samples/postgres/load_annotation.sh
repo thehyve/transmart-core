@@ -24,7 +24,7 @@ fi
 
 # Check if mandatory parameter values are provided
 # Read platform from first line, first column
-PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${ANNOTATIONS_FILE} | head -n 1)
+PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${ANNOTATIONS_FILE}" | head -n 1)
 if [ ! -z "$PLATFORM_ID" ]; then
     if [[ "$PLATFORM" != "$PLATFORM_ID" ]]
     then
@@ -42,7 +42,7 @@ if [ $ALREADY_LOADED = 't' ]; then
 fi
 
 # Read organism from first line, last column (must not have DOS line endings)
-READ_ORGANISM=$(awk -F'\t' 'BEGIN{getline}{print $NF}' ${ANNOTATIONS_FILE} | head -n 1)
+READ_ORGANISM=$(awk -F'\t' 'BEGIN{getline}{print $NF}' "${ANNOTATIONS_FILE}" | head -n 1)
 if [ ! -z "$ORGANISM" ]; then
     if [[ "$READ_ORGANISM" != "$ORGANISM" ]]
     then
