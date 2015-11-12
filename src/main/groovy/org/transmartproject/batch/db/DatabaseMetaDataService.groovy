@@ -34,8 +34,6 @@ class DatabaseMetaDataService {
      * @return Map contains following fields [maxSize: <num>, nullable: <true/false>]
      */
     def getColumnDeclaration(ColumnSpecification spec) {
-        def result
-
         def connection
         try {
             connection = DataSourceUtils.getConnection(dataSource)
@@ -48,20 +46,16 @@ class DatabaseMetaDataService {
                     StringUtils.escapeForLike(getIdentifier(meta, spec.table), escSymbol),
                     StringUtils.escapeForLike(getIdentifier(meta, spec.column), escSymbol))
 
-            if (!rs.next()) {
-                throw new IllegalArgumentException(
-                        "No column ${spec.column} for table ${spec.schema}.${spec.table}")
-            }
-
-            result = [
+            if (rs.next()) {
+                return [
                     maxSize : rs.getInt('COLUMN_SIZE'), // in UTF-16 code units
                     // will have to be improved for oracle
                     nullable: rs.getInt('NULLABLE') as boolean,
-            ]
+                ]
+            }
+
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource)
         }
-
-        result
     }
 }
