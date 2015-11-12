@@ -71,6 +71,10 @@ class DbMetadataBasedBoundsValidator implements Validator {
                                                   ColumnSpecification spec ->
             def columnDeclaration = databaseMetaDataService.getColumnDeclaration(spec)
 
+            if (!columnDeclaration) {
+                throw new IllegalArgumentException(
+                        "No column ${spec.column} for table ${spec.schema}.${spec.table}")
+            }
             [property, columnDeclaration]
         }
     }
