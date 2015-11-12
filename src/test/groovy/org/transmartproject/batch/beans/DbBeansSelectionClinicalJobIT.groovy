@@ -35,7 +35,7 @@ class DbBeansSelectionClinicalJobIT {
     @Configuration
     static class DbBeansSelectionClinicalJobITConfiguration {
         @Bean
-        DataSource transmartDataSource() {
+        DataSource dataSource() {
             [:] as DataSource
         }
     }
