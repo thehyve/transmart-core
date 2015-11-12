@@ -2,11 +2,11 @@
 
 $spec = [
     'BIOMART_USER' => [
+        ['DEAPP',        '*TABLE',                    'READ', ''],
+        ['DEAPP',        '*VIEW',                     'READ', ''],
         ['BIOMART',      '*TABLE',                    'WRITE', ''],
         ['BIOMART',      '*VIEW',                     'READ', ''],
         ['BIOMART',      '*SEQUENCE',                 'READ', ''],
-        ['DEAPP',        '*TABLE',                    'READ', ''],
-        ['DEAPP',        '*VIEW',                     'READ', ''],
         ['I2B2DEMODATA', '*TABLE',                    'READ', ''],
         ['I2B2DEMODATA', '*VIEW',                     'READ', ''],
         ['I2B2METADATA', '*TABLE',                    'READ', ''],
@@ -33,11 +33,11 @@ $spec = [
         ['GALAXY',       '*SEQUENCE',                 'READ', ''],
     ],
     'TM_CZ' => [
+        ['DEAPP',        '*TABLE',             'FULL', ''],
+        ['DEAPP',        '*SEQUENCE',          'READ', ''],
         ['BIOMART',      '*TABLE',             'FULL', ''],
         ['BIOMART',      '*VIEW',              'READ', ''],
         ['BIOMART',      'TEA_NPV_PRECOMPUTE', 'EXECUTE', ''], /* I2B2_LOAD_OMICSOFT_DATA */
-        ['DEAPP',        '*TABLE',             'FULL', ''],
-        ['DEAPP',        '*SEQUENCE',          'READ', ''],
         ['I2B2DEMODATA', '*TABLE',             'FULL', ''],
         ['I2B2DEMODATA', '*SEQUENCE',          'READ', ''],
         ['I2B2METADATA', '*TABLE',             'FULL', ''],
