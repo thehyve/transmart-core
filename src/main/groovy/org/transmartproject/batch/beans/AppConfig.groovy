@@ -78,6 +78,7 @@ class AppConfig {
                             OracleLobHandler lobHandler = new OracleLobHandler()
                             lobHandler.nativeJdbcExtractor = new CommonsDbcpNativeJdbcExtractor()
                             factory.lobHandler = lobHandler
+                            factory.maxVarCharLength = 2500 / 2 // oracle col length definitions in bytes
                         },
                 ])
                 factory.transactionManager = transactionManager
