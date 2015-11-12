@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.env.Environment
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.jdbc.support.lob.OracleLobHandler
+import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor
 import org.springframework.transaction.PlatformTransactionManager
 import org.transmartproject.batch.db.PerDbTypeRunner
 import org.transmartproject.batch.support.ExpressionResolver
@@ -73,6 +75,9 @@ class AppConfig {
                         postgresql: { -> },
                         oracle    : { ->
                             factory.isolationLevelForCreate = 'ISOLATION_READ_COMMITTED'
+                            OracleLobHandler lobHandler = new OracleLobHandler()
+                            lobHandler.nativeJdbcExtractor = new CommonsDbcpNativeJdbcExtractor()
+                            factory.lobHandler = lobHandler
                         },
                 ])
                 factory.transactionManager = transactionManager
