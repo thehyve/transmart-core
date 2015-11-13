@@ -6,6 +6,7 @@ import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
+import org.springframework.jdbc.datasource.init.ScriptUtils
 import org.transmartproject.batch.beans.AppConfig
 
 import javax.sql.DataSource
@@ -53,8 +54,20 @@ class BatchSchemaPopulator {
             populator
         }
 
+        private ResourceDatabasePopulator getStatementPerFilePopulator() throws Exception {
+            def populator = new ResourceDatabasePopulator()
+            def ref = getBatchSchemaRef(env.getProperty('batch.jdbc.driver'))
+
+            addResourceIfExists populator,
+                    "classpath:/org/transmartproject/batch/post-schema-${ref}-truncator.sql"
+
+            populator.separator = ScriptUtils.EOF_STATEMENT_SEPARATOR
+            populator
+        }
+
         void execute() {
             DatabasePopulatorUtils.execute populator, dataSource
+            DatabasePopulatorUtils.execute statementPerFilePopulator, dataSource
         }
 
         private addResourceIfExists(ResourceDatabasePopulator populator, String script) {

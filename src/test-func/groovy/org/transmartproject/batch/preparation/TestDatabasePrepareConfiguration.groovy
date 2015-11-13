@@ -30,6 +30,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 import org.transmartproject.batch.beans.AppConfig
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.db.OracleTableTruncator
+import org.transmartproject.batch.db.PostgresTableTruncator
 import org.transmartproject.batch.db.TableTruncator
 
 import javax.sql.DataSource
@@ -95,11 +98,25 @@ class TestDatabasePrepareConfiguration {
     }
 
     @Bean
-    Tasklet truncateCodeLookupTasklet(JdbcTemplate jdbcTemplate) {
+    DatabaseImplementationClassPicker databasePicker() {
+        new DatabaseImplementationClassPicker()
+    }
+
+    @Bean
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate(
+            JdbcTemplate jdbcTemplate) {
+        new NamedParameterJdbcTemplate(jdbcTemplate)
+    }
+
+    @Bean
+    TableTruncator tableTruncator(DatabaseImplementationClassPicker databasePicker) {
+        databasePicker.instantiateCorrectClass(PostgresTableTruncator, OracleTableTruncator)
+    }
+
+    @Bean
+    Tasklet truncateCodeLookupTasklet(TableTruncator tableTruncator) {
         new CallableTaskletAdapter(callable: { ->
-            new TableTruncator(
-                    jdbcTemplate: new NamedParameterJdbcTemplate(jdbcTemplate)
-            ).truncate(Tables.CODE_LOOKUP, false)
+            tableTruncator.truncate(Tables.CODE_LOOKUP, false)
             RepeatStatus.FINISHED
         } as Callable<RepeatStatus>)
     }
