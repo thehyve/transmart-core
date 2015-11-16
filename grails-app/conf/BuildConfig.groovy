@@ -75,7 +75,7 @@ grails.project.dependency.resolution = {
             export     = false
         }
 
-        compile('nl.vumc.biomedbridges:WorkflowRunner:0.1.0-SNAPSHOT') {
+        compile('nl.vumc.biomedbridges:WorkflowRunner:0.1.0') {
             excludes 'slf4j-log4j12'
         }
     }
