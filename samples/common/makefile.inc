@@ -64,10 +64,12 @@ load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
 
 load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
 	DATA_LOCATION="$(realpath ../studies/$*/annotation)" \
+		KETTLE_HOME="$(realpath kettle-home)" \
 		PSQL_COMMAND="$(PSQL_COMMAND)" \
 		./load_annotation.sh $<
 
 load_ref_annotation_%: ../studies/%/ref_annotation.params
+	KETTLE_HOME="$(realpath kettle-home)" \
 	$(MAKE) load_annotation_`./load_ref_annotation.sh $<`
 
 load_expression_%: ../studies/%/expression.params ../studies/%/expression
