@@ -58,7 +58,7 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
 
     @Test
     void testTwoConceptsRemain() {
-        def res = jdbcTemplate.queryForList("""
+        def res = queryForList("""
                 SELECT c_fullname FROM $Tables.I2B2
                 ORDER BY c_fullname""", [:], String)
 
@@ -69,10 +69,10 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
 
     @Test
     void testConceptCountForTopNodeIsZero() {
-        def res = jdbcTemplate.queryForList("""
+        def res = queryForList("""
                 SELECT patient_count
                 FROM $Tables.CONCEPT_COUNTS
-                WHERE concept_path LIKE :path_expr""",
+                WHERE concept_path LIKE :path_expr escape '^'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
         assertThat res, contains(is(0l))

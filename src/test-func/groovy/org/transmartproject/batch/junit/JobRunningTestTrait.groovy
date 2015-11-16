@@ -44,4 +44,29 @@ trait JobRunningTestTrait {
                 'The job completed successfully'
     }
 
+    private Map<String, Object> makeKeyLowerCase(Map<String, Object> map) {
+        map.collectEntries { String key, Object value ->
+            [ key.toLowerCase(), value ]
+        }
+    }
+
+    private List<Map<String, Object>> makeKeyLowerCase(List<Map<String, Object>> list) {
+        list.collect { Map<String, Object> map -> makeKeyLowerCase(map) }
+    }
+
+
+    public List<Map<String, Object>> queryForList(String sql, Map<String, ?> paramMap) {
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, paramMap)
+        makeKeyLowerCase(result)
+    }
+
+    public List<Map<String, Object>> queryForList(String sql, Map<String, ?> paramMap, Class clz) {
+        jdbcTemplate.queryForList(sql, paramMap, clz)
+    }
+
+    public Map<String, Object> queryForMap(String sql, Map<String, ?> paramMap) {
+        Map<String, Object> result = jdbcTemplate.queryForMap(sql, paramMap)
+        makeKeyLowerCase(result)
+    }
+
 }

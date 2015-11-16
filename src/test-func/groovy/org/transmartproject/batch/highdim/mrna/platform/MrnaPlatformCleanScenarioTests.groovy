@@ -47,7 +47,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE platform = :platform"""
         def p = [platform: PLATFORM_ID_NORM]
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
         /* these are the values in GPL570_bogus/annotation.params */
         assertThat r, allOf(
                 hasEntry('title', 'Affymetrix Human Genome U133A 2.0 Array'),
@@ -88,7 +88,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
         """
         def p = [probe: '1552256_a_at']
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, hasSize(2)
 
@@ -114,7 +114,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE gpl_id = :platform"""
         def p = [platform: PLATFORM_ID_NORM]
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, contains(
                 hasEntry('organism', 'Homo Sapiens')

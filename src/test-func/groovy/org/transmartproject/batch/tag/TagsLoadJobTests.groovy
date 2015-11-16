@@ -45,7 +45,7 @@ class TagsLoadJobTests implements JobRunningTestTrait {
     }
 
     def getAllTags() {
-        jdbcTemplate.queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
+        queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
     }
 
     @Test

@@ -63,11 +63,11 @@ class SecureObjectDAO {
     int deletePermissionsForSecureObject(SecureObjectToken secureObjectToken) {
         jdbcTemplate.update("""
                 DELETE FROM ${Tables.SEARCH_AUTH_SEC_OBJ_ACC} ACC
-                USING ${Tables.SECURE_OBJECT} SO
-                WHERE
-                    SO.search_secure_object_id = ACC.secure_object_id
-                    AND SO.data_type = :data_type
-                    AND SO.bio_data_unique_id = :sobj""",
+                WHERE EXISTS(SELECT SO.* FROM ${Tables.SECURE_OBJECT} SO
+                                WHERE
+                                    SO.search_secure_object_id = ACC.secure_object_id
+                                    AND SO.data_type = :data_type
+                                    AND SO.bio_data_unique_id = :sobj)""",
                 [
                         data_type: CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE,
                         sobj: secureObjectToken.toString()])

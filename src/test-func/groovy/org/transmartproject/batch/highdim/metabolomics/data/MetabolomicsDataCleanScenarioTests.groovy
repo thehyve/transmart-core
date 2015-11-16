@@ -96,7 +96,7 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 sampleCode: sampleCode,
                 biochemicalName: biochemicalName,]
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
 
         double xylitolLog2Mean = 16.7066526621115
         double xylitolLog2StdDev = 2.0594359285213115

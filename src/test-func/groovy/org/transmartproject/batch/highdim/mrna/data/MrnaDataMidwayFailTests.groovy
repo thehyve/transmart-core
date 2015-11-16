@@ -153,9 +153,9 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(is('raw_intensity'), closeTo(value, DELTA)),
-                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
-                hasEntry(is('zscore'),
+                hasEntry(equalToIgnoringCase('raw_intensity'), closeTo(value, DELTA)),
+                hasEntry(equalToIgnoringCase('log_intensity'), closeTo(logValue, DELTA)),
+                hasEntry(equalToIgnoringCase('zscore'),
                         closeTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
         )
     }

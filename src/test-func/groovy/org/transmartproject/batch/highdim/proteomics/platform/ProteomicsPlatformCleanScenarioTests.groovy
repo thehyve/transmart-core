@@ -47,7 +47,7 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE platform = :platform"""
         def p = [platform: PLATFORM_ID]
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
         assertThat r, allOf(
                 hasEntry('title', 'Test Proteomics Platform'),
                 hasEntry('organism', 'Homo Sapiens'),
@@ -77,7 +77,7 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         """
         def p = [peptide: '611']
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, hasSize(1)
 

@@ -78,7 +78,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             WHERE sourcesystem_cd = :ss"""
         def p = [ss: 'GSE8581:GSE8581GSM211865']
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
         assertThat r, contains(allOf(
                 hasEntry(is('patient_num'), is(notNullValue())),
                 hasEntry('sex_cd', 'male'),
@@ -107,7 +107,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                     ON (O.concept_cd = C.concept_cd)
             WHERE valtype_cd = 'T' AND O.sourcesystem_cd = :ss"""
 
-        def r = jdbcTemplate.queryForList q, [ss: STUDY_ID]
+        def r = queryForList q, [ss: STUDY_ID]
 
         assertThat r, is(not(empty()))
 
@@ -138,7 +138,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             FROM ${Tables.OBSERVATION_FACT} O
             WHERE valtype_cd = 'N' AND sourcesystem_cd = :ss"""
 
-        def r = jdbcTemplate.queryForList q, [ss: STUDY_ID]
+        def r = queryForList q, [ss: STUDY_ID]
 
         assertThat r, contains(hasEntry('tval_char', 'E'))
     }
@@ -146,7 +146,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
     @Test
     void testFactsConstantColumns() {
         def q = """
-            SELECT DISTINCT
+            SELECT
                 provider_id,
                 modifier_cd,
                 instance_num,
@@ -164,7 +164,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             FROM ${Tables.OBSERVATION_FACT}
             WHERE sourcesystem_cd = :ss"""
 
-        def r = jdbcTemplate.queryForList q, [ss: STUDY_ID]
+        def r = queryForList q, [ss: STUDY_ID]
 
         assertThat r, is(not(empty()))
 
@@ -198,7 +198,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                 FROM ${Tables.PATIENT_DIMENSION}
                 WHERE sourcesystem_cd = :patient)"""
 
-        jdbcTemplate.queryForList q, [patient: "GSE8581:$patient"]
+        queryForList q, [patient: "GSE8581:$patient"]
     }
 
     @Test
@@ -269,14 +269,14 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             WHERE sourcesystem_cd = :study
             ORDER BY c_fullname"""
 
-        def r = jdbcTemplate.queryForList(q, [study: STUDY_ID])
+        def r = queryForList(q, [study: STUDY_ID])
 
         def qSec = """
             SELECT *
             FROM ${Tables.I2B2_SECURE} I
             WHERE sourcesystem_cd = :study
             ORDER BY c_fullname"""
-        def rSec = jdbcTemplate.queryForList(qSec, [study: STUDY_ID])
+        def rSec = queryForList(qSec, [study: STUDY_ID])
 
         assertThat r, allOf(
                 hasSize(greaterThan(0)),
@@ -305,7 +305,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             FROM ${Tables.I2B2_SECURE} I
             WHERE sourcesystem_cd = :study"""
 
-        def r = jdbcTemplate.queryForList(q, [study: STUDY_ID])
+        def r = queryForList(q, [study: STUDY_ID])
 
         assertThat r, contains(hasEntry('secure_obj_token', 'EXP:PUBLIC'))
     }
@@ -318,7 +318,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             WHERE C.concept_path = :cp AND O.sourcesystem_cd = :study
         """
 
-        jdbcTemplate.queryForList(q, [cp: conceptPath, study: STUDY_ID])
+        queryForList(q, [cp: conceptPath, study: STUDY_ID])
     }
 
     @Test
@@ -353,7 +353,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     @Test
     void testTagsAreLoaded() {
-        def r = jdbcTemplate.queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
+        def r = queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
         assertThat r, containsInAnyOrder(
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
@@ -379,7 +379,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
             FROM ${Tables.I2B2} I
             WHERE sourcesystem_cd = :study"""
 
-        def r = jdbcTemplate.queryForList(q, [study: STUDY_ID])
+        def r = queryForList(q, [study: STUDY_ID])
 
         assertThat r, hasItem(allOf(
                 hasEntry(is('c_fullname'), endsWith('\\Lung Disease\\')),
@@ -398,11 +398,11 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     @Test
     void testConceptCountsRefConsistence() {
-        List mismatches = jdbcTemplate.queryForList("""
+        List mismatches = queryForList("""
             select cc.concept_path as counts_table, cd.concept_path as dim_table
             from ${Tables.CONCEPT_COUNTS} cc
             full outer join ${Tables.CONCEPT_DIMENSION} cd on cd.concept_path = cc.concept_path
-            where cc.concept_path like :path escape '\'
+            where cc.concept_path like :path escape '^'
             and (cc.concept_path is null or cd.concept_path is null)
             """, [path: STUDY_BASE_FOLDER + '%'])
 
@@ -411,10 +411,10 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     @Test
     void testConceptCountsCorrectness() {
-        List rows = jdbcTemplate.queryForList("""
+        List rows = queryForList("""
             select concept_path, patient_count
             from ${Tables.CONCEPT_COUNTS}
-            where concept_path like :path escape '\'
+            where concept_path like :path escape '^'
             """, [path: STUDY_BASE_FOLDER + '%'])
 
         assertThat rows, allOf(
@@ -442,7 +442,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         ConceptPath path = new ConceptPath('\\Public Studies\\')
         String name = 'Public Studies'
 
-        Map row = jdbcTemplate.queryForMap("""
+        Map row = queryForMap("""
             select
                 c_table_cd,
                 c_table_name,

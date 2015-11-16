@@ -42,7 +42,7 @@ class DemographicsResetTests implements JobRunningTestTrait {
     @Test
     void testPatientDemographicsReset() {
         List<Map<String, Object>> r =
-                jdbcTemplate.queryForList("""
+                queryForList("""
                     SELECT sourcesystem_cd, race_cd, sex_cd, age_in_years_num
                     FROM ${Tables.PATIENT_DIMENSION}
                     WHERE sourcesystem_cd in (:cd)""", [cd: ['CLUC:CACO2', 'CLUC:SW1398']])

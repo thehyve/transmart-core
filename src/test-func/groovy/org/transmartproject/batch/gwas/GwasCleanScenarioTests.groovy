@@ -65,7 +65,7 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
                 FROM $Tables.BIO_ASSAY_ANALYSIS
                 ORDER BY analysis_name"""
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, [:]
+        List<Map<String, Object>> r = queryForList q, [:]
 
         assertThat r, hasSize(NUMBER_OF_ANALYSES)
         assertThat r, everyItem(allOf(
@@ -89,7 +89,7 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
                 GROUP BY analysis_name
                 ORDER BY analysis_name"""
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, [:]
+        List<Map<String, Object>> r = queryForList q, [:]
 
         assertThat r, contains(
                 allOf(
@@ -120,7 +120,7 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
                     rs_id = :rs_id
                     AND A.analysis_name = :analysis_name"""
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList(
+        List<Map<String, Object>> r = queryForList(
                 q, [rs_id: 'rs10', analysis_name: ANALYSIS_2HR_GLUCOSE_NAME])
 
         assertThat r, contains(allOf(
@@ -145,8 +145,8 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
             SELECT analysis, max(pvalue) AS pv
             FROM $Tables.BIO_ASY_ANAL_GWAS_TOP500
             GROUP BY analysis"""
-        List<Map<String, Object>> r = jdbcTemplate.queryForList(q, [:])
-        def onTop500 = r.collectEntries { [it['analysis'], it['pv']] }
+        List<Map<String, Object>> r = queryForList(q, [:])
+     queryForListctEntries { [it['analysis'], it['pv']] }
 
         q = """
             SELECT analysis_name, min(G.p_value) AS pv
@@ -158,7 +158,7 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
                     ON (T.bio_assay_analysis_id = G.bio_assay_analysis_id AND T.rsid = G.rs_id)
                 WHERE T.rsid IS NULL
                 GROUP by analysis_name"""
-        r = jdbcTemplate.queryForList(q, [:])
+        r = queryForList(q, [:])
         def notOnTop500 = r.collectEntries { [it['analysis_name'], it['pv']] }
 
         [ANALYSIS_2HR_GLUCOSE_NAME, ANALYSIS_FASTING_GLUCOSE_NAME].each {
