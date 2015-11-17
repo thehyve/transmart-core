@@ -39,7 +39,7 @@ probably possible, but not supported. Run:
 	./gradlew setupSchema
 
 Specifying an alternative config file can be done with the Java system property
-`propertySource`.
+`propertySource`. A user with administrative privileges must be configured.
 
 
 Running
@@ -93,3 +93,7 @@ setup. After setting it up with transmart-data, you will also need to run the
 
     // everytime one wants to run the tests
     ./gradlew functionalTest
+
+To test on Oracle, the procedure is similar. There is one small difference:
+while the preparation step must be run with an administrator account (like with
+PostgreSQL), the tests themselves must be run as `tm_cz`.
