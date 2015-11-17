@@ -5,7 +5,7 @@
 # General optional parameters:
 #   DATA_LOCATION, STUDY_NAME, STUDY_ID
 # Specific mandatory parameters for this upload script:
-#   RNASEQ_DATA_FILE, SUBJECT_SAMPLE_MAPPING, R_JOBS_PSQL or KETTLE_JOBS_PSQL
+#   RNASEQ_DATA_FILE, SUBJECT_SAMPLE_MAPPING, R_JOBS_ORA or KETTLE_JOBS_ORA
 # Specific optional parameters for this upload script:
 #   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD, DATA_TYPE
 
@@ -92,12 +92,12 @@ if [ "$RNASEQ_TYPE" = "RNASEQ" ]; then
     exit 0
 fi
 
-if [ -z "$R_JOBS_PSQL" ]; then
-    if [ -z "$KETTLE_JOBS_PSQL" ]; then
-        echo "Error: Neither R_JOBS_PSQL nor KETTLE_JOBS_PSQL parameter has been set"
+if [ -z "$R_JOBS_ORA" ]; then
+    if [ -z "$KETTLE_JOBS_ORA" ]; then
+        echo "Error: Neither R_JOBS_ORA nor KETTLE_JOBS_ORA parameter has been set"
         exit 1
     else
-        R_JOBS_PSQL="${KETTLE_JOBS_PSQL}/../../R"
+        R_JOBS_ORA="${KETTLE_JOBS_ORA}/../../R"
     fi
 fi
 
@@ -116,7 +116,7 @@ RNASEQ_DATA_FILE_UPLOAD="${RNASEQ_DATA_FILE}".upload
 
 # Create the unpivoted file to be loaded into the database.
 echo "Start re-arranging input..."
-${RSCRIPT} ${R_JOBS_PSQL}/RNASeq/unpivot_RNASeq_data.R studyID=${STUDY_ID} \
+${RSCRIPT} ${R_JOBS_ORA}/RNASeq/unpivot_RNASeq_data.R studyID=${STUDY_ID} \
                                                        RNASeqFile="${RNASEQ_DATA_FILE}" \
                                                        dataOUT="${RNASEQ_DATA_FILE_UPLOAD}"
 
