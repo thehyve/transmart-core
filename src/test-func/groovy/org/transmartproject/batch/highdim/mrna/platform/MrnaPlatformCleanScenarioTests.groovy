@@ -16,6 +16,7 @@ import org.transmartproject.batch.junit.RunJobRule
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.springframework.context.i18n.LocaleContextHolder.locale
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Test mrna platform load from a clean state.
@@ -47,7 +48,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE platform = :platform"""
         def p = [platform: PLATFORM_ID_NORM]
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
         /* these are the values in GPL570_bogus/annotation.params */
         assertThat r, allOf(
                 hasEntry('title', 'Affymetrix Human Genome U133A 2.0 Array'),
@@ -88,7 +89,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
         """
         def p = [probe: '1552256_a_at']
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, hasSize(2)
 
@@ -98,10 +99,10 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
         assertThat r, containsInAnyOrder(
                 allOf(
                         hasEntry('gene_symbol', 'SCARB1'),
-                        hasEntry('gene_id', 949L)),
+                        hasEntry(is('gene_id'), isIntegerNumber(949L))),
                 allOf(
                         hasEntry('gene_symbol', 'TTLL12'),
-                        hasEntry('gene_id', 23170L)),
+                        hasEntry(is('gene_id'), isIntegerNumber(23170L))),
 
                 )
     }
@@ -114,7 +115,7 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE gpl_id = :platform"""
         def p = [platform: PLATFORM_ID_NORM]
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, contains(
                 hasEntry('organism', 'Homo Sapiens')

@@ -148,8 +148,8 @@ class ProteomicsDataMidwayFailTests implements FileCorruptingTestTrait {
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(is('intensity'), closeTo(value, DELTA)),
-                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
+                hasEntry(equalToIgnoringCase('intensity'), closeTo(value, DELTA)),
+                hasEntry(equalToIgnoringCase('log_intensity'), closeTo(logValue, DELTA)),
         )
     }
 

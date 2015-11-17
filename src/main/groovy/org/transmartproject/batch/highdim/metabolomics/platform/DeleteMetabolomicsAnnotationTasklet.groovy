@@ -31,12 +31,13 @@ class DeleteMetabolomicsAnnotationTasklet implements Tasklet {
         int i = jdbcTemplate.update("""
                 DELETE
                 FROM ${Tables.METAB_ANNOT_SUB} ANS
-                USING
-                    ${Tables.METAB_SUB_PATH} S,
-                    ${Tables.METAB_ANNOTATION} A
-                WHERE S.id = ANS.sub_pathway_id AND
-                    A.id = ANS.metabolite_id AND
-                    A.gpl_id = :gpl_info OR S.gpl_id = :gpl_info
+                WHERE EXISTS(
+                    SELECT * FROM
+                        ${Tables.METAB_SUB_PATH} S,
+                        ${Tables.METAB_ANNOTATION} A
+                    WHERE S.id = ANS.sub_pathway_id AND
+                        A.id = ANS.metabolite_id AND
+                        A.gpl_id = :gpl_info OR S.gpl_id = :gpl_info)
         """, [gpl_info: platform.id])
 
         log.info("Deleted $i rows from ${Tables.METAB_ANNOT_SUB}")

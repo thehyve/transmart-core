@@ -47,7 +47,7 @@ class ClinicalDataCleanScenarioConceptTypeTests implements JobRunningTestTrait {
             INNER JOIN ${Tables.CONCEPT_DIMENSION} C on C.concept_cd = O.concept_cd
             WHERE O.sourcesystem_cd = :ss"""
 
-        def r = jdbcTemplate.queryForList q, [ss: STUDY_ID]
+        def r = queryForList q, [ss: STUDY_ID]
 
         assertThat r, containsInAnyOrder(
                 allOf(hasEntry('name_char', 'FEV1'),  hasEntry('valtype_cd', 'N')),

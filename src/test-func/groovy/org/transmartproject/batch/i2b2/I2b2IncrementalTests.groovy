@@ -72,7 +72,7 @@ class I2b2IncrementalTests implements JobRunningTestTrait {
     @Test
     void testNumberOfVisits() {
         // There should be two extra visits
-        def result = jdbcTemplate.queryForList(
+        def result = queryForList(
                 """SELECT encounter_ide FROM $Tables.ENCOUNTER_MAPPING""",
                 [:],
                 String)

@@ -19,6 +19,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Load clinical data for a study not loaded before.
@@ -44,36 +45,37 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                 truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
     }
 
-    def getAllTags() {
-        jdbcTemplate.queryForList("SELECT * FROM ${Tables.I2B2_TAGS}".toString(), [:])
+    def fetchAllTags() {
+        queryForList("""SELECT * FROM ${Tables.I2B2_TAGS}
+                        ORDER BY tags_idx, tag_type""".toString(), [:])
     }
 
     @Test
     void testTagsAreLoaded() {
-        assertThat allTags, containsInAnyOrder(
+        assertThat fetchAllTags(), contains(
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
                         hasEntry('tag', 'Human Chronic Obstructive Pulmonary Disorder Biomarker'),
                         hasEntry('tag_type', 'TITLE'),
-                        hasEntry('tags_idx', 2),
+                        hasEntry(is('tags_idx'), isIntegerNumber(2)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
                         hasEntry('tag', 'Homo sapiens'),
                         hasEntry('tag_type', 'ORGANISM'),
-                        hasEntry('tags_idx', 3),
+                        hasEntry(is('tags_idx'), isIntegerNumber(3)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'FEV1/FVC ratio'),
                         hasEntry('tag_type', 'NAME'),
-                        hasEntry('tags_idx', 4),
+                        hasEntry(is('tags_idx'), isIntegerNumber(4)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'Tiffeneau-Pinelli'),
                         hasEntry('tag_type', 'SYNONYMS'),
-                        hasEntry('tags_idx', 5),
+                        hasEntry(is('tags_idx'), isIntegerNumber(5)),
                 ),
         )
 
@@ -81,36 +83,36 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                 '-p', 'studies/' + STUDY_ID + '/tags.params', '-d', 'TAGS_FILE=tags_2.txt')
         runJob.run()
 
-        assertThat allTags, containsInAnyOrder(
+        assertThat fetchAllTags(), contains(
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
                         hasEntry('tag', 'Human Chronic Obstructive Pulmonary Disorder Biomarker'),
                         hasEntry('tag_type', 'TITLE'),
-                        hasEntry('tags_idx', 2),
-                ),
-                allOf(
-                        hasEntry('path', '\\Public Studies\\GSE8581\\'),
-                        hasEntry('tag', 'Homo sapiens'),
-                        hasEntry('tag_type', 'ORGANISM'),
-                        hasEntry('tags_idx', 3),
+                        hasEntry(is('tags_idx'), isIntegerNumber(2)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
                         hasEntry('tag', 'GSE8581'),
                         hasEntry('tag_type', 'CODE'),
-                        hasEntry('tags_idx', 3),
+                        hasEntry(is('tags_idx'), isIntegerNumber(3)),
+                ),
+                allOf(
+                        hasEntry('path', '\\Public Studies\\GSE8581\\'),
+                        hasEntry('tag', 'Homo sapiens'),
+                        hasEntry('tag_type', 'ORGANISM'),
+                        hasEntry(is('tags_idx'), isIntegerNumber(3)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'FVC ratio'),
                         hasEntry('tag_type', 'NAME'),
-                        hasEntry('tags_idx', 4),
+                        hasEntry(is('tags_idx'), isIntegerNumber(4)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'Tiffeneau-Pinelli'),
                         hasEntry('tag_type', 'SYNONYMS'),
-                        hasEntry('tags_idx', 5),
+                        hasEntry(is('tags_idx'), isIntegerNumber(5)),
                 ),
         )
     }

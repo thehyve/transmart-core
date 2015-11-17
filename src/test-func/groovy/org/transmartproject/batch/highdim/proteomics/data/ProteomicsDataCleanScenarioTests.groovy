@@ -92,14 +92,14 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 LEFT JOIN ${Tables.CONCEPT_DIMENSION} CD ON (SSM.concept_code = CD.concept_cd)
                 WHERE SSM.subject_id = :subjectId AND SSM.sample_cd = :sampleCd"""
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, [subjectId: subjectId, sampleCd: sampleCode]
+        Map<String, Object> r = queryForMap q, [subjectId: subjectId, sampleCd: sampleCode]
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
                 hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\PROTEOMICS\\Molecular profiling' +
                         '\\High-throughput molecular profiling\\Expression (protein)\\LC-MS-MS\\Protein level' +
                         '\\LFQ-2\\MZ ratios\\'),
-                hasEntry(is('assay_id'), isA(Long)),
+                hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('sample_type', 'Colon'),
                 hasEntry('trial_name', STUDY_ID),
                 hasEntry('tissue_type', 'LFQ-2'),
@@ -125,7 +125,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                  sample_name: 'LFQ.intensity.CACO2_2',
                  ref_id: '611']
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
 
         def value = new BigDecimal(30627000)
         def logValue = new BigDecimal(Math.log(value) / Math.log(2d))
@@ -153,7 +153,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                  sample_name: 'LFQ.intensity.CACO2_1',
                  ref_id: '5060']
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, is(empty())
     }

@@ -37,7 +37,7 @@ class MrnaMultipleSamplesTests implements JobRunningTestTrait {
     void testMultipleSamplesMeasurements() {
         def params = [study_id: STUDY_ID]
 
-        List r = jdbcTemplate.queryForList """
+        List r = queryForList """
                 SELECT DISTINCT S.subject_id, S.sample_cd, P.sex_cd
                 FROM
                     ${Tables.MRNA_DATA} D

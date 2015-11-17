@@ -21,10 +21,10 @@ class DeleteFactsWriter implements ItemWriter<ConceptPath> {
     @Override
     void write(List<? extends ConceptPath> items) throws Exception {
         List<Integer> counts = jdbcTemplate.batchUpdate("""
-                DELETE FROM $Tables.OBSERVATION_FACT OF
-                USING $Tables.CONCEPT_DIMENSION CD
-                WHERE OF.concept_cd = CD.concept_cd
-                    AND CD.concept_path = :path""",
+                DELETE FROM $Tables.OBSERVATION_FACT OFT
+                WHERE EXISTS(SELECT CD.* FROM $Tables.CONCEPT_DIMENSION CD
+                WHERE OFT.concept_cd = CD.concept_cd
+                    AND CD.concept_path = :path)""",
                 items.collect { [path: it.toString()] } as Map[])
 
         log.info "Deleted a total of ${counts.sum()} facts for " +

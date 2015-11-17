@@ -75,10 +75,10 @@ class MetabolomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                 WHERE gpl_id = :platform AND biochemical_name = :metabolite"""
         def p = [platform: PLATFORM_ID, metabolite: 'xylitol']
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(is('id'), isA(Long)),
+                hasEntry(is('id'), isA(Number)),
                 hasEntry('hmdb_id', 'HMDB00568'),)
     }
 
@@ -91,10 +91,10 @@ class MetabolomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         def p = [platform: PLATFORM_ID,
                  metabolite: '5-isopentenyl pyrophosphoric acid']
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(is('id'), isA(Long)),
+                hasEntry(is('id'), isA(Number)),
                 hasEntry(is('hmdb_id'), is(nullValue(String))),)
     }
 
@@ -110,7 +110,7 @@ class MetabolomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         """
         def p = [platform: PLATFORM_ID, metabolite: 'mevalonic acid']
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
         assertThat r, allOf(
                 hasEntry(is('sub_pathway_name'), is('Mevalonic acid pathway')),
                 hasEntry(is('super_pathway_name'), is('Carboxylic acid')),)

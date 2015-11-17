@@ -18,6 +18,8 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * test mRNA data import in the simplest scenario (good data not previously
@@ -35,7 +37,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS_WITH_VALID_DATA = 7
     private final static long NUMBER_OF_PROBES = 19
 
-    private final static double DELTA = 1e-12d
+    // oracle only has 4 digits to the right of the decimal point
+    private final static double DELTA = 1e-4d
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
@@ -94,12 +97,12 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 LEFT JOIN ${Tables.CONCEPT_DIMENSION} CD ON (SSM.concept_code = CD.concept_cd)
                 WHERE subject_id = :subjectId"""
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, [subjectId: subjectId]
+        Map<String, Object> r = queryForMap q, [subjectId: subjectId]
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
                 hasEntry('cd_concept_path', '\\Public Studies\\GSE8581\\MRNA\\Biomarker_Data\\GPL570_BOGUS\\Lung\\'),
-                hasEntry(is('assay_id'), isA(Long)),
+                hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('sample_type', 'Human'),
                 hasEntry('trial_name', STUDY_ID),
                 hasEntry('tissue_type', 'Lung'),
@@ -131,7 +134,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                  sample_name: sampleName,
                  probe_name: probeName]
 
-        Map<String, Object> r = jdbcTemplate.queryForMap q, p
+        Map<String, Object> r = queryForMap q, p
 
         long patientCode = jdbcTemplate.queryForObject(
                 "SELECT patient_num FROM ${Tables.PATIENT_DIMENSION} " +
@@ -145,12 +148,12 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
         def stdDevOfLog2 = 0.2730897449882774
 
         assertThat r, allOf(
-                hasEntry('patient_id', patientCode),
+                hasEntry(is('patient_id'), isIntegerNumber(patientCode)),
                 hasEntry('subject_id', 'GSE8581GSM210006'),
-                hasEntry(is('raw_intensity'), closeTo(value, DELTA)),
-                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
+                hasEntry(is('raw_intensity'), castingCloseTo(value, DELTA)),
+                hasEntry(is('log_intensity'), castingCloseTo(logValue, DELTA)),
                 hasEntry(is('zscore'),
-                        closeTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
+                        castingCloseTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
         )
     }
 
@@ -168,7 +171,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
         def p = [study_id: STUDY_ID,
                  sample_name: sampleName]
 
-        List<Map<String, Object>> r = jdbcTemplate.queryForList q, p
+        List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, is(empty())
     }

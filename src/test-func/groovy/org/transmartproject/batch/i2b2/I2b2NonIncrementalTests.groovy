@@ -82,7 +82,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testPatientValues() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 "SELECT patient_ide_source, sex_cd, religion_cd, " +
                         "statecityzip_path, patient_blob, project_id, " +
                         "${adminColumns.collect { "M.$it AS $it" }.join ', '} " +
@@ -113,7 +113,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testVisitValues() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 "SELECT encounter_ide_source, project_id, patient_ide, patient_ide_source, " +
                         "active_status_cd, start_date, end_date, length_of_stay, visit_blob, " +
                         "${adminColumns.collect { "M.$it AS $it" }.join ', '} " +
@@ -151,7 +151,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testProviderValues() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 "SELECT provider_path, name_char, provider_blob, " +
                         "${adminColumns.join ', '} " +
                         "FROM ${Tables.PROV_DIMENSION} M " +
@@ -183,7 +183,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testFactCommonColumns() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT provider_id, start_date, end_date,
                         ${(adminColumns.collect { "F.$it" }.join(', '))}
                         FROM $joinedFactTables
@@ -201,7 +201,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testTextFact() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT F.valtype_cd, F.tval_char, F.nval_num, F.observation_blob
                         FROM $joinedFactTables
                         WHERE $patient1FactConditions
@@ -218,7 +218,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testNumberFact() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT F.valtype_cd, F.tval_char, F.nval_num, F.observation_blob
                         FROM $joinedFactTables
                         WHERE $patient1FactConditions
@@ -235,7 +235,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testBlobFact() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT F.valtype_cd, F.tval_char, F.nval_num, F.observation_blob
                         FROM $joinedFactTables
                         WHERE $patient1FactConditions
@@ -252,7 +252,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testNLPFact() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT F.valtype_cd, F.tval_char, F.nval_num, F.observation_blob
                         FROM $joinedFactTables
                         WHERE $patient2FactConditions
@@ -269,7 +269,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testPatient1HasModifierOnSecondFactGroup() {
-        Map<String, Object> result = jdbcTemplate.queryForMap(
+        Map<String, Object> result = queryForMap(
                 """SELECT instance_num, tval_char
                         FROM $joinedFactTables
                         WHERE $patient1FactConditions
@@ -283,7 +283,7 @@ class I2b2NonIncrementalTests implements JobRunningTestTrait {
 
     @Test
     void testPatient2HasModifiersOnTwoGroups() {
-        List<Map<String, Object>> result = jdbcTemplate.queryForList(
+        List<Map<String, Object>> result = queryForList(
                 """SELECT instance_num, tval_char
                         FROM $joinedFactTables
                         WHERE $patient2FactConditions

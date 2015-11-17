@@ -48,7 +48,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
             FROM ${Tables.I2B2}
             WHERE sourcesystem_cd = :study
         """
-        def res = jdbcTemplate.queryForList(q, [study: STUDY_ID], String)
+        def res = queryForList(q, [study: STUDY_ID], String)
 
         assertThat res, everyItem(
                 startsWith('\\Private Studies\\GSE8581\\'))
@@ -72,13 +72,13 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
                 FROM ${Tables.BIO_EXPERIMENT}
                 WHERE accession = :study"""
 
-        def res = jdbcTemplate.queryForList(q, [study: STUDY_ID])
+        def res = queryForList(q, [study: STUDY_ID])
 
         assertThat res, hasSize(1)
         assertThat res[0], allOf(
                 hasEntry('title', 'Metadata not available'),
                 hasEntry('etl_id', "METADATA:$STUDY_ID" as String),
-                hasEntry(is('bio_experiment_id'), isA(Long)))
+                hasEntry(is('bio_experiment_id'), isA(Number)))
     }
 
     @Test
@@ -91,13 +91,13 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
                 FROM ${Tables.SECURE_OBJECT} S
                 LEFT JOIN ${Tables.BIO_EXPERIMENT} B ON (S.bio_data_id = B.bio_experiment_id)
                 WHERE S.bio_data_unique_id = :sot"""
-        def res = jdbcTemplate.queryForList(q, [sot: "EXP:$STUDY_ID" as String])
+        def res = queryForList(q, [sot: "EXP:$STUDY_ID" as String])
 
         assertThat res, hasSize(1)
         assertThat res[0], allOf(
                 hasEntry('display_name', "Private Studies - $STUDY_ID" as String),
                 hasEntry('data_type', 'BIO_CLINICAL_TRIAL'),
-                hasEntry(is('search_secure_object_id'), isA(Long)),
+                hasEntry(is('search_secure_object_id'), isA(Number)),
                 hasEntry('accession', STUDY_ID),)
     }
 

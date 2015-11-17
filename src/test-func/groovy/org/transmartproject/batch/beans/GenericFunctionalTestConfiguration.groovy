@@ -4,8 +4,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.transmartproject.batch.db.RowCounter
-import org.transmartproject.batch.db.TableTruncator
+import org.transmartproject.batch.db.*
 
 import javax.sql.DataSource
 
@@ -28,8 +27,13 @@ class GenericFunctionalTestConfiguration {
     }
 
     @Bean
-    TableTruncator tableTruncator() {
-        new TableTruncator()
+    DatabaseImplementationClassPicker databasePicker() {
+        new DatabaseImplementationClassPicker()
+    }
+
+    @Bean
+    TableTruncator tableTruncator(DatabaseImplementationClassPicker databasePicker) {
+        databasePicker.instantiateCorrectClass(PostgresTableTruncator, OracleTableTruncator)
     }
 
     @Bean
