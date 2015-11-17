@@ -22,6 +22,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Load clinical data for a study not loaded before.
@@ -359,13 +360,13 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                         hasEntry('path', '\\Public Studies\\GSE8581\\'),
                         hasEntry('tag', 'Human Chronic Obstructive Pulmonary Disorder (COPD) Biomarker'),
                         hasEntry('tag_type', 'TITLE'),
-                        hasEntry('tags_idx', 2),
+                        hasEntry(is('tags_idx'), isIntegerNumber(2)),
                 ),
                 allOf(
                         hasEntry('path', '\\Public Studies\\GSE8581\\Endpoints\\FEV1\\'),
                         hasEntry('tag', 'http://en.wikipedia.org/wiki/FEV1/FVC_ratio'),
                         hasEntry('tag_type', 'WEB_REF'),
-                        hasEntry('tags_idx', 3),
+                        hasEntry(is('tags_idx'), isIntegerNumber(3)),
                 ),
         )
     }
@@ -420,19 +421,19 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         assertThat rows, allOf(
             hasItem(allOf(
                 hasEntry(is('concept_path'), equalTo(STUDY_BASE_FOLDER)),
-                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+                hasEntry(is('patient_count'), isIntegerNumber(NUMBER_OF_PATIENTS))
             )),
             hasItem(allOf(
                 hasEntry(is('concept_path'), endsWith("\\Endpoints\\")),
-                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+                hasEntry(is('patient_count'), isIntegerNumber(NUMBER_OF_PATIENTS))
             )),
             hasItem(allOf(
                 hasEntry(is('concept_path'), endsWith("\\Endpoints\\Diagnosis\\")),
-                hasEntry(is('patient_count'), equalTo(NUMBER_OF_PATIENTS))
+                hasEntry(is('patient_count'), isIntegerNumber(NUMBER_OF_PATIENTS))
             )),
             hasItem(allOf(
                 hasEntry(is('concept_path'), endsWith("\\Endpoints\\Diagnosis\\carcinoid\\")),
-                hasEntry(is('patient_count'), equalTo(3L))
+                hasEntry(is('patient_count'), isIntegerNumber(3L))
             )),
         )
     }

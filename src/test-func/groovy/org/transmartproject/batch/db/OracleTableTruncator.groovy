@@ -7,7 +7,6 @@ import org.transmartproject.batch.beans.Oracle
 import org.transmartproject.batch.clinical.db.objects.Tables
 
 import java.sql.PreparedStatement
-import java.sql.SQLException
 
 /**
  * Truncates table
@@ -27,14 +26,9 @@ class OracleTableTruncator extends TableTruncator {
                                 owner: schemaName,
                                 tableName: tableName
                         ],
-                        new PreparedStatementCallback<Boolean>() {
-                            @Override
-                            public Boolean doInPreparedStatement(PreparedStatement ps)
-                                    throws SQLException, DataAccessException {
-                                return ps.execute();
-                            }
-                        }
-                )
+                        { PreparedStatement ps ->
+                            ps.execute()
+                        } as PreparedStatementCallback<Boolean>)
             } else {
                 jdbcTemplate.update("DELETE FROM $table", [:])
             }

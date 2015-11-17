@@ -36,6 +36,12 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
     public final static TestRule RUN_JOB_RULE =
             new RunJobRule("${STUDY_ID}_simple", 'clinical')
 
+    /**
+     * On Oracle, this is a VARCHAR(2500), which with a UTF-16 encoding
+     * will result in only with 1250 max code units.
+     */
+    private static final int MAX_EXIT_DESCRIPTION_ON_UTF16 = 1250
+
     @Autowired
     TableTruncator truncator
 
@@ -89,12 +95,20 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
                 'studies/' + STUDY_ID + '/tags.params',
                 '-d', 'TAGS_FILE=corruption/tags_1_too_long.txt')
 
-        assertThat execution.exitStatus, allOf(
-                hasProperty('exitCode', is('FAILED')),
-                hasProperty('exitDescription', allOf(
-                        containsString('Field "tagTitle" has size 401, which exceeds the maximum size 400'),
-                        containsString('Field "tagDescription" has size 1,029, which exceeds the maximum size 1,000'),
-                )))
+        if (execution.exitStatus.exitDescription.length() == MAX_EXIT_DESCRIPTION_ON_UTF16) {
+            assertThat execution.exitStatus, allOf(
+                    hasProperty('exitCode', is('FAILED')),
+                    hasProperty('exitDescription',
+                            containsString('Validation failed for org.transmartproject.batch.tag.Tag')))
+        } else {
+            assertThat execution.exitStatus, allOf(
+                    hasProperty('exitCode', is('FAILED')),
+                    hasProperty('exitDescription', allOf(
+                            containsString('Field "tagTitle" has size 401, which exceeds the maximum size 400'),
+                            containsString('Field "tagDescription" has size 1,029, ' +
+                                    'which exceeds the maximum size 1,000'),
+                    )))
+        }
     }
 
     @Test

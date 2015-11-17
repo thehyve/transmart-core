@@ -1,11 +1,7 @@
 package org.transmartproject.batch.highdim.mrna.data
 
 import com.google.common.io.Files
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.ClassRule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
@@ -29,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_ASSAYS_WITH_VALID_DATA
 import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_PROBES
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
  * For mRNA, test a failure midway the first pass, and then restart the job with
@@ -41,7 +38,8 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
     private final static String STUDY_ID = 'GSE8581'
     private final static String PLATFORM_ID = 'GPL570_bogus'
 
-    private final static double DELTA = 1e-12d
+    // oracle schema only has scale = 4 on the numeric columns
+    private final static double DELTA = 1e-4d
 
     @Autowired
     RowCounter rowCounter
@@ -153,10 +151,10 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(equalToIgnoringCase('raw_intensity'), closeTo(value, DELTA)),
-                hasEntry(equalToIgnoringCase('log_intensity'), closeTo(logValue, DELTA)),
+                hasEntry(equalToIgnoringCase('raw_intensity'), castingCloseTo(value, DELTA)),
+                hasEntry(equalToIgnoringCase('log_intensity'), castingCloseTo(logValue, DELTA)),
                 hasEntry(equalToIgnoringCase('zscore'),
-                        closeTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
+                        castingCloseTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
         )
     }
 

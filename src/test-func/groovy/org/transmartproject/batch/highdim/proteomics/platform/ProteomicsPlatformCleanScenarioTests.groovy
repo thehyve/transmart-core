@@ -15,6 +15,7 @@ import org.transmartproject.batch.junit.RunJobRule
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Test proteomics platform load from a clean state.
@@ -87,8 +88,8 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                         hasEntry('uniprot_id', 'E9PC15'),
                         hasEntry('organism', 'Homo Sapiens'),
                         hasEntry('chromosome', '7'),
-                        hasEntry('start_bp', 141251077l),
-                        hasEntry('end_bp', 141354209l),
+                        hasEntry(is('start_bp'), isIntegerNumber(141251077l)),
+                        hasEntry(is('end_bp'), isIntegerNumber(141354209l)),
                 )
         )
 

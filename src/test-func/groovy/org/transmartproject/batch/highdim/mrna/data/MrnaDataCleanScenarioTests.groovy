@@ -18,6 +18,8 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * test mRNA data import in the simplest scenario (good data not previously
@@ -35,7 +37,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS_WITH_VALID_DATA = 7
     private final static long NUMBER_OF_PROBES = 19
 
-    private final static double DELTA = 1e-12d
+    // oracle only has 4 digits to the right of the decimal point
+    private final static double DELTA = 1e-4d
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
@@ -145,12 +148,12 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
         def stdDevOfLog2 = 0.2730897449882774
 
         assertThat r, allOf(
-                hasEntry('patient_id', patientCode),
+                hasEntry(is('patient_id'), isIntegerNumber(patientCode)),
                 hasEntry('subject_id', 'GSE8581GSM210006'),
-                hasEntry(is('raw_intensity'), closeTo(value, DELTA)),
-                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
+                hasEntry(is('raw_intensity'), castingCloseTo(value, DELTA)),
+                hasEntry(is('log_intensity'), castingCloseTo(logValue, DELTA)),
                 hasEntry(is('zscore'),
-                        closeTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
+                        castingCloseTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
         )
     }
 

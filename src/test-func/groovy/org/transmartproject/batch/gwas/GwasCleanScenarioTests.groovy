@@ -17,6 +17,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Test loading of two GWAS analysis on the same job from a clean database.
@@ -93,11 +94,11 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, contains(
                 allOf(
-                        hasEntry(is('count'), is(NUMBER_OF_SNPS_2HR_GLUCOSE)),
+                        hasEntry(is('count'), isIntegerNumber(NUMBER_OF_SNPS_2HR_GLUCOSE)),
                         hasEntry(is('analysis_name'), is(ANALYSIS_2HR_GLUCOSE_NAME)),
                 ),
                 allOf(
-                        hasEntry(is('count'), is(NUMBER_OF_SNP_FASTING_GLUCOSE)),
+                        hasEntry(is('count'), isIntegerNumber(NUMBER_OF_SNP_FASTING_GLUCOSE)),
                         hasEntry(is('analysis_name'), is(ANALYSIS_FASTING_GLUCOSE_NAME)),
                 ),
         )
@@ -146,7 +147,7 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
             FROM $Tables.BIO_ASY_ANAL_GWAS_TOP500
             GROUP BY analysis"""
         List<Map<String, Object>> r = queryForList(q, [:])
-     queryForListctEntries { [it['analysis'], it['pv']] }
+        def onTop500 = r.collectEntries { [it['analysis'], it['pv']] }
 
         q = """
             SELECT analysis_name, min(G.p_value) AS pv

@@ -20,6 +20,7 @@ import org.transmartproject.batch.support.TableLists
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.is
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 import static org.transmartproject.batch.support.StringUtils.escapeForLike
 
 /**
@@ -72,10 +73,10 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
         def res = queryForList("""
                 SELECT patient_count
                 FROM $Tables.CONCEPT_COUNTS
-                WHERE concept_path LIKE :path_expr escape '^'""",
+                WHERE concept_path LIKE :path_expr ESCAPE '\\'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
-        assertThat res, contains(is(0l))
+        assertThat res, contains(isIntegerNumber(0l))
     }
 
     @Test

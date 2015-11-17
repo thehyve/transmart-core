@@ -16,6 +16,7 @@ import org.transmartproject.batch.junit.RunJobRule
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.springframework.context.i18n.LocaleContextHolder.locale
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * Test mrna platform load from a clean state.
@@ -98,10 +99,10 @@ class MrnaPlatformCleanScenarioTests implements JobRunningTestTrait {
         assertThat r, containsInAnyOrder(
                 allOf(
                         hasEntry('gene_symbol', 'SCARB1'),
-                        hasEntry('gene_id', 949L)),
+                        hasEntry(is('gene_id'), isIntegerNumber(949L))),
                 allOf(
                         hasEntry('gene_symbol', 'TTLL12'),
-                        hasEntry('gene_id', 23170L)),
+                        hasEntry(is('gene_id'), isIntegerNumber(23170L))),
 
                 )
     }

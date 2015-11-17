@@ -18,6 +18,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
  * Test metabolomics data import in the simplest scenario (good data not
@@ -33,7 +34,9 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
     private final static long NUMBER_OF_ASSAYS = 10
     private final static long NUMBER_OF_METABOLITES = 8
 
-    private final static double DELTA = 1e-14d
+    // The DELTA must be high because the Oracle schema is using a fixed point
+    // number with only 4 digits to the right of the decimal point
+    private final static double DELTA = 1e-10d
 
     @ClassRule
     public final static RuleChain RUN_JOB_RULES = new RuleChain([
@@ -108,9 +111,9 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('trial_name', STUDY_ID),
                 hasEntry('subject_id', subjectId),
                 hasEntry('sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry(is('raw_intensity'), closeTo(rawValue, DELTA)),
-                hasEntry(is('log_intensity'), closeTo(logValue, DELTA)),
-                hasEntry(is('zscore'), closeTo(zscore, DELTA)),
+                hasEntry(is('raw_intensity'), castingCloseTo(rawValue, DELTA)),
+                hasEntry(is('log_intensity'), castingCloseTo(logValue, DELTA)),
+                hasEntry(is('zscore'), castingCloseTo(zscore, DELTA)),
         )
 
     }
