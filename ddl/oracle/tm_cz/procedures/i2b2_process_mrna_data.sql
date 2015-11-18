@@ -378,7 +378,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
     from lt_src_mrna_subj_samp_map a
 	    ,de_gpl_info g 
 	where a.trial_name = TrialID
-	  and nvl(a.platform,'GPL570') = g.platform
+--	  and nvl(a.platform,'GPL570') = g.platform
 	  and a.source_cd = sourceCD
 	  and a.platform = g.platform
 	  and upper(g.marker_type) = 'GENE EXPRESSION'
@@ -733,7 +733,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	,provider_id
 	,location_cd
 	,units_cd
-        ,sample_cd
+--        ,sample_cd  -- multiple samples breaks primary key
         ,instance_num
     )
     select distinct m.patient_id
@@ -748,7 +748,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 		  ,'@'
 		  ,'@'
 		  ,'' -- no units available
-                  ,m.sample_cd
+--                  ,m.sample_cd
                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 

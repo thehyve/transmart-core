@@ -41,7 +41,7 @@ BEGIN
 	END IF;
 
 	stepCt := stepCt + 1;
-	select cz_write_audit(jobId,databaseName,procedureName,'Starting I2B2_LOAD_PROTEOMICS_ANNOTTATION',0,stepCt,'Done') into rtnCd;
+	select cz_write_audit(jobId,databaseName,procedureName,'Starting I2B2_LOAD_PROTEOMICS_ANNOTATION',0,stepCt,'Done') into rtnCd;
 
 	--	get  id_ref  from external table
 	
@@ -51,6 +51,14 @@ BEGIN
 	get diagnostics rowCt := ROW_COUNT;
 	select cz_write_audit(jobId,databaseName,procedureName,'Delete existing data from de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
         --	delete any existing data from deapp.de_protein_annotation
+        begin
+		delete from deapp.de_subject_protein_data where protein_annotation_id in (select id from deapp.de_protein_annotation where gpl_id = gplId);
+	exception
+	when others then
+		perform tm_cz.cz_error_handler (jobID, procedureName, SQLSTATE, SQLERRM);
+		perform tm_cz.cz_end_audit (jobID, 'FAIL');
+		return -16;
+	end;
         begin
 		delete from deapp.de_protein_annotation
 		where gpl_id =gplId;
@@ -111,7 +119,7 @@ BEGIN
 	select cz_write_audit(jobId,databaseName,procedureName,'Update uniprot_name in DEAPP de_protein_annotation',rowCt,stepCt,'Done') into rtnCd;
 	
 	stepCt := stepCt + 1;
-	select cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_proteomics_annottation',0,stepCt,'Done') into rtnCd;
+	select cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_proteomics_annotation',0,stepCt,'Done') into rtnCd;
 	
        ---Cleanup OVERALL JOB if this proc is being run standalone
   IF newJobFlag = 1

@@ -6,7 +6,7 @@ include ../../makefile.inc
 #
 # It still has some PostgreSQL specific stuff; that should be moved into
 # PostgreSQL's Makefile and only the common stuff should be here.
-# To be done when more analsyes are ported to Oracle
+# To be done when more analyses are ported to Oracle
 
 showdblog: $(JDBC_DRIVER)
 	groovy -cp '$(LIB_CLASSPATH)' ../common/dump_audit.groovy $(RDBMS) `tput cols`
@@ -34,10 +34,16 @@ LOAD_REF_ANNOTATION_TARGETS := $(shell php ../studies/enumerate.php load_targets
 LOAD_EXPRESSION_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets expression)
 LOAD_ACGH_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets acgh)
 LOAD_PROTEOMICS_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets proteomics)
+LOAD_MSPROTEOMICS_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets msproteomics)
 LOAD_MIRNA_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets mirna)
+LOAD_MIRNAQPCR_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets mirnaqpcr)
+LOAD_MIRNASEQ_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets mirnaseq)
+LOAD_METABOLOMICS_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets metabolomics)
+LOAD_RBM_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets rbm)
+LOAD_RNASEQ_PARAMS_TARGETS := $(shell php ../studies/enumerate.php load_targets rnaseq)
 LOAD_VCF_PARAMS_TARGETS := $(patsubst ../studies/%/vcf.params,load_vcf_%, $(VCF_PARAMS_FILES))
 
-KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS)
+KETTLE_TARGETS := $(LOAD_CLINICAL_TARGETS) $(LOAD_EXPRESSION_PARAMS_TARGETS) $(LOAD_ACGH_PARAMS_TARGETS) $(LOAD_PROTEOMICS_PARAMS_TARGETS) $(LOAD_MSPROTEOMICS_PARAMS_TARGETS) $(LOAD_MIRNA_PARAMS_TARGETS) $(LOAD_MIRNAQPCR_PARAMS_TARGETS) $(LOAD_MIRNASEQ_PARAMS_TARGETS) $(LOAD_METABOLOMICS_PARAMS_TARGETS) $(LOAD_RBM_PARAMS_TARGETS) $(LOAD_RNASEQ_PARAMS_TARGETS)
 
 $(KETTLE_TARGETS): kettle-home/kettle.properties
 #these ones are here just for autocompletion:
@@ -58,16 +64,48 @@ load_clinical_%: ../studies/%/clinical.params ../studies/%/clinical
 
 load_annotation_%: ../studies/%/annotation.params ../studies/%/annotation
 	DATA_LOCATION="$(realpath ../studies/$*/annotation)" \
+		KETTLE_HOME="$(realpath kettle-home)" \
 		PSQL_COMMAND="$(PSQL_COMMAND)" \
 		./load_annotation.sh $<
 
 load_ref_annotation_%: ../studies/%/ref_annotation.params
+	KETTLE_HOME="$(realpath kettle-home)" \
 	$(MAKE) load_annotation_`./load_ref_annotation.sh $<`
 
 load_expression_%: ../studies/%/expression.params ../studies/%/expression
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/expression)" \
 			KETTLE_HOME="$(realpath kettle-home)" \
 			./load_expression.sh $<
+
+load_mirnaqpcr_%: ../studies/%/mirnaqpcr.params ../studies/%/mirnaqpcr
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/mirnaqpcr)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_mirnaqpcr.sh $<
+
+load_mirnaseq_%: ../studies/%/mirnaseq.params ../studies/%/mirnaseq
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/mirnaseq)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_mirnaseq.sh $<
+
+load_rbm_%: ../studies/%/rbm.params ../studies/%/rbm
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/rbm)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_rbm.sh $<
+
+load_rnaseq_%: ../studies/%/rnaseq.params ../studies/%/rnaseq
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/rnaseq)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_rnaseq.sh $<
+
+load_metabolomics_%: ../studies/%/metabolomics.params ../studies/%/metabolomics
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/metabolomics)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_metabolomics.sh $<
+
+load_msproteomics_%: ../studies/%/msproteomics.params ../studies/%/msproteomics
+	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/msproteomics)" \
+			KETTLE_HOME="$(realpath kettle-home)" \
+			./load_msproteomics.sh $<
 
 load_acgh_%: ../studies/%/acgh.params ../studies/%/acgh
 	STUDY_ID=$* DATA_LOCATION="$(realpath ../studies/$*/acgh)" \

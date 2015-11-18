@@ -3,6 +3,8 @@
 #set -x
 set -e
 
+echo "running load_mirna_annotation.sh $1"
+
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="annotation"

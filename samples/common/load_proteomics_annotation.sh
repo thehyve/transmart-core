@@ -3,14 +3,18 @@
 #set -x
 set -e
 
+echo "running load_proteomics_annotation.sh $1"
+
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="annotation"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
 # Execute some basic checks
-if [ -z $GPL_ID ] ; then
-    echo "Error $0: No value provided for parameter GPL_ID"
+if [ -z $GPL_ID ]  || [ -z "$ANNOTATION_TITLE" ]; then
+	echo "Following variables need to be set:"
+        echo "    GPL_ID=$GPL_ID"
+	echo "    ANNOTATION_TITLE=$ANNOTATION_TITLE"
     exit 1
 fi
 

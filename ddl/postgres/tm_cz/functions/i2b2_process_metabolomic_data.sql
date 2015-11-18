@@ -1,13 +1,17 @@
 --
 -- Name: i2b2_process_metabolomic_data(character varying, character varying, character varying, character varying, bigint, character varying, bigint); Type: FUNCTION; Schema: tm_cz; Owner: -
 --
-CREATE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base bigint DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid bigint DEFAULT (-1)) RETURNS numeric
+
+SET search_path = tm_cz, pg_catalog;
+
+
+CREATE OR REPLACE FUNCTION i2b2_process_metabolomic_data(trial_id character varying, top_node character varying, data_type character varying DEFAULT 'R'::character varying, source_code character varying DEFAULT 'STD'::character varying, log_base bigint DEFAULT 2, secure_study character varying DEFAULT 'N'::character varying, currentjobid bigint DEFAULT (-1)) RETURNS numeric
     LANGUAGE plpgsql
     AS $$
 
 /*************************************************************************
 
-* This store procedure is for ETL for Sanofi to load  metabolomics data
+* This store procedure is for ETL for Sanofi to load metabolomics data
 * Date: 1/2/2014
 
 ******************************************************************
@@ -95,7 +99,7 @@ BEGIN
 		secureStudy := 'Y';
 	end if;
 	
-	topNode := REGEXP_REPLACE('\' || top_node || '\','(\\){2,}', '\');	
+	topNode := REGEXP_REPLACE('\' || top_node || '\','(\\){2,}', '\','g');
 	select length(topNode)-length(replace(topNode,'\','')) into topLevel ;
 	
 	if coalesce(data_type::text, '') = '' then
@@ -147,8 +151,8 @@ BEGIN
 		return 161;
 	end if;
   
-  	--	check if platform exists in de_qpcr_mirna_annotation .  If not, abort run.
-	
+	--	check if platform exists in de_metabolomic_annotation .  If not, abort run.
+
 	select count(*) into pCount
 	from LT_METABOLOMIC_ANNOTATION
 	where gpl_id in (select distinct m.platform from LT_SRC_METABOLOMIC_MAP m);
@@ -362,8 +366,7 @@ BEGIN
 
 	EXECUTE('truncate table tm_wz.WT_METABOLOMIC_NODES');
 	
---	load temp table with leaf node path, use temp table with distinct sample_type, ATTR2, platform, and title   this was faster than doing subselect
---	from wt_subject_mirna_data
+--	load temp table with leaf node path, use temp table with distinct sample_type, ATTR2, platform, and title
 
 	EXECUTE('truncate table tm_wz.WT_METABOLOMIC_NODE_VALUES');
 	begin
@@ -585,7 +588,7 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 	end;
 	
     stepCt := stepCt + 1;
-	perform cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'Create TISSUETYPE nodes in WT_METABOLOMIC_NODES',rowCt,stepCt,'Done');
 	
 	begin
 	update WT_METABOLOMIC_NODES
@@ -1128,7 +1131,7 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Truncate ' || partitionName,1,stepCt,'Done') into rtnCd;
 	end if;
 	
-	--	insert into de_subject_mirna_data when dataType is T (transformed)
+	--	insert into de_subject_metabolomics_data when dataType is T (transformed)
 
 	if dataType = 'T' then
         sqlText := 'insert into ' || partitionName || 
@@ -1160,7 +1163,7 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
 
 	else
 		
-	--	Calculate ZScores and insert data into de_subject_mirna_data.  The 'L' parameter indicates that the gene expression data will be selected from
+	--	Calculate ZScores and insert data into de_subject_metabolomics_data.  The 'L' parameter indicates that the metabolomics data will be selected from
 	--	WT_SUBJECT_MBOLOMICS_PROBESET as part of a Load.  
 
 		if dataType = 'R' or dataType = 'L' then
@@ -1174,7 +1177,7 @@ category_cd,'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce
     ---Cleanup OVERALL JOB if this proc is being run standalone
 	
 	stepCt := stepCt + 1;
-	perform cz_write_audit(jobId,databaseName,procedureName,'End i2b2_process_metabolomics_data',0,stepCt,'Done');
+	perform cz_write_audit(jobId,databaseName,procedureName,'End i2b2_process_metabolomic_data',0,stepCt,'Done');
 
 	IF newJobFlag = 1
 	THEN

@@ -34,9 +34,33 @@ update_datasets:
 	$(MAKE) $*/$*_mirna.tar.xz
 	tar -C $* -xJf $*/$*_mirna.tar.xz
 
+%/mirnaqpcr.params %/mirnaqpcr:
+	$(MAKE) $*/$*_mirnaqpcr.tar.xz
+	tar -C $* -xJf $*/$*_mirnaqpcr.tar.xz
+
+%/mirnaseq.params %/mirnaseq:
+	$(MAKE) $*/$*_mirnaseq.tar.xz
+	tar -C $* -xJf $*/$*_mirnaseq.tar.xz
+
 %/proteomics.params:
 	$(MAKE) $*/$*_proteomics.tar.xz
 	tar -C $* -xJf $*/$*_proteomics.tar.xz
+
+%/msproteomics.params %/msproteomics:
+	$(MAKE) $*/$*_msproteomics.tar.xz
+	tar -C $* -xJf $*/$*_msproteomics.tar.xz
+
+%/metabolomics.params %/metabolomics:
+	$(MAKE) $*/$*_metabolomics.tar.xz
+	tar -C $* -xJf $*/$*_metabolomics.tar.xz
+
+%/rbm.params %/rbm:
+	$(MAKE) $*/$*_rbm.tar.xz
+	tar -C $* -xJf $*/$*_rbm.tar.xz
+
+%/rnaseq.params %.rnaseq:
+	$(MAKE) $*/$*_rnaseq.tar.xz
+	tar -C $* -xJf $*/$*_rnaseq.tar.xz
 
 %/vcf.params:
 	$(MAKE) $*/$*_vcf.tar.xz

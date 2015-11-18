@@ -19,7 +19,7 @@ if [ -z "$DATA_FILE_PREFIX" ] || [ -z "$MAP_FILENAME" ]; then
 fi
 
 # Extract STUDY_ID from subject sample mapping file
-STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${MAP_FILENAME}" | sort -u | tr 'a-z' 'A-Z')
+STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${MAP_FILENAME}" | sort -u | head -n 1 | tr 'a-z' 'A-Z')
 if [ -z "$STUDY_ID_FROM_SSM" ]; then
     echo "Error $0: No STUDY_ID provided in first column of subject sample mapping file $MAP_FILENAME"
     exit 1
