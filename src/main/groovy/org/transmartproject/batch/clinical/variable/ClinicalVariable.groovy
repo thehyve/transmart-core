@@ -74,6 +74,12 @@ class ClinicalVariable implements Serializable {
 
     String conceptType
 
+    void setConceptType(String conceptType) {
+        // note that we don't convert empty strings to null when we load the
+        // column mappings file (emptyStringsToNull: false for tsvFileReader())
+        this.conceptType = conceptType == '' ? null : conceptType
+    }
+
     /**
      * These are to be calculated
      * @see ClinicalVariableFieldMapper */
