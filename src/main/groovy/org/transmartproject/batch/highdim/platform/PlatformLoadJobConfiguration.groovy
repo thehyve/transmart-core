@@ -27,7 +27,7 @@ import org.transmartproject.batch.support.JobParameterFileResource
  * - platformDataCheckTasklet
  *
  * The following beans must be provided:
- * - insertIntoBioAssayAnalysisGwasStep
+ * - mainStep
  * - deleteAnnotationStep
  */
 @ComponentScan('org.transmartproject.batch.highdim.platform')
