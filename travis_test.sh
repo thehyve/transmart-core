@@ -38,7 +38,7 @@ function customize_vars_oracle {
   echo "export ORAPASSWORD=manager" >> ~/transmart-data/vars
   echo "export ORACLE_MANAGE_TABLESPACES=1" >> ~/transmart-data/vars
   echo "export USE_POOL_PROCESS=1" >> ~/transmart-data/vars
-  echo "export export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'" >> ~/transmart-data/vars
+  echo "export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'" >> ~/transmart-data/vars
 }
 function create_oracle_batchdbproperties {
   local readonly port=$1 user=$2 password=$3
