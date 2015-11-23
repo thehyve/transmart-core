@@ -5,6 +5,8 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.transmartproject.batch.concept.ConceptType
 
+import javax.batch.operations.BatchRuntimeException
+
 /**
  * Unsurprisingly, represents a patient.
  */
@@ -23,9 +25,16 @@ final class Patient {
                 log.warn "For patient $id, and demo variable $var, " +
                         "replacing ${demographicValues[var]} with $value"
             }
-            demographicValues[var] = var.type == ConceptType.NUMERICAL ?
-                    (value ?: null) as Long :
-                    value
+
+            try {
+                demographicValues[var] = var.type == ConceptType.NUMERICAL ?
+                        (value ?: null) as Long :
+                        value
+            } catch (NumberFormatException nfe) {
+                throw new BatchRuntimeException(
+                        "Value $value for variable $var in patient $this is " +
+                                "not a valid long integer", nfe)
+            }
         }
     }
 
