@@ -156,7 +156,7 @@ environments { development {
 } }
 
 // Maximum concurrent sessions for a user (-1: unlimited)
-// com.recomdata.maxConcurrentUserSessions = 10
+// org.transmartproject.maxConcurrentUserSessions = 10
 
 // Not enabled by default (see Config-extra.php.sample)
 //com.recomdata.passwordstrength.pattern
