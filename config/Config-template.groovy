@@ -155,6 +155,9 @@ environments { development {
     com.recomdata.heartbeatLaps = 900
 } }
 
+// Maximum concurrent sessions for a user (-1: unlimited)
+// org.transmartproject.maxConcurrentUserSessions = 10
+
 // Not enabled by default (see Config-extra.php.sample)
 //com.recomdata.passwordstrength.pattern
 //com.recomdata.passwordstrength.description
