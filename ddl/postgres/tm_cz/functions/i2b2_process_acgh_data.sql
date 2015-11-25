@@ -1075,9 +1075,7 @@ BEGIN
 	  and sd.trial_name = TrialId
 	  and sd.source_cd = sourceCd
 	  and sd.gpl_id = gs.gpl_id
-	  and md.region_name = gs.region_name
-	group by gs.region_id, md.chip, md.segmented, md.flag, md.probloss, md.probnorm, md.probgain, md.probamp
-		  ,sd.patient_id,sd.assay_id;
+	  and md.region_name = gs.region_name;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
