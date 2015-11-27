@@ -22,8 +22,7 @@ LogisticRegressionData.loader <- function(
 	library(ggplot2)
 	library(Cairo)
 	library(visreg)
-	pROC.available <- "pROC" %in% row.names(installed.packages())
-	if (pROC.available) library(pROC)
+	pROC.available <- require("pROC")
 	######################################################
 	
 	######################################################
