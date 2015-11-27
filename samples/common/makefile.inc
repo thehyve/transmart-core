@@ -226,8 +226,13 @@ endif
 
 $(eval $(call TSBATCH_TEMPLATE,clinical))
 $(eval $(call TSBATCH_TEMPLATE,annotation))
+$(eval $(call TSBATCH_TEMPLATE,tags))
 $(eval $(call TSBATCH_TEMPLATE,expression))
 $(eval $(call TSBATCH_TEMPLATE,metabolomics_annotation))
 $(eval $(call TSBATCH_TEMPLATE,metabolomics))
+$(eval $(call TSBATCH_TEMPLATE,proteomics_annotation))
+$(eval $(call TSBATCH_TEMPLATE,proteomics))
+$(eval $(call TSBATCH_TEMPLATE,gwas))
+$(eval $(call TSBATCH_TEMPLATE,backout))
 
 # vim: ft=make :
