@@ -58,7 +58,7 @@ final class ExternalJobParameters {
         instance.jobPath = spec.jobPath
 
         filePath.eachLine { line ->
-            if (line =~ /\A\s+\z/ || line =~ /\A\s*#/) {
+            if (line =~ /\A\s*\z/ || line =~ /\A\s*#/) {
                 return // skip comment
             }
 
