@@ -14,7 +14,7 @@ Config-extra.php BuildConfig.groovy:
 Config.groovy: Config-template.groovy Config-extra.php build-config.php
 	php build-config.php > $@
 
-DataSource.groovy: DataSource.groovy.php ../vars
+DataSource.groovy: DataSource.groovy.php
 	php -d 'variables_order=E' $< > $@
 
 TSCONFIG = $(TSUSER_HOME).grails/transmartConfig/
@@ -32,4 +32,4 @@ install: $(addprefix install_,$(FINAL_FILES))
 clean:
 	rm -f $(FINAL_FILES)
 
-.PHONY: install clean
+.PHONY: install clean DataSource.groovy

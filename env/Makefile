@@ -51,14 +51,14 @@ $(TRANSMART_BATCH_FILE):
 	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_BATCH_URL)'
 	@chmod +x '$@'
 
-batchdb-psql.properties: batchdb-psql.properties.php ../vars
+batchdb-psql.properties: batchdb-psql.properties.php
 	php -d variables_order=E '$<' > '$@'
 
-batchdb-oracle.properties: batchdb-oracle.properties.php ../vars
+batchdb-oracle.properties: batchdb-oracle.properties.php
 	php -d variables_order=E '$<' > '$@'
 
 # for redownload
-.PHONY: $(TRANSMART_BATCH_FILE)
+.PHONY: $(TRANSMART_BATCH_FILE) batchdb-psql.properties batchdb-oracle.properties
 
 $(GROOVY_ZIP):
 	curl -L "$(GROOVY_URL)" > $@

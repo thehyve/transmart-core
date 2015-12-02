@@ -51,8 +51,10 @@ $(LOAD_ANNOTATION_TARGETS):
 $(LOAD_REF_ANNOTATION_TARGETS):
 $(LOAD_VCF_PARAMS_TARGETS):
 
-kettle-home/kettle.properties: gen_kettle_properties.php ../../vars
+kettle-home/kettle.properties: gen_kettle_properties.php
 	php -d variables_order=E $< > $@
+
+.PHONY: kettle-home/kettle.properties
 
 ../studies/%:
 	$(MAKE) -C ../studies $*

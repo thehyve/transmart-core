@@ -1,7 +1,7 @@
 include ../common/makefile.inc
 include ../../lib/makefile.inc
 
-$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php ../../vars
+$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php
 	php -d variables_order=E $< > $@
 
 start_pool: $(NETTY_JAR_PATH) $(JDBC_DRIVER_ORA_PATH)
@@ -10,6 +10,6 @@ start_pool: $(NETTY_JAR_PATH) $(JDBC_DRIVER_ORA_PATH)
 		groovy -cp '$(CP_ORA):$(NETTY_JAR_PATH)' start_conn_pool.groovy \
 		-f pool-lock
 
-.PHONY: start_pool
+.PHONY: start_pool $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
 # vim: set filetype=make:
