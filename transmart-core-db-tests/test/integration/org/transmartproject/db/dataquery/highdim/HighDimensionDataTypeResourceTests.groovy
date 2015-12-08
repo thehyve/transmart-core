@@ -42,18 +42,20 @@ class HighDimensionDataTypeResourceTests {
 
     @Resource
     HighDimensionDataTypeModule mrnaModule
+
     HighDimensionDataTypeResource resource
     QueriesResource queriesResourceService
-    MrnaTestData testData = new MrnaTestData()
-    StudyTestData studyTestData = new StudyTestData()
+
+
     I2b2 i2b2Node
 
     @Before
     void setUp() {
+        StudyTestData studyTestData = new StudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]
 
-        testData = new MrnaTestData(conceptCode: i2b2Node.code, patients: studyTestData.i2b2Data.patients)
+        MrnaTestData testData = new MrnaTestData(conceptCode: i2b2Node.code, patients: studyTestData.i2b2Data.patients)
         testData.saveAll()
 
         assertThat mrnaModule, is(notNullValue())
@@ -83,5 +85,4 @@ class HighDimensionDataTypeResourceTests {
                 )
         )
     }
-
 }
