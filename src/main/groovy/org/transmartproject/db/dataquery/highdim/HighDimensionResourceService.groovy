@@ -50,7 +50,7 @@ class HighDimensionResourceService implements HighDimensionResource {
      * findAutowiringMetadata(String beanName, Class<?> clazz) is called with
      * '(inner bean)', ConceptsResourceService as parameters, and then does a
      * lookup on a cache whose key is preferably the bean name.
-     * Only if the bean name is empty does it use the class name, excpet the
+     * Only if the bean name is empty does it use the class name, except the
      * the bean name is '(inner bean)', which I'm guessing is used with other
      * inner beans.
      */

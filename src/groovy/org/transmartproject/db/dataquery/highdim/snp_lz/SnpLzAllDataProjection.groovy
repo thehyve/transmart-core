@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
@@ -47,8 +48,25 @@ class SnpLzAllDataProjection implements
              'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count',
              'a2a2Count', 'noCallCount'].collectEntries {
                 def p = SnpLzRow.metaClass.properties.find { n -> n.name == it }
+
+    @Override
+    ImmutableMap<String, Class> getDataProperties() { _dataProperties }
+    private static final ImmutableMap<String, Class> _dataProperties = ImmutableMap.copyOf(
+            // Ensure a logical order
+            ['probabilityA1A1', 'probabilityA1A2', 'probabilityA2A2', 'likelyGenotype', 'minorAlleleDose']
+                    .collectEntries {
+                def p = SnpLzAllDataCell.metaClass.properties.find { n -> n.name == it }
                 [p.name, p.type]
-            }
+            })
+
+    @Override
+    ImmutableMap<String, Class> getRowProperties() { _rowProperties }
+    private static final ImmutableMap<String, Class> _rowProperties = ImmutableMap.copyOf(
+        ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
+         'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count', 'a2a2Count', 'noCallCount'].collectEntries {
+            def p = SnpLzRow.metaClass.properties.find { n -> n.name == it }
+            [p.name, p.type]
+        })
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {

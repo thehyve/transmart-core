@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -47,10 +48,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['Gene Expression']
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectMicroarrayDataCoreDb,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectMicroarrayDataCoreDb,
             ['trialName', 'rawIntensity', 'logIntensity', 'zscore'])
 
-    final Map<String, Class> rowProperties = typesMap(ProbeRow,
+    final ImmutableMap<String, Class> rowProperties = typesMap(ProbeRow,
             ['probe', 'geneId', 'geneSymbol'])
 
     @Autowired

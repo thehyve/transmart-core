@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -59,10 +60,10 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "Messenger RNA data (Sequencing)"
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectRnaseqData,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectRnaseqData,
             ['readcount', 'normalizedReadcount', 'logNormalizedReadcount', 'zscore'])
 
-    final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
+    final ImmutableMap<String, Class> rowProperties = typesMap(RegionRowImpl,
         ['id', 'name', 'cytoband', 'chromosome', 'start', 'end', 'numberOfProbes', 'bioMarker'])
 
     @Autowired

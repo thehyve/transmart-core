@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.mirna
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -46,10 +47,10 @@ import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeModule {
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectMirnaData,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectMirnaData,
             ['rawIntensity', 'logIntensity', 'zscore'])
 
-    final Map<String, Class> rowProperties = typesMap(MirnaProbeRow,
+    final ImmutableMap<String, Class> rowProperties = typesMap(MirnaProbeRow,
             ['probeId', 'mirnaId'])
 
     @Autowired

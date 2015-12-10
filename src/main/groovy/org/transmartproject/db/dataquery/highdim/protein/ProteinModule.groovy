@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.protein
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -47,10 +48,10 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['PROTEOMICS']
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectProteinData,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectProteinData,
             ['intensity', 'logIntensity', 'zscore'])
 
-    final Map<String, Class> rowProperties = typesMap(ProteinDataRow,
+    final ImmutableMap<String, Class> rowProperties = typesMap(ProteinDataRow,
             ['uniprotName', 'peptide'])
 
     @Autowired

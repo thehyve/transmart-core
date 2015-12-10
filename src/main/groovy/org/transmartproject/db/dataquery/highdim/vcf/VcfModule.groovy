@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -59,10 +60,10 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
      */
     static final String VARIANT_PROJECTION    = 'variant'
 
-    final Map<String, Class> dataProperties = typesMap(DeVariantSubjectSummaryCoreDb,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeVariantSubjectSummaryCoreDb,
     ['reference', 'variant', 'variantType'])
 
-    final Map<String, Class> rowProperties = typesMap(VcfDataRow,
+    final ImmutableMap<String, Class> rowProperties = typesMap(VcfDataRow,
     ['chromosome', 'position', 'rsId', 'referenceAllele'])
 
     @Autowired

@@ -19,16 +19,17 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
+import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionImpl
 
 class AllDataProjectionFactory implements DataRetrievalParameterFactory {
 
-    private Map<String, Class> dataProperties
-    private Map<String, Class> rowProperties
+    private ImmutableMap<String, Class> dataProperties
+    private ImmutableMap<String, Class> rowProperties
 
-    AllDataProjectionFactory(Map<String, Class> dataProperties, Map<String, Class> rowProperties) {
+    AllDataProjectionFactory(ImmutableMap<String, Class> dataProperties, ImmutableMap<String, Class> rowProperties) {
         this.dataProperties = dataProperties
         this.rowProperties = rowProperties
     }
