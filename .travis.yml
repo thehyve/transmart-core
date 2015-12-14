@@ -27,4 +27,5 @@ after_success:
     - "test \"$DATABASE\" != 'postgres' || ./.travis_upload"
 
 after_script:
+    - bash -c '[[ -z $KEY_PASSWORD ]] || { source ~/ts-travis/upload-report.sh; upload_report build/reports; }'
     - killall ncat
