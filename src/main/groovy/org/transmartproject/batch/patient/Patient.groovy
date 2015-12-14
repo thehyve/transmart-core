@@ -3,9 +3,8 @@ package org.transmartproject.batch.patient
 import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.springframework.batch.core.step.FatalStepExecutionException
 import org.transmartproject.batch.concept.ConceptType
-
-import javax.batch.operations.BatchRuntimeException
 
 /**
  * Unsurprisingly, represents a patient.
@@ -31,7 +30,7 @@ final class Patient {
                         (value ?: null) as Long :
                         value
             } catch (NumberFormatException nfe) {
-                throw new BatchRuntimeException(
+                throw new FatalStepExecutionException(
                         "Value $value for variable $var in patient $this is " +
                                 "not a valid long integer", nfe)
             }
