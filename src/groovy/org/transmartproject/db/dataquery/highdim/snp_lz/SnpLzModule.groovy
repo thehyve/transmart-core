@@ -106,12 +106,6 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
-        chromosomeSegmentConstraintFactory.with {
-            segmentPrefix      = 'ann.'
-            segmentStartColumn = 'pos'
-            segmentEndColumn   = 'pos'
-            forceBigDecimal    = true
-        }
 
         [standardDataConstraintFactory,
          chromosomeSegmentConstraintFactory,

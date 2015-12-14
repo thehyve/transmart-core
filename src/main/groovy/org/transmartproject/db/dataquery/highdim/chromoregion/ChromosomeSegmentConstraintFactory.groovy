@@ -37,6 +37,7 @@ class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFac
     String segmentChromosomeColumn = 'chromosome'
     String segmentStartColumn      = 'start'
     String segmentEndColumn        = 'end'
+    boolean forceBigDecimal
 
     private static final String SEGMENT_CHROMOSOME_PARAM = 'chromosome'
     private static final String SEGMENT_START_PARAM      = 'start'
@@ -75,10 +76,11 @@ class ChromosomeSegmentConstraintFactory extends AbstractMethodBasedParameterFac
         }
 
         def chr = new ChromosomeSegmentConstraint(chromosome: chromosome, start: start, end: end).with({
-            regionPrefix = segmentPrefix
+            regionPrefix           = segmentPrefix
             regionChromosomeColumn = segmentChromosomeColumn
-            regionStartColumn = segmentStartColumn
-            regionEndColumn = segmentEndColumn
+            regionStartColumn      = segmentStartColumn
+            regionEndColumn        = segmentEndColumn
+            forceBigDecimal        = owner.forceBigDecimal
             it
         })
         return chr

@@ -94,13 +94,13 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                     'No assays satisfy the provided criteria')
         }
 
+        // not needed yet, but it could be a good idea to pass assays here
         HibernateCriteriaBuilder criteriaBuilder =
                 module.prepareDataQuery(projection, openSession())
 
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
         criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
-        module.prepareDataQuery(assays, projection, openSession())
 
         // hasProperty oddly returns null sometimes
         if (criteriaBuilder.targetClass.metaClass

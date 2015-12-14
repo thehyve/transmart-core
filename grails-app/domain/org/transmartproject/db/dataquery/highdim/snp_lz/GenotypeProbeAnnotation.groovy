@@ -25,7 +25,7 @@ class GenotypeProbeAnnotation {
 
     String snpName
     String chromosome
-    BigDecimal pos
+    Long pos
     String ref
     String alt
     String geneInfo

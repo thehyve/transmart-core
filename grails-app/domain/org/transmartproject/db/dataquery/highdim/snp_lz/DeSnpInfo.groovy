@@ -4,7 +4,7 @@ class DeSnpInfo {
 
     String name
     String chromosome
-    Integer pos
+    Long pos
 
     static mapping = {
         table      schema: 'deapp',       name:      'de_snp_info'
