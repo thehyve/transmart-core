@@ -125,6 +125,13 @@ class SnpLzTestData {
         sortedSubjects.find { it.subjectId == a.sampleCode }.patientPosition
     }*.sampleCode
 
+<<<<<<< HEAD
+=======
+    @Lazy
+    def orderedAssays = assays.sort { it.id }
+
+    @Lazy
+>>>>>>> a860d95... Merge pull request #11 from thehyve/issues/snp-cell-ordering
     Table<String /* sample code*/, String /* rs id */, String /* triplet */> sampleGps = {
         def tb = ImmutableTable.builder()
 

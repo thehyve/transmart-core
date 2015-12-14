@@ -31,6 +31,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
@@ -52,8 +53,7 @@ public class GzipFieldTokenizer {
     private <T> T withReader(Function<Reader, T> action)
             throws IOException, SQLException {
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new GZIPInputStream(
-                        blob.getBinaryStream()), Charsets.US_ASCII));
+                new InputStreamReader(new GZIPInputStream(blob.getBinaryStream()), Charsets.US_ASCII));
 
         try {
             return action.apply(reader);
@@ -144,4 +144,22 @@ public class GzipFieldTokenizer {
 
         });
     }
+
+    /**
+     * Use {@link TokenList} to parse the space-delimited stream of tokens.
+     *
+     * @throws InputMismatchException iff the number of values read &ne; <var>expectedSize</var>.
+     * @return a list of strings.
+     */
+    public TokenList asTokenList() throws IOException, InputMismatchException, SQLException {
+        return withReader(new Function<Reader, TokenList>() {
+            public TokenList apply(Reader r) {
+                TokenList res = new TokenList(expectedSize);
+                res.parse(r);
+                return res;
+            }
+
+        });
+    }
+
 }

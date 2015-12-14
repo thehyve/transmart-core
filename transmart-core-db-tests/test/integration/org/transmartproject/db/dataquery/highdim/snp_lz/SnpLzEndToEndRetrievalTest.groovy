@@ -137,9 +137,7 @@ class SnpLzEndToEndRetrievalTest {
 
     // for all data projection only
     private Matcher dataMatcherFor(annotations, assays) {
-        def orderedSampleCodes = assays.sort { a ->
-            testData.sortedSubjects.find { it.subjectId == a.sampleCode }.patientPosition
-        }*.sampleCode
+        def orderedSampleCodes = assays*.sampleCode
 
         def orderedSnpData = testData.data
                 .grep { it.genotypeProbeAnnotation.id in annotations*.id }
@@ -155,10 +153,10 @@ class SnpLzEndToEndRetrievalTest {
                                     orderedSampleCodes.collect { sampleCode ->
                                         def gps = testData.sampleGps
                                                 .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
-                                                .split(/\s+/)
+                                                .split(' ')
                                         def gts = testData.sampleGts
                                                 .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
-                                                .split(/\s+/)
+                                                .split(' ')
                                         def doses = testData.sampleDoses
                                                 .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
 
@@ -184,7 +182,17 @@ class SnpLzEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, dataMatcherFor(testData.annotations, testData.assays)
+        /* Test correspondence between testData.assays and result.indicesList:
+         * - test if the collection of assay ids returning from the query is
+         *   the same as in the test data and that the assays are ordered by
+         *   assay id.
+         * - test if the subject ids (sampleCode) are also available in the
+         *   retrieved assay data.
+         */
+        assert result.indicesList*.id == testData.orderedAssays*.id
+        assert result.indicesList*.sampleCode == testData.orderedAssays*.sampleCode
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
     }
 
     @Test
@@ -194,7 +202,8 @@ class SnpLzEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, dataMatcherFor(testData.annotations, testData.assays)
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
         SnpLzRow firstLzRow = rows.first()
 
         assert firstLzRow[1] == Lists.newArrayList(firstLzRow.iterator())[1]
@@ -207,7 +216,8 @@ class SnpLzEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, dataMatcherFor(testData.annotations, testData.assays)
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
         SnpLzRow firstLzRow = rows.first()
 
         assert firstLzRow[result.indicesList[1]] ==
@@ -243,7 +253,8 @@ class SnpLzEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, dataMatcherFor([selectedAnnotation], testData.assays)
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssays)
     }
 
     @Test
@@ -259,7 +270,8 @@ class SnpLzEndToEndRetrievalTest {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, dataMatcherFor([selectedAnnotation], testData.assays)
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssays)
     }
 
     @Test
@@ -273,7 +285,8 @@ class SnpLzEndToEndRetrievalTest {
         List rows = Lists.newArrayList result.rows
 
         assertThat rows, hasSize(2)
-        assertThat rows, dataMatcherFor(testData.annotations[0..1], testData.assays)
+        // test correspondence between testData and result rows
+        assertThat rows, dataMatcherFor(testData.annotations[0..1], testData.orderedAssays)
     }
 
     @Test

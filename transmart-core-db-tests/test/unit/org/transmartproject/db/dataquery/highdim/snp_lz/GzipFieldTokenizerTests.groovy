@@ -173,6 +173,67 @@ class GzipFieldTokenizerTests {
         }
     }
 
+    @Test
+    void testAsTokenList() {
+        def blob = blobFor(DATA_CHAR)
+
+        play {
+            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS)
+            def l = testee.asTokenList()
+            assertThat(l.size(), is(DATA_CHAR_SOURCE.size()))
+            assertThat(l, contains(DATA_CHAR_SOURCE.collect { c -> equalTo(new String(c)) }))
+        }
+    }
+
+    @Test
+    void testAsTokenListTokenWithMoreThanOneCharacter() {
+        def blob = blobFor(DATA_STRING)
+
+        play {
+            testee =  new GzipFieldTokenizer(blob, 6)
+            def l = testee.asTokenList()
+            assertThat(l.size(), is(DATA_STRING_SOURCE.size()))
+            assertThat(l, contains(DATA_STRING_SOURCE.collect { d -> equalTo(d) }))
+        }
+    }
+
+    @Test
+    void testAsTokenListSmallerThanExpected() {
+        expectedException.expect(InputMismatchException)
+        expectedException.expectMessage('but got only')
+
+        def blob = blobFor(DATA_CHAR)
+
+        play {
+            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS + 1)
+            testee.asTokenList()
+        }
+    }
+
+    @Test
+    void testAsTokenListLargerThanExpected() {
+        expectedException.expect(InputMismatchException)
+        expectedException.expectMessage('Got more tokens')
+
+        def blob = blobFor(DATA_CHAR)
+
+        play {
+            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS - 1)
+            testee.asTokenList()
+        }
+    }
+
+    @Test
+    void testAsTokenListEmptyInput() {
+        def blob = blobFor(EMPTY_INPUT)
+
+        play {
+            testee =  new GzipFieldTokenizer(blob, 0)
+            def l = testee.asTokenList()
+            assert l.size() == 0
+        }
+    }
+
     private Blob blobFor(byte[] bytes) {
         Blob blob = mock(Blob)
         blob.binaryStream.returns(new ByteArrayInputStream(bytes))
@@ -262,8 +323,15 @@ class GzipFieldTokenizerTests {
     private final static int DATA_CHAR_NUMBER_OF_TOKENS = 8
 
     // Created from 'T T A N AN T'
-    private final static byte[] DATA_CHAR_BAD = [
+    private final static List<String> DATA_STRING_SOURCE = ["T", "T", "A", "N", "AN", "T"]
+    private final static byte[] DATA_STRING = [
         0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x03, 0x0b, 0x51, 0x08, 0x51, 0x70, 0x54, 0xf0, 0x53,
         0x70, 0xf4, 0x53, 0x08, 0x01, 0x00, 0x70, 0x1d, 0x0d, 0x8e, 0x0c, 0x00, 0x00, 0x00
+    ] as byte[]
+    private final static byte[] DATA_CHAR_BAD = DATA_STRING
+
+    // echo -n "" | gzip -c -f | od -t x1
+    private final static byte[] EMPTY_INPUT = [
+        0x1f, 0x8b, 0x08, 0x00, 0x10, 0xa6, 0x65, 0x56, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     ] as byte[]
 }

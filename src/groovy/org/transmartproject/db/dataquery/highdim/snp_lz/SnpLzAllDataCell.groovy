@@ -44,33 +44,31 @@ import java.lang.reflect.Method
 @CompileStatic
 class SnpLzAllDataCell implements Map<String, Object> {
 
+    static final String separator = Character.toString((char) 0x5F /* _ */)
+
     private double[] gpsByProbe
-    private char[] gtsByProbe
+    private List<String> gtsByProbe
     private double[] doseByProbe
 
     private int i
 
-    SnpLzAllDataCell(double[] gpsByProbe, char[] gtsByProbe, double[] doseByProbe, int i) {
+    SnpLzAllDataCell(double[] gpsByProbe, List<String> gtsByProbe, double[] doseByProbe, int i) {
         this.gpsByProbe = gpsByProbe
         this.gtsByProbe = gtsByProbe
         this.doseByProbe = doseByProbe
         this.i = i
     }
 
-    private char getLikelyAllele1() {
+    private String getLikelyAllele1() {
         gtsByProbe[i * 2]
     }
 
-    private char getLikelyAllele2() {
+    private String getLikelyAllele2() {
         gtsByProbe[i * 2 + 1]
     }
 
     String getLikelyGenotype() {
-        def charArray = new char[3]
-        charArray[0] = likelyAllele1
-        charArray[1] = 0x5F /* _ */
-        charArray[2] = likelyAllele2
-        new String(charArray)
+        return likelyAllele1.concat(separator).concat(likelyAllele2)
     }
 
     double getProbabilityA1A1() {

@@ -36,6 +36,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.SimpleTabularResult
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
@@ -155,10 +156,53 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         [new MapBasedParameterFactory(map)]
     }
 
+    /**
+     * Get the trial name from a collection of assays.
+     * The assays should belong to exactly one trial, since the
+     * snp_lz rows contain data for all subjects in a trial.
+     * @param assays the collection of assays for which the data
+     *  is queried.
+     * @throws EmptySetException iff the collection contains no trial names
+     *  (i.e., the set of assays is empty).
+     * @throws UnexpectedResultException iff the collection multiple trial
+     *  names.
+     * @return the trial name.
+     */
+    String getTrialNameFromAssays(Collection<AssayColumn> assays) {
+        def trials = [] as Set
+        assays.each { trials << it.trialName }
+        log.debug "Set of trials for assays: $trials"
+
+        if (trials.size() == 0) {
+            throw new EmptySetException(
+                    "Assay set $trials has no trial information")
+        } else if (trials.size() > 1) {
+            // Do not permit more than one trial, otherwise we wouldn't be able
+            // to returns meaningful row properties (or we'd have to make them
+            // maps)
+            throw new UnexpectedResultException("Found more than one trial in " +
+                    "the assay set; this is not allowed for this data type")
+        }
+        return trials[0]
+    }
+
+    HibernateCriteriaBuilder prepareDataQuery(
+        Projection projection,
+        SessionImplementor session) {
+        throw new UnsupportedByDataTypeException("The snp_lz data module requires " +
+            "the list of assays to be specified when querying data.")
+    }
+
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+    HibernateCriteriaBuilder prepareDataQuery(
+        List<AssayColumn> assays,
+        Projection projection,
+        SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
                 createCriteriaBuilder(SnpDataByProbeCoreDb, 'snp', session)
+
+        def trialName = getTrialNameFromAssays(assays)
+        log.debug "Add constraint for trailName '${trialName}'"
 
         criteriaBuilder.with {
             createAlias 'genotypeProbeAnnotation', 'ann',       INNER_JOIN
@@ -186,6 +230,13 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'snpInfo.chromosome',         'chromosome'
                 property 'snpInfo.pos',                'position'
             }
+
+            /*
+             * This constraint is required, since rows in the {@link SnpDataByProbeCoreDb}
+             * table are not associated with a single subject, but with all the
+             * subjects in a particular trial.
+             */
+            eq 'snp.trialName', trialName
 
             /* We need to add this restriction, otherwise we get duplicated rows
              * The version doesn't really matter, we only want the mapping
@@ -229,31 +280,25 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
             fetchSize SNP_PATIENTS_FETCH_SIZE
             fetchMode 'patient', FetchMode.JOIN
         }
-        log.debug "Found ${sssList.size()} subject ordering entries for assays $assays"
+        log.debug "Found ${sssList.size()} subject ordering entries for assays."
 
         LinkedHashMap<AssayColumn, Integer> assayIndexMap = [:] as LinkedHashMap
-        Set<AssayColumn> foundAssays = [] as Set
+        Set<AssayColumn> assaysNotFound = [] as Set
 
-        def assayForPatientId = assays.collectEntries { [it.patient.id, it] }
-        // map assays to their positions in the blobs
-        sssList.each { SnpSubjectSortedDef sss ->
-            AssayColumn assay = assayForPatientId[sss.patient.id]
-            if (!assay) {
-                log.trace "SnpSubjectSortedDef entry $sss not matched to any selected assay"
-                return
+        /*
+         * Map assays to their positions in the blobs.
+         * The ordering of the <var>assays</var> list is preserved in the iterator of assayIndexMap.
+         */
+        def sssForPatientId = sssList.collectEntries { [it.patient.id, it] }
+        assays.each { AssayColumn assay ->
+            SnpSubjectSortedDef sss = sssForPatientId[assay.patient.id]
+            if (!sss) {
+                assaysNotFound << assay
             }
-
-            foundAssays << assay
-
             assert assayIndexMap[assay] == null : "Not there yet"
             assert sss.patientPosition > 0 : 'patient positions are 1-based in the DB'
             assayIndexMap[assay] = sss.patientPosition - 1 // make it 0-based
         }
-
-        // have we found the positions for all the assays?
-        def assaysNotFound = assays as Set
-        // The groovy '-' default method uses a quadratic algorithm which is too slow here, so use the Java method
-        assaysNotFound.removeAll(foundAssays)
         if (assaysNotFound) {
             throw new UnexpectedResultException(
                     "Could not find the blob position for " +
