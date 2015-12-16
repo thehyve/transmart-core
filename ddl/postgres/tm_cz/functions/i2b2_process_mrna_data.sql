@@ -1042,7 +1042,8 @@ BEGIN
 			   then case when md.intensity_value > 0 then 1 else 0 end
 			   else 1 end = 1         --	take only >0 for dataType R
 	group by gs.probeset_id
-		  ,sd.assay_id;
+		  ,sd.assay_id
+          ,sd.patient_id;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
