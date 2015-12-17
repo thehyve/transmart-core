@@ -1021,11 +1021,13 @@ BEGIN
 	(probeset_id
 	,intensity_value
 	,assay_id
+    ,patient_id
 	,trial_name
 	)
 	select gs.probeset_id
 		  ,avg(md.intensity_value::double precision)
 		  ,sd.assay_id
+          ,sd.patient_id
 		  ,TrialId
 	from
 	  tm_lz.lt_src_mrna_data md
@@ -1040,7 +1042,8 @@ BEGIN
 			   then case when md.intensity_value > 0 then 1 else 0 end
 			   else 1 end = 1         --	take only >0 for dataType R
 	group by gs.probeset_id
-		  ,sd.assay_id;
+		  ,sd.assay_id
+          ,sd.patient_id;
 	get diagnostics rowCt := ROW_COUNT;
 	exception
 	when others then
@@ -1105,8 +1108,8 @@ BEGIN
 	--	insert into de_subject_microarray_data when dataType is T (transformed)
 
 	if dataType = 'T' or dataType = 'Z' then -- Z is for compatibility with TR ETL default settings
-		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, log_intensity, zscore) ' ||
-				   'select ' || partitionId::text || ', trial_name, probeset_id, assay_id, intensity_value, ' ||
+		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, patient_id, log_intensity, zscore) ' ||
+				   'select ' || partitionId::text || ', trial_name, probeset_id, assay_id, patient_id, intensity_value, ' ||
 				   'case when intensity_value < -2.5 then -2.5 when intensity_value > 2.5 then 2.5 else intensity_value end ' ||
 				   'from tm_wz.wt_subject_mrna_probeset';
 		raise notice 'sqlText= %', sqlText;
@@ -1129,12 +1132,14 @@ BEGIN
 		insert into tm_wz.wt_subject_microarray_logs
 		(probeset_id
 		,assay_id
+        ,patient_id
 		,raw_intensity
 		,log_intensity
 		,trial_name
 		)
 		select probeset_id
 			  ,assay_id
+              ,patient_id
 			  ,case when dataType = 'R' then intensity_value else 
 				    case when logBase = -1 then 0 else power(logBase::double precision, intensity_value::double precision) end
 			   end
@@ -1196,8 +1201,8 @@ BEGIN
 
 		-- calculate zscore and insert into partition
 
-		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, raw_intensity, log_intensity, zscore) ' ||
-				   'select ' || partitionId::text || ', d.trial_name, d.probeset_id, d.assay_id, d.raw_intensity, d.log_intensity, ' ||
+		sqlText := 'insert into ' || partitionName || ' (partition_id, trial_name, probeset_id, assay_id, patient_id, raw_intensity, log_intensity, zscore) ' ||
+				   'select ' || partitionId::text || ', d.trial_name, d.probeset_id, d.assay_id, d.patient_id, d.raw_intensity, d.log_intensity, ' ||
 				   'case when c.stddev_intensity = 0 then 0 else ' ||
 				   'case when (d.log_intensity - c.median_intensity ) / c.stddev_intensity < -2.5 then -2.5 ' ||
 				   'when (d.log_intensity - c.median_intensity ) / c.stddev_intensity > 2.5 then 2.5 else ' ||
