@@ -64,7 +64,7 @@ solr/%/conf/schema.xml: solr/% schemas/schema_%.xml
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	cp schemas/schema_$*.xml $@
 
-solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php ../vars
+solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
@@ -85,4 +85,4 @@ clean:
 clean_cores:
 	find solr -maxdepth 1 -mindepth 1 -type d ! -name bin ! -name collection1 -exec rm -r {} \;
 
-.PHONY: start solr_home clean
+.PHONY: start solr_home clean solr/%/conf/data-config.xml

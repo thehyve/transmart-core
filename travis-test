@@ -32,6 +32,37 @@ function test_main_pg {
   test_solr
 }
 
+function customize_vars_oracle {
+  local readonly port=$1
+  echo "export ORACLE=1" >> vars
+  echo "export ORAHOST=$ORACLE_MACHINE" >> vars
+  echo "export ORAPORT=$port" >> vars
+  echo "export ORASID=ORCL" >> vars
+  echo "export ORAUSER=system" >> vars
+  echo "export ORAPASSWORD=manager" >> vars
+  echo "export ORACLE_MANAGE_TABLESPACES=1" >> vars
+  echo "export USE_POOL_PROCESS=1" >> vars
+  echo "export export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'" >> vars
+}
+
+function test_main_ora {
+  local port
+  if [[ -z "$ORACLE_SECRET" ]]; then
+    echo "Skipping because \$ORACLE_SECRET is not set"
+    return 0
+  fi
+
+  apt_install nmap
+
+  source ~/ts-travis/oracle_database.sh
+  port=$(get_oracle_db)
+  customize_vars_oracle "$port"
+  source vars
+
+  make -C data/oracle start_pool &
+  make oracle
+}
+
 function test_clinical_load {
   make -C env data-integration
   make -C samples/postgres load_clinical_GSE8581
@@ -117,6 +148,9 @@ function test_configuration_syntax {
 case $1 in
   main_pg)
     test_main_pg
+    ;;
+  main_oracle)
+    test_main_ora
     ;;
   load_dump_load_pg)
     test_load_dump_load_pg

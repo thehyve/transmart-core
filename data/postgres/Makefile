@@ -11,9 +11,9 @@ row_counts:
 analyze:
 	$(PSQL_COMMAND) -c 'ANALYZE VERBOSE'
 
-$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php ../../vars
+$(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php
 	php -d variables_order=E $< > $@
 
-.PHONY: row_counts analyze
+.PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
 # vim: set filetype=make:
