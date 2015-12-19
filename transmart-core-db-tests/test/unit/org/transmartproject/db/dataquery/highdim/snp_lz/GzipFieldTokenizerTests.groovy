@@ -174,62 +174,62 @@ class GzipFieldTokenizerTests {
     }
 
     @Test
-    void testAsTokenList() {
+    void testAsStringList() {
         def blob = blobFor(DATA_CHAR)
 
         play {
             testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS)
-            def l = testee.asTokenList()
+            def l = testee.asStringList()
             assertThat(l.size(), is(DATA_CHAR_SOURCE.size()))
             assertThat(l, contains(DATA_CHAR_SOURCE.collect { c -> equalTo(new String(c)) }))
         }
     }
 
     @Test
-    void testAsTokenListTokenWithMoreThanOneCharacter() {
+    void testAsStringListTokenWithMoreThanOneCharacter() {
         def blob = blobFor(DATA_STRING)
 
         play {
             testee =  new GzipFieldTokenizer(blob, 6)
-            def l = testee.asTokenList()
+            def l = testee.asStringList()
             assertThat(l.size(), is(DATA_STRING_SOURCE.size()))
             assertThat(l, contains(DATA_STRING_SOURCE.collect { d -> equalTo(d) }))
         }
     }
 
     @Test
-    void testAsTokenListSmallerThanExpected() {
+    void testAsStringListSmallerThanExpected() {
         expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('but got only')
+        expectedException.expectMessage('tokens, but got')
 
         def blob = blobFor(DATA_CHAR)
 
         play {
             testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS + 1)
-            testee.asTokenList()
+            testee.asStringList()
         }
     }
 
     @Test
-    void testAsTokenListLargerThanExpected() {
+    void testAsStringListLargerThanExpected() {
         expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('Got more tokens')
+        expectedException.expectMessage('tokens, but got')
 
         def blob = blobFor(DATA_CHAR)
 
         play {
             testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS - 1)
-            testee.asTokenList()
+            testee.asStringList()
         }
     }
 
     @Test
-    void testAsTokenListEmptyInput() {
+    void testAsStringListEmptyInput() {
         def blob = blobFor(EMPTY_INPUT)
 
         play {
             testee =  new GzipFieldTokenizer(blob, 0)
-            def l = testee.asTokenList()
+            def l = testee.asStringList()
             assert l.size() == 0
         }
     }

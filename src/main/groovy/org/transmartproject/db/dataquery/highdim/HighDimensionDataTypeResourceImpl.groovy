@@ -135,6 +135,22 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     @Override
+    List<AssayColumn> retrieveAssays(List<AssayConstraint> assayConstraints) {
+        // Each module should only return assays that match
+        // the marker types specified, in addition to the
+        // constraints given
+        assayConstraints << new MarkerTypeConstraint(
+                platformNames: module.platformMarkerTypes)
+
+        List<AssayColumn> assays = new AssayQuery(assayConstraints).retrieveAssays()
+        if (assays.empty) {
+            throw new EmptySetException(
+                    'No assay satisfies the provided criteria.')
+        }
+        assays
+    }
+
+    @Override
     Set<String> getSupportedAssayConstraints() {
         module.supportedAssayConstraints
     }

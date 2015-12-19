@@ -77,7 +77,7 @@ class SnpLzRow<T> implements BioMarkerDataRow<T> {
         }
         new GzipFieldTokenizer(
                 (Blob) probeData.gtsByProbeBlob,
-                numberOfPatientsInTrial * 2).asTokenList()
+                numberOfPatientsInTrial * 2).asStringList()
     }()
 
     @Lazy

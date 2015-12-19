@@ -196,6 +196,25 @@ class SnpLzEndToEndRetrievalTest {
     }
 
     @Test
+    void retrieveAssaysEqualsIndicesList() {
+        def result = snpLzResource.retrieveData(
+            [trialConstraint], [], allDataProjection)
+        /*
+         * Test if the list of assay ids returning from the query is
+         * the same as in the test data and that the assays are ordered by
+         * assay id.
+         */
+        assert result.indicesList*.id == testData.orderedAssays*.id
+
+        def assays = snpLzResource.retrieveAssays([trialConstraint])
+        /*
+         * Test if retrieveAssays returns the same list as indicesList in the
+         * TabularResult.
+         */
+        assert result.indicesList == assays
+    }
+
+    @Test
     void testIndexingByNumber() {
         result = snpLzResource.retrieveData(
                 [trialConstraint], [], allDataProjection)

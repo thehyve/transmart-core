@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -146,20 +147,41 @@ public class GzipFieldTokenizer {
     }
 
     /**
-     * Use {@link TokenList} to parse the space-delimited stream of tokens.
-     *
      * @throws InputMismatchException iff the number of values read &ne; <var>expectedSize</var>.
      * @return a list of strings.
      */
-    public TokenList asTokenList() throws IOException, InputMismatchException, SQLException {
-        return withReader(new Function<Reader, TokenList>() {
-            public TokenList apply(Reader r) {
-                TokenList res = new TokenList(expectedSize);
-                res.parse(r);
+    public List<String> asStringList() throws IOException, InputMismatchException, SQLException {
+        List<String> result = withReader(new Function<Reader, List<String>>() {
+            public List<String> apply(Reader r) {
+                ArrayList<String> res = new ArrayList<String>(expectedSize);
+                StringBuilder builder = new StringBuilder();
+                int n;
+                char c;
+                boolean nonempty = false;
+                try {
+                    while ((n = r.read()) > 0) {
+                        nonempty = true;
+                        c = (char) n;
+                        if (c == ' ') {
+                            res.add(builder.toString());
+                            builder.setLength(0);
+                        } else {
+                            builder.append(c);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+                if (nonempty) {
+                    res.add(builder.toString());
+                }
                 return res;
             }
-
         });
+        if (result.size() != expectedSize) {
+            throw new InputMismatchException("Expected " + expectedSize + " tokens, but got " + result.size());
+        }
+        return result;
     }
 
 }
