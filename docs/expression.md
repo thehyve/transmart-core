@@ -3,28 +3,7 @@ mRNA
 
 For historical reasons, the parameters file for mRNA data is called
 `expression.params`.
-
-Available parameters
---------------------
-
-- `STUDY_ID` - Optional, defaults to the uppercased parent directory name of the
-  `expression.params` file.
-- `TOP_NODE` -- study top node, not the node for the mRNA data. Defaults to
-  `\(Public|Private) Studies\<STUDY_ID>`.
-- `SECURITY_REQUIRED` -- `Y` for yes, `N` for no. Default `N`.
-- `DATA_FILE` -- prefer this to `DATA_FILE_PREFIX`. Mandatory (alternatively
-  with `DATA_FILE_PREFIX`).
-- `DATA_FILE_PREFIX` -- _deprecated_ because it doesn\'t behave like a prefix
-  (unlike the original pipeline); use `DATA_FILE` instead.
-- `DATA_TYPE` -- must be present; must be `R` (raw values)
-- `LOG_BASE` -- optional, but if present must be `2`. It has no effect.
-- `NODE_NAME` -- what to append to `TOP_NODE` for form the concept path of the
-  mRNA node (before the part generated from `category_cd`).  Optional; default
-  is `MRNA`. Cannot be omitted (see (JE-52)[1]). 
-- `MAP_FILENAME` -- filename of the mapping file. Mandatory.
-- `ALLOW_MISSING_ANNOTATIONS` -- `Y` for yes, `N` for no. Default `N`. Whether
-  the job should be allowed to continue when the data set doesn't provide data
-  for all the annotations (here probes).
+For the content of this file see [the HD data parameters](hd-params.md) and [the study-specific parameters](study-params.md).
 
 Input files
 -----------

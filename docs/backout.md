@@ -17,14 +17,6 @@ the parameters on the command line. E.g.:
 
 Available parameters
 --------------------
-
-- `STUDY_ID` - Optional, defaults to the uppercased parent directory name of the
-  `backout.params` file.
-- `TOP_NODE` -- study top node. Defaults to
-  `\(Public|Private) Studies\<STUDY_ID>`.
-- `SECURITY_REQUIRED` -- `Y` for yes, `N` for no. Default `N`. Used not only to
-  generate the `TOP_NODE` (if not explicitly provided), but also to determine if
-  some data that only private studies have should be deleted.
 - `INCLUDED_TYPES` -- the modules to include, comma separated. Cannot be
   specified if `EXCLUDED_TYPES` is specified. If neither is specified, defaults
   to all the modules. The `full` module that cannot be explicitly included (the
@@ -32,6 +24,8 @@ Available parameters
 - `EXCLUDED_TYPES` -- include all the modules except those included in this
   comma separated list. The module `full` is automatically excluded if this
   parameter is not blank. See also `INCLUDED_TYPES`.
+
+You could also use [the study-specific parameters](study-params.md).
 
 
 Overview

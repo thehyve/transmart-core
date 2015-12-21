@@ -3,6 +3,10 @@ Upload Data Set Explorer Tags
 
 Tags appear on popup when you doing right click on node in data set explorer tree.
 
+Parameters
+------------
+The parameters file should be named `tags.params` and contains:
+- `TAGS_FILE` **Mandatory**. Points to the tags file. See below for format.
 
 #####Tags tsv input file format.
 
@@ -10,7 +14,7 @@ Tags appear on popup when you doing right click on node in data set explorer tre
 |-----------|---------|---------------|-----|
 |\          |ORGANISM |Homo Sapiens   |2    |
 
-Columns map onto these db columns of i2b2metadata.i2b2_tags table: 
+Columns map onto these db columns of i2b2metadata.i2b2_tags table:
 concept_key=path, tag_title=tag_type, tag_description=tag index=tags_idx
 
 Header names are not strict, but header has to be present because first line is always skipped.
