@@ -80,7 +80,7 @@ fi
 localparams="./$UPLOAD_DATA_TYPE.params"
 if [ -f "$localparams" ] ; then
     source $localparams
-    echo "Info $(basename $0): Sourced params file $localparams"
+    echo "Info $(basename $0): Sourced local params file $localparams"
 fi
 
 # If a params file name is passed as an argument to this script, source it last,
