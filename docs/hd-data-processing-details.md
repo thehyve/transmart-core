@@ -1,9 +1,9 @@
 Processing details
 ==================
 
-The data will be scanned twice. The first pass will only validate the data set.
+The data will be scanned twice. The first pass will only validate the data set based on the requirements that are listed in the data type specific documentation.
 
-n the second pass, the data will be inserted in the database. Zeros, negative
+In the second pass, the data will be inserted in the database. Zeros, negative
 values and NaNs in the data file will *not* be inserted into the database.
 
 
@@ -20,11 +20,8 @@ be calculated. If the standard deviation is zero, the resulting zscore for all
 the values in the row will be NaN. This NaN value *will be inserted* into the
 database.
 
-Finally, `clamp` is defined as
+Finally, `clamp` (functionality more commonly known as clipping or winsorizing) is defined as
 
     double clamp(double lowerBound, double upperBound, double value) {
         Math.min(upperBound, Math.max(lowerBound, value))
     }
-
-Clamping may not be a good idea, but it was implemented in this fashion in order
-to match the value in the Kettle + stored procedure pipeline.
