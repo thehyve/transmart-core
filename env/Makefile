@@ -2,7 +2,8 @@ KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
 				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev \
-				libxt-dev libpango1.0-dev texlive-fonts-recommended tex-gyre \
+				libxt-dev libpango1.0-dev libprotoc-dev \
+				texlive-fonts-recommended tex-gyre \
 				fonts-dejavu-core
 
 GROOVY_VERSION=2.1.9
