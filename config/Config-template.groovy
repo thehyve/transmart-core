@@ -21,7 +21,7 @@ def jobsDirectory     = "/var/tmp/jobs/"
 def oauthEnabled      = true
 def samlEnabled       = false
 def gwavaEnabled      = false
-def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}/transmart/"
+def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}/transmart"
 
 //Disabling/Enabling UI tabs
 ui {
@@ -425,7 +425,7 @@ grails { plugin { springsecurity {
         grails.exceptionresolver.params.exclude = ['password', 'client_secret']
 
         def glowingBearRedirectUris = [
-                transmartURL - ~/transmart\/$/ + '#/login',
+                transmartURL - ~/transmart\/?$/ + '#/login',
         ]
         if (transmartURL.startsWith('http://localhost:')) {
             // for dev, node reverse proxy runs on 8001
@@ -443,7 +443,7 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [transmartURL + 'oauth/verify']
+                        redirectUris: [transmartURL + '/oauth/verify']
                     ],
                     [
                         clientId: 'glowingbear-js',
