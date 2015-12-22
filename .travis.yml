@@ -20,7 +20,8 @@ before_install:
     - sudo apt-get install -y tk-dev # while colorspace 1.2-6 is not out
 
 install:
-    - sudo apt-get install -qq php5-cli php5-json subversion groovy
+    - sudo apt-get install -qq php5-cli php5-json subversion
+    - sudo apt-get groovy=2.1.9
     - make -C env ../vars
     - sed -i 's@PGSQL_BIN=.*@PGSQL_BIN="sudo -E -u postgres /usr/lib/postgresql/9.4/bin/"@' vars
 
