@@ -900,7 +900,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Load security data',0,stepCt,'Done');
 
---	tag data with probeset_id from reference.probeset_deapp
+--	tag data with probeset_id from reference.
   
 	execute immediate ('truncate table tm_wz.wt_subject_mrna_probeset');
 	
@@ -926,13 +926,13 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 		  ,sd.assay_id
 	from de_subject_sample_mapping sd
 		,lt_src_mrna_data md   
-		,probeset_deapp gs
+		,deapp.de_mrna_annotation gs
 	where sd.sample_cd = md.expr_id
 	  and sd.platform = 'MRNA_AFFYMETRIX'
 	  and sd.trial_name = TrialId
 	  and sd.source_cd = sourceCd
-	  and sd.gpl_id = gs.platform
-	  and md.probeset = gs.probeset
+	  and sd.gpl_id = gs.gpl_id
+	  and md.probeset = gs.probe_id
 	  and decode(dataType,'R',sign(md.intensity_value),1) = 1  --	take only >0 for dataType R
 	group by gs.probeset_id
 		--  ,sd.sample_cd
@@ -1036,7 +1036,7 @@ EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 		cz_end_audit (jobId,'FAIL');
 		select 163 into rtn_code from dual;
 	when no_probeset_recs then
-		cz_write_audit(jobId,databasename,procedurename,'Unable to match probesets to platform in probeset_deapp',1,stepCt,'ERROR');
+		cz_write_audit(jobId,databasename,procedurename,'Unable to match probesets to platform in de_mrna_annotation',1,stepCt,'ERROR');
 		CZ_ERROR_HANDLER(JOBID,PROCEDURENAME);
 		cz_end_audit (jobId,'FAIL');
 		select 165 into rtn_code from dual;
