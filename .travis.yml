@@ -28,6 +28,6 @@ install:
 before_script:
     - ulimit -u 4096
     - export PATH=./env:$PATH
-    - groovy --version
+    - echo $(groovy --version)
 
 script: ./travis-test $TEST_SUITE
