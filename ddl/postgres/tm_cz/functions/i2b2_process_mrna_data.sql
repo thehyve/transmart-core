@@ -912,7 +912,8 @@ BEGIN
 		select tm_cz.cz_error_handler (jobID, procedureName, '-1', 'Application raised error') into rtnCd;
 		select tm_cz.cz_end_audit (jobID, 'FAIL') into rtnCd;
 		return -16;
-	end if;	
+	end if;
+
 	--	Insert records for subjects into observation_fact
 
 	begin
@@ -981,6 +982,13 @@ BEGIN
 	end;
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type, visualattributes and xml in i2b2',rowCt,stepCt,'Done') into rtnCd;
+
+        update i2b2 a
+	set c_visualattributes='FAS'
+        where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
+        
+        stepCt := stepCt + 1;
+	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for study nodes in I2B2METADATA i2b2',RowCt,stepCt,'Done') into rtnCd;
 
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer

@@ -73,7 +73,7 @@ groovy -cp "$LIB_CLASSPATH" InsertGplInfo.groovy \
 	-m "Gene Expression" \
 	-o "$ORGANISM" || { test $? -eq 3 && exit 0; }
 # the exit code is 3 if we are skip the rest
-# due to annotation being already loaden
+# due to annotation being already loaded
 
 
 groovy -cp "$LIB_CLASSPATH" LoadTsvFile.groovy \
