@@ -507,10 +507,9 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
         if (!isValid) {
             var strErrMsg = 'Following needs to be defined: ';
-            invalidInputs.each(function (item) {
+            invalidInputs.forEach(function (item) {
                 strErrMsg += '['+item + '] ';
             })
-
             // inform user on mandatory inputs need to be defined
             Ext.MessageBox.show({
                 title: 'Missing mandatory inputs',

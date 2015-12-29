@@ -298,7 +298,7 @@ var DgeRNASeqView = Ext.extend(GenericAnalysisView, {
 
         if (!isValid) {
             var strErrMsg = 'Following needs to be defined: ';
-            invalidInputs.each(function (item) {
+            invalidInputs.forEach(function (item) {
                 strErrMsg += '[' + item + '] ';
             })
 
