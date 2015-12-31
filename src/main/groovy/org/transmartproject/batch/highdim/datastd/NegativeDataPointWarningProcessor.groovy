@@ -8,11 +8,11 @@ import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.item.ItemProcessor
 
 /**
- * Prints warnings when finding non-NaN, not-positive numbers.
+ * Prints warnings when finding non-NaN, negative numbers.
  */
 @CompileStatic
 @Slf4j
-class NonPositiveDataPointWarningProcessor
+class NegativeDataPointWarningProcessor
         implements ItemProcessor<StandardDataValue, StandardDataValue>, StepExecutionListener {
 
     private final static int MAX_VIOLATORS_STORED = 10
@@ -34,10 +34,10 @@ class NonPositiveDataPointWarningProcessor
         }
 
         if (violatorsCount <= violators.size()) {
-            log.warn("Found $violatorsCount non-positive non-NaN values: " +
+            log.warn("Found $violatorsCount negative non-NaN values: " +
                     "$violators")
         } else {
-            log.warn("Found $violatorsCount non-positive non-NaN values. The " +
+            log.warn("Found $violatorsCount negative non-NaN values. The " +
                     "first $MAX_VIOLATORS_STORED were: $violators")
         }
 
@@ -52,7 +52,7 @@ class NonPositiveDataPointWarningProcessor
 
         violatorsCount++
         if (violatorsCount == 1) {
-            log.warn("Found non-positive non-NaN value: $item. " +
+            log.warn("Found negative non-NaN value: $item. " +
                     "Further occurrences will be collected, " +
                     "until a maximum of $MAX_VIOLATORS_STORED")
         }

@@ -101,11 +101,18 @@ class MetabolomicsDataCleanScenarioTests implements JobRunningTestTrait {
 
         Map<String, Object> r = queryForMap q, p
 
-        double xylitolLog2Mean = 16.7066526621115
-        double xylitolLog2StdDev = 2.0594359285213115
+        def stats = queryForMap """
+        SELECT
+            stddev_samp(log_intensity) as stddev, avg(log_intensity) as mean
+        FROM ${Tables.METAB_DATA} D
+        INNER JOIN ${Tables.METAB_ANNOTATION} A ON (D.metabolite_annotation_id = A.id)
+        WHERE trial_name = :trial_name
+            AND A.biochemical_name = :biochemicalName
+        """, [ trial_name: STUDY_ID, biochemicalName: biochemicalName ]
+
         double rawValue = 205043.3d
-        double logValue = Math.log(205043.3d) / Math.log(2d)
-        double zscore = (logValue - xylitolLog2Mean) / xylitolLog2StdDev
+        double logValue = Math.log(rawValue) / Math.log(2d)
+        double zscore = (logValue - stats.mean) / stats.stddev
 
         assertThat r, allOf(
                 hasEntry('trial_name', STUDY_ID),

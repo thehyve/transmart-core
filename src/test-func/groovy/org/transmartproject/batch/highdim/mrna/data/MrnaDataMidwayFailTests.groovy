@@ -23,8 +23,9 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_ASSAYS_WITH_VALID_DATA
+import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_ASSAYS
 import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_PROBES
+import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NOT_SUPPORTED_VALUES
 import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
@@ -105,6 +106,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         secondExecution(params)
 
         checkFactCount()
+        checkLog0Workaround()
     }
 
     @Test
@@ -116,7 +118,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         double value = 44.1729d
         jdbcTemplate.update("ALTER TABLE $Tables.MRNA_DATA " +
                 "ADD CONSTRAINT test_constraint " +
-                "CHECK (raw_intensity <> 44.1729)", [:])
+                "CHECK (raw_intensity <> ${value})", [:])
         try {
             firstExecution(params)
         } finally {
@@ -127,11 +129,18 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         secondExecution(params)
 
         checkFactCount()
+        checkLog0Workaround()
 
+        def probeName = '1316_at'
         // check the fact that was corrupted the first time
         double logValue = Math.log(value) / Math.log(2d)
-        def meanOfLog2 = 4.8558664099537845
-        def stdDevOfLog2 = 0.36070860751622236
+        def stats = jdbcTemplate.queryForMap """
+        SELECT
+            stddev_samp(log_intensity) as stddev, avg(log_intensity) as mean
+        FROM ${Tables.MRNA_DATA} D
+        INNER JOIN ${Tables.MRNA_ANNOTATION} A ON (D.probeset_id = A.probeset_id)
+        WHERE A.probe_id = :probe_name AND D.trial_name = :study_id
+        """, [ study_id: STUDY_ID, probe_name: probeName ]
 
         def q = """
                 SELECT raw_intensity, log_intensity, zscore
@@ -146,7 +155,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
 
         def p = [study_id: STUDY_ID,
                  sample_name: 'GSM210010',
-                 probe_name: '1316_at']
+                 probe_name: probeName]
 
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
@@ -154,7 +163,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
                 hasEntry(equalToIgnoringCase('raw_intensity'), castingCloseTo(value, DELTA)),
                 hasEntry(equalToIgnoringCase('log_intensity'), castingCloseTo(logValue, DELTA)),
                 hasEntry(equalToIgnoringCase('zscore'),
-                        castingCloseTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
+                        castingCloseTo((logValue - stats.mean) / stats.stddev, DELTA)),
         )
     }
 
@@ -163,6 +172,27 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
                 study_id: STUDY_ID
 
         assertThat count,
-                is(equalTo(NUMBER_OF_ASSAYS_WITH_VALID_DATA * NUMBER_OF_PROBES))
+                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES - NOT_SUPPORTED_VALUES))
+    }
+
+    private void checkLog0Workaround() {
+        //Check that log2(0) workaround (log2(minPositiveValueOfTheDataSet / 2)) is calculated based
+        // on right minimum positive value.
+
+        def minPositiveValueOfTheDataSet = 1.15958d
+        double logTrickValue = Math.log(minPositiveValueOfTheDataSet / 2) / Math.log(2)
+        def logs = jdbcTemplate.queryForList """
+          SELECT D.log_intensity as log
+                FROM
+                    ${Tables.MRNA_DATA} D
+                WHERE
+                    D.trial_name = :study_id and D.raw_intensity = 0
+        """, [study_id: STUDY_ID]
+
+        assertThat """Either minimal positive value of the data set has not been found right after recovery process
+                    or log2(0) is not substituted with log2(minPositiveValueOfTheDataSet / 2).""",
+                logs, everyItem(
+                        hasEntry(equalToIgnoringCase('log'), castingCloseTo(logTrickValue, DELTA))
+        )
     }
 }

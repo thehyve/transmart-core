@@ -6,7 +6,10 @@ import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemStreamException
 import org.springframework.batch.item.ItemStreamSupport
 import org.springframework.batch.item.file.transform.FieldSet
+import org.springframework.beans.factory.annotation.Value
 import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
+
+import static org.transmartproject.batch.stat.StatisticsCalculationUtils.log
 
 /**
  * Calculates mean and variance of the log2 of a row's values.
@@ -19,10 +22,13 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
 
     private final static double LOG_2 = Math.log(2)
 
-    private final static String STATS_SUB_KEY = 'stats'
+    private final static String ROW_STATS_SUB_KEY = 'rowStatistics'
 
-    private OnlineMeanAndVarianceCalculator stats
+    private OnlineMeanAndVarianceCalculator rowStatistics
     private String statsKey
+
+    @Value("#{jobExecutionContext['minPosDataSetValue']}")
+    private Double minPosDataSetValue
 
     PerDataRowLog2StatisticsListener() {
         name = 'perDataRow'
@@ -31,45 +37,47 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
     double getMean() {
         checkState()
 
-        stats.mean / LOG_2
+        rowStatistics.mean / LOG_2
     }
 
     double getStandardDeviation() {
         checkState()
 
-        stats.standardDeviation / LOG_2
+        rowStatistics.standardDeviation / LOG_2
     }
 
     private void checkState() {
-        if (stats == null) {
+        if (rowStatistics == null) {
             throw new IllegalStateException('No statistics calculated yet')
         }
 
-        if (stats.n < 2) {
+        if (rowStatistics.n < 2) {
             throw new IllegalStateException('Did not get enough samples to ' +
-                    'calculate the statistics; need two, got ' + stats.n)
+                    'push the statistics; need two, got ' + rowStatistics.n)
         }
     }
 
     @Override
     void onLine(FieldSet fieldSet, Collection<DataPoint> items) {
-        stats.reset()
+        rowStatistics.reset()
         long ignoredCount = 0
         items.each {
-            if (Double.isNaN(it.value) || it.value <= 0d) {
+            if (Double.isNaN(it.value) || it.value < 0d) {
                 ignoredCount++
                 return
             }
 
-            stats.push Math.log(it.value) // unscaled
+            // division by log(2) to get binary logarithm is done inside getters: getMean() and getStandardDeviation()
+            // it's done so to do not collect error and fro optimization reasons.
+            rowStatistics.push log(it.value, minPosDataSetValue)
         }
 
 
         def annotationName = fieldSet.readString(0)
         log.debug("Annotation $annotationName: mean=$mean, " +
-                "stddev=$standardDeviation n=${stats.n} ignored=$ignoredCount")
+                "stddev=$standardDeviation n=${rowStatistics.n} ignored=$ignoredCount")
 
-        if (standardDeviation == 0.0d && stats.n > 0) {
+        if (standardDeviation == 0.0d && rowStatistics.n > 0) {
             log.warn("Values for annotation $annotationName have zero " +
                     "standard deviation; their zscore will be NaN!")
         }
@@ -77,23 +85,23 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
 
     @Override
     void open(ExecutionContext executionContext) throws ItemStreamException {
-        statsKey = getExecutionContextKey(STATS_SUB_KEY)
+        statsKey = getExecutionContextKey(ROW_STATS_SUB_KEY)
         if (executionContext.containsKey(statsKey)) {
-            stats = (executionContext.get(statsKey)
+            rowStatistics = (executionContext.get(statsKey)
                     as OnlineMeanAndVarianceCalculator)
         } else {
-            stats = new OnlineMeanAndVarianceCalculator()
+            rowStatistics = new OnlineMeanAndVarianceCalculator()
         }
     }
 
     @Override
     void update(ExecutionContext executionContext) throws ItemStreamException {
-        executionContext.put(statsKey, stats.clone())
+        executionContext.put(statsKey, rowStatistics.clone())
     }
 
     @Override
     @SuppressWarnings('CloseWithoutCloseable')
     void close() throws ItemStreamException {
-        stats = null
+        rowStatistics = null
     }
 }
