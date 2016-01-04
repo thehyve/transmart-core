@@ -127,6 +127,9 @@ class HighDimensionResourceService implements HighDimensionResource {
     /**
      * Register a new high dimensional type. Factory is a closure that takes a
      * map with one entry: name: <module name>
+     *
+     * The factory should produce objects that, if not identical, are at least
+     * equal to each other.
      * @param moduleName
      * @param factory
      */

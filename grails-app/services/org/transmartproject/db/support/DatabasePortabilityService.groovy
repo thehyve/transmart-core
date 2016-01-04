@@ -145,6 +145,13 @@ class DatabasePortabilityService {
         )
     }
 
+    String toChar(String expr){
+        runCorrectImplementation(
+                {"CAST($expr as character varying)"},
+                {"to_char($expr)"}
+        )
+    }
+
     /**
      * Convert pagination limits for use with queries transformed with the
      * methods available in this class.
