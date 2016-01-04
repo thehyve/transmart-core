@@ -123,57 +123,6 @@ class GzipFieldTokenizerTests {
     }
 
     @Test
-    void testAsCharArray() {
-        def blob = blobFor(DATA_CHAR)
-
-        play {
-            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS)
-            def array = testee.asCharArray()
-            assertThat array as List, contains(DATA_CHAR_SOURCE)
-        }
-    }
-
-
-    @Test
-    void testAsCharArraySmallerThanExpected() {
-        expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('but got only')
-
-        def blob = blobFor(DATA_CHAR)
-
-        play {
-            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS + 1)
-            testee.asCharArray()
-        }
-    }
-
-    @Test
-    void testAsCharArrayLargerThanExpected() {
-        expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('Got more tokens')
-
-        def blob = blobFor(DATA_CHAR)
-
-        play {
-            testee =  new GzipFieldTokenizer(blob, DATA_CHAR_NUMBER_OF_TOKENS - 1)
-            testee.asCharArray()
-        }
-    }
-
-    @Test
-    void testAsCharArrayTokenWithMoreThanOneCharacter() {
-        expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('Found non-space character at')
-
-        def blob = blobFor(DATA_CHAR_BAD)
-
-        play {
-            testee =  new GzipFieldTokenizer(blob, 6)
-            testee.asCharArray()
-        }
-    }
-
-    @Test
     void testAsStringList() {
         def blob = blobFor(DATA_CHAR)
 
@@ -200,7 +149,7 @@ class GzipFieldTokenizerTests {
     @Test
     void testAsStringListSmallerThanExpected() {
         expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('tokens, but got')
+        expectedException.expectMessage('tokens, but got only')
 
         def blob = blobFor(DATA_CHAR)
 
@@ -213,7 +162,7 @@ class GzipFieldTokenizerTests {
     @Test
     void testAsStringListLargerThanExpected() {
         expectedException.expect(InputMismatchException)
-        expectedException.expectMessage('tokens, but got')
+        expectedException.expectMessage('Got more tokens')
 
         def blob = blobFor(DATA_CHAR)
 
