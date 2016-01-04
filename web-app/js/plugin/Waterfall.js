@@ -94,7 +94,7 @@ WaterfallView.prototype.submit_job = function (form) {
         return;
     }
 
-    if ((dataNodeList[0] == 'valueicon' || dataNodeList[0] == 'hleaficon') && (dataNodeConceptCode.indexOf("|") != -1))
+    if ((this.isNumerical(dataNodeList) || this.isHd(dataNodeList)) && (dataNodeConceptCode.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous data, you may only drag one node into the input boxes. ' +
             'The "Data Node" input box has multiple nodes.');

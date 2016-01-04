@@ -123,21 +123,21 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((timeNodeList[0] == 'valueicon' || timeNodeList[0] == 'hleaficon') && (timeVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(timeNodeList) || this.isHd(timeNodeList)) && (timeVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into ' +
             'the input boxes. The Time input box has multiple nodes.');
         return;
     }
 
-    if((categoryNodeList[0] == 'valueicon' || categoryNodeList[0] == 'hleaficon') && (categoryVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(categoryNodeList) || this.isHd(categoryNodeList)) && (categoryVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Category input box has multiple nodes.');
         return;
     }
 
-    if((censoringNodeList[0] == 'valueicon' || censoringNodeList[0] == 'hleaficon') && (censoringVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(censoringNodeList) || this.isHd(censoringNodeList)) && (censoringVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Censoring input box has multiple nodes.');
@@ -145,7 +145,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if(GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous' && ((categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) || (categoryNodeList[0] == 'hleaficon' && window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && Ext.get('variableType').getValue() == 'Continuous' && ((categoryVariableConceptPath != "" && this.isCategorical(categoryNodeList)) || (this.isHd(categoryNodeList) && window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Category box, but you are trying to bin ' +
             'it as if it was continuous. Please alter your binning options or the concept in the Category box.');
@@ -164,16 +164,16 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     var categoryVariableType = "";
 
     //If Category is not empty, check to see if the node value is categorical.
-    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null")) categoryVariableType = "CAT";
+    if(categoryVariableConceptPath != "" && this.isCategorical(categoryNodeList)) categoryVariableType = "CAT";
 
     //We only bin on category here, so if binning is enabled the category is categorical.
     if (GLOBAL.Binning) categoryVariableType = "CAT";
 
     //Check to see if the category node is continuous.
-    if((categoryNodeList[0] == 'valueicon' || (categoryNodeList[0] == 'hleaficon' && !(window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP'))) && !(GLOBAL.Binning)) categoryVariableType = "CON";
+    if((this.isNumerical(categoryNodeList) || (this.isHd(categoryNodeList) && !(window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP'))) && !(GLOBAL.Binning)) categoryVariableType = "CON";
 
     //If binning is enabled and the user is trying to categorically bin a continuous variable, alert them.
-    if(GLOBAL.Binning && Ext.get('variableType').getValue() != 'Continuous' && (categoryNodeList[0] == 'valueicon' || (categoryNodeList[0] == 'hleaficon' && !(window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP'))))
+    if(GLOBAL.Binning && Ext.get('variableType').getValue() != 'Continuous' && (this.isNumerical(categoryNodeList) || (this.isHd(categoryNodeList) && !(window['divCategoryVariableSNPType'] == "Genotype" && window['divCategoryVariablemarkerType'] == 'SNP'))))
     {
         Ext.Msg.alert('Wrong input', 'You cannot use categorical binning with a continuous variable. Please alter ' +
             'your binning options or the concept in the Category box.');
@@ -181,7 +181,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If time is not a '123' node, throw an error.
-    if(timeNodeList[0] != 'valueicon')
+    if(!this.isNumerical(timeNodeList))
     {
         Ext.Msg.alert('Wrong input', 'Survival Analysis requires a continuous variable that is not high dimensional ' +
             'in the "Time" box.');
@@ -189,7 +189,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If there is a node in the censoring box and it isn't a category, throw an error.
-    if(censoringVariableConceptPath != "" && !(!censoringNodeList[0] || censoringNodeList[0] == "null"))
+    if(censoringVariableConceptPath != "" && !this.isCategorical(censoringNodeList))
     {
         Ext.Msg.alert('Wrong input', 'Survival Analysis requires categorical variables in the "Censoring ' +
             'Variable" box.');
@@ -203,7 +203,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if(categoryVariableConceptPath != "" && (!categoryNodeList[0] || categoryNodeList[0] == "null") && categoryVariableConceptPath.indexOf("|") == -1)
+    if(categoryVariableConceptPath != "" && this.isCategorical(categoryNodeList) && categoryVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent ' +
             'box only has 1 categorical variable in it.');
@@ -232,7 +232,7 @@ SurvivalAnalysisView.prototype.get_form_params = function (form) {
     //More Validation
     //------------------------------------
     //If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-    if(categoryNodeList[0] == 'hleaficon' && formParams["divDependentVariableType"] == "CLINICAL")
+    if(this.isHd(categoryNodeList) && formParams["divDependentVariableType"] == "CLINICAL")
     {
         Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the category variable box ' +
             'but did not select any filters! Please click the "High Dimensional Data" button and select filters. ' +

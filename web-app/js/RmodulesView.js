@@ -218,3 +218,36 @@ RmodulesView.prototype.drop_onto_bin = function (source, e, data) {
     this.el.appendChild(data.ddel);
     return true;
 };
+
+/**
+ * To check if node is categorical or not
+ * @param nodeTypes
+ * @returns {boolean}
+ * @private
+ */
+RmodulesView.prototype.isCategorical = function (nodeTypes) {
+    var nodeType = nodeTypes[0];
+    return (!nodeType || nodeType == "null" || nodeType == "alphaicon");
+}
+
+/**
+ * To check if node is numerical or not
+ * @param nodeTypes
+ * @returns {boolean}
+ * @private
+ */
+RmodulesView.prototype.isNumerical = function (nodeTypes) {
+    var nodeType = nodeTypes[0];
+    return nodeType == "valueicon";
+}
+
+/**
+ * To check if node is hd or not
+ * @param nodeTypes
+ * @returns {boolean}
+ * @private
+ */
+RmodulesView.prototype.isHd = function (nodeTypes) {
+    var nodeType = nodeTypes[0];
+    return nodeType == "hleaficon";
+}

@@ -118,13 +118,13 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') && (dependentVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(dependentNodeList) || this.isHd(dependentNodeList)) && (dependentVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Dependent input box has multiple nodes.');
         return;
     }
 
-    if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') && (independentVariableConceptPath.indexOf("|") != -1))
+    if((this.isNumerical(independentNodeList) || this.isHd(independentNodeList)) && (independentVariableConceptPath.indexOf("|") != -1))
     {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the input boxes. The Independent input box has multiple nodes.');
         return;
@@ -143,12 +143,12 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //If binning is enabled and we try to bin a categorical value as a continuous, throw an error.
-    if(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked && Ext.get('variableTypeDep').getValue() == 'Continuous' && ((dependentVariableConceptPath != "" && (!dependentNodeList[0] || dependentNodeList[0] == "null")) || (dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && document.getElementById('EnableBinningDep').checked && Ext.get('variableTypeDep').getValue() == 'Continuous' && ((dependentVariableConceptPath != "" && this.isCategorical(dependentNodeList)) || (this.isHd(dependentNodeList) && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Dependent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Dependent variable box.');
         return;
     }
-    if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked && Ext.get('variableTypeIndep').getValue() == 'Continuous' && ((independentVariableConceptPath != "" && (!independentNodeList[0] || independentNodeList[0] == "null")) || (independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')) )
+    if(GLOBAL.Binning && document.getElementById('EnableBinningIndep').checked && Ext.get('variableTypeIndep').getValue() == 'Continuous' && ((independentVariableConceptPath != "" && this.isCategorical(independentNodeList)) || (this.isHd(independentNodeList) && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP')) )
     {
         Ext.Msg.alert('Wrong input', 'There is a categorical input in the Independent variable box, but you are trying to bin it as if it was continuous. Please alter your binning options or the concept in the Independent variable box.');
         return;
@@ -165,12 +165,12 @@ TableWithFisherView.prototype.get_form_params = function (form) {
 //    console.log ("depVariableType", depVariableType)
 
     //If there is a categorical variable in either box (This means either of the lists are empty)
-    if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
-    if(!independentNodeList[0] || independentNodeList[0] == "null") indVariableType = "CAT";
+    if(this.isCategorical(dependentNodeList)) depVariableType = "CAT";
+    if(this.isCategorical(independentNodeList)) indVariableType = "CAT";
 
     //The last type of category is if we have high dim data, using SNP(Genotype).
-    if(dependentNodeList[0] == 'hleaficon' && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP') depVariableType = "CAT";
-    if(independentNodeList[0] == 'hleaficon' && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP') indVariableType = "CAT";
+    if(this.isHd(dependentNodeList) && window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP') depVariableType = "CAT";
+    if(this.isHd(independentNodeList) && window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP') indVariableType = "CAT";
 
     //Check to make sure we have two categorical values.
     if(!(depVariableType=="CAT"))
@@ -186,13 +186,13 @@ TableWithFisherView.prototype.get_form_params = function (form) {
     }
 
     //If the dependent node list is empty but we have a concept in the box (Meaning we dragged in categorical items) and there is only one item in the box, alert the user.
-    if((!dependentNodeList[0] || dependentNodeList[0] == "null") && dependentVariableConceptPath.indexOf("|") == -1)
+    if(this.isCategorical(dependentNodeList) && dependentVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The dependent box only has 1 categorical variable in it.');
         return;
     }
 
-    if((!independentNodeList[0] || independentNodeList[0] == "null") && independentVariableConceptPath.indexOf("|") == -1)
+    if(this.isCategorical(independentNodeList) && independentVariableConceptPath.indexOf("|") == -1)
     {
         Ext.Msg.alert('Wrong input', 'When using categorical variables you must use at least 2. The independent box only has 1 categorical variable in it.');
         return;

@@ -80,14 +80,14 @@ ScatterPlotView.prototype.get_form_params = function (form) {
     }
 
     //For the valueicon and hleaficon nodes, you can only put one in a given input box.
-    if((dependentNodeList[0] == 'valueicon' || dependentNodeList[0] == 'hleaficon') &&
+    if((this.isNumerical(dependentNodeList) || this.isHd(dependentNodeList)) &&
         (dependentVariableConceptCode.indexOf("|") != -1)) {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Dependent input box has multiple nodes.');
         return;
     }
 
-    if((independentNodeList[0] == 'valueicon' || independentNodeList[0] == 'hleaficon') &&
+    if((this.isNumerical(independentNodeList) || this.isHd(independentNodeList)) &&
         (independentVariableConceptCode.indexOf("|") != -1)) {
         Ext.Msg.alert('Wrong input', 'For continuous and high dimensional data, you may only drag one node into the ' +
             'input boxes. The Independent input box has multiple nodes.');
@@ -100,15 +100,15 @@ ScatterPlotView.prototype.get_form_params = function (form) {
     var indVariableType = "";
 
     //If there is a categorical variable in either box (This means either of the lists are empty)
-    if(!dependentNodeList[0] || dependentNodeList[0] == "null") depVariableType = "CAT";
-    if(!independentNodeList[0] || independentNodeList[0] == "null") indVariableType = "CAT";
+    if(this.isCategorical(dependentNodeList)) depVariableType = "CAT";
+    if(this.isCategorical(independentNodeList)) indVariableType = "CAT";
 
     //If we have a value icon node, or a high dim that isn't SNP genotype, it is continuous.
-    if((dependentNodeList[0] == 'valueicon' || (dependentNodeList[0] == 'hleaficon' &&
+    if((this.isNumerical(dependentNodeList) || (this.isHd(dependentNodeList) &&
         !(window['divDependentVariableSNPType'] == "Genotype" && window['divDependentVariablemarkerType'] == 'SNP'))))
         depVariableType = "CON";
 
-    if((independentNodeList[0] == 'valueicon' || (independentNodeList[0] == 'hleaficon' &&
+    if((this.isNumerical(independentNodeList) || (this.isHd(independentNodeList) &&
         !(window['divIndependentVariableSNPType'] == "Genotype" && window['divIndependentVariablemarkerType'] == 'SNP'))))
         indVariableType = "CON";
 
@@ -148,14 +148,14 @@ ScatterPlotView.prototype.get_form_params = function (form) {
     //More Validation
     //------------------------------------
     //If the user dragged in a high dim node, but didn't enter the High Dim Screen, throw an error.
-    if(dependentNodeList[0] == 'hleaficon' && formParams["divDependentVariableType"] == "CLINICAL")
+    if(this.isHd(dependentNodeList) && formParams["divDependentVariableType"] == "CLINICAL")
     {
         Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the dependent variable box but ' +
             'did not select any filters. Please click the "High Dimensional Data" button and select filters. ' +
             'Apply the filters by clicking "Apply Selections".');
         return;
     }
-    if(independentNodeList[0] == 'hleaficon' && formParams["divIndependentVariableType"] == "CLINICAL")
+    if(this.isHd(independentNodeList) && formParams["divIndependentVariableType"] == "CLINICAL")
     {
         Ext.Msg.alert('Wrong input', 'You dragged a High Dimensional Data node into the independent variable ' +
             'box but did not select any filters. Please click the "High Dimensional Data" button and select ' +

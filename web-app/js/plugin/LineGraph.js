@@ -54,17 +54,6 @@ LineGraphView.prototype.get_form_params = function (form) {
         return;
     }
 
-    /**
-     * To check if node is categorical or not
-     * @param nodeTypes
-     * @returns {boolean}
-     * @private
-     */
-    var _isCategorical = function (nodeTypes) {
-        return (nodeTypes[0] == "null") ? true : false;
-    } //
-
-
     var dependentVariableConceptPath = "";
     var groupByVariableConceptPath = "";
 
@@ -109,13 +98,13 @@ LineGraphView.prototype.get_form_params = function (form) {
 
     var formParams = {
         dependentVariable: dependentVariableConceptPath,
-        dependentVariableCategorical: _isCategorical(dependentNodeList),
+        dependentVariableCategorical: this.isCategorical(dependentNodeList),
         jobType: 'LineGraph',
         plotEvenlySpaced: Ext.get("plotEvenlySpaced").dom.checked,
         projections: [ "rawIntensity" ],
         graphType: Ext.get("graphType").dom.options[Ext.get("graphType").dom.selectedIndex].value,
         groupByVariable: groupByVariableConceptPath,
-        groupByVariableCategorical: _isCategorical(groupByNodeList)
+        groupByVariableCategorical: this.isCategorical(groupByNodeList)
     };
 
     if (!this.load_high_dimensional_parameters(formParams)) return false;
