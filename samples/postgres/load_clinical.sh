@@ -44,8 +44,15 @@ if [ $USE_R_UPLOAD = 'N' ]; then
 
     mkdir -p logs
 
+    CLINICAL_JOB='create_clinical_data.kjb'
+    if [ ! -z "$INC_LOAD" ]; then
+	if [ "$INC_LOAD" = 'Y' ]; then
+	    CLINICAL_JOB='increment_clinical_data.kjb'
+	fi
+    fi
+
     $KITCHEN -norep=Y                                               \
-             -file=$KETTLE_JOBS_PSQL/create_clinical_data.kjb            \
+             -file=$KETTLE_JOBS_PSQL/$CLINICAL_JOB                  \
              -log=logs/load_clinical_data_$(date +"%Y%m%d%H%M").log \
              -param:COLUMN_MAP_FILE="$COLUMN_MAP_FILE"              \
              -param:DATA_LOCATION="$DATA_LOCATION"                  \

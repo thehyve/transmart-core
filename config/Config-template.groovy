@@ -21,7 +21,7 @@ def jobsDirectory     = "/var/tmp/jobs/"
 def oauthEnabled      = true
 def samlEnabled       = false
 def gwavaEnabled      = false
-def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}/transmart/"
+def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}/transmart"
 
 //Disabling/Enabling UI tabs
 ui {
@@ -154,6 +154,9 @@ environments { development {
     com.recomdata.sessionTimeout = Integer.MAX_VALUE / 1000 as int /* ~24 days */
     com.recomdata.heartbeatLaps = 900
 } }
+
+// Maximum concurrent sessions for a user (-1: unlimited)
+// org.transmartproject.maxConcurrentUserSessions = 10
 
 // Not enabled by default (see Config-extra.php.sample)
 //com.recomdata.passwordstrength.pattern
@@ -366,6 +369,7 @@ grails { plugin { springsecurity {
             '/secureObjectPath/**'        : ['ROLE_ADMIN'],
             '/userGroup/**'               : ['ROLE_ADMIN'],
             '/secureObjectAccess/**'      : ['ROLE_ADMIN'],
+            '/oauthAdmin/**'              : ['ROLE_ADMIN'],
             *                             : (oauthEnabled ?  oauthEndpoints : [:]),
             *                             : (gwavaEnabled ?  gwavaMappings : [:]),
             '/**'                         : ['IS_AUTHENTICATED_REMEMBERED'], // must be last
@@ -422,7 +426,7 @@ grails { plugin { springsecurity {
         grails.exceptionresolver.params.exclude = ['password', 'client_secret']
 
         def glowingBearRedirectUris = [
-                transmartURL - ~/transmart\/$/ + '#/login',
+                transmartURL - ~/transmart\/?$/ + '#/login',
         ]
         if (transmartURL.startsWith('http://localhost:')) {
             // for dev, node reverse proxy runs on 8001
@@ -440,7 +444,7 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [transmartURL + 'oauth/verify']
+                        redirectUris: [transmartURL + '/oauth/verify']
                     ],
                     [
                         clientId: 'glowingbear-js',

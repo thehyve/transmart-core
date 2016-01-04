@@ -7,7 +7,7 @@
 # Specific mandatory parameters for this upload script:
 #   RNASEQ_DATA_FILE, SUBJECT_SAMPLE_MAPPING, R_JOBS_PSQL or KETTLE_JOBS_PSQL
 # Specific optional parameters for this upload script:
-#   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD
+#   TOP_NODE_PREFIX, SECURITY_REQUIRED, SOURCE_CD, DATA_TYPE
 
 # locate this shell script, and source a generic shell script to process all params related settings
 UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
@@ -41,7 +41,7 @@ if [ -z "$RNASEQ_DATA_FILE" ] || [ -z "$SUBJECT_SAMPLE_MAPPING" ] ; then
 fi
 
 # Extract STUDY_ID from subject sample mapping file
-STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' ${SUBJECT_SAMPLE_MAPPING} | sort -u | tr 'a-z' 'A-Z')
+STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${SUBJECT_SAMPLE_MAPPING}" | sort -u | tr 'a-z' 'A-Z')
 if [ -z "$STUDY_ID_FROM_SSM" ]; then
     echo "Error $0: No STUDY_ID provided in first column of subject sample mapping file $SUBJECT_SAMPLE_MAPPING"
     exit 1
@@ -69,6 +69,7 @@ fi
 TOP_NODE="\\${TOP_NODE_PREFIX}\\${STUDY_NAME}\\"
 
 SOURCE_CD=${SOURCE_CD:-STD}
+DATA_TYPE=${DATA_TYPE:-R}    # Normalized readcounts are loaded as R (raw) by default. Use L (log2) to load log2 normalized readcounts.
 
 # The unpivoted-file which will be loaded into the database
 RNASEQ_DATA_FILE_UPLOAD="${RNASEQ_DATA_FILE}".upload
@@ -103,7 +104,7 @@ _END
 # transport data from the landing-zone into the transmart tables
   echo "Move data from landing zone into transmart/i2b2 tables"
   $PGSQL_BIN/psql <<_END
-    select tm_cz.i2b2_process_rnaseq_data('${STUDY_ID}', '${TOP_NODE}', '${SOURCE_CD}', '${SECURITY_REQUIRED}') 
+    select tm_cz.i2b2_process_rnaseq_data('${STUDY_ID}', '${TOP_NODE}', '${SOURCE_CD}', '${SECURITY_REQUIRED}', '${DATA_TYPE}')
 _END
 
 echo "All done."

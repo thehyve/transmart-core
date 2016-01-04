@@ -1,14 +1,4 @@
 --
--- Name: i2b2_record_id_seq; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
---
-CREATE SEQUENCE i2b2_record_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
---
 -- Name: i2b2; Type: TABLE; Schema: i2b2metadata; Owner: -
 --
 CREATE TABLE i2b2 (
@@ -37,29 +27,13 @@ CREATE TABLE i2b2 (
     m_exclusion_cd character varying(25),
     c_path character varying(700),
     c_symbol character varying(50),
-    i2b2_id bigint,
-    record_id integer NOT NULL
+    i2b2_id bigint
 );
-
---
--- Name: record_id; Type: DEFAULT; Schema: i2b2metadata; Owner: -
---
-ALTER TABLE ONLY i2b2 ALTER COLUMN record_id SET DEFAULT nextval('i2b2_record_id_seq'::regclass);
 
 --
 -- Name: i2b2_c_comment_char_length_idx; Type: INDEX; Schema: i2b2metadata; Owner: -
 --
 CREATE INDEX i2b2_c_comment_char_length_idx ON i2b2 USING btree (c_comment, char_length((c_fullname)::text));
-
---
--- Name: i2b2meta_idx_record_id; Type: INDEX; Schema: i2b2metadata; Owner: -
---
-CREATE INDEX i2b2meta_idx_record_id ON i2b2 USING btree (record_id);
-
---
--- Name: idx_i2b2_basecode; Type: INDEX; Schema: i2b2metadata; Owner: -
---
-CREATE INDEX idx_i2b2_basecode ON i2b2 USING btree (c_basecode, record_id, c_visualattributes);
 
 --
 -- Name: idx_i2b2_fullname_basecode; Type: INDEX; Schema: i2b2metadata; Owner: -

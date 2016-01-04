@@ -29,7 +29,7 @@ def runStoredProcedure() {
     println """
     Please note that this failure might very well be a false positive
     as the script _assumes_ the latest entry in the audit table is the one from
-    this job.
+    this job. Job number found was ${job.job_id}
     """
     System.exit 1
   }

@@ -18,6 +18,23 @@ if [ -z "$DATA_FILE_PREFIX" ] || [ -z "$MAP_FILENAME" ]; then
 	echo "    MAP_FILENAME=$MAP_FILENAME"
 fi
 
+# Extract STUDY_ID from subject sample mapping file
+STUDY_ID_FROM_SSM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${MAP_FILENAME}" | sort -u | head -n 1 | tr 'a-z' 'A-Z')
+if [ -z "$STUDY_ID_FROM_SSM" ]; then
+    echo "Error $0: No STUDY_ID provided in first column of subject sample mapping file $MAP_FILENAME"
+    exit 1
+fi
+# Check consistent use STUDY_ID (if provided both as a parameter and in the subject sample mapping file)
+if [ -z "$STUDY_ID" ]; then
+    STUDY_ID=$STUDY_ID_FROM_SSM
+else
+    if [[ "$STUDY_ID" != "$STUDY_ID_FROM_SSM" ]]
+    then
+        echo "Error $0: STUDY_ID=$STUDY_ID defined in params differs from STUDY_ID=$STUDY_ID_FROM_SSM defined in $MAP_FILENAME"
+        exit 1
+    fi
+fi
+
 SECURITY_REQUIRED=${SECURITY_REQUIRED:-N}
 if [ -z "$TOP_NODE_PREFIX" ]; then
     if [ $SECURITY_REQUIRED = 'Y' ]; then

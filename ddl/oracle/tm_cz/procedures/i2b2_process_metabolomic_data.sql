@@ -353,7 +353,7 @@ BEGIN
 	execute immediate('truncate table tm_wz.WT_METABOLOMIC_NODES');
 	
 --	load temp table with leaf node path, use temp table with distinct sample_type, ATTR2, platform, and title   this was faster than doing subselect
---	from wt_subject_mirna_data
+--	from wt_subject_metabolomics_data
 
 	execute immediate('truncate table tm_wz.WT_METABOLOMIC_NODE_VALUES');
 	

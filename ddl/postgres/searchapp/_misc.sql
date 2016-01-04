@@ -2,7 +2,7 @@
 -- Name: hibernate_sequence; Type: SEQUENCE; Schema: searchapp; Owner: -
 --
 CREATE SEQUENCE hibernate_sequence
-    START WITH 100042
+    START WITH 100442
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE

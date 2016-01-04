@@ -906,7 +906,7 @@ BEGIN
        stepCt := stepCt + 1;
     select cz_write_audit(jobId,databaseName,procedureName,'insert distinct sample_cd in sample_dimension from de_subject_sample_mapping',rowCt,stepCt,'Done') into rtnCd;
 
-    ---- update c_metedataxml in i2b2
+    ---- update c_metadataxml in i2b2
     begin
        for ul in uploadI2b2
         loop

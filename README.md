@@ -238,7 +238,6 @@ For instance:
     make -C samples/{oracle,postgres} load_clinical_GSE8581
     make -C samples/{oracle,postgres} load_ref_annotation_GSE8581
     make -C samples/{oracle,postgres} load_expression_GSE8581
-    make -C samples/{oracle,postgres} load_analysis_GSE8581
 
 Do not forget to update your Solr index, if your setup requires it to be
 triggered manually.

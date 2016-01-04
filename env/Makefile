@@ -2,7 +2,8 @@ KETTLE_VERSION=4.4.0
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
 				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev \
-				libxt-dev libpango1.0-dev texlive-fonts-recommended tex-gyre \
+				libxt-dev libpango1.0-dev libprotoc-dev \
+				texlive-fonts-recommended tex-gyre \
 				fonts-dejavu-core
 
 GROOVY_VERSION=2.1.9
@@ -21,9 +22,8 @@ PHP_BIN=php5/bin/php
 
 TRANSMART_LOADER=transmart-loader
 
-TRANSMART_BATCH_VERSION=1.0-SNAPSHOT
 TRANSMART_BATCH_FILE=transmart-batch-capsule.jar
-TRANSMART_BATCH_URL=https://repo.thehyve.nl/content/repositories/snapshots/org/transmartproject/transmart-batch/$(TRANSMART_BATCH_VERSION)/transmart-batch-$(TRANSMART_BATCH_VERSION)-capsule.jar
+TRANSMART_BATCH_URL=https://repo.thehyve.nl/service/local/artifact/maven/content?r=snapshots&g=org.transmartproject&a=transmart-batch&c=capsule&v=LATEST
 
 include ../lib/makefile.inc
 
@@ -52,14 +52,14 @@ $(TRANSMART_BATCH_FILE):
 	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_BATCH_URL)'
 	@chmod +x '$@'
 
-batchdb-psql.properties: batchdb-psql.properties.php ../vars
+batchdb-psql.properties: batchdb-psql.properties.php
 	php -d variables_order=E '$<' > '$@'
 
-batchdb-oracle.properties: batchdb-oracle.properties.php ../vars
+batchdb-oracle.properties: batchdb-oracle.properties.php
 	php -d variables_order=E '$<' > '$@'
 
 # for redownload
-.PHONY: $(TRANSMART_BATCH_FILE)
+.PHONY: $(TRANSMART_BATCH_FILE) batchdb-psql.properties batchdb-oracle.properties
 
 $(GROOVY_ZIP):
 	curl -L "$(GROOVY_URL)" > $@
