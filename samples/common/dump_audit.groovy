@@ -36,6 +36,10 @@ def cols = e.COLUMNS ?
                 Integer.parseInt(colsArg) :
                 80)
 
+if (cols < 80) {
+	cols = 80
+}
+
 if (rdbms == 'oracle') {
     driver = 'oracle.jdbc.driver.OracleDriver'
     jdbcUrl = "jdbc:oracle:thin:@${e.ORAHOST}:${e.ORAPORT}:${e.ORASID}"
