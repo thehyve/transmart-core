@@ -14,6 +14,7 @@
 \i deapp/de_concept_visit.sql
 \i deapp/de_encounter_level.sql
 \i deapp/de_encounter_type.sql
+\i deapp/de_gene_info.sql
 \i deapp/de_mrna_annotation.sql
 \i deapp/de_obs_enroll_days.sql
 \i deapp/de_pathway.sql
@@ -21,6 +22,7 @@
 \i deapp/de_protein_annotation.sql
 \i deapp/de_qpcr_mirna_annotation.sql
 \i deapp/de_rbm_annotation.sql
+\i deapp/de_rbm_data_annotation_join.sql
 \i deapp/de_rc_snp_info.sql
 \i deapp/de_rnaseq_annotation.sql
 \i deapp/de_sample_snp_data.sql
@@ -33,7 +35,7 @@
 \i deapp/de_snp_probe.sql
 \i deapp/de_snp_data_by_probe.sql
 \i deapp/de_snp_data_dataset_loc.sql
-\i deapp/de_snp_gene_map.sql
+\i deapp/views/de_snp_gene_map.sql
 \i deapp/de_snp_probe_sorted_def.sql
 \i deapp/de_snp_subject_sorted_def.sql
 \i deapp/de_subject_acgh_data.sql
@@ -50,8 +52,8 @@
 \i deapp/de_subject_rnaseq_data.sql
 \i deapp/de_subject_sample_mapping.sql
 \i deapp/de_two_region_event.sql
-\i deapp/de_two_region_junction.sql
 \i deapp/de_two_region_event_gene.sql
+\i deapp/de_two_region_junction.sql
 \i deapp/de_two_region_junction_event.sql
 \i deapp/de_variant_dataset.sql
 \i deapp/de_variant_metadata.sql
@@ -69,6 +71,4 @@
 \i deapp/kegg_data.sql
 \i deapp/kegg_def.sql
 \i deapp/ricerca.sql
-\i deapp/de_rbm_data_annotation_join.sql
-\i deapp/de_rc_snp_info1.sql
 \i deapp/_misc.sql

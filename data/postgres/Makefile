@@ -16,4 +16,30 @@ $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties: Common.properties.php
 
 .PHONY: row_counts analyze $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
 
+##
+# GWAS reference data
+##
+include ../common/gwas/makefile.inc
+
+SHELL := /bin/bash
+
+load_psql = \
+	@if [[ "$$($(PSQL_COMMAND) -c "SELECT EXISTS (SELECT * FROM $(1).$(2) LIMIT 1)" -tA)" = 't' ]]; then \
+		echo 'WARNING: The table $(1).$(2) already has data; skipped' >&2; \
+	else \
+		echo 'Loading $(1).$(2)'; \
+		pv -pet '$(3)' | lz4c -d | \
+		$(PSQL_COMMAND) -c "COPY $(1).$(2)$(4) FROM STDIN \
+			CSV DELIMITER E'\t'"; \
+	fi
+
+load_de_rc_snp_info:
+	$(call load_psql,deapp,de_rc_snp_info,$(DE_RC_SNP_INFO_FILE),(rs_id, chrom, pos, ref, alt, gene_info, variation_class, strand, hg_version, gene_name, entrez_id))
+
+load_de_gene_info:
+	$(call load_psql,deapp,de_gene_info,$(DE_GENE_INFO_FILE),(entrez_id,gene_symbol,gene_name,chrom,chrom_start,chrom_stop,strand))
+
+load_bio_recombination_rates:
+	$(call load_psql,biomart,bio_recombination_rates,$(RECOMBINATION_FILE),)
+
 # vim: set filetype=make:
