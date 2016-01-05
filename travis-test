@@ -41,7 +41,8 @@ function customize_vars_oracle {
   echo "export ORAUSER=system" >> vars
   echo "export ORAPASSWORD=manager" >> vars
   echo "export ORACLE_MANAGE_TABLESPACES=1" >> vars
-  echo "export USE_POOL_PROCESS=1" >> vars
+# The pool process seems flaky at this point. Most builds fail
+#  echo "export USE_POOL_PROCESS=1" >> vars
   echo "export export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'" >> vars
 }
 
