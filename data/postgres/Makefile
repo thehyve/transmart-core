@@ -33,8 +33,13 @@ load_psql = \
 			CSV DELIMITER E'\t'"; \
 	fi
 
+export PSQL_COMMAND
 load_de_rc_snp_info:
+	@echo Disabling indexes on de_rc_snp_info
+	@sed 's/%ENABLED%/FALSE/;s/%SCHEMA%/deapp/;s/%TABLE%/de_rc_snp_info/' enable_disable_indices.sql | $(PSQL_COMMAND)
 	$(call load_psql,deapp,de_rc_snp_info,$(DE_RC_SNP_INFO_FILE),(rs_id, chrom, pos, ref, alt, gene_info, variation_class, strand, hg_version, gene_name, entrez_id))
+	@echo Building indexes on de_rc_snp_info
+	./rebuild_indexes.sh
 
 load_de_gene_info:
 	$(call load_psql,deapp,de_gene_info,$(DE_GENE_INFO_FILE),(entrez_id,gene_symbol,gene_name,chrom,chrom_start,chrom_stop,strand))
