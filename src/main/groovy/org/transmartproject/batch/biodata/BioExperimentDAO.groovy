@@ -30,7 +30,7 @@ class BioExperimentDAO {
     private SequenceReserver sequenceReserver
 
     private final Set<String> validKeys = ImmutableSet.of(
-            'bio_experiment_type',
+            'accession',
             'etl_id',
             'title',)
 

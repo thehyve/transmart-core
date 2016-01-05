@@ -48,6 +48,20 @@ class BioAssayAnalysisDAO {
         id
     }
 
+    void updateBioAssayAnalysisCount(Long bioAssayAnalysisId, long count) {
+        def affected = jdbcTemplate.update """
+                UPDATE ${Tables.BIO_ASSAY_ANALYSIS}
+                SET data_count = :count
+                WHERE bio_assay_analysis_id = :id""",
+                [id: bioAssayAnalysisId, count: count]
+
+        if (affected != 1) {
+            throw new IncorrectResultSizeDataAccessException("Expected to " +
+                    "update exactly 1 row in $Tables.BIO_ASSAY_ANALYSIS , " +
+                    "got $affected rows.")
+        }
+    }
+
     private Long getBioAssayAnalysis(Map values) {
         def ids = jdbcTemplate.queryForList """
                 SELECT BIO_ASSAY_ANALYSIS_ID

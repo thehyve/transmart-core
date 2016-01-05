@@ -18,7 +18,8 @@ class GwasBioExperimentWriter
     @Override
     void write(List<? extends String> items) throws Exception {
         items.each {
-            bioExperimentDAO.findOrCreateBioExperiment(it)
+            bioExperimentDAO.findOrCreateBioExperiment(
+                    it, [bio_experiment_type: 'Experiment'])
         }
     }
 }

@@ -69,6 +69,10 @@ class CurrentGwasAnalysisContext {
         bioAssayAnalysisIds[currentIndex]
     }
 
+    Long getAnalysisRowCount() {
+        analysesRows[currentIndex]
+    }
+
     void updateIds(long bioAssayAnalysisId, long bioAssayAnalysisExtId) {
         this.bioAssayAnalysisIds[currentIndex] = bioAssayAnalysisId
         this.bioAssayAnalysisExtIds[currentIndex] = bioAssayAnalysisExtId
@@ -83,7 +87,7 @@ class CurrentGwasAnalysisContext {
                     "analysis ${bioAssayAnalysisIds[currentIndex]}: " +
                     analysesRows[currentIndex])
 
-            putInContext()
+            putInContext() // for restarts
         }
     }
 

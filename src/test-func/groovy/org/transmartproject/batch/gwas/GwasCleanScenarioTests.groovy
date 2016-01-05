@@ -81,6 +81,24 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
     }
 
     @Test
+    void testBioExperiment() {
+        def q = """
+                SELECT
+                    accession,
+                    etl_id,
+                    title,
+                    bio_experiment_type
+                FROM $Tables.BIO_EXPERIMENT"""
+        List<Map<String, Object>> r = queryForList q, [:]
+
+        assertThat r, contains(allOf(
+                hasEntry(is('accession'), is(STUDY_ID)),
+                hasEntry(is('etl_id'), is("METADATA:$STUDY_ID" as String)),
+                hasEntry(is('title'), is('Metadata not available')),
+                hasEntry(is('bio_experiment_type'), is('Experiment'))))
+    }
+
+    @Test
     void testNumberOfSnpsDataPointsPerAnalysis() {
         def q = """
                 SELECT COUNT(*) as count, analysis_name
@@ -99,6 +117,29 @@ class GwasCleanScenarioTests implements JobRunningTestTrait {
                 ),
                 allOf(
                         hasEntry(is('count'), isIntegerNumber(NUMBER_OF_SNP_FASTING_GLUCOSE)),
+                        hasEntry(is('analysis_name'), is(ANALYSIS_FASTING_GLUCOSE_NAME)),
+                ),
+        )
+    }
+
+    @Test
+    void testBioAssayAnalysesHaveCorrectCount() {
+        def q = """
+                SELECT
+                    analysis_name,
+                    data_count
+                FROM $Tables.BIO_ASSAY_ANALYSIS
+                ORDER BY analysis_name"""
+
+        List<Map<String, Object>> r = queryForList q, [:]
+
+        assertThat r, contains(
+                allOf(
+                        hasEntry(is('data_count'), isIntegerNumber(NUMBER_OF_SNPS_2HR_GLUCOSE)),
+                        hasEntry(is('analysis_name'), is(ANALYSIS_2HR_GLUCOSE_NAME)),
+                ),
+                allOf(
+                        hasEntry(is('data_count'), isIntegerNumber(NUMBER_OF_SNP_FASTING_GLUCOSE)),
                         hasEntry(is('analysis_name'), is(ANALYSIS_FASTING_GLUCOSE_NAME)),
                 ),
         )

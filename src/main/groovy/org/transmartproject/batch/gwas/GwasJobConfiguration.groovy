@@ -32,6 +32,7 @@ import org.transmartproject.batch.gwas.analysisdata.AssayAnalysisGwasWriter
 import org.transmartproject.batch.gwas.analysisdata.DeleteCurrentGwasAnalysisDataTasklet
 import org.transmartproject.batch.gwas.analysisdata.GwasAnalysisRow
 import org.transmartproject.batch.gwas.analysisdata.GwasAnalysisRowValidator
+import org.transmartproject.batch.gwas.analysisdata.UpdateBioAssayAnalysisCountListener
 import org.transmartproject.batch.gwas.biodata.GwasBioExperimentWriter
 import org.transmartproject.batch.gwas.metadata.*
 import org.transmartproject.batch.support.ExpressionResolver
@@ -128,7 +129,7 @@ class GwasJobConfiguration extends AbstractJobConfiguration {
                 .start(w(insertBioAssayAnalysisStep(null)))
                 .next(w(stepOf(this.&databasePartitionTasklet)))
                 .next(w(deleteCurrentAnalysisDataStep(null)))
-                .next(w(insertIntoBioAssayAnalysisGwasStep(null, null, null)))
+                .next(w(insertIntoBioAssayAnalysisGwasStep(null, null, null, null)))
                 .next(w(stepOf(this.&getUpdateGwasTop500Tasklet)))
                 .build()
     }
@@ -241,7 +242,8 @@ class GwasJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Step insertIntoBioAssayAnalysisGwasStep(AssayAnalysisGwasWriter assayAnalysisGwasWriter,
                                             CurrentGwasAnalysisContext gwasAnalysisContext,
-                                            GwasAnalysisRowValidator gwasAnalysisRowValidator) {
+                                            GwasAnalysisRowValidator gwasAnalysisRowValidator,
+                                            UpdateBioAssayAnalysisCountListener updateBioAssayAnalysisCountListener) {
         steps.get('insertIntoBioAssayAnalysisGwas')
                 .chunk(chunkSize)
                 .reader(gwasDataFileReader())
@@ -249,6 +251,7 @@ class GwasJobConfiguration extends AbstractJobConfiguration {
                 .writer(assayAnalysisGwasWriter)
                 .listener(progressWriteListener())
                 .listener(gwasAnalysisContext.updateRowCountListener)
+                .listener(updateBioAssayAnalysisCountListener)
                 .build()
     }
 
