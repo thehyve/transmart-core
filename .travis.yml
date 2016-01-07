@@ -21,6 +21,7 @@ script:
 
 after_script:
     - bash -c '[[ -z $CLOVER ]] || ./publish_clover'
+    - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   hipchat:
