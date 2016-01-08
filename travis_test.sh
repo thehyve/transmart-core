@@ -126,7 +126,8 @@ function run_oracle_check {
 }
 
 function run_postgres_functional {
-  ./gradlew --info --console plain functionalTest
+  # also create test report
+  ./gradlew --info --console plain functionalTest jacocoTestReport
 }
 function run_oracle_functional {
   ./gradlew --info --console plain functionalTest

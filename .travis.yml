@@ -24,7 +24,7 @@ script:
     - run $DATABASE capsule
 
 after_success:
-    - "test \"$DATABASE\" != 'postgres' || ./.travis_upload"
+    - "test \"$DATABASE\" != 'postgres' || { ./.travis_upload; bash <(curl -s https://codecov.io/bash); }"
 
 after_failure:
     - bash -c '[[ -z $KEY_PASSWORD ]] || { source ~/ts-travis/upload-report.sh; upload_report build/reports; }'
