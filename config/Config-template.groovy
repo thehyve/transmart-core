@@ -444,7 +444,7 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [transmartURL + '/oauth/verify']
+                        redirectUris: [(transmartURL - ~'\\/$') + '/oauth/verify'],
                     ],
                     [
                         clientId: 'glowingbear-js',
