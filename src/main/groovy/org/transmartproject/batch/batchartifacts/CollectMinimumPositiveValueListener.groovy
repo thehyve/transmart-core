@@ -40,7 +40,7 @@ class CollectMinimumPositiveValueListener implements ItemStream {
         } else {
             if (minPositiveValue == null) {
                 throw new ValidationException(
-                        'No minimal positive value found. Are there any positive value (non zero) in the data set?')
+                        'No minimal positive value found. Are there any positive values (non zero) in the data set?')
             } else {
                 log.info("Minimal positive values has been found. It's ${minPositiveValue}.")
                 stepExecution.jobExecution.executionContext.putDouble(MIN_POS_DATA_SET_VALUE, minPositiveValue)

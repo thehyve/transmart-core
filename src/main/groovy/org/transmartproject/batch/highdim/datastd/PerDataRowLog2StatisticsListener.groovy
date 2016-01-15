@@ -50,11 +50,6 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
         if (rowStatistics == null) {
             throw new IllegalStateException('No statistics calculated yet')
         }
-
-        if (rowStatistics.n < 2) {
-            throw new IllegalStateException('Did not get enough samples to ' +
-                    'push the statistics; need two, got ' + rowStatistics.n)
-        }
     }
 
     @Override

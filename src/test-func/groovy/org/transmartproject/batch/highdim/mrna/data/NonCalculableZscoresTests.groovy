@@ -20,47 +20,43 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 /**
- * test mRNA data import with multiple samples
+ * test calculation of z-scores when data set values make it un-calculable (std_div = 0; division by zero)
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class MrnaMultipleSamplesTests implements JobRunningTestTrait {
+class NonCalculableZscoresTests implements JobRunningTestTrait {
 
-    private final static String STUDY_ID = 'MULTSAMPL'
+    private final static String STUDY_ID = 'NOZSCORE'
     private final static String PLATFORM_ID = 'GPL570_bogus'
 
-    private final static long NUMBER_OF_ASSAYS = 4
-    private final static long NUMBER_OF_PROBES = 19
-
     @Test
-    void testMultipleSamplesMeasurements() {
-        def params = [study_id: STUDY_ID]
-
+    void testZscoresAreNulls() {
         List r = queryForList """
-                SELECT DISTINCT S.subject_id, S.sample_cd, P.sex_cd
+                SELECT D.zscore
                 FROM
                     ${Tables.MRNA_DATA} D
-                    INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
-                    INNER JOIN ${Tables.PATIENT_DIMENSION} P ON (S.patient_id = P.patient_num)
-                WHERE D.trial_name = :study_id""",
-                params
+                INNER JOIN ${Tables.MRNA_ANNOTATION} A ON (D.probeset_id = A.probeset_id)
+                WHERE D.trial_name = :study_id AND A.probe_id NOT LIKE 'AFFX-HUMISGF3A%'""",
+                [study_id: STUDY_ID]
 
-        assertThat r, containsInAnyOrder(
-                allOf(hasEntry('subject_id', 'S1'), hasEntry('sample_cd', 'S11'), hasEntry('sex_cd', 'female')),
-                allOf(hasEntry('subject_id', 'S1'), hasEntry('sample_cd', 'S12'), hasEntry('sex_cd', 'female')),
-                allOf(hasEntry('subject_id', 'S2'), hasEntry('sample_cd', 'S21'), hasEntry('sex_cd', 'male')),
-                allOf(hasEntry('subject_id', 'S2'), hasEntry('sample_cd', 'S22'), hasEntry('sex_cd', 'male')),
+        assertThat r, everyItem(
+                hasEntry(is('zscore'), nullValue()),
         )
     }
 
     @Test
-    void testNumberOfFacts() {
-        def count = rowCounter.count Tables.MRNA_DATA,
-                'trial_name = :study_id',
-                study_id: STUDY_ID
+    void testZscoresAreNotNulls() {
+        List r = queryForList """
+                SELECT D.zscore
+                FROM
+                    ${Tables.MRNA_DATA} D
+                INNER JOIN ${Tables.MRNA_ANNOTATION} A ON (D.probeset_id = A.probeset_id)
+                WHERE D.trial_name = :study_id AND A.probe_id LIKE 'AFFX-HUMISGF3A%'""",
+                [study_id: STUDY_ID]
 
-        assertThat count,
-                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES))
+        assertThat r, everyItem(
+                hasEntry(is('zscore'), not(nullValue())),
+        )
     }
 
     @ClassRule
