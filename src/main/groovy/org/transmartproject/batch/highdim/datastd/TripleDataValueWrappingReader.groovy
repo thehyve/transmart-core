@@ -2,6 +2,10 @@ package org.transmartproject.batch.highdim.datastd
 
 import org.springframework.batch.item.ItemReader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+
+import static org.transmartproject.batch.stat.StatisticsCalculationUtils.clamp
+import static org.transmartproject.batch.stat.StatisticsCalculationUtils.log
 
 /**
  * Calculates log intensity and zscore; converts non-positives to NaNs.
@@ -20,12 +24,10 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
     ItemReader<TripleStandardDataValue> delegate
 
     @Autowired
-    private PerDataRowLog2StatisticsListener statisticsListener
+    private PerDataRowLog2StatisticsListener perRowStatisticsListener
 
-
-    private double clamp(double lowerBound, double upperBound, double value) {
-        Math.min(upperBound, Math.max(lowerBound, value))
-    }
+    @Value("#{jobExecutionContext['minPosDataSetValue']}")
+    private Double minPosDataSetValue
 
     @Override
     TripleStandardDataValue read() throws Exception {
@@ -36,15 +38,16 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
     }
 
     private TripleStandardDataValue process(TripleStandardDataValue item) throws Exception {
-        if (item.value <= 0 || Double.isNaN(item.value)) {
+        if (item.value < 0 || Double.isNaN(item.value)) {
             item.value = item.logValue = item.zscore = Double.NaN
             return item
         }
 
-        item.logValue = Math.log(item.value) / LOG_2
+        item.logValue = log(item.value, minPosDataSetValue) / LOG_2
+
         item.zscore = clamp(-2.5d, 2.5d,
-                (item.logValue - statisticsListener.mean) /
-                        statisticsListener.standardDeviation)
+                (item.logValue - perRowStatisticsListener.mean) /
+                        perRowStatisticsListener.standardDeviation)
 
         item
     }

@@ -34,8 +34,8 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
     private final static long NUMBER_OF_ASSAYS = 8
     // the first assay only has zeros, negative numbers and NaNs
-    private final static long NUMBER_OF_ASSAYS_WITH_VALID_DATA = 7
     private final static long NUMBER_OF_PROBES = 19
+    private final static long NOT_SUPPORTED_VALUES = 2
 
     // oracle only has 4 digits to the right of the decimal point
     private final static double DELTA = 1e-4d
@@ -74,7 +74,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 study_id: STUDY_ID
 
         assertThat count,
-                is(equalTo(NUMBER_OF_ASSAYS_WITH_VALID_DATA * NUMBER_OF_PROBES))
+                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES - NOT_SUPPORTED_VALUES))
     }
 
     @Test
@@ -142,10 +142,16 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 [ssd: "$STUDY_ID:$subjectId".toString()],
                 Long)
 
+        def stats = queryForMap """
+        SELECT
+            stddev_samp(log_intensity) as stddev, avg(log_intensity) as mean
+        FROM ${Tables.MRNA_DATA} D
+        INNER JOIN ${Tables.MRNA_ANNOTATION} A ON (D.probeset_id = A.probeset_id)
+        WHERE A.probe_id = :probe_name AND D.trial_name = :study_id
+        """, [ study_id: STUDY_ID, probe_name: probeName ]
+
         double value = 105.912d
         double logValue = Math.log(value) / Math.log(2d)
-        def meanOfLog2 = 7.09228579296992
-        def stdDevOfLog2 = 0.2730897449882774
 
         assertThat r, allOf(
                 hasEntry(is('patient_id'), isIntegerNumber(patientCode)),
@@ -153,12 +159,12 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry(is('raw_intensity'), castingCloseTo(value, DELTA)),
                 hasEntry(is('log_intensity'), castingCloseTo(logValue, DELTA)),
                 hasEntry(is('zscore'),
-                        castingCloseTo((logValue - meanOfLog2) / stdDevOfLog2, DELTA)),
+                        castingCloseTo((logValue - stats.mean) / stats.stddev, DELTA)),
         )
     }
 
     @Test
-    void testRawZerosNANsAndNegativesAreOmitted() {
+    void testRawNANsAndNegativesAreOmitted() {
         def sampleName = 'GSM210005'
         def q = """
                 SELECT raw_intensity, log_intensity, zscore
@@ -167,12 +173,39 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                     INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
                 WHERE
                     S.sample_cd = :sample_name
-                    AND D.trial_name = :study_id"""
+                    AND D.trial_name = :study_id
+                    AND raw_intensity != 0"""
         def p = [study_id: STUDY_ID,
                  sample_name: sampleName]
 
         List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, is(empty())
+    }
+
+    @Test
+    void testLogOf0Workaround() {
+
+        def minPos = queryForMap """
+                SELECT min(D.raw_intensity) as val
+                FROM
+                    ${Tables.MRNA_DATA} D
+                WHERE
+                    D.trial_name = :study_id and D.raw_intensity > 0""",
+                [study_id: STUDY_ID]
+
+        def logs = queryForList """
+                SELECT D.log_intensity as log
+                FROM
+                    ${Tables.MRNA_DATA} D
+                WHERE
+                    D.trial_name = :study_id and D.raw_intensity = 0""",
+                [study_id: STUDY_ID]
+
+        def logTrick = Math.log(minPos.val / 2) / Math.log(2)
+
+        assertThat logs, everyItem(
+                hasEntry(equalTo('log'), castingCloseTo(logTrick, DELTA))
+        )
     }
 }

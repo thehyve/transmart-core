@@ -32,7 +32,6 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
 
     private final static long NUMBER_OF_ASSAYS = 16
     private final static long NUMBER_OF_PROBES = 8
-    private final static long ZERO_MEASURES = 10
 
     private final static BigDecimal DELTA = 1.0E-12
 
@@ -70,7 +69,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 study_id: STUDY_ID
 
         assertThat count,
-                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES - ZERO_MEASURES))
+                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_PROBES))
     }
 
     @Test
@@ -138,7 +137,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testRawZerosNANsAndNegativesAreOmitted() {
+    void testRawNANsAndNegativesAreOmitted() {
         def q = """
                 SELECT *
                 FROM
@@ -148,7 +147,8 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 WHERE
                     S.sample_cd = :sample_name
                     AND A.peptide = :ref_id
-                    AND D.trial_name = :study_id"""
+                    AND D.trial_name = :study_id
+                    AND intensity != 0"""
         def p = [study_id: STUDY_ID,
                  sample_name: 'LFQ.intensity.CACO2_1',
                  ref_id: '5060']
