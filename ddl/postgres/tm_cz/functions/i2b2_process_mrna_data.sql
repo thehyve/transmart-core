@@ -983,7 +983,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	select tm_cz.cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type, visualattributes and xml in i2b2',rowCt,stepCt,'Done') into rtnCd;
 
-        update i2b2 a
+        update i2b2metadata.i2b2 a
 	set c_visualattributes='FAS'
         where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
         
