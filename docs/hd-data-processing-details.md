@@ -6,6 +6,9 @@ The data will be scanned twice. The first pass will only validate the data set b
 In the second pass, the data will be inserted in the database. Zeros, negative
 values and NaNs in the data file will *not* be inserted into the database.
 
+The `log_intensity` column is calculated as base 2 logarithm over raw intensity.
+The zero raw values is replaced by the half of the minimum of the NON-ZERO raw intensity values in the data set.
+Specifically, log2(0) is replaced by log2(0 + c), where c = min(data) x 0.5. See https://jira.ctmmtrait.nl/browse/FT-1717
 
 The `zscore` column will be calculated as:
 

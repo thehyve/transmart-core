@@ -14,7 +14,7 @@ class StatisticsCalculationUtils {
 
     /**
      * The zero value would be replaced by the half of the minimum of the NON-ZERO intensity values in the data.
-     * Specifically, log(0) is replaced by log(0 + c), where c = min(data) x 0.5
+     * Specifically, log2(0) is replaced by log2(0 + c), where c = min(data) x 0.5
      * see https://jira.ctmmtrait.nl/browse/FT-1717
      * @param value - value to convert. Raw value
      * @param minPosDataSetValue - minimal positive value across whole data set.
