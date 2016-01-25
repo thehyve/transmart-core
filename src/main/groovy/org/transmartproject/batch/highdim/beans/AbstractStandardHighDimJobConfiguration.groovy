@@ -376,8 +376,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     StandardDataRowSplitterReader firstPassDataRowSplitterReader() {
         new StandardDataRowSplitterReader(
                 delegate: visitedProbesValidatingReader(),
-                dataPointClass: TripleStandardDataValue,
-                eagerLineListener: checkNumberOfValuesValidatingListener())
+                dataPointClass: TripleStandardDataValue)
     }
 
     @Bean
@@ -385,12 +384,6 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     org.springframework.core.io.Resource dataFileResource() {
         new JobParameterFileResource(
                 parameter: StandardHighDimDataParametersModule.DATA_FILE)
-    }
-
-    @Bean
-    @JobScope
-    CheckNumberOfValuesValidatingListener checkNumberOfValuesValidatingListener() {
-        new CheckNumberOfValuesValidatingListener()
     }
 
     @Bean

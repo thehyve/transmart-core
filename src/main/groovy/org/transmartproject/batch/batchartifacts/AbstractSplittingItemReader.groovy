@@ -141,6 +141,14 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
         cachedValues = (Queue) executionContext.get(
                 getExecutionContextKey(SAVED_CACHED_ITEMS))
 
+        if (position > 0) {
+            // we restart in the middle of a line
+            // discard the context saved line
+            currentFieldSet = null
+            upstreamPos--
+            assert upstreamPos >= 0
+        }
+
         delegate.open(executionContext)
         eagerLineListener?.open(executionContext)
 
