@@ -114,6 +114,13 @@ environments {
 }
 /* }}} */
 
+/* {{{ Data Upload Configuration - see GWAS plugin Data Upload page */
+// This is the value that will appear in the To: entry of the e-mail popup 
+// that is displayed when the user clicks the Email administrator button,
+// on the GWAS plugin Data Upload page
+com.recomdata.dataUpload.adminEmail = 'No data upload adminEmail value set - contact site administrator'
+/* }}} */
+
 /* {{{ Personalization */
 // application logo to be used in the login page
 com.recomdata.largeLogo = "transmartlogo.jpg"
