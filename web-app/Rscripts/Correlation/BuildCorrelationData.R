@@ -62,5 +62,7 @@ correlation.by = ""
 	require(MASS)
 	
 	#Write the final data file.
-	write.matrix(finalData,"outputfile.txt",sep = "\t")
+	# write.matrix(finalData,"outputfile.txt",sep = "\t")
+	# Using write.table; write.matrix was leaving trailing white-space in the file - see JIRA issue TRANSREL-24.
+    write.table(finalData,filename, sep = "\t", quote = FALSE, row.names = FALSE)
 }
