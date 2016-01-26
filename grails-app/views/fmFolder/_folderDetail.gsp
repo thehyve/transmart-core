@@ -211,15 +211,16 @@
     <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.ANALYSIS.name())}">
         <center><div id="partialanalysiswarning" class="messagebox" style="display: none;">
             Displaying results from the first 1000 rows<span id="analysisgenefilteredwarning" style="display: none;">, filtered by the gene search</span>.
-            <a id="loadfullanalysis" href="#" onclick="updateAnalysisData(${bioDataObject.id}, true)">Load all X</a></div></center>
-        <div id="gridViewWrapperAnalysis" name="${bioDataObject.id}" class="ajaxloading">
+            <a id="loadfullanalysis" href="#" onclick="updateAnalysisData(${folder.id}, true)">Load all X</a></div></center>
+        <div id="gridViewWrapperAnalysis" name="${folder.id}" class="ajaxloading">
         </div>
         <script type="text/javascript">
         $j(document).ready(function() 
         {
                 $j.ajax({
                         url:analysisDataURL,
-                        data: {id: ${bioDataObject.id}},
+
+                        data: {id: ${folder.id}},
                         success: function(response) {
                                 jQuery('#gridViewWrapperAnalysis').removeClass('ajaxloading');
                                 if (response.rowCount > 0) {
