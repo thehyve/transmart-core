@@ -41,6 +41,7 @@ class BioAssayAnalysisData implements IExcelProfile {
     Double cutValue
     String resultsValue
     Long id
+    Long probesetId
     String adjustedPValueCode
     Double numericValue
     String numericValueCode
@@ -68,6 +69,7 @@ class BioAssayAnalysisData implements IExcelProfile {
             cutValue column: 'CUT_VALUE'
             resultsValue column: 'RESULTS_VALUE'
             id column: 'BIO_ASY_ANALYSIS_DATA_ID'
+            probesetId column: 'PROBESET_ID'
             adjustedPValueCode column: 'ADJUSTED_P_VALUE_CODE'
             numericValue column: 'NUMERIC_VALUE'
             numericValueCode column: 'NUMERIC_VALUE_CODE'
