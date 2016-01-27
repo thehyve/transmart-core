@@ -38,7 +38,7 @@ class MultiNumericClinicalVariableColumnConfigurator extends ColumnConfigurator 
 
         Map<ClinicalVariableColumn, String> variableToGroupName =
                 Functions.inner(variables,
-                        ConceptUtils.shortestUniqueTails(conceptPaths),
+                        conceptPaths,
                         { a, b -> [a,b]}).
                         collectEntries()
 
