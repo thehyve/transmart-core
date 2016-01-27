@@ -99,7 +99,9 @@ function
 	require(MASS)
 
 	#Write the final data file.
-	write.matrix(format(finalData,sci=FALSE),output.dataFile,sep = "\t")
+	#write.matrix(format(finalData,sci=FALSE),output.dataFile,sep = "\t")
+	# Using write.table; write.matrix was leaving trailing white-space in the file - see JIRA issue TRANSREL-24.
+    write.table(format(finalData,sci=FALSE),filename, sep = "\t", quote = FALSE, row.names = FALSE)
 	print("-------------------")
 	##########################################
 }
