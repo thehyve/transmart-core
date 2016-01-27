@@ -147,8 +147,8 @@ environments { development {
 
 /* {{{ Login */
 // Session timeout and heartbeat frequency (ping interval)
-com.recomdata.sessionTimeout = 300
-com.recomdata.heartbeatLaps = 30
+com.recomdata.sessionTimeout = 1800
+com.recomdata.heartbeatLaps = 300
 
 environments { development {
     com.recomdata.sessionTimeout = Integer.MAX_VALUE / 1000 as int /* ~24 days */
