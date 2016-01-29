@@ -1034,3 +1034,7 @@ pre.errorstacktrace {
     font-size: 8pt;
     background-color: #EEE;
 }
+
+.note p {
+	margin: 3pt;
+}
