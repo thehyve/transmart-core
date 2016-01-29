@@ -27,12 +27,12 @@ final class Patient {
 
             try {
                 demographicValues[var] = var.type == ConceptType.NUMERICAL ?
-                        (value ?: null) as Long :
+                        (value ?: null) as Float :    /* Accept decimal values, round will be done */
                         value
             } catch (NumberFormatException nfe) {
                 throw new FatalStepExecutionException(
                         "Value $value for variable $var in patient $this is " +
-                                "not a valid long integer", nfe)
+                                "not a valid number", nfe)
             }
         }
     }
