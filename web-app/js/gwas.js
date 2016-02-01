@@ -105,7 +105,7 @@ function openPlotOptions() {
 		jQuery('#divPlotOptions').dialog("destroy");
 		jQuery('#divPlotOptions').dialog({
 			modal : false,
-			height : 250,
+			height : 300,
 			width : 400,
 			title : "Manhattan Plot Options",
 			show : 'fade',
