@@ -145,7 +145,7 @@ zscore.file = "zscores.txt"
 	design <- cbind(S1=classVector_S1,S2=classVector_S2)
   
 	##... and contrast matrix
-	contrast.matrix = makeContrasts(S1-S2, levels=design)
+	contrast.matrix = makeContrasts(S2-S1, levels=design)
 	
   	print(contrast.matrix)
 	
