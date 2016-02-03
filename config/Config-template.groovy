@@ -154,8 +154,8 @@ environments { development {
 
 /* {{{ Login */
 // Session timeout and heartbeat frequency (ping interval)
-com.recomdata.sessionTimeout = 300
-com.recomdata.heartbeatLaps = 30
+com.recomdata.sessionTimeout = 1800
+com.recomdata.heartbeatLaps = 300
 
 environments { development {
     com.recomdata.sessionTimeout = Integer.MAX_VALUE / 1000 as int /* ~24 days */
@@ -451,7 +451,7 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [transmartURL + '/oauth/verify']
+                        redirectUris: [(transmartURL - ~'\\/$') + '/oauth/verify'],
                     ],
                     [
                         clientId: 'glowingbear-js',

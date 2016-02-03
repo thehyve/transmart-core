@@ -1,14 +1,14 @@
 <?php
 $dependencies = array (
+  'views/de_snp_gene_map' => 
+  array (
+    0 => 'de_rc_snp_info',
+  ),
   'views/de_variant_summary_detail_gene' => 
   array (
     0 => 'de_variant_population_data',
     1 => 'de_variant_subject_detail',
     2 => 'de_variant_subject_summary',
-  ),
-  'de_rc_snp_info1' => 
-  array (
-    0 => 'de_rc_snp_info',
   ),
   'de_chromosomal_region' => 
   array (
@@ -63,10 +63,6 @@ $dependencies = array (
   'de_snp_data_by_patient' => 
   array (
     0 => 'de_subject_snp_dataset',
-  ),
-  'de_snp_gene_map' => 
-  array (
-    0 => 'de_snp_info',
   ),
   'de_snp_data_dataset_loc' => 
   array (
