@@ -874,23 +874,35 @@ class FmFolderController {
 
                         log.info("ROWS == " + amTagItem.tagItemAttr + " " + bioDataObject[amTagItem.tagItemAttr])
                         newrow.put(amTagItem.id.toString(), bioDataDisplayValue ? bioDataDisplayValue : '');
-                    } else if (amTagItem.tagItemType == 'CUSTOM') {
-                        def tagValues = AmTagDisplayValue.findAll('from AmTagDisplayValue a where a.subjectUid=? and a.amTagItem.id=?', [bioDataObject.getUniqueId().toString(), amTagItem.id])
-                        log.info("CUSTOM PARAMETERS " + bioDataObject.getUniqueId() + " " + amTagItem.id + " tagValues " + tagValues)
-                        newrow.put(amTagItem.id.toString(), createDisplayString(tagValues));
+                    } else if (amTagItem.tagItemType == 'CUSTOM') {              
+
+						def tagValues = AmTagDisplayValue.findAllDisplayValue(folderObject.uniqueId, amTagItem.id)
+						log.info("CUSTOM PARAMETERS :: FolderUID:" + folderObject.uniqueId+ " bioDataObject:"+bioDataObject.getUniqueId() + " amTagItem_id:" + amTagItem.id)
+						newrow.put(amTagItem.id.toString(), createDisplayString(tagValues));
                     } else {
-                        def tagValues = AmTagDisplayValue.findAllDisplayValue(folderObject.uniqueId, amTagItem.id)
-                        log.info("BIOOBJECT PARAMETERS " + folderObject.uniqueId + " " + amTagItem.id + " tagValues " + tagValues)
+						if (amTagItem.displayName=="Folder Name"){
+							newrow.put(amTagItem.id.toString(), createTitleString(amTagItem,folderObject.folderName,folderObject,true));
+						}
+						else if (amTagItem.displayName=="Assay Name"){
+                            newrow.put(amTagItem.id.toString(), createTitleString(amTagItem,folderObject.folderName,folderObject,true));
+                        }
+						else if (amTagItem.displayName=="Analysis Name") {
+                            newrow.put(amTagItem.id.toString(), createTitleString(amTagItem,folderObject.folderName,folderObject,true));
+                        }
+						else{
+							def tagValues = AmTagDisplayValue.findAllDisplayValue(folderObject.uniqueId, amTagItem.id)
+							log.info("BIOOBJECT PARAMETERS " + folderObject.uniqueId + " " + amTagItem.id + " tagValues " + tagValues)
 
-                        newrow.put(amTagItem.id.toString(), createDisplayString(tagValues));
-                    }
+							newrow.put(amTagItem.id.toString(), createDisplayString(tagValues));
+                        }
 
-                }
-            }
+                    } 
+            	}
 
-            table.putRow(bioDataObject.id.toString(), newrow);
-        }
+		 table.putRow(folderObject.uniqueId,newrow);
+            } 
 
+	}
         return table.toJSON_DataTables("", folderType).toString(5);
     }
 
@@ -1038,8 +1050,11 @@ class FmFolderController {
             log.info "criteriaParams '${criteriaParams}'"
             log.info "fetch BioAssayAnalysisData for analysisId ${analysisId}"
 
+            FmFolderAssociation fmm = FmFolderAssociation.findByFmFolder(FmFolder.findById(analysisId))
+            String ouid=fmm.objectUid
+            int AssaysNb= ouid.substring(ouid.indexOf(":")+1).toInteger() 
             def rows = BioAssayAnalysisData.createCriteria().list(criteriaParams) {
-                eq('analysis', BioAssayAnalysis.get(analysisId))
+                eq('analysis', BioAssayAnalysis.findById(AssaysNb))
                 order('rawPvalue', 'asc')
             }
 
@@ -1075,7 +1090,7 @@ class FmFolderController {
                 
                 if (foundGene || !genes) {
                     ExportRowNew newrow = new ExportRowNew()
-                    newrow.put("probe", it.probeset);
+                    newrow.put("probe", it.featureGroupName);
                     newrow.put("gene", rowGenes.join(", "));
                     newrow.put("pvalue", it.rawPvalue.toString());
                     newrow.put("apvalue", it.adjustedPvalue.toString());
