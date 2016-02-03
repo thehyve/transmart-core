@@ -810,33 +810,36 @@ class FmFolderController {
         }
 
         childMetaDataTagItems.eachWithIndex()
-                { obj, i ->
-                    //
-                    AmTagItem amTagItem = obj
-                    if (amTagItem.viewInChildGrid) {
-                        if (amTagItem.tagItemType == 'FIXED') {
-                            log.info("CREATEDATATABLE::FIXED TYPE == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+        { obj, i ->
+            //
+            AmTagItem amTagItem = obj
+            if (amTagItem.viewInChildGrid) {
+                if (amTagItem.tagItemType == 'FIXED') {
+                    log.info("CREATEDATATABLE::FIXED TYPE == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
 
-                            if (dataObject.hasProperty(amTagItem.tagItemAttr)) {
-                                //log.info ("CREATEDATATABLE::FIXED COLUMNS == " + amTagItem.tagItemAttr + " " + amTagItem.displayName)
-                                table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-                            } else {
-                                log.error("CREATEDATATABLE::TAG ITEM ID = " + amTagItem.id + " COLUMN " + amTagItem.tagItemAttr + " is not a propery of " + dataObject)
-                            }
-
-                        } else if (amTagItem.tagItemType == 'CUSTOM') {
-                            log.info("CREATEDATATABLE::CUSTOM == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
-                            table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-
-                        } else {
-                            log.info("CREATEDATATABLE::BUSINESS OBJECT == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
-                            table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-                        }
+                    if (dataObject.hasProperty(amTagItem.tagItemAttr)) {
+                        //log.info ("CREATEDATATABLE::FIXED COLUMNS == " + amTagItem.tagItemAttr + " " + amTagItem.displayName)
+                        table.putColumn(amTagItem.id.toString(),
+                                        new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
                     } else {
-                        log.info("COLUMN " + amTagItem.displayName + " is not to display in grid")
+                        log.error("CREATEDATATABLE::TAG ITEM ID = " + amTagItem.id + " COLUMN " + amTagItem.tagItemAttr + " is not a propery of " + dataObject)
                     }
 
+                } else if (amTagItem.tagItemType == 'CUSTOM') {
+                    log.info("CREATEDATATABLE::CUSTOM == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+                    table.putColumn(amTagItem.id.toString(),
+                                    new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
+
+                } else {
+                    log.info("CREATEDATATABLE::BUSINESS OBJECT == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+                    table.putColumn(amTagItem.id.toString(),
+                                    new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
                 }
+            } else {
+                log.info("COLUMN " + amTagItem.displayName + " is not to display in grid")
+            }
+
+        }
 
         folders.each { folderObject ->
             log.info "FOLDER::$folderObject"
@@ -892,7 +895,8 @@ class FmFolderController {
     }
 
     //FIXME Quick hack to make title properties act as hyperlinks.
-    //These name properties should be indicated in the database, and the sort value should be specified (needs a rewrite of our ExportTable)
+    //These name properties should be indicated in the database, and the sort value should be specified
+    //(needs a rewrite of our ExportTable)
     def nameProperties = ['assay name', 'analysis name', 'study title', 'program title', 'folder name']
 
     private createTitleString(AmTagItem amTagItem, String name, FmFolder folderObject, boolean isLink = true) {
@@ -1139,7 +1143,7 @@ class FmFolderController {
             log.info "getBioDataObject::folderAssociation = " + folderAssociation
             bioDataObject = folderAssociation.getBioObject()
         } else {
-            log.error "Unable to find folderAssociation for folder Id = " + folder.id
+            log.info "Unable to find folderAssociation for folder Id = " + folder.id
         }
 
         if (!bioDataObject) {
@@ -1337,6 +1341,7 @@ class FmFolderController {
         String mimeType = MIME_TYPES_FILES_MAP.getContentType fmFile.originalName
         log.debug "Downloading file $fmFile, mime type $mimeType"
 
+        //HttpServletResponse fileResponse=new HttpServletResponseWrapper(response)
         response.setContentType mimeType
 
         /* This form of sending the filename seems to be compatible
@@ -1358,11 +1363,12 @@ class FmFolderController {
             }
         }else{
             if(grailsApplication.config.transmartproject.mongoFiles.useDriver){
-                MongoClient mongo = new MongoClient(grailsApplication.config.transmartproject.mongoFiles.dbServer, grailsApplication.config.transmartproject.mongoFiles.dbPort)
+                MongoClient mongo = new MongoClient(grailsApplication.config.transmartproject.mongoFiles.dbServer,
+                                                    grailsApplication.config.transmartproject.mongoFiles.dbPort)
                 DB db = mongo.getDB( grailsApplication.config.transmartproject.mongoFiles.dbName)
                 GridFS gfs = new GridFS(db)
                 GridFSDBFile gfsFile = gfs.findOne(fmFile.filestoreName)
-                fileReponse.outputStream << gfsFile.getInputStream()
+                response.outputStream << gfsFile.getInputStream()
                 mongo.close()
             }else {
                 def apiURL=grailsApplication.config.transmartproject.mongoFiles.apiURL
@@ -1372,7 +1378,7 @@ class FmFolderController {
                     headers.'apikey' = MongoUtils.hash(apiKey)
                     response.success = { resp, binary ->
                         assert resp.statusLine.statusCode == 200
-                        fileReponse.outputStream << binary
+                        response.outputStream << binary
                     }
                     response.failure = { resp ->
                         log.error("Problem during connection to API: "+resp.status)
