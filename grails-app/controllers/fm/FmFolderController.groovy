@@ -810,42 +810,36 @@ class FmFolderController {
         }
 
         childMetaDataTagItems.eachWithIndex()
-                { obj, i ->
-                    //
-                    AmTagItem amTagItem = obj
-                    if (amTagItem.viewInChildGrid) {
-                        if (amTagItem.tagItemType == 'FIXED') {
-                            log.info("CREATEDATATABLE::FIXED TYPE == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+        { obj, i ->
+            //
+            AmTagItem amTagItem = obj
+            if (amTagItem.viewInChildGrid) {
+                if (amTagItem.tagItemType == 'FIXED') {
+                    log.info("CREATEDATATABLE::FIXED TYPE == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
 
-							if (amTagItem.displayName=='Folder Name') {
-								table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));	
-							}
-							else if (amTagItem.displayName=='Assay Name') {
-								table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-							}
-							else if (amTagItem.displayName=='Analysis Name') {
-                                table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-							}
-							else if (dataObject.hasProperty(amTagItem.tagItemAttr)) {
-                                //log.info ("CREATEDATATABLE::FIXED COLUMNS == " + amTagItem.tagItemAttr + " " + amTagItem.displayName)
-                                table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-							} else {
-                                log.error("CREATEDATATABLE::TAG ITEM ID = " + amTagItem.id + " COLUMN " + amTagItem.tagItemAttr + " is not a propery of " + dataObject)
-							}
-
-                        } else if (amTagItem.tagItemType == 'CUSTOM') {
-                            log.info("CREATEDATATABLE::CUSTOM == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
-                            table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-
-                        } else {
-                            log.info("CREATEDATATABLE::BUSINESS OBJECT == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
-                            table.putColumn(amTagItem.id.toString(), new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
-                        }
+                    if (dataObject.hasProperty(amTagItem.tagItemAttr)) {
+                        //log.info ("CREATEDATATABLE::FIXED COLUMNS == " + amTagItem.tagItemAttr + " " + amTagItem.displayName)
+                        table.putColumn(amTagItem.id.toString(),
+                                        new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
                     } else {
-                        log.info("COLUMN " + amTagItem.displayName + " is not to display in grid")
+                        log.error("CREATEDATATABLE::TAG ITEM ID = " + amTagItem.id + " COLUMN " + amTagItem.tagItemAttr + " is not a propery of " + dataObject)
                     }
 
+                } else if (amTagItem.tagItemType == 'CUSTOM') {
+                    log.info("CREATEDATATABLE::CUSTOM == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+                    table.putColumn(amTagItem.id.toString(),
+                                    new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
+
+                } else {
+                    log.info("CREATEDATATABLE::BUSINESS OBJECT == " + amTagItem.tagItemType + " ID = " + amTagItem.id + " " + amTagItem.displayName)
+                    table.putColumn(amTagItem.id.toString(),
+                                    new ExportColumn(amTagItem.id.toString(), amTagItem.displayName, "", 'String'));
                 }
+            } else {
+                log.info("COLUMN " + amTagItem.displayName + " is not to display in grid")
+            }
+
+        }
 
         folders.each { folderObject ->
             log.info "FOLDER::$folderObject"
@@ -913,7 +907,8 @@ class FmFolderController {
     }
 
     //FIXME Quick hack to make title properties act as hyperlinks.
-    //These name properties should be indicated in the database, and the sort value should be specified (needs a rewrite of our ExportTable)
+    //These name properties should be indicated in the database, and the sort value should be specified
+    //(needs a rewrite of our ExportTable)
     def nameProperties = ['assay name', 'analysis name', 'study title', 'program title', 'folder name']
 
     private createTitleString(AmTagItem amTagItem, String name, FmFolder folderObject, boolean isLink = true) {
@@ -1030,6 +1025,8 @@ class FmFolderController {
                 geneFilter = geneFilter.substring(5).split("::")[0].replace("|", "/").split("/")
             }
 
+            log.info "analysisTable id ${analysisId} geneFilter '${geneFilter}'"
+
             //For each gene (ignore pathways), add the gene name and any synonyms to the list to match against
             for (item in geneFilter) {
                 if (item.startsWith("GENE")) {
@@ -1042,17 +1039,26 @@ class FmFolderController {
                 }
             }
 
+            log.info "geneCount ${genes.size()}"
+
             def criteriaParams = [:]
             if (!params.boolean('full')) {
                 criteriaParams.put('max', 1000)
+                log.info "not full... limit to 1000 rows"
             }
-		FmFolderAssociation fmm = FmFolderAssociation.findByFmFolder(FmFolder.findById(analysisId))
-		String ouid=fmm.objectUid
-		int AssaysNb= ouid.substring(ouid.indexOf(":")+1).toInteger() 
+
+            log.info "criteriaParams '${criteriaParams}'"
+            log.info "fetch BioAssayAnalysisData for analysisId ${analysisId}"
+
+            FmFolderAssociation fmm = FmFolderAssociation.findByFmFolder(FmFolder.findById(analysisId))
+            String ouid=fmm.objectUid
+            int AssaysNb= ouid.substring(ouid.indexOf(":")+1).toInteger() 
             def rows = BioAssayAnalysisData.createCriteria().list(criteriaParams) {
                 eq('analysis', BioAssayAnalysis.findById(AssaysNb))
                 order('rawPvalue', 'asc')
             }
+
+            log.info "rowCount ${rows.getTotalCount()}"
 
             ExportTableNew table = new ExportTableNew()
             table.putColumn("probe", new ExportColumn("probe", "Probe", "", 'String'));
@@ -1064,18 +1070,24 @@ class FmFolderController {
 
             rows.each {
                 def rowGenes = (DeMrnaAnnotation.findAll("from DeMrnaAnnotation as a where a.probesetId=? and geneSymbol is not null", [it.probesetId]))*.geneSymbol
-                def lowerGenes = []
-                for (gene in rowGenes) {
-                    lowerGenes.push(gene.toLowerCase())
-                }
                 def foundGene = false
-                for (gene in genes) {
-                    if (gene.toLowerCase() in lowerGenes) {
-                        foundGene = true
-                        break
+
+                log.info "row probesetId ${it.probesetId} rowGenes '${rowGenes}'"
+
+                if(genes) {
+    
+                    def lowerGenes = []
+                    for (gene in rowGenes) {
+                        lowerGenes.push(gene.toLowerCase())
+                    }
+                    for (gene in genes) {
+                        if (gene.toLowerCase() in lowerGenes) {
+                            foundGene = true
+                            break
+                        }
                     }
                 }
-
+                
                 if (foundGene || !genes) {
                     ExportRowNew newrow = new ExportRowNew()
                     newrow.put("probe", it.featureGroupName);
@@ -1146,7 +1158,7 @@ class FmFolderController {
             log.info "getBioDataObject::folderAssociation = " + folderAssociation
             bioDataObject = folderAssociation.getBioObject()
         } else {
-            log.error "Unable to find folderAssociation for folder Id = " + folder.id
+            log.info "Unable to find folderAssociation for folder Id = " + folder.id
         }
 
         if (!bioDataObject) {
@@ -1344,6 +1356,7 @@ class FmFolderController {
         String mimeType = MIME_TYPES_FILES_MAP.getContentType fmFile.originalName
         log.debug "Downloading file $fmFile, mime type $mimeType"
 
+        //HttpServletResponse fileResponse=new HttpServletResponseWrapper(response)
         response.setContentType mimeType
 
         /* This form of sending the filename seems to be compatible
@@ -1365,11 +1378,12 @@ class FmFolderController {
             }
         }else{
             if(grailsApplication.config.transmartproject.mongoFiles.useDriver){
-                MongoClient mongo = new MongoClient(grailsApplication.config.transmartproject.mongoFiles.dbServer, grailsApplication.config.transmartproject.mongoFiles.dbPort)
+                MongoClient mongo = new MongoClient(grailsApplication.config.transmartproject.mongoFiles.dbServer,
+                                                    grailsApplication.config.transmartproject.mongoFiles.dbPort)
                 DB db = mongo.getDB( grailsApplication.config.transmartproject.mongoFiles.dbName)
                 GridFS gfs = new GridFS(db)
                 GridFSDBFile gfsFile = gfs.findOne(fmFile.filestoreName)
-                fileReponse.outputStream << gfsFile.getInputStream()
+                response.outputStream << gfsFile.getInputStream()
                 mongo.close()
             }else {
                 def apiURL=grailsApplication.config.transmartproject.mongoFiles.apiURL
@@ -1379,7 +1393,7 @@ class FmFolderController {
                     headers.'apikey' = MongoUtils.hash(apiKey)
                     response.success = { resp, binary ->
                         assert resp.statusLine.statusCode == 200
-                        fileReponse.outputStream << binary
+                        response.outputStream << binary
                     }
                     response.failure = { resp ->
                         log.error("Problem during connection to API: "+resp.status)

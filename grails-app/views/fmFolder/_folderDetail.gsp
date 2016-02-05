@@ -46,11 +46,14 @@
                 <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name()) ||
                               folder.folderType.equalsIgnoreCase(FolderType.ASSAY.name()) ||
                               folder.folderType.equalsIgnoreCase(FolderType.ANALYSIS.name())}">
+<%-- drop adding analysis under a folder in a Study --%>
+<%--
                     <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name()) &&
                                   folder.parent?.folderType.equalsIgnoreCase(FolderType.STUDY.name())}">
                         <span name="${folder.id}" class="greybutton buttonicon addanalysis">Add new analysis</span>
                     </g:if>
-                    <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name())}">
+--%>
+		    <g:if test="${folder.folderType.equalsIgnoreCase(FolderType.FOLDER.name())}">
                         <g:logMsg>Upload files button</g:logMsg>
                         <span name="${folder.id}" class="greybutton buttonicon uploadfiles">Upload files</span>
                     </g:if>

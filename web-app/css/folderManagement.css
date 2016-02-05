@@ -29,9 +29,9 @@
 .foldericon.assay   { background-image: url('../images/foldertypes/assay.png'); }
 .foldericon.analysis { background-image: url('../images/foldertypes/analysis.png'); }
 
-.foldericon.addcart { background-image: url('../images/icons/addcart.png'); padding: 2px 2px 2px 24px; }
+.foldericon.addcart { background-image: url('../images/icons/addcart.png'); background-repeat: no-repeat; padding: 2px 2px 2px 24px; }
 .foldericon.removecart { background-image: url('../images/icons/removecart.png'); padding: 2px 2px 2px 24px; }
-.foldericon.deletefile { background-image: url('../images/icons/bin_closed.png'); }
+.foldericon.deletefile { background-image: url('../images/icons/bin_closed.png'); background-repeat: no-repeat; }
 .foldericon.exportgo { background-image: url('../images/icons/package_go.png'); }
 
 /* File icons are !important so that they override the icon properties in Dataset Explorer... */

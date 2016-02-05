@@ -112,7 +112,7 @@ class FileExportController {
 
             for (f in exportList) {
                 FmFile fmFile = FmFile.get(f)
-                def fileLocation = filestorePath + "/" + fmFile.filestoreLocation + "/" + fmFile.filestoreName
+                def fileLocation = filestorePath + File.separator + fmFile.filestoreLocation + File.separator + fmFile.filestoreName
                 File file = new File(fileLocation)
                 if (file.exists()) {
 

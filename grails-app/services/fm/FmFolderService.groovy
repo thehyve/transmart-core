@@ -109,7 +109,7 @@ class FmFolderService {
      */
     def processDirectory(File directory) {
         def fmFolder = null
-        /* null: uninitialized; false: not a folder it */
+        /* null: uninitialized; false: not a folder */
 
         /* the lazy initialization is to avoid loading the fmFolder if there are
          * actually no files under the directory being processed */
@@ -236,7 +236,7 @@ class FmFolderService {
         }
 
         // Move file to appropriate filestore directory.
-        File filestoreFile = new File(filestoreDirectory + fmFile.filestoreLocation + file.separator + fmFile.filestoreName);
+        File filestoreFile = new File(filestoreDirectory + fmFile.filestoreLocation + File.separator + fmFile.filestoreName);
         try {
             FileUtils.copyFile(file, filestoreFile);
             if (!file.delete()) {

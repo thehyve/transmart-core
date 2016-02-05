@@ -19,14 +19,14 @@ class UploadFilesController {
     
     def upload = {
         def msg = "Loading failed"
-        log.info("upload attempt")
-        def files = request.getFiles('qqfile').each { file ->    
+        def files = request.getFiles('qqfile').each { file ->
             msg = uploadFilesService.upload(file, params.parentId)
             log.debug(file.toString()+": "+msg)
         }
         log.info("upload msg '${msg}'")
         def result
-        if(msg == "File successfully loaded") result = [success: true, folderId: params.parentId, folderParentId: params.folderParentId]
+        if(msg == "File successfully loaded") result = [success: true, folderId: params.parentId,
+                                                        folderParentId: params.folderParentId]
         else result = [success: false, error: msg]
         render text: result as JSON, contentType: 'text/html'
     }
