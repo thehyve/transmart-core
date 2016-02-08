@@ -38,6 +38,9 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
     }
 
     private TripleStandardDataValue process(TripleStandardDataValue item) throws Exception {
+        if (item.value == null) {
+            return item
+        }
         if (item.value < 0 || Double.isNaN(item.value)) {
             item.value = item.logValue = item.zscore = Double.NaN
             return item
@@ -45,10 +48,12 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
 
         item.logValue = log(item.value, minPosDataSetValue) / LOG_2
 
-        double stdDiv = perRowStatisticsListener.standardDeviation
-        if (stdDiv > 0) {
-            item.zscore = clamp(-2.5d, 2.5d,
-                    (item.logValue - perRowStatisticsListener.mean) / stdDiv)
+        if (perRowStatisticsListener) {
+            double stdDiv = perRowStatisticsListener.standardDeviation
+            if (stdDiv > 0) {
+                item.zscore = clamp(-2.5d, 2.5d,
+                        (item.logValue - perRowStatisticsListener.mean) / stdDiv)
+            }
         }
 
         item

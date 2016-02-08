@@ -24,7 +24,7 @@ class CollectMinimumPositiveValueListener implements ItemStream {
     @AfterProcess
     @SuppressWarnings('UnusedMethodParameter')
     void afterProcess(DataPoint input, DataPoint output) {
-        if (!Double.isNaN(output.value) && output.value > 0) {
+        if (output.value != null && !Double.isNaN(output.value) && output.value > 0) {
             //when minPositiveValue is null (initial value) assign it to the value
             if (minPositiveValue ==  null || minPositiveValue > output.value) {
                 log.trace("Changing minimal positive value: ${minPositiveValue} => ${output.value}")

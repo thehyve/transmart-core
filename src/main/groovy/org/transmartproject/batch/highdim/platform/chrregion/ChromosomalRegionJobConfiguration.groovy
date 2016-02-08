@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.proteomics.platform
+package org.transmartproject.batch.highdim.platform.chrregion
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -10,33 +10,31 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.transmartproject.batch.clinical.db.objects.Sequences
-import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.highdim.platform.PlatformLoadJobConfiguration
 
 import javax.annotation.Resource
 
 /**
- * Spring configuration for the proteomics data job.
+ * Spring configuration for the chromosomal region data job.
  */
 @Configuration
-@ComponentScan('org.transmartproject.batch.highdim.proteomics.platform')
-class ProteomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration {
+@ComponentScan('org.transmartproject.batch.highdim.platform.chrregion')
+class ChromosomalRegionJobConfiguration extends PlatformLoadJobConfiguration {
 
-    public static final String JOB_NAME = 'ProteomicsPlatformLoadJob'
+    public static final String JOB_NAME = 'ChromosomalRegionLoadJob'
 
     static int chunkSize = 5000
 
     @Resource
-    Tasklet deleteProteomicsAnnotationTasklet
+    Tasklet deleteChromosomalRegionTasklet
 
     @Autowired
-    ProteomicsAnnotationRowValidator annotationRowValidator
+    ChromosomalRegionRowValidator chromosomalRegionRowValidator
 
     @Autowired
-    ProteomicsAnnotationWriter proteomicsAnnotationWriter
+    ChromosomalRegionRowWriter chromosomalRegionRowWriter
 
-    @Bean(name = 'ProteomicsPlatformLoadJob' /* JOB_NAME */)
+    @Bean(name = 'ChromosomalRegionLoadJob' /* JOB_NAME */)
     @Override
     Job job() {
         jobs.get(JOB_NAME)
@@ -45,37 +43,33 @@ class ProteomicsPlatformJobConfiguration extends PlatformLoadJobConfiguration {
                 .build()
     }
 
-    @Override
-    protected void configure(SequenceReserver sequenceReserver) {
-        sequenceReserver.configureBlockSize(Sequences.PROBESET_ID, chunkSize)
-    }
-
     @Bean
     Step mainStep() {
         steps.get('mainStep')
                 .chunk(chunkSize)
-                .reader(proteomicsAnnotationRowReader(null))
-                .processor(new ValidatingItemProcessor(adaptValidator(annotationRowValidator)))
-                .writer(proteomicsAnnotationWriter)
+                .reader(chromosomalRegionRowReader(null))
+                .processor(new ValidatingItemProcessor(adaptValidator(chromosomalRegionRowValidator)))
+                .writer(chromosomalRegionRowWriter)
                 .listener(lineOfErrorDetectionListener())
                 .listener(progressWriteListener())
                 .build()
     }
 
     @Bean
-    @JobScope
-    FlatFileItemReader<ProteomicsAnnotationRow> proteomicsAnnotationRowReader(
+    @JobScope //Why job scope?
+    FlatFileItemReader<ChromosomalRegionRow> chromosomalRegionRowReader(
             org.springframework.core.io.Resource annotationsFileResource) {
         tsvFileReader(
                 annotationsFileResource,
                 linesToSkip: 1,
-                beanClass: ProteomicsAnnotationRow,
-                columnNames: ['probsetId', 'uniprotId', 'organism', 'gplId', 'chromosome', 'startBp', 'endBp'])
+                beanClass: ChromosomalRegionRow,
+                columnNames: ['gplId', 'regionName', 'chromosome', 'startBp', 'endBp', 'numProbes', 'cytoband',
+                              'geneSymbol', 'geneId', 'organism'])
     }
 
     @Bean
     Step deleteAnnotationsStep() {
-        stepOf(this.&getDeleteProteomicsAnnotationTasklet)
+        stepOf('deleteChromosomalRegionTasklet', deleteChromosomalRegionTasklet)
     }
 
 }
