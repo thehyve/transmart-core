@@ -5,7 +5,7 @@ the Across Trials tree.
 
 ## Providing Across Trials Mapping Data
 
-For the across trials data to be loaded, an extra file is needed (henceforth "the across trials file". The path to this
+For the across trials data to be loaded, an extra file is needed (henceforth "the across trials file"). The path to this
 file must be provided through the `XTRIAL_FILE` parameter. This can either be provided through in the command line with
 the `-d` parameter or it can be included in the `clinical.params` file.
 
