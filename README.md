@@ -56,6 +56,8 @@ Worthy of mention is that transmart-batch will refuse to re-run a job with the
 same parameters (which depend on the `clinical.params` file contents). Use `-n`
 to force the job to be re-run.
 
+Details on how to prepare your datam, mapping and parameter files for transmart-batch can be found in the [docs folder](docs).
+
 To restart a job, take a note of the job execution id at the beginning of the
 failed job:
 
