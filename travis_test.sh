@@ -127,10 +127,10 @@ function run_oracle_check {
 
 function run_postgres_functional {
   # also create test report
-  ./gradlew --info --console plain functionalTest jacocoTestReport
+  ./gradlew --info --stacktrace --console plain functionalTest jacocoTestReport
 }
 function run_oracle_functional {
-  ./gradlew --info --console plain functionalTest
+  ./gradlew --info --stacktrace --console plain functionalTest
 }
 
 function run_postgres_capsule {
