@@ -115,6 +115,9 @@ task functionalTestPrepare(type: JavaExec) {
     main = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
     args 'org.transmartproject.batch.preparation.TestDatabasePrepareConfiguration',
             'testDatabasePrepareJob'
+
+    maxHeapSize = '2g'
+
     classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
 }
@@ -122,10 +125,14 @@ task functionalTestPrepare(type: JavaExec) {
 task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
+
     systemProperties = ['user.timezone': 'GMT']
+    maxHeapSize = '2g'
+
     testClassesDir = sourceSets.functionalTest.output.classesDir
     classpath += sourceSets.test.runtimeClasspath
     classpath += sourceSets.functionalTest.runtimeClasspath
+
     useJUnit()
     outputs.upToDateWhen { false }
 
