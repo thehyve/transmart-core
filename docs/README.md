@@ -18,7 +18,7 @@
   * [hd-params.md](hd-params.md) - Parameters that are supported for all high-dimensional data types.
 * mRNA gene expression data
   * [expression.md](expression.md) - Loading microarray gene expression data.
-  * *under development* - Loading mRNAseq,miRNAseq data.
+  * *under development* - Loading readcounts and normalized readcounts data for mRNAseq,miRNAseq.
 * Copy Number Variation data
   * *under development* - Loading CNV data from Array CGH (comparative genomic hybridisation), SNP Array, DNA-Seq, etc.
 * Small Genomic Variants
