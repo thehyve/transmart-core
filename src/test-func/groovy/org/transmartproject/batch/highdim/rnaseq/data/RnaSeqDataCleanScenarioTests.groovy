@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
  * test RNASeq data first load
@@ -133,10 +134,10 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
         double logValue = Math.log(normalizedReadcount) / Math.log(2d)
 
         assertThat r, allOf(
-                hasEntry('readcount', readcount),
-                hasEntry(equalTo('normalized_readcount'), closeTo(normalizedReadcount, DELTA)),
+                hasEntry(equalTo('readcount'), castingCloseTo(readcount, DELTA)),
+                hasEntry(equalTo('normalized_readcount'), castingCloseTo(normalizedReadcount, DELTA)),
                 hasEntry(equalTo('patient_id'), notNullValue()),
-                hasEntry(equalTo('log_normalized_readcount'), closeTo(logValue, DELTA)),
+                hasEntry(equalTo('log_normalized_readcount'), castingCloseTo(logValue, DELTA)),
         )
     }
 

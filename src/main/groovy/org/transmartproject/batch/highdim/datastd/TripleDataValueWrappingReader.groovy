@@ -38,9 +38,6 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
     }
 
     private TripleStandardDataValue process(TripleStandardDataValue item) throws Exception {
-        if (item.value == null) {
-            return item
-        }
         if (item.value < 0 || Double.isNaN(item.value)) {
             item.value = item.logValue = item.zscore = Double.NaN
             return item

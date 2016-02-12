@@ -18,21 +18,21 @@ class StandardDataValuePatientInjectionProcessor implements ItemProcessor<Standa
     @Autowired
     private PatientSet patientSet
 
-    private final Map samplePatientMap = [:]
+    private final Map samplePatientMappingCache = [:]
 
     @Override
     StandardDataValue process(StandardDataValue item) throws Exception {
         String sampleCode = item.sampleCode
 
         Patient patient
-        if (samplePatientMap.containsKey(sampleCode)) {
-            patient = samplePatientMap[sampleCode]
+        if (samplePatientMappingCache.containsKey(sampleCode)) {
+            patient = samplePatientMappingCache[sampleCode]
         } else {
             MappingFileRow mapping = assayMappings.getBySampleName(sampleCode)
             assert mapping != null
             patient = patientSet[mapping.subjectId]
             assert patient != null
-            samplePatientMap[sampleCode] = patient
+            samplePatientMappingCache[sampleCode] = patient
         }
 
         item.patient = patient

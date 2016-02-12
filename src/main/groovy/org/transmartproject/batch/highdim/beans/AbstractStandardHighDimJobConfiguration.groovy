@@ -106,6 +106,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJo
     }
 
     @Bean
+    @StepScope
     StandardDataValuePatientInjectionProcessor standardDataValuePatientInjectionProcessor() {
         new StandardDataValuePatientInjectionProcessor()
     }

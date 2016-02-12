@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.db.DatabaseUtil
-import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 import org.transmartproject.batch.highdim.platform.annotationsload.AnnotationEntityMap
 
 import static org.transmartproject.batch.clinical.db.objects.Tables.schemaName
@@ -19,7 +18,7 @@ import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
  */
 @Component
 @JobScope
-class RnaSeqDataWriter implements ItemWriter<TripleStandardDataValue> {
+class RnaSeqDataWriter implements ItemWriter<RnaSeqDataValue> {
 
     @Value("#{jobParameters['STUDY_ID']}")
     private String studyId

@@ -34,6 +34,11 @@ class ChromosomalRegionRowValidator implements Validator {
     void validate(Object target, Errors errors) {
         assert target instanceof ChromosomalRegionRow
 
+        if (!target.regionName) {
+            errors.rejectValue 'regionName', 'required',
+                    ['regionName'] as Object[], null
+        }
+
         /* platformObject.id should be normalized to uppercase because it comes
          * from the normalized parameter PLATFORM, but it may be that platform
          * name in the data file is not */
