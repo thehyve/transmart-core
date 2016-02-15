@@ -16,5 +16,7 @@ install:
 
 script:
     - grails refresh-dependencies --non-interactive
-    - grails test-app --non-interactive --stacktrace
+    - CLOVER=1 grails test-app --non-interactive --stacktrace
 
+after_script:
+    - bash <(curl -s https://codecov.io/bash)

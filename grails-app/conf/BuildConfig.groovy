@@ -38,6 +38,9 @@ grails.project.fork = [
     console: defaultVMSettings
 ]
 
+final def CLOVER_VERSION = '4.1.1'
+def enableClover = System.getenv('CLOVER')
+
 def dm, dmClass
 try {
     dmClass = new GroovyClassLoader().parseClass(
@@ -46,6 +49,37 @@ try {
 }
 if (dmClass) {
     dm = dmClass.newInstance()
+}
+
+if (enableClover) {
+    grails.project.fork.test = false
+
+    clover {
+        on = true
+
+        srcDirs = ['src/java', 'src/groovy', 'grails-app', 'test']
+        excludes = ['**/conf/**', '**/plugins/**', 'src/java/org/transmartproject/rest/protobuf/**']
+
+        reporttask = { ant, binding, plugin ->
+            def reportDir = "${binding.projectTargetDir}/clover/report"
+            ant.'clover-report' {
+                ant.current(outfile: reportDir, title: 'transmart-rest-api') {
+                    format(type: "html", reportStyle: 'adg')
+                    testresults(dir: 'target/test-reports', includes: '*.xml')
+                    ant.columns {
+                        lineCount()
+                        filteredElements()
+                        uncoveredElements()
+                        totalPercentageCovered()
+                    }
+                }
+                ant.current(outfile: "${reportDir}/clover.xml") {
+                    format(type: "xml")
+                    testresults(dir: 'target/test-reports', includes: '*.xml')
+                }
+            }
+        }
+    }
 }
 
 grails.project.dependency.resolver = 'maven'
@@ -122,6 +156,11 @@ grails.project.dependency.resolution = {
             dm.internalDependencies delegate
         }
 
+        if (enableClover) {
+            compile ":clover:$CLOVER_VERSION", {
+                export = false
+            }
+        }
     }
 }
 

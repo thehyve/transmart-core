@@ -59,7 +59,7 @@ class HighDimBuilderTests {
     }
 
     @Test
-    void "test single field projection. Double"() {
+    void "test single field projection - Double"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1d, 2d])
         createBuilder inputDataRow
         Row row = builder.createRow inputDataRow
@@ -74,7 +74,7 @@ class HighDimBuilderTests {
     }
 
     @Test
-    void "test single field projection. Any number"() {
+    void "test single field projection - Any number"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [1, 2l])
         createBuilder inputDataRow
         Row row = builder.createRow(inputDataRow)
@@ -89,7 +89,7 @@ class HighDimBuilderTests {
     }
 
     @Test
-    void "test single field projection. String"() {
+    void "test single field projection - String"() {
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: ['A', 'B'])
         createBuilder inputDataRow
         Row row = builder.createRow(inputDataRow)
@@ -104,7 +104,7 @@ class HighDimBuilderTests {
     }
 
     @Test
-    void "test multiple field projection."() {
+    void "test multiple field projection"() {
         def projection = new TestProjection(dataProperties: [a: Integer, b: String])
         def inputDataRow = new TestDataRow(assayColumns: testAssays, data: [[a: 1, b: 'text1'], [a: 2, b: 'text2']])
         createBuilder inputDataRow, projection
@@ -119,7 +119,7 @@ class HighDimBuilderTests {
     }
 
     @Test
-    void "test column type choice."() {
+    void "test column type choice"() {
         assertThat HighDimBuilder.decideColumnValueType(String), sameInstance(String)
         assertThat HighDimBuilder.decideColumnValueType(Object), sameInstance(String)
         assertThat HighDimBuilder.decideColumnValueType(HighDimBuilder), sameInstance(String)
