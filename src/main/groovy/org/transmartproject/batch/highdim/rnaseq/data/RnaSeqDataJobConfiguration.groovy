@@ -85,7 +85,7 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
     @Bean
     @JobScope
     CollectMinimumPositiveValueListener collectMinimumPositiveValueListener() {
-        new CollectMinimumPositiveValueListener()
+        new CollectMinimumPositiveValueListener(minPositiveValueRequired: false)
     }
 
     /***************

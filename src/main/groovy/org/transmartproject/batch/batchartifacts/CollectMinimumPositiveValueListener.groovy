@@ -19,6 +19,8 @@ class CollectMinimumPositiveValueListener implements ItemStream {
 
     public static final String MIN_POS_DATA_SET_VALUE = 'minPosDataSetValue'
 
+    boolean minPositiveValueRequired = true
+
     private Double minPositiveValue
 
     @AfterProcess
@@ -39,8 +41,13 @@ class CollectMinimumPositiveValueListener implements ItemStream {
             log.debug("Skipping promotion of minPositiveValue because the exit status is ${ExitStatus.FAILED}")
         } else {
             if (minPositiveValue == null) {
-                throw new ValidationException(
-                        'No minimal positive value found. Are there any positive values (non zero) in the data set?')
+                if (minPositiveValueRequired) {
+                    throw new ValidationException(
+                            'No minimal positive value found. ' +
+                                    'Are there any positive values (non zero) in the data set?')
+                } else {
+                    log.info("No minimal positive values has been found.")
+                }
             } else {
                 log.info("Minimal positive values has been found. It's ${minPositiveValue}.")
                 stepExecution.jobExecution.executionContext.putDouble(MIN_POS_DATA_SET_VALUE, minPositiveValue)
