@@ -62,7 +62,9 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
                 id: parameters[AbstractPlatformJobSpecification.PLATFORM],
                 title: parameters[AbstractPlatformJobSpecification.TITLE],
                 organism: parameters[AbstractPlatformJobSpecification.ORGANISM],
-                markerType: parameters[AbstractPlatformJobSpecification.MARKER_TYPE])
+                markerType: parameters[AbstractPlatformJobSpecification.MARKER_TYPE],
+                genomeRelease: parameters[AbstractPlatformJobSpecification.GENOME_RELEASE],
+        )
     }
 
     @Bean

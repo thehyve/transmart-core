@@ -11,4 +11,5 @@ class Platform {
     String title
     String organism
     String markerType
+    String genomeRelease
 }

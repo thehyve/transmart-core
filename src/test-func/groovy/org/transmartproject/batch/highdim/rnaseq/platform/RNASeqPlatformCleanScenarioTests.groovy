@@ -43,7 +43,7 @@ class RnaSeqPlatformCleanScenarioTests implements JobRunningTestTrait {
     @Test
     void testGplInfoEntry() {
         def q = """
-                SELECT platform, title, organism, marker_type
+                SELECT platform, title, organism, marker_type, genome_build
                 FROM ${Tables.GPL_INFO}
                 WHERE platform = :platform"""
         def p = [platform: PLATFORM_ID]
@@ -53,6 +53,7 @@ class RnaSeqPlatformCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('title', 'Test RNASeq Platform'),
                 hasEntry('organism', 'Homo Sapiens'),
                 hasEntry('marker_type', MARKER_TYPE),
+                hasEntry('genome_build', 'hg19'),
         )
     }
 

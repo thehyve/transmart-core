@@ -20,6 +20,7 @@ abstract class AbstractPlatformJobSpecification
     public final static String ORGANISM = 'ORGANISM'
     public final static String ANNOTATIONS_FILE = 'ANNOTATIONS_FILE'
     public final static String MARKER_TYPE = 'MARKER_TYPE'
+    public final static String GENOME_RELEASE = 'GENOME_RELEASE'
 
     private final static String DEFAULT_ORGANISM = 'Homo Sapiens'
 
@@ -31,7 +32,8 @@ abstract class AbstractPlatformJobSpecification
             TITLE,
             ORGANISM,
             ANNOTATIONS_FILE,
-            MARKER_TYPE,)
+            MARKER_TYPE,
+            GENOME_RELEASE,)
 
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
