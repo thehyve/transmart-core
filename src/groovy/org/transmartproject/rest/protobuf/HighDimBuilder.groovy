@@ -198,6 +198,8 @@ class HighDimBuilder {
         rowBuilder.build()
     }
 
+
+    @CompileStatic(groovy.transform.TypeCheckingMode.SKIP) // work around CLOV-1863
     private Assay createAssay(Assay.Builder builder, AssayColumn col) {
         builder.clear()
         builder.assayId = col.id
