@@ -58,7 +58,7 @@ if (enableClover) {
         on = true
 
         srcDirs = ['src/java', 'src/groovy', 'grails-app', 'test']
-        excludes = ['**/conf/**', '**/plugins/**', 'src/java/org/transmartproject/rest/protobuf/**']
+        excludes = ['**/conf/**', '**/plugins/**', '**/HighDimProtos.java']
 
         reporttask = { ant, binding, plugin ->
             def reportDir = "${binding.projectTargetDir}/clover/report"
