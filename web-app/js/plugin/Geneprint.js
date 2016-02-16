@@ -181,7 +181,7 @@ GeneprintView.prototype.showProgress = function(parentElem, noTitleBar) {
     destroyWorkflowStatus();
 
     var maskDiv = $j(document.createElement('div')).attr({id: 'mask'});
-    maskDiv.css('z-index', 10000);
+    maskDiv.css('z-index', 1);
     $j('#dataAssociationBody').append(maskDiv);
 
 
