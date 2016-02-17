@@ -43,6 +43,7 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentC
 import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.dataquery.highdim.snp_lz.SnpGeneNameConstraint
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.hibernate.sql.JoinFragment.LEFT_OUTER_JOIN
@@ -123,9 +124,9 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                                  "for this data type (given: ${params['ids']}")
                      }
                      validateParameterNames(['names'], params)
-                     new PropertyDataConstraint(
-                             property: 'rcSnpInfo.geneName',
-                             values: processStringList('names', params.names))
+                     new SnpGeneNameConstraint(
+                             property: 'ann.snpName',
+                             geneNames: processStringList('names', params.names))
                  }
          ),
         ]
