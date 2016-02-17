@@ -78,12 +78,14 @@ var MainBoilerplate = function(Oncoprint, utils) {
             zoom = reset_zoom();
         },
         error: function(xhr, textStatus, errorThrown) {
-            Ext.MessageBox.show({
-                title: "Error",
-                msg: textStatus.statusText,
-                buttons: Ext.MessageBox.OK,
-                icon: Ext.MessageBox.ERROR
-            });
+            if (textStatus.statusText != 'abort') {
+                Ext.MessageBox.show({
+                    title: "Error",
+                    msg: textStatus.statusText,
+                    buttons: Ext.MessageBox.OK,
+                    icon: Ext.MessageBox.ERROR
+                });
+            }
         },
         complete: function() {
             // Close progress dialog
