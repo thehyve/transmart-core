@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-ORACLE_MACHINE=oracle-launcher.thehyve.net
+ORACLE_MACHINE=oracle-travis.thehyve.net
 
 function prepare_transmart_data {
   source ~/ts-travis/init.sh
