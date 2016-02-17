@@ -1,5 +1,6 @@
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+@Deprecated
 class DeSnpInfo {
 
     String name

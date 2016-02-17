@@ -49,14 +49,7 @@ class SnpDataByProbeCoreDb {
     Date dateCreated
     Date lastUpdated
 
-    // unmapped relationship; see below
-    // note however that this *will* create a double foreign key
-    // if you configure hibernate to update the schema
-    DeRcSnpInfo jRcSnpInfo
-
-
     static belongsTo = [
-            snpInfo:                 DeSnpInfo,
             bioAssayGenoPlatform:    BioAssayGenoPlatformProbe,
             genotypeProbeAnnotation: GenotypeProbeAnnotation,
     ]
@@ -75,9 +68,6 @@ class SnpDataByProbeCoreDb {
         'CA1A2'                 column: 'c_a1_a2'
         'CA2A2'                 column: 'c_a2_a2'
         'CNocall'               column: 'c_nocall'
-
-        snpInfo                 column: 'snp_id'
-        jRcSnpInfo              column: 'snp_id', insertable: false, updateable: false
 
         version false
     }
@@ -106,8 +96,5 @@ class SnpDataByProbeCoreDb {
         dateCreated             nullable: true
         modifiedBy              nullable: true, maxSize: 30
         lastUpdated             nullable: true
-
-        snpInfo                 nullable: true
-        jRcSnpInfo              nullable: true
     }
 }

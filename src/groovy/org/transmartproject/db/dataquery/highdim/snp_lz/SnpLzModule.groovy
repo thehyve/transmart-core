@@ -107,6 +107,12 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
+        chromosomeSegmentConstraintFactory.with {
+            segmentPrefix      = 'ann.'
+            segmentStartColumn = 'pos'
+            segmentEndColumn   = 'pos'
+            forceBigDecimal    = false
+        }
 
         [standardDataConstraintFactory,
          chromosomeSegmentConstraintFactory,
@@ -114,7 +120,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                  (SNPS_CONSTRAINT_NAME): { Map<String, Object> params ->
                      validateParameterNames(['names'], params)
                      new PropertyDataConstraint(
-                             property: 'snpInfo.name',
+                             property: 'ann.snpName',
                              values:    processStringList('names', params.names))
                  },
                  (DataConstraint.GENES_CONSTRAINT): { Map<String, Object> params ->
@@ -201,8 +207,6 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
         criteriaBuilder.with {
             createAlias 'genotypeProbeAnnotation', 'ann',       INNER_JOIN
-            createAlias 'snpInfo',                 'snpInfo',   INNER_JOIN
-            createAlias 'jRcSnpInfo',              'rcSnpInfo', LEFT_OUTER_JOIN
 
             projections {
                 property 'snp.a1',                     'a1'
@@ -221,9 +225,9 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
                 property 'ann.geneInfo',               'geneInfo'
 
-                property 'snpInfo.name',               'snpName'
-                property 'snpInfo.chromosome',         'chromosome'
-                property 'snpInfo.pos',                'position'
+                property 'ann.snpName',                'snpName'
+                property 'ann.chromosome',             'chromosome'
+                property 'ann.pos',                    'position'
             }
 
             /*
@@ -233,11 +237,11 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
              */
             eq 'snp.trialName', trialName
 
-            /* We need to add this restriction, otherwise we get duplicated rows
-             * The version doesn't really matter, we only want the mapping
-             * between genes and snp_id. So we should choose the version that
-              * has more and more accurate of these mappings */
-            eq 'rcSnpInfo.hgVersion', '19'
+            /*
+             * Constraint required to prevent duplicates when multiple genome
+             * builds are present in the genotypeProbeAnnotation table.
+             */
+            eq 'ann.genomeBuild', 'GRCh37'
 
             order 'ann.id', 'asc'
 

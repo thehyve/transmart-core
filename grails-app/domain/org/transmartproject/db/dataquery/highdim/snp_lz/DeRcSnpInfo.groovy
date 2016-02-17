@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+@Deprecated
 class DeRcSnpInfo {
 
     String chromosome
