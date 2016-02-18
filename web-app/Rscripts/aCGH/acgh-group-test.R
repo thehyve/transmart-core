@@ -61,10 +61,9 @@ acgh.group.test <- function
       datacgh <- cbind(datacgh, group.calls)
     }
     group.sizes <- c(group.sizes, length(highdimColumnsMatchingGroupIds))
-    data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls == -1), digits=3)
-    data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls == 1), digits=3)
-    if (2 %in% calls)
-      data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
+    # We only use known values (-2:hom.los, -1:loss, 1:gain, 2:ampl)
+    data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls==-1 | group.calls==-2), digits=3)
+    data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls==1  | group.calls==2 ), digits=3)
   }
 
   nrcpus=0
