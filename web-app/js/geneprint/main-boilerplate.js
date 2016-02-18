@@ -53,6 +53,15 @@ var MainBoilerplate = function(Oncoprint, utils) {
         success: function(data) {
             var geneData = data.toJSON();
 
+            if (!geneData || geneData.length <= 0) {
+                Ext.MessageBox.show({
+                    title: 'No data',
+                    msg: 'No gene data found.',
+                    buttons: Ext.MessageBox.OK
+                });
+                return;
+            }
+
             // Collect genes and cases (samples) from the data
             geneData.forEach(function(entry) {
                 if (genes.indexOf(entry.gene) == -1) {
