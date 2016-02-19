@@ -1,5 +1,23 @@
 
-function getJobsDataForGalaxy(tab)
+window.addGalaxyPanel = function(parentPanel, config) {
+    GalaxyPanel = new Ext.Panel({
+        id: 'GalaxyPanel',
+        title: 'Galaxy Export',
+        region: 'center',
+        split: true,
+        height: 90,
+        layout: 'fit',
+        listeners: {
+            activate: function(p) {
+                getJobsDataForGalaxy();
+            }
+        },
+        collapsible: true
+    });
+    parentPanel.add(GalaxyPanel)
+}
+
+function getJobsDataForGalaxy()
 {
     galaxyjobsstore = new Ext.data.JsonStore({
         url : pageInfo.basePath+'/RetrieveData/getjobs',
