@@ -1,5 +1,7 @@
 package blend4j.plugin
 
+import grails.converters.JSON
+
 class RetrieveDataController  {
 
     def springSecurityService
@@ -17,6 +19,8 @@ class RetrieveDataController  {
         }else{
             retrieveDataService.updateStatusOfExport(params.nameOfTheExportJob,"Error");
         }
+
+        render([statusOk: statusOK] as JSON)
     }
 
     /**
