@@ -1,4 +1,9 @@
 --
+-- Name: de_gene_info_gene_info_id_seq; Type: SEQUENCE OWNED BY; Schema: deapp; Owner: -
+--
+ALTER SEQUENCE de_gene_info_gene_info_id_seq OWNED BY de_gene_info.gene_info_id;
+
+--
 -- Name: metabolite_sub_pth_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE metabolite_sub_pth_id
