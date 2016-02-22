@@ -187,7 +187,7 @@ class ItemRepository {
     }
 
     private GrantItem grantItemForItem(Item item, String grantee) {
-        if (item.type == 'TABLE' || item.type == 'VIEW' || item.type == 'SEQUENCE') {
+        if (item.type == 'TABLE' || item.type == 'VIEW' || item.type == 'MATERIALIZED_VIEW' || item.type == 'SEQUENCE' ) {
             new GrantItem(item, 'SELECT', grantee)
         }
     }
