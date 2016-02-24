@@ -12,7 +12,7 @@ import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionJobConfiguration
+import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionStepsConfig
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -46,7 +46,7 @@ class RnaSeqPlatformMidwayFailTests implements FileCorruptingTestTrait {
     @Test
     void test() {
         // reduce the chunk size to 2
-        ChromosomalRegionJobConfiguration.chunkSize = 2
+        ChromosomalRegionStepsConfig.chunkSize = 2
 
         // copy data and corrupt it
         File dataFile =

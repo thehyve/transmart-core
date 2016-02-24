@@ -1,9 +1,11 @@
 package org.transmartproject.batch.beans
 
+import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
 import org.transmartproject.batch.db.*
 
 import javax.sql.DataSource

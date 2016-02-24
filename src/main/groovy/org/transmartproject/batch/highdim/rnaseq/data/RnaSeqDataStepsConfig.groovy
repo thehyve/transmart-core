@@ -1,76 +1,95 @@
 package org.transmartproject.batch.highdim.rnaseq.data
 
-import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemStreamReader
+import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
-import org.transmartproject.batch.highdim.beans.AbstractHighDimJobConfiguration
+import org.transmartproject.batch.highdim.assays.AssayStepsConfig
+import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
 import org.transmartproject.batch.highdim.datastd.NegativeDataPointWarningProcessor
 import org.transmartproject.batch.highdim.datastd.StandardDataValuePatientInjectionProcessor
 import org.transmartproject.batch.highdim.datastd.TripleStandardDataValueLogCalculationProcessor
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
-import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
 import org.transmartproject.batch.startup.StudyJobParametersModule
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
- * Spring context for RNASeq data loading job.
+ * Spring batch steps configuration for RNASeq data upload
  */
 @Configuration
-@ComponentScan(['org.transmartproject.batch.highdim.rnaseq.data',])
-class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
-
-    public static final String JOB_NAME = 'RnaSeqDataLoadJob'
+@ComponentScan
+@Import([DbConfig, AssayStepsConfig])
+class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
 
     static int dataFilePassChunkSize = 10000
 
     @Autowired
-    RnaSeqDataWriter rnaSeqDataWriter
-
-    @Override
-    @Bean(name = 'RnaSeqDataLoadJob')
-    Job job() {
-        jobs.get(JOB_NAME)
-                .start(mainFlow())
-                .end()
-                .build()
-    }
-
-    /***************
-     * First pass *
-     ***************/
-
-    @Autowired
-    RnaSeqDataValueValidator rnaSeqDataValueValidator
+    DatabaseImplementationClassPicker picker
 
     @Bean
-    Step firstPass() {
+    Step partitionTable() {
+        stepOf('partitionTable', partitionTasklet())
+    }
+
+    @Bean
+    Step firstPass(RnaSeqDataValueValidator rnaSeqDataValueValidator) {
         CollectMinimumPositiveValueListener minPosValueColector = collectMinimumPositiveValueListener()
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(rnaSeqDataTsvFileReader())
                 .processor(compositeOf(
-                    new ValidatingItemProcessor(adaptValidator(rnaSeqDataValueValidator)),
-                    warningNegativeDataPointToNaNProcessor(),
-                ))
+                new ValidatingItemProcessor(adaptValidator(rnaSeqDataValueValidator)),
+                warningNegativeDataPointToNaNProcessor(),
+        ))
                 .stream(minPosValueColector)
                 .listener(minPosValueColector)
                 .listener(logCountsStepListener())
+                .build()
+
+        wrapStepWithName('firstPass', step)
+    }
+
+    @Bean
+    Step deleteRnaSeqData(CurrentAssayIdsReader currentAssayIdsReader,
+                          ItemWriter<Long> deleteRnaSeqDataWriter) {
+        steps.get('deleteRnaSeqData')
+                .chunk(100)
+                .reader(currentAssayIdsReader)
+                .writer(deleteRnaSeqDataWriter)
+                .build()
+    }
+
+    @Bean
+    Step secondPass(ItemWriter<RnaSeqDataValue> rnaSeqDataWriter) {
+        TaskletStep step = steps.get('secondPass')
+                .chunk(dataFilePassChunkSize)
+                .reader(rnaSeqDataTsvFileReader())
+                .processor(compositeOf(
+                standardDataValuePatientInjectionProcessor(),
+                tripleStandardDataValueLogCalculationProcessor()
+        ))
+                .writer(rnaSeqDataWriter)
+                .listener(logCountsStepListener())
+                .listener(progressWriteListener())
                 .build()
 
         step
@@ -88,28 +107,6 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
         new CollectMinimumPositiveValueListener(minPositiveValueRequired: false)
     }
 
-    /***************
-     * Second pass *
-     ***************/
-
-    @Bean
-    @Override
-    Step secondPass() {
-        TaskletStep step = steps.get('secondPass')
-                .chunk(dataFilePassChunkSize)
-                .reader(rnaSeqDataTsvFileReader())
-                .processor(compositeOf(
-                    standardDataValuePatientInjectionProcessor(),
-                    tripleStandardDataValueLogCalculationProcessor()
-                ))
-                .writer(dataPointWriter())
-                .listener(logCountsStepListener())
-                .listener(progressWriteListener())
-                .build()
-
-        step
-    }
-
     @Bean
     StandardDataValuePatientInjectionProcessor standardDataValuePatientInjectionProcessor() {
         new StandardDataValuePatientInjectionProcessor()
@@ -120,10 +117,6 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
     TripleStandardDataValueLogCalculationProcessor tripleStandardDataValueLogCalculationProcessor() {
         new TripleStandardDataValueLogCalculationProcessor()
     }
-
-    /***************
-     * Main *
-     ***************/
 
     @Bean
     @JobScopeInterfaced
@@ -143,18 +136,6 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
                 columnNames: ['annotation', 'sampleCode', 'readCount', 'value'])
     }
 
-    @Override
-    @Bean
-    @JobScopeInterfaced
-    GatherAnnotationEntityIdsReader annotationsReader() {
-        new GatherAnnotationEntityIdsReader(
-                table: Tables.CHROMOSOMAL_REGION,
-                idColumn: 'region_id',
-                nameColumn: 'region_name',
-        )
-    }
-
-    @Override
     @Bean
     @JobScopeInterfaced
     Tasklet partitionTasklet() {
@@ -180,16 +161,11 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
 
     }
 
-    @Override
     @Bean
-    DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
+    DeleteByColumnValueWriter<Long> deleteRnaSeqDataWriter() {
         new DeleteByColumnValueWriter<Long>(
                 table: Tables.RNASEQ_DATA,
                 column: 'assay_id')
     }
 
-    @Override
-    RnaSeqDataWriter dataPointWriter() {
-        rnaSeqDataWriter
-    }
 }

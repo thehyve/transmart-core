@@ -19,5 +19,5 @@ class RnaSeqDataJobSpecification implements JobSpecification {
             new StandardHighDimDataParametersModule()
     ]
 
-    final Class<?> jobPath = RnaSeqDataJobConfiguration
+    final Class<?> jobPath = RnaSeqDataLoadJobConfig
 }

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.i2b2
+package org.transmartproject.batch.facts
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.beans.factory.annotation.Autowired
@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.concept.ConceptNode
-import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.highdim.assays.MappingFileRow
 import org.transmartproject.batch.highdim.assays.MappingFileRowToConceptMapper
 import org.transmartproject.batch.highdim.assays.MappingsFileRowStore

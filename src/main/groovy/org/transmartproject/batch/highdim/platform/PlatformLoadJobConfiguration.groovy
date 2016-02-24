@@ -1,7 +1,6 @@
 package org.transmartproject.batch.highdim.platform
 
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
@@ -41,14 +40,14 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
     Flow mainFlow(Tasklet insertGplInfoTasklet) {
 
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(checkPlatformExists(null, null))
+                .start(checkPlatformExists(null))
 
-                // if found we have an extra flow
+        // if found we have an extra flow
                 .on('FOUND')
                 .to(removePlatformMaybeFlow(null, null))
                 .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
 
-                .from(checkPlatformExists(null, null))
+                .from(checkPlatformExists(null))
                 .next(stepOf('insertGplInfoTasklet', insertGplInfoTasklet))
 
                 .next(mainStep()) // provided by subclass
@@ -74,11 +73,10 @@ abstract class PlatformLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Step checkPlatformExists(Tasklet platformCheckTasklet,
-                             StepExecutionListener showCountsStepListener) {
+    Step checkPlatformExists(Tasklet platformCheckTasklet) {
         steps.get('checkPlatformExists')
                 .tasklet(platformCheckTasklet)
-                .listener(showCountsStepListener)
+                .listener(logCountsStepListener())
                 .listener(new FoundExitStatusChangeListener())
                 .build()
     }

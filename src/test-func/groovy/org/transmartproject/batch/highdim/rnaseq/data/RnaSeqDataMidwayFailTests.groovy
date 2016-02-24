@@ -25,6 +25,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataCleanScenarioTests.NUMBER_OF_ASSAYS
 import static org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataCleanScenarioTests.NUMBER_OF_REGIONS
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
+import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
  * For rnaseq, test a failure midway the first pass, and then restart the job with
@@ -62,12 +64,12 @@ class RnaSeqDataMidwayFailTests implements FileCorruptingTestTrait {
 
     @BeforeClass
     static void beforeClass() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
+        RnaSeqDataStepsConfig.dataFilePassChunkSize = 2
     }
 
     @AfterClass
     static void cleanDatabase() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 10000
+        RnaSeqDataStepsConfig.dataFilePassChunkSize = 10000
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(TableLists.CLINICAL_TABLES + Tables.CHROMOSOMAL_REGION
@@ -149,9 +151,9 @@ class RnaSeqDataMidwayFailTests implements FileCorruptingTestTrait {
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
         assertThat r, allOf(
-                hasEntry(equalToIgnoringCase('readcount'), equalTo(readCount)),
-                hasEntry(equalToIgnoringCase('normalized_readcount'), closeTo(normalizedReadCount, DELTA)),
-                hasEntry(equalToIgnoringCase('log_normalized_readcount'), closeTo(logValue, DELTA)),
+                hasEntry(equalToIgnoringCase('readcount'), isIntegerNumber(readCount)),
+                hasEntry(equalToIgnoringCase('normalized_readcount'), castingCloseTo(normalizedReadCount, DELTA)),
+                hasEntry(equalToIgnoringCase('log_normalized_readcount'), castingCloseTo(logValue, DELTA)),
         )
     }
 

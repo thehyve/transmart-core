@@ -46,9 +46,10 @@ import org.transmartproject.batch.support.JobParameterFileResource
 @ComponentScan(['org.transmartproject.batch.highdim.datastd',
                 'org.transmartproject.batch.highdim.compute',
                 'org.transmartproject.batch.highdim.assays',
-                'org.transmartproject.batch.highdim.i2b2',
+                'org.transmartproject.batch.highdim.concept',
                 'org.transmartproject.batch.concept',
-                'org.transmartproject.batch.patient', ])
+                'org.transmartproject.batch.patient',
+                'org.transmartproject.batch.facts',])
 @SuppressWarnings('MethodCount')
 abstract class AbstractHighDimJobConfiguration extends AbstractJobConfiguration {
 
@@ -122,7 +123,7 @@ abstract class AbstractHighDimJobConfiguration extends AbstractJobConfiguration 
                  // write assays
                 .next(writeAssaysStep(null, null, null))
                 // write pseudo-facts and their counts
-                .next(writePseudoFactsStep(null))
+                .next(writePseudoFactsStep(null, null))
                 .next(stepOf('insertConceptCountsTasklet', insertConceptCountsTasklet(null, null)))
 
                 // second pass, write
@@ -305,17 +306,18 @@ abstract class AbstractHighDimJobConfiguration extends AbstractJobConfiguration 
      ********************/
 
     @Bean
-    Step writePseudoFactsStep(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator) {
+    Step writePseudoFactsStep(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator,
+                              ItemWriter<ClinicalFactsRowSet> observationFactTableWriter) {
         steps.get('writePseudoFactsStep')
                 .chunk(WRITE_ASSAY_CHUNK_SIZE)
                 .reader(dummyFactGenerator)
-                .writer(observationFactTableWriter())
+                .writer(observationFactTableWriter)
                 .listener(logCountsStepListener())
                 .build()
     }
 
     @Bean
-    @JobScope
+    @JobScopeInterfaced
     ObservationFactTableWriter observationFactTableWriter() {
         new ObservationFactTableWriter()
     }
