@@ -53,6 +53,10 @@ class SnpLzEndToEndRetrievalTest {
             AssayConstraint.TRIAL_NAME_CONSTRAINT,
             name: SnpLzTestData.TRIAL_NAME)
 
+    @Lazy AssayConstraint conceptConstraint0 = snpLzResource.createAssayConstraint(
+        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+        concept_key: SnpLzTestData.CONCEPT_PATH)
+
     @Lazy Projection allDataProjection = snpLzResource.createProjection([:],
             Projection.ALL_DATA_PROJECTION)
 
@@ -74,7 +78,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void fetchAllDataTestSizes() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -92,7 +96,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void fetchAllDataTestRows() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -116,7 +120,9 @@ class SnpLzEndToEndRetrievalTest {
 
         // SnpDataByProbe properties
         assertThat rows, contains(
-                testData.data.sort { it.genotypeProbeAnnotation.id }
+                testData.data
+                        .findAll { it.bioAssayGenoPlatform.bioAssayPlatform.accession == SnpLzTestData.PLATFORM }
+                        .sort { it.genotypeProbeAnnotation.id }
                         .collect { SnpDataByProbeCoreDb snpData ->
                             allOf(
                                     hasProperty('a1', is(snpData.a1)),
@@ -137,9 +143,10 @@ class SnpLzEndToEndRetrievalTest {
 
     // for all data projection only
     private Matcher dataMatcherFor(annotations, assays) {
-        def orderedSampleCodes = assays*.sampleCode
+        def orderedSampleCodes = assays.findAll { it.platform.id == SnpLzTestData.PLATFORM }*.sampleCode
 
         def orderedSnpData = testData.data
+                .findAll { it.bioAssayGenoPlatform.bioAssayPlatform.accession == SnpLzTestData.PLATFORM }
                 .grep { it.genotypeProbeAnnotation.id in annotations*.id }
                 .sort { it.genotypeProbeAnnotation.id }
 
@@ -178,7 +185,7 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void fetchAllDataTestCells() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
@@ -189,24 +196,24 @@ class SnpLzEndToEndRetrievalTest {
          * - test if the subject ids (sampleCode) are also available in the
          *   retrieved assay data.
          */
-        assert result.indicesList*.id == testData.orderedAssays*.id
-        assert result.indicesList*.sampleCode == testData.orderedAssays*.sampleCode
+        assert result.indicesList*.id == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.id
+        assert result.indicesList*.sampleCode == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.sampleCode
         // test correspondence between testData and result rows
         assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
     }
 
     @Test
     void retrieveAssaysEqualsIndicesList() {
-        def result = snpLzResource.retrieveData(
-            [trialConstraint], [], allDataProjection)
+        result = snpLzResource.retrieveData(
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
         /*
          * Test if the list of assay ids returning from the query is
          * the same as in the test data and that the assays are ordered by
          * assay id.
          */
-        assert result.indicesList*.id == testData.orderedAssays*.id
+        assert result.indicesList*.id == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.id
 
-        def assays = snpLzResource.retrieveAssays([trialConstraint])
+        def assays = snpLzResource.retrieveAssays([trialConstraint, conceptConstraint0])
         /*
          * Test if retrieveAssays returns the same list as indicesList in the
          * TabularResult.
@@ -217,12 +224,12 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void testIndexingByNumber() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
         // test correspondence between testData and result rows
-        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
+        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
         SnpLzRow firstLzRow = rows.first()
 
         assert firstLzRow[1] == Lists.newArrayList(firstLzRow.iterator())[1]
@@ -231,12 +238,12 @@ class SnpLzEndToEndRetrievalTest {
     @Test
     void testIndexingByAssay() {
         result = snpLzResource.retrieveData(
-                [trialConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0], [], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
         // test correspondence between testData and result rows
-        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssays)
+        assertThat rows, dataMatcherFor(testData.annotations, testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
         SnpLzRow firstLzRow = rows.first()
 
         assert firstLzRow[result.indicesList[1]] ==
@@ -250,7 +257,7 @@ class SnpLzEndToEndRetrievalTest {
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
                 ids: [selectedAssay.id])
         result = snpLzResource.retrieveData(
-                [trialConstraint, assayConstraint], [], allDataProjection)
+                [trialConstraint, conceptConstraint0, assayConstraint], [], allDataProjection)
 
         assertThat result.indicesList,
                 contains(hasSameInterfaceProperties(Assay, selectedAssay))
@@ -268,12 +275,12 @@ class SnpLzEndToEndRetrievalTest {
         def dataConstraint = snpLzResource.createDataConstraint(
                 'snps', names: [selectedSnpName])
         result = snpLzResource.retrieveData(
-                [trialConstraint], [dataConstraint], allDataProjection)
+                [trialConstraint, conceptConstraint0], [dataConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
         // test correspondence between testData and result rows
-        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssays)
+        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
     }
 
     @Test
@@ -285,12 +292,12 @@ class SnpLzEndToEndRetrievalTest {
         def dataConstraint = snpLzResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT, names: [gene])
         result = snpLzResource.retrieveData(
-                [trialConstraint], [dataConstraint], allDataProjection)
+                [trialConstraint, conceptConstraint0], [dataConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
         // test correspondence between testData and result rows
-        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssays)
+        assertThat rows, dataMatcherFor([selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
     }
 
     @Test
@@ -299,13 +306,13 @@ class SnpLzEndToEndRetrievalTest {
                 DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT,
                 chromosome: '1', start: 4100, end: 4250)
         result = snpLzResource.retrieveData(
-                [trialConstraint], [locationConstraint], allDataProjection)
+                [trialConstraint, conceptConstraint0], [locationConstraint], allDataProjection)
 
         List rows = Lists.newArrayList result.rows
 
         assertThat rows, hasSize(2)
         // test correspondence between testData and result rows
-        assertThat rows, dataMatcherFor(testData.annotations[0..1], testData.orderedAssays)
+        assertThat rows, dataMatcherFor(testData.annotations[0..1], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
     }
 
     @Test

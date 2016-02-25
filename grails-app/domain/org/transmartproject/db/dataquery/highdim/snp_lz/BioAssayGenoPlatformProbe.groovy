@@ -21,7 +21,6 @@ package org.transmartproject.db.dataquery.highdim.snp_lz
 
 class BioAssayGenoPlatformProbe {
 
-    Long bioAssayPlatformId
     String origChrom
     BigDecimal origPosition
     String origGenomeBuild
@@ -38,13 +37,17 @@ class BioAssayGenoPlatformProbe {
     Date dateCreated
     Date lastUpdated
 
-    static mapping = {
-        table        schema:  'biomart'
-        id           column:  'bio_asy_geno_platform_probe_id',  generator:  'assigned'
+    static belongsTo = [
+        bioAssayPlatform: CoreBioAssayPlatform,
+    ]
 
-        dateCreated  column:  'created_date'
-        lastUpdated  column:  'modified_date'
-        version      false
+    static mapping = {
+        table               schema:  'biomart'
+        id                  column:  'bio_asy_geno_platform_probe_id',  generator:  'assigned'
+        bioAssayPlatform    column:  'bio_assay_platform_id',  generator: 'assigned'
+        dateCreated         column:  'created_date'
+        lastUpdated         column:  'modified_date'
+        version             false
     }
 
     static constraints = {
@@ -54,6 +57,8 @@ class BioAssayGenoPlatformProbe {
         probeName        nullable:  true,  maxSize:  200
 
         //isControl      nullable:  true,  maxSize:  1
+
+        bioAssayPlatform nullable:  true
 
         createdBy        nullable:  true,  maxSize:  30
         dateCreated      nullable:  true

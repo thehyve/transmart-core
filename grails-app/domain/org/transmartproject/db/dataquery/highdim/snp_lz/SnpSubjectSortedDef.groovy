@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013-2015 The Hyve B.V.
+ * Copyright © 2013-2016 The Hyve B.V.
  *
  * This file is part of transmart-core-db.
  *
@@ -29,20 +29,22 @@ class SnpSubjectSortedDef {
 
     static belongsTo = [
             patient: PatientDimension,
+            bioAssayPlatform: CoreBioAssayPlatform,
     ]
 
     static mapping = {
-        table    schema:  'deapp', name: 'de_snp_subject_sorted_def'
-
-        id       column:  'snp_subject_sorted_def_id',  generator:  'assigned'
-        patient  column:  'patient_num'
-        version  false
+        table               schema:  'deapp',  name:  'de_snp_subject_sorted_def'
+        id                  column:  'snp_subject_sorted_def_id',        generator:  'assigned'
+        patient             column:  'patient_num'
+        bioAssayPlatform    column:  'bio_assay_platform_id', generator:  'assigned'
+        version             false
     }
 
     static constraints = {
-        trialName        nullable:  true
-        patientPosition  nullable:  true
-        patient          nullable:  true
-        subjectId        nullable:  true
+        trialName           nullable:  true
+        patientPosition     nullable:  true
+        patient             nullable:  true
+        bioAssayPlatform    nullable:  true
+        subjectId           nullable:  true
     }
 }

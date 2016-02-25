@@ -187,6 +187,34 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         return trials[0]
     }
 
+    /**
+     * Get the platform id from a collection of assays.
+     * The assays should belong to exactly one platform, since the
+     * snp_lz rows contain data for all subjects in a trial.
+     * @param assays the collection of assays for which the data
+     *  is queried.
+     * @throws EmptySetException iff the collection contains no platform ids
+     *  (i.e., the set of assays is empty).
+     * @throws UnexpectedResultException iff the collection multiple platform ids.
+     * @return the platform id.
+     */
+    String getBioAssayPlatformIdFromAssays(Collection<AssayColumn> assays) {
+        def platforms = [] as Set
+        assays.each { platforms << it.platform.id }
+        log.debug "Set of platforms for assays: $platforms"
+
+        if (platforms.size() == 0) {
+            throw new EmptySetException(
+                    "Assay set $platforms has no platform information")
+        } else if (platforms.size() > 1) {
+            // Do not permit more than one platform, otherwise we wouldn't be able
+            // to returns meaningful row properties.
+            throw new UnexpectedResultException("Found more than one platform in " +
+                    "the assay set; this is not allowed for this data type")
+        }
+        return platforms[0]
+    }
+
     HibernateCriteriaBuilder prepareDataQuery(
         Projection projection,
         SessionImplementor session) {
@@ -205,8 +233,13 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         def trialName = getTrialNameFromAssays(assays)
         log.debug "Add constraint for trailName '${trialName}'"
 
+        def platformId = getBioAssayPlatformIdFromAssays(assays)
+        log.debug "Add constraint for platformId '${platformId}'"
+
         criteriaBuilder.with {
             createAlias 'genotypeProbeAnnotation', 'ann',       INNER_JOIN
+            createAlias 'bioAssayGenoPlatform',    'assay_platform',  INNER_JOIN
+            createAlias 'assay_platform.bioAssayPlatform',  'platform',  INNER_JOIN
 
             projections {
                 property 'snp.a1',                     'a1'
@@ -228,6 +261,8 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'ann.snpName',                'snpName'
                 property 'ann.chromosome',             'chromosome'
                 property 'ann.pos',                    'position'
+
+                property 'platform.accession',         'platformId'
             }
 
             /*
@@ -236,6 +271,12 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
              * subjects in a particular trial.
              */
             eq 'snp.trialName', trialName
+
+            /*
+             * This constraint is required in the case there is SNP data for multiple
+             * platforms within a trial.
+             */
+            eq 'platform.accession', platformId
 
             /*
              * Constraint required to prevent duplicates when multiple genome
@@ -257,8 +298,13 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                                    Projection projection) {
 
         def trials = [] as Set
-        assays.each { trials << it.trialName }
+        def platforms = [] as Set
+        assays.each {
+            trials << it.trialName
+            platforms << it.platform.id
+        }
         log.debug "Set of trials for assays: $trials"
+        log.debug "Set of platforms for assays: $platforms"
 
         if (trials.size() == 0) {
             throw new EmptySetException(
@@ -271,9 +317,24 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                     "the assay set; this is not allowed for this data type")
         }
 
+        if (platforms.size() == 0) {
+            throw new EmptySetException(
+                    "Assay set $platforms has no platform information")
+        } else if (platforms.size() > 1) {
+            // Do not permit more than one platform, otherwise we wouldn't be able
+            // to returns meaningful row properties (or we'd have to make them
+            // maps)
+            throw new UnexpectedResultException("Found more than one platform in " +
+                    "the assay set; this is not allowed for this data type")
+        }
+
+        log.debug "Querying patient order for trial '${trials.first()}' and platform '${platforms.first()}'."
         // obtain patient order for all of the trials of the result
         def sssList = SnpSubjectSortedDef.createCriteria().list {
+            createAlias 'bioAssayPlatform',  'platform',  INNER_JOIN
+
             eq 'trialName', trials.first()
+            eq 'platform.accession', platforms.first()
             order 'patientPosition', 'asc'
 
             fetchSize SNP_PATIENTS_FETCH_SIZE
