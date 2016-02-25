@@ -9,16 +9,7 @@ import org.transmart.biomart.Experiment
 class ExperimentService {
 
     public String getExperimentAccession(Long experimentId) {
-        if (!experimentId) {
-            return null
-        }
-        def experiment = Experiment.get(experimentId)
-
-        if (experiment == null) {
-            return null
-        }
-        experiment.accession
+        return experimentId ? Experiment.get(experimentId)?.accession : null
     }
-
 }
 
