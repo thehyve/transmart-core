@@ -1,55 +1,59 @@
 package org.transmartproject.batch.highdim.mrna.data
 
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
-import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
+import org.transmartproject.batch.highdim.beans.AbstractTypicalHdDataStepsConfig
+import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 import org.transmartproject.batch.startup.StudyJobParametersModule
 
 /**
- * Spring context for mRNA data loading job.
+ * Spring context for mRNA data loading steps.
  */
 @Configuration
-@ComponentScan(['org.transmartproject.batch.highdim.mrna.data',])
-class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
-
-    public static final String JOB_NAME = 'MrnaDataLoadJob'
+@ComponentScan
+@Import(DbConfig)
+class MrnaDataStepsConfig extends AbstractTypicalHdDataStepsConfig {
 
     @Autowired
-    MrnaDataWriter mrnaDataWriter
+    DatabaseImplementationClassPicker picker
 
-    @Override
-    @Bean(name = 'MrnaDataLoadJob')
-    Job job() {
-        jobs.get(JOB_NAME)
-                .start(mainFlow())
-                .end()
-                .build()
-    }
-
-    @Override
     @Bean
-    @JobScopeInterfaced
-    GatherAnnotationEntityIdsReader annotationsReader() {
-        new GatherAnnotationEntityIdsReader(
-                table: Tables.MRNA_ANNOTATION,
-                idColumn: 'probeset_id',
-                nameColumn: 'probe_id',
-        )
+    @Override
+    ItemWriter getDeleteCurrentDataWriter() {
+        new DeleteByColumnValueWriter<Long>(
+                table: Tables.MRNA_DATA,
+                column: 'assay_id',
+                entityName: 'mrna data points')
     }
 
+    @Bean
+    Step partitionDataTable() {
+        stepOf('partitionDataTable', partitionTasklet())
+    }
+
+    @Bean
     @Override
+    @JobScope
+    ItemWriter<TripleStandardDataValue> getDataWriter() {
+        new MrnaDataWriter()
+    }
+
     @Bean
     @JobScopeInterfaced
     Tasklet partitionTasklet() {
@@ -70,22 +74,8 @@ class MrnaDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
                         tableName: Tables.MRNA_DATA,
                         partitionByColumnValue: studyId)
             default:
-                return null
+                throw new IllegalStateException('No supported DBMS detected.')
         }
 
-    }
-
-    @Override
-    @Bean
-    DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
-        new DeleteByColumnValueWriter<Long>(
-                table: Tables.MRNA_DATA,
-                column: 'assay_id',
-                entityName: 'mrna data points')
-    }
-
-    @Override
-    MrnaDataWriter dataPointWriter() {
-        mrnaDataWriter
     }
 }

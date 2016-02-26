@@ -19,5 +19,5 @@ class ProteomicsDataJobSpecification implements JobSpecification {
             new StandardHighDimDataParametersModule()
     ]
 
-    final Class<?> jobPath = ProteomicsDataJobConfiguration
+    final Class<?> jobPath = ProteomicsDataJobConfig
 }

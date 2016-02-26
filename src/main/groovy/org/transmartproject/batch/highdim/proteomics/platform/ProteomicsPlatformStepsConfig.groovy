@@ -1,9 +1,10 @@
-package org.transmartproject.batch.highdim.platform.chrregion
+package org.transmartproject.batch.highdim.proteomics.platform
 
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemStreamReader
+import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.context.annotation.Bean
@@ -20,39 +21,38 @@ import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotat
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
- * Spring configuration for the chromosomal region data job.
+ * Spring configuration for the proteomics data load steps.
  */
 @Configuration
 @ComponentScan
-class ChromosomalRegionStepsConfig implements StepBuildingConfigurationTrait {
+class ProteomicsPlatformStepsConfig implements StepBuildingConfigurationTrait {
 
     static int chunkSize = 5000
 
     @Bean
-    Step loadAnnotationMappings(ItemStreamReader<AnnotationEntity> chromosomalRegionReader) {
+    Step loadAnnotationMappings(ItemStreamReader<AnnotationEntity> annotationsReader) {
         steps.get('loadAnnotationMappings')
                 .allowStartIfComplete(true)
                 .chunk(100)
-                .reader(chromosomalRegionReader)
+                .reader(annotationsReader)
                 .writer(new PutInBeanWriter(bean: annotationEntityMap()))
                 .listener(logCountsStepListener())
                 .build()
     }
 
     @Bean
-    Step deleteChromosomalRegions(Tasklet deleteChromosomalRegionTasklet) {
-        stepOf('deleteChromosomalRegions', deleteChromosomalRegionTasklet)
+    Step deleteAnnotations(Tasklet deleteProteomicsAnnotationTasklet) {
+        stepOf('deleteAnnotations', deleteProteomicsAnnotationTasklet)
     }
 
     @Bean
-    Step insertChromosomalRegions(ChromosomalRegionRowValidator chromosomalRegionRowValidator,
-                                  ChromosomalRegionRowWriter chromosomalRegionRowWriter,
-                                  FlatFileItemReader<ChromosomalRegionRow> chromosomalRegionRowReader) {
-        steps.get('insertChromosomalRegions')
+    Step insertAnnotations(ProteomicsAnnotationRowValidator annotationRowValidator,
+                           ItemWriter<ProteomicsAnnotationRow> proteomicsAnnotationWriter) {
+        steps.get('mainStep')
                 .chunk(chunkSize)
-                .reader(chromosomalRegionRowReader)
-                .processor(new ValidatingItemProcessor(adaptValidator(chromosomalRegionRowValidator)))
-                .writer(chromosomalRegionRowWriter)
+                .reader(proteomicsAnnotationRowReader())
+                .processor(new ValidatingItemProcessor(adaptValidator(annotationRowValidator)))
+                .writer(proteomicsAnnotationWriter)
                 .listener(lineOfErrorDetectionListener())
                 .listener(progressWriteListener())
                 .build()
@@ -66,23 +66,21 @@ class ChromosomalRegionStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     @JobScope
-    FlatFileItemReader<ChromosomalRegionRow> chromosomalRegionRowReader(
-            org.springframework.core.io.Resource annotationsFileResource) {
+    FlatFileItemReader<ProteomicsAnnotationRow> proteomicsAnnotationRowReader() {
         tsvFileReader(
-                annotationsFileResource,
+                annotationsFileResource(),
                 linesToSkip: 1,
-                beanClass: ChromosomalRegionRow,
-                columnNames: ['gplId', 'regionName', 'chromosome', 'startBp', 'endBp', 'numProbes', 'cytoband',
-                              'geneSymbol', 'geneId', 'organism'])
+                beanClass: ProteomicsAnnotationRow,
+                columnNames: ['probsetId', 'uniprotId', 'organism', 'gplId', 'chromosome', 'startBp', 'endBp'])
     }
 
     @Bean
     @JobScopeInterfaced
-    GatherAnnotationEntityIdsReader chromosomalRegionReader() {
+    GatherAnnotationEntityIdsReader annotationsReader() {
         new GatherAnnotationEntityIdsReader(
-                table: Tables.CHROMOSOMAL_REGION,
-                idColumn: 'region_id',
-                nameColumn: 'region_name',
+                table: Tables.PROTEOMICS_ANNOTATION,
+                idColumn: 'id',
+                nameColumn: 'peptide',
         )
     }
 

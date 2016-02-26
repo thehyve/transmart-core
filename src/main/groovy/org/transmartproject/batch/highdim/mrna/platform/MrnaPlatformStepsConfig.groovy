@@ -1,9 +1,10 @@
-package org.transmartproject.batch.highdim.platform.chrregion
+package org.transmartproject.batch.highdim.mrna.platform
 
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemStreamReader
+import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.context.annotation.Bean
@@ -20,42 +21,53 @@ import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotat
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
- * Spring configuration for the chromosomal region data job.
+ * Spring configuration for the mrna platform specific steps.
  */
 @Configuration
 @ComponentScan
-class ChromosomalRegionStepsConfig implements StepBuildingConfigurationTrait {
+class MrnaPlatformStepsConfig implements StepBuildingConfigurationTrait {
 
     static int chunkSize = 5000
 
     @Bean
-    Step loadAnnotationMappings(ItemStreamReader<AnnotationEntity> chromosomalRegionReader) {
+    Step loadAnnotationMappings(ItemStreamReader<AnnotationEntity> annotationsReader) {
         steps.get('loadAnnotationMappings')
                 .allowStartIfComplete(true)
                 .chunk(100)
-                .reader(chromosomalRegionReader)
+                .reader(annotationsReader)
                 .writer(new PutInBeanWriter(bean: annotationEntityMap()))
                 .listener(logCountsStepListener())
                 .build()
     }
 
     @Bean
-    Step deleteChromosomalRegions(Tasklet deleteChromosomalRegionTasklet) {
-        stepOf('deleteChromosomalRegions', deleteChromosomalRegionTasklet)
+    Step deleteAnnotations(Tasklet deleteMrnaAnnotationTasklet) {
+        stepOf('deleteAnnotations', deleteMrnaAnnotationTasklet)
     }
 
     @Bean
-    Step insertChromosomalRegions(ChromosomalRegionRowValidator chromosomalRegionRowValidator,
-                                  ChromosomalRegionRowWriter chromosomalRegionRowWriter,
-                                  FlatFileItemReader<ChromosomalRegionRow> chromosomalRegionRowReader) {
-        steps.get('insertChromosomalRegions')
+    Step insertAnnotations(
+            MrnaAnnotationRowValidator annotationRowValidator,
+            ItemWriter<MrnaAnnotationRow> mrnaAnnotationWriter) {
+        steps.get('mainStep')
                 .chunk(chunkSize)
-                .reader(chromosomalRegionRowReader)
-                .processor(new ValidatingItemProcessor(adaptValidator(chromosomalRegionRowValidator)))
-                .writer(chromosomalRegionRowWriter)
+                .reader(mrnaAnnotationRowReader(null))
+                .processor(new ValidatingItemProcessor(
+                adaptValidator(annotationRowValidator)))
+                .writer(mrnaAnnotationWriter)
                 .listener(lineOfErrorDetectionListener())
                 .listener(progressWriteListener())
                 .build()
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    GatherAnnotationEntityIdsReader annotationsReader() {
+        new GatherAnnotationEntityIdsReader(
+                table: Tables.MRNA_ANNOTATION,
+                idColumn: 'probeset_id',
+                nameColumn: 'probe_id',
+        )
     }
 
     @Bean
@@ -66,24 +78,13 @@ class ChromosomalRegionStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     @JobScope
-    FlatFileItemReader<ChromosomalRegionRow> chromosomalRegionRowReader(
+    FlatFileItemReader<MrnaAnnotationRow> mrnaAnnotationRowReader(
             org.springframework.core.io.Resource annotationsFileResource) {
         tsvFileReader(
                 annotationsFileResource,
-                linesToSkip: 1,
-                beanClass: ChromosomalRegionRow,
-                columnNames: ['gplId', 'regionName', 'chromosome', 'startBp', 'endBp', 'numProbes', 'cytoband',
-                              'geneSymbol', 'geneId', 'organism'])
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    GatherAnnotationEntityIdsReader chromosomalRegionReader() {
-        new GatherAnnotationEntityIdsReader(
-                table: Tables.CHROMOSOMAL_REGION,
-                idColumn: 'region_id',
-                nameColumn: 'region_name',
-        )
+                beanClass: MrnaAnnotationRow,
+                columnNames: ['gplId', 'probeName', 'genes',
+                              'entrezIds', 'organism'])
     }
 
     @Bean

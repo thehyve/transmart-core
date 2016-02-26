@@ -75,7 +75,7 @@ class AssayStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step writeAssays(
+    Step insertAssays(
             ItemWriter<Assay> assayWriter,
             ItemStreamReader<Assay> assayFromMappingFileRowReader,
             SaveAssayIdListener saveAssayIdListener) {

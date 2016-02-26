@@ -29,12 +29,12 @@ class ObservationFactStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step deleteObservationFact(Tasklet deleteObservationFactTasklet) {
+    Step deleteObservationFacts(Tasklet deleteObservationFactTasklet) {
         stepOf('deleteObservationFact', deleteObservationFactTasklet)
     }
 
     @Bean
-    Step writePseudoFacts(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator,
+    Step insertPseudoFacts(ItemStreamReader<ClinicalFactsRowSet> dummyFactGenerator,
                           ItemWriter<ClinicalFactsRowSet> observationFactTableWriter) {
         steps.get('writePseudoFactsStep')
                 .chunk(WRITE_ASSAY_CHUNK_SIZE)

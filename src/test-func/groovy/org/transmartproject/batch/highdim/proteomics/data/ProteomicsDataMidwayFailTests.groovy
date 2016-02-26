@@ -14,7 +14,6 @@ import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 import org.transmartproject.batch.junit.NoSkipIfJobFailed
 import org.transmartproject.batch.junit.RunJobRule
@@ -62,12 +61,12 @@ class ProteomicsDataMidwayFailTests implements FileCorruptingTestTrait {
 
     @BeforeClass
     static void beforeClass() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
+        ProteomicsDataStepsConfig.dataFilePassChunkSize = 2
     }
 
     @AfterClass
     static void cleanDatabase() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 10000
+        ProteomicsDataStepsConfig.dataFilePassChunkSize = 10000
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(TableLists.CLINICAL_TABLES + Tables.PROTEOMICS_ANNOTATION
@@ -140,9 +139,9 @@ class ProteomicsDataMidwayFailTests implements FileCorruptingTestTrait {
                     AND A.peptide = :peptide
                     AND D.trial_name = :study_id"""
 
-        def p = [study_id: STUDY_ID,
+        def p = [study_id   : STUDY_ID,
                  sample_name: 'LFQ.intensity.CACO2_2',
-                 peptide: '2243']
+                 peptide    : '2243']
 
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 

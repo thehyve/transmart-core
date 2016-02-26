@@ -45,7 +45,7 @@ class ProteomicsPlatformMidwayFailTests implements FileCorruptingTestTrait {
     @Test
     void test() {
         // reduce the chunk size to 2
-        ProteomicsPlatformJobConfiguration.chunkSize = 2
+        ProteomicsPlatformStepsConfig.chunkSize = 2
 
         // copy data and corrupt it
         File dataFile =

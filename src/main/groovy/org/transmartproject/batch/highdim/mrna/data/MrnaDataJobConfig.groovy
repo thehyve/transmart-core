@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.rnaseq.data
+package org.transmartproject.batch.highdim.mrna.data
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -6,36 +6,36 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.highdim.beans.AbstractTypicalHdDataJobConfig
-import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionStepsConfig
+import org.transmartproject.batch.highdim.mrna.platform.MrnaPlatformStepsConfig
 
 import javax.annotation.Resource
 
 /**
- * Spring context for RNASeq data loading job.
+ * Spring context for mRNA data loading job.
  */
 @Configuration
 @Import([
-        ChromosomalRegionStepsConfig,
-        RnaSeqDataStepsConfig,
+        MrnaPlatformStepsConfig,
+        MrnaDataStepsConfig,
 ])
-class RnaSeqDataJobConfig extends AbstractTypicalHdDataJobConfig {
+class MrnaDataJobConfig extends AbstractTypicalHdDataJobConfig {
 
-    public static final String JOB_NAME = 'rnaSeqDataJob'
+    public static final String JOB_NAME = 'mrnaDataLoadJob'
 
     @Resource
     Step loadAnnotationMappings
 
     @Resource
-    Step partitionDataTable
-    @Resource
     Step firstPass
     @Resource
     Step deleteHdData
     @Resource
+    Step partitionDataTable
+    @Resource
     Step secondPass
 
     @Bean
-    Job rnaSeqDataJob() {
+    Job mrnaDataLoadJob() {
         jobs.get(JOB_NAME)
                 .start(typicalHdDataFlow())
                 .end()

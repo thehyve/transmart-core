@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.rnaseq.data
+package org.transmartproject.batch.highdim.metabolomics.data
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -6,39 +6,40 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.highdim.beans.AbstractTypicalHdDataJobConfig
-import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionStepsConfig
+import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsPlatformStepsConfig
 
 import javax.annotation.Resource
 
 /**
- * Spring context for RNASeq data loading job.
+ * Spring context for metabolomics data loading job.
  */
 @Configuration
 @Import([
-        ChromosomalRegionStepsConfig,
-        RnaSeqDataStepsConfig,
+        MetabolomicsPlatformStepsConfig,
+        MetabolomicsDataStepsConfig,
 ])
-class RnaSeqDataJobConfig extends AbstractTypicalHdDataJobConfig {
+class MetabolomicsDataJobConfig extends AbstractTypicalHdDataJobConfig {
 
-    public static final String JOB_NAME = 'rnaSeqDataJob'
+    public static final String JOB_NAME = 'metabolomicsDataLoadJob'
 
     @Resource
     Step loadAnnotationMappings
 
     @Resource
-    Step partitionDataTable
-    @Resource
     Step firstPass
     @Resource
     Step deleteHdData
     @Resource
+    Step partitionDataTable
+    @Resource
     Step secondPass
 
     @Bean
-    Job rnaSeqDataJob() {
+    Job metabolomicsDataLoadJob() {
         jobs.get(JOB_NAME)
                 .start(typicalHdDataFlow())
                 .end()
                 .build()
     }
+
 }

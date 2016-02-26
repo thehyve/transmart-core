@@ -1,55 +1,60 @@
 package org.transmartproject.batch.highdim.proteomics.data
 
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
-import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
+import org.transmartproject.batch.highdim.beans.AbstractTypicalHdDataStepsConfig
+import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 import org.transmartproject.batch.startup.StudyJobParametersModule
 
 /**
- * Spring context for proteomics data loading job.
+ * Spring context for proteomics data loading steps.
  */
 @Configuration
-@ComponentScan(['org.transmartproject.batch.highdim.proteomics.data',])
-class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfiguration {
-
-    public static final String JOB_NAME = 'ProteomicsDataLoadJob'
+@ComponentScan
+@Import(DbConfig)
+class ProteomicsDataStepsConfig extends AbstractTypicalHdDataStepsConfig {
 
     @Autowired
-    ProteomicsDataWriter proteomicsDataWriter
+    DatabaseImplementationClassPicker picker
 
-    @Override
-    @Bean(name = 'ProteomicsDataLoadJob')
-    Job job() {
-        jobs.get(JOB_NAME)
-                .start(mainFlow())
-                .end()
-                .build()
-    }
-
-    @Override
     @Bean
-    @JobScopeInterfaced
-    GatherAnnotationEntityIdsReader annotationsReader() {
-        new GatherAnnotationEntityIdsReader(
-                table: Tables.PROTEOMICS_ANNOTATION,
-                idColumn: 'id',
-                nameColumn: 'peptide',
-        )
+    @Override
+    ItemWriter getDeleteCurrentDataWriter() {
+        new DeleteByColumnValueWriter<Long>(
+                table: Tables.PROTEOMICS_DATA,
+                column: 'assay_id',
+                entityName: 'proteomics data points')
     }
 
+
+    @Bean
+    Step partitionDataTable() {
+        stepOf('partitionDataTable', partitionTasklet())
+    }
+
+    @Bean
     @Override
+    @JobScope
+    ItemWriter<TripleStandardDataValue> getDataWriter() {
+        new ProteomicsDataWriter()
+    }
+
     @Bean
     @JobScopeInterfaced
     Tasklet partitionTasklet() {
@@ -70,23 +75,7 @@ class ProteomicsDataJobConfiguration extends AbstractStandardHighDimJobConfigura
                         tableName: Tables.PROTEOMICS_DATA,
                         partitionByColumnValue: studyId)
             default:
-                return null
+                throw new IllegalStateException('No supported DBMS detected.')
         }
-
-    }
-
-
-    @Override
-    @Bean
-    DeleteByColumnValueWriter<Long> deleteCurrentDataWriter() {
-        new DeleteByColumnValueWriter<Long>(
-                table: Tables.PROTEOMICS_DATA,
-                column: 'assay_id',
-                entityName: 'proteomics data points')
-    }
-
-    @Override
-    ProteomicsDataWriter dataPointWriter() {
-        proteomicsDataWriter
     }
 }

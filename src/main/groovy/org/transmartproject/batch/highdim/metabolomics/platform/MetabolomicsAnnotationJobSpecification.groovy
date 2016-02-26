@@ -8,5 +8,5 @@ import org.transmartproject.batch.highdim.platform.AbstractPlatformJobSpecificat
 final class MetabolomicsAnnotationJobSpecification
         extends AbstractPlatformJobSpecification {
     final String markerType = 'METABOLOMICS'
-    final Class jobPath = MetabolomicsPlatformJobConfiguration
+    final Class jobPath = MetabolomicsPlatformJobConfig
 }

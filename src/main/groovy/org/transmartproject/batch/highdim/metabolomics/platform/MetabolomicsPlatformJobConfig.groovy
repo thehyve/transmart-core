@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.platform.chrregion
+package org.transmartproject.batch.highdim.metabolomics.platform
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -14,7 +14,7 @@ import org.transmartproject.batch.highdim.platform.PlatformStepsConfig
 import javax.annotation.Resource
 
 /**
- * Spring configuration for the chromosomal region data load job.
+ * Spring configuration for the metabolimcs platform job.
  */
 @Configuration
 @Import([
@@ -22,11 +22,11 @@ import javax.annotation.Resource
         DbConfig,
 
         PlatformStepsConfig,
-        ChromosomalRegionStepsConfig,
+        MetabolomicsPlatformStepsConfig,
 ])
-class ChromosomalRegionJobConfig {
+class MetabolomicsPlatformJobConfig {
 
-    public static final String JOB_NAME = 'chromosomalRegionLoadJob'
+    public static final String JOB_NAME = 'metabolomicsPlatformLoadJob'
 
     @Autowired
     JobBuilderFactory jobs
@@ -37,17 +37,32 @@ class ChromosomalRegionJobConfig {
     Step insertGplInfo
 
     @Resource
-    Step deleteChromosomalRegions
+    Step deleteMetabolomicsAnnotation
     @Resource
-    Step insertChromosomalRegions
+    Step readTheGraph
+    @Resource
+    Step metabolomicsAssignIds
+    @Resource
+    Step insertSuperPathways
+    @Resource
+    Step insertSubPathways
+    @Resource
+    Step insertBiochemicals
+    @Resource
+    Step insertBiochemicalsSubPathwaysAssociations
 
     @Bean
-    Job chromosomalRegionLoadJob() {
+    Job metabolomicsPlatformLoadJob() {
         jobs.get(JOB_NAME)
                 .start(deleteGplInfo)
-                .next(deleteChromosomalRegions)
+                .next(deleteMetabolomicsAnnotation)
                 .next(insertGplInfo)
-                .next(insertChromosomalRegions)
+                .next(readTheGraph)
+                .next(metabolomicsAssignIds)
+                .next(insertSuperPathways)
+                .next(insertSubPathways)
+                .next(insertBiochemicals)
+                .next(insertBiochemicalsSubPathwaysAssociations)
                 .build()
     }
 }

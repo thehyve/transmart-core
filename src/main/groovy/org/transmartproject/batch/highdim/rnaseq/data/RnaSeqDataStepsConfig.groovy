@@ -46,11 +46,6 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step partitionTable() {
-        stepOf('partitionTable', partitionTasklet())
-    }
-
-    @Bean
     Step firstPass(RnaSeqDataValueValidator rnaSeqDataValueValidator) {
         CollectMinimumPositiveValueListener minPosValueColector = collectMinimumPositiveValueListener()
         TaskletStep step = steps.get('firstPass')
@@ -58,7 +53,7 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
                 .reader(rnaSeqDataTsvFileReader())
                 .processor(compositeOf(
                 new ValidatingItemProcessor(adaptValidator(rnaSeqDataValueValidator)),
-                warningNegativeDataPointToNaNProcessor(),
+                new NegativeDataPointWarningProcessor(),
         ))
                 .stream(minPosValueColector)
                 .listener(minPosValueColector)
@@ -69,13 +64,17 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step deleteRnaSeqData(CurrentAssayIdsReader currentAssayIdsReader,
-                          ItemWriter<Long> deleteRnaSeqDataWriter) {
-        steps.get('deleteRnaSeqData')
+    Step deleteHdData(CurrentAssayIdsReader currentAssayIdsReader) {
+        steps.get('deleteHdData')
                 .chunk(100)
                 .reader(currentAssayIdsReader)
-                .writer(deleteRnaSeqDataWriter)
+                .writer(deleteRnaSeqDataWriter())
                 .build()
+    }
+
+    @Bean
+    Step partitionDataTable() {
+        stepOf('partitionDataTable', partitionTasklet())
     }
 
     @Bean
@@ -93,12 +92,6 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
                 .build()
 
         step
-    }
-
-    @Bean
-    @JobScope
-    NegativeDataPointWarningProcessor warningNegativeDataPointToNaNProcessor() {
-        new NegativeDataPointWarningProcessor()
     }
 
     @Bean

@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
@@ -61,7 +60,7 @@ class MrnaSpecialConditionsTests
 
     @Test
     void testAllowMissingAnnotationsParameter() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
+        MrnaDataStepsConfig.dataFilePassChunkSize = 2
 
         // remove the last element
         File dataFile = alterFile(originalFile) { List<List<String>> it ->

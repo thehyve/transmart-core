@@ -11,9 +11,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.transmartproject.batch.batchartifacts.FailWithMessageTasklet
 import org.transmartproject.batch.batchartifacts.FoundExitStatusChangeListener
-import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
-import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
  * Patient spring batch steps configuration
@@ -48,15 +46,15 @@ class PlatformStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step ensureThePlatformExists(Step checkPlatformNotFound, Step failWithPlatformNotFoundMessage) {
+    Step failIfPlatformNotFound(Step checkPlatformNotFound, Step failWithPlatformNotFoundMessage) {
         //TODO The flow condition look cumbersome. We should simplify this
-        SimpleFlow ensureThePlatformExistsFlow = new FlowBuilder<SimpleFlow>('ensureThePlatformExistsFlow')
+        SimpleFlow ensureThePlatformExistsFlow = new FlowBuilder<SimpleFlow>('checkThePlatformExistsFlow')
                 .start(checkPlatformNotFound)
                 .on('NOT FOUND').to(failWithPlatformNotFoundMessage)
                 .from(checkPlatformNotFound).on('*').end()
                 .build()
 
-        steps.get('ensureThePlatformExists')
+        steps.get('failIfPlatformNotFound')
                 .allowStartIfComplete(true)
                 .flow(ensureThePlatformExistsFlow)
                 .build()
@@ -72,12 +70,6 @@ class PlatformStepsConfig implements StepBuildingConfigurationTrait {
                 markerType: parameters[AbstractPlatformJobSpecification.MARKER_TYPE],
                 genomeRelease: parameters[AbstractPlatformJobSpecification.GENOME_RELEASE],
         )
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    org.springframework.core.io.Resource annotationsFileResource() {
-        new JobParameterFileResource(parameter: AbstractPlatformJobSpecification.ANNOTATIONS_FILE)
     }
 
     @Bean

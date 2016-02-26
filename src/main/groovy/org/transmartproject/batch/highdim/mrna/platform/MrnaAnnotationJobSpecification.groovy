@@ -7,5 +7,5 @@ import org.transmartproject.batch.highdim.platform.AbstractPlatformJobSpecificat
  */
 final class MrnaAnnotationJobSpecification extends AbstractPlatformJobSpecification {
     final String markerType = 'Gene Expression'
-    final Class jobPath = MrnaPlatformJobConfiguration
+    final Class jobPath = MrnaPlatformJobConfig
 }

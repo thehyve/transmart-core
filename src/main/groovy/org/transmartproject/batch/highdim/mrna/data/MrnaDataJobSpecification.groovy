@@ -19,5 +19,5 @@ class MrnaDataJobSpecification implements JobSpecification {
             new StandardHighDimDataParametersModule()
     ]
 
-    final Class<?> jobPath = MrnaDataJobConfiguration
+    final Class<?> jobPath = MrnaDataJobConfig
 }

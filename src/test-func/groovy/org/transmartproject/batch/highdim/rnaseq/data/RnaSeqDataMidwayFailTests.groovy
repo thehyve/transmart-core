@@ -14,7 +14,6 @@ import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 import org.transmartproject.batch.junit.NoSkipIfJobFailed
 import org.transmartproject.batch.junit.RunJobRule

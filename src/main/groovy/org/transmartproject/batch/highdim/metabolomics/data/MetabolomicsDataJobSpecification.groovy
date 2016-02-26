@@ -19,5 +19,5 @@ class MetabolomicsDataJobSpecification implements JobSpecification {
             new StandardHighDimDataParametersModule()
     ]
 
-    final Class<?> jobPath = MetabolomicsDataJobConfiguration
+    final Class<?> jobPath = MetabolomicsDataJobConfig
 }

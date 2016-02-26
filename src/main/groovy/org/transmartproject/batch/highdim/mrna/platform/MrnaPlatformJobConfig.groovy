@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.platform.chrregion
+package org.transmartproject.batch.highdim.mrna.platform
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -14,7 +14,7 @@ import org.transmartproject.batch.highdim.platform.PlatformStepsConfig
 import javax.annotation.Resource
 
 /**
- * Spring configuration for the chromosomal region data load job.
+ * Spring configuration for the mrna annotation (platform) upload job.
  */
 @Configuration
 @Import([
@@ -22,11 +22,11 @@ import javax.annotation.Resource
         DbConfig,
 
         PlatformStepsConfig,
-        ChromosomalRegionStepsConfig,
+        MrnaPlatformStepsConfig,
 ])
-class ChromosomalRegionJobConfig {
+class MrnaPlatformJobConfig {
 
-    public static final String JOB_NAME = 'chromosomalRegionLoadJob'
+    public static final String JOB_NAME = 'mrnaPlatformLoadJob'
 
     @Autowired
     JobBuilderFactory jobs
@@ -37,17 +37,18 @@ class ChromosomalRegionJobConfig {
     Step insertGplInfo
 
     @Resource
-    Step deleteChromosomalRegions
+    Step deleteAnnotations
     @Resource
-    Step insertChromosomalRegions
+    Step insertAnnotations
 
     @Bean
-    Job chromosomalRegionLoadJob() {
+    Job mrnaPlatformLoadJob() {
         jobs.get(JOB_NAME)
                 .start(deleteGplInfo)
-                .next(deleteChromosomalRegions)
+                .next(deleteAnnotations)
                 .next(insertGplInfo)
-                .next(insertChromosomalRegions)
+                .next(insertAnnotations)
                 .build()
     }
 }
+

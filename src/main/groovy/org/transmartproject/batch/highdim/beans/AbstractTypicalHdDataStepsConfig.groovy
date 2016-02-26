@@ -5,27 +5,32 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemStreamReader
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
+import org.transmartproject.batch.db.DbConfig
+import org.transmartproject.batch.highdim.assays.AssayStepsConfig
+import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
 import org.transmartproject.batch.highdim.datastd.*
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
- * Standard HD configuration implementation that use {@link TripleStandardDataValue} as item
+ * Spring context for typical hd data loading steps.
  */
-abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJobConfiguration {
+@Configuration
+@Import([DbConfig, AssayStepsConfig])
+abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigurationTrait {
 
     static int dataFilePassChunkSize = 10000 // non final for testing
 
-    @Autowired
-    FilterNaNsItemProcessor filterNaNsItemProcessor
+    abstract ItemWriter getDeleteCurrentDataWriter()
 
-    /**************
-     * First pass *
-     **************/
+    abstract ItemWriter<TripleStandardDataValue> getDataWriter()
 
     @Bean
     Step firstPass() {
@@ -33,7 +38,7 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJo
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(firstPassDataRowSplitterReader())
-                .processor(warningNegativeDataPointToNaNProcessor())
+                .processor(new NegativeDataPointWarningProcessor())
                 .stream(listener)
                 .listener(listener)
                 .listener(logCountsStepListener())
@@ -41,25 +46,58 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJo
 
         // visitedProbesValidatingReader() doesn't need to be registered
         // (StandardDataRowSplitterReader calls its ItemStream methods)
-        step.streams = [firstPassTsvFileReader(null)]
+        step.streams = [firstPassTsvFileReader()]
 
         step
     }
 
     @Bean
+    Step deleteHdData(CurrentAssayIdsReader currentAssayIdsReader) {
+        steps.get('deleteHdData')
+                .chunk(100)
+                .reader(currentAssayIdsReader)
+                .writer(deleteCurrentDataWriter)
+                .build()
+    }
+
+    @Bean
+    Step secondPass() {
+        TaskletStep step = steps.get('secondPass')
+                .chunk(dataFilePassChunkSize)
+                .reader(secondPassReader())
+                .writer(dataWriter)
+                .processor(compositeOf(
+                standardDataValuePatientInjectionProcessor(),
+                new FilterNaNsItemProcessor()
+        ))
+                .listener(logCountsStepListener())
+                .listener(progressWriteListener())
+                .build()
+
+        step.streams = [secondPassDataRowSplitterReader()]
+        step
+    }
+
+    @Bean
+    @StepScope
+    DataFileHeaderValidator dataFileHeaderValidator() {
+        new DataFileHeaderValidator()
+    }
+
+    @Bean
     @JobScope
-    ItemStreamReader firstPassTsvFileReader(DataFileHeaderValidator dataFileHeaderValidator) {
+    ItemStreamReader firstPassTsvFileReader() {
         tsvFileReader(
                 dataFileResource(),
                 linesToSkip: 1,
-                saveHeader: dataFileHeaderValidator,
+                saveHeader: dataFileHeaderValidator(),
                 saveState: true)
     }
 
     @Bean
     @StepScope
     VisitedAnnotationsReadingValidator visitedProbesValidatingReader() {
-        new VisitedAnnotationsReadingValidator(delegate: firstPassTsvFileReader(null))
+        new VisitedAnnotationsReadingValidator(delegate: firstPassTsvFileReader())
     }
 
     @Bean
@@ -75,34 +113,6 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJo
     org.springframework.core.io.Resource dataFileResource() {
         new JobParameterFileResource(
                 parameter: StandardHighDimDataParametersModule.DATA_FILE)
-    }
-
-    @Bean
-    @JobScope
-    NegativeDataPointWarningProcessor warningNegativeDataPointToNaNProcessor() {
-        new NegativeDataPointWarningProcessor()
-    }
-
-    /***************
-     * Second pass *
-     ***************/
-
-    @Bean
-    Step secondPass() {
-        TaskletStep step = steps.get('secondPass')
-                .chunk(dataFilePassChunkSize)
-                .reader(secondPassReader())
-                .writer(dataPointWriter())
-                .processor(compositeOf(
-                    standardDataValuePatientInjectionProcessor(),
-                    filterNaNsItemProcessor
-                ))
-                .listener(logCountsStepListener())
-                .listener(progressWriteListener())
-                .build()
-
-        step.streams = [secondPassDataRowSplitterReader()]
-        step
     }
 
     @Bean
@@ -147,4 +157,5 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractHighDimJo
     CollectMinimumPositiveValueListener collectMinimumPositiveValueListener() {
         new CollectMinimumPositiveValueListener()
     }
+
 }
