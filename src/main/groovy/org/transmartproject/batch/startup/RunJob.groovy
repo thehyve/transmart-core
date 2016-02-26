@@ -6,6 +6,8 @@ import org.springframework.batch.core.launch.support.CommandLineJobRunner
 import org.transmartproject.batch.backout.BackoutJobSpecification
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.gwas.GwasJobSpecification
+import org.transmartproject.batch.highdim.acgh.data.AcghDataJobSpecification
+import org.transmartproject.batch.highdim.acgh.platform.AcghAnnotationJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
@@ -43,6 +45,8 @@ final class RunJob {
             'backout'                : BackoutJobSpecification,
             'rnaseq_annotation'      : RnaSeqAnnotationJobSpecification,
             'rnaseq'                 : RnaSeqDataJobSpecification,
+            'acgh_annotation'        : AcghAnnotationJobSpecification,
+            'acgh'                   : AcghDataJobSpecification,
     ]
 
     OptionAccessor opts

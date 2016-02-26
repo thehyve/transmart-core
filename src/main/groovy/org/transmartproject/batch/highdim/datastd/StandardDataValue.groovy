@@ -7,7 +7,7 @@ import org.transmartproject.batch.patient.Patient
  * Single value for a (patient, annotation) pair.
  */
 @Canonical
-class StandardDataValue implements DataPoint {
+class StandardDataValue implements DataPoint, PatientInjectionSupport {
     String annotation
     String sampleCode
     Patient patient

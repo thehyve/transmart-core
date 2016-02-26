@@ -1,5 +1,6 @@
 package org.transmartproject.batch
 
+import com.jolbox.bonecp.spring.BoneCPNativeJdbcExtractor
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer
@@ -20,7 +21,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.support.lob.OracleLobHandler
-import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor
 import org.springframework.transaction.PlatformTransactionManager
 import org.transmartproject.batch.batchartifacts.BetterExitMessageJobExecutionListener
 import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
@@ -58,7 +58,7 @@ class AppConfig {
                         oracle    : { ->
                             factory.isolationLevelForCreate = 'ISOLATION_READ_COMMITTED'
                             OracleLobHandler lobHandler = new OracleLobHandler()
-                            lobHandler.nativeJdbcExtractor = new CommonsDbcpNativeJdbcExtractor()
+                            lobHandler.nativeJdbcExtractor = new BoneCPNativeJdbcExtractor()
                             factory.lobHandler = lobHandler
                             factory.maxVarCharLength = 2500 / 2 // oracle col length definitions in bytes
                         },

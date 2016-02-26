@@ -67,7 +67,7 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
                 .reader(secondPassReader())
                 .writer(dataWriter)
                 .processor(compositeOf(
-                standardDataValuePatientInjectionProcessor(),
+                patientInjectionProcessor(),
                 new FilterNaNsItemProcessor()
         ))
                 .listener(logCountsStepListener())
@@ -117,8 +117,8 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    StandardDataValuePatientInjectionProcessor standardDataValuePatientInjectionProcessor() {
-        new StandardDataValuePatientInjectionProcessor()
+    PatientInjectionProcessor patientInjectionProcessor() {
+        new PatientInjectionProcessor()
     }
 
     @Bean
