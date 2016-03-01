@@ -26,15 +26,14 @@ class AuditLogFilters {
 		search(controller: 'GWAS', action: 'getFacetResults') {
 			before = { model ->
 				def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
-				auditLogService.report("GWAS Active Filter", request,
+				auditLogService?.report("GWAS Active Filter", request,
 						user: currentUserBean,
-						action: fullUrl as String,
 						query: params.q ?: '',
 						facetQuery: params.fq ?: '',
 				)
 			}
 		}
-        other(controller: 'GWAS|gwas*|uploadData', action: '*', actionExclude:'getFacetResults|newSearch') {
+        other(controller: 'GWAS|gwas*|uploadData', action: '*', actionExclude:'getFacetResults|newSearch|index|getDynatree|getSearchCategories') {
             after = { model ->
                 def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
                 def task = "Gwas (${controllerName}.${actionName})"
@@ -53,13 +52,11 @@ class AuditLogFilters {
                         task = "Gwas Table View"
                         break
                 }
-                auditLogService.report(task, request,
+                auditLogService?.report(task, request,
                         user: currentUserBean,
-                        action: fullUrl as String,
 						experiment: experimentService.getExperimentAccession(params.getLong('trialNumber')) ?: '',
 						analysis: getAnalysisName(params.getLong('analysisId')),
 						export: params.export ?: '',
-						//params: params,
                 )
             }
         }
