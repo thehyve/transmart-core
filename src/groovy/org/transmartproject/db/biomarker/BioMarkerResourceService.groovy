@@ -1,22 +1,24 @@
 package org.transmartproject.db.biomarker
 
 import org.springframework.stereotype.Component
+import org.transmartproject.core.IterableResult
+import org.transmartproject.core.biomarker.BioMarker
 import org.transmartproject.core.biomarker.BioMarkerConstraint
 import org.transmartproject.core.biomarker.BioMarkerResource
-import org.transmartproject.core.biomarker.BioMarkerResult
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.db.util.SimpleScrollableResultsWrappingIterable
 
 @Component
 class BioMarkerResourceService implements BioMarkerResource {
 
     @Override
-    BioMarkerResult retrieveBioMarkers(List<BioMarkerConstraint> constraints) {
+    IterableResult<BioMarker> retrieveBioMarkers(List<BioMarkerConstraint> constraints) {
         def criteria = BioMarkerCoreDb.createCriteria()
         criteria.createCriteriaInstance()
         constraints.each { BioMarkerCriteriaConstraint c ->
             c.doWithCriteriaBuilder(criteria)
         }
-        new BioMarkerScrollableResultsWrappingIterable(criteria.scroll())
+        new SimpleScrollableResultsWrappingIterable<BioMarker>(criteria.scroll())
     }
 
     @Override

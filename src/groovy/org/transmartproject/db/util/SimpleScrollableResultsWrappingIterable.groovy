@@ -1,8 +1,9 @@
 package org.transmartproject.db.util
 
 import org.hibernate.ScrollableResults
+import org.transmartproject.core.IterableResult
 
-class SimpleScrollableResultsWrappingIterable<T> extends AbstractOneTimeCallIterable<T> implements Closeable {
+class SimpleScrollableResultsWrappingIterable<T> extends AbstractOneTimeCallIterable<T> implements IterableResult<T> {
 
     protected final SimpleScrollableResultsIterator scrollableResultsIterator
 

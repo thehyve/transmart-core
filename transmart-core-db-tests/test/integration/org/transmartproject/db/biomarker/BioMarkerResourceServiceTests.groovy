@@ -23,8 +23,9 @@ import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
+import org.transmartproject.core.IterableResult
+import org.transmartproject.core.biomarker.BioMarker
 import org.transmartproject.core.biomarker.BioMarkerConstraint
-import org.transmartproject.core.biomarker.BioMarkerResult
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -51,7 +52,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testFetchAll() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([])
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([])
 
         def resultList = Lists.newArrayList result
         result.close()
@@ -60,7 +61,7 @@ class BioMarkerResourceServiceTests {
 
     @Test(expected = InvalidArgumentsException)
     void testPropertiesConstraintThrowExcOnNoParams() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint([:], BioMarkerConstraint.PROPERTIES_CONSTRAINT)
         ])
 
@@ -71,7 +72,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testPropertiesConstraintWithId() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.PROPERTIES_CONSTRAINT, id: -1101L)
         ])
 
@@ -84,7 +85,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testPropertiesConstraintWithType() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.PROPERTIES_CONSTRAINT, type: 'PROTEIN')
         ])
 
@@ -95,7 +96,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testPropertiesConstraintWithListOfIds() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.PROPERTIES_CONSTRAINT, id: [-1101L, -1102L])
         ])
 
@@ -109,7 +110,7 @@ class BioMarkerResourceServiceTests {
 
     @Test(expected = InvalidArgumentsException)
     void testCorrelatedBioMarkersConstraintThrowExcOnNoParams() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint([:], BioMarkerConstraint.CORRELATED_BIO_MARKERS_CONSTRAINT)
         ])
 
@@ -120,7 +121,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testCorrelatedBioMarkersConstraintBySeveralDiffProperties() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.CORRELATED_BIO_MARKERS_CONSTRAINT,
                         correlatedBioMarkerProperties: [ name: 'AURKA', type: 'GENE' ])
         ])
@@ -134,7 +135,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testCorrelatedBioMarkersConstraintByListOfValues() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.CORRELATED_BIO_MARKERS_CONSTRAINT,
                         correlatedBioMarkerProperties: [ name: ['AURKA', 'SLC14A2', 'ADIRF'] ])
         ])
@@ -150,7 +151,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testCorrelatedBioMarkersConstraintByCorrelationName() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.CORRELATED_BIO_MARKERS_CONSTRAINT,
                         correlationName: 'GENE TO PROTEIN', correlatedBioMarkerProperties: [ type: 'GENE' ])
         ])
@@ -166,7 +167,7 @@ class BioMarkerResourceServiceTests {
 
     @Test
     void testSeveralConstraints() {
-        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+        IterableResult<BioMarker> result = bioMarkerResourceService.retrieveBioMarkers([
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.PROPERTIES_CONSTRAINT,
                         name: ['AURKA', 'SLC14A2', 'BOGUSCPOCORREL', 'BOGUSCPO']),
                 bioMarkerResourceService.createConstraint(BioMarkerConstraint.CORRELATED_BIO_MARKERS_CONSTRAINT,
