@@ -6,7 +6,7 @@ import org.transmartproject.core.biomarker.BioMarker
 import org.transmartproject.core.biomarker.BioMarkerConstraint
 import org.transmartproject.core.biomarker.BioMarkerResource
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.util.SimpleScrollableResultsWrappingIterable
+import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 @Component
 class BioMarkerResourceService implements BioMarkerResource {
@@ -18,7 +18,7 @@ class BioMarkerResourceService implements BioMarkerResource {
         constraints.each { BioMarkerCriteriaConstraint c ->
             c.doWithCriteriaBuilder(criteria)
         }
-        new SimpleScrollableResultsWrappingIterable<BioMarker>(criteria.scroll())
+        new ScrollableResultsWrappingIterable<BioMarker>(criteria.scroll())
     }
 
     @Override
