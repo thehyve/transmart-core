@@ -106,7 +106,7 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         Date date = jdbcTemplate.queryForObject(q, p, Date)
 
         def execution = jobRepository.getLastJobExecution(
-                ProteomicsPlatformJobConfiguration.JOB_NAME,
+                ProteomicsPlatformJobConfig.JOB_NAME,
                 RUN_JOB_RULE.jobParameters)
         Date expectedDate = execution.startTime
 

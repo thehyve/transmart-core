@@ -1,6 +1,7 @@
-package org.transmartproject.batch.beans
+package org.transmartproject.batch
 
-import com.jolbox.bonecp.BoneCPDataSource
+import org.springframework.batch.core.Job
+import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.explore.JobExplorer
@@ -11,63 +12,44 @@ import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean
 import org.springframework.batch.core.scope.JobScope
 import org.springframework.batch.core.scope.StepScope
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
-import org.springframework.context.annotation.PropertySource
-import org.springframework.core.env.Environment
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.support.lob.OracleLobHandler
 import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor
 import org.springframework.transaction.PlatformTransactionManager
+import org.transmartproject.batch.batchartifacts.BetterExitMessageJobExecutionListener
+import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
+import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.db.PerDbTypeRunner
 import org.transmartproject.batch.support.ExpressionResolver
 
 import javax.sql.DataSource
 
 /**
- * Base Spring configuration for
+ * Additional batch configurations
  */
 @Configuration
+@Import(DbConfig)
 @EnableBatchProcessing
-@PropertySource('${propertySource:file:./batchdb.properties}')
 class AppConfig {
 
-    @Autowired
-    private Environment env
-
-    @Bean(destroyMethod = "close")
-    DataSource dataSource() {
-        new BoneCPDataSource(
-                driverClass: env.getProperty('batch.jdbc.driver'),
-                jdbcUrl: env.getProperty('batch.jdbc.url'),
-                username: env.getProperty('batch.jdbc.user'),
-                password: env.getProperty('batch.jdbc.password')).with {
-            def initSQL = perDbTypeRunner().run([
-                    postgresql: { ->
-                        'SET search_path = ts_batch'
-                    },
-                    oracle    : { -> },
-            ])
-            if (initSQL) {
-                config.initSQL = initSQL
-            }
-            it
-        }
-    }
-
     @Bean
-    @Lazy // so that the singleton is not eagerly initialized, which would fail
-          // in tests where we're just testing the composition of the
-          // application context and don't have a real data source behind
+    @Lazy
+    // so that the singleton is not eagerly initialized, which would fail
+    // in tests where we're just testing the composition of the
+    // application context and don't have a real data source behind
     BatchConfigurer batchConfigurer(DataSource dataSource,
                                     PerDbTypeRunner perDbTypeRunner) {
         // extending DefaultBatchConfigurer ends up not being practical due
         // to its use of private fields
         new BatchConfigurer() {
             final PlatformTransactionManager transactionManager =
-                new DataSourceTransactionManager(dataSource)
+                    new DataSourceTransactionManager(dataSource)
 
             final JobRepository jobRepository = {
                 JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean()
@@ -89,7 +71,7 @@ class AppConfig {
 
             final JobLauncher jobLauncher = {
                 SimpleJobLauncher jobLauncher = new SimpleJobLauncher()
-                jobLauncher.jobRepository  = jobRepository
+                jobLauncher.jobRepository = jobRepository
                 jobLauncher.afterPropertiesSet()
                 jobLauncher
             }()
@@ -104,13 +86,23 @@ class AppConfig {
     }
 
     @Bean
-    ExpressionResolver expressionResolver() {
-        new ExpressionResolver()
+    BeanFactoryPostProcessor customizeJob() {
+        { ConfigurableListableBeanFactory beanFactory ->
+            def beanNames = beanFactory.getBeanNamesForType(Job)
+            beanNames.each { beanName ->
+                beanFactory.getBeanDefinition(beanName)
+                        .propertyValues.with {
+                    addPropertyValue('jobExecutionListeners',
+                            [new BetterExitMessageJobExecutionListener()] as JobExecutionListener[])
+                    addPropertyValue('jobParametersIncrementer', new DefaultJobIncrementer())
+                }
+            }
+        } as BeanFactoryPostProcessor
     }
 
     @Bean
-    PerDbTypeRunner perDbTypeRunner() {
-        new PerDbTypeRunner()
+    ExpressionResolver expressionResolver() {
+        new ExpressionResolver()
     }
 
     /* override beans to fix warnings due to them not being static in

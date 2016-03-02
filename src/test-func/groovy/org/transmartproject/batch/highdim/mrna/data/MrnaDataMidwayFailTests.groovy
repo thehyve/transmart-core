@@ -14,7 +14,6 @@ import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
-import org.transmartproject.batch.highdim.beans.AbstractStandardHighDimJobConfiguration
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 import org.transmartproject.batch.junit.NoSkipIfJobFailed
 import org.transmartproject.batch.junit.RunJobRule
@@ -23,9 +22,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_ASSAYS
-import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NUMBER_OF_PROBES
-import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.NOT_SUPPORTED_VALUES
+import static org.transmartproject.batch.highdim.mrna.data.MrnaDataCleanScenarioTests.*
 import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
@@ -65,16 +62,16 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
 
     @BeforeClass
     static void beforeClass() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 2
+        MrnaDataStepsConfig.dataFilePassChunkSize = 2
     }
 
     @AfterClass
     static void cleanDatabase() {
-        AbstractStandardHighDimJobConfiguration.dataFilePassChunkSize = 10000
+        MrnaDataStepsConfig.dataFilePassChunkSize = 10000
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(TableLists.CLINICAL_TABLES + [Tables.MRNA_ANNOTATION,
-                        Tables.GPL_INFO, 'ts_batch.batch_job_instance'])
+                                                       Tables.GPL_INFO, 'ts_batch.batch_job_instance'])
     }
 
     @After
@@ -140,7 +137,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         FROM ${Tables.MRNA_DATA} D
         INNER JOIN ${Tables.MRNA_ANNOTATION} A ON (D.probeset_id = A.probeset_id)
         WHERE A.probe_id = :probe_name AND D.trial_name = :study_id
-        """, [ study_id: STUDY_ID, probe_name: probeName ]
+        """, [study_id: STUDY_ID, probe_name: probeName]
 
         def q = """
                 SELECT raw_intensity, log_intensity, zscore
@@ -153,9 +150,9 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
                     AND A.probe_id = :probe_name
                     AND D.trial_name = :study_id"""
 
-        def p = [study_id: STUDY_ID,
+        def p = [study_id   : STUDY_ID,
                  sample_name: 'GSM210010',
-                 probe_name: probeName]
+                 probe_name : probeName]
 
         Map<String, Object> r = jdbcTemplate.queryForMap q, p
 
@@ -192,7 +189,7 @@ class MrnaDataMidwayFailTests implements FileCorruptingTestTrait {
         assertThat """Either minimal positive value of the data set has not been found right after recovery process
                     or log2(0) is not substituted with log2(minPositiveValueOfTheDataSet / 2).""",
                 logs, everyItem(
-                        hasEntry(equalToIgnoringCase('log'), castingCloseTo(logTrickValue, DELTA))
+                hasEntry(equalToIgnoringCase('log'), castingCloseTo(logTrickValue, DELTA))
         )
     }
 }

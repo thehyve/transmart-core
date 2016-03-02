@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.i2b2
+package org.transmartproject.batch.highdim.concept
 
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext

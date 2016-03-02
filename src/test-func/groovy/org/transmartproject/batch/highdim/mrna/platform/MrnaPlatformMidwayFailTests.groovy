@@ -45,7 +45,7 @@ class MrnaPlatformMidwayFailTests implements FileCorruptingTestTrait {
     @Test
     void test() {
         // reduce the chunk size to 2
-        MrnaPlatformJobConfiguration.chunkSize = 2
+        MrnaPlatformStepsConfig.chunkSize = 2
 
         // copy data and corrupt it
         File dataFile =

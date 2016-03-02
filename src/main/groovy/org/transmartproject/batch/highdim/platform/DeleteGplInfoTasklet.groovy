@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.db.DatabaseUtil
 
 /**
  * Removes data related to a specific platform from de_gpl_info
@@ -31,10 +30,7 @@ class DeleteGplInfoTasklet implements Tasklet {
                 WHERE platform = :gpl_info
         """, [gpl_info: platform.id])
 
-        DatabaseUtil.checkUpdateCounts([i],
-                "deleting from gpl_info platform ${platform.id}")
-
-        contribution.incrementWriteCount(i /* 1 */)
+        contribution.incrementWriteCount(i < 0 ? 1 : i)
 
         RepeatStatus.FINISHED
     }

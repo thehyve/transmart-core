@@ -76,7 +76,6 @@ class PlatformCheckTasklet implements Tasklet {
         }
 
         contribution.incrementReadCount()
-
         RepeatStatus.FINISHED
     }
 

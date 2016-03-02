@@ -183,7 +183,7 @@ trait StepBuildingConfigurationTrait {
      *             (default: false)
      */
     @TypeChecked
-    <T> ResourceAwareItemReaderItemStream<T> tsvFileReader(
+    ResourceAwareItemReaderItemStream tsvFileReader(
             Map<String, Object> options, Resource resource) {
         def strict = options.containsKey('strict') ?
                 (boolean) options.strict : true
@@ -221,22 +221,21 @@ trait StepBuildingConfigurationTrait {
             }
         }
 
-        FieldSetMapper<T> mapper
+        FieldSetMapper mapper
         if (options.mapper != null) {
             if (options.beanClass) {
                 throw new IllegalArgumentException(
                         'Cannot specify both beanClass and mapper')
             }
             if (!(options.mapper instanceof FieldSetMapper)) {
-                throw new IllegalArgumentException('Expected mapper option, ' +
-                        'if provided, to be FieldSetMapper')
+                throw new IllegalArgumentException('Expected mapper option, if provided, to be FieldSetMapper')
             }
-            mapper = (FieldSetMapper<T>) options.mapper
+            mapper = (FieldSetMapper) options.mapper
         } else if (options.beanClass) {
-            mapper = new BeanWrapperFieldSetMapper<T>(
-                    targetType: (Class<? extends T>) options.beanClass)
+            mapper = new BeanWrapperFieldSetMapper(
+                    targetType: (Class) options.beanClass)
         } else {
-            mapper = (FieldSetMapper<T>) new PassThroughFieldSetMapper()
+            mapper = (FieldSetMapper) new PassThroughFieldSetMapper()
         }
 
         /* if columnNames is 'auto', read the first line to determine
@@ -259,8 +258,8 @@ trait StepBuildingConfigurationTrait {
                     'Cannot look at header is there are no lines to skip')
         }
 
-        new FlatFileItemReader<T>(
-                lineMapper: new DefaultLineMapper<T>(
+        new FlatFileItemReader(
+                lineMapper: new DefaultLineMapper(
                         lineTokenizer: tokenizer,
                         fieldSetMapper: mapper,
                 ),

@@ -35,6 +35,7 @@ class InsertGplInfoTasklet implements Tasklet {
                 title          : platformObject.title,
                 organism       : platformObject.organism,
                 marker_type    : platformObject.markerType,
+                genome_build   : platformObject.genomeRelease,
                 annotation_date: jobStartTime,
         ])
         contribution.incrementWriteCount(i)

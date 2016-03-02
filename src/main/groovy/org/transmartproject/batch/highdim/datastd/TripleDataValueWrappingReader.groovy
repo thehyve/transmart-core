@@ -45,10 +45,12 @@ class TripleDataValueWrappingReader implements ItemReader<TripleStandardDataValu
 
         item.logValue = log(item.value, minPosDataSetValue) / LOG_2
 
-        double stdDiv = perRowStatisticsListener.standardDeviation
-        if (stdDiv > 0) {
-            item.zscore = clamp(-2.5d, 2.5d,
-                    (item.logValue - perRowStatisticsListener.mean) / stdDiv)
+        if (perRowStatisticsListener) {
+            double stdDiv = perRowStatisticsListener.standardDeviation
+            if (stdDiv > 0) {
+                item.zscore = clamp(-2.5d, 2.5d,
+                        (item.logValue - perRowStatisticsListener.mean) / stdDiv)
+            }
         }
 
         item

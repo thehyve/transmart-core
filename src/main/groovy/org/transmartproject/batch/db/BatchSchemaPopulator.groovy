@@ -7,7 +7,7 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 import org.springframework.jdbc.datasource.init.ScriptUtils
-import org.transmartproject.batch.beans.AppConfig
+import org.transmartproject.batch.AppConfig
 
 import javax.sql.DataSource
 

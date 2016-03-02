@@ -16,6 +16,7 @@ import org.springframework.context.support.ConversionServiceFactoryBean
 import org.springframework.core.convert.converter.Converter
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.transmartproject.batch.AppConfig
 import org.transmartproject.batch.batchartifacts.BetterExitMessageJobExecutionListener
 import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
 import org.transmartproject.batch.db.*

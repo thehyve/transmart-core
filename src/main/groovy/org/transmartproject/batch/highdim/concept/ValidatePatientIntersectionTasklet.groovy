@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.i2b2
+package org.transmartproject.batch.highdim.concept
 
 import com.google.common.collect.Sets
 import groovy.util.logging.Slf4j

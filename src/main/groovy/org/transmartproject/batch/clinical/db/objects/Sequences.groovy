@@ -26,4 +26,8 @@ final class Sequences {
     public static final String PROTEOMICS_ANNOTATION_ID = 'deapp.protein_annotation_id'
     public static final String PROTEOMICS_PARTITION_ID = 'deapp.seq_proteomics_partition_id'
 
+    public static final String CHROMOSOMAL_REGION_ID = 'deapp.de_chromo_region_id_seq'
+
+    public static final String RNASEQ_PARTITION_ID = 'deapp.seq_rna_partition_id'
+
 }

@@ -16,6 +16,8 @@
 * General high-dimensional data processing
   * [hd-data-processing-details.md](hd-data-processing-details.md) - Information how all high-dimensional data is processed when uploading.
   * [hd-params.md](hd-params.md) - Parameters that are supported for all high-dimensional data types.
+  * [chromosomal_region.md](chromosomal_region.md) - Tabular file structure for loading chromosomal regions.
+  * [subject-sample-mapping.md](subject-sample-mapping.md) - Tabular file structure for loading subject sample mappings for HD data.
 * mRNA gene expression data
   * [expression.md](expression.md) - Loading microarray gene expression data.
   * *under development* - Loading readcounts and normalized readcounts data for mRNAseq and miRNAseq.
@@ -25,6 +27,8 @@
   * *not yet implemented* - Loading small genomic variants (SNP, indel in VCF format) from RNAseq or DNAseq.
 * Proteomics data
   * [proteomics.md](proteomics.md) - Loading protein mass spectrometry data as peptide or protein quantities.
+* RnaSeq data
+  * [rnaseq.md](rnaseq.md) - Loading gene region RNASeq data as read counts and normalized read counts.
 * Metabolomics data
   * [metabolomics.md](metabolomics.md) - Loading metabolite quantities.
 * GWAS data

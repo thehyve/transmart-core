@@ -35,8 +35,8 @@ import org.springframework.core.io.Resource
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.util.Assert
+import org.transmartproject.batch.AppConfig
 import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
-import org.transmartproject.batch.beans.AppConfig
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.db.OracleTableTruncator
 import org.transmartproject.batch.db.PostgresTableTruncator
