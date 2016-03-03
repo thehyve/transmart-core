@@ -13,19 +13,31 @@ class AuditLogFilters {
 
 	public String getAnalysisName(Long analysisId) {
 		if (!analysisId) {
-			return ""
+			return
 		}
 		BioAssayAnalysis analysis = BioAssayAnalysis.get(analysisId)
 		if (!analysis) {
-			return ""
+			return
 		}
 		analysis.name
 	}
 
+    public String getAnalysisNames(String analysisIds) {
+        List<String> names = []
+        List<String> ids = analysisIds?.split(",") ?: []
+        for (String id: ids) {
+            Long analysisId = id.toLong()
+            String name = getAnalysisName(analysisId)
+            if (name) {
+                names += name
+            }
+        }
+        names.join("|")
+    }
+
     def filters = {
 		search(controller: 'GWAS', action: 'getFacetResults') {
 			before = { model ->
-				def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
 				auditLogService?.report("GWAS Active Filter", request,
 						user: currentUserBean,
 						query: params.q ?: '',
@@ -35,7 +47,6 @@ class AuditLogFilters {
 		}
         other(controller: 'GWAS|gwas*|uploadData', action: '*', actionExclude:'getFacetResults|newSearch|index|getDynatree|getSearchCategories') {
             after = { model ->
-                def fullUrl = "${request.forwardURI}${request.queryString ? '?' + request.queryString : ''}"
                 def task = "Gwas (${controllerName}.${actionName})"
                 switch (actionName) {
                     case "getAnalysisResults":
@@ -51,12 +62,25 @@ class AuditLogFilters {
                     case "getTableResults":
                         task = "Gwas Table View"
                         break
+                    case "webStartPlotter":
+                        task = "Gwava"
+                        break
+                    case "exportAnalysis":
+                        if (params.isLink == "true") {
+                            task = "Gwas Files Export"
+                        } else {
+                            task = "Gwas Email Analysis"
+                        }
+                        break
                 }
+                String analysis = (params?.analysisIds) ?
+                        getAnalysisNames(params.analysisIds) :
+                        getAnalysisName(params.getLong('analysisId'))
                 auditLogService?.report(task, request,
                         user: currentUserBean,
-						experiment: experimentService.getExperimentAccession(params.getLong('trialNumber')) ?: '',
-						analysis: getAnalysisName(params.getLong('analysisId')),
-						export: params.export ?: '',
+                        experiment: experimentService.getExperimentAccession(params.getLong('trialNumber')) ?: '',
+                        analysis: analysis ?: '',
+                        export: params.export ?: '',
                 )
             }
         }
