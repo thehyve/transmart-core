@@ -138,6 +138,66 @@ class AcghDataValueValidatorTests {
         )
     }
 
+    @Test
+    void testIncorrectProbabilities() {
+        acghDataValue.probHomLoss = 3
+        acghDataValue.probLoss = 2
+        acghDataValue.probNorm = 1
+        acghDataValue.probGain = -2
+        acghDataValue.probAmp = -3
+
+        List<ObjectError> errors = callValidate().allErrors
+
+        assertThat errors, containsInAnyOrder(
+                allOf(
+                        hasProperty('field', equalTo('probHomLoss')),
+                        hasProperty('code', equalTo('notAllowedValue'))),
+                allOf(
+                        hasProperty('field', equalTo('probLoss')),
+                        hasProperty('code', equalTo('notAllowedValue'))),
+                allOf(
+                        hasProperty('field', equalTo('probGain')),
+                        hasProperty('code', equalTo('notAllowedValue'))),
+                allOf(
+                        hasProperty('field', equalTo('probAmp')),
+                        hasProperty('code', equalTo('notAllowedValue'))),
+        )
+    }
+
+    @Test
+    void testFlagIncorrectWhileSeveralFlagCandidates() {
+        acghDataValue.with {
+            flag = 0
+            probHomLoss = 0.25
+            probLoss = 0.2
+            probNorm = 0.1
+            probGain = 0.2
+            probAmp = 0.25
+        }
+
+        List<ObjectError> errors = callValidate().allErrors
+
+        assertThat errors, contains(
+                allOf(
+                        hasProperty('field', equalTo('flag')),
+                        hasProperty('code', equalTo('expectedConstant'))),
+        )
+    }
+
+    @Test
+    void testFlagCorrectWhileSeveralFlagCandidates() {
+        acghDataValue.with {
+            flag = -2
+            probHomLoss = 0.25
+            probLoss = 0.2
+            probNorm = 0.1
+            probGain = 0.2
+            probAmp = 0.25
+        }
+
+        assertThat callValidate().hasErrors(), is(false)
+    }
+
     private Errors callValidate() {
         testee.validate(acghDataValue, errors)
         errors

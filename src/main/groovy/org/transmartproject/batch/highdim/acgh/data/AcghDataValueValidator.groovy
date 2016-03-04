@@ -12,8 +12,15 @@ import org.springframework.validation.Validator
 @Slf4j
 class AcghDataValueValidator implements Validator {
 
-    public static final List ALLOWED_FLAG_VALUES = -2..2
     public static final double ERROR = 0.01d
+    public static final Map FLAG_TO_PROBABILITY_FIELD_MAP = [
+            (-2): 'probHomLoss',
+            (-1): 'probLoss',
+            (0) : 'probNorm',
+            (1) : 'probGain',
+            (2) : 'probAmp']
+    public static final Map PROBABILITY_FIELD_TO_FLAG_MAP = FLAG_TO_PROBABILITY_FIELD_MAP
+            .collectEntries { [(it.value): it.key] }
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -33,28 +40,47 @@ class AcghDataValueValidator implements Validator {
                     ['regionName'] as Object[], null
         }
 
-        List probabilities = [item.probHomLoss, item.probLoss, item.probNorm, item.probGain, item.probAmp]
-        boolean probabilitiesSpecified = probabilities.any { it != null }
+        Map probabilities = [
+                probHomLoss: item.probHomLoss,
+                probLoss   : item.probLoss,
+                probNorm   : item.probNorm,
+                probGain   : item.probGain,
+                probAmp    : item.probAmp]
+        boolean probabilitiesSpecified = probabilities.values().any { it != null }
 
-        boolean one = true
+        boolean probabilitiesAreValid = true
         if (probabilitiesSpecified) {
-            one = Math.abs(1 - probabilities.sum { it ?: 0 }) < ERROR
-            if (!one) {
+            Map incorrectProbabilities = probabilities.findAll {
+                it.value != null && (it.value < 0 || it.value > 1)
+            }
+            incorrectProbabilities.each { String fieldName, Double fieldValue ->
+                errors.rejectValue fieldName, 'notAllowedValue',
+                        [fieldName, fieldValue, '0..1'] as Object[], null
+            }
+            probabilitiesAreValid &= !incorrectProbabilities
+
+            boolean sumIsOne = Math.abs(1 - probabilities.values().sum { it ?: 0 }) < ERROR
+            if (!sumIsOne) {
                 errors.reject 'sumOfProbabilitiesIsNotOne'
             }
+            probabilitiesAreValid &= sumIsOne
         }
 
         if (item.flag == null) {
             errors.rejectValue 'flag', 'required',
                     ['flag'] as Object[], null
-        } else if (!(item.flag in ALLOWED_FLAG_VALUES)) {
+        } else if (!(item.flag in FLAG_TO_PROBABILITY_FIELD_MAP.keySet())) {
             errors.rejectValue 'flag', 'notAllowedValue',
-                    ['flag', item.flag, ALLOWED_FLAG_VALUES.toString()] as Object[], null
-        } else if (probabilitiesSpecified && one) {
-            int expectedFlag = probabilities.indexOf(probabilities.max()) - 2
-            if (item.flag != expectedFlag) {
+                    ['flag', item.flag, FLAG_TO_PROBABILITY_FIELD_MAP.keySet()] as Object[], null
+        } else if (probabilitiesSpecified && probabilitiesAreValid) {
+            Double maxProbability = probabilities.values().max()
+            Set probFieldsFlagCandidates = probabilities.findAll { (maxProbability - it.value) < ERROR }.keySet()
+            String flagSuggestedProbField = FLAG_TO_PROBABILITY_FIELD_MAP[item.flag]
+            if (!probFieldsFlagCandidates.contains(flagSuggestedProbField)) {
+                Set expectedFlags = probFieldsFlagCandidates
+                        .collect { PROBABILITY_FIELD_TO_FLAG_MAP[it] }
                 errors.rejectValue 'flag', 'expectedConstant',
-                        [expectedFlag, item.flag] as Object[], null
+                        [expectedFlags, item.flag] as Object[], null
             }
         }
     }
