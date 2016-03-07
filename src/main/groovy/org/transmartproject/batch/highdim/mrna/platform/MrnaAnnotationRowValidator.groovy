@@ -4,12 +4,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
-import org.springframework.validation.Validator
-import org.transmartproject.batch.highdim.platform.Platform
-
-import javax.annotation.Resource
-
-import static org.springframework.context.i18n.LocaleContextHolder.locale
+import org.transmartproject.batch.highdim.datastd.PlatformOrganismValidator
 
 /**
  * Validates {@link MrnaAnnotationRow} objects.
@@ -17,10 +12,7 @@ import static org.springframework.context.i18n.LocaleContextHolder.locale
 @Component
 @JobScope
 @Slf4j
-class MrnaAnnotationRowValidator implements Validator {
-
-    @Resource
-    Platform platformObject
+class MrnaAnnotationRowValidator implements PlatformOrganismValidator {
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -32,19 +24,7 @@ class MrnaAnnotationRowValidator implements Validator {
     void validate(Object target, Errors errors) {
         assert target instanceof MrnaAnnotationRow
 
-        /* platformObject.id should be normalized to uppercase because it comes
-         * from the normalized parameter PLATFORM, but it may be that platform
-         * name in the data file is not */
-        if (target.gplId.toUpperCase(locale) != platformObject.id) {
-            errors.rejectValue 'gplId', 'expectedConstant',
-                    [platformObject.id, target.gplId] as Object[], null
-        }
-
-        if (!platformObject.organism.equalsIgnoreCase(target.organism)) {
-            errors.rejectValue 'organism', 'expectedConstant',
-                    [platformObject.organism, target.organism] as Object[],
-                    null
-        }
+        PlatformOrganismValidator.super.validate(target, errors)
 
         if (!target.probeName) {
             errors.rejectValue 'probeName', 'required',

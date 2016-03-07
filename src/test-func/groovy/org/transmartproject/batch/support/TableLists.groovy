@@ -73,4 +73,11 @@ class TableLists {
             Tables.RNASEQ_DATA,
             Tables.CHROMOSOMAL_REGION,
     ]
+
+    public static final List<String> ACGH_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.ACGH_DATA,
+            Tables.CHROMOSOMAL_REGION,
+    ]
 }

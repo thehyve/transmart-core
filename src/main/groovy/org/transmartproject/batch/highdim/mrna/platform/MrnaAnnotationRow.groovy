@@ -5,12 +5,13 @@ import com.google.common.base.Splitter
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import groovy.transform.Canonical
+import org.transmartproject.batch.highdim.datastd.PlatformOrganismSupport
 
 /**
  * Represents a line on the mrna annotations file
  */
 @Canonical
-class MrnaAnnotationRow {
+class MrnaAnnotationRow implements PlatformOrganismSupport {
     String gplId
     String probeName
     String genes

@@ -8,9 +8,9 @@ import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.patient.PatientSet
 
 /**
- * Set the patient to the @link StandardDataValue bean.
+ * Set the patient to the bean that implements @link PatientSampleAware interface.
  */
-class StandardDataValuePatientInjectionProcessor implements ItemProcessor<StandardDataValue, StandardDataValue> {
+class PatientInjectionProcessor implements ItemProcessor<PatientInjectionSupport, PatientInjectionSupport> {
 
     @Autowired
     private AssayMappingsRowStore assayMappings
@@ -21,7 +21,7 @@ class StandardDataValuePatientInjectionProcessor implements ItemProcessor<Standa
     private final Map samplePatientMappingCache = [:]
 
     @Override
-    StandardDataValue process(StandardDataValue item) throws Exception {
+    PatientInjectionSupport process(PatientInjectionSupport item) throws Exception {
         String sampleCode = item.sampleCode
 
         Patient patient
