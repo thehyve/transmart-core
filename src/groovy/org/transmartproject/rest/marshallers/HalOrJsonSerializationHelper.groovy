@@ -27,6 +27,12 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
 
+/**
+ * All implementations of this interface are automatically registered by {@link MarshallersRegistrar} at startup, so
+ * they can be used to convert objects to JSON in `foo as JSON` expressions.
+ *
+ * @param <T> The type that this class can serialize
+ */
 interface HalOrJsonSerializationHelper<T> {
 
     Class<T> getTargetType()
