@@ -1,5 +1,7 @@
 package org.transmartproject.core.biomarker
 
+import org.transmartproject.core.IterableResult
+
 /**
  *
  */
@@ -10,7 +12,7 @@ interface BioMarkerResource {
      * @param constraints for limiting the bio markers in the result
      * @return scrollable collection of result bio markers.
      */
-    BioMarkerResult retrieveBioMarkers(List<BioMarkerConstraint> constraints)
+    IterableResult<BioMarker> retrieveBioMarkers(List<BioMarkerConstraint> constraints)
 
     /**
      * Instantiate certain type of constraint object.
