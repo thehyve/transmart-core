@@ -85,6 +85,7 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    @JobScope
     PatientInjectionProcessor patientInjectionProcessor() {
         new PatientInjectionProcessor()
     }

@@ -101,6 +101,7 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    @JobScope
     PatientInjectionProcessor patientInjectionProcessor() {
         new PatientInjectionProcessor()
     }
