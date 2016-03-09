@@ -30,7 +30,7 @@ LineGraph.loader <- function(
     scaling.data <- read.delim(scaling.filename, header=T, stringsAsFactors = FALSE)
     }
   } else { # if scaling file is not available, each level of group (concept path) will be plotted at the number of that level
-    scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
+    scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)), stringsAsFactors = FALSE)
   }
   # assign the X-axis position to each row
   line.data$TIME_VALUE <- sapply(line.data$GROUP,FUN = function(groupValue) {
