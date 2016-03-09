@@ -90,7 +90,7 @@ class RnaSeqDataMidwayFailTests implements FileCorruptingTestTrait {
     @Test
     @SuppressWarnings('JUnitTestMethodWithoutAssert')
     void testFailMidwayFirstStep() {
-        File dataFile = corruptFile(originalFile, 7, 5, 'CORRUPTION')
+        File dataFile = corruptFile(originalFile, 2, 3, 'CORRUPTION')
 
         def params = [
                 '-p', 'studies/' + STUDY_ID + '/rnaseq.params',

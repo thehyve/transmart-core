@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
 import org.transmartproject.batch.clinical.db.objects.Sequences
@@ -98,15 +99,12 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    @JobScope
-    ItemStreamReader acghDataTsvFileReader() {
-        tsvFileReader(
-                dataFileResource(),
-                linesToSkip: 1,
-                saveState: true,
-                beanClass: AcghDataValue,
-                columnNames: ['regionName', 'sampleCode', 'flag', 'chip', 'segmented',
-                              'probHomLoss', 'probLoss', 'probNorm', 'probGain', 'probAmp'])
+    ItemStreamReader acghDataTsvFileReader(
+            AcghDataMultipleVariablesPerSampleFieldSetMapper acghDataMultipleSamplesFieldSetMapper) {
+        new MultipleItemsLineItemReader(
+                resource: dataFileResource(),
+                multipleItemsFieldSetMapper: acghDataMultipleSamplesFieldSetMapper
+        )
     }
 
     @Bean

@@ -11,19 +11,20 @@ For format of the platform data file see [chromosomal_region.md](chromosomal_reg
 
 Your must have `acgh.params` file. For possible parameter see [hd-params.md](hd-params.md).
 
-Below is the expected file format for ACGH data input files (column positions are importent, column names are not).
+Below is the expected file format for ACGH data input files.
+First column always has to be region name. The rest of the columns are recognised by the name, not by position.
+Replace `<sample_code>` with an actual sample code (e.g. `CACO2`).
 
 | Column Name | Description |
 --------------|--------------
-| REGION_NAME | **Mandatory** The name of this region. Often it's a gene name. e.g. `WASH7P` |
-| SAMPLE_ID | **Mandatory** Sample id. e.g. `CACO2` |
-| FLAG | **Mandatory** `-2` - homologous loss, `-1` - loss `0` - normal, `1` - gain, `2` - amplification. |
-| CHIP | *Optional* log2 ratio of the measurement. |
-| SEGMENTED |  *Optional* Segmented log2 ratio. |
-| PROBHOMLOSS | *Optional* Actual probability of homologous loss. |
-| PROBLOSS | *Optional* Actual probability of loss. |
-| PROBNORM |  *Optional* Actual probability of normal. |
-| PROBGAIN | *Optional* Actual probability of gain. |
-| PROBAMP | *Optional* Actual probability of amplification. |
+| region_name | **Mandatory** The name of this region. Often it's a gene name. e.g. `WASH7P` |
+| `<sample_code>`.flag | **Mandatory** `-2` - homologous loss, `-1` - loss `0` - normal, `1` - gain, `2` - amplification. |
+| `<sample_code>`.chip | *Optional* log2 ratio of the measurement. |
+| `<sample_code>`.segmented |  *Optional* Segmented log2 ratio. |
+| `<sample_code>`.probhomloss | *Optional* Actual probability of homologous loss. |
+| `<sample_code>`.probloss | *Optional* Actual probability of loss. |
+| `<sample_code>`.probnorm |  *Optional* Actual probability of normal. |
+| `<sample_code>`.probgain | *Optional* Actual probability of gain. |
+| `<sample_code>`.probamp | *Optional* Actual probability of amplification. |
 
 
