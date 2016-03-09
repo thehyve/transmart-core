@@ -3,6 +3,7 @@ package org.transmartproject.batch.batchartifacts
 import org.junit.Test
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemStreamException
+import org.springframework.batch.item.ParseException
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 
@@ -69,11 +70,28 @@ class MultipleItemsLineItemReaderTests {
         testee.afterPropertiesSet()
     }
 
+    @Test(expected = IllegalArgumentException)
+    void testNoResourceSpecified() {
+        testee = new MultipleItemsLineItemReader(resource: null,
+                multipleItemsFieldSetMapper: [] as MultipleItemsFieldSetMapper)
+        testee.afterPropertiesSet()
+    }
+
     @Test(expected = ItemStreamException)
     void testDuplicatesInTheHeader() {
         initTesteeWithContent(
                 'annotation\tsampl1.dfld\tsampl1.ifld\tsampl1.dfld\tsampl1.ifld\n' +
                         'annot1\t1.2\t10\t1.2\t10\n'
+        )
+
+        testee.read()
+    }
+
+    @Test(expected = ParseException)
+    void testUnParsableHeader() {
+        initTesteeWithContent(
+                'annotation\tsampl1.dfld\tunparsableheadername\n' +
+                        'annot1\t1.2\ttest\n'
         )
 
         testee.read()

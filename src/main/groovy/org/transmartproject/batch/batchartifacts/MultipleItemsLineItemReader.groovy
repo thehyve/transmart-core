@@ -1,6 +1,7 @@
 package org.transmartproject.batch.batchartifacts
 
 import com.google.common.collect.Lists
+import groovy.util.logging.Slf4j
 import org.springframework.batch.item.*
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineCallbackHandler
@@ -21,6 +22,7 @@ import static org.springframework.batch.item.file.transform.DelimitedLineTokeniz
 /**
  * Reads wide file format where each row contains normally more than one item.
  */
+@Slf4j
 class MultipleItemsLineItemReader<T> extends ItemStreamSupport
         implements ResourceAwareItemReaderItemStream<T>, InitializingBean, Closeable {
 
@@ -28,30 +30,40 @@ class MultipleItemsLineItemReader<T> extends ItemStreamSupport
         setName(ClassUtils.getShortName(getClass()))
     }
 
-    private static final String SAVED_CACHE = 'savedCache'
+    /**
+     * Resource to read data from (required)
+     */
     Resource resource
+    /**
+     * Maps a field set to the multiple items (required)
+     */
     MultipleItemsFieldSetMapper<T> multipleItemsFieldSetMapper
 
+    private static final String SAVED_ITEM_POS_IN_CACHE = 'savedItemPositionInTheCache'
+
+    private final List<T> cache = Lists.<T> newLinkedList()
+    private int savedItemPositionInTheCache = 0
     private FlatFileItemReader<FieldSet> flatFileItemReader
-    private Collection<T> cache
 
     @Override
     T read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        if (!cache) {
+        if (cache.size() <= savedItemPositionInTheCache) {
             FieldSet fieldSet = flatFileItemReader.read()
             if (fieldSet != null) {
-                cache = multipleItemsFieldSetMapper.mapFieldSet(fieldSet)
+                savedItemPositionInTheCache = 0
+                cache.clear()
+                Collection<T> items = multipleItemsFieldSetMapper.mapFieldSet(fieldSet)
+                cache.addAll(items)
             }
         }
-        if (cache) {
-            T item = cache[0]
-            cache.remove(item)
-            item
+        if (cache.size() > savedItemPositionInTheCache) {
+            cache.get(savedItemPositionInTheCache++)
         }
     }
 
     @Override
     void afterPropertiesSet() throws Exception {
+        Assert.notNull(resource, 'resource has to be specified')
         Assert.notNull(multipleItemsFieldSetMapper, 'mapper has to be specified')
 
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer(
@@ -83,21 +95,27 @@ class MultipleItemsLineItemReader<T> extends ItemStreamSupport
 
     @Override
     void open(ExecutionContext executionContext) throws ItemStreamException {
-        cache = (Collection) executionContext.get(
-                getExecutionContextKey(SAVED_CACHE))
+        if (executionContext.containsKey(
+                getExecutionContextKey(SAVED_ITEM_POS_IN_CACHE))) {
+            savedItemPositionInTheCache = executionContext.getInt(
+                    getExecutionContextKey(SAVED_ITEM_POS_IN_CACHE))
+            log.debug("Load the item position (${savedItemPositionInTheCache}) from the context.")
+        }
         flatFileItemReader.open(executionContext)
     }
 
     @Override
     void update(ExecutionContext executionContext) throws ItemStreamException {
+        log.debug("Save the item position (${savedItemPositionInTheCache}) to the context.")
         executionContext.put(
-                getExecutionContextKey(SAVED_CACHE),
-                cache ? Lists.newLinkedList(cache) : null)
+                getExecutionContextKey(SAVED_ITEM_POS_IN_CACHE), savedItemPositionInTheCache)
         flatFileItemReader.update(executionContext)
     }
 
     @Override
     void close() throws ItemStreamException {
+        cache.clear()
+        savedItemPositionInTheCache = 0
         flatFileItemReader.close()
     }
 }

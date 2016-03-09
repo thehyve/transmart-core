@@ -50,7 +50,7 @@ class AbstractMultipleSamplesFieldSetMapperTests {
                 ['annot', 's1.dfld', 's1.ifld', 's2.dfld', 's2.ifld'] as String[])
         def items = testee.mapFieldSet(fieldSet)
 
-        assertThat items, containsInAnyOrder(
+        assertThat items, contains(
                 allOf(
                         hasProperty('annotation', equalTo('test-annot')),
                         hasProperty('sampleCode', equalTo('s1')),
