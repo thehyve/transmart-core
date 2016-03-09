@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
+ * Copyright 2015-2016 The Hyve B.V.
  *
  * This file is part of REST API: transMART's plugin exposing tranSMART's
  * data via an HTTP-accessible RESTful API.
@@ -25,23 +26,17 @@
 
 package org.transmartproject.rest
 
-import grails.converters.JSON
 import grails.rest.Link
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.json.JSONElement
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
 import org.transmartproject.rest.marshallers.HighDimSummarySerializationHelper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
+import org.transmartproject.rest.misc.JsonParametersParser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.ontology.OntologyTermCategory
-
-import javax.annotation.Resource
 
 class HighDimController {
 
@@ -71,8 +66,8 @@ class HighDimController {
 
     def download(String dataType) {
         assert dataType != null // ensured by mapping
-        def assayConstraintsSpec = processConstraintsJson params.assayConstraints
-        def dataConstraintsSpec = processConstraintsJson params.dataConstraints
+        def assayConstraintsSpec = JsonParametersParser.parseConstraints params.assayConstraints
+        def dataConstraintsSpec = JsonParametersParser.parseConstraints params.dataConstraints
 
         String conceptKey = getConceptKey(params.conceptId)
         OutputStream out = new LazyOutputStreamDecorator(
@@ -87,44 +82,6 @@ class HighDimController {
         } finally {
             out.close()
         }
-    }
-
-    private Map<String, List> processConstraintsJson(String paramValue) {
-        Map<String, List> retValue = [:]
-        if (paramValue) {
-            JSONElement constraintsElement
-            try {
-                constraintsElement = JSON.parse(paramValue)
-            } catch (ConverterException ce) {
-                throw new InvalidArgumentsException(
-                        "Failed parsing as JSON: $paramValue", ce)
-            } catch (StackOverflowError se) { // *sigh*
-                throw new InvalidArgumentsException(
-                        "Failed parsing as JSON: $paramValue", se)
-            }
-
-            if (!constraintsElement instanceof JSONObject) {
-                throw new InvalidArgumentsException(
-                        'Expected constraints to be JSON map')
-            }
-
-            // normalize [constraint_name: [ param1: foo ]] to
-            //           [constraint_name: [[ param1: foo ]]] to
-            retValue = ((JSONObject) constraintsElement)
-                    .collectEntries { String name, value ->
-                if (!(value instanceof Map || value instanceof List)) {
-                    throw new InvalidArgumentsException(
-                            "Invalid parameters for contraint $name: " +
-                                    "$value (should be a list or a map)")
-                } else if (value instanceof Map) {
-                    [name, [value]]
-                } else { // List
-                    [name, value] // entry unchanged
-                }
-            }
-        }
-
-        retValue
     }
 
     private String getConceptKey(String concept) {
