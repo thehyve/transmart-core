@@ -34,4 +34,26 @@ class BioMarkerResourceService implements BioMarkerResource {
                 throw new InvalidArgumentsException("BioMarkerConstraint of type ${name} does not exist.")
         }
     }
+
+    @Override
+    IterableResult<String> availableTypes() {
+        def result = BioMarkerCoreDb.createCriteria().scroll {
+            projections {
+                distinct 'type'
+            }
+        }
+
+        new ScrollableResultsWrappingIterable<String>(result)
+    }
+
+    @Override
+    IterableResult<String> availableOrganisms() {
+        def result = BioMarkerCoreDb.createCriteria().scroll {
+            projections {
+                distinct 'organism'
+            }
+        }
+
+        new ScrollableResultsWrappingIterable<String>(result)
+    }
 }
