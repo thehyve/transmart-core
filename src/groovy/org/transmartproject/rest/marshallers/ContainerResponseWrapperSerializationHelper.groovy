@@ -52,19 +52,19 @@ class ContainerResponseWrapperSerializationHelper extends AbstractHalOrJsonSeria
 
     @Override
     Map<String, Object> convertToMap(ContainerResponseWrapper object) {
-        String key = getKeyForObjectType(object.componentType)
-        [
-                (key): object.container
-        ]
+        object.containers.collectEntries {
+            [getKeyForObjectType(it), it.container]
+        }
     }
 
     @Override
     Set<String> getEmbeddedEntities(ContainerResponseWrapper object) {
-        [getKeyForObjectType(object.componentType)] as Set
+        object.containers.collect {getKeyForObjectType(it)} as Set
     }
 
-    private String getKeyForObjectType(Class targetComponentType) {
-        HalOrJsonSerializationHelper helper = findComponentTypeHelper(targetComponentType)
+    private String getKeyForObjectType(ContainerResponseWrapper.entry container) {
+        if (container.key != null) return container.key
+        HalOrJsonSerializationHelper helper = findComponentTypeHelper(container.componentType)
         helper?.collectionName ?: 'values'
     }
 }

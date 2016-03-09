@@ -26,14 +26,38 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
+import groovy.transform.Canonical
+import groovy.transform.TupleConstructor
 
 // wrapper for collections of core-api helper so we can target a marshaller to them
 class ContainerResponseWrapper {
+    private ContainerResponseWrapper() {}
 
-    List<Link> links = []
+    ContainerResponseWrapper(Map args) {
+        Object container = args.container
+        Class componentType = args.componentType
+        String key = args.key
+        links = args.links ?: []
 
-    Class componentType
+        containers = (args.containers ?: []) + [new entry(key, componentType, container)]
+    }
 
-    Object container // in the general sense. Can be Iterator
+    static ContainerResponseWrapper asMap(Map<String, List> args, List<Link> links) {
+        def wrapper = new ContainerResponseWrapper()
+        wrapper.containers = args.collect {
+            new entry(key: it.key, componentType: it.value[0], container: it.value[1])
+        }
+        wrapper.links = links
+        return wrapper
+    }
 
+    List<Link> links
+
+    List<entry> containers
+
+    @Canonical static class entry {
+        String key = null
+        Class componentType
+        Object container  // in the general sense. Can be Iterator
+    }
 }

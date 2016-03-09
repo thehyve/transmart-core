@@ -44,7 +44,7 @@ class RestApiUrlMappings {
             constraints {
                 // this mapping has fewer wildcards than .../highdim/<type>
                 // so it will have precedence. Add constraint so it doesn't match
-                id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
+                id validator: { !(it ==~ '.+/highdim(?:/[^/]+(?:/biomarkers)?)?') }
             }
         }
 
@@ -77,5 +77,9 @@ class RestApiUrlMappings {
         '/patient_sets'(resources: 'patientSet',  include:['index', 'show', 'save'])
 
         '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
+
+        "/biomarkers"(controller: 'bioMarker', action: 'index', method: 'GET')
+
+        "/biomarkers/$type"(controller: 'bioMarker', action: 'bioMarkers', method: 'GET')
     }
 }
