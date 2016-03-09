@@ -33,7 +33,9 @@ LineGraph.loader <- function(
     scaling.data <- data.frame(GROUP = unique(line.data$GROUP), VALUE = 1:length(unique(line.data$GROUP)))
   }
   # assign the X-axis position to each row
-  line.data$TIME_VALUE <- sapply(line.data$GROUP,FUN = function(groupValue) { scaling.data$VALUE[which(groupValue==scaling.data$GROUP)] })
+  line.data$TIME_VALUE <- sapply(line.data$GROUP,FUN = function(groupValue) {
+    scaling.data$VALUE[which(substring(scaling.data$GROUP, nchar(scaling.data$GROUP)-nchar(groupValue)+1)==groupValue)]
+  })
   
   # Either plot a single LineGraph (if there are no plot_group values)
   # or, for each group-value, retrieve rows for that value and plot LineGraph
@@ -102,7 +104,7 @@ LineGraph.plotter <- function(
 	#Use a regular expression trim out the timepoint from the concept.
 	#dataOutput$TIMEPOINT <- str_extract(dataOutput$TIMEPOINT,"Week [0-9]+")
   dataOutput$TIMEPOINT <- as.character(dataOutput$TIMEPOINT)
-  TIMEPOINT_reducedConceptPath <- str_extract(dataOutput$TIMEPOINT,"(\\\\.+\\\\.+\\\\)+?$")
+  TIMEPOINT_reducedConceptPath <- str_extract(dataOutput$TIMEPOINT,"(\\\\[^\\\\]+\\\\[^\\\\]+\\\\)$")
   validReplacements <- which(!is.na(TIMEPOINT_reducedConceptPath))
   dataOutput$TIMEPOINT[validReplacements] <- TIMEPOINT_reducedConceptPath[validReplacements]
   dataOutput$TIMEPOINT <- as.factor(dataOutput$TIMEPOINT)
