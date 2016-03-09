@@ -22,4 +22,16 @@ interface BioMarkerResource {
      */
     BioMarkerConstraint createConstraint(Map<String, Object> parameters, String name)
 
+    /**
+     * Retrieves an iterable of strings of the types that are available. Useful for constraining biomarker retrieval
+     * to e.g. only genes or only proteines.
+     * @return scrollable collection of unique types
+     */
+    IterableResult<String> availableTypes()
+
+    /**
+     * Retrieves an iterable of strings of the organisms that are available.
+     * @return scrollable collection of unique organisms
+     */
+    IterableResult<String> availableOrganisms()
 }
