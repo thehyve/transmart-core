@@ -69,6 +69,9 @@ acgh.plot.survival <- function
 
   s <- Surv(phenodata[,survival], phenodata[,status])
   reg <- as.matrix(dat[, grep('^flag\\.', colnames(dat))])
+  # we map the the values -2 and 2 on -1 and 1 respectively
+  reg[reg[] ==  2] <-  1
+  reg[reg[] == -2] <- -1
   if (aberrations == 'gains') {
     reg[reg > 0] <- 1
     reg[reg < 0] <- 0
