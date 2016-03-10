@@ -31,8 +31,9 @@ abstract class AcghAnalysisJob extends AbstractAnalysisJob {
     void init() {
         primaryKeyColumnConfigurator.column = new PrimaryKeyColumn(header: 'PATIENT_NUM')
 
-        groupByConfigurator.header                    = 'group'
-        groupByConfigurator.keyForConceptPaths        = 'groupVariable'
+        groupByConfigurator.header = 'group'
+        groupByConfigurator.keyForConceptPaths = 'groupVariable'
+        groupByConfigurator.required = false
     }
 
     @Autowired
@@ -42,15 +43,17 @@ abstract class AcghAnalysisJob extends AbstractAnalysisJob {
     protected List<Step> prepareSteps() {
         List<Step> steps = []
 
-        steps << new BuildTableResultStep(
-                table:         table,
-                configurators: [primaryKeyColumnConfigurator,
-                        groupByConfigurator])
+        if (groupByConfigurator.getConceptPaths()) {
+            steps << new BuildTableResultStep(
+                    table: table,
+                    configurators: [primaryKeyColumnConfigurator,
+                                    groupByConfigurator])
 
-        steps << new SimpleDumpTableResultStep(table: table,
-                temporaryDirectory: temporaryDirectory,
-                outputFileName: 'phenodata.tsv'
-        )
+            steps << new SimpleDumpTableResultStep(table: table,
+                    temporaryDirectory: temporaryDirectory,
+                    outputFileName: 'phenodata.tsv'
+            )
+        }
 
         def openResultSetStep = new OpenHighDimensionalDataStep(
                 params: params,
