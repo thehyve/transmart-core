@@ -39,8 +39,9 @@ acgh.frequency.plot <- function
       highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
       group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
 
-      data.info[, paste('gain.freq.', group, sep='')] <- rowSums(group.calls > 0) / ncol(group.calls)
-      data.info[, paste('loss.freq.', group, sep='')] <- rowSums(group.calls < 0) / ncol(group.calls)
+      # We only use the values we know (hom.del, loss, gain, ampl)
+      data.info[, paste('gain.freq.', group, sep='')] <- rowSums(group.calls==1  | group.calls==2 ) / ncol(group.calls)
+      data.info[, paste('loss.freq.', group, sep='')] <- rowSums(group.calls==-1 | group.calls==-2) / ncol(group.calls)
   }
 
   # Replace chromosome X with number 23 to get only integer column values
