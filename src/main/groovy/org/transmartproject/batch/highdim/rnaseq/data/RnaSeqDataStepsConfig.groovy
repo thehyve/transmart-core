@@ -14,6 +14,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
+import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
 import org.transmartproject.batch.clinical.db.objects.Sequences
@@ -120,14 +121,12 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    @JobScope
-    ItemStreamReader rnaSeqDataTsvFileReader() {
-        tsvFileReader(
-                dataFileResource(),
-                linesToSkip: 1,
-                saveState: true,
-                beanClass: RnaSeqDataValue,
-                columnNames: ['annotation', 'sampleCode', 'readCount', 'value'])
+    ItemStreamReader rnaSeqDataTsvFileReader(
+            RnaSeqDataMultipleVariablesPerSampleFieldSetMapper rnaSeqDataMultipleSamplesFieldSetMapper) {
+        new MultipleItemsLineItemReader(
+                resource: dataFileResource(),
+                multipleItemsFieldSetMapper: rnaSeqDataMultipleSamplesFieldSetMapper
+        )
     }
 
     @Bean
