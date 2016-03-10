@@ -1,4 +1,5 @@
 KETTLE_VERSION=4.4.0
+TRANSMART_RELEASE_BRANCH=release-1.2.5-Beta
 
 UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
 				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev \
@@ -100,7 +101,7 @@ update_repos = if [ ! -d $(1) ]; then \
 	else cd $(1) && git pull; fi
 
 update_etl:
-	$(call update_repos,tranSMART-ETL,https://github.com/transmart/tranSMART-ETL.git,master)
+	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$TRANSMART_RELEASE_BRANCH)
 .PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
