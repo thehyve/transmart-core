@@ -2,9 +2,9 @@
 
 This is the mapping file format:
 
-| `STUDY_ID` | `SITE_ID` | `SUBJECT_ID`     | `SAMPLE_CD` | `PLATFORM`   | `TISSUETYPE` | `ATTRITBUTE_1` | `ATTRITBUTE_2` | `CATEGORY_CD`                 | `SOURCE_CD` |
-|------------|-----------|------------------|-------------|--------------|--------------|----------------|----------------|-------------------------------|-------------|
-| GSE8581    |           | GSE8581GSM210005 | GSM210005   | GPL570_BOGUS | Human        | Lung           |                | Biomarker_Data+PLATFORM+ATTR1 | STD         |
+| `STUDY_ID` | `SITE_ID` | `SUBJECT_ID`     | `SAMPLE_CD` | `PLATFORM`   | `SAMPLE_TYPE`| `TISSUE_TYPE`  | `TIME_POINT`   | `CATEGORY_CD`                      | `SOURCE_CD` |
+|------------|-----------|------------------|-------------|--------------|--------------|----------------|----------------|------------------------------------|-------------|
+| GSE8581    |           | GSE8581GSM210005 | GSM210005   | GPL570_BOGUS | Human        | Lung           | Week1          | Biomarker_Data+PLATFORM+TISSUETYPE | STD         |
 
 The first row is skipped. It must be present, otherwise the first assay will be
 ignored.
@@ -19,13 +19,13 @@ ignored.
   platform must have already been loaded; must be the same for all rows; must be
   uppercase. It will be used to replace the `PLATFORM` placeholder in
   `CATEGORY_CD`.
-- `TISSUETYPE` will be used to fill `sample_type` in
-  `de_subject_sample_mapping`. It will *not* be used to fill `tissue_type`.
-  Used to replace the `TISSUETYPE` placeholder in `CATEGORY_CD`.  Optional.
-- `ATTRIBUTE_1` will be used to fill `tissue_type`. It will also be used to
-  replace the placeholder `ATTR1` in `CATEGORY_CD`.
-- `ATTRIBUTE_2` will be used to replace the `ATTR2` placeholder in
-  `CATEGORY_CD`.  Optional.
+- `SAMPLE_TYPE` will be used to fill `sample_type` in
+  `de_subject_sample_mapping`. It will also be used to replace
+   the placeholder `SAMPLETYPE`in `CATEGORY_CD`. Optional.
+- `TISSUE_TYPE` will be used to fill `tissue_type`. It will also be used to
+  replace the placeholder `TISSUETYPE` and `ATTR1` (lagacy) in `CATEGORY_CD`.
+- `TIME_POINT`  will be used to fill `timepoint`. It will be used to
+  replace the `TIMEPOINT` and `ATTR2` (legacy) placeholder in `CATEGORY_CD`. Optional.
 - `CATGEORY_CD` will be used to form the concept path for the node to be
   created. Components of the path are separated with `+`. It can include several
   placeholders (see the descriptions of the other columns). In principle it can

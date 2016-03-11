@@ -25,4 +25,25 @@ class StringUtilsTest {
 
         assertThat StringUtils.escapeForLike(input, '*'), is(expected)
     }
+
+    @Test
+    void testLookAlikeDespitePlural() {
+        assertThat StringUtils.lookAlike('samples types', 'sample type'), is(true)
+    }
+
+    @Test
+    void testLookAlikeDespiteCase() {
+        assertThat StringUtils.lookAlike('TimePoints', 'TIMEPOINTS'), is(true)
+    }
+
+    @Test
+    void testLookAlikeDespiteDividers() {
+        assertThat StringUtils.lookAlike('tissue type', 'tissue_type'), is(true)
+    }
+
+    @Test
+    void testLookAlikeDespiteAbsentDivider() {
+        assertThat StringUtils.lookAlike('tissuetype', 'tissue_type'), is(true)
+    }
+
 }

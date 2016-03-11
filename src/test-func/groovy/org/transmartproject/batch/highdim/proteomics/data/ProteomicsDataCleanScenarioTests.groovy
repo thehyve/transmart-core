@@ -85,6 +85,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                     sample_type,
                     trial_name,
                     tissue_type,
+                    timepoint,
                     gpl_id
                 FROM ${Tables.SUBJ_SAMPLE_MAP} SSM
                 LEFT JOIN ${Tables.PATIENT_DIMENSION} PD ON (SSM.patient_id = PD.patient_num)
@@ -97,11 +98,12 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
                 hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\PROTEOMICS\\Molecular profiling' +
                         '\\High-throughput molecular profiling\\Expression (protein)\\LC-MS-MS\\Protein level' +
-                        '\\LFQ-2\\MZ ratios\\'),
+                        '\\TPNT\\MZ ratios\\'),
                 hasEntry(is('assay_id'), isA(Number)),
-                hasEntry('sample_type', 'Colon'),
+                hasEntry('sample_type', 'LFQ-2'),
                 hasEntry('trial_name', STUDY_ID),
-                hasEntry('tissue_type', 'LFQ-2'),
+                hasEntry('tissue_type', 'Colon'),
+                hasEntry('timepoint', 'TPNT'),
                 hasEntry('gpl_id', 'PROT_ANNOT'),
         )
     }
@@ -120,9 +122,9 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                     AND A.peptide = :ref_id
                     AND D.trial_name = :study_id"""
 
-        def p = [study_id: STUDY_ID,
+        def p = [study_id   : STUDY_ID,
                  sample_name: 'LFQ.intensity.CACO2_2',
-                 ref_id: '611']
+                 ref_id     : '611']
 
         Map<String, Object> r = queryForMap q, p
 
@@ -149,9 +151,9 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                     AND A.peptide = :ref_id
                     AND D.trial_name = :study_id
                     AND intensity != 0"""
-        def p = [study_id: STUDY_ID,
+        def p = [study_id   : STUDY_ID,
                  sample_name: 'LFQ.intensity.CACO2_1',
-                 ref_id: '5060']
+                 ref_id     : '5060']
 
         List<Map<String, Object>> r = queryForList q, p
 

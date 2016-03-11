@@ -18,6 +18,7 @@ class Assay {
     String sampleType
     String sampleCode
     String tissueType
+    String timePoint
     Platform platform
 
     Map<String, Object> toDatabaseRow() {
@@ -32,7 +33,7 @@ class Assay {
                 sample_type : sampleType,
                 // assay_uid irrelevant
                 trial_name  : studyId,
-                // timepoint irrelevant
+                timepoint   : timePoint,
                 // timepoint_cd irrelevant
                 // sample_type_cd irelevant
                 // tissue_type_cd irrelevant

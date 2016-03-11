@@ -90,6 +90,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                     sample_type,
                     trial_name,
                     tissue_type,
+                    timepoint,
                     gpl_id,
                     sample_cd
                 FROM ${Tables.SUBJ_SAMPLE_MAP} SSM
@@ -106,6 +107,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('sample_type', 'Human'),
                 hasEntry('trial_name', STUDY_ID),
                 hasEntry('tissue_type', 'Lung'),
+                hasEntry('timepoint', 'T'),
                 hasEntry('gpl_id', 'GPL570_BOGUS'),
                 hasEntry('sample_cd', sampleCode),
         )
