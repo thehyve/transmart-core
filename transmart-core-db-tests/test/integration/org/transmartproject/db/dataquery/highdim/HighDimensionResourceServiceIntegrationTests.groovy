@@ -185,6 +185,14 @@ class HighDimensionResourceServiceIntegrationTests {
 
         assertThat instance1, is(equalTo(instance2))
     }
+
+    @Test
+    void testUnEqualityOfReturnedHighDimensionDataTypeResources() {
+        def instance1 = highDimensionResourceService.getSubResourceForType('mrna')
+        def instance2 = highDimensionResourceService.getSubResourceForType('vcf')
+
+        assertThat instance1, is(not(equalTo(instance2)))
+    }
 }
 
 class HighDimensionResourceServiceTestData {

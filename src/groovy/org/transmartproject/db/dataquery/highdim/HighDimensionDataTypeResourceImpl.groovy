@@ -53,10 +53,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         this.module = module
     }
 
-    @Override
-    String getDataTypeName() {
-        module.name
-    }
+    @Lazy
+    String dataTypeName = module.name
 
     @Override
     String getDataTypeDescription() {
