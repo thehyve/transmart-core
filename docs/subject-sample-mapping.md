@@ -23,7 +23,7 @@ ignored.
   `de_subject_sample_mapping`. It will also be used to replace
    the placeholder `SAMPLETYPE`in `CATEGORY_CD`. Optional.
 - `TISSUE_TYPE` will be used to fill `tissue_type`. It will also be used to
-  replace the placeholder `TISSUETYPE` and `ATTR1` (lagacy) in `CATEGORY_CD`.
+  replace the placeholder `TISSUETYPE` and `ATTR1` (legacy) in `CATEGORY_CD`.
 - `TIME_POINT`  will be used to fill `timepoint`. It will be used to
   replace the `TIMEPOINT` and `ATTR2` (legacy) placeholder in `CATEGORY_CD`. Optional.
 - `CATGEORY_CD` will be used to form the concept path for the node to be
