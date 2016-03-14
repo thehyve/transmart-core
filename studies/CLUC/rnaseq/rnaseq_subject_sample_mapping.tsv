@@ -1,4 +1,4 @@
-trial_name	site_id	subject_id	sample_cd	platform	tissue_type	attr1	attr2	cat_cd	src_cd
-CLUC		CACO2	RNASEQ.CACO2	RNASEQ_ANNOT	Colon	rcnt		"Test+RnaSeq+ATTR1+data"	STD
-CLUC		COLO205	RNASEQ.COLO205	RNASEQ_ANNOT	Colon	rcnt		"Test+RnaSeq+ATTR1+data"	STD
-CLUC		DLD1	RNASEQ.DLD1	RNASEQ_ANNOT	Colon	rcnt		"Test+RnaSeq+ATTR1+data"	STD
+trial_name	site_id	subject_id	sample_cd	platform	sample_type	tissue_type	time_point	cat_cd	src_cd
+CLUC		CACO2	RNASEQ.CACO2	RNASEQ_ANNOT	rcnt	Colon	tp1	"Test+RnaSeq+SAMPLETYPE+data"	STD
+CLUC		COLO205	RNASEQ.COLO205	RNASEQ_ANNOT	rcnt	Colon	tp1	"Test+RnaSeq+SAMPLETYPE+data"	STD
+CLUC		DLD1	RNASEQ.DLD1	RNASEQ_ANNOT	rcnt	Colon	tp1	"Test+RnaSeq+SAMPLETYPE+data"	STD

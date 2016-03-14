@@ -80,8 +80,7 @@ class MultipleItemsLineItemReader<T> extends ItemStreamSupport
                 skippedLinesCallback: new LineCallbackHandler() {
                     @Override
                     void handleLine(String line) {
-                        String[] header = new DelimitedLineTokenizer(DELIMITER_TAB)
-                                .tokenize(line).values
+                        String[] header = lineTokenizer.tokenize(line).values
                         Map uniqueHeaderNames = header.groupBy()
                         if (header.length > uniqueHeaderNames.size()) {
                             Set<String> violators = uniqueHeaderNames.findAll { it.value.size() > 1 }.keySet()

@@ -39,12 +39,12 @@ Subject-Sample Mapping
 
 Here is a subject-sample mapping example file:
 
-| trial_name | site_id | subject_id | sample_cd               | platform   | tissue_type | attr1 | attr2 | cat_cd                                                                                                              | src_cd |
-|------------|---------|------------|-------------------------|------------|-------------|-------|-------|---------------------------------------------------------------------------------------------------------------------|--------|
-| CLUC       |         | CACO2      | LFQ.intensity.CACO2_1   | PROT_ANNOT | Colon       | LFQ-1 |       | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+ATTR1+MZ ratios | STD    |
-| CLUC       |         | CACO2      | LFQ.intensity.CACO2_2   | PROT_ANNOT | Colon       | LFQ-2 |       | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+ATTR1+MZ ratios | STD    |
-| CLUC       |         | COLO205    | LFQ.intensity.COLO205_1 | PROT_ANNOT | Colon       | LFQ-1 |       | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+ATTR1+MZ ratios | STD    |
-| CLUC       |         | COLO205    | LFQ.intensity.COLO205_2 | PROT_ANNOT | Colon       | LFQ-2 |       | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+ATTR1+MZ ratios | STD    |
+| trial_name | site_id | subject_id | sample_cd               | platform   | sample_type | tissue_type | time_point | cat_cd                                                                                                                   | src_cd |
+|------------|---------|------------|-------------------------|------------|-------------|-------------|------------|--------------------------------------------------------------------------------------------------------------------------|--------|
+| CLUC       |         | CACO2      | LFQ.intensity.CACO2_1   | PROT_ANNOT | LFQ-1       | Colon       | Week1      | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+SAMPLETYPE+MZ ratios | STD    |
+| CLUC       |         | CACO2      | LFQ.intensity.CACO2_2   | PROT_ANNOT | LFQ-2       | Colon       | Week1      | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+SAMPLETYPE+MZ ratios | STD    |
+| CLUC       |         | COLO205    | LFQ.intensity.COLO205_1 | PROT_ANNOT | LFQ-1       | Colon       | Week1      | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+SAMPLETYPE+MZ ratios | STD    |
+| CLUC       |         | COLO205    | LFQ.intensity.COLO205_2 | PROT_ANNOT | LFQ-2       | Colon       | Week1      | Molecular profiling+High-throughput molecular profiling+Expression (protein)+LC-MS-MS+Protein level+SAMPLETYPE+MZ ratios | STD    |
 
 
 Data

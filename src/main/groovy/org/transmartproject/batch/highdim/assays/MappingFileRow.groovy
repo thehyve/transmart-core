@@ -7,7 +7,7 @@ import org.transmartproject.batch.concept.ConceptFragment
 /**
  * A row in a high dimensional data mapping file.
  * Columns: study_id, site_id, subject_id, sample_cd, platform, tissuetype,
- * attr1, attr2, category_cd
+ * sampleType, timePoint, category_cd
  */
 @ToString(includes = 'subjectId,sampleCd')
 class MappingFileRow {
@@ -17,8 +17,8 @@ class MappingFileRow {
     String sampleCd
     String platform /* must be constant */
     String tissueType
-    String attr1 /* just for replacing placeholders */
-    String attr2 /* just for replacing placeholders */
+    String sampleType
+    String timePoint
     String categoryCd /* the path under TOP_NODE/NODE_NAME */
     String sourceCd /* IGNORED */
 
@@ -28,10 +28,14 @@ class MappingFileRow {
     }
 
     private final Map<String, Closure<String>> replacements = [
+            //Legacy
+            ATTR1     : { -> tissueType },
+            ATTR2     : { -> timePoint },
+            //Current
             PLATFORM  : { -> platform },
             TISSUETYPE: { -> tissueType },
-            ATTR1     : { -> attr1 },
-            ATTR2     : { -> attr2 },
+            SAMPLETYPE: { -> sampleType },
+            TIMEPOINT : { -> timePoint },
     ]
 
     ConceptFragment getConceptFragment() {

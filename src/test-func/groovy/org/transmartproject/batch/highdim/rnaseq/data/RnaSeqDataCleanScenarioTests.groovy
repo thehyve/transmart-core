@@ -87,6 +87,7 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
                     sample_type,
                     trial_name,
                     tissue_type,
+                    timepoint,
                     gpl_id
                 FROM ${Tables.SUBJ_SAMPLE_MAP} SSM
                 LEFT JOIN ${Tables.PATIENT_DIMENSION} PD ON (SSM.patient_id = PD.patient_num)
@@ -99,9 +100,10 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
                 hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\RNASEQ\\Test\\RnaSeq\\rcnt\\data\\'),
                 hasEntry(is('assay_id'), isA(Number)),
-                hasEntry('sample_type', 'Colon'),
+                hasEntry('sample_type', 'rcnt'),
                 hasEntry('trial_name', STUDY_ID),
-                hasEntry('tissue_type', 'rcnt'),
+                hasEntry('tissue_type', 'Colon'),
+                hasEntry('timepoint', 'tp1'),
                 hasEntry('gpl_id', PLATFORM_ID),
         )
     }

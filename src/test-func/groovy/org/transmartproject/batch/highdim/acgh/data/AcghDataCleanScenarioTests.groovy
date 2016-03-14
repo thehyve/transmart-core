@@ -86,6 +86,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
                     sample_type,
                     trial_name,
                     tissue_type,
+                    timepoint,
                     gpl_id
                 FROM ${Tables.SUBJ_SAMPLE_MAP} SSM
                 LEFT JOIN ${Tables.PATIENT_DIMENSION} PD ON (SSM.patient_id = PD.patient_num)
@@ -98,9 +99,10 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
                 hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\ACGH\\Test\\Acgh\\cgh\\data\\'),
                 hasEntry(is('assay_id'), isA(Number)),
-                hasEntry('sample_type', 'Colon'),
+                hasEntry('tissue_type', 'Colon'),
+                hasEntry('timepoint', 't1'),
                 hasEntry('trial_name', STUDY_ID),
-                hasEntry('tissue_type', 'cgh'),
+                hasEntry('sample_type', 'cgh'),
                 hasEntry('gpl_id', PLATFORM_ID),
         )
     }
