@@ -1,6 +1,6 @@
-# Chromosomal Regions
+# Chromosomal Regions Annotation
 
-Below is description of the chromosomal region input format.
+Below is description of the chromosomal region annotation input format.
 
 | Column Name | Description |
 ---------|-------------------
