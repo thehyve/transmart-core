@@ -15,7 +15,7 @@ class RnaSeqDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
-            new StandardAssayParametersModule('RNASeq'),
+            new StandardAssayParametersModule(),
             new StandardHighDimDataParametersModule()
     ]
 

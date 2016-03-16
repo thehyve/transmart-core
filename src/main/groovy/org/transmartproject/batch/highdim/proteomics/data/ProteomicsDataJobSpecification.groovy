@@ -15,7 +15,7 @@ class ProteomicsDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
-            new StandardAssayParametersModule('PROTEOMICS'),
+            new StandardAssayParametersModule(),
             new StandardHighDimDataParametersModule()
     ]
 

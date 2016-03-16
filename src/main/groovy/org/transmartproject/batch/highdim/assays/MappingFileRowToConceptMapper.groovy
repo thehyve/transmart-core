@@ -19,13 +19,12 @@ class MappingFileRowToConceptMapper {
     @Value("#{jobParameters['TOP_NODE']}")
     private ConceptPath topNode
 
-    @Value("#{jobParameters['NODE_NAME']}")
-    private String nodeName
-
     @Autowired
     private ConceptTree conceptTree
 
     ConceptNode getAt(MappingFileRow row) {
-        conceptTree[topNode + nodeName + row.conceptFragment]
+        ConceptPath conceptPath = topNode + row.conceptFragment
+
+        conceptTree[conceptPath]
     }
 }

@@ -19,7 +19,7 @@ class MappingFileRow {
     String tissueType
     String sampleType
     String timePoint
-    String categoryCd /* the path under TOP_NODE/NODE_NAME */
+    String categoryCd /* the path under TOP_NODE */
     String sourceCd /* IGNORED */
 
     void setStudyId(String studyId) {
@@ -39,7 +39,7 @@ class MappingFileRow {
     ]
 
     ConceptFragment getConceptFragment() {
-        // after TOP_NODE/NODE_NAME
+        // after TOP_NODE
         def parts = categoryCd.split('\\+|\\\\').collect {
             if (replacements[it]) {
                 replacements[it].call()

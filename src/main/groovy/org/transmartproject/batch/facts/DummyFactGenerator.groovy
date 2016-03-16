@@ -21,9 +21,6 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
     @Value("#{jobParameters['STUDY_ID']}")
     private String studyId
 
-    @Value("#{jobParameters['NODE_NAME']}")
-    private String nodeName
-
     @Autowired
     private MappingsFileRowStore mappingsFileRowStore
 
@@ -57,7 +54,7 @@ class DummyFactGenerator extends AbstractItemCountingItemStreamItemReader<Clinic
                 studyId: studyId,
                 patient: patientSet[row.subjectId])
 
-        rowSet.addValue(concept, null, nodeName)
+        rowSet.addValue(concept, null, concept.name)
 
         rowSet
     }

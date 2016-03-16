@@ -98,7 +98,7 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\RNASEQ\\Test\\RnaSeq\\rcnt\\data\\'),
+                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\Test\\RnaSeq\\rcnt\\data\\'),
                 hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('sample_type', 'rcnt'),
                 hasEntry('trial_name', STUDY_ID),

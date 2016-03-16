@@ -15,7 +15,7 @@ class MrnaDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
-            new StandardAssayParametersModule('MRNA'),
+            new StandardAssayParametersModule(),
             new StandardHighDimDataParametersModule()
     ]
 
