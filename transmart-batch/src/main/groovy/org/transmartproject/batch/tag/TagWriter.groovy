@@ -37,10 +37,11 @@ class TagWriter implements ItemWriter<Tag> {
 
         insert.executeBatch(
                 items.collect { Tag tag ->
-                    [path    : getWithPrependedStudyFolder(tag.conceptFragment),
-                     tag     : tag.tagDescription,
-                     tag_type: tag.tagTitle,
-                     tags_idx: tag.index]
+                    [path           : getWithPrependedStudyFolder(tag.conceptFragment),
+                     tag            : tag.tagDescription,
+                     tag_type       : tag.tagTitle,
+                     tags_idx       : tag.index,
+                     tag_option_id  : tag.tagOptionId]
                 }.toArray() as Map<String, Object>[])
     }
 

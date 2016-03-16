@@ -20,6 +20,8 @@ class TableLists {
             Tables.PATIENT_DIMENSION,
             Tables.TABLE_ACCESS,
             Tables.I2B2_TAGS,
+            Tables.I2B2_TAG_TYPES,
+            Tables.I2B2_TAG_OPTIONS,
             Tables.I2B2_SECURE,
             Tables.I2B2,
             Tables.SECURE_OBJECT,
