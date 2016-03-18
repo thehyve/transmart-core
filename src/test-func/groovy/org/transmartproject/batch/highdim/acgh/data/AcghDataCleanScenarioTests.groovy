@@ -97,7 +97,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\ACGH\\Test\\Acgh\\cgh\\data\\'),
+                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\Test\\Acgh\\cgh\\data\\'),
                 hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('tissue_type', 'Colon'),
                 hasEntry('timepoint', 't1'),

@@ -21,9 +21,6 @@ class AssayMappingsRowStore implements MappingsFileRowStore {
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptPath topNode
 
-    @Value("#{jobParameters['NODE_NAME']}")
-    String nodeName
-
     private final List<MappingFileRow> rows = []
 
     @Override
@@ -52,9 +49,8 @@ class AssayMappingsRowStore implements MappingsFileRowStore {
 
     Set<ConceptPath> getAllConceptPaths() {
         def ret = Sets.newHashSet()
-        ConceptPath base = topNode + nodeName
         rows.each {
-            ret << base + it.conceptFragment
+            ret << topNode + it.conceptFragment
         }
         ret
     }

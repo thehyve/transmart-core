@@ -15,7 +15,7 @@ class MetabolomicsDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
-            new StandardAssayParametersModule('Metabolomics'),
+            new StandardAssayParametersModule(),
             new StandardHighDimDataParametersModule()
     ]
 

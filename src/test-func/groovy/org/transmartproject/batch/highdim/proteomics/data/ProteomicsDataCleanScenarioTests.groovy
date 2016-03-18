@@ -96,7 +96,7 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\PROTEOMICS\\Molecular profiling' +
+                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\Molecular profiling' +
                         '\\High-throughput molecular profiling\\Expression (protein)\\LC-MS-MS\\Protein level' +
                         '\\TPNT\\MZ ratios\\'),
                 hasEntry(is('assay_id'), isA(Number)),
