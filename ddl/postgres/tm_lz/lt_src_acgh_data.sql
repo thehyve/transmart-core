@@ -8,6 +8,7 @@ CREATE TABLE lt_src_acgh_data (
     chip character varying(50),
     segmented character varying(50),
     flag character varying(50),
+    probhomloss character varying(50),
     probloss character varying(50),
     probnorm character varying(50),
     probgain character varying(50),
