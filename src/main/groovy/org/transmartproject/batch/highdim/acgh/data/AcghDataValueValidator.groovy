@@ -74,14 +74,23 @@ class AcghDataValueValidator implements Validator {
                     ['flag', item.flag, FLAG_TO_PROBABILITY_FIELD_MAP.keySet()] as Object[], null
         } else if (probabilitiesSpecified && probabilitiesAreValid) {
             Double maxProbability = probabilities.values().max()
-            Set probFieldsFlagCandidates = probabilities.findAll { (maxProbability - it.value) < ERROR }.keySet()
-            String flagSuggestedProbField = FLAG_TO_PROBABILITY_FIELD_MAP[item.flag]
-            if (!probFieldsFlagCandidates.contains(flagSuggestedProbField)) {
-                Set expectedFlags = probFieldsFlagCandidates
-                        .collect { PROBABILITY_FIELD_TO_FLAG_MAP[it] }
-                errors.rejectValue 'flag', 'expectedConstant',
-                        [expectedFlags, item.flag] as Object[], null
+            if (maxProbability != null) {
+                Set probFieldsFlagCandidates = probabilities.findAll {
+                    if (it.value != null) {
+                        (maxProbability - it.value) < ERROR
+                    } else {
+                        false
+                    }
+                }.keySet()
+                String flagSuggestedProbField = FLAG_TO_PROBABILITY_FIELD_MAP[item.flag]
+                if (!probFieldsFlagCandidates.contains(flagSuggestedProbField)) {
+                    Set expectedFlags = probFieldsFlagCandidates
+                            .collect { PROBABILITY_FIELD_TO_FLAG_MAP[it] }
+                    errors.rejectValue 'flag', 'expectedFlags',
+                            [expectedFlags, item.flag] as Object[], null
+                }
             }
+
         }
     }
 }
