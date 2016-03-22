@@ -73,14 +73,11 @@ class AcghDataValueValidator implements Validator {
             errors.rejectValue 'flag', 'notAllowedValue',
                     ['flag', item.flag, FLAG_TO_PROBABILITY_FIELD_MAP.keySet()] as Object[], null
         } else if (probabilitiesSpecified && probabilitiesAreValid) {
+            //validate whether the value of the flag is correct in respect to the probabilities.
             Double maxProbability = probabilities.values().max()
             if (maxProbability != null) {
                 Set probFieldsFlagCandidates = probabilities.findAll {
-                    if (it.value != null) {
-                        (maxProbability - it.value) < ERROR
-                    } else {
-                        false
-                    }
+                    it.value != null && (maxProbability - it.value) < ERROR
                 }.keySet()
                 String flagSuggestedProbField = FLAG_TO_PROBABILITY_FIELD_MAP[item.flag]
                 if (!probFieldsFlagCandidates.contains(flagSuggestedProbField)) {
