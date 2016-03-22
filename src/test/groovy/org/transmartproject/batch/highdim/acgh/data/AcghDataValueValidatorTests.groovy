@@ -180,7 +180,7 @@ class AcghDataValueValidatorTests {
         assertThat errors, contains(
                 allOf(
                         hasProperty('field', equalTo('flag')),
-                        hasProperty('code', equalTo('expectedConstant'))),
+                        hasProperty('code', equalTo('expectedFlags'))),
         )
     }
 
@@ -197,6 +197,35 @@ class AcghDataValueValidatorTests {
 
         assertThat callValidate().hasErrors(), is(false)
     }
+
+    @Test
+    void testSomeProbabilitiesIsNull() {
+        acghDataValue.with {
+            flag = 0
+            probHomLoss = null
+            probLoss = 0.25
+            probNorm = 0.25
+            probGain = 0.25
+            probAmp = 0.25
+        }
+
+        assertThat callValidate().hasErrors(), is(false)
+    }
+
+    @Test
+    void testAllProbabilitiesAreNull() {
+        acghDataValue.with {
+            flag = 0
+            probHomLoss = null
+            probLoss = null
+            probNorm = null
+            probGain = null
+            probAmp = null
+        }
+
+        assertThat callValidate().hasErrors(), is(false)
+    }
+
 
     private Errors callValidate() {
         testee.validate(acghDataValue, errors)

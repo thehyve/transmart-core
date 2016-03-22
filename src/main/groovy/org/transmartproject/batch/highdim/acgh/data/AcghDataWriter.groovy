@@ -61,8 +61,7 @@ class AcghDataWriter implements ItemWriter<AcghDataValue> {
                     chip      : it.chip,
                     segmented : it.segmented,
                     flag      : it.flag,
-                    //TODO Not implemented yet in the database
-                    //probhomloss : it.probHomLoss,
+                    probhomloss : it.probHomLoss,
                     probloss  : it.probLoss,
                     probnorm  : it.probNorm,
                     probgain  : it.probGain,
