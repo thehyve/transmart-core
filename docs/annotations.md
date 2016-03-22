@@ -22,7 +22,7 @@ Parameters
   the same name as the parameters file, minus its extension.
 - `ORGANISM` _Default: Homo Sapiens_. The scientific name of the species the annotation is associated
   with.
-- `GENOME_RELEASE` The genome build if applicable (e.g. `hg19`).
+- `GENOME_RELEASE` **Mandatory** if platform contains chromosomal region information. The genome build if applicable (e.g. `hg19`).
 
 <!-- vim: tw=80 et ft=markdown spell:
 -->

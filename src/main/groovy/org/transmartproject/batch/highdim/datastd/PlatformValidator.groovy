@@ -1,17 +1,20 @@
 package org.transmartproject.batch.highdim.datastd
 
+import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.context.i18n.LocaleContextHolder
+import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 import org.transmartproject.batch.highdim.platform.Platform
 
 import javax.annotation.Resource
 
-import static org.springframework.context.i18n.LocaleContextHolder.getLocale
-
 /**
  * Validates {@link PlatformOrganismSupport} objects.
  */
-trait PlatformOrganismValidator implements Validator {
+@Component
+@JobScope
+class PlatformValidator implements Validator {
 
     @Resource
     Platform platformObject
@@ -20,14 +23,13 @@ trait PlatformOrganismValidator implements Validator {
         PlatformOrganismSupport.isAssignableFrom(clazz)
     }
 
-    @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof PlatformOrganismSupport
 
         /* platformObject.id should be normalized to uppercase because it comes
            * from the normalized parameter PLATFORM, but it may be that platform
            * name in the data file is not */
-        if (target.gplId.toUpperCase(locale) != platformObject.id) {
+        if (target.gplId.toUpperCase(LocaleContextHolder.locale) != platformObject.id) {
             errors.rejectValue 'gplId', 'expectedConstant',
                     [platformObject.id, target.gplId] as Object[], null
         }

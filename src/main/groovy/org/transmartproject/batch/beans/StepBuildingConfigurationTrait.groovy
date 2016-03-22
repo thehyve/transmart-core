@@ -34,8 +34,6 @@ import org.springframework.core.io.Resource
 import org.springframework.util.Assert
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import org.transmartproject.batch.batchartifacts.*
-import org.transmartproject.batch.clinical.facts.ClinicalDataRow
-import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.support.TokenizerColumnsReplacingHeaderHandler
 
 import static org.springframework.batch.item.file.transform.DelimitedLineTokenizer.DELIMITER_TAB
@@ -131,17 +129,11 @@ trait StepBuildingConfigurationTrait {
     }
 
     ItemProcessor compositeOf(ItemProcessor... processors) {
-        CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet> result =
-                new CompositeItemProcessor<ClinicalDataRow, ClinicalFactsRowSet>()
-        result.setDelegates(processors.toList())
-        result
+        new CompositeItemProcessor(delegates: processors.toList())
     }
 
     ItemWriter compositeOf(ItemWriter... writers) {
-        CompositeItemWriter result =
-                new CompositeItemWriter()
-        result.setDelegates(writers.toList())
-        result
+        new CompositeItemWriter(delegates: writers.toList())
     }
 
     static Step wrapStepWithName(final String name,
