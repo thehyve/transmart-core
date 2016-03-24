@@ -11,7 +11,6 @@
 package org.transmartproject.rest
 
 import com.google.common.collect.AbstractIterator
-import com.google.common.collect.Lists
 import grails.rest.Link
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +23,7 @@ import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.JsonParametersParser
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
+import static org.transmartproject.rest.misc.CloseableExtensions.with
 
 class BioMarkerController {
 
@@ -33,20 +33,16 @@ class BioMarkerController {
     BioMarkerResource bm
 
     def index() {
-        IterableResult<String> res = bm.availableTypes()
-        try {
-            def types = res.collect {
+        def types = with(bm.availableTypes()) { res ->
+            res.collect {
                 new GenericWrapper(type: it, links: [new Link(RELATIONSHIP_SELF, "/biomarkers/" + it)])
             }
-        } finally {
-            res.close()
         }
 
-        res = bm.availableOrganisms()
-        try {
-            Iterator<String> organismsIter = bm.availableOrganisms().iterator()
+        with(bm.availableOrganisms()) {
+            Iterator<String> organismsIter = it.iterator()
             def organisms = new AbstractIterator<GenericWrapper>() {
-                @CompileStatic GenericWrapper computeNext() {
+                @CompileStatic @Override GenericWrapper computeNext() {
                     if (!organismsIter.hasNext()) return endOfData()
                     new GenericWrapper(organism: (Object) organismsIter.next())
                 }
@@ -56,8 +52,6 @@ class BioMarkerController {
                     types: [GenericWrapper, types],
                     organisms: [GenericWrapper, organisms]
             )
-        } finally {
-            res.close()
         }
     }
 
@@ -70,12 +64,9 @@ class BioMarkerController {
             }
         }
 
-        def bioMarkers = bm.retrieveBioMarkers(constraints)
-        try {
-            respond new ContainerResponseWrapper(container: bioMarkers.iterator(), componentType: BioMarker,
+        with(bm.retrieveBioMarkers(constraints)) {
+            respond new ContainerResponseWrapper(container: it.iterator(), componentType: BioMarker,
                             links: [ new Link(RELATIONSHIP_SELF, "/biomarkers/"+type)] )
-        } finally {
-            bioMarkers.close()
         }
     }
 
