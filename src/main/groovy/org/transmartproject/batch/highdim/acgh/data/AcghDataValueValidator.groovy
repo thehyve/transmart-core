@@ -13,14 +13,7 @@ import org.springframework.validation.Validator
 class AcghDataValueValidator implements Validator {
 
     public static final double ERROR = 0.01d
-    public static final Map FLAG_TO_PROBABILITY_FIELD_MAP = [
-            (-2): 'probHomLoss',
-            (-1): 'probLoss',
-            (0) : 'probNorm',
-            (1) : 'probGain',
-            (2) : 'probAmp']
-    public static final Map PROBABILITY_FIELD_TO_FLAG_MAP = FLAG_TO_PROBABILITY_FIELD_MAP
-            .collectEntries { [(it.value): it.key] }
+    public static final FLAGS_RANGE = -2..2
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -46,9 +39,8 @@ class AcghDataValueValidator implements Validator {
                 probNorm   : item.probNorm,
                 probGain   : item.probGain,
                 probAmp    : item.probAmp]
-        boolean probabilitiesSpecified = probabilities.values().any { it != null }
 
-        boolean probabilitiesAreValid = true
+        boolean probabilitiesSpecified = probabilities.values().any { it != null }
         if (probabilitiesSpecified) {
             Map incorrectProbabilities = probabilities.findAll {
                 it.value != null && (it.value < 0 || it.value > 1)
@@ -57,37 +49,19 @@ class AcghDataValueValidator implements Validator {
                 errors.rejectValue fieldName, 'notAllowedValue',
                         [fieldName, fieldValue, '0..1'] as Object[], null
             }
-            probabilitiesAreValid &= !incorrectProbabilities
 
             boolean sumIsOne = Math.abs(1 - probabilities.values().sum { it ?: 0 }) < ERROR
             if (!sumIsOne) {
                 errors.reject 'sumOfProbabilitiesIsNotOne'
             }
-            probabilitiesAreValid &= sumIsOne
         }
 
         if (item.flag == null) {
             errors.rejectValue 'flag', 'required',
                     ['flag'] as Object[], null
-        } else if (!(item.flag in FLAG_TO_PROBABILITY_FIELD_MAP.keySet())) {
+        } else if (!(item.flag in FLAGS_RANGE)) {
             errors.rejectValue 'flag', 'notAllowedValue',
-                    ['flag', item.flag, FLAG_TO_PROBABILITY_FIELD_MAP.keySet()] as Object[], null
-        } else if (probabilitiesSpecified && probabilitiesAreValid) {
-            //validate whether the value of the flag is correct in respect to the probabilities.
-            Double maxProbability = probabilities.values().max()
-            if (maxProbability != null) {
-                Set probFieldsFlagCandidates = probabilities.findAll {
-                    it.value != null && (maxProbability - it.value) < ERROR
-                }.keySet()
-                String flagSuggestedProbField = FLAG_TO_PROBABILITY_FIELD_MAP[item.flag]
-                if (!probFieldsFlagCandidates.contains(flagSuggestedProbField)) {
-                    Set expectedFlags = probFieldsFlagCandidates
-                            .collect { PROBABILITY_FIELD_TO_FLAG_MAP[it] }
-                    errors.rejectValue 'flag', 'expectedFlags',
-                            [expectedFlags, item.flag] as Object[], null
-                }
-            }
-
+                    ['flag', item.flag, FLAGS_RANGE] as Object[], null
         }
     }
 }

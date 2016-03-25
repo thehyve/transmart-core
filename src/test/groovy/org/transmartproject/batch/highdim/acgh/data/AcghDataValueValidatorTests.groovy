@@ -165,40 +165,6 @@ class AcghDataValueValidatorTests {
     }
 
     @Test
-    void testFlagIncorrectWhileSeveralFlagCandidates() {
-        acghDataValue.with {
-            flag = 0
-            probHomLoss = 0.25
-            probLoss = 0.2
-            probNorm = 0.1
-            probGain = 0.2
-            probAmp = 0.25
-        }
-
-        List<ObjectError> errors = callValidate().allErrors
-
-        assertThat errors, contains(
-                allOf(
-                        hasProperty('field', equalTo('flag')),
-                        hasProperty('code', equalTo('expectedFlags'))),
-        )
-    }
-
-    @Test
-    void testFlagCorrectWhileSeveralFlagCandidates() {
-        acghDataValue.with {
-            flag = -2
-            probHomLoss = 0.25
-            probLoss = 0.2
-            probNorm = 0.1
-            probGain = 0.2
-            probAmp = 0.25
-        }
-
-        assertThat callValidate().hasErrors(), is(false)
-    }
-
-    @Test
     void testSomeProbabilitiesIsNull() {
         acghDataValue.with {
             flag = 0
