@@ -34,8 +34,7 @@ class MrnaAnnotationRowValidatorTests {
 
     @Before
     void setUp() {
-        platform
-        testee = new MrnaAnnotationRowValidator(platformObject: platform)
+        testee = new MrnaAnnotationRowValidator()
     }
 
     private boolean sampleRowPasses() {
@@ -45,38 +44,6 @@ class MrnaAnnotationRowValidatorTests {
     @Test
     void testBasicAnnotationPasses() {
         assert sampleRowPasses()
-    }
-
-    @Test
-    void testGplIdMustMatch() {
-        assumeThat sampleRowPasses(), is(true)
-
-        sampleRow.gplId = 'gpl570' // lowercase, should pass
-        assertThat callValidate().hasErrors(), is(false)
-
-        sampleRow.gplId = 'GOK580_foobar'
-        Errors errors = callValidate()
-
-        assertThat errors, hasProperty('fieldErrorCount', equalTo(1))
-
-        FieldError err = errors.getFieldError('gplId')
-        assertThat err.code, is(equalTo('expectedConstant'))
-    }
-
-    @Test
-    void testPlatFormMustMatch() {
-        assumeThat sampleRowPasses(), is(true)
-
-        sampleRow.organism = 'homo sapiens' // lowercase, should pass
-        assertThat callValidate().hasErrors(), is(false)
-
-        sampleRow.organism = 'hommmmmoo sapiens'// should fail this time
-        FieldError err = callValidate().fieldError
-
-        assertThat err, allOf(
-                hasProperty('rejectedValue', equalTo(sampleRow.organism)),
-                hasProperty('field', equalTo('organism')),
-                hasProperty('code', equalTo('expectedConstant')))
     }
 
     @Test

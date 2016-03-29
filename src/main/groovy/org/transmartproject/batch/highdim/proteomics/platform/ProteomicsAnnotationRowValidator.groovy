@@ -3,15 +3,14 @@ package org.transmartproject.batch.highdim.proteomics.platform
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
-import org.transmartproject.batch.highdim.datastd.ChromosomalRegionValidator
-import org.transmartproject.batch.highdim.datastd.PlatformOrganismValidator
+import org.springframework.validation.Validator
 
 /**
  * Validates {@link org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationRow} objects.
  */
 @Component
 @JobScope
-class ProteomicsAnnotationRowValidator implements ChromosomalRegionValidator, PlatformOrganismValidator {
+class ProteomicsAnnotationRowValidator implements Validator {
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -22,9 +21,6 @@ class ProteomicsAnnotationRowValidator implements ChromosomalRegionValidator, Pl
     @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof ProteomicsAnnotationRow
-
-        ChromosomalRegionValidator.super.validate(target, errors)
-        PlatformOrganismValidator.super.validate(target, errors)
 
         if (!target.probesetId) {
             errors.rejectValue 'probesetId', 'required',

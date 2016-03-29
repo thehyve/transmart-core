@@ -5,6 +5,7 @@ import org.junit.Test
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
 import org.springframework.validation.ObjectError
+import org.transmartproject.batch.highdim.platform.Platform
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -24,11 +25,10 @@ class ChromosomalRegionValidatorTests {
         Long endBp
     }
 
-    class ChromosomalRegionTestValidator implements ChromosomalRegionValidator {}
-
     @Before
     void setUp() {
-        testee = new ChromosomalRegionTestValidator(optionalDefinition: true)
+        def platform = new Platform(genomeRelease: 'hg18')
+        testee = new ChromosomalRegionValidator(optionalDefinition: true, platformObject: platform)
         chromosomalRegionBean = new ChromosomalRegionTestBean(
                 chromosome: 'X',
                 startBp: 1000,
@@ -61,7 +61,7 @@ class ChromosomalRegionValidatorTests {
 
     @Test
     void testCompulsoryDefinition() {
-        testee = new ChromosomalRegionTestValidator(optionalDefinition: false)
+        testee = new ChromosomalRegionValidator(optionalDefinition: false)
 
         chromosomalRegionBean.chromosome = null
         chromosomalRegionBean.startBp = null
@@ -77,6 +77,7 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', nullValue()),
                 hasProperty('field', equalTo('chromosome')),
                 hasProperty('code', equalTo('required'))
         ))
@@ -101,6 +102,7 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', equalTo(chromosomalRegionBean.chromosome)),
                 hasProperty('field', equalTo('chromosome')),
                 hasProperty('code', equalTo('invalidChromosome'))
         ))
@@ -125,6 +127,7 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', nullValue()),
                 hasProperty('field', equalTo('startBp')),
                 hasProperty('code', equalTo('required'))
         ))
@@ -137,6 +140,7 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', equalTo(chromosomalRegionBean.startBp)),
                 hasProperty('field', equalTo('startBp')),
                 hasProperty('code', equalTo('connotBeNegative'))
         ))
@@ -149,6 +153,7 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', nullValue()),
                 hasProperty('field', equalTo('endBp')),
                 hasProperty('code', equalTo('required'))
         ))
@@ -161,8 +166,20 @@ class ChromosomalRegionValidatorTests {
         List<ObjectError> errors = callValidate().allErrors
 
         assertThat errors, contains(allOf(
+                hasProperty('rejectedValue', equalTo(chromosomalRegionBean.endBp)),
                 hasProperty('field', equalTo('endBp')),
                 hasProperty('code', equalTo('invalidRange'))
+        ))
+    }
+
+    @Test
+    void testGenReleaseMandatoryIfChrInfoSpecified() {
+        testee.platformObject.genomeRelease = null
+
+        List<ObjectError> errors = callValidate().allErrors
+
+        assertThat errors, contains(allOf(
+                hasProperty('code', equalTo('genReleaseMandatoryIfChrInfoSpecified'))
         ))
     }
 

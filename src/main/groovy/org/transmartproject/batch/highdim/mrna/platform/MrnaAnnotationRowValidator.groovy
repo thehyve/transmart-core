@@ -4,7 +4,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
-import org.transmartproject.batch.highdim.datastd.PlatformOrganismValidator
+import org.springframework.validation.Validator
 
 /**
  * Validates {@link MrnaAnnotationRow} objects.
@@ -12,7 +12,7 @@ import org.transmartproject.batch.highdim.datastd.PlatformOrganismValidator
 @Component
 @JobScope
 @Slf4j
-class MrnaAnnotationRowValidator implements PlatformOrganismValidator {
+class MrnaAnnotationRowValidator implements Validator {
 
     @Override
     boolean supports(Class<?> clazz) {
@@ -23,8 +23,6 @@ class MrnaAnnotationRowValidator implements PlatformOrganismValidator {
     @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof MrnaAnnotationRow
-
-        PlatformOrganismValidator.super.validate(target, errors)
 
         if (!target.probeName) {
             errors.rejectValue 'probeName', 'required',

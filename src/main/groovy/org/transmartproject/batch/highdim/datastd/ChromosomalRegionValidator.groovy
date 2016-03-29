@@ -1,29 +1,42 @@
 package org.transmartproject.batch.highdim.datastd
 
+import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
+import org.transmartproject.batch.highdim.platform.Platform
+
+import javax.annotation.Resource
 
 /**
  * Validates {@link ChromosomalRegionSupport} objects.
  */
-trait ChromosomalRegionValidator implements Validator {
+@Component
+@JobScope
+class ChromosomalRegionValidator implements Validator {
 
     public static final String VALID_CHR_REGEX = /[0-9]+|[XYM]/
 
     boolean optionalDefinition = true
 
+    @Resource
+    Platform platformObject
+
     boolean supports(Class<?> clazz) {
         ChromosomalRegionSupport.isAssignableFrom(clazz)
     }
 
-    @SuppressWarnings('ReturnNullFromCatchBlock')
     void validate(Object target, Errors errors) {
         assert target instanceof ChromosomalRegionSupport
 
         String chromosome = target.chromosome?.trim()
-        if (optionalDefinition
-                && !chromosome && target.startBp == null && target.endBp == null) {
+        def chrInfoSpecified = chromosome || target.startBp != null || target.endBp != null
+        if (optionalDefinition && !chrInfoSpecified) {
             return
+        }
+
+        if (chrInfoSpecified && !platformObject.genomeRelease) {
+            errors.reject('genReleaseMandatoryIfChrInfoSpecified')
         }
 
         def chrErrArg = ['chromosome'] as Object[]

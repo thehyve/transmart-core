@@ -2,3 +2,4 @@ PLATFORM=PROT_ANNOT
 TITLE="Test Proteomics Platform"
 ORGANISM="Homo Sapiens"
 ANNOTATIONS_FILE=proteomics_annotation.tsv
+GENOME_RELEASE=hg19
