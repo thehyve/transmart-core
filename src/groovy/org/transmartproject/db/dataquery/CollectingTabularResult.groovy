@@ -19,6 +19,9 @@
 
 package org.transmartproject.db.dataquery
 
+import com.google.common.collect.AbstractIterator
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.ScrollableResults
@@ -78,10 +81,11 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
  * @param < C > the type for the columns
  * @param < R > the type for the rows
  */
+@CompileStatic
 abstract class CollectingTabularResult<C, R extends DataRow>
         implements TabularResult<C, R>, Iterable<R> {
 
-    static Log LOG = LogFactory.getLog(this)
+    static Log LOG = LogFactory.getLog(this.class)
 
     String            rowsDimensionLabel
     String            columnsDimensionLabel
@@ -106,7 +110,9 @@ abstract class CollectingTabularResult<C, R extends DataRow>
     private RuntimeException initialException =
         new RuntimeException('Instantiated at this point')
 
-    R getNextRow() {
+    // We expect results.next() to already be called before the first time this method is called.
+    // Compiler crashes with the correct return type of R on groovy 2.2.0
+    def /*R*/ getNextRow() {
         def firstEntry = results.get()
         if (firstEntry == null) {
             return null
@@ -153,10 +159,10 @@ abstract class CollectingTabularResult<C, R extends DataRow>
         // !allowMissingColumns
         Set columnsNotFound
         if (columnIdFromRow) {
-            Set expectedColumnIds = indicesList*.id
+            Set expectedColumnIds = indicesList*.getAt("id") as Set
             Set gottenColumnIds = collectedEntries.collect { row ->
-                columnIdFromRow row
-            }
+                columnIdFromRow.call(row)
+            } as Set
             columnsNotFound = expectedColumnIds - gottenColumnIds
         }
 
@@ -171,12 +177,12 @@ abstract class CollectingTabularResult<C, R extends DataRow>
     }
 
     protected Object getIndexObjectId(C object) {
-        object.id
+        object.getAt("id")
     }
 
     private void addToCollectedEntries(List collectedEntries, Object row) {
         if (allowMissingColumns) {
-            def currentColumnId = columnIdFromRow row
+            def currentColumnId = columnIdFromRow.call(row)
             def startSize = collectedEntries.size()
             def i
             for (i = startSize;
@@ -219,24 +225,19 @@ abstract class CollectingTabularResult<C, R extends DataRow>
                     'columnIdFromRow must be set when allowMissingColumns is true')
         }
 
+        // Load first result
         results.next()
-        R row = getNextRow()
 
-        [
-                hasNext: { row != null },
-                remove:  { throw new UnsupportedOperationException() },
-                next:    {
-                    def r = row;
-                    if (r == null) {
-                        throw new NoSuchElementException('No elements left')
-                    }
-                    row = getNextRow();
-                    r
-                },
-        ] as Iterator
+        // A correctly typed AbstractIterator<R> crashes the compiler on groovy 2.2.0
+        return new AbstractIterator() {
+            @Override def computeNext() {
+                getNextRow() ?: endOfData()
+            }
+        }
     }
 
 
+    @CompileDynamic
     @Override
     void close() throws IOException {
         closeCalled = true

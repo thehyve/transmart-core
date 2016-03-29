@@ -191,7 +191,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
         testWithMissingDataAssay(-50000L)
         result.allowMissingAssays = false
         shouldFail UnexpectedResultException, {
-            result.rows
+            result.rows.next()
         }
     }
 
