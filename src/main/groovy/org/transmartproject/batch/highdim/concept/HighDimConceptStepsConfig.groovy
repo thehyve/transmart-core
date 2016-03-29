@@ -15,8 +15,8 @@ import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
 class HighDimConceptStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
-    Step validatePatientIntersection(Tasklet validateHighDimensionalConceptsTasklet) {
-        allowStartStepOf('validatePatientIntersection', validateHighDimensionalConceptsTasklet)
+    Step validatePatientIntersection(Tasklet validatePatientIntersectionTasklet) {
+        allowStartStepOf('validatePatientIntersection', validatePatientIntersectionTasklet)
     }
 
     @Bean
