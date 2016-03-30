@@ -44,8 +44,8 @@ class MrnaPlatformJobConfig {
     @Bean
     Job mrnaPlatformLoadJob() {
         jobs.get(JOB_NAME)
-                .start(deleteGplInfo)
-                .next(deleteAnnotations)
+                .start(deleteAnnotations)
+                .next(deleteGplInfo)
                 .next(insertGplInfo)
                 .next(insertAnnotations)
                 .build()
