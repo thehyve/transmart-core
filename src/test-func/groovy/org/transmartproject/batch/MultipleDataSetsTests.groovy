@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.rnaseq.data
+package org.transmartproject.batch
 
 import org.junit.AfterClass
 import org.junit.ClassRule
@@ -21,25 +21,25 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.is
 
 /**
- * test RNASeq data re-upload
+ * test multiple data sets upload.
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class RnaSeqDataReUploadTests implements JobRunningTestTrait {
+class MultipleDataSetsTests implements JobRunningTestTrait {
 
-    private final static String STUDY_ID = 'CLUC'
-    private final static String PLATFORM_ID = 'RNASEQ_ANNOT'
+    private final static String STUDY_ID = 'MULTDATASETS'
+    private final static String PLATFORM_ID = 'GPL570_bogus'
 
-    private final static long NUMBER_OF_ASSAYS = 3
-    private final static long NUMBER_OF_REGIONS = 4
-
+    private final static long NUMBER_OF_ASSAYS = 2
+    private final static long NUMBER_OF_DATASETS = 2
+    private final static long NUMBER_OF_PROBES = 19
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
-            new RunJobRule(STUDY_ID, 'rnaseq', ['-n']),
-            new RunJobRule(STUDY_ID, 'rnaseq'),
-            new RunJobRule(PLATFORM_ID, 'rnaseq_annotation'),
-            new RunJobRule(STUDY_ID, 'clinical'),
+            new RunJobRule("studies/${STUDY_ID}/expression/dataset2/expression.params"),
+            new RunJobRule("studies/${STUDY_ID}/expression/dataset1/expression.params"),
+            new RunJobRule(PLATFORM_ID, 'annotation'),
+            new RunJobRule("studies/${STUDY_ID}/clinical/clinical.params"),
     ])
 
     // needed by the trait
@@ -50,7 +50,7 @@ class RnaSeqDataReUploadTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(TableLists.CLINICAL_TABLES + TableLists.RNA_SEQ_TABLES + 'ts_batch.batch_job_instance',)
+                truncate(TableLists.CLINICAL_TABLES + TableLists.MRNA_TABLES + 'ts_batch.batch_job_instance')
     }
 
     @Test
@@ -59,16 +59,17 @@ class RnaSeqDataReUploadTests implements JobRunningTestTrait {
                 'trial_name = :study_id',
                 study_id: STUDY_ID
 
-        assertThat count, is(equalTo(NUMBER_OF_ASSAYS))
+        assertThat count, is(equalTo(NUMBER_OF_DATASETS * NUMBER_OF_ASSAYS))
     }
 
     @Test
     void testNumberOfFacts() {
-        def count = rowCounter.count Tables.RNASEQ_DATA,
+        def count = rowCounter.count Tables.MRNA_DATA,
                 'trial_name = :study_id',
                 study_id: STUDY_ID
 
         assertThat count,
-                is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_REGIONS))
+                is(equalTo(NUMBER_OF_DATASETS * NUMBER_OF_ASSAYS * NUMBER_OF_PROBES))
     }
+
 }

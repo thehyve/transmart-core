@@ -13,16 +13,19 @@ import org.transmartproject.batch.startup.RunJob
 @Slf4j
 class RunJobRule extends ExternalResource {
 
-    private final String studyId
-    private final String dataType
     private final List<String> extraArguments
+    private final String paramsFilePath
 
     RunJobRule(String studyOrPlatformId,
                String dataType,
-               String... extraArguments) {
-        this.studyId = studyOrPlatformId
-        this.dataType = dataType
-        this.extraArguments = extraArguments as List
+               List<String> extraArguments = []) {
+        this("studies/${studyOrPlatformId}/${dataType}.params", extraArguments)
+    }
+
+    RunJobRule(String paramsFilePath,
+               List<String> extraArguments = []) {
+        this.paramsFilePath = paramsFilePath
+        this.extraArguments = extraArguments
     }
 
     JobParameters jobParameters
@@ -33,7 +36,7 @@ class RunJobRule extends ExternalResource {
     protected void before() throws Throwable {
         CommandLineJobRunner.presetSystemExiter({ int it -> } as SystemExiter)
         def runJob = RunJob.createInstance(
-                '-p', "studies/$studyId/${dataType}.params" as String,
+                '-p', paramsFilePath,
                 *extraArguments)
         result = runJob.run()
 

@@ -31,7 +31,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
     public final static TestRule RUN_JOB_RULE = new RunJobRule(
             "${STUDY_ID}_simple",
             'clinical',
-            '-d', 'SECURITY_REQUIRED=Y')
+            ['-d', 'SECURITY_REQUIRED=Y'])
 
     @AfterClass
     static void cleanDatabase() {
