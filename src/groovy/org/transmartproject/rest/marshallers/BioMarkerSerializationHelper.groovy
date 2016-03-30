@@ -24,6 +24,8 @@ class BioMarkerSerializationHelper extends AbstractHalOrJsonSerializationHelper<
 
     @Override
     Map<String, Object> convertToMap(BioMarker bm) {
+        // We don't export the database id since that is not needed anywhere and it is bad practice to expose
+        // database id's to the world.
         [
                 description: bm.description,
                 name: bm.name,
