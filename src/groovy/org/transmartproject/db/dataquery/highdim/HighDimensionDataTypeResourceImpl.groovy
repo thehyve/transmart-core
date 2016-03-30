@@ -23,6 +23,7 @@ import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
+import org.hibernate.StatelessSession
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -53,6 +54,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         this.module = module
     }
 
+    // Lazy otherwise EqualsAndHashCode does not pick it up
     @Lazy
     String dataTypeName = module.name
 
@@ -61,7 +63,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         module.description
     }
 
-    protected SessionImplementor openSession() {
+    protected StatelessSession openSession() {
         module.sessionFactory.openStatelessSession()
     }
 
