@@ -20,6 +20,7 @@
 package org.transmartproject.db.biomarker
 
 import com.google.common.collect.Lists
+import com.google.common.collect.Sets
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
@@ -181,4 +182,17 @@ class BioMarkerResourceServiceTests {
         )
     }
 
+    @Test
+    void testAvailableTypes() {
+        def result = bioMarkerResourceService.availableTypes()
+        assertThat result, containsInAnyOrder("MIRNA", "PATHWAY", "PROTEIN", "GENE", "METABOLITE")
+        result.close()
+    }
+
+    @Test
+    void testAvailableOrganisms() {
+        def result = bioMarkerResourceService.availableOrganisms()
+        assertThat result, containsInAnyOrder("HOMO SAPIENS")
+        result.close()
+    }
 }
