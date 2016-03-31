@@ -14,7 +14,6 @@ import com.google.common.collect.AbstractIterator
 import grails.rest.Link
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.IterableResult
 import org.transmartproject.core.biomarker.BioMarker
 import org.transmartproject.core.biomarker.BioMarkerConstraint
 import org.transmartproject.core.biomarker.BioMarkerResource
