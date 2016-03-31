@@ -29,9 +29,14 @@ class PatientInjectionProcessor implements ItemProcessor<PatientInjectionSupport
             patient = samplePatientMappingCache[sampleCode]
         } else {
             MappingFileRow mapping = assayMappings.getBySampleName(sampleCode)
-            assert mapping != null
+            if (mapping == null) {
+                throw new IllegalStateException("No subject found for the sample: ${sampleCode}")
+            }
             patient = patientSet[mapping.subjectId]
-            assert patient != null
+            //patientSet never returns null
+            if (patient.new) {
+                throw new IllegalStateException("No patient with the following subject id found: ${mapping.subjectId}")
+            }
             samplePatientMappingCache[sampleCode] = patient
         }
 
