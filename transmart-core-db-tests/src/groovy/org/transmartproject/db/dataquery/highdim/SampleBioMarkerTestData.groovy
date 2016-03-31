@@ -127,15 +127,19 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> metaboliteSearchKeywords =
         createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
-    List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
+
+    @Lazy  // Lazy so other test data can be accessed outside of a grails application context, e.g. in an APIClient
+    List<BioDataCorrelationCoreDb> geneCorrelations = { createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
-            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]       /* to */)
+            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]       /* to */) }()
 
-    List<BioDataCorrelationCoreDb> proteinGeneCorrelations = createCorrelationPairs(-3200L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> proteinGeneCorrelations = { createCorrelationPairs(-3200L,
             [ proteinBioMarkers.find { it.name == 'BOGUSCBPO_HUMAN' } ],
-            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ])
+            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]) }()
 
-    List<BioDataCorrelationCoreDb> geneProteinCorrelations = createCorrelationPairs(-3300L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> geneProteinCorrelations = { createCorrelationPairs(-3300L,
             [
                     geneBioMarkers.find { it.name ==  'AURKA' },
                     geneBioMarkers.find { it.name ==  'SLC14A2' },
@@ -145,15 +149,16 @@ class SampleBioMarkerTestData {
                     proteinBioMarkers.find { it.name == 'Adiponectin' },
                     proteinBioMarkers.find { it.name == 'Urea transporter 2' },
                     proteinBioMarkers.find { it.name == 'Adipogenesis regulatory factor' },
-            ])
+            ]) }()
 
-    List<BioDataCorrelationCoreDb> pathwayGeneCorrelation = createCorrelationPairs(-3400L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> pathwayGeneCorrelation = { createCorrelationPairs(-3400L,
             [
                     pathwayBioMarkers.find { it.name == 'FOOPATHWAY'},
             ],
             [
                     geneBioMarkers.find { it.name == 'AURKA'}
-            ])
+            ]) }()
 
     /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
      * gene signature ids with bio marker ids in two ways:
