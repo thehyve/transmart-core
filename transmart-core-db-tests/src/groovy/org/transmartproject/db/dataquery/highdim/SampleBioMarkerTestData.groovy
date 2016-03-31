@@ -258,6 +258,10 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> geneSignatureSearchKeywords =
         createSearchKeywordsForGeneSignatures(geneSignatures, -2300L)
 
+    List<BioMarkerCoreDb> getAllBioMarkers() {
+        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers].flatten()
+    }
+
     void saveGeneData() {
         save geneBioMarkers
         save geneSearchKeywords

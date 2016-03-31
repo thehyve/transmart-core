@@ -185,14 +185,17 @@ class BioMarkerResourceServiceTests {
     @Test
     void testAvailableTypes() {
         def result = bioMarkerResourceService.availableTypes()
-        assertThat result, containsInAnyOrder("MIRNA", "PATHWAY", "PROTEIN", "GENE", "METABOLITE")
+        def types = bioMarkerTestData.allBioMarkers*.type.unique()
+        assertThat result, containsInAnyOrder(*types)
+        //containsInAnyOrder("MIRNA", "PATHWAY", "PROTEIN", "GENE", "METABOLITE")
         result.close()
     }
 
     @Test
     void testAvailableOrganisms() {
         def result = bioMarkerResourceService.availableOrganisms()
-        assertThat result, containsInAnyOrder("HOMO SAPIENS")
+        def organisms = bioMarkerTestData.allBioMarkers*.organism.unique()
+        assertThat result, containsInAnyOrder(*organisms)
         result.close()
     }
 }
