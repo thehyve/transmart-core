@@ -27,4 +27,13 @@ class StringUtils {
         }
         normalize(s1) == normalize(s2)
     }
+
+    static String removeLast(String s, String removeStr) {
+        int ind = s.lastIndexOf(removeStr)
+        if (ind >= 0) {
+            s[0..<ind]
+        } else {
+            s
+        }
+    }
 }

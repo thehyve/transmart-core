@@ -3,21 +3,6 @@ package org.transmartproject.batch.startup
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
-import org.transmartproject.batch.backout.BackoutJobSpecification
-import org.transmartproject.batch.clinical.ClinicalJobSpecification
-import org.transmartproject.batch.gwas.GwasJobSpecification
-import org.transmartproject.batch.highdim.acgh.data.AcghDataJobSpecification
-import org.transmartproject.batch.highdim.acgh.platform.AcghAnnotationJobSpecification
-import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
-import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
-import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
-import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
-import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpecification
-import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
-import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobSpecification
-import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpecification
-import org.transmartproject.batch.i2b2.I2b2JobSpecification
-import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -30,24 +15,6 @@ import java.nio.file.Paths
 final class RunJob {
 
     public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
-
-    private final Map<String, Class<? extends JobSpecification>> parametersTypeMap = [
-            'clinical'               : ClinicalJobSpecification,
-            'annotation'             : MrnaAnnotationJobSpecification,
-            'tags'                   : TagsLoadJobSpecification,
-            'expression'             : MrnaDataJobSpecification,
-            'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
-            'metabolomics'           : MetabolomicsDataJobSpecification,
-            'i2b2'                   : I2b2JobSpecification,
-            'proteomics_annotation'  : ProteomicsAnnotationJobSpecification,
-            'proteomics'             : ProteomicsDataJobSpecification,
-            'gwas'                   : GwasJobSpecification,
-            'backout'                : BackoutJobSpecification,
-            'rnaseq_annotation'      : RnaSeqAnnotationJobSpecification,
-            'rnaseq'                 : RnaSeqDataJobSpecification,
-            'acgh_annotation'        : AcghAnnotationJobSpecification,
-            'acgh'                   : AcghDataJobSpecification,
-    ]
 
     OptionAccessor opts
 
@@ -105,32 +72,20 @@ final class RunJob {
         }
         System.setProperty 'propertySource', propSource
 
-        def externalJobParams = externalJobParameters
-        if (!externalJobParams) {
-            System.exit 1
-        }
+        def jobInitializationData = this.jobStartupDetails
 
         def runner = new CommandLineJobRunner()
-        finalJobParameters = externalJobParams as JobParameters
-        runner.jobParametersConverter = new JobParametersConverter() {
-            @SuppressWarnings('UnusedMethodParameter')
-            JobParameters getJobParameters(Properties properties) {
-                finalJobParameters
-            }
+        JobParametersConverter jobParametersConverter = getJobParametersConverterForJobDetails(jobInitializationData)
+        finalJobParameters = jobParametersConverter.getJobParameters(null)
+        runner.jobParametersConverter = jobParametersConverter
 
-            @SuppressWarnings('UnusedMethodParameter')
-            Properties getProperties(JobParameters params) {
-                externalJobParams as Properties
-            }
-        }
-
-        String jobIdentifier = calculateJobIdentifier(externalJobParameters.jobPath)
+        String jobIdentifier = calculateJobIdentifier(jobInitializationData.jobPath)
         if (!jobIdentifier) {
             System.exit 1
         }
-        jobName = externalJobParameters.jobPath.JOB_NAME
+        jobName = jobInitializationData.jobPath.JOB_NAME
 
-        runner.start(externalJobParameters.jobPath.name,
+        runner.start(jobInitializationData.jobPath.name,
                 jobIdentifier,
                 [] as String[] /* converter above takes care of params */,
                 (
@@ -141,14 +96,28 @@ final class RunJob {
                                 (opts.n ? '-next' : [])) as Set)
     }
 
+    private static JobParametersConverter getJobParametersConverterForJobDetails(final JobStartupDetails jobDetails) {
+        new JobParametersConverter() {
+            @SuppressWarnings('UnusedMethodParameter')
+            JobParameters getJobParameters(Properties properties) {
+                jobDetails as JobParameters
+            }
+
+            @SuppressWarnings('UnusedMethodParameter')
+            Properties getProperties(JobParameters params) {
+                jobDetails as Properties
+            }
+        }
+    }
+
     String getBatchPropertiesPath() {
         if (!opts.c) {
             DEFAULT_BATCHDB_PROPERTIES_LOCATION
         } else {
             Path path = Paths.get((String) opts.c)
             if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
-                System.err.println "'$path' is not a readable file"
-                return null
+                throw new InvalidParametersFileException("'$path' is not a readable file")
+
             }
             "file:${path.toAbsolutePath()}"
         }
@@ -157,8 +126,7 @@ final class RunJob {
     Path getParamsFilePath() {
         Path path = Paths.get((String) opts.p)
         if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
-            System.err.println "'$path' is not a readable file"
-            return null
+            throw new InvalidParametersFileException("'$path' is not a readable file")
         }
         path
     }
@@ -191,7 +159,7 @@ final class RunJob {
         }
     }
 
-    ExternalJobParameters getExternalJobParameters() {
+    JobStartupDetails getJobStartupDetails() {
         def ds = opts.ds
         def paramOverrides = [:]
         if (ds) {
@@ -201,15 +169,11 @@ final class RunJob {
         }
 
         def paramsFile = paramsFilePath
-        if (!paramsFile) {
-            return null
-        }
 
         try {
-            ExternalJobParameters.fromFile(parametersTypeMap, paramsFile, paramOverrides)
+            JobStartupDetails.fromFile(paramsFile, paramOverrides)
         } catch (InvalidParametersFileException e) {
-            System.err.println "Invalid parameters file: ${e.message}"
-            null
+            throw new InvalidParametersFileException(e)
         }
     }
 }

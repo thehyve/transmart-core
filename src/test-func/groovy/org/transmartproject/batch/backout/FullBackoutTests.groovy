@@ -33,8 +33,8 @@ class FullBackoutTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
-            new RunJobRule(STUDY_ID, 'backout', *SECURITY_REQUIRED_PARAMS),
-            new RunJobRule(STUDY_ID, 'clinical', *SECURITY_REQUIRED_PARAMS),
+            new RunJobRule(STUDY_ID, 'backout', SECURITY_REQUIRED_PARAMS),
+            new RunJobRule(STUDY_ID, 'clinical', SECURITY_REQUIRED_PARAMS),
     ])
 
     // needed by the trait

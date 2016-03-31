@@ -32,7 +32,7 @@ class ClinicalDataSplitDataTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE =
-            new RunJobRule("${STUDY_ID}_split_datafile", 'clinical')
+            new RunJobRule("${STUDY_ID}_split_datafile", 'clinical', ['-d', 'STUDY_ID=' + STUDY_ID])
 
     @AfterClass
     static void cleanDatabase() {

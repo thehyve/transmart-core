@@ -28,7 +28,7 @@ class DemographicsReuploadTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RuleChain([
-            new RunJobRule('CLUC_changed_demographics', 'clinical', '-d', 'STUDY_ID=CLUC', '-n'),
+            new RunJobRule('CLUC_changed_demographics', 'clinical', ['-d', 'STUDY_ID=CLUC', '-n']),
             new RunJobRule('CLUC', 'clinical'),
     ])
 

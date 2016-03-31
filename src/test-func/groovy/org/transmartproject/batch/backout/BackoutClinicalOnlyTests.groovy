@@ -37,8 +37,8 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
-            new RunJobRule(STUDY_ID, 'backout', '-d', 'INCLUDED_TYPES=clinical'),
-            new RunJobRule(STUDY_ID, 'clinical',),
+            new RunJobRule(STUDY_ID, 'backout', ['-d', 'INCLUDED_TYPES=clinical']),
+            new RunJobRule(STUDY_ID, 'clinical'),
     ])
 
     // needed by the trait
