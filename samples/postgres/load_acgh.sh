@@ -40,7 +40,7 @@ trap 'rm -rf $TEMPDIR' EXIT
 
 if [ ! -d logs ] ; then mkdir logs; fi
 
-# Opload the chromosomal data
+# Upload the chromosomal data
   echo "Uploading the chromosomal data"
   $KITCHEN -norep=Y                                                        \
 	-file=$KETTLE_JOBS/load_acgh_data.kjb                              \
