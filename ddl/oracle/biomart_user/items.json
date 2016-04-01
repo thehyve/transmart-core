@@ -322,6 +322,17 @@
     "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "parents" : [ {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
       "name" : "BIO_ASSAY_DATA_STATS"
     },
     "parents" : [ {
@@ -918,17 +929,6 @@
       "type" : "TABLE",
       "owner" : "BIOMART",
       "name" : "BIO_MARKER"
-    } ]
-  }, {
-    "child" : {
-      "type" : "SYNONYM",
-      "owner" : "BIOMART_USER",
-      "name" : "BIO_MARKER_CORREL_MV"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "BIOMART",
-      "name" : "BIO_MARKER_CORREL_MV"
     } ]
   }, {
     "child" : {
