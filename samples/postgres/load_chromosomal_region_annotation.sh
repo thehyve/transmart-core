@@ -27,7 +27,7 @@ fi
 PLATFORM=$(awk -F'\t' 'BEGIN{getline}{print $1}' "${PLATFORM_FILE}" | sort -u)
 if [ ! -z "$PLATFORM_ID" ]; then
     if [[ "$PLATFORM" != "$PLATFORM_ID" ]]; then
-    	echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in$PLATFORM_FILE"
+    	echo "Error: PLATFORM_ID=$PLATFORM_ID defined in annotation.params differs from PLATFORM=$PLATFORM defined in $PLATFORM_FILE"
     	exit 1
     fi
 fi
