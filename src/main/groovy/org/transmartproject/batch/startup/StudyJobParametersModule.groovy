@@ -30,6 +30,8 @@ final class StudyJobParametersModule implements ExternalJobParametersModule {
         }
 
         // should come last so the proper case is preserved for TOP_NODE
-        ejp[STUDY_ID] = ejp[STUDY_ID].toUpperCase(LocaleContextHolder.locale)
+        if (ejp[STUDY_ID]) {
+            ejp[STUDY_ID] = ejp[STUDY_ID].toUpperCase(LocaleContextHolder.locale)
+        }
     }
 }

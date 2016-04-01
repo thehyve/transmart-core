@@ -104,8 +104,8 @@ final class JobStartupDetails {
         instance.params << dataTypeParams
         instance.params << overrides
 
-        instance.validate()
         instance.munge()
+        instance.validate()
         instance.checkForExtraParameters()
 
         instance
@@ -170,8 +170,8 @@ final class JobStartupDetails {
         this
     }
 
-    String getAt(String index) {
-        params[index]
+    String getAt(String key) {
+        params[key]
     }
 
     void putAt(String index, Object value) {
