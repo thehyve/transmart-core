@@ -5,7 +5,7 @@ CREATE TABLE lz_src_analysis_metadata (
     study_id character varying(50),
     data_type character varying(50),
     analysis_name character varying(500),
-    description character varying(500),
+    description character varying(2048),
     phenotype_ids character varying(250),
     population character varying(500),
     tissue character varying(500),
