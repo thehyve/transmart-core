@@ -93,8 +93,9 @@ final class JobStartupDetails {
                 Map<String, String> studyParams = parseContent(studyParamsFilePath)
                 dataTypeParams.each { item ->
                     if (studyParams.containsKey(item.key)) {
-                        log.warn("Study-wide ${item.key} parameter gets overriden by data type one:" +
-                                " ${studyParams[item.value]} -> ${item.value}")
+                        throw new InvalidParametersFileException(
+                                "Study-wide ${item.key} parameter gets overriden by data type one:" +
+                                        " ${studyParams[item.value]} -> ${item.value}")
                     }
                 }
                 instance.params << studyParams
