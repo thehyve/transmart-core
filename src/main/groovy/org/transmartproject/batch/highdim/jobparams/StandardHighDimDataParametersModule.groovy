@@ -29,9 +29,7 @@ class StandardHighDimDataParametersModule
 
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        if (ejp[LOG_BASE] == null) {
-            ejp[LOG_BASE] = 2
-        } else if (!ejp[LOG_BASE].isLong() || ejp[LOG_BASE] as Long != 2) {
+        if (ejp[LOG_BASE] == null || !ejp[LOG_BASE].isLong() || ejp[LOG_BASE] as Long != 2) {
             throw new InvalidParametersFileException("$LOG_BASE must be 2")
         }
 
@@ -52,6 +50,14 @@ class StandardHighDimDataParametersModule
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
+        if (ejp[LOG_BASE] == null) {
+            ejp[LOG_BASE] = '2'
+        }
+
+        if (ejp[DATA_TYPE] == null) {
+            ejp[DATA_TYPE] = 'R'
+        }
+
         if (ejp[DATA_FILE_PREFIX]) {
             ejp[DATA_FILE] = ejp[DATA_FILE_PREFIX]
             ejp[DATA_FILE_PREFIX] = null

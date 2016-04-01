@@ -93,8 +93,9 @@ final class JobStartupDetails {
                 Map<String, String> studyParams = parseContent(studyParamsFilePath)
                 dataTypeParams.each { item ->
                     if (studyParams.containsKey(item.key)) {
-                        log.warn("Study-wide ${item.key} parameter gets overriden by data type one:" +
-                                " ${studyParams[item.value]} -> ${item.value}")
+                        throw new InvalidParametersFileException(
+                                "Study-wide ${item.key} parameter gets overriden by data type one:" +
+                                        " ${studyParams[item.value]} -> ${item.value}")
                     }
                 }
                 instance.params << studyParams
@@ -103,8 +104,8 @@ final class JobStartupDetails {
         instance.params << dataTypeParams
         instance.params << overrides
 
-        instance.validate()
         instance.munge()
+        instance.validate()
         instance.checkForExtraParameters()
 
         instance
@@ -169,8 +170,8 @@ final class JobStartupDetails {
         this
     }
 
-    String getAt(String index) {
-        params[index]
+    String getAt(String key) {
+        params[key]
     }
 
     void putAt(String index, Object value) {

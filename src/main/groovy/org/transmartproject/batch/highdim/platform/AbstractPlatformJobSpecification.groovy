@@ -42,10 +42,6 @@ abstract class AbstractPlatformJobSpecification
             mandatory TITLE
             mandatory ANNOTATIONS_FILE
         }
-        if (ejp[MARKER_TYPE]) {
-            throw new InvalidParametersFileException(
-                    "Parameter $MARKER_TYPE is not user settable")
-        }
     }
 
     abstract String getMarkerType()
