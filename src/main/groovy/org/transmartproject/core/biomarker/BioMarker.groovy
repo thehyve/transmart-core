@@ -17,15 +17,16 @@ interface BioMarker {
     String getType()
 
     /**
-     * @return Global bio marker id. Unique inside the source system. See {@link BioMarker#getPrimarySourceCode}
+     * @return Global bio marker id. Unique inside the source system. Also known as primary external id. See {@link
+     * BioMarker#getSourceCode}
      */
-    String getPrimaryExternalId()
+    String getExternalId()
 
     /**
-     * @return Source system
+     * @return Source system. Also known as primary source code.
      * e.g. Entrez, UniProt
      */
-    String getPrimarySourceCode()
+    String getSourceCode()
 
     /**
      * @return Bio marker name
