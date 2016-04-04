@@ -30,8 +30,8 @@ class BioMarkerSerializationHelper extends AbstractHalOrJsonSerializationHelper<
                 description: bm.description,
                 name: bm.name,
                 organism: bm.organism,
-                externalId: bm.primaryExternalId,
-                sourceCode: bm.primarySourceCode,
+                externalId: bm.externalId,
+                sourceCode: bm.sourceCode,
                 type: bm.type,
         ]
     }

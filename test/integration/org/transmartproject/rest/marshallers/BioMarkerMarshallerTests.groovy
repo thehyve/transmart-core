@@ -34,8 +34,8 @@ class BioMarkerMarshallerTests {
         new BioMarker() {
             Long id = -50
             String type = TYPE
-            String primaryExternalId = EXTERNAL_ID
-            String primarySourceCode = SOURCECODE
+            String externalId = EXTERNAL_ID
+            String sourceCode = SOURCECODE
             String name = NAME
             String description = DESCRIPTION
             String organism = ORGANISM

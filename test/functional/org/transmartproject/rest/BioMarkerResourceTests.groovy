@@ -41,8 +41,8 @@ class BioMarkerResourceTests extends ResourceTestCase {
                     hasEntry('description', it.description),
                     hasEntry('name', it.name),
                     hasEntry('organism', it.organism),
-                    hasEntry('externalId', it.primaryExternalId),
-                    hasEntry('sourceCode', it.primarySourceCode),
+                    hasEntry('externalId', it.externalId),
+                    hasEntry('sourceCode', it.sourceCode),
                     hasEntry('type', it.type)
             )
         })
