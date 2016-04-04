@@ -144,9 +144,9 @@ class BioMarkerResourceServiceTests {
         def resultList = Lists.newArrayList result
         result.close()
         assertThat resultList, containsInAnyOrder(
-                hasProperty('primaryExternalId', equalTo('Q15848')),
-                hasProperty('primaryExternalId', equalTo('Q15849')),
-                hasProperty('primaryExternalId', equalTo('Q15847'))
+                hasProperty('externalId', equalTo('Q15848')),
+                hasProperty('externalId', equalTo('Q15849')),
+                hasProperty('externalId', equalTo('Q15847'))
         )
     }
 
@@ -160,9 +160,9 @@ class BioMarkerResourceServiceTests {
         def resultList = Lists.newArrayList result
         result.close()
         assertThat resultList, containsInAnyOrder(
-                hasProperty('primaryExternalId', equalTo('Q15848')),
-                hasProperty('primaryExternalId', equalTo('Q15849')),
-                hasProperty('primaryExternalId', equalTo('Q15847'))
+                hasProperty('externalId', equalTo('Q15848')),
+                hasProperty('externalId', equalTo('Q15849')),
+                hasProperty('externalId', equalTo('Q15847'))
         )
     }
 

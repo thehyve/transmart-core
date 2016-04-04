@@ -179,14 +179,14 @@ class MrnaGeneDataConstraintTests {
     }
 
     @Test
-    void testProteinConstraintByPrimaryExternalId() {
+    void testProteinConstraintByExternalId() {
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* there's a correlation between the
          * protein BOGUSCBPO_HUMAN and the gene BOGUSCPO */
 
         def testee = mrnaModule.createDataConstraint([ids: testData.bioMarkerTestData.proteinBioMarkers.
-                find { it.name == 'BOGUSCBPO_HUMAN' }*.primaryExternalId],
+                find { it.name == 'BOGUSCBPO_HUMAN' }*.externalId],
                 DataConstraint.PROTEINS_CONSTRAINT
         )
 
