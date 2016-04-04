@@ -1173,8 +1173,8 @@
       "owner" : "I2B2DEMODATA",
       "name" : "CONCEPT_DIMENSION"
     }, {
-      "type" : "SYNONYM",
-      "owner" : "TM_CZ",
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
       "name" : "CONCEPT_ID"
     } ]
   }, {
@@ -2392,7 +2392,7 @@
       "owner" : "I2B2DEMODATA",
       "name" : "TRG_CONCEPT_DIMENSION_CD"
     },
-    "file" : "i2b2demodata/_cross.sql"
+    "file" : "i2b2demodata/concept_dimension.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

@@ -54,6 +54,10 @@ if [ ! -z "$PLATFORM_DATA_TYPE" ]; then
 		      $LOAD_SCRIPTS_DIRECTORY/load_proteomics_annotation.sh ${1:+${PARAMS_FILENAME}}
 		      exit
 		      ;;
+	"Chromosomal") echo "chromosomal region platform"
+		      $LOAD_SCRIPTS_DIRECTORY/load_chromosomal_region_annotation.sh ${1:+${PARAMS_FILENAME}}
+		      exit
+		      ;;
 	*) echo "Unsupported PLATFORM_DATA_TYPE $PLATFORM_DATA_TYPE"
 	   exit
 	   ;;

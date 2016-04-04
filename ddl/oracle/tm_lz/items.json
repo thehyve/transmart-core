@@ -8,41 +8,6 @@
     "parents" : [ ]
   }, {
     "child" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_OBS_ENROLL_DAYS"
-    }, {
-      "type" : "TABLE",
-      "owner" : "I2B2DEMODATA",
-      "name" : "OBSERVATION_FACT"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LT_SRC_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LT_SRC_SUBJ_ENROLL_DATE"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_LZ",
-      "name" : "LZ_SRC_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_WZ",
-      "name" : "WRK_CLINICAL_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "TM_WZ",
-      "name" : "WT_TRIAL_NODES"
-    } ]
-  }, {
-    "child" : {
       "type" : "INDEX",
       "owner" : "TM_LZ",
       "name" : "IDX_SCD_STUDY"
@@ -559,13 +524,6 @@
       "name" : "CLINICAL_TRIAL_METADATA_EXT"
     },
     "file" : "tm_lz/clinical_trial_metadata_ext.sql"
-  }, {
-    "item" : {
-      "type" : "PROCEDURE",
-      "owner" : "TM_LZ",
-      "name" : "I2B2_LOAD_CLINICAL_DATA_BACKUP"
-    },
-    "file" : "tm_lz/procedures/i2b2_load_clinical_data_backup.sql"
   }, {
     "item" : {
       "type" : "INDEX",
