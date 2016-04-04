@@ -158,8 +158,9 @@ final class JobStartupDetails {
     }
 
     private static Path findStudyFilePath(Path child) {
-        Path result = child
+        Path result = child.toAbsolutePath()
         while (result && !Files.isRegularFile(result.resolve(STUDY_PARAMS_FILE_NAME))) {
+            log.debug("Seeking study.params in ${result}")
             result = result.parent
         }
         result?.resolve(STUDY_PARAMS_FILE_NAME)
