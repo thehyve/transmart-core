@@ -11,10 +11,8 @@ import java.text.ParsePosition
  */
 class ScientificNotationFormat extends NumberFormat {
 
-    private static final Locale LOCALE = Locale.ENGLISH.getDefault(Locale.Category.FORMAT)
-
     @Delegate
-    DecimalFormat decimalFormat = new DecimalFormat('0.###E0', new DecimalFormatSymbols(LOCALE))
+    DecimalFormat decimalFormat = new DecimalFormat('0.###E0', new DecimalFormatSymbols(Locale.ENGLISH))
 
     Number parse(String text, ParsePosition pos) {
         String normalizedString = normalizeString(text)
