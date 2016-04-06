@@ -57,4 +57,10 @@ class ScientificNotationFormatTests {
 
         MatcherAssert.assertThat number,  closeTo(12345.67890d, ERROR)
     }
+
+    @Test(expected = IllegalArgumentException)
+    void testExceptionOnPartlyParsableString() {
+        testee.parse('123abc')
+    }
+
 }
