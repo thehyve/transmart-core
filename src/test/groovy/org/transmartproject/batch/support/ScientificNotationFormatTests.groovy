@@ -1,8 +1,8 @@
 package org.transmartproject.batch.support
 
-import org.hamcrest.MatcherAssert
 import org.junit.Test
 
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.closeTo
 import static org.hamcrest.Matchers.equalTo
 
@@ -19,28 +19,28 @@ class ScientificNotationFormatTests {
     void testLowerCaseExponentSymbol() {
         Number number = testee.parse('1e2')
 
-        MatcherAssert.assertThat number, equalTo(100L)
+        assertThat number, equalTo(100L)
     }
 
     @Test
     void testAlternativeExponentFormat() {
         Number number = testee.parse('1*10^2')
 
-        MatcherAssert.assertThat number, equalTo(100L)
+        assertThat number, equalTo(100L)
     }
 
     @Test
     void testPlusInPowerIsAllowed() {
         Number number = testee.parse('1e+2')
 
-        MatcherAssert.assertThat number, equalTo(100L)
+        assertThat number, equalTo(100L)
     }
 
     @Test
     void testScientificVariationSupport() {
         Number number = testee.parse('1.002e+9')
 
-        MatcherAssert.assertThat number, equalTo(1002000000L)
+        assertThat number, equalTo(1002000000L)
     }
 
 
@@ -48,19 +48,36 @@ class ScientificNotationFormatTests {
     void testAllDigitalPositionsParsed() {
         Number number = testee.parse('1.234567890E9')
 
-        MatcherAssert.assertThat number, equalTo(1234567890L)
+        assertThat number, equalTo(1234567890L)
     }
 
     @Test
     void testNonScientificNotationSupportPreserved() {
         Number number = testee.parse('12345.67890')
 
-        MatcherAssert.assertThat number,  closeTo(12345.67890d, ERROR)
+        assertThat number, closeTo(12345.67890d, ERROR)
     }
 
     @Test(expected = IllegalArgumentException)
     void testExceptionOnPartlyParsableString() {
         testee.parse('123abc')
+    }
+
+    @Test
+    void testEnvironmentLocaleSettingIndependence() {
+        Locale defaultLocale = Locale.default
+
+        try {
+            //German locale (as many others) has comma as decimal separator.
+            Locale.setDefault(Locale.GERMAN)
+            //To pick up new locale
+            testee = new ScientificNotationFormat()
+            Number number = testee.parse('1.2')
+
+            assertThat number, closeTo(1.2d, ERROR)
+        } finally {
+            Locale.setDefault(defaultLocale)
+        }
     }
 
 }

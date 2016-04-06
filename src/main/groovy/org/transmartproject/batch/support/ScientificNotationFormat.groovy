@@ -14,13 +14,20 @@ class ScientificNotationFormat extends NumberFormat {
     @Delegate
     DecimalFormat decimalFormat = new DecimalFormat('0.###E0', new DecimalFormatSymbols(Locale.ENGLISH))
 
+    /**
+     * Parses the string by first normalizing the string  {@link this.normalizeString}.
+     * Unlike superclass (overridden) version this method implementation throws an exception when the string
+     * from the beginning to the end could not be parsed as a number.
+     */
+    @Override
     Number parse(String text, ParsePosition pos) {
         String normalizedString = normalizeString(text)
 
         Number result = decimalFormat.parse(normalizedString, pos)
 
         if (pos.index < normalizedString.length()) {
-            throw new IllegalArgumentException("Number (${text}) contains unrecognized characters.")
+            throw new IllegalArgumentException("'${normalizedString}' cannot be parsed as a number" +
+                    " owing to an unrecognized character at position ${pos.index + 1}")
         }
 
         result
