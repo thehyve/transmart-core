@@ -21,7 +21,9 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy
+import org.springframework.batch.item.file.transform.DefaultFieldSetFactory
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
+import org.springframework.batch.item.file.transform.FieldSetFactory
 import org.springframework.batch.item.support.CompositeItemProcessor
 import org.springframework.batch.item.support.CompositeItemWriter
 import org.springframework.batch.item.validator.SpringValidator
@@ -34,6 +36,7 @@ import org.springframework.core.io.Resource
 import org.springframework.util.Assert
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import org.transmartproject.batch.batchartifacts.*
+import org.transmartproject.batch.support.ScientificNotationFormat
 import org.transmartproject.batch.support.TokenizerColumnsReplacingHeaderHandler
 
 import static org.springframework.batch.item.file.transform.DelimitedLineTokenizer.DELIMITER_TAB
@@ -275,12 +278,18 @@ trait StepBuildingConfigurationTrait {
             tokenizerClass = EmptyStringsToNullLineTokenizer
         }
 
-        tokenizerClass.newInstance(
+        DelimitedLineTokenizer result = tokenizerClass.newInstance(
                 names: ((columnNames && columnNames != 'auto') ?
                         columnNames : []) as String[],
                 delimiter: DELIMITER_TAB,
                 strict: !allowMissingTrailingColumns,)
 
+        FieldSetFactory fieldSetFactory = new DefaultFieldSetFactory(
+                numberFormat: new ScientificNotationFormat()
+        )
+        result.setFieldSetFactory(fieldSetFactory)
+
+        result
     }
 
     Validator adaptValidator(
