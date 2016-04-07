@@ -6,6 +6,7 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
+import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.validator.ValidatingItemProcessor
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
+import org.transmartproject.batch.batchartifacts.ValidationErrorMatcherBean
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
 import org.transmartproject.batch.clinical.db.objects.Sequences
@@ -46,15 +48,29 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step firstPass(AcghDataValueValidator acghDataValueValidator) {
+    Step firstPass(ItemProcessor acghDataValueValidatingItemProcessor) {
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(acghDataTsvFileReader())
-                .processor(new ValidatingItemProcessor(adaptValidator(acghDataValueValidator)))
+                .processor(acghDataValueValidatingItemProcessor)
                 .listener(logCountsStepListener())
                 .build()
 
         wrapStepWithName('firstPass', step)
+    }
+
+    @Bean
+    ItemProcessor<AcghDataValue, AcghDataValue> acghDataValueValidatingItemProcessor(
+            AcghDataValueValidator acghDataValueValidator) {
+
+        Set<ValidationErrorMatcherBean> nonStoppingErrors = [
+                new ValidationErrorMatcherBean(code: 'sumOfProbabilitiesIsNotOne'),
+        ] as Set
+
+        new ValidatingItemProcessor(
+                adaptValidator(
+                        acghDataValueValidator,
+                        nonStoppingErrors))
     }
 
     @Bean

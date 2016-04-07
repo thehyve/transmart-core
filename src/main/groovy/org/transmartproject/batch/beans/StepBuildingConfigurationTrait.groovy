@@ -44,7 +44,8 @@ import static org.springframework.batch.item.file.transform.DelimitedLineTokeniz
 /**
  * Trait with auxiliary methods for building steps.
  */
-@SuppressWarnings('BracesForClassRule') // buggy with traits
+@SuppressWarnings('BracesForClassRule')
+// buggy with traits
 trait StepBuildingConfigurationTrait {
 
     @Autowired
@@ -294,6 +295,12 @@ trait StepBuildingConfigurationTrait {
 
     Validator adaptValidator(
             org.springframework.validation.Validator springValidator) {
-        new MessageResolverSpringValidator(springValidator, validationMessageSource())
+        adaptValidator(springValidator, [] as Set)
+    }
+
+    Validator adaptValidator(
+            org.springframework.validation.Validator springValidator,
+            Set<ValidationErrorMatcherBean> nonStoppingValidationErrors) {
+        new MessageResolverSpringValidator(springValidator, validationMessageSource(), nonStoppingValidationErrors)
     }
 }
