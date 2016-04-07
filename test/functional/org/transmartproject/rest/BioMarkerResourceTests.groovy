@@ -98,4 +98,33 @@ class BioMarkerResourceTests extends ResourceTestCase {
         assertThat JSON, hasEntry(is('biomarkers'), empty())
     }
 
+    void testGetBioMarkerConstrained() {
+        def type = 'GENE'
+        def constraints = URLEncoder.encode('{"propertiesConstraint":{"name":"AURKA"}}', 'UTF-8')
+        get("${baseURL}biomarkers/${type}?constraints=${constraints}")
+        assertStatus 200
+
+        def target = bioMarkerTestData.geneBioMarkers.find { it.externalId == '-130751'}
+
+        def assertIt = {
+            assertThat JSON, hasEntry(is('biomarkers'),
+                    contains(allOf(
+                            hasEntry('description', target.description),
+                            hasEntry('name', target.name),
+                            hasEntry('organism', target.organism),
+                            hasEntry('externalId', target.externalId),
+                            hasEntry('sourceCode', target.sourceCode),
+                            hasEntry('type', target.type)
+                    ))
+            )
+        }
+        assertIt()
+
+        constraints = URLEncoder.encode('{"propertiesConstraint":{"externalId":"-130751"}}', 'UTF-8')
+        get("${baseURL}biomarkers/${type}?constraints=${constraints}")
+        assertStatus 200
+
+        assertIt()
+    }
+
 }
