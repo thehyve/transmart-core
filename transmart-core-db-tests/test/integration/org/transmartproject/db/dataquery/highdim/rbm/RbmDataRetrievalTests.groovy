@@ -268,6 +268,7 @@ class RbmDataRetrievalTests {
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
+                AssayConstraint.PATIENT_ID_LIST_CONSTRAINT,
                 AssayConstraint.DISJUNCTION_CONSTRAINT)
         assertThat rbmResource.supportedDataConstraints, hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
