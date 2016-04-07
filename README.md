@@ -25,7 +25,8 @@ The return message's body will contain JSON with additional HAL format, with the
 | get single patient set | GET `/patient_sets/{resultInstanceId}` | returns information a previously created patient set |
 | get index of highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim` | returns index with the available datatype and projections, assay constraints and data constraints for this highdim concept for a study |
 | get highdim data for single concept| GET `/studies/{studyId}/concepts/{conceptPath}/highdim?dataType={dataType}&projection={projectionType}&assayConstraints={assayConstraints}&dataConstraints={dataConstraints}` | returns highdim data of a specific dataType and projection for one concept of a study |
-
+| get available biomarker types and organisms | GET `/biomarkers` | returns information on which biomarker types and which organisms are known in the database. |
+| get available biomarkers for type | GET `/biomarkers/{bioMarkerType}` | returns all the known biomarkers of this type. This just means that these biomarkers are known, it does not mean that there is actual data somewhere corresponding to these biomarkers |
 
 #### Explanation of URI variables
 | variable  | explanation |
@@ -37,6 +38,7 @@ The return message's body will contain JSON with additional HAL format, with the
 | {projectionType} | High dimensional data can have values stored in a variety of projections. Possible projection options are contained in the highdim index returned by the `/studies/{studyId}/concepts/{conceptPath}/highdim` call. If not specified, it defaults to `'default_real_projection'` or, if not supported `'all_data'`. It is *strongly* recommended that the user include a value for this parameter and do not rely on the defaults. |
 | {assayConstraints} | Assay constraints limit the assays included in the response. This is a urlencoded JSON object. The keys are the names of the constraints and each value is either 1) an object where the keys are the corresponding constraint's parameters and the values are the parameters' values or 2) an array of such objects. The parameters for the constraints are not described in the API. Look at core-api's documentation; for the standard constraints, see the [`AssayConstraint`](https://github.com/transmart/transmart-core-api/blob/master/src/main/groovy/org/transmartproject/core/dataquery/highdim/assayconstraints/AssayConstraint.groovy) class. |
 | {dataConstraints} | Analogous to {assayConstraints}, except it limits the rows in the high dimensional result. For the standard data constraints, see [`DataConstraint`](https://github.com/transmart/transmart-core-api/blob/master/src/main/groovy/org/transmartproject/core/dataquery/highdim/dataconstraints/DataConstraint.groovy) |
+| {bioMarkerType} | A type of biomarker, e.g. "GENE", "PROTEIN", etc. |
 
 #### HTTP exchange details
 Each of the above GET requests needs two header fields set:
