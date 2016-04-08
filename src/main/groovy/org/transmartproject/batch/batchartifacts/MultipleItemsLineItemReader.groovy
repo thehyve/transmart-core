@@ -9,13 +9,16 @@ import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy
+import org.springframework.batch.item.file.transform.DefaultFieldSetFactory
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
 import org.springframework.batch.item.file.transform.FieldSet
+import org.springframework.batch.item.file.transform.FieldSetFactory
 import org.springframework.batch.item.validator.ValidationException
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.core.io.Resource
 import org.springframework.util.Assert
 import org.springframework.util.ClassUtils
+import org.transmartproject.batch.support.ScientificNotationFormat
 
 import static org.springframework.batch.item.file.transform.DelimitedLineTokenizer.DELIMITER_TAB
 
@@ -66,8 +69,13 @@ class MultipleItemsLineItemReader<T> extends ItemStreamSupport
         Assert.notNull(resource, 'resource has to be specified')
         Assert.notNull(multipleItemsFieldSetMapper, 'mapper has to be specified')
 
+        FieldSetFactory fieldSetFactory = new DefaultFieldSetFactory(
+                numberFormat: new ScientificNotationFormat()
+        )
+
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer(
-                delimiter: DELIMITER_TAB
+                delimiter: DELIMITER_TAB,
+                fieldSetFactory: fieldSetFactory
         )
         flatFileItemReader = new FlatFileItemReader(
                 lineMapper: new DefaultLineMapper(
