@@ -26,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -38,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_OR_EQUAL_TO
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_THAN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
@@ -111,6 +113,168 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
+    void testConstrainByMRNAExpressionFromXml() {
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>MRNA</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>Gene Expression</omics_value_type>
+                             <omics_property>geneSymbol</omics_property>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+
+        assertThat definition.panels[0].items, contains(
+                hasProperty('constraintByOmicsValue', allOf(
+                        hasProperty('operator', equalTo(ConstraintByOmicsValue.Operator.BETWEEN)),
+                        hasProperty('constraint', equalTo('-0.5:0.5')),
+                        hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION)),
+                        hasProperty('property', equalTo('geneSymbol')),
+                        hasProperty('selector', equalTo('TNF')),
+                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                ))
+        )
+    }
+
+    @Test
+    void testConstrainByRNASEQRCNTFromXml() {
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>RNASEQRCNT</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>RNASEQ_RCNT</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_NORMALIZED_READCOUNT</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+
+        assertThat definition.panels[0].items, contains(
+                hasProperty('constraintByOmicsValue', allOf(
+                        hasProperty('operator', equalTo(ConstraintByOmicsValue.Operator.BETWEEN)),
+                        hasProperty('constraint', equalTo('-0.5:0.5')),
+                        hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT)),
+                        hasProperty('selector', equalTo('TNF')),
+                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT))
+                ))
+        )
+    }
+
+    @Test
+    void testConstrainByProteomicsFromXml() {
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>Proteomics</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>PROTEOMICS</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+
+        assertThat definition.panels[0].items, contains(
+                hasProperty('constraintByOmicsValue', allOf(
+                        hasProperty('operator', equalTo(ConstraintByOmicsValue.Operator.BETWEEN)),
+                        hasProperty('constraint', equalTo('-0.5:0.5')),
+                        hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.PROTEOMICS)),
+                        hasProperty('selector', equalTo('TNF')),
+                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                ))
+        )
+    }
+
+    @Test
+    void testConstrainByMIRNAQPCRFromXml() {
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>MIRNAQPCR</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>MIRNA_QPCR</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        def definition = service.fromXml(new StringReader(xml))
+
+        assertThat definition.panels[0].items, contains(
+                hasProperty('constraintByOmicsValue', allOf(
+                        hasProperty('operator', equalTo(ConstraintByOmicsValue.Operator.BETWEEN)),
+                        hasProperty('constraint', equalTo('-0.5:0.5')),
+                        hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.MIRNA_QPCR)),
+                        hasProperty('selector', equalTo('TNF')),
+                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                ))
+        )
+    }
+
+    @Test
     void testMultiplePanelsAndItemsFromXml() {
         def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/">
   <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
@@ -179,6 +343,105 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
+    void testBadMarkerType() {
+        expectedException.expect(InvalidRequestException)
+        expectedException.expectMessage(containsString("Invalid XML query definition highdimension value constraint"))
+
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>MRNA</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>FOOBARTYPE</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        service.fromXml(new StringReader(xml))
+    }
+
+    @Test
+    void testBadProjectionType() {
+        expectedException.expect(InvalidRequestException)
+        expectedException.expectMessage(containsString("Invalid XML query definition highdimension value constraint"))
+
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>MRNA</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>BETWEEN</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>Gene Expression</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>FOO_BAR_PROJECTION</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        service.fromXml(new StringReader(xml))
+    }
+
+    @Test
+    void testBadOperatorType() {
+        expectedException.expect(InvalidRequestException)
+        expectedException.expectMessage(containsString("Invalid XML query definition highdimension value constraint"))
+
+        def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
+                       <specificity_scale>0</specificity_scale>
+                       <panel>
+                         <panel_number>0</panel_number>
+                         <invert>0</invert>
+                         <total_item_occurrences>1</total_item_occurrences>
+                         <item>
+                           <item_name>MRNA</item_name>
+                           <item_key>\\\\code\\full\\name\\</item_key>
+                           <tooltip>\\full\\name\\</tooltip>
+                           <hlevel>5</hlevel>
+                           <class>ENC</class>
+                           <constrain_by_omics_value>
+                             <omics_value_operator>FOOBAROPERATOR</omics_value_operator>
+                             <omics_value_constraint>-0.5:0.5</omics_value_constraint>
+                             <omics_value_type>Gene Expression</omics_value_type>
+                             <omics_selector>TNF</omics_selector>
+                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                           </constrain_by_omics_value>
+                         </item>
+                         <panel_timing>ANY</panel_timing>
+                       </panel>
+                       <query_timing>ANY</query_timing>
+                     </ns4:query_definition>'''
+
+        service.fromXml(new StringReader(xml))
+    }
+
+    @Test
     void basicTestToXml() {
         def queryName = 'The name of my query definition'
         def conceptKey = '\\\\foo\\bar\\'
@@ -231,6 +494,126 @@ class QueryDefinitionXmlServiceTests {
     }
 
     @Test
+    void testMRNAConstraintToXml() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items: [
+                                new Item(
+                                        conceptKey: '\\\\code\\full\\name\\',
+                                        constraintByOmicsValue: new ConstraintByOmicsValue(
+                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
+                                                constraint: '-1:1',
+                                                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
+                                                selector: 'TNF',
+                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                        )
+                                )
+                        ]
+                )
+        ])
+        def result = xmlStringToDocument(service.toXml(definition))
+        assertThat result, allOf(
+                hasXPath('/query_definition/query_name', startsWith('tranSMART\'s Query')),
+                hasXPath('//panel/invert', not(equalTo('1'))),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_operator', equalTo('BETWEEN')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('Gene Expression')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+        )
+    }
+
+    @Test
+    void testRNASEQConstraintToXml() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items: [
+                                new Item(
+                                        conceptKey: '\\\\code\\full\\name\\',
+                                        constraintByOmicsValue: new ConstraintByOmicsValue(
+                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
+                                                constraint: '-1:1',
+                                                omicsType: ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT,
+                                                selector: 'TNF',
+                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT
+                                        )
+                                )
+                        ]
+                )
+        ])
+        def result = xmlStringToDocument(service.toXml(definition))
+        assertThat result, allOf(
+                hasXPath('/query_definition/query_name', startsWith('tranSMART\'s Query')),
+                hasXPath('//panel/invert', not(equalTo('1'))),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_operator', equalTo('BETWEEN')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('RNASEQ_RCNT')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_NORMALIZED_READCOUNT'))
+        )
+    }
+
+    @Test
+    void testProteomicsConstraintToXml() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items: [
+                                new Item(
+                                        conceptKey: '\\\\code\\full\\name\\',
+                                        constraintByOmicsValue: new ConstraintByOmicsValue(
+                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
+                                                constraint: '-1:1',
+                                                omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
+                                                selector: 'TNF',
+                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                        )
+                                )
+                        ]
+                )
+        ])
+        def result = xmlStringToDocument(service.toXml(definition))
+        assertThat result, allOf(
+                hasXPath('/query_definition/query_name', startsWith('tranSMART\'s Query')),
+                hasXPath('//panel/invert', not(equalTo('1'))),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_operator', equalTo('BETWEEN')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('PROTEOMICS')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+        )
+    }
+
+    @Test
+    void testMIRNAQPCRConstraintToXml() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items: [
+                                new Item(
+                                        conceptKey: '\\\\code\\full\\name\\',
+                                        constraintByOmicsValue: new ConstraintByOmicsValue(
+                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
+                                                constraint: '-1:1',
+                                                omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
+                                                selector: 'TNF',
+                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                        )
+                                )
+                        ]
+                )
+        ])
+        def result = xmlStringToDocument(service.toXml(definition))
+        assertThat result, allOf(
+                hasXPath('/query_definition/query_name', startsWith('tranSMART\'s Query')),
+                hasXPath('//panel/invert', not(equalTo('1'))),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_operator', equalTo('BETWEEN')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('MIRNA_QPCR')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+        )
+    }
+
+    @Test
     void testMultiplePanelsAndItemsToXml() {
         def definition = new QueryDefinition([
                 new Panel(
@@ -253,4 +636,6 @@ class QueryDefinitionXmlServiceTests {
                 hasXPath('count(//panel[2]/item)', equalTo('2')),
         )
     }
+
+
 }

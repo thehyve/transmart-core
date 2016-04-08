@@ -31,6 +31,10 @@ class DeMrnaAnnotationCoreDb {
 
     static transients = [ 'bioMarkerGene' ]
 
+    static hasMany = [dataRows: DeSubjectMicroarrayDataCoreDb]
+
+    static mappedBy = [dataRows: 'probe']
+
     static mapping = {
         id      column: 'probeset_id',       generator: 'assigned'
         table   name:  'de_mrna_annotation', schema:     'deapp'

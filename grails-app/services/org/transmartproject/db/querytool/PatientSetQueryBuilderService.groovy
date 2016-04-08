@@ -26,11 +26,14 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
 import org.transmartproject.db.user.User
+
+import java.util.regex.Pattern
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
@@ -39,6 +42,8 @@ class PatientSetQueryBuilderService {
 
     def conceptsResourceService
     def databasePortabilityService
+    def highDimensionResourceService
+    def i2b2HelperService
 
     String buildPatientIdListQuery(QueryDefinition definition,
                                    User user = null)
@@ -159,15 +164,6 @@ class PatientSetQueryBuilderService {
             (GREATER_OR_EQUAL_TO): [['>=', ['E', 'GE', 'G']]]
     ]
 
-    private static final def OMICS_NUMBER_QUERY_MAPPING = [
-            (ConstraintByOmicsValue.Operator.LOWER_THAN) : '<',
-            (ConstraintByOmicsValue.Operator.LOWER_OR_EQUAL_TO) : '<=',
-            (ConstraintByOmicsValue.Operator.EQUAL_TO) : '=',
-            (ConstraintByOmicsValue.Operator.GREATER_OR_EQUAL_TO) : '>=',
-            (ConstraintByOmicsValue.Operator.GREATER_THAN) : '>',
-            (ConstraintByOmicsValue.Operator.BETWEEN) : 'BETWEEN'
-    ]
-
     private String doItem(MetadataSelectQuerySpecification term,
                           Item item,
                           User user) {
@@ -197,68 +193,22 @@ class PatientSetQueryBuilderService {
         }
 
         if (omics_value_constraint) {
-            def omicstype = omics_value_constraint.omicsType.value
-            def info = ConstraintByOmicsValue.markerInfo[omicstype]
-            if (info == null) {
-                log.error "Invalid omics type: $omicstype"
-                return clause
-            }
+            def resource = highDimensionResourceService.getHighDimDataTypeResourceFromConcept(item.conceptKey)
+            def concept_code = i2b2HelperService.getConceptCodeFromKey(item.conceptKey)
 
-            switch (info.filter_type) {
-                case ConstraintByOmicsValue.FilterType.SINGLE_NUMERIC:
-                    // since we are building the query here and need to return a regular String, we can not use
-                    // GString, prepared statements, named parameters, ... for protection against sql injection
-                    // so lets escape the input and put quotes around it
-                    String selector = "'" + StringEscapeUtils.escapeSql(omics_value_constraint.selector) + "'"
-                    clause += """ AND patient_num IN (
-                            select patient_id from deapp.de_subject_sample_mapping where assay_id in
-                            (
-                            select assay_id from (
-                            select assay_id, avg(${omics_value_constraint.projectionType.name()}) as score from $info.data_table where
-                            $info.id_column in (select $info.annotation_id_column from $info.annotation_table where $info.selector_column=$selector)
-                            and assay_id in
-                            (select assay_id from deapp.de_subject_sample_mapping WHERE (${conceptcd_subclause.replaceFirst("CONCEPT_CD", "CONCEPT_CODE")})
-                            )
-                            group by assay_id
-                            ) A where score """ + OMICS_NUMBER_QUERY_MAPPING[omics_value_constraint.operator] + " " +
-                            doOmicsConstraintNumber(omics_value_constraint.operator, omics_value_constraint.constraint) + "))"
-                    break
-                case ConstraintByOmicsValue.FilterType.ACGH:
-                    // parse the selector and write the query
-                    break
-                case ConstraintByOmicsValue.FilterType.VCF:
-                    // parse the selector and write the query
-                    break
+            if (resource != null) {
+                // this is an extra query, however if the cohort selection tab was used to generate the patient set,
+                // this query was already executed to generate the histogram when specifying the limits, so the
+                // results of this query should come from a cache
+                def distribution = resource.getDistribution(omics_value_constraint, concept_code, null)
+                def patient_ids = distribution.collect { it[0] }
+                clause += "AND patient_num IN (" + patient_ids.join(",") + ")"
+            }
+            else {
+                log.warn("No implementation exists for building a patient set query for " + resource.getHighDimensionFilterType() + " data.")
             }
         }
         clause
-    }
-
-    private String doOmicsConstraintNumber(ConstraintByOmicsValue.Operator operator, String value) {
-        try {
-            if (operator == ConstraintByOmicsValue.Operator.BETWEEN) {
-                def matcher = value =~
-                        /([+-]?[0-9]+(?:\.[0-9]*)?)(?i:\:)([+-]?[0-9]+(?:\.[0-9]*)?)/
-                if (matcher.matches()) {
-                    return Double.parseDouble(matcher.group(1).toString()) +
-                           ' AND ' +
-                           Double.parseDouble(matcher.group(2).toString())
-                }
-            } else {
-                if (value =~ /[+-]?[0-9]+(?:\.[0-9]*)?/) {
-                    return Double.parseDouble(value).toString()
-                }
-            }
-        } catch (NumberFormatException nfe) {
-            /* may fail because the number is too large, for instance.
-             * We'd rather fail here than failing when the SQL statement is
-             * compiled. */
-            throw new InvalidRequestException("Error parsing " +
-                    "constraint value: $nfe.message", nfe)
-        }
-
-        throw new InvalidRequestException("The value '$value' is an " +
-                "invalid number constraint value for the operator $operator")
     }
 
     private String doConstraintNumber(ConstraintByValue.Operator operator,

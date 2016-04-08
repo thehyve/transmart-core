@@ -283,6 +283,47 @@ class RbmDataRetrievalTests {
                 Projection.ALL_DATA_PROJECTION)
     }
 
+    @Test
+    void testSearchAnnotation() {
+        def concept_code = 'concept code #1'
+
+        def antigens = rbmResource.searchAnnotation(concept_code, 'Anti', 'antigenName')
+        assertThat antigens, allOf(
+                hasSize(3),
+                contains(
+                        equalTo('Antigene1'),
+                        equalTo('Antigene2'),
+                        equalTo('Antigene3')
+                )
+        )
+
+        def names = rbmResource.searchAnnotation(concept_code, 'PVR_', 'uniprotName')
+        assertThat names, allOf(
+                hasSize(4),
+                contains(
+                        equalTo('PVR_HUMAN1'),
+                        equalTo('PVR_HUMAN2'),
+                        equalTo('PVR_HUMAN3'),
+                        equalTo('PVR_HUMAN4')
+                )
+        )
+
+        def symbols = rbmResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
+        assertThat symbols, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('ADIRF'),
+                        equalTo('AURKA')
+                )
+        )
+
+        def empty = rbmResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
+        assertThat empty, hasSize(0)
+
+        empty = rbmResource.searchAnnotation(concept_code, 'A', 'FOO')
+        assertThat empty, hasSize(0)
+    }
+
     @Before
     void setUp() {
         testData.saveAll()

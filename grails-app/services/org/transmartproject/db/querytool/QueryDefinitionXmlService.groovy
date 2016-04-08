@@ -68,11 +68,12 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                             projectionType: ConstraintByOmicsValue.ProjectionType.valueOf(
                                     constrain.omics_projection_type?.toString().toUpperCase()),
                             selector: constrain.omics_selector?.toString(),
+                            property: constrain.omics_property?.toString(),
                             constraint: constrain.omics_value_constraint?.toString()
                     )
                 } catch (err) {
                     throw new InvalidRequestException(
-                            'Invalid XML query definition omics value constraint', err)
+                            'Invalid XML query definition highdimension value constraint', err)
                 }
             }
 
@@ -133,7 +134,8 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                     omics_value_constraint constrain.constraint
                                     omics_value_type constrain.omicsType.value
                                     omics_selector constrain.selector
-                                    omics_projection_type constrain.projectionType.name()
+                                    omics_property constrain.property
+                                    omics_projection_type constrain.projectionType.value
                                 }
                             }
                         }

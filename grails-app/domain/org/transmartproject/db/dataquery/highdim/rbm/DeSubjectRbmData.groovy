@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rbm
 
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.i2b2data.PatientDimension
 
 class DeSubjectRbmData {
 
@@ -32,13 +33,15 @@ class DeSubjectRbmData {
 
     static belongsTo = [
             annotations: DeRbmAnnotation,
-            assay: DeSubjectSampleMapping
+            assay: DeSubjectSampleMapping,
+            patient: PatientDimension
     ]
 
     static mapping = {
         table schema: 'deapp', name: 'de_subject_rbm_data'
         id generator: 'sequence', params: [sequence: 'de_subject_rbm_data_seq', schema: 'deapp']
         assay column: 'assay_id'
+        patient column: 'patient_id'
         annotations joinTable: [
                 name: 'de_rbm_data_annotation_join',
                 column: 'annotation_id',

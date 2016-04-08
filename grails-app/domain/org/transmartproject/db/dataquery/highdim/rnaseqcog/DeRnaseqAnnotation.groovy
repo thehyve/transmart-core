@@ -34,6 +34,10 @@ class DeRnaseqAnnotation implements Serializable {
 
     static belongsTo = [ platform: DeGplInfo ]
 
+    static hasMany = ['dataRows': DeSubjectRnaData]
+
+    static mappedBy = ['dataRows': 'annotation']
+
     static mapping = {
         table    schema: 'deapp'
         id       name: 'transcriptId', generator: 'assigned'

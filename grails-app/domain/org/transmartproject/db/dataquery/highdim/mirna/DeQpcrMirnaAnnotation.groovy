@@ -23,6 +23,10 @@ class DeQpcrMirnaAnnotation implements Serializable {
 
     String mirnaId
     String detector
+    String gplId
+
+    static hasMany = [dataRows: DeSubjectMirnaData]
+    static mappedBy = [dataRows: 'probe']
 
     // unused or irrelevant:
     //String idRef

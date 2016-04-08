@@ -295,4 +295,40 @@ class AcghEndToEndRetrievalTests {
         )
     }
 
+    @Test
+    void testSearchAnnotation() {
+        def concept_code = 'concept code #1'
+
+        def symbols = acghResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
+        assertThat symbols, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('ADIRF'),
+                        equalTo('AURKA')
+                )
+        )
+
+        def cyto = acghResource.searchAnnotation(concept_code, 'cyto', 'cytoband')
+        assertThat cyto, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('cytoband1'),
+                        equalTo('cytoband2')
+                )
+        )
+
+        def names = acghResource.searchAnnotation(concept_code, 'region 1', 'name')
+        assertThat names, allOf(
+                hasSize(1),
+                contains(
+                        equalTo('region 1:33-9999')
+                )
+        )
+
+        def empty = acghResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
+        assertThat empty, hasSize(0)
+
+        empty = acghResource.searchAnnotation(concept_code, 'A', 'FOO')
+        assertThat empty, hasSize(0)
+    }
 }

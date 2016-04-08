@@ -136,5 +136,18 @@ class HighDimensionResourceService implements HighDimensionResource {
         HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
+    HighDimensionDataTypeResource getHighDimDataTypeResourceFromConcept(String conceptKey) {
+        def constraints = []
 
+        constraints << createAssayConstraint(
+                AssayConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [concept_key: conceptKey]])
+
+        def assayMultiMap = getSubResourcesAssayMultiMap(constraints)
+
+        HighDimensionDataTypeResource dataTypeResource = assayMultiMap.keySet()[0]
+        return dataTypeResource
+    }
 }

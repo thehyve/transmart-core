@@ -32,6 +32,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -213,4 +214,25 @@ class ProteinEndToEndRetrievalTests {
                 hasProperty('label', is(adiponectinPeptide)))
     }
 
+    @Test
+    void testSearchAnnotation() {
+        def gene_symbols = proteinResource.searchAnnotation('concept code #1', 'PVR', 'uniprotName')
+        assertThat gene_symbols, allOf(
+                hasSize(3),
+                contains(
+                        equalTo('PVR_HUMAN1'),
+                        equalTo('PVR_HUMAN2'),
+                        equalTo('PVR_HUMAN3')
+                )
+        )
+
+        gene_symbols = proteinResource.searchAnnotation('concept code #1', 'PVR_HUMAN1', 'uniprotName')
+        assertThat gene_symbols, allOf(
+                hasSize(1),
+                contains(equalTo('PVR_HUMAN1'))
+        )
+
+        gene_symbols = proteinResource.searchAnnotation('concept code #1', 'H', 'uniprotName')
+        assertThat gene_symbols, hasSize(0)
+    }
 }

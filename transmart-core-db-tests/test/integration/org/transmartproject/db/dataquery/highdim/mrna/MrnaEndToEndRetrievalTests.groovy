@@ -191,5 +191,61 @@ class MrnaEndToEndRetrievalTests {
                 Projection.ALL_DATA_PROJECTION)
     }
 
+    @Test
+    void testAnnotationSearch() {
+        def concept_code = 'concept code #1'
 
+        // test multiple result, alphabetical order
+        def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'geneSymbol')
+        assertThat symbols, allOf(
+                hasSize(3),
+                // should be in alphabetical order
+                contains(
+                        equalTo("BOGUSCPO"),
+                        equalTo("BOGUSRQCD1"),
+                        equalTo("BOGUSVNN3")
+                )
+        )
+
+        // test single result
+        symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUSC', 'geneSymbol')
+        assertThat symbols, allOf(
+                hasSize(1),
+                contains(equalTo('BOGUSCPO'))
+        )
+
+        // test non-occuring name
+        symbols = mrnaResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
+        assertThat symbols, hasSize(0)
+
+        // test invalid search property
+        symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'FOO')
+        assertThat symbols, hasSize(0)
+    }
+
+    @Test
+    void testGetDistribution() {
+        def result = mrnaResource.getDistribution('concept code #1', 'logIntensity', 'geneSymbol', 'BOGUSCPO', null)
+        // check number of returned results
+        assertThat result, hasSize(2)
+
+        // check patient ids, should be ordered by logIntensity value, so -301 before -302
+        // patient ids are of type long
+        assertThat result.collect {it[0]}, allOf(
+                hasSize(2),
+                contains(
+                        equalTo(-301L),
+                        equalTo(-302L)
+                )
+        )
+
+        // check logIntensity values, should be in ascending order
+        assertThat result.collect {it[1]}, allOf(
+                hasSize(2),
+                contains(
+                        equalTo(-3.3219 as Double),
+                        equalTo(-2.3219 as Double)
+                )
+        )
+    }
 }

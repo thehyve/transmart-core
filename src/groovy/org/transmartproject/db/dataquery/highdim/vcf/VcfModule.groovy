@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -28,6 +29,8 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
@@ -207,5 +210,31 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                     )
                 }
         )
+    }
+
+    @Override
+    List<String> searchAnnotation(String concept_code, String search_term, String search_property) {
+        //TODO VCF annotation searching not yet supported
+        []
+    }
+
+    @Override
+    List<String> getSearchableAnnotationProperties() {
+        ['chromosome', 'position', 'rsId', 'referenceAllele']
+    }
+
+    @Override
+    HighDimensionFilterType getHighDimensionFilterType() {
+        HighDimensionFilterType.VCF
+    }
+
+    @Override
+    List<String> getSearchableProjections() {
+        ['reference', 'variant', 'variantType']
+    }
+
+    @Override
+    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
+        sessionFactory.getCurrentSession().createCriteria(DeVariantDatasetCoreDb)
     }
 }

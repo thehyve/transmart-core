@@ -19,14 +19,22 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.Order
+import org.hibernate.criterion.Projections
+import org.hibernate.Criteria
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.querytool.QtPatientSetCollection
 
 import javax.annotation.PostConstruct
 
@@ -150,5 +158,67 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     final protected Map createAssayIndexMap(List assays) {
         int i = 0
         assays.collectEntries { [ it, i++ ] }
+    }
+
+    @Override
+    def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id) {
+        def search_property = constraint.property
+        def projection = constraint.projectionType.value
+        if (!getSearchableAnnotationProperties().contains(search_property) || !getSearchableProjections().contains(projection))
+            return []
+        def filter = highDimensionConstraintClosure(constraint)
+        Criteria c = prepareAnnotationCriteria(constraint, concept_code)
+        c.add(Restrictions.in('assay', DeSubjectSampleMapping.createCriteria().listDistinct { eq('conceptCode', concept_code) }))
+        if (result_instance_id != null) {
+            c.add(Restrictions.in('patient.id', QtPatientSetCollection.createCriteria().listDistinct {
+                eq('resultInstance.id', result_instance_id)
+                projections { property 'patient.id' }
+            }))
+        }
+        c.setProjection(Projections.projectionList()
+            .add(Projections.groupProperty('patient.id'))
+            .add(Projections.alias(Projections.avg(projection), 'score'))
+        )
+        c.addOrder(Order.asc('score'))
+        c.list().findAll {filter(it)}
+    }
+
+    protected abstract Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code)
+
+    protected def highDimensionConstraintClosure(ConstraintByOmicsValue constraint) {
+        if (getHighDimensionFilterType() == HighDimensionFilterType.SINGLE_NUMERIC) {
+            if (constraint.operator != null && constraint.constraint != null) {
+                switch (constraint.operator) {
+                    case ConstraintByOmicsValue.Operator.BETWEEN:
+                        def limits = constraint.constraint.split(':')*.toDouble()
+                        return {row -> limits[0] <= row[1] && row[1] <= limits[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {row -> limit == row[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.GREATER_OR_EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {row -> limit <= row[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.GREATER_THAN:
+                        def limit = constraint.constraint.toDouble()
+                        return {row -> limit < row[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.LOWER_OR_EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {row -> limit >= row[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.LOWER_THAN:
+                        def limit = constraint.constraint.toDouble()
+                        return {row -> limit > row[1]}
+                        break;
+                }
+            }
+            else
+                return {row -> true}
+        }
+        else
+            return {row -> false}
     }
 }

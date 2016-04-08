@@ -257,4 +257,33 @@ class MetaboliteEndToEndRetrievalTest {
         assertThat res, hasItem(contains(Double.NaN))
     }
 
+    @Test
+    void testSearchAnnotation() {
+        def concept_code = 'concept code #1'
+
+        def bcnames = metaboliteResource.searchAnnotation(concept_code, 'Crypt', 'biochemicalName')
+        assertThat bcnames, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('Cryptoxanthin 5,6:5\',8\'-diepoxide'),
+                        equalTo('Cryptoxanthin epoxide')
+                )
+        )
+
+        def ids = metaboliteResource.searchAnnotation(concept_code, 'HMDB', 'hmdbId')
+        assertThat ids, allOf(
+                hasSize(3),
+                contains(
+                        equalTo('HMDB30536'),
+                        equalTo('HMDB30537'),
+                        equalTo('HMDB30538')
+                )
+        )
+
+        def empty = metaboliteResource.searchAnnotation(concept_code, 'FOO', 'biochemicalName')
+        assertThat empty, hasSize(0)
+
+        empty = metaboliteResource.searchAnnotation(concept_code, 'HMDB', 'FOO')
+        assertThat empty, hasSize(0)
+    }
 }

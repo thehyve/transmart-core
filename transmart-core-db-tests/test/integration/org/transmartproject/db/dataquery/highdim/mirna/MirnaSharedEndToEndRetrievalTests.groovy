@@ -209,4 +209,27 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                 ))
         )
     }
+
+    @Test
+    void testSearchAnnotation() {
+        def mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'hsa', 'mirnaId')
+        assertThat mirna_ids, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('hsa-mir-3161'),
+                        equalTo('hsa-mir-323b')
+                )
+        )
+
+        mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'hsa-mir-32', 'mirnaId')
+        assertThat mirna_ids, allOf(
+                hasSize(1),
+                contains(
+                        equalTo('hsa-mir-323b')
+                )
+        )
+
+        mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'bogus', 'mirnaId')
+        assertThat mirna_ids, hasSize(0)
+    }
 }

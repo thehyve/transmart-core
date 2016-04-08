@@ -2,6 +2,7 @@ package org.transmartproject.db.dataquery.highdim.tworegion
 
 import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.MultiTabularResult
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.chromoregion.TwoChromosomesSegmentConstraintFactory
@@ -150,5 +153,32 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                             junction)
                 }
         )
+    }
+
+    @Override
+    List<String> searchAnnotation(String concept_code, String search_term, String search_property) {
+        //TODO Two region event annotation searching not yet supported
+        []
+    }
+
+    @Override
+    List<String> getSearchableAnnotationProperties() {
+        //TODO Two region event annotation searching not yet supported
+        []
+    }
+
+    @Override
+    HighDimensionFilterType getHighDimensionFilterType() {
+        HighDimensionFilterType.TWO_REGION
+    }
+
+    @Override
+    List<String> getSearchableProjections() {
+        []
+    }
+
+    @Override
+    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
+        sessionFactory.getCurrentSession().createCriteria(DeTwoRegionEvent)
     }
 }

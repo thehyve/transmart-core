@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
 import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.i2b2data.PatientDimension
 
 @EqualsAndHashCode(includes = [ 'assay', 'annotation' ])
 class DeSubjectRnaData implements Serializable {
@@ -38,7 +39,8 @@ class DeSubjectRnaData implements Serializable {
 
     static belongsTo = [
             annotation: DeRnaseqAnnotation,
-            assay:      DeSubjectSampleMapping
+            assay:      DeSubjectSampleMapping,
+            patient:    PatientDimension
     ]
 
     static mapping = {
@@ -48,6 +50,7 @@ class DeSubjectRnaData implements Serializable {
 
         annotation  column: 'probeset_id' // poor name; no probes involved
         assay       column: 'assay_id'
+        patient     column: 'patient_id'
 
         // here due to criteria bug
         jAnnotation column: 'probeset_id', insertable: false, updateable: false

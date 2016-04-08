@@ -33,6 +33,9 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.ConstraintByOmicsValue.Operator
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
@@ -176,18 +179,27 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     @Override
-    HighDimensionDataTypeResource getHighDimDataTypeResourceFromConcept(String conceptKey) {
-        def constraints = []
+    List<String> searchAnnotation(String concept_code, String search_term, String search_property) {
+        module.searchAnnotation(concept_code, search_term, search_property)
+    }
 
-        constraints << createAssayConstraint(
-                AssayConstraint.DISJUNCTION_CONSTRAINT,
-                subconstraints: [
-                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
-                                [concept_key: conceptKey]])
+    @Override
+    List<String> getSearchableAnnotationProperties() {
+        module.getSearchableAnnotationProperties()
+    }
 
-        def assayMultiMap = highDimensionResource.getSubResourcesAssayMultiMap(constraints)
+    @Override
+    HighDimensionFilterType getHighDimensionFilterType() {
+        module.getHighDimensionFilterType()
+    }
 
-        HighDimensionDataTypeResource dataTypeResource = assayMultiMap.keySet()[0]
-        return dataTypeResource
+    @Override
+    List<String> getSearchableProjections() {
+        module.getSearchableProjections()
+    }
+
+    @Override
+    def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id) {
+        module.getDistribution(constraint, concept_code, result_instance_id)
     }
 }

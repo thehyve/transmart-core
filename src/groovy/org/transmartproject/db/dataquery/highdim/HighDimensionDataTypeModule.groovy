@@ -28,6 +28,9 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.ConstraintByOmicsValue.Operator
+import org.transmartproject.core.querytool.HighDimensionFilterType
 
 public interface HighDimensionDataTypeModule {
 
@@ -113,4 +116,46 @@ public interface HighDimensionDataTypeModule {
      * @return List of marker types supported by this module
      */
     List<String> getPlatformMarkerTypes()
+
+    /**
+     * Search through the annotations of a given concept_code, for entries in search_property
+     * starting with search_term.
+     * @param concept_code
+     * @param search_term
+     * @param search_property
+     * @return An alphabetical list of annotations that start with search_term (case insensitive match),
+     * or an empty list if the search_property is unsupported
+     */
+    List<String> searchAnnotation(String concept_code, String search_term, String search_property)
+
+    /**
+     * @return A list of properties that can be used as search_property in {@link #searchAnnotation(String, String, String)}.
+     */
+    List<String> getSearchableAnnotationProperties()
+
+    /**
+     * @return A list of projections supported for filtering assays (e.g. to be used in cohort selection)
+     */
+    List<String> getSearchableProjections()
+
+    /**
+     * Finds the distribution for a particular property of a high dimensional dataset (e.g. the expression levels in log intensity of the probes associated with KRAS gene)
+     * @param constraint A {@link ConstraintByOmicsValue} object with at least selector, property and projectionType fields set to non-null values.
+     * The projectionType should correspond to a member of the list {@link #getSearchableProjections()}, e.g. 'logIntensity'
+     * The property should be a valid property of this high-dimensional data, i.e. it should be a member of the list {@link #getSearchableAnnotationProperties()}, e.g. 'geneSymbol'
+     * The selector is used to match a property against, e.g. 'KRAS'
+     * @param concept_code The concept code associated with the high dimensional data
+     * @param result_instance_id If this is null it will be ignored. Otherwise only the values for patients that are members
+     * of the given result instance will be returned.
+     *
+     * @return A list of items, each item is a list where the first element is the patient id and the second element is the
+     * associated value in the given projection.
+     */
+    def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id)
+
+    /**
+     * Get the {@link HighDimensionFilterType} for this high dimension data type.
+     * @return the filter type.
+     */
+    HighDimensionFilterType getHighDimensionFilterType()
 }

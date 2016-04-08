@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import org.apache.log4j.Logger
 import org.hibernate.SessionFactory
 import org.junit.After
 import org.junit.Before
@@ -322,5 +323,39 @@ class RnaSeqEndToEndRetrievalTests {
                 findAll { it.region == region }.
                 sort    { it.assay.id }. // data is sorted by assay id
                 collect { closeTo it."$property" as Double, DELTA }
+    }
+
+    @Test
+    void testAnnotationSearch() {
+        def concept_code = 'concept code #1'
+
+        def gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'E', 'geneSymbol')
+        assertThat gene_symbols, allOf(
+                hasSize(1),
+                contains(
+                        equalTo("ERG")
+                )
+        )
+
+        gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'T', 'geneSymbol')
+        assertThat gene_symbols, allOf(
+                hasSize(1),
+                contains(
+                        equalTo("TMPRSS")
+                )
+        )
+
+        gene_symbols = rnaseqResource.searchAnnotation(concept_code, '', 'geneSymbol')
+        assertThat gene_symbols, allOf(
+                hasSize(2),
+                // should be in alphabetical order
+                contains(
+                        equalTo("ERG"),
+                        equalTo("TMPRSS")
+                )
+        )
+
+        gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
+        assertThat gene_symbols, hasSize(0)
     }
 }

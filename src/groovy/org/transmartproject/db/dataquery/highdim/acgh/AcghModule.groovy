@@ -20,7 +20,9 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
+import org.hibernate.criterion.Restrictions
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,10 +32,14 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
+import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
+import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
@@ -204,5 +210,50 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                     regionRow
                 }
         )
+    }
+
+    @Override
+    List<String> searchAnnotation(String concept_code, String search_term, String search_property) {
+        if (!getSearchableAnnotationProperties().contains(search_property))
+            return []
+        DeChromosomalRegion.createCriteria().list {
+            dataRowsAcgh {
+                'in'('assay', DeSubjectSampleMapping.createCriteria().listDistinct {eq('conceptCode', concept_code)} )
+            }
+            ilike(search_property, search_term + '%')
+            projections { distinct(search_property) }
+            order(search_property, 'ASC')
+        }
+    }
+
+    @Override
+    List<String> getSearchableAnnotationProperties() {
+        ['geneSymbol', 'cytoband', 'name']
+    }
+
+    @Override
+    HighDimensionFilterType getHighDimensionFilterType() {
+        HighDimensionFilterType.ACGH
+    }
+
+    @Override
+    List<String> getSearchableProjections() {
+        ['chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
+         'probabilityOfLoss', 'probabilityOfNormal', 'probabilityOfGain', 'probabilityOfAmplification']
+    }
+
+    @Override
+    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
+        def search_property = constraint.property
+        def search_term = constraint.selector
+
+        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectAcghData)
+        c.add(Restrictions.in('region', DeChromosomalRegion.createCriteria().listDistinct {
+            eq(search_property, search_term)
+            eq('platform.id', DeSubjectSampleMapping.createCriteria().get {
+                eq('conceptCode', concept_code)
+                projections {distinct 'platform.id'}
+            })
+        }))
     }
 }
