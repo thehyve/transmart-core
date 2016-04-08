@@ -1,14 +1,13 @@
 package org.transmartproject.batch.highdim.assays
 
 import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.slf4j.LoggerFactory
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer
+import org.transmartproject.batch.test.TestLogUtils
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -20,22 +19,18 @@ import static org.springframework.batch.item.file.transform.DelimitedLineTokeniz
 class AssaysWrongFileHeaderWarningHandlerTests {
 
     AssaysWrongFileHeaderWarningHandler testee
-    Logger rootLog
     ListAppender<ILoggingEvent> listAppender
     String delimiter = DELIMITER_TAB
 
     @Before
     void init() {
         testee = new AssaysWrongFileHeaderWarningHandler(new DelimitedLineTokenizer(delimiter: delimiter))
-        rootLog = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)
-        listAppender = new ListAppender<ILoggingEvent>()
-        listAppender.start()
-        rootLog.addAppender(listAppender)
+        listAppender = TestLogUtils.initAndAppendListAppenderToTheRootLogger()
     }
 
     @After
     void clear() {
-        rootLog.detachAppender(listAppender)
+        TestLogUtils.removeListAppenderFromTheRootLoggger(listAppender)
     }
 
     @Test
