@@ -42,7 +42,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule(STUDY_ID, 'expression'),
-            new RunJobRule(PLATFORM_ID, 'annotation'),
+            new RunJobRule(PLATFORM_ID, 'mrna_annotation'),
             new RunJobRule("${STUDY_ID}_simple", 'clinical'),
     ])
 

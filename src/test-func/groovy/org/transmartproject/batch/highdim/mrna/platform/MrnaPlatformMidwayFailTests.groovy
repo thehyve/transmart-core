@@ -32,7 +32,7 @@ class MrnaPlatformMidwayFailTests implements FileCorruptingTestTrait {
     @Autowired
     RowCounter rowCounter
 
-    File originalFile = new File('studies/GPL570_bogus/annotation/GPL570_simplified.tsv')
+    File originalFile = new File('studies/GPL570_bogus/GPL570_simplified.tsv')
 
     @AfterClass
     static void cleanDatabase() {
@@ -51,7 +51,7 @@ class MrnaPlatformMidwayFailTests implements FileCorruptingTestTrait {
 
         // first execution
         def params = [
-                '-p', 'studies/' + PLATFORM_ID + '/annotation.params',
+                '-p', 'studies/' + PLATFORM_ID + '/mrna_annotation.params',
                 '-d', 'ANNOTATIONS_FILE=' + dataFile.absolutePath]
         firstExecution(params)
 

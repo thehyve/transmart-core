@@ -179,7 +179,7 @@ class JobStartupDetailsTests {
     void testPlatformJobStartupDetails() {
         def annotationDataFileName = 'empty_annotation_file.tsv'
         createTmpFile annotationDataFileName
-        Path paramsFile = createTmpFile 'annotation.params', """
+        Path paramsFile = createTmpFile 'mrna_annotation.params', """
             PLATFORM=test_platform_id
             TITLE=test_title
             ORGANISM=test_organism
@@ -201,7 +201,7 @@ class JobStartupDetailsTests {
     void testPlatformJobStartupDetailsDefaults() {
         def annotationDataFileName = 'empty_annotation_file.tsv'
         createTmpFile annotationDataFileName
-        Path paramsFile = createTmpFile 'annotation.params', """
+        Path paramsFile = createTmpFile 'mrna_annotation.params', """
             PLATFORM=test_platform_id
             TITLE=test_title
             ANNOTATIONS_FILE=${annotationDataFileName}
@@ -218,7 +218,7 @@ class JobStartupDetailsTests {
     void testPlatformIdIsRequired() {
         def annotationDataFileName = 'empty_annotation_file.tsv'
         createTmpFile annotationDataFileName
-        Path paramsFile = createTmpFile 'annotation.params', """
+        Path paramsFile = createTmpFile 'mrna_annotation.params', """
             TITLE=test_title
             ANNOTATIONS_FILE=${annotationDataFileName}
         """
@@ -230,7 +230,7 @@ class JobStartupDetailsTests {
     void testPlatformTitleIdIsRequired() {
         def annotationDataFileName = 'empty_annotation_file.tsv'
         createTmpFile annotationDataFileName
-        Path paramsFile = createTmpFile 'annotation.params', """
+        Path paramsFile = createTmpFile 'mrna_annotation.params', """
             PLATFORM=test_platform_id
             ANNOTATIONS_FILE=${annotationDataFileName}
         """
@@ -240,7 +240,7 @@ class JobStartupDetailsTests {
 
     @Test(expected = InvalidParametersFileException)
     void testAnnoationFileIsRequired() {
-        Path paramsFile = createTmpFile 'annotation.params', """
+        Path paramsFile = createTmpFile 'mrna_annotation.params', """
             PLATFORM=test_platform_id
             TITLE=test_title
         """

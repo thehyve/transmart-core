@@ -39,7 +39,7 @@ class MrnaSpecialConditionsTests
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RuleChain([
-            new RunJobRule(PLATFORM_ID, 'annotation'),
+            new RunJobRule(PLATFORM_ID, 'mrna_annotation'),
             new RunJobRule("${STUDY_ID}_simple", 'clinical'),
     ])
 
