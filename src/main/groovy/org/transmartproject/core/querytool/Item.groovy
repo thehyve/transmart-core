@@ -16,7 +16,7 @@ class Item {
     ConstraintByValue constraint
 
     /**
-     * The omics value constraint, or null.
+     * The highdimension value constraint, or null.
      */
     ConstraintByOmicsValue constraintByOmicsValue
 }
