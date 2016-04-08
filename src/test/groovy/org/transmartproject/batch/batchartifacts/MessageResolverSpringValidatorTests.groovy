@@ -70,8 +70,8 @@ class MessageResolverSpringValidatorTests {
 
     @Test
     void testSuccessfulValidation() {
-        def empryErrorsList = []
-        MessageResolverSpringValidator<TestBean> testee = init(item, empryErrorsList)
+        def emptyErrorsList = []
+        MessageResolverSpringValidator<TestBean> testee = init(item, emptyErrorsList)
 
         ListAppender<ILoggingEvent> listAppender = TestLogUtils.initAndAppendListAppenderToTheRootLogger()
 
