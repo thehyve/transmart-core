@@ -44,8 +44,8 @@ class ChromosomalRegionJobConfig {
     @Bean
     Job chromosomalRegionLoadJob() {
         jobs.get(JOB_NAME)
-                .start(deleteGplInfo)
-                .next(deleteChromosomalRegions)
+                .start(deleteChromosomalRegions)
+                .next(deleteGplInfo)
                 .next(insertGplInfo)
                 .next(insertChromosomalRegions)
                 .build()

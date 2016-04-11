@@ -54,8 +54,8 @@ class MetabolomicsPlatformJobConfig {
     @Bean
     Job metabolomicsPlatformLoadJob() {
         jobs.get(JOB_NAME)
-                .start(deleteGplInfo)
-                .next(deleteMetabolomicsAnnotation)
+                .start(deleteMetabolomicsAnnotation)
+                .next(deleteGplInfo)
                 .next(insertGplInfo)
                 .next(readTheGraph)
                 .next(metabolomicsAssignIds)
