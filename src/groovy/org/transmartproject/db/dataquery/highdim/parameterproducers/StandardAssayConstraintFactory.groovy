@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013-2014 The Hyve B.V.
+ * Copyright © 2013-2016 The Hyve B.V.
  *
  * This file is part of transmart-core-db.
  *
@@ -32,9 +32,6 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.*
 
-/**
- * Created by glopes on 11/18/13.
- */
 @Component
 class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory {
 
@@ -99,6 +96,14 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         def ids = processLongList 'ids', params.ids
 
         new AssayIdListCriteriaConstraint(ids: ids)
+    }
+
+    @ProducerFor(AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
+    AssayConstraint createPatientIdListConstraint(Map<String, Object> params) {
+        validateParameterNames(['ids'], params)
+        def ids = processStringList 'ids', params.ids
+
+        new PatientIdListCriteriaConstraint(patientIdList: ids)
     }
 
     @ProducerFor(AssayConstraint.DISJUNCTION_CONSTRAINT)
