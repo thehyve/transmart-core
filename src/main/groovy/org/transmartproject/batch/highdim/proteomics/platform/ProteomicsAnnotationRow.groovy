@@ -13,6 +13,7 @@ class ProteomicsAnnotationRow implements ChromosomalRegionSupport, PlatformOrgan
     String gplId
     String probesetId
     String uniprotId
+    String uniprotName
     String organism
 
     String chromosome

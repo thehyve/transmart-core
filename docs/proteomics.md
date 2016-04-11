@@ -7,15 +7,17 @@ Annotation
 The parameters file should be named `proteomics_annotation.params`.
 
 The annotations file has 7 columns.
-3 of them contain gene related information. These can be in any order, but their names
-need to be correct.
-The recommended order is `probesetID`, `uniprotID`,
+3 of them contain gene related information.
+The required order is `probesetID`, `uniprotID`,
 `species`, `gpl_id`, `chromosome`, `start`, `end`.
 
 Constraints:
 
 - The only mandatory columns are `probesetID` and `uniprotID`.
 - All gene region columns (`chromosome`, `start` and `end`) are required if at least one is provided. That is, either all or none of the gene information columns must be included.
+
+**Note:** The proteomics platform upload relies on the proteomics dictionary to seek uniprot names for the given uniprot identifiers. Currently proteomics dictionary could be uploaded by means of transmart-data.
+If there is no such protein information in the dictionary or the dictionary is not loaded at all the pipeline would fill in uniprot names with uniprot ids and warn user about this action.
 
 Example file:
 
