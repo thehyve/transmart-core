@@ -5,10 +5,12 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
+import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -26,9 +28,7 @@ import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.highdim.assays.AssayStepsConfig
 import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
-import org.transmartproject.batch.highdim.datastd.NegativeDataPointWarningProcessor
-import org.transmartproject.batch.highdim.datastd.PatientInjectionProcessor
-import org.transmartproject.batch.highdim.datastd.TripleStandardDataValueLogCalculationProcessor
+import org.transmartproject.batch.highdim.datastd.*
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
 import org.transmartproject.batch.startup.StudyJobParametersModule
 import org.transmartproject.batch.support.JobParameterFileResource
@@ -79,14 +79,12 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step secondPass(ItemWriter<RnaSeqDataValue> rnaSeqDataWriter) {
+    Step secondPass(ItemWriter<RnaSeqDataValue> rnaSeqDataWriter,
+                    ItemProcessor compositeOfRnaSeqSecondPassProcessors) {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(rnaSeqDataTsvFileReader())
-                .processor(compositeOf(
-                patientInjectionProcessor(),
-                tripleStandardDataValueLogCalculationProcessor()
-        ))
+                .processor(compositeOfRnaSeqSecondPassProcessors)
                 .writer(rnaSeqDataWriter)
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
@@ -96,9 +94,29 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    @JobScopeInterfaced
+    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfRnaSeqSecondPassProcessors(
+            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
+        def processors = []
+        if (skipUnmappedData == 'Y') {
+            processors << filterDataWithoutAssayMappingsItemProcessor()
+        }
+        processors << patientInjectionProcessor()
+        processors << tripleStandardDataValueLogCalculationProcessor()
+
+        compositeOf(*processors)
+    }
+
+    @Bean
     @JobScope
     CollectMinimumPositiveValueListener collectMinimumPositiveValueListener() {
         new CollectMinimumPositiveValueListener(minPositiveValueRequired: false)
+    }
+
+    @Bean
+    @JobScope
+    FilterDataWithoutAssayMappingsItemProcessor filterDataWithoutAssayMappingsItemProcessor() {
+        new FilterDataWithoutAssayMappingsItemProcessor()
     }
 
     @Bean

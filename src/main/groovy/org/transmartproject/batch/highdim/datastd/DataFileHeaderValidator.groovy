@@ -30,6 +30,8 @@ class DataFileHeaderValidator implements LineCallbackHandler {
     @Autowired
     private HeaderSavingLineCallbackHandler delegate
 
+    boolean skipUnmappedData
+
     @Override
     void handleLine(String line) {
         delegate.handleLine(line)
@@ -47,7 +49,7 @@ class DataFileHeaderValidator implements LineCallbackHandler {
         }
 
         headers[1..-1].each { String header ->
-            if (!(header in mappingSampleCodes)) {
+            if (!skipUnmappedData && !(header in mappingSampleCodes)) {
                 throw new ParseException("Data file header field " +
                         "'$header' does not match one of the sample codes " +
                         "in the mapping file, the set of which is: " +
@@ -64,5 +66,10 @@ class DataFileHeaderValidator implements LineCallbackHandler {
                         "got count $count")
             }
         }
+    }
+
+    @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}")
+    void setSkipUnmappedData(String value) {
+        skipUnmappedData = value == 'Y'
     }
 }

@@ -11,3 +11,4 @@ High dimensional data parameters
 - `ALLOW_MISSING_ANNOTATIONS` _Default:_ `N`. `Y` for yes, `N` for no. Whether
   the job should be allowed to continue when the data set doesn't provide data
   for all the annotations (here probes).
+- `SKIP_UNMAPPED_DATA` _Default:_ `N`. If `Y` then it ignores data points that have no subject mapping. Otherwise (`N`) gives an error for such data points.
