@@ -8,14 +8,13 @@ import org.junit.ClassRule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.beans.PersistentContext
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
-import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
 import org.transmartproject.batch.support.TableLists
@@ -49,8 +48,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
     @AfterClass
     static void cleanDatabase() {
         // TODO: implement backout study and call it here
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator).
+        PersistentContext.truncator.
                 truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
     }
 

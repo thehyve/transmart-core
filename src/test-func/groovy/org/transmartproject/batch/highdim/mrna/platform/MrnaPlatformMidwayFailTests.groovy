@@ -5,13 +5,12 @@ import org.junit.AfterClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.beans.PersistentContext
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
-import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.FileCorruptingTestTrait
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -37,8 +36,7 @@ class MrnaPlatformMidwayFailTests implements FileCorruptingTestTrait {
 
     @AfterClass
     static void cleanDatabase() {
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator).
+        PersistentContext.truncator.
                 truncate([Tables.MRNA_ANNOTATION, Tables.GPL_INFO, 'ts_batch.batch_job_instance'])
     }
 

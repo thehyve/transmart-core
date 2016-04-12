@@ -8,10 +8,10 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.springframework.batch.core.JobExecution
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.beans.PersistentContext
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
@@ -145,8 +145,7 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
 
     @AfterClass
     static void afterClass() {
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator)
-                .truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
+        PersistentContext.truncator.
+                truncate(TableLists.CLINICAL_TABLES + 'ts_batch.batch_job_instance')
     }
 }

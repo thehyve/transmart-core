@@ -6,18 +6,15 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.beans.PersistentContext
 import org.transmartproject.batch.clinical.db.objects.Tables
-import org.transmartproject.batch.db.TableTruncator
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
 import org.transmartproject.batch.support.TableLists
 
-import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
@@ -50,8 +47,7 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
 
     @AfterClass
     static void cleanDatabase() {
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator).
+        PersistentContext.truncator.
                 truncate(TableLists.CLINICAL_TABLES + TableLists.RNA_SEQ_TABLES + 'ts_batch.batch_job_instance',)
     }
 

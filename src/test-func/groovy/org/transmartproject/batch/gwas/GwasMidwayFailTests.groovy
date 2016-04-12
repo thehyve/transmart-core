@@ -6,11 +6,11 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
+import org.transmartproject.batch.beans.PersistentContext
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.RowCounter
 import org.transmartproject.batch.db.TableTruncator
@@ -56,8 +56,7 @@ class GwasMidwayFailTests implements FileCorruptingTestTrait {
     static void cleanDatabase() {
         GwasJobConfiguration.chunkSize = originalChunkSize
 
-        new AnnotationConfigApplicationContext(
-                GenericFunctionalTestConfiguration).getBean(TableTruncator).
+        PersistentContext.truncator.
                 truncate(TableLists.GWAS_TABLE_LISTS + 'ts_batch.batch_job_instance')
     }
 
