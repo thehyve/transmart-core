@@ -203,7 +203,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScope
-    ItemWriter<ClinicalVariable> saveClinicalVariableList(ClinicalJobContext ctx) {
+    PutInBeanWriter<ClinicalVariable> saveClinicalVariableList(ClinicalJobContext ctx) {
         new PutInBeanWriter<ClinicalVariable>(bean: ctx.variables)
     }
 

@@ -50,7 +50,7 @@ class MrnaDataStepsConfig extends AbstractTypicalHdDataStepsConfig {
     @Bean
     @Override
     @JobScope
-    ItemWriter<TripleStandardDataValue> getDataWriter() {
+    MrnaDataWriter getDataWriter() {
         new MrnaDataWriter()
     }
 

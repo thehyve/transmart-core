@@ -107,8 +107,8 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @JobScopeInterfaced
-    ItemWriter tagTsvWriter() {
+    @JobScope
+    TagWriter tagTsvWriter() {
         new TagWriter()
     }
 

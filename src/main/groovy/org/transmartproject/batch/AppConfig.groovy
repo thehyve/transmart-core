@@ -82,7 +82,7 @@ class AppConfig {
     }
 
     @Bean
-    BeanFactoryPostProcessor customizeJob() {
+    static BeanFactoryPostProcessor customizeJob() {
         { ConfigurableListableBeanFactory beanFactory ->
             def beanNames = beanFactory.getBeanNamesForType(Job)
             beanNames.each { beanName ->

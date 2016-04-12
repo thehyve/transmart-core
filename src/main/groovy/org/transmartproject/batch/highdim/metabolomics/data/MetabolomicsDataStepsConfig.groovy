@@ -56,7 +56,7 @@ class MetabolomicsDataStepsConfig extends AbstractTypicalHdDataStepsConfig {
     @Override
     @Bean
     @JobScope
-    ItemWriter<TripleStandardDataValue> getDataWriter() {
+    MetabolomicsDataWriter getDataWriter() {
         new MetabolomicsDataWriter()
     }
 }

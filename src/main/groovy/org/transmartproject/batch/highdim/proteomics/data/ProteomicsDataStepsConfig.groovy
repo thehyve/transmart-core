@@ -51,7 +51,7 @@ class ProteomicsDataStepsConfig extends AbstractTypicalHdDataStepsConfig {
     @Bean
     @Override
     @JobScope
-    ItemWriter<TripleStandardDataValue> getDataWriter() {
+    ProteomicsDataWriter getDataWriter() {
         new ProteomicsDataWriter()
     }
 
