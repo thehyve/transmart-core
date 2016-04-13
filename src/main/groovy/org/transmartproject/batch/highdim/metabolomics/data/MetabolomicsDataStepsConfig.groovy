@@ -16,7 +16,6 @@ import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.highdim.beans.AbstractTypicalHdDataStepsConfig
-import org.transmartproject.batch.highdim.datastd.TripleStandardDataValue
 
 /**
  * Spring context for metabolomics data loading steps.
