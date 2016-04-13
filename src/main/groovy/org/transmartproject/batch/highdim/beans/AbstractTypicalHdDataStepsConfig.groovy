@@ -4,8 +4,10 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.step.tasklet.TaskletStep
+import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -61,21 +63,34 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     }
 
     @Bean
-    Step secondPass() {
+    Step secondPass(
+            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors) {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(secondPassReader())
                 .writer(dataWriter)
-                .processor(compositeOf(
-                patientInjectionProcessor(),
-                new FilterNaNsItemProcessor()
-        ))
+                .processor(compositeOfHdSecondPassProcessors)
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
 
         step.streams = [secondPassDataRowSplitterReader()]
         step
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors(
+            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
+        def processors = [
+                new FilterNaNsItemProcessor()
+        ]
+        if (skipUnmappedData == 'Y') {
+            processors << filterDataWithoutAssayMappingsItemProcessor()
+        }
+        processors << patientInjectionProcessor()
+
+        compositeOf(*processors)
     }
 
     @Bean
@@ -113,6 +128,12 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     org.springframework.core.io.Resource dataFileResource() {
         new JobParameterFileResource(
                 parameter: StandardHighDimDataParametersModule.DATA_FILE)
+    }
+
+    @Bean
+    @JobScope
+    FilterDataWithoutAssayMappingsItemProcessor filterDataWithoutAssayMappingsItemProcessor() {
+        new FilterDataWithoutAssayMappingsItemProcessor()
     }
 
     @Bean

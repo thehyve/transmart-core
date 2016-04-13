@@ -11,9 +11,11 @@ import org.transmartproject.batch.startup.InvalidParametersFileException
 class StandardAssayParametersModule implements ExternalJobParametersModule {
 
     public final static String MAP_FILENAME = 'MAP_FILENAME'
+    public final static String SKIP_UNMAPPED_DATA = 'SKIP_UNMAPPED_DATA'
 
     Set<String> supportedParameters = ImmutableSet.of(
             MAP_FILENAME,
+            SKIP_UNMAPPED_DATA,
     )
 
     void validate(ExternalJobParametersInternalInterface ejp) {
@@ -23,5 +25,8 @@ class StandardAssayParametersModule implements ExternalJobParametersModule {
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
         ejp[MAP_FILENAME] = ejp.convertRelativePath MAP_FILENAME
+        if (ejp[SKIP_UNMAPPED_DATA] != 'Y') {
+            ejp[SKIP_UNMAPPED_DATA] = 'N'
+        }
     }
 }

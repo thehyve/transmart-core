@@ -11,6 +11,7 @@ import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -28,6 +29,7 @@ import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.highdim.assays.AssayStepsConfig
 import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
+import org.transmartproject.batch.highdim.datastd.FilterDataWithoutAssayMappingsItemProcessor
 import org.transmartproject.batch.highdim.datastd.PatientInjectionProcessor
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
 import org.transmartproject.batch.startup.StudyJobParametersModule
@@ -88,17 +90,35 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step secondPass(ItemWriter<AcghDataValue> acghDataWriter) {
-        TaskletStep step = steps.get('secondPass')
+    Step secondPass(ItemWriter<AcghDataValue> acghDataWriter,
+                    ItemProcessor<AcghDataValue, AcghDataValue> compositeOfAcghSecondPassProcessors) {
+        steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(acghDataTsvFileReader())
-                .processor(patientInjectionProcessor())
+                .processor(compositeOfAcghSecondPassProcessors)
                 .writer(acghDataWriter)
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
+    }
 
-        step
+    @Bean
+    @JobScopeInterfaced
+    ItemProcessor<AcghDataValue, AcghDataValue> compositeOfAcghSecondPassProcessors(
+            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
+        def processors = []
+        if (skipUnmappedData == 'Y') {
+            processors << filterDataWithoutAssayMappingsItemProcessor()
+        }
+        processors << patientInjectionProcessor()
+
+        compositeOf(*processors)
+    }
+
+    @Bean
+    @JobScope
+    FilterDataWithoutAssayMappingsItemProcessor filterDataWithoutAssayMappingsItemProcessor() {
+        new FilterDataWithoutAssayMappingsItemProcessor()
     }
 
     @Bean
