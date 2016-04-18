@@ -59,7 +59,7 @@ class MessageResolverSpringValidator<T> implements Validator<T> {
 
         def allNonStoppingErrors = nonStoppingGlobalErrors + nonStoppingFieldErrors
         if (allNonStoppingErrors) {
-            log.error startErrorMessage + collectMessages(allNonStoppingErrors).join(ERRORS_DIVIDER)
+            log.warn startErrorMessage + collectMessages(allNonStoppingErrors).join(ERRORS_DIVIDER)
         }
 
         def allStoppingErrors = stoppingGlobalErrors + stoppingFieldErrors

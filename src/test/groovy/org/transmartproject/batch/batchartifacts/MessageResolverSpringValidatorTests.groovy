@@ -140,7 +140,7 @@ class MessageResolverSpringValidatorTests {
 
             assertThat listAppender.list, contains(
                     allOf(
-                            hasProperty('level', equalTo(Level.ERROR)),
+                            hasProperty('level', equalTo(Level.WARN)),
                             hasProperty('message',
                                     allOf(
                                             containsString('code11 message'),
