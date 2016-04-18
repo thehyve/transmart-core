@@ -46,7 +46,7 @@ class NegativeDataPointWarningProcessor
 
     @Override
     StandardDataValue process(StandardDataValue item) throws Exception {
-        if (item.value == null || item.value > 0 || Double.isNaN(item.value)) {
+        if (item.value == null || item.value >= 0 || Double.isNaN(item.value)) {
             return item
         }
 
