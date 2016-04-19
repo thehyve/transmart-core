@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.jdbc.support.lob.LobHandler
+import org.springframework.jdbc.support.lob.DefaultLobHandler
 import org.springframework.transaction.PlatformTransactionManager
 import org.transmartproject.batch.batchartifacts.BetterExitMessageJobExecutionListener
 import org.transmartproject.batch.batchartifacts.DefaultJobIncrementer
@@ -42,7 +42,6 @@ class AppConfig {
     // in tests where we're just testing the composition of the
     // application context and don't have a real data source behind
     BatchConfigurer batchConfigurer(DataSource dataSource,
-                                    LobHandler lobHandler,
                                     Integer maxVarCharLength,
                                     String isolationLevelForCreate) {
         // extending DefaultBatchConfigurer ends up not being practical due
@@ -55,7 +54,9 @@ class AppConfig {
                 JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean(
                         isolationLevelForCreate: isolationLevelForCreate,
                         maxVarCharLength: maxVarCharLength,
-                        lobHandler: lobHandler,
+                        // the default is to use the OracleLobHandler in Oracle
+                        // avoid it, as it leaks temporary lobs that can fill up the TEMP tablespace
+                        lobHandler: new DefaultLobHandler(),
                         transactionManager: transactionManager,
                         dataSource: dataSource,
                 )
