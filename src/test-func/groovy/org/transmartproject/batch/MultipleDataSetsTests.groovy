@@ -37,7 +37,7 @@ class MultipleDataSetsTests implements JobRunningTestTrait {
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule("studies/${STUDY_ID}/expression/dataset2/expression.params"),
             new RunJobRule("studies/${STUDY_ID}/expression/dataset1/expression.params"),
-            new RunJobRule(PLATFORM_ID, 'annotation'),
+            new RunJobRule(PLATFORM_ID, 'mrna_annotation'),
             new RunJobRule("studies/${STUDY_ID}/clinical/clinical.params"),
     ])
 

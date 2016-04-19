@@ -41,7 +41,7 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
             new RunJobRule('ACGH_ANNOT', 'acgh_annotation'),
 
             new RunJobRule("studies/${STUDY_ID}/expression.params"),
-            new RunJobRule('GPL570_bogus', 'annotation'),
+            new RunJobRule('GPL570_bogus', 'mrna_annotation'),
 
             new RunJobRule("studies/${STUDY_ID}/clinical.params"),
     ])

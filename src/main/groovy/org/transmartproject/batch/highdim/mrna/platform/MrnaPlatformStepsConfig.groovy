@@ -4,10 +4,12 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
+import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -66,11 +68,12 @@ class MrnaPlatformStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     Step insertAnnotations(
-            ItemProcessor compositeMrnaAnnotationRowValidatingProcessor,
+            ItemReader<MrnaAnnotationRow> mrnaAnnotationRowReader,
+            ItemProcessor<MrnaAnnotationRow, MrnaAnnotationRow> compositeMrnaAnnotationRowValidatingProcessor,
             ItemWriter<MrnaAnnotationRow> mrnaAnnotationWriter) {
         steps.get('mainStep')
                 .chunk(chunkSize)
-                .reader(mrnaAnnotationRowReader(null))
+                .reader(mrnaAnnotationRowReader)
                 .processor(compositeMrnaAnnotationRowValidatingProcessor)
                 .writer(mrnaAnnotationWriter)
                 .listener(lineOfErrorDetectionListener())
@@ -97,12 +100,18 @@ class MrnaPlatformStepsConfig implements StepBuildingConfigurationTrait {
     @Bean
     @JobScope
     FlatFileItemReader<MrnaAnnotationRow> mrnaAnnotationRowReader(
-            org.springframework.core.io.Resource annotationsFileResource) {
-        tsvFileReader(
-                annotationsFileResource,
-                beanClass: MrnaAnnotationRow,
+            org.springframework.core.io.Resource annotationsFileResource,
+            @Value("#{jobParameters['HAS_HEADER']}") String hasHeader) {
+        def options = [
+                beanClass  : MrnaAnnotationRow,
                 columnNames: ['gplId', 'probeName', 'genes',
-                              'entrezIds', 'organism'])
+                              'entrezIds', 'organism']
+        ]
+        if (hasHeader == 'Y') {
+            options.linesToSkip = 1
+        }
+
+        tsvFileReader(options, annotationsFileResource)
     }
 
     @Bean

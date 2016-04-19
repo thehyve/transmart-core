@@ -1,4 +1,5 @@
+#Deprecated. Use mrna_annotation.params instead
 PLATFORM=GPL570_bogus
 TITLE="Affymetrix Human Genome U133A 2.0 Array"
 ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=GPL570_simplified.tsv
+ANNOTATIONS_FILE=GPL570_simplified_wo_header.tsv

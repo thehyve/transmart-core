@@ -15,6 +15,7 @@ import org.transmartproject.batch.highdim.acgh.platform.AcghAnnotationJobSpecifi
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
+import org.transmartproject.batch.highdim.mrna.platform.AnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
 import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpecification
 import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
@@ -36,7 +37,11 @@ final class JobStartupDetails {
 
     private final static Map<String, Class<? extends JobSpecification>> DATA_TYPE_TO_JOB_SPEC = [
             'clinical'               : ClinicalJobSpecification,
-            'annotation'             : MrnaAnnotationJobSpecification,
+            //Legacy. Deprecated. Use mrna_annotation instead
+            'annotation'             : AnnotationJobSpecification,
+            //New name for mrna platform. Unlike old platform data file, new file contains a header.
+            //That's why we need ne specification class.
+            'mrna_annotation'        : MrnaAnnotationJobSpecification,
             'tags'                   : TagsLoadJobSpecification,
             'expression'             : MrnaDataJobSpecification,
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,

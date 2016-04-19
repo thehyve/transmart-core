@@ -5,8 +5,29 @@ For historical reasons, the parameters file for mRNA data is called
 `expression.params`.
 For the content of this file see [the HD data parameters](hd-params.md) and [the study-specific parameters](study-params.md).
 
-Input files
------------
+Annotation
+----------
+
+Parameters file name has to be `mrna_annotation.params`.
+`annotation.params` name is also supported as a legacy.
+
+**Attention:** The data file referred by `ANNOTATIONS_FILE` field  of the `mrna_annotation.params` file is expected to have a header (**first line is skipped**).
+While the data file referred from `annotation.params` **must not have a header**.
+Such distinction made for backward compatibility reasons: old platform files did not have a header.
+
+The annotation data file has to have following columns:
+
+|   Column Name   |            Description             |
+|-----------------|------------------------------------|
+| GPL_ID          | Platform id (e.g. `GPL570`)        |
+| PROBE_NAME      | Probe name (e.g. `1007_s_at`)      |
+| GENES           | Gene name (e.g. `DDR1`)            |
+| ENTREZ_IDS      | Entrez gene id (e.g. `780`)        |
+| ORGANISM        | Species name (e.g. `Homo Sapiens`) |
+
+
+Data
+----
 
 ### Subject Sample Mapping
 
