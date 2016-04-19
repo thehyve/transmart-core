@@ -1,7 +1,6 @@
 package org.transmartproject.batch.db
 
 import com.jolbox.bonecp.BoneCPDataSource
-import com.jolbox.bonecp.spring.BoneCPNativeJdbcExtractor
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -11,9 +10,6 @@ import org.springframework.context.support.ConversionServiceFactoryBean
 import org.springframework.core.env.Environment
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.support.lob.DefaultLobHandler
-import org.springframework.jdbc.support.lob.LobHandler
-import org.springframework.jdbc.support.lob.OracleLobHandler
 import org.transmartproject.batch.beans.StringToPathConverter
 import org.transmartproject.batch.db.oracle.OracleSequenceReserver
 import org.transmartproject.batch.db.postgres.PostgresSequenceReserver
@@ -78,20 +74,6 @@ class DbConfig {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate(
             JdbcTemplate jdbcTemplate) {
         new NamedParameterJdbcTemplate(jdbcTemplate)
-    }
-
-    @Bean
-    LobHandler lobHandler(PerDbTypeRunner perDbTypeRunner) {
-        perDbTypeRunner.run([
-                postgresql: { ->
-                    new DefaultLobHandler()
-                },
-                oracle    : { ->
-                    OracleLobHandler lobHandler = new OracleLobHandler()
-                    lobHandler.nativeJdbcExtractor = new BoneCPNativeJdbcExtractor()
-                    lobHandler
-                },
-        ])
     }
 
     @JobScope
