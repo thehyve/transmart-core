@@ -12,27 +12,11 @@ class AuditLogFilters {
     User currentUserBean
 
 	public String getAnalysisName(Long analysisId) {
-		if (!analysisId) {
-			return
-		}
-		BioAssayAnalysis analysis = BioAssayAnalysis.get(analysisId)
-		if (!analysis) {
-			return
-		}
-		analysis.name
+		return analysisId ? BioAssayAnalysis.get(analysisId)?.name : null
 	}
 
     public String getAnalysisNames(String analysisIds) {
-        List<String> names = []
-        List<String> ids = analysisIds?.split(",") ?: []
-        for (String id: ids) {
-            Long analysisId = id.toLong()
-            String name = getAnalysisName(analysisId)
-            if (name) {
-                names += name
-            }
-        }
-        names.join("|")
+        return analysisIds?.split(",")?.map {getAnalysisName(it.toLong())}?.filter()?.join("|")
     }
 
     def filters = {
