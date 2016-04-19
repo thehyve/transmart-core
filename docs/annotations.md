@@ -7,7 +7,7 @@ high dimensional type. The annotation is generally not specific to a certain
 dataset, and can be shared between two or more similar datasets.
 
 For historical reasons, parameter files named `annotation.params` refer to mRNA
-platforms. But you should prefer to use the `mrna_annotation.params` name for the new files instead.
+platforms. But you should prefer to use the `mrna_annotation.params` name for new files instead.
 
 Parameters
 ----------
