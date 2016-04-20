@@ -14,21 +14,22 @@ UPLOAD_SCRIPTS_DIRECTORY=$(dirname "$0")
 UPLOAD_DATA_TYPE="rnaseq"
 source "$UPLOAD_SCRIPTS_DIRECTORY/process_params.inc"
 
+if [ -z "$RNASEQ_TYPE" ]; then
+    RNASEQ_TYPE=ACGH
+else
+    if [ "$RNASEQ_TYPE" != "RNASEQ" ] && [ "$RNASEQ_TYPE" != "ACGH" ]; then
+       echo "Invalid RNASEQ_TYPE parameter $RNASEQ_TYPE"
+       echo "possible values are RNASEQ or ACGH"
+       exit 1
+    fi
+fi
+
 if [ -z "$R_JOBS_PSQL" ]; then
     if [ -z "$KETTLE_JOBS_PSQL" ]; then
         echo "Error: Neither R_JOBS_PSQL nor KETTLE_JOBS_PSQL parameter has been set"
         exit 1
     else
         R_JOBS_PSQL="${KETTLE_JOBS_PSQL}/../../R"
-    fi
-fi
-
-RSCRIPT="Rscript"
-if ! type "$RSCRIPT" 2>&1 > /dev/null; then
-    RSCRIPT="/opt/R/bin/Rscript"
-    if ! type "$RSCRIPT" > /dev/null; then
-        echo "Error: Rscript command not found"
-        exit 1
     fi
 fi
 
@@ -68,8 +69,46 @@ if [ -z "$TOP_NODE_PREFIX" ]; then
 fi
 TOP_NODE="\\${TOP_NODE_PREFIX}\\${STUDY_NAME}\\"
 
-SOURCE_CD=${SOURCE_CD:-STD}
 DATA_TYPE=${DATA_TYPE:-R}    # Normalized readcounts are loaded as R (raw) by default. Use L (log2) to load log2 normalized readcounts.
+INC_LOAD=${INC_LOAD:-N}
+SOURCE_CD=${SOURCE_CD:-STD}
+LOG_BASE=${LOG_BASE:-2}
+
+
+if [ "$RNASEQ_TYPE" = "RNASEQ" ]; then
+    if [ ! -d logs ] ; then mkdir logs; fi
+
+    $KITCHEN -norep=Y                                        \
+	     -file=$KETTLE_JOBS/load_RNA_sequencing_data.kjb          \
+	     -log=logs/load_rnaseq_data_$(date +"%Y%m%d%H%M").log     \
+	     /param:DATA_FILE_PREFIX="$DATA_FILE_PREFIX"              \
+	     /param:DATA_LOCATION="$DATA_LOCATION"                    \
+	     /param:DATA_TYPE="$DATA_TYPE"                            \
+	     /param:FilePivot_LOCATION="${KETTLE_JOBS}/.."            \
+	     /param:INC_LOAD="$INC_LOAD"                              \
+	     /param:LOAD_TYPE=I                                       \
+	     /param:LOG_BASE="$LOG_BASE"                              \
+	     /param:MAP_FILENAME="$SUBJECT_SAMPLE_MAPPING"            \
+	     /param:SAMPLE_MAP_FILENAME="$SAMPLE_MAP_FILENAME"        \
+	     /param:SAMPLE_SUFFIX=                                    \
+	     /param:SECURITY_REQUIRED="$SECURITY_REQUIRED"            \
+	     /param:SORT_DIR=/tmp                                     \
+	     /param:SOURCE_CD="${SOURCE_CD}"                          \
+	     /param:STUDY_ID="$STUDY_ID"                              \
+	     /param:TOP_NODE="$TOP_NODE"
+
+    echo "All done."
+    exit 0
+fi
+
+RSCRIPT="Rscript"
+if ! type "$RSCRIPT" 2>&1 > /dev/null; then
+    RSCRIPT="/opt/R/bin/Rscript"
+    if ! type "$RSCRIPT" > /dev/null; then
+        echo "Error: Rscript command not found"
+        exit 1
+    fi
+fi
 
 # The unpivoted-file which will be loaded into the database
 RNASEQ_DATA_FILE_UPLOAD="${RNASEQ_DATA_FILE}".upload
