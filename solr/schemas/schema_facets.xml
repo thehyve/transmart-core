@@ -54,7 +54,6 @@
     <dynamicField name="ignored_*" type="ignored"/>
   </fields>
 
-  <copyField source="CONCEPT_PATH" dest="TEXT" maxChars="50000"/>
   <copyField source="*_t" dest="TEXT" maxChars="50000"/>
   <copyField source="*_s" dest="TEXT" maxChars="50000"/>
 
