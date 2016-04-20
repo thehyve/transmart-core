@@ -217,6 +217,7 @@ define TSBATCH_TEMPLATE
 	../../env/transmart-batch-capsule.jar \
 		-p '$$(realpath ../studies)/$$*/$(1).params' \
 		-c '$$(realpath ../../env)/$$(BATCH_PROPS)' \
+		-d 'STUDY_ID=$$*' \
 		$$(EXTRA_TSBATCH_ARGS)
 endef
 
