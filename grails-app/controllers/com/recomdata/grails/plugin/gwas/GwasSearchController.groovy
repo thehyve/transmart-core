@@ -842,21 +842,23 @@ class GwasSearchController {
                         else if (searchKeyword.dataCategory.equals("SNP")) {
                             limits = regionSearchService.getSnpLimits(geneId, ver, 0L)
                         }
-                        def low = limits.get('low')
-                        def high = limits.get('high')
-                        def chrom = limits.get('chrom')
+                        if (limits) {
+                            def low = limits.get('low')
+                            def high = limits.get('high')
+                            def chrom = limits.get('chrom')
 
-                        if (direction.equals("plus")) {
-                            high = high + range;
+                            if (direction.equals("plus")) {
+                                high = high + range;
+                            }
+                            else if (direction.equals("minus")) {
+                                low = low - range;
+                            }
+                            else {
+                                high = high + range;
+                                low = low - range;
+                            }
+                            regions.push([gene: geneId, chromosome: chrom, low: low, high: high, ver: ver])
                         }
-                        else if (direction.equals("minus")) {
-                            low = low - range;
-                        }
-                        else {
-                            high = high + range;
-                            low = low - range;
-                        }
-                        regions.push([gene: geneId, chromosome: chrom, low: low, high: high, ver: ver])
                     }
                 }
             }
