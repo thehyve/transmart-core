@@ -40,7 +40,7 @@ load_passwords:
 		$(RUN_SQL) --sequential
 
 load_user_objects: $(WRITE_SYNONYM_TARGETS) $(WRITE_GRANT_TARGETS)
-	$(LOAD_DDL) $(foreach s,$(SCHEMAS),-u $(s)) -j 10
+	$(LOAD_DDL) $(foreach s,$(SCHEMAS),-u $(s)) -j 1
 
 # tablespaces.sql must be recreated everytime because its contents depend on
 # an environment variable
