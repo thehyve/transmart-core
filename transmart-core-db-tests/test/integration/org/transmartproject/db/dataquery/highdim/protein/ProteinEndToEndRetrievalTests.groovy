@@ -175,7 +175,7 @@ class ProteinEndToEndRetrievalTests {
                 DataConstraint.PROTEINS_CONSTRAINT,
                 ids: testData.proteins.findAll {
                     it.name == 'Adiponectin' || it.name == 'Urea transporter 2'
-                }*.primaryExternalId)
+                }*.externalId)
 
         result = proteinResource.retrieveData(
                 [ trialConstraint ], [ dataConstraint ], projection)

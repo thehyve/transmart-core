@@ -53,7 +53,7 @@ class ProteinTestData {
         def createAnnotation = { id, proteinName, uniprotName, peptide ->
             def res = new DeProteinAnnotation(
                     peptide:     peptide,
-                    uniprotId:   biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.primaryExternalId,
+                    uniprotId:   biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.externalId,
                     uniprotName: uniprotName,
                     platform:    platform
             )
