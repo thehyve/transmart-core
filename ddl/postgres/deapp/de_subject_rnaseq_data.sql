@@ -2,6 +2,7 @@
 -- Name: de_subject_rnaseq_data; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_subject_rnaseq_data (
+    trial_source character varying(200),
     trial_name character varying(50),
     region_id bigint NOT NULL,
     assay_id bigint NOT NULL,
