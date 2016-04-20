@@ -281,7 +281,7 @@ BEGIN
 
   if pExists = 0 then
 	--	dataset is not partitioned so must delete
-	delete from de_subject_rnaseq_data
+	delete from deapp.de_subject_rnaseq_data
 	where trial_source = TrialId || ':' || sourceCd;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data from de_subject_rnaseq_data',SQL%ROWCOUNT,stepCt,'Done');
