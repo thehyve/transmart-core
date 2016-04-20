@@ -9,7 +9,7 @@
     <fieldType name="long" class="solr.TrieLongField" precisionStep="0"/>
     <fieldType name="date" class="solr.TrieDateField" precisionStep="8"/>
     <fieldType name="double" class="solr.TrieDoubleField" precisionStep="8"/>
-	<fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
@@ -46,12 +46,12 @@
     <dynamicField name="*_i" type="long" indexed="true" docValues="true" stored="false" multiValued="true"/>
     <dynamicField name="*_f" type="double" indexed="true" docValues="true" stored="false" multiValued="true"/>
 
-	<!-- to work-around limitation of tika extraction not supporting uppercase fields -->
+    <!-- to work-around limitation of tika extraction not supporting uppercase fields -->
     <field name="type" type="string" indexed="false" stored="false" required="false" multiValued="false"/>
     <field name="text" type="text" indexed="false" stored="false" required="false" multiValued="true"/>
     <field name="file_path" type="string" indexed="false" stored="false" required="false" multiValued="false"/>
     <field name="folder_id" type="long" indexed="false" stored="false" required="false" multiValued="false"/>
-	<dynamicField name="ignored_*" type="ignored"/>
+    <dynamicField name="ignored_*" type="ignored"/>
   </fields>
 
   <copyField source="CONCEPT_PATH" dest="TEXT" maxChars="50000"/>
