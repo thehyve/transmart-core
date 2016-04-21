@@ -41,6 +41,7 @@ load_passwords:
 
 load_user_objects: $(WRITE_SYNONYM_TARGETS) $(WRITE_GRANT_TARGETS)
 	$(LOAD_DDL) $(foreach s,$(SCHEMAS),-u $(s)) -j 1
+	$(RUN_SQL) -f missing_commands.sql
 
 # tablespaces.sql must be recreated everytime because its contents depend on
 # an environment variable
