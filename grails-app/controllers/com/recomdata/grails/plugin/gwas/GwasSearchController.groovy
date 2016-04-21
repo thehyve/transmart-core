@@ -858,6 +858,10 @@ class GwasSearchController {
                                 low = low - range;
                             }
                             regions.push([gene: geneId, chromosome: chrom, low: low, high: high, ver: ver])
+                        } else {
+                            log.error("regionSearchService, called from GwasSearchController.getSearchRegions, returned" +
+                                    "a null value for limit; most likely this is from a filter request that will fail" +
+                                    "as a consiquence of this error.")
                         }
                     }
                 }
