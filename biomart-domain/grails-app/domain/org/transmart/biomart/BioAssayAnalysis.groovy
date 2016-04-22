@@ -46,7 +46,7 @@ class BioAssayAnalysis implements IExcelProfile {
 	Long teaDataCount
 	String etlId
 	static hasMany=[datasets:BioAssayDataset,files:ContentReference, uniqueIds: BioData, diseases:Disease, observations:Observation, platforms:BioAssayPlatform]
-	//static hasOne=[ext:BioAssayAnalysisExt]
+	static hasOne=[ext:BioAssayAnalysisExt]
 	static belongsTo=[ContentReference, Disease, Observation, BioAssayPlatform]
 
 	static mapping = {
@@ -72,7 +72,7 @@ class BioAssayAnalysis implements IExcelProfile {
 			assayDataType column:'BIO_ASSAY_DATA_TYPE'
 			analysisMethodCode column:'ANALYSIS_METHOD_CD'
 			datasets joinTable:[name:'BIO_ASY_ANALYSIS_DATASET',key:'BIO_ASSAY_ANALYSIS_ID']
-		//	ext joinTable:[name:'BIO_ASSAY_ANALYSIS_EXT',key:'BIO_ASSAY_ANALYSIS_ID']
+			ext joinTable:[name:'BIO_ASSAY_ANALYSIS_EXT',key:'BIO_ASSAY_ANALYSIS_ID']
 			files joinTable:[name:'BIO_CONTENT_REFERENCE', key:'BIO_DATA_ID', column:'BIO_CONTENT_REFERENCE_ID'], cache:true
 			diseases joinTable:[name:'BIO_DATA_DISEASE', key:'BIO_DATA_ID'], cache:true
 			observations joinTable:[name:'BIO_DATA_OBSERVATION', key:'BIO_DATA_ID'], cache:true
@@ -93,7 +93,7 @@ class BioAssayAnalysis implements IExcelProfile {
 		rValueCutoff(nullable:true)
 		analysisPlatform(nullable:true)
 		type(nullable:true, maxSize:400)
-	//	ext(nullable:true)
+		ext(nullable:true)
 	}
 
 	/**
