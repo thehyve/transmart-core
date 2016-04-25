@@ -3,7 +3,12 @@ package org.transmartproject.batch.highdim.proteomics.platform
 import org.junit.AfterClass
 import org.junit.ClassRule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
@@ -28,14 +33,43 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
     static final long NUMBER_OF_PROBES = 8
 
     @ClassRule
-    public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'proteomics_annotation')
+    public final static TestRule RUN_JOB_RULES = new RuleChain([
+            new RunJobRule(PLATFORM_ID, 'proteomics_annotation'),
+            insertTestProteinsInBioMarkerTable()
+    ])
+
+    private static ExternalResource insertTestProteinsInBioMarkerTable() {
+        new ExternalResource() {
+            @Override
+            protected void before() throws Throwable {
+                super.before()
+
+                def context = new AnnotationConfigApplicationContext(GenericFunctionalTestConfiguration)
+                try {
+                    NamedParameterJdbcTemplate jdbcTempleate = context.getBean(NamedParameterJdbcTemplate)
+                    jdbcTempleate.update("INSERT INTO ${Tables.BIO_MARKER}" +
+                            "(bio_marker_name, primary_external_id, bio_marker_type)" +
+                            " VALUES ('0TEST_NAME', '0TEST', 'PROTEIN')",
+                            [:])
+                    jdbcTempleate.update("INSERT INTO ${Tables.BIO_MARKER}" +
+                            "(bio_marker_name, primary_external_id, bio_marker_type)" +
+                            " VALUES ('E9PC15_NAME', 'E9PC15', 'PROTEIN')",
+                            [:])
+                } finally {
+                    context.close()
+                }
+            }
+        }
+    }
+    public final static TestRule RUN_JOB_RULE = RUN_JOB_RULES.rulesStartingWithInnerMost[0]
 
     @AfterClass
     static void cleanDatabase() {
         PersistentContext.truncator.
                 truncate([Tables.GPL_INFO,
-                        Tables.PROTEOMICS_ANNOTATION,
-                        'ts_batch.batch_job_instance'])
+                          Tables.PROTEOMICS_ANNOTATION,
+                          'ts_batch.batch_job_instance',
+                          Tables.BIO_MARKER])
     }
 
     @Test
@@ -70,7 +104,7 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
     @Test
     void testAnnotationRow() {
         def q = """
-                SELECT gpl_id, uniprot_id, organism, chromosome, start_bp, end_bp
+                SELECT gpl_id, uniprot_id, uniprot_name, organism, chromosome, start_bp, end_bp
                 FROM ${Tables.PROTEOMICS_ANNOTATION}
                 WHERE peptide = :peptide
         """
@@ -84,10 +118,33 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                 allOf(
                         hasEntry('gpl_id', 'PROT_ANNOT'),
                         hasEntry('uniprot_id', 'E9PC15'),
+                        hasEntry('uniprot_name', 'E9PC15_NAME'),
                         hasEntry('organism', 'Homo Sapiens'),
                         hasEntry('chromosome', '7'),
                         hasEntry(is('start_bp'), isIntegerNumber(141251077l)),
                         hasEntry(is('end_bp'), isIntegerNumber(141354209l)),
+                )
+        )
+
+    }
+
+    @Test
+    void testAnnotationRowHasUniprotNameFilledInWithUniprotId() {
+        def q = """
+                SELECT uniprot_id, uniprot_name
+                FROM ${Tables.PROTEOMICS_ANNOTATION}
+                WHERE peptide = :peptide
+        """
+        def p = [peptide: '2243']
+
+        List<Map<String, Object>> r = queryForList q, p
+
+        assertThat r, hasSize(1)
+
+        assertThat r, contains(
+                allOf(
+                        hasEntry('uniprot_id', 'P34932'),
+                        hasEntry('uniprot_name', 'P34932'),
                 )
         )
 

@@ -47,7 +47,7 @@ class ProteomicsPlatformMidwayFailTests implements FileCorruptingTestTrait {
 
         // copy data and corrupt it
         File dataFile =
-                corruptFile(originalFile, 3, 2, 'Homo Sapiens BAD BATA')
+                corruptFile(originalFile, 3, 2, 'Homo Sapiens BAD DATA')
 
         // first execution
         def params = [

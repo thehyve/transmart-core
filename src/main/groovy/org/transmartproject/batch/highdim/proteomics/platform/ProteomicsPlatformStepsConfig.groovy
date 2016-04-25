@@ -11,9 +11,11 @@ import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
+import org.transmartproject.batch.biodata.BioDataConfig
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.highdim.datastd.ChromosomalRegionValidator
 import org.transmartproject.batch.highdim.datastd.PlatformValidator
@@ -28,6 +30,7 @@ import org.transmartproject.batch.support.JobParameterFileResource
  */
 @Configuration
 @ComponentScan
+@Import(BioDataConfig)
 class ProteomicsPlatformStepsConfig implements StepBuildingConfigurationTrait {
 
     static int chunkSize = 5000
@@ -46,6 +49,11 @@ class ProteomicsPlatformStepsConfig implements StepBuildingConfigurationTrait {
     @Bean
     Step deleteAnnotations(Tasklet deleteProteomicsAnnotationTasklet) {
         stepOf('deleteAnnotations', deleteProteomicsAnnotationTasklet)
+    }
+
+    @Bean
+    Step fillUniprotIdToUniprotNameMapping(Tasklet fillUniprotIdToUniprotNameMappingTasklet) {
+        allowStartStepOf('fillUniprotIdToUniprotNameMapping', fillUniprotIdToUniprotNameMappingTasklet)
     }
 
     @Bean
@@ -75,12 +83,23 @@ class ProteomicsPlatformStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step insertAnnotations(ItemProcessor compositeProteomicsAnnotationRowValidatingProcessor,
+    ItemProcessor<ProteomicsAnnotationRow, ProteomicsAnnotationRow> compositeProteomicsAnnotationRowProcessor(
+            ItemProcessor setUniprotNameProcessor,
+            ItemProcessor compositeProteomicsAnnotationRowValidatingProcessor
+    ) {
+        compositeOf(
+                setUniprotNameProcessor,
+                compositeProteomicsAnnotationRowValidatingProcessor
+        )
+    }
+
+    @Bean
+    Step insertAnnotations(ItemProcessor compositeProteomicsAnnotationRowProcessor,
                            ItemWriter<ProteomicsAnnotationRow> proteomicsAnnotationWriter) {
         steps.get('mainStep')
                 .chunk(chunkSize)
                 .reader(proteomicsAnnotationRowReader())
-                .processor(compositeProteomicsAnnotationRowValidatingProcessor)
+                .processor(compositeProteomicsAnnotationRowProcessor)
                 .writer(proteomicsAnnotationWriter)
                 .listener(lineOfErrorDetectionListener())
                 .listener(progressWriteListener())
