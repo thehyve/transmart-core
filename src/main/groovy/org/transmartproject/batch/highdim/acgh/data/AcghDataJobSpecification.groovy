@@ -16,7 +16,8 @@ class AcghDataJobSpecification implements JobSpecification {
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
             new StandardAssayParametersModule(),
-            new StandardHighDimDataParametersModule()
+            new StandardHighDimDataParametersModule(),
+            new AcghDataParametersModule()
     ]
 
     final Class<?> jobPath = AcghDataJobConfig

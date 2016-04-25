@@ -9,7 +9,14 @@ For format of the platform data file see [chromosomal_region.md](chromosomal_reg
 
 ## ACGH Data Upload
 
-Your must have `acgh.params` file. For possible parameter see [hd-params.md](hd-params.md).
+Your must have `acgh.params` file.
+
+For generic HD parameter see [hd-params.md](hd-params.md).
+
+Specific to this data type is the following:
+
+- `PROB_IS_NOT_1` _Default:_ `ERROR`. `ERROR` for failing when encountering a probability not summing up to one.
+`WARN` for logging the error and continuing.
 
 Below is the expected file format for ACGH data input files.
 First column always has to be region name. The rest of the columns are recognised by the name, not by position.
