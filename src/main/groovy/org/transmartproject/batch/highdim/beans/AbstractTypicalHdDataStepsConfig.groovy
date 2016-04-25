@@ -81,11 +81,15 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     @Bean
     @JobScopeInterfaced
     ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFilteringProcessors(
-            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
+            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData,
+            @Value("#{jobParameters['ZERO_MEANS_NO_INFO']}") String zeroMeansNoInfo) {
         def processors = [
                 new FilterNegativeValuesItemProcessor(),
                 new FilterNaNsItemProcessor(),
         ]
+        if (zeroMeansNoInfo == 'Y') {
+            processors << new FilterZerosItemProcessor()
+        }
         if (skipUnmappedData == 'Y') {
             processors << filterDataWithoutAssayMappingsItemProcessor()
         }

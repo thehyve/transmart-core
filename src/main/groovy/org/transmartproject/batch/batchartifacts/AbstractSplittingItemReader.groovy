@@ -54,9 +54,11 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
             wrappedDelegateLineFetch()
 
             cachedValues = [] as Queue
+            boolean sawData = false
             while (!needsDelegateFetch()) {
                 def value = uncachedRead()
                 if (value != null) {
+                    sawData = true
                     if (!earlyItemFilter || earlyItemFilter.keepItem(value)) {
                         cachedValues << value
                     }
@@ -66,7 +68,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                 }
             }
 
-            if (!cachedValues) {
+            if (!cachedValues && !sawData) {
                 return null
             }
 
@@ -77,6 +79,11 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                         "${upstreamPos}-th line gotten from delegate, " +
                         "fieldset '$currentFieldSet', items '$cachedValues'", e
                 throw e
+            }
+
+            if (!cachedValues /* && sawData */) {
+                // we filtered out the whole line
+                return cachedRead()
             }
         }
 
