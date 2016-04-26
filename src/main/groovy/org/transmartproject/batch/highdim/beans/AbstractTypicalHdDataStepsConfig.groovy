@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
@@ -63,13 +64,12 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     }
 
     @Bean
-    Step secondPass(
-            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors) {
+    Step secondPass() {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(secondPassReader())
                 .writer(dataWriter)
-                .processor(compositeOfHdSecondPassProcessors)
+                .processor(patientInjectionProcessor())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
@@ -80,16 +80,15 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @JobScopeInterfaced
-    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors(
+    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFilteringProcessors(
             @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
         def processors = [
-                new FilterNaNsItemProcessor()
+                new FilterNegativeValuesItemProcessor(),
+                new FilterNaNsItemProcessor(),
         ]
         if (skipUnmappedData == 'Y') {
             processors << filterDataWithoutAssayMappingsItemProcessor()
         }
-        processors << patientInjectionProcessor()
-
         compositeOf(*processors)
     }
 
@@ -160,17 +159,32 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    StandardDataRowSplitterReader secondPassDataRowSplitterReader() {
+    StandardDataRowSplitterReader secondPassDataRowSplitterReader(
+            AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue> earlyItemFilter) {
         new StandardDataRowSplitterReader(
                 delegate: secondPassTsvFileReader(),
                 dataPointClass: TripleStandardDataValue,
-                eagerLineListener: perDataRowLog2StatisticsListener())
+                eagerLineListener: perDataRowLog2StatisticsListener(),
+                earlyItemFilter: earlyItemFilter)
     }
 
     @Bean
     @JobScope
     PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener() {
         new PerDataRowLog2StatisticsListener()
+    }
+
+    @Bean
+    @JobScope
+    AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue> earlyItemFilter(
+            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFilteringProcessors
+    ) {
+        new AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue>() {
+            @Override
+            boolean keepItem(TripleStandardDataValue item) {
+                compositeOfFilteringProcessors.process(item)
+            }
+        }
     }
 
     @Bean

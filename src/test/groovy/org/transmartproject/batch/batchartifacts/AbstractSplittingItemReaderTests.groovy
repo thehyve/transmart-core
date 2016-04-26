@@ -143,10 +143,10 @@ class AbstractSplittingItemReaderTests {
         private double mean
 
         @Override
-        void onLine(FieldSet fieldSet, Collection items) {
+        void onLine(FieldSet fieldSet, Collection keptItems) {
             OnlineMeanAndVarianceCalculator c =
                     new OnlineMeanAndVarianceCalculator()
-            items.each { c.push it }
+            keptItems.each { c.push it }
             mean = c.mean
         }
 
