@@ -721,6 +721,14 @@ class GwasSearchController {
         if (search != null) { filter.search = search }
 
         def analysisIds = session['solrAnalysisIds']
+
+        if (analysisIds[0] == -1) {
+            // in the case that no filter is selected - where we get no a "not a set" indicator from the session
+            // which results in an empty set after the intersection with "allowed ids" below
+            render(text: "<p>To use the table view, please select one of more filters from the filter browser in the left pane.</p>")
+            return
+        }
+
         // following code will limit analysis ids to ones that the user is allowed to access
         def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
         def secObjs=getExperimentSecureStudyList()
@@ -739,12 +747,9 @@ class GwasSearchController {
 			render(text: "<p>The table view cannot be used with more than 100 analyses (${analysisIds.size()} analyses in current search results). Narrow down your results by adding filters.</p>")
 			return
 		}
-		else*/ if (analysisIds.size() == 0) {
+		else*/
+        if (analysisIds.size() == 0) {
             render(text: "<p>No analyses were found for the current filter!</p>")
-            return
-        }
-        else if (analysisIds[0] == -1) {
-            render(text: "<p>To use the table view, please select a study or set of analyses from the filter browser in the left pane.</p>")
             return
         }
 
