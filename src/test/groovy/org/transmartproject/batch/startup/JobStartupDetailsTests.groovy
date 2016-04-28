@@ -4,6 +4,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.transmartproject.batch.clinical.ClinicalDataLoadJobConfiguration
+import org.transmartproject.batch.highdim.acgh.data.AcghDataJobConfig
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobConfig
 import org.transmartproject.batch.highdim.mrna.platform.MrnaPlatformJobConfig
 
@@ -295,6 +296,61 @@ class JobStartupDetailsTests {
         assertThat startupDetails['LOG_BASE'], equalTo('2')
         assertThat startupDetails['ALLOW_MISSING_ANNOTATIONS'], equalTo('N')
         assertThat startupDetails['ZERO_MEANS_NO_INFO'], equalTo('N')
+    }
+
+    @Test
+    void testAcghProbIsNotOneDefaultIsError() {
+        def dataFileName = 'empty_data_file.tsv'
+        def ssmFileName = 'empty_ssm_file.tsv'
+
+        createTmpFile dataFileName
+        createTmpFile ssmFileName
+        Path paramsFile = createTmpFile 'acgh.params', """
+            STUDY_ID=test_study
+            DATA_FILE=${dataFileName}
+            MAP_FILENAME=${ssmFileName}
+        """
+
+        JobStartupDetails startupDetails = JobStartupDetails.fromFile(paramsFile)
+        assertThat startupDetails, hasProperty('jobPath', equalTo(AcghDataJobConfig))
+        assertThat startupDetails['PROB_IS_NOT_1'], equalTo('ERROR')
+    }
+
+    @Test
+    void testAcghProbIsNotOne() {
+        def dataFileName = 'empty_data_file.tsv'
+        def ssmFileName = 'empty_ssm_file.tsv'
+        def providedArgument = 'WARN'
+
+        createTmpFile dataFileName
+        createTmpFile ssmFileName
+        Path paramsFile = createTmpFile 'acgh.params', """
+            STUDY_ID=test_study
+            DATA_FILE=${dataFileName}
+            MAP_FILENAME=${ssmFileName}
+            PROB_IS_NOT_1=${providedArgument}
+        """
+
+        JobStartupDetails startupDetails = JobStartupDetails.fromFile(paramsFile)
+        assertThat startupDetails['PROB_IS_NOT_1'], equalTo(providedArgument)
+    }
+
+    @Test(expected = InvalidParametersFileException)
+    void testAcghProbIsNotOneExpectedError() {
+        def dataFileName = 'empty_data_file.tsv'
+        def ssmFileName = 'empty_ssm_file.tsv'
+        def providedArgument = 'FAIL!'
+
+        createTmpFile dataFileName
+        createTmpFile ssmFileName
+        Path paramsFile = createTmpFile 'acgh.params', """
+            STUDY_ID=test_study
+            DATA_FILE=${dataFileName}
+            MAP_FILENAME=${ssmFileName}
+            PROB_IS_NOT_1=${providedArgument}
+        """
+
+        JobStartupDetails.fromFile(paramsFile)
     }
 
     Path createTmpFile(String fileName, String content = '', String folder = '') {

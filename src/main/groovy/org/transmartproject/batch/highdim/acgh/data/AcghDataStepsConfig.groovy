@@ -62,12 +62,16 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    @JobScope
     ItemProcessor<AcghDataValue, AcghDataValue> acghDataValueValidatingItemProcessor(
-            AcghDataValueValidator acghDataValueValidator) {
+            AcghDataValueValidator acghDataValueValidator,
+            @Value("#{jobParameters['PROB_IS_NOT_1']}") String probIsNotOneSeverity) {
 
-        Set<ValidationErrorMatcherBean> nonStoppingErrors = [
-                new ValidationErrorMatcherBean(code: 'sumOfProbabilitiesIsNotOne'),
-        ] as Set
+        Set<ValidationErrorMatcherBean> nonStoppingErrors = [] as Set
+
+        if (probIsNotOneSeverity == 'WARN') {
+            nonStoppingErrors.add(new ValidationErrorMatcherBean(code: 'sumOfProbabilitiesIsNotOne'))
+        }
 
         new ValidatingItemProcessor(
                 adaptValidator(
