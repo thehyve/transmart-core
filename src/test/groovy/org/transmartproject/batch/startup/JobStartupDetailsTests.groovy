@@ -261,6 +261,7 @@ class JobStartupDetailsTests {
             DATA_TYPE=R
             LOG_BASE=2
             ALLOW_MISSING_ANNOTATIONS=Y
+            ZERO_MEANS_NO_INFO=Y
         """
 
         JobStartupDetails startupDetails = JobStartupDetails.fromFile(paramsFile)
@@ -273,6 +274,7 @@ class JobStartupDetailsTests {
         assertThat startupDetails['DATA_TYPE'], equalTo('R')
         assertThat startupDetails['LOG_BASE'], equalTo('2')
         assertThat startupDetails['ALLOW_MISSING_ANNOTATIONS'], equalTo('Y')
+        assertThat startupDetails['ZERO_MEANS_NO_INFO'], equalTo('Y')
     }
 
     @Test
@@ -292,6 +294,7 @@ class JobStartupDetailsTests {
         assertThat startupDetails['DATA_TYPE'], equalTo('R')
         assertThat startupDetails['LOG_BASE'], equalTo('2')
         assertThat startupDetails['ALLOW_MISSING_ANNOTATIONS'], equalTo('N')
+        assertThat startupDetails['ZERO_MEANS_NO_INFO'], equalTo('N')
     }
 
     Path createTmpFile(String fileName, String content = '', String folder = '') {

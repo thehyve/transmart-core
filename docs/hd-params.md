@@ -12,3 +12,5 @@ High dimensional data parameters
   the job should be allowed to continue when the data set doesn't provide data
   for all the annotations (here probes).
 - `SKIP_UNMAPPED_DATA` _Default:_ `N`. If `Y` then it ignores data points that have no subject mapping. Otherwise (`N`) gives an error for such data points.
+- `ZERO_MEANS_NO_INFO` _Default:_ `N`. If `Y` then the rows with raw values equal 0 would be filtered out. Otherwise (`N`) they will be inserted to the database.
+    The flag applies to most of HD data types. It does not effect CNV (ACGH) data. For RNAseq read count data the check on zeros happens based on normalized read count.

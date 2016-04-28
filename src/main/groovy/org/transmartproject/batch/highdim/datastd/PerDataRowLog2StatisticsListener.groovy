@@ -53,15 +53,9 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
     }
 
     @Override
-    void onLine(FieldSet fieldSet, Collection<DataPoint> items) {
+    void onLine(FieldSet fieldSet, Collection<DataPoint> keptItems) {
         rowStatistics.reset()
-        long ignoredCount = 0
-        items.each {
-            if (Double.isNaN(it.value) || it.value < 0d) {
-                ignoredCount++
-                return
-            }
-
+        keptItems.each {
             // division by log(2) to get binary logarithm is done inside getters: getMean() and getStandardDeviation()
             // it's done so to do not collect error and fro optimization reasons.
             rowStatistics.push log(it.value, minPosDataSetValue)
@@ -70,7 +64,7 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
 
         def annotationName = fieldSet.readString(0)
         log.debug("Annotation $annotationName: mean=$mean, " +
-                "stddev=$standardDeviation n=${rowStatistics.n} ignored=$ignoredCount")
+                "stddev=$standardDeviation n=${rowStatistics.n}")
 
         if (standardDeviation == 0.0d && rowStatistics.n > 0) {
             log.warn("Values for annotation $annotationName have zero " +

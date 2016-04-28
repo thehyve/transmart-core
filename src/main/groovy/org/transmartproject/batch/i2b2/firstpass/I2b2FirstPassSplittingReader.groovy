@@ -212,9 +212,9 @@ class I2b2FirstPassSplittingReader extends
             implements EagerLineListener<I2b2FirstPassDataPoint> {
 
         @Override
-        void onLine(FieldSet fieldSet, Collection<I2b2FirstPassDataPoint> items) {
+        void onLine(FieldSet fieldSet, Collection<I2b2FirstPassDataPoint> keptItems) {
             Map<String, String> externalIds = getExternalIds(fieldSet)
-            Set<String> dimensionsWithData = getDimensionsWithData(items)
+            Set<String> dimensionsWithData = getDimensionsWithData(keptItems)
 
             checkForRepeatedDimensionData(externalIds, dimensionsWithData)
             checkForModifierDataWithoutConceptData(fieldSet)

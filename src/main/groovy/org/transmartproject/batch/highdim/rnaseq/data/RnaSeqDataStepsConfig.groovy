@@ -96,8 +96,12 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     @Bean
     @JobScopeInterfaced
     ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfRnaSeqSecondPassProcessors(
+            @Value("#{jobParameters['ZERO_MEANS_NO_INFO']}") String zeroMeansNoInfo,
             @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
         def processors = []
+        if (zeroMeansNoInfo == 'Y') {
+            processors << new FilterZerosItemProcessor()
+        }
         if (skipUnmappedData == 'Y') {
             processors << filterDataWithoutAssayMappingsItemProcessor()
         }

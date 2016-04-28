@@ -18,6 +18,8 @@ class StandardHighDimDataParametersModule
     public final static String DATA_TYPE = 'DATA_TYPE'
     public final static String LOG_BASE = 'LOG_BASE'
     public final static String ALLOW_MISSING_ANNOTATIONS = 'ALLOW_MISSING_ANNOTATIONS'
+    public final static String ZERO_MEANS_NO_INFO = 'ZERO_MEANS_NO_INFO'
+    public static final Set<String> YES_NO = ['Y', 'N'] as Set
 
     Set<String> supportedParameters = ImmutableSet.of(
             DATA_FILE_PREFIX,
@@ -25,6 +27,7 @@ class StandardHighDimDataParametersModule
             DATA_TYPE,
             LOG_BASE,
             ALLOW_MISSING_ANNOTATIONS,
+            ZERO_MEANS_NO_INFO,
     )
 
     void validate(ExternalJobParametersInternalInterface ejp)
@@ -45,6 +48,10 @@ class StandardHighDimDataParametersModule
         if (ejp[DATA_FILE_PREFIX] == null && ejp[DATA_FILE] == null) {
             throw new InvalidParametersFileException(
                     "Either $DATA_FILE_PREFIX or $DATA_FILE must be set")
+        }
+        if (!YES_NO.contains(ejp[ZERO_MEANS_NO_INFO])) {
+            throw new InvalidParametersFileException("${ZERO_MEANS_NO_INFO} flag has invalid argument " +
+                    "${ejp[ZERO_MEANS_NO_INFO]}. It has to be one of the following ${YES_NO.join(', ')}")
         }
     }
 
@@ -67,6 +74,10 @@ class StandardHighDimDataParametersModule
 
         if (ejp[ALLOW_MISSING_ANNOTATIONS] != 'Y') {
             ejp[ALLOW_MISSING_ANNOTATIONS] = 'N'
+        }
+
+        if (ejp[ZERO_MEANS_NO_INFO] == null) {
+            ejp[ZERO_MEANS_NO_INFO] = 'N'
         }
     }
 }
