@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-set -x
-
 source vars
 
 function apt_install {
