@@ -4,7 +4,6 @@ import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.step.FatalStepExecutionException
-import org.transmartproject.batch.concept.ConceptType
 
 /**
  * Unsurprisingly, represents a patient.
