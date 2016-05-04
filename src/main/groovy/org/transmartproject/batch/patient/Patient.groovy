@@ -26,8 +26,8 @@ final class Patient {
             }
 
             try {
-                demographicValues[var] = var.type == ConceptType.NUMERICAL ?
-                        value ? Math.floor(value as Float) as Integer : null :    /* assumption: AGE is only NUMERICAL in DemographicVariable*/
+                demographicValues[var] = var.name() == 'AGE' ?
+                        value ? Math.floor(value as Float) as Integer : null :
                         value
             } catch (NumberFormatException nfe) {
                 throw new FatalStepExecutionException(
