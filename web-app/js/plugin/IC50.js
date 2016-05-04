@@ -1,20 +1,35 @@
-/*************************************************************************   
-* Copyright 2008-2012 Janssen Research & Development, LLC.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-******************************************************************/
+/**
+ * Register drag and drop.
+ * Clear out all gobal variables and reset them to blank.
+ */
+function loadIc50View(){
+    registerIC50DragAndDrop();
+    clearHighDimDataSelections('divCellLinesVariable');
+    clearHighDimDataSelections('divConcentrationVariable');
+}
 
-function submitIC50Job(form){
+/**
+ * Constructor
+ * @constructor
+ */
+var Ic50View = function () {
+    RmodulesView.call(this);
+}
+
+/**
+ * Inherit RModulesView
+ * @type {RmodulesView}
+ */
+Ic50View.prototype = new RmodulesView();
+
+/**
+ * Correct pointer
+ * @type {Ic50View}
+ */
+Ic50View.prototype.constructor = Ic50View;
+
+
+Ic50View.prototype.submitIC50Job = function(form){
 	
 	var cellLineVariableConceptCode = "";
 	var dosageVariableConceptCode 	= "";
@@ -61,8 +76,8 @@ function submitIC50Job(form){
 	{
 		Ext.Msg.alert('Wrong input', 'You may only drag nodes of the same type (Continuous,Categorical,High Dimensional) into the input box. The Concentration input box has multiple types.');
 		return;		
-	}	
-	
+	}
+
 	//If something was entered into the cell variable box, but we have something in the node list, that means the item dragged in wasn't categorical.
 	if(!this.isCategorical(cellNodeList))
 	{
@@ -105,18 +120,10 @@ function submitIC50Job(form){
 			parentNodeList:							'concentrationVariable',
 			includeContexts:						'true'
 	};
-	
-	submitJob(formParams);
-}
 
-/**
- * Register drag and drop.
- * Clear out all gobal variables and reset them to blank.
- */
-function loadIc50View(){
-	registerIC50DragAndDrop();
-	clearHighDimDataSelections('divCellLinesVariable');
-	clearHighDimDataSelections('divConcentrationVariable');
+    console.log("formParams ....",formParams)
+
+    submitJob(formParams);
 }
 
 /**
@@ -152,3 +159,6 @@ function registerIC50DragAndDrop()
 	dtgD.notifyDrop =  dropOntoCategorySelection;
 	
 }
+
+// instantiate IC50 view instance
+var ic50view = new Ic50View();
