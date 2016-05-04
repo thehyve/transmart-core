@@ -27,7 +27,7 @@ final class Patient {
 
             try {
                 demographicValues[var] = var.type == ConceptType.NUMERICAL ?
-                        (value ?: null) as Float :    /* Accept decimal values, round will be done */
+                        value ? Math.floor(value as Float) as Integer : null :    /* assumption: AGE is only NUMERICAL in DemographicVariable*/
                         value
             } catch (NumberFormatException nfe) {
                 throw new FatalStepExecutionException(
