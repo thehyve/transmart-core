@@ -1,4 +1,4 @@
-%{--include js lib for table fisher dynamically--}%
+%{--include js lib for ic50 dynamically--}%
 <r:require modules="ic50_plot"/>
 <r:layoutResources disposition="defer"/>
 
