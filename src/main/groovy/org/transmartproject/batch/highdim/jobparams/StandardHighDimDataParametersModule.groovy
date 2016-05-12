@@ -83,12 +83,7 @@ class StandardHighDimDataParametersModule
 
         ejp[DATA_FILE] = convertRelativePath ejp, DATA_FILE
 
-        if (ejp[ALLOW_MISSING_ANNOTATIONS] != 'Y') {
-            ejp[ALLOW_MISSING_ANNOTATIONS] = 'N'
-        }
-
-        if (ejp[ZERO_MEANS_NO_INFO] == null) {
-            ejp[ZERO_MEANS_NO_INFO] = 'N'
-        }
+        mungeBoolean(ejp, ALLOW_MISSING_ANNOTATIONS, false)
+        mungeBoolean(ejp, ZERO_MEANS_NO_INFO, false)
     }
 }

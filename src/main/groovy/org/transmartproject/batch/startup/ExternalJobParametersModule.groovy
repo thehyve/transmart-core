@@ -62,17 +62,20 @@ trait ExternalJobParametersModule {
      * Munges a boolean parameter, which will be stored not as a boolean
      * parameter but as Y/N. For historical reasons, of course.
      *
-     * Any value different from 0, false and N will be interpreted as Y.
-     * @param parameter
+     * @param ejp parameter/argument map
+     * @param parameter parameter to munge
      * @param defaultValue if not provided, whether to use Y (true) or F (false)
      */
     static void mungeBoolean(ExternalJobParametersInternalInterface ejp, String parameter, boolean defaultValue) {
         if (ejp[parameter] == null) {
             ejp[parameter] = defaultValue ? 'Y' : 'N'
-        } else if (ejp[parameter] in ['0', 'false', 'N']) {
+        } else if (ejp[parameter].toUpperCase() in ['N', 'NO']) {
             ejp[parameter] = 'N'
-        } else {
+        } else if (ejp[parameter].toUpperCase() in ['Y', 'YES']) {
             ejp[parameter] = 'Y'
+        } else {
+            throw new InvalidParametersFileException(
+                    "Unexpected argument ${ejp[parameter]} for boolean parameter ${parameter}.")
         }
     }
 }
