@@ -3,7 +3,7 @@ package org.transmartproject.batch.concept
 /**
  * To be thrown by {@link ConceptTree} when there is a concept type mismatch.
  */
-class UnexpectedConceptTypeException extends Exception {
+class UnexpectedConceptTypeException extends RuntimeException {
 
     UnexpectedConceptTypeException(ConceptType expected,
                                    ConceptType gotten,

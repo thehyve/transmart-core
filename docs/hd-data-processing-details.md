@@ -3,8 +3,14 @@ Processing details
 
 The data will be scanned twice. The first pass will only validate the data set based on the requirements that are listed in the data type specific documentation.
 
-In the second pass, the data will be inserted in the database. Negative
-values and NaNs in the data file will *not* be inserted into the database.
+In the second pass, the data will be inserted in the database.
+
+When log transformed data upload mode is activated (`DATA_TYPE=L`) 
+log intensities values get converted back to the raw intensities by applying formula `raw_intensity = SRC_LOG_BASE^log_intensity`.
+
+Negative raw intensities and NaNs will *not* be inserted into the database.
+Zeros will not be inserted only if `ZERO_MEANS_NO_INFO` is set in `Y`.
+Please note that is impossible to get negative raw intensities or zero intensities out of log intensities when `DATA_TYPE=L`.
 
 The `log_intensity` column is calculated as base 2 logarithm over raw intensity.
 The logarithm of zero value is substituted by taking logarithm of the half of the minimum of the NON-ZERO raw intensity values in the data set.

@@ -242,47 +242,6 @@ final class JobStartupDetails {
             String getTypeName() {
                 JobStartupDetails.this.typeName
             }
-
-            Path convertRelativePath(String parameter) {
-                def fileName = this[parameter]
-                if (fileName == null) {
-                    return
-                }
-
-                Path parent = filePath.toAbsolutePath().parent
-                def file = parent.resolve(fileName)
-                if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
-                    log.warn("There is no ${file} file found." +
-                            " Trying to find the file in ${typeName} folder next to the properties file.")
-                    file = parent.resolve(typeName).resolve(fileName)
-                }
-
-                if (!Files.isRegularFile(file) ||
-                        !Files.isReadable(file)) {
-                    throw new InvalidParametersFileException(
-                            "Parameter $parameter references $fileName, but " +
-                                    "$file is not regular readable file")
-                }
-
-                file
-            }
-
-            void mandatory(String parameter) throws InvalidParametersFileException {
-                if (this[parameter] == null) {
-                    throw new InvalidParametersFileException(
-                            "Parameter $parameter mandatory but not defined")
-                }
-            }
-
-            void mungeBoolean(String parameter, boolean defaultValue) {
-                if (this[parameter] == null) {
-                    this[parameter] = defaultValue ? 'Y' : 'N'
-                } else if (this[parameter] in ['0', 'false', 'N']) {
-                    this[parameter] = 'N'
-                } else {
-                    this[parameter] = 'Y'
-                }
-            }
         }
     }
 }

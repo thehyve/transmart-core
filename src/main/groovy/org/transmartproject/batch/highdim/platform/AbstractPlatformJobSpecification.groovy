@@ -37,18 +37,16 @@ abstract class AbstractPlatformJobSpecification
 
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp.with {
-            mandatory PLATFORM
-            mandatory TITLE
-            mandatory ANNOTATIONS_FILE
-        }
+        mandatory ejp, PLATFORM
+        mandatory ejp, TITLE
+        mandatory ejp, ANNOTATIONS_FILE
     }
 
     abstract String getMarkerType()
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp[ANNOTATIONS_FILE] = ejp.convertRelativePath ANNOTATIONS_FILE
+        ejp[ANNOTATIONS_FILE] = convertRelativePath ejp, ANNOTATIONS_FILE
 
         ejp[ORGANISM] = ejp[ORGANISM] ?: DEFAULT_ORGANISM
 

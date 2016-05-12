@@ -39,7 +39,7 @@ final class TagsLoadJobSpecification
             }
             ejp[TAGS_FILE] = files[0].toPath()
         } else {
-            ejp[TAGS_FILE] = ejp.convertRelativePath TAGS_FILE
+            ejp[TAGS_FILE] = convertRelativePath ejp, TAGS_FILE
         }
     }
 }

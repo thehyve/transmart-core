@@ -1,0 +1,5 @@
+DATA_FILE_PREFIX=log_data.tsv
+DATA_TYPE=L
+LOG_BASE=2
+SRC_LOG_BASE=10
+MAP_FILENAME=subject_sample_mapping.tsv

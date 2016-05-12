@@ -50,7 +50,7 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
 
     @Override
     void validate(ExternalJobParametersInternalInterface ejp) {
-        ejp.mandatory SOURCE_SYSTEM
+        mandatory(ejp, SOURCE_SYSTEM)
         checkSize(ejp, SOURCE_SYSTEM, MAX_SIZE_OF_SOURCE_SYSTEM)
         checkSize(ejp, VISIT_IDE_SOURCE, MAX_SIZE_OF_IDE_SOURCE)
         checkSize(ejp, PATIENT_IDE_SOURCE, MAX_SIZE_OF_IDE_SOURCE)
@@ -85,12 +85,12 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
 
     @Override
     void munge(ExternalJobParametersInternalInterface ejp) {
-        ejp[COLUMN_MAP_FILE] = ejp.convertRelativePath COLUMN_MAP_FILE
+        ejp[COLUMN_MAP_FILE] = convertRelativePath ejp, COLUMN_MAP_FILE
 
         if (ejp[WORD_MAP_FILE] == 'x' || ejp[WORD_MAP_FILE] == null) {
             ejp[WORD_MAP_FILE] = null
         } else {
-            ejp[WORD_MAP_FILE] = ejp.convertRelativePath WORD_MAP_FILE
+            ejp[WORD_MAP_FILE] = convertRelativePath ejp, WORD_MAP_FILE
         }
 
         if (ejp[PATIENT_IDE_SOURCE] == null) {
@@ -113,7 +113,7 @@ class I2b2ParametersModule implements ExternalJobParametersModule {
             ejp[PROJECT_ID] = DEFAULT_PROJECT_ID
         }
 
-        ejp.mungeBoolean(INCREMENTAL, false)
+        mungeBoolean(ejp, INCREMENTAL, false)
     }
 
     private void checkSize(ExternalJobParametersInternalInterface ejp,

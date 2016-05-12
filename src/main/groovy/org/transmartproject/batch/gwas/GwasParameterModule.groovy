@@ -31,7 +31,7 @@ class GwasParameterModule implements ExternalJobParametersModule {
 
     @Override
     void validate(ExternalJobParametersInternalInterface ejp) {
-        ejp.mandatory META_DATA_FILE
+        mandatory ejp, META_DATA_FILE
         if (ejp[HG_VERSION] && !(ejp[HG_VERSION] in ALLOWED_HG_VERSIONS)) {
             throw new InvalidParametersFileException(
                     "HG_VERSION must be one of $ALLOWED_HG_VERSIONS; " +
@@ -41,7 +41,7 @@ class GwasParameterModule implements ExternalJobParametersModule {
 
     @Override
     void munge(ExternalJobParametersInternalInterface ejp) {
-        Path metaDataFilePath = ejp.convertRelativePath(META_DATA_FILE)
+        Path metaDataFilePath = convertRelativePath(ejp, META_DATA_FILE)
         ejp[META_DATA_FILE] = metaDataFilePath
         ejp[HG_VERSION] = ejp[HG_VERSION] ?: DEFAULT_HG_VERSION
 

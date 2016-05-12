@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
@@ -80,20 +79,33 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @JobScopeInterfaced
-    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFilteringProcessors(
+    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfEarlyItemProcessors(
             @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData,
-            @Value("#{jobParameters['ZERO_MEANS_NO_INFO']}") String zeroMeansNoInfo) {
+            @Value("#{jobParameters['ZERO_MEANS_NO_INFO']}") String zeroMeansNoInfo,
+            @Value("#{jobParameters['DATA_TYPE']}") String dataType) {
         def processors = [
-                new FilterNegativeValuesItemProcessor(),
                 new FilterNaNsItemProcessor(),
         ]
-        if (zeroMeansNoInfo == 'Y') {
-            processors << new FilterZerosItemProcessor()
-        }
         if (skipUnmappedData == 'Y') {
             processors << filterDataWithoutAssayMappingsItemProcessor()
         }
+        if (dataType == 'L') {
+            processors << calculateRawValueFromTheLogItemProcessor()
+        } else if (dataType == 'R') {
+            processors << new FilterNegativeValuesItemProcessor()
+            if (zeroMeansNoInfo == 'Y') {
+                processors << new FilterZerosItemProcessor()
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
+        }
         compositeOf(*processors)
+    }
+
+    @Bean
+    @JobScope
+    CalculateRawValueFromTheLogItemProcessor calculateRawValueFromTheLogItemProcessor() {
+        new CalculateRawValueFromTheLogItemProcessor()
     }
 
     @Bean
@@ -120,10 +132,20 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    StandardDataRowSplitterReader firstPassDataRowSplitterReader() {
-        new StandardDataRowSplitterReader(
+    StandardDataRowSplitterReader firstPassDataRowSplitterReader(
+            @Value("#{jobParameters['DATA_TYPE']}") String dataType
+    ) {
+        StandardDataRowSplitterReader reader = new StandardDataRowSplitterReader(
                 delegate: visitedProbesValidatingReader(),
                 dataPointClass: TripleStandardDataValue)
+
+        if (dataType == 'L') {
+            reader.earlyItemProcessor = calculateRawValueFromTheLogItemProcessor()
+        } else if (dataType != 'R') {
+            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
+        }
+
+        reader
     }
 
     @Bean
@@ -164,31 +186,18 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     @Bean
     @StepScope
     StandardDataRowSplitterReader secondPassDataRowSplitterReader(
-            AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue> earlyItemFilter) {
+            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfEarlyItemProcessors) {
         new StandardDataRowSplitterReader(
                 delegate: secondPassTsvFileReader(),
                 dataPointClass: TripleStandardDataValue,
                 eagerLineListener: perDataRowLog2StatisticsListener(),
-                earlyItemFilter: earlyItemFilter)
+                earlyItemProcessor: compositeOfEarlyItemProcessors)
     }
 
     @Bean
     @JobScope
     PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener() {
         new PerDataRowLog2StatisticsListener()
-    }
-
-    @Bean
-    @JobScope
-    AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue> earlyItemFilter(
-            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFilteringProcessors
-    ) {
-        new AbstractSplittingItemReader.EarlyItemFilter<TripleStandardDataValue>() {
-            @Override
-            boolean keepItem(TripleStandardDataValue item) {
-                compositeOfFilteringProcessors.process(item)
-            }
-        }
     }
 
     @Bean

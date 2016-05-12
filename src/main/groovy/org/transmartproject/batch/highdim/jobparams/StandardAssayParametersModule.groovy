@@ -19,12 +19,12 @@ class StandardAssayParametersModule implements ExternalJobParametersModule {
     )
 
     void validate(ExternalJobParametersInternalInterface ejp) {
-        ejp.mandatory MAP_FILENAME
+        mandatory ejp, MAP_FILENAME
     }
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp[MAP_FILENAME] = ejp.convertRelativePath MAP_FILENAME
+        ejp[MAP_FILENAME] = convertRelativePath ejp, MAP_FILENAME
         if (ejp[SKIP_UNMAPPED_DATA] != 'Y') {
             ejp[SKIP_UNMAPPED_DATA] = 'N'
         }

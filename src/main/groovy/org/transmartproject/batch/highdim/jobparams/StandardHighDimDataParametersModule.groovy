@@ -17,9 +17,11 @@ class StandardHighDimDataParametersModule
     public final static String DATA_FILE = 'DATA_FILE' /* final destination for DATA_FILE_PREFIX */
     public final static String DATA_TYPE = 'DATA_TYPE'
     public final static String LOG_BASE = 'LOG_BASE'
+    public final static String SRC_LOG_BASE = 'SRC_LOG_BASE'
     public final static String ALLOW_MISSING_ANNOTATIONS = 'ALLOW_MISSING_ANNOTATIONS'
     public final static String ZERO_MEANS_NO_INFO = 'ZERO_MEANS_NO_INFO'
     public static final Set<String> YES_NO = ['Y', 'N'] as Set
+    public static final Set<String> DATA_TYPE_VALUES = ['R', 'L'] as Set
 
     Set<String> supportedParameters = ImmutableSet.of(
             DATA_FILE_PREFIX,
@@ -28,6 +30,7 @@ class StandardHighDimDataParametersModule
             LOG_BASE,
             ALLOW_MISSING_ANNOTATIONS,
             ZERO_MEANS_NO_INFO,
+            SRC_LOG_BASE,
     )
 
     void validate(ExternalJobParametersInternalInterface ejp)
@@ -36,9 +39,17 @@ class StandardHighDimDataParametersModule
             throw new InvalidParametersFileException("$LOG_BASE must be 2")
         }
 
-        ejp.mandatory DATA_TYPE
-        if (ejp[DATA_TYPE] != 'R') {
-            throw new InvalidParametersFileException("$DATA_TYPE must be 'R'")
+        mandatory ejp, DATA_TYPE
+        if (!DATA_TYPE_VALUES.contains(ejp[DATA_TYPE])) {
+            throw new InvalidParametersFileException("${DATA_TYPE} equals ${ejp[DATA_TYPE]}," +
+                    " but it has to be one of the following: ${DATA_TYPE_VALUES.join(', ')}")
+        }
+
+        if (ejp[DATA_TYPE] == 'L' && ejp[SRC_LOG_BASE] == null) {
+            throw new InvalidParametersFileException("${SRC_LOG_BASE} has to be specified when ${DATA_TYPE}=L")
+        }
+        if (ejp[DATA_TYPE] != 'L' && ejp[SRC_LOG_BASE] != null) {
+            throw new InvalidParametersFileException("${SRC_LOG_BASE} could be specified only when ${DATA_TYPE}=L")
         }
 
         if (ejp[DATA_FILE_PREFIX] && ejp[DATA_FILE]) {
@@ -70,7 +81,7 @@ class StandardHighDimDataParametersModule
             ejp[DATA_FILE_PREFIX] = null
         }
 
-        ejp[DATA_FILE] = ejp.convertRelativePath DATA_FILE
+        ejp[DATA_FILE] = convertRelativePath ejp, DATA_FILE
 
         if (ejp[ALLOW_MISSING_ANNOTATIONS] != 'Y') {
             ejp[ALLOW_MISSING_ANNOTATIONS] = 'N'
