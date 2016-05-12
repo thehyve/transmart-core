@@ -10,7 +10,7 @@ HT29	Caucasoid	44	Female
 LS174T	Caucasoid	58	Female
 LIM1863	Caucasoid	74	Female
 LS513	Caucasoid	63	Male
-SW1398	Caucasoid	66	Female
+SW1398	Caucasoid	66.9	Female
 SW48	Caucasoid	82	Female
 SW480	Caucasoid	50	Male
 SW480_AURKA	Caucasoid	50	Male
