@@ -16,8 +16,8 @@ ignored.
 - `SAMPLE_CD` is the name of the assay (here synonymous with "sample").
   Required.
 - `PLATFORM` is the GPL id of the corresponding platform. Must be given; the
-  platform must have already been loaded; must be the same for all rows; must be
-  uppercase. It will be used to replace the `PLATFORM` placeholder in
+  platform must have already been loaded; must be the same for all rows. The value will be uppercased.
+  It will be used to replace the `PLATFORM` placeholder in
   `CATEGORY_CD`.
 - `SAMPLE_TYPE` will be used to fill `sample_type` in
   `de_subject_sample_mapping`. It will also be used to replace

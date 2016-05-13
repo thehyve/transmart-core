@@ -43,7 +43,10 @@ class AssayStepsConfig implements StepBuildingConfigurationTrait {
                 .allowStartIfComplete(true)
                 .chunk(1)
                 .reader(mappingFileItemStreamReader())
-                .processor(new ValidatingItemProcessor(adaptValidator(mappingFileRowValidator)))
+                .processor(compositeOf(
+                    new UpperCasePlatformIdItemProcessor(),
+                    new ValidatingItemProcessor(adaptValidator(mappingFileRowValidator)),
+                ))
                 .writer(new PutInBeanWriter(bean: assayMappings))
                 .stream(mappingFileRowValidator)
                 .listener(platformContextPromoterListener)

@@ -5,7 +5,6 @@ import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemStream
 import org.springframework.batch.item.ItemStreamException
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
@@ -60,12 +59,6 @@ class MappingsFileRowValidator implements Validator, ItemStream {
             }
         } else {
             seenPlatform = target.platform
-        }
-
-        /* platform should be uppercase */
-        if (target.platform.toUpperCase(LocaleContextHolder.locale) != target.platform) {
-            errors.rejectValue 'platform', 'expectedUppercase',
-                    [target.platform] as Object[], null
         }
 
         if (target.studyId != studyId) {
