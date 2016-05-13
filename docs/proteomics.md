@@ -57,7 +57,7 @@ For the content of this file see [the HD data parameters](hd-params.md) and [the
 
 Example data file:
 
-| REF_ID | LFQ.intensity.CACO2_1 | LFQ.intensity.CACO2_2 | LFQ.intensity.COLO205_1 | LFQ.intensity.COLO205_2 |
+| ID_REF | LFQ.intensity.CACO2_1 | LFQ.intensity.CACO2_2 | LFQ.intensity.COLO205_1 | LFQ.intensity.COLO205_2 |
 |--------|-----------------------|-----------------------|-------------------------|-------------------------|
 | 1860   | 9089400000            | 8792800000            | 8949100000              | 7252500000              |
 | 2243   | 4997100000            | 5527800000            | 4280900000              | 4196200000              |
@@ -70,7 +70,7 @@ Example data file:
 
 Format expectations:
 
-- The first column has to be named `REF_ID` and contain a row identifier. The row identifier has to match the `probesetID` from the related platform.
+- The first column has to be named `ID_REF` and contain a row identifier. The row identifier has to match the `probesetID` from the related platform.
 - The rest of the columns have to be intensities. There must not be other columns in the file.
 - The header names for the intensities columns have to match the `sample_cd` values of the subject sample mapping file.
 
