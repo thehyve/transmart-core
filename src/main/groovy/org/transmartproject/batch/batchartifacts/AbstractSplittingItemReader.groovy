@@ -31,7 +31,7 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
     /**
      * Filtering happens before the line listener {@link this.eagerLineListener} is called.
      */
-    EarlyItemFilter<T> earlyItemFilter
+    ItemProcessor<T, T> earlyItemProcessor
 
     private final static String SAVED_FIELD_SET_KEY = 'savedFieldSet'
     private final static String SAVED_POSITION = 'position'
@@ -59,7 +59,10 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                 def value = uncachedRead()
                 if (value != null) {
                     sawData = true
-                    if (!earlyItemFilter || earlyItemFilter.keepItem(value)) {
+                    if (earlyItemProcessor) {
+                        value = earlyItemProcessor.process(value)
+                    }
+                    if (value != null) {
                         cachedValues << value
                     }
                 } else {

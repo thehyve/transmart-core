@@ -9,4 +9,4 @@ import groovy.transform.InheritConstructors
  */
 @CompileStatic
 @InheritConstructors
-class InvalidParametersFileException extends Exception {}
+class InvalidParametersFileException extends RuntimeException {}

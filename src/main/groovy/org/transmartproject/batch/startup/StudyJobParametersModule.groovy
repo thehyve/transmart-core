@@ -14,12 +14,12 @@ final class StudyJobParametersModule implements ExternalJobParametersModule {
             [STUDY_ID, TOP_NODE, SECURITY_REQUIRED]
 
     void validate(ExternalJobParametersInternalInterface ejp) {
-        ejp.mandatory(STUDY_ID)
+        mandatory(ejp, STUDY_ID)
     }
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp.mungeBoolean(SECURITY_REQUIRED, false)
+        mungeBoolean(ejp, SECURITY_REQUIRED, false)
 
         if (!ejp[TOP_NODE]) {
             def prefix = ejp[SECURITY_REQUIRED] == 'Y' ?

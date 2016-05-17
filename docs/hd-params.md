@@ -5,8 +5,9 @@ High dimensional data parameters
   with `DATA_FILE_PREFIX`). _Prefer this to_ `DATA_FILE_PREFIX`. Points to the HD data file.
 - `DATA_FILE_PREFIX` ___deprecated___ because it doesn't behave like a prefix
   (unlike the original pipeline); use `DATA_FILE` instead.
-- `DATA_TYPE` **Mandatory**; must be `R` (raw values). Other types are not supported yet.
+- `DATA_TYPE` **Mandatory**; must be `R` (raw values) or `L` (log transformed values).
 - `LOG_BASE` _Default:_ `2`. If present must be `2`. The log base for calculating log values.
+- `SRC_LOG_BASE` Has to be specified only with `DATA_TYPE=L`. Specifies which logarithm base was used for transforming the data values.
 - `MAP_FILENAME` **Mandatory**. Filename of the mapping file.
 - `ALLOW_MISSING_ANNOTATIONS` _Default:_ `N`. `Y` for yes, `N` for no. Whether
   the job should be allowed to continue when the data set doesn't provide data
