@@ -59,7 +59,7 @@ final class JobStartupDetails {
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'
 
-    private final Map<String, String> params = Maps.newHashMap()
+    private Map<String, String> params
 
     private Path dataTypeParamsFilePath
 
@@ -85,12 +85,23 @@ final class JobStartupDetails {
         JobSpecification spec = getJobSpecificationByDataType(dataType)
 
         JobStartupDetails instance = new JobStartupDetails()
-        instance.dataTypeParamsFilePath = filePath
-        instance.typeName = dataType
-        instance.modules = spec.jobParametersModules
-        instance.fileParameterKeys = getFileParameterKeys(spec)
-        instance.jobPath = spec.jobPath
+        instance.with {
+            dataTypeParamsFilePath = filePath
+            typeName = dataType
+            modules = spec.jobParametersModules
+            fileParameterKeys = getFileParameterKeys(spec)
+            jobPath = spec.jobPath
+            params = loadParams(filePath, overrides, spec)
 
+            munge()
+        }
+
+        instance
+    }
+
+    private static Map<String, String> loadParams(
+            Path filePath, Map<String, String> overrides, JobSpecification spec) {
+        Map<String, String> params = Maps.newHashMap()
         Map<String, String> dataTypeParams = parseContent(filePath)
         if (isStudyRelatedSpecification(spec)) {
             Path studyParamsFilePath = findStudyFilePath(filePath)
@@ -103,17 +114,12 @@ final class JobStartupDetails {
                                         " ${studyParams[item.value]} -> ${item.value}")
                     }
                 }
-                instance.params << studyParams
+                params << studyParams
             }
         }
-        instance.params << dataTypeParams
-        instance.params << overrides
-
-        instance.munge()
-        instance.validate()
-        instance.checkForExtraParameters()
-
-        instance
+        params << dataTypeParams
+        params << overrides
+        params
     }
 
     private static Set<String> getFileParameterKeys(JobSpecification spec) {
@@ -189,18 +195,29 @@ final class JobStartupDetails {
     }
 
     @TypeChecked(TypeCheckingMode.SKIP)
-    @SuppressWarnings('UnusedPrivateMethod')
+    private void munge() throws InvalidParametersFileException {
+        checkForEmptyValues()
+
+        modules.each { it.munge(internalInterface) }
+
+        validate()
+        checkForExtraParameters()
+    }
+
+    private void checkForEmptyValues() throws InvalidParametersFileException {
+        def emptyValueParams = params.findAll { !it.value }
+        if (emptyValueParams) {
+            throw new InvalidParametersFileException("Following parameters are specified without a value: " +
+                    emptyValueParams.keySet().join(', ') +
+                    " Please provide a value or remove parameter.")
+        }
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
     private void validate() throws InvalidParametersFileException {
         modules.each { it.validate(internalInterface) }
     }
 
-    @TypeChecked(TypeCheckingMode.SKIP)
-    @SuppressWarnings('UnusedPrivateMethod')
-    private void munge() throws InvalidParametersFileException {
-        modules.each { it.munge(internalInterface) }
-    }
-
-    @SuppressWarnings('UnusedPrivateMethod')
     private void checkForExtraParameters() throws InvalidParametersFileException {
         params.keySet().each { String paramName ->
             if (!fileParameterKeys.contains(paramName)) {
