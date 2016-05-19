@@ -26,7 +26,9 @@ final class TagsLoadJobSpecification
         if (ejp[TAGS_FILE] == 'x') {
             ejp[TAGS_FILE] == null
         }
-        if (!ejp[TAGS_FILE]) {
+        if (ejp[TAGS_FILE]) {
+            ejp[TAGS_FILE] = convertRelativePath ejp, TAGS_FILE
+        } else {
             def files = ejp.filePath
                     .toAbsolutePath()
                     .parent
@@ -35,11 +37,9 @@ final class TagsLoadJobSpecification
             if (files.length != 1) {
                 new InvalidParametersFileException("Single file is expected, " +
                         "but found: ${files} files. NOTE: You could specify the " +
-                        "right file with ${TAGS_FILE} property in tags.param")
+                        "right file with ${TAGS_FILE} property in tags.params")
             }
             ejp[TAGS_FILE] = files[0].toPath()
-        } else {
-            ejp[TAGS_FILE] = convertRelativePath ejp, TAGS_FILE
         }
     }
 }

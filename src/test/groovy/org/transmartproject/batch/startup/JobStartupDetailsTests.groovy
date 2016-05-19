@@ -2,9 +2,10 @@ package org.transmartproject.batch.startup
 
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import org.junit.rules.TemporaryFolder
 import org.transmartproject.batch.clinical.ClinicalDataLoadJobConfiguration
-import org.transmartproject.batch.highdim.acgh.data.AcghDataJobConfig
+import org.transmartproject.batch.highdim.cnv.data.CnvDataJobConfig
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobConfig
 import org.transmartproject.batch.highdim.mrna.platform.MrnaPlatformJobConfig
 
@@ -21,6 +22,10 @@ class JobStartupDetailsTests {
     @Rule
     @SuppressWarnings('PublicInstanceField')
     public final TemporaryFolder temporaryFolder = new TemporaryFolder()
+
+    @Rule
+    @SuppressWarnings('PublicInstanceField')
+    public final ExpectedException exception = ExpectedException.none()
 
     @Test
     void testSeparateStudyParamsFile() {
@@ -299,32 +304,32 @@ class JobStartupDetailsTests {
     }
 
     @Test
-    void testAcghProbIsNotOneDefaultIsError() {
+    void testCnvProbIsNotOneDefaultIsError() {
         def dataFileName = 'empty_data_file.tsv'
         def ssmFileName = 'empty_ssm_file.tsv'
 
         createTmpFile dataFileName
         createTmpFile ssmFileName
-        Path paramsFile = createTmpFile 'acgh.params', """
+        Path paramsFile = createTmpFile 'cnv.params', """
             STUDY_ID=test_study
             DATA_FILE=${dataFileName}
             MAP_FILENAME=${ssmFileName}
         """
 
         JobStartupDetails startupDetails = JobStartupDetails.fromFile(paramsFile)
-        assertThat startupDetails, hasProperty('jobPath', equalTo(AcghDataJobConfig))
+        assertThat startupDetails, hasProperty('jobPath', equalTo(CnvDataJobConfig))
         assertThat startupDetails['PROB_IS_NOT_1'], equalTo('ERROR')
     }
 
     @Test
-    void testAcghProbIsNotOne() {
+    void testCnvProbIsNotOne() {
         def dataFileName = 'empty_data_file.tsv'
         def ssmFileName = 'empty_ssm_file.tsv'
         def providedArgument = 'WARN'
 
         createTmpFile dataFileName
         createTmpFile ssmFileName
-        Path paramsFile = createTmpFile 'acgh.params', """
+        Path paramsFile = createTmpFile 'cnv.params', """
             STUDY_ID=test_study
             DATA_FILE=${dataFileName}
             MAP_FILENAME=${ssmFileName}
@@ -336,19 +341,46 @@ class JobStartupDetailsTests {
     }
 
     @Test(expected = InvalidParametersFileException)
-    void testAcghProbIsNotOneExpectedError() {
+    void testCnvProbIsNotOneExpectedError() {
         def dataFileName = 'empty_data_file.tsv'
         def ssmFileName = 'empty_ssm_file.tsv'
         def providedArgument = 'FAIL!'
 
         createTmpFile dataFileName
         createTmpFile ssmFileName
-        Path paramsFile = createTmpFile 'acgh.params', """
+        Path paramsFile = createTmpFile 'cnv.params', """
             STUDY_ID=test_study
             DATA_FILE=${dataFileName}
             MAP_FILENAME=${ssmFileName}
             PROB_IS_NOT_1=${providedArgument}
         """
+
+        JobStartupDetails.fromFile(paramsFile)
+    }
+
+    @Test
+    void testThrowExceptionOnEmptyValue() {
+        exception.expect(InvalidParametersFileException)
+        exception.expectMessage(
+                allOf(
+                        startsWith('Following parameters are specified without a value:'),
+                        containsString('TOP_NODE'),
+                        containsString('XTRIAL_FILE'),
+                        endsWith('Please provide a value or remove parameter.')
+                ))
+
+        def dataFileName = 'empty_data_file.tsv'
+        def clinicalDataFolderName = 'clinical'
+
+        createTmpFile 'study.params', """
+            STUDY_ID=test_study_id
+            TOP_NODE=
+        """
+        createTmpFile dataFileName, '', clinicalDataFolderName
+        Path paramsFile = createTmpFile 'clinical.params', """
+            COLUMN_MAP_FILE=${dataFileName}
+            XTRIAL_FILE=
+        """, clinicalDataFolderName
 
         JobStartupDetails.fromFile(paramsFile)
     }

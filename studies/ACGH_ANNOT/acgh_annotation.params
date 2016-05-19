@@ -1,5 +1,0 @@
-PLATFORM=ACGH_ANNOT
-TITLE="Test Acgh Platform"
-ORGANISM="Homo Sapiens"
-ANNOTATIONS_FILE=chromosomal_regions.tsv
-GENOME_RELEASE=hg19

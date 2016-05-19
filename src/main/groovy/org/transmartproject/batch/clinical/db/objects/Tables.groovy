@@ -63,6 +63,6 @@ final class Tables {
     public static final String CHROMOSOMAL_REGION       = 'deapp.de_chromosomal_region'
     public static final String RNASEQ_DATA              = 'deapp.de_subject_rnaseq_data'
 
-    public static final String ACGH_DATA                = 'deapp.de_subject_acgh_data'
+    public static final String CNV_DATA                = 'deapp.de_subject_acgh_data'
 
 }

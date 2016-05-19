@@ -44,7 +44,7 @@ final class ClinicalJobSpecification implements
          TAGS_FILE].each { p ->
             if (ejp[p] == 'x') {
                 ejp[p] = null
-            } else {
+            } else if (ejp[p] != null) {
                 ejp[p] = convertRelativePath ejp, p
             }
         }
