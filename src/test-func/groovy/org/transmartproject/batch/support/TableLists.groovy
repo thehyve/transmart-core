@@ -74,10 +74,10 @@ class TableLists {
             Tables.CHROMOSOMAL_REGION,
     ]
 
-    public static final List<String> ACGH_TABLES = [
+    public static final List<String> CNV_TABLES = [
             Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,
-            Tables.ACGH_DATA,
+            Tables.CNV_DATA,
             Tables.CHROMOSOMAL_REGION,
     ]
 }

@@ -29,7 +29,7 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
     private final static String STUDY_ID = 'SKIP_UNMAPPED_DATA'
 
     private final static long NUMBER_OF_MRNA_PROBES = 19
-    private final static long NUMBER_OF_ACGH_PROBES = 4
+    private final static long NUMBER_OF_CNV_PROBES = 4
     private final static long NUMBER_OF_RNASEQ_PROBES = 4
 
     @ClassRule
@@ -37,8 +37,8 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
             new RunJobRule("studies/${STUDY_ID}/rnaseq.params"),
             new RunJobRule('RNASEQ_ANNOT', 'rnaseq_annotation'),
 
-            new RunJobRule("studies/${STUDY_ID}/acgh.params"),
-            new RunJobRule('ACGH_ANNOT', 'acgh_annotation'),
+            new RunJobRule("studies/${STUDY_ID}/cnv.params"),
+            new RunJobRule('CNV_ANNOT', 'cnv_annotation'),
 
             new RunJobRule("studies/${STUDY_ID}/expression.params"),
             new RunJobRule('GPL570_bogus', 'mrna_annotation'),
@@ -56,7 +56,7 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
                 truncate(TableLists.CLINICAL_TABLES
                         + TableLists.MRNA_TABLES
-                        + TableLists.ACGH_TABLES
+                        + TableLists.CNV_TABLES
                         + TableLists.RNA_SEQ_TABLES
                         + 'ts_batch.batch_job_instance')
     }
@@ -67,7 +67,7 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
 
         def list = queryForList q, [study_id: STUDY_ID], String
 
-        assertThat list, containsInAnyOrder('MRNA.S21', 'ACGH.S21', 'RNASEQ.S21')
+        assertThat list, containsInAnyOrder('MRNA.S21', 'CNV.S21', 'RNASEQ.S21')
     }
 
     @Test
@@ -81,13 +81,13 @@ class SkipUnmappedDataTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testNumberOfAcghDataPoint() {
-        def count = rowCounter.count Tables.ACGH_DATA,
+    void testNumberOfCnvDataPoint() {
+        def count = rowCounter.count Tables.CNV_DATA,
                 'trial_name = :study_id',
                 study_id: STUDY_ID
 
         assertThat count,
-                is(equalTo(NUMBER_OF_ACGH_PROBES))
+                is(equalTo(NUMBER_OF_CNV_PROBES))
     }
 
     @Test

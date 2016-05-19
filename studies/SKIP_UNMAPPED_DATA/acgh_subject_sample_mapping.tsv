@@ -1,2 +1,0 @@
-trial_name	site_id	subject_id	sample_cd	platform	sample_type	tissue_type	time_point	cat_cd	src_cd
-SKIP_UNMAPPED_DATA		S2	ACGH.S21	ACGH_ANNOT	acgh	Colon	tp1	"Test+Acgh+SAMPLETYPE+data"	STD
