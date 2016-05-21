@@ -100,8 +100,10 @@ update_repos = if [ ! -d $(1) ]; then \
 	git clone -b $(3) '$(2)' $(1); \
 	else cd $(1) && git pull; fi
 
-update_etl:
-	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$(TRANSMART_RELEASE_BRANCH))
+# Note: in the release case - we are making a strong assumption that tramSMART-ETL
+#   already exists, is NOT a git archive, and can not be updated
+#update_etl:
+#	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$(TRANSMART_RELEASE_BRANCH))
 .PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
@@ -126,7 +128,10 @@ data-integration/.keep: $(KETTLE_ARCHIVE)
 	php -d variables_order=E $< > $@
 
 ubuntu_deps_root: install_ubuntu_packages /var/lib/postgresql/tablespaces
-ubuntu_deps_regular: update_etl data-integration ../vars groovy
+# Note: in the release case - we are making a strong assumption that tramSMART-ETL
+#   already exists, is NOT a git archive, and can not be updated
+# ubuntu_deps_regular: update_etl data-integration ../vars groovy
+ubuntu_deps_regular: data-integration ../vars groovy
 
 .DELETE_ON_ERROR:
 
