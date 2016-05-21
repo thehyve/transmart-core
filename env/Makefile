@@ -104,6 +104,8 @@ update_repos = if [ ! -d $(1) ]; then \
 #   already exists, is NOT a git archive, and can not be updated
 #update_etl:
 #	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$(TRANSMART_RELEASE_BRANCH))
+update_etl:
+	echo "for reelase build tranSMART-ETL is not automaticially updated from git, because it is assumed to be fixed"
 .PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
