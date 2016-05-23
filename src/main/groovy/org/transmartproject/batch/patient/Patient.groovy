@@ -4,7 +4,6 @@ import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.step.FatalStepExecutionException
-import org.transmartproject.batch.concept.ConceptType
 
 /**
  * Unsurprisingly, represents a patient.
@@ -26,8 +25,8 @@ final class Patient {
             }
 
             try {
-                demographicValues[var] = var.type == ConceptType.NUMERICAL ?
-                        (value ?: null) as Float :    /* Accept decimal values, round will be done */
+                demographicValues[var] = var.name() == 'AGE' ?
+                        value ? Math.floor(value as Float) as Integer : null :
                         value
             } catch (NumberFormatException nfe) {
                 throw new FatalStepExecutionException(
