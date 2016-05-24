@@ -36,7 +36,7 @@ class I2b2Tag implements OntologyTermTag {
      * @return the tag value.
      */
     String getDescription() {
-        tag ?: option.value
+        tag ?: option?.value
     }
 
 }
