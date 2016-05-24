@@ -19,6 +19,9 @@ class ConceptPath extends ConceptFragment {
         if (parts.empty) {
             throw new IllegalArgumentException('Full paths cannot be empty')
         }
+        if (this.path[0] != DELIMITER) {
+            throw new IllegalArgumentException("Path should start with ${DELIMITER}")
+        }
     }
 
     ConceptPath(ConceptFragment fragment) {

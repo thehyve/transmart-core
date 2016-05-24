@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
+import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
@@ -143,7 +144,7 @@ class ClinicalFactsRowSetFactory {
 
         assert var.dataLabel == ClinicalVariable.TEMPLATE
 
-        def relConceptPath = ClinicalVariable.toPath(var.categoryCode)
+        def relConceptPath = ConceptFragment.decode(var.categoryCode).path
 
         if (relConceptPath.contains(ClinicalVariable.SITE_ID_PLACEHOLDER)) {
             def replaceValue = variables.getSiteId(row) ?: ''

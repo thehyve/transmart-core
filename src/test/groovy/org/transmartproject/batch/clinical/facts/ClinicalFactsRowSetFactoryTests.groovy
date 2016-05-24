@@ -5,6 +5,7 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
+import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
@@ -169,7 +170,7 @@ class ClinicalFactsRowSetFactoryTests {
                     /** Calculated @see ClinicalVariableFieldMapper */
                     conceptPath: it.dataLabel in ClinicalVariable.RESERVED ?
                             null
-                            : topNodePath + ClinicalVariable.toPath(it.categoryCode) + it.dataLabel,
+                            : topNodePath + ConceptFragment.decode(it.categoryCode) + it.dataLabel,
                     demographicVariable: DemographicVariable.getMatching(it.dataLabel),
                     *: it)
         }

@@ -93,11 +93,5 @@ class ClinicalVariable implements Serializable {
         demographicVariable != null
     }
 
-    static String toPath(String columnMappingPathFragment) {
-        columnMappingPathFragment
-            .replace('+', '\\')
-            .replace('_', ' ')
-    }
-
 }
 

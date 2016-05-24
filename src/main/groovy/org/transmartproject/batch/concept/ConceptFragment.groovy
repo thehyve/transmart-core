@@ -9,6 +9,8 @@ import groovy.transform.EqualsAndHashCode
  */
 @EqualsAndHashCode(includes = 'path')
 class ConceptFragment implements Comparable<ConceptFragment> {
+    public static final String DELIMITER = '\\'
+    public static final Splitter SPLITTER = Splitter.on(DELIMITER)
     final String path
     final List<String> parts
 
@@ -18,7 +20,7 @@ class ConceptFragment implements Comparable<ConceptFragment> {
     }
 
     ConceptFragment(List<String> parts) {
-        if (parts.any { it.contains '\\' }) {
+        if (parts.any { it.contains DELIMITER }) {
             throw new IllegalArgumentException('None of the parts can include' +
                     ' the \'\\\' character; got ' + parts)
         }
@@ -28,18 +30,23 @@ class ConceptFragment implements Comparable<ConceptFragment> {
         }
 
         this.parts = parts
-        this.path = parts.empty ? '\\' : "\\${parts.join('\\')}\\"
+        this.path = toPath(parts)
+    }
+
+    private String toPath(List<String> parts) {
+        if (parts.empty) {
+            DELIMITER
+        } else {
+            DELIMITER + parts.join(DELIMITER) + DELIMITER
+        }
     }
 
     ConceptFragment(String path) {
-        if (path.size() == 0 || path[0] != '\\') {
-            throw new IllegalArgumentException('Path should start with \\')
-        }
-        if (path.size() == 0) {
+        if (path.empty) {
             throw new IllegalArgumentException('Path is empty')
         }
-        if (path[-1] != '\\') {
-            path += '\\'
+        if (path[-1] != DELIMITER) {
+            path += DELIMITER
         }
 
         this.path = path
@@ -56,6 +63,13 @@ class ConceptFragment implements Comparable<ConceptFragment> {
             throw new IllegalArgumentException(
                     "Path cannot have empty parts (got '$path')")
         }
+    }
+    static ConceptFragment decode(String encodedConceptPath) {
+        String conceptPath = encodedConceptPath
+                .replace('+', DELIMITER)
+                .replace('_', ' ')
+
+        new ConceptFragment(conceptPath)
     }
 
     def getAt(int index) {
@@ -81,7 +95,7 @@ class ConceptFragment implements Comparable<ConceptFragment> {
         if (length == 1) {
             return null
         }
-        new ConceptFragment('\\' + parts[0..-2].join('\\') + '\\')
+        new ConceptFragment(DELIMITER + parts[0..-2].join(DELIMITER) + DELIMITER)
     }
 
     boolean isSiblingOf(ConceptFragment otherFragment) {
@@ -118,10 +132,6 @@ class ConceptFragment implements Comparable<ConceptFragment> {
     }
 
     ConceptFragment plus(String otherPathFragment) {
-        def stringFragment = otherPathFragment
-        if (!otherPathFragment.startsWith('\\')) {
-            stringFragment = '\\' + stringFragment
-        }
-        this + new ConceptFragment(stringFragment)
+        this + new ConceptFragment(otherPathFragment)
     }
 }

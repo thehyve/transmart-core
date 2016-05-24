@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.validation.BindException
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.patient.DemographicVariable
 
@@ -36,8 +37,8 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
     private ClinicalVariable process(ClinicalVariable item) throws Exception {
         if (!ClinicalVariable.RESERVED.contains(item.dataLabel)) {
             ConceptPath path = topNodePath +
-                    ClinicalVariable.toPath(item.categoryCode) +
-                    ClinicalVariable.toPath(item.dataLabel)
+                    ConceptFragment.decode(item.categoryCode) +
+                    ConceptFragment.decode(item.dataLabel)
 
             item.conceptPath = path
         }

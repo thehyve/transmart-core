@@ -39,15 +39,16 @@ class MappingFileRow {
     ]
 
     ConceptFragment getConceptFragment() {
-        // after TOP_NODE
-        def parts = categoryCd.split('\\+|\\\\').collect {
+        List<String> unprocessedParts = ConceptFragment.decode(categoryCd).parts
+
+        List<String> processedParts = unprocessedParts.collect {
             if (replacements[it]) {
                 replacements[it].call()
             } else {
                 it
             }
-        }.findAll() // remove empty segments
+        }
 
-        new ConceptFragment(parts)
+        new ConceptFragment(processedParts)
     }
 }
