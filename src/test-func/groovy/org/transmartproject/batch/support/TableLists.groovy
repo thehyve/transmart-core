@@ -80,4 +80,12 @@ class TableLists {
             Tables.CNV_DATA,
             Tables.CHROMOSOMAL_REGION,
     ]
+
+    public static final List<String> MIRNA_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.MIRNA_DATA,
+            Tables.MIRNA_ANNOTATION,
+    ]
+
 }

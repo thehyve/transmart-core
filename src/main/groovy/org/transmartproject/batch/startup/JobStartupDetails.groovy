@@ -14,6 +14,8 @@ import org.transmartproject.batch.highdim.cnv.data.CnvDataJobSpecification
 import org.transmartproject.batch.highdim.cnv.platform.CnvAnnotationJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
+import org.transmartproject.batch.highdim.mirna.data.MirnaDataJobSpecification
+import org.transmartproject.batch.highdim.mirna.platform.MirnaAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.AnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
@@ -55,6 +57,8 @@ final class JobStartupDetails {
             'rnaseq'                 : RnaSeqDataJobSpecification,
             'cnv_annotation'         : CnvAnnotationJobSpecification,
             'cnv'                    : CnvDataJobSpecification,
+            'mirna_annotation'       : MirnaAnnotationJobSpecification,
+            'mirna'                  : MirnaDataJobSpecification,
     ]
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'
