@@ -74,7 +74,7 @@ Format expectations:
 - The rest of the columns have to be intensities. There must not be other columns in the file.
 - The header names for the intensities columns have to match the `sample_cd` values of the subject sample mapping file.
 
-[Read more on how HD data are processed.](hd-data-processing-details.md)
+[Read more on how HD data are processed.](../hd-data-processing-details.md)
 
 <!-- vim: tw=80 et ft=markdown spell:
 -->
