@@ -53,7 +53,7 @@ the `SAMPLE_CD` column in the mapping file. Again, the order is not important.
 Empty cells are not allowed. Zeros, negative values and NaNs (input as U+FFFD)
 *are* allowed and have the same effect among each other (see below).
 
-[Read more on how HD data are processed.](hd-data-processing-details.md)
+[Read more on how HD data are processed.](../hd-data-processing-details.md)
 
   [1]: https://jira.thehyve.nl/browse/JE-52
 
