@@ -12,7 +12,7 @@ Please use the following citation when making use of this dataset: Mariska Bierk
 ![Cell line use case datatype and sample overview](../images/cluc_overview.png)
 
 ##### Make sure to setup transmart-batch
-During the setup you should configure whether you want to load the data to a local transmart or over ssh to a remote one. Follow the instructions on how to do this here: `link`
+During the setup you should configure whether you want to load the data to a local transmart or over ssh to a remote one. Follow the instructions on how to do this [here.](../README.md)
 
 # What's in the box?
 This is the directory structure of the downloaded dataset. A similar structure is recommended as transmart-batch functions optimally when a params file is given as a argument when that file is a subdirectory of a file called `study.params`.  We will go over some key concepts below.
