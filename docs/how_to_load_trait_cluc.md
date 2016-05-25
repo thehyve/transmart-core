@@ -11,7 +11,7 @@ By incorporating the same platforms as used for ongoing research projects, this 
 
 Please use the following citation when making use of this dataset: Mariska Bierkens & Jochem Bijlard *"The TraIT cell line use case."* Manuscript in preparation. More information can also be found on the **Bio-IT World** Poster *"Multi-omics data analysis in tranSMART using the Cell Line Use Case dataset"*.
 
-![Cell line use case datatype and sample overview](../images/cluc_overview.png, width="50")
+![Cell line use case datatype and sample overview](../images/cluc_overview.png, =50)
 
 ##### Make sure to setup transmart-batch
 During the setup you should configure whether you want to load the data to a local transmart or over ssh to a remote one. Follow the instructions on how to do this [here.](../README.md)
