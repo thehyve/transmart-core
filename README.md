@@ -4,7 +4,7 @@ tranSMART Batch
 
 tranSMART pipeline alternative to ETL, using Spring Batch.
 
-![transmart batch logo](images/batch_logo.png)
+![transmart batch logo](images/batch_logo.png =50px)
 
 If interested, see [Developer documentation](docs/developer_docs.md).
 
