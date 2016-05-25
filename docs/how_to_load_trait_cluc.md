@@ -1,6 +1,4 @@
-# How to load the TraIT Cell line use case
-
-![TraIT logo](../images/traitlogo2-whitespace.jpg)
+# How to load the TraIT Cell line use case <img src=../images/traitlogo2-whitespace.jpg width="50" height="80" alt="TraIT logo">
 
 The CTMM TraIT project recently added the Cell Line Use Case (CLUC) to tranSMART. The CLUC is a collection of data on colorectal and prostate cell lines from an exceptionally broad set of platforms, as shown in the table below.
 This diverse set is used to:
