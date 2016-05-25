@@ -426,11 +426,11 @@ grails { plugin { springsecurity {
         grails.exceptionresolver.params.exclude = ['password', 'client_secret']
 
         def glowingBearRedirectUris = [
-                transmartURL - ~/transmart\/?$/ + '#/login',
+                transmartURL - ~/transmart\/?$/ + 'connections',
         ]
         if (transmartURL.startsWith('http://localhost:')) {
             // for dev, node reverse proxy runs on 8001
-            glowingBearRedirectUris << 'http://localhost:8001/#/login'
+            glowingBearRedirectUris << 'http://localhost:8001/connections'
         }
 
         oauthProvider {

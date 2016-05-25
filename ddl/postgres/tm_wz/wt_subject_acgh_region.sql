@@ -7,6 +7,7 @@ CREATE TABLE wt_subject_acgh_region (
     chip double precision,
     segmented double precision,
     flag smallint,
+    probhomloss double precision,
     probloss double precision,
     probnorm double precision,
     probgain double precision,
