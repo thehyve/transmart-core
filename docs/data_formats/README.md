@@ -14,7 +14,6 @@
 
 ## High-dimensional data
 * General high-dimensional data processing
-  * [hd-data-processing-details.md](hd-data-processing-details.md) - Information how all high-dimensional data is processed when uploading.
   * [hd-params.md](hd-params.md) - Parameters that are supported for all high-dimensional data types.
   * [chromosomal_region.md](chromosomal_region.md) - Tabular file structure for loading chromosomal regions.
   * [subject-sample-mapping.md](subject-sample-mapping.md) - Tabular file structure for loading subject sample mappings for HD data.
