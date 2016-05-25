@@ -55,22 +55,13 @@ Below I will shortly highlight four classes of parameter files you can find in t
 * `SECURITY_REQUIRED` = **N**
 * `TOP_NODE` = **\Public Studies\TraIT-Cell-line**
 
-For more info: `TODO: link to docs`
+For more info and additional options see [docs](data_formats/study-params.md).
 
 #### clinical.params
 * `COLUMN_MAP_FILE` = **Cell-line_columns.txt**
 * `WORD_MAP_FILE` = **Cell-line_wordmap.txt**
 
-For more info and additional options: `TODO: link to docs`
-
-#### High Dimensional: cnv.params
-
-* `DATA_FILE` = **Cell-line_samples.txt**
-* `MAP_FILENAME` = **Cell-line_subjectmapping.txt**
-* `DATA_TYPE` = **R**
-* `ALLOW_MISSING_ANNOTATIONS` = **Y**
-
-For more info and additional options: `TODO: link to docs`
+For more info and additional options see [docs](data_formats/clinical.md).
 
 #### Annotations: cnv_annotation.params
 
@@ -79,14 +70,22 @@ For more info and additional options: `TODO: link to docs`
 * `ORGANISM` = **Homo sapiens**
 * `TITLE` = **GPL8687_acgh**
 
-For more info and additional options: `TODO: link to docs`
+For more info and additional options see [docs](data_formats/annotations.md).
 
+#### High Dimensional: cnv.params
+
+* `DATA_FILE` = **Cell-line_samples.txt**
+* `MAP_FILENAME` = **Cell-line_subjectmapping.txt**
+* `DATA_TYPE` = **R**
+* `ALLOW_MISSING_ANNOTATIONS` = **Y**
+
+For more info and additional options see [docs](data_formats/hd-params.md).
 #### tags.params
 
 * `TAGS_FILE` = **tags.txt**
 
 
-For more info and additional options: `TODO: link to docs`
+For more info and additional options see [docs](data_formats/tags.md).
 
 ---
 ---
