@@ -2,9 +2,7 @@ tranSMART Batch
 ============================
 [![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
 
-tranSMART pipeline alternative to ETL, using Spring Batch.
-
-<img src=images/batch_logo.png width="50" height="80">
+tranSMART pipeline alternative to ETL, using Spring Batch. <img src=images/batch_logo.png width="50" height="80">
 
 If interested, see [Developer documentation](docs/developer_docs.md).
 
