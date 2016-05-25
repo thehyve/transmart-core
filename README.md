@@ -1,14 +1,23 @@
-# Setting up transmart-batch
+tranSMART Batch
+============================
+[![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
+
+tranSMART pipeline alternative to ETL, using Spring Batch.
+
+If interested, see [Developer documentation](docs/developer_docs.md).
+
+# Quick start: Setting up transmart-batch
+
 ## Prepare database
 To prepare the tranSMART database you need to have admin rights. Transmart-batch requires the *ts-batch* schema which is used for job tracking. To add this schema to the database you need to `git clone` the transmart git repository. Make sure you add a file named [**batchdb.properties**](#properties_file) with the database connection information to the directory and execute `./gradlew setupSchema`. If you look at the schemas you should see the *ts-batch* has now been added.
 
 ## Properties file
 The properties file contains information as the location of the database, the username and password that are used to upload the data to the database. The properties is build up of four lines indicating which database is being used, either PostgreSQL or Oracle, the location of the database and the user.
 
-    `batch.jdbc.driver`= **DRIVER_TO_USE**  
-    `batch.jdbc.url`= **PREFIX**:**DATABASE**  
-    `batch.jdbc.user`= **USERNAME**  
-    `batch.jdbc.password`= **PASSWORD**  
+    batch.jdbc.driver= <DRIVER_TO_USE>  
+    batch.jdbc.url= <PREFIX>:<DATABASE>  
+    batch.jdbc.user= <USERNAME>
+    batch.jdbc.password= <PASSWORD>  
 
 The **DRIVER_TO_USE** indicates which database the data is being loaded to, either PostgreSQL or Oracle.  
     `PostgreSQL` - **org.postgresql.Driver**  
@@ -19,7 +28,6 @@ The **PREFIX** is an extension of the **DRIVER_TO_USE** and again is database de
     `Oracle` - **jdbc:oracle:thin**  
 
 **DATABASE** indicates the actual URL of the database. It is build up of the IP address, the port to use and for Oracle an additional database name. (**URL**:**PORT**:*DATABASE_NAME*)  
-
     `PostgreSQL` - **//localhost:5432/transmart**  
     `Oracle` - **@localhost:1521:ORCL**
 
@@ -53,7 +61,7 @@ To succesfully load the data it is important to note that transmart-batch has a 
   1. A file with database connection settings, named *batchdb.properties*, is available in the directory were the command is run from.
 
   2. The study files abide a certain structure
-    - Data files follow format requirements `todo: add link to requirements`
+    - Data files follow format requirements (see [docs/data_formats](docs/data_formats/)).
     - Mapping files corresponding to the data files
     - Parameter files next to the data files
 
@@ -114,4 +122,5 @@ Below is the file structure that transmart-batch expects. Note that only the par
 └── <meta_data_tags>
 ```
 
-For a full example with most supported datatypes have a look at [How to load the TraIT Cell line use case](docs/how_to_load_trait_cluc.md).
+### For a specific example study:
+with most supported datatypes have a look at [How to load the TraIT Cell line use case](docs/how_to_load_trait_cluc.md).
