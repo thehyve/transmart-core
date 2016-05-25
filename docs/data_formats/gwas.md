@@ -28,13 +28,13 @@ pipeline uses the following mandatory columns:
 
 Other columns can provide more meta data about the analysis. The full list can
 be seen by looking at the
-[example file](../studies/MAGIC/gwas/MagicDataSet.tsv).
+[example file](../../studies/MAGIC/gwas/MagicDataSet.tsv).
 
 Analyses Data File
 ------------------
 
 An example analysis data file can be found
-[here](../studies/MAGIC/gwas/mod_MAGIC_FastingGlucose.tsv). No column is
+[here](../../studies/MAGIC/gwas/mod_MAGIC_FastingGlucose.tsv). No column is
 mandatory, except for `RS_ID`. However, the `P_VALUE` should also be given for
 most functionality to work. Alleles may contain only one character.
 
