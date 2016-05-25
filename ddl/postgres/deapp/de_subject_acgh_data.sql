@@ -9,6 +9,7 @@ CREATE TABLE de_subject_acgh_data (
     chip double precision,
     segmented double precision,
     flag smallint,
+    probhomloss double precision,
     probloss double precision,
     probnorm double precision,
     probgain double precision,
@@ -29,7 +30,7 @@ COMMENT ON COLUMN de_subject_acgh_data.segmented IS 'segmented log2ratio';
 --
 -- Name: COLUMN de_subject_acgh_data.flag; Type: COMMENT; Schema: deapp; Owner: -
 --
-COMMENT ON COLUMN de_subject_acgh_data.flag IS 'call  -1:loss, 0:normal, 1:gain, 2:amplification';
+COMMENT ON COLUMN de_subject_acgh_data.flag IS 'call  -2:homloss, -1:loss, 0:normal, 1:gain, 2:amp';
 
 --
 -- Name: de_subject_acgh_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
