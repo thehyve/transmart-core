@@ -1,101 +1,128 @@
-tranSMART Batch
+<img src=images/batch_logo.png width="50" height="80"> tranSMART Batch
 ============================
-
 [![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
 
 tranSMART pipeline alternative to ETL, using Spring Batch.
 
+If interested, see [Developer documentation](docs/developer_docs.md).
 
-Building
---------
+# Quick start: Setting up transmart-batch
 
-    ./gradlew capsule
+## Prepare database
+To prepare the tranSMART database you need to have admin rights. Transmart-batch requires the *ts-batch* schema which is used for job tracking. To add this schema to the database you need to `git clone` the transmart git repository. Make sure you add a file named [**batchdb.properties**](#properties-file) with the database connection information to the directory and execute `./gradlew setupSchema`. If you look at the schemas you should see the *ts-batch* has now been added.
 
-Executable will now be at `build/libs/transmart-batch-<version>-capsule.jar`.
+## Properties file
+The properties file contains information as the location of the database, the username and password that are used to upload the data to the database. The properties is build up of four lines indicating which database is being used, either PostgreSQL or Oracle, the location of the database and the user.
 
-Configuring
------------
+    batch.jdbc.driver= <DRIVER_TO_USE>  
+    batch.jdbc.url= <PREFIX>:<DATABASE>  
+    batch.jdbc.user= <USERNAME>
+    batch.jdbc.password= <PASSWORD>  
 
-Create a file named `batchdb.properties`. Sample:
+The **DRIVER_TO_USE** indicates which database the data is being loaded to, either PostgreSQL or Oracle.  
+    `PostgreSQL` - **org.postgresql.Driver**  
+    `Oracle` - **oracle.jdbc.driver.OracleDriver**
 
-	batch.jdbc.driver=org.postgresql.Driver
-	batch.jdbc.url=jdbc:postgresql://localhost:5432/transmart
-	batch.jdbc.user=glopes
-	batch.jdbc.password=glopes
+The **PREFIX** is an extension of the **DRIVER_TO_USE** and again is database dependent:  
+    `PostgreSQL` - **jdbc:postgresql**  
+    `Oracle` - **jdbc:oracle:thin**  
 
-By default, transmart-batch will look for this file in the working directory.
-You can override this behavior with the `-c` option.
+**DATABASE** indicates the actual URL of the database. It is build up of the IP address, the port to use and for Oracle an additional database name. (**URL**:**PORT**:*DATABASE_NAME*)  
+    `PostgreSQL` - **//localhost:5432/transmart**  
+    `Oracle` - **@localhost:1521:ORCL**
 
-Preparation of the Database
----------------------------
+If you have a default installation of tranSMART the **USERNAME** and **PASSWORD** will both be `tm_cz`.  
+See example property files:  
+*PostgreSQL*
+```
+    batch.jdbc.driver=org.postgresql.Driver
+    batch.jdbc.url=jdbc:postgresql://localhost:5432/transmart
+    batch.jdbc.user=tm_cz
+    batch.jdbc.password=tm_cz
+```
+*Oracle*
+```
+    batch.jdbc.driver=oracle.jdbc.driver.OracleDriver
+    batch.jdbc.url=jdbc:oracle:thin:@localhost:1521:ORCL
+    batch.jdbc.user=tm_cz
+    batch.jdbc.password=tm_cz
+```
 
-*This step is no longer needed in new PostgreSQL instances*. Transmart-data
-already creates the necessary tables for spring-batch.
+## Build commands from source
+Next to stable releases you can also use the development version of transmart-batch. This means you will have to build the tool from the source files available on github. First you get the source files with `git clone <url_to_transmart-batch_github>` then from the transmart-batch folder you can execute `./gradlew capsule` which will generate a **.jar** file in `transmart-batch/build/libs/`. The **.jar** file can be used to run transmart-batch.
 
-On old databases (or Oracle), this needs to be done only once per database. It
-creates the spring-batch schema. Running it with the capsule executable is
-probably possible, but not supported. Run:
+There is also the possibility to make a distributable zip. To generate this zip build transmart-batch with `./gradlew distZip`. Note: keep in mind that the Java version used to build transmart-batch needs to be the same as the Java version used to execute the loading pipeines.
 
-	./gradlew setupSchema
+# Loading Data
+To load the data to tranSMART using transmart-batch you need either the build **.jar** file or the pre-build release files of transmart-batch, a file with the database connection information (*generally called batchdb.properties*) and study files with corresponding mapping and parameter files.
 
-Specifying an alternative config file can be done with the Java system property
-`propertySource`. A user with administrative privileges must be configured.
+To succesfully load the data it is important to note that transmart-batch has a few assumptions to keep track of:
 
+  1. A file with database connection settings, named *batchdb.properties*, is available in the directory were the command is run from.
 
-Running
--------
+  2. The study files abide a certain structure
+    - Data files follow format requirements (see [docs/data_formats](docs/data_formats/)).
+    - Mapping files corresponding to the data files
+    - Parameter files next to the data files
 
-In its simplest form:
+## Transmart-batch commands
+Assuming the **batchdb.properties** file is in the directory transmart-batch is run from and, the clinical data has all the mapping and parameter files, this `<path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params` command loads the clinical data to tranSMART.
 
-    ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/clinical.params
+#### Possible flags
+- `-c` - (Optional) Overwrite default behaviour and specify a file to be used as **batchdb.properties**.
+- `-p` - (**Mandatory**) Path to the parameter file indicating which data should be uploaded.
+- `-n` - (Optional) Forces a rerun of the job. Needed if you want to reload a dataset.
+- `-r` - (Optional) Rerun a failed job using the execution id.
+- `-j` - (Optional, in combination with -r) Execution id for the job.
 
-Beware: the parent directory of the clinical.params file will be study name. See
-the usage help for more information.
+## Examples:
 
-Worthy of mention is that transmart-batch will refuse to re-run a job with the
-same parameters (which depend on the `clinical.params` file contents). Use `-n`
-to force the job to be re-run.
+* Loading clinical data with a gene expression data set  
+```
+    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params
+    <path_to>/transmart-batch.jar -p <path_to>/study_folder/mRNA/expression.params
+```
 
-Details on how to prepare your datam, mapping and parameter files for transmart-batch can be found in the [docs folder](docs).
+* Use a different **batchdb.properties**
+```
+    <path_to>/transmart-batch.jar -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
+```
 
-To restart a job, take a note of the job execution id at the beginning of the
-failed job:
+* Restart a failed job
+```
+    At the start of the failed job retrieve the execution id:  
+        org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
+    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
+```
 
-    org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
+## Expected file structure
+Below is the file structure that transmart-batch expects. Note that only the params files have set names, any of the other files and folders can be named freely.
 
-Then run:
+```
+<STUDY_FOLDER>
+│   study.params
+├── <folder_name>
+    |   clinical.params
+    |   Clinical_data.txt
+    |   Clinical_wordmap.txt
+    |   Clinical_columnmap.txt
+├── <another_folder>
+    |   expression.params
+    |   dataset1.txt
+    └── subjectSampleMapping.txt
+├── <folder_with_nested_folders>
+    |   ├── <dataset_1>
+    |   |   |   rnaseq.params
+    |   |   |   rnaseq_data.txt
+    |   |   |   subjectmapping.txt
+    |   ├── <dataset_2>
+    |   └── <annotations_for_dataset_1>
+    |   |   |   rnaseq_annotation.params
+    |   |   |   gene_platform.txt
+└── <meta_data_tags>
+```
 
-    ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/<type>.params -r -j <execution id>
+### For a specific example study:
+with most supported datatypes have a look at [How to load the TraIT Cell line use case](docs/how_to_load_trait_cluc.md).
 
-Logging can be customized by creating a `logback.groovy` file in the working
-directory. You can copy the original `logback.groovy` and remove the part before
-the comment `CUT HERE`:
-
-    bsdtar -O -xvf transmart-batch-capsule.jar logback.groovy | \
-	  vim -c '/CUT HERE' -c '1,+1d' -c 'wq logback.groovy' -
-
-Development
------------
-
-Running can also be done without capsule:
-
-    ./gradlew run -Pargs='-p studies/GSE8581/clinical.params -n' --debug-jvm
-
-Before committing, run:
-
-    ./gradlew check
-
-To run the functional tests, you need to have a dedicated PostgreSQL database
-setup. After setting it up with transmart-data, you will also need to run the
-`functionalTestPrepare` target. So:
-
-    // only once
-    make -j8 postgres // in transmart-data
-    ./gradlew functionalTestPrepare
-
-    // everytime one wants to run the tests
-    ./gradlew functionalTest
-
-To test on Oracle, the procedure is similar. There is one small difference:
-while the preparation step must be run with an administrator account (like with
-PostgreSQL), the tests themselves must be run as `tm_cz`.
+![Natasha](images/natasha_full_no_solar.png)
