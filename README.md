@@ -1,15 +1,15 @@
-tranSMART Batch <img src=images/batch_logo.png width="50" height="80">
+<img src=images/batch_logo.png width="50" height="80"> tranSMART Batch
 ============================
 [![Build Status](https://travis-ci.org/thehyve/transmart-batch.svg?branch=master)](https://travis-ci.org/thehyve/transmart-batch)
 
-tranSMART pipeline alternative to ETL, using Spring Batch. 
+tranSMART pipeline alternative to ETL, using Spring Batch.
 
 If interested, see [Developer documentation](docs/developer_docs.md).
 
 # Quick start: Setting up transmart-batch
 
 ## Prepare database
-To prepare the tranSMART database you need to have admin rights. Transmart-batch requires the *ts-batch* schema which is used for job tracking. To add this schema to the database you need to `git clone` the transmart git repository. Make sure you add a file named [**batchdb.properties**](#properties_file) with the database connection information to the directory and execute `./gradlew setupSchema`. If you look at the schemas you should see the *ts-batch* has now been added.
+To prepare the tranSMART database you need to have admin rights. Transmart-batch requires the *ts-batch* schema which is used for job tracking. To add this schema to the database you need to `git clone` the transmart git repository. Make sure you add a file named [**batchdb.properties**](#properties-file) with the database connection information to the directory and execute `./gradlew setupSchema`. If you look at the schemas you should see the *ts-batch* has now been added.
 
 ## Properties file
 The properties file contains information as the location of the database, the username and password that are used to upload the data to the database. The properties is build up of four lines indicating which database is being used, either PostgreSQL or Oracle, the location of the database and the user.
