@@ -4,7 +4,7 @@ tranSMART Batch
 
 tranSMART pipeline alternative to ETL, using Spring Batch.
 
-![transmart batch logo](images/batch_logo.svg)
+![transmart batch logo](images/batch_logo.png)
 
 If interested, see [Developer documentation](docs/developer_docs.md).
 
@@ -127,4 +127,4 @@ Below is the file structure that transmart-batch expects. Note that only the par
 ### For a specific example study:
 with most supported datatypes have a look at [How to load the TraIT Cell line use case](docs/how_to_load_trait_cluc.md).
 
-![Natasha](images/natasha_full_no_solar.svg)
+![Natasha](images/natasha_full_no_solar.png)
