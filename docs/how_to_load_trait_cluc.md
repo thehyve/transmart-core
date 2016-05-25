@@ -5,11 +5,11 @@ This diverse set is used to:
  - Standardize data formats and data processing pipelines from the four domain
  - Test the integration pipelines within the TraIT translational toolset
 
-By incorporating the same platforms as used for ongoing research projects, this cell line set gives a representative test set comparable to real patient data, without the legal burden of handling personal data. The TraIT Cell Line Use Case is available under the CC0 license at *link*.
+By incorporating the same platforms as used for ongoing research projects, this cell line set gives a representative test set comparable to real patient data, without the legal burden of handling personal data. The TraIT Cell Line Use Case is available under the CC0 license for [download here](https://wiki.transmartfoundation.org/display/transmartwiki/Tutorial%3A+How+to+load+the+Cell+Line+Use+Case+dataset+with+transmart-data).
 
 Please use the following citation when making use of this dataset: Mariska Bierkens & Jochem Bijlard *"The TraIT cell line use case."* Manuscript in preparation. More information can also be found on the **Bio-IT World** Poster *"Multi-omics data analysis in tranSMART using the Cell Line Use Case dataset"*.
 
-[Cell line use case datatype and sample overview](../images/cluc_overview.png)
+![Cell line use case datatype and sample overview](../images/cluc_overview.png)
 
 ##### Make sure to setup transmart-batch
 During the setup you should configure whether you want to load the data to a local transmart or over ssh to a remote one. Follow the instructions on how to do this here: `link`
