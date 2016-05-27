@@ -105,7 +105,7 @@ update_repos = if [ ! -d $(1) ]; then \
 #update_etl:
 #	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$(TRANSMART_RELEASE_BRANCH))
 update_etl:
-	echo "for reelase build tranSMART-ETL is not automaticially updated from git, because it is assumed to be fixed"
+	echo "for release build tranSMART-ETL is not automatically updated from git, because it is assumed to be already loaded from a zip file"
 .PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
 
 KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
