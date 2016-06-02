@@ -14,7 +14,7 @@
 def catalinaBase      = System.getProperty('catalina.base') ?: '.'
 
 def explodedWarDir    = catalinaBase + '/webapps/transmart'
-def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
+def solrPort          = 8983 //port of appserver where solr runs (under ctx path /solr)
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
 def jobsDirectory     = "/var/tmp/jobs/"
