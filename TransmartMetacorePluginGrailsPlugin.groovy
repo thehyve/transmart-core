@@ -1,3 +1,5 @@
+import grails.util.Holders
+
 class TransmartMetacorePluginGrailsPlugin {
     // the plugin version
     def version = "1.2.2-SNAPSHOT"
@@ -48,7 +50,11 @@ Transmart MetaCore support
     }
 
     def doWithApplicationContext = { ctx ->
-        // TODO Implement post initialization spring config (optional)
+        def config = Holders.config
+        if (config.com.thomsonreuters.transmart.metacoreAnalyticsEnable) {
+            def extensionsRegistry = ctx.getBean('transmartExtensionsRegistry')
+            extensionsRegistry.registerAnalysisTabExtension("transmart-metacore-plugin", "/MetacoreEnrichment/loadScripts", 'loadMetaCoreEnrichment')
+        }
     }
 
     def onChange = { event ->
