@@ -61,14 +61,15 @@ class MetacoreEnrichmentController {
 		f.eachLine {
 			line ->
 			if (i > 0) {
-				def values = line.split("\t")
+				def values = line.split('\t',13) //If GENE_SYMBOL is empty need add limit to split or length line will be less 11
 				def z_score = 0
 				
 				try {
 					z_score = Double.parseDouble(values[7])
 				}
-				catch (e) {}
-				
+				catch (e) {
+					log.debug "Can not parse z_score ${values[7]}"
+				}
 				if (values[11] && Math.abs(z_score) >= threshold) geneList << values[11]
 			}
 			
