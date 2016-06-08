@@ -87,6 +87,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ searchKeywordDataConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'probe', annotationClass: DeQpcrMirnaAnnotation.class),
                 standardDataConstraintFactory ]
     }
 
@@ -179,20 +180,5 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
     @Override
     List<String> getSearchableProjections() {
         ['logIntensity']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectMirnaData)
-        c.add(Restrictions.in('probe', DeQpcrMirnaAnnotation.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('gplId', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
     }
 }

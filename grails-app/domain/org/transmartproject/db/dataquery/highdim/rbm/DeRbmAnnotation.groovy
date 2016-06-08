@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.rbm
 
+import org.transmartproject.db.dataquery.highdim.DeGplInfo
+
 class DeRbmAnnotation {
 
     String gplId
@@ -28,9 +30,13 @@ class DeRbmAnnotation {
     String geneSymbol
     String geneId
 
+    static belongsTo = [ platform: DeGplInfo ]
+
     static mapping = {
         table   schema:    'deapp',   name: 'de_rbm_annotation'
         id      generator: 'assigned'
+        platform column: 'gpl_id'
+        gplId    insertable: false, updateable: false
         version false
     }
 
@@ -41,5 +47,6 @@ class DeRbmAnnotation {
         uniprotName nullable: true, maxSize: 200
         geneSymbol  nullable: true, maxSize: 200
         geneId      nullable: true, maxSize: 400
+        platform    nullable: true
     }
 }

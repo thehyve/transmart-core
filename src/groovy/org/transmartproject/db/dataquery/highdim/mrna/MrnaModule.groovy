@@ -20,16 +20,15 @@
 package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
-import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -39,7 +38,9 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
+import org.transmartproject.db.util.GormWorkarounds
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -84,6 +85,8 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 property 'p.geneSymbol', 'geneSymbol'
                 property 'p.geneId',     'geneId'
                 property 'p.organism',   'organism'
+
+                property 'patient.id',   'patientId'
             }
 
             order 'p.id',         'asc'
@@ -156,6 +159,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'probe', annotationClass: DeMrnaAnnotationCoreDb.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'GENE', 'p', 'geneId') ]
     }
@@ -196,21 +200,6 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['logIntensity']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectMicroarrayDataCoreDb)
-        c.add(Restrictions.in('probe', DeMrnaAnnotationCoreDb.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('gplId', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
+        ['logIntensity','rawIntensity','zscore']
     }
 }

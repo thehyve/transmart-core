@@ -232,9 +232,4 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
     List<String> getSearchableProjections() {
         ['reference', 'variant', 'variantType']
     }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        sessionFactory.getCurrentSession().createCriteria(DeVariantDatasetCoreDb)
-    }
 }

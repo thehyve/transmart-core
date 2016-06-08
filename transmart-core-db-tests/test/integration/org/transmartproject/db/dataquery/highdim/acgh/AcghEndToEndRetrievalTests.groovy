@@ -296,9 +296,8 @@ class AcghEndToEndRetrievalTests {
     }
 
     @Test
-    void testSearchAnnotation() {
+    void testSearchAnnotationGeneSymbol() {
         def concept_code = 'concept code #1'
-
         def symbols = acghResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
         assertThat symbols, allOf(
                 hasSize(2),
@@ -307,7 +306,11 @@ class AcghEndToEndRetrievalTests {
                         equalTo('AURKA')
                 )
         )
+    }
 
+    @Test
+    void testSearchAnnotationCytoband() {
+        def concept_code = 'concept code #1'
         def cyto = acghResource.searchAnnotation(concept_code, 'cyto', 'cytoband')
         assertThat cyto, allOf(
                 hasSize(2),
@@ -316,7 +319,11 @@ class AcghEndToEndRetrievalTests {
                         equalTo('cytoband2')
                 )
         )
+    }
 
+    @Test
+    void testSearchAnnotationRegionName() {
+        def concept_code = 'concept code #1'
         def names = acghResource.searchAnnotation(concept_code, 'region 1', 'name')
         assertThat names, allOf(
                 hasSize(1),
@@ -324,11 +331,19 @@ class AcghEndToEndRetrievalTests {
                         equalTo('region 1:33-9999')
                 )
         )
+    }
 
+    @Test
+    void testSearchAnnotationGeneSymbolNoResult() {
+        def concept_code = 'concept code #1'
         def empty = acghResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
         assertThat empty, hasSize(0)
+    }
 
-        empty = acghResource.searchAnnotation(concept_code, 'A', 'FOO')
+    @Test
+    void testSearchAnnotationInvalidProperty() {
+        def concept_code = 'concept code #1'
+        def empty = acghResource.searchAnnotation(concept_code, 'A', 'FOO')
         assertThat empty, hasSize(0)
     }
 }

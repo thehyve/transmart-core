@@ -176,9 +176,4 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
     List<String> getSearchableProjections() {
         []
     }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        sessionFactory.getCurrentSession().createCriteria(DeTwoRegionEvent)
-    }
 }

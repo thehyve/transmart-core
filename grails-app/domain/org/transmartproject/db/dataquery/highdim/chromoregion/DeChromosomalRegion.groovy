@@ -34,7 +34,7 @@ class DeChromosomalRegion implements Region {
     String  cytoband
     String  geneSymbol
     Long    geneId
-
+    String  gplId
     /* unused */
     String  organism
 
@@ -54,7 +54,7 @@ class DeChromosomalRegion implements Region {
         name           column: 'region_name'
         numberOfProbes column: 'num_probes'
         platform       column: 'gpl_id'
-
+        gplId          insertable: false, updateable: false
         version false
 
 	}

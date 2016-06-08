@@ -26,6 +26,7 @@ class DeProteinAnnotation {
     String   peptide
     String   uniprotId
     String   uniprotName
+    String   gplId
 
     // irrelevant
     //String biomarkerId
@@ -41,8 +42,8 @@ class DeProteinAnnotation {
         table    schema:    'deapp'
         id       generator: 'assigned'
         platform column:    'gpl_id'
-
-        version   false
+        gplId    insertable: false, updateable: false
+        version  false
     }
 
     static constraints = {

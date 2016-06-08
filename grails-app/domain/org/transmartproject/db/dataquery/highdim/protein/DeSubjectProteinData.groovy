@@ -20,7 +20,6 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
 import groovy.transform.EqualsAndHashCode
-import org.transmart.biomart.Patient
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.i2b2data.PatientDimension
 

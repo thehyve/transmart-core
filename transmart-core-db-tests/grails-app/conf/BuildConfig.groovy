@@ -5,12 +5,12 @@ grails.plugin.location.'transmart-core-db' = '../.'
 def defaultVMSettings = [
         maxMemory: 768,
         minMemory: 64,
-        debug:     false,
+        debug:     true,
         maxPerm:   256
 ]
 
 grails.project.fork = [
-        test:    [*: defaultVMSettings, daemon:      true],
+        test:    false,
         run:     [*: defaultVMSettings, forkReserve: false],
         war:     [*: defaultVMSettings, forkReserve: false],
         console: defaultVMSettings

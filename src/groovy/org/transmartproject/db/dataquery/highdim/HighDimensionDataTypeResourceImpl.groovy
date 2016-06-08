@@ -31,6 +31,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.ConstraintByOmicsValue
@@ -199,7 +200,88 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     @Override
-    def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id) {
-        module.getDistribution(constraint, concept_code, result_instance_id)
+    def getDistribution(ConstraintByOmicsValue constraint, String concept_key, Long result_instance_id = null) {
+        def dataConstraints = []
+        def assayConstraints = []
+        dataConstraints.add(createDataConstraint([property: constraint.property, term: constraint.selector, concept_key: concept_key], DataConstraint.ANNOTATION_CONSTRAINT))
+        assayConstraints.add(createAssayConstraint([concept_key: concept_key], AssayConstraint.ONTOLOGY_TERM_CONSTRAINT))
+        if (result_instance_id != null)
+            assayConstraints.add(createAssayConstraint([result_instance_id: result_instance_id], AssayConstraint.PATIENT_SET_CONSTRAINT))
+
+        def projection
+        switch (constraint.projectionType) {
+            case ConstraintByOmicsValue.ProjectionType.LOGINTENSITY:
+                projection = createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
+                break
+            case ConstraintByOmicsValue.ProjectionType.RAWINTENSITY:
+                projection = createProjection([:], Projection.DEFAULT_REAL_PROJECTION)
+                break
+            case ConstraintByOmicsValue.ProjectionType.ZSCORE:
+                projection = createProjection([:], Projection.ZSCORE_PROJECTION)
+                break
+            case ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT:
+                projection = createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
+                break
+            default:
+                log.error("Unsupported projection for getDistrubtion: " + constraint.projectionType.value)
+                throw new InvalidArgumentsException("Unsupported projection for getDistrubtion: " + constraint.projectionType.value)
+        }
+        def retrieved = retrieveData(assayConstraints, dataConstraints, projection)
+        def data = [:]
+        // transform to a map where the keys are patient ids, and the values are the values of probes of the patient
+        retrieved.rows.each { row ->
+            row.assayIndexMap.each { assay, index ->
+                if (row.data[index] != null) data.get(assay.patient.id, []).add(row.data[index])
+            }
+        }
+        retrieved.close()
+        // calculate the mean probe value for each patient
+        def aggregator = highDimensionConstraintValuesAggregator(constraint)
+        data.each {it.setValue(aggregator(it.getValue()))} // set the value of each Map.Entry to the aggregated value
+        def filter = highDimensionConstraintClosure(constraint)
+        data.findAll {filter(it.getValue())}
+    }
+    
+    protected def highDimensionConstraintValuesAggregator(ConstraintByOmicsValue constraint) {
+        {values -> values.sum() / values.size()}
+    }
+
+    protected def highDimensionConstraintClosure(ConstraintByOmicsValue constraint) {
+        if (getHighDimensionFilterType() == HighDimensionFilterType.SINGLE_NUMERIC) {
+            // default aggregator for numeric is average
+            // this should be parameterized in the future
+            if (constraint.operator != null && constraint.constraint != null) {
+                switch (constraint.operator) {
+                    case ConstraintByOmicsValue.Operator.BETWEEN:
+                        def limits = constraint.constraint.split(':')*.toDouble()
+                        return {value -> limits[0] <= value && value <= limits[1]}
+                        break;
+                    case ConstraintByOmicsValue.Operator.EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {value -> limit == value}
+                        break;
+                    case ConstraintByOmicsValue.Operator.GREATER_OR_EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {value -> limit <= value}
+                        break;
+                    case ConstraintByOmicsValue.Operator.GREATER_THAN:
+                        def limit = constraint.constraint.toDouble()
+                        return {value -> limit < value}
+                        break;
+                    case ConstraintByOmicsValue.Operator.LOWER_OR_EQUAL_TO:
+                        def limit = constraint.constraint.toDouble()
+                        return {value -> limit >= value}
+                        break;
+                    case ConstraintByOmicsValue.Operator.LOWER_THAN:
+                        def limit = constraint.constraint.toDouble()
+                        return {value -> limit > value}
+                        break;
+                }
+            }
+            else
+                return {row -> true}
+        }
+        else
+            return {row -> true}
     }
 }

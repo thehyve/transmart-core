@@ -39,6 +39,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
@@ -76,6 +77,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'annotations', annotationClass: DeRbmAnnotation.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'PROTEIN', 'p', 'uniprotId'),
         ]
@@ -191,20 +193,5 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     @Override
     List<String> getSearchableProjections() {
         ['logIntensity']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectRbmData)
-        c.add(Restrictions.in('annotation', DeRbmAnnotation.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('gplId', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
     }
 }

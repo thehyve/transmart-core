@@ -194,15 +194,11 @@ class PatientSetQueryBuilderService {
 
         if (omics_value_constraint) {
             def resource = highDimensionResourceService.getHighDimDataTypeResourceFromConcept(item.conceptKey)
-            def concept_code = i2b2HelperService.getConceptCodeFromKey(item.conceptKey)
 
             if (resource != null) {
-                // this is an extra query, however if the cohort selection tab was used to generate the patient set,
-                // this query was already executed to generate the histogram when specifying the limits, so the
-                // results of this query should come from a cache
-                def distribution = resource.getDistribution(omics_value_constraint, concept_code, null)
-                def patient_ids = distribution.collect { it[0] }
-                clause += "AND patient_num IN (" + patient_ids.join(",") + ")"
+                def distribution = resource.getDistribution(omics_value_constraint, item.conceptKey, null)
+                def patient_ids = distribution.keySet()
+                clause += "AND patient_num IN (" + patient_ids.collect {it.toString()}.join(",") + ")"
             }
             else {
                 log.warn("No implementation exists for building a patient set query for " + resource.getHighDimensionFilterType() + " data.")

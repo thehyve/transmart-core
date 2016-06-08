@@ -47,6 +47,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
@@ -100,6 +101,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
         [
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'region', annotationClass: DeChromosomalRegion.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'GENE', 'jRegion', 'geneId')
         ]
@@ -244,20 +246,5 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
     @Override
     List<String> getSearchableProjections() {
         ['logNormalizedReadcount']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectRnaseqData)
-        c.add(Restrictions.in('region', DeChromosomalRegion.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('platform.id', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
     }
 }

@@ -39,6 +39,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRe
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import javax.annotation.PostConstruct
@@ -103,6 +104,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'annotation', annotationCriteraBuilder: DeMetaboliteAnnotation.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'METABOLITE', 'a', 'hmdbId')]
     }
@@ -192,20 +194,5 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Override
     List<String> getSearchableProjections() {
         ['logIntensity']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectMetabolomicsData)
-        c.add(Restrictions.in('annotation', DeMetaboliteAnnotation.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('platform.id', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
     }
 }

@@ -145,6 +145,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
+                new SimpleAnnotationConstraintFactory(field: 'annotation', annotationClass: DeRnaseqAnnotation.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'GENE', 'ann', 'geneId') ]
     }
@@ -185,19 +186,5 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     @Override
     List<String> getSearchableProjections() {
         ['logIntensity']
-    }
-
-    @Override
-    Criteria prepareAnnotationCriteria(ConstraintByOmicsValue constraint, String concept_code) {
-        def search_property = constraint.property
-        def search_term = constraint.selector
-        Criteria c = sessionFactory.getCurrentSession().createCriteria(DeSubjectRnaData)
-        c.add(Restrictions.in('probe', DeRnaseqAnnotation.createCriteria().listDistinct {
-            eq(search_property, search_term)
-            eq('platform.id', DeSubjectSampleMapping.createCriteria().get {
-                eq('conceptCode', concept_code)
-                projections {distinct 'platform.id'}
-            })
-        }))
     }
 }
