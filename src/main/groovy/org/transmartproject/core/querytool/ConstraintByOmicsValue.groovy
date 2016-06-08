@@ -80,6 +80,8 @@ class ConstraintByOmicsValue {
     static enum ProjectionType {
         // Gene expression types
         LOGINTENSITY ("logIntensity"),
+        RAWINTENSITY ("rawIntensity"),
+        ZSCORE ("zscore"),
 
         // RNASEQ types (Zscore already specified)
         LOG_NORMALIZED_READCOUNT ("logNormalizedReadcount"),

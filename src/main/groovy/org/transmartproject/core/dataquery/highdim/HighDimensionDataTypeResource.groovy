@@ -189,8 +189,7 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * @param result_instance_id If this is null it will be ignored. Otherwise only the values for patients that are members
      * of the given result instance will be returned.
      *
-     * @return A list of items, each item is a list where the first element is the patient id and the second element is the
-     * associated value in the given projection.
+     * @return A map where the keys are patient ids, and the values are the data for that patient.
      */
     def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id)
 }
