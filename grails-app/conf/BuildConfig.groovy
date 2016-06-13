@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
         mavenCentral()
 
         mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
-        mavenRepo "http://repo.etriks.org/content/groups/public/"
+        // mavenRepo "http://repo.etriks.org/content/groups/public/"
 
     }
     dependencies {
