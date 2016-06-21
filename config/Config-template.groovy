@@ -428,10 +428,8 @@ grails { plugin { springsecurity {
         def glowingBearRedirectUris = [
                 transmartURL - ~/transmart\/?$/ + 'connections',
         ]
-        if (transmartURL.startsWith('http://localhost:')) {
-            // for dev, node reverse proxy runs on 8001
-            glowingBearRedirectUris << 'http://localhost:8001/connections'
-        }
+        // for dev, node reverse proxy runs on 8001
+        glowingBearRedirectUris << 'http://localhost:8001/connections'
 
         oauthProvider {
             authorization.requireRegisteredRedirectUri = true
