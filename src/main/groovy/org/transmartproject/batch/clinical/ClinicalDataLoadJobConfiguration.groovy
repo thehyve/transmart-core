@@ -44,10 +44,10 @@ import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCounts
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
-import org.transmartproject.batch.support.JobParameterFileResource
-import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 import org.transmartproject.batch.patient.GatherCurrentPatientsReader
 import org.transmartproject.batch.patient.PatientSet
+import org.transmartproject.batch.support.JobParameterFileResource
+import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 
 /**
  * Spring configuration for the clinical data job.
@@ -247,7 +247,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step rowProcessingStep() {
         steps.get('rowProcessingStep')
-                .chunk(CHUNK_SIZE)
+                .chunk(clinicalJobRowProcessingCompletionPolicy())
                 .reader(dataRowReader()) //read data
                 .processor(compositeOf(
                     wordReplaceProcessor(), //replace words, if such is configured
@@ -259,7 +259,14 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                     observationFactTableWriter
                 ))
                 .listener(progressWriteListener())
+                .listener(clinicalJobRowProcessingCompletionPolicy())
                 .build()
+    }
+
+    @Bean
+    @StepScope
+    ClinicalJobRowProcessingCompletionPolicy clinicalJobRowProcessingCompletionPolicy() {
+        new ClinicalJobRowProcessingCompletionPolicy(maxCount: CHUNK_SIZE)
     }
 
     @Bean
