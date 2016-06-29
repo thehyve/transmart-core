@@ -20,7 +20,7 @@
 import org.transmartproject.db.test.H2Views
 
 class TransmartCoreDbTestsGrailsPlugin {
-    def version = "16.1"
+    def version = "16.2-SNAPSHOT"
     def grailsVersion = "2.2 > *"
 
     def title = "Transmart Core Db Tests Plugin"
