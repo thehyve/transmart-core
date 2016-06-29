@@ -44,6 +44,14 @@ public interface AssayConstraint {
     public final static String ASSAY_ID_LIST_CONSTRAINT = 'assay_id_list'
 
     /**
+     * Well-known assay constraint for filtering the assays by patient id. The
+     * patient id is the external id, also known as in-trial id.
+     *
+     * Parameters: 'ids' => <list of String ids>
+     */
+    public final static String PATIENT_ID_LIST_CONSTRAINT = 'patient_id_list'
+
+    /**
      * A well-known constraint for building a disjunction of several
      * sub-constraints.
      *
