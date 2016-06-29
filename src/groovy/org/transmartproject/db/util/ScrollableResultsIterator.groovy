@@ -1,16 +1,18 @@
 package org.transmartproject.db.util
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.hibernate.ScrollableResults
 
+@CompileStatic
 @Log4j
-class SimpleScrollableResultsIterator<T> implements Iterator<T>, Closeable {
+class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
 
     private ScrollableResults scrollableResults
     private Boolean hasNext = null
     private boolean closed
 
-    SimpleScrollableResultsIterator(ScrollableResults scrollableResults) {
+    ScrollableResultsIterator(ScrollableResults scrollableResults) {
         this.scrollableResults = scrollableResults
     }
 
@@ -27,7 +29,7 @@ class SimpleScrollableResultsIterator<T> implements Iterator<T>, Closeable {
     T next() {
         if (hasNext()) {
             hasNext = null
-            scrollableResults.get(0)
+            (T) scrollableResults.get(0)
         } else {
             throw new NoSuchElementException()
         }

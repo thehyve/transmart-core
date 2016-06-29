@@ -76,14 +76,14 @@ class HighDimTestData {
                                                   List<Map<String, String>> attributes,
                                                   String type = 'GENE',
                                                   String organism = 'HOMO SAPIENS',
-                                                  String primarySourceCode = 'Entrez') {
+                                                  String sourceCode = 'Entrez') {
         (0..attributes.size() - 1).collect { int i ->
             assertThat([ attributes[i].name,
-                    attributes[i].primaryExternalId ], everyItem(is(notNullValue())))
+                    attributes[i].externalId ], everyItem(is(notNullValue())))
             def bm = new BioMarkerCoreDb(
                     type: type,
                     organism: organism,
-                    primarySourceCode: primarySourceCode,
+                    sourceCode: sourceCode,
                     *:attributes[i])
             bm.id = baseId - 1 - i
             bm
@@ -96,7 +96,7 @@ class HighDimTestData {
             def res = new SearchKeywordCoreDb(
                     keyword: it.name,
                     bioDataId: it.id,
-                    uniqueId: "$it.type:$it.primaryExternalId",
+                    uniqueId: "$it.type:$it.externalId",
                     dataCategory: it.type,
             )
             res.id = --baseId

@@ -10,7 +10,7 @@ class AccessLogService implements AccessLogEntryResource {
     @Override
     AccessLogEntry report(Map<String, Object> additionalParams = [:], User user, String event) {
         new AccessLogEntry(
-                username:       user.username,
+                username:       user?.username,
                 event:          event,
                 eventMessage:   additionalParams?.eventMessage,
                 requestURL:     additionalParams?.requestURL,

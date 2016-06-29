@@ -219,6 +219,23 @@ class StandardAssayConstraintFactoryTests {
     }
 
     @Test
+    void testCreatePatientIdListConstraint() {
+        AssayConstraint constraint = testee.createPatientIdListConstraint(ids: [0, '001', "FXQ1"])
+        assertThat constraint, allOf(
+                isA(PatientIdListCriteriaConstraint),
+                hasProperty('patientIdList', contains(
+                        is("0"), is("001"), is("FXQ1")))
+        )
+    }
+
+    @Test
+    void testCreatePatientIsListConstraintEmptyList() {
+        assertThat shouldFail(InvalidArgumentsException) {
+            testee.createPatientIdListConstraint(ids: [])
+        }, containsString('empty list')
+    }
+
+    @Test
     void testCreateDisjunctionConstraintTwoDifferentTypes() {
         def trialName = 'foobar'
 
