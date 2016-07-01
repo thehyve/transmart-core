@@ -182,7 +182,7 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
     /**
      * Finds the distribution for a particular property of a high dimensional dataset (e.g. the expression levels in log intensity of the probes associated with KRAS gene)
      * @param constraint A {@link ConstraintByOmicsValue} object with at least selector, property and projectionType fields set to non-null values.
-     * The projectionType should correspond to a member of the list {@link #getSearchableProjections()}, e.g. 'logIntensity'
+     * The projectionType should correspond to a member of the list {@link #getSearchableProjections()}, e.g. 'log_intensity'
      * The property should be a valid property of this high-dimensional data, i.e. it should be a member of the list {@link #getSearchableAnnotationProperties()}, e.g. 'geneSymbol'
      * The selector is used to match a property against, e.g. 'KRAS'
      * @param concept_code The concept code associated with the high dimensional data

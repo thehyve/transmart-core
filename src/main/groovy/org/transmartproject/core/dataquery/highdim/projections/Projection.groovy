@@ -45,6 +45,23 @@ public interface Projection<CELL> {
      */
     public static final ALL_DATA_PROJECTION = 'all_data'
 
+
+    public static final NORMALIZED_READ_COUNT_PROJECTION = 'normalized_read_count'
+    public static final LOG_NORMALIZED_READ_COUNT_PROJECTION = 'log_normalized_read_count'
+
+    // ACGH types
+    public static final CHIP_COPYNUMBER_VALUE = 'chip_copy_number_value'
+    public static final FLAG = 'flag'
+    public static final PROB_AMP = 'probability_of_amplification'
+    public static final PROB_LOSS = 'probability_of_loss'
+    public static final PROB_GAIN = 'probability_of_gain'
+    public static final PROB_NORM = 'probability_of_normal'
+    public static final SEGMENT_COPY_NUMBER_VALUE = 'segment_copy_number_value'
+
+    // VCF Projections
+    public static final VAR_CLASS = 'variant'
+    public static final REF_ALT = 'reference'
+    public static final VAR_TYPE = 'variant_type'
     /**
      * This method takes an implementation-defined object and returns the final
      * cell value.

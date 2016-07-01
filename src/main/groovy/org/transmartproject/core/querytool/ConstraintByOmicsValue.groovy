@@ -31,9 +31,9 @@ class ConstraintByOmicsValue {
     String property
 
     /**
-     * The projection
+     * The projection, should correspond to one of the static strings in {@link org.transmartproject.core.dataquery.highdim.projections.Projection}
      */
-    ProjectionType projectionType
+    String projectionType
 
     static enum Operator {
 
@@ -73,33 +73,6 @@ class ConstraintByOmicsValue {
         static OmicsType forValue(String value) {
             values().find { value == it.value } ?:
                     { throw new IllegalArgumentException("No OmicsType for value $value") }
-        }
-    }
-
-    // ProjectionType names should correspond to an existing column in the table holding the highdimension data
-    static enum ProjectionType {
-        // Gene expression types
-        LOGINTENSITY ("logIntensity"),
-        RAWINTENSITY ("rawIntensity"),
-        ZSCORE ("zscore"),
-
-        // RNASEQ types (Zscore already specified)
-        LOG_NORMALIZED_READCOUNT ("logNormalizedReadcount"),
-
-        // VCF Projections
-        VAR_CLASS ("variant"),
-        REF_ALT ("reference"),
-        VAR_TYPE ("variantType"),
-
-        final String value
-
-        protected ProjectionType(String value) {
-            this.value = value
-        }
-
-        static ProjectionType forValue(String value) {
-            values().find { value == it.value } ?:
-                    { throw new IllegalArgumentException("No ProjectionType for value $value")}
         }
     }
 }
