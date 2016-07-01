@@ -25,6 +25,7 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
@@ -149,7 +150,7 @@ class QueryDefinitionXmlServiceTests {
                         hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION)),
                         hasProperty('property', equalTo('geneSymbol')),
                         hasProperty('selector', equalTo('TNF')),
-                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                        hasProperty('projectionType', equalTo(Projection.LOG_INTENSITY_PROJECTION))
                 ))
         )
     }
@@ -189,7 +190,7 @@ class QueryDefinitionXmlServiceTests {
                         hasProperty('constraint', equalTo('-0.5:0.5')),
                         hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT)),
                         hasProperty('selector', equalTo('TNF')),
-                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT))
+                        hasProperty('projectionType', equalTo(Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION))
                 ))
         )
     }
@@ -229,7 +230,7 @@ class QueryDefinitionXmlServiceTests {
                         hasProperty('constraint', equalTo('-0.5:0.5')),
                         hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.PROTEOMICS)),
                         hasProperty('selector', equalTo('TNF')),
-                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                        hasProperty('projectionType', equalTo(Projection.LOG_INTENSITY_PROJECTION))
                 ))
         )
     }
@@ -269,7 +270,7 @@ class QueryDefinitionXmlServiceTests {
                         hasProperty('constraint', equalTo('-0.5:0.5')),
                         hasProperty('omicsType', equalTo(ConstraintByOmicsValue.OmicsType.MIRNA_QPCR)),
                         hasProperty('selector', equalTo('TNF')),
-                        hasProperty('projectionType', equalTo(ConstraintByOmicsValue.ProjectionType.LOGINTENSITY))
+                        hasProperty('projectionType', equalTo(Projection.LOG_INTENSITY_PROJECTION))
                 ))
         )
     }
@@ -505,7 +506,7 @@ class QueryDefinitionXmlServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]
@@ -535,7 +536,7 @@ class QueryDefinitionXmlServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT
+                                                projectionType: Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION
                                         )
                                 )
                         ]
@@ -565,7 +566,7 @@ class QueryDefinitionXmlServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]
@@ -595,7 +596,7 @@ class QueryDefinitionXmlServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]

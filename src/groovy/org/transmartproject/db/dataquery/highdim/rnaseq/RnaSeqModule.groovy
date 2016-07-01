@@ -120,7 +120,9 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 ),
                 new SimpleRealProjectionsFactory(
                         (Projection.LOG_INTENSITY_PROJECTION): 'logNormalizedReadcount',
+                        (Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION): 'logNormalizedReadcount',  // alias that is more descriptive
                         (Projection.DEFAULT_REAL_PROJECTION):  'normalizedReadcount',
+                        (Projection.NORMALIZED_READ_COUNT): 'normalizedReadcount',                    // alias that is more descriptive
                         (Projection.ZSCORE_PROJECTION):        'zscore'
                 ),
                 new AllDataProjectionFactory(dataProperties, rowProperties)
@@ -245,6 +247,6 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['logNormalizedReadcount']
+        [Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION, Projection.NORMALIZED_READ_COUNT_PROJECTION, Projection.ZSCORE_PROJECTION]
     }
 }

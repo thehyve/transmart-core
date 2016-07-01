@@ -185,6 +185,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
             ilike(search_property, search_term + '%')
             projections { distinct(search_property) }
             order(search_property, 'ASC')
+            maxResults(100)
         }
     }
 
@@ -200,6 +201,6 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['logIntensity','rawIntensity','zscore']
+        [Projection.LOG_INTENSITY_PROJECTION, Projection.DEFAULT_REAL_PROJECTION, Projection.ZSCORE_PROJECTION]
     }
 }

@@ -230,6 +230,6 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['reference', 'variant', 'variantType']
+        [Projection.VAR_CLASS, Projection.VAR_TYPE, Projection.REF_ALT]
     }
 }

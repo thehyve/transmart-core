@@ -27,6 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.ConstraintByOmicsValue
@@ -276,7 +277,7 @@ class PatientSetQueryBuilderServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]
@@ -307,7 +308,7 @@ class PatientSetQueryBuilderServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT
+                                                projectionType: Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION
                                         )
                                 )
                         ]
@@ -338,7 +339,7 @@ class PatientSetQueryBuilderServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]
@@ -369,7 +370,7 @@ class PatientSetQueryBuilderServiceTests {
                                                 constraint: '-1:1',
                                                 omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
                                                 selector: 'TNF',
-                                                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
                                         )
                                 )
                         ]

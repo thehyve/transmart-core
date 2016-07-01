@@ -19,23 +19,14 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.criterion.Order
-import org.hibernate.criterion.Projections
-import org.hibernate.Criteria
 import org.hibernate.SessionFactory
-import org.hibernate.criterion.Restrictions
-import org.hibernate.engine.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
-import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
-import org.transmartproject.db.querytool.QtPatientSetCollection
 
 import javax.annotation.PostConstruct
 

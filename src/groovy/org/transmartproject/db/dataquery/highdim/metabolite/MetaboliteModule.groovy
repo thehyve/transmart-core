@@ -193,6 +193,6 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['logIntensity']
+        [Projection.LOG_INTENSITY_PROJECTION, Projection.DEFAULT_REAL_PROJECTION, Projection.ZSCORE_PROJECTION]
     }
 }

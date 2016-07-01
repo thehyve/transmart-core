@@ -65,8 +65,7 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                     constrain.omics_value_type?.toString()),
                             operator: ConstraintByOmicsValue.Operator.forValue(
                                     constrain.omics_value_operator.toString()),
-                            projectionType: ConstraintByOmicsValue.ProjectionType.valueOf(
-                                    constrain.omics_projection_type?.toString().toUpperCase()),
+                            projectionType: constrain.omics_projection_type?.toString(),
                             selector: constrain.omics_selector?.toString(),
                             property: constrain.omics_property?.toString(),
                             constraint: constrain.omics_value_constraint?.toString()
@@ -135,7 +134,7 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                     omics_value_type constrain.omicsType.value
                                     omics_selector constrain.selector
                                     omics_property constrain.property
-                                    omics_projection_type constrain.projectionType.value
+                                    omics_projection_type constrain.projectionType
                                 }
                             }
                         }

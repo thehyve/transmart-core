@@ -208,24 +208,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         if (result_instance_id != null)
             assayConstraints.add(createAssayConstraint([result_instance_id: result_instance_id], AssayConstraint.PATIENT_SET_CONSTRAINT))
 
-        def projection
-        switch (constraint.projectionType) {
-            case ConstraintByOmicsValue.ProjectionType.LOGINTENSITY:
-                projection = createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
-                break
-            case ConstraintByOmicsValue.ProjectionType.RAWINTENSITY:
-                projection = createProjection([:], Projection.DEFAULT_REAL_PROJECTION)
-                break
-            case ConstraintByOmicsValue.ProjectionType.ZSCORE:
-                projection = createProjection([:], Projection.ZSCORE_PROJECTION)
-                break
-            case ConstraintByOmicsValue.ProjectionType.LOG_NORMALIZED_READCOUNT:
-                projection = createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
-                break
-            default:
-                log.error("Unsupported projection for getDistrubtion: " + constraint.projectionType.value)
-                throw new InvalidArgumentsException("Unsupported projection for getDistrubtion: " + constraint.projectionType.value)
-        }
+        def projection = createProjection([:], constraint.projectionType)
         def retrieved = retrieveData(assayConstraints, dataConstraints, projection)
         def data = [:]
         // transform to a map where the keys are patient ids, and the values are the values of probes of the patient
@@ -247,7 +230,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     protected def highDimensionConstraintClosure(ConstraintByOmicsValue constraint) {
-        if (getHighDimensionFilterType() == HighDimensionFilterType.SINGLE_NUMERIC) {
+        if (getHighDimensionFilterType() == HighDimensionFilterType.SINGLE_NUMERIC ||
+                getHighDimensionFilterType() == HighDimensionFilterType.ACGH) {
             // default aggregator for numeric is average
             // this should be parameterized in the future
             if (constraint.operator != null && constraint.constraint != null) {

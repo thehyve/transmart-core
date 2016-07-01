@@ -244,7 +244,7 @@ class MrnaEndToEndRetrievalTests {
                 omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
                 selector: "BOGUSCPO",
                 property: "geneSymbol",
-                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
+                projectionType: Projection.LOG_INTENSITY_PROJECTION
         )
 
         def geneSymbol = "BOGUSCPO"

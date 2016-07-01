@@ -28,8 +28,6 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
-import org.transmartproject.core.querytool.ConstraintByOmicsValue.Operator
 import org.transmartproject.core.querytool.HighDimensionFilterType
 
 public interface HighDimensionDataTypeModule {

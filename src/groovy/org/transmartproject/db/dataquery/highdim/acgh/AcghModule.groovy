@@ -20,9 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
-import org.hibernate.criterion.Restrictions
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +30,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -47,6 +44,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -113,6 +111,15 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                             }
                             new AcghValuesProjection()
                         }
+                ),
+                new SimpleRealProjectionsFactory(
+                        (Projection.CHIP_COPYNUMBER_VALUE)       : 'acgh.chipCopyNumberValue',
+                        (Projection.SEGMENT_COPY_NUMBER_VALUE)   : 'acgh.segmentCopyNumberValue',
+                        (Projection.FLAG)                        : 'acgh.flag',
+                        (Projection.PROB_LOSS)                   : 'acgh.probabilityOfLoss',
+                        (Projection.PROB_NORM)                   : 'acgh.probabilityOfNormal',
+                        (Projection.PROB_GAIN)                   : 'acgh.probabilityOfGain',
+                        (Projection.PROB_AMP)                    : 'acgh.probabilityOfAmplification'
                 ),
                 new AllDataProjectionFactory(dataProperties, rowProperties)
         ]
@@ -219,12 +226,14 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
         if (!getSearchableAnnotationProperties().contains(search_property))
             return []
         DeChromosomalRegion.createCriteria().list {
-            dataRowsAcgh {
-                'in'('assay', DeSubjectSampleMapping.createCriteria().listDistinct {eq('conceptCode', concept_code)} )
-            }
+            eq('gplId', DeSubjectSampleMapping.createCriteria().get {
+                eq('conceptCode', concept_code)
+                projections {distinct 'platform.id'}
+            })
             ilike(search_property, search_term + '%')
             projections { distinct(search_property) }
             order(search_property, 'ASC')
+            maxResults(100)
         }
     }
 
@@ -240,7 +249,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     @Override
     List<String> getSearchableProjections() {
-        ['chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
-         'probabilityOfLoss', 'probabilityOfNormal', 'probabilityOfGain', 'probabilityOfAmplification']
+        [Projection.CHIP_COPYNUMBER_VALUE, Projection.SEGMENT_COPY_NUMBER_VALUE, Projection.FLAG, Projection.PROB_AMP,
+         Projection.PROB_GAIN, Projection.PROB_LOSS, Projection.PROB_NORM]
     }
 }
