@@ -1,11 +1,13 @@
 package jobs
 
+import com.recomdata.transmart.util.ZipService
 import jobs.steps.*
 import jobs.steps.helpers.CategoricalColumnConfigurator
 import jobs.steps.helpers.HighDimensionColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -30,6 +32,12 @@ class RNASeqGroupTest extends AbstractAnalysisJob {
 
     @Autowired
     HighDimensionColumnConfigurator highDimensionColumnConfigurator
+
+    @Autowired
+    GrailsApplication grailsApplication
+
+    @Autowired
+    ZipService zipService
 
     @PostConstruct
     void init() {
@@ -72,6 +80,10 @@ class RNASeqGroupTest extends AbstractAnalysisJob {
                 studyName: studyName,
                 params: params,
                 extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
+
+        steps << new ZipResultsStep(jobName: params.jobName,
+                grailsApplication: grailsApplication,
+                zipService: zipService)
 
         steps
     }
