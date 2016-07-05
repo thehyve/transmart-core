@@ -48,29 +48,29 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     static transients = [ 'synonym', 'metadata', 'tableCode' ]
 
     static mapping = {
-        fullName             column:   'C_FULLNAME'
-        level                column:   'C_HLEVEL'
-        name                 column:   'C_NAME'
-        code                 column:   'C_BASECODE'
-        tooltip              column:   'C_TOOLTIP'
-        factTableColumn      column:   'C_FACTTABLECOLUMN'
-        dimensionTableName   column:   'C_TABLENAME'
-        columnName           column:   'C_COLUMNNAME'
-        columnDataType       column:   'C_COLUMNDATATYPE'
-        operator             column:   'C_OPERATOR'
-        dimensionCode        column:   'C_DIMCODE'
-        metadataxml          column:   'C_METADATAXML'
+        fullName           column: 'C_FULLNAME'
+        level              column: 'C_HLEVEL'
+        name               column: 'C_NAME'
+        code               column: 'C_BASECODE'
+        tooltip            column: 'C_TOOLTIP'
+        factTableColumn    column: 'C_FACTTABLECOLUMN'
+        dimensionTableName column: 'C_TABLENAME'
+        columnName         column: 'C_COLUMNNAME'
+        columnDataType     column: 'C_COLUMNDATATYPE'
+        operator           column: 'C_OPERATOR'
+        dimensionCode      column: 'C_DIMCODE'
+        metadataxml        column: 'C_METADATAXML'
     }
 
     static constraints = {
-        level               nullable:   false,   min:       0
-        fullName            nullable:   false,   size:      2..700
-        name                nullable:   false,   size:      1..2000
-        code                nullable:   true,    maxSize:   50
-        tooltip             nullable:   true,    maxSize:   900
-        cVisualattributes   nullable:   false,   size:      1..3
-        cSynonymCd          nullable:   false
-        metadataxml         nullable:   true
+        level             nullable: false, min:     0
+        fullName          nullable: false, size:    2..700
+        name              nullable: false, size:    1..2000
+        code              nullable: true,  maxSize: 50
+        tooltip           nullable: true,  maxSize: 900
+        cVisualattributes nullable: false, size:    1..3
+        cSynonymCd        nullable: false
+        metadataxml       nullable: true
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()

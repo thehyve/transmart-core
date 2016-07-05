@@ -35,42 +35,42 @@ class SampleBioMarkerTestData {
     List<BioMarkerCoreDb> geneBioMarkers = createBioMarkers(-1100L, [
             [ name: 'BOGUSCPO',
                     description: 'carboxypeptidase O',
-                    primaryExternalId: '-130749' ],
+                    externalId: '-130749' ],
             [ name: 'BOGUSRQCD1',
                     description: 'RCD1 required for cell differentiation1 homolog (S. pombe)',
-                    primaryExternalId: '-9125' ],
+                    externalId: '-9125' ],
             [ name: 'BOGUSVNN3',
                     description: 'vanin 3',
-                    primaryExternalId: '-55350' ],
+                    externalId: '-55350' ],
             [ name: 'BOGUSCPOCORREL',
                     description: 'Bogus gene associated with BOGUSCPO',
-                    primaryExternalId: '-130750'],
+                    externalId: '-130750'],
             [ name: 'AURKA',
                     description: 'Related with Adiponectin antigene',
-                    primaryExternalId: '-130751'],
+                    externalId: '-130751'],
             [ name: 'SLC14A2',
                     description: 'Related with Urea transporter 2 antigen',
-                    primaryExternalId: '-130752'],
+                    externalId: '-130752'],
             [ name: 'ADIRF',
                     description: 'Related with Adipogenesis regulatory factor',
-                    primaryExternalId: '-130753']])
+                    externalId: '-130753']])
 
     List<BioMarkerCoreDb> proteinBioMarkers = createBioMarkers(-1200L, [
             [ name: 'BOGUSCBPO_HUMAN',
                     description: 'Carboxypeptidase O',
-                    primaryExternalId: 'BOGUS_Q8IVL8' ],
+                    externalId: 'BOGUS_Q8IVL8' ],
             [ name: 'Adipogenesis regulatory factor',
                     description: 'Adipogenesis factor rich in obesity',
-                    primaryExternalId: 'Q15847' ],
+                    externalId: 'Q15847' ],
             [ name: 'Adiponectin',
                     description: '30 kDa adipocyte complement-related protein',
-                    primaryExternalId: 'Q15848' ],
+                    externalId: 'Q15848' ],
             [ name: 'Urea transporter 2',
                     description: 'Solute carrier family 14 member 2',
-                    primaryExternalId: 'Q15849' ],
+                    externalId: 'Q15849' ],
             [ name: 'EMBL CAA39792.1',
                     description: 'EMBL CAA39792.1',
-                    primaryExternalId: 'Q15850' ]],
+                    externalId: 'Q15850' ]],
             'PROTEIN',
             'HOMO SAPIENS',
             'UniProt')
@@ -78,13 +78,13 @@ class SampleBioMarkerTestData {
     List<BioMarkerCoreDb> mirnaBioMarkers = createBioMarkers(-1400L, [
             [ name: 'MIR3161',
                     description: 'Homo sapiens miR-3161 stem-loop',
-                    primaryExternalId: 'hsa-mir-3161' ],
+                    externalId: 'hsa-mir-3161' ],
             [ name: 'MIR1260B',
                     description: 'Homo sapiens miR-1260b stem-loop',
-                    primaryExternalId: 'hsa-mir-1260b' ],
+                    externalId: 'hsa-mir-1260b' ],
             [ name: 'MIR323B',
                     description: 'Homo sapiens miR-323b stem-loop',
-                    primaryExternalId: 'hsa-mir-323b' ]],
+                    externalId: 'hsa-mir-323b' ]],
             'MIRNA',
             'HOMO SAPIENS',
             'miRBase')
@@ -92,7 +92,7 @@ class SampleBioMarkerTestData {
     List<BioMarkerCoreDb> pathwayBioMarkers = createBioMarkers(-1500L, [
             [ name: 'FOOPATHWAY',
                     description: 'Foo pathway',
-                    primaryExternalId: 'foo_pathway']],
+                    externalId: 'foo_pathway']],
             'PATHWAY',
             'HOMO SAPIENS',
             'foo')
@@ -101,13 +101,13 @@ class SampleBioMarkerTestData {
     List<BioMarkerCoreDb> metaboliteBioMarkers = createBioMarkers(-1600L, [
             [ name: 'HMDB30536',
                     description: 'Majoroside F4',
-                    primaryExternalId: 'HMDB30536'],
+                    externalId: 'HMDB30536'],
             [ name: 'HMDB30537',
                     description: 'Cryptoxanthin 5,6:5\',8\'-diepoxide',
-                    primaryExternalId: 'HMDB30537'],
+                    externalId: 'HMDB30537'],
             [ name: 'HMDB30538',
                     description: 'Cryptoxanthin epoxide',
-                    primaryExternalId: 'HMDB30538']],
+                    externalId: 'HMDB30538']],
             'METABOLITE',
             'HOMO SAPIENS',
             'HMDB')
@@ -127,15 +127,19 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> metaboliteSearchKeywords =
         createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
-    List<BioDataCorrelationCoreDb> geneCorrelations = createCorrelationPairs(-3100L,
+
+    @Lazy  // Lazy so other test data can be accessed outside of a grails application context, e.g. in an APIClient
+    List<BioDataCorrelationCoreDb> geneCorrelations = { createCorrelationPairs(-3100L,
             [ geneBioMarkers.find { it.name == 'BOGUSCPOCORREL' } ], /* from */
-            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]       /* to */)
+            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]       /* to */) }()
 
-    List<BioDataCorrelationCoreDb> proteinGeneCorrelations = createCorrelationPairs(-3200L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> proteinGeneCorrelations = { createCorrelationPairs(-3200L,
             [ proteinBioMarkers.find { it.name == 'BOGUSCBPO_HUMAN' } ],
-            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ])
+            [ geneBioMarkers.find { it.name ==  'BOGUSCPO' } ]) }()
 
-    List<BioDataCorrelationCoreDb> geneProteinCorrelations = createCorrelationPairs(-3300L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> geneProteinCorrelations = { createCorrelationPairs(-3300L,
             [
                     geneBioMarkers.find { it.name ==  'AURKA' },
                     geneBioMarkers.find { it.name ==  'SLC14A2' },
@@ -145,15 +149,16 @@ class SampleBioMarkerTestData {
                     proteinBioMarkers.find { it.name == 'Adiponectin' },
                     proteinBioMarkers.find { it.name == 'Urea transporter 2' },
                     proteinBioMarkers.find { it.name == 'Adipogenesis regulatory factor' },
-            ])
+            ]) }()
 
-    List<BioDataCorrelationCoreDb> pathwayGeneCorrelation = createCorrelationPairs(-3400L,
+    @Lazy
+    List<BioDataCorrelationCoreDb> pathwayGeneCorrelation = { createCorrelationPairs(-3400L,
             [
                     pathwayBioMarkers.find { it.name == 'FOOPATHWAY'},
             ],
             [
                     geneBioMarkers.find { it.name == 'AURKA'}
-            ])
+            ]) }()
 
     /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
      * gene signature ids with bio marker ids in two ways:
@@ -257,6 +262,10 @@ class SampleBioMarkerTestData {
 
     List<SearchKeywordCoreDb> geneSignatureSearchKeywords =
         createSearchKeywordsForGeneSignatures(geneSignatures, -2300L)
+
+    List<BioMarkerCoreDb> getAllBioMarkers() {
+        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers].flatten()
+    }
 
     void saveGeneData() {
         save geneBioMarkers

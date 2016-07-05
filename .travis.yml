@@ -1,11 +1,15 @@
 language: groovy
+sudo: false
 
 jdk:
     - oraclejdk7
 
+cache:
+    directories:
+        - $HOME/.m2
+
 before_install:
     - mkdir -p ~/.m2
-    - bash -c '{ curl http://files.thehyve.net/caches/grails_2.3.3_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
     - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
     - source ~/ts-travis/init.sh
     - source ~/ts-travis/maven_dep.sh
@@ -21,6 +25,7 @@ script:
 
 after_script:
     - bash -c '[[ -z $CLOVER ]] || ./publish_clover'
+    - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   hipchat:

@@ -73,7 +73,7 @@ class MrnaTestData {
                     gplId: platform.id,
                     probeId: probeId,
                     geneSymbol: bioMarker.name,
-                    geneId: bioMarker.primaryExternalId,
+                    geneId: bioMarker.externalId,
                     organism: 'Homo sapiens',
             )
             res.id = probesetId

@@ -23,9 +23,11 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -35,6 +37,22 @@ class RnaSeqTestData {
     static final String TRIAL_NAME = 'REGION_SAMP_TRIAL_RNASEQ'
 
     static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ_RCNT'
+
+    SampleBioMarkerTestData bioMarkerTestData
+
+    private String conceptCode
+
+    RnaSeqTestData(String conceptCode = 'concept code #1',
+                 SampleBioMarkerTestData bioMarkerTestData = null) {
+        this.conceptCode = conceptCode
+        this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
+    }
+
+    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+        bioMarkerTestData.geneSearchKeywords +
+                bioMarkerTestData.proteinSearchKeywords +
+                bioMarkerTestData.geneSignatureSearchKeywords
+    }()
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
@@ -65,8 +83,9 @@ class RnaSeqTestData {
                         end: 9999,
                         numberOfProbes: 42,
                         cytoband: '1p12.1',
-                        geneSymbol: 'ERG',
                         name: 'region 1:33-9999',
+                        geneSymbol: 'ADIRF',
+                        geneId: -130753
                 ),
                 new DeChromosomalRegion(
                         platform: regionPlatform,
@@ -75,8 +94,9 @@ class RnaSeqTestData {
                         end: 99,
                         numberOfProbes: 2,
                         cytoband: '2q7.2',
-                        geneSymbol: 'TMPRSS',
                         name: 'region 2:66-99',
+                        geneSymbol: 'AURKA',
+                        geneId: -130751
                 ),
         ]
         r[0].id = -1011L
@@ -119,6 +139,8 @@ class RnaSeqTestData {
     }()
 
     void saveAll() {
+        bioMarkerTestData.saveGeneData()
+
         save([ regionPlatform, bogusTypePlatform ])
         save regions
         save patients

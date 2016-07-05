@@ -103,7 +103,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 chromosomeSegmentConstraintFactory,
                 new SimpleAnnotationConstraintFactory(field: 'region', annotationClass: DeChromosomalRegion.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jRegion', 'geneId')
+                        'GENE', 'region', 'geneId')
         ]
     }
 

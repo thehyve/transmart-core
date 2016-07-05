@@ -53,7 +53,7 @@ class RnaSeqCogTestData {
         def createAnnotation = { id, BioMarkerCoreDb gene ->
             def res = new DeRnaseqAnnotation(
                     geneSymbol:   gene.name,
-                    geneId:       gene.primaryExternalId,
+                    geneId:       gene.externalId,
                     platform:     platform
             )
             res.id = id

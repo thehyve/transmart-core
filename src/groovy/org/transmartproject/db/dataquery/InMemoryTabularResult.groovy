@@ -19,10 +19,12 @@
 
 package org.transmartproject.db.dataquery
 
+import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 
+@CompileStatic
 class InMemoryTabularResult<I extends DataColumn, R extends DataRow> implements TabularResult<I,R> {
 
     @Delegate
