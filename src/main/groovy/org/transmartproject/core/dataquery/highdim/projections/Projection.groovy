@@ -40,8 +40,9 @@ public interface Projection<CELL> {
      * the datatype it is applied to.
      *
      * The object returned from HighDimensionResource.createProjection is of
-     * type AllDataProjection. The properties on this object describe what keys
-     * the map has.
+     * type AllDataProjection. Its rowProperties property describes the
+     * properties available on the rows and the dataProperties likewise
+     * for the cell map values.
      */
     public static final ALL_DATA_PROJECTION = 'all_data'
 
