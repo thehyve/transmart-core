@@ -10,7 +10,7 @@
   
  cursor zscore_params is 
   
-   SELECT count(*)coun
+   SELECT count(*) coun
 FROM UPDATEZSCORE_PROTEOMICS;
 
   
@@ -19,7 +19,7 @@ BEGIN
 dbms_output.put_line('-');
 	TrialID := upper(trial_id);
         
-        -- call the cursor and update the z-score value for incmental data;
+        -- call the cursor and update the z-score value for incremental data;
 /*for UpdateZscore in zscore_params
  loop
  

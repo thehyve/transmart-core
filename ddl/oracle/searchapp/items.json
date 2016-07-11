@@ -166,6 +166,22 @@
       "type" : "TABLE",
       "owner" : "SEARCHAPP",
       "name" : "SEARCH_KEYWORD"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORRELATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
     } ]
   }, {
     "child" : {

@@ -1,3 +1,4 @@
+set search_path = amapp, pg_catalog;
 --
 -- Name: am_tag_value; Type: TABLE; Schema: amapp; Owner: -
 --
@@ -34,7 +35,7 @@ CREATE TRIGGER trg_am_tag_value_id BEFORE INSERT ON am_tag_value FOR EACH ROW EX
 --
 -- Name: tf_trg_am_tag_value_uid(); Type: FUNCTION; Schema: amapp; Owner: -
 --
-CREATE FUNCTION tf_trg_am_tag_value_uid() RETURNS trigger
+CREATE OR REPLACE FUNCTION tf_trg_am_tag_value_uid() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -46,7 +47,7 @@ BEGIN
   
   if rec_count = 0 then
     insert into amapp.am_data_uid (am_data_id, unique_id, am_data_type)
-    values (NEW.tag_value_id, am_tag_value_uid(NEW.tag_value_id), 'AM_TAG_VALUE');
+    values (NEW.tag_value_id, amapp.am_tag_value_uid(NEW.tag_value_id), 'AM_TAG_VALUE');
   end if;
 RETURN NEW;
 end;

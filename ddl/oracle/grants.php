@@ -60,7 +60,7 @@ $spec = [
     ],
     'SEARCHAPP' => [
         ['BIOMART', 'BIO_ASSAY_DATA_ANNOTATION', 'READ', 'GRANT_OPTION'],
-        ['BIOMART', 'BIO_MARKER_CORREL_MV',      'READ', 'GRANT_OPTION']
+        ['BIOMART', 'BIO_MARKER_CORREL_MV',      'READ', 'GRANT_OPTION'],
     ],
     'BIOMART' => [
         ['DEAPP', 'DE_METABOLITE_SUPER_PATHWAYS', 'READ', 'GRANT_OPTION'],

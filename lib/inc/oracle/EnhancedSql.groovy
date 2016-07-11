@@ -85,6 +85,7 @@ class EnhancedSql extends Sql {
             Log.warn "Warnings for statement $abbreviatedStatement"
             while (warning) {
                 Log.warn warning.message
+                Log.warn "${warning.getErrorCode()}: ${warning.getSQLState()}"
                 warning = warning.nextWarning
             }
         }
