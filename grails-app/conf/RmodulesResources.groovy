@@ -28,6 +28,9 @@ modules = {
     rnaseq_group_test {
         resource url: [plugin: 'rdc-rmodules', dir: 'js/plugin', file: 'GroupTestRNASeq.js']
     }
+    ic50_plot {
+        resource url: [plugin: 'rdc-rmodules', dir: 'js/plugin', file: 'IC50.js']
+    }
     scatter_plot {
         resource url: [plugin: 'rdc-rmodules', dir: 'js/plugin', file: 'ScatterPlot.js']
     }
