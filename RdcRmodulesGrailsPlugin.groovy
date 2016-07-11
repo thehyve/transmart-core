@@ -22,7 +22,7 @@ import org.transmartproject.core.users.User
 
 class RdcRmodulesGrailsPlugin {
     // the plugin version
-    def version = "16.1"
+    def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.2.4 > *"
     // the other plugins this plugin depends on
