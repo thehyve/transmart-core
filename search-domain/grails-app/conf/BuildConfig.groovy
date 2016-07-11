@@ -27,8 +27,8 @@ grails.project.dependency.resolution = {
 		build(":release:3.0.1",
 			":rest-client-builder:1.0.3") {
 		export = false}
-        compile ':biomart-domain:16.1'
+        compile ':biomart-domain:16.2-SNAPSHOT'
         //// already included in biomart-domain
-        //compile ':transmart-java:16.1'
+        //compile ':transmart-java:16.2-SNAPSHOT'
     }
 }
