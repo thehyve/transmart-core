@@ -49,8 +49,8 @@ grails.project.dependency.resolution = {
         }
         runtime ':resources:1.2.1'
         runtime ':hibernate:3.6.10.7'
-        compile ':rdc-rmodules:16.1'
-        compile ':transmart-legacy-db:16.1'
+        compile ':rdc-rmodules:16.2-SNAPSHOT'
+        compile ':transmart-legacy-db:16.2-SNAPSHOT'
         build ':tomcat:7.0.50'
     }
 
