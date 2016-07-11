@@ -105,7 +105,7 @@ function openPlotOptions() {
 		jQuery('#divPlotOptions').dialog("destroy");
 		jQuery('#divPlotOptions').dialog({
 			modal : false,
-			height : 250,
+			height : 300,
 			width : 400,
 			title : "Manhattan Plot Options",
 			show : 'fade',
@@ -803,9 +803,22 @@ function showFacetResults(tabToShow)	{
 
 			},
 			error: function(xhr) {
-				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-			}
-		});
+                // this is a bit bogus - but the problem is that the Jquery request is returning the HTML for the display
+                // an uncomfortable mix of data and rendering - so rather then send an error as a JSON status return
+                // it is being signaled by a 500 error status and a Grails-generated error page.
+                // but if the error page contains the string 'solrConnection' (which is most likely the case)
+                // then the probablity is high that SORL is not running on the server.
+                var html = xhr['responseText'];
+                var userMessage = "Unknown server error - data loading failed"
+                if (html.indexOf("solrConnection") > -1) {
+                    userMessage = "Server error - cannot connect to SOLR on the tranSMART server - is it running?"
+                }
+                userMessage = 'Error!  Status = ' + xhr.status + "; " + userMessage
+                alert(userMessage)
+                console.log(userMessage);
+                jQuery('#results-div').html(userMessage)
+            }
+    });
  }
  else {
 	   	jQuery.ajax({

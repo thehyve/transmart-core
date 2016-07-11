@@ -862,8 +862,8 @@ border-top: 1px solid #CCC;
 .analysis-tabs .ui-widget-header { background: transparent; border: none; border-bottom: 1px solid #c0c0c0; border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px; }
 .analysis-tabs ul .ui-state-default { background: transparent; border: none; }
 .analysis-tabs ul .ui-state-active { background: transparent url(../images/uiTabsArrow.png) no-repeat bottom center; border: none; }
-.analysis-tabs ul .ui-state-default a { color: #c0c0c0; }
-.analysis-tabs ul .ui-state-active a { color: #1b74b3; }
+.analysis-tabs ul .ui-state-default a { color: #1b74b3; }
+.analysis-tabs ul .ui-state-active a { color: #c0c0c0; }
 /* End tab CSS */
 
 
@@ -1033,4 +1033,8 @@ div.infobox {
 pre.errorstacktrace {
     font-size: 8pt;
     background-color: #EEE;
+}
+
+.note p {
+	margin: 3pt;
 }
