@@ -15,6 +15,7 @@
 \i deapp/de_encounter_level.sql
 \i deapp/de_encounter_type.sql
 \i deapp/de_gene_info.sql
+\i deapp/de_gene_source.sql
 \i deapp/de_mrna_annotation.sql
 \i deapp/de_obs_enroll_days.sql
 \i deapp/de_pathway.sql

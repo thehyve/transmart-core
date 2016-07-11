@@ -52,7 +52,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Starting I2B2_METBOLO_INC_SUB_ZSCORE',0,stepCt,'Done');
         
         
-        -- call the cursor and update the z-score value for incmental data;
+        -- call the cursor and update the z-score value for incremental data;
                   for UpdateZscore in zscore_params
                     loop
  

@@ -2081,6 +2081,13 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "TM_CZ",
+      "name" : "UPDATEZSCORE_PROTEOMICS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
       "name" : "CZ_REQUIRED_UPLOAD_FIELD"
     },
     "parents" : [ ]
@@ -14812,6 +14819,13 @@
       "name" : "TMP_TRIAL_NODES"
     },
     "file" : "tm_cz/tmp_trial_nodes.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "UPDATEZSCORE_PROTEOMICS"
+    },
+    "file" : "tm_cz/updatezscore_proteomics.sql"
   }, {
     "item" : {
       "type" : "TABLE",

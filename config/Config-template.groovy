@@ -14,7 +14,7 @@
 def catalinaBase      = System.getProperty('catalina.base') ?: '.'
 
 def explodedWarDir    = catalinaBase + '/webapps/transmart'
-def solrPort          = 8080 //port of appserver where solr runs (under ctx path /solr)
+def solrPort          = 8983 //port of appserver where solr runs (under ctx path /solr)
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
 def jobsDirectory     = "/var/tmp/jobs/"
@@ -34,6 +34,15 @@ ui {
         geneSignature.hide = false
         gwas.hide = false
         uploadData.hide = false
+        datasetExplorer {
+            gridView.hide = false
+            dataExport.hide = false
+            dataExportJobs.hide = false
+            // Note: by default the analysisJobs panel is NOT shown
+            // Currently, it is only used in special cases
+            analysisJobs.show = false
+            workspace.hide = false
+        }
     }
 }
 
@@ -112,6 +121,13 @@ environments {
         com.rwg.solr.path   = '/solr/rwg/select/'
     }
 }
+/* }}} */
+
+/* {{{ Data Upload Configuration - see GWAS plugin Data Upload page */
+// This is the value that will appear in the To: entry of the e-mail popup 
+// that is displayed when the user clicks the Email administrator button,
+// on the GWAS plugin Data Upload page
+com.recomdata.dataUpload.adminEmail = 'No data upload adminEmail value set - contact site administrator'
 /* }}} */
 
 /* {{{ Personalization */

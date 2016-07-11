@@ -49,7 +49,7 @@ BEGIN
 	jobId := currentjobId;
 
 	databaseName := 'TM_CZ';
-	procedureName := 'I2b2_back_out_trial';
+	procedureName := 'i2b2_backout_trial';
 	
 	--Audit JOB Initialization
 	--If Job ID does not exist, then this is a single procedure run and we need to create it

@@ -4843,7 +4843,7 @@
       "owner" : "BIOMART",
       "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
     },
-    "file" : "biomart/views/bio_marker_exp_analysis_mv.sql"
+    "file" : "biomart/_cross.sql"
   }, {
     "item" : {
       "type" : "REF_CONSTRAINT",
