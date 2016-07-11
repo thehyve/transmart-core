@@ -20,7 +20,6 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
-import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
 import org.hibernate.StatelessSession
@@ -43,7 +42,6 @@ import org.transmartproject.db.ontology.I2b2
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 @Log4j
-@EqualsAndHashCode(includes = 'dataTypeName')
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
     protected HighDimensionDataTypeModule module
@@ -180,5 +178,20 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     public String toString() {
         return "HighDimensionDataTypeResourceImpl{dataTypeName=$dataTypeName, " +
                 "identity=${System.identityHashCode(this)}"
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        HighDimensionDataTypeResourceImpl that = (HighDimensionDataTypeResourceImpl) o
+
+        if (dataTypeName != that.dataTypeName) return false
+
+        return true
+    }
+
+    int hashCode() {
+        return dataTypeName.hashCode()
     }
 }
