@@ -63,6 +63,23 @@ public interface Projection<CELL> {
     public static final VAR_CLASS = 'variant'
     public static final REF_ALT = 'reference'
     public static final VAR_TYPE = 'variant_type'
+
+    public static final Map<String, String> prettyNames = [
+            (LOG_INTENSITY_PROJECTION): 'Log Intensity',
+            (DEFAULT_REAL_PROJECTION) : 'Raw Intensity',
+            (ZSCORE_PROJECTION)       : 'Z-Score',
+            (LOG_NORMALIZED_READ_COUNT_PROJECTION): 'Log Normalized Readcount',
+            (REF_ALT)                 : 'Reference',
+            (VAR_CLASS)               : 'Variant',
+            (VAR_TYPE)                : 'Variant Type',
+            (PROB_LOSS)               : 'Probability of Loss',
+            (PROB_AMP)                : 'Probability of Amplification',
+            (CHIP_COPYNUMBER_VALUE)   : 'Chip Copy Number Value',
+            (SEGMENT_COPY_NUMBER_VALUE): 'Segment Copy Number Value',
+            (PROB_NORM)               : 'Probability of Normal',
+            (PROB_GAIN)               : 'Probablity of Gain'
+    ]
+
     /**
      * This method takes an implementation-defined object and returns the final
      * cell value.
