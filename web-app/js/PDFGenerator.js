@@ -89,7 +89,7 @@ function generatePdfFromHTML(domObjectId, pdfFileName) {
 
 
 function getSelectedOptionHTML(element) {
-    if (!(element = $(element))) return;
+    if (!('id' in element)) return;
     var actualElement = Ext.getDom(element.id);
     var index = actualElement.selectedIndex;
     return index >= 0 ? actualElement.options[index].innerHTML : undefined;

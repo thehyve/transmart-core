@@ -3,7 +3,7 @@
  * @type {number}
  */
 
-var RNASeqgroupTestView;
+var dgeRnaSeqView;
 
 /**
  * Buttons for Input Panel
@@ -15,15 +15,15 @@ var rgtInputBarBtnList = ['->', {  // '->' making it right aligned
     scale: 'medium',
     iconCls: 'runbutton',
     handler: function () {
-        RNASeqgroupTestView.submitGroupTestJob();
+        dgeRnaSeqView.submitDgeJob();
     }
 }];
 
-var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
+var DgeRNASeqInputWidget = Ext.extend(GenericAnalysisInputBar, {
 
     rnaseqPanel: null,
     groupPanel: null,
-    analysisTypePanel: null,
+    contrastPanel: null,
 
     statRadios: [
         {boxLabel: 'two group unpaired', name: 'stat-test-opt', XValue: 'two_group_unpaired'},
@@ -31,7 +31,7 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
     ],
 
     constructor: function (config) {
-        RNASeqGroupTestInputWidget.superclass.constructor.apply(this, arguments);
+        DgeRNASeqInputWidget.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -61,11 +61,13 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
                 columnWidth: .33
             },
             {
-                title: 'Analysis type',
-                id: 'rgt-input-analysis-type',
-                toolTipTitle: 'Tip: Statistical Test',
-                toolTipTxt: '<ul><li><i>two group unpaired</i>: differential expression test for two groups</li> ' +
-                    '<li><i>Wilcoxon</i>: differential expression test for multiple groups</li></ul>',
+                title: 'Contrast',
+                id: 'rgt-input-contrast',
+                toolTipTitle: 'Tip: Contrast',
+                toolTipTxt: 'The contrast represents the biological question. There can be many questions asked, e.g.:' +
+                    '<ul><li>Tumor-Normal</li> ' +
+                    '<ul><li>African-European</li> ' +
+                    '<li>0.5*(Control+Placebo) / Treated</li></ul>',
                 columnWidth: .34
             }
         ];
@@ -73,10 +75,13 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
         // create child panels
         this.rnaseqPanel = this.createChildPanel(childPanelConfig[0]);
         this.groupPanel = this.createChildPanel(childPanelConfig[1]);
-        this.analysisTypePanel = this.createChildPanel(childPanelConfig[2]);
+        this.contrastPanel = this.createChildPanel(childPanelConfig[2]);
 
-        // create check boxes
-        this.analysisTypePanel.add(this.createRadioBtnGroup(this.statRadios, 'analysis-type-chk-group'));
+        // create contrast input field
+        var contrastField = new Ext.form.Field({
+            fieldLabel: '', id:'contrast', name:'contrast', labelSeparator: ' ', boxLabel:''
+        });
+        this.contrastPanel.add(contrastField);
 
         // re-draw
         this.doLayout();
@@ -88,7 +93,7 @@ var RNASeqGroupTestInputWidget = Ext.extend(GenericAnalysisInputBar, {
  * @type {Array}
  * @private
  */
-var _rnaseqgrouptestgrid_columns = [
+var _dgernaseq_grid_columns = [
     {
         id: 'genes', // id assigned so we can apply custom css (e.g. .x-grid-col-topic b { color:#333 })
         header: "genes",
@@ -128,12 +133,12 @@ var _rnaseqgrouptestgrid_columns = [
  * This object represents the intermediate result grid
  * @type {*|Object}
  */
-var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+var DgeRNASeqResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
     jobName: '',
 
     constructor: function (config) {
-        RNASeqGroupTestResultGrid.superclass.constructor.apply(this, arguments);
+        DgeRNASeqResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -167,12 +172,12 @@ var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
     }
 });
 
-var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
+var DgeRNASeqResultGrid = Ext.extend(GenericAnalysisResultGrid, {
 
     jobName: '',
 
     constructor: function (config) {
-        RNASeqGroupTestResultGrid.superclass.constructor.apply(this, arguments);
+        DgeRNASeqResultGrid.superclass.constructor.apply(this, arguments);
         this.init();
     },
 
@@ -214,7 +219,7 @@ var RNASeqGroupTestResultGrid = Ext.extend(GenericAnalysisResultGrid, {
  * This class represents the whole Group Test view
  * @type {*|Object}
  */
-var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
+var DgeRNASeqView = Ext.extend(GenericAnalysisView, {
 
     // input panel
     inputBar: null,
@@ -223,7 +228,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
     resultPanel: null,
 
     // job type
-    jobType: 'RNASeqgroupTest',
+    jobType: 'DgeRNASeq',
 
     // job info
     jobInfo: null,
@@ -239,7 +244,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
         this.resetAll();
 
         // draw input panel
-        this.inputBar = new RNASeqGroupTestInputWidget({
+        this.inputBar = new DgeRNASeqInputWidget({
             id: 'rgtInputPanel',
             title: 'Input Parameters',
             iconCls: 'newbutton',
@@ -285,11 +290,10 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
         }
 
         //check if stat test values has been selected
-        var statChkGroup = this.inputBar.analysisTypePanel.getComponent('analysis-type-chk-group');
-        statisticalVal = statChkGroup.getXValues();
-        if (statisticalVal.length < 1) {
+        var contrastEl = this.inputBar.contrastPanel.getComponent('contrast');
+        if (contrastEl.getValue().trim() == '') {
             isValid = false;
-            invalidInputs.push(this.inputBar.analysisTypePanel.title);
+            invalidInputs.push(this.inputBar.contrastPanel.title);
         }
 
         if (!isValid) {
@@ -338,7 +342,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
         // get image path
         Ext.Ajax.request({
-            url: pageInfo.basePath + "/RNASeqgroupTest/imagePath",
+            url: pageInfo.basePath + "/DgeRNASeq/imagePath",
             method: 'POST',
             success: function (result, request) {
 
@@ -356,38 +360,41 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                 // Getting the template as blue print for survival curve plot.
                 // Template is defined in GroupTestRNASeq.gsp
 
-                var groupTestRNASeqPlotTpl = Ext.Template.from('template-group-test-rnaseq-plot');
-                var groupVariable = RNASeqgroupTestView.jobInfo.jobInputsJson.groupVariable;
+                var dgeRNASeqPlotTpl = Ext.Template.from('template-dge-rnaseq-plot');
+
+                var groupVariable = dgeRnaSeqView.jobInfo.jobInputsJson.groupVariable;
                 var groupVariableHtml = groupVariable ? groupVariable.replace('|', '<br />') : '';
                 // create data instance
                 var region = {
-                    filename: imagePath,
-                    jobName: RNASeqgroupTestView.jobInfo.name,
-                    startDate: RNASeqgroupTestView.jobInfo.startDate,
-                    runTime: RNASeqgroupTestView.jobInfo.runTime,
-                    inputRNASeqVariable: RNASeqgroupTestView.jobInfo.jobInputsJson.RNASeqVariable,
+                    jobName: dgeRnaSeqView.jobInfo.name,
+                    startDate: dgeRnaSeqView.jobInfo.startDate,
+                    runTime: dgeRnaSeqView.jobInfo.runTime,
+                    inputRNASeqVariable: dgeRnaSeqView.jobInfo.jobInputsJson.RNASeqVariable,
                     inputGroupVariable: groupVariableHtml,
-                    inputAnalysisType: RNASeqgroupTestView.jobInfo.jobInputsJson.analysisType,
-                    inputCohort1: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id1,
-                    inputCohort2: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id2
+                    inputAnalysisType: dgeRnaSeqView.jobInfo.jobInputsJson.contrast,
+                    inputCohort1: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id1,
+                    inputCohort2: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id2
                 };
 
+                if (imagePath) {
+                    region.filename = imagePath
+                }
                 // generate template
-                groupTestRNASeqPlotTpl.overwrite(Ext.get('rgtPlotWrapper'), region);
+                dgeRNASeqPlotTpl.overwrite(Ext.get('rgtPlotWrapper'), region);
 
                 jQuery.get(pageInfo.basePath + '/dataExport/isCurrentUserAllowedToExport',
                     {
-                        result_instance_id1: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id1,
-                        result_instance_id2: RNASeqgroupTestView.jobInfo.jobInputsJson.result_instance_id2
+                        result_instance_id1: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id1,
+                        result_instance_id2: dgeRnaSeqView.jobInfo.jobInputsJson.result_instance_id2
                     },
-                    function(data) {
+                    function (data) {
                         if (data.result) {
                             new Ext.Button({
                                 text: 'Download Result',
                                 iconCls: 'downloadbutton',
                                 renderTo: 'downloadBtn',
                                 handler: function () {
-                                    _this.downloadRNASeqGroupTestResult(jobName);
+                                    _this.downloadDgeRNASeqResult(jobName);
                                 }
                             });
                         }
@@ -399,6 +406,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
         });
     },
 
+
     /**
      * generates intermediate result in grid panel
      * @param data
@@ -406,6 +414,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
     renderResults: function (jobName, view) {
 
         var _this = this;
+
         Ext.Ajax.request({
             // retrieve information about the job (status, inputs, run-time, etc)
             url: pageInfo.basePath + "/asyncJob/getjobbyname",
@@ -435,7 +444,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                     // load using script tags for cross domain, if the data in on the same domain as
                     // this page, an HttpProxy would be better
                     proxy: new Ext.data.HttpProxy({
-                        url: pageInfo.basePath + "/RNASeqgroupTest/resultTable"
+                        url: "../DgeRNASeq/resultTable"
                     })
 
                 });
@@ -455,13 +464,13 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                 Ext.destroy(Ext.get('intermediateGridPanel'));
 
                 // create new grid and render it
-                view.intermediateResultGrid = new RNASeqGroupTestResultGrid({
+                view.intermediateResultGrid = new DgeRNASeqResultGrid({
                     id: 'intermediateGridPanel',
                     title: 'Intermediate Result - Job Name: ' + jobName,
                     renderTo: 'intermediateResultWrapper',
                     trackMouseOver: false,
                     loadMask: true,
-                    columns: _rnaseqgrouptestgrid_columns,
+                    columns: _dgernaseq_grid_columns,
                     store: store,
                     bbar: pagingbar,
                     jobName: jobName
@@ -475,7 +484,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
                 _this.createResultPlotPanel(jobName, view);
             },
             failure: function (result, request) {
-                console.log('failure ....');
+                console.log('failure ....')
             },
             params: {
                 jobName: jobName
@@ -484,7 +493,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
     },
 
-    downloadRNASeqGroupTestResult: function (jobName) {
+    downloadDgeRNASeqResult: function (jobName) {
 
         // clean up
         try {
@@ -509,13 +518,13 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
         this.renderResults(jobName, view);
     },
 
-    submitGroupTestJob: function () {
+    submitDgeJob: function () {
         var _this = this;
 
         // Fill global subset ids if null
         if ((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
             (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
-            runAllQueries(function() {_this.submitGroupTestJob();});
+            runAllQueries(function() {_this.submitDgeJob();});
             return;
         }
 
@@ -523,8 +532,8 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 
             var rnaseqVal = this.inputBar.rnaseqPanel.getConceptCode();
             var groupVals = this.inputBar.groupPanel.getConceptCodes();
-            var analysisTypeComponent = this.inputBar.analysisTypePanel.getComponent('analysis-type-chk-group');
-            var analysisTypeVal = analysisTypeComponent.getSelectedValue();
+            var contrastComponent = this.inputBar.contrastPanel.getComponent('contrast');
+            var contrastVal = contrastComponent.getValue();
 
             // create a string of all the concepts we need for the i2b2 data.
             var variablesConceptCode = rnaseqVal;
@@ -534,7 +543,7 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
             var formParams = {
                 RNASeqVariable: rnaseqVal,
                 groupVariable: groupVals,
-                analysisType: analysisTypeVal,
+                contrast: contrastVal,
                 variablesConceptPaths: variablesConceptCode,
                 analysisConstraints: JSON.stringify({
                     "job_type": _this.jobType,
@@ -566,9 +575,8 @@ var RNASeqGroupTestView = Ext.extend(GenericAnalysisView, {
 });
 
 /**
- * Invoked when user selects Group Test for RNAseq from Analysis combo box
+ * Invoked when user selects the analysis from combo box
  */
-function loadGroupTestRNASeqView() {
-    // everything starts here ..
-    RNASeqgroupTestView = new RNASeqGroupTestView();
+function loadDgeRNASeqView() {
+    dgeRnaSeqView = new DgeRNASeqView();
 }

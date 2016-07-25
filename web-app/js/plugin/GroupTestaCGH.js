@@ -261,6 +261,8 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
             renderTo: 'gtContainer',
             bbar: this.createInputToolBar()
         });
+
+        this.isSingleCohortSelected();
     },
 
     redraw: function () {
@@ -349,7 +351,7 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
 
         if (!isValid) {
             var strErrMsg = 'Following needs to be defined: ';
-            invalidInputs.each(function (item) {
+            invalidInputs.forEach(function (item) {
                 strErrMsg += '[' + item + '] ';
             })
 
@@ -379,8 +381,25 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
         return true;
     },
 
+    isSingleCohortSelected: function () {
+        if (!isSubsetEmpty(1) && !isSubsetEmpty(2)) {
+            Ext.MessageBox.show({
+                title: 'Incorrect number of subsets',
+                msg: 'It is only possible to specify one subset (Subset 1) for this test in the Comparison tab.' +
+                ' Using the Group box in this analysis it is then possible to compare chromosomal alterations' +
+                ' between different groups within this subset. Please adjust your selection.',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+            return false;
+        }
+        return true;
+    },
+
     validateInputs: function () {
-        return this.areAllMandatoryFieldsFilled() && this.isGroupFieldValid()
+        return this.areAllMandatoryFieldsFilled()
+            && this.isGroupFieldValid()
+            && this.isSingleCohortSelected();
     },
 
     createResultPlotPanel: function (jobName, view) {
@@ -465,7 +484,6 @@ var GroupTestView = Ext.extend(GenericAnalysisView, {
      * @param data
      */
     renderResults: function (jobName, view) {
-
         var _this = this;
 
         Ext.Ajax.request({

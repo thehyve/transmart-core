@@ -125,20 +125,32 @@ var SurvivalAnalysisInputBar = Ext.extend(GenericAnalysisInputBar, {
     },
 
     init: function() {
-
         // define child panel configs
+        var that = this;
         var childPanelConfig = [{
             title: 'Region',
             id:  'sa-input-region',
             isDroppable: true,
-            notifyFunc: dropOntoCategorySelection,
+            notifyFunc: function(source, e, data) {
+                if (that.regionPanel.getNumberOfConceptCodes() > 0) {
+                    Ext.Msg.alert('Single Node Required', 'Please note that only one Region data node is allowed.');
+                    return false;
+                }
+                return dropOntoCategorySelection.call(this, source, e, data);
+            },
             toolTipTitle: 'Tip: Region',
             toolTipTxt: 'Drag and drop aCGH region here.'
         },{
             title: 'Survival Time',
             id:  'sa-input-survival',
             isDroppable: true,
-            notifyFunc: dropNumericOntoCategorySelection,
+            notifyFunc: function(source, e, data) {
+                if (that.survivalPanel.getNumberOfConceptCodes() > 0) {
+                    Ext.Msg.alert('Single Node Required', 'Please note that only one Survival Time data node is allowed.');
+                    return false;
+                }
+                return dropNumericOntoCategorySelection.call(this, source, e, data);
+            },
             toolTipTitle: 'Tip: Survival Time',
             toolTipTxt: 'Drag and drop phenodata with survival data.'
         },{
@@ -465,24 +477,18 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
         if (this.inputBar.regionPanel.isEmpty()) {
             invalidInputs.push(this.inputBar.regionPanel.title);
             isValid = false;
-        } else {
-            regionVal =  this.inputBar.regionPanel.getInputEl();
         }
 
         // check if survival time  panel is empty
         if (this.inputBar.survivalPanel.isEmpty()) {
             invalidInputs.push(this.inputBar.survivalPanel.title);
             isValid = false;
-        } else {
-            survivalAnalysisVal =  this.inputBar.survivalPanel.getInputEl();
         }
 
         // check censoring variable is empty (e.g status is dead or alive)
         if (this.inputBar.censoringPanel.isEmpty()) {
             invalidInputs.push(this.inputBar.censoringPanel.title);
             isValid = false;
-        } else {
-            censoringVal =  this.inputBar.censoringPanel.getInputEl();
         }
 
         //check if alteration values has been selected
@@ -501,10 +507,9 @@ var SurvivalAnalysisACGHView = Ext.extend(GenericAnalysisView, {
 
         if (!isValid) {
             var strErrMsg = 'Following needs to be defined: ';
-            invalidInputs.each(function (item) {
+            invalidInputs.forEach(function (item) {
                 strErrMsg += '['+item + '] ';
             })
-
             // inform user on mandatory inputs need to be defined
             Ext.MessageBox.show({
                 title: 'Missing mandatory inputs',

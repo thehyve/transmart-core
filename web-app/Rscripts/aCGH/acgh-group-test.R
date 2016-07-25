@@ -46,6 +46,7 @@ acgh.group.test <- function
 
   datacgh <- data.frame()
   group.sizes <- integer()
+  no.data.groups <- c()
   for (group in groupnames) {
     # Get ids for patients in group
     group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
@@ -54,6 +55,10 @@ acgh.group.test <- function
     # Match data with selected patients
     highdimColumnsMatchingGroupIds <- match(paste("flag.",group.ids,sep=""), colnames(calls))
     highdimColumnsMatchingGroupIds <- highdimColumnsMatchingGroupIds[which(!is.na(highdimColumnsMatchingGroupIds))]
+    if (length(highdimColumnsMatchingGroupIds) <= 0) {
+        no.data.groups <- c(no.data.groups, group)
+        next
+    }
     group.calls   <- calls[ , highdimColumnsMatchingGroupIds, drop=FALSE]
     if (nrow(datacgh)==0) {
       datacgh <- group.calls
@@ -64,6 +69,16 @@ acgh.group.test <- function
     # We only use known values (-2:hom.los, -1:loss, 1:gain, 2:ampl)
     data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls==-1 | group.calls==-2), digits=3)
     data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls==1  | group.calls==2 ), digits=3)
+  }
+  if (length(no.data.groups) > 0) {
+      no.data.groups.csv <- paste(dQuote(no.data.groups), collapse=', ')
+      action.msg <- 'Please select valid group options to test alteration patterns for.'
+      stop(paste(c('For',
+                   no.data.groups.csv,
+                   'variable',
+                   if (length(no.data.groups) > 1) 's',
+                   'no data is available for the subjects in the selected Region data.', action.msg),
+                 collapse=' '))
   }
 
   nrcpus=0

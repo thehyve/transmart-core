@@ -74,6 +74,10 @@ grails.project.dependency.resolution = {
                 'org.hamcrest:hamcrest-core:1.3') {
             export     = false
         }
+
+        compile('nl.vumc.biomedbridges:WorkflowRunner:0.1.0') {
+            excludes 'slf4j-log4j12'
+        }
     }
 
     plugins {

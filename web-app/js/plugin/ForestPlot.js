@@ -497,7 +497,7 @@ function loadBinningParametersForest(formParams)
 		var suffixList = ['Dep','Indep', 'Reference', 'Stratification'];
 		
 		//Loop through each suffix and run some logic.
-		for(j=0;j<suffixList.size();j++)
+		for(var j=0;j<suffixList.length;j++)
 		{
 			//Grab the current suffix.
 			var currentSuffix = suffixList[j];
@@ -519,7 +519,7 @@ function loadBinningParametersForest(formParams)
 		if (GLOBAL.ManualBinning && (document.getElementById('chkManualBinDep').checked || document.getElementById('chkManualBinIndep').checked || document.getElementById('chkManualBinReference').checked || document.getElementById('chkManualBinStratification').checked)) 
 		{
 			//Loop through the list of HTML suffixes.
-			for(j=0;j<suffixList.size();j++)
+			for(var j=0;j<suffixList.length;j++)
 			{
 				//Grab the suffix.
 				var currentSuffix = suffixList[j];

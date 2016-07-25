@@ -533,9 +533,6 @@ GenericAnalysisView = Ext.extend(Object, {
                             icon: Ext.MessageBox.ERROR
                         });
                     }
-
-                    // update work flow status
-                    updateWorkflowStatus(jobStatusInfo);
                 },
                 failure : function(result, request)
                 {

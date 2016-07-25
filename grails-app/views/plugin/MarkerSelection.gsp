@@ -11,7 +11,7 @@
         </a>
     </h2>
 
-    <form id="analysisForm">
+    <div id="analysisForm">
         <fieldset class="inputFields">
 
             %{--High dimensional input--}%
@@ -46,6 +46,6 @@
             </div>
             <input type="button" value="Run" onClick="markerSelectionView.submit_job(this.form);" class="runAnalysisBtn">
         </fieldset>
-    </form>
+    </div>
 
 </div>

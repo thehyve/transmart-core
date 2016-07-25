@@ -24,14 +24,20 @@ var FrequencyPlotInputWidget = Ext.extend(GenericAnalysisInputBar, {
     },
 
     init: function () {
-
+        that = this;
         // define child panel configs
         var childPanelConfig = [
             {
                 title: 'Array CGH',
                 id: 'fp-input-acgh',
                 isDroppable: true,
-                notifyFunc: dropOntoCategorySelection,
+                notifyFunc: function(source, e, data) {
+                    if (that.acghPanel.getNumberOfConceptCodes() > 0) {
+                        Ext.Msg.alert('Single Node Required', 'Please note that only one Region data node is allowed.');
+                        return false;
+                    }
+                    return dropOntoCategorySelection.call(this, source, e, data);
+                },
                 toolTipTitle: 'Tip: array CGH',
                 toolTipTxt: 'Drag and drop aCGH data here.',
                 columnWidth: .5

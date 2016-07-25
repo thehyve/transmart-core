@@ -379,7 +379,7 @@ TableWithFisherView.prototype.load_binning_parameters = function (formParams)
         var suffixList = ['Dep','Indep'];
 
         //Loop through each suffix and run some logic.
-        for(j=0;j<suffixList.size();j++)
+        for(var j=0;j<suffixList.length;j++)
         {
             //Grab the current suffix.
             var currentSuffix = suffixList[j];
@@ -401,7 +401,7 @@ TableWithFisherView.prototype.load_binning_parameters = function (formParams)
         if (GLOBAL.ManualBinning && (document.getElementById('chkManualBinDep').checked || document.getElementById('chkManualBinIndep').checked))
         {
             //Loop through the list of HTML suffixes.
-            for(j=0;j<suffixList.size();j++)
+            for(var j=0;j<suffixList.length;j++)
             {
                 //Grab the suffix.
                 var currentSuffix = suffixList[j];

@@ -67,17 +67,17 @@ function createAdvancedWorkflowMenu(result) {
                 disabled : false,
                 menu : advMenu
                     }
-//                ,'->',
-//                    {
-//                        text : 'Save to PDF',
-//                iconCls : 'savepdfbutton',
-//                hidden : false,
-//                id : 'savetopdfbtn',
-//                handler: function(){
-//                    generatePdfFromHTML('dataAssociationBody', 'DataAssociation.pdf');
-//                }
-//                    }
-                );
+                ,'->',
+                {
+                    text: 'Save to PDF',
+                    iconCls: 'savepdfbutton',
+                    hidden: false,
+                    id: 'savetopdfbtn',
+                    handler: function() {
+                        generatePdfFromHTML('dataAssociationPanel', 'DataAssociation.pdf');
+                    }
+                }
+            );
     }
 }
 
@@ -135,6 +135,9 @@ function loadAnalysisPage(itemId, isCompletedJob, jobName) {
                         break;
                     case 'acghFrequencyPlot' :
                         frequencyPlotView.renderResults(jobName, frequencyPlotView);
+                        break;
+                    case 'DgeRNASeq' :
+                        dgeRnaSeqView.renderResults(jobName, dgeRnaSeqView);
                         break;
                 }
             }
@@ -603,13 +606,15 @@ function setupCategoricalItemsList (strDivSource, strDivTarget) {
     for ( var i = 0, n = categoricalSourceDiv.dom.childNodes.length; i < n; ++i) {
         // clone and append
         var newnode = categoricalSourceDiv.dom.childNodes[i].cloneNode(true);
+        //Draggable node has to have only text content.
+        jQuery(newnode).text(newnode.textContent);
         categoricalTargetDiv.dom.appendChild(newnode);
         // add drag handler
         Ext.dd.Registry.register(newnode, {
             el : newnode
         });
     }
-    var dragZone = new Ext.dd.DragZone(categoricalTargetDiv.dom.parentNode, {
+    new Ext.dd.DragZone(categoricalTargetDiv.dom.parentNode, {
         ddGroup : 'makeBin',
         isTarget: true,
         ignoreSelf: false
