@@ -1,4 +1,7 @@
 class Blend4jPluginGrailsPlugin {
+
+    public static final String TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME = 'transmartExtensionsRegistry'
+
     // the plugin version
     def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
@@ -49,7 +52,13 @@ Brief summary/description of the plugin.
     }
 
     def doWithApplicationContext = { ctx ->
-        // TODO Implement post initialization spring config (optional)
+        def grailsApplication = ctx.getBean('grailsApplication')
+        boolean galaxyEnabled = grailsApplication.config.com.galaxy.blend4j.galaxyEnabled
+        if (galaxyEnabled && ctx.containsBean(TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME)) {
+            ctx.getBean(TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME)
+                    .registerAnalysisTabExtension('blend4j-plugin',
+                    '/Blend4jPlugin/loadScripts', 'addGalaxyPanel', )
+        }
     }
 
     def onChange = { event ->
