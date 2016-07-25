@@ -33,13 +33,6 @@ class Subset {
 	Long queryID2;
 	String study
 	
-	String emailLink;
-	String link;
-	String displayDate;
-	
-	
-static transients = ['emailLink','link', 'displayDate']
-	
 static mapping = {
  table 'SEARCHAPP.SUBSET'
  version false
