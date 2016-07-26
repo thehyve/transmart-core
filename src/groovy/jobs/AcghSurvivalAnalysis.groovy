@@ -1,11 +1,13 @@
 package jobs
 
+import com.recomdata.transmart.util.ZipService
 import jobs.steps.*
 import jobs.steps.helpers.CensorColumnConfigurator
 import jobs.steps.helpers.NumericColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
@@ -36,6 +38,12 @@ class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBe
 
     @Autowired
     Table table
+
+    @Autowired
+    GrailsApplication grailsApplication
+
+    @Autowired
+    ZipService zipService
 
     @Override
     void afterPropertiesSet() throws Exception {
@@ -92,6 +100,10 @@ class AcghSurvivalAnalysis extends AbstractAnalysisJob implements InitializingBe
                 studyName: studyName,
                 params: params,
                 extraParams: [inputFileName: DEFAULT_OUTPUT_FILE_NAME])
+
+        steps << new ZipResultsStep(jobName: params.jobName,
+                grailsApplication: grailsApplication,
+                zipService: zipService)
 
         steps
     }
