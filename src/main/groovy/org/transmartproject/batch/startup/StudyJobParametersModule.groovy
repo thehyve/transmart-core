@@ -19,7 +19,7 @@ final class StudyJobParametersModule implements ExternalJobParametersModule {
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        mungeBoolean(ejp, SECURITY_REQUIRED, false)
+        mungeBoolean(ejp, SECURITY_REQUIRED, true)
 
         if (!ejp[TOP_NODE]) {
             def prefix = ejp[SECURITY_REQUIRED] == 'Y' ?
