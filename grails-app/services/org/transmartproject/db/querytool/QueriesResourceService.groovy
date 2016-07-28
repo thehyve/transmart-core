@@ -20,6 +20,7 @@
 package org.transmartproject.db.querytool
 
 import grails.transaction.Transactional
+import grails.gorm.DetachedCriteria
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -167,6 +168,14 @@ class QueriesResourceService implements QueriesResource {
         QtQueryResultInstance.get(id) ?:
                 {  throw new NoSuchResourceException(
                         "Could not find query result instance with id $id") }()
+    }
+
+    @Override
+    List<QueryResult> getQueryResultsByUsername(String username) {
+        def query = QtQueryResultInstance.where {
+            queryInstance.userId == username
+        }
+        query.findAll()
     }
 
     @Override
