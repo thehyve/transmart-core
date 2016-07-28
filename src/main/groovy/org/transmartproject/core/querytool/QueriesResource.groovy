@@ -50,4 +50,13 @@ interface QueriesResource {
      * @throws NoSuchResourceException if the definition cannot be found
      */
     QueryDefinition getQueryDefinitionForResult(QueryResult result) throws NoSuchResourceException
+
+    /**
+     * Fetches a list of {@link QueryResult} by username.
+     *
+     * @param username of the creator of queries from which QueryResult originated
+     * @return List of all QueryResults created by given user
+     */
+    List<QueryResult> getQueryResultsByUsername(String username)
+
 }
