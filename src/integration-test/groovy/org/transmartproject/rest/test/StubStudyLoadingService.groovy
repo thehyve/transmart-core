@@ -51,8 +51,9 @@ class StubStudyLoadingService extends StudyLoadingService {
                             getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)},
                             getStudy: { -> study },
                             getChildren: { -> [] },
-                            getLevel: { -> 0 } //just to make sure we have no parent
-                            //getLevel: { -> key.split('\\\\').length }
+                            getLevel: { -> 0 }, //just to make sure we have no parent
+                            //getLevel: { -> key.split('\\\\').length },
+                            getPatientCount: { -> 0}
                     ] as OntologyTerm
                 }
         ] as Study
