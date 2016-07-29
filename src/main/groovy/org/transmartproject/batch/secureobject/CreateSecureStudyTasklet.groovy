@@ -43,7 +43,7 @@ class CreateSecureStudyTasklet implements Tasklet {
         }
 
         secureObjectDAO.createSecureObject(
-                displayName, studyId, secureObjectToken)
+                displayName, secureObjectToken)
     }
 
     private String getDisplayName() {
