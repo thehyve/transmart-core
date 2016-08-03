@@ -58,7 +58,8 @@ class RbmTestData {
                     uniprotId: uniprotId,
                     uniprotName: uniprotName,
                     geneSymbol: geneSymbol,
-                    geneId: geneId
+                    geneId: geneId,
+                    platform: platform
             )
             res.id = id
             res

@@ -68,6 +68,7 @@ class MirnaTestData {
             def res = new DeQpcrMirnaAnnotation(
                     mirnaId: mirna,
                     detector: detector,
+                    platform: platform
             )
             res.id = probesetId
             res
